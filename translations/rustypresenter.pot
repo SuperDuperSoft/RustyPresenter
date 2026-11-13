@@ -52,7 +52,7 @@ msgstr ""
 msgid "Paste a YouTube link here"
 msgstr ""
 
-#: ui/dialogs/add-media.slint
+#: ui/dialogs/add-media.slint ui/dialogs/settings-follow.slint src/ui/dialogs/settings_model.rs
 msgid "Download"
 msgstr ""
 
@@ -172,7 +172,7 @@ msgstr ""
 msgid "Add announcement"
 msgstr ""
 
-#: ui/dialogs/add.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
+#: ui/dialogs/add.slint ui/dialogs/settings-follow.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Song"
 msgstr ""
 
@@ -216,7 +216,7 @@ msgstr ""
 msgid "Not in the lyrics — it is skipped"
 msgstr ""
 
-#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
+#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr ""
 
@@ -1041,7 +1041,7 @@ msgstr ""
 msgid "Video: {}"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr ""
 
@@ -1255,6 +1255,33 @@ msgstr ""
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Background"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Follow the singers"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "Suggest: the next slide glows. Auto: the slides move by themselves."
+msgstr ""
+
+#: ui/dialogs/item-edit.slint
+msgid "As in Settings"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint src/follow/strings.rs src/i18n/remote_strings.rs
+msgctxt "auto-follow"
+msgid "Manual"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint src/follow/strings.rs src/i18n/remote_strings.rs
+msgctxt "auto-follow"
+msgid "Suggest"
+msgstr ""
+
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint src/follow/strings.rs src/i18n/remote_strings.rs
+msgctxt "auto-follow"
+msgid "Auto"
 msgstr ""
 
 #: ui/dialogs/item-edit.slint
@@ -1929,6 +1956,158 @@ msgstr ""
 msgid "Credits"
 msgstr ""
 
+#: ui/dialogs/settings-follow.slint
+msgid "RustyPresenter listens to the band and moves the song's slides by itself. The sound never leaves this computer."
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Listening"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Sound input"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "The main mix from the sound desk works best."
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Sound level"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Test"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Sing or say a line: the meter moves when it hears you."
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Songs follow the singers"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "A song can have its own in Edit item. Key A turns Auto on and off for the live song, H holds it."
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Timing"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Show the next slide before it is sung"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Early enough to read, not so early that people sing ahead."
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "{} s"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "When nobody sings"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Take the words off after (seconds)"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "When someone talks or prays"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Jump to another part of the song after (words heard in a row)"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "More words: fewer wrong jumps, but slower to follow a change in the order."
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Listening model"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Speech model"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Downloaded once, then it works without internet. Apache-2.0, by Facebook AI."
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Fast (English)"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Best (all languages)"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Installed ✓ ({})"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Download ({})"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Test speed"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Tries the downloaded models on this PC and says which one suits it."
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint ui/dialogs/settings-media.slint
+msgid "Recording"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "No recording chosen"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Choose recording…"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Practice"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "What auto-follow would have done shows here."
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Every slide change auto-follow made or suggested since RustyPresenter started: when, what, why, and how sure it was."
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Nothing yet: auto-follow hasn't moved or suggested a slide."
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Copy to clipboard"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
+msgid "Settings"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Review log"
+msgstr ""
+
 #: ui/dialogs/settings-keys.slint
 msgid "Keyboard"
 msgstr ""
@@ -2195,10 +2374,6 @@ msgstr ""
 
 #: ui/dialogs/settings-media.slint
 msgid "Right speaker only"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Recording"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
@@ -2537,6 +2712,22 @@ msgstr ""
 msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
 msgstr ""
 
+#: ui/dialogs/settings.slint src/video/bench.rs
+msgid "Test which is fastest"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "About 30 seconds. Test windows open and close while it runs."
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Use this"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Restart now"
+msgstr ""
+
 #: ui/dialogs/settings.slint
 msgid "Performance"
 msgstr ""
@@ -2643,6 +2834,10 @@ msgstr ""
 
 #: ui/dialogs/settings.slint
 msgid "Language"
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Auto-follow"
 msgstr ""
 
 #: ui/dialogs/settings.slint src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
@@ -3227,6 +3422,30 @@ msgstr ""
 msgid "Walk-in music songs and volume"
 msgstr ""
 
+#: ui/operator/follow.slint
+msgid "Review log…"
+msgstr ""
+
+#: ui/operator/follow.slint
+msgid "Practice with a recording…"
+msgstr ""
+
+#: ui/operator/follow.slint
+msgid "Auto-follow settings…"
+msgstr ""
+
+#: ui/operator/follow.slint
+msgid "Auto-follow options"
+msgstr ""
+
+#: ui/operator/follow.slint src/i18n/remote_strings.rs
+msgid "Holding"
+msgstr ""
+
+#: ui/operator/follow.slint src/i18n/remote_strings.rs
+msgid "Hold"
+msgstr ""
+
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
 msgstr ""
@@ -3691,10 +3910,6 @@ msgstr ""
 msgid "Phone"
 msgstr ""
 
-#: ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
-msgid "Settings"
-msgstr ""
-
 #: ui/operator.slint
 msgid "File"
 msgstr ""
@@ -4093,6 +4308,10 @@ msgstr ""
 
 #: ui/widgets.slint
 msgid "Select all"
+msgstr ""
+
+#: src/app.rs src/ui/dialogs/settings_follow.rs
+msgid "no microphone or line-in found"
 msgstr ""
 
 #: src/app.rs src/transfer.rs
@@ -4561,6 +4780,134 @@ msgstr ""
 
 #: src/bible.rs
 msgid "Paste the verse text first."
+msgstr ""
+
+#: src/follow/audio.rs
+msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Recording."
+msgstr ""
+
+#: src/follow/audio.rs
+msgid "FFmpeg stopped"
+msgstr ""
+
+#: src/follow/engine.rs
+msgid "Auto-follow stopped: the sound input is gone ({error}). Move the slides by hand."
+msgstr ""
+
+#: src/follow/engine.rs
+msgid "heard \"{words}\""
+msgstr ""
+
+#: src/follow/engine.rs
+msgid "singing again"
+msgstr ""
+
+#: src/follow/engine.rs
+msgid "talking for {secs} s"
+msgstr ""
+
+#: src/follow/engine.rs
+msgid "no singing for {secs} s"
+msgstr ""
+
+#: src/follow/fetch.rs
+msgid "{address} stopped part way"
+msgstr ""
+
+#: src/follow/log.rs
+msgid "Slide {number}"
+msgstr ""
+
+#: src/follow/log.rs
+msgid "Suggested slide {number}"
+msgstr ""
+
+#: src/follow/log.rs
+msgid "Words off"
+msgstr ""
+
+#: src/follow/log.rs
+msgid "Words back on slide {number}"
+msgstr ""
+
+#: src/follow/strings.rs
+msgid "Songs follow the singers. Click: Manual → Suggest (the next slide glows) → Auto (the slides move by themselves). Key: A turns Auto on and off. ⋯ beside it: the review log, Practice and the settings."
+msgstr ""
+
+#: src/follow/strings.rs src/i18n/remote_strings.rs
+msgid "Not listening"
+msgstr ""
+
+#: src/follow/strings.rs src/i18n/remote_strings.rs
+msgid "Listening…"
+msgstr ""
+
+#: src/follow/strings.rs src/i18n/remote_strings.rs
+msgid "Following the singers"
+msgstr ""
+
+#: src/follow/strings.rs src/i18n/remote_strings.rs
+msgid "Not sure — staying on this slide"
+msgstr ""
+
+#: src/follow/strings.rs src/i18n/remote_strings.rs
+msgid "Holding — the slides stay put"
+msgstr ""
+
+#: src/follow/strings.rs src/i18n/remote_strings.rs
+msgid "Nobody singing — words off"
+msgstr ""
+
+#: src/follow/strings.rs
+msgid "off"
+msgstr ""
+
+#: src/follow/strings.rs
+msgid "listening"
+msgstr ""
+
+#: src/follow/strings.rs
+msgid "following"
+msgstr ""
+
+#: src/follow/strings.rs
+msgid "not sure"
+msgstr ""
+
+#: src/follow/strings.rs
+msgid "holding"
+msgstr ""
+
+#: src/follow/strings.rs
+msgid "words off"
+msgstr ""
+
+#: src/follow/strings.rs
+msgid "Hold: auto-follow doesn't move the slides until you click again. Key: H"
+msgstr ""
+
+#: src/follow/strings.rs
+msgid "{mode}: {state} — {section}"
+msgstr ""
+
+#: src/follow/strings.rs
+msgid "{mode}: {state}"
+msgstr ""
+
+#: src/follow/strings.rs
+msgid "Auto-follow on"
+msgstr ""
+
+#: src/follow/strings.rs
+msgid "Auto-follow off"
+msgstr ""
+
+#: src/follow/strings.rs
+msgid "Hold on: the slides stay put"
+msgstr ""
+
+#: src/follow/strings.rs
+msgid "Hold off"
 msgstr ""
 
 #: src/i18n/mod.rs src/ui/dialogs/translation_editor.rs
@@ -5413,6 +5760,14 @@ msgid "Clear group: {name}"
 msgstr ""
 
 #: src/shortcuts.rs
+msgid "Auto-follow on or off for the live song"
+msgstr ""
+
+#: src/shortcuts.rs
+msgid "Hold auto-follow (the slides stay put)"
+msgstr ""
+
+#: src/shortcuts.rs
 msgid "Everything but the background"
 msgstr ""
 
@@ -5572,7 +5927,7 @@ msgstr ""
 msgid "Delete “{name}”?"
 msgstr ""
 
-#: src/strings/add.rs src/strings/dialogs.rs
+#: src/strings/add.rs src/strings/dialogs.rs src/video/bench.rs
 msgid "OK"
 msgstr ""
 
@@ -9168,6 +9523,56 @@ msgstr ""
 msgid "{time} UTC"
 msgstr ""
 
+#: src/ui/dialogs/settings.rs
+msgid "Save your other changes and restart?"
+msgstr ""
+
+#: src/ui/dialogs/settings.rs
+msgid "Save and restart"
+msgstr ""
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "The first one found"
+msgstr ""
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "{name} (not connected)"
+msgstr ""
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Review log copied"
+msgstr ""
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "{title} (in this service)"
+msgstr ""
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Practicing… this takes about a minute for a 5-minute song."
+msgstr ""
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Done: {n} change."
+msgid_plural "Done: {n} changes."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Practice stopped: {error}"
+msgstr ""
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Listening… sing or say a line."
+msgstr ""
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Can't listen to this input: {error}"
+msgstr ""
+
+#: src/ui/dialogs/settings_graphics.rs
+msgid "Yes, test now"
+msgstr ""
+
 #: src/ui/dialogs/settings_keys.rs
 msgid "Show a message on the screen"
 msgstr ""
@@ -9222,6 +9627,86 @@ msgstr ""
 
 #: src/ui/dialogs/settings_media.rs
 msgid "Clean up"
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs
+msgid "{size} GB"
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs
+msgid "{size} MB"
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs
+msgid "Best runs fine here."
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs
+msgid "Use Fast on this PC: Best is too slow here."
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs
+msgid "Fast runs fine here. Download Best to check it too."
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs
+msgid "Download a model first, then test its speed."
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs
+msgid "This PC is too slow for the speech models: auto-follow will only take the words off when nobody sings."
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs
+msgid "Couldn't reach the download site. Check the internet and try again: it goes on where it stopped."
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs
+msgid "The download was damaged and was thrown away. Try again."
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs
+msgid "The disk is full. Make room and try again."
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs
+msgid "Download stopped. Download again to go on where it stopped."
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs
+msgid "The download didn't work. Try again."
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs
+msgid "Downloading…"
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs
+msgid "Downloading… {done} of {total}"
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs
+msgid "Installed. Auto-follow now listens with it."
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs
+msgid "Removed."
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs
+msgid "Couldn't remove it: {error}"
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs
+msgid "Testing… this takes a few seconds."
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs
+msgid "Auto-follow needs a speech model ({size}). Download now?"
+msgstr ""
+
+#: src/ui/dialogs/settings_model.rs src/ui/operator/record.rs src/video/bench.rs
+msgid "Not now"
 msgstr ""
 
 #: src/ui/dialogs/settings_themes.rs
@@ -9345,6 +9830,10 @@ msgstr ""
 
 #: src/ui/operator/file_input.rs
 msgid "PowerPoint (.pptx)"
+msgstr ""
+
+#: src/ui/operator/file_input.rs
+msgid "Recording (video or sound)"
 msgstr ""
 
 #: src/ui/operator/help.rs
@@ -9477,10 +9966,6 @@ msgstr ""
 
 #: src/ui/operator/record.rs
 msgid "Get FFmpeg"
-msgstr ""
-
-#: src/ui/operator/record.rs
-msgid "Not now"
 msgstr ""
 
 #: src/ui/operator/record.rs
@@ -9711,6 +10196,38 @@ msgstr ""
 
 #: src/undo.rs
 msgid "the last change"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "Smooth"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "Choppy"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "Didn't work"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "Testing {mode}… ({at} of {count})"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About 30 seconds"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "Want me to find the best graphics for this PC? About 30 seconds"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "{mode} is the best for this PC. Automatic will use it from the next start."
 msgstr ""
 
 #: src/video/ffi.rs
