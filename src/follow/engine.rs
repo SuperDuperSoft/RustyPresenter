@@ -215,7 +215,11 @@ impl Engine {
         } else {
             Light::Unsure
         };
-        if mode == Mode::Manual || blocked { return }
+        if mode == Mode::Manual || blocked {
+            // Not looking: what the rules heard before is old by the time they look again.
+            run.rules.resume();
+            return;
+        }
 
         let Some(action) = run.rules.tick(now, &run.pos, self.voice, self.onsets, live.slide) else { return };
         let said = match run.pos.word {
@@ -229,13 +233,18 @@ impl Engine {
                 new.then_some((LogAction::Suggest(n), said))
             }
             FollowAction::Show(n) | FollowAction::Unblank(n) => {
-                let moved = mode == Mode::Auto && (n != live.slide || !live.words_up) && host.show(live.item_id, n, live.version);
+                let want = mode == Mode::Auto && (n != live.slide || !live.words_up);
+                let moved = want && host.show(live.item_id, n, live.version);
                 if moved { run.seen = (n, true) }
+                // Refused (someone else changed the screen at that moment): still blank, try again next look.
+                if want && !moved && matches!(action, FollowAction::Unblank(_)) { run.rules.set_blanked(true) }
                 let what = if matches!(action, FollowAction::Show(_)) { LogAction::Show(n) } else { LogAction::Unblank(n) };
                 moved.then_some((what, said))
             }
             FollowAction::Blank => {
-                let cleared = mode == Mode::Auto && live.words_up && host.clear_slide(live.version);
+                let want = mode == Mode::Auto && live.words_up;
+                let cleared = want && host.clear_slide(live.version);
+                if want && !cleared { run.rules.set_blanked(false) }
                 if cleared {
                     run.seen = (live.slide, false);
                     self.state.light = Light::Blank;

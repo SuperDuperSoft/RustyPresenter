@@ -294,3 +294,122 @@ fn just_behind_after_an_early_change_holds() {
     // Slide 1 went up early; the singers finish slide 0's last line.
     for (i, w) in (8..=13).enumerate() { assert_eq!(r.tick(t7 + i as f64 * 0.3, &at(w), Voice::Singing, 2.0, 1), None) }
 }
+
+/// The two-slide song's last slide live, its words 2..=5 sung, then music until the words come off.
+fn ended_song() -> (SongText, Rules) {
+    let s = song(&["amazing grace", "how sweet the sound"]);
+    let mut r = Rules::new(auto(4.0), &s);
+    for (i, w) in (2..=5).enumerate() { r.tick(i as f64 * 0.3, &at(w), Voice::Singing, 2.0, 1); }
+    let mut acts = vec![];
+    for i in 0..60 { acts.extend(r.tick(1.0 + i as f64 * 0.1, &at(5), Voice::Music, 3.0, 1)) }
+    assert_eq!(acts, [Blank]);
+    (s, r)
+}
+
+#[test]
+fn a_tag_under_a_loud_band_brings_the_words_back() {
+    let (_s, mut r) = ended_song();
+    // The label still says music: one heard word is not enough, two in a row are.
+    assert_eq!(r.tick(9.0, &at(2), Voice::Music, 3.0, 1), None);
+    assert_eq!(r.tick(9.4, &at(3), Voice::Music, 3.0, 1), Some(Unblank(1)));
+    // Under a singing label one word is enough.
+    let (_s, mut r) = ended_song();
+    assert_eq!(r.tick(9.0, &at(2), Voice::Singing, 3.0, 1), Some(Unblank(1)));
+}
+
+#[test]
+fn a_spoken_word_then_a_flicker_of_singing_keeps_the_words_off() {
+    let (_s, mut r) = ended_song();
+    // In the prayer a song word is heard, under a talking label; later the label flickers to singing.
+    assert_eq!(r.tick(112.0, &at(2), Voice::Speaking, 0.0, 1), None);
+    for i in 0..40 { assert_eq!(r.tick(112.1 + i as f64 * 0.1, &at(2), Voice::Singing, 0.0, 1), None, "{i}") }
+    assert!(r.blanked());
+    // A place left over from long ago does not count either.
+    let (_s, mut r) = ended_song();
+    assert_eq!(r.tick(9.0, &at(2), Voice::Music, 3.0, 1), None);
+    for i in 0..40 { assert_eq!(r.tick(20.0 + i as f64 * 0.1, &at(2), Voice::Singing, 0.0, 1), None, "{i}") }
+}
+
+#[test]
+fn talk_straight_after_the_last_word_still_ends_the_song() {
+    let s = song(&["amazing grace", "how sweet the sound"]);
+    let mut r = Rules::new(auto(4.0), &s);
+    for (i, w) in (2..=5).enumerate() { r.tick(i as f64 * 0.3, &at(w), Voice::Singing, 2.0, 1); }
+    // "Amen, let's pray": the place goes off-script before the five seconds are up.
+    let lost = Position { confidence: 0.0, off_script: true, ..at(5) };
+    let mut acts = vec![];
+    let mut when = 0.0;
+    for i in 0..80 {
+        let t = 2.0 + i as f64 * 0.1;
+        if let Some(a) = r.tick(t, &lost, Voice::Speaking, 0.0, 1) { acts.push(a); when = t }
+    }
+    assert_eq!(acts, [Blank]);
+    assert!((5.8..=6.1).contains(&when), "five seconds after the last word (0.9 s), was {when}");
+}
+
+#[test]
+fn the_quiet_counts_from_the_last_word_not_from_an_older_label() {
+    let s = song(&["amazing grace", "how sweet the sound"]);
+    let mut r = Rules::new(auto(4.0), &s);
+    r.tick(20.0, &at(2), Voice::Singing, 2.0, 1);
+    // The last line arrives late and unsure under a music label, then turns sure.
+    let unsure = Position { confidence: 0.2, ..at(5) };
+    assert_eq!(r.tick(26.0, &unsure, Voice::Music, 3.0, 1), None);
+    assert_eq!(r.tick(26.1, &at(5), Voice::Music, 3.0, 1), None, "not the moment the last word arrives");
+    assert_eq!(r.tick(30.9, &at(5), Voice::Music, 3.0, 1), None);
+    assert_eq!(r.tick(31.1, &at(5), Voice::Music, 3.0, 1), Some(Blank));
+}
+
+#[test]
+fn the_pace_is_measured_across_the_ears_batches() {
+    // Six one-syllable words a second, delivered three at a time every half second.
+    let s = hymn();
+    let mut r = Rules::new(Settings { mode: Mode::Suggest, ..auto(0.5) }, &s);
+    for batch in 0..4 {
+        for k in 0..3 { r.tick(batch as f64 * 0.5, &at(batch * 3 + k), Voice::Singing, 2.0, 0); }
+    }
+    let pace = r.pace().expect("a pace");
+    assert!((5.5..=6.5).contains(&pace), "about 6 syllables a second, was {pace}");
+}
+
+#[test]
+fn switching_to_automatic_in_the_pause_puts_the_next_words_up() {
+    let s = hymn();
+    let mut r = Rules::new(Settings { mode: Mode::Suggest, ..auto(2.0) }, &s);
+    let (t, _) = sing_to(&mut r, 13, 0);
+    // A long held chord after the slide's last word; then the operator switches Suggest to Automatic.
+    for i in 0..30 { r.tick(t + 0.3 + i as f64 * 0.1, &at(13), Voice::Music, 3.0, 0); }
+    r.set_settings(auto(2.0));
+    assert_eq!(r.tick(t + 4.0, &at(13), Voice::Music, 3.0, 0), Some(Show(1)));
+}
+
+#[test]
+fn a_timer_starts_again_after_the_operators_move_and_after_a_hold() {
+    let s = hymn();
+    // The operator puts the words back long after the last singing: a full timer runs before the next blank.
+    let mut r = Rules::new(timed(2.0), &s);
+    r.tick(0.0, &nowhere(), Voice::Singing, 2.0, 0);
+    assert_eq!(r.tick(100.0, &nowhere(), Voice::Music, 3.0, 0), Some(Blank));
+    r.reset();
+    assert_eq!(r.tick(100.1, &nowhere(), Voice::Music, 3.0, 0), None);
+    assert_eq!(r.tick(103.0, &nowhere(), Voice::Music, 3.0, 0), None);
+    assert_eq!(r.tick(103.2, &nowhere(), Voice::Music, 3.0, 0), Some(Blank));
+    // Hold was on through a minute of singing the rules never saw; released in a breath.
+    let mut r = Rules::new(timed(2.0), &s);
+    r.tick(0.0, &nowhere(), Voice::Singing, 2.0, 0);
+    r.resume();
+    assert_eq!(r.tick(60.5, &nowhere(), Voice::Music, 3.0, 0), None);
+    assert_eq!(r.tick(63.6, &nowhere(), Voice::Music, 3.0, 0), Some(Blank));
+}
+
+#[test]
+fn a_refused_blank_or_unblank_is_tried_again() {
+    let (_s, mut r) = ended_song();
+    // The screen did not take the blank: the rules ask again.
+    r.set_blanked(false);
+    assert_eq!(r.tick(8.0, &at(5), Voice::Music, 3.0, 1), Some(Blank));
+    // The screen did not take the un-blank: asked again on the next look.
+    assert_eq!(r.tick(9.0, &at(2), Voice::Singing, 3.0, 1), Some(Unblank(1)));
+    r.set_blanked(true);
+    assert_eq!(r.tick(9.1, &at(2), Voice::Singing, 3.0, 1), Some(Unblank(1)));
+}
