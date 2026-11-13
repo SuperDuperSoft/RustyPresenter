@@ -5927,7 +5927,7 @@ msgstr ""
 msgid "Delete “{name}”?"
 msgstr ""
 
-#: src/strings/add.rs src/strings/dialogs.rs src/video/bench.rs
+#: src/strings/add.rs src/strings/dialogs.rs
 msgid "OK"
 msgstr ""
 
@@ -10200,6 +10200,11 @@ msgstr ""
 
 #: src/video/bench.rs
 msgid "Smooth"
+msgstr ""
+
+#: src/video/bench.rs
+msgctxt "graphics test result"
+msgid "OK"
 msgstr ""
 
 #: src/video/bench.rs

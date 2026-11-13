@@ -1,15 +1,6 @@
 # German for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: de\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Native-Name: Deutsch\n"
-"X-English-Name: German\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: de\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Native-Name: Deutsch\nX-English-Name: German\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -1262,30 +1253,30 @@ msgstr "Hintergrund"
 
 #: ui/dialogs/item-edit.slint
 msgid "Follow the singers"
-msgstr ""
+msgstr "Den Sängern folgen"
 
 #: ui/dialogs/item-edit.slint
 msgid "Suggest: the next slide glows. Auto: the slides move by themselves."
-msgstr ""
+msgstr "Vorschlagen: Die nächste Folie leuchtet. Auto: Die Folien wechseln von selbst."
 
 #: ui/dialogs/item-edit.slint
 msgid "As in Settings"
-msgstr ""
+msgstr "Wie in den Einstellungen"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint src/follow/strings.rs src/i18n/remote_strings.rs
 msgctxt "auto-follow"
 msgid "Manual"
-msgstr ""
+msgstr "Manuell"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint src/follow/strings.rs src/i18n/remote_strings.rs
 msgctxt "auto-follow"
 msgid "Suggest"
-msgstr ""
+msgstr "Vorschlagen"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint src/follow/strings.rs src/i18n/remote_strings.rs
 msgctxt "auto-follow"
 msgid "Auto"
-msgstr ""
+msgstr "Auto"
 
 #: ui/dialogs/item-edit.slint
 msgid "Advance slides automatically"
@@ -1961,115 +1952,115 @@ msgstr "Quellenangaben"
 
 #: ui/dialogs/settings-follow.slint
 msgid "RustyPresenter listens to the band and moves the song's slides by itself. The sound never leaves this computer."
-msgstr ""
+msgstr "RustyPresenter hört der Band zu und wechselt die Folien des Lieds von selbst. Der Ton verlässt diesen Computer nie."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Listening"
-msgstr ""
+msgstr "Zuhören"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sound input"
-msgstr ""
+msgstr "Toneingang"
 
 #: ui/dialogs/settings-follow.slint
 msgid "The main mix from the sound desk works best."
-msgstr ""
+msgstr "Am besten eignet sich der Summenmix vom Mischpult."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sound level"
-msgstr ""
+msgstr "Tonpegel"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Test"
-msgstr ""
+msgstr "Testen"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sing or say a line: the meter moves when it hears you."
-msgstr ""
+msgstr "Singen oder sprechen Sie eine Zeile: Die Anzeige bewegt sich, wenn sie Sie hört."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Songs follow the singers"
-msgstr ""
+msgstr "Lieder folgen den Sängern"
 
 #: ui/dialogs/settings-follow.slint
 msgid "A song can have its own in Edit item. Key A turns Auto on and off for the live song, H holds it."
-msgstr ""
+msgstr "Jedes Lied kann unter „Element bearbeiten“ eine eigene Einstellung haben. Taste A schaltet Auto für das Live-Lied ein und aus, H hält es an."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Timing"
-msgstr ""
+msgstr "Timing"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Show the next slide before it is sung"
-msgstr ""
+msgstr "Nächste Folie zeigen, bevor sie gesungen wird"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Early enough to read, not so early that people sing ahead."
-msgstr ""
+msgstr "Früh genug zum Lesen, aber nicht so früh, dass die Gemeinde vorsingt."
 
 #: ui/dialogs/settings-follow.slint
 msgid "{} s"
-msgstr ""
+msgstr "{} s"
 
 #: ui/dialogs/settings-follow.slint
 msgid "When nobody sings"
-msgstr ""
+msgstr "Wenn niemand singt"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Take the words off after (seconds)"
-msgstr ""
+msgstr "Text ausblenden nach (Sekunden)"
 
 #: ui/dialogs/settings-follow.slint
 msgid "When someone talks or prays"
-msgstr ""
+msgstr "Wenn jemand spricht oder betet"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Jump to another part of the song after (words heard in a row)"
-msgstr ""
+msgstr "Zu einem anderen Liedteil springen nach (Wörtern in Folge)"
 
 #: ui/dialogs/settings-follow.slint
 msgid "More words: fewer wrong jumps, but slower to follow a change in the order."
-msgstr ""
+msgstr "Mehr Wörter: weniger falsche Sprünge, folgt aber langsamer einer geänderten Reihenfolge."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Listening model"
-msgstr ""
+msgstr "Hörmodell"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Speech model"
-msgstr ""
+msgstr "Sprachmodell"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Downloaded once, then it works without internet. Apache-2.0, by Facebook AI."
-msgstr ""
+msgstr "Einmal herunterladen, dann funktioniert es ohne Internet. Apache-2.0, von Facebook AI."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Fast (English)"
-msgstr ""
+msgstr "Schnell (Englisch)"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Best (all languages)"
-msgstr ""
+msgstr "Beste (alle Sprachen)"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Installed ✓ ({})"
-msgstr ""
+msgstr "Installiert ✓ ({})"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Download ({})"
-msgstr ""
+msgstr "Herunterladen ({})"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Test speed"
-msgstr ""
+msgstr "Tempo testen"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Tries the downloaded models on this PC and says which one suits it."
-msgstr ""
+msgstr "Probiert die heruntergeladenen Modelle auf diesem PC aus und sagt, welches passt."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
-msgstr ""
+msgstr "Spielen Sie eine Aufnahme (z. B. vom letzten Sonntag) durch Auto-Folgen, um zu sehen, was es tun würde. Auf den Bildschirmen ändert sich nichts."
 
 #: ui/dialogs/settings-follow.slint ui/dialogs/settings-media.slint
 msgid "Recording"
@@ -2077,31 +2068,31 @@ msgstr "Aufnahme"
 
 #: ui/dialogs/settings-follow.slint
 msgid "No recording chosen"
-msgstr ""
+msgstr "Keine Aufnahme gewählt"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Choose recording…"
-msgstr ""
+msgstr "Aufnahme wählen…"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Practice"
-msgstr ""
+msgstr "Üben"
 
 #: ui/dialogs/settings-follow.slint
 msgid "What auto-follow would have done shows here."
-msgstr ""
+msgstr "Hier erscheint, was Auto-Folgen getan hätte."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Every slide change auto-follow made or suggested since RustyPresenter started: when, what, why, and how sure it was."
-msgstr ""
+msgstr "Jeder Folienwechsel, den Auto-Folgen seit dem Start von RustyPresenter gemacht oder vorgeschlagen hat: wann, was, warum und wie sicher."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Nothing yet: auto-follow hasn't moved or suggested a slide."
-msgstr ""
+msgstr "Noch nichts: Auto-Folgen hat noch keine Folie gewechselt oder vorgeschlagen."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Copy to clipboard"
-msgstr ""
+msgstr "In die Zwischenablage kopieren"
 
 #: ui/dialogs/settings-follow.slint ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
 msgid "Settings"
@@ -2109,7 +2100,7 @@ msgstr "Einstellungen"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Review log"
-msgstr ""
+msgstr "Protokoll"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Keyboard"
@@ -2717,19 +2708,19 @@ msgstr "Ändern Sie dies nur, wenn die Bildschirme flackern, schwarz bleiben ode
 
 #: ui/dialogs/settings.slint src/video/bench.rs
 msgid "Test which is fastest"
-msgstr ""
+msgstr "Schnellste testen"
 
 #: ui/dialogs/settings.slint
 msgid "About 30 seconds. Test windows open and close while it runs."
-msgstr ""
+msgstr "Etwa 30 Sekunden. Währenddessen öffnen und schließen sich Testfenster."
 
 #: ui/dialogs/settings.slint
 msgid "Use this"
-msgstr ""
+msgstr "Verwenden"
 
 #: ui/dialogs/settings.slint
 msgid "Restart now"
-msgstr ""
+msgstr "Jetzt neu starten"
 
 #: ui/dialogs/settings.slint
 msgid "Performance"
@@ -2841,7 +2832,7 @@ msgstr "Sprache"
 
 #: ui/dialogs/settings.slint
 msgid "Auto-follow"
-msgstr ""
+msgstr "Auto-Folgen"
 
 #: ui/dialogs/settings.slint src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Video"
@@ -2948,20 +2939,8 @@ msgid "Starts a new slide where the cursor is"
 msgstr "Beginnt an der Cursorposition eine neue Folie"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"Strophe 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Refrain\n"
-"My chains are gone…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "Strophe 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nRefrain\nMy chains are gone…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -3433,27 +3412,27 @@ msgstr "Lieder und Lautstärke der Einlassmusik"
 
 #: ui/operator/follow.slint
 msgid "Review log…"
-msgstr ""
+msgstr "Protokoll…"
 
 #: ui/operator/follow.slint
 msgid "Practice with a recording…"
-msgstr ""
+msgstr "Mit einer Aufnahme üben…"
 
 #: ui/operator/follow.slint
 msgid "Auto-follow settings…"
-msgstr ""
+msgstr "Einstellungen für Auto-Folgen…"
 
 #: ui/operator/follow.slint
 msgid "Auto-follow options"
-msgstr ""
+msgstr "Optionen für Auto-Folgen"
 
 #: ui/operator/follow.slint src/i18n/remote_strings.rs
 msgid "Holding"
-msgstr ""
+msgstr "Angehalten"
 
 #: ui/operator/follow.slint src/i18n/remote_strings.rs
 msgid "Hold"
-msgstr ""
+msgstr "Anhalten"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
@@ -4321,7 +4300,7 @@ msgstr "Alles auswählen"
 
 #: src/app.rs src/ui/dialogs/settings_follow.rs
 msgid "no microphone or line-in found"
-msgstr ""
+msgstr "kein Mikrofon oder Line-Eingang gefunden"
 
 #: src/app.rs src/transfer.rs
 msgid "Could not save: {error}"
@@ -4793,131 +4772,131 @@ msgstr "Fügen Sie zuerst den Verstext ein."
 
 #: src/follow/audio.rs
 msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Recording."
-msgstr ""
+msgstr "Auto-Folgen braucht FFmpeg, um den Raum zu hören. Laden Sie es unter Einstellungen → Aufnahme herunter."
 
 #: src/follow/audio.rs
 msgid "FFmpeg stopped"
-msgstr ""
+msgstr "FFmpeg wurde beendet"
 
 #: src/follow/engine.rs
 msgid "Auto-follow stopped: the sound input is gone ({error}). Move the slides by hand."
-msgstr ""
+msgstr "Auto-Folgen gestoppt: Der Toneingang ist weg ({error}). Wechseln Sie die Folien von Hand."
 
 #: src/follow/engine.rs
 msgid "heard \"{words}\""
-msgstr ""
+msgstr "„{words}“ gehört"
 
 #: src/follow/engine.rs
 msgid "singing again"
-msgstr ""
+msgstr "wieder Gesang"
 
 #: src/follow/engine.rs
 msgid "talking for {secs} s"
-msgstr ""
+msgstr "seit {secs} s wird gesprochen"
 
 #: src/follow/engine.rs
 msgid "no singing for {secs} s"
-msgstr ""
+msgstr "seit {secs} s kein Gesang"
 
 #: src/follow/fetch.rs
 msgid "{address} stopped part way"
-msgstr ""
+msgstr "{address} hat mittendrin aufgehört"
 
 #: src/follow/log.rs
 msgid "Slide {number}"
-msgstr ""
+msgstr "Folie {number}"
 
 #: src/follow/log.rs
 msgid "Suggested slide {number}"
-msgstr ""
+msgstr "Vorgeschlagene Folie {number}"
 
 #: src/follow/log.rs
 msgid "Words off"
-msgstr ""
+msgstr "Text aus"
 
 #: src/follow/log.rs
 msgid "Words back on slide {number}"
-msgstr ""
+msgstr "Text wieder an auf Folie {number}"
 
 #: src/follow/strings.rs
 msgid "Songs follow the singers. Click: Manual → Suggest (the next slide glows) → Auto (the slides move by themselves). Key: A turns Auto on and off. ⋯ beside it: the review log, Practice and the settings."
-msgstr ""
+msgstr "Lieder folgen den Sängern. Klick: Manuell → Vorschlagen (die nächste Folie leuchtet) → Auto (die Folien wechseln von selbst). Taste: A schaltet Auto ein und aus. ⋯ daneben: Protokoll, Üben und Einstellungen."
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Not listening"
-msgstr ""
+msgstr "Hört nicht zu"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Listening…"
-msgstr ""
+msgstr "Hört zu…"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Following the singers"
-msgstr ""
+msgstr "Folgt den Sängern"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Not sure — staying on this slide"
-msgstr ""
+msgstr "Unsicher – bleibt auf dieser Folie"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Holding — the slides stay put"
-msgstr ""
+msgstr "Angehalten – die Folien bleiben stehen"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Nobody singing — words off"
-msgstr ""
+msgstr "Niemand singt – Text aus"
 
 #: src/follow/strings.rs
 msgid "off"
-msgstr ""
+msgstr "aus"
 
 #: src/follow/strings.rs
 msgid "listening"
-msgstr ""
+msgstr "hört zu"
 
 #: src/follow/strings.rs
 msgid "following"
-msgstr ""
+msgstr "folgt"
 
 #: src/follow/strings.rs
 msgid "not sure"
-msgstr ""
+msgstr "unsicher"
 
 #: src/follow/strings.rs
 msgid "holding"
-msgstr ""
+msgstr "angehalten"
 
 #: src/follow/strings.rs
 msgid "words off"
-msgstr ""
+msgstr "Text aus"
 
 #: src/follow/strings.rs
 msgid "Hold: auto-follow doesn't move the slides until you click again. Key: H"
-msgstr ""
+msgstr "Anhalten: Auto-Folgen wechselt keine Folien, bis Sie erneut klicken. Taste: H"
 
 #: src/follow/strings.rs
 msgid "{mode}: {state} — {section}"
-msgstr ""
+msgstr "{mode}: {state} – {section}"
 
 #: src/follow/strings.rs
 msgid "{mode}: {state}"
-msgstr ""
+msgstr "{mode}: {state}"
 
 #: src/follow/strings.rs
 msgid "Auto-follow on"
-msgstr ""
+msgstr "Auto-Folgen an"
 
 #: src/follow/strings.rs
 msgid "Auto-follow off"
-msgstr ""
+msgstr "Auto-Folgen aus"
 
 #: src/follow/strings.rs
 msgid "Hold on: the slides stay put"
-msgstr ""
+msgstr "Angehalten: Die Folien bleiben stehen"
 
 #: src/follow/strings.rs
 msgid "Hold off"
-msgstr ""
+msgstr "Anhalten aus"
 
 #: src/i18n/mod.rs src/ui/dialogs/translation_editor.rs
 msgid "it is not saved as UTF-8 text"
@@ -5770,11 +5749,11 @@ msgstr "Leer-Gruppe: {name}"
 
 #: src/shortcuts.rs
 msgid "Auto-follow on or off for the live song"
-msgstr ""
+msgstr "Auto-Folgen für das Live-Lied ein- oder ausschalten"
 
 #: src/shortcuts.rs
 msgid "Hold auto-follow (the slides stay put)"
-msgstr ""
+msgstr "Auto-Folgen anhalten (die Folien bleiben stehen)"
 
 #: src/shortcuts.rs
 msgid "Everything but the background"
@@ -5936,7 +5915,7 @@ msgstr "Der Videoplayer fehlt – RustyPresenter neu installieren"
 msgid "Delete “{name}”?"
 msgstr "„{name}“ löschen?"
 
-#: src/strings/add.rs src/strings/dialogs.rs src/video/bench.rs
+#: src/strings/add.rs src/strings/dialogs.rs
 msgid "OK"
 msgstr "OK"
 
@@ -7924,12 +7903,8 @@ msgid "Settings saved"
 msgstr "Einstellungen gespeichert"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
-"O Gnade Gottes, wunderbar\n"
-"hast du errettet mich"
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "O Gnade Gottes, wunderbar\nhast du errettet mich"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -9536,53 +9511,53 @@ msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
 msgid "Save your other changes and restart?"
-msgstr ""
+msgstr "Ihre anderen Änderungen speichern und neu starten?"
 
 #: src/ui/dialogs/settings.rs
 msgid "Save and restart"
-msgstr ""
+msgstr "Speichern und neu starten"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "The first one found"
-msgstr ""
+msgstr "Das erste gefundene"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "{name} (not connected)"
-msgstr ""
+msgstr "{name} (nicht verbunden)"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Review log copied"
-msgstr ""
+msgstr "Protokoll kopiert"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "{title} (in this service)"
-msgstr ""
+msgstr "{title} (in diesem Gottesdienst)"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Practicing… this takes about a minute for a 5-minute song."
-msgstr ""
+msgstr "Üben… dauert bei einem 5-minütigen Lied etwa eine Minute."
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Done: {n} change."
 msgid_plural "Done: {n} changes."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Fertig: {n} Wechsel."
+msgstr[1] "Fertig: {n} Wechsel."
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Practice stopped: {error}"
-msgstr ""
+msgstr "Üben gestoppt: {error}"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Listening… sing or say a line."
-msgstr ""
+msgstr "Hört zu… singen oder sprechen Sie eine Zeile."
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Can't listen to this input: {error}"
-msgstr ""
+msgstr "Dieser Eingang kann nicht abgehört werden: {error}"
 
 #: src/ui/dialogs/settings_graphics.rs
 msgid "Yes, test now"
-msgstr ""
+msgstr "Ja, jetzt testen"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Show a message on the screen"
@@ -9642,79 +9617,79 @@ msgstr "Aufräumen"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "{size} GB"
-msgstr ""
+msgstr "{size} GB"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "{size} MB"
-msgstr ""
+msgstr "{size} MB"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Best runs fine here."
-msgstr ""
+msgstr "„Beste“ läuft hier gut."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Use Fast on this PC: Best is too slow here."
-msgstr ""
+msgstr "Verwenden Sie auf diesem PC „Schnell“: „Beste“ ist hier zu langsam."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Fast runs fine here. Download Best to check it too."
-msgstr ""
+msgstr "„Schnell“ läuft hier gut. Laden Sie „Beste“ herunter, um es auch zu prüfen."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Download a model first, then test its speed."
-msgstr ""
+msgstr "Laden Sie zuerst ein Modell herunter und testen Sie dann sein Tempo."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "This PC is too slow for the speech models: auto-follow will only take the words off when nobody sings."
-msgstr ""
+msgstr "Dieser PC ist zu langsam für die Sprachmodelle: Auto-Folgen blendet den Text nur aus, wenn niemand singt."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Couldn't reach the download site. Check the internet and try again: it goes on where it stopped."
-msgstr ""
+msgstr "Die Download-Seite ist nicht erreichbar. Prüfen Sie die Internetverbindung und versuchen Sie es erneut: Es geht dort weiter, wo es aufgehört hat."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "The download was damaged and was thrown away. Try again."
-msgstr ""
+msgstr "Der Download war beschädigt und wurde verworfen. Versuchen Sie es erneut."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "The disk is full. Make room and try again."
-msgstr ""
+msgstr "Der Datenträger ist voll. Schaffen Sie Platz und versuchen Sie es erneut."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Download stopped. Download again to go on where it stopped."
-msgstr ""
+msgstr "Download gestoppt. Laden Sie erneut herunter, um dort weiterzumachen, wo er aufgehört hat."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "The download didn't work. Try again."
-msgstr ""
+msgstr "Der Download hat nicht funktioniert. Versuchen Sie es erneut."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Downloading…"
-msgstr ""
+msgstr "Wird heruntergeladen…"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Downloading… {done} of {total}"
-msgstr ""
+msgstr "Wird heruntergeladen… {done} von {total}"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Installed. Auto-follow now listens with it."
-msgstr ""
+msgstr "Installiert. Auto-Folgen hört jetzt damit zu."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Removed."
-msgstr ""
+msgstr "Entfernt."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Couldn't remove it: {error}"
-msgstr ""
+msgstr "Konnte nicht entfernt werden: {error}"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Testing… this takes a few seconds."
-msgstr ""
+msgstr "Test läuft… dauert ein paar Sekunden."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Auto-follow needs a speech model ({size}). Download now?"
-msgstr ""
+msgstr "Auto-Folgen braucht ein Sprachmodell ({size}). Jetzt herunterladen?"
 
 #: src/ui/dialogs/settings_model.rs src/ui/operator/record.rs src/video/bench.rs
 msgid "Not now"
@@ -9727,20 +9702,12 @@ msgstr[0] "{n} fertiges Design anzeigen"
 msgstr[1] "{n} fertige Designs anzeigen"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"Easter Sunday\n"
-"Services at 9 and 11 am"
-msgstr ""
-"Ostersonntag\n"
-"Gottesdienste um 9 und 11 Uhr"
+msgid "Easter Sunday\nServices at 9 and 11 am"
+msgstr "Ostersonntag\nGottesdienste um 9 und 11 Uhr"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"“Be still, and know that I am God.”\n"
-"Psalm 46:10"
-msgstr ""
-"„Seid stille und erkennet, dass ich Gott bin!“\n"
-"Psalm 46:10"
+msgid "“Be still, and know that I am God.”\nPsalm 46:10"
+msgstr "„Seid stille und erkennet, dass ich Gott bin!“\nPsalm 46:10"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "God's grace is enough"
@@ -9751,14 +9718,8 @@ msgid "Youth camp in the mountains"
 msgstr "Jugendfreizeit in den Bergen"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"Pray every day\n"
-"Read the Bible\n"
-"Serve your neighbour"
-msgstr ""
-"Täglich beten\n"
-"Bibel lesen\n"
-"Dem Nächsten dienen"
+msgid "Pray every day\nRead the Bible\nServe your neighbour"
+msgstr "Täglich beten\nBibel lesen\nDem Nächsten dienen"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
@@ -9852,7 +9813,7 @@ msgstr "PowerPoint (.pptx)"
 
 #: src/ui/operator/file_input.rs
 msgid "Recording (video or sound)"
-msgstr ""
+msgstr "Aufnahme (Video oder Ton)"
 
 #: src/ui/operator/help.rs
 msgid "This computer does not let RustyPresenter move the mouse pointer. Look for it on each screen."
@@ -10218,35 +10179,40 @@ msgstr "die letzte Änderung"
 
 #: src/video/bench.rs
 msgid "Smooth"
-msgstr ""
+msgstr "Flüssig"
+
+#: src/video/bench.rs
+msgctxt "graphics test result"
+msgid "OK"
+msgstr "Gut"
 
 #: src/video/bench.rs
 msgid "Choppy"
-msgstr ""
+msgstr "Ruckelig"
 
 #: src/video/bench.rs
 msgid "Didn't work"
-msgstr ""
+msgstr "Ging nicht"
 
 #: src/video/bench.rs
 msgid "Testing {mode}… ({at} of {count})"
-msgstr ""
+msgstr "{mode} wird getestet… ({at} von {count})"
 
 #: src/video/bench.rs
 msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About 30 seconds"
-msgstr ""
+msgstr "Die Grafikkarte oder ihr Treiber hat sich geändert. Soll ich erneut die beste Grafik für diesen PC suchen? Etwa 30 Sekunden"
 
 #: src/video/bench.rs
 msgid "Want me to find the best graphics for this PC? About 30 seconds"
-msgstr ""
+msgstr "Soll ich die beste Grafik für diesen PC suchen? Etwa 30 Sekunden"
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
-msgstr ""
+msgstr "Keine der Grafikoptionen hat im Test funktioniert. RustyPresenter behält die aktuelle Einstellung."
 
 #: src/video/bench.rs
 msgid "{mode} is the best for this PC. Automatic will use it from the next start."
-msgstr ""
+msgstr "{mode} ist für diesen PC am besten. „Automatisch“ verwendet es ab dem nächsten Start."
 
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."

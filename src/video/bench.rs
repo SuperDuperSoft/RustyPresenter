@@ -6,7 +6,7 @@
 //! The results are kept in `<data>/graphics-test.json` (`Record`) with the graphics card's name and driver as each
 //! choice reported them. Automatic then uses the winner (`auto_pick`) instead of OpenGL, until the card or driver
 //! changes (`driver_changed`), which marks the record stale and offers the test again (`offer`).
-use crate::{model::Graphics, tr};
+use crate::{model::Graphics, tr, trc};
 use serde::{Deserialize, Serialize};
 use std::{ffi::OsString, io, path::{Path, PathBuf}, time::{Duration, Instant}};
 
@@ -67,7 +67,7 @@ pub fn verdict(m: &Measured) -> Verdict {
 pub fn word(v: Verdict) -> String {
     match v {
         Verdict::Smooth => tr!("Smooth"),
-        Verdict::Ok => tr!("OK"),
+        Verdict::Ok => trc!("graphics test result", "OK"),
         Verdict::Choppy => tr!("Choppy"),
         Verdict::Failed => tr!("Didn't work"),
     }

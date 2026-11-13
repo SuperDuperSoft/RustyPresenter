@@ -1,15 +1,6 @@
 # Haitian Creole for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: ht\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Native-Name: Kreyòl ayisyen\n"
-"X-English-Name: Haitian Creole\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: ht\nPlural-Forms: nplurals=2; plural=(n != 1);\nX-Native-Name: Kreyòl ayisyen\nX-English-Name: Haitian Creole\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -1262,30 +1253,30 @@ msgstr "Fon"
 
 #: ui/dialogs/item-edit.slint
 msgid "Follow the singers"
-msgstr ""
+msgstr "Swiv chantè yo"
 
 #: ui/dialogs/item-edit.slint
 msgid "Suggest: the next slide glows. Auto: the slides move by themselves."
-msgstr ""
+msgstr "Sijere: pwochen diapo a klere. Oto: diapo yo pase pou kont yo."
 
 #: ui/dialogs/item-edit.slint
 msgid "As in Settings"
-msgstr ""
+msgstr "Menm jan ak Paramèt"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint src/follow/strings.rs src/i18n/remote_strings.rs
 msgctxt "auto-follow"
 msgid "Manual"
-msgstr ""
+msgstr "Manyèl"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint src/follow/strings.rs src/i18n/remote_strings.rs
 msgctxt "auto-follow"
 msgid "Suggest"
-msgstr ""
+msgstr "Sijere"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint src/follow/strings.rs src/i18n/remote_strings.rs
 msgctxt "auto-follow"
 msgid "Auto"
-msgstr ""
+msgstr "Oto"
 
 #: ui/dialogs/item-edit.slint
 msgid "Advance slides automatically"
@@ -1961,115 +1952,115 @@ msgstr "Kredi"
 
 #: ui/dialogs/settings-follow.slint
 msgid "RustyPresenter listens to the band and moves the song's slides by itself. The sound never leaves this computer."
-msgstr ""
+msgstr "RustyPresenter koute mizisyen yo epi li fè diapo chante a pase pou kont li. Son an pa janm kite òdinatè sa a."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Listening"
-msgstr ""
+msgstr "Koute"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sound input"
-msgstr ""
+msgstr "Antre son"
 
 #: ui/dialogs/settings-follow.slint
 msgid "The main mix from the sound desk works best."
-msgstr ""
+msgstr "Pi bon an se mix prensipal ki soti nan konsòl son an."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sound level"
-msgstr ""
+msgstr "Nivo son"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Test"
-msgstr ""
+msgstr "Teste"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sing or say a line: the meter moves when it hears you."
-msgstr ""
+msgstr "Chante oswa di yon liy: mèt la ap bouje lè li tande w."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Songs follow the singers"
-msgstr ""
+msgstr "Chante yo swiv chantè yo"
 
 #: ui/dialogs/settings-follow.slint
 msgid "A song can have its own in Edit item. Key A turns Auto on and off for the live song, H holds it."
-msgstr ""
+msgstr "Chak chante ka gen pa l nan Modifye eleman. Touch A limen ak etenn Oto pou chante ki an dirèk la, H kenbe l."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Timing"
-msgstr ""
+msgstr "Distribisyon tan"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Show the next slide before it is sung"
-msgstr ""
+msgstr "Montre pwochen diapo a anvan yo chante l"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Early enough to read, not so early that people sing ahead."
-msgstr ""
+msgstr "Bonè ase pou moun li, men pa twò bonè pou moun pa chante devan."
 
 #: ui/dialogs/settings-follow.slint
 msgid "{} s"
-msgstr ""
+msgstr "{} s"
 
 #: ui/dialogs/settings-follow.slint
 msgid "When nobody sings"
-msgstr ""
+msgstr "Lè pèsonn pa chante"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Take the words off after (seconds)"
-msgstr ""
+msgstr "Retire pawòl yo apre (segonn)"
 
 #: ui/dialogs/settings-follow.slint
 msgid "When someone talks or prays"
-msgstr ""
+msgstr "Lè yon moun ap pale oswa ap priye"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Jump to another part of the song after (words heard in a row)"
-msgstr ""
+msgstr "Sote nan yon lòt pati chante a apre (mo yo tande youn dèyè lòt)"
 
 #: ui/dialogs/settings-follow.slint
 msgid "More words: fewer wrong jumps, but slower to follow a change in the order."
-msgstr ""
+msgstr "Plis mo: mwens move sote, men li pi lan pou swiv yon chanjman nan lòd la."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Listening model"
-msgstr ""
+msgstr "Modèl pou koute"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Speech model"
-msgstr ""
+msgstr "Modèl vwa"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Downloaded once, then it works without internet. Apache-2.0, by Facebook AI."
-msgstr ""
+msgstr "Telechaje yon sèl fwa, apre sa li mache san entènèt. Apache-2.0, pa Facebook AI."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Fast (English)"
-msgstr ""
+msgstr "Rapid (angle)"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Best (all languages)"
-msgstr ""
+msgstr "Pi bon (tout lang)"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Installed ✓ ({})"
-msgstr ""
+msgstr "Enstale ✓ ({})"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Download ({})"
-msgstr ""
+msgstr "Telechaje ({})"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Test speed"
-msgstr ""
+msgstr "Teste vitès"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Tries the downloaded models on this PC and says which one suits it."
-msgstr ""
+msgstr "Eseye modèl ki telechaje yo sou PC sa a epi di kiyès ki mache pou li."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
-msgstr ""
+msgstr "Jwe yon anrejistreman (pa egzanp sa dimanch pase a) nan swiv otomatik pou wè sa li ta fè. Anyen pa chanje sou ekran yo."
 
 #: ui/dialogs/settings-follow.slint ui/dialogs/settings-media.slint
 msgid "Recording"
@@ -2077,31 +2068,31 @@ msgstr "Anrejistreman"
 
 #: ui/dialogs/settings-follow.slint
 msgid "No recording chosen"
-msgstr ""
+msgstr "Pa gen anrejistreman chwazi"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Choose recording…"
-msgstr ""
+msgstr "Chwazi anrejistreman…"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Practice"
-msgstr ""
+msgstr "Pratike"
 
 #: ui/dialogs/settings-follow.slint
 msgid "What auto-follow would have done shows here."
-msgstr ""
+msgstr "Sa swiv otomatik ta fè a parèt isit la."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Every slide change auto-follow made or suggested since RustyPresenter started: when, what, why, and how sure it was."
-msgstr ""
+msgstr "Chak chanjman diapo swiv otomatik fè oswa sijere depi RustyPresenter te kòmanse: kilè, kisa, poukisa, ak ki jan li te sèten."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Nothing yet: auto-follow hasn't moved or suggested a slide."
-msgstr ""
+msgstr "Anyen poko genyen: swiv otomatik poko pase ni sijere okenn diapo."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Copy to clipboard"
-msgstr ""
+msgstr "Kopye nan klipbòd la"
 
 #: ui/dialogs/settings-follow.slint ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
 msgid "Settings"
@@ -2109,7 +2100,7 @@ msgstr "Paramèt"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Review log"
-msgstr ""
+msgstr "Jounal"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Keyboard"
@@ -2717,19 +2708,19 @@ msgstr "Chanje sa sèlman si ekran yo ap tranble, rete nwa oswa RustyPresenter a
 
 #: ui/dialogs/settings.slint src/video/bench.rs
 msgid "Test which is fastest"
-msgstr ""
+msgstr "Teste kiyès ki pi rapid"
 
 #: ui/dialogs/settings.slint
 msgid "About 30 seconds. Test windows open and close while it runs."
-msgstr ""
+msgstr "Anviwon 30 segonn. Fenèt tès ap ouvri epi fèmen pandan l ap mache."
 
 #: ui/dialogs/settings.slint
 msgid "Use this"
-msgstr ""
+msgstr "Sèvi ak sa a"
 
 #: ui/dialogs/settings.slint
 msgid "Restart now"
-msgstr ""
+msgstr "Rekòmanse kounye a"
 
 #: ui/dialogs/settings.slint
 msgid "Performance"
@@ -2841,7 +2832,7 @@ msgstr "Lang"
 
 #: ui/dialogs/settings.slint
 msgid "Auto-follow"
-msgstr ""
+msgstr "Swiv oto"
 
 #: ui/dialogs/settings.slint src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Video"
@@ -2948,20 +2939,8 @@ msgid "Starts a new slide where the cursor is"
 msgstr "Kòmanse yon nouvo diapo kote kurseur la ye"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"[Kouplè 1]\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"[Koral]\n"
-"My chains are gone…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "[Kouplè 1]\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\n[Koral]\nMy chains are gone…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -3433,27 +3412,27 @@ msgstr "Chante ak volim mizik akèy la"
 
 #: ui/operator/follow.slint
 msgid "Review log…"
-msgstr ""
+msgstr "Jounal…"
 
 #: ui/operator/follow.slint
 msgid "Practice with a recording…"
-msgstr ""
+msgstr "Pratike ak yon anrejistreman…"
 
 #: ui/operator/follow.slint
 msgid "Auto-follow settings…"
-msgstr ""
+msgstr "Paramèt swiv otomatik…"
 
 #: ui/operator/follow.slint
 msgid "Auto-follow options"
-msgstr ""
+msgstr "Opsyon swiv otomatik"
 
 #: ui/operator/follow.slint src/i18n/remote_strings.rs
 msgid "Holding"
-msgstr ""
+msgstr "An poz"
 
 #: ui/operator/follow.slint src/i18n/remote_strings.rs
 msgid "Hold"
-msgstr ""
+msgstr "Kenbe"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
@@ -4321,7 +4300,7 @@ msgstr "Chwazi tout"
 
 #: src/app.rs src/ui/dialogs/settings_follow.rs
 msgid "no microphone or line-in found"
-msgstr ""
+msgstr "pa jwenn okenn mikwo oswa antre liy"
 
 #: src/app.rs src/transfer.rs
 msgid "Could not save: {error}"
@@ -4793,131 +4772,131 @@ msgstr "Kole tèks vèsè a anvan."
 
 #: src/follow/audio.rs
 msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Recording."
-msgstr ""
+msgstr "Swiv otomatik bezwen FFmpeg pou tande sal la. Telechaje l nan Paramèt → Anrejistreman."
 
 #: src/follow/audio.rs
 msgid "FFmpeg stopped"
-msgstr ""
+msgstr "FFmpeg kanpe"
 
 #: src/follow/engine.rs
 msgid "Auto-follow stopped: the sound input is gone ({error}). Move the slides by hand."
-msgstr ""
+msgstr "Swiv otomatik kanpe: antre son an disparèt ({error}). Pase diapo yo ak men."
 
 #: src/follow/engine.rs
 msgid "heard \"{words}\""
-msgstr ""
+msgstr "tande \"{words}\""
 
 #: src/follow/engine.rs
 msgid "singing again"
-msgstr ""
+msgstr "y ap chante ankò"
 
 #: src/follow/engine.rs
 msgid "talking for {secs} s"
-msgstr ""
+msgstr "y ap pale depi {secs} s"
 
 #: src/follow/engine.rs
 msgid "no singing for {secs} s"
-msgstr ""
+msgstr "pèsonn pa chante depi {secs} s"
 
 #: src/follow/fetch.rs
 msgid "{address} stopped part way"
-msgstr ""
+msgstr "{address} kanpe nan mitan"
 
 #: src/follow/log.rs
 msgid "Slide {number}"
-msgstr ""
+msgstr "Diapo {number}"
 
 #: src/follow/log.rs
 msgid "Suggested slide {number}"
-msgstr ""
+msgstr "Diapo sijere {number}"
 
 #: src/follow/log.rs
 msgid "Words off"
-msgstr ""
+msgstr "Pawòl retire"
 
 #: src/follow/log.rs
 msgid "Words back on slide {number}"
-msgstr ""
+msgstr "Pawòl yo tounen sou diapo {number}"
 
 #: src/follow/strings.rs
 msgid "Songs follow the singers. Click: Manual → Suggest (the next slide glows) → Auto (the slides move by themselves). Key: A turns Auto on and off. ⋯ beside it: the review log, Practice and the settings."
-msgstr ""
+msgstr "Chante yo swiv chantè yo. Klike: Manyèl → Sijere (pwochen diapo a klere) → Oto (diapo yo pase pou kont yo). Touch: A limen ak etenn Oto. ⋯ bò kote l: jounal la, Pratike ak paramèt yo."
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Not listening"
-msgstr ""
+msgstr "P ap koute"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Listening…"
-msgstr ""
+msgstr "Ap koute…"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Following the singers"
-msgstr ""
+msgstr "Ap swiv chantè yo"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Not sure — staying on this slide"
-msgstr ""
+msgstr "Pa sèten — rete sou diapo sa a"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Holding — the slides stay put"
-msgstr ""
+msgstr "An poz — diapo yo pa bouje"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Nobody singing — words off"
-msgstr ""
+msgstr "Pèsonn pa chante — pawòl retire"
 
 #: src/follow/strings.rs
 msgid "off"
-msgstr ""
+msgstr "etenn"
 
 #: src/follow/strings.rs
 msgid "listening"
-msgstr ""
+msgstr "ap koute"
 
 #: src/follow/strings.rs
 msgid "following"
-msgstr ""
+msgstr "ap swiv"
 
 #: src/follow/strings.rs
 msgid "not sure"
-msgstr ""
+msgstr "pa sèten"
 
 #: src/follow/strings.rs
 msgid "holding"
-msgstr ""
+msgstr "an poz"
 
 #: src/follow/strings.rs
 msgid "words off"
-msgstr ""
+msgstr "pawòl retire"
 
 #: src/follow/strings.rs
 msgid "Hold: auto-follow doesn't move the slides until you click again. Key: H"
-msgstr ""
+msgstr "Kenbe: swiv otomatik p ap pase diapo yo jiskaske ou klike ankò. Touch: H"
 
 #: src/follow/strings.rs
 msgid "{mode}: {state} — {section}"
-msgstr ""
+msgstr "{mode}: {state} — {section}"
 
 #: src/follow/strings.rs
 msgid "{mode}: {state}"
-msgstr ""
+msgstr "{mode}: {state}"
 
 #: src/follow/strings.rs
 msgid "Auto-follow on"
-msgstr ""
+msgstr "Swiv otomatik limen"
 
 #: src/follow/strings.rs
 msgid "Auto-follow off"
-msgstr ""
+msgstr "Swiv otomatik etenn"
 
 #: src/follow/strings.rs
 msgid "Hold on: the slides stay put"
-msgstr ""
+msgstr "Kenbe limen: diapo yo pa bouje"
 
 #: src/follow/strings.rs
 msgid "Hold off"
-msgstr ""
+msgstr "Kenbe etenn"
 
 #: src/i18n/mod.rs src/ui/dialogs/translation_editor.rs
 msgid "it is not saved as UTF-8 text"
@@ -5770,11 +5749,11 @@ msgstr "Gwoup efase: {name}"
 
 #: src/shortcuts.rs
 msgid "Auto-follow on or off for the live song"
-msgstr ""
+msgstr "Limen oswa etenn swiv otomatik pou chante ki an dirèk la"
 
 #: src/shortcuts.rs
 msgid "Hold auto-follow (the slides stay put)"
-msgstr ""
+msgstr "Kenbe swiv otomatik (diapo yo pa bouje)"
 
 #: src/shortcuts.rs
 msgid "Everything but the background"
@@ -5936,7 +5915,7 @@ msgstr "Lektè videyo a manke — reenstale RustyPresenter"
 msgid "Delete “{name}”?"
 msgstr "Efase “{name}”?"
 
-#: src/strings/add.rs src/strings/dialogs.rs src/video/bench.rs
+#: src/strings/add.rs src/strings/dialogs.rs
 msgid "OK"
 msgstr "OK"
 
@@ -7924,12 +7903,8 @@ msgid "Settings saved"
 msgstr "Paramèt anrejistre"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
-"Gras etonan, ala dous son an\n"
-"Ki sove yon malere tankou m"
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "Gras etonan, ala dous son an\nKi sove yon malere tankou m"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -9536,53 +9511,53 @@ msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
 msgid "Save your other changes and restart?"
-msgstr ""
+msgstr "Anrejistre lòt chanjman ou yo epi rekòmanse?"
 
 #: src/ui/dialogs/settings.rs
 msgid "Save and restart"
-msgstr ""
+msgstr "Anrejistre epi rekòmanse"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "The first one found"
-msgstr ""
+msgstr "Premye yo jwenn nan"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "{name} (not connected)"
-msgstr ""
+msgstr "{name} (pa konekte)"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Review log copied"
-msgstr ""
+msgstr "Jounal kopye"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "{title} (in this service)"
-msgstr ""
+msgstr "{title} (nan sèvis sa a)"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Practicing… this takes about a minute for a 5-minute song."
-msgstr ""
+msgstr "Ap pratike… sa pran anviwon yon minit pou yon chante 5 minit."
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Done: {n} change."
 msgid_plural "Done: {n} changes."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Fini: {n} chanjman."
+msgstr[1] "Fini: {n} chanjman."
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Practice stopped: {error}"
-msgstr ""
+msgstr "Pratik la kanpe: {error}"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Listening… sing or say a line."
-msgstr ""
+msgstr "Ap koute… chante oswa di yon liy."
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Can't listen to this input: {error}"
-msgstr ""
+msgstr "Pa ka koute antre sa a: {error}"
 
 #: src/ui/dialogs/settings_graphics.rs
 msgid "Yes, test now"
-msgstr ""
+msgstr "Wi, teste kounye a"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Show a message on the screen"
@@ -9642,79 +9617,79 @@ msgstr "Netwaye"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "{size} GB"
-msgstr ""
+msgstr "{size} GB"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "{size} MB"
-msgstr ""
+msgstr "{size} MB"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Best runs fine here."
-msgstr ""
+msgstr "Pi bon mache byen isit la."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Use Fast on this PC: Best is too slow here."
-msgstr ""
+msgstr "Sèvi ak Rapid sou PC sa a: Pi bon twò lan isit la."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Fast runs fine here. Download Best to check it too."
-msgstr ""
+msgstr "Rapid mache byen isit la. Telechaje Pi bon pou teste l tou."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Download a model first, then test its speed."
-msgstr ""
+msgstr "Telechaje yon modèl anvan, apre sa teste vitès li."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "This PC is too slow for the speech models: auto-follow will only take the words off when nobody sings."
-msgstr ""
+msgstr "PC sa a twò lan pou modèl vwa yo: swiv otomatik ap sèlman retire pawòl yo lè pèsonn pa chante."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Couldn't reach the download site. Check the internet and try again: it goes on where it stopped."
-msgstr ""
+msgstr "Pa t ka jwenn sit telechajman an. Tcheke entènèt la epi eseye ankò: l ap kontinye kote l te kanpe a."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "The download was damaged and was thrown away. Try again."
-msgstr ""
+msgstr "Telechajman an te domaje, li jete. Eseye ankò."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "The disk is full. Make room and try again."
-msgstr ""
+msgstr "Disk la plen. Fè plas epi eseye ankò."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Download stopped. Download again to go on where it stopped."
-msgstr ""
+msgstr "Telechajman an kanpe. Telechaje ankò pou kontinye kote l te kanpe a."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "The download didn't work. Try again."
-msgstr ""
+msgstr "Telechajman an pa mache. Eseye ankò."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Downloading…"
-msgstr ""
+msgstr "Ap telechaje…"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Downloading… {done} of {total}"
-msgstr ""
+msgstr "Ap telechaje… {done} sou {total}"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Installed. Auto-follow now listens with it."
-msgstr ""
+msgstr "Enstale. Swiv otomatik ap koute avè l kounye a."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Removed."
-msgstr ""
+msgstr "Retire."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Couldn't remove it: {error}"
-msgstr ""
+msgstr "Pa t ka retire l: {error}"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Testing… this takes a few seconds."
-msgstr ""
+msgstr "Ap teste… sa pran kèk segonn."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Auto-follow needs a speech model ({size}). Download now?"
-msgstr ""
+msgstr "Swiv otomatik bezwen yon modèl vwa ({size}). Telechaje l kounye a?"
 
 #: src/ui/dialogs/settings_model.rs src/ui/operator/record.rs src/video/bench.rs
 msgid "Not now"
@@ -9727,20 +9702,12 @@ msgstr[0] "Montre {n} tèm ki tou fèt"
 msgstr[1] "Montre {n} tèm ki tou fèt"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"Easter Sunday\n"
-"Services at 9 and 11 am"
-msgstr ""
-"Dimanch Pak\n"
-"Sèvis a 9 è ak 11 è dimaten"
+msgid "Easter Sunday\nServices at 9 and 11 am"
+msgstr "Dimanch Pak\nSèvis a 9 è ak 11 è dimaten"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"“Be still, and know that I am God.”\n"
-"Psalm 46:10"
-msgstr ""
-"“Rete trankil, epi konnen se mwen ki Bondye.”\n"
-"Psalm 46:10"
+msgid "“Be still, and know that I am God.”\nPsalm 46:10"
+msgstr "“Rete trankil, epi konnen se mwen ki Bondye.”\nPsalm 46:10"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "God's grace is enough"
@@ -9751,14 +9718,8 @@ msgid "Youth camp in the mountains"
 msgstr "Kan jèn nan mòn yo"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"Pray every day\n"
-"Read the Bible\n"
-"Serve your neighbour"
-msgstr ""
-"Priye chak jou\n"
-"Li Bib la\n"
-"Sèvi pwochen ou"
+msgid "Pray every day\nRead the Bible\nServe your neighbour"
+msgstr "Priye chak jou\nLi Bib la\nSèvi pwochen ou"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
@@ -9852,7 +9813,7 @@ msgstr "PowerPoint (.pptx)"
 
 #: src/ui/operator/file_input.rs
 msgid "Recording (video or sound)"
-msgstr ""
+msgstr "Anrejistreman (videyo oswa son)"
 
 #: src/ui/operator/help.rs
 msgid "This computer does not let RustyPresenter move the mouse pointer. Look for it on each screen."
@@ -10218,35 +10179,40 @@ msgstr "dènye chanjman an"
 
 #: src/video/bench.rs
 msgid "Smooth"
-msgstr ""
+msgstr "Byen koule"
+
+#: src/video/bench.rs
+msgctxt "graphics test result"
+msgid "OK"
+msgstr "Byen"
 
 #: src/video/bench.rs
 msgid "Choppy"
-msgstr ""
+msgstr "Ap sote"
 
 #: src/video/bench.rs
 msgid "Didn't work"
-msgstr ""
+msgstr "Pa t mache"
 
 #: src/video/bench.rs
 msgid "Testing {mode}… ({at} of {count})"
-msgstr ""
+msgstr "Ap teste {mode}… ({at} sou {count})"
 
 #: src/video/bench.rs
 msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About 30 seconds"
-msgstr ""
+msgstr "Kat grafik la oswa drayvè li chanje. Ou vle m chèche pi bon grafik pou PC sa a ankò? Anviwon 30 segonn"
 
 #: src/video/bench.rs
 msgid "Want me to find the best graphics for this PC? About 30 seconds"
-msgstr ""
+msgstr "Ou vle m chèche pi bon grafik pou PC sa a? Anviwon 30 segonn"
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
-msgstr ""
+msgstr "Okenn chwa grafik pa t mache nan tès la. RustyPresenter kenbe paramèt kounye a."
 
 #: src/video/bench.rs
 msgid "{mode} is the best for this PC. Automatic will use it from the next start."
-msgstr ""
+msgstr "{mode} se pi bon pou PC sa a. Otomatik ap sèvi avè l depi pwochen fwa li demare."
 
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."

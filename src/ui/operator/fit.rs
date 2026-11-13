@@ -201,7 +201,7 @@ fn tabbed_dialogs_keep_their_place_and_size_on_every_tab() {
         resize(&op, size);
         let first = card(&op);
         let tabs = find_all(&op, "Tabs::tab");
-        assert_eq!(tabs.len(), 10, "the ten Settings tabs");
+        assert_eq!(tabs.len(), 11, "the eleven Settings tabs (Auto-follow added in 1.3)");
         for (i, tab) in tabs.iter().enumerate().chain(tabs.iter().enumerate().rev()) {
             tab.mock_single_click(PointerEventButton::Left);
             resize(&op, size);

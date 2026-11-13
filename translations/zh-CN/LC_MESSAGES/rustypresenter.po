@@ -1,15 +1,6 @@
 # Chinese (Simplified) for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: zh-CN\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Native-Name: 简体中文\n"
-"X-English-Name: Chinese (Simplified)\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: zh-CN\nPlural-Forms: nplurals=1; plural=0;\nX-Native-Name: 简体中文\nX-English-Name: Chinese (Simplified)\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -1262,30 +1253,30 @@ msgstr "背景"
 
 #: ui/dialogs/item-edit.slint
 msgid "Follow the singers"
-msgstr ""
+msgstr "跟随演唱"
 
 #: ui/dialogs/item-edit.slint
 msgid "Suggest: the next slide glows. Auto: the slides move by themselves."
-msgstr ""
+msgstr "建议：下一张幻灯片会发光。自动：幻灯片自己翻页。"
 
 #: ui/dialogs/item-edit.slint
 msgid "As in Settings"
-msgstr ""
+msgstr "与设置相同"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint src/follow/strings.rs src/i18n/remote_strings.rs
 msgctxt "auto-follow"
 msgid "Manual"
-msgstr ""
+msgstr "手动"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint src/follow/strings.rs src/i18n/remote_strings.rs
 msgctxt "auto-follow"
 msgid "Suggest"
-msgstr ""
+msgstr "建议"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint src/follow/strings.rs src/i18n/remote_strings.rs
 msgctxt "auto-follow"
 msgid "Auto"
-msgstr ""
+msgstr "自动"
 
 #: ui/dialogs/item-edit.slint
 msgid "Advance slides automatically"
@@ -1961,115 +1952,115 @@ msgstr "版权信息"
 
 #: ui/dialogs/settings-follow.slint
 msgid "RustyPresenter listens to the band and moves the song's slides by itself. The sound never leaves this computer."
-msgstr ""
+msgstr "RustyPresenter 会听乐队演奏，自动为诗歌翻页。声音始终不会离开这台电脑。"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Listening"
-msgstr ""
+msgstr "收听"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sound input"
-msgstr ""
+msgstr "声音输入"
 
 #: ui/dialogs/settings-follow.slint
 msgid "The main mix from the sound desk works best."
-msgstr ""
+msgstr "最好使用调音台的主混音。"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sound level"
-msgstr ""
+msgstr "声音电平"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Test"
-msgstr ""
+msgstr "测试"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sing or say a line: the meter moves when it hears you."
-msgstr ""
+msgstr "唱一句或说一句：听到声音时电平表会动。"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Songs follow the singers"
-msgstr ""
+msgstr "诗歌跟随演唱"
 
 #: ui/dialogs/settings-follow.slint
 msgid "A song can have its own in Edit item. Key A turns Auto on and off for the live song, H holds it."
-msgstr ""
+msgstr "每首诗歌可在“编辑项目”中单独设置。按 A 键为正在播放的诗歌开关自动，按 H 键暂停。"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Timing"
-msgstr ""
+msgstr "时机"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Show the next slide before it is sung"
-msgstr ""
+msgstr "在唱到之前显示下一张幻灯片"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Early enough to read, not so early that people sing ahead."
-msgstr ""
+msgstr "早到足够阅读，但不要早到让大家抢先唱。"
 
 #: ui/dialogs/settings-follow.slint
 msgid "{} s"
-msgstr ""
+msgstr "{} 秒"
 
 #: ui/dialogs/settings-follow.slint
 msgid "When nobody sings"
-msgstr ""
+msgstr "无人演唱时"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Take the words off after (seconds)"
-msgstr ""
+msgstr "多久后撤下歌词（秒）"
 
 #: ui/dialogs/settings-follow.slint
 msgid "When someone talks or prays"
-msgstr ""
+msgstr "有人讲话或祷告时"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Jump to another part of the song after (words heard in a row)"
-msgstr ""
+msgstr "多久后跳到诗歌的其他部分（连续听到的词数）"
 
 #: ui/dialogs/settings-follow.slint
 msgid "More words: fewer wrong jumps, but slower to follow a change in the order."
-msgstr ""
+msgstr "词数越多：错跳越少，但跟上顺序变化越慢。"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Listening model"
-msgstr ""
+msgstr "收听模型"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Speech model"
-msgstr ""
+msgstr "语音模型"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Downloaded once, then it works without internet. Apache-2.0, by Facebook AI."
-msgstr ""
+msgstr "只需下载一次，之后无需联网即可使用。Apache-2.0，由 Facebook AI 提供。"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Fast (English)"
-msgstr ""
+msgstr "快速（英语）"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Best (all languages)"
-msgstr ""
+msgstr "最佳（所有语言）"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Installed ✓ ({})"
-msgstr ""
+msgstr "已安装 ✓（{}）"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Download ({})"
-msgstr ""
+msgstr "下载（{}）"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Test speed"
-msgstr ""
+msgstr "测试速度"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Tries the downloaded models on this PC and says which one suits it."
-msgstr ""
+msgstr "在这台电脑上试用已下载的模型，并告诉你哪个合适。"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
-msgstr ""
+msgstr "用自动跟随播放一段录音（例如上主日的），看看它会怎么做。屏幕上不会有任何变化。"
 
 #: ui/dialogs/settings-follow.slint ui/dialogs/settings-media.slint
 msgid "Recording"
@@ -2077,31 +2068,31 @@ msgstr "录制"
 
 #: ui/dialogs/settings-follow.slint
 msgid "No recording chosen"
-msgstr ""
+msgstr "未选择录音"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Choose recording…"
-msgstr ""
+msgstr "选择录音…"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Practice"
-msgstr ""
+msgstr "练习"
 
 #: ui/dialogs/settings-follow.slint
 msgid "What auto-follow would have done shows here."
-msgstr ""
+msgstr "自动跟随本来会做的操作会显示在这里。"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Every slide change auto-follow made or suggested since RustyPresenter started: when, what, why, and how sure it was."
-msgstr ""
+msgstr "自 RustyPresenter 启动以来，自动跟随所做或建议的每次翻页：何时、翻到哪里、为什么、有多确定。"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Nothing yet: auto-follow hasn't moved or suggested a slide."
-msgstr ""
+msgstr "暂无：自动跟随还没有翻页或建议翻页。"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Copy to clipboard"
-msgstr ""
+msgstr "复制到剪贴板"
 
 #: ui/dialogs/settings-follow.slint ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
 msgid "Settings"
@@ -2109,7 +2100,7 @@ msgstr "设置"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Review log"
-msgstr ""
+msgstr "记录"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Keyboard"
@@ -2717,19 +2708,19 @@ msgstr "仅当屏幕闪烁、一直黑屏或 RustyPresenter 崩溃时才更改�
 
 #: ui/dialogs/settings.slint src/video/bench.rs
 msgid "Test which is fastest"
-msgstr ""
+msgstr "测试哪个最快"
 
 #: ui/dialogs/settings.slint
 msgid "About 30 seconds. Test windows open and close while it runs."
-msgstr ""
+msgstr "大约 30 秒。测试期间会有测试窗口打开和关闭。"
 
 #: ui/dialogs/settings.slint
 msgid "Use this"
-msgstr ""
+msgstr "使用此项"
 
 #: ui/dialogs/settings.slint
 msgid "Restart now"
-msgstr ""
+msgstr "立即重启"
 
 #: ui/dialogs/settings.slint
 msgid "Performance"
@@ -2841,7 +2832,7 @@ msgstr "语言"
 
 #: ui/dialogs/settings.slint
 msgid "Auto-follow"
-msgstr ""
+msgstr "自动跟随"
 
 #: ui/dialogs/settings.slint src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Video"
@@ -2948,20 +2939,8 @@ msgid "Starts a new slide where the cursor is"
 msgstr "在光标处开始新的幻灯片"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"Verse 1\n"
-"奇异恩典，何等甘甜\n"
-"我罪已得赦免\n"
-"\n"
-"Chorus\n"
-"我的锁链已断开…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "Verse 1\n奇异恩典，何等甘甜\n我罪已得赦免\n\nChorus\n我的锁链已断开…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -3433,27 +3412,27 @@ msgstr "入场音乐的歌曲和音量"
 
 #: ui/operator/follow.slint
 msgid "Review log…"
-msgstr ""
+msgstr "记录…"
 
 #: ui/operator/follow.slint
 msgid "Practice with a recording…"
-msgstr ""
+msgstr "用录音练习…"
 
 #: ui/operator/follow.slint
 msgid "Auto-follow settings…"
-msgstr ""
+msgstr "自动跟随设置…"
 
 #: ui/operator/follow.slint
 msgid "Auto-follow options"
-msgstr ""
+msgstr "自动跟随选项"
 
 #: ui/operator/follow.slint src/i18n/remote_strings.rs
 msgid "Holding"
-msgstr ""
+msgstr "已暂停"
 
 #: ui/operator/follow.slint src/i18n/remote_strings.rs
 msgid "Hold"
-msgstr ""
+msgstr "暂停"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
@@ -4321,7 +4300,7 @@ msgstr "全选"
 
 #: src/app.rs src/ui/dialogs/settings_follow.rs
 msgid "no microphone or line-in found"
-msgstr ""
+msgstr "未找到麦克风或线路输入"
 
 #: src/app.rs src/transfer.rs
 msgid "Could not save: {error}"
@@ -4793,131 +4772,131 @@ msgstr "请先粘贴经文。"
 
 #: src/follow/audio.rs
 msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Recording."
-msgstr ""
+msgstr "自动跟随需要 FFmpeg 才能听到现场声音。请在“设置 → 录制”中下载。"
 
 #: src/follow/audio.rs
 msgid "FFmpeg stopped"
-msgstr ""
+msgstr "FFmpeg 已停止"
 
 #: src/follow/engine.rs
 msgid "Auto-follow stopped: the sound input is gone ({error}). Move the slides by hand."
-msgstr ""
+msgstr "自动跟随已停止：声音输入已断开（{error}）。请手动翻页。"
 
 #: src/follow/engine.rs
 msgid "heard \"{words}\""
-msgstr ""
+msgstr "听到“{words}”"
 
 #: src/follow/engine.rs
 msgid "singing again"
-msgstr ""
+msgstr "重新开始演唱"
 
 #: src/follow/engine.rs
 msgid "talking for {secs} s"
-msgstr ""
+msgstr "已讲话 {secs} 秒"
 
 #: src/follow/engine.rs
 msgid "no singing for {secs} s"
-msgstr ""
+msgstr "已 {secs} 秒无人演唱"
 
 #: src/follow/fetch.rs
 msgid "{address} stopped part way"
-msgstr ""
+msgstr "{address} 中途停止"
 
 #: src/follow/log.rs
 msgid "Slide {number}"
-msgstr ""
+msgstr "幻灯片 {number}"
 
 #: src/follow/log.rs
 msgid "Suggested slide {number}"
-msgstr ""
+msgstr "建议的幻灯片 {number}"
 
 #: src/follow/log.rs
 msgid "Words off"
-msgstr ""
+msgstr "歌词已撤下"
 
 #: src/follow/log.rs
 msgid "Words back on slide {number}"
-msgstr ""
+msgstr "歌词回到幻灯片 {number}"
 
 #: src/follow/strings.rs
 msgid "Songs follow the singers. Click: Manual → Suggest (the next slide glows) → Auto (the slides move by themselves). Key: A turns Auto on and off. ⋯ beside it: the review log, Practice and the settings."
-msgstr ""
+msgstr "诗歌跟随演唱。点击：手动 → 建议（下一张幻灯片发光）→ 自动（幻灯片自己翻页）。按键：A 开关自动。旁边的 ⋯：记录、练习和设置。"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Not listening"
-msgstr ""
+msgstr "未在收听"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Listening…"
-msgstr ""
+msgstr "正在收听…"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Following the singers"
-msgstr ""
+msgstr "正在跟随演唱"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Not sure — staying on this slide"
-msgstr ""
+msgstr "不确定——停留在此幻灯片"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Holding — the slides stay put"
-msgstr ""
+msgstr "已暂停——幻灯片保持不动"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Nobody singing — words off"
-msgstr ""
+msgstr "无人演唱——歌词已撤下"
 
 #: src/follow/strings.rs
 msgid "off"
-msgstr ""
+msgstr "关"
 
 #: src/follow/strings.rs
 msgid "listening"
-msgstr ""
+msgstr "收听中"
 
 #: src/follow/strings.rs
 msgid "following"
-msgstr ""
+msgstr "跟随中"
 
 #: src/follow/strings.rs
 msgid "not sure"
-msgstr ""
+msgstr "不确定"
 
 #: src/follow/strings.rs
 msgid "holding"
-msgstr ""
+msgstr "已暂停"
 
 #: src/follow/strings.rs
 msgid "words off"
-msgstr ""
+msgstr "歌词已撤下"
 
 #: src/follow/strings.rs
 msgid "Hold: auto-follow doesn't move the slides until you click again. Key: H"
-msgstr ""
+msgstr "暂停：再次点击之前，自动跟随不会翻页。按键：H"
 
 #: src/follow/strings.rs
 msgid "{mode}: {state} — {section}"
-msgstr ""
+msgstr "{mode}：{state} — {section}"
 
 #: src/follow/strings.rs
 msgid "{mode}: {state}"
-msgstr ""
+msgstr "{mode}：{state}"
 
 #: src/follow/strings.rs
 msgid "Auto-follow on"
-msgstr ""
+msgstr "自动跟随已开启"
 
 #: src/follow/strings.rs
 msgid "Auto-follow off"
-msgstr ""
+msgstr "自动跟随已关闭"
 
 #: src/follow/strings.rs
 msgid "Hold on: the slides stay put"
-msgstr ""
+msgstr "暂停已开启：幻灯片保持不动"
 
 #: src/follow/strings.rs
 msgid "Hold off"
-msgstr ""
+msgstr "暂停已关闭"
 
 #: src/i18n/mod.rs src/ui/dialogs/translation_editor.rs
 msgid "it is not saved as UTF-8 text"
@@ -5765,11 +5744,11 @@ msgstr "清空组：{name}"
 
 #: src/shortcuts.rs
 msgid "Auto-follow on or off for the live song"
-msgstr ""
+msgstr "为正在播放的诗歌开关自动跟随"
 
 #: src/shortcuts.rs
 msgid "Hold auto-follow (the slides stay put)"
-msgstr ""
+msgstr "暂停自动跟随（幻灯片保持不动）"
 
 #: src/shortcuts.rs
 msgid "Everything but the background"
@@ -5927,7 +5906,7 @@ msgstr "缺少视频播放器 — 请重新安装 RustyPresenter"
 msgid "Delete “{name}”?"
 msgstr "要删除“{name}”吗？"
 
-#: src/strings/add.rs src/strings/dialogs.rs src/video/bench.rs
+#: src/strings/add.rs src/strings/dialogs.rs
 msgid "OK"
 msgstr "确定"
 
@@ -7894,12 +7873,8 @@ msgid "Settings saved"
 msgstr "设置已保存"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
-"奇异恩典，何等甘甜\n"
-"我罪已得赦免"
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "奇异恩典，何等甘甜\n我罪已得赦免"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -9495,52 +9470,52 @@ msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
 msgid "Save your other changes and restart?"
-msgstr ""
+msgstr "保存其他更改并重启？"
 
 #: src/ui/dialogs/settings.rs
 msgid "Save and restart"
-msgstr ""
+msgstr "保存并重启"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "The first one found"
-msgstr ""
+msgstr "找到的第一个"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "{name} (not connected)"
-msgstr ""
+msgstr "{name}（未连接）"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Review log copied"
-msgstr ""
+msgstr "记录已复制"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "{title} (in this service)"
-msgstr ""
+msgstr "{title}（在此聚会中）"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Practicing… this takes about a minute for a 5-minute song."
-msgstr ""
+msgstr "正在练习… 5 分钟的诗歌大约需要 1 分钟。"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Done: {n} change."
 msgid_plural "Done: {n} changes."
-msgstr[0] ""
+msgstr[0] "完成：{n} 次翻页。"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Practice stopped: {error}"
-msgstr ""
+msgstr "练习已停止：{error}"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Listening… sing or say a line."
-msgstr ""
+msgstr "正在收听… 请唱一句或说一句。"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Can't listen to this input: {error}"
-msgstr ""
+msgstr "无法收听此输入：{error}"
 
 #: src/ui/dialogs/settings_graphics.rs
 msgid "Yes, test now"
-msgstr ""
+msgstr "是，立即测试"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Show a message on the screen"
@@ -9600,79 +9575,79 @@ msgstr "清理"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "{size} GB"
-msgstr ""
+msgstr "{size} GB"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "{size} MB"
-msgstr ""
+msgstr "{size} MB"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Best runs fine here."
-msgstr ""
+msgstr "最佳在这里运行良好。"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Use Fast on this PC: Best is too slow here."
-msgstr ""
+msgstr "这台电脑请用快速：最佳在这里太慢。"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Fast runs fine here. Download Best to check it too."
-msgstr ""
+msgstr "快速在这里运行良好。下载最佳也可一并测试。"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Download a model first, then test its speed."
-msgstr ""
+msgstr "请先下载模型，再测试速度。"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "This PC is too slow for the speech models: auto-follow will only take the words off when nobody sings."
-msgstr ""
+msgstr "这台电脑对语音模型来说太慢：自动跟随只会在无人演唱时撤下歌词。"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Couldn't reach the download site. Check the internet and try again: it goes on where it stopped."
-msgstr ""
+msgstr "无法连接下载网站。请检查网络后重试：会从中断处继续。"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "The download was damaged and was thrown away. Try again."
-msgstr ""
+msgstr "下载的文件已损坏并已丢弃。请重试。"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "The disk is full. Make room and try again."
-msgstr ""
+msgstr "磁盘已满。请腾出空间后重试。"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Download stopped. Download again to go on where it stopped."
-msgstr ""
+msgstr "下载已停止。重新下载即可从中断处继续。"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "The download didn't work. Try again."
-msgstr ""
+msgstr "下载失败。请重试。"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Downloading…"
-msgstr ""
+msgstr "正在下载…"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Downloading… {done} of {total}"
-msgstr ""
+msgstr "正在下载… {done} / {total}"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Installed. Auto-follow now listens with it."
-msgstr ""
+msgstr "已安装。自动跟随现在使用它来收听。"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Removed."
-msgstr ""
+msgstr "已移除。"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Couldn't remove it: {error}"
-msgstr ""
+msgstr "无法移除：{error}"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Testing… this takes a few seconds."
-msgstr ""
+msgstr "正在测试… 需要几秒钟。"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Auto-follow needs a speech model ({size}). Download now?"
-msgstr ""
+msgstr "自动跟随需要语音模型（{size}）。现在下载吗？"
 
 #: src/ui/dialogs/settings_model.rs src/ui/operator/record.rs src/video/bench.rs
 msgid "Not now"
@@ -9684,20 +9659,12 @@ msgid_plural "Show {n} ready-made themes"
 msgstr[0] "显示 {n} 个现成主题"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"Easter Sunday\n"
-"Services at 9 and 11 am"
-msgstr ""
-"复活节主日\n"
-"上午 9 点和 11 点聚会"
+msgid "Easter Sunday\nServices at 9 and 11 am"
+msgstr "复活节主日\n上午 9 点和 11 点聚会"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"“Be still, and know that I am God.”\n"
-"Psalm 46:10"
-msgstr ""
-"“你们要休息，要知道我是神。”\n"
-"Psalm 46:10"
+msgid "“Be still, and know that I am God.”\nPsalm 46:10"
+msgstr "“你们要休息，要知道我是神。”\nPsalm 46:10"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "God's grace is enough"
@@ -9708,14 +9675,8 @@ msgid "Youth camp in the mountains"
 msgstr "山区青年营"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"Pray every day\n"
-"Read the Bible\n"
-"Serve your neighbour"
-msgstr ""
-"每天祷告\n"
-"读圣经\n"
-"服事邻舍"
+msgid "Pray every day\nRead the Bible\nServe your neighbour"
+msgstr "每天祷告\n读圣经\n服事邻舍"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
@@ -9808,7 +9769,7 @@ msgstr "PowerPoint (.pptx)"
 
 #: src/ui/operator/file_input.rs
 msgid "Recording (video or sound)"
-msgstr ""
+msgstr "录音（视频或声音）"
 
 #: src/ui/operator/help.rs
 msgid "This computer does not let RustyPresenter move the mouse pointer. Look for it on each screen."
@@ -10171,35 +10132,40 @@ msgstr "最后一次更改"
 
 #: src/video/bench.rs
 msgid "Smooth"
-msgstr ""
+msgstr "流畅"
+
+#: src/video/bench.rs
+msgctxt "graphics test result"
+msgid "OK"
+msgstr "良好"
 
 #: src/video/bench.rs
 msgid "Choppy"
-msgstr ""
+msgstr "卡顿"
 
 #: src/video/bench.rs
 msgid "Didn't work"
-msgstr ""
+msgstr "无法运行"
 
 #: src/video/bench.rs
 msgid "Testing {mode}… ({at} of {count})"
-msgstr ""
+msgstr "正在测试 {mode}…（{at} / {count}）"
 
 #: src/video/bench.rs
 msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About 30 seconds"
-msgstr ""
+msgstr "显卡或其驱动程序已更改。要我重新为这台电脑找出最佳图形设置吗？大约 30 秒"
 
 #: src/video/bench.rs
 msgid "Want me to find the best graphics for this PC? About 30 seconds"
-msgstr ""
+msgstr "要我为这台电脑找出最佳图形设置吗？大约 30 秒"
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
-msgstr ""
+msgstr "测试中所有图形选项都无法运行。RustyPresenter 将保留当前设置。"
 
 #: src/video/bench.rs
 msgid "{mode} is the best for this PC. Automatic will use it from the next start."
-msgstr ""
+msgstr "{mode} 最适合这台电脑。下次启动起，“自动”将使用它。"
 
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."

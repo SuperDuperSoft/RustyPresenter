@@ -1,15 +1,6 @@
 # Korean for RustyPresenter. Machine-drafted; needs review by a native speaker.
 msgid ""
-msgstr ""
-"Project-Id-Version: RustyPresenter\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: ko\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Native-Name: 한국어\n"
-"X-English-Name: Korean\n"
-"X-Reviewed: no\n"
+msgstr "Project-Id-Version: RustyPresenter\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: ko\nPlural-Forms: nplurals=1; plural=0;\nX-Native-Name: 한국어\nX-English-Name: Korean\nX-Reviewed: no\n"
 
 #: ui/bible-picker.slint
 msgid "Search your Bibles"
@@ -1262,30 +1253,30 @@ msgstr "배경"
 
 #: ui/dialogs/item-edit.slint
 msgid "Follow the singers"
-msgstr ""
+msgstr "싱어 따라가기"
 
 #: ui/dialogs/item-edit.slint
 msgid "Suggest: the next slide glows. Auto: the slides move by themselves."
-msgstr ""
+msgstr "제안: 다음 슬라이드가 빛나요. 자동: 슬라이드가 알아서 넘어가요."
 
 #: ui/dialogs/item-edit.slint
 msgid "As in Settings"
-msgstr ""
+msgstr "설정과 같게"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint src/follow/strings.rs src/i18n/remote_strings.rs
 msgctxt "auto-follow"
 msgid "Manual"
-msgstr ""
+msgstr "수동"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint src/follow/strings.rs src/i18n/remote_strings.rs
 msgctxt "auto-follow"
 msgid "Suggest"
-msgstr ""
+msgstr "제안"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint src/follow/strings.rs src/i18n/remote_strings.rs
 msgctxt "auto-follow"
 msgid "Auto"
-msgstr ""
+msgstr "자동"
 
 #: ui/dialogs/item-edit.slint
 msgid "Advance slides automatically"
@@ -1961,115 +1952,115 @@ msgstr "저작권 표시"
 
 #: ui/dialogs/settings-follow.slint
 msgid "RustyPresenter listens to the band and moves the song's slides by itself. The sound never leaves this computer."
-msgstr ""
+msgstr "RustyPresenter가 찬양팀 소리를 듣고 찬양 슬라이드를 알아서 넘겨요. 소리는 이 컴퓨터 밖으로 나가지 않아요."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Listening"
-msgstr ""
+msgstr "듣기"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sound input"
-msgstr ""
+msgstr "소리 입력"
 
 #: ui/dialogs/settings-follow.slint
 msgid "The main mix from the sound desk works best."
-msgstr ""
+msgstr "음향 콘솔의 메인 믹스가 가장 좋아요."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sound level"
-msgstr ""
+msgstr "소리 크기"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Test"
-msgstr ""
+msgstr "테스트"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sing or say a line: the meter moves when it hears you."
-msgstr ""
+msgstr "한 줄을 부르거나 말해 보세요. 소리가 들리면 미터가 움직여요."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Songs follow the singers"
-msgstr ""
+msgstr "찬양이 싱어를 따라가요"
 
 #: ui/dialogs/settings-follow.slint
 msgid "A song can have its own in Edit item. Key A turns Auto on and off for the live song, H holds it."
-msgstr ""
+msgstr "찬양마다 항목 편집에서 따로 정할 수 있어요. A 키는 라이브 찬양의 자동을 켜고 끄고, H 키는 멈춰 둬요."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Timing"
-msgstr ""
+msgstr "타이밍"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Show the next slide before it is sung"
-msgstr ""
+msgstr "부르기 전에 다음 슬라이드 보여 주기"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Early enough to read, not so early that people sing ahead."
-msgstr ""
+msgstr "읽을 시간은 있되, 사람들이 앞서 부르지 않을 만큼만 일찍."
 
 #: ui/dialogs/settings-follow.slint
 msgid "{} s"
-msgstr ""
+msgstr "{}초"
 
 #: ui/dialogs/settings-follow.slint
 msgid "When nobody sings"
-msgstr ""
+msgstr "아무도 부르지 않을 때"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Take the words off after (seconds)"
-msgstr ""
+msgstr "가사 내리기까지 (초)"
 
 #: ui/dialogs/settings-follow.slint
 msgid "When someone talks or prays"
-msgstr ""
+msgstr "누군가 말하거나 기도할 때"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Jump to another part of the song after (words heard in a row)"
-msgstr ""
+msgstr "다른 부분으로 건너뛰기까지 (연속으로 들린 단어 수)"
 
 #: ui/dialogs/settings-follow.slint
 msgid "More words: fewer wrong jumps, but slower to follow a change in the order."
-msgstr ""
+msgstr "단어가 많을수록 잘못 건너뛰는 일은 줄지만, 순서가 바뀌면 늦게 따라가요."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Listening model"
-msgstr ""
+msgstr "듣기 모델"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Speech model"
-msgstr ""
+msgstr "음성 모델"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Downloaded once, then it works without internet. Apache-2.0, by Facebook AI."
-msgstr ""
+msgstr "한 번만 다운로드하면 인터넷 없이 작동해요. Apache-2.0, Facebook AI 제작."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Fast (English)"
-msgstr ""
+msgstr "빠름 (영어)"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Best (all languages)"
-msgstr ""
+msgstr "최상 (모든 언어)"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Installed ✓ ({})"
-msgstr ""
+msgstr "설치됨 ✓ ({})"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Download ({})"
-msgstr ""
+msgstr "다운로드 ({})"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Test speed"
-msgstr ""
+msgstr "속도 테스트"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Tries the downloaded models on this PC and says which one suits it."
-msgstr ""
+msgstr "다운로드한 모델을 이 PC에서 돌려 보고 어떤 모델이 맞는지 알려 줘요."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
-msgstr ""
+msgstr "녹음을 (예: 지난 주일 것) 자동 따라가기로 재생해서 어떻게 할지 확인해요. 화면에는 아무 변화가 없어요."
 
 #: ui/dialogs/settings-follow.slint ui/dialogs/settings-media.slint
 msgid "Recording"
@@ -2077,31 +2068,31 @@ msgstr "녹화"
 
 #: ui/dialogs/settings-follow.slint
 msgid "No recording chosen"
-msgstr ""
+msgstr "선택한 녹음 없음"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Choose recording…"
-msgstr ""
+msgstr "녹음 선택…"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Practice"
-msgstr ""
+msgstr "연습"
 
 #: ui/dialogs/settings-follow.slint
 msgid "What auto-follow would have done shows here."
-msgstr ""
+msgstr "자동 따라가기가 했을 동작이 여기에 표시돼요."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Every slide change auto-follow made or suggested since RustyPresenter started: when, what, why, and how sure it was."
-msgstr ""
+msgstr "RustyPresenter를 시작한 뒤 자동 따라가기가 넘기거나 제안한 모든 슬라이드 변경: 언제, 무엇을, 왜, 얼마나 확신했는지."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Nothing yet: auto-follow hasn't moved or suggested a slide."
-msgstr ""
+msgstr "아직 없어요. 자동 따라가기가 슬라이드를 넘기거나 제안하지 않았어요."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Copy to clipboard"
-msgstr ""
+msgstr "클립보드에 복사"
 
 #: ui/dialogs/settings-follow.slint ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
 msgid "Settings"
@@ -2109,7 +2100,7 @@ msgstr "설정"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Review log"
-msgstr ""
+msgstr "기록"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Keyboard"
@@ -2717,19 +2708,19 @@ msgstr "화면이 깜빡이거나, 검게 나오거나, RustyPresenter가 종료
 
 #: ui/dialogs/settings.slint src/video/bench.rs
 msgid "Test which is fastest"
-msgstr ""
+msgstr "가장 빠른 것 테스트"
 
 #: ui/dialogs/settings.slint
 msgid "About 30 seconds. Test windows open and close while it runs."
-msgstr ""
+msgstr "약 30초 걸려요. 테스트 중에 테스트 창이 열렸다 닫혀요."
 
 #: ui/dialogs/settings.slint
 msgid "Use this"
-msgstr ""
+msgstr "이것 사용"
 
 #: ui/dialogs/settings.slint
 msgid "Restart now"
-msgstr ""
+msgstr "지금 다시 시작"
 
 #: ui/dialogs/settings.slint
 msgid "Performance"
@@ -2841,7 +2832,7 @@ msgstr "언어"
 
 #: ui/dialogs/settings.slint
 msgid "Auto-follow"
-msgstr ""
+msgstr "자동 따라가기"
 
 #: ui/dialogs/settings.slint src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
 msgid "Video"
@@ -2948,20 +2939,8 @@ msgid "Starts a new slide where the cursor is"
 msgstr "커서 위치에서 새 슬라이드를 시작해요"
 
 #: ui/dialogs/song-editor.slint
-msgid ""
-"Verse 1\n"
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me\n"
-"\n"
-"Chorus\n"
-"My chains are gone…"
-msgstr ""
-"Verse 1\n"
-"나 같은 죄인 살리신\n"
-"주 은혜 놀라워\n"
-"\n"
-"Chorus\n"
-"잃었던 생명 찾았고…"
+msgid "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone…"
+msgstr "Verse 1\n나 같은 죄인 살리신\n주 은혜 놀라워\n\nChorus\n잃었던 생명 찾았고…"
 
 #: ui/dialogs/song-editor.slint
 msgid "Order"
@@ -3433,27 +3412,27 @@ msgstr "입장 음악 곡 및 볼륨"
 
 #: ui/operator/follow.slint
 msgid "Review log…"
-msgstr ""
+msgstr "기록…"
 
 #: ui/operator/follow.slint
 msgid "Practice with a recording…"
-msgstr ""
+msgstr "녹음으로 연습…"
 
 #: ui/operator/follow.slint
 msgid "Auto-follow settings…"
-msgstr ""
+msgstr "자동 따라가기 설정…"
 
 #: ui/operator/follow.slint
 msgid "Auto-follow options"
-msgstr ""
+msgstr "자동 따라가기 옵션"
 
 #: ui/operator/follow.slint src/i18n/remote_strings.rs
 msgid "Holding"
-msgstr ""
+msgstr "멈춤 중"
 
 #: ui/operator/follow.slint src/i18n/remote_strings.rs
 msgid "Hold"
-msgstr ""
+msgstr "멈춤"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
@@ -4321,7 +4300,7 @@ msgstr "모두 선택"
 
 #: src/app.rs src/ui/dialogs/settings_follow.rs
 msgid "no microphone or line-in found"
-msgstr ""
+msgstr "마이크나 라인 입력을 찾지 못했어요"
 
 #: src/app.rs src/transfer.rs
 msgid "Could not save: {error}"
@@ -4793,131 +4772,131 @@ msgstr "먼저 구절 텍스트를 붙여 넣으세요."
 
 #: src/follow/audio.rs
 msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Recording."
-msgstr ""
+msgstr "자동 따라가기는 예배실 소리를 들으려면 FFmpeg가 필요해요. 설정 → 녹화에서 다운로드하세요."
 
 #: src/follow/audio.rs
 msgid "FFmpeg stopped"
-msgstr ""
+msgstr "FFmpeg 중지됨"
 
 #: src/follow/engine.rs
 msgid "Auto-follow stopped: the sound input is gone ({error}). Move the slides by hand."
-msgstr ""
+msgstr "자동 따라가기가 멈췄어요: 소리 입력이 사라졌어요 ({error}). 슬라이드를 직접 넘기세요."
 
 #: src/follow/engine.rs
 msgid "heard \"{words}\""
-msgstr ""
+msgstr "\"{words}\" 들음"
 
 #: src/follow/engine.rs
 msgid "singing again"
-msgstr ""
+msgstr "다시 부르는 중"
 
 #: src/follow/engine.rs
 msgid "talking for {secs} s"
-msgstr ""
+msgstr "{secs}초째 말하는 중"
 
 #: src/follow/engine.rs
 msgid "no singing for {secs} s"
-msgstr ""
+msgstr "{secs}초째 노래 없음"
 
 #: src/follow/fetch.rs
 msgid "{address} stopped part way"
-msgstr ""
+msgstr "{address}이(가) 중간에 멈췄어요"
 
 #: src/follow/log.rs
 msgid "Slide {number}"
-msgstr ""
+msgstr "슬라이드 {number}"
 
 #: src/follow/log.rs
 msgid "Suggested slide {number}"
-msgstr ""
+msgstr "제안된 슬라이드 {number}"
 
 #: src/follow/log.rs
 msgid "Words off"
-msgstr ""
+msgstr "가사 내림"
 
 #: src/follow/log.rs
 msgid "Words back on slide {number}"
-msgstr ""
+msgstr "슬라이드 {number}에 가사 다시 표시"
 
 #: src/follow/strings.rs
 msgid "Songs follow the singers. Click: Manual → Suggest (the next slide glows) → Auto (the slides move by themselves). Key: A turns Auto on and off. ⋯ beside it: the review log, Practice and the settings."
-msgstr ""
+msgstr "찬양이 싱어를 따라가요. 클릭: 수동 → 제안 (다음 슬라이드가 빛나요) → 자동 (슬라이드가 알아서 넘어가요). 키: A로 자동 켜기/끄기. 옆의 ⋯: 기록, 연습, 설정."
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Not listening"
-msgstr ""
+msgstr "듣지 않음"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Listening…"
-msgstr ""
+msgstr "듣는 중…"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Following the singers"
-msgstr ""
+msgstr "싱어를 따라가는 중"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Not sure — staying on this slide"
-msgstr ""
+msgstr "확실하지 않아요 — 이 슬라이드에 머물러요"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Holding — the slides stay put"
-msgstr ""
+msgstr "멈춤 중 — 슬라이드가 그대로 있어요"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Nobody singing — words off"
-msgstr ""
+msgstr "아무도 안 불러요 — 가사 내림"
 
 #: src/follow/strings.rs
 msgid "off"
-msgstr ""
+msgstr "꺼짐"
 
 #: src/follow/strings.rs
 msgid "listening"
-msgstr ""
+msgstr "듣는 중"
 
 #: src/follow/strings.rs
 msgid "following"
-msgstr ""
+msgstr "따라가는 중"
 
 #: src/follow/strings.rs
 msgid "not sure"
-msgstr ""
+msgstr "확실하지 않음"
 
 #: src/follow/strings.rs
 msgid "holding"
-msgstr ""
+msgstr "멈춤 중"
 
 #: src/follow/strings.rs
 msgid "words off"
-msgstr ""
+msgstr "가사 내림"
 
 #: src/follow/strings.rs
 msgid "Hold: auto-follow doesn't move the slides until you click again. Key: H"
-msgstr ""
+msgstr "멈춤: 다시 클릭할 때까지 자동 따라가기가 슬라이드를 넘기지 않아요. 키: H"
 
 #: src/follow/strings.rs
 msgid "{mode}: {state} — {section}"
-msgstr ""
+msgstr "{mode}: {state} — {section}"
 
 #: src/follow/strings.rs
 msgid "{mode}: {state}"
-msgstr ""
+msgstr "{mode}: {state}"
 
 #: src/follow/strings.rs
 msgid "Auto-follow on"
-msgstr ""
+msgstr "자동 따라가기 켜짐"
 
 #: src/follow/strings.rs
 msgid "Auto-follow off"
-msgstr ""
+msgstr "자동 따라가기 꺼짐"
 
 #: src/follow/strings.rs
 msgid "Hold on: the slides stay put"
-msgstr ""
+msgstr "멈춤 켜짐: 슬라이드가 그대로 있어요"
 
 #: src/follow/strings.rs
 msgid "Hold off"
-msgstr ""
+msgstr "멈춤 꺼짐"
 
 #: src/i18n/mod.rs src/ui/dialogs/translation_editor.rs
 msgid "it is not saved as UTF-8 text"
@@ -5765,11 +5744,11 @@ msgstr "지우기 그룹: {name}"
 
 #: src/shortcuts.rs
 msgid "Auto-follow on or off for the live song"
-msgstr ""
+msgstr "라이브 찬양의 자동 따라가기 켜기/끄기"
 
 #: src/shortcuts.rs
 msgid "Hold auto-follow (the slides stay put)"
-msgstr ""
+msgstr "자동 따라가기 멈춤 (슬라이드가 그대로 있어요)"
 
 #: src/shortcuts.rs
 msgid "Everything but the background"
@@ -5927,7 +5906,7 @@ msgstr "동영상 플레이어가 없어요 — RustyPresenter를 다시 설치�
 msgid "Delete “{name}”?"
 msgstr "“{name}”을(를) 삭제할까요?"
 
-#: src/strings/add.rs src/strings/dialogs.rs src/video/bench.rs
+#: src/strings/add.rs src/strings/dialogs.rs
 msgid "OK"
 msgstr "확인"
 
@@ -7894,12 +7873,8 @@ msgid "Settings saved"
 msgstr "설정 저장됨"
 
 #: src/strings/settings.rs
-msgid ""
-"Amazing grace how sweet the sound\n"
-"That saved a wretch like me"
-msgstr ""
-"나 같은 죄인 살리신\n"
-"주 은혜 놀라워"
+msgid "Amazing grace how sweet the sound\nThat saved a wretch like me"
+msgstr "나 같은 죄인 살리신\n주 은혜 놀라워"
 
 #: src/strings/settings.rs
 msgid "Amazing Grace · John Newton · Public Domain"
@@ -9495,52 +9470,52 @@ msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
 msgid "Save your other changes and restart?"
-msgstr ""
+msgstr "다른 변경 사항을 저장하고 다시 시작할까요?"
 
 #: src/ui/dialogs/settings.rs
 msgid "Save and restart"
-msgstr ""
+msgstr "저장하고 다시 시작"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "The first one found"
-msgstr ""
+msgstr "처음 찾은 장치"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "{name} (not connected)"
-msgstr ""
+msgstr "{name} (연결 안 됨)"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Review log copied"
-msgstr ""
+msgstr "기록을 복사했어요"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "{title} (in this service)"
-msgstr ""
+msgstr "{title} (이 예배에 있음)"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Practicing… this takes about a minute for a 5-minute song."
-msgstr ""
+msgstr "연습 중… 5분짜리 찬양이면 1분쯤 걸려요."
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Done: {n} change."
 msgid_plural "Done: {n} changes."
-msgstr[0] ""
+msgstr[0] "완료: {n}개 변경."
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Practice stopped: {error}"
-msgstr ""
+msgstr "연습이 멈췄어요: {error}"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Listening… sing or say a line."
-msgstr ""
+msgstr "듣는 중… 한 줄을 부르거나 말해 보세요."
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "Can't listen to this input: {error}"
-msgstr ""
+msgstr "이 입력을 들을 수 없어요: {error}"
 
 #: src/ui/dialogs/settings_graphics.rs
 msgid "Yes, test now"
-msgstr ""
+msgstr "네, 지금 테스트"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "Show a message on the screen"
@@ -9600,79 +9575,79 @@ msgstr "정리"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "{size} GB"
-msgstr ""
+msgstr "{size}GB"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "{size} MB"
-msgstr ""
+msgstr "{size}MB"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Best runs fine here."
-msgstr ""
+msgstr "여기서는 최상이 잘 돌아가요."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Use Fast on this PC: Best is too slow here."
-msgstr ""
+msgstr "이 PC에서는 빠름을 쓰세요. 최상은 여기서 너무 느려요."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Fast runs fine here. Download Best to check it too."
-msgstr ""
+msgstr "여기서는 빠름이 잘 돌아가요. 최상도 확인하려면 다운로드하세요."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Download a model first, then test its speed."
-msgstr ""
+msgstr "먼저 모델을 다운로드한 다음 속도를 테스트하세요."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "This PC is too slow for the speech models: auto-follow will only take the words off when nobody sings."
-msgstr ""
+msgstr "이 PC는 음성 모델을 쓰기에 너무 느려요. 자동 따라가기는 아무도 부르지 않을 때 가사만 내려요."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Couldn't reach the download site. Check the internet and try again: it goes on where it stopped."
-msgstr ""
+msgstr "다운로드 사이트에 연결할 수 없어요. 인터넷을 확인하고 다시 시도하세요. 멈춘 곳부터 이어서 받아요."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "The download was damaged and was thrown away. Try again."
-msgstr ""
+msgstr "다운로드한 파일이 손상되어 버렸어요. 다시 시도하세요."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "The disk is full. Make room and try again."
-msgstr ""
+msgstr "디스크가 가득 찼어요. 공간을 비우고 다시 시도하세요."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Download stopped. Download again to go on where it stopped."
-msgstr ""
+msgstr "다운로드가 멈췄어요. 다시 다운로드하면 멈춘 곳부터 이어서 받아요."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "The download didn't work. Try again."
-msgstr ""
+msgstr "다운로드가 안 됐어요. 다시 시도하세요."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Downloading…"
-msgstr ""
+msgstr "다운로드 중…"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Downloading… {done} of {total}"
-msgstr ""
+msgstr "다운로드 중… {done} / {total}"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Installed. Auto-follow now listens with it."
-msgstr ""
+msgstr "설치됐어요. 이제 자동 따라가기가 이 모델로 들어요."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Removed."
-msgstr ""
+msgstr "제거했어요."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Couldn't remove it: {error}"
-msgstr ""
+msgstr "제거할 수 없어요: {error}"
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Testing… this takes a few seconds."
-msgstr ""
+msgstr "테스트 중… 몇 초 걸려요."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Auto-follow needs a speech model ({size}). Download now?"
-msgstr ""
+msgstr "자동 따라가기에는 음성 모델({size})이 필요해요. 지금 다운로드할까요?"
 
 #: src/ui/dialogs/settings_model.rs src/ui/operator/record.rs src/video/bench.rs
 msgid "Not now"
@@ -9684,20 +9659,12 @@ msgid_plural "Show {n} ready-made themes"
 msgstr[0] "기본 제공 테마 {n}개 표시"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"Easter Sunday\n"
-"Services at 9 and 11 am"
-msgstr ""
-"부활주일\n"
-"예배: 오전 9시, 11시"
+msgid "Easter Sunday\nServices at 9 and 11 am"
+msgstr "부활주일\n예배: 오전 9시, 11시"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"“Be still, and know that I am God.”\n"
-"Psalm 46:10"
-msgstr ""
-"“가만히 있어 내가 하나님 됨을 알지어다.”\n"
-"Psalm 46:10"
+msgid "“Be still, and know that I am God.”\nPsalm 46:10"
+msgstr "“가만히 있어 내가 하나님 됨을 알지어다.”\nPsalm 46:10"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "God's grace is enough"
@@ -9708,14 +9675,8 @@ msgid "Youth camp in the mountains"
 msgstr "산으로 떠나는 청소년 수련회"
 
 #: src/ui/dialogs/settings_themes.rs
-msgid ""
-"Pray every day\n"
-"Read the Bible\n"
-"Serve your neighbour"
-msgstr ""
-"매일 기도하기\n"
-"성경 읽기\n"
-"이웃 섬기기"
+msgid "Pray every day\nRead the Bible\nServe your neighbour"
+msgstr "매일 기도하기\n성경 읽기\n이웃 섬기기"
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
@@ -9808,7 +9769,7 @@ msgstr "PowerPoint(.pptx)"
 
 #: src/ui/operator/file_input.rs
 msgid "Recording (video or sound)"
-msgstr ""
+msgstr "녹음 (영상 또는 소리)"
 
 #: src/ui/operator/help.rs
 msgid "This computer does not let RustyPresenter move the mouse pointer. Look for it on each screen."
@@ -10171,35 +10132,40 @@ msgstr "마지막 변경"
 
 #: src/video/bench.rs
 msgid "Smooth"
-msgstr ""
+msgstr "부드러움"
+
+#: src/video/bench.rs
+msgctxt "graphics test result"
+msgid "OK"
+msgstr "괜찮음"
 
 #: src/video/bench.rs
 msgid "Choppy"
-msgstr ""
+msgstr "끊김"
 
 #: src/video/bench.rs
 msgid "Didn't work"
-msgstr ""
+msgstr "안 됨"
 
 #: src/video/bench.rs
 msgid "Testing {mode}… ({at} of {count})"
-msgstr ""
+msgstr "{mode} 테스트 중… ({at}/{count})"
 
 #: src/video/bench.rs
 msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About 30 seconds"
-msgstr ""
+msgstr "그래픽 카드나 드라이버가 바뀌었어요. 이 PC에 가장 좋은 그래픽을 다시 찾아볼까요? 약 30초"
 
 #: src/video/bench.rs
 msgid "Want me to find the best graphics for this PC? About 30 seconds"
-msgstr ""
+msgstr "이 PC에 가장 좋은 그래픽을 찾아볼까요? 약 30초"
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
-msgstr ""
+msgstr "테스트에서 작동한 그래픽 옵션이 없어요. RustyPresenter는 현재 설정을 유지해요."
 
 #: src/video/bench.rs
 msgid "{mode} is the best for this PC. Automatic will use it from the next start."
-msgstr ""
+msgstr "이 PC에는 {mode}이(가) 가장 좋아요. 다음 시작부터 자동이 이것을 써요."
 
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."

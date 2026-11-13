@@ -10,3 +10,6 @@ R
 
 # The start of a web address, as the hint in an empty address box.
 https://
+
+# The graphics test window title (the app name).
+RustyPresenter
