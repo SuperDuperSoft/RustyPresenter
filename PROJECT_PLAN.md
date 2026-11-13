@@ -1334,3 +1334,20 @@ Jake: "songs need to be a part of the library at the bottom and changing how muc
 - **Cloud build this run:** `.tools\xfer\fetch\crates.tar` + `r0544\extra.tar` + `r0641\extra.tar` unpacked to a vendor folder needs no stand-ins for this lock. Use one job (two jobs ran out of memory building `rp-ui`).
 - **Flaky here (not from this change):** `ui::room::tests::a_click_plays_its_animation_over_the_slide_then_the_slide_takes_over` failed 2 runs in 6 (a timing test); it passes alone most times.
 - **Not done:** lines/size per service (Jake did not ask); the Songs tab has no import button (File → Import has it).
+
+### November 13, 2026 — Claude (Jake's PC, `finish-10` = 1.3 on Windows, and `follow-sunday`)
+
+Jake: "merge all first", then on auto-follow: "3 seconds is terrible some songs have long pauses some songs you know words get pronounced differently and syllables get held out". He chose **"Next words, waiting"** for long instrumentals, and the sound desk **can** send the lead vocal to the presentation PC.
+- **`finish-10` (`6f89597`)** = `finish-9` (1.3.0, song auto-follow in `src/follow/`) + `v13-review`. Every other branch was already inside one of those two; the merge changed no files (translation conflicts took `finish-9`'s side). `.tools\xfer\latest-branch.txt` says `finish-10`.
+- **First Windows build and test of 1.3 (Jake's PC):** release build OK (25 min, 1 warning in the bin). Full tests: lib 2998 passed / 3 ignored; cleanup 4, i18n_catalogs 4, proc_tree 8, recovery 8, render_golden 17 (1 ignored), ui_operator_flows 8; 0 failed. Results in `.tools\xfer\windows-check\` (`test-finish-10.txt`). The test build took 3 h 43 min with 2 jobs.
+- **Disk:** C: was full (203 MB free). Ten old cargo target folders under `%LOCALAPPDATA%\RustyPresenter` held only compiler output and were deleted (80 GB freed); `build` and `build-check` kept.
+- **`follow-sunday` (off `finish-10`, 2 commits) — auto-follow rules for a real Sunday:**
+  - No timer takes the words off by default (`blank_after_s`, `talk_blank_after_s` = `None`; Settings offers 15 s / 30 s, both off).
+  - The next words go up as the slide's last line is sung and wait there through any pause or held note.
+  - Words come off only when the song's last word was sung and it stays quiet 5 s (`SONG_END_QUIET`), or where the song has an instrumental slide (shown after the slide's last word + 2 s quiet, `INSTRUMENTAL_QUIET`; left again as singing starts, also for an intro slide).
+  - A newly heard word counts as singing even when the room label says Music (loud band).
+  - The log's blank reason comes from the rules (`Rules::blank_why`).
+  - Settings → Auto-follow: Sound input help recommends the lead singer's microphone from the sound desk, then the main mix; the slow-PC message no longer describes the old behaviour. 2 texts in 13 languages (machine-drafted).
+  - **Evidence (Windows):** `follow::`, `settings_follow`, `settings_model` tests 153 passed / 1 ignored; i18n_catalogs 4 passed. The whole suite was not re-run on this branch; `practice_tests.rs` is unix-only and did not run.
+- **Not done (auto-follow):** nothing tried with real singing yet; the ear reports a held last word late; phrase-level matching; sung pronunciation variants; per-song learning; tuning for a lead-vocal feed. `follow-sunday` is not merged into `finish-10`.
+- **Left alone:** uncommitted work in the main checkout and 12 other worktrees.
