@@ -110,6 +110,28 @@ debug = 0
 [profile.release.package.rp-ui]
 opt-level = "s"
 
+# For checking a change quickly (cargo test --profile quick): light optimising, no debug info, no LTO, and only
+# the changed code is rebuilt. The release profile above is for the program people run, not for every test run.
+[profile.quick]
+inherits = "dev"
+opt-level = 1
+debug = 0
+incremental = true
+
+[profile.quick.package."*"]
+opt-level = 2
+
+# The generated screen code is the biggest thing to compile: leave it
+# unoptimised so a change to a screen rebuilds fast.
+[profile.quick.package.rp-ui]
+opt-level = 0
+
+# src/main.rs has no tests of its own: do not build a test program for it.
+[[bin]]
+name = "rustypresenter"
+path = "src/main.rs"
+test = false
+
 [dev-dependencies]
 i-slint-backend-testing = "1.18"
 
