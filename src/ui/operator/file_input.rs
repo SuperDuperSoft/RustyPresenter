@@ -62,7 +62,7 @@ pub fn drop_plan(paths: Vec<PathBuf>) -> Option<DropPlan> {
 
 /// The web `accept` lists (`operator.js:413,476,491,492,726,900,948`).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Filter { Media, PowerPoint, Lyrics, Pictures, PicturesAndVideos, Bibles, Services, Csv, WebPage, Translation, Text, Playlist, ThemePack, Pptx }
+pub enum Filter { Media, PowerPoint, Lyrics, Pictures, PicturesAndVideos, Bibles, Services, Csv, WebPage, Translation, Text, Playlist, ThemePack, Pptx, Recording }
 
 impl Filter {
     pub fn name(self) -> String {
@@ -81,6 +81,7 @@ impl Filter {
             Filter::Playlist => crate::tr!("Playlist (.m3u8)"),
             Filter::ThemePack => crate::tr!("Theme pack (.rpthemes)"),
             Filter::Pptx => crate::tr!("PowerPoint (.pptx)"),
+            Filter::Recording => crate::tr!("Recording (video or sound)"),
         }
     }
 
@@ -100,6 +101,7 @@ impl Filter {
             Filter::Playlist => vec![crate::transfer::PLAYLIST_EXT],
             Filter::ThemePack => vec![crate::transfer::THEME_EXT],
             Filter::Pptx => crate::import::pptx_text::EXT.to_vec(),
+            Filter::Recording => [media::VIDEO, media::AUDIO].concat(),
         }
     }
 }

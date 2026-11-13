@@ -21,6 +21,9 @@ export global FollowUi {
     in property <int> suggested: -1;
     callback cycle-mode();
     callback toggle-hold();
+    /// The chip's right-click menu: Settings → Auto-follow on its Review log or Practice page.
+    callback open-log();
+    callback open-practice();
 }
 
 /// The colour of the listening light.
@@ -61,6 +64,18 @@ export component FollowRow inherits HorizontalLayout {
         TouchArea {
             mouse-cursor: pointer;
             clicked => { FollowUi.cycle-mode(); }
+        }
+        ContextMenuArea {
+            Menu {
+                MenuItem {
+                    title: @tr("Review log…");
+                    activated => { FollowUi.open-log(); }
+                }
+                MenuItem {
+                    title: @tr("Practice with a recording…");
+                    activated => { FollowUi.open-practice(); }
+                }
+            }
         }
     }
     VerticalLayout {

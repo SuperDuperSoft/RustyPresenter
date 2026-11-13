@@ -621,6 +621,12 @@ pub fn pick(op: &Rc<Operator>, filter: Filter, multi: bool, done: impl FnOnce(Ve
     native_pick(op, filter, multi, done);
 }
 
+/// The file picker starts in `dir` unless a file was already picked from somewhere this session.
+pub fn start_in(op: &Operator, dir: &Path) {
+    let mut last = op.files.last_folder.borrow_mut();
+    if last.is_none() && dir.is_dir() { *last = Some(dir.to_path_buf()) }
+}
+
 /// The native folder picker, starting in `start` when that folder exists. `done` runs only when one was picked.
 /// Tests take the next path queued with `testing::will_pick`.
 pub fn pick_folder(op: &Rc<Operator>, start: &Path, done: impl FnOnce(PathBuf) + 'static) {

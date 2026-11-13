@@ -12,7 +12,7 @@ pub fn mode(m: Mode) -> String {
 }
 
 pub fn mode_tip() -> String {
-    tr!("Songs follow the singers. Click: Manual → Suggest (the next slide glows) → Auto (the slides move by themselves). Key: A turns Auto on and off.")
+    tr!("Songs follow the singers. Click: Manual → Suggest (the next slide glows) → Auto (the slides move by themselves). Key: A turns Auto on and off. Right-click for the review log and Practice.")
 }
 
 /// The listening light, as the Live column says it.

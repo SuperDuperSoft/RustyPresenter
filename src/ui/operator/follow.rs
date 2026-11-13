@@ -102,6 +102,10 @@ pub(super) fn wire(op: &Rc<Operator>) {
     g.on_cycle_mode(move || if let Some(op) = me.upgrade() { cycle_mode(&op) });
     let me: Weak<Operator> = Rc::downgrade(op);
     g.on_toggle_hold(move || if let Some(op) = me.upgrade() { toggle_hold(&op, false); });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    g.on_open_log(move || if let Some(op) = me.upgrade() { crate::ui::dialogs::settings_follow::open_page(&op, 2) });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    g.on_open_practice(move || if let Some(op) = me.upgrade() { crate::ui::dialogs::settings_follow::open_page(&op, 1) });
 }
 
 #[cfg(test)]

@@ -2,12 +2,12 @@
 // usual mode, the lead time, when the words go off, and how sure a jump must be. Read and written by
 // `src/ui/dialogs/settings_follow.rs`.
 import { Theme } from "../theme.slint";
-import { Btn, Field, Segmented } from "../widgets.slint";
+import { Btn, Field, Segmented, ScrollBox } from "../widgets.slint";
 import { TextField, Note, Select, Check, RangeSlider } from "form.slint";
 import { SettingsDlg } from "settings-state.slint";
 import { Heading } from "settings-media.slint";
 
-export component SettingsFollow inherits VerticalLayout {
+component SettingsFollowMain inherits VerticalLayout {
     spacing: 4px;
     Note {
         text: @tr("RustyPresenter listens to the band and moves the song's slides by itself. The sound never leaves this computer.");
@@ -145,4 +145,132 @@ export component SettingsFollow inherits VerticalLayout {
             }
         }
     }
+}
+
+/// A list of log lines, or `empty` when there are none.
+component LogLines inherits Rectangle {
+    in property <[string]> lines;
+    in property <string> empty;
+    min-height: 220px;
+    border-radius: 9px;
+    border-width: 1px;
+    border-color: Theme.line;
+    background: Theme.bg;
+    if root.lines.length == 0: Text {
+        text: root.empty;
+        color: Theme.muted;
+        font-family: Theme.font;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        wrap: word-wrap;
+    }
+    if root.lines.length > 0: ScrollBox {
+        VerticalLayout {
+            padding: 10px;
+            spacing: 4px;
+            for line in root.lines: log-line := Text {
+                text: line;
+                color: Theme.text;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                wrap: word-wrap;
+                accessible-role: list-item;
+                accessible-label: self.text;
+            }
+        }
+    }
+}
+
+component SettingsFollowPractice inherits VerticalLayout {
+    spacing: 4px;
+    Note {
+        text: @tr("Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens.");
+    }
+    Rectangle { height: 10px; }
+    Field {
+        label: @tr("Recording");
+        HorizontalLayout {
+            spacing: 10px;
+            practice-file := Text {
+                horizontal-stretch: 1;
+                text: SettingsDlg.practice-file != "" ? SettingsDlg.practice-file : @tr("No recording chosen");
+                color: SettingsDlg.practice-file != "" ? Theme.text : Theme.muted;
+                font-family: Theme.font;
+                vertical-alignment: center;
+                overflow: elide;
+                accessible-role: text;
+                accessible-label: self.text;
+            }
+            practice-choose := Btn {
+                small: true;
+                text: @tr("Choose recording…");
+                clicked => { SettingsDlg.practice-choose(); }
+            }
+        }
+    }
+    Field {
+        label: @tr("Song");
+        practice-song := Select {
+            options: SettingsDlg.practice-songs;
+            index <=> SettingsDlg.practice-song;
+        }
+    }
+    HorizontalLayout {
+        alignment: start;
+        spacing: 10px;
+        practice-run := Btn {
+            primary: true;
+            enabled: !SettingsDlg.practice-running && SettingsDlg.practice-file != "" && SettingsDlg.practice-songs.length > 0;
+            text: @tr("Practice");
+            clicked => { SettingsDlg.practice-run(); }
+        }
+        practice-status := Text {
+            text: SettingsDlg.practice-status;
+            color: Theme.muted;
+            font-family: Theme.font;
+            vertical-alignment: center;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+    }
+    Rectangle { height: 8px; }
+    practice-log := LogLines {
+        lines: SettingsDlg.practice-lines;
+        empty: @tr("What auto-follow would have done shows here.");
+    }
+}
+
+component SettingsFollowReview inherits VerticalLayout {
+    spacing: 8px;
+    Note {
+        text: @tr("Every slide change auto-follow made or suggested since RustyPresenter started: when, what, why, and how sure it was.");
+    }
+    review-log := LogLines {
+        lines: SettingsDlg.review-lines;
+        empty: @tr("Nothing yet: auto-follow hasn't moved or suggested a slide.");
+    }
+    HorizontalLayout {
+        alignment: start;
+        review-copy := Btn {
+            small: true;
+            enabled: SettingsDlg.review-lines.length > 0;
+            text: @tr("Copy to clipboard");
+            clicked => { SettingsDlg.review-copy(); }
+        }
+    }
+}
+
+export component SettingsFollow inherits VerticalLayout {
+    HorizontalLayout {
+        alignment: start;
+        padding-bottom: 12px;
+        follow-page := Segmented {
+            labels: [@tr("Settings"), @tr("Practice"), @tr("Review log")];
+            index <=> SettingsDlg.follow-page;
+        }
+    }
+    if SettingsDlg.follow-page == 0: SettingsFollowMain {}
+    if SettingsDlg.follow-page == 1: SettingsFollowPractice {}
+    if SettingsDlg.follow-page == 2: SettingsFollowReview {}
 }

@@ -56,6 +56,20 @@ export global SettingsDlg {
     /// What Test found, or empty.
     in property <string> follow-test-result;
     callback follow-test();
+    /// Auto-follow's page: 0 Settings, 1 Practice, 2 Review log.
+    in-out property <int> follow-page;
+    /// Practice: the recording, the songs to pick from, and what the run found.
+    in property <string> practice-file;
+    in property <[string]> practice-songs;
+    in-out property <int> practice-song;
+    in property <bool> practice-running;
+    in property <string> practice-status;
+    in property <[string]> practice-lines;
+    callback practice-choose();
+    callback practice-run();
+    /// Review log: one line per change auto-follow made or suggested this session.
+    in property <[string]> review-lines;
+    callback review-copy();
 
     // ---- Language ----
     in property <[SettingsLanguageRow]> languages;

@@ -1,11 +1,13 @@
 //! Settings → Auto-follow (1.3): the sound input with a level meter and Test, the songs' usual mode, the lead
 //! time, when the words go off, and how many words a jump needs. The inputs are asked for off the UI thread.
 use crate::{
-    follow::{Mode, Settings, audio, rules::{LEAD_MAX, LEAD_MIN}},
+    follow::{LogEntry, Mode, Settings, audio, rules::{LEAD_MAX, LEAD_MIN}},
+    model::{Data, ItemKind, ServiceItem, Slide},
     ui::{SettingsDlg, operator::window::Operator},
 };
 use slint::{ComponentHandle, Model, ModelRc, SharedString, VecModel};
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, path::PathBuf, rc::Rc};
+use uuid::Uuid;
 
 /// The jump strictness Settings allows (words in a row).
 pub const JUMP_WORDS: std::ops::RangeInclusive<u8> = 2..=12;
@@ -16,6 +18,22 @@ thread_local! {
     /// Test's listening (and what it hears), until the dialog closes, and the timer that moves the meter.
     static TEST: RefCell<Option<(audio::Capture, std::sync::mpsc::Receiver<crate::follow::FollowEvent>)>> = const { RefCell::new(None) };
     static METER: slint::Timer = slint::Timer::default();
+    /// Practice: the songs offered (as service items) and the recording chosen.
+    static PRACTICE: RefCell<(Vec<ServiceItem>, Option<PathBuf>)> = const { RefCell::new((Vec::new(), None)) };
+}
+
+/// Runs Practice: `follow::practice::practice`, or a stand-in in tests.
+type Runner = fn(&std::path::Path, Vec<Slide>, Settings) -> Result<Vec<LogEntry>, String>;
+
+#[cfg(test)]
+thread_local! {
+    pub(crate) static FAKE_PRACTICE: std::cell::Cell<Option<Runner>> = const { std::cell::Cell::new(None) };
+}
+
+fn runner() -> Runner {
+    #[cfg(test)]
+    if let Some(f) = FAKE_PRACTICE.with(|f| f.get()) { return f }
+    crate::follow::practice::practice
 }
 
 fn usual_input() -> String { crate::tr!("The first one found") }
@@ -103,6 +121,112 @@ pub(super) fn load(op: &Rc<Operator>) {
     }
     let me = Rc::downgrade(op);
     op.ui.global::<SettingsDlg>().on_follow_test(move || if let Some(op) = me.upgrade() { test(&op) });
+    let g = op.ui.global::<SettingsDlg>();
+    let me = Rc::downgrade(op);
+    g.on_practice_choose(move || if let Some(op) = me.upgrade() { choose_recording(&op) });
+    let me = Rc::downgrade(op);
+    g.on_practice_run(move || if let Some(op) = me.upgrade() { run_practice(&op) });
+    let me = Rc::downgrade(op);
+    g.on_review_copy(move || if let Some(op) = me.upgrade() {
+        let text = review_lines(&op).join("\n");
+        super::settings::copy(&op, &text, &crate::tr!("Review log copied"));
+    });
+    fill_practice(op);
+    g.set_review_lines(strings(review_lines(op)));
+}
+
+/// Settings → Auto-follow on `page` (1 Practice, 2 Review log): the Auto chip's menu.
+pub fn open_page(op: &Rc<Operator>, page: i32) {
+    super::settings::open(op, super::SettingsTab::AutoFollow);
+    op.ui.global::<SettingsDlg>().set_follow_page(page);
+}
+
+/// The songs Practice offers: the open service's first, then the rest of the library, by title.
+pub fn practice_songs(data: &Data) -> Vec<(String, ServiceItem)> {
+    let mut out = vec![];
+    let mut seen = vec![];
+    for item in data.service().map(|s| s.items.as_slice()).unwrap_or_default() {
+        let ItemKind::Song { song_id, .. } = &item.kind else { continue };
+        let Some(song) = data.songs.iter().find(|s| s.id == *song_id) else { continue };
+        seen.push(*song_id);
+        out.push((crate::tr!("{title} (in this service)", title = song.title), item.clone()));
+    }
+    let mut rest: Vec<_> = data.songs.iter().filter(|s| !seen.contains(&s.id)).collect();
+    rest.sort_by_key(|s| s.title.to_lowercase());
+    for song in rest {
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None };
+        out.push((song.title.clone(), item));
+    }
+    out
+}
+
+fn fill_practice(op: &Operator) {
+    let g = op.ui.global::<SettingsDlg>();
+    let Some(snap) = super::settings::snap(op) else { return };
+    let songs = practice_songs(&snap.data);
+    g.set_practice_songs(strings(songs.iter().map(|(t, _)| t.clone()).collect()));
+    g.set_practice_song(0);
+    let file = PRACTICE.with(|p| { let mut p = p.borrow_mut(); p.0 = songs.into_iter().map(|(_, i)| i).collect(); p.1.clone() });
+    g.set_practice_file(file.map(|f| f.display().to_string()).unwrap_or_default().into());
+    g.set_practice_running(false);
+}
+
+/// "Choose recording…": starts in the recordings folder (File → Start recording saves there).
+fn choose_recording(op: &Rc<Operator>) {
+    let folder = super::settings::snap(op).map(|s| s.settings.record.folder()).unwrap_or_else(crate::record::default_folder);
+    crate::ui::operator::files::start_in(op, &folder);
+    let me = Rc::downgrade(op);
+    crate::ui::operator::files::pick(op, crate::ui::operator::file_input::Filter::Recording, false, move |paths| {
+        let (Some(op), Some(path)) = (me.upgrade(), paths.into_iter().next()) else { return };
+        op.ui.global::<SettingsDlg>().set_practice_file(path.display().to_string().into());
+        PRACTICE.with(|p| p.borrow_mut().1 = Some(path));
+    });
+}
+
+/// Practice: the chosen song over the recording, off the UI thread; its log shows when done.
+fn run_practice(op: &Rc<Operator>) {
+    let g = op.ui.global::<SettingsDlg>();
+    let Some(snap) = super::settings::snap(op) else { return };
+    let (item, file) = PRACTICE.with(|p| { let p = p.borrow(); (p.0.get(g.get_practice_song().max(0) as usize).cloned(), p.1.clone()) });
+    let (Some(item), Some(file)) = (item, file) else { return };
+    let slides = crate::slides::build_item(&snap.data, &item).2;
+    let mut settings = snap.settings.follow.clone();
+    read_form(&g, &mut settings);
+    g.set_practice_running(true);
+    g.set_practice_lines(strings(vec![]));
+    g.set_practice_status(crate::tr!("Practicing… this takes about a minute for a 5-minute song.").into());
+    let run = runner();
+    let me = Rc::downgrade(op);
+    let done = move |r: Result<Vec<LogEntry>, String>| {
+        let Some(op) = me.upgrade() else { return };
+        let g = op.ui.global::<SettingsDlg>();
+        g.set_practice_running(false);
+        match r {
+            Ok(log) => {
+                g.set_practice_status(crate::trn!("Done: {n} change.", "Done: {n} changes.", log.len()).into());
+                g.set_practice_lines(strings(log.iter().map(LogEntry::line).collect()));
+            }
+            Err(e) => g.set_practice_status(crate::tr!("Practice stopped: {error}", error = e).into()),
+        }
+    };
+    if op.ops().is_inline() { return done(run(&file, slides, settings)) }
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    let _ = std::thread::Builder::new().name("follow-practice".into()).spawn(move || { let _ = tx.send(run(&file, slides, settings)); });
+    let _ = slint::spawn_local(async move { if let Ok(r) = rx.await { done(r) } });
+}
+
+/// The review log as lines, each with its song's title: `Grace · 1:02.5  Slide 2  heard "…" (92%)`.
+pub fn log_lines(entries: &[LogEntry], title: impl Fn(Uuid) -> Option<String>) -> Vec<String> {
+    entries.iter().map(|e| match title(e.item) {
+        Some(t) => format!("{t} · {}", e.line()),
+        None => e.line(),
+    }).collect()
+}
+
+fn review_lines(op: &Operator) -> Vec<String> {
+    let entries = op.app().follower().map(|f| f.log()).unwrap_or_default();
+    let snap = super::settings::snap(op);
+    log_lines(&entries, |id| snap.as_ref().and_then(|s| s.items.iter().find(|i| i.id == id)).map(|i| i.title.clone()))
 }
 
 /// Test: listens to the chosen input until the dialog closes, the meter showing its level, or says why it can't.
@@ -175,6 +299,61 @@ mod tests {
         g.set_follow_lead(25);
         g.invoke_save();
         assert_eq!(app.data.lock().unwrap().settings.follow.lead_s, 2.5);
+    }
+
+    fn fake(file: &std::path::Path, slides: Vec<Slide>, s: Settings) -> Result<Vec<LogEntry>, String> {
+        use crate::follow::LogAction;
+        assert!(file.ends_with("sunday.mp4") && !slides.is_empty());
+        assert_eq!(s.lead_s, 3.0, "the form's settings, not yet saved");
+        Ok(vec![LogEntry { at: 62.5, item: Uuid::nil(), action: LogAction::Show(1), reason: "heard \"my chains are gone\"".into(), confidence: 0.92 }])
+    }
+
+    #[test]
+    fn practice_runs_a_recording_and_shows_the_log() {
+        crate::ui::ui_test_init();
+        let app = test_app();
+        let song = crate::model::Song { id: Uuid::new_v4(), title: "Grace".into(), lyrics: "Verse 1\nAmazing grace\n\nChorus\nMy chains are gone".into(), ..Default::default() };
+        app.data.lock().unwrap().songs.push(song);
+        let op = open(&app);
+        refresh(&op);
+        open_page(&op, 1);
+        let g = op.ui.global::<SettingsDlg>();
+        assert_eq!((g.get_tab(), g.get_follow_page()), (4, 1));
+        assert_eq!(g.get_practice_songs().row_data(0).unwrap(), "Grace");
+        assert!(g.get_practice_file().is_empty());
+        crate::ui::operator::files::testing::will_pick(vec![PathBuf::from("/rec/sunday.mp4")]);
+        g.invoke_practice_choose();
+        assert!(g.get_practice_file().ends_with("sunday.mp4"));
+        g.set_follow_lead(30);
+        FAKE_PRACTICE.with(|f| f.set(Some(fake)));
+        g.invoke_practice_run();
+        FAKE_PRACTICE.with(|f| f.set(None));
+        assert!(!g.get_practice_running());
+        assert_eq!(g.get_practice_status(), "Done: 1 change.");
+        assert_eq!(g.get_practice_lines().row_data(0).unwrap(), "1:02.5  Slide 2  heard \"my chains are gone\" (92%)");
+    }
+
+    #[test]
+    fn review_log_lines_name_the_song() {
+        use crate::follow::LogAction;
+        let id = Uuid::from_u128(7);
+        let e = |at: f64, item: Uuid, action| LogEntry { at, item, action, reason: "no singing for 3 s".into(), confidence: 1.0 };
+        let lines = log_lines(&[e(5.0, id, LogAction::Blank), e(70.0, Uuid::nil(), LogAction::Suggest(0))], |i| (i == id).then(|| "Grace".to_string()));
+        assert_eq!(lines, ["Grace · 0:05.0  Words off  no singing for 3 s (100%)", "1:10.0  Suggested slide 1  no singing for 3 s (100%)"]);
+    }
+
+    #[test]
+    fn review_log_opens_from_the_chip_and_copies() {
+        crate::ui::ui_test_init();
+        let app = test_app();
+        app.start_follower();
+        let op = open(&app);
+        refresh(&op);
+        op.ui.global::<crate::ui::FollowUi>().invoke_open_log();
+        let g = op.ui.global::<SettingsDlg>();
+        assert_eq!((g.get_tab(), g.get_follow_page()), (4, 2), "Settings → Auto-follow → Review log");
+        assert_eq!(g.get_review_lines().row_count(), 0, "nothing yet");
+        assert!(crate::ui::operator::window::testing::find(&op, "SettingsFollowReview::review-copy").is_some());
     }
 
     #[test]
