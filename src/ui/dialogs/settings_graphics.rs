@@ -99,8 +99,6 @@ fn run_test(op: &Rc<Operator>) {
     });
 }
 
-/// "Restart now": the normal quit, then a new copy (`recovery::restart`).
-pub(super) fn restart_now(_op: &Rc<Operator>, _edit: &Rc<Edit>) { crate::recovery::restart::request() }
 
 /// "Use this": saves the picked choice as the setting (`settings/graphics`), used from the next start.
 pub(super) fn use_picked(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {

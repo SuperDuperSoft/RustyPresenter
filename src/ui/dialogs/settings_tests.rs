@@ -518,8 +518,10 @@ fn the_graphics_test_shows_each_choice_and_use_this_saves_the_pick() {
     assert!(toasts(&op).contains(&"Restart RustyPresenter to use the new graphics setting.".to_string()));
     let want = graphics_choices().iter().position(|c| *c == Graphics::OpenGl).unwrap() as i32;
     assert_eq!(g(&op).get_graphics_index(), want);
+    // Nothing else changed: restarts at once, without asking.
     click(&op, "SettingsVideo::graphics-restart");
-    assert!(crate::recovery::restart::requested(), "Restart now");
+    assert_eq!(op.state.borrow().asks, 0);
+    assert_eq!(crate::recovery::restart::requests_here(), 1, "Restart now");
 
     // A choice that didn't work can't be used.
     super::settings_graphics::use_picked(&op, &Rc::new(edit_for(&app)), 1);
@@ -538,6 +540,33 @@ fn edit_for(app: &Arc<App>) -> Edit {
         language: Default::default(),
         themes: Default::default(),
     }
+}
+
+#[test]
+fn restart_now_asks_to_save_other_changes_first() {
+    use crate::recovery::restart::requests_here;
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Video);
+    settle();
+    g(&op).set_graphics_restart(true);
+    let before = app.data.lock().unwrap().settings.show_performance;
+    g(&op).set_show_performance(!before);
+    click(&op, "SettingsVideo::graphics-restart");
+    assert_eq!(op.state.borrow().asks, 1, "asks once");
+    let ask = op.ui.get_ask().row_data(0).unwrap();
+    assert_eq!((ask.text.as_str(), ask.ok_label.as_str(), ask.cancel_label.as_str()), ("Save your other changes and restart?", "Save and restart", "Cancel"));
+    crate::ui::dialogs::ask::answer(&op, false, String::new());
+    settle();
+    assert_eq!(requests_here(), 0, "Cancel: no restart");
+    assert_eq!(app.data.lock().unwrap().settings.show_performance, before, "and nothing saved");
+    assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Video)), "Settings stays open");
+
+    click(&op, "SettingsVideo::graphics-restart");
+    crate::ui::dialogs::ask::answer(&op, true, String::new());
+    settle();
+    assert_eq!(app.data.lock().unwrap().settings.show_performance, !before, "saved first");
+    assert_eq!(requests_here(), 1, "then restarted");
 }
 
 #[test]

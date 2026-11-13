@@ -12,11 +12,20 @@ static REQUESTED: AtomicBool = AtomicBool::new(false);
 
 /// Quits the app, which then starts again (see the top of this file).
 pub fn request() {
+    #[cfg(test)]
+    REQUESTS.with(|r| r.set(r.get() + 1));
     REQUESTED.store(true, Ordering::SeqCst);
     let _ = slint::quit_event_loop();
 }
 
 pub fn requested() -> bool { REQUESTED.load(Ordering::SeqCst) }
+
+#[cfg(test)]
+thread_local! { static REQUESTS: std::cell::Cell<u32> = const { std::cell::Cell::new(0) }; }
+
+/// Tests: how many times this thread asked for a restart.
+#[cfg(test)]
+pub fn requests_here() -> u32 { REQUESTS.with(|r| r.get()) }
 
 /// This run's arguments for the next copy: without the supervisor's and one-run flags (`--app`, `--restore`,
 /// `--attempt n`, `--safe-mode`, `--wait-for n`, the graphics test's), with `--wait-for pid`.
