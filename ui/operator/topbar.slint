@@ -1,7 +1,7 @@
 // The operator's top bar (`web/operator.html:11-24`, `operator.css:28-46`): brand, service picker, Bible box,
 // status pills, Screens, Phone and Settings. The Bible box only draws here; its behaviour is in `src/ui/operator/bible.rs`.
 import { Theme, OperatorState } from "../theme.slint";
-import { EditMenu, Icon, TopBtn, Pill, Kbd, TipBox } from "../widgets.slint";
+import { EditMenu, Icon, TopBtn, Pill, Kbd, TipArea } from "../widgets.slint";
 
 import { BiblePickerList, TranslationChip } from "../bible-picker.slint";
 import { StageLayoutButton } from "../dialogs/stage-layouts.slint";
@@ -176,13 +176,11 @@ export component TopBar inherits Rectangle {
                         }
                     }
                 }
-                TouchArea {
+                services-ta := TouchArea {
                     mouse-cursor: pointer;
                     clicked => { root.services(); }
                 }
-                Tooltip {
-                    TipBox { text: @tr("Switch or create services"); }
-                }
+                TipArea { text: @tr("Switch or create services"); hover: services-ta.has-hover; pressed: services-ta.pressed; pointer-x: services-ta.mouse-x; }
             }
         }
 
@@ -357,9 +355,7 @@ export component TopBar inherits Rectangle {
                                     mouse-cursor: pointer;
                                     clicked => { root.open-history(); }
                                 }
-                                Tooltip {
-                                    TipBox { text: @tr("Recent verses"); }
-                                }
+                                TipArea { text: @tr("Recent verses"); hover: history-ta.has-hover; pressed: history-ta.pressed; pointer-x: history-ta.mouse-x; }
                             }
                         }
                         // The chosen Bible and a chevron: a click opens the picker (spec §7.2).
@@ -397,13 +393,11 @@ export component TopBar inherits Rectangle {
                                         }
                                     }
                                 }
-                                TouchArea {
+                                pick-ta := TouchArea {
                                     mouse-cursor: pointer;
                                     clicked => { root.open-picker(); }
                                 }
-                                Tooltip {
-                                    TipBox { text: @tr("Choose a Bible"); }
-                                }
+                                TipArea { text: @tr("Choose a Bible"); hover: pick-ta.has-hover; pressed: pick-ta.pressed; pointer-x: pick-ta.mouse-x; }
                                 picker := PopupWindow {
                                     x: parent.width - self.width;
                                     y: parent.height + 8px;
@@ -470,7 +464,7 @@ export component TopBar inherits Rectangle {
                                             vertical-alignment: center;
                                         }
                                     }
-                                    TouchArea {
+                                    chip-ta := TouchArea {
                                         mouse-cursor: pointer;
                                         // The web refocuses the input after a pick (`operator.js:101`).
                                         clicked => {
@@ -478,9 +472,7 @@ export component TopBar inherits Rectangle {
                                             root.pick-translation(i + 1);
                                         }
                                     }
-                                    Tooltip {
-                                        TipBox { text: translation-chip.tip; }
-                                    }
+                                    TipArea { text: translation-chip.tip; hover: chip-ta.has-hover; pressed: chip-ta.pressed; pointer-x: chip-ta.mouse-x; }
                                 }
                             }
                         }
@@ -518,9 +510,7 @@ export component TopBar inherits Rectangle {
                                         root.cycle-per-slide();
                                     }
                                 }
-                                Tooltip {
-                                    TipBox { text: @tr("Verses per slide for the next passage. Click to change."); }
-                                }
+                                TipArea { text: @tr("Verses per slide for the next passage. Click to change."); hover: per-slide-ta.has-hover; pressed: per-slide-ta.pressed; pointer-x: per-slide-ta.mouse-x; }
                             }
                         }
                         VerticalLayout {

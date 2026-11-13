@@ -1,6 +1,6 @@
 // The native operator window (`web/operator.html`): the top bar over three columns (`operator.css:52`).
 import { Theme, OperatorState } from "theme.slint";
-import { Panel } from "widgets.slint";
+import { Panel, TipLayer } from "widgets.slint";
 import { Palette } from "std-widgets.slint";
 import { TopBar, TranslationChip } from "operator/topbar.slint";
 import { ServiceColumn, ServiceRow } from "operator/service.slint";
@@ -1173,6 +1173,13 @@ export component OperatorWindow inherits Window {
     }
     // Find my mouse (N35), over everything.
     MouseRings {
+        x: 0px;
+        y: 0px;
+        width: root.width;
+        height: root.height;
+    }
+    // The hover tooltip of every widget in the window, over everything.
+    TipLayer {
         x: 0px;
         y: 0px;
         width: root.width;

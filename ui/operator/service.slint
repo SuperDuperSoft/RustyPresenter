@@ -1,7 +1,7 @@
 // The service column (`web/operator.html:26-31`, `operator.css:59-79`, `operator.js:123-153`): the item list with
 // drag to reorder, its empty state and the dashed "Add to service" button. The behaviour is in Rust (`service.rs`).
 import { Theme } from "../theme.slint";
-import { Btn, Chip, Icon, TipBox, ScrollBox, PanelHead, DashedOutline } from "../widgets.slint";
+import { Btn, Chip, Icon, TipArea, ScrollBox, PanelHead, DashedOutline } from "../widgets.slint";
 import { Select } from "../dialogs/form.slint";
 import { FilterBox, ListFilter } from "../filter.slint";
 import { Spinner } from "std-widgets.slint";
@@ -52,9 +52,7 @@ component RowAct inherits Rectangle {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
-    Tooltip {
-        TipBox { text: root.tooltip; }
-    }
+    TipArea { text: root.tooltip; hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
 }
 
 export component ServiceColumn inherits VerticalLayout {

@@ -2,7 +2,7 @@
 // a live preview, and the church's background library. Rust (`src/ui/dialogs/settings_themes.rs`) fills `ThemesDlg`;
 // every button here runs an action at once (Save settings is not needed).
 import { Theme } from "../theme.slint";
-import { Btn, Field, Segmented, Icon, TipBox } from "../widgets.slint";
+import { Btn, Field, Segmented, Icon, TipArea } from "../widgets.slint";
 import { Check, RangeSlider, Select, Lbl, ListRow, RowMain, TextField, Note } from "form.slint";
 import { BackgroundPicker, BgChoice, ColorPicker } from "background-picker.slint";
 import { FilterBox, ListFilter } from "../filter.slint";
@@ -151,9 +151,7 @@ component Star inherits Rectangle {
         mouse-cursor: root.on ? default : pointer;
         clicked => { if !root.on { root.clicked(); } }
     }
-    if !root.on: Tooltip {
-        TipBox { text: @tr("Make this the church default"); }
-    }
+    TipArea { text: root.on ? "" : @tr("Make this the church default"); hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
 }
 
 /// The list of themes and the background library.

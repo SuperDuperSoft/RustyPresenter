@@ -2,7 +2,7 @@
 // on the room screen; F6 (Clear overlays) and + (the Overlays dialog) stay at the right. One row, 36 px, scrolling
 // sideways when the chips don't fit. Rust (`src/ui/operator/overlay_strip.rs`) fills `OverlayStrip`.
 import { Theme } from "../theme.slint";
-import { Btn, TipBox } from "../widgets.slint";
+import { Btn, TipArea } from "../widgets.slint";
 
 /// A chip: `kind` is "text", "picture", "clock" or "other"; `changed` when the library copy differs from what is up;
 /// `deleted` when it is up but was deleted from the library.
@@ -80,9 +80,7 @@ component OverlayChip inherits Rectangle {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
-    if root.chip.changed: Tooltip {
-        TipBox { text: @tr("Changed — turn it off and on to update."); }
-    }
+    TipArea { text: root.chip.changed ? @tr("Changed — turn it off and on to update.") : ""; hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
 }
 
 export component OverlaysStrip inherits Rectangle {

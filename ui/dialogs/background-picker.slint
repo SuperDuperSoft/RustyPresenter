@@ -1,7 +1,7 @@
 // `backgroundPicker()` (`operator.js:701-718`, `.bg-choices` in `operator.css:210-215`): Theme default, six
 // swatches, a custom colour, every ready picture or video, and "+ Upload…". The tiles wrap like the web's flex row.
 import { Theme, OperatorState } from "../theme.slint";
-import { EditMenu, TipBox } from "../widgets.slint";
+import { EditMenu, TipArea } from "../widgets.slint";
 
 /// One tile. `kind` is "default", "color", "custom", "image", "video" or "upload"; `swatch` is the colour of a
 /// colour tile (and the custom colour's current value); `image` is a picture's thumbnail (black until drawn).
@@ -187,9 +187,7 @@ export component BackgroundPicker inherits VerticalLayout {
                     }
                 }
             }
-            if c.tooltip != "" || choice.custom: Tooltip {
-                TipBox { text: choice.custom ? @tr("Pick any color") : c.tooltip; }
-            }
+            TipArea { text: choice.custom ? @tr("Pick any color") : c.tooltip; hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
         }
     }
 
@@ -224,13 +222,11 @@ export component ColorPicker inherits VerticalLayout {
             accessible-label: @tr("Pick any color");
             accessible-checked: root.open;
             accessible-action-default => { root.open = !root.open; }
-            TouchArea {
+            swatch-ta := TouchArea {
                 mouse-cursor: pointer;
                 clicked => { root.open = !root.open; }
             }
-            Tooltip {
-                TipBox { text: @tr("Pick any color"); }
-            }
+            TipArea { text: @tr("Pick any color"); hover: swatch-ta.has-hover; pressed: swatch-ta.pressed; pointer-x: swatch-ta.mouse-x; }
         }
     }
     if root.open: grid := ColorGrid {

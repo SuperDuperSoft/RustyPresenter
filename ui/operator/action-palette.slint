@@ -2,7 +2,7 @@
 // it to add it to the slide picked at the top. A slide's actions run when it is taken live, never in a preview.
 // Filled by `src/ui/operator/action_palette.rs`.
 import { Theme } from "../theme.slint";
-import { Btn, Icon, ScrollBox, TipBox } from "../widgets.slint";
+import { Btn, Icon, ScrollBox, TipArea } from "../widgets.slint";
 import { Select } from "../dialogs/form.slint";
 
 /// A tile. `code` is what it adds (Rust reads it back); `off` says why it can't be used yet ("" when it can).
@@ -63,9 +63,7 @@ component Tile inherits Rectangle {
             clicked => { if root.tile.off == "" { SlideActs.add(root.tile.code); } }
         }
     }
-    Tooltip {
-        TipBox { text: root.tile.off != "" ? root.tile.off : @tr("Drag onto a slide, or click to add it to the picked slide"); }
-    }
+    TipArea { text: root.tile.off != "" ? root.tile.off : @tr("Drag onto a slide, or click to add it to the picked slide"); hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
 }
 
 export component ActionPalette inherits Rectangle {

@@ -1,7 +1,7 @@
 // FEAT-2's automation strip in the live column (spec §3.1): the Message button, the auto-advance chip, timer
 // chips and macro buttons. Rows with nothing in them are hidden. Filled by `src/ui/operator/automation.rs`.
 import { Theme } from "../theme.slint";
-import { Btn, Icon, TipBox } from "../widgets.slint";
+import { Btn, Icon, TipArea } from "../widgets.slint";
 
 export struct AutoTimerChip { id: string, name: string, text: string, over: bool, running: bool, can-pause: bool, in-room: bool, media: bool }
 export struct AutoMacroBtn { id: string, name: string, color: color }
@@ -57,9 +57,7 @@ component ChipBtn inherits Rectangle {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
-    if root.tooltip != "": Tooltip {
-        TipBox { text: root.tooltip; }
-    }
+    TipArea { text: root.tooltip; hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
 }
 
 export component AutomationStrip inherits VerticalLayout {

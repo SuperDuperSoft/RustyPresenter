@@ -132,6 +132,49 @@ mod tests {
     }
 
     #[test]
+    fn one_tooltip_per_window_shows_below_the_widget_and_hides() {
+        // The window's one tip (`TipLayer`): it shows below the button after the rest, hides on a press and on leave,
+        // and a disabled button still shows its tip (it says why the button is off).
+        use i_slint_backend_testing::{mock_elapsed_time, ElementHandle};
+        use slint::platform::{PointerEventButton, WindowEvent};
+        use slint::{ComponentHandle, LogicalPosition};
+        use std::time::Duration;
+        ui_test_init();
+        let w = crate::ui::WidgetGallery::new().unwrap();
+        w.show().unwrap();
+        let centre = |id: &str| {
+            let b = ElementHandle::find_by_element_id(&w, id).next().expect(id);
+            let (p, s) = (b.absolute_position(), b.size());
+            (LogicalPosition::new(p.x + s.width / 2.0, p.y + s.height / 2.0), p.y + s.height)
+        };
+        let tip = |text: &str| ElementHandle::find_by_accessible_label(&w, text).next();
+        let move_to = |at: LogicalPosition| w.window().dispatch_event(WindowEvent::PointerMoved { position: at });
+        let (at, bottom) = centre("WidgetGallery::tip-btn");
+        assert!(tip("A tooltip").is_none(), "no tip before the pointer rests");
+        move_to(at);
+        mock_elapsed_time(Duration::from_millis(300));
+        assert!(tip("A tooltip").is_none(), "not before the delay");
+        mock_elapsed_time(Duration::from_millis(400));
+        let shown = tip("A tooltip").expect("the tip shows after the delay");
+        assert!(shown.absolute_position().y >= bottom, "below the button");
+        w.window().dispatch_event(WindowEvent::PointerPressed { position: at, button: PointerEventButton::Left });
+        assert!(tip("A tooltip").is_none(), "a press hides it");
+        w.window().dispatch_event(WindowEvent::PointerReleased { position: at, button: PointerEventButton::Left });
+        mock_elapsed_time(Duration::from_millis(700));
+        assert!(tip("A tooltip").is_some(), "it shows again after the delay");
+        move_to(LogicalPosition::new(2.0, 2.0));
+        assert!(tip("A tooltip").is_none(), "leaving hides it");
+        mock_elapsed_time(Duration::from_millis(700));
+        assert!(tip("A tooltip").is_none());
+        let (off, _) = centre("WidgetGallery::off-btn");
+        move_to(off);
+        mock_elapsed_time(Duration::from_millis(700));
+        assert!(tip("Why it is off").is_some(), "a disabled button shows its tip");
+        assert!(tip("A tooltip").is_none(), "one tip at a time");
+        w.hide().unwrap();
+    }
+
+    #[test]
     fn narrow_top_button_keeps_its_side_padding() {
         // `operator.css:180` hides the label of Screens/Phone but keeps their 8×10 padding; `.icon-only` is 8 all round.
         use i_slint_backend_testing::ElementHandle;

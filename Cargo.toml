@@ -102,6 +102,11 @@ strip = "debuginfo"
 
 # The screens' generated code (crates/rp-ui) is most of the program. It draws menus and dialogs, not video,
 # so build it for size: it makes the program and the setup file much smaller.
+# The generated screen code (54+ MB of Rust) needs no debug info, and building it with debug info needs more
+# memory than a small build machine has.
+[profile.dev.package.rp-ui]
+debug = 0
+
 [profile.release.package.rp-ui]
 opt-level = "s"
 

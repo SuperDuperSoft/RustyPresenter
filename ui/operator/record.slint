@@ -1,7 +1,7 @@
 // N22: the top bar's Record button. Off: a hollow red ring and "Record". On: a red dot, the time recorded and a
 // red outline (no animation, so the window only redraws once a second); clicking stops. Behaviour is in `src/ui/operator/record.rs`.
 import { Theme } from "../theme.slint";
-import { TipBox } from "../widgets.slint";
+import { TipArea } from "../widgets.slint";
 
 export component RecordBtn inherits Rectangle {
     in property <bool> recording;
@@ -62,7 +62,5 @@ export component RecordBtn inherits Rectangle {
         clicked => { root.clicked(); }
     }
 
-    Tooltip {
-        TipBox { text: root.recording ? @tr("Stop recording and save the file") : @tr("Record the room screen to a video file"); }
-    }
+    TipArea { text: root.recording ? @tr("Stop recording and save the file") : @tr("Record the room screen to a video file"); hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
 }

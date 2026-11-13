@@ -2,7 +2,7 @@
 // move it there or onto End, × removes one, and with a chip selected Ctrl+←/→ move it, ←/→ choose another and
 // Delete or Backspace removes it. The logic is in Rust (`src/sections/arrangement.rs` and the dialogs' glue).
 import { Theme } from "../theme.slint";
-import { Btn, TipBox } from "../widgets.slint";
+import { Btn, TipArea } from "../widgets.slint";
 
 /// One entry of the order as a chip: `index` in the order, `kind` its section kind for the colour, `missing` matches
 /// no section of the lyrics, `faded` shows the written order while the order is empty.
@@ -135,9 +135,7 @@ export component ArrangementStrip inherits FocusScope {
                     }
                     TouchArea { clicked => { root.remove(c.index); } }
                 }
-                if c.missing: Tooltip {
-                    TipBox { text: @tr("Not in the lyrics — it is skipped"); }
-                }
+                TipArea { text: c.missing ? @tr("Not in the lyrics — it is skipped") : ""; hover: arr-ta.has-hover; pressed: arr-ta.pressed; pointer-x: arr-ta.mouse-x; }
             }
         }
         if root.rows.length > 0: HorizontalLayout {

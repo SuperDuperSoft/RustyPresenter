@@ -1,7 +1,7 @@
 // Every shared widget in each state, for a person to compare against the web operator (`cargo run --example widgets`).
 // A development aid only: its strings are plain literals (no `@tr`) so they stay out of the translation catalog.
 import { Theme } from "theme.slint";
-import { Icon, Btn, TopBtn, Pill, Kbd, Chip, Segmented, Panel, PanelHead, Bar, Field, ScrollBox, CopyText, DashedOutline } from "widgets.slint";
+import { Icon, Btn, TopBtn, Pill, Kbd, Chip, Segmented, Panel, PanelHead, Bar, Field, ScrollBox, CopyText, DashedOutline, TipLayer } from "widgets.slint";
 
 export component WidgetGallery inherits Window {
     title: "RustyPresenter — widgets";
@@ -55,7 +55,7 @@ export component WidgetGallery inherits Window {
                     Btn { text: "Primary"; primary: true; }
                     Btn { text: "Danger"; danger: true; icon: "trash"; }
                     Btn { text: "Small"; small: true; icon: "edit"; }
-                    Btn { text: "Disabled"; enabled: false; }
+                    off-btn := Btn { text: "Disabled"; enabled: false; tooltip: "Why it is off"; }
                     Btn { text: "Primary small"; primary: true; small: true; }
                 }
                 HorizontalLayout {
@@ -129,5 +129,11 @@ export component WidgetGallery inherits Window {
                 }
             }
         }
+    }
+    TipLayer {
+        x: 0px;
+        y: 0px;
+        width: root.width;
+        height: root.height;
     }
 }

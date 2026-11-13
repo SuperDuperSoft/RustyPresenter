@@ -2,10 +2,10 @@
 // (named beside each component). Every colour, radius and font comes from `Theme`.
 import { Theme } from "theme.slint";
 import { Icon } from "icons.slint";
-import { TipBox } from "tip.slint";
+import { TipBox, TipArea, TipLayer } from "tip.slint";
 import { ScrollBox } from "scroll.slint";
 
-export { Icon, TipBox, ScrollBox }
+export { Icon, TipBox, TipArea, TipLayer, ScrollBox }
 
 /// `.btn` (`.primary`, `.danger`, `.small`, `:disabled`): an optional icon and a label.
 export component Btn inherits Rectangle {
@@ -16,50 +16,56 @@ export component Btn inherits Rectangle {
     in property <bool> small;
     in property <bool> enabled: true;
     in property <string> tooltip;
-    out property <bool> has-hover: ta.has-hover;
+    out property <bool> has-hover: ta.has-hover && root.enabled;
     callback clicked();
 
     property <brush> ink: root.primary ? Theme.accent-ink : root.danger ? Theme.danger-text : Theme.text;
 
-    border-radius: 9px;
-    border-width: 1px;
-    background: root.primary ? Theme.accent : Theme.raise;
-    border-color: root.primary ? Theme.accent : ta.has-hover && root.enabled ? Theme.btn-hover : Theme.line;
-    opacity: root.enabled ? 1 : 0.45;
+    // The look is on a child that fills the button: an `opacity` on the root makes Slint copy the whole button into
+    // every place that uses it, and there are hundreds.
+    Rectangle {
+        border-radius: 9px;
+        border-width: 1px;
+        background: root.primary ? Theme.accent : Theme.raise;
+        border-color: root.primary ? Theme.accent : ta.has-hover && root.enabled ? Theme.btn-hover : Theme.line;
+        opacity: root.enabled ? 1 : 0.45;
 
-    HorizontalLayout {
-        padding-top: root.small ? 5px : 8px;
-        padding-bottom: self.padding-top;
-        padding-left: root.small ? 10px : 13px;
-        padding-right: self.padding-left;
-        spacing: 7px;
-        alignment: center;
-        if root.icon != "": VerticalLayout {
+        HorizontalLayout {
+            padding-top: root.small ? 5px : 8px;
+            padding-bottom: self.padding-top;
+            padding-left: root.small ? 10px : 13px;
+            padding-right: self.padding-left;
+            spacing: 7px;
             alignment: center;
-            Icon {
-                name: root.icon;
+            if root.icon != "": VerticalLayout {
+                alignment: center;
+                Icon {
+                    name: root.icon;
+                    color: root.ink;
+                }
+            }
+            if root.text != "": Text {
+                text: root.text;
                 color: root.ink;
+                font-family: Theme.font;
+                font-size: root.small ? 13px : Theme.base-size;
+                font-weight: 600;
+                vertical-alignment: center;
             }
         }
-        if root.text != "": Text {
-            text: root.text;
-            color: root.ink;
-            font-family: Theme.font;
-            font-size: root.small ? 13px : Theme.base-size;
-            font-weight: 600;
-            vertical-alignment: center;
+    }
+
+    // Enabled even on a disabled button, so its tooltip (often the reason it is off) still shows.
+    ta := TouchArea {
+        mouse-cursor: root.enabled ? pointer : default;
+        clicked => {
+            if root.enabled {
+                root.clicked();
+            }
         }
     }
 
-    ta := TouchArea {
-        enabled: root.enabled;
-        mouse-cursor: root.enabled ? pointer : default;
-        clicked => { root.clicked(); }
-    }
-
-    if root.tooltip != "": Tooltip {
-        TipBox { text: root.tooltip; }
-    }
+    TipArea { text: root.tooltip; hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
 }
 
 /// `.top-btn` (and `.icon-only`): a top-bar button with an icon and a label; hover raises it.
@@ -107,9 +113,7 @@ export component TopBtn inherits Rectangle {
         clicked => { root.clicked(); }
     }
 
-    if root.tooltip != "": Tooltip {
-        TipBox { text: root.tooltip; }
-    }
+    TipArea { text: root.tooltip; hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
 }
 
 /// `.pill` in the top bar's status: a dot (`off` grey, `on` green with a glow, `warn` red) and a label.
@@ -163,9 +167,7 @@ export component Pill inherits Rectangle {
         clicked => { root.clicked(); }
     }
 
-    if root.tooltip != "": Tooltip {
-        TipBox { text: root.tooltip; }
-    }
+    TipArea { text: root.tooltip; hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
 }
 
 /// `kbd`: a key name.
@@ -217,9 +219,7 @@ export component Chip inherits Rectangle {
 
     ta := TouchArea { }
 
-    if root.tooltip != "": Tooltip {
-        TipBox { text: root.tooltip; }
-    }
+    TipArea { text: root.tooltip; hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
 }
 
 /// `.seg`: a row of choices, one of them on.
@@ -572,7 +572,5 @@ export component CloseButton inherits Rectangle {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
-    if root.tooltip != "": Tooltip {
-        TipBox { text: root.tooltip; }
-    }
+    TipArea { text: root.tooltip; hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
 }

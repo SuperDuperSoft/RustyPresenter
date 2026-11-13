@@ -1,6 +1,6 @@
 // The live column's buttons (`operator.css:115-136`): play/pause, Back/Next and the clears.
 import { Theme } from "../theme.slint";
-import { Icon, Kbd, TipBox } from "../widgets.slint";
+import { Icon, Kbd, TipArea } from "../widgets.slint";
 
 /// `.transport button`: play while paused, else pause.
 export component TransportBtn inherits Rectangle {
@@ -18,13 +18,11 @@ export component TransportBtn inherits Rectangle {
         name: root.paused ? "play" : "pause";
         color: Theme.text;
     }
-    TouchArea {
+    ta := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
-    Tooltip {
-        TipBox { text: root.paused ? @tr("Play") : @tr("Pause"); }
-    }
+    TipArea { text: root.paused ? @tr("Play") : @tr("Pause"); hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
 }
 
 /// `.nav-btn` (`.next`): Back or Next, 64 px tall, the chevron before (Back) or after (Next) the word.
@@ -72,9 +70,7 @@ export component NavBtn inherits Rectangle {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
     }
-    Tooltip {
-        TipBox { text: root.tooltip; }
-    }
+    TipArea { text: root.tooltip; hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
 }
 
 /// `.clear`: a label over its F-key; `.on` (the Logo while it shows) turns it accent.
