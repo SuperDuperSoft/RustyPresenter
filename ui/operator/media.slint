@@ -138,6 +138,10 @@ component BinTile inherits Rectangle {
 
 export component MediaBin inherits VerticalLayout {
     in-out property <bool> open: true;
+    /// How tall the list under the tabs is. Shorter on a short window, so the slides keep their room.
+    in property <length> body-height: 220px;
+    /// The window is wide enough for the thumbnail size slider beside the tabs, the search box and Import.
+    in property <bool> roomy: true;
     in property <string> tab: "all";
     in property <[BinFolder]> folders;
     in property <[BinRow]> rows;
@@ -251,8 +255,8 @@ export component MediaBin inherits VerticalLayout {
             placeholder: root.song-placeholder;
             edited(t) => { root.song-search(t); }
         }
-        // N8: the thumbnail size slider.
-        if root.open && root.tab != "songs": HorizontalLayout {
+        // N8: the thumbnail size slider. It gives way on a narrow window, so Import always stays on the screen.
+        if root.open && root.tab != "songs" && root.roomy: HorizontalLayout {
             spacing: 6px;
             VerticalLayout {
                 alignment: center;
@@ -275,12 +279,14 @@ export component MediaBin inherits VerticalLayout {
             }
         }
         if root.open && root.tab != "songs": bin-import := Btn {
+            horizontal-stretch: 0;
             small: true;
             icon: "upload";
             text: @tr("Import");
             clicked => { root.import(); }
         }
         if root.open && root.tab == "songs": new-song-button := Btn {
+            horizontal-stretch: 0;
             small: true;
             icon: "plus";
             text: @tr("New song");
@@ -289,7 +295,7 @@ export component MediaBin inherits VerticalLayout {
     }
 
     if root.open && root.tab == "songs": Rectangle {
-        height: 220px;
+        height: root.body-height;
         if root.songs.length == 0: Text {
             width: parent.width;
             height: parent.height;
@@ -339,7 +345,7 @@ export component MediaBin inherits VerticalLayout {
     }
 
     if root.open && root.tab != "songs": HorizontalLayout {
-        height: 220px;
+        height: root.body-height;
         // Folders.
         Rectangle {
             width: 168px;

@@ -64,11 +64,20 @@ export component OperatorWindow inherits Window {
         Palette.color-scheme = ColorScheme.dark;
         root.fit();
     }
+    /// The window is wide enough for the media library's thumbnail size slider beside its tabs, search and Import.
+    /// Set from `fit`, like `narrow`: a binding on the window's own size would make the layout depend on itself.
+    out property <bool> bin-roomy: true;
+    /// The window is short (a 768 px laptop screen): the media library's list is lower, so the slides keep
+    /// more than one row.
+    out property <bool> short;
     changed width => { root.fit(); }
+    changed height => { root.fit(); }
     function fit() {
         root.narrow = root.width <= 1250px;
         root.compact = root.width < 1400px;
         root.verses-shown = !root.compact;
+        root.bin-roomy = root.width >= 1340px;
+        root.short = root.height < 820px;
     }
 
     // Top bar (see `TopBar`).
@@ -99,6 +108,7 @@ export component OperatorWindow inherits Window {
     // Service column (see `ServiceColumn`).
     in property <[ServiceRow]> service-rows;
     in property <string> service-count;
+    in property <string> service-count-short;
     callback service-select(string);
     callback service-show-first(string);
     callback service-edit(string);
@@ -947,6 +957,7 @@ export component OperatorWindow inherits Window {
                                 vertical-stretch: 1;
                                 rows: root.service-rows;
                                 count: root.service-count;
+                                count-short: root.service-count-short;
                                 loaded: root.loaded;
                                 select(id) => { root.focus-keys(); root.service-select(id); }
                                 show-first(id) => { root.focus-keys(); root.service-show-first(id); }
@@ -1000,6 +1011,9 @@ export component OperatorWindow inherits Window {
                     bin-col := Panel {
                         vertical-stretch: 0;
                         bin := MediaBin {
+                            // A 768 px laptop screen keeps more than one row of slides above the library.
+                            body-height: root.short ? 150px : 220px;
+                            roomy: root.bin-roomy;
                             rows: root.bin-rows;
                             folders: root.bin-folders;
                             tab: root.bin-tab;
