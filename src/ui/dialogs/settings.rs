@@ -357,11 +357,14 @@ fn save_then(op: &Rc<Operator>, edit: &Rc<Edit>, then: impl FnOnce(&Rc<Operator>
         s.screens = latest.settings.screens.clone();
     }
     let body = serde_json::to_value(&s).unwrap_or_default();
+    // 1.3: a new sound input for auto-follow is listened to at once.
+    let input_changed = s.follow.input != edit.settings.borrow().follow.input;
     let me = Rc::downgrade(op);
     op.ops().call::<serde_json::Value>("settings", body, move |r| {
         let Some(op) = me.upgrade() else { return };
         match r {
             Ok(_) => {
+                crate::ui::operator::follow::listen(&op, input_changed);
                 op.close_dialog();
                 op.toast(strings::saved(), false);
                 then(&op);

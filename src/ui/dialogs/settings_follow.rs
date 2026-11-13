@@ -13,11 +13,12 @@ pub const JUMP_WORDS: std::ops::RangeInclusive<u8> = 2..=12;
 pub const BLANK_SECS: std::ops::RangeInclusive<u32> = 1..=60;
 
 thread_local! {
-    /// Test's listening (and what it hears), until the dialog closes.
+    /// Test's listening (and what it hears), until the dialog closes, and the timer that moves the meter.
     static TEST: RefCell<Option<(audio::Capture, std::sync::mpsc::Receiver<crate::follow::FollowEvent>)>> = const { RefCell::new(None) };
+    static METER: slint::Timer = slint::Timer::default();
 }
 
-fn usual_input() -> String { crate::tr!("The computer's usual input") }
+fn usual_input() -> String { crate::tr!("The first one found") }
 fn not_connected(name: &str) -> String { crate::tr!("{name} (not connected)", name = name) }
 
 /// The input list's lines and the device each stands for, with the chosen one. A saved input that is not plugged
@@ -44,15 +45,17 @@ fn fill_devices(g: &SettingsDlg, devices: &[String], saved: &str) {
     g.set_follow_device_index(index as i32);
 }
 
-fn read_device(g: &SettingsDlg) -> String {
-    g.get_follow_device_names().row_data(g.get_follow_device_index().max(0) as usize).unwrap_or_default().into()
+/// The chosen input; `None`: the first one found.
+fn read_device(g: &SettingsDlg) -> Option<String> {
+    let name: String = g.get_follow_device_names().row_data(g.get_follow_device_index().max(0) as usize).unwrap_or_default().into();
+    (!name.is_empty()).then_some(name)
 }
 
 /// Seconds as the form shows them ("3", "2.5").
 fn secs_text(s: f32) -> String { if s.fract() == 0.0 { format!("{s:.0}") } else { format!("{s:.1}") } }
 
 pub(super) fn fill_form(g: &SettingsDlg, s: &Settings, devices: &[String]) {
-    fill_devices(g, devices, &s.device);
+    fill_devices(g, devices, s.input.as_deref().unwrap_or(""));
     g.set_follow_mode(s.mode.index() as i32);
     g.set_follow_lead((s.lead() * 10.0).round() as i32);
     g.set_follow_blank_on(s.blank_after_s.is_some());
@@ -66,7 +69,7 @@ pub(super) fn fill_form(g: &SettingsDlg, s: &Settings, devices: &[String]) {
 
 /// Reads the form back, every number kept to its range; a number that can't be read leaves the setting as it was.
 pub(super) fn read_form(g: &SettingsDlg, s: &mut Settings) {
-    s.device = read_device(g);
+    s.input = read_device(g);
     s.mode = Mode::from_index(g.get_follow_mode().max(0) as usize);
     s.lead_s = (g.get_follow_lead() as f32 / 10.0).clamp(LEAD_MIN, LEAD_MAX);
     let secs = |on: bool, text: SharedString, old: Option<f32>| -> Option<f32> {
@@ -95,21 +98,32 @@ pub(super) fn load(op: &Rc<Operator>) {
             let (Ok(devices), Some(op)) = (rx.await, me.upgrade()) else { return };
             let g = op.ui.global::<SettingsDlg>();
             let chosen = read_device(&g);
-            fill_devices(&g, &devices, &chosen);
+            fill_devices(&g, &devices, chosen.as_deref().unwrap_or(""));
         });
     }
     let me = Rc::downgrade(op);
     op.ui.global::<SettingsDlg>().on_follow_test(move || if let Some(op) = me.upgrade() { test(&op) });
 }
 
-/// Test: listens to the chosen input until the dialog closes, or says why it can't.
+/// Test: listens to the chosen input until the dialog closes, the meter showing its level, or says why it can't.
 fn test(op: &Rc<Operator>) {
     let g = op.ui.global::<SettingsDlg>();
     stop();
     let (tx, rx) = std::sync::mpsc::channel();
-    let said = match audio::Capture::start(&read_device(&g), tx) {
+    let device = read_device(&g).or_else(|| audio::input_devices().into_iter().next());
+    let started = match device {
+        Some(d) => audio::Capture::start(&d, tx),
+        None => Err(crate::tr!("no microphone or line-in found")),
+    };
+    let said = match started {
         Ok(c) => {
             TEST.with(|t| *t.borrow_mut() = Some((c, rx)));
+            let me = Rc::downgrade(op);
+            METER.with(|m| m.start(slint::TimerMode::Repeated, std::time::Duration::from_millis(100), move || {
+                let Some(op) = me.upgrade() else { return };
+                let level = TEST.with(|t| t.borrow().as_ref().map(|(c, rx)| { while rx.try_recv().is_ok() {} c.level() }));
+                op.ui.global::<SettingsDlg>().set_follow_level(level.unwrap_or(0.0));
+            }));
             crate::tr!("Listening… sing or say a line.")
         }
         Err(e) => crate::tr!("Can't listen to this input: {error}", error = e),
@@ -118,7 +132,10 @@ fn test(op: &Rc<Operator>) {
 }
 
 /// Stops Test's listening (the dialog closed).
-pub(super) fn stop() { TEST.with(|t| t.borrow_mut().take()); }
+pub(super) fn stop() {
+    METER.with(|m| m.stop());
+    TEST.with(|t| t.borrow_mut().take());
+}
 
 #[cfg(test)]
 mod tests {

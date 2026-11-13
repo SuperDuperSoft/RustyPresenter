@@ -612,7 +612,11 @@ fn save_follow(op: &Rc<Operator>, item_id: Uuid) {
     if mode == was { return }
     let me = Rc::downgrade(op);
     op.ops().cmd(crate::live::Command::FollowMode { item_id, mode }, None, move |o| {
-        if let (Some(e), Some(op)) = (o.error, me.upgrade()) { op.toast(e, true) }
+        let Some(op) = me.upgrade() else { return };
+        match o.error {
+            Some(e) => op.toast(e, true),
+            None => crate::ui::operator::follow::listen(&op, false),
+        }
     });
 }
 

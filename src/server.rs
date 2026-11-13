@@ -229,7 +229,10 @@ async fn remote_command(State(app): State<Arc<App>>, headers: HeaderMap, body: B
     let Ok(env) = serde_json::from_slice::<Envelope>(&body) else { return bad(crate::tr!("Bad command.")) };
     let phone = phone_for(&app, &headers).unwrap_or_default();
     if let Err(e) = phone_automation(&app, phone, &env) { return ok(serde_json::to_value(Outcome { ok: false, version: 0, error: Some(e), duplicate: false }).unwrap()) }
+    let mode = matches!(env.cmd, Command::FollowMode { .. });
     let out = if phone_may(&env) { app.command(env) } else { Outcome { ok: false, version: 0, error: Some(crate::tr!("Not allowed from the phone.")), duplicate: false } };
+    // 1.3: a song set to Suggest or Auto from the phone starts listening (FFmpeg: on its own thread).
+    if mode && out.ok { let app = app.clone(); let _ = std::thread::Builder::new().name("follow-start".into()).spawn(move || app.start_follow_if_wanted()); }
     ok(serde_json::to_value(out).unwrap())
 }
 

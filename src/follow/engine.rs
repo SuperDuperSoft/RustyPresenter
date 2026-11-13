@@ -3,6 +3,7 @@
 //! follow). The operator always wins: a slide moved or cleared by hand pauses Automatic until the singers are
 //! heard, sure, from the operator's place on.
 use super::align::{Aligner, Heard, Position};
+use super::log::{LogAction, LogEntry, ReviewLog};
 use super::lyrics::SongText;
 use super::rules::{FollowAction, Mode, Rules, Settings, Voice};
 use crate::app::App;
@@ -23,6 +24,9 @@ pub enum FollowEvent {
     Onsets(f32, f64),
     /// The sound input stopped (device gone, FFmpeg ended): back to Manual, with this reason.
     InputLost(String),
+    /// The sound input started. `words`: the ear recognises words (false until the acoustic model, part B: then
+    /// only blanking follows the room and no slide ever moves on its own).
+    Listening { words: bool },
 }
 
 /// The Live column's listening light.
@@ -111,10 +115,16 @@ pub struct Engine {
     voice: Voice,
     onsets: f32,
     state: FollowState,
+    /// The ear recognises words. Without them a hand move needs no re-lock: nothing would ever move by itself.
+    words: bool,
+    /// Review log entries not yet taken (`take_log`).
+    fresh: Vec<LogEntry>,
 }
 
 impl Default for Engine {
-    fn default() -> Self { Engine { run: None, hold: false, lost: false, voice: Voice::Silence, onsets: 0.0, state: FollowState::default() } }
+    fn default() -> Self {
+        Engine { run: None, hold: false, lost: false, voice: Voice::Silence, onsets: 0.0, state: FollowState::default(), words: true, fresh: vec![] }
+    }
 }
 
 impl Engine {
@@ -124,6 +134,9 @@ impl Engine {
 
     /// Hold ("don't move now") on or off.
     pub fn set_hold(&mut self, on: bool) { self.hold = on }
+
+    /// The review log entries since the last call.
+    pub fn take_log(&mut self) -> Vec<LogEntry> { std::mem::take(&mut self.fresh) }
 
     /// One step at `now`: take `ev` (or just look, on a timer), then act on the live song.
     pub fn step(&mut self, host: &dyn Host, now: f64, ev: Option<FollowEvent>) {
@@ -136,6 +149,7 @@ impl Engine {
                 if !self.lost { host.notice(&crate::tr!("Auto-follow stopped: the sound input is gone ({error}). Move the slides by hand.", error = why)) }
                 self.lost = true;
             }
+            Some(FollowEvent::Listening { words }) => { self.lost = false; self.words = words }
             None => {}
         }
         self.state.holding = self.hold;
@@ -161,7 +175,7 @@ impl Engine {
             run.aligner.reset_to(live.slide);
             run.pos = run.aligner.position().clone();
             run.rules.reset();
-            run.paused = Some(live.slide);
+            run.paused = self.words.then_some(live.slide);
             run.relock = 0;
             run.cleared = !live.words_up;
         }
@@ -195,19 +209,37 @@ impl Engine {
         if mode == Mode::Manual || blocked { return }
 
         let Some(action) = run.rules.tick(now, &run.pos, self.voice, self.onsets, live.slide) else { return };
-        match action {
-            FollowAction::Suggest(n) => self.state.suggest = Some(n),
+        let said = match run.pos.word {
+            Some(w) => crate::tr!("heard \"{words}\"", words = run.text.words[w.saturating_sub(3)..=w].iter().map(|x| x.text.as_str()).collect::<Vec<_>>().join(" ")),
+            None => crate::tr!("singing again"),
+        };
+        let done = match action {
+            FollowAction::Suggest(n) => {
+                let new = self.state.suggest != Some(n);
+                self.state.suggest = Some(n);
+                new.then_some((LogAction::Suggest(n), said))
+            }
             FollowAction::Show(n) | FollowAction::Unblank(n) => {
-                if mode == Mode::Auto && (n != live.slide || !live.words_up) && host.show(live.item_id, n, live.version) {
-                    run.seen = (n, true);
-                }
+                let moved = mode == Mode::Auto && (n != live.slide || !live.words_up) && host.show(live.item_id, n, live.version);
+                if moved { run.seen = (n, true) }
+                let what = if matches!(action, FollowAction::Show(_)) { LogAction::Show(n) } else { LogAction::Unblank(n) };
+                moved.then_some((what, said))
             }
             FollowAction::Blank => {
-                if mode == Mode::Auto && live.words_up && host.clear_slide(live.version) {
+                let cleared = mode == Mode::Auto && live.words_up && host.clear_slide(live.version);
+                if cleared {
                     run.seen = (live.slide, false);
                     self.state.light = Light::Blank;
                 }
+                let why = match self.voice {
+                    Voice::Speaking => crate::tr!("talking for {secs} s", secs = live.settings.talk_blank_after_s.unwrap_or(0.0)),
+                    _ => crate::tr!("no singing for {secs} s", secs = live.settings.blank_after_s.unwrap_or(0.0)),
+                };
+                cleared.then_some((LogAction::Blank, why))
             }
+        };
+        if let Some((action, reason)) = done {
+            self.fresh.push(LogEntry { at: now, item: live.item_id, action, reason, confidence: run.pos.confidence });
         }
     }
 }
@@ -230,6 +262,7 @@ enum Msg { Event(FollowEvent), Look, Hold(bool), Mode(Uuid, Mode) }
 pub struct Follower {
     tx: Sender<Msg>,
     state: Arc<Mutex<FollowState>>,
+    log: Arc<Mutex<ReviewLog>>,
     hold: AtomicBool,
     clock: Instant,
 }
@@ -245,11 +278,25 @@ impl Follower {
     pub fn start_with(host: Arc<dyn Host>) -> Follower {
         let (tx, rx) = channel();
         let state = Arc::new(Mutex::new(FollowState::default()));
+        let log = Arc::new(Mutex::new(ReviewLog::default()));
         let clock = Instant::now();
-        let shared = state.clone();
-        std::thread::Builder::new().name("follow".into()).spawn(move || work(host, rx, shared, clock)).expect("follow thread");
-        Follower { tx, state, hold: AtomicBool::new(false), clock }
+        let (shared, kept) = (state.clone(), log.clone());
+        std::thread::Builder::new().name("follow".into()).spawn(move || work(host, rx, shared, kept, clock)).expect("follow thread");
+        Follower { tx, state, log, hold: AtomicBool::new(false), clock }
     }
+
+    /// A sender for the sound input (`audio::Capture`): what it sends reaches the follower until it is dropped.
+    pub fn sender(&self) -> Sender<FollowEvent> {
+        let (tx, rx) = channel::<FollowEvent>();
+        let to = self.tx.clone();
+        let _ = std::thread::Builder::new().name("follow-in".into()).spawn(move || {
+            for ev in rx { if to.send(Msg::Event(ev)).is_err() { break } }
+        });
+        tx
+    }
+
+    /// This session's review log, oldest first.
+    pub fn log(&self) -> Vec<LogEntry> { self.log.lock().unwrap().entries() }
 
     /// Seconds since the follower started: the clock event times use.
     pub fn now(&self) -> f64 { self.clock.elapsed().as_secs_f64() }
@@ -274,7 +321,7 @@ impl Follower {
     pub fn set_mode(&self, item: Uuid, mode: Mode) { self.send(Msg::Mode(item, mode)) }
 }
 
-fn work(host: Arc<dyn Host>, rx: Receiver<Msg>, state: Arc<Mutex<FollowState>>, clock: Instant) {
+fn work(host: Arc<dyn Host>, rx: Receiver<Msg>, state: Arc<Mutex<FollowState>>, log: Arc<Mutex<ReviewLog>>, clock: Instant) {
     let mut engine = Engine::new();
     let mut last_event = f64::NEG_INFINITY;
     loop {
@@ -293,6 +340,7 @@ fn work(host: Arc<dyn Host>, rx: Receiver<Msg>, state: Arc<Mutex<FollowState>>, 
         engine.step(host.as_ref(), now(), ev);
         let new = engine.state();
         let changed = *state.lock().unwrap() != new;
+        for e in engine.take_log() { log.lock().unwrap().push(e) }
         if changed {
             *state.lock().unwrap() = new;
             host.changed();
@@ -344,6 +392,8 @@ impl Host for AppHost {
     fn save_mode(&self, item: Uuid, mode: Mode) {
         let Some(app) = self.0.upgrade() else { return };
         let _ = app.edit_untracked(|d| { d.automation.follow.insert(item, mode); Ok(()) });
+        // The first song switched on: start listening (FFmpeg, off this thread).
+        if mode != Mode::Manual { let _ = std::thread::Builder::new().name("follow-start".into()).spawn(move || app.start_follow_if_wanted()); }
     }
 }
 

@@ -73,14 +73,27 @@ pub(crate) fn toggle_hold(op: &Rc<Operator>, toast: bool) -> bool {
 
 fn send(op: &Rc<Operator>, cmd: Command, done: Option<String>) {
     let me = Rc::downgrade(op);
+    let mode = matches!(cmd, Command::FollowMode { .. });
     op.ops().cmd(cmd, None, move |o| {
         let Some(op) = me.upgrade() else { return };
         match (o.ok, o.error) {
             (false, Some(e)) => op.toast(e, true),
-            (true, _) => if let Some(t) = done { op.toast(t, false) },
+            (true, _) => {
+                if mode { listen(&op, false) }
+                if let Some(t) = done { op.toast(t, false) }
+            }
             _ => {}
         }
     });
+}
+
+/// After a mode or Settings change: start listening if a song now wants it (`again`: the sound input changed, so
+/// listen to the new one). FFmpeg runs, so on its own thread; tests never start it.
+pub(crate) fn listen(op: &Operator, again: bool) {
+    if op.ops().is_inline() { return }
+    let app = op.app().clone();
+    let _ = std::thread::Builder::new().name("follow-start".into())
+        .spawn(move || if again { app.listen_again() } else { app.start_follow_if_wanted() });
 }
 
 pub(super) fn wire(op: &Rc<Operator>) {
