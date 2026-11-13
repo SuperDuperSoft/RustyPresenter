@@ -13,6 +13,10 @@ use uuid::Uuid;
 pub const JUMP_WORDS: std::ops::RangeInclusive<u8> = 2..=12;
 /// The blank-after times Settings allows (seconds).
 pub const BLANK_SECS: std::ops::RangeInclusive<u32> = 1..=60;
+/// The seconds offered when a words-off timer is switched on (both are off as Settings come: songs have long
+/// pauses, and the next words wait on the screen through them).
+const BLANK_OFFER: f32 = 15.0;
+const TALK_OFFER: f32 = 30.0;
 
 thread_local! {
     /// Test's listening (and what it hears), until the dialog closes, and the timer that moves the meter.
@@ -77,9 +81,9 @@ pub(super) fn fill_form(g: &SettingsDlg, s: &Settings, devices: &[String]) {
     g.set_follow_mode(s.mode.index() as i32);
     g.set_follow_lead((s.lead() * 10.0).round() as i32);
     g.set_follow_blank_on(s.blank_after_s.is_some());
-    g.set_follow_blank_secs(secs_text(s.blank_after_s.unwrap_or(3.0)).into());
+    g.set_follow_blank_secs(secs_text(s.blank_after_s.unwrap_or(BLANK_OFFER)).into());
     g.set_follow_talk_on(s.talk_blank_after_s.is_some());
-    g.set_follow_talk_secs(secs_text(s.talk_blank_after_s.unwrap_or(8.0)).into());
+    g.set_follow_talk_secs(secs_text(s.talk_blank_after_s.unwrap_or(TALK_OFFER)).into());
     g.set_follow_jump(s.jump().to_string().into());
     g.set_follow_level(0.0);
     g.set_follow_test_result(SharedString::new());
@@ -95,11 +99,11 @@ pub(super) fn read_form(g: &SettingsDlg, s: &mut Settings) {
         let (lo, hi) = (*BLANK_SECS.start() as f32, *BLANK_SECS.end() as f32);
         match text.trim().replace(',', ".").parse::<f32>() {
             Ok(n) if n.is_finite() => Some(n.clamp(lo, hi)),
-            _ => Some(old.unwrap_or(3.0)),
+            _ => Some(old.unwrap_or(BLANK_OFFER)),
         }
     };
     s.blank_after_s = secs(g.get_follow_blank_on(), g.get_follow_blank_secs(), s.blank_after_s);
-    s.talk_blank_after_s = secs(g.get_follow_talk_on(), g.get_follow_talk_secs(), s.talk_blank_after_s.or(Some(8.0)));
+    s.talk_blank_after_s = secs(g.get_follow_talk_on(), g.get_follow_talk_secs(), s.talk_blank_after_s.or(Some(TALK_OFFER)));
     if let Ok(n) = g.get_follow_jump().trim().parse::<u32>() {
         s.jump_words = n.clamp(u32::from(*JUMP_WORDS.start()), u32::from(*JUMP_WORDS.end())) as u8;
     }
@@ -276,9 +280,9 @@ mod tests {
         settings::open(&op, SettingsTab::AutoFollow);
         let g = op.ui.global::<SettingsDlg>();
         assert_eq!(g.get_tab(), 4, "Auto-follow comes right after Songs");
-        // The defaults: 2 s lead, words off after 3 s of no singing and 8 s of talking, 4 words to jump.
-        assert_eq!((g.get_follow_lead(), g.get_follow_blank_secs().as_str(), g.get_follow_talk_secs().as_str(), g.get_follow_jump().as_str()), (20, "3", "8", "4"));
-        assert!(g.get_follow_blank_on() && g.get_follow_talk_on());
+        // The defaults: 2 s lead, no words-off timers (15 s and 30 s offered when switched on), 4 words to jump.
+        assert_eq!((g.get_follow_lead(), g.get_follow_blank_secs().as_str(), g.get_follow_talk_secs().as_str(), g.get_follow_jump().as_str()), (20, "15", "30", "4"));
+        assert!(!g.get_follow_blank_on() && !g.get_follow_talk_on());
         let mut s = Settings::default();
         for (tenths, secs) in [(99, 4.0), (1, 0.5), (-5, 0.5), (35, 3.5)] {
             g.set_follow_lead(tenths);
@@ -287,6 +291,7 @@ mod tests {
         }
         // Off, and numbers kept to their ranges.
         g.set_follow_blank_on(false);
+        g.set_follow_talk_on(true);
         g.set_follow_talk_secs("500".into());
         g.set_follow_jump("1".into());
         g.set_follow_mode(2);

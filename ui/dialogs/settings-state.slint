@@ -49,10 +49,10 @@ export global SettingsDlg {
     in-out property <int> follow-mode;
     /// The lead time in tenths of a second (5–40).
     in-out property <int> follow-lead: 20;
-    in-out property <bool> follow-blank-on: true;
-    in-out property <string> follow-blank-secs: "3";
-    in-out property <bool> follow-talk-on: true;
-    in-out property <string> follow-talk-secs: "8";
+    in-out property <bool> follow-blank-on: false;
+    in-out property <string> follow-blank-secs: "15";
+    in-out property <bool> follow-talk-on: false;
+    in-out property <string> follow-talk-secs: "30";
     in-out property <string> follow-jump: "4";
     /// The input's level, 0–1, while Test listens.
     in property <float> follow-level;

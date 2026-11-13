@@ -38,13 +38,16 @@ fn practice_runs_on_a_file() {
     let sh = Path::new("/bin/sh");
     let args: Vec<OsString> = vec!["-c".into(), "tail -c +45 \"$0\"".into(), file.clone().into()];
     let slides: Vec<Slide> = SONG.iter().map(|t| text(t)).collect();
-    let log = practice_with(sh, args, slides.clone(), Settings::default(), Box::new(NoEar)).unwrap();
+    let timed = Settings { blank_after_s: Some(3.0), ..Settings::default() };
+    let log = practice_with(sh, args.clone(), slides.clone(), timed, Box::new(NoEar)).unwrap();
     let acts: Vec<LogAction> = log.iter().map(|l| l.action).collect();
     assert_eq!(acts, [LogAction::Blank, LogAction::Unblank(0)], "{log:?}");
     // Words off about 3 s into the break; back as singing starts again (7 s in).
     assert!((4.9..5.8).contains(&log[0].at), "{}", log[0].at);
     assert!((7.0..7.8).contains(&log[1].at), "{}", log[1].at);
     assert_eq!(log[0].reason, "no singing for 3 s");
+    // As Settings come: no timer, the words stay through the break.
+    assert_eq!(practice_with(sh, args, slides.clone(), Settings::default(), Box::new(NoEar)).unwrap(), vec![]);
 
     // FFmpeg can't read the file: its words come back as the error.
     let bad: Vec<OsString> = vec!["-c".into(), "echo 'Sunday.wav: Invalid data found' >&2; exit 1".into()];

@@ -131,6 +131,7 @@ fn suggest_sets_highlight_not_live() {
 #[test]
 fn auto_blanks_and_brings_words_back() {
     let host = Fake::song(Mode::Auto);
+    host.change(|l| l.settings.blank_after_s = Some(3.0));
     let mut e = Engine::new();
     let mut t = 0.0;
     sing(&mut e, host.as_ref(), VERSE_1, &mut t);
@@ -186,6 +187,7 @@ fn follower_thread_moves_and_stops() {
 #[test]
 fn log_records_reason_and_confidence() {
     let host = Fake::song(Mode::Auto);
+    host.change(|l| l.settings.blank_after_s = Some(3.0));
     let mut e = Engine::new();
     let mut t = 0.0;
     sing(&mut e, host.as_ref(), VERSE_1, &mut t);
@@ -216,8 +218,10 @@ fn log_records_reason_and_confidence() {
 
 #[test]
 fn no_words_only_blanks_never_moves() {
-    // The ear can't tell words yet: singing, beats and quiet only blank and bring the words back.
+    // The ear can't tell words yet: with a words-off timer on, singing, beats and quiet only blank and bring the
+    // words back.
     let host = Fake::song(Mode::Auto);
+    host.change(|l| l.settings.blank_after_s = Some(3.0));
     let mut e = Engine::new();
     e.step(host.as_ref(), 0.0, Some(FollowEvent::Listening { words: false }));
     let mut t = 0.0;

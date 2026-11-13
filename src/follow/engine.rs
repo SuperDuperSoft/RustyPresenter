@@ -240,9 +240,9 @@ impl Engine {
                     run.seen = (live.slide, false);
                     self.state.light = Light::Blank;
                 }
-                let why = match self.voice {
-                    Voice::Speaking => crate::tr!("talking for {secs} s", secs = live.settings.talk_blank_after_s.unwrap_or(0.0)),
-                    _ => crate::tr!("no singing for {secs} s", secs = live.settings.blank_after_s.unwrap_or(0.0)),
+                let why = match run.rules.blank_why() {
+                    (true, secs) => crate::tr!("talking for {secs} s", secs = secs),
+                    (false, secs) => crate::tr!("no singing for {secs} s", secs = secs),
                 };
                 cleared.then_some((LogAction::Blank, why))
             }
