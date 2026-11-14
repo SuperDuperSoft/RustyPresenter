@@ -2425,59 +2425,59 @@ msgstr "Âm thanh của ứng dụng được lấy từ các tệp video và b�
 
 #: ui/dialogs/settings-media.slint
 msgid "Livestream"
-msgstr ""
+msgstr "Phát trực tiếp"
 
 #: ui/dialogs/settings-media.slint
 msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
-msgstr ""
+msgstr "Bật một nơi phát và nút Phát trực tiếp sẽ hiện bên cạnh nút Ghi. Phát trực tiếp vẫn ghi như thường và gửi cùng hình ảnh và âm thanh đến mọi nơi phát đang bật. Âm thanh là micrô hoặc line-in đã chọn ở trên; âm thanh riêng của ứng dụng chưa có trong buổi phát."
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
-msgstr ""
+msgstr "Phát tới"
 
 #: ui/dialogs/settings-media.slint
 msgid "A stream key is a password: whoever has it can broadcast as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
-msgstr ""
+msgstr "Khóa phát là một mật khẩu: ai có nó đều có thể phát dưới tên bạn. Khóa được giữ trong kho mật khẩu của máy tính này ngay khi bạn gõ, không bao giờ nằm trong bản sao lưu hay tệp buổi nhóm."
 
 #: ui/dialogs/settings-media.slint
 msgid "YouTube stream key"
-msgstr ""
+msgstr "Khóa phát YouTube"
 
 #: ui/dialogs/settings-media.slint
 msgid "A key is saved. Type a new one to change it."
-msgstr ""
+msgstr "Đã lưu một khóa. Gõ khóa mới để thay."
 
 #: ui/dialogs/settings-media.slint
 msgid "Paste the stream key"
-msgstr ""
+msgstr "Dán khóa phát"
 
 #: ui/dialogs/settings-media.slint
 msgid "Facebook stream key"
-msgstr ""
+msgstr "Khóa phát Facebook"
 
 #: ui/dialogs/settings-media.slint
 msgid "Twitch stream key"
-msgstr ""
+msgstr "Khóa phát Twitch"
 
 #: ui/dialogs/settings-media.slint
 msgid "Another server"
-msgstr ""
+msgstr "Máy chủ khác"
 
 #: ui/dialogs/settings-media.slint
 msgid "The server's address"
-msgstr ""
+msgstr "Địa chỉ của máy chủ"
 
 #: ui/dialogs/settings-media.slint
 msgid "Its address: rtmp://, rtmps:// or srt://"
-msgstr ""
+msgstr "Địa chỉ của nó: rtmp://, rtmps:// hoặc srt://"
 
 #: ui/dialogs/settings-media.slint
 msgid "The server's stream key"
-msgstr ""
+msgstr "Khóa phát của máy chủ"
 
 #: ui/dialogs/settings-media.slint
 msgid "Its stream key, if it has one"
-msgstr ""
+msgstr "Khóa phát của nó, nếu có"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -3761,23 +3761,23 @@ msgstr "Video, hình ảnh, nhạc, bài trình chiếu (PowerPoint, Keynote, PD
 
 #: ui/operator/record.slint
 msgid "Stop the livestream"
-msgstr ""
+msgstr "Dừng phát trực tiếp"
 
 #: ui/operator/record.slint
 msgid "Go Live"
-msgstr ""
+msgstr "Phát trực tiếp"
 
 #: ui/operator/record.slint
 msgid "Live"
-msgstr ""
+msgstr "Đang phát"
 
 #: ui/operator/record.slint
 msgid "Stop the livestream and save the recording"
-msgstr ""
+msgstr "Dừng phát trực tiếp và lưu bản ghi"
 
 #: ui/operator/record.slint
 msgid "Send the room screen to the livestream, and record it"
-msgstr ""
+msgstr "Gửi màn hình hội trường lên buổi phát trực tiếp và ghi lại"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
@@ -5945,39 +5945,39 @@ msgstr "Bản sao lưu đó không đầy đủ và không thể khôi phục."
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."
-msgstr ""
+msgstr "Bắt đầu phát trực tiếp trên {names}. Cũng đang ghi."
 
 #: src/stream/mod.rs
 msgid "{name}: the stream is going out."
-msgstr ""
+msgstr "{name}: buổi phát đang được gửi đi."
 
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
-msgstr ""
+msgstr "{name} mất kết nối. Đang tự thử lại; việc ghi vẫn tiếp tục."
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
-msgstr ""
+msgstr "Phát trực tiếp cần một nơi phát đang bật và có khóa phát. Hãy thiết lập trong Cài đặt → Đa phương tiện → Phát trực tiếp."
 
 #: src/stream/mod.rs
 msgid "{name} is not streamed to: {why}"
-msgstr ""
+msgstr "Không phát tới {name}: {why}"
 
 #: src/stream/mod.rs
 msgid "it has no stream key"
-msgstr ""
+msgstr "không có khóa phát"
 
 #: src/stream/mod.rs
 msgid "it has no address"
-msgstr ""
+msgstr "không có địa chỉ"
 
 #: src/stream/mod.rs
 msgid "its address or key is not one a stream can be sent to"
-msgstr ""
+msgstr "không thể gửi buổi phát tới địa chỉ hoặc bằng khóa đó"
 
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
-msgstr ""
+msgstr "Đang ghi. Hãy dừng ghi rồi bấm Phát trực tiếp."
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -9828,7 +9828,7 @@ msgstr "Để sau"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
-msgstr ""
+msgstr "Không giữ được khóa phát: {error}"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"

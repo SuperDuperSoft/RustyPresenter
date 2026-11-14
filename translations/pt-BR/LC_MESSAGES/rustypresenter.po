@@ -2425,59 +2425,59 @@ msgstr "O som do app é tirado dos arquivos de vídeo e de música quando a grav
 
 #: ui/dialogs/settings-media.slint
 msgid "Livestream"
-msgstr ""
+msgstr "Transmissão ao vivo"
 
 #: ui/dialogs/settings-media.slint
 msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
-msgstr ""
+msgstr "Ative um destino e um botão Ir ao vivo aparece ao lado de Gravar. Ir ao vivo grava como sempre e envia a mesma imagem e o mesmo som para cada destino ativado. O som é o microfone ou a entrada de linha escolhidos acima; o som do próprio app ainda não vai para a transmissão."
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
-msgstr ""
+msgstr "Transmitir para"
 
 #: ui/dialogs/settings-media.slint
 msgid "A stream key is a password: whoever has it can broadcast as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
-msgstr ""
+msgstr "Uma chave de transmissão é uma senha: quem a tiver pode transmitir como você. Ela fica guardada no cofre de senhas deste computador enquanto você digita, nunca em um backup ou arquivo de culto."
 
 #: ui/dialogs/settings-media.slint
 msgid "YouTube stream key"
-msgstr ""
+msgstr "Chave de transmissão do YouTube"
 
 #: ui/dialogs/settings-media.slint
 msgid "A key is saved. Type a new one to change it."
-msgstr ""
+msgstr "Há uma chave salva. Digite outra para trocá-la."
 
 #: ui/dialogs/settings-media.slint
 msgid "Paste the stream key"
-msgstr ""
+msgstr "Cole a chave de transmissão"
 
 #: ui/dialogs/settings-media.slint
 msgid "Facebook stream key"
-msgstr ""
+msgstr "Chave de transmissão do Facebook"
 
 #: ui/dialogs/settings-media.slint
 msgid "Twitch stream key"
-msgstr ""
+msgstr "Chave de transmissão do Twitch"
 
 #: ui/dialogs/settings-media.slint
 msgid "Another server"
-msgstr ""
+msgstr "Outro servidor"
 
 #: ui/dialogs/settings-media.slint
 msgid "The server's address"
-msgstr ""
+msgstr "O endereço do servidor"
 
 #: ui/dialogs/settings-media.slint
 msgid "Its address: rtmp://, rtmps:// or srt://"
-msgstr ""
+msgstr "O endereço dele: rtmp://, rtmps:// ou srt://"
 
 #: ui/dialogs/settings-media.slint
 msgid "The server's stream key"
-msgstr ""
+msgstr "A chave de transmissão do servidor"
 
 #: ui/dialogs/settings-media.slint
 msgid "Its stream key, if it has one"
-msgstr ""
+msgstr "A chave de transmissão dele, se tiver"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -3761,23 +3761,23 @@ msgstr "Vídeos, imagens, música, apresentações (PowerPoint, Keynote, PDF), a
 
 #: ui/operator/record.slint
 msgid "Stop the livestream"
-msgstr ""
+msgstr "Parar a transmissão"
 
 #: ui/operator/record.slint
 msgid "Go Live"
-msgstr ""
+msgstr "Ir ao vivo"
 
 #: ui/operator/record.slint
 msgid "Live"
-msgstr ""
+msgstr "Ao vivo"
 
 #: ui/operator/record.slint
 msgid "Stop the livestream and save the recording"
-msgstr ""
+msgstr "Parar a transmissão e salvar a gravação"
 
 #: ui/operator/record.slint
 msgid "Send the room screen to the livestream, and record it"
-msgstr ""
+msgstr "Enviar a tela do salão para a transmissão ao vivo, e gravar"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
@@ -5950,39 +5950,39 @@ msgstr "Esse backup está incompleto e não pode ser restaurado."
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."
-msgstr ""
+msgstr "Indo ao vivo em {names}. Gravando também."
 
 #: src/stream/mod.rs
 msgid "{name}: the stream is going out."
-msgstr ""
+msgstr "{name}: a transmissão está saindo."
 
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
-msgstr ""
+msgstr "{name} perdeu a conexão. Tentando de novo sozinho; a gravação continua."
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
-msgstr ""
+msgstr "Ir ao vivo precisa de um destino ativado e com chave de transmissão. Configure um em Configurações → Mídia → Transmissão ao vivo."
 
 #: src/stream/mod.rs
 msgid "{name} is not streamed to: {why}"
-msgstr ""
+msgstr "Não está transmitindo para {name}: {why}"
 
 #: src/stream/mod.rs
 msgid "it has no stream key"
-msgstr ""
+msgstr "não tem chave de transmissão"
 
 #: src/stream/mod.rs
 msgid "it has no address"
-msgstr ""
+msgstr "não tem endereço"
 
 #: src/stream/mod.rs
 msgid "its address or key is not one a stream can be sent to"
-msgstr ""
+msgstr "não dá para enviar uma transmissão para esse endereço ou com essa chave"
 
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
-msgstr ""
+msgstr "Há uma gravação em andamento. Pare-a e depois toque em Ir ao vivo."
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -9870,7 +9870,7 @@ msgstr "Agora não"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
-msgstr ""
+msgstr "Não foi possível guardar a chave de transmissão: {error}"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"

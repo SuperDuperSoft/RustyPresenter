@@ -2425,59 +2425,59 @@ msgstr "녹화를 멈출 때 동영상과 곡 파일에서 앱의 소리를 가�
 
 #: ui/dialogs/settings-media.slint
 msgid "Livestream"
-msgstr ""
+msgstr "라이브 방송"
 
 #: ui/dialogs/settings-media.slint
 msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
-msgstr ""
+msgstr "대상을 켜면 녹화 옆에 '라이브 시작' 버튼이 나타나요. 라이브 시작은 평소처럼 녹화하면서 같은 화면과 소리를 켜진 모든 대상으로 보내요. 소리는 위에서 고른 마이크 또는 라인 입력이에요. 앱 자체의 소리는 아직 라이브 방송에 들어가지 않아요."
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
-msgstr ""
+msgstr "방송 대상"
 
 #: ui/dialogs/settings-media.slint
 msgid "A stream key is a password: whoever has it can broadcast as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
-msgstr ""
+msgstr "스트림 키는 비밀번호예요. 이 키가 있으면 누구나 당신 이름으로 방송할 수 있어요. 입력하는 대로 이 컴퓨터의 비밀번호 저장소에 보관되고, 백업이나 예배 파일에는 절대 들어가지 않아요."
 
 #: ui/dialogs/settings-media.slint
 msgid "YouTube stream key"
-msgstr ""
+msgstr "YouTube 스트림 키"
 
 #: ui/dialogs/settings-media.slint
 msgid "A key is saved. Type a new one to change it."
-msgstr ""
+msgstr "키가 저장되어 있어요. 바꾸려면 새 키를 입력하세요."
 
 #: ui/dialogs/settings-media.slint
 msgid "Paste the stream key"
-msgstr ""
+msgstr "스트림 키를 붙여 넣으세요"
 
 #: ui/dialogs/settings-media.slint
 msgid "Facebook stream key"
-msgstr ""
+msgstr "Facebook 스트림 키"
 
 #: ui/dialogs/settings-media.slint
 msgid "Twitch stream key"
-msgstr ""
+msgstr "Twitch 스트림 키"
 
 #: ui/dialogs/settings-media.slint
 msgid "Another server"
-msgstr ""
+msgstr "다른 서버"
 
 #: ui/dialogs/settings-media.slint
 msgid "The server's address"
-msgstr ""
+msgstr "서버 주소"
 
 #: ui/dialogs/settings-media.slint
 msgid "Its address: rtmp://, rtmps:// or srt://"
-msgstr ""
+msgstr "주소: rtmp://, rtmps:// 또는 srt://"
 
 #: ui/dialogs/settings-media.slint
 msgid "The server's stream key"
-msgstr ""
+msgstr "서버의 스트림 키"
 
 #: ui/dialogs/settings-media.slint
 msgid "Its stream key, if it has one"
-msgstr ""
+msgstr "스트림 키 (있는 경우)"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -3761,23 +3761,23 @@ msgstr "동영상, 사진, 음악, 프레젠테이션(PowerPoint, Keynote, PDF),
 
 #: ui/operator/record.slint
 msgid "Stop the livestream"
-msgstr ""
+msgstr "라이브 방송 멈추기"
 
 #: ui/operator/record.slint
 msgid "Go Live"
-msgstr ""
+msgstr "라이브 시작"
 
 #: ui/operator/record.slint
 msgid "Live"
-msgstr ""
+msgstr "방송 중"
 
 #: ui/operator/record.slint
 msgid "Stop the livestream and save the recording"
-msgstr ""
+msgstr "라이브 방송을 멈추고 녹화 저장하기"
 
 #: ui/operator/record.slint
 msgid "Send the room screen to the livestream, and record it"
-msgstr ""
+msgstr "예배당 화면을 라이브 방송으로 보내고 녹화하기"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
@@ -5945,39 +5945,39 @@ msgstr "그 백업은 불완전해서 복원할 수 없어요."
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."
-msgstr ""
+msgstr "{names}에서 라이브 방송을 시작해요. 녹화도 하고 있어요."
 
 #: src/stream/mod.rs
 msgid "{name}: the stream is going out."
-msgstr ""
+msgstr "{name}: 방송이 나가고 있어요."
 
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
-msgstr ""
+msgstr "{name} 연결이 끊겼어요. 알아서 다시 연결해요. 녹화는 계속돼요."
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
-msgstr ""
+msgstr "라이브 시작에는 켜져 있고 스트림 키가 있는 대상이 필요해요. 설정 → 미디어 → 라이브 방송에서 하나 설정하세요."
 
 #: src/stream/mod.rs
 msgid "{name} is not streamed to: {why}"
-msgstr ""
+msgstr "{name}(으)로 방송하지 않아요: {why}"
 
 #: src/stream/mod.rs
 msgid "it has no stream key"
-msgstr ""
+msgstr "스트림 키가 없어요"
 
 #: src/stream/mod.rs
 msgid "it has no address"
-msgstr ""
+msgstr "주소가 없어요"
 
 #: src/stream/mod.rs
 msgid "its address or key is not one a stream can be sent to"
-msgstr ""
+msgstr "그 주소나 키로는 방송을 보낼 수 없어요"
 
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
-msgstr ""
+msgstr "녹화 중이에요. 녹화를 멈춘 다음 라이브 시작을 누르세요."
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -9828,7 +9828,7 @@ msgstr "나중에"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
-msgstr ""
+msgstr "스트림 키를 보관하지 못했어요: {error}"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"

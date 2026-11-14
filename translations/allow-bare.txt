@@ -13,3 +13,8 @@ https://
 
 # The graphics test window title (the app name).
 RustyPresenter
+
+# Streaming services, by their own names (Settings → Media → Livestream).
+YouTube
+Facebook
+Twitch

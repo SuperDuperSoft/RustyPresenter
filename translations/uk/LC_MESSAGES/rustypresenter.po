@@ -2425,59 +2425,59 @@ msgstr "Звук програми береться з файлів відео й
 
 #: ui/dialogs/settings-media.slint
 msgid "Livestream"
-msgstr ""
+msgstr "Трансляція"
 
 #: ui/dialogs/settings-media.slint
 msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
-msgstr ""
+msgstr "Увімкніть місце призначення — поруч із кнопкою «Запис» з’явиться кнопка «В ефір». «В ефір» записує як завжди й надсилає те саме зображення та звук у кожне ввімкнене місце. Звук — це мікрофон або лінійний вхід, вибраний вище; власний звук застосунку поки не потрапляє в трансляцію."
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
-msgstr ""
+msgstr "Транслювати в"
 
 #: ui/dialogs/settings-media.slint
 msgid "A stream key is a password: whoever has it can broadcast as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
-msgstr ""
+msgstr "Ключ трансляції — це пароль: хто його має, може вести ефір від вашого імені. Він зберігається в сховищі паролів цього комп’ютера, щойно ви його вводите, і ніколи не потрапляє в резервну копію чи файл служіння."
 
 #: ui/dialogs/settings-media.slint
 msgid "YouTube stream key"
-msgstr ""
+msgstr "Ключ трансляції YouTube"
 
 #: ui/dialogs/settings-media.slint
 msgid "A key is saved. Type a new one to change it."
-msgstr ""
+msgstr "Ключ збережено. Введіть новий, щоб замінити його."
 
 #: ui/dialogs/settings-media.slint
 msgid "Paste the stream key"
-msgstr ""
+msgstr "Вставте ключ трансляції"
 
 #: ui/dialogs/settings-media.slint
 msgid "Facebook stream key"
-msgstr ""
+msgstr "Ключ трансляції Facebook"
 
 #: ui/dialogs/settings-media.slint
 msgid "Twitch stream key"
-msgstr ""
+msgstr "Ключ трансляції Twitch"
 
 #: ui/dialogs/settings-media.slint
 msgid "Another server"
-msgstr ""
+msgstr "Інший сервер"
 
 #: ui/dialogs/settings-media.slint
 msgid "The server's address"
-msgstr ""
+msgstr "Адреса сервера"
 
 #: ui/dialogs/settings-media.slint
 msgid "Its address: rtmp://, rtmps:// or srt://"
-msgstr ""
+msgstr "Його адреса: rtmp://, rtmps:// або srt://"
 
 #: ui/dialogs/settings-media.slint
 msgid "The server's stream key"
-msgstr ""
+msgstr "Ключ трансляції сервера"
 
 #: ui/dialogs/settings-media.slint
 msgid "Its stream key, if it has one"
-msgstr ""
+msgstr "Його ключ трансляції, якщо є"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -3761,23 +3761,23 @@ msgstr "Відео, зображення, музика, презентації (
 
 #: ui/operator/record.slint
 msgid "Stop the livestream"
-msgstr ""
+msgstr "Зупинити трансляцію"
 
 #: ui/operator/record.slint
 msgid "Go Live"
-msgstr ""
+msgstr "В ефір"
 
 #: ui/operator/record.slint
 msgid "Live"
-msgstr ""
+msgstr "В ефірі"
 
 #: ui/operator/record.slint
 msgid "Stop the livestream and save the recording"
-msgstr ""
+msgstr "Зупинити трансляцію і зберегти запис"
 
 #: ui/operator/record.slint
 msgid "Send the room screen to the livestream, and record it"
-msgstr ""
+msgstr "Надіслати екран залу в трансляцію і записати його"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
@@ -5955,39 +5955,39 @@ msgstr "Ця резервна копія неповна, її не можна в
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."
-msgstr ""
+msgstr "Вихід в ефір на {names}. Запис теж іде."
 
 #: src/stream/mod.rs
 msgid "{name}: the stream is going out."
-msgstr ""
+msgstr "{name}: трансляція йде."
 
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
-msgstr ""
+msgstr "{name}: з’єднання втрачено. Повторна спроба відбувається сама; запис триває."
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
-msgstr ""
+msgstr "Для кнопки «В ефір» потрібне ввімкнене місце призначення з ключем трансляції. Налаштуйте його в Налаштування → Медіа → Трансляція."
 
 #: src/stream/mod.rs
 msgid "{name} is not streamed to: {why}"
-msgstr ""
+msgstr "У {name} трансляція не йде: {why}"
 
 #: src/stream/mod.rs
 msgid "it has no stream key"
-msgstr ""
+msgstr "у нього немає ключа трансляції"
 
 #: src/stream/mod.rs
 msgid "it has no address"
-msgstr ""
+msgstr "у нього немає адреси"
 
 #: src/stream/mod.rs
 msgid "its address or key is not one a stream can be sent to"
-msgstr ""
+msgstr "на цю адресу чи з цим ключем трансляцію надіслати не можна"
 
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
-msgstr ""
+msgstr "Іде запис. Зупиніть його, тоді натисніть «В ефір»."
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -9912,7 +9912,7 @@ msgstr "Не зараз"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
-msgstr ""
+msgstr "Не вдалося зберегти ключ трансляції: {error}"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"

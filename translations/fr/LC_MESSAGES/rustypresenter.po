@@ -2425,59 +2425,59 @@ msgstr "Le son de l’application est repris des fichiers vidéo et audio à l�
 
 #: ui/dialogs/settings-media.slint
 msgid "Livestream"
-msgstr ""
+msgstr "Diffusion en direct"
 
 #: ui/dialogs/settings-media.slint
 msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
-msgstr ""
+msgstr "Activez une destination et un bouton « Passer en direct » apparaît à côté de « Enregistrer ». « Passer en direct » enregistre comme d’habitude et envoie la même image et le même son à chaque destination activée. Le son est le micro ou l’entrée ligne choisi plus haut ; le son de l’application elle-même n’est pas encore dans la diffusion."
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
-msgstr ""
+msgstr "Diffuser vers"
 
 #: ui/dialogs/settings-media.slint
 msgid "A stream key is a password: whoever has it can broadcast as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
-msgstr ""
+msgstr "Une clé de diffusion est un mot de passe : qui la possède peut diffuser en votre nom. Elle est gardée dans le coffre à mots de passe de cet ordinateur au fil de la saisie, jamais dans une sauvegarde ni dans un fichier de culte."
 
 #: ui/dialogs/settings-media.slint
 msgid "YouTube stream key"
-msgstr ""
+msgstr "Clé de diffusion YouTube"
 
 #: ui/dialogs/settings-media.slint
 msgid "A key is saved. Type a new one to change it."
-msgstr ""
+msgstr "Une clé est enregistrée. Saisissez-en une nouvelle pour la changer."
 
 #: ui/dialogs/settings-media.slint
 msgid "Paste the stream key"
-msgstr ""
+msgstr "Collez la clé de diffusion"
 
 #: ui/dialogs/settings-media.slint
 msgid "Facebook stream key"
-msgstr ""
+msgstr "Clé de diffusion Facebook"
 
 #: ui/dialogs/settings-media.slint
 msgid "Twitch stream key"
-msgstr ""
+msgstr "Clé de diffusion Twitch"
 
 #: ui/dialogs/settings-media.slint
 msgid "Another server"
-msgstr ""
+msgstr "Autre serveur"
 
 #: ui/dialogs/settings-media.slint
 msgid "The server's address"
-msgstr ""
+msgstr "L’adresse du serveur"
 
 #: ui/dialogs/settings-media.slint
 msgid "Its address: rtmp://, rtmps:// or srt://"
-msgstr ""
+msgstr "Son adresse : rtmp://, rtmps:// ou srt://"
 
 #: ui/dialogs/settings-media.slint
 msgid "The server's stream key"
-msgstr ""
+msgstr "La clé de diffusion du serveur"
 
 #: ui/dialogs/settings-media.slint
 msgid "Its stream key, if it has one"
-msgstr ""
+msgstr "Sa clé de diffusion, s’il en a une"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -3761,23 +3761,23 @@ msgstr "Vidéos, images, musique, présentations (PowerPoint, Keynote, PDF), fic
 
 #: ui/operator/record.slint
 msgid "Stop the livestream"
-msgstr ""
+msgstr "Arrêter la diffusion"
 
 #: ui/operator/record.slint
 msgid "Go Live"
-msgstr ""
+msgstr "Passer en direct"
 
 #: ui/operator/record.slint
 msgid "Live"
-msgstr ""
+msgstr "En direct"
 
 #: ui/operator/record.slint
 msgid "Stop the livestream and save the recording"
-msgstr ""
+msgstr "Arrêter la diffusion et enregistrer le fichier"
 
 #: ui/operator/record.slint
 msgid "Send the room screen to the livestream, and record it"
-msgstr ""
+msgstr "Envoyer l’écran de la salle en direct, et l’enregistrer"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
@@ -5950,39 +5950,39 @@ msgstr "Cette sauvegarde est incomplète et ne peut pas être restaurée."
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."
-msgstr ""
+msgstr "En direct sur {names}. L’enregistrement est en cours aussi."
 
 #: src/stream/mod.rs
 msgid "{name}: the stream is going out."
-msgstr ""
+msgstr "{name} : la diffusion est en cours."
 
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
-msgstr ""
+msgstr "{name} a perdu la connexion. Nouvel essai automatique ; l’enregistrement continue."
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
-msgstr ""
+msgstr "« Passer en direct » demande une destination activée avec sa clé de diffusion. Configurez-en une dans Paramètres → Médias → Diffusion en direct."
 
 #: src/stream/mod.rs
 msgid "{name} is not streamed to: {why}"
-msgstr ""
+msgstr "{name} ne reçoit pas la diffusion : {why}"
 
 #: src/stream/mod.rs
 msgid "it has no stream key"
-msgstr ""
+msgstr "elle n’a pas de clé de diffusion"
 
 #: src/stream/mod.rs
 msgid "it has no address"
-msgstr ""
+msgstr "elle n’a pas d’adresse"
 
 #: src/stream/mod.rs
 msgid "its address or key is not one a stream can be sent to"
-msgstr ""
+msgstr "son adresse ou sa clé ne permet pas d’envoyer une diffusion"
 
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
-msgstr ""
+msgstr "Un enregistrement est en cours. Arrêtez-le, puis appuyez sur « Passer en direct »."
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -9870,7 +9870,7 @@ msgstr "Pas maintenant"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
-msgstr ""
+msgstr "La clé de diffusion n’a pas pu être gardée : {error}"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"

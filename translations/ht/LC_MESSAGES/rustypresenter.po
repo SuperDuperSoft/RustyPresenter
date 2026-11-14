@@ -2425,59 +2425,59 @@ msgstr "Son aplikasyon an pran nan fichye videyo ak chante yo lè anrejistreman 
 
 #: ui/dialogs/settings-media.slint
 msgid "Livestream"
-msgstr ""
+msgstr "Emisyon an dirèk"
 
 #: ui/dialogs/settings-media.slint
 msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
-msgstr ""
+msgstr "Limen yon destinasyon epi yon bouton Ale an dirèk ap parèt bò kote Anrejistre. Ale an dirèk anrejistre tankou dabitid epi voye menm imaj ak menm son an bay chak destinasyon ki limen. Son an se mikwofòn oswa antre liy ou chwazi anlè a; son pwòp aplikasyon an poko nan emisyon an."
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
-msgstr ""
+msgstr "Voye emisyon an bay"
 
 #: ui/dialogs/settings-media.slint
 msgid "A stream key is a password: whoever has it can broadcast as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
-msgstr ""
+msgstr "Yon kle emisyon se yon modpas: nenpòt moun ki genyen l ka fè emisyon nan non w. Li kenbe nan depo modpas òdinatè sa a pandan w ap tape l, janm nan yon sovgad ni nan yon fichye sèvis."
 
 #: ui/dialogs/settings-media.slint
 msgid "YouTube stream key"
-msgstr ""
+msgstr "Kle emisyon YouTube"
 
 #: ui/dialogs/settings-media.slint
 msgid "A key is saved. Type a new one to change it."
-msgstr ""
+msgstr "Gen yon kle ki sove. Tape yon lòt pou chanje l."
 
 #: ui/dialogs/settings-media.slint
 msgid "Paste the stream key"
-msgstr ""
+msgstr "Kole kle emisyon an"
 
 #: ui/dialogs/settings-media.slint
 msgid "Facebook stream key"
-msgstr ""
+msgstr "Kle emisyon Facebook"
 
 #: ui/dialogs/settings-media.slint
 msgid "Twitch stream key"
-msgstr ""
+msgstr "Kle emisyon Twitch"
 
 #: ui/dialogs/settings-media.slint
 msgid "Another server"
-msgstr ""
+msgstr "Yon lòt sèvè"
 
 #: ui/dialogs/settings-media.slint
 msgid "The server's address"
-msgstr ""
+msgstr "Adrès sèvè a"
 
 #: ui/dialogs/settings-media.slint
 msgid "Its address: rtmp://, rtmps:// or srt://"
-msgstr ""
+msgstr "Adrès li: rtmp://, rtmps:// oswa srt://"
 
 #: ui/dialogs/settings-media.slint
 msgid "The server's stream key"
-msgstr ""
+msgstr "Kle emisyon sèvè a"
 
 #: ui/dialogs/settings-media.slint
 msgid "Its stream key, if it has one"
-msgstr ""
+msgstr "Kle emisyon li, si li genyen youn"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -3761,23 +3761,23 @@ msgstr "Videyo, foto, mizik, prezantasyon (PowerPoint, Keynote, PDF), fichye paw
 
 #: ui/operator/record.slint
 msgid "Stop the livestream"
-msgstr ""
+msgstr "Kanpe emisyon an dirèk la"
 
 #: ui/operator/record.slint
 msgid "Go Live"
-msgstr ""
+msgstr "Ale an dirèk"
 
 #: ui/operator/record.slint
 msgid "Live"
-msgstr ""
+msgstr "An dirèk"
 
 #: ui/operator/record.slint
 msgid "Stop the livestream and save the recording"
-msgstr ""
+msgstr "Kanpe emisyon an dirèk la epi sove anrejistreman an"
 
 #: ui/operator/record.slint
 msgid "Send the room screen to the livestream, and record it"
-msgstr ""
+msgstr "Voye ekran sal la nan emisyon an dirèk la, epi anrejistre l"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
@@ -5950,39 +5950,39 @@ msgstr "Sovgad sa a pa konplè, yo pa ka retabli l."
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."
-msgstr ""
+msgstr "An dirèk sou {names}. Ap anrejistre tou."
 
 #: src/stream/mod.rs
 msgid "{name}: the stream is going out."
-msgstr ""
+msgstr "{name}: emisyon an ap soti."
 
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
-msgstr ""
+msgstr "{name} pèdi koneksyon an. L ap eseye ankò poukont li; anrejistreman an kontinye."
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
-msgstr ""
+msgstr "Ale an dirèk bezwen yon destinasyon ki limen e ki gen kle emisyon li. Mete youn nan Paramèt → Medya → Emisyon an dirèk."
 
 #: src/stream/mod.rs
 msgid "{name} is not streamed to: {why}"
-msgstr ""
+msgstr "Emisyon an pa voye bay {name}: {why}"
 
 #: src/stream/mod.rs
 msgid "it has no stream key"
-msgstr ""
+msgstr "li pa gen kle emisyon"
 
 #: src/stream/mod.rs
 msgid "it has no address"
-msgstr ""
+msgstr "li pa gen adrès"
 
 #: src/stream/mod.rs
 msgid "its address or key is not one a stream can be sent to"
-msgstr ""
+msgstr "yo pa ka voye yon emisyon nan adrès li oswa ak kle li"
 
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
-msgstr ""
+msgstr "Gen yon anrejistreman k ap fèt. Kanpe l, apre sa peze Ale an dirèk."
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -9870,7 +9870,7 @@ msgstr "Pa kounye a"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
-msgstr ""
+msgstr "Yo pa t ka kenbe kle emisyon an: {error}"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"

@@ -2425,59 +2425,59 @@ msgstr "录制停止时，会从视频和歌曲文件中提取应用的声音，
 
 #: ui/dialogs/settings-media.slint
 msgid "Livestream"
-msgstr ""
+msgstr "直播"
 
 #: ui/dialogs/settings-media.slint
 msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
-msgstr ""
+msgstr "打开一个直播目标后，“录制”旁会出现“开始直播”按钮。“开始直播”照常录制，并把同样的画面和声音发送到每个已打开的目标。声音来自上面选择的麦克风或线路输入；软件自己的声音暂时不会进入直播。"
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
-msgstr ""
+msgstr "直播到"
 
 #: ui/dialogs/settings-media.slint
 msgid "A stream key is a password: whoever has it can broadcast as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
-msgstr ""
+msgstr "推流密钥就是密码：谁拿到它，谁就能以你的名义直播。它在你输入时就保存在这台电脑自己的密码库中，绝不会进入备份或聚会文件。"
 
 #: ui/dialogs/settings-media.slint
 msgid "YouTube stream key"
-msgstr ""
+msgstr "YouTube 推流密钥"
 
 #: ui/dialogs/settings-media.slint
 msgid "A key is saved. Type a new one to change it."
-msgstr ""
+msgstr "已保存一个密钥。输入新的密钥即可更换。"
 
 #: ui/dialogs/settings-media.slint
 msgid "Paste the stream key"
-msgstr ""
+msgstr "粘贴推流密钥"
 
 #: ui/dialogs/settings-media.slint
 msgid "Facebook stream key"
-msgstr ""
+msgstr "Facebook 推流密钥"
 
 #: ui/dialogs/settings-media.slint
 msgid "Twitch stream key"
-msgstr ""
+msgstr "Twitch 推流密钥"
 
 #: ui/dialogs/settings-media.slint
 msgid "Another server"
-msgstr ""
+msgstr "其他服务器"
 
 #: ui/dialogs/settings-media.slint
 msgid "The server's address"
-msgstr ""
+msgstr "服务器地址"
 
 #: ui/dialogs/settings-media.slint
 msgid "Its address: rtmp://, rtmps:// or srt://"
-msgstr ""
+msgstr "地址：rtmp://、rtmps:// 或 srt://"
 
 #: ui/dialogs/settings-media.slint
 msgid "The server's stream key"
-msgstr ""
+msgstr "服务器的推流密钥"
 
 #: ui/dialogs/settings-media.slint
 msgid "Its stream key, if it has one"
-msgstr ""
+msgstr "推流密钥（如果有）"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -3761,23 +3761,23 @@ msgstr "视频、图片、音乐、演示文稿（PowerPoint、Keynote、PDF）�
 
 #: ui/operator/record.slint
 msgid "Stop the livestream"
-msgstr ""
+msgstr "停止直播"
 
 #: ui/operator/record.slint
 msgid "Go Live"
-msgstr ""
+msgstr "开始直播"
 
 #: ui/operator/record.slint
 msgid "Live"
-msgstr ""
+msgstr "直播中"
 
 #: ui/operator/record.slint
 msgid "Stop the livestream and save the recording"
-msgstr ""
+msgstr "停止直播并保存录像"
 
 #: ui/operator/record.slint
 msgid "Send the room screen to the livestream, and record it"
-msgstr ""
+msgstr "把会众屏幕发送到直播，并录制下来"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
@@ -5945,39 +5945,39 @@ msgstr "该备份不完整，无法恢复。"
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."
-msgstr ""
+msgstr "正在 {names} 上开始直播，同时也在录制。"
 
 #: src/stream/mod.rs
 msgid "{name}: the stream is going out."
-msgstr ""
+msgstr "{name}：直播正在发送。"
 
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
-msgstr ""
+msgstr "{name} 连接中断，正在自动重试；录制仍在继续。"
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
-msgstr ""
+msgstr "“开始直播”需要一个已打开并有推流密钥的目标。请在“设置 → 媒体 → 直播”中设置。"
 
 #: src/stream/mod.rs
 msgid "{name} is not streamed to: {why}"
-msgstr ""
+msgstr "未向 {name} 直播：{why}"
 
 #: src/stream/mod.rs
 msgid "it has no stream key"
-msgstr ""
+msgstr "它没有推流密钥"
 
 #: src/stream/mod.rs
 msgid "it has no address"
-msgstr ""
+msgstr "它没有地址"
 
 #: src/stream/mod.rs
 msgid "its address or key is not one a stream can be sent to"
-msgstr ""
+msgstr "无法向这个地址或用这个密钥发送直播"
 
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
-msgstr ""
+msgstr "正在录制。请先停止录制，再按“开始直播”。"
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -9828,7 +9828,7 @@ msgstr "以后再说"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
-msgstr ""
+msgstr "无法保存推流密钥：{error}"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"
