@@ -6,6 +6,7 @@ use std::io;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
+pub mod chart;
 pub mod chordpro;
 pub mod common;
 pub mod deck;

@@ -6,9 +6,10 @@
 //! 1.2: the box takes the look of most of its words and every run keeps its own (bold, italic, underline, strike,
 //! size, colour, font), with paragraph alignment, line spacing, space before/after, levels and marks; paragraph
 //! builds animate each paragraph; tables are tables; SmartArt comes in as the shapes PowerPoint drew for it; a chart
-//! or embedded object as its stored picture; flipped shapes and pictures are mirrored.
+//! or embedded object as its stored picture; flipped shapes and pictures are mirrored. A chart with no stored
+//! picture is drawn from its numbers (`chart`: columns, bars, lines, pie shares).
 //!
-//! What still has no match (odd shapes, charts with no stored picture or only an EMF/WMF one, pictures we can't draw)
+//! What still has no match (odd shapes, charts of other kinds or with too many bars, pictures we can't draw)
 //! becomes a grey box with its name and any words it has, and is counted in `Converted::lost`, so the operator can
 //! choose Pictures instead.
 use super::notes::{self, attr, is, Package};
@@ -560,7 +561,7 @@ impl<'g, 'a, 'i> Conv<'g, 'a, 'i> {
         } else if uri.ends_with("/diagram") {
             self.smartart(io, made, f, b, groups, rels)
         } else {
-            self.stored_picture(io, made, f, placed, rels)
+            self.stored_picture(io, made, f, placed, rels) || self.chart(io, made, f, placed, rels)
         };
         if !done {
             let nv = f.descendants().find(|n| is(n, "cNvPr"));
@@ -591,6 +592,16 @@ impl<'g, 'a, 'i> Conv<'g, 'a, 'i> {
         let mut o = Obj::new(ObjKind::Picture { asset, fit: Fit::Stretch }, self.pct(&b));
         o.rotation = b.rot as f32;
         made.push(o);
+        true
+    }
+
+    /// A chart with no picture of itself: drawn from its numbers (`chart`). False when it is a kind that is not
+    /// drawn, has no numbers, or would be too many objects.
+    fn chart<R: Read + Seek>(&self, io: &mut Io<R>, made: &mut Made, f: Node, b: Box_, rels: &Rels) -> bool {
+        let rid = f.descendants().find(|n| is(n, "chart")).and_then(|c| c.attributes().find(|a| a.name() == "id").map(|a| a.value().to_string()));
+        let Some(xml) = rid.and_then(|r| rels.get(&r).cloned()).and_then(|(_, part)| io.p.part(&part)) else { return false };
+        let Some(objs) = super::chart::read(&xml).and_then(|c| super::chart::draw(&c, self.pct(&b))) else { return false };
+        for o in objs { made.push(o); }
         true
     }
 
