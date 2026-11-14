@@ -42,6 +42,20 @@ pub fn system() -> Box<dyn KeyStore> {
     Box::new(Memory::default())
 }
 
+/// The store the app uses: this computer's (`system`); in a test, one of the test's own that forgets, so no
+/// test ever reads or writes the real one by way of the screens.
+pub fn app_store() -> std::sync::Arc<dyn KeyStore> {
+    #[cfg(test)]
+    return TEST_STORE.with(|s| s.clone());
+    #[cfg(not(test))]
+    std::sync::Arc::from(system())
+}
+
+#[cfg(test)]
+thread_local! {
+    static TEST_STORE: std::sync::Arc<Memory> = std::sync::Arc::new(Memory::default());
+}
+
 /// Each destination's key from the store, put where `Destination::address` reads it.
 pub fn fill(store: &dyn KeyStore, all: &mut [super::Destination]) {
     for d in all { d.key = store.get(d.id).unwrap_or_default() }

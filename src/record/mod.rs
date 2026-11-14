@@ -78,6 +78,9 @@ pub struct RecordPrefs {
     pub folder: String,
     /// `Sound::key`; empty is the app's sound.
     pub sound: String,
+    /// Where Go Live sends the recording as it is made (their keys are not here: `stream::keys`).
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub stream: Vec<crate::stream::Destination>,
 }
 
 impl RecordPrefs {

@@ -3,6 +3,43 @@
 import { Theme } from "../theme.slint";
 import { TipArea } from "../widgets.slint";
 
+/// Go Live: beside Record once a destination is switched on. Off: "Go Live". On: "Live" on red; clicking stops
+/// the stream and the recording.
+export component LiveBtn inherits Rectangle {
+    in property <bool> live;
+    callback clicked();
+
+    accessible-role: button;
+    accessible-label: root.live ? @tr("Stop the livestream") : @tr("Go Live");
+    accessible-action-default => { root.clicked(); }
+
+    border-radius: 9px;
+    border-width: 1px;
+    border-color: Theme.live;
+    background: root.live ? Theme.live : live-ta.has-hover ? Theme.raise : transparent;
+
+    HorizontalLayout {
+        padding: 8px;
+        padding-left: 10px;
+        padding-right: 10px;
+        Text {
+            text: root.live ? @tr("Live") : @tr("Go Live");
+            color: root.live ? white : Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: 700;
+            vertical-alignment: center;
+        }
+    }
+
+    live-ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+
+    TipArea { text: root.live ? @tr("Stop the livestream and save the recording") : @tr("Send the room screen to the livestream, and record it"); hover: live-ta.has-hover; pressed: live-ta.pressed; pointer-x: live-ta.mouse-x; }
+}
+
 export component RecordBtn inherits Rectangle {
     in property <bool> recording;
     /// "12:34" while recording.

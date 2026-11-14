@@ -300,6 +300,8 @@ impl Operator {
         ui.set_room_tip(tip.into());
         let stage = view::stage_pill(s);
         ui.set_stage_shown(stage.is_some());
+        // Go Live shows once a livestream destination is switched on in Settings.
+        ui.set_can_stream(s.settings.record.stream.iter().any(|d| d.on));
         ui.set_stage_on(stage.unwrap_or(false));
         ui.set_phones_label(view::phones_label(s.phones).unwrap_or_default().into());
         ui.set_has_service(s.service_id.is_some());

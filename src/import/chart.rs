@@ -200,7 +200,7 @@ fn build(c: &Chart, at: PctRect, labels: bool) -> Option<Vec<Obj>> {
             let thick = slot * 0.8 / per as f32;
             if thick < THIN { return None }
             let few = labels && n * per <= 16;
-            let mut put = |out: &mut Vec<Obj>, color: &str, a: f32, from: f64, to: f64, text: Option<String>| {
+            let put = |out: &mut Vec<Obj>, color: &str, a: f32, from: f64, to: f64, text: Option<String>| {
                 let (p, q) = (at_value(from), at_value(to));
                 let (start, len) = (p.min(q), (p - q).abs());
                 let bar = if upright { PctRect::new(a, start, thick, len) } else { PctRect::new(start, a, len, thick) };

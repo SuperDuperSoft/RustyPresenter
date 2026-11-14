@@ -2,7 +2,7 @@
 // Read and written by `src/ui/dialogs/settings_media.rs`.
 import { Theme } from "../theme.slint";
 import { Btn, Field, Segmented } from "../widgets.slint";
-import { TextField, Note, Select } from "form.slint";
+import { TextField, Note, Select, Check } from "form.slint";
 import { SettingsDlg } from "settings-state.slint";
 
 /// A group's title (also on Settings → Video).
@@ -124,6 +124,40 @@ export component SettingsMedia inherits VerticalLayout {
         record-sound := Select {
             options: SettingsDlg.record-sound-labels;
             index <=> SettingsDlg.record-sound-index;
+        }
+    }
+    Rectangle { height: 14px; }
+    Heading { text: @tr("Livestream"); }
+    Rectangle { height: 6px; }
+    Note {
+        text: @tr("Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet.");
+    }
+    Field {
+        label: @tr("Stream to");
+        help: @tr("A stream key is a password: whoever has it can broadcast as you. It is kept in this computer's own password store as you type it, never in a backup or a service file.");
+        VerticalLayout {
+            spacing: 6px;
+            HorizontalLayout {
+                spacing: 8px;
+                stream-yt := Check { text: "YouTube"; checked <=> SettingsDlg.stream-on-0; }
+                stream-yt-key := TextField { horizontal-stretch: 1; password: true; label: @tr("YouTube stream key"); placeholder: SettingsDlg.stream-saved-0 ? @tr("A key is saved. Type a new one to change it.") : @tr("Paste the stream key"); edited(t) => { SettingsDlg.stream-key-edited(0, t); } }
+            }
+            HorizontalLayout {
+                spacing: 8px;
+                stream-fb := Check { text: "Facebook"; checked <=> SettingsDlg.stream-on-1; }
+                stream-fb-key := TextField { horizontal-stretch: 1; password: true; label: @tr("Facebook stream key"); placeholder: SettingsDlg.stream-saved-1 ? @tr("A key is saved. Type a new one to change it.") : @tr("Paste the stream key"); edited(t) => { SettingsDlg.stream-key-edited(1, t); } }
+            }
+            HorizontalLayout {
+                spacing: 8px;
+                stream-tw := Check { text: "Twitch"; checked <=> SettingsDlg.stream-on-2; }
+                stream-tw-key := TextField { horizontal-stretch: 1; password: true; label: @tr("Twitch stream key"); placeholder: SettingsDlg.stream-saved-2 ? @tr("A key is saved. Type a new one to change it.") : @tr("Paste the stream key"); edited(t) => { SettingsDlg.stream-key-edited(2, t); } }
+            }
+            HorizontalLayout {
+                spacing: 8px;
+                stream-custom := Check { text: @tr("Another server"); checked <=> SettingsDlg.stream-on-3; }
+                stream-custom-url := TextField { horizontal-stretch: 1; label: @tr("The server's address"); placeholder: @tr("Its address: rtmp://, rtmps:// or srt://"); text <=> SettingsDlg.stream-url; }
+                stream-custom-key := TextField { horizontal-stretch: 1; password: true; label: @tr("The server's stream key"); placeholder: SettingsDlg.stream-saved-3 ? @tr("A key is saved. Type a new one to change it.") : @tr("Its stream key, if it has one"); edited(t) => { SettingsDlg.stream-key-edited(3, t); } }
+            }
         }
     }
     Rectangle { height: 14px; }

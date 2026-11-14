@@ -135,6 +135,47 @@ pub fn tee(file: &Path, addresses: &[String]) -> String {
     parts.join("|")
 }
 
+/// `line` (something FFmpeg said) with every stream key of `addresses` taken out: the last part of an address,
+/// and anything after a `?`. So a log or a notice never holds a key.
+pub fn redact(line: &str, addresses: &[String]) -> String {
+    let mut out = line.to_string();
+    for a in addresses {
+        let after_scheme = a.find("://").map_or(0, |i| i + 3);
+        let mut secrets: Vec<&str> = vec![];
+        if let Some(q) = a.find('?') { secrets.push(&a[q + 1..]) }
+        let path = &a[after_scheme..a.find('?').unwrap_or(a.len())];
+        if let Some(slash) = path.rfind('/') { secrets.push(&path[slash + 1..]) }
+        for s in secrets.into_iter().filter(|s| s.len() >= 4) { out = out.replace(s, "…") }
+    }
+    out
+}
+
+/// What the operator is told about streaming.
+pub mod tr {
+    use crate::tr;
+    pub fn live_on(names: &str) -> String { tr!("Live on {names}. Recording too.", names = names) }
+    pub fn nothing_ready() -> String { tr!("Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream.") }
+    pub fn not_ready(name: &str, why: &str) -> String { tr!("{name} is not streamed to: {why}", name = name, why = why) }
+    pub fn no_key() -> String { tr!("it has no stream key") }
+    pub fn no_address() -> String { tr!("it has no address") }
+    pub fn bad_address() -> String { tr!("its address or key is not one a stream can be sent to") }
+    pub fn stop_recording_first() -> String { tr!("A recording is under way. Stop it, then press Go Live.") }
+}
+
+impl Problem {
+    pub fn words(&self) -> String {
+        match self { Problem::NoKey => tr::no_key(), Problem::NoAddress => tr::no_address(), Problem::BadAddress => tr::bad_address() }
+    }
+}
+
+/// The four destinations Settings offers, each with an id of its own that never changes (its key is kept under
+/// it): YouTube, Facebook, Twitch and one custom server.
+pub const BUILT_IN: [(Service, u128); 4] = [(Service::YouTube, 0x5254_5354_5245_414d_0000_0000_0000_0001), (Service::Facebook, 0x5254_5354_5245_414d_0000_0000_0000_0002),
+    (Service::Twitch, 0x5254_5354_5245_414d_0000_0000_0000_0003), (Service::Custom, 0x5254_5354_5245_414d_0000_0000_0000_0004)];
+
+/// The id of Settings' row `i`.
+pub fn built_in_id(i: usize) -> Uuid { Uuid::from_u128(BUILT_IN[i.min(3)].1) }
+
 /// A stream's title from a pattern: `{date}` is the day ("November 15, 2026"), `{service}` the service's name.
 pub fn title(pattern: &str, date: chrono::NaiveDate, service: &str) -> String {
     pattern.replace("{date}", &date.format("%B %-d, %Y").to_string()).replace("{service}", service).trim().to_string()
@@ -195,6 +236,18 @@ mod tests {
         assert_eq!(t, "[f=matroska]C:/Users/A B/Videos/RustyPresenter/2026-11-15 10.30.part.mkv\
             |[f=flv:onfail=ignore]rtmp://a.rtmp.youtube.com/live2/y\\|1|[f=mpegts:onfail=ignore]srt://h.example.org:9000?streamid=abc");
         assert_eq!(tee(Path::new("it's [1].mkv"), &[]), "[f=matroska]it\\'s \\[1\\].mkv");
+    }
+
+    #[test]
+    fn what_ffmpeg_says_is_logged_without_the_keys() {
+        let to = ["rtmp://a.rtmp.youtube.com/live2/abcd-1234-SECRET".to_string(), "srt://h.example.org:9000?streamid=PASS-9876".to_string()];
+        let said = "[tee @ 0x1] Slave '[f=flv:onfail=ignore]rtmp://a.rtmp.youtube.com/live2/abcd-1234-SECRET': error opening: I/O error; srt://h.example.org:9000?streamid=PASS-9876";
+        let shown = redact(said, &to);
+        assert!(!shown.contains("SECRET") && !shown.contains("PASS-9876"), "{shown}");
+        assert!(shown.contains("rtmp://a.rtmp.youtube.com/live2/…") && shown.contains("srt://h.example.org:9000?…"), "{shown}");
+        assert_eq!(redact("frame= 100 fps=30", &to), "frame= 100 fps=30");
+        assert_eq!(built_in_id(0), built_in_id(0));
+        assert_ne!(built_in_id(0), built_in_id(3));
     }
 
     #[test]

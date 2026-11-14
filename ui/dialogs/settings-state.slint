@@ -161,6 +161,21 @@ export global SettingsDlg {
     in property <[string]> record-sound-names;
     in-out property <int> record-sound-index;
     callback record-choose-folder();
+    // ---- Media → Livestream (step one: Go Live sends the recording to these) ----
+    /// The four destinations: YouTube, Facebook, Twitch, a custom server. On or off; whether this computer has
+    /// a stream key for it (keys are never shown and never in the settings: `stream::keys`).
+    in-out property <bool> stream-on-0;
+    in-out property <bool> stream-on-1;
+    in-out property <bool> stream-on-2;
+    in-out property <bool> stream-on-3;
+    in property <bool> stream-saved-0;
+    in property <bool> stream-saved-1;
+    in property <bool> stream-saved-2;
+    in property <bool> stream-saved-3;
+    /// The custom server's address.
+    in-out property <string> stream-url;
+    /// A key was typed for destination 0–3: it is kept at once (empty forgets it).
+    callback stream-key-edited(int, string);
 
     // ---- Songs ----
     /// Lines per slide minus one (0–5).

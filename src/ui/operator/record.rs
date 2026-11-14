@@ -5,6 +5,7 @@ use super::window::Operator;
 use crate::{
     platform::tools,
     record::{self, Ended, Plan, Recording, run},
+    stream,
     ui::dialogs::confirm,
     youtube::fetch::Tool,
 };
@@ -18,6 +19,8 @@ pub struct RecordUi {
     rec: RefCell<Option<Recording>>,
     /// Looking for FFmpeg or starting; a second click waits.
     starting: Cell<bool>,
+    /// The recording under way is also a livestream.
+    live: Cell<bool>,
     /// Updates the time on the button once a second.
     ticker: Timer,
     /// Tests: how the recording ended, waited for by `testing::wait_ended` (no event loop to deliver it).
@@ -36,7 +39,15 @@ fn off_ui<T: Send + 'static>(op: &Operator, work: impl FnOnce() -> T + Send + 's
 
 impl Operator {
     /// The Record button and File → Start/Stop recording.
-    pub fn toggle_recording(self: &Rc<Self>) {
+    pub fn toggle_recording(self: &Rc<Self>) { self.record_or_stop(false) }
+
+    /// The Go Live button: a recording that is also sent to the destinations that are on; again stops both.
+    pub fn go_live(self: &Rc<Self>) {
+        if self.is_recording() && !self.record.live.get() { return self.toast(stream::tr::stop_recording_first(), true) }
+        self.record_or_stop(true)
+    }
+
+    fn record_or_stop(self: &Rc<Self>, live: bool) {
         if self.record.starting.get() { return }
         if let Some(rec) = self.record.rec.borrow().as_ref() {
             rec.stop();
@@ -47,13 +58,34 @@ impl Operator {
         if !self.screens().record_to(None) { return self.toast(record::tr::no_room(), true) }
         let prefs = self.state.borrow().snap.as_ref().map(|s| s.settings.record.clone()).unwrap_or_default();
         let data = self.app().store.root.clone();
-        self.record.starting.set(true);
         let me = Rc::downgrade(self);
+        // Go Live: the destinations that are on, with their keys from the computer's store. None ready: no
+        // recording starts either (the operator asked for a stream).
+        let mut names = String::new();
+        let mut addresses = vec![];
+        if live {
+            let mut all = prefs.stream.clone();
+            stream::keys::fill(stream::keys::app_store().as_ref(), &mut all);
+            let (good, bad) = stream::ready(&all);
+            for (name, why) in &bad { self.toast(stream::tr::not_ready(name, &why.words()), true) }
+            if good.is_empty() { return self.toast(stream::tr::nothing_ready(), true) }
+            names = all.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.title().to_string()).collect::<Vec<_>>().join(", ");
+            addresses = good;
+        }
+        self.record.starting.set(true);
         off_ui(self, move || Plan::make(&data, &prefs), move |plan| {
             let Some(op) = me.upgrade() else { return };
             op.record.starting.set(false);
             match plan {
-                Ok(plan) => op.start_recording(plan),
+                Ok(mut plan) => {
+                    plan.stream = addresses;
+                    op.record.live.set(live);
+                    op.start_recording(plan);
+                    if live && op.is_recording() {
+                        op.ui.set_live(true);
+                        op.toast(stream::tr::live_on(&names), false);
+                    }
+                }
                 Err(Some(why)) => op.toast(why, true),
                 Err(None) => op.offer_ffmpeg(),
             }
@@ -108,6 +140,10 @@ impl Operator {
 
     fn show_recording(&self, on: bool) {
         self.ui.set_recording(on);
+        if !on {
+            self.record.live.set(false);
+            self.ui.set_live(false);
+        }
         self.ui.set_record_time(record::clock(0).into());
         if !on { return self.record.ticker.stop() }
         let me = self.me.clone();
@@ -149,6 +185,8 @@ impl Operator {
 pub(super) fn wire(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
     op.ui.on_record(move || if let Some(op) = me.upgrade() { op.toggle_recording() });
+    let me = Rc::downgrade(op);
+    op.ui.on_go_live(move || if let Some(op) = me.upgrade() { op.go_live() });
 }
 
 mod tr {

@@ -29,7 +29,7 @@ fn probe(file: &Path) -> (Vec<(String, String, u64, u64)>, f64) {
 }
 
 fn plan(ffmpeg: PathBuf, dir: &Path, sound: Sound) -> Plan {
-    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4") }
+    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![] }
 }
 
 /// Records for `secs`, handing in a new solid picture every 100 ms (red, then green), with `each` called as it goes.

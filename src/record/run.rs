@@ -75,6 +75,8 @@ pub struct Plan {
     pub sound: Sound,
     /// The finished MP4.
     pub out: PathBuf,
+    /// Go Live: the addresses the same picture and sound are sent to (`stream::ready`); empty: only the file.
+    pub stream: Vec<String>,
 }
 
 impl Plan {
@@ -90,7 +92,7 @@ impl Plan {
             return Err(Some(tr::low_disk(&gb(free), &gb(prefs.size.bytes_per_hour()))));
         }
         let out = super::file_name(&folder, chrono::Local::now().naive_local());
-        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out })
+        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![] })
     }
 }
 
@@ -182,7 +184,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let part = partial_of(&plan.out);
     let format = args::input_format(tools::OS);
     let input = match &plan.sound { Sound::Input(name) => Some((format, name.as_str())), _ => None };
-    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, out: &part, stream: &[] });
+    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, out: &part, stream: &plan.stream });
     let mut cmd = tokio::process::Command::new(&plan.ffmpeg);
     cmd.args(a).stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::piped());
     let mut tree = match spawn_tree(cmd) {
@@ -193,9 +195,12 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let _ = started.send(Ok(()));
     let said: Arc<Mutex<VecDeque<String>>> = Arc::default();
     let said2 = said.clone();
+    let keys = plan.stream.clone();
     tokio::spawn(async move {
         let mut lines = BufReader::new(err).lines();
         while let Ok(Some(l)) = lines.next_line().await {
+            // FFmpeg names the address it could not reach, and a stream key is part of it.
+            let l = crate::stream::redact(&l, &keys);
             eprintln!("ffmpeg (recording): {l}");
             let mut s = said2.lock().unwrap_or_else(|e| e.into_inner());
             s.push_back(l);

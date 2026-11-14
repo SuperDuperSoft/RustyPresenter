@@ -6,7 +6,7 @@ import { EditMenu, Icon, TopBtn, Pill, Kbd, TipArea } from "../widgets.slint";
 import { BiblePickerList, TranslationChip } from "../bible-picker.slint";
 import { StageLayoutButton } from "../dialogs/stage-layouts.slint";
 import { PanelExtras } from "extras.slint";
-import { RecordBtn } from "record.slint";
+import { RecordBtn, LiveBtn } from "record.slint";
 
 export { TranslationChip }
 
@@ -50,6 +50,10 @@ export component TopBar inherits Rectangle {
     in property <string> record-time;
 
     callback record();
+    /// Livestreaming: a destination is switched on (the button shows), and a stream is going out.
+    in property <bool> can-stream;
+    in property <bool> live;
+    callback go-live();
     callback services();
     callback screens();
     callback phone();
@@ -589,6 +593,14 @@ export component TopBar inherits Rectangle {
                 // Only the dot below 1400 px: with its word the bar overflows just above `narrow`.
                 narrow: root.compact;
                 clicked => { root.record(); }
+            }
+        }
+        if root.can-stream || root.live: VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            live-btn := LiveBtn {
+                live: root.live;
+                clicked => { root.go-live(); }
             }
         }
         VerticalLayout {

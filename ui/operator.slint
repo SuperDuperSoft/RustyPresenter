@@ -276,6 +276,9 @@ export component OperatorWindow inherits Window {
     in property <bool> recording;
     in property <string> record-time;
     callback record();
+    in property <bool> can-stream;
+    in property <bool> live;
+    callback go-live();
 
     /// One key press, for `keys::route_in` in Rust: the key's text, Ctrl (Cmd on macOS), Alt, Shift, whether a text
     /// field has focus and whether that field is the Bible box. True when the key was used.
@@ -927,6 +930,9 @@ export component OperatorWindow inherits Window {
                 recording: root.recording;
                 record-time: root.record-time;
                 record => { root.focus-keys(); root.record(); }
+                can-stream: root.can-stream;
+                live: root.live;
+                go-live => { root.focus-keys(); root.go-live(); }
                 services => { root.focus-keys(); root.services(); }
                 screens => { root.focus-keys(); root.screens(); }
                 phone => { root.focus-keys(); root.phone(); }
