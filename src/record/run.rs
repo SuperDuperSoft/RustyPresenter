@@ -182,7 +182,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let part = partial_of(&plan.out);
     let format = args::input_format(tools::OS);
     let input = match &plan.sound { Sound::Input(name) => Some((format, name.as_str())), _ => None };
-    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, out: &part });
+    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, out: &part, stream: &[] });
     let mut cmd = tokio::process::Command::new(&plan.ffmpeg);
     cmd.args(a).stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::piped());
     let mut tree = match spawn_tree(cmd) {

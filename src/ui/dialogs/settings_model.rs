@@ -21,8 +21,11 @@ thread_local! {
 
 /// `<data>/deps`, or a test's own folder.
 fn deps() -> PathBuf {
+    // A test never looks in this computer's own data folder: with a model downloaded there (as on Jake's PC since
+    // November 14) "no model yet" would not be true. Without a folder of its own it gets one that is not there.
     #[cfg(test)]
-    if let Some(d) = TEST_DEPS.with(|d| d.borrow().clone()) { return d }
+    return TEST_DEPS.with(|d| d.borrow().clone()).unwrap_or_else(|| std::env::temp_dir().join("rp-tests-have-no-speech-model"));
+    #[cfg(not(test))]
     fetch::deps_dir()
 }
 
