@@ -3,7 +3,8 @@ use crate::record::sound::Heard;
 
 /// The FFmpeg on this machine, if any: these tests record for real.
 fn ffmpeg() -> Option<PathBuf> {
-    let found = std::env::var_os("PATH").and_then(|p| std::env::split_paths(&p).map(|d| d.join("ffmpeg")).find(|p| p.is_file()));
+    // "ffmpeg.exe" on Windows (only "ffmpeg" was looked for, so on Windows these tests never ran).
+    let found = std::env::var_os("PATH").and_then(|p| std::env::split_paths(&p).flat_map(|d| [d.join("ffmpeg"), d.join("ffmpeg.exe")]).find(|p| p.is_file()));
     if found.is_none() { eprintln!("no ffmpeg here: skipped") }
     found
 }
@@ -146,4 +147,35 @@ fn the_part_and_notes_sit_beside_the_mp4() {
     let out = Path::new("/r/Recording 2026-11-07 10-30-05.mp4");
     assert_eq!(partial_of(out), Path::new("/r/Recording 2026-11-07 10-30-05.recording.mkv"));
     assert_eq!(notes_of(out), Path::new("/r/Recording 2026-11-07 10-30-05.recording.json"));
+}
+
+/// Go Live for real, on this computer alone: a second FFmpeg listens as a streaming service would (RTMP on
+/// 127.0.0.1), the recorder is given its address and one that nobody listens on, and what arrives is looked at.
+#[test]
+fn go_live_sends_the_recording_to_a_listening_server_and_survives_a_dead_one() {
+    let Some(ff) = ffmpeg() else { return };
+    let dir = scratch("live");
+    let port = |()| std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port();
+    let (good, dead) = (format!("rtmp://127.0.0.1:{}/live/TEST-KEY-1234", port(())), format!("rtmp://127.0.0.1:{}/live/DEAD-KEY-5678", port(())));
+    let received = dir.join("received.flv");
+    let mut server = std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-listen", "1", "-f", "flv", "-i", &good, "-c", "copy"])
+        .arg(&received).stdin(Stdio::null()).spawn().expect("the listening FFmpeg starts");
+    std::thread::sleep(Duration::from_millis(1500));
+    let ended = record_for(Plan { stream: vec![dead, good], ..plan(ff, &dir, Sound::None) }, 7.0, |_, _| {});
+    // The server stops when the stream ends.
+    let t = Instant::now();
+    while server.try_wait().unwrap().is_none() && t.elapsed() < Duration::from_secs(20) { std::thread::sleep(Duration::from_millis(100)) }
+    let _ = server.kill();
+    let _ = server.wait();
+    // The recording is there, as without a stream (with the silent sound a stream needs). It starts when the
+    // destinations have answered: Windows takes about two seconds to say that nobody listens on a port.
+    assert_eq!((ended.file.clone(), ended.problem.clone()), (Some(dir.join("Recording test.mp4")), None), "{ended:?}");
+    let (streams, secs) = probe(&dir.join("Recording test.mp4"));
+    assert!(streams.contains(&("video".into(), "h264".into(), 1280, 720)) && (2.0..9.0).contains(&secs), "{streams:?} {secs} s");
+    // And the server got the same picture, with sound, though the other destination could not be reached.
+    let (got, got_secs) = probe(&received);
+    assert!(got.contains(&("video".into(), "h264".into(), 1280, 720)), "{got:?}");
+    assert!(got.iter().any(|s| s.0 == "audio" && s.1 == "aac"), "{got:?}");
+    assert!(got_secs > 1.5, "{got_secs} s arrived");
+    std::fs::remove_dir_all(&dir).unwrap();
 }

@@ -28,7 +28,7 @@ fn open(app: &Arc<crate::app::App>, room: &Arc<Room>) -> Rc<Operator> {
 
 fn toasts(op: &Operator) -> Vec<(String, bool)> { op.state.borrow().toasts.clone() }
 
-fn has_ffmpeg() -> bool { std::env::var_os("PATH").is_some_and(|p| std::env::split_paths(&p).any(|d| d.join("ffmpeg").is_file())) }
+fn has_ffmpeg() -> bool { std::env::var_os("PATH").is_some_and(|p| std::env::split_paths(&p).any(|d| d.join("ffmpeg").is_file() || d.join("ffmpeg.exe").is_file())) }
 
 #[test]
 fn with_no_room_screen_it_says_to_turn_it_on() {
