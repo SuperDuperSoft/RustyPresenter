@@ -88,3 +88,14 @@ async fn fetch_checks_sha256() {
         assert!(m.size > 300_000_000);
     }
 }
+
+/// The real download, into this computer's own data folder (where Settings puts it): 360 MB from Hugging Face.
+/// Not run by itself: `cargo test real_download -- --ignored --nocapture`.
+#[tokio::test]
+#[ignore]
+async fn real_download_of_the_small_model() {
+    let deps = deps_dir();
+    let dir = ensure(&deps, &FAST, HUGGING_FACE, &|_, _| {}, &CancellationToken::new()).await.unwrap_or_else(|e| panic!("{e:?}"));
+    println!("REAL model in {}", dir.display());
+    assert_eq!(installed(&deps, &FAST), Some(dir));
+}
