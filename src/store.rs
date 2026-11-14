@@ -96,11 +96,17 @@ impl Store {
     }
 
     /// Online Bible text is left out (Nov 5 spec §5).
-    pub fn save(&self, data: &Data) -> io::Result<()> {
+    pub fn save(&self, data: &Data) -> io::Result<()> { self.write_data(&self.encode(data)?) }
+
+    /// The bytes `save` writes to `data.json`. Quick, so it may run while the data is locked; the slow disk write
+    /// (`write_data`) can then run after the lock is let go.
+    pub fn encode(&self, data: &Data) -> io::Result<Vec<u8>> {
         let data = crate::scripture::online::without_online_text(data, &self.root);
-        let json = serde_json::to_vec_pretty(&*data).map_err(io::Error::other)?;
-        write_atomic(&self.data_path(), &json)
+        serde_json::to_vec_pretty(&*data).map_err(io::Error::other)
     }
+
+    /// Writes bytes from `encode` to `data.json`, safely (a temp file, flushed to the disk, then renamed).
+    pub fn write_data(&self, bytes: &[u8]) -> io::Result<()> { write_atomic(&self.data_path(), bytes) }
 
     /// Move a finished temp file into the asset store under its hash.
     pub fn publish(&self, tmp: &Path, sha: &str, ext: &str) -> io::Result<AssetId> {
@@ -172,19 +178,32 @@ impl Store {
         Ok(name)
     }
 
+    /// The finished backups, newest first. The operator screen asks for this after every change, so each backup's
+    /// `data.json` (the whole song library) is read only the first time it is listed: a finished backup folder
+    /// never changes, and its details are remembered by its path.
     pub fn backups(&self) -> Vec<BackupInfo> {
+        static KNOWN: std::sync::Mutex<std::collections::BTreeMap<PathBuf, BackupInfo>> = std::sync::Mutex::new(std::collections::BTreeMap::new());
         let mut list = vec![];
         let Ok(rd) = fs::read_dir(self.root.join("backups")) else { return list };
+        let mut known = KNOWN.lock().unwrap_or_else(|e| e.into_inner());
+        let mut seen = std::collections::BTreeSet::new();
         for e in rd.flatten() {
             let p = e.path();
             let name = e.file_name().to_string_lossy().to_string();
             if !name.starts_with("backup-") || name.ends_with(".partial") || !p.join("COMPLETE").exists() { continue; }
+            seen.insert(p.clone());
+            if let Some(info) = known.get(&p) { list.push(info.clone()); continue; }
             let manifest: Option<Manifest> = fs::read(p.join("manifest.json")).ok().and_then(|b| serde_json::from_slice(&b).ok());
             let data: Option<Data> = fs::read(p.join("data.json")).ok().and_then(|b| serde_json::from_slice(&b).ok());
             if let (Some(m), Some(d)) = (manifest, data) {
-                list.push(BackupInfo { name, created: m.created, assets: m.assets.len(), songs: d.songs.len(), services: d.services.len() });
+                let info = BackupInfo { name, created: m.created, assets: m.assets.len(), songs: d.songs.len(), services: d.services.len() };
+                known.insert(p, info.clone());
+                list.push(info);
             }
         }
+        // Forget backups of this folder that were pruned; other data folders (tests) keep theirs.
+        let backups = self.root.join("backups");
+        known.retain(|p, _| !p.starts_with(&backups) || seen.contains(p));
         list.sort_by(|a, b| b.name.cmp(&a.name));
         list
     }
@@ -432,6 +451,21 @@ mod tests {
         fs::create_dir_all(a.join("backups/backup-2026-01-01_000000.partial")).unwrap();
         fs::create_dir_all(a.join("backups/backup-2026-01-02_000000")).unwrap(); // no COMPLETE
         assert!(store.backups().is_empty());
+    }
+
+    #[test]
+    fn the_backup_list_reads_each_backups_data_once_and_drops_removed_ones() {
+        let a = test_dir();
+        let store = Store::open(a.clone()).unwrap();
+        let mut data = Data::default();
+        data.songs.push(Song { title: "Amazing Grace".into(), ..Song::default() });
+        let name = store.backup(&data).unwrap();
+        assert_eq!(store.backups()[0].songs, 1);
+        // Listed again from memory: the folder's data is not read a second time.
+        fs::write(a.join("backups").join(&name).join("data.json"), b"not json").unwrap();
+        assert_eq!((store.backups().len(), store.backups()[0].songs), (1, 1));
+        fs::remove_dir_all(a.join("backups").join(&name)).unwrap();
+        assert!(store.backups().is_empty(), "a removed backup is no longer listed");
     }
 
     /// A data.json as v0.2 wrote it: format 1, a picture background on the church and on one item.

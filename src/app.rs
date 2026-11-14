@@ -156,7 +156,10 @@ pub trait Screens: Send + Sync {
 }
 
 /// An open pairing window: the PIN to type, and the one-time secret the QR code carries (both die together).
-pub struct Pairing { pub(crate) pin: String, pub(crate) secret: String, pub(crate) until: Instant, pub(crate) failures: u32 }
+/// A `data.json` save made while `data` was locked, waiting to be written (`App::write_save`).
+struct PendingSave { seq: u64, bytes: Vec<u8> }
+
+pub struct Pairing {pub(crate) pin: String, pub(crate) secret: String, pub(crate) until: Instant, pub(crate) failures: u32 }
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Phone {
@@ -260,6 +263,11 @@ pub struct App {
     pub usage: crate::usage::Usage,
     /// Edit → Undo / Redo (`crate::undo`). Locked after `data`, never before.
     pub(crate) history: Mutex<crate::undo::History>,
+    /// Numbers each `data.json` save, taken while `data` is locked, so saves are numbered in the order the changes
+    /// were made.
+    save_seq: AtomicU64,
+    /// The newest save number on the disk. Held while writing, so an older save never lands after a newer one.
+    saved_seq: Mutex<u64>,
     /// FEAT-2's memory-only state. Lock order: `data` → `live` → `automation`.
     pub automation: Mutex<crate::automation::runtime::AutomationRuntime>,
     /// Wakes the automation ticker (`automation::task`).
@@ -337,7 +345,7 @@ impl App {
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), stage_message: Mutex::default(), stage_only: Mutex::default(), remote_conns: AtomicUsize::new(0), net: Default::default(),
             state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), probe_mpv: OnceLock::new(), converters: OnceLock::new(),
             bible_downloads: tokio::sync::Mutex::new(()), fade_ticking: AtomicBool::new(false), youtube, read_only: AtomicBool::new(false), usage, search: OnceLock::new(),
-            history: Mutex::default(),
+            history: Mutex::default(), save_seq: AtomicU64::new(0), saved_seq: Mutex::new(0),
             automation: Mutex::default(), ticker_wake: tokio::sync::Notify::new(), automation_watching: AtomicBool::new(false),
             listening: AtomicBool::new(false), room_canvas: AtomicU64::new(1920 << 32 | 1080), pplive: Default::default(), follower: OnceLock::new(),
             listen: Mutex::default(),
@@ -501,9 +509,23 @@ impl App {
     }
     pub fn broadcast_data(&self) { let _ = self.tx.send(Update::Data); }
 
-    pub(crate) fn save(&self, data: &Data) -> Result<(), String> {
+    pub(crate) fn save(&self, data: &Data) -> Result<(), String> { self.write_save(self.encode_save(data)?) }
+
+    /// The first half of a save: `data.json`'s bytes and their save number. Call it with `data` locked.
+    fn encode_save(&self, data: &Data) -> Result<PendingSave, String> {
         if self.read_only() { return Err(crate::theme::strings::newer_data().into()) }
-        self.store.save(data).map_err(|e| tr!("Could not save: {error}", error = e))
+        let bytes = self.store.encode(data).map_err(|e| tr!("Could not save: {error}", error = e))?;
+        Ok(PendingSave { seq: self.save_seq.fetch_add(1, Ordering::Relaxed) + 1, bytes })
+    }
+
+    /// The second half: the disk write, best after `data` is unlocked so live control never waits on the disk.
+    /// A save older than the one already written is dropped; the newer one holds its changes too.
+    fn write_save(&self, save: PendingSave) -> Result<(), String> {
+        let mut saved = self.saved_seq.lock().unwrap_or_else(|e| e.into_inner());
+        if save.seq <= *saved { return Ok(()) }
+        self.store.write_data(&save.bytes).map_err(|e| tr!("Could not save: {error}", error = e))?;
+        *saved = save.seq;
+        Ok(())
     }
 
     /// The data was saved by a newer RustyPresenter (`Store::load_full`): every edit is refused with
@@ -525,11 +547,12 @@ impl App {
         let r = {
             let mut data = self.data.lock().unwrap();
             let before = data.clone();
-            let r = f(&mut data).and_then(|r| self.save(&data).map(|()| r));
+            let r = f(&mut data).and_then(|r| self.encode_save(&data).map(|s| (r, s)));
             let mut history = self.history.lock().unwrap();
             if step { history.record(&before, &data) } else { history.carry(&before, &data) }
             r
         };
+        let r = r.and_then(|(r, s)| self.write_save(s).map(|()| r));
         self.after_edit(r.is_ok());
         r
     }
@@ -542,8 +565,9 @@ impl App {
             let mut data = self.data.lock().unwrap();
             let mut history = self.history.lock().unwrap();
             let r = if redo { history.redo(&mut data) } else { history.undo(&mut data) };
-            r.and_then(|t| self.save(&data).map(|()| t))
+            r.and_then(|t| self.encode_save(&data).map(|s| (t, s)))
         };
+        let r = r.and_then(|(t, s)| self.write_save(s).map(|()| t));
         // A step that could not be taken is gone too, so the menu is told either way.
         self.after_edit(true);
         r
@@ -1727,16 +1751,21 @@ impl App {
             if app.read_only() { return Err(ActionError::bad(crate::theme::strings::newer_data())); }
             let mut restored = tryr!(app.store.restore(&name));
             let removed = bible::blocklist::strip(&mut restored);
-            if removed > 0 {
-                tryr!(app.save(&restored));
-                app.live.lock().unwrap().notice = Some(passages_removed(removed));
-            }
-            *app.data.lock().unwrap() = restored;
+            if removed > 0 { app.live.lock().unwrap().notice = Some(passages_removed(removed)); }
+            // Saved again through the numbered saves, so an edit's save still on its way to the disk can't put the
+            // replaced data back over the restored file.
+            let save = {
+                let mut data = app.data.lock().unwrap();
+                *data = restored;
+                app.encode_save(&data)
+            };
+            let saved = save.and_then(|s| app.write_save(s));
             app.reconcile_live();
             app.refresh_bible_credits();
             app.online_text_from_cache();
             app.broadcast_data();
             app.broadcast_live();
+            tryr!(saved);
             Ok(json!({}))
         }
         // ---- phone remote ----
@@ -2273,6 +2302,20 @@ mod tests {
         app.set_notice("RustyPresenter restarted after a problem.");
         assert_eq!(app.live.lock().unwrap().notice.as_deref(), Some("RustyPresenter restarted after a problem."));
         assert!(matches!(rx.try_recv().unwrap(), Update::Live(_)));
+    }
+
+    #[tokio::test]
+    async fn an_older_save_never_lands_over_a_newer_one() {
+        let app = test_app();
+        let named = |n: &str| { let mut d = app.data.lock().unwrap().clone(); d.settings.translation = n.into(); d };
+        let (older, newer) = (app.encode_save(&named("OLD")).unwrap(), app.encode_save(&named("NEW")).unwrap());
+        // The newer save reaches the disk first; the older one, written late, is dropped.
+        app.write_save(newer).unwrap();
+        app.write_save(older).unwrap();
+        assert_eq!(app.store.load().unwrap().settings.translation, "NEW");
+        // An edit still saves.
+        app.edit(|d| { d.settings.translation = "WEB".into(); Ok(()) }).unwrap();
+        assert_eq!(app.store.load().unwrap().settings.translation, "WEB");
     }
 
     #[tokio::test]

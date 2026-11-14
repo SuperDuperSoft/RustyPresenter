@@ -212,6 +212,9 @@ fn same_origin(headers: &HeaderMap) -> bool {
 fn remote_map(phone: Uuid) -> impl Fn(&App, Option<&Update>) -> Result<Option<String>, ()> + Send + 'static {
     // The phone's strokes as last sent: points added to a stroke are not news to the phone that drew them.
     let sent = std::sync::Mutex::new(None::<Vec<u32>>);
+    // The phone's view as last sent. Most updates (a video's position twice a second, a job, a screen connecting)
+    // change nothing the phone shows, and the view holds every slide of the service, so a repeat is not sent.
+    let sent_view = std::sync::Mutex::new(None::<String>);
     move |app, u| match u {
         Some(Update::Revoked { phone: p }) if *p == phone => Err(()),
         Some(Update::Job { .. }) => Ok(None),
@@ -225,7 +228,13 @@ fn remote_map(phone: Uuid) -> impl Fn(&App, Option<&Update>) -> Result<Option<St
             *sent = Some(mine.clone());
             Ok(Some(json!({ "type": "drawing", "mine": mine }).to_string()))
         }
-        _ => Ok(Some(remote_view(app, Some(phone)))),
+        _ => {
+            let view = remote_view(app, Some(phone));
+            let mut sent = sent_view.lock().unwrap();
+            if sent.as_deref() == Some(view.as_str()) { return Ok(None) }
+            *sent = Some(view.clone());
+            Ok(Some(view))
+        }
     }
 }
 
@@ -495,8 +504,20 @@ mod tests {
         assert!(map(&app, Some(&Update::Revoked { phone: me })).is_err());
         assert!(matches!(map(&app, Some(&Update::Revoked { phone: other })), Ok(Some(_))));
         assert!(matches!(map(&app, Some(&Update::Job { id: other, percent: 1 })), Ok(None)));
-        assert!(matches!(map(&app, Some(&Update::Data)), Ok(Some(_))));
-        assert!(matches!(map(&app, None), Ok(Some(_))));
+        // Nothing the phone shows changed since: no repeat, whether an update or a catch-up after falling behind.
+        assert!(matches!(map(&app, Some(&Update::Data)), Ok(None)));
+        assert!(matches!(map(&app, None), Ok(None)));
+    }
+
+    #[test]
+    fn a_phone_gets_its_view_again_only_when_it_changed() {
+        let app = test_app();
+        let map = remote_map(Uuid::new_v4());
+        assert!(matches!(map(&app, Some(&Update::Data)), Ok(Some(_))), "the first view goes out");
+        assert_eq!(map(&app, Some(&Update::Data)), Ok(None), "the same view is not sent twice");
+        app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Logo });
+        assert!(matches!(map(&app, Some(&Update::Data)), Ok(Some(_))), "a change goes out");
+        assert_eq!(map(&app, None), Ok(None));
     }
 
     /// `GET`/`POST` on a real listener, as a phone or a local tool would. The status line's code.
