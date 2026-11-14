@@ -155,11 +155,11 @@ pub trait Screens: Send + Sync {
     fn audio_devices(&self) -> Vec<crate::video::ffi::AudioDevice> { vec![] }
 }
 
-/// An open pairing window: the PIN to type, and the one-time secret the QR code carries (both die together).
 /// A `data.json` save made while `data` was locked, waiting to be written (`App::write_save`).
 struct PendingSave { seq: u64, bytes: Vec<u8> }
 
-pub struct Pairing {pub(crate) pin: String, pub(crate) secret: String, pub(crate) until: Instant, pub(crate) failures: u32 }
+/// An open pairing window: the PIN to type, and the one-time secret the QR code carries (both die together).
+pub struct Pairing { pub(crate) pin: String, pub(crate) secret: String, pub(crate) until: Instant, pub(crate) failures: u32 }
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Phone {
