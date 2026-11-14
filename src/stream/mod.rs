@@ -2,14 +2,16 @@
 //! basics"): where a stream goes, and the one FFmpeg output that writes the recording and sends the same picture
 //! and sound to every destination that is on (`args::record` with `stream`). Pure, so all tested here.
 //!
-//! Not built yet: the Go Live button and the Settings list, where the keys are kept, reconnecting, the speed
-//! test, scenes and cameras. Nothing in the app starts a stream.
+//! Not built yet: the Go Live button and the Settings list, reconnecting, the speed test, scenes and cameras.
+//! Nothing in the app starts a stream. Keys are kept in the computer's password store (`keys`).
 //!
 //! A stream key is a password: whoever has it can broadcast as the church. `Destination::shown` is the only
 //! form of an address that may reach a log, a notice or the screen.
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use uuid::Uuid;
+
+pub mod keys;
 
 /// A place a stream can be sent.
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
@@ -49,7 +51,9 @@ pub struct Destination {
     pub service: Service,
     /// A custom server's address; not used by the others.
     pub url: String,
-    /// The stream key (a password). Never shown or logged: see `shown`.
+    /// The stream key (a password). Never shown or logged (see `shown`) and never saved with the data: it is
+    /// kept in the computer's password store and put here when it is needed (`keys::fill`).
+    #[serde(skip)]
     pub key: String,
     pub on: bool,
 }
@@ -205,7 +209,8 @@ mod tests {
         let d = dest(Service::Custom, "rtmp://x.example/live", "k");
         let json = serde_json::to_string(&d).unwrap();
         assert!(json.contains("\"service\":\"custom\""), "{json}");
-        assert_eq!(serde_json::from_str::<Destination>(&json).unwrap(), d);
+        // All of it but the key, which is not kept with the data (`keys`).
+        assert_eq!(serde_json::from_str::<Destination>(&json).unwrap(), Destination { key: String::new(), ..d });
         assert_eq!(serde_json::from_str::<Destination>("{}").unwrap(), Destination::default());
     }
 }
