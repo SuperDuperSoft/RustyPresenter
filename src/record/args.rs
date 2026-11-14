@@ -119,9 +119,12 @@ pub fn record(r: &Record) -> Vec<OsString> {
         push(&["-map", "0:v", "-map", "1:a"]);
     } else if !r.stream.is_empty() {
         // Streaming services refuse a stream with no sound: silence stands in. It has no end of its own, so
-        // the output ends with the picture (`-shortest`).
+        // the output ends with the picture (`-shortest`), and it may run only half a second ahead of the
+        // picture. Left alone it ran ten seconds ahead, and a sender that joined the feed in the middle (after
+        // a lost connection) got nothing out of it. (Made at the clock's pace with `-re` instead, FFmpeg
+        // stalled for eleven seconds at the start: tried on November 14, 2026.)
         push(&["-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=48000"]);
-        push(&["-map", "0:v", "-map", "1:a", "-shortest"]);
+        push(&["-map", "0:v", "-map", "1:a", "-shortest", "-shortest_buf_duration", "0.5"]);
     } else {
         push(&["-map", "0:v"]);
     }
@@ -212,6 +215,7 @@ mod tests {
         // Without one: silence stands in (a service refuses a stream with no sound), and it ends with the picture.
         let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, out: &out, stream: &to[..1] }));
         assert!(a.windows(4).any(|w| w == ["-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=48000"]), "{a:?}");
+        assert_eq!(after(&a, "-shortest_buf_duration"), "0.5");
         assert!(a.contains(&"-shortest".to_string()) && after(&a, "-c:a") == "aac");
         assert_eq!(after(&a, "-g"), "60", "a keyframe every 2 s, as the services ask");
     }

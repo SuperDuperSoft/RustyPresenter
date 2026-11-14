@@ -5944,7 +5944,15 @@ msgid "That backup is incomplete and cannot be restored."
 msgstr "Bản sao lưu đó không đầy đủ và không thể khôi phục."
 
 #: src/stream/mod.rs
-msgid "Live on {names}. Recording too."
+msgid "Going live on {names}. Recording too."
+msgstr ""
+
+#: src/stream/mod.rs
+msgid "{name}: the stream is going out."
+msgstr ""
+
+#: src/stream/mod.rs
+msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr ""
 
 #: src/stream/mod.rs

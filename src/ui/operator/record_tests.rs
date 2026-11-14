@@ -149,3 +149,26 @@ fn settings_keep_the_destinations_and_never_a_key() {
     g.invoke_stream_key_edited(0, "".into());
     assert!(!g.get_stream_saved_0());
 }
+
+#[test]
+fn the_operator_hears_when_a_destination_connects_and_when_it_drops() {
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    op.record.live.set(true);
+    *op.record.links.borrow_mut() = vec![("YouTube".to_string(), false), ("Facebook".to_string(), false)];
+    let before = toasts(&op).len();
+    op.say_links(&[false, false]);
+    assert_eq!(toasts(&op).len(), before, "nothing changed: nothing said");
+    op.say_links(&[true, false]);
+    assert_eq!(toasts(&op).last(), Some(&(stream::tr::connected("YouTube"), false)));
+    op.say_links(&[true, false]);
+    op.say_links(&[false, true]);
+    let said = toasts(&op);
+    assert_eq!(said[said.len() - 2..], [(stream::tr::lost("YouTube"), true), (stream::tr::connected("Facebook"), false)]);
+    // Only while live.
+    op.record.live.set(false);
+    op.say_links(&[true, true]);
+    assert_eq!(toasts(&op).len(), said.len());
+}

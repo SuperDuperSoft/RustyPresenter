@@ -5949,7 +5949,15 @@ msgid "That backup is incomplete and cannot be restored."
 msgstr "Esse backup está incompleto e não pode ser restaurado."
 
 #: src/stream/mod.rs
-msgid "Live on {names}. Recording too."
+msgid "Going live on {names}. Recording too."
+msgstr ""
+
+#: src/stream/mod.rs
+msgid "{name}: the stream is going out."
+msgstr ""
+
+#: src/stream/mod.rs
+msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr ""
 
 #: src/stream/mod.rs

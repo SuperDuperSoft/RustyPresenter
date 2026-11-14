@@ -20,8 +20,9 @@ fn probe(file: &Path) -> (Vec<(String, String, u64, u64)>, f64) {
     let out = std::process::Command::new("ffprobe")
         .args(["-v", "error", "-show_entries", "stream=codec_type,codec_name,width,height:format=duration", "-of", "json"])
         .arg(file).output().unwrap();
-    let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
-    let streams = v["streams"].as_array().unwrap().iter().map(|s| (
+    let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap_or_default();
+    // A file FFprobe cannot read has no streams (the assertion that follows says which file it was).
+    let streams = v["streams"].as_array().cloned().unwrap_or_default().iter().map(|s| (
         s["codec_type"].as_str().unwrap_or("").to_string(), s["codec_name"].as_str().unwrap_or("").to_string(),
         s["width"].as_u64().unwrap_or(0), s["height"].as_u64().unwrap_or(0),
     )).collect();
@@ -150,32 +151,46 @@ fn the_part_and_notes_sit_beside_the_mp4() {
 }
 
 /// Go Live for real, on this computer alone: a second FFmpeg listens as a streaming service would (RTMP on
-/// 127.0.0.1), the recorder is given its address and one that nobody listens on, and what arrives is looked at.
+/// 127.0.0.1). The recorder is given its address and one that nobody listens on. Eight seconds in, the server is
+/// killed (the internet goes) and a new one listens on the same address: the stream must come back by itself.
 #[test]
-fn go_live_sends_the_recording_to_a_listening_server_and_survives_a_dead_one() {
+fn go_live_reaches_a_server_survives_a_dead_one_and_comes_back_after_a_drop() {
     let Some(ff) = ffmpeg() else { return };
     let dir = scratch("live");
     let port = |()| std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port();
     let (good, dead) = (format!("rtmp://127.0.0.1:{}/live/TEST-KEY-1234", port(())), format!("rtmp://127.0.0.1:{}/live/DEAD-KEY-5678", port(())));
-    let received = dir.join("received.flv");
-    let mut server = std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-listen", "1", "-f", "flv", "-i", &good, "-c", "copy"])
-        .arg(&received).stdin(Stdio::null()).spawn().expect("the listening FFmpeg starts");
+    let listen = |to: &Path| std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-listen", "1", "-analyzeduration", "2000000", "-f", "flv", "-i", &good, "-c", "copy"])
+        .arg(to).stdin(Stdio::null()).stderr(std::fs::File::create(to.with_extension("log")).unwrap()).spawn().expect("the listening FFmpeg starts");
+    let (first, second) = (dir.join("received-1.flv"), dir.join("received-2.flv"));
+    let servers = std::cell::RefCell::new(vec![listen(&first)]);
     std::thread::sleep(Duration::from_millis(1500));
-    let ended = record_for(Plan { stream: vec![dead, good], ..plan(ff, &dir, Sound::None) }, 7.0, |_, _| {});
-    // The server stops when the stream ends.
+    let ended = record_for(Plan { stream: vec![dead, good.clone()], ..plan(ff.clone(), &dir, Sound::None) }, 28.0, |_, t| {
+        let mut servers = servers.borrow_mut();
+        if t >= 8.0 && servers.len() == 1 {
+            let _ = servers[0].kill();
+            let _ = servers[0].wait();
+            servers.push(listen(&second));
+        }
+    });
+    // The second server stops when the stream ends.
+    let mut servers = servers.into_inner();
     let t = Instant::now();
-    while server.try_wait().unwrap().is_none() && t.elapsed() < Duration::from_secs(20) { std::thread::sleep(Duration::from_millis(100)) }
-    let _ = server.kill();
-    let _ = server.wait();
-    // The recording is there, as without a stream (with the silent sound a stream needs). It starts when the
-    // destinations have answered: Windows takes about two seconds to say that nobody listens on a port.
+    while servers[1].try_wait().unwrap().is_none() && t.elapsed() < Duration::from_secs(20) { std::thread::sleep(Duration::from_millis(100)) }
+    let _ = servers[1].kill();
+    let _ = servers[1].wait();
+    // The recording never waited for the internet: it is whole, from its first second (with the silent sound
+    // a stream needs).
     assert_eq!((ended.file.clone(), ended.problem.clone()), (Some(dir.join("Recording test.mp4")), None), "{ended:?}");
     let (streams, secs) = probe(&dir.join("Recording test.mp4"));
-    assert!(streams.contains(&("video".into(), "h264".into(), 1280, 720)) && (2.0..9.0).contains(&secs), "{streams:?} {secs} s");
-    // And the server got the same picture, with sound, though the other destination could not be reached.
-    let (got, got_secs) = probe(&received);
-    assert!(got.contains(&("video".into(), "h264".into(), 1280, 720)), "{got:?}");
-    assert!(got.iter().any(|s| s.0 == "audio" && s.1 == "aac"), "{got:?}");
-    assert!(got_secs > 1.5, "{got_secs} s arrived");
+    assert!(streams.contains(&("video".into(), "h264".into(), 1280, 720)) && (25.0..31.0).contains(&secs), "{streams:?} {secs} s");
+    // (What the first server got is not looked at: it was killed in the middle of writing its file. That a
+    // server gets picture and sound, with the other destination dead, is what the second one shows.)
+    // And the stream came back to the new server by itself (some seven seconds after the drop: the wait, the
+    // next keyframe, three seconds of looking at the feed, the connection).
+    let (again, again_secs) = probe(&second);
+    assert!(again.contains(&("video".into(), "h264".into(), 1280, 720)), "the stream did not come back: {again:?}; the new server got {} bytes and said: {}",
+        std::fs::metadata(&second).map(|m| m.len()).unwrap_or(0), std::fs::read_to_string(second.with_extension("log")).unwrap_or_default());
+    assert!(again.iter().any(|s| s.0 == "audio" && s.1 == "aac"), "{again:?}");
+    assert!(again_secs > 3.0, "{again_secs} s arrived after the drop");
     std::fs::remove_dir_all(&dir).unwrap();
 }

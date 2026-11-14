@@ -129,6 +129,8 @@ pub struct Recording {
     finished: mpsc::Receiver<()>,
     begun: Instant,
     pub out: PathBuf,
+    /// Go Live: each destination's connection, up or not (`stream::send`); empty when only recording.
+    links: crate::stream::send::Links,
 }
 
 impl Recording {
@@ -140,17 +142,19 @@ impl Recording {
         let (started_tx, started_rx) = mpsc::channel();
         let (finished_tx, finished) = mpsc::channel();
         let (s, c, out) = (sink.clone(), cancel.clone(), plan.out.clone());
+        let links: crate::stream::send::Links = Arc::new(Mutex::new(vec![false; plan.stream.len()]));
+        let l = links.clone();
         std::thread::Builder::new().name("recorder".into()).spawn(move || {
             let rt = match tokio::runtime::Builder::new_current_thread().enable_all().build() {
                 Ok(rt) => rt,
                 Err(e) => { let _ = started_tx.send(Err(e.to_string())); return }
             };
-            let ended = rt.block_on(write(plan, s, c, started_tx));
+            let ended = rt.block_on(write(plan, s, c, started_tx, l));
             if let Some(ended) = ended { done(ended) }
             let _ = finished_tx.send(());
         }).map_err(|e| tr::not_started(&e.to_string()))?;
         match started_rx.recv() {
-            Ok(Ok(())) => Ok(Recording { sink, cancel, finished, begun: Instant::now(), out }),
+            Ok(Ok(())) => Ok(Recording { sink, cancel, finished, begun: Instant::now(), out, links }),
             Ok(Err(e)) => Err(tr::not_started(&e)),
             Err(_) => Err(tr::not_started(&tr::ffmpeg_ended())),
         }
@@ -158,6 +162,9 @@ impl Recording {
 
     /// Where the room hands its pictures (and sound) in.
     pub fn sink(&self) -> &Arc<FrameSink> { &self.sink }
+
+    /// Go Live: whether each destination is connected now, in the order of `Plan::stream`.
+    pub fn links(&self) -> Vec<bool> { self.links.lock().unwrap_or_else(|e| e.into_inner()).clone() }
 
     /// Whole seconds recorded.
     pub fn secs(&self) -> u64 { self.begun.elapsed().as_secs() }
@@ -180,11 +187,16 @@ impl Drop for Recording {
 
 /// The writer: pictures into FFmpeg at `FPS`, until stopped, the disk fills or FFmpeg ends. Then the MP4.
 /// `None` when FFmpeg never started (the starter heard why).
-async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, started: mpsc::Sender<Result<(), String>>) -> Option<Ended> {
+async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, started: mpsc::Sender<Result<(), String>>, links: crate::stream::send::Links) -> Option<Ended> {
     let part = partial_of(&plan.out);
+    // Go Live: the recorder sends to a local feed for each destination; a sender each passes it on and
+    // reconnects (`stream::send`). With no free ports there is no stream, and the recording goes on.
+    let ports = if plan.stream.is_empty() { vec![] } else { crate::stream::send::free_ports(plan.stream.len()).unwrap_or_default() };
+    if ports.len() != plan.stream.len() { eprintln!("recording: no local ports for the stream; recording only") }
+    let feeds: Vec<String> = ports.iter().map(|p| crate::stream::send::feed(*p)).collect();
     let format = args::input_format(tools::OS);
     let input = match &plan.sound { Sound::Input(name) => Some((format, name.as_str())), _ => None };
-    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, out: &part, stream: &plan.stream });
+    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, out: &part, stream: &feeds });
     let mut cmd = tokio::process::Command::new(&plan.ffmpeg);
     cmd.args(a).stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::piped());
     let mut tree = match spawn_tree(cmd) {
@@ -193,6 +205,10 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     };
     let (Some(mut stdin), Some(err)) = (tree.stdin(), tree.stderr()) else { let _ = started.send(Err(tr::ffmpeg_ended())); return None };
     let _ = started.send(Ok(()));
+    let senders = CancellationToken::new();
+    for (i, (port, address)) in ports.iter().zip(&plan.stream).enumerate() {
+        tokio::spawn(crate::stream::send::keep_sending(plan.ffmpeg.clone(), *port, address.clone(), plan.stream.clone(), i, links.clone(), senders.clone()));
+    }
     let said: Arc<Mutex<VecDeque<String>>> = Arc::default();
     let said2 = said.clone();
     let keys = plan.stream.clone();
@@ -245,6 +261,9 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     drop(stdin);
     let end = t0.elapsed().as_secs_f64();
     let ended = tree.wait(END_LIMIT, &CancellationToken::new()).await;
+    // The last of the stream has gone to the senders: a moment for them to pass it on, then they stop.
+    if !ports.is_empty() { tokio::time::sleep(Duration::from_millis(500)).await }
+    senders.cancel();
     if let Err(e @ (Stop::Timeout | Stop::Io(_))) = &ended { eprintln!("recording: FFmpeg did not end its file by itself: {e:?}") }
     let notes = notes(&sink, end);
     write_notes(&plan.out, &notes);

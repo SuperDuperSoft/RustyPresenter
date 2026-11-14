@@ -2,8 +2,8 @@
 //! basics"): where a stream goes, and the one FFmpeg output that writes the recording and sends the same picture
 //! and sound to every destination that is on (`args::record` with `stream`). Pure, so all tested here.
 //!
-//! Not built yet: the Go Live button and the Settings list, reconnecting, the speed test, scenes and cameras.
-//! Nothing in the app starts a stream. Keys are kept in the computer's password store (`keys`).
+//! The recorder sends to local feeds and a sender for each destination passes them on and reconnects (`send`).
+//! Keys are kept in the computer's password store (`keys`). Not built yet: the speed test, scenes and cameras.
 //!
 //! A stream key is a password: whoever has it can broadcast as the church. `Destination::shown` is the only
 //! form of an address that may reach a log, a notice or the screen.
@@ -12,6 +12,7 @@ use std::path::Path;
 use uuid::Uuid;
 
 pub mod keys;
+pub mod send;
 
 /// A place a stream can be sent.
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
@@ -129,8 +130,12 @@ pub fn tee(file: &Path, addresses: &[String]) -> String {
     let mut parts = vec![format!("[f=matroska]{}", tee_escape(&file.to_string_lossy().replace('\\', "/")))];
     for a in addresses {
         // FLV is what RTMP carries; SRT carries MPEG-TS.
-        let format = if a.to_ascii_lowercase().starts_with("srt://") { "mpegts" } else { "flv" };
-        parts.push(format!("[f={format}:onfail=ignore]{}", tee_escape(a)));
+        let lower = a.to_ascii_lowercase();
+        let format = if lower.starts_with("srt://") || lower.starts_with("udp://") { "mpegts" } else { "flv" };
+        // MPEG-TS has no header of its own: the picture's is put in again at every keyframe, so whoever
+        // starts reading in the middle (a sender that reconnects) can show it within two seconds.
+        let extra = if format == "mpegts" { ":bsfs/v=dump_extra" } else { "" };
+        parts.push(format!("[f={format}{extra}:onfail=ignore]{}", tee_escape(a)));
     }
     parts.join("|")
 }
@@ -153,7 +158,9 @@ pub fn redact(line: &str, addresses: &[String]) -> String {
 /// What the operator is told about streaming.
 pub mod tr {
     use crate::tr;
-    pub fn live_on(names: &str) -> String { tr!("Live on {names}. Recording too.", names = names) }
+    pub fn live_on(names: &str) -> String { tr!("Going live on {names}. Recording too.", names = names) }
+    pub fn connected(name: &str) -> String { tr!("{name}: the stream is going out.", name = name) }
+    pub fn lost(name: &str) -> String { tr!("{name} lost its connection. Trying again by itself; the recording goes on.", name = name) }
     pub fn nothing_ready() -> String { tr!("Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream.") }
     pub fn not_ready(name: &str, why: &str) -> String { tr!("{name} is not streamed to: {why}", name = name, why = why) }
     pub fn no_key() -> String { tr!("it has no stream key") }
@@ -234,7 +241,7 @@ mod tests {
         let t = tee(Path::new(r"C:\Users\A B\Videos\RustyPresenter\2026-11-15 10.30.part.mkv"),
             &["rtmp://a.rtmp.youtube.com/live2/y|1".to_string(), "srt://h.example.org:9000?streamid=abc".to_string()]);
         assert_eq!(t, "[f=matroska]C:/Users/A B/Videos/RustyPresenter/2026-11-15 10.30.part.mkv\
-            |[f=flv:onfail=ignore]rtmp://a.rtmp.youtube.com/live2/y\\|1|[f=mpegts:onfail=ignore]srt://h.example.org:9000?streamid=abc");
+            |[f=flv:onfail=ignore]rtmp://a.rtmp.youtube.com/live2/y\\|1|[f=mpegts:bsfs/v=dump_extra:onfail=ignore]srt://h.example.org:9000?streamid=abc");
         assert_eq!(tee(Path::new("it's [1].mkv"), &[]), "[f=matroska]it\\'s \\[1\\].mkv");
     }
 

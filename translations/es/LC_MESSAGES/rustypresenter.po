@@ -5949,8 +5949,16 @@ msgid "That backup is incomplete and cannot be restored."
 msgstr "Esa copia de seguridad está incompleta y no se puede restaurar."
 
 #: src/stream/mod.rs
-msgid "Live on {names}. Recording too."
-msgstr "En vivo en {names}. También se está grabando."
+msgid "Going live on {names}. Recording too."
+msgstr "Saliendo en vivo en {names}. También se está grabando."
+
+#: src/stream/mod.rs
+msgid "{name}: the stream is going out."
+msgstr "{name}: la transmisión está saliendo."
+
+#: src/stream/mod.rs
+msgid "{name} lost its connection. Trying again by itself; the recording goes on."
+msgstr "{name} perdió la conexión. Se vuelve a intentar sola; la grabación sigue."
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
@@ -10508,6 +10516,9 @@ msgstr "yt-dlp no guardó ningún video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "no es un archivo multimedia"
+
+#~ msgid "Live on {names}. Recording too."
+#~ msgstr "En vivo en {names}. También se está grabando."
 
 #~ msgid "Back to the number of lines in Settings"
 #~ msgstr "Volver al número de líneas de Configuración"

@@ -21,6 +21,9 @@ pub struct RecordUi {
     starting: Cell<bool>,
     /// The recording under way is also a livestream.
     live: Cell<bool>,
+    /// Go Live: each destination's name and whether it was connected at the last look, in the order of
+    /// `Plan::stream`. The ticker says when one drops or comes back.
+    links: RefCell<Vec<(String, bool)>>,
     /// Updates the time on the button once a second.
     ticker: Timer,
     /// Tests: how the recording ended, waited for by `testing::wait_ended` (no event loop to deliver it).
@@ -69,7 +72,9 @@ impl Operator {
             let (good, bad) = stream::ready(&all);
             for (name, why) in &bad { self.toast(stream::tr::not_ready(name, &why.words()), true) }
             if good.is_empty() { return self.toast(stream::tr::nothing_ready(), true) }
-            names = all.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.title().to_string()).collect::<Vec<_>>().join(", ");
+            let titles: Vec<String> = all.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.title().to_string()).collect();
+            names = titles.join(", ");
+            *self.record.links.borrow_mut() = titles.into_iter().map(|t| (t, false)).collect();
             addresses = good;
         }
         self.record.starting.set(true);
@@ -135,6 +140,20 @@ impl Operator {
         self.toast(text, err);
     }
 
+    /// Go Live: says which destination has just connected, and which has lost its connection (it is tried
+    /// again by itself: `stream::send`).
+    pub(crate) fn say_links(&self, now: &[bool]) {
+        if !self.record.live.get() { return }
+        let mut said = vec![];
+        for ((name, was), up) in self.record.links.borrow_mut().iter_mut().zip(now) {
+            if *was != *up {
+                *was = *up;
+                said.push(if *up { (stream::tr::connected(name), false) } else { (stream::tr::lost(name), true) });
+            }
+        }
+        for (text, err) in said { self.toast(text, err) }
+    }
+
     /// Whether a recording is under way.
     pub fn is_recording(&self) -> bool { self.record.rec.borrow().is_some() }
 
@@ -151,6 +170,8 @@ impl Operator {
             let Some(op) = me.upgrade() else { return };
             let secs = op.record.rec.borrow().as_ref().map(Recording::secs);
             if let Some(s) = secs { op.ui.set_record_time(record::clock(s).into()) }
+            let links = op.record.rec.borrow().as_ref().map(Recording::links).unwrap_or_default();
+            op.say_links(&links);
         });
     }
 
