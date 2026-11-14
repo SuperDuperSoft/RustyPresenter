@@ -479,3 +479,88 @@ fn a_refind_never_reaches_another_slide() {
     let p = sing(&mut b, "chains are gone", &mut t);
     assert_eq!((p.word, p.plan_index), (Some(index_of(&s, 1, "gone")), 1));
 }
+
+/// A two-line chorus that is in the plan twice: the first copy goes on to a verse, the second to the bridge that
+/// ends the song. Invented words, so that no two sound alike.
+const TWICE: [&str; 5] = ["alpha bravo charlie delta", "echo foxtrot golf hotel india juliet\nkilo lima mike november", "oscar papa quebec romeo",
+    "echo foxtrot golf hotel india juliet\nkilo lima mike november", "sierra tango uniform victor"];
+
+#[test]
+fn a_refind_does_not_put_one_copy_of_a_repeated_chorus_ahead_of_the_other() {
+    let s = song(&TWICE);
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    let p = sing(&mut a, &TWICE.join(" "), &mut t);
+    assert_eq!((p.word, p.plan_index, p.off_script), (Some(s.slides[4].end_word - 1), 4, false));
+    // The chorus once more, which the plan does not have: its words go up at once, whichever copy it is.
+    let p = sing(&mut a, "echo foxtrot golf hotel", &mut t);
+    assert_eq!((p.word, p.plan_index, p.off_script), (Some(index_of(&s, 3, "hotel")), 3, false), "the copy nearest in the plan");
+    assert!(p.confidence >= 0.6, "{p:?}");
+    // The ear loses "india juliet kilo" and hears one word nothing explains; then the last line. One copy goes
+    // on to the bridge, the other to a verse, and which one this is was only a guess. Found again cheaply, the
+    // guessed copy alone would be on its last line, far ahead of the other, and so sure: the bridge would come
+    // back up as the song ends, and stay.
+    let p = sing(&mut a, "zzzq lima mike", &mut t);
+    assert_eq!(p.plan_index, 3);
+    assert!(p.confidence < 0.6, "one copy of the chorus was found again without the other: {p:?}");
+    let p = sing(&mut a, "november", &mut t);
+    assert_eq!(p.plan_index, 3);
+    assert!(p.confidence < 0.6, "{p:?}");
+}
+
+#[test]
+fn a_copy_that_goes_on_to_the_same_slide_is_still_found_again() {
+    // Pre-chorus and chorus are in the plan twice: either copy of the pre-chorus goes on to the chorus, so it
+    // does not matter which one is found again.
+    let pre = "was blind but now\nonce lost then found";
+    let s = song(&["amazing grace how sweet the sound", pre, CHORUS, "the earth shall soon dissolve like snow", pre, CHORUS,
+        "through many dangers toils and snares"]);
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    let p = sing(&mut a, "amazing grace how sweet the sound was", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(index_of(&s, 1, "was")), 1));
+    // The ear misses "blind but now".
+    let p = sing(&mut a, "zzzq once lost", &mut t);
+    assert_eq!((p.word, p.plan_index, p.off_script), (Some(index_of(&s, 1, "lost")), 1, false), "two exact words in a row");
+    assert!(p.confidence >= 0.6, "{p:?}");
+}
+
+#[test]
+fn a_one_letter_word_does_not_put_the_singers_on_the_last_line_by_itself() {
+    let s = song(&["all my days I give to you\noh I will sing your praise", "through many dangers toils and snares"]);
+    let oh = s.slides[0].last_line_first_word;
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    let p = sing(&mut a, "all my days I give to you", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(oh - 1), 0));
+    assert!(p.confidence >= 0.6, "{p:?}");
+    // The singers hold "you". The phoneme ear writes the held vowel again, twice, and each time it sounds like
+    // the "oh" and the "I" the last line starts with. Sure, that place would bring the next slide up a line early.
+    for _ in 0..2 {
+        t += 0.5;
+        let p = a.push(&Heard { key: sound_key("ooh"), at: t, conf: 0.9 });
+        assert_eq!((p.plan_index, p.off_script), (0, false));
+        assert!(p.confidence < 0.6, "a held vowel put the singers on the last line: {p:?}");
+    }
+    // The line is sung. Its one-letter words prove nothing; the first longer word does.
+    let p = sing(&mut a, "oh I", &mut t);
+    assert!(p.confidence < 0.6, "{p:?}");
+    let p = sing(&mut a, "will", &mut t);
+    assert_eq!((p.word, p.plan_index, p.off_script), (Some(oh + 2), 0, false));
+    assert!(p.confidence >= 0.6, "{p:?}");
+}
+
+#[test]
+fn a_last_line_of_one_letter_words_is_proved_by_the_next_slides_first_word() {
+    let s = song(&["all my days I give to you\noh oh oh", "through many dangers toils and snares"]);
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    // The place goes along the last line, but nothing on it can prove it.
+    let p = sing(&mut a, "all my days I give to you oh oh oh", &mut t);
+    assert_eq!((p.word, p.plan_index, p.off_script), (Some(s.slides[0].end_word - 1), 0, false));
+    assert!(p.confidence < 0.6, "{p:?}");
+    // The next slide waits for its own first word: a word late, never a line early.
+    let p = sing(&mut a, "through", &mut t);
+    assert_eq!((p.word, p.plan_index, p.off_script), (Some(index_of(&s, 1, "through")), 1, false));
+    assert!(p.confidence >= 0.6, "{p:?}");
+}

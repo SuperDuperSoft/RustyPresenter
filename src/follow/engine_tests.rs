@@ -430,3 +430,152 @@ fn a_new_song_on_its_intro_slide_waits_for_singing_to_start() {
     e.step(host.as_ref(), t, Some(FollowEvent::Voice(Voice::Singing, t)));
     assert_eq!(host.shown(), ["show 1"]);
 }
+
+#[test]
+fn one_stray_word_does_not_end_the_old_slides_last_line() {
+    // The song of `the_old_slides_last_line_does_not_prove_the_operators_slide`. This time the ear delivers one
+    // word that is not on the old slide's last line (misheard, an ad-lib) before that line: the line still only
+    // finishes the old slide.
+    let chorus = "my chains are gone\nI've been set free";
+    let host = Fake::song(Mode::Auto);
+    host.change(|l| l.slides = vec![text(chorus), text(chorus), text("the earth shall soon\ndissolve like snow")]);
+    let mut e = Engine::new();
+    let mut t = 0.0;
+    sing(&mut e, host.as_ref(), "my chains are gone", &mut t);
+    host.operator_show(1);
+    sing(&mut e, host.as_ref(), "zzzq I've been set free", &mut t);
+    assert_eq!(host.shown(), Vec::<String>::new(), "one stray word, and the verse came up while the first chorus was being finished");
+    assert_eq!(host.slide(), 1);
+    assert_eq!(e.state().light, Light::Holding);
+    // The same with two verses that end on the same line.
+    let host = Fake::song(Mode::Auto);
+    host.change(|l| l.slides = vec![text("glory be to God on high\ncome and praise the Lord"),
+        text("holy is his name forever\ncome and praise the Lord"), text("sing with joy tonight")]);
+    let mut e = Engine::new();
+    let mut t = 0.0;
+    sing(&mut e, host.as_ref(), "glory be to God on high", &mut t);
+    host.operator_show(1);
+    sing(&mut e, host.as_ref(), "zzzq come and praise the Lord", &mut t);
+    assert_eq!(host.shown(), Vec::<String>::new(), "one stray word, and Auto went one slide past the operator's");
+    assert_eq!(host.slide(), 1);
+    assert_eq!(e.state().light, Light::Holding);
+}
+
+#[test]
+fn a_stray_word_in_the_middle_of_the_old_last_line_does_not_end_it() {
+    // The chorus is on two slides in a row, then a verse. Its last line is long.
+    let chorus = "come and praise our mighty king\nlift up his name in every land and sea";
+    let host = Fake::song(Mode::Auto);
+    host.change(|l| l.slides = vec![text(chorus), text(chorus), text("the earth shall soon\ndissolve like snow")]);
+    let mut e = Engine::new();
+    let mut t = 0.0;
+    sing(&mut e, host.as_ref(), "come and praise our mighty king", &mut t);
+    // A line early, the operator goes on to the second copy. As the singers finish the first one, the leader
+    // throws in "king" (a word of the song, but not of the line being finished): the rest of the line is still
+    // the old slide's, not proof that the operator's slide is being sung.
+    host.operator_show(1);
+    sing(&mut e, host.as_ref(), "lift up king his name in every land and sea", &mut t);
+    assert_eq!(host.shown(), Vec::<String>::new(), "the verse came up while the first chorus was being finished");
+    assert_eq!(host.slide(), 1);
+    assert_eq!(e.state().light, Light::Holding);
+    // The chorus again, now on the operator's slide: Auto locks on, and only its last line brings the verse up.
+    sing(&mut e, host.as_ref(), "come and praise our mighty king", &mut t);
+    assert_eq!(host.shown(), Vec::<String>::new());
+    sing(&mut e, host.as_ref(), "lift up his name in every land and sea", &mut t);
+    assert_eq!(host.shown(), ["show 2"]);
+}
+
+#[test]
+fn more_hand_moves_do_not_forget_the_old_slides_last_line() {
+    let chorus = "my chains are gone\nI've been set free";
+    // The chorus on two (or three) slides in a row, then a verse. The singers have sung its first line on
+    // slide 0 when the operator clicks: Next, Next, Back; Next, Back, Next; a double-tapped Next over three
+    // copies. Every click is seen on its own, with no word heard in between. The singers are still finishing
+    // slide 0, wherever the clicks ended.
+    for (copies, moves) in [(2, vec![1, 2, 1]), (2, vec![1, 0, 1]), (3, vec![1, 2])] {
+        let host = Fake::song(Mode::Auto);
+        host.change(|l| l.slides = (0..copies).map(|_| text(chorus)).chain([text("the earth shall soon\ndissolve like snow")]).collect());
+        let mut e = Engine::new();
+        let mut t = 0.0;
+        sing(&mut e, host.as_ref(), "my chains are gone", &mut t);
+        for &slide in &moves {
+            host.operator_show(slide);
+            e.step(host.as_ref(), t, None);
+        }
+        sing(&mut e, host.as_ref(), "I've been set free", &mut t);
+        assert_eq!(host.shown(), Vec::<String>::new(), "{moves:?}: the old slide's last line took Auto past the operator's slide");
+        assert_eq!(host.slide(), moves[moves.len() - 1], "{moves:?}");
+        assert_eq!(e.state().light, Light::Holding, "{moves:?}");
+    }
+}
+
+#[test]
+fn clear_or_logo_after_autos_own_blank_is_the_operators_click() {
+    let host = Fake::song(Mode::Auto);
+    host.change(|l| {
+        l.slides = vec![text("amazing grace"), text("how sweet the sound")];
+        l.slide = 1;
+    });
+    let mut e = Engine::new();
+    let mut t = 0.0;
+    sing(&mut e, host.as_ref(), "how sweet the sound", &mut t);
+    // The song is over: after five quiet seconds Auto takes the words off itself.
+    for _ in 0..60 {
+        t += 0.1;
+        e.step(host.as_ref(), t, Some(FollowEvent::Voice(Voice::Music, t)));
+    }
+    assert_eq!(host.shown(), ["blank"]);
+    assert_eq!(e.state().light, Light::Blank);
+    // The operator presses Logo (or Clear) for the prayer. The slide is the same and its words were off
+    // already: only the screen's version tells of the click.
+    host.change(|_| {});
+    // The band tags the last line, twice. Before Auto's own blank that click would have stopped Auto; after
+    // it, it does too: the lyrics do not come back over the operator's logo.
+    sing(&mut e, host.as_ref(), "how sweet the sound how sweet the sound", &mut t);
+    assert_eq!(host.shown(), ["blank"], "Auto put the lyrics back over the operator's Clear or Logo");
+    assert_eq!(e.state().light, Light::Holding);
+}
+
+#[test]
+fn a_label_flicker_in_the_held_note_does_not_leave_the_intro_slide() {
+    let host = Fake::song(Mode::Auto);
+    let mut e = Engine::new();
+    let mut t = 0.0;
+    sing(&mut e, host.as_ref(), "amazing grace", &mut t);
+    // The last note of this song is still held when the operator takes the next song live, on its intro slide.
+    host.change(|l| {
+        l.item_id = Uuid::new_v4();
+        l.slides = vec![text("{Instrumental}"), text(SONG[1]), text(SONG[2])];
+        l.slide = 0;
+    });
+    // In the held note the room's label flickers: one look says music, a later one says talking.
+    for i in 0..30 {
+        t += 0.1;
+        let voice = match i { 10 => Voice::Music, 20 => Voice::Speaking, _ => Voice::Singing };
+        e.step(host.as_ref(), t, Some(FollowEvent::Voice(voice, t)));
+    }
+    assert_eq!(host.shown(), Vec::<String>::new(), "one flicker of the label, and Auto left the intro slide the operator had just put up");
+    assert_eq!(host.slide(), 0);
+}
+
+#[test]
+fn a_held_vowel_does_not_undo_a_click_onto_an_instrumental_slide() {
+    let host = Fake::song(Mode::Auto);
+    host.change(|l| l.slides = vec![text(SONG[0]), text("{Instrumental}"), text("Oh how I love you\nmy heart will sing")]);
+    let mut e = Engine::new();
+    let mut t = 0.0;
+    sing(&mut e, host.as_ref(), VERSE_1, &mut t);
+    assert_eq!(host.shown(), Vec::<String>::new());
+    // The verse's last note is still held when the operator puts the instrumental slide up. The ear writes the
+    // held vowel down again as a word of one sound, and that sounds like "Oh", the first word after the break.
+    // It is not the one sure word that leaves an instrumental slide, however often it comes.
+    host.operator_show(1);
+    for n in 1..=2 {
+        sing(&mut e, host.as_ref(), "oh", &mut t);
+        assert_eq!(host.shown(), Vec::<String>::new(), "the held vowel, heard {n} time(s), undid the operator's click");
+        assert_eq!(e.state().light, Light::Holding);
+    }
+    // A longer word of the next slide, surely heard, brings its words up.
+    sing(&mut e, host.as_ref(), "love", &mut t);
+    assert_eq!(host.shown(), ["show 2"]);
+}

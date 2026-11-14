@@ -50,7 +50,8 @@ impl Lexicon {
                 // A word of one neutral sound ("a") is in every other word: it would be heard in any stray vowel
                 // and pull the place ahead. It is left out; the aligner steps over it. A sung "Ooh" or "Ah" (one
                 // full vowel, `g2p::listened`) stays, or a slide of nothing else would have no word to hear and
-                // the song's end would never be seen. It is only heard standing alone at a pause (`Spotter::pause`).
+                // the song's end would never be seen. It is only heard standing alone between two pauses, and
+                // not as the last note still being held (`Spotter::pause`).
                 if !listened(&phones) || !seen.insert((phones.clone(), w.key.clone())) { continue }
                 words.push(LexWord { phones, key: w.key.clone() });
             }
@@ -66,6 +67,9 @@ const PAUSE_FRAMES: u32 = 15;
 /// Blank frames in a row (3 s of nothing new) after which a word that was begun and never finished is given up:
 /// longer than any note held inside a word that is worth waiting for, and over before the next line.
 const HOLD_FRAMES: u32 = 150;
+/// Seconds after a sound in which the same vowel standing alone is that note still being held ("you——"), not a
+/// sung "Ooh" (`Spotter::held`): as long as `HOLD_FRAMES`.
+const HELD_S: f64 = HOLD_FRAMES as f64 * STEP_S;
 
 /// Edits allowed between a song word's phonemes and what was heard.
 fn tolerance(len: usize) -> usize { match len { 0..=2 => 0, 3..=5 => 1, _ => 2 } }
@@ -90,10 +94,17 @@ struct Spotter {
     lexicon: Lexicon,
     /// Heard phonemes not used yet: the sound, when, how sure.
     buf: Vec<(char, f64, f32)>,
+    /// The last sound to leave the buffer, at the end of a word that was taken or thrown away, and when it was
+    /// heard. Singers holding that note ("you——") make the model write its vowel again: for `HELD_S` that is the
+    /// same note, not a sung "Ooh" (`pause`). `None` once a word of one sound was heard after it, and after a long
+    /// silence or a break in the sound.
+    held: Option<(char, f64)>,
+    /// Nothing has left the buffer since the last pause: no word was taken and no sound thrown away in this breath.
+    alone: bool,
 }
 
-/// A song word in the buffer: from `start` (1 when a stray sound comes first) to before `end`.
-struct Found { start: usize, end: usize, key: String, conf: f32 }
+/// A song word at the start of the buffer (one stray sound may come first): it ends before `end`.
+struct Found { end: usize, key: String, conf: f32 }
 
 /// The key of the song word that is this one sound alone (a sung "Ooh", "Ah"), if the song has one.
 fn lone_key(words: &[LexWord], sound: char) -> Option<&str> {
@@ -101,6 +112,8 @@ fn lone_key(words: &[LexWord], sound: char) -> Option<&str> {
 }
 
 impl Spotter {
+    fn new(lexicon: Lexicon) -> Spotter { Spotter { lexicon, buf: vec![], held: None, alone: true } }
+
     fn push(&mut self, c: char, at: f64, p: f32) -> Vec<Heard> {
         self.buf.push((c, at, p));
         let words = self.lexicon.words();
@@ -111,7 +124,10 @@ impl Spotter {
         while !words.is_empty() && self.buf.len() >= longest + 2 {
             match self.find(&words) {
                 Some(f) => out.push(self.take(f)),
-                None => { self.buf.remove(0); }
+                // Nothing but sung "Ooh"s in this breath so far: they wait for the pause, which hears them.
+                // (Thrown away here, the first would make the rest look like vowels after a stray sound.)
+                None if self.alone && self.buf.len() <= 64 && self.all_lone(&words) => break,
+                None => self.drop_first(),
             }
         }
         if words.is_empty() && self.buf.len() > 64 { self.buf.drain(..32); }
@@ -122,33 +138,53 @@ impl Spotter {
     /// inside a word ("sou——nd") looks like a pause; the word's beginning waits for its end, and is not thrown
     /// away or taken for a shorter word.
     ///
-    /// A pause is also the only place a song word of one sound (a sung "Ooh", "Ah") is heard: when such sounds
-    /// are all that is waiting, with nothing thrown away before them at this pause. Among other sounds a lone
-    /// vowel is never a word (it is in every other word).
+    /// A pause is also the only place a song word of one sound (a sung "Ooh", "Ah") is heard, and only when it
+    /// stands alone between two pauses: such sounds are all the buffer held in this breath (`alone`), and the
+    /// first is not the note the singers were already on (`still_held`). Among other sounds a lone vowel is never
+    /// a word (it is in every other word); right after a word in the same breath it is as likely the rest of
+    /// that word, or a piece of the next one; and the last vowel of a line, held or struck again ("to you——"),
+    /// is written by the model as that vowel once more. Heard as "Ooh" it would move the place on a word that
+    /// nobody sang, so it is thrown away: a real "Ooh" right after such a word is late, never the other way round.
     fn pause(&mut self) -> Vec<Heard> {
         let words = self.lexicon.words();
         if words.is_empty() { return self.flush() }
         let mut out = vec![];
-        // No sound was thrown away at this pause yet: what is left stands alone, or right after whole song words.
-        let mut clean = true;
         while !self.buf.is_empty() && !self.begun(&words) {
             match self.find(&words) {
-                Some(f) => {
-                    if f.start > 0 { clean = false }
-                    out.push(self.take(f))
-                }
-                None if clean && self.buf.iter().all(|b| lone_key(&words, b.0).is_some()) => {
+                Some(f) => out.push(self.take(f)),
+                None if self.alone && !self.still_held() && self.all_lone(&words) => {
                     for (c, at, p) in self.buf.drain(..) {
                         if let Some(key) = lone_key(&words, c) { out.push(Heard { key: key.to_string(), at, conf: p }) }
                     }
+                    // A sung "Ooh" held on is "Ooh" again, as before.
+                    self.held = None;
                 }
-                None => {
-                    self.buf.remove(0);
-                    clean = false;
-                }
+                None => self.drop_first(),
             }
         }
+        // The next breath starts with nothing before it.
+        self.alone = true;
         out
+    }
+
+    /// Everything waiting is a song word of one sound (a sung "Ooh", "Ah").
+    fn all_lone(&self, words: &[LexWord]) -> bool { self.buf.iter().all(|b| lone_key(words, b.0).is_some()) }
+
+    /// The first waiting sound is the note the singers were already on (`held`), written again.
+    fn still_held(&self) -> bool {
+        match (self.held, self.buf.first()) {
+            (Some((c, t)), Some(b)) => b.0 == c && b.1 - t < HELD_S,
+            _ => false,
+        }
+    }
+
+    /// Throws away the first waiting sound: it is in no song word.
+    fn drop_first(&mut self) {
+        let (c, at, _) = self.buf.remove(0);
+        // The same note written again keeps its first time: `HELD_S` runs from where the note began, so a sung
+        // "Ooh" after a word that ends in the same vowel is heard a few seconds late, not lost for good.
+        if self.held.is_none_or(|(h, t)| h != c || at - t >= HELD_S) { self.held = Some((c, at)) }
+        self.alone = false;
     }
 
     /// A long silence (`HOLD_FRAMES`): a word that was begun and never finished is thrown away. `pause` kept it
@@ -156,11 +192,16 @@ impl Spotter {
     /// seconds late, either. Anything else still waiting is decided as at a break in the sound.
     fn give_up(&mut self) -> Vec<Heard> {
         let words = self.lexicon.words();
-        if !words.is_empty() && self.begun(&words) {
+        let out = if !words.is_empty() && self.begun(&words) {
             self.buf.clear();
-            return vec![];
-        }
-        self.flush()
+            vec![]
+        } else {
+            self.flush()
+        };
+        // Whatever note was being held is over, and what comes next has nothing before it.
+        self.held = None;
+        self.alone = true;
+        out
     }
 
     /// All that is waiting is the beginning of a longer song word, with more of it missing than a dropped ending
@@ -225,7 +266,7 @@ impl Spotter {
                         let probs = &self.buf[start..start + l];
                         let p = probs.iter().map(|b| b.2).sum::<f32>() / l as f32;
                         let conf = (1.0 - d as f32 / len as f32) * p;
-                        best = Some((score, d, Found { start, end: start + l, key: w.key.clone(), conf }));
+                        best = Some((score, d, Found { end: start + l, key: w.key.clone(), conf }));
                     }
                 }
             }
@@ -234,8 +275,12 @@ impl Spotter {
     }
 
     fn take(&mut self, f: Found) -> Heard {
-        let at = self.buf[f.end - 1].1;
+        let (c, at, _) = self.buf[f.end - 1];
         self.buf.drain(..f.end);
+        // The word's last sound may go on being held, and a vowel after it in the same breath is no word of its
+        // own (`pause`).
+        self.held = Some((c, at));
+        self.alone = false;
         Heard { key: f.key, at, conf: f.conf }
     }
 }
@@ -255,7 +300,7 @@ pub struct Decoder {
 
 impl Decoder {
     pub fn new(units: Units, vocab: Vec<String>, blank: usize, lexicon: Lexicon) -> Decoder {
-        Decoder { units, vocab, blank, prev: blank, quiet: 0, word: String::new(), probs: vec![], last: 0.0, spot: Spotter { lexicon, buf: vec![] } }
+        Decoder { units, vocab, blank, prev: blank, quiet: 0, word: String::new(), probs: vec![], last: 0.0, spot: Spotter::new(lexicon) }
     }
 
     /// One frame's log-probabilities at `at` seconds; the words it finished.

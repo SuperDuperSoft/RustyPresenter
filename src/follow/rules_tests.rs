@@ -171,9 +171,10 @@ fn instrumental_slide_comes_up_when_quiet_and_leaves_as_singing_starts() {
     let mut r = Rules::new(Settings { mode: Mode::Suggest, ..auto(4.0) }, &s);
     r.tick(10.0, &at(15), Voice::Singing, 2.0, 1);
     assert_eq!(r.tick(13.0, &at(15), Voice::Music, 4.0, 1), Some(Suggest(2)));
-    // (The band is heard on the instrumental slide before the singing starts: see
+    // (The band is heard on the instrumental slide, for a second or more, before the singing starts: see
     // `an_instrumental_slide_waits_for_singing_to_start_on_it`.)
     assert_eq!(r.tick(16.0, &at(15), Voice::Music, 4.0, 2), None);
+    assert_eq!(r.tick(17.5, &at(15), Voice::Music, 4.0, 2), None);
     assert_eq!(r.tick(20.0, &at(15), Voice::Singing, 2.0, 2), Some(Suggest(3)));
 }
 
@@ -192,13 +193,40 @@ fn an_instrumental_slide_waits_for_singing_to_start_on_it() {
     assert_eq!(r.tick(0.0, &nowhere(), Voice::Singing, 2.0, 0), None);
     assert_eq!(r.tick(0.5, &at(0), Voice::Singing, 2.0, 0), Some(Show(1)));
     // It is asked of each slide: the band was heard on the intro slide, then the screen goes to a break slide
-    // while someone sings. Nothing has started on that one yet.
+    // while someone sings. Nothing has started on that one yet. It does once the room has been quiet there for
+    // a second (two looks a second apart: one look alone is only a flicker of the label).
     let s = song(&["{Instrumental}", "amazing grace", "{Instrumental}", "how sweet the sound"]);
     let mut r = Rules::new(auto(2.0), &s);
     assert_eq!(r.tick(0.0, &nowhere(), Voice::Music, 4.0, 0), None);
     assert_eq!(r.tick(1.0, &nowhere(), Voice::Singing, 2.0, 2), None);
     assert_eq!(r.tick(2.0, &nowhere(), Voice::Silence, 0.0, 2), None);
-    assert_eq!(r.tick(3.0, &nowhere(), Voice::Singing, 2.0, 2), Some(Show(3)));
+    assert_eq!(r.tick(3.0, &nowhere(), Voice::Silence, 0.0, 2), None);
+    assert_eq!(r.tick(4.0, &nowhere(), Voice::Singing, 2.0, 2), Some(Show(3)));
+}
+
+#[test]
+fn a_flicker_of_the_label_in_a_held_note_is_not_singing_starting() {
+    // The intro slide goes live while the last note of the song before is held. The room's label flickers in
+    // the note: one look says music, later two say talking. The note is still the note: the intro slide stays.
+    let s = song(&["{Instrumental}", "amazing grace", "how sweet the sound"]);
+    let mut r = Rules::new(auto(2.0), &s);
+    for i in 0..60 {
+        let voice = match i { 15 => Voice::Music, 30 | 31 => Voice::Speaking, _ => Voice::Singing };
+        assert_eq!(r.tick(i as f64 * 0.1, &nowhere(), voice, 2.0, 0), None, "held note {i}");
+    }
+    // The flicker may be the very first look after the operator's click.
+    let mut r = Rules::new(auto(2.0), &s);
+    assert_eq!(r.tick(0.0, &nowhere(), Voice::Music, 4.0, 0), None);
+    for i in 1..30 { assert_eq!(r.tick(i as f64 * 0.1, &nowhere(), Voice::Singing, 2.0, 0), None, "held note {i}") }
+    // The note ends and the band plays for a second and a half: now the room has stopped singing, and the
+    // singers coming in is a start.
+    for i in 0..15 { assert_eq!(r.tick(3.0 + i as f64 * 0.1, &nowhere(), Voice::Music, 4.0, 0), None, "intro {i}") }
+    assert_eq!(r.tick(4.5, &nowhere(), Voice::Singing, 2.0, 0), Some(Show(1)));
+    // Under a second of band between two sung phrases is not a stop either.
+    let mut r = Rules::new(auto(2.0), &s);
+    for i in 0..10 { assert_eq!(r.tick(i as f64 * 0.1, &nowhere(), Voice::Singing, 2.0, 0), None, "note {i}") }
+    for i in 10..15 { assert_eq!(r.tick(i as f64 * 0.1, &nowhere(), Voice::Music, 4.0, 0), None, "band {i}") }
+    for i in 15..30 { assert_eq!(r.tick(i as f64 * 0.1, &nowhere(), Voice::Singing, 2.0, 0), None, "note again {i}") }
 }
 
 /// A verse (slide 0), an instrumental slide, the next verse. The verse's last word has been sung and it has been

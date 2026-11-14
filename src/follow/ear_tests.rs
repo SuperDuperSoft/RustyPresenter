@@ -49,7 +49,7 @@ fn keys(heard: &[Heard]) -> Vec<String> { heard.iter().map(|h| h.key.clone()).co
 
 /// The keys the phoneme ear hears in `sounds` (IPA, no pauses), to the end, for a song with these slides.
 fn spotted(slides: &[&str], sounds: &str) -> Vec<String> {
-    let mut spot = Spotter { lexicon: lexicon_of(slides), buf: vec![] };
+    let mut spot = Spotter::new(lexicon_of(slides));
     let mut heard = vec![];
     for (i, c) in coarse(sounds).into_iter().enumerate() { heard.extend(spot.push(c, i as f64 * 0.1, 0.9)) }
     heard.extend(spot.flush());
@@ -104,7 +104,7 @@ fn phonemes_find_the_songs_words() {
     let song = SongText::from_slides(&SONG.iter().map(|t| text(t)).collect::<Vec<_>>());
     let lex = Lexicon::default();
     lex.set_song(&song);
-    let mut spot = Spotter { lexicon: lex.clone(), buf: vec![] };
+    let mut spot = Spotter::new(lex.clone());
     // Sung a little off: "ɐmeɪzɪn ɡɹeɪs haʊ swiːt" ("amazin'"), with a stray sound before "how".
     let mut heard = vec![];
     let sung = format!("{}{}k{}{}", "ɐmeɪzɪn", g2p::phonemes("grace").unwrap(), g2p::phonemes("how").unwrap(), g2p::phonemes("sweet").unwrap());
@@ -114,7 +114,7 @@ fn phonemes_find_the_songs_words() {
     assert_eq!(keys, ["amazing", "grace", "how", "sweet"].map(sound_key));
     assert!(heard.windows(2).all(|w| w[0].at < w[1].at));
     // Without a song, the groups of sounds between pauses.
-    let mut spot = Spotter { lexicon: Lexicon::default(), buf: vec![] };
+    let mut spot = Spotter::new(Lexicon::default());
     for c in coarse("ɡɹeɪs") { assert!(spot.push(c, 0.0, 1.0).is_empty()) }
     assert_eq!(spot.flush().into_iter().map(|h| h.key).collect::<Vec<_>>(), [coarse("ɡɹeɪs").into_iter().collect::<String>()]);
 }
@@ -129,7 +129,7 @@ fn lexicon_skips_one_sound_words() {
 
 #[test]
 fn a_is_not_heard_in_every_schwa() {
-    let mut spot = Spotter { lexicon: lexicon_of(&["saved a wretch"]), buf: vec![] };
+    let mut spot = Spotter::new(lexicon_of(&["saved a wretch"]));
     let mut heard = vec![];
     // Stray sounds with a schwa at the front, again and again: none of them is "a".
     for (i, c) in coarse("əkəpə").into_iter().enumerate() { heard.extend(spot.push(c, i as f64 * 0.1, 0.9)) }
@@ -159,9 +159,85 @@ fn a_lone_ooh_is_heard_at_a_pause() {
     assert!(h.blanks(5).is_empty());
     assert!(h.rows(&["u"]).is_empty());
     assert_eq!(keys(&h.blanks(PAUSE_FRAMES as usize)), [sound_key("ooh"), sound_key("ooh")]);
-    // Straight after a whole song word.
+    // After a whole song word and a breath (the word does not end in that vowel, so it is no held note).
+    assert!(h.rows(&["s", "i", "ŋ"]).is_empty());
+    assert_eq!(keys(&h.blanks(PAUSE_FRAMES as usize)), [sound_key("sing")]);
+    assert!(h.rows(&["u"]).is_empty());
+    assert_eq!(keys(&h.blanks(PAUSE_FRAMES as usize)), [sound_key("ooh")]);
+}
+
+#[test]
+fn a_held_you_is_not_heard_as_ooh() {
+    // A song with a sung "Ooh" somewhere. The line being sung ends "... to you", and "you" is held.
+    let mut h = Hears::new(&["t", "u", "j"], "life to you ooh");
+    assert!(h.rows(&["t", "u", "j", "u"]).is_empty());
+    assert_eq!(keys(&h.blanks(PAUSE_FRAMES as usize)), ["to", "you"].map(sound_key));
+    // Later in the same note the model writes the vowel again. It is the note, not "Ooh" (it was heard as "Ooh",
+    // which moved the place on to the next "Oh" or "I" and brought the next slide up a line early).
+    assert!(h.rows(&["u"]).is_empty());
+    assert!(h.blanks(PAUSE_FRAMES as usize).is_empty());
+    // And again, while the note may still be held.
+    assert!(h.rows(&["u"]).is_empty());
+    assert!(h.blanks(PAUSE_FRAMES as usize).is_empty());
+    // Three seconds of nothing new: the note is over, and an "Ooh" is a word again.
+    assert!(h.blanks((HOLD_FRAMES - PAUSE_FRAMES) as usize).is_empty());
+    assert!(h.rows(&["u"]).is_empty());
+    assert_eq!(keys(&h.blanks(PAUSE_FRAMES as usize)), [sound_key("ooh")]);
+
+    // The vowel written twice before the first pause: "to", "you", and no "Ooh" (it was "to", "you", "Ooh").
+    let mut h = Hears::new(&["t", "u", "j"], "life to you ooh");
+    assert!(h.rows(&["t", "u", "j", "u"]).is_empty());
+    assert!(h.blanks(5).is_empty());
+    assert!(h.rows(&["u"]).is_empty());
+    assert_eq!(keys(&h.blanks(PAUSE_FRAMES as usize)), ["to", "you"].map(sound_key));
+}
+
+#[test]
+fn a_vowel_right_after_a_word_is_not_an_ooh() {
+    let mut h = Hears::new(&["u", "s", "i", "ŋ"], "sing ooh");
+    // In the same breath as a word, a vowel is as likely the rest of that word or a piece of the next one: it
+    // is not trusted (it was heard as "Ooh").
     assert!(h.rows(&["s", "i", "ŋ", "u"]).is_empty());
-    assert_eq!(keys(&h.blanks(PAUSE_FRAMES as usize)), [sound_key("sing"), sound_key("ooh")]);
+    assert_eq!(keys(&h.blanks(PAUSE_FRAMES as usize)), [sound_key("sing")]);
+    // The same vowel after a breath may be that sound still held: not yet.
+    assert!(h.rows(&["u"]).is_empty());
+    assert!(h.blanks(PAUSE_FRAMES as usize).is_empty());
+    // Once the three seconds are up it is heard: an "Ooh" after such a word is late, not lost.
+    assert!(h.blanks(HOLD_FRAMES as usize).is_empty());
+    assert!(h.rows(&["u"]).is_empty());
+    assert_eq!(keys(&h.blanks(PAUSE_FRAMES as usize)), [sound_key("ooh")]);
+    assert!(h.rows(&["u"]).is_empty());
+    assert_eq!(keys(&h.blanks(PAUSE_FRAMES as usize)), [sound_key("ooh")]);
+}
+
+#[test]
+fn a_held_note_is_timed_from_where_it_began() {
+    // The pauses come 0.4 s apart here, so the long silence (`HOLD_FRAMES`) never ends the note: only its age does.
+    let mut h = Hears::new(&["t", "u", "j"], "life to you ooh");
+    assert!(h.rows(&["j", "u"]).is_empty());
+    assert_eq!(keys(&h.blanks(20)), [sound_key("you")]);
+    // The vowel written again every 0.4 s (the last time 2.8 s after the "you"): for three seconds it is that note.
+    for _ in 0..7 {
+        assert!(h.rows(&["u"]).is_empty());
+        assert!(h.blanks(19).is_empty());
+    }
+    // 3.2 s after it: sung "Ooh"s. They are late after a word that ends in their vowel, never lost for good.
+    for _ in 0..2 {
+        assert!(h.rows(&["u"]).is_empty());
+        assert_eq!(keys(&h.blanks(19)), [sound_key("ooh")]);
+    }
+}
+
+#[test]
+fn many_oohs_in_one_breath_wait_for_the_pause() {
+    // More "Ooh"s in one breath than the longest word has sounds: none is thrown away to make room (the rest
+    // would then look like vowels after a stray sound, and not be heard).
+    let mut h = Hears::new(&["u", "s", "i", "ŋ"], "sing ooh");
+    for _ in 0..6 {
+        assert!(h.rows(&["u"]).is_empty());
+        assert!(h.blanks(3).is_empty());
+    }
+    assert_eq!(keys(&h.blanks(PAUSE_FRAMES as usize)), vec![sound_key("ooh"); 6]);
 }
 
 #[test]
@@ -213,7 +289,7 @@ fn either_pronunciation_is_heard() {
     let lex = lexicon_of(&["blessed be your name amen"]);
     // As sung ("bless-ed", "ay-men"), then as said.
     for (blessed, amen) in [("blɛsɪd", "eɪmɛn"), ("blɛst", "ɑːmɛn")] {
-        let mut spot = Spotter { lexicon: lex.clone(), buf: vec![] };
+        let mut spot = Spotter::new(lex.clone());
         let mut heard = vec![];
         for (i, c) in coarse(blessed).into_iter().chain(coarse(amen)).enumerate() { heard.extend(spot.push(c, i as f64 * 0.1, 0.9)) }
         heard.extend(spot.flush());
@@ -223,7 +299,7 @@ fn either_pronunciation_is_heard() {
 
 #[test]
 fn sung_hallelujah_is_heard() {
-    let mut spot = Spotter { lexicon: lexicon_of(&["hallelujah"]), buf: vec![] };
+    let mut spot = Spotter::new(lexicon_of(&["hallelujah"]));
     let mut heard = vec![];
     // "Hah-leh-loo-yah": three sounds away from the spoken "hælɪluːjə", too far for one way of saying it.
     for (i, c) in coarse("hɑːlɛluːjɑː").into_iter().enumerate() { heard.extend(spot.push(c, i as f64 * 0.1, 0.9)) }
@@ -246,7 +322,7 @@ fn a_held_note_inside_a_word_waits() {
 
 #[test]
 fn a_held_sound_is_not_heard_as_how() {
-    let mut spot = Spotter { lexicon: lexicon_of(&SONG), buf: vec![] };
+    let mut spot = Spotter::new(lexicon_of(&SONG));
     for c in coarse("ðəsɑu") { assert!(spot.push(c, 0.0, 0.9).is_empty()) }
     // The pause of a held note: "the" is whole and is heard; "sou" is one sound from "how" but begins "sound",
     // so it waits.

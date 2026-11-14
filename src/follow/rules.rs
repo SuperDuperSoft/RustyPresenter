@@ -177,17 +177,22 @@ pub struct Rules {
     talk_since_word: bool,
     /// When the room's label last said talking.
     last_talk: Option<f64>,
-    /// Since the live slide went live, a look of the rules has found the room's label saying something other
-    /// than singing. Only then can singing "start" on a slide with no words: the last note of the song before,
-    /// still held when the operator puts the next song's intro slide up, is not a start.
+    /// Since the live slide went live, the room has stopped singing while the rules looked: for `STILL_SINGING`
+    /// every look in a row found its label saying something other than singing, and no word was surely sung.
+    /// Only then can singing "start" on a slide with no words: the last note of the song before, still held
+    /// when the operator puts the next song's intro slide up, is not a start. One such look is not enough: the
+    /// label flickers in the middle of a held note.
     not_singing_here: bool,
+    /// When the looks in a row that found no singing began, on the live slide; `None` while the label says
+    /// singing, and after a time the rules were not looking.
+    not_singing_since: Option<f64>,
 }
 
 impl Rules {
     pub fn new(settings: Settings, song: &SongText) -> Rules {
         Rules { settings, song: song.clone(), pace: None, last_word: None, arrived: 0.0, started: None, last_singing: None, speaking_since: None, blanked: false, blank_word: None, beat: None, blank_why: (false, 0.0), finished: None, sung: None, sung_run: 0, word_spoken: false, pace_from: None, quiet_from: None, restart_quiet: false,
             run: None, tag: None, came_back: None, last_live: None, ended: false, talk_since_word: false, last_talk: None,
-            not_singing_here: false }
+            not_singing_here: false, not_singing_since: None }
     }
 
     /// The singers' pace in syllables a second, once heard.
@@ -223,6 +228,8 @@ impl Rules {
         self.speaking_since = None;
         // Someone may have talked meanwhile.
         self.talk_since_word = true;
+        // And someone may have sung: looks "in a row" that found no singing start again.
+        self.not_singing_since = None;
     }
 
     /// The rules are not looking (Hold, a video, Manual, waiting for the singers after a hand move) but the ear
@@ -274,6 +281,7 @@ impl Rules {
             self.tag = None;
             if self.came_back != Some(live_slide) { self.came_back = None }
             self.not_singing_here = false;
+            self.not_singing_since = None;
         }
         if std::mem::take(&mut self.restart_quiet) { self.quiet_from = Some(now) }
         match voice {
@@ -290,8 +298,6 @@ impl Rules {
             }
             Voice::Music | Voice::Silence => self.speaking_since = None,
         }
-        // (Only at a look of the rules, not in `missed`: it can only make the next words wait for a heard word.)
-        if voice != Voice::Singing { self.not_singing_here = true }
         let sure = pos.confidence >= self.settings.min_conf && !pos.off_script;
         // A new word of the song is singing, whatever the room's label says (a loud band hides the voice from it).
         let new = self.note_word(now, sung.min(now), pos);
@@ -316,6 +322,19 @@ impl Rules {
                 let slide = self.song.words[w].slide;
                 self.finished = (w + 1 == self.song.slides[slide].end_word).then_some((slide, w));
             }
+        }
+        // Has the room stopped singing on this slide (`not_singing_here`)? Only after a full `STILL_SINGING` of
+        // looks in a row that found no singing, with no word surely sung in that time either (a loud band
+        // hides the voice from the label). A single look is the label flickering in a held note: taken as a
+        // stop, the note's next look would be singing "starting", and the intro slide the operator has just put
+        // up would be left. (Only at a look of the rules, not in `missed`: it can only make the next words wait
+        // for a heard word.)
+        if voice == Voice::Singing {
+            self.not_singing_since = None;
+        } else {
+            let since = *self.not_singing_since.get_or_insert(now);
+            let no_word_sung = self.last_singing.is_none_or(|t| now - t >= STILL_SINGING);
+            if no_word_sung && now - since >= STILL_SINGING { self.not_singing_here = true }
         }
         // Quiet: since anyone sang (or the operator's move); for "the last word was sung, then quiet", also
         // since that word was heard, whatever the room's label said at the time.
