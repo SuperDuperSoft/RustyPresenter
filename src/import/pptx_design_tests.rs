@@ -538,3 +538,25 @@ fn flipped_shapes_are_mirrored_and_words_stay_readable() {
     assert!(matches!(o[1].kind, ObjKind::Shape { shape: Shape::Arrow }) && o[1].flip_h, "points left");
     assert!(matches!(o[2].kind, ObjKind::Text { .. }) && !o[2].flip_h);
 }
+
+#[test]
+fn charts_made_by_real_powerpoint_are_drawn() {
+    // `tests/fixtures/import/powerpoint-charts.pptx`: saved by PowerPoint (Microsoft 365, November 2026) with its
+    // sample column, line and pie charts, one a slide. None keeps a picture of itself.
+    let file = std::fs::read(std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/import/powerpoint-charts.pptx")).unwrap();
+    let (c, _) = run(file);
+    assert_eq!((c.slides.len(), c.lost), (3, 0), "a chart came over as a grey box");
+    let words = |d: &Design| -> Vec<String> { d.objects.iter().filter_map(|o| match &o.kind { ObjKind::Text { text, .. } => Some(text.clone()), _ => None }).collect() };
+    let bars = |d: &Design| d.objects.iter().filter(|o| matches!(o.kind, ObjKind::Shape { shape: Shape::Rect }) && ["#4472c4", "#ed7d31", "#a5a5a5", "#ffc000"].contains(&o.look.fill.as_deref().unwrap_or(""))).count();
+    // Columns: 4 categories of 3 series.
+    let w = words(&c.slides[0]);
+    assert_eq!(bars(&c.slides[0]), 12, "{w:?}");
+    for want in ["Chart 1", "Category 1", "Category 4", "4.3", "■ Series 1   ■ Series 2   ■ Series 3"] { assert!(w.iter().any(|t| t == want), "{want}: {w:?}") }
+    // Lines: one drawn line a series, four points each.
+    let lines: Vec<usize> = c.slides[1].objects.iter().filter_map(|o| match &o.kind { ObjKind::Path { points, .. } => Some(points.len()), _ => None }).collect();
+    assert_eq!(lines, [4, 4, 4]);
+    // Pie: four shares, named with their percentages.
+    let w = words(&c.slides[2]);
+    assert_eq!(bars(&c.slides[2]), 4, "{w:?}");
+    assert!(w.iter().any(|t| t.starts_with("■ 1st Qtr 58.6%")), "{w:?}");
+}

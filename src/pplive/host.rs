@@ -520,4 +520,35 @@ mod tests {
         assert_eq!(marks(&fx.mark, "cmd"), ["POS", "CLOSE"]);
         assert_eq!(marks(&fx.mark, "closed").len(), 1);
     }
+
+    /// The real thing: PowerPoint on this computer runs a show on a monitor. Not run by itself (it takes a
+    /// monitor over for a few seconds): `RP_REAL_PPTX` = a presentation of three slides or more, `RP_REAL_SCREEN` =
+    /// the monitor as `x,y,width,height`, then `cargo test real_powerpoint -- --ignored --nocapture`.
+    #[test]
+    #[ignore]
+    fn real_powerpoint_runs_a_show_and_steps_behind() {
+        let file = PathBuf::from(std::env::var("RP_REAL_PPTX").expect("RP_REAL_PPTX"));
+        let n: Vec<i32> = std::env::var("RP_REAL_SCREEN").expect("RP_REAL_SCREEN").split(',').map(|v| v.trim().parse().unwrap()).collect();
+        let screen = Rect { x: n[0], y: n[1], width: n[2], height: n[3] };
+        let work = std::env::temp_dir().join(format!("rp-pplive-real-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir_all(&work).unwrap();
+        let mut host = PsHost::new(Launcher::powershell(), work.clone());
+        let slides = host.open(&file, screen).unwrap_or_else(|e| panic!("open: {e:?}\n{}", std::fs::read_to_string(work.join("powerpoint-show.log")).unwrap_or_default()));
+        println!("REAL open: {slides} slides");
+        assert!(slides >= 3);
+        let say = |what: &str, p: Result<Pos, HostError>| -> Pos { let p = p.unwrap_or_else(|e| panic!("{what}: {e:?}")); println!("REAL {what}: {p:?}"); p };
+        assert_eq!(say("current", host.current()).slide, 1);
+        assert_eq!(say("next", host.next()).slide, 2);
+        assert_eq!(say("goto 3", host.goto(3)).slide, 3);
+        assert_eq!(say("prev", host.prev()).slide, 2);
+        // Behind every window and back in front: the show goes on where it was.
+        assert_eq!(say("cover on", host.cover(true)).slide, 2);
+        std::thread::sleep(Duration::from_secs(1));
+        assert_eq!(say("cover off", host.cover(false)).state, ShowState::Running);
+        assert_eq!(say("black on", host.black(true)).state, ShowState::Black);
+        assert_eq!(say("black off", host.black(false)).state, ShowState::Running);
+        host.close();
+        assert!(matches!(host.current(), Err(HostError::Ended)), "closed");
+        let _ = std::fs::remove_dir_all(&work);
+    }
 }
