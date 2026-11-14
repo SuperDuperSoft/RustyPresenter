@@ -712,6 +712,14 @@ msgid "Strike through"
 msgstr "Strikethrough"
 
 #: ui/dialogs/design-editor.slint
+msgid "Size, colour, bold, italic, underline and strike through change the marked words only."
+msgstr "Ang laki, kulay, bold, italic, salungguhit at guhit sa gitna ay nagbabago lang sa mga minarkahang salita."
+
+#: ui/dialogs/design-editor.slint
+msgid "To change some words only, mark them in the Words box first."
+msgstr "Para baguhin ang ilang salita lang, markahan muna ang mga ito sa kahong Mga Salita."
+
+#: ui/dialogs/design-editor.slint
 msgid "Some words here have their own look. These settings change the whole box."
 msgstr "May sariling itsura ang ilang salita rito. Binabago ng mga setting na ito ang buong box."
 

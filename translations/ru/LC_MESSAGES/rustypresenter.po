@@ -712,6 +712,14 @@ msgid "Strike through"
 msgstr "Зачёркнутый"
 
 #: ui/dialogs/design-editor.slint
+msgid "Size, colour, bold, italic, underline and strike through change the marked words only."
+msgstr "Размер, цвет, полужирный, курсив, подчёркивание и зачёркивание меняют только выделенные слова."
+
+#: ui/dialogs/design-editor.slint
+msgid "To change some words only, mark them in the Words box first."
+msgstr "Чтобы изменить только некоторые слова, сначала выделите их в поле «Слова»."
+
+#: ui/dialogs/design-editor.slint
 msgid "Some words here have their own look. These settings change the whole box."
 msgstr "У некоторых слов здесь своё оформление. Эти настройки меняют всю рамку."
 

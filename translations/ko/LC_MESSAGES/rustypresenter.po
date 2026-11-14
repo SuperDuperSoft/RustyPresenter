@@ -712,6 +712,14 @@ msgid "Strike through"
 msgstr "취소선"
 
 #: ui/dialogs/design-editor.slint
+msgid "Size, colour, bold, italic, underline and strike through change the marked words only."
+msgstr "크기, 색, 굵게, 기울임, 밑줄, 취소선은 선택한 단어만 바꿉니다."
+
+#: ui/dialogs/design-editor.slint
+msgid "To change some words only, mark them in the Words box first."
+msgstr "일부 단어만 바꾸려면 먼저 단어 상자에서 그 단어를 선택하세요."
+
+#: ui/dialogs/design-editor.slint
 msgid "Some words here have their own look. These settings change the whole box."
 msgstr "여기 일부 단어에는 따로 서식이 있어요. 이 설정은 상자 전체를 바꿔요."
 

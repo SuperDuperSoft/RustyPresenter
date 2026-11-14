@@ -156,6 +156,10 @@ fn show(g: &DesignDlg, ss: &Session) {
         ObjKind::Text { .. } | ObjKind::Table { .. } => {
             let (text, style) = words.expect("words");
             if g.get_text().as_str() != text { g.set_text(text.as_str().into()) }
+            // The marked words' look, when some are marked: the settings change those words only.
+            g.set_part(ed.marked_words().is_some());
+            let shown = ed.shown_look();
+            let style = shown.as_ref().unwrap_or(style);
             g.set_underline(style.underline);
             g.set_strike(style.strike);
             g.set_size(style.size.round() as i32);
@@ -509,8 +513,9 @@ fn connect(op: &Rc<Operator>, ss: &Rc<RefCell<Session>>) {
     on!(on_size_changed, |e, v: i32| e.ed.set_size(v as f32));
     on!(on_color_changed, |e, c: SharedString| {
         let c = c.trim().to_string();
-        if crate::render::color::is_color(&c) { e.ed.set_style(Field::Color, |st: &mut TextStyle| st.color = c.clone()) }
+        if crate::render::color::is_color(&c) { e.ed.set_color(&c) }
     });
+    on!(on_words_marked, |e, from: i32, to: i32| e.ed.mark_words(from.max(0) as usize, to.max(0) as usize));
     on!(on_bold_changed, |e, v: bool| e.ed.set_bold(v));
     on!(on_italic_changed, |e, v: bool| e.ed.set_italic(v));
     on!(on_underline_changed, |e, v: bool| e.ed.set_underline(v));

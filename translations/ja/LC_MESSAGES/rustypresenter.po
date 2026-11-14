@@ -712,6 +712,14 @@ msgid "Strike through"
 msgstr "取り消し線"
 
 #: ui/dialogs/design-editor.slint
+msgid "Size, colour, bold, italic, underline and strike through change the marked words only."
+msgstr "サイズ、色、太字、斜体、下線、取り消し線は、選択した語だけを変えます。"
+
+#: ui/dialogs/design-editor.slint
+msgid "To change some words only, mark them in the Words box first."
+msgstr "一部の語だけを変えるには、先に「言葉」欄でその語を選択してください。"
+
+#: ui/dialogs/design-editor.slint
 msgid "Some words here have their own look. These settings change the whole box."
 msgstr "ここには個別に書式が設定された文字があります。この設定はボックス全体を変更します。"
 

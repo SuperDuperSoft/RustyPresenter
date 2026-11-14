@@ -712,6 +712,14 @@ msgid "Strike through"
 msgstr "Barré"
 
 #: ui/dialogs/design-editor.slint
+msgid "Size, colour, bold, italic, underline and strike through change the marked words only."
+msgstr "La taille, la couleur, le gras, l’italique, le souligné et le barré ne changent que les mots sélectionnés."
+
+#: ui/dialogs/design-editor.slint
+msgid "To change some words only, mark them in the Words box first."
+msgstr "Pour ne changer que certains mots, sélectionnez-les d’abord dans la zone Mots."
+
+#: ui/dialogs/design-editor.slint
 msgid "Some words here have their own look. These settings change the whole box."
 msgstr "Certains mots ont ici leur propre style. Ces réglages modifient toute la zone."
 

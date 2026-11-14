@@ -712,6 +712,14 @@ msgid "Strike through"
 msgstr "Durchgestrichen"
 
 #: ui/dialogs/design-editor.slint
+msgid "Size, colour, bold, italic, underline and strike through change the marked words only."
+msgstr "Größe, Farbe, Fett, Kursiv, Unterstrichen und Durchgestrichen ändern nur die markierten Wörter."
+
+#: ui/dialogs/design-editor.slint
+msgid "To change some words only, mark them in the Words box first."
+msgstr "Um nur einige Wörter zu ändern, markieren Sie sie zuerst im Feld „Wörter“."
+
+#: ui/dialogs/design-editor.slint
 msgid "Some words here have their own look. These settings change the whole box."
 msgstr "Einige Wörter hier haben ein eigenes Aussehen. Diese Einstellungen ändern das ganze Feld."
 

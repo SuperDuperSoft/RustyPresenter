@@ -712,6 +712,14 @@ msgid "Strike through"
 msgstr "Tachado"
 
 #: ui/dialogs/design-editor.slint
+msgid "Size, colour, bold, italic, underline and strike through change the marked words only."
+msgstr "Tamaño, color, negrita, cursiva, subrayado y tachado cambian solo las palabras marcadas."
+
+#: ui/dialogs/design-editor.slint
+msgid "To change some words only, mark them in the Words box first."
+msgstr "Para cambiar solo algunas palabras, márquelas primero en el cuadro Palabras."
+
+#: ui/dialogs/design-editor.slint
 msgid "Some words here have their own look. These settings change the whole box."
 msgstr "Algunas palabras aquí tienen su propio estilo. Estas opciones cambian todo el cuadro."
 

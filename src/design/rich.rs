@@ -204,6 +204,69 @@ pub fn rebase(paras: &[Para], text: &str, from: &TextStyle, to: &TextStyle) -> V
     retext(&out, text)
 }
 
+/// The largest character boundary of `s` at or before byte `i`.
+fn floor(s: &str, i: usize) -> usize { (0..=i.min(s.len())).rev().find(|&k| s.is_char_boundary(k)).unwrap_or(0) }
+
+/// The words from byte `range.start` to byte `range.end` of the box's `text` take the look `f` gives them (`f`
+/// is handed each word's present look and changes what it wants); the rest stay as they are. A mark before a
+/// paragraph is not a word and keeps the box's look. Empty when nothing then differs from the box's own look.
+pub fn style_range(text: &str, paras: &[Para], base: &TextStyle, range: std::ops::Range<usize>, f: &dyn Fn(&mut TextStyle)) -> Vec<Para> {
+    let mut out = paragraphs(text, paras);
+    let mut at = 0;
+    for p in &mut out {
+        let len = p.line_text().len();
+        let mark = if p.bullet.is_empty() { 0 } else { p.bullet.len() + 1 };
+        let (from, to) = (range.start.max(at + mark), range.end.min(at + len));
+        if from < to {
+            let (from, to) = (from - at - mark, to - at - mark);
+            let mut runs: Vec<Run> = Vec::new();
+            let mut push = |r: Run| match runs.last_mut() {
+                // Neighbours with one look are one run.
+                Some(last) if last.with_text(String::new()) == r.with_text(String::new()) => last.text.push_str(&r.text),
+                _ => runs.push(r),
+            };
+            let mut pos = 0;
+            for r in std::mem::take(&mut p.runs) {
+                let (s, e) = (pos, pos + r.text.len());
+                pos = e;
+                let (a, b) = (floor(&r.text, from.clamp(s, e) - s), floor(&r.text, to.clamp(s, e) - s));
+                if a > 0 { push(r.with_text(r.text[..a].to_string())) }
+                if b > a {
+                    let mut look = r.style(base);
+                    f(&mut look);
+                    let mut own = Run { text: r.text[a..b].to_string(), font: Some(look.font), size: Some(look.size), color: Some(look.color),
+                        bold: Some(look.bold), italic: Some(look.italic), underline: Some(look.underline), strike: Some(look.strike) };
+                    own.simplify(base);
+                    push(own);
+                }
+                if b < r.text.len() { push(r.with_text(r.text[b..].to_string())) }
+            }
+            if runs.is_empty() { runs.push(Run::default()) }
+            p.runs = runs;
+        }
+        at += len + 1;
+    }
+    retext(&out, text)
+}
+
+/// The look of the word at byte `at` of the box's `text` (the box's own where there is none).
+pub fn look_at(text: &str, paras: &[Para], base: &TextStyle, at: usize) -> TextStyle {
+    let mut start = 0;
+    for p in paragraphs(text, paras) {
+        let len = p.line_text().len();
+        if at <= start + len {
+            let mut pos = start + if p.bullet.is_empty() { 0 } else { p.bullet.len() + 1 };
+            for r in &p.runs {
+                pos += r.text.len();
+                if at < pos { return r.style(base) }
+            }
+            return p.runs.last().map_or_else(|| base.clone(), |r| r.style(base));
+        }
+        start += len + 1;
+    }
+    base.clone()
+}
+
 /// Numbers in range: sizes, spacing, levels.
 pub fn sanitise(paras: &mut Vec<Para>) {
     paras.truncate(500);

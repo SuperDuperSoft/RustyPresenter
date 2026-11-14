@@ -712,6 +712,14 @@ msgid "Strike through"
 msgstr "Kata mstari"
 
 #: ui/dialogs/design-editor.slint
+msgid "Size, colour, bold, italic, underline and strike through change the marked words only."
+msgstr "Ukubwa, rangi, herufi nzito, mlalo, mstari chini na mkato hubadilisha maneno yaliyochaguliwa tu."
+
+#: ui/dialogs/design-editor.slint
+msgid "To change some words only, mark them in the Words box first."
+msgstr "Ili kubadilisha baadhi ya maneno tu, yachague kwanza kwenye kisanduku cha Maneno."
+
+#: ui/dialogs/design-editor.slint
 msgid "Some words here have their own look. These settings change the whole box."
 msgstr "Baadhi ya maneno hapa yana mwonekano wao. Mipangilio hii inabadilisha kisanduku kizima."
 

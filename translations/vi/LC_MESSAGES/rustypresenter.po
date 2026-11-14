@@ -712,6 +712,14 @@ msgid "Strike through"
 msgstr "Gạch ngang"
 
 #: ui/dialogs/design-editor.slint
+msgid "Size, colour, bold, italic, underline and strike through change the marked words only."
+msgstr "Cỡ chữ, màu, đậm, nghiêng, gạch dưới và gạch ngang chỉ thay đổi những từ được chọn."
+
+#: ui/dialogs/design-editor.slint
+msgid "To change some words only, mark them in the Words box first."
+msgstr "Để chỉ thay đổi một số từ, hãy chọn chúng trong ô Lời trước."
+
+#: ui/dialogs/design-editor.slint
 msgid "Some words here have their own look. These settings change the whole box."
 msgstr "Một số chữ ở đây có kiểu riêng. Các cài đặt này thay đổi cả khung."
 

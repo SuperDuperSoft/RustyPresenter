@@ -44,6 +44,9 @@ pub struct Editor {
     last: Option<Field>,
     /// The line being drawn with the pen, and the slides before it.
     pen: Option<(Uuid, Vec<Design>)>,
+    /// The words marked in the Words field: the text box they are in, and their bytes of its text. While they
+    /// are that one chosen box's, bold, italic, underline, strike, size and colour change those words only.
+    words: Option<(Uuid, std::ops::Range<usize>)>,
 }
 
 impl Editor {
@@ -51,7 +54,7 @@ impl Editor {
     pub fn new(slides: Vec<Design>) -> Editor {
         let stored = slides.clone();
         let slides = if slides.is_empty() { vec![Design::default()] } else { slides };
-        Editor { stored, slides, at: 0, sel: vec![], undo: UndoStack::new(100), drag: None, guides: vec![], last: None, pen: None }
+        Editor { stored, slides, at: 0, sel: vec![], undo: UndoStack::new(100), drag: None, guides: vec![], last: None, pen: None, words: None }
     }
 
     pub fn changed(&self) -> bool { self.slides != self.stored && !(self.stored.is_empty() && self.slides == [Design::default()]) }
@@ -428,11 +431,54 @@ impl Editor {
         });
     }
 
-    pub fn set_size(&mut self, px: f32) { let px = px.clamp(super::SIZE_MIN, super::SIZE_MAX); self.set_style(Field::Size, |s| s.size = px) }
-    pub fn set_bold(&mut self, on: bool) { self.set_style_once(|s| s.bold = on) }
-    pub fn set_italic(&mut self, on: bool) { self.set_style_once(|s| s.italic = on) }
-    pub fn set_underline(&mut self, on: bool) { self.set_style_once(|s| s.underline = on) }
-    pub fn set_strike(&mut self, on: bool) { self.set_style_once(|s| s.strike = on) }
+    pub fn set_size(&mut self, px: f32) { let px = px.clamp(super::SIZE_MIN, super::SIZE_MAX); self.set_look(Field::Size, |s| s.size = px) }
+    pub fn set_bold(&mut self, on: bool) { self.set_look_once(|s| s.bold = on) }
+    pub fn set_italic(&mut self, on: bool) { self.set_look_once(|s| s.italic = on) }
+    pub fn set_underline(&mut self, on: bool) { self.set_look_once(|s| s.underline = on) }
+    pub fn set_strike(&mut self, on: bool) { self.set_look_once(|s| s.strike = on) }
+    pub fn set_color(&mut self, color: &str) { let c = color.to_string(); self.set_look(Field::Color, move |s| s.color = c.clone()) }
+
+    /// The Words field's marked words, as bytes of the chosen text box's text (`from == to`: none marked).
+    pub fn mark_words(&mut self, from: usize, to: usize) {
+        let (from, to) = (from.min(to), from.max(to));
+        self.words = match (self.sel.as_slice(), self.primary().map(|o| &o.kind)) {
+            ([id], Some(ObjKind::Text { .. })) if from < to => Some((*id, from..to)),
+            _ => None,
+        };
+    }
+
+    /// The marked words, while they are the one chosen text box's and inside its text.
+    pub fn marked_words(&self) -> Option<std::ops::Range<usize>> {
+        let (id, range) = self.words.as_ref()?;
+        if self.sel.as_slice() != [*id] { return None }
+        match &self.primary()?.kind {
+            ObjKind::Text { text, .. } if range.start < text.len() => Some(range.start..range.end.min(text.len())),
+            _ => None,
+        }
+    }
+
+    /// The look the side panel shows: the marked words' (at their start), else the box's.
+    pub fn shown_look(&self) -> Option<TextStyle> {
+        match &self.primary()?.kind {
+            ObjKind::Text { text, style, paras } => Some(match self.marked_words() {
+                Some(r) => super::rich::look_at(text, paras, style, r.start),
+                None => style.clone(),
+            }),
+            ObjKind::Table { table } => Some(table.style.clone()),
+            _ => None,
+        }
+    }
+
+    /// A change to how words look: the marked words only, when some are marked; else the whole of every chosen
+    /// box (`set_style`).
+    pub fn set_look(&mut self, field: Field, f: impl Fn(&mut TextStyle)) {
+        let Some(range) = self.marked_words() else { return self.set_style(field, f) };
+        self.edit_chosen(field, |o| if let ObjKind::Text { text, style, paras } = &mut o.kind {
+            *paras = super::rich::style_range(text, paras, style, range.clone(), &f);
+        });
+    }
+
+    fn set_look_once(&mut self, f: impl Fn(&mut TextStyle)) { self.last = None; self.set_look(Field::Text, f); self.last = None }
     pub fn set_align(&mut self, a: HAlign) { self.set_style_once(|s| s.align = a) }
     pub fn set_valign(&mut self, a: VAlign) { self.set_style_once(|s| s.valign = a) }
     pub fn set_shrink(&mut self, on: bool) { self.set_style_once(|s| s.shrink = on) }

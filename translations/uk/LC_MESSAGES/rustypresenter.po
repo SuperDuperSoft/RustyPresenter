@@ -712,6 +712,14 @@ msgid "Strike through"
 msgstr "Закреслення"
 
 #: ui/dialogs/design-editor.slint
+msgid "Size, colour, bold, italic, underline and strike through change the marked words only."
+msgstr "Розмір, колір, жирний, курсив, підкреслення та закреслення змінюють лише виділені слова."
+
+#: ui/dialogs/design-editor.slint
+msgid "To change some words only, mark them in the Words box first."
+msgstr "Щоб змінити лише деякі слова, спершу виділіть їх у полі «Слова»."
+
+#: ui/dialogs/design-editor.slint
 msgid "Some words here have their own look. These settings change the whole box."
 msgstr "Деякі слова тут мають власне оформлення. Ці налаштування змінюють усю рамку."
 

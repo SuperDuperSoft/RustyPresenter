@@ -305,6 +305,54 @@ fn animations_are_added_changed_moved_and_removed_with_undo() {
 }
 
 #[test]
+fn marked_words_take_a_look_of_their_own() {
+    use crate::design::{Para, Run};
+    let paras = vec![Para { runs: vec![Run::plain("Joy to the world")], ..Para::default() }, Para { runs: vec![Run::plain("the Lord is come")], ..Para::default() }];
+    let mut ed = Editor::new(vec![Design { objects: vec![Obj::new(ObjKind::rich(paras, TextStyle::default()), PctRect::new(0.0, 0.0, 50.0, 50.0))], ..Default::default() }]);
+    let id = ed.slide().objects[0].id;
+    ed.select(id, false);
+    let runs = |ed: &Editor| -> Vec<Vec<Run>> {
+        let ObjKind::Text { paras, .. } = &ed.slide().objects[0].kind else { panic!() };
+        paras.iter().map(|p| p.runs.clone()).collect()
+    };
+    // "Joy" marked, then Bold: that word only. The box's own style is as it was.
+    ed.mark_words(0, 3);
+    ed.set_bold(true);
+    let bold = |t: &str| Run { text: t.into(), bold: Some(true), ..Run::default() };
+    assert_eq!(runs(&ed), [vec![bold("Joy"), Run::plain(" to the world")], vec![Run::plain("the Lord is come")]]);
+    let ObjKind::Text { style, text, .. } = &ed.slide().objects[0].kind else { panic!() };
+    assert!(!style.bold);
+    assert_eq!(text, "Joy to the world\nthe Lord is come");
+    // The panel shows the marked words' look, so Bold can be taken off again.
+    assert!(ed.shown_look().unwrap().bold);
+    // Marked from the caret backwards, across the line break: "world" and "the Lord" in red.
+    ed.mark_words(25, 11);
+    ed.set_color("#ff0000");
+    let red = |t: &str| Run { text: t.into(), color: Some("#ff0000".into()), ..Run::default() };
+    assert_eq!(runs(&ed), [vec![bold("Joy"), Run::plain(" to the "), red("world")], vec![red("the Lord"), Run::plain(" is come")]]);
+    // One undo step each.
+    ed.undo();
+    assert_eq!(runs(&ed)[1], [Run::plain("the Lord is come")]);
+    // Bold off the same word: nothing differs from the box any more, so no looks are kept.
+    ed.mark_words(0, 3);
+    ed.set_bold(false);
+    let ObjKind::Text { paras, .. } = &ed.slide().objects[0].kind else { panic!() };
+    assert!(paras.is_empty(), "{paras:?}");
+    // Nothing marked, or another box chosen: the whole box, as before.
+    ed.mark_words(4, 4);
+    assert_eq!(ed.marked_words(), None);
+    ed.set_italic(true);
+    let ObjKind::Text { style, paras, .. } = &ed.slide().objects[0].kind else { panic!() };
+    assert!(style.italic && paras.is_empty());
+    ed.mark_words(0, 3);
+    ed.sel.clear();
+    assert_eq!(ed.marked_words(), None, "the words were another choice's");
+    // A mark in the middle of a letter of several bytes is moved to the letter's start.
+    assert_eq!(crate::design::rich::style_range("né", &[], &TextStyle::default(), 0..2, &|s| s.bold = true)[0].runs,
+        [bold("n"), Run::plain("é")]);
+}
+
+#[test]
 fn typing_and_restyling_a_box_with_mixed_looks_keeps_the_looks_that_stay() {
     use crate::design::{Para, Run};
     let paras = vec![Para { runs: vec![Run { text: "Joy".into(), bold: Some(true), ..Run::default() }, Run::plain(" to the world")], ..Para::default() }];

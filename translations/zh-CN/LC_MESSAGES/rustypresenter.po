@@ -712,6 +712,14 @@ msgid "Strike through"
 msgstr "删除线"
 
 #: ui/dialogs/design-editor.slint
+msgid "Size, colour, bold, italic, underline and strike through change the marked words only."
+msgstr "字号、颜色、粗体、斜体、下划线和删除线只改变选中的词。"
+
+#: ui/dialogs/design-editor.slint
+msgid "To change some words only, mark them in the Words box first."
+msgstr "要只改变部分词，请先在“文字”框中选中它们。"
+
+#: ui/dialogs/design-editor.slint
 msgid "Some words here have their own look. These settings change the whole box."
 msgstr "这里有些文字有单独的样式。这些设置会更改整个文本框。"
 

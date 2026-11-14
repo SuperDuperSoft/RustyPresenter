@@ -43,6 +43,8 @@ export global DesignDlg {
     in property <bool> strike;
     /// Some words have a look of their own (an imported slide): the settings here change the whole box.
     in property <bool> mixed;
+    /// Words are marked in the Words field: the text settings change those words only.
+    in property <bool> part;
     /// The chosen object is a table: the words are its cells (a row per line, cells split by tabs).
     in property <bool> is-table;
     in-out property <int> align: 1;
@@ -127,6 +129,8 @@ export global DesignDlg {
     callback size-changed(int);
     callback color-changed(string);
     callback bold-changed(bool);
+    /// The words marked in the Words field: from byte, to byte (the same when none are).
+    callback words-marked(int, int);
     callback italic-changed(bool);
     callback underline-changed(bool);
     callback strike-changed(bool);
@@ -324,6 +328,8 @@ component Inspector inherits VerticalLayout {
                 min-height: 80px;
                 text <=> DesignDlg.text;
                 edited(t) => { DesignDlg.text-edited(t); }
+                changed caret => { DesignDlg.words-marked(self.anchor, self.caret); }
+                changed anchor => { DesignDlg.words-marked(self.anchor, self.caret); }
             }
             Lbl { label: @tr("Text size ({} px)", DesignDlg.size); }
             RangeSlider {
@@ -339,7 +345,9 @@ component Inspector inherits VerticalLayout {
                 Check { text: @tr("Underline"); checked: DesignDlg.underline; toggled(v) => { DesignDlg.underline-changed(v); } }
                 Check { text: @tr("Strike through"); checked: DesignDlg.strike; toggled(v) => { DesignDlg.strike-changed(v); } }
             }
-            if DesignDlg.mixed: SmallText { text: @tr("Some words here have their own look. These settings change the whole box."); }
+            if DesignDlg.part: SmallText { text: @tr("Size, colour, bold, italic, underline and strike through change the marked words only."); }
+            if !DesignDlg.part && !DesignDlg.is-table: SmallText { text: @tr("To change some words only, mark them in the Words box first."); }
+            if DesignDlg.mixed && !DesignDlg.part: SmallText { text: @tr("Some words here have their own look. These settings change the whole box."); }
             if DesignDlg.is-table: SmallText { text: @tr("A table: one row per line, cells split by tabs."); }
             Check { text: @tr("Shrink to fit the box"); checked: DesignDlg.shrink; toggled(v) => { DesignDlg.shrink-changed(v); } }
             Lbl { label: @tr("Text colour"); }
