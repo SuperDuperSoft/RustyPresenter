@@ -2024,8 +2024,8 @@ msgid "When someone talks or prays"
 msgstr "Kapag may nagsasalita o nananalangin"
 
 #: ui/dialogs/settings-follow.slint
-msgid "Jump to another part of the song after (words heard in a row)"
-msgstr "Lumipat sa ibang bahagi ng kanta pagkalipas ng (sunud-sunod na salitang narinig)"
+msgid "Jump to another part of the song after (words heard there)"
+msgstr "Lumipat sa ibang bahagi ng kanta pagkalipas ng (mga salitang narinig doon)"
 
 #: ui/dialogs/settings-follow.slint
 msgid "More words: fewer wrong jumps, but slower to follow a change in the order."

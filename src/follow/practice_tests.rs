@@ -76,3 +76,14 @@ fn fake_ear_drives_follower_end_to_end() {
     assert!(log[0].reason.starts_with("heard \""), "{}", log[0].reason);
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+#[test]
+fn the_last_runs_listening_log_is_kept() {
+    let dir = std::env::temp_dir().join(format!("rp-follow-practice-{}", Uuid::new_v4())).join("logs");
+    write_heard(&dir, Path::new("sunday.mp3"), &["     0.33  heard KRAS".to_string(), "     2.33  SHOW slide 2".to_string()]);
+    assert_eq!(std::fs::read_to_string(dir.join(HEARD_FILE)).unwrap(), "Practice on sunday.mp3\n     0.33  heard KRAS\n     2.33  SHOW slide 2\n");
+    // The next run takes its place.
+    write_heard(&dir, Path::new("other.wav"), &[]);
+    assert_eq!(std::fs::read_to_string(dir.join(HEARD_FILE)).unwrap(), "Practice on other.wav\n");
+    let _ = std::fs::remove_dir_all(dir.parent().unwrap());
+}

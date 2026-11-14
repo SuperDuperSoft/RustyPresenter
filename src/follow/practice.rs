@@ -1,6 +1,7 @@
 //! Practice: auto-follow on a recording (last Sunday's, from record-to-disk) instead of the room, at home. The
 //! song is followed on its own, never on the live screens, as fast as FFmpeg can read the file; the review log
-//! says what Automatic would have done and when (seconds into the recording).
+//! says what Automatic would have done and when (seconds into the recording). What the ear heard on the way is
+//! kept in `<data>/logs/follow-practice.log` (the last run's), as the room's is in its listening log.
 use super::audio::{Ear, End, Listener, ffmpeg, file_args, read_pcm};
 use super::ear::{Lexicon, file_ear};
 use super::engine::{Engine, Host, LiveSong};
@@ -15,33 +16,49 @@ use uuid::Uuid;
 
 /// Runs Automatic over `file` for a song with `slides`, with `settings`. The log of what it would have done.
 pub fn practice(file: &Path, slides: Vec<Slide>, settings: Settings) -> Result<Vec<LogEntry>, String> {
-    practice_ear(&ffmpeg()?, file_args(file), slides, settings, file_ear)
+    let (log, heard) = practice_ear(&ffmpeg()?, file_args(file), slides, settings, file_ear)?;
+    if let Some(data) = crate::server::data_dir() { write_heard(&data.join("logs"), file, &heard) }
+    Ok(log)
+}
+
+/// The name of Practice's listening log in the logs folder.
+pub const HEARD_FILE: &str = "follow-practice.log";
+
+/// Keeps the last run's listening log: the recording's name, then every word the ear delivered and what was
+/// made of it, each line with its seconds into the recording. A disk that can't be written is left alone.
+fn write_heard(dir: &Path, file: &Path, heard: &[String]) {
+    let _ = std::fs::create_dir_all(dir);
+    let mut text = format!("Practice on {}\n", file.display());
+    for l in heard { text.push_str(l); text.push('\n') }
+    let _ = std::fs::write(dir.join(HEARD_FILE), text);
 }
 
 /// `practice` with any program giving 16 kHz mono samples (FFmpeg, or a stand-in in tests) and any ear.
 pub fn practice_with(program: &Path, args: Vec<OsString>, slides: Vec<Slide>, settings: Settings, ear: Box<dyn Ear>) -> Result<Vec<LogEntry>, String> {
-    practice_ear(program, args, slides, settings, |_| ear)
+    practice_ear(program, args, slides, settings, |_| ear).map(|(log, _)| log)
 }
 
-/// The same, with the ear made for the song's words.
+/// The same, with the ear made for the song's words. Also the listening log (`Engine::take_trace`).
 fn practice_ear(program: &Path, args: Vec<OsString>, slides: Vec<Slide>, settings: Settings, ear: impl FnOnce(Lexicon) -> Box<dyn Ear>)
-    -> Result<Vec<LogEntry>, String> {
+    -> Result<(Vec<LogEntry>, Vec<String>), String> {
     let host = Practice(Mutex::new(LiveSong { item_id: Uuid::new_v4(), is_song: true, slides, slide: 0, words_up: true, video_playing: false, version: 1,
         mode: Mode::Auto, settings: Settings { mode: Mode::Auto, ..settings } }));
     let mut engine = Engine::new();
     let mut listener = Listener::new(ear(engine.lexicon()));
     let mut log = vec![];
+    let mut heard = vec![];
     engine.step(&host, 0.0, Some(listener.hello()));
     let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().map_err(|e| e.to_string())?;
     let mut failed = None;
     let end = rt.block_on(read_pcm(program, args, CancellationToken::new(), |r| failed = r.err(), |pcm, at| {
         for ev in listener.frame(pcm, at) { engine.step(&host, at, Some(ev)) }
         log.extend(engine.take_log());
+        heard.extend(engine.take_trace());
     }));
     if let Some(e) = failed { return Err(e) }
     match end {
         End::Ended { ok: false, why } => Err(why),
-        _ => Ok(log),
+        _ => Ok((log, heard)),
     }
 }
 

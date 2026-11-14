@@ -2021,7 +2021,7 @@ msgid "When someone talks or prays"
 msgstr ""
 
 #: ui/dialogs/settings-follow.slint
-msgid "Jump to another part of the song after (words heard in a row)"
+msgid "Jump to another part of the song after (words heard there)"
 msgstr ""
 
 #: ui/dialogs/settings-follow.slint

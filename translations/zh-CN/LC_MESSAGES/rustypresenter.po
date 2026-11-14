@@ -2024,8 +2024,8 @@ msgid "When someone talks or prays"
 msgstr "有人讲话或祷告时"
 
 #: ui/dialogs/settings-follow.slint
-msgid "Jump to another part of the song after (words heard in a row)"
-msgstr "多久后跳到诗歌的其他部分（连续听到的词数）"
+msgid "Jump to another part of the song after (words heard there)"
+msgstr "多久后跳到诗歌的其他部分（在那里听到的词数）"
 
 #: ui/dialogs/settings-follow.slint
 msgid "More words: fewer wrong jumps, but slower to follow a change in the order."

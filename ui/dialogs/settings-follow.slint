@@ -122,7 +122,7 @@ component SettingsFollowMain inherits VerticalLayout {
         }
     }
     Field {
-        label: @tr("Jump to another part of the song after (words heard in a row)");
+        label: @tr("Jump to another part of the song after (words heard there)");
         help: @tr("More words: fewer wrong jumps, but slower to follow a change in the order.");
         follow-jump := TextField { width: 70px; text <=> SettingsDlg.follow-jump; }
     }

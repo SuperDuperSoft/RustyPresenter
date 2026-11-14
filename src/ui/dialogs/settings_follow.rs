@@ -9,7 +9,7 @@ use slint::{ComponentHandle, Model, ModelRc, SharedString, VecModel};
 use std::{cell::RefCell, path::PathBuf, rc::Rc};
 use uuid::Uuid;
 
-/// The jump strictness Settings allows (words in a row).
+/// The jump strictness Settings allows (words heard on the other slide).
 pub const JUMP_WORDS: std::ops::RangeInclusive<u8> = 2..=12;
 /// The blank-after times Settings allows (seconds).
 pub const BLANK_SECS: std::ops::RangeInclusive<u32> = 1..=60;

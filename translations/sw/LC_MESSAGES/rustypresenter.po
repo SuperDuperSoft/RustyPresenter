@@ -2024,8 +2024,8 @@ msgid "When someone talks or prays"
 msgstr "Mtu anapoongea au kuomba"
 
 #: ui/dialogs/settings-follow.slint
-msgid "Jump to another part of the song after (words heard in a row)"
-msgstr "Ruka kwenda sehemu nyingine ya wimbo baada ya (maneno yaliyosikika mfululizo)"
+msgid "Jump to another part of the song after (words heard there)"
+msgstr "Ruka kwenda sehemu nyingine ya wimbo baada ya (maneno yaliyosikika hapo)"
 
 #: ui/dialogs/settings-follow.slint
 msgid "More words: fewer wrong jumps, but slower to follow a change in the order."
