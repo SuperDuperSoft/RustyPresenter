@@ -36,6 +36,40 @@ const EXCEPTIONS: &[(&str, &str)] = &[
     ("head", "hɛd"), ("bread", "bɹɛd"), ("breath", "bɹɛθ"), ("soul", "soʊl"), ("eye", "aɪ"), ("prayer", "pɹɛɹ"),
     ("people", "piːpəl"), ("forever", "fɚɹɛvɚ"), ("honor", "ɑːnɚ"), ("honour", "ɑːnɚ"), ("ocean", "oʊʃən"),
     ("beautiful", "bjuːɾɪfəl"), ("worth", "wɜːθ"),
+    // Common words of worship songs that the rules built two sounds or more away from how they are said, or one
+    // sound away in a word too short to spare one: the ear never heard them. (Plurals, "-ed", "-ing", "-ly",
+    // "-ful" and "-ness" forms come through these too.)
+    ("us", "ʌs"), ("yes", "jɛs"), ("thus", "ðʌs"), ("two", "tuː"), ("few", "fjuː"), ("none", "nʌn"), ("both", "boʊθ"), ("gone", "ɡɔːn"),
+    ("use", "juːz"), ("hour", "aʊɚ"), ("house", "haʊs"), ("whole", "hoʊl"), ("want", "wɑːnt"), ("water", "wɔːɾɚ"), ("walk", "wɔːk"),
+    ("talk", "tɔːk"), ("calm", "kɑːm"), ("psalm", "sɑːm"), ("away", "ɐweɪ"), ("awake", "ɐweɪk"), ("awaken", "ɐweɪkən"),
+    ("always", "ɔːlweɪz"), ("although", "ɔːlðoʊ"), ("today", "tədeɪ"), ("tomorrow", "təmɑːɹoʊ"), ("together", "təɡɛðɚ"),
+    ("toward", "təwɔːɹd"), ("towards", "təwɔːɹdz"), ("beyond", "bɪjɑːnd"), ("because", "bɪkʌz"), ("before", "bᵻfoːɹ"),
+    ("become", "bɪkʌm"), ("welcome", "wɛlkəm"), ("overcome", "oʊvɚkʌm"), ("something", "sʌmθɪŋ"), ("sometimes", "sʌmtaɪmz"),
+    ("someone", "sʌmwʌn"), ("anyone", "ɛnɪwʌn"), ("nothing", "nʌθɪŋ"), ("every", "ɛvɹi"), ("everything", "ɛvɹɪθɪŋ"),
+    ("everywhere", "ɛvɹɪwɛɹ"), ("everyone", "ɛvɹɪwʌn"), ("everybody", "ɛvɹɪbɑːdi"), ("body", "bɑːdi"), ("even", "iːvən"),
+    ("evening", "iːvnɪŋ"), ("evermore", "ɛvɚmoːɹ"), ("forevermore", "fɚɹɛvɚmoːɹ"), ("door", "doːɹ"), ("floor", "floːɹ"),
+    ("pour", "poːɹ"), ("court", "koːɹt"), ("course", "koːɹs"), ("source", "soːɹs"), ("sword", "soːɹd"), ("mourning", "moːɹnɪŋ"),
+    ("known", "noʊn"), ("shown", "ʃoʊn"), ("grown", "ɡɹoʊn"), ("thrown", "θɹoʊn"), ("snow", "snoʊ"), ("shadow", "ʃædoʊ"),
+    ("window", "wɪndoʊ"), ("heard", "hɜːd"), ("learn", "lɜːn"), ("search", "sɜːtʃ"), ("early", "ɜːli"), ("bear", "bɛɹ"),
+    ("wear", "wɛɹ"), ("heavy", "hɛvi"), ("ready", "ɹɛdi"), ("health", "hɛlθ"), ("instead", "ɪnstɛd"), ("spread", "spɹɛd"),
+    ("treasure", "tɹɛʒɚ"), ("pleasure", "plɛʒɚ"), ("measure", "mɛʒɚ"), ("greater", "ɡɹeɪɾɚ"), ("greatest", "ɡɹeɪɾᵻst"),
+    ("given", "ɡɪvən"), ("gift", "ɡɪft"), ("forgiven", "fɚɡɪvən"), ("forget", "fɚɡɛt"), ("guilt", "ɡɪlt"), ("guide", "ɡaɪd"),
+    ("guiding", "ɡaɪdɪŋ"), ("build", "bɪld"), ("built", "bɪlt"), ("rough", "ɹʌf"), ("tough", "tʌf"), ("laugh", "læf"),
+    ("young", "jʌŋ"), ("youth", "juːθ"), ("touch", "tʌtʃ"), ("trouble", "tɹʌbəl"), ("courage", "kɜːɹɪdʒ"), ("journey", "dʒɜːni"),
+    ("truth", "tɹuːθ"), ("truly", "tɹuːli"), ("friend", "fɹɛnd"), ("tongue", "tʌŋ"), ("dove", "dʌv"), ("move", "muːv"),
+    ("prove", "pɹuːv"), ("lose", "luːz"), ("cover", "kʌvɚ"), ("wonder", "wʌndɚ"), ("worry", "wɜːɹi"), ("quiet", "kwaɪət"),
+    ("doubt", "daʊt"), ("debt", "dɛt"), ("tomb", "tuːm"), ("climb", "klaɪm"), ("sign", "saɪn"), ("height", "haɪt"),
+    ("listen", "lɪsən"), ("silent", "saɪlənt"), ("breathe", "bɹiːð"), ("wind", "wɪnd"), ("cleanse", "klɛnz"),
+    ("danger", "deɪndʒɚ"), ("manger", "meɪndʒɚ"), ("stranger", "stɹeɪndʒɚ"), ("changed", "tʃeɪndʒd"), ("changing", "tʃeɪndʒɪŋ"),
+    ("unchanging", "ʌntʃeɪndʒɪŋ"), ("mountain", "maʊntən"), ("fountain", "faʊntən"), ("certain", "sɜːtən"),
+    ("mercies", "mɜːsiz"), ("enemies", "ɛnəmiz"), ("victory", "vɪktɚɹi"), ("wisdom", "wɪzdəm"), ("beauty", "bjuːɾi"),
+    ("awesome", "ɔːsəm"), ("majesty", "mædʒɪsti"), ("sovereign", "sɑːvɹᵻn"), ("righteous", "ɹaɪtʃəs"),
+    ("righteousness", "ɹaɪtʃəsnəs"), ("creation", "kɹiːeɪʃən"), ("creator", "kɹiːeɪɾɚ"), ("created", "kɹiːeɪɾᵻd"),
+    ("shepherd", "ʃɛpɚd"), ("receive", "ɹᵻsiːv"), ("release", "ɹᵻliːs"), ("revival", "ɹᵻvaɪvəl"), ("eternal", "ɪtɜːnəl"),
+    ("eternity", "ɪtɜːnᵻɾi"), ("promise", "pɹɑːmɪs"), ("promised", "pɹɑːmɪst"), ("purpose", "pɜːpəs"), ("covenant", "kʌvənənt"),
+    ("altar", "ɔːltɚ"), ("dominion", "dəmɪnjən"), ("authority", "ɐθɔːɹᵻɾi"), ("conquer", "kɑːŋkɚ"), ("rescued", "ɹɛskjuːd"),
+    ("comfort", "kʌmfɚt"), ("comforter", "kʌmfɚɾɚ"), ("provider", "pɹəvaɪdɚ"), ("protector", "pɹətɛktɚ"), ("deny", "dɪnaɪ"),
+    ("supply", "səplaɪ"), ("multiply", "mʌltɪplaɪ"), ("reply", "ɹᵻplaɪ"), ("christmas", "kɹɪsməs"),
     // Words with an apostrophe, as they arrive here without it: "I'm", "I'll", "I'd", "he's", "don't", "won't",
     // "o'er", "e'er", "heav'n", "you're", "they're", "doesn't", "wasn't". (So the rare sung "ill", "id" and "wont"
     // are said as these.)
@@ -123,6 +157,8 @@ fn one_syllable(w: &[u8]) -> bool {
 fn stem(s: &str) -> String {
     let b = s.as_bytes();
     let n = b.len();
+    // "dancing", "rejoiced": the stem ends in a soft "c", which only its "e" keeps soft.
+    if n >= 3 && b[n - 1] == b'c' { return format!("{s}e") }
     if n >= 2 && b[n - 1] == b[n - 2] && !vowel(b[n - 1]) && !matches!(b[n - 1], b'l' | b's') { return s[..n - 1].to_string() }
     if n >= 2 && one_syllable(b) && vowel(b[n - 2]) && !vowel(b[n - 1]) && !matches!(b[n - 1], b'w' | b'x' | b'y') && !(n >= 3 && vowel(b[n - 3])) {
         return format!("{s}e");
@@ -150,6 +186,8 @@ fn english(w: &str) -> String {
         let end = if ends_with_any(&p, &["s", "z", "ʃ", "ʒ"]) { "ᵻz" } else if ends_with_any(&p, &["p", "t", "k", "f", "θ"]) { "s" } else { "z" };
         return format!("{p}{end}");
     }
+    // "glorify", "magnify", "satisfy": the last "y" is "eye" (not in "fluffy").
+    if n > 4 && w.ends_with("fy") && !w.ends_with("ffy") { return format!("{}aɪ", rules(&w.as_bytes()[..n - 1])) }
     if n > 4 && w.ends_with("ly") { return format!("{}li", english(&w[..n - 2])) }
     if n > 5 && w.ends_with("ness") { return format!("{}nəs", english(&w[..n - 4])) }
     if n > 4 && w.ends_with("ful") { return format!("{}fəl", english(&w[..n - 3])) }
@@ -189,7 +227,8 @@ fn rules(b: &[u8]) -> String {
             _ if rest(i, "ear") || rest(i, "eer") => { step = 3; "ɪɹ" }
             _ if rest(i, "ere") && i + 3 == n => { step = 3; "ɪɹ" }
             _ if rest(i, "ire") && i + 3 == n => { step = 3; "aɪɚ" }
-            _ if rest(i, "ore") && i + 3 == n => { step = 3; "ɔːɹ" }
+            // "more", "adore", "restore" (espeak writes these "oːɹ", and "ɔːɹ" for "lord", "born").
+            _ if rest(i, "ore") && i + 3 == n => { step = 3; "oːɹ" }
             _ if rest(i, "our") => { step = 3; "aʊɚ" }
             _ if rest(i, "ure") && i + 3 == n => { step = 3; "ʊɹ" }
             _ if rest(i, "le") && i + 2 == n && i > 0 && !vowel(b[i - 1]) => { step = 2; "əl" }

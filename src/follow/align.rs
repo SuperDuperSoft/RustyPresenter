@@ -2,8 +2,10 @@
 //!
 //! "Plan first, jump when sure": going on in the planned order is cheap, skipping a word or two or repeating a
 //! line of the same slide costs a little, and a jump anywhere else costs a penalty and must be confirmed by
-//! `jump_words` well-matched words in a row before it is ever reported. Talk that matches nothing leaves the
-//! position where it was and reports `off_script`.
+//! `jump_words` well-matched words, in order, before it is ever reported. The ear mishears sung words, so a jump
+//! being confirmed may fail to explain a word or two on the way (`Hyp::slips`): the leader who goes to another
+//! slide is followed after about a line, not only after four words heard perfectly one after the other. Talk
+//! that matches nothing leaves the position where it was and reports `off_script`.
 //!
 //! One jump is cheaper: when the ear misses three to five words in a row, the singers are a little further on
 //! along the SAME slide. That place is found again by two exact words in a row, and it never reaches another
@@ -35,9 +37,9 @@ pub struct Position {
     pub off_script: bool,
 }
 
-/// Well-matched words in a row needed before a jump outside the plan is believed.
+/// Well-matched words, in order, needed before a jump outside the plan is believed.
 pub const JUMP_WORDS: u8 = 4;
-const BEAM: usize = 64;
+const BEAM: usize = 128;
 /// A heard word that is not the next one (talk, an ad-lib, a misheard word): the place stays.
 const INSERT: f32 = 0.6;
 /// Each planned word skipped (the ear missed it, or the singers dropped it).
@@ -80,6 +82,10 @@ struct Hyp {
     score: f32,
     /// Good words still needed before this jump is believed; 0 = believed.
     pending: u8,
+    /// While the jump is being confirmed: how many more times it may fail to explain what the ear delivers (a
+    /// stray or misheard word, or a planned word the ear missed). The words that prove it are as many as ever;
+    /// they need not come one right after the other. A cheaper proof (`refind`) has none to spare.
+    slips: u8,
     misses: u8,
     /// Seated in mid-slide by the operator's move (`seat_anywhere`), or carried onto a slide's last line by a
     /// one-letter word (`push`): planned next words, heard exactly, still needed before this place is sure;
@@ -140,8 +146,12 @@ impl Aligner {
         a
     }
 
-    /// Words in a row needed to believe a jump outside the plan (Settings → jump strictness), at least 2.
+    /// Words needed to believe a jump outside the plan (Settings → jump strictness), at least 2.
     pub fn with_jump_words(mut self, n: u8) -> Aligner { self.jump_words = n.max(2); self }
+
+    /// How often a jump being confirmed may fail to explain a word (`Hyp::slips`): one for every two words of
+    /// its proof. Four words asked for: four good ones among six at most.
+    fn slips(&self) -> u8 { self.jump_words / 2 }
 
     /// The place as last reported.
     pub fn position(&self) -> &Position { &self.last }
@@ -169,7 +179,7 @@ impl Aligner {
     fn restart(&mut self, plan_index: usize) {
         let p = plan_index.min(self.starts.len().saturating_sub(1));
         let next = self.starts.get(p).copied().unwrap_or(0);
-        self.beam = vec![Hyp { next, plan: p, heard: false, score: 0.0, pending: 0, misses: 0, seated: 0, refind: false }];
+        self.beam = vec![Hyp { next, plan: p, heard: false, score: 0.0, pending: 0, slips: 0, misses: 0, seated: 0, refind: false }];
         self.last = Position { word: None, plan_index: p, confidence: 0.0, off_script: false };
         self.seat = false;
     }
@@ -210,24 +220,33 @@ impl Aligner {
         let short = key.len() == 1;
         let mut out: Vec<Hyp> = Vec::with_capacity(self.beam.len() * 4);
         for h in &self.beam {
-            // The place stays (talk, an ad-lib, a misheard word). A jump still being confirmed ends here.
-            if h.pending == 0 { out.push(Hyp { score: h.score - INSERT, misses: h.misses.saturating_add(1), ..h.clone() }) }
+            // The place stays (talk, an ad-lib, a misheard word). A jump still being confirmed has a few such
+            // words to spare and then ends here; a cheaper proof ends at the first.
+            if h.pending == 0 {
+                out.push(Hyp { score: h.score - INSERT, misses: h.misses.saturating_add(1), ..h.clone() })
+            } else if !h.refind && h.slips > 0 {
+                out.push(Hyp { score: h.score - INSERT, slips: h.slips - 1, ..h.clone() })
+            }
             // On in the plan, skipping at most two words.
             for k in 0..AHEAD {
                 let t = h.next + k;
                 if t >= self.track.len() { break }
                 let m = self.score(key, t, k == 0);
                 if m <= 0.0 { continue }
+                // Planned words stepped over that the ear does deliver. (Some it never delivers, "a": stepping
+                // over those is free, and no proof either.) A jump being confirmed has a few to spare (`slips`),
+                // a cheaper proof none. Only the word heard counts, so the proof is as long as before.
+                let missed = (h.next..t).filter(|&s| !self.silent[s]).count() as u8;
+                let mut slips = h.slips;
                 let pending = match h.pending {
                     0 => 0,
-                    // A jump being confirmed has no words to spare. But some planned words the ear never delivers
-                    // ("a"), and a true jump must not end at each of them: those alone it steps over. The step is
-                    // no proof; only the word heard counts, so the proof is as long as before.
-                    _ if k > 0 && !(h.next..t).all(|s| self.silent[s]) => continue,
+                    _ if missed > 0 && (h.refind || missed > slips) => continue,
                     // The cheaper proof of a re-find is for its own slide: it is never finished on the next one.
                     _ if h.refind && self.track[t].plan_index != h.plan => continue,
-                    p if m >= GOOD => p - 1,
-                    p => p,
+                    p => {
+                        slips -= missed;
+                        if m >= GOOD { p - 1 } else { p }
+                    }
                 };
                 // A seated place is proved by the planned next word, heard exactly (as a jump is).
                 let mut seated = if k == 0 && m >= GOOD { h.seated.saturating_sub(1) } else { h.seated };
@@ -236,7 +255,7 @@ impl Aligner {
                 // you——") is heard as just such a word ("Oh", "I"). The place moves on, but it is not sure until
                 // the planned next word is heard exactly: a word late at worst, never the next slide a line early.
                 if short && self.onto_last_line(h.next, t) { seated = seated.max(1) }
-                out.push(Hyp { next: t + 1, plan: h.plan, heard: true, score: h.score + m * weight - SKIP * k as f32, pending,
+                out.push(Hyp { next: t + 1, plan: h.plan, heard: true, score: h.score + m * weight - SKIP * k as f32, pending, slips,
                     misses: if m >= GOOD { 0 } else { h.misses }, seated, refind: h.refind && pending > 0 });
             }
             // Seated by the operator and nothing heard yet: any later word of this slide, when it sounds exactly the
@@ -246,7 +265,7 @@ impl Aligner {
                 for t in (h.next + AHEAD)..end {
                     let m = self.score(key, t, false);
                     if m >= GOOD {
-                        out.push(Hyp { next: t + 1, plan: h.plan, heard: true, score: h.score + m * weight - SEAT, pending: 0, misses: 0,
+                        out.push(Hyp { next: t + 1, plan: h.plan, heard: true, score: h.score + m * weight - SEAT, pending: 0, slips: 0, misses: 0,
                             seated: self.jump_words - 1, refind: false });
                     }
                 }
@@ -261,7 +280,7 @@ impl Aligner {
                         let m = self.score(key, t, false);
                         if m > 0.0 {
                             out.push(Hyp { next: t + 1, plan: h.plan, heard: true, score: h.score + m * weight - REPEAT - SKIP * k as f32, pending: 0,
-                                misses: if m >= GOOD { 0 } else { h.misses }, seated: h.seated, refind: false });
+                                slips: 0, misses: if m >= GOOD { 0 } else { h.misses }, seated: h.seated, refind: false });
                         }
                     }
                 }
@@ -302,8 +321,8 @@ impl Aligner {
                 let refind = lost && !split && to == here && ahead && second.is_some_and(|s| self.track[s].plan_index == here);
                 let (cost, pending) = if refind { ((SKIP * (t - best.next) as f32).min(JUMP), 1) } else { (JUMP, self.jump_words - 1) };
                 // (`far` is 0 for a re-find: it is on this slide.)
-                out.push(Hyp { next: t + 1, plan: to, heard: true, score: best.score + m * weight - cost - far, pending, misses: 0, seated: 0,
-                    refind });
+                out.push(Hyp { next: t + 1, plan: to, heard: true, score: best.score + m * weight - cost - far, pending,
+                    slips: if refind { 0 } else { self.slips() }, misses: 0, seated: 0, refind });
             }
         }
         // Keep the best per place; a jump being confirmed is kept apart from a believed place.

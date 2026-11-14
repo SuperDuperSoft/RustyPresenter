@@ -407,14 +407,153 @@ fn a_jump_being_confirmed_steps_over_a_word_the_ear_never_delivers() {
     assert_eq!((p.word, p.plan_index), (Some(1), 0), "three words heard stay: the step over \"a\" is no proof");
     let p = sing(&mut a, "like", &mut t);
     assert_eq!((p.word, p.plan_index, p.off_script), (Some(index_of(&s, 1, "like")), 1, false), "the fourth word heard jumps");
-    // A word the ear does deliver is not stepped over: the count starts again after it.
+}
+
+#[test]
+fn a_jump_survives_a_word_the_ear_missed() {
+    // The leader goes to slide 3 and the ear misses "many". The count does not start again (it did, and with an
+    // ear that misses one sung word in three a different slide was hardly ever noticed): four words heard, in
+    // order, are the proof.
+    let s = song(&GRACE);
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    sing(&mut a, "amazing grace", &mut t);
+    let p = sing(&mut a, "through dangers toils", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(1), 0), "three words heard stay");
+    let p = sing(&mut a, "and", &mut t);
+    assert_eq!((p.word, p.plan_index, p.off_script), (Some(index_of(&s, 2, "and")), 2, false), "the fourth word heard jumps");
+    assert!(p.confidence >= 0.6, "{p:?}");
+}
+
+#[test]
+fn a_jump_survives_a_misheard_word() {
+    let s = song(&GRACE);
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    sing(&mut a, "amazing grace", &mut t);
+    // "dangers" is heard as something else; the words around it still prove the jump.
+    let p = sing(&mut a, "through many zzzq toils", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(1), 0), "three good words stay");
+    let p = sing(&mut a, "and", &mut t);
+    assert_eq!((p.word, p.plan_index, p.off_script), (Some(index_of(&s, 2, "and")), 2, false));
+    assert!(p.confidence >= 0.6, "{p:?}");
+    // A missed word and a misheard one: still four good words among six.
     let mut b = Aligner::new(&s, &plan(&s));
     let mut t = 0.0;
     sing(&mut b, "amazing grace", &mut t);
-    let p = sing(&mut b, "through dangers toils and", &mut t);
-    assert_eq!((p.word, p.plan_index), (Some(1), 0), "\"many\" was missed: four in a row from \"dangers\" are not heard yet");
-    let p = sing(&mut b, "snares", &mut t);
-    assert_eq!((p.word, p.plan_index), (Some(index_of(&s, 2, "snares")), 2));
+    let p = sing(&mut b, "through dangers zzzq toils", &mut t);
+    assert_eq!(p.plan_index, 0, "three good words stay: {p:?}");
+    let p = sing(&mut b, "and", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(index_of(&s, 2, "and")), 2));
+}
+
+/// Amazing Grace, a verse a slide.
+const HYMN: [&str; 5] = [
+    "amazing grace how sweet the sound\nthat saved a wretch like me\nI once was lost but now am found\nwas blind but now I see",
+    "twas grace that taught my heart to fear\nand grace my fears relieved\nhow precious did that grace appear\nthe hour I first believed",
+    "through many dangers toils and snares\nI have already come\ntis grace hath brought me safe thus far\nand grace will lead me home",
+    "the Lord has promised good to me\nhis word my hope secures\nhe will my shield and portion be\nas long as life endures",
+    "when we've been there ten thousand years\nbright shining as the sun\nwe've no less days to sing God's praise\nthan when we first begun",
+];
+
+/// The next number of a fixed, repeatable sequence, 0 to 1 (xorshift).
+fn roll(seed: &mut u64) -> f64 {
+    *seed ^= *seed << 13;
+    *seed ^= *seed >> 7;
+    *seed ^= *seed << 17;
+    (*seed >> 11) as f64 / (1u64 << 53) as f64
+}
+
+/// The singers are three words into verse 1 when the leader goes to another verse and sings it through. The ear
+/// loses `lost` of the words: half of those never arrive, half arrive as some other word. Over 300 such tries:
+/// how many times the aligner was sure of the new slide by the end of its second line, and by its end.
+fn noticed(lost: f64) -> (usize, usize, usize) {
+    let s = song(&HYMN);
+    let (mut two_lines, mut by_end, tries) = (0, 0, 300);
+    for n in 0..tries {
+        let mut seed = 0x9E37_79B9_7F4A_7C15u64.wrapping_mul(n as u64 + 1);
+        let target = 1 + n % 4;
+        let mut a = Aligner::new(&s, &plan(&s));
+        let mut t = 0.0;
+        sing(&mut a, "amazing grace how", &mut t);
+        let span = &s.slides[target];
+        let line_3 = span.words().find(|&w| s.words[w].line == 2).unwrap();
+        let mut at = None;
+        for w in span.words() {
+            let x = roll(&mut seed);
+            if x < lost / 2.0 { continue }
+            let word = if x < lost { "zzzq" } else { s.words[w].text.as_str() };
+            let p = sing(&mut a, word, &mut t);
+            if at.is_none() && p.plan_index == target && p.confidence >= 0.6 && !p.off_script { at = Some(w) }
+        }
+        if at.is_some_and(|w| w < line_3) { two_lines += 1 }
+        if at.is_some() { by_end += 1 }
+    }
+    (two_lines, by_end, tries)
+}
+
+#[test]
+fn a_different_slide_is_noticed_by_an_ear_that_loses_words() {
+    // An ear that hears everything: always, within two lines.
+    assert_eq!(noticed(0.0), (300, 300, 300));
+    // One word in four lost: 278 times within two lines, every time by the slide's end. (Four exact words one
+    // right after the other, as the proof was: 234 and 294.)
+    let (two_lines, by_end, tries) = noticed(0.25);
+    assert!(two_lines * 100 >= tries * 90 && by_end * 100 >= tries * 99, "{two_lines} within two lines, {by_end} by the end, of {tries}");
+    // One word in three lost: 255 and 293. (As it was: 190 and 273.)
+    let (two_lines, by_end, tries) = noticed(0.33);
+    assert!(two_lines * 100 >= tries * 82 && by_end * 100 >= tries * 95, "{two_lines} within two lines, {by_end} by the end, of {tries}");
+}
+
+#[test]
+fn talk_with_the_songs_words_in_it_never_jumps() {
+    // Three words into verse 1 someone talks for a hundred words, and every third word they say is a word of
+    // the song, picked from anywhere in it. Scattered words are no place in the song: over 300 such talks the
+    // aligner is never sure of another slide.
+    let s = song(&HYMN);
+    for n in 0..300u64 {
+        let mut seed = 0xD1B5_4A32_D192_ED03u64.wrapping_mul(n + 1);
+        let mut a = Aligner::new(&s, &plan(&s));
+        let mut t = 0.0;
+        sing(&mut a, "amazing grace how", &mut t);
+        for i in 0..100 {
+            let x = roll(&mut seed);
+            let word = if i % 3 == 0 { s.words[(x * s.words.len() as f64) as usize].text.as_str() } else { "zzzq" };
+            let p = sing(&mut a, word, &mut t);
+            assert!(p.plan_index == 0 || p.confidence < 0.6 || p.off_script, "talk {n}, word {i} ({word}): {p:?}");
+        }
+    }
+}
+
+#[test]
+fn a_jump_has_only_two_words_to_spare() {
+    let s = song(&GRACE);
+    // Three words in a row that slide 3 can't explain end the jump: the count starts again at "many".
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    sing(&mut a, "amazing grace", &mut t);
+    let p = sing(&mut a, "through zzzq zzzq zzzq many dangers toils", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(1), 0), "{p:?}");
+    let p = sing(&mut a, "and", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(index_of(&s, 2, "and")), 2), "four in order from \"many\"");
+    // Talk that happens to hold a few of another slide's words, scattered, never jumps.
+    let mut b = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    sing(&mut b, "amazing grace", &mut t);
+    let p = sing(&mut b, "we go through many things and dangers in this life every single day", &mut t);
+    assert_eq!((p.word, p.plan_index), (Some(1), 0), "{p:?}");
+    // A stricter setting has more to spare, and asks for more.
+    let mut strict = Aligner::new(&s, &plan(&s)).with_jump_words(6);
+    let mut t = 0.0;
+    sing(&mut strict, "amazing grace", &mut t);
+    assert_eq!(sing(&mut strict, "through many zzzq dangers toils and", &mut t).plan_index, 0, "five good words");
+    assert_eq!(sing(&mut strict, "snares", &mut t).plan_index, 2, "the sixth");
+    // A laxer one: two good words, one to spare.
+    let mut lax = Aligner::new(&s, &plan(&s)).with_jump_words(2);
+    let mut t = 0.0;
+    sing(&mut lax, "amazing grace", &mut t);
+    assert_eq!(sing(&mut lax, "through zzzq zzzq many", &mut t).plan_index, 0, "the first \"through\" is given up after two strays");
+    assert_eq!(sing(&mut lax, "dangers", &mut t).plan_index, 2);
 }
 
 /// A verse slide whose last line is easily lost, and the chorus after it.

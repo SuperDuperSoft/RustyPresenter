@@ -25,6 +25,25 @@ fn worship_words() {
 }
 
 #[test]
+fn common_words_the_rules_built_wrong() {
+    // Each of these was two sounds or more from how it is said (or one, in a word too short to spare one), so
+    // the phoneme ear never heard it: "weɪtɚ", "twoʊ", "ʌz", "ɡoʊn", "hɪɹd", "boʊdi", "pɹoʊmaɪz", "toʊdʒɛðɚ", "ɔːeɪ".
+    for (word, ipa) in [
+        ("water", "wɔːɾɚ"), ("two", "tuː"), ("us", "ʌs"), ("gone", "ɡɔːn"), ("heard", "hɜːd"), ("body", "bɑːdi"),
+        ("promise", "pɹɑːmɪs"), ("together", "təɡɛðɚ"), ("away", "ɐweɪ"), ("because", "bɪkʌz"), ("every", "ɛvɹi"),
+        ("young", "jʌŋ"), ("truth", "tɹuːθ"), ("given", "ɡɪvən"),
+        // Through the same table: plurals, "-ed", "-ing", "-ful".
+        ("waters", "wɔːɾɚz"), ("promises", "pɹɑːmɪsᵻz"), ("walked", "wɔːkt"), ("moved", "muːvd"), ("covered", "kʌvɚd"),
+        ("used", "juːzd"), ("searching", "sɜːtʃɪŋ"), ("wonderful", "wʌndɚfəl"), ("friends", "fɹɛndz"),
+        // And by the rules: "-ore", a soft "c" before "-ing" and "-ed", "-fy".
+        ("more", "moːɹ"), ("adore", "ɐdoːɹ"), ("dancing", "dænsɪŋ"), ("danced", "dænst"), ("rejoicing", "ɹɛdʒɔɪsɪŋ"),
+        ("glorify", "ɡloʊɹɪfaɪ"), ("deeply", "diːpli"),
+    ] {
+        assert_eq!(phonemes(word).as_deref(), Some(ipa), "{word}");
+    }
+}
+
+#[test]
 fn every_exception_has_two_sounds_or_is_a() {
     // A word of one sound is in every other word, so the phoneme ear leaves it out (`Lexicon::set_song`): only
     // "a" may be one. (The sung "Ah"s of one sound have their own table, `LONE`.) And a word listed twice would

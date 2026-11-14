@@ -438,3 +438,186 @@ fn speed_check_picks_model() {
     assert_eq!(speed_check_with(|_| Some(ms(1600))), Choice::Off);
     assert_eq!(speed_check_with(|_| None), Choice::Off);
 }
+
+impl Hears {
+    /// One frame with these guesses and their probabilities (the first is the model's first guess).
+    fn frame(&mut self, guesses: &[(&str, f32)]) -> Vec<Heard> {
+        let mut row = vec![-6.0f32; self.vocab.len()];
+        for (tok, p) in guesses {
+            let id = self.vocab.iter().position(|v| v == tok).unwrap_or_else(|| panic!("{tok}"));
+            row[id] = p.ln();
+        }
+        let out = self.d.frame(&row, self.t);
+        self.t += 0.02;
+        out
+    }
+}
+
+#[test]
+fn the_models_second_guess_is_taken_for_a_sound() {
+    let sounds = ["ɡ", "k", "ɹ", "eɪ", "s", "z"];
+    // "grace", sung so that the model writes "k" for its first sound and "z" for its last, each time with the
+    // word's own sound a close second. Two wrong sounds were one too many for a word of five: it was not heard.
+    let mut h = Hears::new(&sounds, "grace");
+    let mut heard = h.frame(&[("k", 0.5), ("ɡ", 0.35)]);
+    heard.extend(h.rows(&["ɹ", "eɪ"]));
+    heard.extend(h.frame(&[("z", 0.5), ("s", 0.4)]));
+    heard.extend(h.blanks(PAUSE_FRAMES as usize));
+    assert_eq!(keys(&heard), [sound_key("grace")]);
+    assert!(heard[0].conf > 0.3 && heard[0].conf < 0.75, "less sure than a word heard exactly: {heard:?}");
+    // The same sounds with nothing behind them are not the word.
+    let mut h = Hears::new(&sounds, "grace");
+    let mut heard = h.rows(&["k", "ɹ", "eɪ", "z"]);
+    heard.extend(h.blanks(PAUSE_FRAMES as usize));
+    assert!(heard.is_empty(), "{heard:?}");
+    // Nor with a second guess the model hardly considered.
+    let mut h = Hears::new(&sounds, "grace");
+    let mut heard = h.frame(&[("k", 0.8), ("ɡ", 0.1)]);
+    heard.extend(h.rows(&["ɹ", "eɪ"]));
+    heard.extend(h.frame(&[("z", 0.8), ("s", 0.1)]));
+    heard.extend(h.blanks(PAUSE_FRAMES as usize));
+    assert!(heard.is_empty(), "{heard:?}");
+}
+
+#[test]
+fn a_short_word_is_heard_by_a_close_second_guess_only() {
+    // "the" has two sounds and no whole edit to spare. "d" with "ð" a close second is still "the".
+    let mut h = Hears::new(&["ð", "d", "ə"], "the");
+    let mut heard = h.frame(&[("d", 0.5), ("ð", 0.4)]);
+    heard.extend(h.rows(&["ə"]));
+    heard.extend(h.blanks(PAUSE_FRAMES as usize));
+    assert_eq!(keys(&heard), [sound_key("the")]);
+    // A second guess further off is not enough for so short a word.
+    let mut h = Hears::new(&["ð", "d", "ə"], "the");
+    let mut heard = h.frame(&[("d", 0.6), ("ð", 0.2)]);
+    heard.extend(h.rows(&["ə"]));
+    heard.extend(h.blanks(PAUSE_FRAMES as usize));
+    assert!(heard.is_empty(), "{heard:?}");
+}
+
+#[test]
+fn second_guesses_that_fold_to_one_sound_add_up() {
+    // "ɪ" and "iː" are the same sound to the ear (`coarse`): together they are a close second to "ɛ".
+    let vocab: Vec<String> = ["<pad>", "ɛ", "ɪ", "iː", "s"].map(String::from).into();
+    let d = Decoder::new(Units::Phonemes, vocab, 0, Lexicon::default());
+    let row = [-9.0, 0.5f32.ln(), 0.2f32.ln(), 0.2f32.ln(), 0.1f32.ln()];
+    let alts = d.second_guesses(&row, 1, 0.5);
+    assert_eq!(alts.len(), 1);
+    let i = alts[0].iter().find(|a| a.0 == 'i').expect("i");
+    assert!((i.1 - 0.8).abs() < 1e-4, "{alts:?}");
+    assert!(alts[0].iter().all(|a| a.0 != 's'), "0.1 is under a quarter of 0.5: {alts:?}");
+}
+
+/// A letter decoder for a song with these slides.
+struct Writes { d: Decoder, vocab: Vec<String>, t: f64 }
+
+impl Writes {
+    fn new(slides: &[&str]) -> Writes {
+        let vocab = letters_vocab();
+        Writes { d: Decoder::new(Units::Letters, vocab.clone(), 0, lexicon_of(slides)), vocab, t: 0.0 }
+    }
+
+    /// The model writes `text`, a frame for each letter: "|" is a word break, "_" a frame of nothing (between
+    /// two of the same letter). The keys heard.
+    fn write(&mut self, text: &str) -> Vec<String> {
+        let mut out = vec![];
+        for c in text.chars() {
+            let tok = if c == '_' { "<pad>".to_string() } else { c.to_string() };
+            out.extend(self.frame(&[(tok.as_str(), 0.82)]));
+        }
+        out
+    }
+
+    /// One frame with these guesses and their probabilities.
+    fn frame(&mut self, guesses: &[(&str, f32)]) -> Vec<String> {
+        let mut row = vec![-6.0f32; self.vocab.len()];
+        for (tok, p) in guesses {
+            let id = self.vocab.iter().position(|v| v == tok).unwrap_or_else(|| panic!("{tok}"));
+            row[id] = p.ln();
+        }
+        let out = self.d.frame(&row, self.t);
+        self.t += 0.02;
+        keys(&out)
+    }
+
+    fn pause(&mut self) -> Vec<String> { keys(&self.d.pause()) }
+}
+
+const GRACE_LINE: &str = "amazing grace how sweet the sound";
+
+#[test]
+fn a_written_word_a_letter_off_is_the_songs_word() {
+    let mut w = Writes::new(&[GRACE_LINE]);
+    // "amazin'", "swee": the song's words (they were heard as words of their own, which matched nothing).
+    assert_eq!(w.write("AMAZIN|GRACE|HOW|SWE_E|"), ["amazing", "grace", "how", "sweet"].map(sound_key));
+    // A word that sounds the same is the song's word as before, however it is written.
+    assert_eq!(w.write("GRAYS|"), [sound_key("grace")]);
+    // A short word a whole letter off is another word: it waits (it may be half a word), and is then heard as
+    // written.
+    assert!(w.write("SHE|").is_empty());
+    assert_eq!(w.write("SOUND|"), ["she", "sound"].map(sound_key));
+    // But a short word whose letter was the model's close second guess is the song's.
+    let mut heard = w.write("TH");
+    heard.extend(w.frame(&[("A", 0.45), ("E", 0.4)]));
+    heard.extend(w.write("|"));
+    assert_eq!(heard, [sound_key("the")]);
+}
+
+#[test]
+fn words_written_as_one_are_heard_one_by_one() {
+    let mut w = Writes::new(&[GRACE_LINE]);
+    // Singers leave no pauses, so the model writes no breaks.
+    assert_eq!(w.write("AMAZINGRACE|"), ["amazing", "grace"].map(sound_key));
+    assert_eq!(w.write("HOWSWE_ETHESOUND|"), ["how", "sweet", "the", "sound"].map(sound_key));
+    // Each at its own time: "amazing" at its last letter (the one "G" may be either word's), "grace" at its own.
+    let v = letters_vocab();
+    let mut d = Decoder::new(Units::Letters, v.clone(), 0, lexicon_of(&[GRACE_LINE]));
+    let mut heard = vec![];
+    for (i, c) in "AMAZINGRACE|".chars().enumerate() {
+        let id = v.iter().position(|x| *x == c.to_string()).unwrap();
+        let row: Vec<f32> = (0..v.len()).map(|j| if j == id { -0.2 } else { -4.0 }).collect();
+        heard.extend(d.frame(&row, i as f64 * 0.02));
+    }
+    assert!((0.099..0.121).contains(&heard[0].at) && (heard[1].at - 0.20).abs() < 1e-9, "{heard:?}");
+    // One long word that only holds a song word is not a run of song words.
+    let mut w = Writes::new(&[GRACE_LINE]);
+    assert!(w.write("SOUNDTRACKS|").is_empty());
+    assert_eq!(w.pause(), [sound_key("soundtracks")]);
+}
+
+#[test]
+fn a_word_written_in_two_halves_is_heard_whole() {
+    let mut w = Writes::new(&["hallelujah amazing grace"]);
+    // A held note in the middle of a word looks like a word break to the model.
+    assert!(w.write("HAL_LE|").is_empty(), "no song word yet: it waits for its other half");
+    assert_eq!(w.write("LUJAH|"), [sound_key("hallelujah")]);
+    // Two halves that make two song words.
+    assert!(w.write("AMAZ|").is_empty());
+    assert_eq!(w.write("INGRACE|"), ["amazing", "grace"].map(sound_key));
+}
+
+#[test]
+fn a_long_run_with_no_break_is_decided_as_it_goes() {
+    let mut w = Writes::new(&["amazing grace"]);
+    // A minute of singing in one breath, as the model writes it: the words do not wait for the pause.
+    let line = "AMAZINGRACE".repeat(8);
+    let heard = w.write(&line);
+    assert!(heard.len() >= 10, "{heard:?}");
+    assert!(heard.iter().all(|k| *k == sound_key("amazing") || *k == sound_key("grace")), "{heard:?}");
+    let all: Vec<String> = heard.into_iter().chain(w.write("|")).chain(w.pause()).collect();
+    assert_eq!(all.len(), 16, "every word once, across the cuts: {all:?}");
+}
+
+#[test]
+fn talk_is_heard_as_it_is_written() {
+    let mut w = Writes::new(&[GRACE_LINE]);
+    // No word of the song: each is heard as written, one word late (it might have been half a word), and nothing
+    // waits across a pause.
+    assert!(w.write("WELCOME|").is_empty());
+    assert_eq!(w.write("FRIENDS|"), [sound_key("welcome")]);
+    assert_eq!(w.pause(), [sound_key("friends")]);
+    // A song word after talk: the talk first, in the order it was said.
+    assert!(w.write("TODAY|").is_empty());
+    assert_eq!(w.write("GRACE|"), ["today", "grace"].map(sound_key));
+    assert!(w.pause().is_empty());
+}

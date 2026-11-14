@@ -1,7 +1,8 @@
 //! The live hookup: one worker thread takes heard words and voice labels, keeps the aligner and rules for the
 //! live song, and moves the slide through `App::command` like a click (so undo, stage, phones and the stream
 //! follow). The operator always wins: a slide moved or cleared by hand pauses Automatic until the singers are
-//! heard, sure, from the operator's place on.
+//! heard, sure, for several words in a row: from the operator's place on, or on another slide (never the words
+//! that only finish the slide they were on at the click).
 use super::align::{Aligner, Heard, Position};
 use super::ear::Lexicon;
 use super::log::{LogAction, LogEntry, ReviewLog};
@@ -90,6 +91,8 @@ pub trait Host: Send + Sync {
     fn hand_version(&self) -> Option<u64> { self.live().map(|l| l.version) }
     fn notice(&self, text: &str);
     fn save_mode(&self, item: Uuid, mode: Mode);
+    /// Lines for the listening log (`Engine::take_trace`): the App keeps them in a file, others drop them.
+    fn trace(&self, _lines: &[String]) {}
     /// What the follower shows changed (the light, the line, Hold): screens and phones look again.
     fn changed(&self) {}
 }
@@ -143,6 +146,10 @@ pub struct Engine {
     words: bool,
     /// Review log entries not yet taken (`take_log`).
     fresh: Vec<LogEntry>,
+    /// The listening log, not yet taken (`take_trace`): every word the ear delivered and where it put the
+    /// singers, the operator's moves, and what the follower did. Not for the operator: it is how a wrong or
+    /// missed change is explained afterwards (the review log only has the changes that were made).
+    trace: Vec<String>,
     /// The live song's words for the phoneme ear.
     lexicon: Lexicon,
     /// The follower's clock minus the sound input's clock, from the latest voice label (they come ten times a
@@ -154,6 +161,8 @@ pub struct Engine {
 /// A word is never taken as sung longer ago than this. The ear's half-second hop, the model's run time and the
 /// word spotter's wait are well inside it; anything older is a fault of the clocks.
 const MAX_EAR_LAG: f64 = 5.0;
+/// The most lines of the listening log kept while nobody takes them (Practice): the oldest half goes.
+const TRACE_MAX: usize = 4096;
 /// The most words kept in `Run::tail`. What a slide still has to come is far fewer; more only pile up over many
 /// hand moves in one wait, and then the oldest go first.
 const TAIL_MAX: usize = 64;
@@ -161,7 +170,7 @@ const TAIL_MAX: usize = 64;
 impl Default for Engine {
     fn default() -> Self {
         Engine { run: None, hold: false, lost: false, voice: Voice::Silence, onsets: 0.0, state: FollowState::default(), words: true, fresh: vec![],
-            lexicon: Lexicon::default(), skew: None }
+            trace: vec![], lexicon: Lexicon::default(), skew: None }
     }
 }
 
@@ -179,6 +188,11 @@ impl Engine {
     /// The review log entries since the last call.
     pub fn take_log(&mut self) -> Vec<LogEntry> { std::mem::take(&mut self.fresh) }
 
+    /// The listening log's lines since the last call.
+    pub fn take_trace(&mut self) -> Vec<String> { std::mem::take(&mut self.trace) }
+
+    fn note(&mut self, now: f64, line: String) { note(&mut self.trace, now, line) }
+
     /// One step at `now`: take `ev` (or just look, on a timer), then act on the live song.
     pub fn step(&mut self, host: &dyn Host, now: f64, ev: Option<FollowEvent>) {
         let mut heard = None;
@@ -187,11 +201,17 @@ impl Engine {
             Some(FollowEvent::Voice(v, at)) => { self.voice = v; self.skew = Some(now - at) }
             Some(FollowEvent::Onsets(r, _)) => self.onsets = r,
             Some(FollowEvent::InputLost(why)) => {
+                if !self.lost { self.note(now, format!("the sound input is gone: {why}")) }
                 if !self.lost { host.notice(&crate::tr!("Auto-follow stopped: the sound input is gone ({error}). Move the slides by hand.", error = why)) }
                 self.lost = true;
             }
             // A sound input that starts (again) starts its clock again: wait for its first voice label.
-            Some(FollowEvent::Listening { words }) => { self.lost = false; self.words = words; self.skew = None }
+            Some(FollowEvent::Listening { words }) => {
+                self.note(now, format!("listening; the ear hears words: {}", if words { "yes" } else { "no (no speech model here)" }));
+                self.lost = false;
+                self.words = words;
+                self.skew = None;
+            }
             None => {}
         }
         // When the word just heard was sung, on the follower's clock: never in the future, never long ago. On a
@@ -213,6 +233,9 @@ impl Engine {
         if self.run.as_ref().is_none_or(|r| r.item != live.item_id || r.sig != s) {
             let run = Run::new(&live, s);
             self.lexicon.set_song(&run.text);
+            if mode != Mode::Manual {
+                note(&mut self.trace, now, format!("song: {} slides, {} words, {mode:?}, on slide {}", live.slides.len(), run.text.words.len(), live.slide + 1));
+            }
             self.run = Some(run);
             self.state.suggest = None;
         }
@@ -249,6 +272,9 @@ impl Engine {
             run.paused = self.words.then_some(live.slide);
             run.relock = 0;
             run.cleared = !live.words_up;
+            if mode != Mode::Manual {
+                note(&mut self.trace, now, format!("by hand: slide {}{}", live.slide + 1, if live.words_up { "" } else { ", words off" }));
+            }
         }
         if mode != Mode::Suggest || self.state.suggest == Some(live.slide) { self.state.suggest = None }
 
@@ -266,7 +292,13 @@ impl Engine {
                     // Any other word counts as it comes. It does not end the tail: one ad-lib or misheard word
                     // while the old slide is being finished must not turn the rest of that slide into proof for
                     // the operator's. A tail word heard later starts the count again.
-                    let on = run.pos.word.is_some() && run.pos.word != before && !run.pos.off_script && run.pos.plan_index >= from;
+                    //
+                    // The singers may also be heard on a slide BEFORE the operator's (the leader goes back to the
+                    // chorus as the operator presses Next; a click two slides ahead while they sing the one in
+                    // between). The aligner only puts them there by a jump it has confirmed, and the words that
+                    // finish the old slide never count (the tail), so a place there is real: its words count like
+                    // any others, Automatic locks on, and the rules take the screen to the singers.
+                    let on = run.pos.word.is_some() && run.pos.word != before && !run.pos.off_script;
                     run.relock = if on { run.relock.saturating_add(1) } else if run.pos.word != before || run.pos.off_script { 0 } else { run.relock };
                     // The operator's slide has no words (an intro, a break): waiting for `jump` words would leave
                     // the screen empty through most of the next slide's first line. From there the aligner can
@@ -275,7 +307,7 @@ impl Engine {
                     // the click at once. Nor is a word whose sound key is one letter, "Oh", "I": the ear writes
                     // the vowel of that held note down as just such a word. Those need `jump` words in a row
                     // like any other hand move; the next longer word brings the slide up.)
-                    let wordless = run.text.slides.get(from).is_some_and(|s| s.instrumental);
+                    let wordless = run.text.slides.get(from).is_some_and(|s| s.instrumental) && run.pos.plan_index >= from;
                     let need = if wordless && h.key.chars().count() >= 2 { 1 } else { live.settings.jump() };
                     if run.relock >= need && run.pos.confidence >= live.settings.min_conf {
                         run.paused = None;
@@ -283,6 +315,17 @@ impl Engine {
                         run.tail.clear();
                     }
                 }
+            }
+            if mode != Mode::Manual {
+                let place = match run.pos.word.and_then(|w| run.text.words.get(w)) {
+                    Some(w) => format!("slide {} \"{}\"", w.slide + 1, w.text),
+                    None => format!("slide {}, no word yet", run.pos.plan_index + 1),
+                };
+                let line = format!("heard {:<10} {:>3.0}% (sung {:.1} s ago) -> {place}, sure {:.0}%{}{}{}", h.key, h.conf * 100.0, now - sung,
+                    run.pos.confidence * 100.0, if run.pos.word == before { ", place unchanged" } else { "" },
+                    if run.pos.off_script { ", off the song" } else { "" },
+                    if run.paused.is_some() { ", waiting after a move by hand" } else { "" });
+                note(&mut self.trace, now, line);
             }
         }
 
@@ -349,9 +392,22 @@ impl Engine {
             }
         };
         if let Some((action, reason)) = done {
+            let what = match action {
+                LogAction::Show(n) => format!("SHOW slide {}", n + 1),
+                LogAction::Suggest(n) => format!("SUGGEST slide {}", n + 1),
+                LogAction::Blank => "WORDS OFF".to_string(),
+                LogAction::Unblank(n) => format!("WORDS BACK on slide {}", n + 1),
+            };
+            note(&mut self.trace, now, format!("{what}: {reason}, sure {:.0}%", run.pos.confidence * 100.0));
             self.fresh.push(LogEntry { at: now, item: live.item_id, action, reason, confidence: run.pos.confidence });
         }
     }
+}
+
+/// Adds a line to the listening log, stamped with the follower's clock.
+fn note(trace: &mut Vec<String>, now: f64, line: String) {
+    if trace.len() >= TRACE_MAX { trace.drain(..TRACE_MAX / 2); }
+    trace.push(format!("{now:9.2}  {line}"));
 }
 
 impl Run {
@@ -457,6 +513,8 @@ fn work(mut engine: Engine, host: Arc<dyn Host>, rx: Receiver<Msg>, state: Arc<M
         let new = engine.state();
         let changed = *state.lock().unwrap() != new;
         for e in engine.take_log() { log.lock().unwrap().push(e) }
+        let trace = engine.take_trace();
+        if !trace.is_empty() { host.trace(&trace) }
         if changed {
             *state.lock().unwrap() = new;
             host.changed();
@@ -510,6 +568,12 @@ impl Host for AppHost {
 
     fn notice(&self, text: &str) { if let Some(app) = self.0.upgrade() { app.set_notice(text) } }
 
+    /// The listening log: `<data>/logs/follow-YYYYMMDD.log`, each line with the time of day.
+    fn trace(&self, lines: &[String]) {
+        let Some(app) = self.0.upgrade() else { return };
+        write_trace(&app.store.root.join("logs"), chrono::Local::now().naive_local(), lines);
+    }
+
     fn changed(&self) { if let Some(app) = self.0.upgrade() { app.broadcast_live() } }
 
     fn save_mode(&self, item: Uuid, mode: Mode) {
@@ -518,6 +582,27 @@ impl Host for AppHost {
         // The first song switched on: start listening (FFmpeg, off this thread).
         if mode != Mode::Manual { let _ = std::thread::Builder::new().name("follow-start".into()).spawn(move || app.start_follow_if_wanted()); }
     }
+}
+
+/// The listening logs kept: one a day, the newest of them.
+const TRACE_DAYS: usize = 10;
+
+/// Adds `lines` to the day's listening log in `dir`. A new day's first line drops the oldest logs. Nothing here
+/// may stop the follower: a disk that can't be written is left alone.
+fn write_trace(dir: &std::path::Path, now: chrono::NaiveDateTime, lines: &[String]) {
+    use std::io::Write;
+    let path = dir.join(format!("follow-{}.log", now.format("%Y%m%d")));
+    if !path.exists() {
+        let _ = std::fs::create_dir_all(dir);
+        let mut old: Vec<_> = std::fs::read_dir(dir).into_iter().flatten().flatten().map(|e| e.path())
+            .filter(|p| p.file_name().and_then(|n| n.to_str()).is_some_and(|n| n.starts_with("follow-") && n.ends_with(".log"))).collect();
+        old.sort();
+        let extra = (old.len() + 1).saturating_sub(TRACE_DAYS);
+        for p in old.into_iter().take(extra) { let _ = std::fs::remove_file(p); }
+    }
+    let time = now.format("%H:%M:%S");
+    let text: String = lines.iter().map(|l| format!("{time} {l}\n")).collect();
+    if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(&path) { let _ = f.write_all(text.as_bytes()); }
 }
 
 #[cfg(test)]

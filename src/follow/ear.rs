@@ -3,12 +3,18 @@
 //! them into heard words for the aligner.
 //!
 //! The letter model writes words with a "|" between them: each one is heard with its sound-alike key
-//! (`lyrics::sound_key`), the aligner's own key. The phoneme model writes no word breaks, so the live song's words,
-//! turned into phonemes (`g2p`), are looked for in what it hears (`Lexicon`); a word found is heard with that
-//! word's key. Without a song it reports the phoneme groups between pauses.
+//! (`lyrics::sound_key`), the aligner's own key. A word that is no word of the live song is held against the
+//! song's words (`Lexicon::spelled`): a letter or two off, it is that song word; several song words written as
+//! one, or one written in two halves, are put right (`Decoder::end_word`). The phoneme model writes no word
+//! breaks, so the live song's words, turned into phonemes (`g2p`), are looked for in what it hears (`Lexicon`); a
+//! word found is heard with that word's key. Without a song it reports the phoneme groups between pauses.
+//!
+//! Sung words come out of the model less surely than spoken ones: the sound it writes is often its second guess
+//! away from the one the word has. So each heard sound keeps the model's next guesses (`Sound::alts`), and taking
+//! one of those for the sound costs less than a whole wrong sound (`Sound::as_sound`).
 use super::align::Heard;
 use super::audio::Ear;
-use super::g2p::{coarse, listened, variants};
+use super::g2p::{coarse, letters, listened, variants};
 use super::lyrics::{SongText, sound_key};
 use super::voice::RATE;
 use std::collections::HashSet;
@@ -30,13 +36,15 @@ pub trait Acoustic: Send {
     fn blank(&self) -> usize;
 }
 
-/// A song word as phonemes, and the aligner's key for it.
+/// A song word as the ear compares it (phonemes for the phoneme model, lowercase letters for the letter model),
+/// and the aligner's key for it.
 #[derive(Clone, Debug, PartialEq)]
 pub struct LexWord { pub phones: Vec<char>, pub key: String }
 
-/// The live song's words for the phoneme ear, shared with the follower (which sets them when the song changes).
+/// The live song's words for the ear, shared with the follower (which sets them when the song changes): as
+/// phonemes (`words`) and as letters (`spelled`).
 #[derive(Clone, Default)]
-pub struct Lexicon(Arc<Mutex<Arc<Vec<LexWord>>>>);
+pub struct Lexicon(Arc<Mutex<(Arc<Vec<LexWord>>, Arc<Vec<LexWord>>)>>);
 
 impl Lexicon {
     /// The words of `song`, each once per way it is said or sung (`g2p::variants`). Words without phonemes (other
@@ -56,10 +64,22 @@ impl Lexicon {
                 words.push(LexWord { phones, key: w.key.clone() });
             }
         }
-        *self.0.lock().unwrap_or_else(|e| e.into_inner()) = Arc::new(words);
+        // The same words as the letter model writes them.
+        let mut seen = HashSet::new();
+        let mut spelled = vec![];
+        for w in &song.words {
+            let phones: Vec<char> = letters(&w.text).to_lowercase().chars().collect();
+            if phones.is_empty() || !seen.insert((phones.clone(), w.key.clone())) { continue }
+            spelled.push(LexWord { phones, key: w.key.clone() });
+        }
+        *self.0.lock().unwrap_or_else(|e| e.into_inner()) = (Arc::new(words), Arc::new(spelled));
     }
 
-    pub fn words(&self) -> Arc<Vec<LexWord>> { self.0.lock().unwrap_or_else(|e| e.into_inner()).clone() }
+    /// The song's words as phonemes, each once per way it is said or sung.
+    pub fn words(&self) -> Arc<Vec<LexWord>> { self.0.lock().unwrap_or_else(|e| e.into_inner()).0.clone() }
+
+    /// The song's words as lowercase letters.
+    pub fn spelled(&self) -> Arc<Vec<LexWord>> { self.0.lock().unwrap_or_else(|e| e.into_inner()).1.clone() }
 }
 
 /// Blank frames in a row that count as a pause (a word break for both models).
@@ -71,29 +91,75 @@ const HOLD_FRAMES: u32 = 150;
 /// sung "Ooh" (`Spotter::held`): as long as `HOLD_FRAMES`.
 const HELD_S: f64 = HOLD_FRAMES as f64 * STEP_S;
 
-/// Edits allowed between a song word's phonemes and what was heard.
+/// How many other sounds the model nearly wrote are kept with a heard sound.
+const ALTS: usize = 3;
+/// A second guess is kept when the model gave it at least this share of its first guess's probability...
+const ALT_SHARE: f32 = 0.25;
+/// ...and at least this probability.
+const ALT_MIN_P: f32 = 0.05;
+/// Taking a second guess for the sound never costs less than this (the first guess costs nothing, any other
+/// sound a whole edit).
+const ALT_COST: f32 = 0.25;
+/// No second guess.
+const NO_ALT: (char, f32) = ('\0', 0.0);
+
+/// A heard sound (a phoneme, or a letter of the letter model): the model's first guess, when, and how sure.
+#[derive(Clone, Copy, Debug, PartialEq)]
+struct Sound {
+    c: char,
+    at: f64,
+    p: f32,
+    /// Other sounds the model nearly wrote here instead, each with its probability as a share of the first
+    /// guess's (`ALT_SHARE` to 1).
+    alts: [(char, f32); ALTS],
+}
+
+impl Sound {
+    /// A sound with no second guesses.
+    #[cfg(test)]
+    fn new(c: char, at: f64, p: f32) -> Sound { Sound { c, at, p, alts: [NO_ALT; ALTS] } }
+
+    /// What it costs to take this sound for `want`: nothing when it is the model's first guess; part of an edit
+    /// when the model nearly wrote `want` instead (the nearer, the less); else a whole edit. A singer's vowel is
+    /// often between two sounds, and the model's second guess is then the word's own.
+    fn as_sound(&self, want: char) -> f32 {
+        if self.c == want { return 0.0 }
+        self.alts.iter().find(|a| a.0 == want).map_or(1.0, |a| (1.0 - a.1).max(ALT_COST))
+    }
+}
+
+/// How far the length of what was heard may be from a song word's (phonemes): its whole edits.
 fn tolerance(len: usize) -> usize { match len { 0..=2 => 0, 3..=5 => 1, _ => 2 } }
 
-/// Edit distance (insert, delete, change one sound).
-fn edits(a: &[char], b: &[char]) -> usize {
-    let mut row: Vec<usize> = (0..=b.len()).collect();
-    for (i, x) in a.iter().enumerate() {
+/// Edits allowed between a song word's phonemes and what was heard. A word of two sounds has no whole edit to
+/// spare, but one of its sounds may be the model's close second guess.
+fn allowed(len: usize) -> f32 { match len { 0..=2 => 0.5, 3..=5 => 1.0, _ => 2.0 } }
+
+/// The same for a word of the letter model. Short written words are a letter apart from many others ("the",
+/// "she", "thy"): up to three letters only a close second guess is allowed.
+fn allowed_letters(len: usize) -> f32 { match len { 0..=3 => 0.5, 4..=5 => 1.0, _ => 2.0 } }
+
+/// Edit distance between a song word and what was heard: a sound missing or too many costs 1, a different sound
+/// 1 or less (`Sound::as_sound`).
+fn edits(word: &[char], heard: &[Sound]) -> f32 {
+    let mut row: Vec<f32> = (0..=heard.len()).map(|j| j as f32).collect();
+    for (i, &x) in word.iter().enumerate() {
         let mut prev = row[0];
-        row[0] = i + 1;
-        for (j, y) in b.iter().enumerate() {
+        row[0] = (i + 1) as f32;
+        for (j, y) in heard.iter().enumerate() {
             let cur = row[j + 1];
-            row[j + 1] = (prev + usize::from(x != y)).min(row[j] + 1).min(cur + 1);
+            row[j + 1] = (prev + y.as_sound(x)).min(row[j] + 1.0).min(cur + 1.0);
             prev = cur;
         }
     }
-    row[b.len()]
+    row[heard.len()]
 }
 
 /// Finds the song's words in a stream of phonemes.
 struct Spotter {
     lexicon: Lexicon,
-    /// Heard phonemes not used yet: the sound, when, how sure.
-    buf: Vec<(char, f64, f32)>,
+    /// Heard phonemes not used yet.
+    buf: Vec<Sound>,
     /// The last sound to leave the buffer, at the end of a word that was taken or thrown away, and when it was
     /// heard. Singers holding that note ("you——") make the model write its vowel again: for `HELD_S` that is the
     /// same note, not a sung "Ooh" (`pause`). `None` once a word of one sound was heard after it, and after a long
@@ -114,8 +180,11 @@ fn lone_key(words: &[LexWord], sound: char) -> Option<&str> {
 impl Spotter {
     fn new(lexicon: Lexicon) -> Spotter { Spotter { lexicon, buf: vec![], held: None, alone: true } }
 
-    fn push(&mut self, c: char, at: f64, p: f32) -> Vec<Heard> {
-        self.buf.push((c, at, p));
+    #[cfg(test)]
+    fn push(&mut self, c: char, at: f64, p: f32) -> Vec<Heard> { self.hear(Sound::new(c, at, p)) }
+
+    fn hear(&mut self, sound: Sound) -> Vec<Heard> {
+        self.buf.push(sound);
         let words = self.lexicon.words();
         let longest = words.iter().map(|w| w.phones.len()).max().unwrap_or(0);
         let mut out = vec![];
@@ -153,8 +222,8 @@ impl Spotter {
             match self.find(&words) {
                 Some(f) => out.push(self.take(f)),
                 None if self.alone && !self.still_held() && self.all_lone(&words) => {
-                    for (c, at, p) in self.buf.drain(..) {
-                        if let Some(key) = lone_key(&words, c) { out.push(Heard { key: key.to_string(), at, conf: p }) }
+                    for s in self.buf.drain(..) {
+                        if let Some(key) = lone_key(&words, s.c) { out.push(Heard { key: key.to_string(), at: s.at, conf: s.p }) }
                     }
                     // A sung "Ooh" held on is "Ooh" again, as before.
                     self.held = None;
@@ -168,19 +237,19 @@ impl Spotter {
     }
 
     /// Everything waiting is a song word of one sound (a sung "Ooh", "Ah").
-    fn all_lone(&self, words: &[LexWord]) -> bool { self.buf.iter().all(|b| lone_key(words, b.0).is_some()) }
+    fn all_lone(&self, words: &[LexWord]) -> bool { self.buf.iter().all(|b| lone_key(words, b.c).is_some()) }
 
     /// The first waiting sound is the note the singers were already on (`held`), written again.
     fn still_held(&self) -> bool {
         match (self.held, self.buf.first()) {
-            (Some((c, t)), Some(b)) => b.0 == c && b.1 - t < HELD_S,
+            (Some((c, t)), Some(b)) => b.c == c && b.at - t < HELD_S,
             _ => false,
         }
     }
 
     /// Throws away the first waiting sound: it is in no song word.
     fn drop_first(&mut self) {
-        let (c, at, _) = self.buf.remove(0);
+        let Sound { c, at, .. } = self.buf.remove(0);
         // The same note written again keeps its first time: `HELD_S` runs from where the note began, so a sung
         // "Ooh" after a word that ends in the same vowel is heard a few seconds late, not lost for good.
         if self.held.is_none_or(|(h, t)| h != c || at - t >= HELD_S) { self.held = Some((c, at)) }
@@ -207,7 +276,7 @@ impl Spotter {
     /// All that is waiting is the beginning of a longer song word, with more of it missing than a dropped ending
     /// (which `find` allows for, so that word is heard now). A whole song word is never held back.
     fn begun(&self, words: &[LexWord]) -> bool {
-        let heard: Vec<char> = self.buf.iter().map(|b| b.0).collect();
+        let heard: Vec<char> = self.buf.iter().map(|b| b.c).collect();
         if heard.len() < 2 { return false }
         let mut any = false;
         for w in words {
@@ -227,9 +296,9 @@ impl Spotter {
         if words.is_empty() {
             // No song: the group of sounds itself.
             if !self.buf.is_empty() {
-                let key: String = self.buf.iter().map(|b| b.0).collect();
-                let conf = self.buf.iter().map(|b| b.2).sum::<f32>() / self.buf.len() as f32;
-                out.push(Heard { key, at: self.buf[self.buf.len() - 1].1, conf });
+                let key: String = self.buf.iter().map(|b| b.c).collect();
+                let conf = self.buf.iter().map(|b| b.p).sum::<f32>() / self.buf.len() as f32;
+                out.push(Heard { key, at: self.buf[self.buf.len() - 1].at, conf });
                 self.buf.clear();
             }
             return out;
@@ -246,9 +315,9 @@ impl Spotter {
     /// The best song word at the start of the buffer (one stray sound may come first). A word of one sound is
     /// not looked for here: it would be found in every other word (`pause` hears it when it stands alone).
     fn find(&self, words: &[LexWord]) -> Option<Found> {
-        let heard: Vec<char> = self.buf.iter().map(|b| b.0).collect();
+        let heard = &self.buf;
         // The best so far: its score, its edits, the word.
-        let mut best: Option<(f32, usize, Found)> = None;
+        let mut best: Option<(f32, f32, Found)> = None;
         for start in 0..=1.min(heard.len().saturating_sub(1)) {
             for w in words {
                 let len = w.phones.len();
@@ -257,15 +326,15 @@ impl Spotter {
                 for l in len.saturating_sub(tol).max(1)..=len + tol {
                     if start + l > heard.len() { break }
                     let d = edits(&w.phones, &heard[start..start + l]);
-                    if d > tol { continue }
-                    let score = len as f32 - d as f32 - start as f32 * 0.5;
+                    if d > allowed(len) { continue }
+                    let score = len as f32 - d - start as f32 * 0.5;
                     // On equal scores the word with fewer edits wins, whichever comes first in the song: "you"
                     // sung exactly is "you", not an earlier "your" with its ending dropped; "I" is not "I'm".
-                    // (Scores are whole halves, so `==` is exact.)
+                    // (Without second guesses the scores are whole halves, so `==` is exact.)
                     if best.as_ref().is_none_or(|(s, bd, _)| score > *s || (score == *s && d < *bd)) {
-                        let probs = &self.buf[start..start + l];
-                        let p = probs.iter().map(|b| b.2).sum::<f32>() / l as f32;
-                        let conf = (1.0 - d as f32 / len as f32) * p;
+                        let probs = &heard[start..start + l];
+                        let p = probs.iter().map(|b| b.p).sum::<f32>() / l as f32;
+                        let conf = (1.0 - d / len as f32) * p;
                         best = Some((score, d, Found { end: start + l, key: w.key.clone(), conf }));
                     }
                 }
@@ -275,7 +344,7 @@ impl Spotter {
     }
 
     fn take(&mut self, f: Found) -> Heard {
-        let (c, at, _) = self.buf[f.end - 1];
+        let Sound { c, at, .. } = self.buf[f.end - 1];
         self.buf.drain(..f.end);
         // The word's last sound may go on being held, and a vowel after it in the same breath is no word of its
         // own (`pause`).
@@ -285,6 +354,78 @@ impl Spotter {
     }
 }
 
+/// The word as the letter model wrote it, with its sound-alike key: `None` when it has no letters.
+fn written(word: &[Sound]) -> Option<Heard> {
+    let text: String = word.iter().map(|s| s.c).collect();
+    let key = sound_key(&text);
+    if key.is_empty() { return None }
+    Some(Heard { key, at: word[word.len() - 1].at, conf: word.iter().map(|s| s.p).sum::<f32>() / word.len() as f32 })
+}
+
+/// A word of the letter model as a word of the song: one that sounds the same (as written, the same key), else
+/// the song word it is nearest to, a letter or two off ("AMAZIN", "SWEE"; fewer for short words,
+/// `allowed_letters`). Heard with the song word's key, less surely the more letters differ.
+fn whole(word: &[Sound], song: &[LexWord]) -> Option<Heard> {
+    let heard = written(word);
+    if let Some(h) = heard.as_ref().filter(|h| song.iter().any(|w| w.key == h.key)) { return Some(h.clone()) }
+    let p = word.iter().map(|s| s.p).sum::<f32>() / word.len().max(1) as f32;
+    let mut best: Option<(f32, f32, &LexWord)> = None;
+    for w in song {
+        let len = w.phones.len();
+        if len < 2 || len.abs_diff(word.len()) > tolerance(len) { continue }
+        let d = edits(&w.phones, word);
+        if d > allowed_letters(len) { continue }
+        let score = len as f32 - d;
+        if best.as_ref().is_none_or(|(s, bd, _)| score > *s || (score == *s && d < *bd)) { best = Some((score, d, w)) }
+    }
+    best.map(|(_, d, w)| Heard { key: w.key.clone(), at: word[word.len() - 1].at, conf: (1.0 - d / w.phones.len() as f32) * p })
+}
+
+/// A letter that belongs to no song word, inside a run of song words written as one.
+const STRAY: f32 = 0.75;
+/// The most letters the letter model's word may grow to before it is decided without a break or a pause.
+const MAX_WORD: usize = 64;
+
+/// Several song words written as one: the letter model writes the breaks between words from the pauses it
+/// hears, and singers leave none ("AMAZINGRACE", "HOWSWEETTHESOUND"). The song words (three letters or more)
+/// that explain the letters best from end to end, and where the last of them ends; `None` unless there are at
+/// least two of them and fewer stray letters than words. `cut`: the letters were cut off with no break
+/// (`MAX_WORD`), so those after the last song word are the beginning of the next one, not strays.
+fn run_together(word: &[Sound], song: &[LexWord], cut: bool) -> Option<(Vec<Heard>, usize)> {
+    let n = word.len();
+    if n < 6 { return None }
+    // From each letter on, the best way to the end: its score, and the step taken (letters, the word heard).
+    let mut best: Vec<(f32, usize, Option<Heard>)> = vec![(0.0, 1, None); n + 1];
+    for i in (0..n).rev() {
+        best[i] = (best[i + 1].0 - STRAY, 1, None);
+        for w in song {
+            let len = w.phones.len();
+            if len < 3 { continue }
+            let tol = tolerance(len);
+            for l in len.saturating_sub(tol).max(1)..=(len + tol).min(n - i) {
+                let d = edits(&w.phones, &word[i..i + l]);
+                if d > allowed_letters(len) { continue }
+                let score = len as f32 - d + best[i + l].0;
+                if score > best[i].0 {
+                    let p = word[i..i + l].iter().map(|s| s.p).sum::<f32>() / l as f32;
+                    best[i] = (score, l, Some(Heard { key: w.key.clone(), at: word[i + l - 1].at, conf: (1.0 - d / len as f32) * p }));
+                }
+            }
+        }
+    }
+    let (mut out, mut strays, mut i, mut end) = (vec![], 0, 0, 0);
+    while i < n {
+        let (_, step, heard) = &best[i];
+        i += step;
+        match heard {
+            Some(h) => { out.push(h.clone()); end = i }
+            None => strays += 1,
+        }
+    }
+    if cut { strays -= n - end } else { end = n }
+    (out.len() >= 2 && strays < out.len()).then_some((out, end))
+}
+
 /// Collapses the model's frames (CTC) into heard words.
 pub struct Decoder {
     units: Units,
@@ -292,15 +433,49 @@ pub struct Decoder {
     blank: usize,
     prev: usize,
     quiet: u32,
-    word: String,
-    probs: Vec<f32>,
-    last: f64,
+    /// Each token as the ear compares it: a phoneme token's sounds (`coarse`), a letter token's letter in
+    /// lowercase. Nothing for the blank, the word break and other marks.
+    sounds: Vec<Vec<char>>,
+    /// The letter model's word being written.
+    word: Vec<Sound>,
+    /// The letter model's last word, when it was no word of the song: the next one may be its other half.
+    orphan: Vec<Sound>,
+    lexicon: Lexicon,
     spot: Spotter,
 }
 
 impl Decoder {
     pub fn new(units: Units, vocab: Vec<String>, blank: usize, lexicon: Lexicon) -> Decoder {
-        Decoder { units, vocab, blank, prev: blank, quiet: 0, word: String::new(), probs: vec![], last: 0.0, spot: Spotter::new(lexicon) }
+        let sounds = vocab.iter().enumerate().map(|(id, tok)| {
+            if id == blank || tok.is_empty() || (tok.starts_with('<') && tok.ends_with('>')) { return vec![] }
+            match units {
+                Units::Phonemes => coarse(tok),
+                Units::Letters => tok.to_lowercase().chars().filter(|c| c.is_alphanumeric()).collect(),
+            }
+        }).collect();
+        Decoder { units, vocab, blank, prev: blank, quiet: 0, sounds, word: vec![], orphan: vec![], lexicon: lexicon.clone(), spot: Spotter::new(lexicon) }
+    }
+
+    /// For each sound of token `top` (the frame's first guess, with probability `p`): the sounds the model nearly
+    /// wrote there instead (`Sound::alts`). Tokens that fold to the same sound add up.
+    fn second_guesses(&self, row: &[f32], top: usize, p: f32) -> Vec<[(char, f32); ALTS]> {
+        let first = &self.sounds[top];
+        let mut out = vec![[NO_ALT; ALTS]; first.len()];
+        let floor = (p * ALT_SHARE).max(ALT_MIN_P).ln();
+        for (id, &lp) in row.iter().enumerate() {
+            if lp < floor || id == top || id == self.blank { continue }
+            let share = (lp.exp() / p).min(1.0);
+            for (j, &c) in self.sounds.get(id).into_iter().flatten().enumerate() {
+                let Some(slot) = out.get_mut(j) else { break };
+                if c == first[j] { continue }
+                if let Some(a) = slot.iter_mut().find(|a| a.0 == c) {
+                    a.1 = (a.1 + share).min(1.0);
+                } else if let Some(a) = slot.iter_mut().min_by(|a, b| a.1.total_cmp(&b.1)).filter(|a| a.1 < share) {
+                    *a = (c, share);
+                }
+            }
+        }
+        out
     }
 
     /// One frame's log-probabilities at `at` seconds; the words it finished.
@@ -321,22 +496,24 @@ impl Decoder {
         self.prev = id;
         let tok = self.vocab.get(id).map(String::as_str).unwrap_or("");
         if tok.is_empty() || (tok.starts_with('<') && tok.ends_with('>')) { return vec![] }
+        if self.units == Units::Letters && tok == "|" { return self.end_word(false) }
+        let alts = self.second_guesses(row, id, p);
+        let sounds: Vec<Sound> = self.sounds[id].iter().zip(alts).map(|(&c, alts)| Sound { c, at, p, alts }).collect();
         match self.units {
             Units::Letters => {
-                if tok == "|" { return self.end_word() }
-                self.word.push_str(tok);
-                self.probs.push(p);
-                self.last = at;
-                vec![]
+                self.word.extend(sounds);
+                // Singing with no break and no pause for a long time: what is written so far is decided now
+                // (its end may be half a word: it waits for the rest as any half does).
+                if self.word.len() >= MAX_WORD { self.cut_word() } else { vec![] }
             }
-            Units::Phonemes => coarse(tok).into_iter().flat_map(|c| self.spot.push(c, at, p)).collect(),
+            Units::Phonemes => sounds.into_iter().flat_map(|s| self.spot.hear(s)).collect(),
         }
     }
 
     /// A pause in the singing ends the word. The phoneme ear keeps a word that has only begun (a held note).
     pub fn pause(&mut self) -> Vec<Heard> {
         match self.units {
-            Units::Letters => self.end_word(),
+            Units::Letters => self.end_word(true),
             Units::Phonemes => self.spot.pause(),
         }
     }
@@ -345,19 +522,61 @@ impl Decoder {
     /// ear throws away a word that was only begun (`Spotter::give_up`).
     pub fn give_up(&mut self) -> Vec<Heard> {
         match self.units {
-            Units::Letters => self.end_word(),
+            Units::Letters => self.end_word(true),
             Units::Phonemes => self.spot.give_up(),
         }
     }
 
-    fn end_word(&mut self) -> Vec<Heard> {
-        if self.word.is_empty() { return vec![] }
-        let key = sound_key(&self.word.to_lowercase());
-        let conf = self.probs.iter().sum::<f32>() / self.probs.len().max(1) as f32;
-        self.word.clear();
-        self.probs.clear();
-        if key.is_empty() { return vec![] }
-        vec![Heard { key, at: self.last, conf }]
+    /// The letter model ended a word (a "|", or a pause: `pause`). A word of the song, or one a letter or two
+    /// off, is heard as that song word (`whole`). The model's word breaks are often wrong in singing, so a word
+    /// that is neither is tried as the second half of the word before it, when that was no song word either
+    /// ("HALLE|LUJAH"), and as several song words written as one (`run_together`). Still nothing: it waits for
+    /// the next word, which may be its other half, and is then heard as it was written (talk, an ad-lib; the
+    /// aligner counts those to tell that the singers have left the song). Nothing waits across a pause.
+    ///
+    /// Without a song every word is heard as written, at once.
+    fn end_word(&mut self, pause: bool) -> Vec<Heard> {
+        let word = std::mem::take(&mut self.word);
+        let song = self.lexicon.spelled();
+        let mut out = vec![];
+        if song.is_empty() {
+            out.extend(written(&std::mem::take(&mut self.orphan)));
+            out.extend(written(&word));
+            return out;
+        }
+        if !word.is_empty() {
+            let joined: Vec<Sound> = self.orphan.iter().chain(&word).copied().collect();
+            let halves = !self.orphan.is_empty();
+            if let Some(h) = whole(&word, &song) {
+                out.extend(written(&std::mem::take(&mut self.orphan)));
+                out.push(h);
+            } else if let Some(h) = halves.then(|| whole(&joined, &song)).flatten() {
+                self.orphan.clear();
+                out.push(h);
+            } else if let Some((found, _)) = halves.then(|| run_together(&joined, &song, false)).flatten() {
+                self.orphan.clear();
+                out.extend(found);
+            } else if let Some((found, _)) = run_together(&word, &song, false) {
+                out.extend(written(&std::mem::take(&mut self.orphan)));
+                out.extend(found);
+            } else {
+                out.extend(written(&std::mem::replace(&mut self.orphan, word)));
+            }
+        }
+        if pause { out.extend(written(&std::mem::take(&mut self.orphan))) }
+        out
+    }
+
+    /// The word has grown to `MAX_WORD` letters with no break and no pause (a long line sung in one breath): the
+    /// song words in it are heard now, and the letters after the last of them stay, to be finished. When it is
+    /// no run of song words, it ends here as at a break.
+    fn cut_word(&mut self) -> Vec<Heard> {
+        let song = self.lexicon.spelled();
+        let Some((found, end)) = run_together(&self.word, &song, true) else { return self.end_word(false) };
+        let mut out: Vec<Heard> = written(&std::mem::take(&mut self.orphan)).into_iter().collect();
+        out.extend(found);
+        self.word.drain(..end);
+        out
     }
 }
 

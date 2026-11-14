@@ -51,6 +51,46 @@ fn manual_move_wins_and_relocks() {
 }
 
 #[test]
+fn singers_on_an_earlier_slide_than_the_operators_are_followed_there() {
+    // The operator clicks slide 3 as verse 1 ends, but the singers go on to verse 2 (slide 2).
+    let host = Fake::song(Mode::Auto);
+    let mut e = Engine::new();
+    let mut t = 0.0;
+    sing(&mut e, host.as_ref(), "amazing grace how sweet the sound that saved a wretch", &mut t);
+    assert_eq!(host.shown(), ["show 1"]);
+    host.operator_show(2);
+    // The rest of verse 1 only finishes the old slide: the operator's slide stays.
+    sing(&mut e, host.as_ref(), "like me", &mut t);
+    assert_eq!((host.slide(), e.state().light), (2, Light::Holding));
+    // Verse 2, surely sung for a line: Automatic locks on to the singers (it used to wait for words of the
+    // operator's slide for ever) and brings their slide up.
+    sing(&mut e, host.as_ref(), "I once was lost but now am found", &mut t);
+    assert_eq!(host.slide(), 1, "{:?}", host.shown());
+    assert_eq!(e.state().light, Light::Sure);
+    // And goes on from there.
+    sing(&mut e, host.as_ref(), "was blind but now I see", &mut t);
+    assert_eq!(host.slide(), 2);
+}
+
+#[test]
+fn the_leader_going_back_to_the_slide_before_is_followed_after_a_click() {
+    // The operator presses Next early, in the chorus's first line; the singers finish the chorus, and then the
+    // leader sings it again from its top.
+    let host = Fake::song(Mode::Auto);
+    host.change(|l| l.slides = vec![text("my chains are gone I've been set free\nmy God my Savior has ransomed me"),
+        text("the earth shall soon dissolve like snow\nthe sun forbear to shine")]);
+    let mut e = Engine::new();
+    let mut t = 0.0;
+    sing(&mut e, host.as_ref(), "my chains are gone I've been", &mut t);
+    host.operator_show(1);
+    sing(&mut e, host.as_ref(), "set free my God my Savior has ransomed me", &mut t);
+    assert_eq!(host.shown(), Vec::<String>::new(), "the rest of the chorus only finishes it");
+    assert_eq!((host.slide(), e.state().light), (1, Light::Holding));
+    sing(&mut e, host.as_ref(), "my chains are gone I've been set free my God my", &mut t);
+    assert_eq!(host.slide(), 0, "the chorus came back: {:?}", host.shown());
+}
+
+#[test]
 fn leaving_the_song_stops_auto() {
     let host = Fake::song(Mode::Auto);
     let mut e = Engine::new();
@@ -578,4 +618,43 @@ fn a_held_vowel_does_not_undo_a_click_onto_an_instrumental_slide() {
     // A longer word of the next slide, surely heard, brings its words up.
     sing(&mut e, host.as_ref(), "love", &mut t);
     assert_eq!(host.shown(), ["show 2"]);
+}
+
+#[test]
+fn the_listening_log_tells_what_was_heard_and_done() {
+    let host = Fake::song(Mode::Auto);
+    let mut e = Engine::new();
+    let mut t = 0.0;
+    sing(&mut e, host.as_ref(), VERSE_1, &mut t);
+    let lines = e.take_trace();
+    assert!(lines[0].contains("song: 3 slides, 36 words, Auto, on slide 1"), "{lines:?}");
+    assert!(lines.iter().any(|l| l.contains("heard") && l.contains("-> slide 1 \"grace\"")), "{lines:?}");
+    assert!(lines.iter().any(|l| l.contains("SHOW slide 2")), "{lines:?}");
+    assert!(e.take_trace().is_empty(), "taken once");
+    // The operator's moves, and a word that leaves the place where it was.
+    host.operator_show(0);
+    e.step(host.as_ref(), t, None);
+    sing(&mut e, host.as_ref(), "zzzq", &mut t);
+    let lines = e.take_trace();
+    assert!(lines[0].contains("by hand: slide 1"), "{lines:?}");
+    assert!(lines[1].contains("place unchanged") && lines[1].contains("waiting after a move by hand"), "{lines:?}");
+    // In Manual nothing is written down.
+    let host = Fake::song(Mode::Manual);
+    let mut e = Engine::new();
+    sing(&mut e, host.as_ref(), "amazing grace", &mut t);
+    assert_eq!(e.take_trace(), Vec::<String>::new(), "a church that does not use auto-follow gets no log");
+}
+
+#[test]
+fn the_listening_log_is_one_file_a_day_and_old_days_go() {
+    let dir = std::env::temp_dir().join(format!("rp-follow-trace-{}", Uuid::new_v4()));
+    let day = |d: u32| chrono::NaiveDate::from_ymd_opt(2026, 11, d).unwrap().and_hms_opt(10, 30, 5).unwrap();
+    for d in 1..=12 { write_trace(&dir, day(d), &[format!("line {d}")]) }
+    write_trace(&dir, day(12), &["more".into()]);
+    let mut names: Vec<String> = std::fs::read_dir(&dir).unwrap().map(|e| e.unwrap().file_name().to_string_lossy().into_owned()).collect();
+    names.sort();
+    assert_eq!(names.len(), TRACE_DAYS, "{names:?}");
+    assert_eq!((names[0].as_str(), names[TRACE_DAYS - 1].as_str()), ("follow-20261103.log", "follow-20261112.log"));
+    assert_eq!(std::fs::read_to_string(dir.join("follow-20261112.log")).unwrap(), "10:30:05 line 12\n10:30:05 more\n");
+    let _ = std::fs::remove_dir_all(&dir);
 }
