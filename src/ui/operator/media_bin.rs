@@ -284,6 +284,10 @@ impl Operator {
     /// Import: the files go into the library and the folder being shown, not into the service.
     fn import_media(self: &Rc<Self>) {
         let me = Rc::downgrade(self);
+        // On the Songs tab: lyrics files (SongSelect .txt and the like), as Add to service's Import does.
+        if self.bin.borrow().tab == "songs" {
+            return files::pick(self, FileFilter::Lyrics, true, move |paths| if let Some(op) = me.upgrade() { files::add_files(&op, paths) });
+        }
         let folder = self.bin.borrow().folder.clone();
         files::pick(self, FileFilter::Media, true, move |paths| {
             if let Some(op) = me.upgrade() { import_next(&op, paths.into(), folder) }
