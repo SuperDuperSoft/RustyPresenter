@@ -339,18 +339,21 @@ mod tests {
     }
 
     #[test]
-    fn trash_removes_without_confirm() {
+    fn trash_under_the_list_removes_the_selected_item_without_confirm() {
         let app = test_app();
         let ids = add_texts(&app, &["A", "B"]);
         let op = opened(&app);
-        assert!(find(&op, "ServiceColumn::trash").is_none(), "the row actions show on hover only");
-        op.window().dispatch_event(WindowEvent::PointerMoved { position: center(&row(&op, 0)) });
-        let trash = find(&op, "ServiceColumn::trash").expect("trash on the hovered row");
+        // One Edit and one Remove, in the bar under the list, for the selected item (the first).
         assert_eq!(find_all(&op, "ServiceColumn::trash").len(), 1);
-        assert!(find(&op, "ServiceColumn::edit").is_some());
+        assert_eq!(find_all(&op, "ServiceColumn::edit").len(), 1);
+        // Nothing pops up on a row as the pointer passes over it.
+        op.window().dispatch_event(WindowEvent::PointerMoved { position: center(&row(&op, 1)) });
+        assert_eq!(find_all(&op, "ServiceColumn::trash").len(), 1);
+        assert_eq!(find_all(&op, "ServiceColumn::edit").len(), 1);
+        let trash = find(&op, "ServiceColumn::trash").expect("Remove under the list");
+        assert!(trash.absolute_position().y > row(&op, 1).absolute_position().y, "under the rows, not on them");
         trash.mock_single_click(PointerEventButton::Left);
         assert_eq!(order(&app), [ids[1]]);
-        assert_eq!(op.state.borrow().selected, Some(ids[0]), "the click on trash did not select the row");
     }
 
     #[test]

@@ -1,7 +1,7 @@
 // The service column (`web/operator.html:26-31`, `operator.css:59-79`, `operator.js:123-153`): the item list with
 // drag to reorder, its empty state and the dashed "Add to service" button. The behaviour is in Rust (`service.rs`).
 import { Theme } from "../theme.slint";
-import { Btn, Chip, Icon, TipArea, ScrollBox, PanelHead, DashedOutline } from "../widgets.slint";
+import { Btn, Chip, Icon, ScrollBox, PanelHead, DashedOutline } from "../widgets.slint";
 import { Select } from "../dialogs/form.slint";
 import { FilterBox, ListFilter } from "../filter.slint";
 import { Spinner } from "std-widgets.slint";
@@ -28,31 +28,6 @@ export global ServicePlanning {
     in property <[string]> theme-options;
     in-out property <int> theme-index;
     callback pick-theme(int);
-}
-
-/// An `.item .acts` button: an icon, a line-coloured square on hover, and a tooltip.
-component RowAct inherits Rectangle {
-    in property <string> icon;
-    in property <string> tooltip;
-    callback clicked();
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    background: ta.has-hover ? Theme.line : transparent;
-    accessible-role: button;
-    accessible-label: root.tooltip;
-    accessible-action-default => { root.clicked(); }
-    Icon {
-        x: 5px;
-        y: 5px;
-        name: root.icon;
-        color: ta.has-hover ? Theme.text : Theme.muted;
-    }
-    ta := TouchArea {
-        mouse-cursor: pointer;
-        clicked => { root.clicked(); }
-    }
-    TipArea { text: root.tooltip; hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
 }
 
 export component ServiceColumn inherits VerticalLayout {
@@ -243,9 +218,7 @@ export component ServiceColumn inherits VerticalLayout {
                             }
                         }
                         // Room for the Choose button (drawn over the row's touch area, below).
-                        if it.blank: Rectangle { width: 72px + 60px; }
-                        // Room for `.acts` (two or three 28 px buttons, 2 px apart) while they show.
-                        if row-ta.has-hover && !it.blank: Rectangle { width: it.header ? 88px : 58px; }
+                        if it.blank: Rectangle { width: 72px; }
                     }
 
                     if drop.has-drag: Rectangle {
@@ -287,8 +260,7 @@ export component ServiceColumn inherits VerticalLayout {
                             if it.blank: choose-btn := Btn {
                                 width: self.preferred-width;
                                 height: self.preferred-height;
-                                // Left of the hover buttons, so it never moves under the pointer.
-                                x: parent.width - self.width - 10px - 1.5px - 60px;
+                                x: parent.width - self.width - 10px - 1.5px;
                                 y: (parent.height - self.height) / 2;
                                 small: true;
                                 primary: true;
@@ -297,25 +269,22 @@ export component ServiceColumn inherits VerticalLayout {
                                 clicked => { ServicePlanning.choose(it.id); }
                             }
 
-                            // `.item:hover .acts`
-                            if self.has-hover: HorizontalLayout {
-                                x: parent.width - self.width - 10px - 1.5px;
-                                y: (parent.height - self.height) / 2;
-                                spacing: 2px;
-                                if it.header: color := RowAct {
-                                    icon: "star";
-                                    tooltip: @tr("Change colour");
-                                    clicked => { ServicePlanning.recolor(it.id); }
-                                }
-                                edit := RowAct {
-                                    icon: "edit";
-                                    tooltip: @tr("Edit");
-                                    clicked => { root.edit(it.id); }
-                                }
-                                trash := RowAct {
-                                    icon: "trash";
-                                    tooltip: @tr("Remove from service (Delete)");
-                                    clicked => { root.remove(it.id); }
+                            // Right-click a row: the same actions as the bar under the list. Nothing pops up over the
+                            // rows as the pointer passes, so the titles keep their room and no button sits under a click.
+                            ContextMenuArea {
+                                Menu {
+                                    MenuItem {
+                                        title: @tr("Edit");
+                                        activated => { root.edit(it.id); }
+                                    }
+                                    if it.header: MenuItem {
+                                        title: @tr("Change colour");
+                                        activated => { ServicePlanning.recolor(it.id); }
+                                    }
+                                    MenuItem {
+                                        title: @tr("Remove from service (Delete)");
+                                        activated => { root.remove(it.id); }
+                                    }
                                 }
                             }
                         }
@@ -400,6 +369,42 @@ export component ServiceColumn inherits VerticalLayout {
                         clicked => { root.add(); }
                     }
                 }
+            }
+        }
+    }
+
+    // The selected item's actions, always in the same place under the list.
+    for it in root.rows: VerticalLayout {
+        if it.selected: HorizontalLayout {
+            padding-left: 8px;
+            padding-right: 8px;
+            padding-top: 6px;
+            spacing: 6px;
+            edit := Btn {
+                horizontal-stretch: 0;
+                small: true;
+                icon: "edit";
+                text: @tr("Edit");
+                clicked => { root.edit(it.id); }
+            }
+            if it.header: color := Btn {
+                horizontal-stretch: 0;
+                small: true;
+                icon: "star";
+                accessible-role: button;
+                accessible-label: @tr("Change colour");
+                tooltip: @tr("Change colour");
+                clicked => { ServicePlanning.recolor(it.id); }
+            }
+            Rectangle { horizontal-stretch: 1; }
+            trash := Btn {
+                horizontal-stretch: 0;
+                small: true;
+                icon: "trash";
+                accessible-role: button;
+                accessible-label: @tr("Remove from service (Delete)");
+                tooltip: @tr("Remove from service (Delete)");
+                clicked => { root.remove(it.id); }
             }
         }
     }
