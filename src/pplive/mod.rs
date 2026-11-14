@@ -4,6 +4,11 @@
 //! The deck's slide pictures stay the live item, so the operator, stage and phone show them, and the room window
 //! (behind PowerPoint's) shows them if PowerPoint cannot run.
 //!
+//! PowerPoint's window covers the room window, and with it the logo and the overlays (a message, a timer, a logo
+//! bug), which only the room window draws. So while the logo is on or an overlay is up, PowerPoint's window
+//! steps behind the room window (`SlideShowHost::cover`): the room shows the slide's picture with the logo or
+//! the overlays on it, and the show comes back in front, where it was, when they are gone.
+//!
 //! `Driver` holds the rules and is tested with `FakeHost`; `host::PsHost` is the real one (PowerShell driving
 //! PowerPoint through COM, Windows only at run time).
 use std::path::{Path, PathBuf};
@@ -61,6 +66,9 @@ pub trait SlideShowHost: Send {
     fn current(&mut self) -> Result<Pos, HostError>;
     /// PowerPoint's black screen on or off.
     fn black(&mut self, on: bool) -> Result<Pos, HostError>;
+    /// The show's window behind every other window (`on`), so the room window is seen, or back in front of
+    /// everything. The show goes on as it is: nothing is paused or ended.
+    fn cover(&mut self, on: bool) -> Result<Pos, HostError>;
     /// Ends the show and closes the presentation. Nothing else of PowerPoint's is touched.
     fn close(&mut self);
 }
@@ -75,6 +83,8 @@ pub struct Want {
     pub slide: usize,
     /// The slide was cleared: PowerPoint shows black.
     pub black: bool,
+    /// The logo is on or an overlay is up: the room window must be seen, so PowerPoint's steps behind it.
+    pub covered: bool,
     /// The room monitor; `None` when the room screen is not on a monitor.
     pub screen: Option<Rect>,
 }
@@ -93,7 +103,7 @@ pub enum After {
     Failed(String),
 }
 
-struct Open { item_id: Uuid, title: String, file: PathBuf, slides: usize, slide: usize, black: bool }
+struct Open { item_id: Uuid, title: String, file: PathBuf, slides: usize, slide: usize, black: bool, covered: bool }
 
 /// Keeps PowerPoint's show in line with the live item, and turns Next/Back into clicks.
 pub struct Driver {
@@ -130,7 +140,7 @@ impl Driver {
                 return After::Failed(strings::no_room_screen());
             };
             match self.host.open(&w.file, screen) {
-                Ok(slides) => self.open = Some(Open { item_id: w.item_id, title: w.title.clone(), file: w.file.clone(), slides, slide: 1, black: false }),
+                Ok(slides) => self.open = Some(Open { item_id: w.item_id, title: w.title.clone(), file: w.file.clone(), slides, slide: 1, black: false, covered: false }),
                 Err(e) => {
                     self.host.close();
                     self.stopped = Some(w.item_id);
@@ -140,6 +150,10 @@ impl Driver {
         }
         let open = self.open.as_ref().expect("opened above");
         let (black, slide, slides) = (open.black, open.slide, open.slides);
+        if open.covered != w.covered {
+            if let Err(e) = self.host.cover(w.covered) { return self.lost(e) }
+            if let Some(o) = &mut self.open { o.covered = w.covered }
+        }
         if black != w.black {
             if let Err(e) = self.host.black(w.black) { return self.lost(e) }
             if let Some(o) = &mut self.open { o.black = w.black }
@@ -221,6 +235,7 @@ pub mod fake {
         pub slide: usize,
         pub click: usize,
         pub black: bool,
+        pub covered: bool,
         pub done: bool,
         /// The next call finds the show ended (closed in PowerPoint).
         pub gone: bool,
@@ -276,6 +291,7 @@ pub mod fake {
         }
         fn current(&mut self) -> Result<Pos, HostError> { self.call("pos".into(), |_| {}) }
         fn black(&mut self, on: bool) -> Result<Pos, HostError> { self.call(format!("black {}", on as u8), |s| s.black = on) }
+        fn cover(&mut self, on: bool) -> Result<Pos, HostError> { self.call(format!("cover {}", on as u8), |s| s.covered = on) }
         fn close(&mut self) {
             let mut s = self.0.lock().unwrap();
             s.log.push("close".into());
@@ -292,7 +308,7 @@ mod tests {
     const ROOM: Rect = Rect { x: 1920, y: 0, width: 1920, height: 1080 };
 
     fn want(item: Uuid, slide: usize) -> Want {
-        Want { item_id: item, title: "Talk".into(), file: PathBuf::from("talk.pptx"), slide, black: false, screen: Some(ROOM) }
+        Want { item_id: item, title: "Talk".into(), file: PathBuf::from("talk.pptx"), slide, black: false, covered: false, screen: Some(ROOM) }
     }
 
     fn driver(clicks: &[usize]) -> (Driver, FakeHost) {
@@ -345,6 +361,31 @@ mod tests {
         // The App shows slide 2 live, and asks again: PowerPoint is already there.
         d.apply(Some(&want(item, 1)));
         assert!(host.take_log().is_empty());
+    }
+
+    #[test]
+    fn the_show_steps_behind_the_room_for_the_logo_and_overlays() {
+        let host = FakeHost::with_clicks(&[0, 0, 0]);
+        let mut d = Driver::new(Box::new(host.clone()));
+        let item = Uuid::new_v4();
+        d.apply(Some(&want(item, 0)));
+        host.take_log();
+        // The logo goes on (or a message comes up): PowerPoint's window goes behind, once.
+        d.apply(Some(&Want { covered: true, ..want(item, 0) }));
+        d.apply(Some(&Want { covered: true, ..want(item, 0) }));
+        assert_eq!(host.take_log(), ["cover 1"]);
+        // The operator goes on a slide meanwhile: the show follows behind the room window.
+        d.apply(Some(&Want { covered: true, ..want(item, 1) }));
+        assert_eq!(host.take_log(), ["goto 2"]);
+        // Gone again: back in front, on the slide it is on.
+        d.apply(Some(&want(item, 1)));
+        assert_eq!(host.take_log(), ["cover 0"]);
+        // A deck that goes live with the logo already on starts behind the room window.
+        let host = FakeHost::with_clicks(&[0]);
+        let mut d = Driver::new(Box::new(host.clone()));
+        d.apply(Some(&Want { covered: true, ..want(item, 0) }));
+        assert_eq!(host.log().last().map(String::as_str), Some("cover 1"));
+        assert!(host.0.lock().unwrap().covered);
     }
 
     #[test]

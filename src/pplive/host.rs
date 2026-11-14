@@ -85,6 +85,9 @@ try {
         'PREV' { $win.View.Previous() }
         'GOTO' { $win.View.GotoSlide($shown[[int]$words[1] - 1], -1) }
         'BLACK' { if ($words[1] -eq '1') { $win.View.State = 3 } else { $win.View.State = 1 } }
+        # Behind every window (HWND_BOTTOM; a topmost window loses that there), or topmost again. Neither moves,
+        # sizes nor activates it (SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE).
+        'COVER' { if ($words[1] -eq '1') { [void][RustyPresenter.Win]::SetWindowPos($hwnd, [IntPtr]::new(1), 0, 0, 0, 0, 0x13) } else { [void][RustyPresenter.Win]::SetWindowPos($hwnd, [IntPtr]::new(-1), 0, 0, 0, 0, 0x13) } }
         'POS' { }
         default { throw ('unknown command ' + $line) }
       }
@@ -311,6 +314,7 @@ impl SlideShowHost for PsHost {
     fn goto(&mut self, slide: usize) -> Result<Pos, HostError> { self.ask(&format!("GOTO {slide}")) }
     fn current(&mut self) -> Result<Pos, HostError> { self.ask("POS") }
     fn black(&mut self, on: bool) -> Result<Pos, HostError> { self.ask(if on { "BLACK 1" } else { "BLACK 0" }) }
+    fn cover(&mut self, on: bool) -> Result<Pos, HostError> { self.ask(if on { "COVER 1" } else { "COVER 0" }) }
     fn close(&mut self) { self.stop() }
 }
 
@@ -350,7 +354,8 @@ mod tests {
         assert!(s.find("Say 'ATTACHED'").unwrap() < s.find(".Open(").unwrap());
         for call in ["$set.ShowType = 1", "$set.ShowWithAnimation = -1", "$set.LoopUntilStopped = 0", "$set.AdvanceMode = 2", "$set.ShowPresenterView = 0",
             "$win = $set.Run()", "$win.HWND", "SetWindowPos($hwnd, [IntPtr]::new(-1), $Left, $Top, $Width, $Height, 0x50)", "$win.View.Next()", "$win.View.Previous()",
-            "$win.View.GotoSlide($shown[[int]$words[1] - 1], -1)", "$win.View.State = 3", "$win.View.State = 1", "$v.GetClickIndex()", "$v.GetClickCount()",
+            "$win.View.GotoSlide($shown[[int]$words[1] - 1], -1)", "$win.View.State = 3", "$win.View.State = 1",
+            "SetWindowPos($hwnd, [IntPtr]::new(1), 0, 0, 0, 0, 0x13)", "SetWindowPos($hwnd, [IntPtr]::new(-1), 0, 0, 0, 0, 0x13)", "$v.GetClickIndex()", "$v.GetClickCount()",
             "$win.View.Exit()", "$pres.Close()", "SlideShowTransition.Hidden"] {
             assert!(s.contains(call), "{call}");
         }

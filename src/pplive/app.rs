@@ -62,7 +62,7 @@ impl App {
         let file = deck.runs_in_powerpoint()?;
         Some(Want {
             item_id: item.id, title: deck.title.clone(), file: self.store.asset_path(file), slide: cursor.slide,
-            black: live.frame.slide.is_none(), screen: self.room_screen(&data),
+            black: live.frame.slide.is_none(), covered: live.frame.logo || !live.frame.overlays.is_empty(), screen: self.room_screen(&data),
         })
     }
 
@@ -289,6 +289,25 @@ mod tests {
         assert!(send(&app, Command::Prev).ok);
         assert_eq!(slide(&app), Some((deck_item, 0)));
         assert_eq!(host.0.lock().unwrap().click, 0);
+    }
+
+    #[test]
+    fn the_logo_is_seen_over_a_powerpoint_show() {
+        let (app, host, deck_item, _) = setup(&[0, 0, 0]);
+        assert!(send(&app, Command::Show { item_id: deck_item, slide: 0 }).ok);
+        app.show_tick();
+        host.take_log();
+        // Logo: PowerPoint's window steps behind the room window, which shows the logo (it stayed in front, and
+        // the room saw PowerPoint's black screen).
+        assert!(send(&app, Command::Logo).ok);
+        assert!(app.show_want().unwrap().covered);
+        app.show_tick();
+        assert_eq!(host.take_log(), ["cover 1", "black 1", "pos"]);
+        // A slide of the deck again: the show is back in front.
+        assert!(send(&app, Command::Show { item_id: deck_item, slide: 1 }).ok);
+        assert!(!app.show_want().unwrap().covered);
+        app.show_tick();
+        assert_eq!(host.take_log(), ["cover 0", "black 0", "goto 2", "pos"]);
     }
 
     #[test]
