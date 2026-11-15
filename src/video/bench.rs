@@ -96,11 +96,12 @@ pub fn change_delays(sends: &[f64], swaps: &[f64], frames: Option<&[f64]>) -> Ve
 /// (at least 25 ms, so a fast monitor's one missed refresh is not counted); while video plays, any gap over
 /// `STALL_MS`.
 pub fn hiccups(frames: &[f64], swaps: &[f64], fade_ms: f64, video: bool) -> u32 {
-    let in_fade = |t: f64| swaps.iter().any(|s| t > *s && t <= s + fade_ms);
-    let gaps: Vec<(f64, f64)> = frames.windows(2).map(|w| (w[1], w[1] - w[0])).collect();
-    let fade_gaps: Vec<f64> = gaps.iter().filter(|(t, _)| in_fade(*t)).map(|(_, g)| *g).collect();
+    // Both ends in one crossfade: the gap into its first frame is from before it started, not a late frame.
+    let in_fade = |a: f64, b: f64| swaps.iter().any(|s| a >= *s && b <= s + fade_ms);
+    let gaps: Vec<(bool, f64)> = frames.windows(2).map(|w| (in_fade(w[0], w[1]), w[1] - w[0])).collect();
+    let fade_gaps: Vec<f64> = gaps.iter().filter(|(f, _)| *f).map(|(_, g)| *g).collect();
     let late = (percentile(&fade_gaps, 0.5) * 1.8).max(25.0);
-    gaps.iter().filter(|(t, g)| (in_fade(*t) && *g > late) || (video && *g > STALL_MS)).count() as u32
+    gaps.iter().filter(|(f, g)| (*f && *g > late) || (video && *g > STALL_MS)).count() as u32
 }
 
 /// Freezes over `FREEZE_MS` and the longest gap, from the gaps between a 1 ms timer's ticks on the UI thread.
@@ -470,6 +471,12 @@ mod tests {
         // Video at 25 fps: a 300 ms stall outside a crossfade counts only with video.
         let video = [1000.0, 1040.0, 1080.0, 1380.0, 1420.0];
         assert_eq!((hiccups(&video, &[0.0], 400.0, true), hiccups(&video, &[0.0], 400.0, false)), (1, 0));
+        // Video frames every 40 ms, then a crossfade at 60 Hz from 1000: the gap into its first frame is not late.
+        let mut f: Vec<f64> = (0..25).map(|i| i as f64 * 40.0).collect();
+        f.extend((0..=24).map(|i| 1005.0 + i as f64 * 16.7));
+        assert_eq!(hiccups(&f, &[1000.0], 400.0, true), 0, "found on a real PC: every change counted once");
+        f.extend([1450.0, 1466.7]);
+        assert_eq!(hiccups(&f, &[1000.0, 1440.0], 400.0, true), 0, "the next crossfade's first gap too");
     }
 
     #[test]
