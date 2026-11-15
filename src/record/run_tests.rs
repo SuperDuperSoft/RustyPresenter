@@ -316,3 +316,49 @@ fn go_live_puts_the_words_over_the_camera() {
     assert!(beside[2] > 180 && beside[0] < 60, "the camera beside the band: {beside:?}");
     std::fs::remove_dir_all(&dir).unwrap();
 }
+
+/// The real camera (`RP_REAL_CAMERA`, a name as FFmpeg lists it) with the words over it, live to a local server for
+/// ten seconds. What is checked is the picture's numbers (it may show people): it is not one flat colour, so the
+/// camera's picture came through. Everything it made is deleted. `cargo test real_camera -- --ignored --nocapture`.
+#[cfg(windows)]
+#[test]
+#[ignore]
+fn real_camera_goes_live_with_the_words() {
+    let Some(ff) = ffmpeg() else { return };
+    let name = std::env::var("RP_REAL_CAMERA").expect("RP_REAL_CAMERA");
+    let dir = scratch("realcam");
+    let port = std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port();
+    let url = format!("rtmp://127.0.0.1:{port}/live/TEST-KEY");
+    let received = dir.join("received.flv");
+    let mut server = std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-listen", "1", "-analyzeduration", "2000000", "-f", "flv", "-i", &url, "-c", "copy"])
+        .arg(&received).stdin(Stdio::null()).spawn().unwrap();
+    std::thread::sleep(Duration::from_millis(1500));
+    let camera = args::Camera { input: args::camera_input(crate::platform::tools::OS, &name), layout: args::Layout::CameraWords, words_port: None };
+    let slide = crate::live::SlideLayer::Text { text: "Amazing grace how sweet the sound".into(), footer: None, reference: None, scripture: false, size: 0,
+        passage: vec![], parallel: None, theme: None };
+    let words = crate::stream::lyrics::Words(std::sync::Arc::new(move || crate::stream::lyrics::key_for(&slide, &crate::model::Theme::default(), (1280, 720))));
+    let began = Instant::now();
+    let ended = record_for(Plan { stream: vec![url], camera: Some(camera), words: Some(words), ..plan(ff.clone(), &dir, Sound::None) }, 10.0, |_, _| {});
+    let t = Instant::now();
+    while server.try_wait().unwrap().is_none() && t.elapsed() < Duration::from_secs(20) { std::thread::sleep(Duration::from_millis(100)) }
+    let _ = server.kill();
+    let _ = server.wait();
+    let (streams, secs) = probe(&received);
+    let png = dir.join("frame.png");
+    let got_frame = std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-ss", "6", "-i"]).arg(&received).args(["-frames:v", "1"]).arg(&png)
+        .status().map(|s| s.success()).unwrap_or(false);
+    let (spread, size) = if got_frame {
+        let img = image::open(&png).unwrap().to_rgb8();
+        // How far the brightest and darkest parts of the top half are apart: a camera's picture varies; a flat
+        // colour (no camera) does not.
+        let lum: Vec<u32> = (0..img.width()).step_by(8).flat_map(|x| (0..img.height() / 2).step_by(8).map(move |y| (x, y)))
+            .map(|(x, y)| { let p = img.get_pixel(x, y).0; (p[0] as u32 * 3 + p[1] as u32 * 6 + p[2] as u32) / 10 }).collect();
+        (lum.iter().max().unwrap() - lum.iter().min().unwrap(), img.dimensions())
+    } else { (0, (0, 0)) };
+    let _ = std::fs::remove_dir_all(&dir);
+    eprintln!("REAL camera {name:?}: {:.1} s in all, stream {secs:.1} s {streams:?}, frame {size:?}, brightness spread {spread}; problem {:?}; files deleted",
+        began.elapsed().as_secs_f64(), ended.problem);
+    assert_eq!(ended.problem, None);
+    assert!(streams.iter().any(|s| s.0 == "video" && s.2 == 1280 && s.3 == 720), "{streams:?}");
+    assert!(spread > 20, "the camera's picture did not come through (flat): {spread}");
+}
