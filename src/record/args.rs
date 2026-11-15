@@ -122,13 +122,32 @@ pub fn camera_input(os: Os, name: &str) -> Vec<String> {
     }
 }
 
-/// A camera in the picture, and which of the two fills it.
+/// How the camera and the room are put together in the stream.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum Layout {
+    /// The camera fills the picture, the room screen small in a corner.
+    #[default]
+    CameraScreen,
+    /// The room screen fills it, the camera small in a corner.
+    ScreenCamera,
+    /// The camera fills it, with the live slide's words over it as a lower third (`stream::lyrics`).
+    CameraWords,
+}
+
+impl Layout {
+    /// Settings' choice 0, 1, 2.
+    pub fn from_index(i: u8) -> Layout { match i { 1 => Layout::ScreenCamera, 2 => Layout::CameraWords, _ => Layout::CameraScreen } }
+    pub fn index(self) -> u8 { match self { Layout::CameraScreen => 0, Layout::ScreenCamera => 1, Layout::CameraWords => 2 } }
+}
+
+/// A camera in the picture, and how it is put together with the room.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Camera {
     /// FFmpeg's input arguments for it (`camera_input`, or a stand-in in tests).
     pub input: Vec<String>,
-    /// The camera fills the picture with the room screen in a corner; else the other way round.
-    pub main: bool,
+    pub layout: Layout,
+    /// `CameraWords`: the local port the words picture comes on (`stream::lyrics::Feed`); set when it is started.
+    pub words_port: Option<u16>,
 }
 
 /// The filter that puts the camera and the room screen together into `[v]`: one fills the `w`×`h` picture (kept
@@ -144,6 +163,14 @@ pub fn picture_in_picture(screen: usize, camera: usize, (w, h): (u32, u32), fps:
     // ending ends it (else FFmpeg went on with the camera after Stop and the file was lost).
     let end = if camera_main { "endall" } else { "repeat" };
     format!("{};{};[main][pip]overlay=W-w-{edge}:H-h-{edge}:eof_action={end}[v]", fill(main, "main"), corner(pip, "pip"))
+}
+
+/// The camera filling the `w`×`h` picture with the words picture (premultiplied, clear where there are no words)
+/// over it. The room screen is not seen, but its end (Stop) ends the picture: it is put in as one clear dot.
+pub fn camera_with_words(screen: usize, camera: usize, words: usize, (w, h): (u32, u32), fps: u32) -> String {
+    format!("[{camera}:v]scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,setsar=1,fps={fps},format=yuv420p[cam];\
+        [{words}:v]format=rgba[words];[cam][words]overlay=0:0:alpha=premultiplied:format=auto,format=yuv420p[seen];\
+        [{screen}:v]scale=2:2,format=yuva420p,colorchannelmixer=aa=0[dot];[seen][dot]overlay=0:0:eof_action=endall[v]")
 }
 
 fn quoted(l: &str) -> Option<&str> {
@@ -242,7 +269,16 @@ fn add_camera(a: &mut Vec<OsString>, cam: &Camera, size: (u32, u32), fps: u32) {
     let index = a.iter().filter(|x| *x == "-i").count();
     let at = a.iter().position(|x| x == "-map").unwrap_or(a.len());
     let mut more: Vec<OsString> = cam.input.iter().map(OsString::from).collect();
-    more.extend([OsString::from("-filter_complex"), picture_in_picture(0, index, size, fps, cam.main).into()]);
+    let filter = match (cam.layout, cam.words_port) {
+        (Layout::CameraWords, Some(port)) => {
+            more.extend(crate::stream::lyrics::input_args(size, port).into_iter().map(OsString::from));
+            camera_with_words(0, index, index + 1, size, fps)
+        }
+        // The words could not be started: the camera alone, with the screen in the corner.
+        (Layout::CameraWords, None) | (Layout::CameraScreen, _) => picture_in_picture(0, index, size, fps, true),
+        (Layout::ScreenCamera, _) => picture_in_picture(0, index, size, fps, false),
+    };
+    more.extend([OsString::from("-filter_complex"), filter.into()]);
     a.splice(at..at, more);
     if let Some(i) = a.windows(2).position(|x| x[0] == "-map" && x[1] == "0:v") { a[i + 1] = "[v]".into() }
 }
@@ -343,7 +379,7 @@ mod tests {
         assert_eq!(parse_inputs(Os::Windows, out).len(), 1, "a camera is no sound input");
         assert_eq!(camera_input(Os::Windows, "Integrated Camera").last().unwrap(), "video=Integrated Camera");
         let out = PathBuf::from("/r/Recording.recording.mkv");
-        let cam = Camera { input: vec!["-f".into(), "lavfi".into(), "-i".into(), "testsrc".into()], main: true };
+        let cam = Camera { input: vec!["-f".into(), "lavfi".into(), "-i".into(), "testsrc".into()], layout: Layout::CameraScreen, words_port: None };
         let to = ["rtmp://a.rtmp.youtube.com/live2/key".to_string()];
         // With the sound board too: the camera is input 2, after it.
         let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: Some(("dshow", "Line In")), out: &out, stream: &to, pc: None, camera: Some(&cam) }));
@@ -354,6 +390,13 @@ mod tests {
         assert!(a.windows(2).any(|w| w == ["-map", "[v]"]) && !a.windows(2).any(|w| w == ["-map", "0:v"]), "{a:?}");
         // The screen filling it instead.
         assert!(picture_in_picture(0, 1, (1920, 1080), 30, false).starts_with("[0:v]scale=1920:1080"));
+        // The words over the camera: the words come in after the camera; the screen only ends it.
+        let words = Camera { layout: Layout::CameraWords, words_port: Some(40700), ..cam.clone() };
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, out: &out, stream: &to, pc: None, camera: Some(&words) }));
+        assert!(a.windows(2).any(|w| w == ["-i", "tcp://127.0.0.1:40700?listen=1"]), "{a:?}");
+        let f = a.iter().find(|x| x.contains("alpha=premultiplied")).expect("the words filter");
+        assert!(f.starts_with("[2:v]scale=1280:720") && f.contains("[3:v]format=rgba") && f.contains("[0:v]scale=2:2"), "{f}");
+        assert_eq!((Layout::from_index(2), Layout::CameraWords.index(), Layout::from_index(9)), (Layout::CameraWords, 2, Layout::CameraScreen));
     }
 
     #[test]

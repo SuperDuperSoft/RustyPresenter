@@ -107,7 +107,7 @@ fn read_camera(g: &SettingsDlg) -> String {
 pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     fill_stream_sound(g, &[], &p.stream_sound);
     fill_camera(g, &[], &p.camera);
-    g.set_stream_camera_layout(if p.camera_main { 0 } else { 1 });
+    g.set_stream_camera_layout(i32::from(p.camera_layout.min(2)));
     let (on, url) = stream_rows(p);
     g.set_stream_on_0(on[0]);
     g.set_stream_on_1(on[1]);
@@ -150,8 +150,8 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
     if pc != p.stream_sound { p.stream_sound = pc }
     let camera = read_camera(g);
     if camera != p.camera { p.camera = camera }
-    let main = g.get_stream_camera_layout() == 0;
-    if main != p.camera_main { p.camera_main = main }
+    let layout = g.get_stream_camera_layout().clamp(0, 2) as u8;
+    if layout != p.camera_layout { p.camera_layout = layout }
 }
 
 /// A stream key typed in Settings is kept in the computer's password store at once (it is no part of the

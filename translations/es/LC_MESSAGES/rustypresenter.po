@@ -2456,6 +2456,10 @@ msgid "Screen, with the camera in a corner"
 msgstr "Pantalla, con la cámara en una esquina"
 
 #: ui/dialogs/settings-media.slint
+msgid "Camera, with the words over it"
+msgstr "Cámara, con las palabras encima"
+
+#: ui/dialogs/settings-media.slint
 msgid "Stream to"
 msgstr "Transmitir a"
 

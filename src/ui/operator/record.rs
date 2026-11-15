@@ -10,7 +10,7 @@ use crate::{
     youtube::fetch::Tool,
 };
 use slint::{Timer, TimerMode};
-use std::{cell::{Cell, RefCell}, path::PathBuf, rc::Rc, time::Duration};
+use std::{cell::{Cell, RefCell}, path::PathBuf, rc::Rc, sync::Arc, time::Duration};
 use tokio_util::sync::CancellationToken;
 
 /// The recording, while there is one, and what the button shows.
@@ -79,7 +79,17 @@ impl Operator {
         }
         self.record.starting.set(true);
         let prefs_pc = prefs.pc_sound(&app_output);
-        let camera = (!prefs.camera.is_empty()).then(|| record::args::Camera { input: record::args::camera_input(crate::platform::tools::OS, &prefs.camera), main: prefs.camera_main });
+        let layout = record::args::Layout::from_index(prefs.camera_layout);
+        let camera = (!prefs.camera.is_empty()).then(|| record::args::Camera { input: record::args::camera_input(crate::platform::tools::OS, &prefs.camera), layout,
+            words_port: None });
+        // The words over the camera: what is live now, read when the words picture is drawn.
+        let canvas = prefs.size.size();
+        let app = self.app().clone();
+        let words = (layout == record::args::Layout::CameraWords).then(|| stream::lyrics::Words(Arc::new(move || {
+            let live = app.live.lock().unwrap();
+            let theme = live.item.as_ref().map(|i| i.theme.clone()).unwrap_or_default();
+            stream::lyrics::key_for(live.frame.slide.as_ref()?, &theme, canvas)
+        })));
         off_ui(self, move || Plan::make(&data, &prefs), move |plan| {
             let Some(op) = me.upgrade() else { return };
             op.record.starting.set(false);
@@ -88,6 +98,7 @@ impl Operator {
                     if live {
                         plan.pc_sound = prefs_pc;
                         plan.camera = camera;
+                        plan.words = words;
                     }
                     plan.stream = addresses;
                     op.record.live.set(live);

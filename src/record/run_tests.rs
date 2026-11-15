@@ -31,7 +31,7 @@ fn probe(file: &Path) -> (Vec<(String, String, u64, u64)>, f64) {
 }
 
 fn plan(ffmpeg: PathBuf, dir: &Path, sound: Sound) -> Plan {
-    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, camera: None }
+    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, camera: None, words: None }
 }
 
 /// Records for `secs`, handing in a new solid picture every 100 ms (red, then green), with `each` called as it goes.
@@ -250,7 +250,8 @@ fn go_live_puts_the_camera_and_the_screen_together() {
     let mut server = std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-listen", "1", "-analyzeduration", "2000000", "-f", "flv", "-i", &url, "-c", "copy"])
         .arg(&received).stdin(Stdio::null()).spawn().unwrap();
     std::thread::sleep(Duration::from_millis(1500));
-    let camera = args::Camera { input: ["-re", "-f", "lavfi", "-i", "color=c=blue:size=640x480:rate=30"].map(String::from).into(), main: true };
+    let camera = args::Camera { input: ["-re", "-f", "lavfi", "-i", "color=c=blue:size=640x480:rate=30"].map(String::from).into(), layout: args::Layout::CameraScreen,
+        words_port: None };
     let ended = record_for(Plan { stream: vec![url], camera: Some(camera), ..plan(ff.clone(), &dir, Sound::None) }, 8.0, |_, _| {});
     let t = Instant::now();
     while server.try_wait().unwrap().is_none() && t.elapsed() < Duration::from_secs(20) { std::thread::sleep(Duration::from_millis(100)) }
@@ -271,5 +272,47 @@ fn go_live_puts_the_camera_and_the_screen_together() {
     assert!(bar.iter().all(|c| *c < 30), "black bars at the sides: {bar:?}");
     let corner = at(w - 32 - 160, h - 18 - 90);
     assert!(corner[0] > 180 && corner[2] < 60, "the room screen in the bottom right corner: {corner:?}");
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// The words over the camera, for real: a stand-in blue camera, and a song slide as the live words. The stream's
+/// top is the camera; its bottom has the words' band and white letters.
+#[test]
+fn go_live_puts_the_words_over_the_camera() {
+    let Some(ff) = ffmpeg() else { return };
+    let dir = scratch("words");
+    let port = std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port();
+    let url = format!("rtmp://127.0.0.1:{port}/live/TEST-KEY");
+    let received = dir.join("received.flv");
+    let mut server = std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-listen", "1", "-analyzeduration", "2000000", "-f", "flv", "-i", &url, "-c", "copy"])
+        .arg(&received).stdin(Stdio::null()).spawn().unwrap();
+    std::thread::sleep(Duration::from_millis(1500));
+    let camera = args::Camera { input: ["-re", "-f", "lavfi", "-i", "color=c=blue:size=1280x720:rate=30"].map(String::from).into(), layout: args::Layout::CameraWords,
+        words_port: None };
+    let slide = crate::live::SlideLayer::Text { text: "Amazing grace how sweet the sound".into(), footer: None, reference: None, scripture: false, size: 0,
+        passage: vec![], parallel: None, theme: None };
+    let words = crate::stream::lyrics::Words(std::sync::Arc::new(move || crate::stream::lyrics::key_for(&slide, &crate::model::Theme::default(), (1280, 720))));
+    let ended = record_for(Plan { stream: vec![url], camera: Some(camera), words: Some(words), ..plan(ff.clone(), &dir, Sound::None) }, 8.0, |_, _| {});
+    let t = Instant::now();
+    while server.try_wait().unwrap().is_none() && t.elapsed() < Duration::from_secs(20) { std::thread::sleep(Duration::from_millis(100)) }
+    let _ = server.kill();
+    let _ = server.wait();
+    assert_eq!(ended.problem, None, "{ended:?}");
+    let png = dir.join("frame.png");
+    assert!(std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-ss", "4", "-i"]).arg(&received).args(["-frames:v", "1"]).arg(&png)
+        .status().unwrap().success());
+    let img = image::open(&png).unwrap().to_rgb8();
+    let top = img.get_pixel(640, 100).0;
+    assert!(top[2] > 180 && top[0] < 60, "the camera at the top: {top:?}");
+    // The bottom third: the band darkens the camera, and letters are near-white.
+    let bottom: Vec<[u8; 3]> = (0..1280).step_by(2).flat_map(|x| (520..700).step_by(2).map(move |y| (x, y))).map(|(x, y)| img.get_pixel(x, y).0).collect();
+    let white = bottom.iter().filter(|p| p.iter().all(|c| *c > 200)).count();
+    eprintln!("REAL words: {white} white of {}", bottom.len());
+    assert!(white > 200, "letters in the lower third: {white}");
+    // The band wraps the line of words (seen: x 265-1010, y 612-690 for this line), darkening the camera; beside it
+    // the camera is as it was.
+    let (band, beside) = (img.get_pixel(272, 618).0, img.get_pixel(100, 650).0);
+    assert!(band[2] < 150, "the band behind the words: {band:?}");
+    assert!(beside[2] > 180 && beside[0] < 60, "the camera beside the band: {beside:?}");
     std::fs::remove_dir_all(&dir).unwrap();
 }

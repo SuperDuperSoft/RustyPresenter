@@ -152,7 +152,7 @@ export component SettingsMedia inherits VerticalLayout {
             if SettingsDlg.stream-camera-index > 0: HorizontalLayout {
                 alignment: start;
                 stream-camera-layout := Segmented {
-                    labels: [@tr("Camera, with the screen in a corner"), @tr("Screen, with the camera in a corner")];
+                    labels: [@tr("Camera, with the screen in a corner"), @tr("Screen, with the camera in a corner"), @tr("Camera, with the words over it")];
                     index <=> SettingsDlg.stream-camera-layout;
                 }
             }

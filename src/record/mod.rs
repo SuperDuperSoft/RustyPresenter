@@ -88,13 +88,16 @@ pub struct RecordPrefs {
     /// A camera in the livestream: its name as FFmpeg lists it; empty: none.
     #[serde(skip_serializing_if = "String::is_empty")]
     pub camera: String,
-    /// The camera fills the stream with the room screen in a corner; else the screen fills it.
-    #[serde(skip_serializing_if = "std::ops::Not::not")]
-    pub camera_main: bool,
+    /// How the camera and the room are put together (`args::Layout::index`): 0 camera with the screen in a corner,
+    /// 1 screen with the camera in a corner, 2 camera with the words over it.
+    #[serde(skip_serializing_if = "is_zero_u8")]
+    pub camera_layout: u8,
     /// The note about streaming licences was shown (once, the first time Go Live started).
     #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub licence_noted: bool,
 }
+
+fn is_zero_u8(v: &u8) -> bool { *v == 0 }
 
 impl RecordPrefs {
     /// The output to capture for a livestream (`app_output`: where the app plays its sound); `None`: no PC sound.

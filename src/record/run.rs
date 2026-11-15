@@ -87,6 +87,8 @@ pub struct Plan {
     pub pc_sound: Option<String>,
     /// Go Live: a camera put together with the room screen.
     pub camera: Option<args::Camera>,
+    /// Go Live with the words over the camera: what is live, as the words picture to draw.
+    pub words: Option<crate::stream::lyrics::Words>,
 }
 
 impl Plan {
@@ -102,7 +104,7 @@ impl Plan {
             return Err(Some(tr::low_disk(&gb(free), &gb(prefs.size.bytes_per_hour()))));
         }
         let out = super::file_name(&folder, chrono::Local::now().naive_local());
-        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, camera: None })
+        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, camera: None, words: None })
     }
 }
 
@@ -205,6 +207,15 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     if ports.len() != plan.stream.len() { eprintln!("recording: no local ports for the stream; recording only") }
     let feeds: Vec<String> = ports.iter().map(|p| crate::stream::send::feed(*p)).collect();
     // The PC's sound, when the stream has it. If it cannot be captured the stream goes out without it.
+    // The words over the camera, when the camera's layout has them.
+    let mut camera = if ports.is_empty() { None } else { plan.camera.clone() };
+    let mut words = None;
+    if let (Some(cam), Some(source)) = (camera.as_mut(), &plan.words) && cam.layout == args::Layout::CameraWords {
+        match crate::stream::lyrics::start(source.0.clone(), sink.size) {
+            Ok(feed) => { cam.words_port = Some(feed.port); words = Some(feed) }
+            Err(e) => eprintln!("recording: the stream goes out without the words over the camera: {e}"),
+        }
+    }
     let mut pc = match (&plan.pc_sound, ports.is_empty()) {
         (Some(device), false) => crate::stream::pc_sound::start(device).map_err(|e| eprintln!("recording: the stream goes out without the PC's sound: {e}")).ok(),
         _ => None,
@@ -212,7 +223,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let format = args::input_format(tools::OS);
     let input = match &plan.sound { Sound::Input(name) => Some((format, name.as_str())), _ => None };
     let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, out: &part, stream: &feeds, pc: pc.as_ref().map(|c| c.feed),
-        camera: if ports.is_empty() { None } else { plan.camera.as_ref() } });
+        camera: camera.as_ref() });
     let mut cmd = tokio::process::Command::new(&plan.ffmpeg);
     cmd.args(a).stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::piped());
     let mut tree = match spawn_tree(cmd) {
@@ -277,6 +288,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     drop(stdin);
     // The PC's sound has no end of its own: stopping it lets FFmpeg end its file.
     if let Some(c) = pc.as_mut() { c.stop() }
+    if let Some(w) = words.as_mut() { w.stop() }
     let end = t0.elapsed().as_secs_f64();
     let ended = tree.wait(END_LIMIT, &CancellationToken::new()).await;
     // The last of the stream has gone to the senders: a moment for them to pass it on, then they stop.
