@@ -92,13 +92,21 @@ function cell(c, ver) {
   return el;
 }
 
-// The biggest size from the box's top size down to its floor, in 0.4 % steps, at which the words fit.
+// The smallest words, in % of the screen's height: below a box's own smallest size, but all the words are seen
+// (as the stage window, `ui::stage::FLOOR`).
+const FLOOR = 1.2;
+
+// The biggest size from the box's top size down to its smallest, in 0.4 % steps, at which the words fit; when none
+// does, on down in 0.2 % steps to FLOOR, so long words (notes) are made smaller rather than cut off.
 function fitAll() {
+  const over = w => w.scrollHeight > w.clientHeight + 1 || w.scrollWidth > w.clientWidth + 1;
   for (const w of document.querySelectorAll('.words')) {
     const max = +w.dataset.max, min = +w.dataset.min;
     let s = max;
     w.style.fontSize = s + 'cqh';
-    while (s > min && (w.scrollHeight > w.clientHeight + 1 || w.scrollWidth > w.clientWidth + 1)) { s = Math.max(min, s - 0.4); w.style.fontSize = s + 'cqh'; }
+    while (s > min && over(w)) { s = Math.max(min, s - 0.4); w.style.fontSize = s + 'cqh'; }
+    const floor = Math.min(min, FLOOR);
+    while (s > floor && over(w)) { s = Math.max(floor, s - 0.2); w.style.fontSize = s + 'cqh'; }
   }
 }
 addEventListener('resize', () => requestAnimationFrame(fitAll));
