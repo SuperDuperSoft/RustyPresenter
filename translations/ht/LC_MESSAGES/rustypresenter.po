@@ -1248,7 +1248,7 @@ msgstr "Sèvi pou tout diapo yo"
 msgid "Auto-advance after (s)"
 msgstr "Avanse pou kont li apre (s)"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr "Etenn"
 
@@ -2428,8 +2428,16 @@ msgid "Livestream"
 msgstr "Emisyon an dirèk"
 
 #: ui/dialogs/settings-media.slint
-msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
-msgstr "Limen yon destinasyon epi yon bouton Ale an dirèk ap parèt bò kote Anrejistre. Ale an dirèk anrejistre tankou dabitid epi voye menm imaj ak menm son an bay chak destinasyon ki limen. Son an se mikwofòn oswa antre liy ou chwazi anlè a; son pwòp aplikasyon an poko nan emisyon an."
+msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on."
+msgstr "Limen yon destinasyon epi yon bouton Ale an dirèk ap parèt bò kote Anrejistre. Ale an dirèk anrejistre tankou dabitid epi voye menm imaj ak menm son an bay chak destinasyon ki limen."
+
+#: ui/dialogs/settings-media.slint
+msgid "Sound from this computer"
+msgstr "Son ki soti nan òdinatè sa a"
+
+#: ui/dialogs/settings-media.slint
+msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
+msgstr "Tout sa k ap jwe sou sòti sa a ale ak emisyon an (videyo, chante, ak nenpòt lòt son yo voye la), melanje ak mikwofòn oswa antre liy ou chwazi anlè a."
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
@@ -9869,6 +9877,10 @@ msgid "Not now"
 msgstr "Pa kounye a"
 
 #: src/ui/dialogs/settings_record.rs
+msgid "The output the app plays its sound to"
+msgstr "Sòti kote aplikasyon an jwe son li"
+
+#: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
 msgstr "Yo pa t ka kenbe kle emisyon an: {error}"
 
@@ -10516,6 +10528,9 @@ msgstr "yt-dlp pa anrejistre okenn videyo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "se pa yon fichye medya"
+
+#~ msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
+#~ msgstr "Limen yon destinasyon epi yon bouton Ale an dirèk ap parèt bò kote Anrejistre. Ale an dirèk anrejistre tankou dabitid epi voye menm imaj ak menm son an bay chak destinasyon ki limen. Son an se mikwofòn oswa antre liy ou chwazi anlè a; son pwòp aplikasyon an poko nan emisyon an."
 
 #~ msgid "Back to the number of lines in Settings"
 #~ msgstr "Retounen nan kantite liy ki nan Paramèt"

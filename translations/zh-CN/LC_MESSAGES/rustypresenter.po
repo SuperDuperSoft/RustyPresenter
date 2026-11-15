@@ -1248,7 +1248,7 @@ msgstr "用于所有幻灯片"
 msgid "Auto-advance after (s)"
 msgstr "自动翻页间隔（秒）"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr "关"
 
@@ -2428,8 +2428,16 @@ msgid "Livestream"
 msgstr "直播"
 
 #: ui/dialogs/settings-media.slint
-msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
-msgstr "打开一个直播目标后，“录制”旁会出现“开始直播”按钮。“开始直播”照常录制，并把同样的画面和声音发送到每个已打开的目标。声音来自上面选择的麦克风或线路输入；软件自己的声音暂时不会进入直播。"
+msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on."
+msgstr "打开一个直播目标后，“录制”旁会出现“开始直播”按钮。“开始直播”照常录制，并把同样的画面和声音发送到每个已打开的目标。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sound from this computer"
+msgstr "这台电脑的声音"
+
+#: ui/dialogs/settings-media.slint
+msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
+msgstr "在这个输出上播放的所有声音都会进入直播（视频、歌曲，以及送到这里的其他任何声音），并与上面选择的麦克风或线路输入混在一起。"
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
@@ -9827,6 +9835,10 @@ msgid "Not now"
 msgstr "以后再说"
 
 #: src/ui/dialogs/settings_record.rs
+msgid "The output the app plays its sound to"
+msgstr "软件播放声音所用的输出"
+
+#: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
 msgstr "无法保存推流密钥：{error}"
 
@@ -10469,6 +10481,9 @@ msgstr "yt-dlp 没有保存视频"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "不是媒体文件"
+
+#~ msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
+#~ msgstr "打开一个直播目标后，“录制”旁会出现“开始直播”按钮。“开始直播”照常录制，并把同样的画面和声音发送到每个已打开的目标。声音来自上面选择的麦克风或线路输入；软件自己的声音暂时不会进入直播。"
 
 #~ msgid "Back to the number of lines in Settings"
 #~ msgstr "恢复为设置中的行数"

@@ -1248,7 +1248,7 @@ msgstr "すべてのスライドに適用"
 msgid "Auto-advance after (s)"
 msgstr "自動で進むまで（秒）"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr "オフ"
 
@@ -2428,8 +2428,16 @@ msgid "Livestream"
 msgstr "ライブ配信"
 
 #: ui/dialogs/settings-media.slint
-msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
-msgstr "配信先をオンにすると「録画」の横に「ライブ配信」ボタンが現れます。「ライブ配信」はいつもどおり録画し、同じ映像と音声をオンになっているすべての配信先に送ります。音声は上で選んだマイクまたはライン入力です。アプリ自身の音はまだライブ配信に入りません。"
+msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on."
+msgstr "配信先をオンにすると「録画」の横に「ライブ配信」ボタンが現れます。「ライブ配信」はいつもどおり録画し、同じ映像と音声をオンになっているすべての配信先に送ります。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sound from this computer"
+msgstr "このコンピューターの音"
+
+#: ui/dialogs/settings-media.slint
+msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
+msgstr "この出力で鳴るものはすべて配信に入ります (動画、曲、そこに送られるほかの音も)。上で選んだマイクまたはライン入力と混ぜて送られます。"
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
@@ -9827,6 +9835,10 @@ msgid "Not now"
 msgstr "後で"
 
 #: src/ui/dialogs/settings_record.rs
+msgid "The output the app plays its sound to"
+msgstr "アプリが音を鳴らしている出力"
+
+#: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
 msgstr "ストリームキーを保存できませんでした: {error}"
 
@@ -10469,6 +10481,9 @@ msgstr "yt-dlp は動画を保存しませんでした"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "メディアファイルではありません"
+
+#~ msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
+#~ msgstr "配信先をオンにすると「録画」の横に「ライブ配信」ボタンが現れます。「ライブ配信」はいつもどおり録画し、同じ映像と音声をオンになっているすべての配信先に送ります。音声は上で選んだマイクまたはライン入力です。アプリ自身の音はまだライブ配信に入りません。"
 
 #~ msgid "Back to the number of lines in Settings"
 #~ msgstr "設定の行数に戻す"

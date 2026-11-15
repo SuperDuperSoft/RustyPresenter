@@ -1245,7 +1245,7 @@ msgstr ""
 msgid "Auto-advance after (s)"
 msgstr ""
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr ""
 
@@ -2425,7 +2425,15 @@ msgid "Livestream"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
-msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
+msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on."
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Sound from this computer"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
@@ -9855,6 +9863,10 @@ msgstr ""
 
 #: src/ui/dialogs/settings_model.rs src/ui/operator/record.rs src/video/bench.rs
 msgid "Not now"
+msgstr ""
+
+#: src/ui/dialogs/settings_record.rs
+msgid "The output the app plays its sound to"
 msgstr ""
 
 #: src/ui/dialogs/settings_record.rs

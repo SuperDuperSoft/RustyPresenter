@@ -130,7 +130,15 @@ export component SettingsMedia inherits VerticalLayout {
     Heading { text: @tr("Livestream"); }
     Rectangle { height: 6px; }
     Note {
-        text: @tr("Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet.");
+        text: @tr("Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on.");
+    }
+    Field {
+        label: @tr("Sound from this computer");
+        help: @tr("Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above.");
+        stream-sound := Select {
+            options: SettingsDlg.stream-sound-labels;
+            index <=> SettingsDlg.stream-sound-index;
+        }
     }
     Field {
         label: @tr("Stream to");

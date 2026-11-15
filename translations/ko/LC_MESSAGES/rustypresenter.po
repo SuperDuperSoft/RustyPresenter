@@ -1248,7 +1248,7 @@ msgstr "모든 슬라이드에 사용"
 msgid "Auto-advance after (s)"
 msgstr "자동으로 넘기기 (초)"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr "끔"
 
@@ -2428,8 +2428,16 @@ msgid "Livestream"
 msgstr "라이브 방송"
 
 #: ui/dialogs/settings-media.slint
-msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
-msgstr "대상을 켜면 녹화 옆에 '라이브 시작' 버튼이 나타나요. 라이브 시작은 평소처럼 녹화하면서 같은 화면과 소리를 켜진 모든 대상으로 보내요. 소리는 위에서 고른 마이크 또는 라인 입력이에요. 앱 자체의 소리는 아직 라이브 방송에 들어가지 않아요."
+msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on."
+msgstr "대상을 켜면 녹화 옆에 '라이브 시작' 버튼이 나타나요. 라이브 시작은 평소처럼 녹화하면서 같은 화면과 소리를 켜진 모든 대상으로 보내요."
+
+#: ui/dialogs/settings-media.slint
+msgid "Sound from this computer"
+msgstr "이 컴퓨터의 소리"
+
+#: ui/dialogs/settings-media.slint
+msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
+msgstr "이 출력에서 나는 모든 소리가 방송에 함께 나가요 (영상, 노래, 그리고 그쪽으로 보내지는 다른 소리도요). 위에서 고른 마이크 또는 라인 입력과 섞여요."
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
@@ -9827,6 +9835,10 @@ msgid "Not now"
 msgstr "나중에"
 
 #: src/ui/dialogs/settings_record.rs
+msgid "The output the app plays its sound to"
+msgstr "앱이 소리를 내보내는 출력"
+
+#: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
 msgstr "스트림 키를 보관하지 못했어요: {error}"
 
@@ -10469,6 +10481,9 @@ msgstr "yt-dlp가 동영상을 저장하지 않았어요"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "미디어 파일 아님"
+
+#~ msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
+#~ msgstr "대상을 켜면 녹화 옆에 '라이브 시작' 버튼이 나타나요. 라이브 시작은 평소처럼 녹화하면서 같은 화면과 소리를 켜진 모든 대상으로 보내요. 소리는 위에서 고른 마이크 또는 라인 입력이에요. 앱 자체의 소리는 아직 라이브 방송에 들어가지 않아요."
 
 #~ msgid "Back to the number of lines in Settings"
 #~ msgstr "설정의 줄 수로 되돌리기"

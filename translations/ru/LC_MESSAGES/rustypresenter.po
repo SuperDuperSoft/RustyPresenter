@@ -1248,7 +1248,7 @@ msgstr "Для всех слайдов"
 msgid "Auto-advance after (s)"
 msgstr "Автопереход через (с)"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr "Выкл."
 
@@ -2428,8 +2428,16 @@ msgid "Livestream"
 msgstr "Трансляция"
 
 #: ui/dialogs/settings-media.slint
-msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
-msgstr "Включите место назначения — рядом с кнопкой «Запись» появится кнопка «В эфир». «В эфир» записывает как обычно и отправляет то же изображение и звук во все включённые места. Звук — это микрофон или линейный вход, выбранный выше; собственный звук приложения пока не попадает в трансляцию."
+msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on."
+msgstr "Включите место назначения — рядом с кнопкой «Запись» появится кнопка «В эфир». «В эфир» записывает как обычно и отправляет то же изображение и звук во все включённые места."
+
+#: ui/dialogs/settings-media.slint
+msgid "Sound from this computer"
+msgstr "Звук этого компьютера"
+
+#: ui/dialogs/settings-media.slint
+msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
+msgstr "Всё, что звучит на этом выходе, уходит в трансляцию (видео, песни и любой другой звук, отправленный туда), вместе с микрофоном или линейным входом, выбранным выше."
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
@@ -9911,6 +9919,10 @@ msgid "Not now"
 msgstr "Не сейчас"
 
 #: src/ui/dialogs/settings_record.rs
+msgid "The output the app plays its sound to"
+msgstr "Выход, на котором приложение воспроизводит свой звук"
+
+#: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
 msgstr "Не удалось сохранить ключ трансляции: {error}"
 
@@ -10563,6 +10575,9 @@ msgstr "yt-dlp не сохранил видео"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "не медиафайл"
+
+#~ msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
+#~ msgstr "Включите место назначения — рядом с кнопкой «Запись» появится кнопка «В эфир». «В эфир» записывает как обычно и отправляет то же изображение и звук во все включённые места. Звук — это микрофон или линейный вход, выбранный выше; собственный звук приложения пока не попадает в трансляцию."
 
 #~ msgid "Back to the number of lines in Settings"
 #~ msgstr "Вернуть число строк из настроек"

@@ -43,6 +43,7 @@ pub(super) fn load(op: &Rc<Operator>) {
         let g = op.ui.global::<SettingsDlg>();
         fill(&g, &devices, &read(&g));
         super::settings_media::fill_listen(&g, &devices, &super::settings_media::read_listen(&g));
+        super::settings_record::fill_stream_sound(&g, &devices, &super::settings_record::read_stream_sound(&g));
     });
 }
 

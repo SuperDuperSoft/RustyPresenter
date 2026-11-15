@@ -1248,7 +1248,7 @@ msgstr "Dùng cho mọi trang"
 msgid "Auto-advance after (s)"
 msgstr "Tự chuyển sau (giây)"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr "Tắt"
 
@@ -2428,8 +2428,16 @@ msgid "Livestream"
 msgstr "Phát trực tiếp"
 
 #: ui/dialogs/settings-media.slint
-msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
-msgstr "Bật một nơi phát và nút Phát trực tiếp sẽ hiện bên cạnh nút Ghi. Phát trực tiếp vẫn ghi như thường và gửi cùng hình ảnh và âm thanh đến mọi nơi phát đang bật. Âm thanh là micrô hoặc line-in đã chọn ở trên; âm thanh riêng của ứng dụng chưa có trong buổi phát."
+msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on."
+msgstr "Bật một nơi phát và nút Phát trực tiếp sẽ hiện bên cạnh nút Ghi. Phát trực tiếp vẫn ghi như thường và gửi cùng hình ảnh và âm thanh đến mọi nơi phát đang bật."
+
+#: ui/dialogs/settings-media.slint
+msgid "Sound from this computer"
+msgstr "Âm thanh từ máy tính này"
+
+#: ui/dialogs/settings-media.slint
+msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
+msgstr "Mọi thứ phát trên đầu ra này đều đi cùng buổi phát (video, bài hát và bất kỳ âm thanh nào khác được gửi tới đó), trộn với micrô hoặc line-in đã chọn ở trên."
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
@@ -9827,6 +9835,10 @@ msgid "Not now"
 msgstr "Để sau"
 
 #: src/ui/dialogs/settings_record.rs
+msgid "The output the app plays its sound to"
+msgstr "Đầu ra mà ứng dụng phát âm thanh của nó"
+
+#: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
 msgstr "Không giữ được khóa phát: {error}"
 
@@ -10469,6 +10481,9 @@ msgstr "yt-dlp không lưu được video nào"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "không phải tệp đa phương tiện"
+
+#~ msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
+#~ msgstr "Bật một nơi phát và nút Phát trực tiếp sẽ hiện bên cạnh nút Ghi. Phát trực tiếp vẫn ghi như thường và gửi cùng hình ảnh và âm thanh đến mọi nơi phát đang bật. Âm thanh là micrô hoặc line-in đã chọn ở trên; âm thanh riêng của ứng dụng chưa có trong buổi phát."
 
 #~ msgid "Back to the number of lines in Settings"
 #~ msgstr "Về số dòng trong Cài đặt"

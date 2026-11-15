@@ -53,7 +53,34 @@ fn fill_saved(g: &SettingsDlg) {
     g.set_stream_saved_3(has(3));
 }
 
+/// The list "Sound from this computer": off, the output the app plays to, then each output; a saved one that is
+/// not plugged in stays chosen.
+pub fn stream_sound_choices(devices: &[crate::video::ffi::AudioDevice], saved: &str) -> Choices {
+    let mut labels = vec![crate::tr!("Off"), crate::tr!("The output the app plays its sound to")];
+    let mut keys = vec!["off".to_string(), String::new()];
+    labels.extend(devices.iter().map(|d| d.label.clone()));
+    keys.extend(devices.iter().map(|d| d.name.clone()));
+    if !keys.iter().any(|k| k == saved) {
+        labels.push(format!("{saved} ({})", not_connected()));
+        keys.push(saved.to_string());
+    }
+    let index = keys.iter().position(|k| k == saved).unwrap_or(1);
+    Choices { labels, keys, index }
+}
+
+pub(crate) fn fill_stream_sound(g: &SettingsDlg, devices: &[crate::video::ffi::AudioDevice], saved: &str) {
+    let c = stream_sound_choices(devices, saved);
+    g.set_stream_sound_labels(strings(c.labels));
+    g.set_stream_sound_names(strings(c.keys));
+    g.set_stream_sound_index(c.index as i32);
+}
+
+pub(crate) fn read_stream_sound(g: &SettingsDlg) -> String {
+    g.get_stream_sound_names().row_data(g.get_stream_sound_index().max(0) as usize).map(|s| s.to_string()).unwrap_or_default()
+}
+
 pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
+    fill_stream_sound(g, &[], &p.stream_sound);
     let (on, url) = stream_rows(p);
     g.set_stream_on_0(on[0]);
     g.set_stream_on_1(on[1]);
@@ -92,6 +119,8 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
         id: stream::built_in_id(i), name: String::new(), service: stream::BUILT_IN[i].0, url: if i == 3 { url.clone() } else { String::new() }, key: String::new(), on: on[i],
     }).collect();
     if rows != p.stream { p.stream = rows }
+    let pc = read_stream_sound(g);
+    if pc != p.stream_sound { p.stream_sound = pc }
 }
 
 /// A stream key typed in Settings is kept in the computer's password store at once (it is no part of the

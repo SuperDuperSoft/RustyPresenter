@@ -174,6 +174,10 @@ export global SettingsDlg {
     in property <bool> stream-saved-3;
     /// The custom server's address.
     in-out property <string> stream-url;
+    /// The sound output whose sound goes out with the stream: off, the app's own output, then each output.
+    in property <[string]> stream-sound-labels;
+    in property <[string]> stream-sound-names;
+    in-out property <int> stream-sound-index;
     /// A key was typed for destination 0–3: it is kept at once (empty forgets it).
     callback stream-key-edited(int, string);
 

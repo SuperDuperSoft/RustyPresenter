@@ -1248,7 +1248,7 @@ msgstr "Für alle Folien"
 msgid "Auto-advance after (s)"
 msgstr "Automatisch weiter nach (s)"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr "Aus"
 
@@ -2428,8 +2428,16 @@ msgid "Livestream"
 msgstr "Livestream"
 
 #: ui/dialogs/settings-media.slint
-msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
-msgstr "Schalten Sie ein Ziel ein, dann erscheint neben „Aufnehmen“ die Schaltfläche „Live gehen“. „Live gehen“ nimmt wie gewohnt auf und sendet dasselbe Bild und denselben Ton an jedes eingeschaltete Ziel. Der Ton ist das oben gewählte Mikrofon oder der Line-in; der eigene Ton der App ist noch nicht im Livestream."
+msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on."
+msgstr "Schalten Sie ein Ziel ein, dann erscheint neben „Aufnehmen“ die Schaltfläche „Live gehen“. „Live gehen“ nimmt wie gewohnt auf und sendet dasselbe Bild und denselben Ton an jedes eingeschaltete Ziel."
+
+#: ui/dialogs/settings-media.slint
+msgid "Sound from this computer"
+msgstr "Ton von diesem Computer"
+
+#: ui/dialogs/settings-media.slint
+msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
+msgstr "Alles, was auf diesem Ausgang abgespielt wird, geht mit dem Stream hinaus (Videos, Lieder und jeder andere Ton, der dorthin geht), gemischt mit dem oben gewählten Mikrofon oder Line-in."
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
@@ -9869,6 +9877,10 @@ msgid "Not now"
 msgstr "Nicht jetzt"
 
 #: src/ui/dialogs/settings_record.rs
+msgid "The output the app plays its sound to"
+msgstr "Der Ausgang, auf dem die App ihren Ton abspielt"
+
+#: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
 msgstr "Der Streamschlüssel konnte nicht gespeichert werden: {error}"
 
@@ -10516,6 +10528,9 @@ msgstr "yt-dlp hat kein Video gespeichert"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "keine Mediendatei"
+
+#~ msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
+#~ msgstr "Schalten Sie ein Ziel ein, dann erscheint neben „Aufnehmen“ die Schaltfläche „Live gehen“. „Live gehen“ nimmt wie gewohnt auf und sendet dasselbe Bild und denselben Ton an jedes eingeschaltete Ziel. Der Ton ist das oben gewählte Mikrofon oder der Line-in; der eigene Ton der App ist noch nicht im Livestream."
 
 #~ msgid "Back to the number of lines in Settings"
 #~ msgstr "Zurück zur Zeilenzahl aus Einstellungen"

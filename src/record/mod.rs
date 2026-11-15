@@ -81,6 +81,21 @@ pub struct RecordPrefs {
     /// Where Go Live sends the recording as it is made (their keys are not here: `stream::keys`).
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub stream: Vec<crate::stream::Destination>,
+    /// The sound output whose sound goes out with a livestream: empty, the one the app plays to; "off", none;
+    /// else its name as `Settings::audio_device` has it.
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub stream_sound: String,
+}
+
+impl RecordPrefs {
+    /// The output to capture for a livestream (`app_output`: where the app plays its sound); `None`: no PC sound.
+    pub fn pc_sound(&self, app_output: &str) -> Option<String> {
+        match self.stream_sound.as_str() {
+            "off" => None,
+            "" => Some(app_output.to_string()),
+            d => Some(d.to_string()),
+        }
+    }
 }
 
 impl RecordPrefs {

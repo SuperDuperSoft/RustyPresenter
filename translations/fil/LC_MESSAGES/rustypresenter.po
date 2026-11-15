@@ -1248,7 +1248,7 @@ msgstr "Gamitin sa lahat ng slide"
 msgid "Auto-advance after (s)"
 msgstr "Kusang lumipat pagkatapos ng (s)"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr "Off"
 
@@ -2428,8 +2428,16 @@ msgid "Livestream"
 msgstr "Livestream"
 
 #: ui/dialogs/settings-media.slint
-msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
-msgstr "I-on ang isang destinasyon at lalabas ang button na Mag-live sa tabi ng I-record. Nire-record ng Mag-live gaya ng dati at ipinapadala ang parehong larawan at tunog sa bawat destinasyong naka-on. Ang tunog ay ang mikropono o line-in na pinili sa itaas; wala pa sa livestream ang sariling tunog ng app."
+msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on."
+msgstr "I-on ang isang destinasyon at lalabas ang button na Mag-live sa tabi ng I-record. Nire-record ng Mag-live gaya ng dati at ipinapadala ang parehong larawan at tunog sa bawat destinasyong naka-on."
+
+#: ui/dialogs/settings-media.slint
+msgid "Sound from this computer"
+msgstr "Tunog mula sa computer na ito"
+
+#: ui/dialogs/settings-media.slint
+msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
+msgstr "Lahat ng tumutunog sa output na ito ay kasama sa stream (mga video, kanta, at anumang ibang tunog na ipinapadala roon), hinahalo sa mikropono o line-in na pinili sa itaas."
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
@@ -9869,6 +9877,10 @@ msgid "Not now"
 msgstr "Hindi muna"
 
 #: src/ui/dialogs/settings_record.rs
+msgid "The output the app plays its sound to"
+msgstr "Ang output kung saan pinatutugtog ng app ang tunog nito"
+
+#: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
 msgstr "Hindi naitago ang stream key: {error}"
 
@@ -10516,6 +10528,9 @@ msgstr "walang na-save na video ang yt-dlp"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "hindi media file"
+
+#~ msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
+#~ msgstr "I-on ang isang destinasyon at lalabas ang button na Mag-live sa tabi ng I-record. Nire-record ng Mag-live gaya ng dati at ipinapadala ang parehong larawan at tunog sa bawat destinasyong naka-on. Ang tunog ay ang mikropono o line-in na pinili sa itaas; wala pa sa livestream ang sariling tunog ng app."
 
 #~ msgid "Back to the number of lines in Settings"
 #~ msgstr "Ibalik sa bilang ng linya sa Settings"

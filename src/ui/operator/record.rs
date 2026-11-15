@@ -59,7 +59,7 @@ impl Operator {
             return;
         }
         if !self.screens().record_to(None) { return self.toast(record::tr::no_room(), true) }
-        let prefs = self.state.borrow().snap.as_ref().map(|s| s.settings.record.clone()).unwrap_or_default();
+        let (prefs, app_output) = self.state.borrow().snap.as_ref().map(|s| (s.settings.record.clone(), s.settings.audio_device.clone())).unwrap_or_default();
         let data = self.app().store.root.clone();
         let me = Rc::downgrade(self);
         // Go Live: the destinations that are on, with their keys from the computer's store. None ready: no
@@ -78,11 +78,13 @@ impl Operator {
             addresses = good;
         }
         self.record.starting.set(true);
+        let prefs_pc = prefs.pc_sound(&app_output);
         off_ui(self, move || Plan::make(&data, &prefs), move |plan| {
             let Some(op) = me.upgrade() else { return };
             op.record.starting.set(false);
             match plan {
                 Ok(mut plan) => {
+                    if live { plan.pc_sound = prefs_pc }
                     plan.stream = addresses;
                     op.record.live.set(live);
                     op.start_recording(plan);

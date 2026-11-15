@@ -12,6 +12,7 @@ use std::path::Path;
 use uuid::Uuid;
 
 pub mod keys;
+pub mod pc_sound;
 pub mod send;
 
 /// A place a stream can be sent.

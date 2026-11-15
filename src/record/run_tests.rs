@@ -31,7 +31,7 @@ fn probe(file: &Path) -> (Vec<(String, String, u64, u64)>, f64) {
 }
 
 fn plan(ffmpeg: PathBuf, dir: &Path, sound: Sound) -> Plan {
-    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![] }
+    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None }
 }
 
 /// Records for `secs`, handing in a new solid picture every 100 ms (red, then green), with `each` called as it goes.
@@ -192,5 +192,48 @@ fn go_live_reaches_a_server_survives_a_dead_one_and_comes_back_after_a_drop() {
         std::fs::metadata(&second).map(|m| m.len()).unwrap_or(0), std::fs::read_to_string(second.with_extension("log")).unwrap_or_default());
     assert!(again.iter().any(|s| s.0 == "audio" && s.1 == "aac"), "{again:?}");
     assert!(again_secs > 3.0, "{again_secs} s arrived after the drop");
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// The PC's sound in a stream, for real: while the recorder is live to a local server, a quiet tone plays on this
+/// computer's default output (FFplay); the server must hear it. Plays a tone: run by hand with `--ignored`.
+#[cfg(windows)]
+#[test]
+#[ignore]
+fn go_live_sends_what_the_pc_plays() {
+    let Some(ff) = ffmpeg() else { return };
+    let ffplay = ff.with_file_name("ffplay.exe");
+    if !ffplay.is_file() { return eprintln!("no ffplay here: skipped") }
+    let dir = scratch("pcsound");
+    let port = std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port();
+    let url = format!("rtmp://127.0.0.1:{port}/live/TEST-KEY");
+    let received = dir.join("received.flv");
+    let mut server = std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-listen", "1", "-analyzeduration", "2000000", "-f", "flv", "-i", &url, "-c", "copy"])
+        .arg(&received).stdin(Stdio::null()).spawn().unwrap();
+    std::thread::sleep(Duration::from_millis(1500));
+    let tone = std::cell::RefCell::new(None::<std::process::Child>);
+    let ended = record_for(Plan { stream: vec![url.clone()], pc_sound: Some(String::new()), ..plan(ff.clone(), &dir, Sound::None) }, 12.0, |_, t| {
+        // A 1 kHz tone, quiet, from 4 s to 7 s.
+        if t >= 4.0 && tone.borrow().is_none() {
+            *tone.borrow_mut() = Some(std::process::Command::new(&ffplay).args(["-hide_banner", "-loglevel", "error", "-nodisp", "-autoexit", "-f", "lavfi",
+                "-i", "sine=frequency=1000:duration=3,volume=0.1"]).stdin(Stdio::null()).spawn().unwrap());
+        }
+    });
+    if let Some(mut c) = tone.into_inner() { let _ = c.wait(); }
+    let t = Instant::now();
+    while server.try_wait().unwrap().is_none() && t.elapsed() < Duration::from_secs(20) { std::thread::sleep(Duration::from_millis(100)) }
+    let _ = server.kill();
+    let _ = server.wait();
+    assert_eq!(ended.problem, None, "{ended:?}");
+    // The loudest moment of what the server got, and of its first three seconds (before the tone).
+    let loudest_of = |file: &Path, extra: &[&str]| -> f64 {
+        let out = std::process::Command::new(&ff).args(["-hide_banner", "-nostats"]).args(extra).arg("-i").arg(file)
+            .args(["-vn", "-af", "volumedetect", "-f", "null", "-"]).output().unwrap();
+        let text = String::from_utf8_lossy(&out.stderr);
+        text.lines().find_map(|l| l.split("max_volume:").nth(1)).and_then(|v| v.trim().trim_end_matches("dB").trim().parse().ok()).unwrap_or(-200.0)
+    };
+    let (all, before) = (loudest_of(&received, &[]), loudest_of(&received, &["-t", "2"]));
+    eprintln!("REAL stream loudest {all} dB; before the tone {before} dB; the recording {} dB", loudest_of(&dir.join("Recording test.mp4"), &[]));
+    assert!(all > -40.0, "the tone did not reach the stream: {all} dB");
     std::fs::remove_dir_all(&dir).unwrap();
 }
