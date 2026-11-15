@@ -79,12 +79,16 @@ impl Operator {
         }
         self.record.starting.set(true);
         let prefs_pc = prefs.pc_sound(&app_output);
+        let camera = (!prefs.camera.is_empty()).then(|| record::args::Camera { input: record::args::camera_input(crate::platform::tools::OS, &prefs.camera), main: prefs.camera_main });
         off_ui(self, move || Plan::make(&data, &prefs), move |plan| {
             let Some(op) = me.upgrade() else { return };
             op.record.starting.set(false);
             match plan {
                 Ok(mut plan) => {
-                    if live { plan.pc_sound = prefs_pc }
+                    if live {
+                        plan.pc_sound = prefs_pc;
+                        plan.camera = camera;
+                    }
                     plan.stream = addresses;
                     op.record.live.set(live);
                     op.start_recording(plan);

@@ -85,6 +85,12 @@ pub struct RecordPrefs {
     /// else its name as `Settings::audio_device` has it.
     #[serde(skip_serializing_if = "String::is_empty")]
     pub stream_sound: String,
+    /// A camera in the livestream: its name as FFmpeg lists it; empty: none.
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub camera: String,
+    /// The camera fills the stream with the room screen in a corner; else the screen fills it.
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub camera_main: bool,
     /// The note about streaming licences was shown (once, the first time Go Live started).
     #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub licence_noted: bool,

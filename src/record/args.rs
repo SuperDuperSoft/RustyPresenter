@@ -79,6 +79,73 @@ pub fn parse_inputs(os: Os, out: &str) -> Vec<Input> {
     found
 }
 
+/// The cameras (and capture cards) in what `list_inputs_args` printed. Windows and macOS; Linux has none yet.
+pub fn parse_cameras(os: Os, out: &str) -> Vec<Input> {
+    let mut found: Vec<Input> = Vec::new();
+    let mut push = |name: &str| {
+        if !name.is_empty() && !found.iter().any(|i| i.name == name) { found.push(Input { name: name.into(), label: name.into() }) }
+    };
+    match os {
+        Os::Windows => {
+            let mut video_section = false;
+            for l in out.lines() {
+                if l.contains("DirectShow video devices") { video_section = true; continue }
+                if l.contains("DirectShow audio devices") { video_section = false; continue }
+                if l.contains("Alternative name") { continue }
+                let Some(name) = quoted(l) else { continue };
+                if l.trim_end().ends_with("(video)") || (video_section && !l.contains("(audio)") && !l.contains("(none)")) { push(name) }
+            }
+        }
+        Os::MacOs => {
+            let mut video_section = false;
+            for l in out.lines() {
+                if l.contains("AVFoundation video devices") { video_section = true; continue }
+                if l.contains("AVFoundation audio devices") { video_section = false; continue }
+                if !video_section { continue }
+                let Some(rest) = l.rsplit_once("] [").map(|(_, r)| r) else { continue };
+                if let Some((_, name)) = rest.split_once("] ") { push(name.trim()) }
+            }
+        }
+        Os::Linux => {}
+    }
+    found
+}
+
+/// FFmpeg's input arguments for camera `name` on `os`.
+pub fn camera_input(os: Os, name: &str) -> Vec<String> {
+    let v = |a: &[&str]| a.iter().map(|s| s.to_string()).collect::<Vec<_>>();
+    match os {
+        // A camera's pictures wait in a bigger buffer than DirectShow's own, so a busy moment drops none.
+        Os::Windows => [v(&["-f", "dshow", "-rtbufsize", "100M", "-thread_queue_size", "64", "-i"]), vec![format!("video={name}")]].concat(),
+        Os::MacOs => [v(&["-f", "avfoundation", "-framerate", "30", "-thread_queue_size", "64", "-i"]), vec![format!("{name}:none")]].concat(),
+        Os::Linux => [v(&["-f", "v4l2", "-thread_queue_size", "64", "-i"]), vec![name.to_string()]].concat(),
+    }
+}
+
+/// A camera in the picture, and which of the two fills it.
+#[derive(Clone, Debug, PartialEq)]
+pub struct Camera {
+    /// FFmpeg's input arguments for it (`camera_input`, or a stand-in in tests).
+    pub input: Vec<String>,
+    /// The camera fills the picture with the room screen in a corner; else the other way round.
+    pub main: bool,
+}
+
+/// The filter that puts the camera and the room screen together into `[v]`: one fills the `w`×`h` picture (kept
+/// in shape, with black bars where it does not fit), the other a quarter as wide in the bottom right corner.
+pub fn picture_in_picture(screen: usize, camera: usize, (w, h): (u32, u32), fps: u32, camera_main: bool) -> String {
+    let small = (w / 4) & !1;
+    let edge = w / 40;
+    let fill = |i: usize, name: &str| format!("[{i}:v]scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,setsar=1,fps={fps},format=yuv420p[{name}]");
+    let corner = |i: usize, name: &str| format!("[{i}:v]scale={small}:-2,setsar=1,format=yuv420p[{name}]");
+    let (main, pip) = if camera_main { (camera, screen) } else { (screen, camera) };
+    // The picture ends when the room screen's pictures end (Stop), never by the camera: with the camera in the
+    // corner, a camera that stops leaves its last picture; with the camera filling it, the screen in the corner
+    // ending ends it (else FFmpeg went on with the camera after Stop and the file was lost).
+    let end = if camera_main { "endall" } else { "repeat" };
+    format!("{};{};[main][pip]overlay=W-w-{edge}:H-h-{edge}:eof_action={end}[v]", fill(main, "main"), corner(pip, "pip"))
+}
+
 fn quoted(l: &str) -> Option<&str> {
     let a = l.find('"')?;
     let b = l[a + 1..].find('"')? + a + 1;
@@ -104,6 +171,8 @@ pub struct Record<'a> {
     pub stream: &'a [String],
     /// The PC's own sound, captured as it plays (`stream::pc_sound`), mixed with `input` when there is one.
     pub pc: Option<crate::stream::pc_sound::Feed>,
+    /// A camera put together with the room screen (`picture_in_picture`).
+    pub camera: Option<&'a Camera>,
 }
 
 pub fn record(r: &Record) -> Vec<OsString> {
@@ -163,7 +232,19 @@ pub fn record(r: &Record) -> Vec<OsString> {
         push(&["-flags", "+global_header", "-f", "tee"]);
         a.push(crate::stream::tee(r.out, r.stream).into());
     }
+    if let Some(cam) = r.camera { add_camera(&mut a, cam, r.size, r.fps) }
     a
+}
+
+/// The camera: one more input (before the first output option: FFmpeg would take those for the input), and the
+/// picture made from it and the room screen in place of the room screen.
+fn add_camera(a: &mut Vec<OsString>, cam: &Camera, size: (u32, u32), fps: u32) {
+    let index = a.iter().filter(|x| *x == "-i").count();
+    let at = a.iter().position(|x| x == "-map").unwrap_or(a.len());
+    let mut more: Vec<OsString> = cam.input.iter().map(OsString::from).collect();
+    more.extend([OsString::from("-filter_complex"), picture_in_picture(0, index, size, fps, cam.main).into()]);
+    a.splice(at..at, more);
+    if let Some(i) = a.windows(2).position(|x| x[0] == "-map" && x[1] == "0:v") { a[i + 1] = "[v]".into() }
 }
 
 /// Turns the Matroska file `part` into the MP4 `out`, the picture copied as it is. `sound` is the app's sound to
@@ -224,13 +305,13 @@ mod tests {
         let out = PathBuf::from("/r/Recording.recording.mkv");
         let to = ["rtmp://a.rtmp.youtube.com/live2/key".to_string(), "rtmps://live-api-s.facebook.com:443/rtmp/key2".to_string()];
         // With a sound input: one encode, the file and both destinations.
-        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: Some(("dshow", "Line In")), out: &out, stream: &to, pc: None }));
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: Some(("dshow", "Line In")), out: &out, stream: &to, pc: None, camera: None }));
         assert_eq!(a[a.len() - 5..a.len() - 1], ["-flags", "+global_header", "-f", "tee"].map(String::from));
         assert_eq!(a.last().unwrap(), "[f=matroska]/r/Recording.recording.mkv|[f=flv:onfail=ignore]rtmp://a.rtmp.youtube.com/live2/key|[f=flv:onfail=ignore]rtmps://live-api-s.facebook.com:443/rtmp/key2");
         assert_eq!(after(&a, "-c:a"), "aac");
         assert!(!a.contains(&"anullsrc=channel_layout=stereo:sample_rate=48000".to_string()));
         // Without one: silence stands in (a service refuses a stream with no sound), and it ends with the picture.
-        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, out: &out, stream: &to[..1], pc: None }));
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, out: &out, stream: &to[..1], pc: None, camera: None }));
         assert!(a.windows(4).any(|w| w == ["-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=48000"]), "{a:?}");
         assert_eq!(after(&a, "-shortest_buf_duration"), "0.5");
         assert!(a.contains(&"-shortest".to_string()) && after(&a, "-c:a") == "aac");
@@ -244,20 +325,41 @@ mod tests {
         let to = ["rtmp://a.rtmp.youtube.com/live2/key".to_string()];
         let pc = Some(Feed { format: Format { samples: "f32le", rate: 48000, channels: 2 }, port: 40500 });
         // Alone: it is the sound, and there is no stand-in silence.
-        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, out: &out, stream: &to, pc }));
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, out: &out, stream: &to, pc, camera: None }));
         assert!(a.windows(2).any(|w| w == ["-i", "tcp://127.0.0.1:40500?listen=1"]) && after(&a, "-ar") == "48000", "{a:?}");
         assert!(a.windows(4).any(|w| w == ["-map", "0:v", "-map", "1:a"]) && after(&a, "-shortest_buf_duration") == "0.5");
         assert!(!a.iter().any(|x| x.starts_with("anullsrc")), "{a:?}");
         // With the sound board: both, mixed.
-        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: Some(("dshow", "Line In")), out: &out, stream: &to, pc }));
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: Some(("dshow", "Line In")), out: &out, stream: &to, pc, camera: None }));
         assert_eq!(after(&a, "-filter_complex"), "[1:a][2:a]amix=inputs=2:duration=shortest:normalize=0[a]");
         assert!(a.windows(2).any(|w| w == ["-map", "[a]"]) && after(&a, "-c:a") == "aac");
     }
 
     #[test]
+    fn cameras_are_listed_and_put_in_the_picture() {
+        let out = "[dshow @ 0] \"Integrated Camera\" (video)\n[dshow @ 0]   Alternative name \"@device_pnp_x\"\n[dshow @ 0] \"Microphone (USB)\" (audio)\n[dshow @ 0] \"OBS Virtual Camera\" (video)";
+        let cams: Vec<String> = parse_cameras(Os::Windows, out).into_iter().map(|c| c.name).collect();
+        assert_eq!(cams, ["Integrated Camera", "OBS Virtual Camera"]);
+        assert_eq!(parse_inputs(Os::Windows, out).len(), 1, "a camera is no sound input");
+        assert_eq!(camera_input(Os::Windows, "Integrated Camera").last().unwrap(), "video=Integrated Camera");
+        let out = PathBuf::from("/r/Recording.recording.mkv");
+        let cam = Camera { input: vec!["-f".into(), "lavfi".into(), "-i".into(), "testsrc".into()], main: true };
+        let to = ["rtmp://a.rtmp.youtube.com/live2/key".to_string()];
+        // With the sound board too: the camera is input 2, after it.
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: Some(("dshow", "Line In")), out: &out, stream: &to, pc: None, camera: Some(&cam) }));
+        assert!(a.windows(2).any(|w| w == ["-i", "testsrc"]), "{a:?}");
+        let f = a.iter().rev().nth(0).map(|_| a.iter().filter(|x| x.contains("overlay")).cloned().collect::<Vec<_>>()).unwrap();
+        assert_eq!(f, [picture_in_picture(0, 2, (1280, 720), 30, true)]);
+        assert!(f[0].starts_with("[2:v]scale=1280:720") && f[0].contains("[0:v]scale=320:-2"), "{f:?}");
+        assert!(a.windows(2).any(|w| w == ["-map", "[v]"]) && !a.windows(2).any(|w| w == ["-map", "0:v"]), "{a:?}");
+        // The screen filling it instead.
+        assert!(picture_in_picture(0, 1, (1920, 1080), 30, false).starts_with("[0:v]scale=1920:1080"));
+    }
+
+    #[test]
     fn recording_reads_raw_frames_and_writes_h264_into_matroska() {
         let out = PathBuf::from("/r/Recording.recording.mkv");
-        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, out: &out, stream: &[], pc: None }));
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, out: &out, stream: &[], pc: None, camera: None }));
         assert_eq!(after(&a, "-f"), "rawvideo");
         assert_eq!(after(&a, "-pix_fmt"), "rgba");
         assert_eq!(after(&a, "-video_size"), "1280x720");
@@ -276,7 +378,7 @@ mod tests {
     #[test]
     fn a_microphone_is_a_second_input_per_system() {
         let out = PathBuf::from("o.mkv");
-        let with = |format, name| strs(&record(&Record { size: (1920, 1080), fps: 30, preset: Preset::P1080, encoder: "libx264", input: Some((format, name)), out: &out, stream: &[], pc: None }));
+        let with = |format, name| strs(&record(&Record { size: (1920, 1080), fps: 30, preset: Preset::P1080, encoder: "libx264", input: Some((format, name)), out: &out, stream: &[], pc: None, camera: None }));
         let win = with("dshow", "Microphone (USB Audio)");
         assert!(win.windows(4).any(|w| w == ["-f", "dshow", "-i", "audio=Microphone (USB Audio)"]), "{win:?}");
         assert!(win.windows(4).any(|w| w == ["-map", "0:v", "-map", "1:a"]), "{win:?}");
@@ -289,7 +391,7 @@ mod tests {
     #[test]
     fn other_encoders_get_a_plain_rate() {
         let out = PathBuf::from("o.mkv");
-        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "h264_mf", input: None, out: &out, stream: &[], pc: None }));
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "h264_mf", input: None, out: &out, stream: &[], pc: None, camera: None }));
         assert_eq!(after(&a, "-c:v"), "h264_mf");
         assert_eq!(after(&a, "-b:v"), "3000k");
         assert!(!a.contains(&"-crf".to_string()));

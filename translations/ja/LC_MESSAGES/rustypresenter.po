@@ -2439,6 +2439,22 @@ msgstr "このコンピューターの音"
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr "この出力で鳴るものはすべて配信に入ります (動画、曲、そこに送られるほかの音も)。上で選んだマイクまたはライン入力と混ぜて送られます。"
 
+#: ui/dialogs/settings-media.slint src/strings/themes.rs src/ui/operator/video_inputs.rs
+msgid "Camera"
+msgstr "カメラ"
+
+#: ui/dialogs/settings-media.slint
+msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+msgstr "配信 (とその録画) で会場画面と組み合わせるカメラまたはキャプチャーカード。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Camera, with the screen in a corner"
+msgstr "カメラを大きく、画面を隅に"
+
+#: ui/dialogs/settings-media.slint
+msgid "Screen, with the camera in a corner"
+msgstr "画面を大きく、カメラを隅に"
+
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
 msgstr "配信先"
@@ -8917,10 +8933,6 @@ msgstr "テーマを初期状態に戻しました"
 msgid "New name for this background"
 msgstr "この背景の新しい名前"
 
-#: src/strings/themes.rs src/ui/operator/video_inputs.rs
-msgid "Camera"
-msgstr "カメラ"
-
 #: src/strings/themes.rs
 msgid "Use theme background"
 msgstr "テーマの背景を使う"
@@ -9849,6 +9861,10 @@ msgstr "後で"
 #: src/ui/dialogs/settings_record.rs
 msgid "The output the app plays its sound to"
 msgstr "アプリが音を鳴らしている出力"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "No camera"
+msgstr "カメラなし"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"

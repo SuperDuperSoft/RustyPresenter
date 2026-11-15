@@ -2439,6 +2439,22 @@ msgstr "这台电脑的声音"
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr "在这个输出上播放的所有声音都会进入直播（视频、歌曲，以及送到这里的其他任何声音），并与上面选择的麦克风或线路输入混在一起。"
 
+#: ui/dialogs/settings-media.slint src/strings/themes.rs src/ui/operator/video_inputs.rs
+msgid "Camera"
+msgstr "摄像头"
+
+#: ui/dialogs/settings-media.slint
+msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+msgstr "在直播（及其录像）中与会众屏幕合在一起的摄像头或采集卡。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Camera, with the screen in a corner"
+msgstr "摄像头为主，屏幕在角落"
+
+#: ui/dialogs/settings-media.slint
+msgid "Screen, with the camera in a corner"
+msgstr "屏幕为主，摄像头在角落"
+
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
 msgstr "直播到"
@@ -8917,10 +8933,6 @@ msgstr "主题已恢复原样"
 msgid "New name for this background"
 msgstr "此背景的新名称"
 
-#: src/strings/themes.rs src/ui/operator/video_inputs.rs
-msgid "Camera"
-msgstr "摄像机"
-
 #: src/strings/themes.rs
 msgid "Use theme background"
 msgstr "使用主题背景"
@@ -9849,6 +9861,10 @@ msgstr "以后再说"
 #: src/ui/dialogs/settings_record.rs
 msgid "The output the app plays its sound to"
 msgstr "软件播放声音所用的输出"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "No camera"
+msgstr "无摄像头"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"

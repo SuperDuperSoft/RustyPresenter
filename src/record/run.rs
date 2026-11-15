@@ -60,6 +60,12 @@ pub fn ask_ffmpeg(ffmpeg: &Path, args: &[&str]) -> Option<String> {
     Some(format!("{}{}", String::from_utf8_lossy(&out.stdout), String::from_utf8_lossy(&out.stderr)))
 }
 
+/// The cameras and capture cards FFmpeg can take pictures from on this computer.
+pub fn list_cameras(ffmpeg: &Path) -> Vec<args::Input> {
+    let os = tools::OS;
+    ask_ffmpeg(ffmpeg, &args::list_inputs_args(os)).map(|out| args::parse_cameras(os, &out)).unwrap_or_default()
+}
+
 /// The microphones and line-ins FFmpeg can record from on this computer.
 pub fn list_inputs(ffmpeg: &Path) -> Vec<args::Input> {
     let os = tools::OS;
@@ -79,6 +85,8 @@ pub struct Plan {
     pub stream: Vec<String>,
     /// Go Live: the sound output whose sound goes out too (`stream::pc_sound`; empty: the default output).
     pub pc_sound: Option<String>,
+    /// Go Live: a camera put together with the room screen.
+    pub camera: Option<args::Camera>,
 }
 
 impl Plan {
@@ -94,7 +102,7 @@ impl Plan {
             return Err(Some(tr::low_disk(&gb(free), &gb(prefs.size.bytes_per_hour()))));
         }
         let out = super::file_name(&folder, chrono::Local::now().naive_local());
-        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None })
+        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, camera: None })
     }
 }
 
@@ -203,7 +211,8 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     };
     let format = args::input_format(tools::OS);
     let input = match &plan.sound { Sound::Input(name) => Some((format, name.as_str())), _ => None };
-    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, out: &part, stream: &feeds, pc: pc.as_ref().map(|c| c.feed) });
+    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, out: &part, stream: &feeds, pc: pc.as_ref().map(|c| c.feed),
+        camera: if ports.is_empty() { None } else { plan.camera.as_ref() } });
     let mut cmd = tokio::process::Command::new(&plan.ffmpeg);
     cmd.args(a).stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::piped());
     let mut tree = match spawn_tree(cmd) {

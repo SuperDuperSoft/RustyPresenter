@@ -141,6 +141,24 @@ export component SettingsMedia inherits VerticalLayout {
         }
     }
     Field {
+        label: @tr("Camera");
+        help: @tr("A camera or capture card put together with the room screen in the stream (and its recording).");
+        VerticalLayout {
+            spacing: 6px;
+            stream-camera := Select {
+                options: SettingsDlg.stream-camera-labels;
+                index <=> SettingsDlg.stream-camera-index;
+            }
+            if SettingsDlg.stream-camera-index > 0: HorizontalLayout {
+                alignment: start;
+                stream-camera-layout := Segmented {
+                    labels: [@tr("Camera, with the screen in a corner"), @tr("Screen, with the camera in a corner")];
+                    index <=> SettingsDlg.stream-camera-layout;
+                }
+            }
+        }
+    }
+    Field {
         label: @tr("Stream to");
         help: @tr("A stream key is a password: whoever has it can broadcast as you. It is kept in this computer's own password store as you type it, never in a backup or a service file.");
         VerticalLayout {

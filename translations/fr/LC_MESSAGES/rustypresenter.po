@@ -2439,6 +2439,22 @@ msgstr "Son de cet ordinateur"
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr "Tout ce qui joue sur cette sortie part avec la diffusion (vidéos, chants et tout autre son envoyé là), mélangé au micro ou à l’entrée ligne choisi plus haut."
 
+#: ui/dialogs/settings-media.slint src/strings/themes.rs src/ui/operator/video_inputs.rs
+msgid "Camera"
+msgstr "Caméra"
+
+#: ui/dialogs/settings-media.slint
+msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+msgstr "Une caméra ou une carte d’acquisition combinée à l’écran de la salle dans la diffusion (et son enregistrement)."
+
+#: ui/dialogs/settings-media.slint
+msgid "Camera, with the screen in a corner"
+msgstr "Caméra, avec l’écran dans un coin"
+
+#: ui/dialogs/settings-media.slint
+msgid "Screen, with the camera in a corner"
+msgstr "Écran, avec la caméra dans un coin"
+
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
 msgstr "Diffuser vers"
@@ -8951,10 +8967,6 @@ msgstr "Thème rétabli tel qu’à l’origine"
 msgid "New name for this background"
 msgstr "Nouveau nom pour cet arrière-plan"
 
-#: src/strings/themes.rs src/ui/operator/video_inputs.rs
-msgid "Camera"
-msgstr "Caméra"
-
 #: src/strings/themes.rs
 msgid "Use theme background"
 msgstr "Utiliser l’arrière-plan du thème"
@@ -9891,6 +9903,10 @@ msgstr "Pas maintenant"
 #: src/ui/dialogs/settings_record.rs
 msgid "The output the app plays its sound to"
 msgstr "La sortie sur laquelle l’application joue son son"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "No camera"
+msgstr "Pas de caméra"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"

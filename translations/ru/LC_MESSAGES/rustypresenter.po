@@ -2439,6 +2439,22 @@ msgstr "Звук этого компьютера"
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr "Всё, что звучит на этом выходе, уходит в трансляцию (видео, песни и любой другой звук, отправленный туда), вместе с микрофоном или линейным входом, выбранным выше."
 
+#: ui/dialogs/settings-media.slint src/strings/themes.rs src/ui/operator/video_inputs.rs
+msgid "Camera"
+msgstr "Камера"
+
+#: ui/dialogs/settings-media.slint
+msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+msgstr "Камера или карта захвата, совмещённая с экраном зала в трансляции (и в её записи)."
+
+#: ui/dialogs/settings-media.slint
+msgid "Camera, with the screen in a corner"
+msgstr "Камера, экран в углу"
+
+#: ui/dialogs/settings-media.slint
+msgid "Screen, with the camera in a corner"
+msgstr "Экран, камера в углу"
+
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
 msgstr "Транслировать в"
@@ -8985,10 +9001,6 @@ msgstr "Тема восстановлена в исходном виде"
 msgid "New name for this background"
 msgstr "Новое название для этого фона"
 
-#: src/strings/themes.rs src/ui/operator/video_inputs.rs
-msgid "Camera"
-msgstr "Камера"
-
 #: src/strings/themes.rs
 msgid "Use theme background"
 msgstr "Фон из темы"
@@ -9933,6 +9945,10 @@ msgstr "Не сейчас"
 #: src/ui/dialogs/settings_record.rs
 msgid "The output the app plays its sound to"
 msgstr "Выход, на котором приложение воспроизводит свой звук"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "No camera"
+msgstr "Без камеры"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"

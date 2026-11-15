@@ -2439,6 +2439,22 @@ msgstr "Tunog mula sa computer na ito"
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr "Lahat ng tumutunog sa output na ito ay kasama sa stream (mga video, kanta, at anumang ibang tunog na ipinapadala roon), hinahalo sa mikropono o line-in na pinili sa itaas."
 
+#: ui/dialogs/settings-media.slint src/strings/themes.rs src/ui/operator/video_inputs.rs
+msgid "Camera"
+msgstr "Camera"
+
+#: ui/dialogs/settings-media.slint
+msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+msgstr "Isang camera o capture card na isinasama sa screen ng silid sa stream (at sa recording nito)."
+
+#: ui/dialogs/settings-media.slint
+msgid "Camera, with the screen in a corner"
+msgstr "Camera, nasa sulok ang screen"
+
+#: ui/dialogs/settings-media.slint
+msgid "Screen, with the camera in a corner"
+msgstr "Screen, nasa sulok ang camera"
+
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
 msgstr "I-stream sa"
@@ -8951,10 +8967,6 @@ msgstr "Naibalik ang theme sa orihinal"
 msgid "New name for this background"
 msgstr "Bagong pangalan para sa background na ito"
 
-#: src/strings/themes.rs src/ui/operator/video_inputs.rs
-msgid "Camera"
-msgstr "Camera"
-
 #: src/strings/themes.rs
 msgid "Use theme background"
 msgstr "Gamitin ang background ng theme"
@@ -9891,6 +9903,10 @@ msgstr "Hindi muna"
 #: src/ui/dialogs/settings_record.rs
 msgid "The output the app plays its sound to"
 msgstr "Ang output kung saan pinatutugtog ng app ang tunog nito"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "No camera"
+msgstr "Walang camera"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"

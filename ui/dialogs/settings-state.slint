@@ -178,6 +178,11 @@ export global SettingsDlg {
     in property <[string]> stream-sound-labels;
     in property <[string]> stream-sound-names;
     in-out property <int> stream-sound-index;
+    /// The camera in the stream: none, then each camera found; and which fills the picture (0 camera, 1 screen).
+    in property <[string]> stream-camera-labels;
+    in property <[string]> stream-camera-names;
+    in-out property <int> stream-camera-index;
+    in-out property <int> stream-camera-layout;
     /// A key was typed for destination 0–3: it is kept at once (empty forgets it).
     callback stream-key-edited(int, string);
 

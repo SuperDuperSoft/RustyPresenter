@@ -79,8 +79,35 @@ pub(crate) fn read_stream_sound(g: &SettingsDlg) -> String {
     g.get_stream_sound_names().row_data(g.get_stream_sound_index().max(0) as usize).map(|s| s.to_string()).unwrap_or_default()
 }
 
+/// The list "Camera": none, then each camera; a saved one that is not plugged in stays chosen.
+pub fn camera_choices(cameras: &[Input], saved: &str) -> Choices {
+    let mut labels = vec![crate::tr!("No camera")];
+    let mut keys = vec![String::new()];
+    labels.extend(cameras.iter().map(|c| c.label.clone()));
+    keys.extend(cameras.iter().map(|c| c.name.clone()));
+    if !saved.is_empty() && !keys.iter().any(|k| k == saved) {
+        labels.push(format!("{saved} ({})", not_connected()));
+        keys.push(saved.to_string());
+    }
+    let index = keys.iter().position(|k| k == saved).unwrap_or(0);
+    Choices { labels, keys, index }
+}
+
+fn fill_camera(g: &SettingsDlg, cameras: &[Input], saved: &str) {
+    let c = camera_choices(cameras, saved);
+    g.set_stream_camera_labels(strings(c.labels));
+    g.set_stream_camera_names(strings(c.keys));
+    g.set_stream_camera_index(c.index as i32);
+}
+
+fn read_camera(g: &SettingsDlg) -> String {
+    g.get_stream_camera_names().row_data(g.get_stream_camera_index().max(0) as usize).map(|s| s.to_string()).unwrap_or_default()
+}
+
 pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     fill_stream_sound(g, &[], &p.stream_sound);
+    fill_camera(g, &[], &p.camera);
+    g.set_stream_camera_layout(if p.camera_main { 0 } else { 1 });
     let (on, url) = stream_rows(p);
     g.set_stream_on_0(on[0]);
     g.set_stream_on_1(on[1]);
@@ -121,6 +148,10 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
     if rows != p.stream { p.stream = rows }
     let pc = read_stream_sound(g);
     if pc != p.stream_sound { p.stream_sound = pc }
+    let camera = read_camera(g);
+    if camera != p.camera { p.camera = camera }
+    let main = g.get_stream_camera_layout() == 0;
+    if main != p.camera_main { p.camera_main = main }
 }
 
 /// A stream key typed in Settings is kept in the computer's password store at once (it is no part of the
@@ -139,12 +170,14 @@ pub(crate) fn wire_keys(op: &Rc<Operator>) {
 pub(super) fn load(op: &Rc<Operator>) {
     let data = op.app().store.root.clone();
     let me = Rc::downgrade(op);
-    let work = move || record::run::find_ffmpeg(&data).map(|f| record::run::list_inputs(&f)).unwrap_or_default();
-    let done = move |inputs: Vec<Input>| {
+    let work = move || record::run::find_ffmpeg(&data).map(|f| (record::run::list_inputs(&f), record::run::list_cameras(&f))).unwrap_or_default();
+    let done = move |(inputs, cameras): (Vec<Input>, Vec<Input>)| {
         let Some(op) = me.upgrade() else { return };
         let g = op.ui.global::<SettingsDlg>();
         let chosen = read_sound(&g);
         fill_sound(&g, &inputs, &chosen);
+        let camera = read_camera(&g);
+        fill_camera(&g, &cameras, &camera);
     };
     // Tests never run FFmpeg for the list (`choices` is tested on its own).
     if !op.ops().is_inline() {

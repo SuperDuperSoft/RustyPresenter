@@ -31,7 +31,7 @@ fn probe(file: &Path) -> (Vec<(String, String, u64, u64)>, f64) {
 }
 
 fn plan(ffmpeg: PathBuf, dir: &Path, sound: Sound) -> Plan {
-    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None }
+    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, camera: None }
 }
 
 /// Records for `secs`, handing in a new solid picture every 100 ms (red, then green), with `each` called as it goes.
@@ -235,5 +235,41 @@ fn go_live_sends_what_the_pc_plays() {
     let (all, before) = (loudest_of(&received, &[]), loudest_of(&received, &["-t", "2"]));
     eprintln!("REAL stream loudest {all} dB; before the tone {before} dB; the recording {} dB", loudest_of(&dir.join("Recording test.mp4"), &[]));
     assert!(all > -40.0, "the tone did not reach the stream: {all} dB");
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// A camera in the stream, for real, with a stand-in camera (a blue test picture, made at the clock's pace like a
+/// camera's): the stream's picture is the camera, with the room screen (red) small in the bottom right corner.
+#[test]
+fn go_live_puts_the_camera_and_the_screen_together() {
+    let Some(ff) = ffmpeg() else { return };
+    let dir = scratch("camera");
+    let port = std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port();
+    let url = format!("rtmp://127.0.0.1:{port}/live/TEST-KEY");
+    let received = dir.join("received.flv");
+    let mut server = std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-listen", "1", "-analyzeduration", "2000000", "-f", "flv", "-i", &url, "-c", "copy"])
+        .arg(&received).stdin(Stdio::null()).spawn().unwrap();
+    std::thread::sleep(Duration::from_millis(1500));
+    let camera = args::Camera { input: ["-re", "-f", "lavfi", "-i", "color=c=blue:size=640x480:rate=30"].map(String::from).into(), main: true };
+    let ended = record_for(Plan { stream: vec![url], camera: Some(camera), ..plan(ff.clone(), &dir, Sound::None) }, 8.0, |_, _| {});
+    let t = Instant::now();
+    while server.try_wait().unwrap().is_none() && t.elapsed() < Duration::from_secs(20) { std::thread::sleep(Duration::from_millis(100)) }
+    let _ = server.kill();
+    let _ = server.wait();
+    assert_eq!(ended.problem, None, "{ended:?}");
+    // A picture from the stream two seconds in (the room screen was red then).
+    let png = dir.join("frame.png");
+    assert!(std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-ss", "2", "-i"]).arg(&received).args(["-frames:v", "1"]).arg(&png)
+        .status().unwrap().success());
+    let img = image::open(&png).unwrap().to_rgb8();
+    let (w, h) = img.dimensions();
+    assert_eq!((w, h), (1280, 720));
+    let at = |x: u32, y: u32| img.get_pixel(x, y).0;
+    // A 4:3 camera in a 16:9 stream: black bars at the sides, the camera in the middle.
+    let (bar, blue) = (at(60, 300), at(640, 300));
+    assert!(blue[2] > 180 && blue[0] < 60, "the camera fills the middle: {blue:?}");
+    assert!(bar.iter().all(|c| *c < 30), "black bars at the sides: {bar:?}");
+    let corner = at(w - 32 - 160, h - 18 - 90);
+    assert!(corner[0] > 180 && corner[2] < 60, "the room screen in the bottom right corner: {corner:?}");
     std::fs::remove_dir_all(&dir).unwrap();
 }

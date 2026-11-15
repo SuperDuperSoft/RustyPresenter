@@ -2439,6 +2439,22 @@ msgstr "이 컴퓨터의 소리"
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr "이 출력에서 나는 모든 소리가 방송에 함께 나가요 (영상, 노래, 그리고 그쪽으로 보내지는 다른 소리도요). 위에서 고른 마이크 또는 라인 입력과 섞여요."
 
+#: ui/dialogs/settings-media.slint src/strings/themes.rs src/ui/operator/video_inputs.rs
+msgid "Camera"
+msgstr "카메라"
+
+#: ui/dialogs/settings-media.slint
+msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+msgstr "방송(과 그 녹화)에서 예배당 화면과 함께 보여 줄 카메라나 캡처 카드예요."
+
+#: ui/dialogs/settings-media.slint
+msgid "Camera, with the screen in a corner"
+msgstr "카메라 크게, 화면은 구석에"
+
+#: ui/dialogs/settings-media.slint
+msgid "Screen, with the camera in a corner"
+msgstr "화면 크게, 카메라는 구석에"
+
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
 msgstr "방송 대상"
@@ -8917,10 +8933,6 @@ msgstr "테마를 처음 상태로 되돌렸어요"
 msgid "New name for this background"
 msgstr "이 배경의 새 이름"
 
-#: src/strings/themes.rs src/ui/operator/video_inputs.rs
-msgid "Camera"
-msgstr "카메라"
-
 #: src/strings/themes.rs
 msgid "Use theme background"
 msgstr "테마 배경 사용"
@@ -9849,6 +9861,10 @@ msgstr "나중에"
 #: src/ui/dialogs/settings_record.rs
 msgid "The output the app plays its sound to"
 msgstr "앱이 소리를 내보내는 출력"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "No camera"
+msgstr "카메라 없음"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
