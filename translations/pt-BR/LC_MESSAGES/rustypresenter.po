@@ -5751,6 +5751,14 @@ msgid "FFmpeg stopped unexpectedly"
 msgstr "O FFmpeg parou inesperadamente"
 
 #: src/record/mod.rs
+msgid "No sound has come from {name} for 10 seconds. Check the cable, and that the sound board is sending to this computer."
+msgstr "Nenhum som chega de {name} há 10 segundos. Confira o cabo e se a mesa de som está enviando para este computador."
+
+#: src/record/mod.rs
+msgid "Sound from {name} is coming in again."
+msgstr "O som de {name} voltou a chegar."
+
+#: src/record/mod.rs
 msgid "No sound"
 msgstr "Sem som"
 

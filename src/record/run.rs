@@ -145,6 +145,8 @@ pub struct Recording {
     links: crate::stream::send::Links,
     /// Go Live with a camera: whether its pictures are coming now (`stream::camera_feed`); `None` without one.
     camera_seen: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>,
+    /// With a sound input: whether it has been silent for `args::SILENCE` (`None` without one).
+    silent: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>,
 }
 
 impl Recording {
@@ -160,17 +162,19 @@ impl Recording {
         let l = links.clone();
         let camera_seen: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>> = Arc::default();
         let cs = camera_seen.clone();
+        let silent: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>> = Arc::default();
+        let si = silent.clone();
         std::thread::Builder::new().name("recorder".into()).spawn(move || {
             let rt = match tokio::runtime::Builder::new_current_thread().enable_all().build() {
                 Ok(rt) => rt,
                 Err(e) => { let _ = started_tx.send(Err(e.to_string())); return }
             };
-            let ended = rt.block_on(write(plan, s, c, started_tx, l, cs));
+            let ended = rt.block_on(write(plan, s, c, started_tx, l, cs, si));
             if let Some(ended) = ended { done(ended) }
             let _ = finished_tx.send(());
         }).map_err(|e| tr::not_started(&e.to_string()))?;
         match started_rx.recv() {
-            Ok(Ok(())) => Ok(Recording { sink, cancel, finished, begun: Instant::now(), out, links, camera_seen }),
+            Ok(Ok(())) => Ok(Recording { sink, cancel, finished, begun: Instant::now(), out, links, camera_seen, silent }),
             Ok(Err(e)) => Err(tr::not_started(&e)),
             Err(_) => Err(tr::not_started(&tr::ffmpeg_ended())),
         }
@@ -185,6 +189,11 @@ impl Recording {
     /// Go Live with a camera: whether its pictures are coming now; `None` without a camera.
     pub fn camera_seen(&self) -> Option<bool> {
         self.camera_seen.lock().unwrap_or_else(|e| e.into_inner()).as_ref().map(|s| s.load(std::sync::atomic::Ordering::Relaxed))
+    }
+
+    /// With a sound input: whether it has gone silent (a muted send, a pulled cable); `None` without one.
+    pub fn silent(&self) -> Option<bool> {
+        self.silent.lock().unwrap_or_else(|e| e.into_inner()).as_ref().map(|s| s.load(std::sync::atomic::Ordering::Relaxed))
     }
 
     /// Whole seconds recorded.
@@ -209,7 +218,7 @@ impl Drop for Recording {
 /// The writer: pictures into FFmpeg at `FPS`, until stopped, the disk fills or FFmpeg ends. Then the MP4.
 /// `None` when FFmpeg never started (the starter heard why).
 async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, started: mpsc::Sender<Result<(), String>>, links: crate::stream::send::Links,
-    camera_seen: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>) -> Option<Ended> {
+    camera_seen: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>, silent: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>) -> Option<Ended> {
     let part = partial_of(&plan.out);
     // Go Live: the recorder sends to a local feed for each destination; a sender each passes it on and
     // reconnects (`stream::send`). With no free ports there is no stream, and the recording goes on.
@@ -261,9 +270,20 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let said: Arc<Mutex<VecDeque<String>>> = Arc::default();
     let said2 = said.clone();
     let keys = plan.stream.clone();
+    if input.is_some() { *silent.lock().unwrap_or_else(|e| e.into_inner()) = Some(Arc::default()) }
+    let quiet = silent.lock().unwrap_or_else(|e| e.into_inner()).clone();
     tokio::spawn(async move {
         let mut lines = BufReader::new(err).lines();
         while let Ok(Some(l)) = lines.next_line().await {
+            let l = match log_line(&l) {
+                Said::Silence(now) => {
+                    if let Some(q) = &quiet { q.store(now, std::sync::atomic::Ordering::Relaxed) }
+                    eprintln!("ffmpeg (recording): the sound input {}", if now { "went silent" } else { "has sound again" });
+                    continue;
+                }
+                Said::Nothing => continue,
+                Said::Line(l) => l,
+            };
             // FFmpeg names the address it could not reach, and a stream key is part of it.
             let l = crate::stream::redact(&l, &keys);
             eprintln!("ffmpeg (recording): {l}");
@@ -323,6 +343,36 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let mut done = finish_file(&plan.ffmpeg, &part, &notes.sound, &plan.out).await;
     if let Some(p) = problem { done.problem = Some(match (&done.file, done.problem) { (Some(_), Some(q)) => format!("{p} {q}"), _ => p }) }
     Some(done)
+}
+
+/// What one line of the recording FFmpeg's log says.
+#[derive(Debug, PartialEq)]
+pub(crate) enum Said {
+    /// The sound input has gone silent (`true`) or has sound again (`args::listen`).
+    Silence(bool),
+    /// Only information (what FFmpeg opened, and such): not kept.
+    Nothing,
+    /// A warning or an error, without its level.
+    Line(String),
+}
+
+/// Reads a line of FFmpeg's log. With a sound input every line says its level (`-loglevel level+info`):
+/// `[Parsed_silencedetect_0 @ 000001b0] [info] silence_start: 2` (when the silence began; said once it has lasted
+/// `args::SILENCE`). Without one there are only warnings, with no level.
+pub(crate) fn log_line(l: &str) -> Said {
+    // The filter's name on the log is `Parsed_silencedetect_0` (seen with FFmpeg 8).
+    if l.contains("silencedetect") {
+        if l.contains("silence_start") { return Said::Silence(true) }
+        if l.contains("silence_end") { return Said::Silence(false) }
+    }
+    for level in ["info", "verbose", "debug", "trace"] {
+        if l.contains(&format!("[{level}] ")) { return Said::Nothing }
+    }
+    for level in ["warning", "error", "fatal", "panic"] {
+        let tag = format!("[{level}] ");
+        if let Some(at) = l.find(&tag) { return Said::Line(format!("{}{}", &l[..at], &l[at + tag.len()..])) }
+    }
+    Said::Line(l.to_string())
 }
 
 fn write_notes(out: &Path, notes: &Notes) {

@@ -5742,6 +5742,14 @@ msgid "FFmpeg stopped unexpectedly"
 msgstr ""
 
 #: src/record/mod.rs
+msgid "No sound has come from {name} for 10 seconds. Check the cable, and that the sound board is sending to this computer."
+msgstr ""
+
+#: src/record/mod.rs
+msgid "Sound from {name} is coming in again."
+msgstr ""
+
+#: src/record/mod.rs
 msgid "No sound"
 msgstr ""
 

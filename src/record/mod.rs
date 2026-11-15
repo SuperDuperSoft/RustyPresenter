@@ -154,6 +154,8 @@ pub mod tr {
     pub fn saved_mkv(path: &str) -> String { tr!("Recording saved as {path} (it could not be turned into MP4).", path = path) }
     pub fn no_app_sound() -> String { tr!("The recording was saved without the app's sound, which could not be added.") }
     pub fn ffmpeg_ended() -> String { tr!("FFmpeg stopped unexpectedly") }
+    pub fn no_sound(name: &str) -> String { tr!("No sound has come from {name} for 10 seconds. Check the cable, and that the sound board is sending to this computer.", name = name) }
+    pub fn sound_back(name: &str) -> String { tr!("Sound from {name} is coming in again.", name = name) }
     pub fn none() -> String { tr!("No sound") }
     pub fn app_sound() -> String { tr!("The sound the app plays (videos and songs)") }
     pub fn input(name: &str) -> String { tr!("Microphone or line-in: {name}", name = name) }

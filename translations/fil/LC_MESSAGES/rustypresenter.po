@@ -5751,6 +5751,14 @@ msgid "FFmpeg stopped unexpectedly"
 msgstr "Biglang huminto ang FFmpeg"
 
 #: src/record/mod.rs
+msgid "No sound has come from {name} for 10 seconds. Check the cable, and that the sound board is sending to this computer."
+msgstr "Walang tunog mula sa {name} sa loob ng 10 segundo. Tingnan ang kable, at kung nagpapadala ang sound board sa computer na ito."
+
+#: src/record/mod.rs
+msgid "Sound from {name} is coming in again."
+msgstr "May tunog na ulit mula sa {name}."
+
+#: src/record/mod.rs
 msgid "No sound"
 msgstr "Walang tunog"
 

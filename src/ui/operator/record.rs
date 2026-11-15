@@ -28,6 +28,9 @@ pub struct RecordUi {
     slow_told: RefCell<Vec<String>>,
     /// The camera in the stream: whether its pictures came at the last look (`None`: not yet seen at all).
     camera_was: Cell<Option<bool>>,
+    /// The sound input being recorded (empty: none), and whether it was silent at the last look.
+    input: RefCell<String>,
+    silent_was: Cell<bool>,
     /// Updates the time on the button once a second.
     ticker: Timer,
     /// Tests: how the recording ended, waited for by `testing::wait_ended` (no event loop to deliver it).
@@ -123,6 +126,8 @@ impl Operator {
 
     fn start_recording(self: &Rc<Self>, plan: Plan) {
         let (ffmpeg, folder) = (plan.ffmpeg.clone(), plan.out.parent().map(PathBuf::from).unwrap_or_default());
+        *self.record.input.borrow_mut() = match &plan.sound { record::Sound::Input(name) => name.clone(), _ => String::new() };
+        self.record.silent_was.set(false);
         let (tx, rx) = tokio::sync::oneshot::channel::<Ended>();
         let rec = match Recording::start(plan, move |e| { let _ = tx.send(e); }) {
             Ok(r) => r,
@@ -209,6 +214,15 @@ impl Operator {
         if self.record.camera_was.get().is_some() || now { self.record.camera_was.set(Some(now)) }
     }
 
+    /// Recording or live with a sound input: says when it has gone silent for `args::SILENCE` (a muted send, a
+    /// pulled cable), and when sound comes again. Once each time.
+    pub(crate) fn say_silence(&self, silent: Option<bool>) {
+        let Some(now) = silent else { return };
+        if now == self.record.silent_was.replace(now) { return }
+        let name = self.record.input.borrow().clone();
+        if now { self.toast(record::tr::no_sound(&name), true) } else { self.toast(record::tr::sound_back(&name), false) }
+    }
+
     /// Whether a recording is under way.
     pub fn is_recording(&self) -> bool { self.record.rec.borrow().is_some() }
 
@@ -229,6 +243,8 @@ impl Operator {
             op.say_links(&links);
             let camera = op.record.rec.borrow().as_ref().and_then(Recording::camera_seen);
             op.say_camera(camera);
+            let silent = op.record.rec.borrow().as_ref().and_then(Recording::silent);
+            op.say_silence(silent);
         });
     }
 

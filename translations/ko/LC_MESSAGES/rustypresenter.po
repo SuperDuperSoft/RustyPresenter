@@ -5747,6 +5747,14 @@ msgid "FFmpeg stopped unexpectedly"
 msgstr "FFmpeg가 예기치 않게 멈췄어요"
 
 #: src/record/mod.rs
+msgid "No sound has come from {name} for 10 seconds. Check the cable, and that the sound board is sending to this computer."
+msgstr "10초 동안 {name}에서 소리가 들어오지 않았어요. 케이블과 음향 콘솔이 이 컴퓨터로 보내고 있는지 확인하세요."
+
+#: src/record/mod.rs
+msgid "Sound from {name} is coming in again."
+msgstr "{name}에서 소리가 다시 들어와요."
+
+#: src/record/mod.rs
 msgid "No sound"
 msgstr "소리 없음"
 

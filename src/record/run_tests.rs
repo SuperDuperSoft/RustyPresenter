@@ -399,3 +399,36 @@ fn a_camera_that_stops_drops_out_and_comes_back() {
         std::fs::remove_dir_all(&dir).unwrap();
     }
 }
+
+#[test]
+fn the_log_says_when_the_sound_input_goes_silent_and_keeps_only_warnings() {
+    assert_eq!(log_line("[Parsed_silencedetect_0 @ 000001] [info] silence_start: 10.02"), Said::Silence(true));
+    assert_eq!(log_line("[silencedetect @ 0x55] [info] silence_end: 31.5 | silence_duration: 21.48"), Said::Silence(false));
+    assert_eq!(log_line("[info] Stream mapping:"), Said::Nothing);
+    assert_eq!(log_line("[tee @ 0x1] [warning] Slave muxer #1 failed"), Said::Line("[tee @ 0x1] Slave muxer #1 failed".into()));
+    assert_eq!(log_line("[error] Conversion failed!"), Said::Line("Conversion failed!".into()));
+    // Without a sound input the lines have no level, as before.
+    assert_eq!(log_line("[tee @ 0x1] Slave muxer #1 failed"), Said::Line("[tee @ 0x1] Slave muxer #1 failed".into()));
+}
+
+/// A real FFmpeg, its log read as the recorder reads it: sound for 2 s, then nothing.
+#[test]
+fn a_real_ffmpeg_notes_that_the_sound_went_silent() {
+    let Some(ffmpeg) = ffmpeg() else { return };
+    let quiet_after = 2;
+    let source = format!("aevalsrc=if(lt(t\\,{quiet_after})\\,0.3*sin(2*PI*440*t)\\,0):s=48000");
+    let run = |total: u32| {
+        let out = std::process::Command::new(&ffmpeg).args(["-hide_banner", "-loglevel", "level+info", "-nostats", "-f", "lavfi", "-i", &source, "-af", &args::listen(),
+            "-t", &total.to_string(), "-f", "null", "-"]).output().expect("FFmpeg runs");
+        let text = String::from_utf8_lossy(&out.stderr).to_string();
+        assert!(out.status.success(), "{text}");
+        let heard: Vec<Said> = text.lines().map(log_line).filter(|s| *s != Said::Nothing).collect();
+        (heard, text)
+    };
+    let (heard, text) = run(quiet_after + args::SILENCE.1 + 2);
+    assert_eq!(heard.first(), Some(&Said::Silence(true)), "{text}");
+    assert!(heard.iter().all(|s| matches!(s, Said::Silence(_))), "nothing else to log: {heard:?}");
+    // A second short of the whole silence: nothing said yet.
+    let (heard, text) = run(quiet_after + args::SILENCE.1 - 1);
+    assert!(heard.is_empty(), "{heard:?} {text}");
+}

@@ -221,3 +221,24 @@ fn the_operator_hears_when_the_camera_drops_out_and_comes_back() {
     op.say_camera(None);
     assert_eq!(toasts(&op).len(), before + 2);
 }
+
+#[test]
+fn the_operator_hears_when_the_sound_input_goes_silent_and_comes_back() {
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    *op.record.input.borrow_mut() = "Line In (USB Audio)".into();
+    let before = toasts(&op).len();
+    op.say_silence(Some(false));
+    assert_eq!(toasts(&op).len(), before, "sound coming: nothing to say");
+    op.say_silence(Some(true));
+    assert_eq!(toasts(&op).last(), Some(&(record::tr::no_sound("Line In (USB Audio)"), true)));
+    op.say_silence(Some(true));
+    assert_eq!(toasts(&op).len(), before + 1, "said once");
+    op.say_silence(Some(false));
+    assert_eq!(toasts(&op).last(), Some(&(record::tr::sound_back("Line In (USB Audio)"), false)));
+    // No sound input: nothing.
+    op.say_silence(None);
+    assert_eq!(toasts(&op).len(), before + 2);
+}

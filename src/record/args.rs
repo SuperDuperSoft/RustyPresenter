@@ -198,6 +198,13 @@ pub fn device_input(format: &str, name: &str) -> String {
     match format { "dshow" => format!("audio={name}"), "avfoundation" => format!(":{name}"), _ => name.to_string() }
 }
 
+/// Quieter than this (dB) for this long (s): the sound input is taken to be silent (a muted send, a pulled cable).
+/// Room noise on a live microphone is louder; a send that is off is far quieter.
+pub const SILENCE: (i32, u32) = (-60, 10);
+
+/// FFmpeg's filter that notes on its log when the sound input has gone silent, and when sound comes again.
+pub fn listen() -> String { format!("silencedetect=noise={}dB:duration={}", SILENCE.0, SILENCE.1) }
+
 /// One recording's FFmpeg run: raw RGBA pictures on its input, H.264 (and the input's sound) into Matroska, which
 /// is readable even if the app or the computer stops halfway.
 pub struct Record<'a> {
@@ -221,7 +228,9 @@ pub fn record(r: &Record) -> Vec<OsString> {
     let mut push = |v: &[&str]| a.extend(v.iter().map(OsString::from));
     let (w, h) = r.size;
     let (size, fps, kbps) = (format!("{w}x{h}"), r.fps.to_string(), r.preset.max_kbps());
-    push(&["-hide_banner", "-loglevel", "warning", "-y"]);
+    // With a sound input FFmpeg's note that it went silent (`listen`) is wanted, and it is an info line: each line
+    // then says its level, and the reader keeps only that note besides warnings and errors (`run::log_line`).
+    if r.input.is_some() { push(&["-hide_banner", "-loglevel", "level+info", "-nostats", "-y"]) } else { push(&["-hide_banner", "-loglevel", "warning", "-y"]) }
     push(&["-f", "rawvideo", "-pix_fmt", "rgba", "-video_size", &size, "-framerate", &fps, "-thread_queue_size", "8", "-i", "pipe:0"]);
     if let Some((format, name)) = r.input {
         let device = device_input(format, name);
@@ -234,9 +243,11 @@ pub fn record(r: &Record) -> Vec<OsString> {
                 push(&pc.iter().map(String::as_str).collect::<Vec<_>>());
                 // The sound board and the PC's sound together, neither turned down. The output ends with the
                 // picture: the PC's sound goes on until it is stopped.
-                push(&["-filter_complex", "[1:a][2:a]amix=inputs=2:duration=shortest:normalize=0[a]", "-map", "0:v", "-map", "[a]", "-shortest", "-shortest_buf_duration", "0.5"]);
+                // Only the sound input is listened to for silence: the PC is often quiet.
+                let mix = format!("[1:a]{}[board];[board][2:a]amix=inputs=2:duration=shortest:normalize=0[a]", listen());
+                push(&["-filter_complex", &mix, "-map", "0:v", "-map", "[a]", "-shortest", "-shortest_buf_duration", "0.5"]);
             }
-            None => push(&["-map", "0:v", "-map", "1:a"]),
+            None => push(&["-map", "0:v", "-map", "1:a", "-af", &listen()]),
         }
     } else if let Some(pc) = r.pc {
         let pc = pc.input_args();
@@ -384,8 +395,23 @@ mod tests {
         assert!(!a.iter().any(|x| x.starts_with("anullsrc")), "{a:?}");
         // With the sound board: both, mixed.
         let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: Some(("dshow", "Line In")), out: &out, stream: &to, pc, camera: None }));
-        assert_eq!(after(&a, "-filter_complex"), "[1:a][2:a]amix=inputs=2:duration=shortest:normalize=0[a]");
+        // Only the sound board is listened to for silence.
+        assert_eq!(after(&a, "-filter_complex"), "[1:a]silencedetect=noise=-60dB:duration=10[board];[board][2:a]amix=inputs=2:duration=shortest:normalize=0[a]");
         assert!(a.windows(2).any(|w| w == ["-map", "[a]"]) && after(&a, "-c:a") == "aac");
+        assert!(!a.contains(&"-af".to_string()), "{a:?}");
+    }
+
+    #[test]
+    fn a_sound_input_is_listened_to_for_silence() {
+        let out = PathBuf::from("/r/Recording.recording.mkv");
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: Some(("dshow", "Line In")), out: &out, stream: &[], pc: None, camera: None }));
+        assert_eq!(after(&a, "-af"), "silencedetect=noise=-60dB:duration=10");
+        assert_eq!(after(&a, "-loglevel"), "level+info", "its note is an info line");
+        assert!(a.contains(&"-nostats".to_string()));
+        // No sound input: nothing to listen to, warnings only as before.
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, out: &out, stream: &[], pc: None, camera: None }));
+        assert_eq!(after(&a, "-loglevel"), "warning");
+        assert!(!a.iter().any(|x| x.contains("silencedetect")), "{a:?}");
     }
 
     #[test]
