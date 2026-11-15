@@ -2113,8 +2113,41 @@ fn parse<T: serde::de::DeserializeOwned>(body: &[u8]) -> Result<T, ActionError> 
     serde_json::from_slice(body).map_err(|e| ActionError::bad(tr!("Bad request: {error}", error = e)))
 }
 
+/// What the tests leave in the computer's Temp folder: each makes its own folder or file there and few remove it
+/// (an app the test made may still hold it), so 14,287 had piled up by November 14, 2026. The first test of a run
+/// (`test_app`, used by most) removes what earlier runs left: entries whose names start with one of these and that
+/// are older than `SCRAPS_AGE`, so a run going on at the same time keeps its own. "rp-import-" and
+/// "rp-scripture-" are not here: the app itself uses those names.
+#[cfg(test)]
+const TEST_SCRAPS: &[&str] = &["rp-test-", "rp-bench-", "rp-deck-", "rp-ew-", "rp-fetch-", "rp-files-", "rp-follow-", "rp-headless-", "rp-lo-",
+    "rp lo ", "rp-model-", "rp-olp-", "rp-panic-", "rp-pdf-", "rp-pplive-", "rp-ppt-", "rp ppt ", "rp-preflight-", "rp-probe-", "rp-record-",
+    "rp-report-", "rp-safe-mode-", "rp-settings-", "rp-show-", "rp-state-", "rp-supervisor-", "rp-themes-", "rp-thumbs-", "rp-tools-",
+    "rp-upload-", "rp-v", "rp-yt-", "rp-ytui-", "v1-screens-"];
+#[cfg(test)]
+const SCRAPS_AGE: std::time::Duration = std::time::Duration::from_secs(2 * 3600);
+
+/// Removes earlier test runs' leftovers from `dir` (see `TEST_SCRAPS`); how many went.
+#[cfg(test)]
+pub(crate) fn sweep_test_scraps(dir: &std::path::Path, older_than: std::time::Duration) -> usize {
+    let Ok(entries) = std::fs::read_dir(dir) else { return 0 };
+    let now = std::time::SystemTime::now();
+    let mut gone = 0;
+    for e in entries.flatten() {
+        let name = e.file_name().to_string_lossy().into_owned();
+        if !TEST_SCRAPS.iter().any(|p| name.starts_with(p)) { continue }
+        let old = e.metadata().and_then(|m| m.modified()).ok().and_then(|t| now.duration_since(t).ok()).is_some_and(|age| age > older_than);
+        if !old { continue }
+        let path = e.path();
+        let removed = if path.is_dir() { std::fs::remove_dir_all(&path) } else { std::fs::remove_file(&path) };
+        if removed.is_ok() { gone += 1 }
+    }
+    gone
+}
+
 #[cfg(test)]
 pub(crate) fn test_app() -> Arc<App> {
+    static SWEPT: std::sync::Once = std::sync::Once::new();
+    SWEPT.call_once(|| { sweep_test_scraps(&std::env::temp_dir(), SCRAPS_AGE); });
     let root = std::env::temp_dir().join(format!("rp-test-{}", Uuid::new_v4()));
     let store = Store::open(root).unwrap();
     let data = store.load().unwrap();
@@ -2126,6 +2159,35 @@ mod tests {
     use super::*;
 
     fn block_on<F: std::future::Future>(f: F) -> F::Output { tokio::runtime::Runtime::new().unwrap().block_on(f) }
+
+    #[test]
+    fn old_test_leftovers_are_swept_and_nothing_else() {
+        let dir = std::env::temp_dir().join(format!("sweep-check-{}", Uuid::new_v4()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let day_ago = std::time::SystemTime::now() - std::time::Duration::from_secs(24 * 3600);
+        let file = |name: &str, old: bool| {
+            let p = dir.join(name);
+            std::fs::write(&p, b"x").unwrap();
+            if old { std::fs::File::options().write(true).open(&p).unwrap().set_modified(day_ago).unwrap() }
+        };
+        // A day old: earlier runs' leftovers, and the app's own import folder (kept).
+        file("rp-test-old.log", true);
+        file("rp-panic-old.log", true);
+        file("rp-import-old.zip", true);
+        file("unrelated-old.txt", true);
+        // Just made: a run going on now.
+        file("rp-test-new.log", false);
+        // A folder: removed with what is in it (its age is when it was last written, so it is just made here).
+        std::fs::create_dir_all(dir.join("rp-themes-new").join("inside")).unwrap();
+        assert_eq!(sweep_test_scraps(&dir, std::time::Duration::from_secs(2 * 3600)), 2);
+        let mut left: Vec<String> = std::fs::read_dir(&dir).unwrap().map(|e| e.unwrap().file_name().to_string_lossy().into_owned()).collect();
+        left.sort();
+        assert_eq!(left, ["rp-import-old.zip", "rp-test-new.log", "rp-themes-new", "unrelated-old.txt"]);
+        // With no age limit the folder goes too, contents and all.
+        assert_eq!(sweep_test_scraps(&dir, std::time::Duration::ZERO), 2);
+        assert!(!dir.join("rp-themes-new").exists());
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
 
     #[tokio::test]
     async fn a_passage_added_without_a_choice_gets_the_settings_verses_per_slide() {
