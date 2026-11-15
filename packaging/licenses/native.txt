@@ -24,6 +24,10 @@ Noto Sans — SIL Open Font License, version 1.1 (OFL-1.1)
   (https://github.com/notofonts/latin-greek-cyrillic). The font may be used, studied, modified and redistributed
   freely as long as it is not sold by itself; see https://openfontlicense.org.
 
+CMU Pronouncing Dictionary — BSD-style licence. Copyright (C) 1993-2015 Carnegie Mellon University.
+  How English words are said, built into the app for song auto-follow (in a changed form: its sound symbols turned
+  into IPA). Source: https://github.com/cmusphinx/cmudict
+
 ------------------------------------------------------------------------------------------------------------------
 Programs downloaded on first use (Download from YouTube) — not part of the installer
 ------------------------------------------------------------------------------------------------------------------

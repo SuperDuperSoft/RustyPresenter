@@ -103,14 +103,45 @@ pub fn phonemes(word: &str) -> Option<String> {
     Some(english(&w))
 }
 
-/// Every way the phoneme ear listens for the word: the plain one (`phonemes`) first, then the ways it is sung
-/// (`SUNG`), so the leader is heard whichever way the word comes out. Empty when the word has no phonemes.
+/// The CMU Pronouncing Dictionary (Carnegie Mellon University, BSD-style licence in `assets/cmudict/LICENSE`,
+/// downloaded November 14, 2026 from github.com/cmusphinx/cmudict): 121,735 English words, each with every way it
+/// is said, turned from its own symbols into the IPA the phoneme ear writes (`assets/cmudict/README.md`).
+const CMUDICT: &str = include_str!("../../assets/cmudict/cmudict-ipa.tsv");
+
+/// The dictionary's ways of saying `w` (a–z only), read on first use.
+fn dictionary(w: &str) -> Option<&'static [&'static str]> {
+    static WORDS: std::sync::OnceLock<std::collections::HashMap<&'static str, Vec<&'static str>>> = std::sync::OnceLock::new();
+    let words = WORDS.get_or_init(|| CMUDICT.lines().filter_map(|l| {
+        let mut parts = l.split('\t');
+        let word = parts.next()?;
+        let ways: Vec<&str> = parts.filter(|p| !p.is_empty()).collect();
+        (!ways.is_empty()).then_some((word, ways))
+    }).collect());
+    words.get(w).map(Vec::as_slice)
+}
+
+/// Every way the phoneme ear listens for the word, so the leader is heard whichever way it comes out: the
+/// hand-made table's way when the word is in it (those are chosen on purpose: "a" is never listened for, "the" is
+/// only "thuh"); else every way the dictionary has; else the spelling rules (`phonemes`). Then the ways it is
+/// sung (`SUNG`). Ways that sound the same to the ear (`coarse`) are given once. Empty when the word has no
+/// phonemes.
 pub fn variants(word: &str) -> Vec<String> {
     let Some(w) = folded(word) else { return vec![] };
-    let mut out = vec![english(&w)];
+    let mut out: Vec<String> = match (exception(&w), dictionary(&w)) {
+        (Some(p), _) => vec![p.to_string()],
+        // Its other ways only when about as long as its first: the dictionary also lists letters spelled out
+        // ("am" as A.M., "us" as U.S.), which match far more than the word ("I am" was heard as "A.M.").
+        (None, Some(ways)) => {
+            let first = coarse(ways[0]).len();
+            ways.iter().filter(|s| coarse(s).len().abs_diff(first) <= 1).map(|s| s.to_string()).collect()
+        }
+        (None, None) => vec![english(&w)],
+    };
     for (k, ways) in SUNG {
         if *k == w.as_str() { out.extend(ways.iter().map(|s| s.to_string())) }
     }
+    let mut seen = std::collections::HashSet::new();
+    out.retain(|p| seen.insert(coarse(p)));
     out
 }
 

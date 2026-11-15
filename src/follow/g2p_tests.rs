@@ -90,6 +90,21 @@ fn one_sound_words_the_ear_listens_for() {
 }
 
 #[test]
+fn the_dictionary_gives_every_way_a_word_is_said() {
+    // Words the rules built wrong, now as the dictionary has them (no hand-made entry needed).
+    assert_eq!(variants("ocean"), ["oʊʃən"]);
+    assert_eq!(variants("tabernacle"), ["tæbɚnækəl"]);
+    // Both ways of saying a word.
+    assert_eq!(variants("read"), ["ɹɛd", "ɹiːd"]);
+    assert_eq!(variants("wound"), ["waʊnd", "wuːnd"]);
+    // Not letters spelled out ("A.M."), and the hand-made table still decides its own words ("a" is not "ay").
+    assert_eq!(variants("am"), ["æm"]);
+    assert_eq!(variants("a"), ["ɐ"]);
+    // A word the dictionary does not have: the rules, as before.
+    assert_eq!(variants("zzgrace"), [english("zzgrace")]);
+}
+
+#[test]
 fn variants_first_is_the_plain_one() {
     assert_eq!(variants("grace"), ["ɡɹeɪs"]);
     assert_eq!(variants("blessed"), ["blɛst", "blɛsɪd"]);

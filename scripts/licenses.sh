@@ -15,6 +15,7 @@ FILES=(
   mpv-Copyright.txt
   pdfium-LICENSE.txt
   NotoSans-OFL.txt
+  cmudict-LICENSE.txt
 )
 
 # A file nobody listed must not be left out quietly.
