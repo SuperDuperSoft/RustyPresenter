@@ -6012,6 +6012,10 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "そのアドレスやキーには配信を送れません"
 
 #: src/stream/mod.rs
+msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
+msgstr "{name}: インターネットの速度が足りず、配信が飛んでいます。「設定 → メディア → 録画」で 720p を選ぶか、配信先を一つオフにしてください。"
+
+#: src/stream/mod.rs
 msgid "You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once."
 msgstr "ライブ配信中です。賛美の曲を配信するには、教会の通常の著作権ライセンスに加えて配信用ライセンス (例: CCLI の Streaming License) が必要です。配信に入る動画や音楽にも、それぞれの権利者の許可が必要です。このお知らせは一度だけ表示されます。"
 

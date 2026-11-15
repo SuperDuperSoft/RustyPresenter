@@ -6017,6 +6017,10 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "matangazo hayawezi kutumwa kwa anwani au ufunguo wake"
 
 #: src/stream/mod.rs
+msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
+msgstr "{name}: intaneti si ya kasi ya kutosha, kwa hiyo matangazo yanaruka. Chagua 720p katika Mipangilio → Midia → Kurekodi, au zima mahali pamoja."
+
+#: src/stream/mod.rs
 msgid "You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once."
 msgstr "Uko hewani moja kwa moja. Kutangaza nyimbo za kuabudu kunahitaji leseni ya matangazo (kwa mfano CCLI Streaming License) pamoja na leseni ya kawaida ya hakimiliki ya kanisa lako, na video au muziki ndani ya matangazo pia unahitaji ruhusa ya wamiliki wake. Ujumbe huu unaonyeshwa mara moja tu."
 

@@ -14,8 +14,25 @@ use std::time::{Duration, Instant};
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio_util::sync::CancellationToken;
 
-/// Each destination's connection, in the order they were given: up (its sender has held for `UP_AFTER`) or not.
-pub type Links = Arc<Mutex<Vec<bool>>>;
+/// One destination's connection as its sender sees it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub struct Link {
+    /// Connected and sending (its sender has held for `UP_AFTER`).
+    pub up: bool,
+    /// How often the sender fell behind and parts of the stream were skipped (`skipped`): the internet cannot keep
+    /// up with this destination.
+    pub skips: u32,
+}
+
+/// Each destination's connection, in the order they were given.
+pub type Links = Arc<Mutex<Vec<Link>>>;
+
+/// A sender's line saying it fell behind its local feed and part of the stream was dropped: what an upload too
+/// slow for the stream looks like from here.
+pub fn skipped(line: &str) -> bool {
+    let l = line.to_ascii_lowercase();
+    l.contains("circular buffer overrun") || l.contains("buffer overrun")
+}
 
 /// A sender that has run this long is connected and sending.
 const UP_AFTER: Duration = Duration::from_secs(4);
@@ -57,7 +74,7 @@ pub fn retry_after(tries: u32) -> Duration { Duration::from_secs(match tries { 0
 /// Keeps destination `index` sent to until `cancel`: runs its sender, and starts it again whenever it ends.
 /// `all` are every destination's address, so nothing that is logged holds a key.
 pub async fn keep_sending(ffmpeg: PathBuf, port: u16, address: String, all: Vec<String>, index: usize, links: Links, cancel: CancellationToken) {
-    let set = |up: bool| if let Some(l) = links.lock().unwrap_or_else(|e| e.into_inner()).get_mut(index) { *l = up };
+    let set = |up: bool| if let Some(l) = links.lock().unwrap_or_else(|e| e.into_inner()).get_mut(index) { l.up = up };
     let mut tries = 0;
     while !cancel.is_cancelled() {
         let began = Instant::now();
@@ -66,10 +83,13 @@ pub async fn keep_sending(ffmpeg: PathBuf, port: u16, address: String, all: Vec<
         match spawn_tree(cmd) {
             Ok(mut tree) => {
                 if let Some(err) = tree.stderr() {
-                    let all = all.clone();
+                    let (all, links) = (all.clone(), links.clone());
                     tokio::spawn(async move {
                         let mut lines = BufReader::new(err).lines();
-                        while let Ok(Some(l)) = lines.next_line().await { eprintln!("ffmpeg (stream {}): {}", index + 1, super::redact(&l, &all)) }
+                        while let Ok(Some(l)) = lines.next_line().await {
+                            if skipped(&l) && let Some(link) = links.lock().unwrap_or_else(|e| e.into_inner()).get_mut(index) { link.skips += 1 }
+                            eprintln!("ffmpeg (stream {}): {}", index + 1, super::redact(&l, &all))
+                        }
                     });
                 }
                 // Still running after `UP_AFTER`: it is connected. Then until it ends, or the stream is stopped
@@ -107,6 +127,13 @@ mod tests {
         let a = s(sender_args(40123, "srt://h.example.org:9000?streamid=x"));
         assert!(a.windows(2).any(|w| w == ["-f", "mpegts"]) && !a.contains(&"aac_adtstoasc".to_string()));
         assert_eq!(feed(40123), "udp://127.0.0.1:40123?pkt_size=1316");
+    }
+
+    #[test]
+    fn a_sender_falling_behind_is_seen_in_what_it_says() {
+        assert!(skipped("[udp @ 0000020c] Circular buffer overrun. Surrounding packets may be lost."));
+        assert!(!skipped("[flv @ 0x1] Failed to update header with correct duration."));
+        assert!(!skipped("frame=  100 fps= 30"));
     }
 
     #[test]

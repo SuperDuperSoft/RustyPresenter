@@ -6017,6 +6017,10 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "son adresse ou sa clé ne permet pas d’envoyer une diffusion"
 
 #: src/stream/mod.rs
+msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
+msgstr "{name} : la connexion internet n’est pas assez rapide, la diffusion saute. Choisissez 720p dans Paramètres → Médias → Enregistrement, ou désactivez une destination."
+
+#: src/stream/mod.rs
 msgid "You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once."
 msgstr "Vous êtes en direct. Diffuser des chants de louange demande une licence de diffusion (par exemple la CCLI Streaming License) en plus de la licence de droits d’auteur habituelle de votre église, et les vidéos ou la musique de la diffusion demandent aussi l’accord de leurs propriétaires. Ce message ne s’affiche qu’une fois."
 

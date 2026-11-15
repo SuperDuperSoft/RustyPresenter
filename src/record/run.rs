@@ -154,7 +154,7 @@ impl Recording {
         let (started_tx, started_rx) = mpsc::channel();
         let (finished_tx, finished) = mpsc::channel();
         let (s, c, out) = (sink.clone(), cancel.clone(), plan.out.clone());
-        let links: crate::stream::send::Links = Arc::new(Mutex::new(vec![false; plan.stream.len()]));
+        let links: crate::stream::send::Links = Arc::new(Mutex::new(vec![crate::stream::send::Link::default(); plan.stream.len()]));
         let l = links.clone();
         std::thread::Builder::new().name("recorder".into()).spawn(move || {
             let rt = match tokio::runtime::Builder::new_current_thread().enable_all().build() {
@@ -176,7 +176,7 @@ impl Recording {
     pub fn sink(&self) -> &Arc<FrameSink> { &self.sink }
 
     /// Go Live: whether each destination is connected now, in the order of `Plan::stream`.
-    pub fn links(&self) -> Vec<bool> { self.links.lock().unwrap_or_else(|e| e.into_inner()).clone() }
+    pub fn links(&self) -> Vec<crate::stream::send::Link> { self.links.lock().unwrap_or_else(|e| e.into_inner()).clone() }
 
     /// Whole seconds recorded.
     pub fn secs(&self) -> u64 { self.begun.elapsed().as_secs() }

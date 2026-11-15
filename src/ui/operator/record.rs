@@ -24,6 +24,8 @@ pub struct RecordUi {
     /// Go Live: each destination's name and whether it was connected at the last look, in the order of
     /// `Plan::stream`. The ticker says when one drops or comes back.
     links: RefCell<Vec<(String, bool)>>,
+    /// The destinations the operator was told the internet is too slow for (once each).
+    slow_told: RefCell<Vec<String>>,
     /// Updates the time on the button once a second.
     ticker: Timer,
     /// Tests: how the recording ended, waited for by `testing::wait_ended` (no event loop to deliver it).
@@ -75,6 +77,7 @@ impl Operator {
             let titles: Vec<String> = all.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.title().to_string()).collect();
             names = titles.join(", ");
             *self.record.links.borrow_mut() = titles.into_iter().map(|t| (t, false)).collect();
+            self.record.slow_told.borrow_mut().clear();
             addresses = good;
         }
         self.record.starting.set(true);
@@ -160,19 +163,24 @@ impl Operator {
 
     /// Go Live: says which destination has just connected, and which has lost its connection (it is tried
     /// again by itself: `stream::send`).
-    pub(crate) fn say_links(&self, now: &[bool]) {
+    pub(crate) fn say_links(&self, now: &[stream::send::Link]) {
         if !self.record.live.get() { return }
         let mut said = vec![];
-        for ((name, was), up) in self.record.links.borrow_mut().iter_mut().zip(now) {
-            if *was != *up {
-                *was = *up;
-                said.push(if *up { (stream::tr::connected(name), false) } else { (stream::tr::lost(name), true) });
+        for ((name, was), link) in self.record.links.borrow_mut().iter_mut().zip(now) {
+            if *was != link.up {
+                *was = link.up;
+                said.push(if link.up { (stream::tr::connected(name), false) } else { (stream::tr::lost(name), true) });
+            }
+            // The upload cannot keep up: said once, with what to do.
+            if link.skips >= SLOW_SKIPS && !self.record.slow_told.borrow().contains(name) {
+                self.record.slow_told.borrow_mut().push(name.clone());
+                said.push((stream::tr::too_slow(name), true));
             }
         }
         for (text, err) in said { self.toast(text, err) }
         // The Live button: how many are connected now, of how many.
         self.ui.set_live_total(now.len() as i32);
-        self.ui.set_live_up(now.iter().filter(|u| **u).count() as i32);
+        self.ui.set_live_up(now.iter().filter(|l| l.up).count() as i32);
     }
 
     /// The first time a stream goes out from this computer: a note that streaming songs and videos needs a
@@ -232,6 +240,9 @@ impl Operator {
         });
     }
 }
+
+/// A sender that skipped this often is not a passing hiccup: the internet cannot keep up with that destination.
+const SLOW_SKIPS: u32 = 3;
 
 pub(super) fn wire(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);

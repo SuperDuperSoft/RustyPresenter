@@ -6012,6 +6012,10 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "không thể gửi buổi phát tới địa chỉ hoặc bằng khóa đó"
 
 #: src/stream/mod.rs
+msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
+msgstr "{name}: internet không đủ nhanh nên buổi phát bị giật. Hãy chọn 720p trong Cài đặt → Đa phương tiện → Ghi hình, hoặc tắt bớt một nơi phát."
+
+#: src/stream/mod.rs
 msgid "You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once."
 msgstr "Bạn đang phát trực tiếp. Phát các bài thờ phượng cần giấy phép phát trực tuyến (ví dụ CCLI Streaming License) ngoài giấy phép bản quyền thông thường của hội thánh, và video hay nhạc trong buổi phát cũng cần sự cho phép của chủ sở hữu. Thông báo này chỉ hiện một lần."
 

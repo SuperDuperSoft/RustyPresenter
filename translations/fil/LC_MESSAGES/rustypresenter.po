@@ -6017,6 +6017,10 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "hindi mapapadalhan ng stream ang address o key nito"
 
 #: src/stream/mod.rs
+msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
+msgstr "{name}: hindi sapat ang bilis ng internet, kaya lumalaktaw ang stream. Piliin ang 720p sa Settings → Media → Recording, o i-off ang isang destinasyon."
+
+#: src/stream/mod.rs
 msgid "You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once."
 msgstr "Live ka na. Ang pag-stream ng mga awit ng pagsamba ay nangangailangan ng streaming license (halimbawa, ang CCLI Streaming License) bukod sa karaniwang copyright license ng inyong simbahan, at kailangan din ng pahintulot ng may-ari para sa mga video o musika sa stream. Isang beses lang ipinapakita ang paalalang ito."
 

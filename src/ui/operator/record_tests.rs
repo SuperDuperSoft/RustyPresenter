@@ -158,21 +158,30 @@ fn the_operator_hears_when_a_destination_connects_and_when_it_drops() {
     refresh(&op);
     op.record.live.set(true);
     *op.record.links.borrow_mut() = vec![("YouTube".to_string(), false), ("Facebook".to_string(), false)];
+    let l = |v: &[bool]| v.iter().map(|up| stream::send::Link { up: *up, skips: 0 }).collect::<Vec<_>>();
     let before = toasts(&op).len();
-    op.say_links(&[false, false]);
+    op.say_links(&l(&[false, false]));
     assert_eq!(toasts(&op).len(), before, "nothing changed: nothing said");
-    op.say_links(&[true, false]);
+    op.say_links(&l(&[true, false]));
     assert_eq!(toasts(&op).last(), Some(&(stream::tr::connected("YouTube"), false)));
-    op.say_links(&[true, false]);
-    op.say_links(&[false, true]);
+    op.say_links(&l(&[true, false]));
+    op.say_links(&l(&[false, true]));
     let said = toasts(&op);
     assert_eq!(said[said.len() - 2..], [(stream::tr::lost("YouTube"), true), (stream::tr::connected("Facebook"), false)]);
     // The Live button counts them: one of two connected.
     assert_eq!((op.ui.get_live_up(), op.ui.get_live_total()), (1, 2));
     // Only while live.
+    // An upload too slow for Facebook: said once, after a few skips.
+    let slow = |skips| vec![stream::send::Link { up: false, skips: 0 }, stream::send::Link { up: true, skips }];
+    op.say_links(&slow(2));
+    assert_eq!(toasts(&op).len(), said.len(), "two skips are a hiccup");
+    op.say_links(&slow(3));
+    assert_eq!(toasts(&op).last(), Some(&(stream::tr::too_slow("Facebook"), true)));
+    op.say_links(&slow(9));
+    assert_eq!(toasts(&op).len(), said.len() + 1, "once");
     op.record.live.set(false);
-    op.say_links(&[true, true]);
-    assert_eq!(toasts(&op).len(), said.len());
+    op.say_links(&l(&[true, true]));
+    assert_eq!(toasts(&op).len(), said.len() + 1);
 }
 
 #[test]
