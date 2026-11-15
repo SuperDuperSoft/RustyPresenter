@@ -6017,6 +6017,14 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "son adresse ou sa clé ne permet pas d’envoyer une diffusion"
 
 #: src/stream/mod.rs
+msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
+msgstr "La caméra s’est arrêtée. La diffusion montre les diapositives jusqu’à son retour ; nouvel essai automatique."
+
+#: src/stream/mod.rs
+msgid "The camera is back in the stream."
+msgstr "La caméra est de retour dans la diffusion."
+
+#: src/stream/mod.rs
 msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
 msgstr "{name} : la connexion internet n’est pas assez rapide, la diffusion saute. Choisissez 720p dans Paramètres → Médias → Enregistrement, ou désactivez une destination."
 

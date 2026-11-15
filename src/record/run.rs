@@ -143,6 +143,8 @@ pub struct Recording {
     pub out: PathBuf,
     /// Go Live: each destination's connection, up or not (`stream::send`); empty when only recording.
     links: crate::stream::send::Links,
+    /// Go Live with a camera: whether its pictures are coming now (`stream::camera_feed`); `None` without one.
+    camera_seen: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>,
 }
 
 impl Recording {
@@ -156,17 +158,19 @@ impl Recording {
         let (s, c, out) = (sink.clone(), cancel.clone(), plan.out.clone());
         let links: crate::stream::send::Links = Arc::new(Mutex::new(vec![crate::stream::send::Link::default(); plan.stream.len()]));
         let l = links.clone();
+        let camera_seen: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>> = Arc::default();
+        let cs = camera_seen.clone();
         std::thread::Builder::new().name("recorder".into()).spawn(move || {
             let rt = match tokio::runtime::Builder::new_current_thread().enable_all().build() {
                 Ok(rt) => rt,
                 Err(e) => { let _ = started_tx.send(Err(e.to_string())); return }
             };
-            let ended = rt.block_on(write(plan, s, c, started_tx, l));
+            let ended = rt.block_on(write(plan, s, c, started_tx, l, cs));
             if let Some(ended) = ended { done(ended) }
             let _ = finished_tx.send(());
         }).map_err(|e| tr::not_started(&e.to_string()))?;
         match started_rx.recv() {
-            Ok(Ok(())) => Ok(Recording { sink, cancel, finished, begun: Instant::now(), out, links }),
+            Ok(Ok(())) => Ok(Recording { sink, cancel, finished, begun: Instant::now(), out, links, camera_seen }),
             Ok(Err(e)) => Err(tr::not_started(&e)),
             Err(_) => Err(tr::not_started(&tr::ffmpeg_ended())),
         }
@@ -177,6 +181,11 @@ impl Recording {
 
     /// Go Live: whether each destination is connected now, in the order of `Plan::stream`.
     pub fn links(&self) -> Vec<crate::stream::send::Link> { self.links.lock().unwrap_or_else(|e| e.into_inner()).clone() }
+
+    /// Go Live with a camera: whether its pictures are coming now; `None` without a camera.
+    pub fn camera_seen(&self) -> Option<bool> {
+        self.camera_seen.lock().unwrap_or_else(|e| e.into_inner()).as_ref().map(|s| s.load(std::sync::atomic::Ordering::Relaxed))
+    }
 
     /// Whole seconds recorded.
     pub fn secs(&self) -> u64 { self.begun.elapsed().as_secs() }
@@ -199,7 +208,8 @@ impl Drop for Recording {
 
 /// The writer: pictures into FFmpeg at `FPS`, until stopped, the disk fills or FFmpeg ends. Then the MP4.
 /// `None` when FFmpeg never started (the starter heard why).
-async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, started: mpsc::Sender<Result<(), String>>, links: crate::stream::send::Links) -> Option<Ended> {
+async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, started: mpsc::Sender<Result<(), String>>, links: crate::stream::send::Links,
+    camera_seen: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>) -> Option<Ended> {
     let part = partial_of(&plan.out);
     // Go Live: the recorder sends to a local feed for each destination; a sender each passes it on and
     // reconnects (`stream::send`). With no free ports there is no stream, and the recording goes on.
@@ -210,6 +220,18 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     // The words over the camera, when the camera's layout has them.
     let mut camera = if ports.is_empty() { None } else { plan.camera.clone() };
     let mut words = None;
+    // The camera through a feed of its own, which keeps it going through unplugging.
+    let mut camera_feed = None;
+    if let Some(cam) = camera.as_mut() {
+        match crate::stream::camera_feed::start(plan.ffmpeg.clone(), cam.input.clone(), sink.size, FPS) {
+            Ok(feed) => {
+                cam.feed_port = Some(feed.port);
+                *camera_seen.lock().unwrap_or_else(|e| e.into_inner()) = Some(feed.seeing.clone());
+                camera_feed = Some(feed);
+            }
+            Err(e) => eprintln!("recording: the camera is opened by FFmpeg itself (it will not come back if it stops): {e}"),
+        }
+    }
     if let (Some(cam), Some(source)) = (camera.as_mut(), &plan.words) && cam.layout == args::Layout::CameraWords {
         match crate::stream::lyrics::start(source.0.clone(), sink.size) {
             Ok(feed) => { cam.words_port = Some(feed.port); words = Some(feed) }
@@ -289,6 +311,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     // The PC's sound has no end of its own: stopping it lets FFmpeg end its file.
     if let Some(c) = pc.as_mut() { c.stop() }
     if let Some(w) = words.as_mut() { w.stop() }
+    if let Some(c) = camera_feed.as_mut() { c.stop() }
     let end = t0.elapsed().as_secs_f64();
     let ended = tree.wait(END_LIMIT, &CancellationToken::new()).await;
     // The last of the stream has gone to the senders: a moment for them to pass it on, then they stop.

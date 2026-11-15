@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 use std::path::Path;
 use uuid::Uuid;
 
+pub mod camera_feed;
 pub mod keys;
 pub mod lyrics;
 pub mod pc_sound;
@@ -168,6 +169,8 @@ pub mod tr {
     pub fn no_key() -> String { tr!("it has no stream key") }
     pub fn no_address() -> String { tr!("it has no address") }
     pub fn bad_address() -> String { tr!("its address or key is not one a stream can be sent to") }
+    pub fn camera_lost() -> String { tr!("The camera stopped. The stream shows the slides until it is back; it is tried again by itself.") }
+    pub fn camera_back() -> String { tr!("The camera is back in the stream.") }
     pub fn too_slow(name: &str) -> String {
         tr!("{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off.", name = name)
     }

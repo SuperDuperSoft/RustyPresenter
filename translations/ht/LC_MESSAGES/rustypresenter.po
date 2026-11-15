@@ -6017,6 +6017,14 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "yo pa ka voye yon emisyon nan adrès li oswa ak kle li"
 
 #: src/stream/mod.rs
+msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
+msgstr "Kamera a kanpe. Emisyon an montre diapozitif yo jiskaske li tounen; l ap eseye ankò poukont li."
+
+#: src/stream/mod.rs
+msgid "The camera is back in the stream."
+msgstr "Kamera a tounen nan emisyon an."
+
+#: src/stream/mod.rs
 msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
 msgstr "{name}: entènèt la pa ase rapid, kidonk emisyon an sote. Chwazi 720p nan Paramèt → Medya → Anrejistreman, oswa etenn yon destinasyon."
 

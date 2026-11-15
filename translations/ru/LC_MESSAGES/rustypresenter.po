@@ -6022,6 +6022,14 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "на этот адрес или с этим ключом трансляцию отправить нельзя"
 
 #: src/stream/mod.rs
+msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
+msgstr "Камера остановилась. Пока её нет, в трансляции видны слайды; повторная попытка выполняется сама."
+
+#: src/stream/mod.rs
+msgid "The camera is back in the stream."
+msgstr "Камера снова в трансляции."
+
+#: src/stream/mod.rs
 msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
 msgstr "{name}: интернет недостаточно быстрый, и трансляция пропускает кадры. Выберите 720p в разделе «Настройки → Медиа → Запись» или отключите одно место назначения."
 

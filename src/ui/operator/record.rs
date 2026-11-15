@@ -26,6 +26,8 @@ pub struct RecordUi {
     links: RefCell<Vec<(String, bool)>>,
     /// The destinations the operator was told the internet is too slow for (once each).
     slow_told: RefCell<Vec<String>>,
+    /// The camera in the stream: whether its pictures came at the last look (`None`: not yet seen at all).
+    camera_was: Cell<Option<bool>>,
     /// Updates the time on the button once a second.
     ticker: Timer,
     /// Tests: how the recording ended, waited for by `testing::wait_ended` (no event loop to deliver it).
@@ -78,13 +80,14 @@ impl Operator {
             names = titles.join(", ");
             *self.record.links.borrow_mut() = titles.into_iter().map(|t| (t, false)).collect();
             self.record.slow_told.borrow_mut().clear();
+            self.record.camera_was.set(None);
             addresses = good;
         }
         self.record.starting.set(true);
         let prefs_pc = prefs.pc_sound(&app_output);
         let layout = record::args::Layout::from_index(prefs.camera_layout);
         let camera = (!prefs.camera.is_empty()).then(|| record::args::Camera { input: record::args::camera_input(crate::platform::tools::OS, &prefs.camera), layout,
-            words_port: None });
+            words_port: None, feed_port: None });
         // The words over the camera: what is live now, read when the words picture is drawn.
         let canvas = prefs.size.size();
         let app = self.app().clone();
@@ -192,6 +195,20 @@ impl Operator {
         if let Err(e) = self.app().edit_untracked(|d| { d.settings.record.licence_noted = true; Ok(()) }) { eprintln!("go live: could not keep the licence note's mark: {e}") }
     }
 
+    /// Go Live with a camera: says when its pictures stop (the stream shows the slides meanwhile) and when they
+    /// come back. Nothing before the camera has been seen once (it is still starting).
+    pub(crate) fn say_camera(&self, seen: Option<bool>) {
+        let Some(now) = seen else { return };
+        if !self.record.live.get() { return }
+        match (self.record.camera_was.get(), now) {
+            (Some(true), false) => self.toast(stream::tr::camera_lost(), true),
+            (Some(false), true) => self.toast(stream::tr::camera_back(), false),
+            _ => {}
+        }
+        // Not seen yet and still not seen: still starting, nothing to say.
+        if self.record.camera_was.get().is_some() || now { self.record.camera_was.set(Some(now)) }
+    }
+
     /// Whether a recording is under way.
     pub fn is_recording(&self) -> bool { self.record.rec.borrow().is_some() }
 
@@ -210,6 +227,8 @@ impl Operator {
             if let Some(s) = secs { op.ui.set_record_time(record::clock(s).into()) }
             let links = op.record.rec.borrow().as_ref().map(Recording::links).unwrap_or_default();
             op.say_links(&links);
+            let camera = op.record.rec.borrow().as_ref().and_then(Recording::camera_seen);
+            op.say_camera(camera);
         });
     }
 

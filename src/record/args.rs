@@ -148,6 +148,9 @@ pub struct Camera {
     pub layout: Layout,
     /// `CameraWords`: the local port the words picture comes on (`stream::lyrics::Feed`); set when it is started.
     pub words_port: Option<u16>,
+    /// The local port the camera's pictures come on through `stream::camera_feed` (which keeps it going through
+    /// unplugging); set when it is started. `None`: FFmpeg opens `input` itself.
+    pub feed_port: Option<u16>,
 }
 
 /// The filter that puts the camera and the room screen together into `[v]`: one fills the `w`×`h` picture (kept
@@ -160,12 +163,17 @@ pub struct Camera {
 pub fn picture_in_picture(screen: usize, camera: usize, (w, h): (u32, u32), fps: u32, camera_main: bool) -> String {
     let small = (w / 4) & !1;
     let edge = w / 40;
-    let fit = |what: &str| format!("scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,setsar=1,fps={fps},format=yuv420p{what}");
+    // The camera keeps its alpha: see-through while `stream::camera_feed` has no camera picture.
+    let fit = |fmt: &str, what: &str| format!("scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,setsar=1,fps={fps},format={fmt}{what}");
     if camera_main {
-        format!("[{screen}:v]split=2[r1][r2];[r1]{base};[{camera}:v]{cam};[base][cam]overlay=0:0:eof_action=pass[full];            [r2]scale={small}:-2,setsar=1,format=yuv420p[pip];[full][pip]overlay=W-w-{edge}:H-h-{edge}[v]", base = fit("[base]"), cam = fit("[cam]"))
+        let base = fit("yuv420p", "[base]");
+        let cam = fit("yuva420p", "[cam]");
+        [format!("[{screen}:v]split=2[r1][r2]"), format!("[r1]{base}"), format!("[{camera}:v]{cam}"), "[base][cam]overlay=0:0:eof_action=pass[full]".into(),
+            format!("[r2]scale={small}:-2,setsar=1,format=yuv420p[pip]"), format!("[full][pip]overlay=W-w-{edge}:H-h-{edge}[v]")].join(";")
     } else {
-        format!("[{screen}:v]{base};[{camera}:v]scale={small}:-2,setsar=1,format=yuv420p[pip];[base][pip]overlay=W-w-{edge}:H-h-{edge}:eof_action=pass[v]",
-            base = fit("[base]"))
+        let base = fit("yuv420p", "[base]");
+        [format!("[{screen}:v]{base}"), format!("[{camera}:v]scale={small}:-2,setsar=1,format=yuva420p[pip]"),
+            format!("[base][pip]overlay=W-w-{edge}:H-h-{edge}:eof_action=pass[v]")].join(";")
     }
 }
 
@@ -173,8 +181,10 @@ pub fn picture_in_picture(screen: usize, camera: usize, (w, h): (u32, u32), fps:
 /// over it. The room screen is the base underneath (and the clock): not seen while the camera is there, it shows
 /// if the camera stops, and its end (Stop) ends the picture.
 pub fn camera_with_words(screen: usize, camera: usize, words: usize, (w, h): (u32, u32), fps: u32) -> String {
-    let fit = |what: &str| format!("scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,setsar=1,fps={fps},format=yuv420p{what}");
-    format!("[{screen}:v]{base};[{camera}:v]{cam};[base][cam]overlay=0:0:eof_action=pass[seen];        [{words}:v]format=rgba[words];[seen][words]overlay=0:0:alpha=premultiplied:eof_action=pass:format=auto,format=yuv420p[v]", base = fit("[base]"), cam = fit("[cam]"))
+    let fit = |fmt: &str, what: &str| format!("scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,setsar=1,fps={fps},format={fmt}{what}");
+    let (base, cam) = (fit("yuv420p", "[base]"), fit("yuva420p", "[cam]"));
+    [format!("[{screen}:v]{base}"), format!("[{camera}:v]{cam}"), "[base][cam]overlay=0:0:eof_action=pass,format=yuv420p[seen]".into(),
+        format!("[{words}:v]format=rgba[words]"), "[seen][words]overlay=0:0:alpha=premultiplied:eof_action=pass:format=auto,format=yuv420p[v]".into()].join(";")
 }
 
 fn quoted(l: &str) -> Option<&str> {
@@ -272,7 +282,10 @@ pub fn record(r: &Record) -> Vec<OsString> {
 fn add_camera(a: &mut Vec<OsString>, cam: &Camera, size: (u32, u32), fps: u32) {
     let index = a.iter().filter(|x| *x == "-i").count();
     let at = a.iter().position(|x| x == "-map").unwrap_or(a.len());
-    let mut more: Vec<OsString> = cam.input.iter().map(OsString::from).collect();
+    let mut more: Vec<OsString> = match cam.feed_port {
+        Some(port) => crate::stream::camera_feed::input_args(size, fps, port).into_iter().map(OsString::from).collect(),
+        None => cam.input.iter().map(OsString::from).collect(),
+    };
     let filter = match (cam.layout, cam.words_port) {
         (Layout::CameraWords, Some(port)) => {
             more.extend(crate::stream::lyrics::input_args(size, port).into_iter().map(OsString::from));
@@ -383,7 +396,7 @@ mod tests {
         assert_eq!(parse_inputs(Os::Windows, out).len(), 1, "a camera is no sound input");
         assert_eq!(camera_input(Os::Windows, "Integrated Camera").last().unwrap(), "video=Integrated Camera");
         let out = PathBuf::from("/r/Recording.recording.mkv");
-        let cam = Camera { input: vec!["-f".into(), "lavfi".into(), "-i".into(), "testsrc".into()], layout: Layout::CameraScreen, words_port: None };
+        let cam = Camera { input: vec!["-f".into(), "lavfi".into(), "-i".into(), "testsrc".into()], layout: Layout::CameraScreen, words_port: None, feed_port: None };
         let to = ["rtmp://a.rtmp.youtube.com/live2/key".to_string()];
         // With the sound board too: the camera is input 2, after it.
         let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: Some(("dshow", "Line In")), out: &out, stream: &to, pc: None, camera: Some(&cam) }));

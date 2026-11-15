@@ -6017,6 +6017,14 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "matangazo hayawezi kutumwa kwa anwani au ufunguo wake"
 
 #: src/stream/mod.rs
+msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
+msgstr "Kamera imesimama. Matangazo yanaonyesha slaidi hadi itakaporudi; inajaribu tena yenyewe."
+
+#: src/stream/mod.rs
+msgid "The camera is back in the stream."
+msgstr "Kamera imerudi kwenye matangazo."
+
+#: src/stream/mod.rs
 msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
 msgstr "{name}: intaneti si ya kasi ya kutosha, kwa hiyo matangazo yanaruka. Chagua 720p katika Mipangilio → Midia → Kurekodi, au zima mahali pamoja."
 

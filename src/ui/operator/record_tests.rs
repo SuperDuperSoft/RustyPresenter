@@ -198,3 +198,26 @@ fn the_streaming_licence_note_is_shown_once() {
     op.note_stream_licence();
     assert_eq!(op.state.borrow().asks, 0, "not again");
 }
+
+#[test]
+fn the_operator_hears_when_the_camera_drops_out_and_comes_back() {
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    op.record.live.set(true);
+    let before = toasts(&op).len();
+    // Starting: not seen yet, nothing said; then seen.
+    op.say_camera(Some(false));
+    op.say_camera(Some(true));
+    assert_eq!(toasts(&op).len(), before);
+    op.say_camera(Some(false));
+    assert_eq!(toasts(&op).last(), Some(&(stream::tr::camera_lost(), true)));
+    op.say_camera(Some(false));
+    op.say_camera(Some(true));
+    assert_eq!(toasts(&op).last(), Some(&(stream::tr::camera_back(), false)));
+    assert_eq!(toasts(&op).len(), before + 2);
+    // No camera: nothing.
+    op.say_camera(None);
+    assert_eq!(toasts(&op).len(), before + 2);
+}

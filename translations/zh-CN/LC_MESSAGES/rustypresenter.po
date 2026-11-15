@@ -6012,6 +6012,14 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "无法向这个地址或用这个密钥发送直播"
 
 #: src/stream/mod.rs
+msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
+msgstr "摄像头停止了。在它恢复前，直播显示幻灯片；正在自动重试。"
+
+#: src/stream/mod.rs
+msgid "The camera is back in the stream."
+msgstr "摄像头已回到直播中。"
+
+#: src/stream/mod.rs
 msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
 msgstr "{name}：网速不够，直播出现跳帧。请在“设置 → 媒体 → 录制”中选择 720p，或关闭一个直播目标。"
 
