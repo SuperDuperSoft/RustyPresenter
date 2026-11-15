@@ -2812,8 +2812,8 @@ msgid "Test which is fastest"
 msgstr "测试哪个最快"
 
 #: ui/dialogs/settings.slint
-msgid "About 30 seconds. Test windows open and close while it runs."
-msgstr "大约 30 秒。测试期间会有测试窗口打开和关闭。"
+msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
+msgstr ""
 
 #: ui/dialogs/settings.slint
 msgid "Use this"
@@ -10395,16 +10395,52 @@ msgid "Didn't work"
 msgstr "无法运行"
 
 #: src/video/bench.rs
+msgid "It stopped responding."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "It could not start."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "It closed before it finished. It may have crashed."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "Slides never reached the room screen."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "This graphics card or its driver can't draw with it."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "Slide change {ms} ms"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "{n} hiccups a minute"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "longest pause {ms} ms"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "processor {pct} %"
+msgstr ""
+
+#: src/video/bench.rs
 msgid "Testing {mode}… ({at} of {count})"
 msgstr "正在测试 {mode}…（{at} / {count}）"
 
 #: src/video/bench.rs
-msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About 30 seconds"
-msgstr "显卡或其驱动程序已更改。要我重新为这台电脑找出最佳图形设置吗？大约 30 秒"
+msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About a minute"
+msgstr ""
 
 #: src/video/bench.rs
-msgid "Want me to find the best graphics for this PC? About 30 seconds"
-msgstr "要我为这台电脑找出最佳图形设置吗？大约 30 秒"
+msgid "Want me to find the best graphics for this PC? About a minute"
+msgstr ""
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
@@ -10525,6 +10561,15 @@ msgstr "yt-dlp 没有保存视频"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "不是媒体文件"
+
+#~ msgid "About 30 seconds. Test windows open and close while it runs."
+#~ msgstr "大约 30 秒。测试期间会有测试窗口打开和关闭。"
+
+#~ msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About 30 seconds"
+#~ msgstr "显卡或其驱动程序已更改。要我重新为这台电脑找出最佳图形设置吗？大约 30 秒"
+
+#~ msgid "Want me to find the best graphics for this PC? About 30 seconds"
+#~ msgstr "要我为这台电脑找出最佳图形设置吗？大约 30 秒"
 
 #~ msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
 #~ msgstr "打开一个直播目标后，“录制”旁会出现“开始直播”按钮。“开始直播”照常录制，并把同样的画面和声音发送到每个已打开的目标。声音来自上面选择的麦克风或线路输入；软件自己的声音暂时不会进入直播。"

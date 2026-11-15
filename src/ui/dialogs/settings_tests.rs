@@ -496,18 +496,24 @@ fn the_graphics_test_shows_each_choice_and_use_this_saves_the_pick() {
     open(&op, SettingsTab::Video);
     settle();
     assert!(find(&op, "SettingsVideo::graphics-test").is_some(), "the button");
-    assert_eq!(find(&op, "SettingsVideo::graphics-test-status").unwrap().accessible_label().unwrap(), "About 30 seconds. Test windows open and close while it runs.");
+    assert_eq!(find(&op, "SettingsVideo::graphics-test-status").unwrap().accessible_label().unwrap(), "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there.");
     assert!(find(&op, "SettingsVideo::graphics-test-use").is_none(), "nothing to use yet");
     assert!(find(&op, "SettingsVideo::graphics-restart").is_none(), "nothing to restart for yet");
 
     let root = app.store.data_path().parent().unwrap().to_path_buf();
-    let ran = |graphics, fps| Measured { graphics, started: true, fps, low_ms: 18.0, cpu: Some(20.0), adapter: "GPU 1".into(), error: String::new() };
+    let ran = |graphics| Measured {
+        graphics, started: true, changes: 12, seen: 12, delay_ms: 50.0, delay_slow_ms: 70.0, hiccups_min: Some(0.0), freeze_ms: 20.0,
+        cpu: Some(20.0), adapter: "GPU 1".into(), ..Measured::default()
+    };
     // The software choice is last in every build; the first real one wins.
-    let results = vec![ran(Graphics::OpenGl, 60.0), Measured::failed(Graphics::Software, "crashed")];
+    let results = vec![ran(Graphics::OpenGl), Measured::failed(Graphics::Software, "stopped without a result")];
     super::settings_graphics::finish(&g(&op), &root, results);
     settle();
     let rows: Vec<(String, String, bool)> = g(&op).get_graphics_test_rows().iter().map(|r| (r.name.to_string(), r.word.to_string(), r.best)).collect();
     assert_eq!(rows, [("OpenGL".into(), "Smooth".into(), true), ("Software".into(), "Didn't work".into(), false)]);
+    let details: Vec<String> = g(&op).get_graphics_test_rows().iter().map(|r| r.details.to_string()).collect();
+    assert_eq!(details, ["Slide change 70 ms · 0 hiccups a minute · longest pause 20 ms · processor 20 %", "It closed before it finished. It may have crashed."]);
+    assert_eq!(find_all(&op, "SettingsVideo::graphics-test-details").len(), 2, "each row says what was measured or why");
     assert_eq!(find_all(&op, "SettingsVideo::graphics-test-row").len(), 2);
     assert_eq!(g(&op).get_graphics_test_pick(), 0, "the best is picked");
     assert_eq!(g(&op).get_graphics_test_status(), "OpenGL is the best for this PC. Automatic will use it from the next start.");

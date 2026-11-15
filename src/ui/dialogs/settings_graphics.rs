@@ -48,7 +48,7 @@ pub(super) fn show_results(g: &SettingsDlg, results: &[Measured]) {
     let rows = bench::rows(results);
     let pick = rows.iter().position(|r| r.best).unwrap_or(0);
     g.set_graphics_test_rows(ModelRc::new(VecModel::from(rows.iter().map(|r| GraphicsTestRow {
-        name: r.name.as_str().into(), bar: r.bar, word: r.word.as_str().into(), best: r.best, works: r.works,
+        name: r.name.as_str().into(), bar: r.bar, word: r.word.as_str().into(), details: r.details.as_str().into(), best: r.best, works: r.works,
     }).collect::<Vec<_>>())));
     g.set_graphics_test_pick(pick as i32);
     g.set_graphics_test_status(match bench::best(results) { Some(w) => bench::done_text(w), None => bench::nothing_worked() }.into());
@@ -83,18 +83,22 @@ fn run_test(op: &Rc<Operator>) {
     let exe = match std::env::current_exe() { Ok(e) => e, Err(e) => { op.toast(e.to_string(), true); return } };
     let list = bench::choices(&choices());
     let root = data_root(op);
+    // The test's room goes on the projector only while the church's room window is closed.
+    let app = op.app();
+    let room_open = app.state_json()["room_connected"].as_bool().unwrap_or(true);
+    let saved = app.data.lock().ok().and_then(|d| d.settings.screens.monitors("audience").first().map(|m| m.to_string()));
+    let room = bench::room_arg(room_open, saved.as_deref());
     g.set_graphics_testing(true);
     g.set_graphics_test_rows(ModelRc::default());
-    if let Some(first) = list.first() { g.set_graphics_test_status(bench::testing(*first, 0, list.len()).into()) }
+    let total = bench::schedule(&list).len();
+    if let Some(first) = list.first() { g.set_graphics_test_status(bench::testing(*first, 0, total).into()) }
     let ui = op.ui.as_weak();
     std::thread::spawn(move || {
-        let n = list.len();
         let progress = ui.clone();
-        let results = bench::run_all(&bench::Exe(exe), &list, &std::env::temp_dir(), bench::LIMIT, Duration::from_millis(100), |i, choice| {
+        let results = bench::run_all(&bench::Exe { exe, room }, &list, &std::env::temp_dir(), bench::LIMIT, Duration::from_millis(100), |i, n, choice| {
             let text = bench::testing(choice, i, n);
             let _ = progress.upgrade_in_event_loop(move |ui| ui.global::<SettingsDlg>().set_graphics_test_status(text.into()));
         });
-        for m in &results { if !m.error.is_empty() { eprintln!("Graphics test {:?}: {}", m.graphics, m.error) } }
         let _ = ui.upgrade_in_event_loop(move |ui| finish(&ui.global::<SettingsDlg>(), &root, results));
     });
 }

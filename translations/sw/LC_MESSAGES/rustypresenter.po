@@ -2812,8 +2812,8 @@ msgid "Test which is fastest"
 msgstr "Jaribu ipi ni ya haraka zaidi"
 
 #: ui/dialogs/settings.slint
-msgid "About 30 seconds. Test windows open and close while it runs."
-msgstr "Takriban sekunde 30. Madirisha ya majaribio yanafunguka na kufungwa wakati huo."
+msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
+msgstr ""
 
 #: ui/dialogs/settings.slint
 msgid "Use this"
@@ -10442,16 +10442,52 @@ msgid "Didn't work"
 msgstr "Haikufanya kazi"
 
 #: src/video/bench.rs
+msgid "It stopped responding."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "It could not start."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "It closed before it finished. It may have crashed."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "Slides never reached the room screen."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "This graphics card or its driver can't draw with it."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "Slide change {ms} ms"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "{n} hiccups a minute"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "longest pause {ms} ms"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "processor {pct} %"
+msgstr ""
+
+#: src/video/bench.rs
 msgid "Testing {mode}… ({at} of {count})"
 msgstr "Inajaribu {mode}… ({at} kati ya {count})"
 
 #: src/video/bench.rs
-msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About 30 seconds"
-msgstr "Kadi ya michoro au dereva wake umebadilika. Unataka nitafute tena michoro bora kwa PC hii? Takriban sekunde 30"
+msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About a minute"
+msgstr ""
 
 #: src/video/bench.rs
-msgid "Want me to find the best graphics for this PC? About 30 seconds"
-msgstr "Unataka nitafute michoro bora kwa PC hii? Takriban sekunde 30"
+msgid "Want me to find the best graphics for this PC? About a minute"
+msgstr ""
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
@@ -10572,6 +10608,15 @@ msgstr "yt-dlp haikuhifadhi video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "si faili ya midia"
+
+#~ msgid "About 30 seconds. Test windows open and close while it runs."
+#~ msgstr "Takriban sekunde 30. Madirisha ya majaribio yanafunguka na kufungwa wakati huo."
+
+#~ msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About 30 seconds"
+#~ msgstr "Kadi ya michoro au dereva wake umebadilika. Unataka nitafute tena michoro bora kwa PC hii? Takriban sekunde 30"
+
+#~ msgid "Want me to find the best graphics for this PC? About 30 seconds"
+#~ msgstr "Unataka nitafute michoro bora kwa PC hii? Takriban sekunde 30"
 
 #~ msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
 #~ msgstr "Washa mahali pa kutuma na kitufe cha Rusha moja kwa moja kitaonekana karibu na Rekodi. Rusha moja kwa moja hurekodi kama kawaida na kutuma picha na sauti ile ile kwa kila mahali palipowashwa. Sauti ni maikrofoni au line-in iliyochaguliwa juu; sauti ya programu yenyewe bado haimo kwenye matangazo."

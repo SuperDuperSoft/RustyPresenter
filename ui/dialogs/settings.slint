@@ -146,7 +146,7 @@ component SettingsVideo inherits VerticalLayout {
                 clicked => { SettingsDlg.graphics-test(); }
             }
             graphics-test-status := Text {
-                text: SettingsDlg.graphics-test-status != "" ? SettingsDlg.graphics-test-status : @tr("About 30 seconds. Test windows open and close while it runs.");
+                text: SettingsDlg.graphics-test-status != "" ? SettingsDlg.graphics-test-status : @tr("About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there.");
                 color: Theme.muted;
                 wrap: word-wrap;
                 vertical-alignment: center;
@@ -156,11 +156,11 @@ component SettingsVideo inherits VerticalLayout {
             }
         }
         for r[i] in SettingsDlg.graphics-test-rows: graphics-test-row := Rectangle {
-            height: 30px;
+            min-height: 30px;
             border-radius: 6px;
             background: SettingsDlg.graphics-test-pick == i ? Theme.raise : transparent;
             accessible-role: list-item;
-            accessible-label: (r.best ? "★ " : "") + r.name + ": " + r.word;
+            accessible-label: (r.best ? "★ " : "") + r.name + ": " + r.word + ". " + r.details;
             accessible-item-selectable: true;
             accessible-item-selected: SettingsDlg.graphics-test-pick == i;
             accessible-action-default => { SettingsDlg.graphics-test-pick = i; }
@@ -201,9 +201,20 @@ component SettingsVideo inherits VerticalLayout {
                     }
                 }
                 Text {
+                    width: 80px;
                     text: r.word;
                     color: r.works ? Theme.text : Theme.muted;
                     vertical-alignment: center;
+                }
+                graphics-test-details := Text {
+                    text: r.details;
+                    color: Theme.muted;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                    vertical-alignment: center;
+                    horizontal-stretch: 1;
+                    accessible-role: text;
+                    accessible-label: self.text;
                 }
             }
         }

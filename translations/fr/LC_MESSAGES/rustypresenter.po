@@ -2812,8 +2812,8 @@ msgid "Test which is fastest"
 msgstr "Tester le plus rapide"
 
 #: ui/dialogs/settings.slint
-msgid "About 30 seconds. Test windows open and close while it runs."
-msgstr "Environ 30 secondes. Des fenêtres de test s’ouvrent et se ferment pendant ce temps."
+msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
+msgstr ""
 
 #: ui/dialogs/settings.slint
 msgid "Use this"
@@ -10442,16 +10442,52 @@ msgid "Didn't work"
 msgstr "Échec"
 
 #: src/video/bench.rs
+msgid "It stopped responding."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "It could not start."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "It closed before it finished. It may have crashed."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "Slides never reached the room screen."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "This graphics card or its driver can't draw with it."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "Slide change {ms} ms"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "{n} hiccups a minute"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "longest pause {ms} ms"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "processor {pct} %"
+msgstr ""
+
+#: src/video/bench.rs
 msgid "Testing {mode}… ({at} of {count})"
 msgstr "Test de {mode}… ({at} sur {count})"
 
 #: src/video/bench.rs
-msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About 30 seconds"
-msgstr "La carte graphique ou son pilote a changé. Voulez-vous que je cherche à nouveau les meilleurs graphismes pour ce PC ? Environ 30 secondes"
+msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About a minute"
+msgstr ""
 
 #: src/video/bench.rs
-msgid "Want me to find the best graphics for this PC? About 30 seconds"
-msgstr "Voulez-vous que je cherche les meilleurs graphismes pour ce PC ? Environ 30 secondes"
+msgid "Want me to find the best graphics for this PC? About a minute"
+msgstr ""
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
@@ -10572,6 +10608,15 @@ msgstr "yt-dlp n’a enregistré aucune vidéo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "pas un fichier média"
+
+#~ msgid "About 30 seconds. Test windows open and close while it runs."
+#~ msgstr "Environ 30 secondes. Des fenêtres de test s’ouvrent et se ferment pendant ce temps."
+
+#~ msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About 30 seconds"
+#~ msgstr "La carte graphique ou son pilote a changé. Voulez-vous que je cherche à nouveau les meilleurs graphismes pour ce PC ? Environ 30 secondes"
+
+#~ msgid "Want me to find the best graphics for this PC? About 30 seconds"
+#~ msgstr "Voulez-vous que je cherche les meilleurs graphismes pour ce PC ? Environ 30 secondes"
 
 #~ msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
 #~ msgstr "Activez une destination et un bouton « Passer en direct » apparaît à côté de « Enregistrer ». « Passer en direct » enregistre comme d’habitude et envoie la même image et le même son à chaque destination activée. Le son est le micro ou l’entrée ligne choisi plus haut ; le son de l’application elle-même n’est pas encore dans la diffusion."

@@ -35,7 +35,7 @@ pub fn relaunch_args(args: &[OsString], pid: u32) -> Vec<OsString> {
     while let Some(a) = it.next() {
         match a.to_str() {
             Some("--app" | "--restore" | "--safe-mode") => {}
-            Some("--attempt" | WAIT_FLAG | crate::video::bench::FLAG | crate::video::bench::OUT_FLAG) => { it.next(); }
+            Some("--attempt" | WAIT_FLAG | crate::video::bench::FLAG | crate::video::bench::OUT_FLAG | crate::video::bench::ROOM_FLAG) => { it.next(); }
             _ => out.push(a.clone()),
         }
     }

@@ -2812,8 +2812,8 @@ msgid "Test which is fastest"
 msgstr "가장 빠른 것 테스트"
 
 #: ui/dialogs/settings.slint
-msgid "About 30 seconds. Test windows open and close while it runs."
-msgstr "약 30초 걸려요. 테스트 중에 테스트 창이 열렸다 닫혀요."
+msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
+msgstr ""
 
 #: ui/dialogs/settings.slint
 msgid "Use this"
@@ -10395,16 +10395,52 @@ msgid "Didn't work"
 msgstr "안 됨"
 
 #: src/video/bench.rs
+msgid "It stopped responding."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "It could not start."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "It closed before it finished. It may have crashed."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "Slides never reached the room screen."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "This graphics card or its driver can't draw with it."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "Slide change {ms} ms"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "{n} hiccups a minute"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "longest pause {ms} ms"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "processor {pct} %"
+msgstr ""
+
+#: src/video/bench.rs
 msgid "Testing {mode}… ({at} of {count})"
 msgstr "{mode} 테스트 중… ({at}/{count})"
 
 #: src/video/bench.rs
-msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About 30 seconds"
-msgstr "그래픽 카드나 드라이버가 바뀌었어요. 이 PC에 가장 좋은 그래픽을 다시 찾아볼까요? 약 30초"
+msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About a minute"
+msgstr ""
 
 #: src/video/bench.rs
-msgid "Want me to find the best graphics for this PC? About 30 seconds"
-msgstr "이 PC에 가장 좋은 그래픽을 찾아볼까요? 약 30초"
+msgid "Want me to find the best graphics for this PC? About a minute"
+msgstr ""
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
@@ -10525,6 +10561,15 @@ msgstr "yt-dlp가 동영상을 저장하지 않았어요"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "미디어 파일 아님"
+
+#~ msgid "About 30 seconds. Test windows open and close while it runs."
+#~ msgstr "약 30초 걸려요. 테스트 중에 테스트 창이 열렸다 닫혀요."
+
+#~ msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About 30 seconds"
+#~ msgstr "그래픽 카드나 드라이버가 바뀌었어요. 이 PC에 가장 좋은 그래픽을 다시 찾아볼까요? 약 30초"
+
+#~ msgid "Want me to find the best graphics for this PC? About 30 seconds"
+#~ msgstr "이 PC에 가장 좋은 그래픽을 찾아볼까요? 약 30초"
 
 #~ msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
 #~ msgstr "대상을 켜면 녹화 옆에 '라이브 시작' 버튼이 나타나요. 라이브 시작은 평소처럼 녹화하면서 같은 화면과 소리를 켜진 모든 대상으로 보내요. 소리는 위에서 고른 마이크 또는 라인 입력이에요. 앱 자체의 소리는 아직 라이브 방송에 들어가지 않아요."

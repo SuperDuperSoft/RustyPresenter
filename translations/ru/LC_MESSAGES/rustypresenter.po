@@ -2812,8 +2812,8 @@ msgid "Test which is fastest"
 msgstr "Найти самый быстрый"
 
 #: ui/dialogs/settings.slint
-msgid "About 30 seconds. Test windows open and close while it runs."
-msgstr "Около 30 секунд. Во время проверки открываются и закрываются тестовые окна."
+msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
+msgstr ""
 
 #: ui/dialogs/settings.slint
 msgid "Use this"
@@ -10489,16 +10489,52 @@ msgid "Didn't work"
 msgstr "Не работает"
 
 #: src/video/bench.rs
+msgid "It stopped responding."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "It could not start."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "It closed before it finished. It may have crashed."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "Slides never reached the room screen."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "This graphics card or its driver can't draw with it."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "Slide change {ms} ms"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "{n} hiccups a minute"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "longest pause {ms} ms"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "processor {pct} %"
+msgstr ""
+
+#: src/video/bench.rs
 msgid "Testing {mode}… ({at} of {count})"
 msgstr "Проверка {mode}… ({at} из {count})"
 
 #: src/video/bench.rs
-msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About 30 seconds"
-msgstr "Видеокарта или её драйвер изменились. Найти заново лучший режим графики для этого ПК? Около 30 секунд"
+msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About a minute"
+msgstr ""
 
 #: src/video/bench.rs
-msgid "Want me to find the best graphics for this PC? About 30 seconds"
-msgstr "Найти лучший режим графики для этого ПК? Около 30 секунд"
+msgid "Want me to find the best graphics for this PC? About a minute"
+msgstr ""
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
@@ -10619,6 +10655,15 @@ msgstr "yt-dlp не сохранил видео"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "не медиафайл"
+
+#~ msgid "About 30 seconds. Test windows open and close while it runs."
+#~ msgstr "Около 30 секунд. Во время проверки открываются и закрываются тестовые окна."
+
+#~ msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About 30 seconds"
+#~ msgstr "Видеокарта или её драйвер изменились. Найти заново лучший режим графики для этого ПК? Около 30 секунд"
+
+#~ msgid "Want me to find the best graphics for this PC? About 30 seconds"
+#~ msgstr "Найти лучший режим графики для этого ПК? Около 30 секунд"
 
 #~ msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
 #~ msgstr "Включите место назначения — рядом с кнопкой «Запись» появится кнопка «В эфир». «В эфир» записывает как обычно и отправляет то же изображение и звук во все включённые места. Звук — это микрофон или линейный вход, выбранный выше; собственный звук приложения пока не попадает в трансляцию."

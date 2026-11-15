@@ -32,7 +32,7 @@ export struct SettingsLanguageRow { title: string, sub: string, on: bool, font-w
 /// A row of the keyboard table in Help.
 /// A Help row: its keys, what they do, the shortcut's id (empty for a fixed key) and whether the church changed it.
 /// Settings → Video → "Test which is fastest": one graphics choice's result (`video::bench::Row`).
-export struct GraphicsTestRow { name: string, bar: float, word: string, best: bool, works: bool }
+export struct GraphicsTestRow { name: string, bar: float, word: string, details: string, best: bool, works: bool }
 
 export struct SettingsHelpRow { keys: string, what: string, id: string, changed: bool }
 
