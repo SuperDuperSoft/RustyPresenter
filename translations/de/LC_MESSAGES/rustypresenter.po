@@ -4059,6 +4059,38 @@ msgstr "Verbundene Handy-Fernbedienungen"
 msgid "Show a message on the stage screen"
 msgstr "Nachricht auf dem Bühnenmonitor zeigen"
 
+#: ui/operator/topbar.slint
+msgid "Freeze"
+msgstr "Einfrieren"
+
+#: ui/operator/topbar.slint
+msgid "Frozen"
+msgstr "Eingefroren"
+
+#: ui/operator/topbar.slint
+msgid "Keep the stream's picture as it is now, while something private is on the screens"
+msgstr "Das Bild des Streams so lassen, wie es jetzt ist, solange etwas Privates auf den Bildschirmen ist"
+
+#: ui/operator/topbar.slint
+msgid "The stream shows a still picture. Click to show the live picture again"
+msgstr "Der Stream zeigt ein Standbild. Klicke, um wieder das Live-Bild zu zeigen"
+
+#: ui/operator/topbar.slint
+msgid "Mute"
+msgstr "Stumm"
+
+#: ui/operator/topbar.slint
+msgid "Muted"
+msgstr "Stumm an"
+
+#: ui/operator/topbar.slint
+msgid "Send silence to the stream instead of the sound"
+msgstr "Stille statt des Tons an den Stream senden"
+
+#: ui/operator/topbar.slint
+msgid "The stream is silent. Click to send the sound again"
+msgstr "Der Stream ist stumm. Klicke, um den Ton wieder zu senden"
+
 #: ui/operator/topbar.slint src/i18n/remote_strings.rs
 msgid "Phone"
 msgstr "Handy"

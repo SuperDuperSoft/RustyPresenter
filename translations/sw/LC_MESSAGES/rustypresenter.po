@@ -4059,6 +4059,38 @@ msgstr "Simu za kudhibiti zilizounganishwa"
 msgid "Show a message on the stage screen"
 msgstr "Onyesha ujumbe kwenye skrini ya jukwaa"
 
+#: ui/operator/topbar.slint
+msgid "Freeze"
+msgstr "Simamisha picha"
+
+#: ui/operator/topbar.slint
+msgid "Frozen"
+msgstr "Picha imesimama"
+
+#: ui/operator/topbar.slint
+msgid "Keep the stream's picture as it is now, while something private is on the screens"
+msgstr "Weka picha ya matangazo kama ilivyo sasa, wakati kuna kitu cha faragha kwenye skrini"
+
+#: ui/operator/topbar.slint
+msgid "The stream shows a still picture. Click to show the live picture again"
+msgstr "Matangazo yanaonyesha picha tulivu. Bofya ili kuonyesha picha ya moja kwa moja tena"
+
+#: ui/operator/topbar.slint
+msgid "Mute"
+msgstr "Nyamazisha"
+
+#: ui/operator/topbar.slint
+msgid "Muted"
+msgstr "Imenyamazishwa"
+
+#: ui/operator/topbar.slint
+msgid "Send silence to the stream instead of the sound"
+msgstr "Tuma ukimya kwenye matangazo badala ya sauti"
+
+#: ui/operator/topbar.slint
+msgid "The stream is silent. Click to send the sound again"
+msgstr "Matangazo hayana sauti. Bofya ili kutuma sauti tena"
+
 #: ui/operator/topbar.slint src/i18n/remote_strings.rs
 msgid "Phone"
 msgstr "Simu"

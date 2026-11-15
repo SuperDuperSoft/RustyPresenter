@@ -4059,6 +4059,38 @@ msgstr "Telefòn kontwòl ki konekte"
 msgid "Show a message on the stage screen"
 msgstr "Montre yon mesaj sou ekran sèn nan"
 
+#: ui/operator/topbar.slint
+msgid "Freeze"
+msgstr "Fize imaj"
+
+#: ui/operator/topbar.slint
+msgid "Frozen"
+msgstr "Imaj fize"
+
+#: ui/operator/topbar.slint
+msgid "Keep the stream's picture as it is now, while something private is on the screens"
+msgstr "Kenbe imaj emisyon an jan li ye kounye a, pandan gen yon bagay prive sou ekran yo"
+
+#: ui/operator/topbar.slint
+msgid "The stream shows a still picture. Click to show the live picture again"
+msgstr "Emisyon an ap montre yon imaj fiks. Klike pou montre imaj an dirèk la ankò"
+
+#: ui/operator/topbar.slint
+msgid "Mute"
+msgstr "Koupe son"
+
+#: ui/operator/topbar.slint
+msgid "Muted"
+msgstr "Son koupe"
+
+#: ui/operator/topbar.slint
+msgid "Send silence to the stream instead of the sound"
+msgstr "Voye silans nan emisyon an olye son an"
+
+#: ui/operator/topbar.slint
+msgid "The stream is silent. Click to send the sound again"
+msgstr "Emisyon an pa gen son. Klike pou voye son an ankò"
+
 #: ui/operator/topbar.slint src/i18n/remote_strings.rs
 msgid "Phone"
 msgstr "Telefòn"

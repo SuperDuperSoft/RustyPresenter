@@ -4050,6 +4050,38 @@ msgstr ""
 msgid "Show a message on the stage screen"
 msgstr ""
 
+#: ui/operator/topbar.slint
+msgid "Freeze"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Frozen"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Keep the stream's picture as it is now, while something private is on the screens"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "The stream shows a still picture. Click to show the live picture again"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Mute"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Muted"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "Send silence to the stream instead of the sound"
+msgstr ""
+
+#: ui/operator/topbar.slint
+msgid "The stream is silent. Click to send the sound again"
+msgstr ""
+
 #: ui/operator/topbar.slint src/i18n/remote_strings.rs
 msgid "Phone"
 msgstr ""

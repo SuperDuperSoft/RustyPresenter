@@ -223,6 +223,26 @@ impl Operator {
         if now { self.toast(record::tr::no_sound(&name), true) } else { self.toast(record::tr::sound_back(&name), false) }
     }
 
+    /// The Freeze button: the stream (and the recording) keeps its picture as it is now; again, the live picture.
+    pub fn hold_stream(&self) {
+        let on = !self.ui.get_live_held();
+        if self.while_live(|r| r.hold(on)) { self.ui.set_live_held(on) }
+    }
+
+    /// The Mute button: silence goes out in place of the sound; again, the sound.
+    pub fn mute_stream(&self) {
+        let on = !self.ui.get_live_muted();
+        if self.while_live(|r| r.mute(on)) { self.ui.set_live_muted(on) }
+    }
+
+    /// Runs `f` on the recording when it is live. True when it was.
+    fn while_live(&self, f: impl FnOnce(&Recording)) -> bool {
+        match self.record.rec.borrow().as_ref() {
+            Some(r) if self.record.live.get() => { f(r); true }
+            _ => false,
+        }
+    }
+
     /// Whether a recording is under way.
     pub fn is_recording(&self) -> bool { self.record.rec.borrow().is_some() }
 
@@ -231,6 +251,8 @@ impl Operator {
         if !on {
             self.record.live.set(false);
             self.ui.set_live(false);
+            self.ui.set_live_held(false);
+            self.ui.set_live_muted(false);
         }
         self.ui.set_record_time(record::clock(0).into());
         if !on { return self.record.ticker.stop() }
@@ -284,6 +306,10 @@ pub(super) fn wire(op: &Rc<Operator>) {
     op.ui.on_record(move || if let Some(op) = me.upgrade() { op.toggle_recording() });
     let me = Rc::downgrade(op);
     op.ui.on_go_live(move || if let Some(op) = me.upgrade() { op.go_live() });
+    let me = Rc::downgrade(op);
+    op.ui.on_hold_stream(move || if let Some(op) = me.upgrade() { op.hold_stream() });
+    let me = Rc::downgrade(op);
+    op.ui.on_mute_stream(move || if let Some(op) = me.upgrade() { op.mute_stream() });
 }
 
 mod tr {

@@ -242,3 +242,14 @@ fn the_operator_hears_when_the_sound_input_goes_silent_and_comes_back() {
     op.say_silence(None);
     assert_eq!(toasts(&op).len(), before + 2);
 }
+
+#[test]
+fn hold_and_mute_do_nothing_unless_live() {
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    op.hold_stream();
+    op.mute_stream();
+    assert!(!op.ui.get_live_held() && !op.ui.get_live_muted());
+}

@@ -4059,6 +4059,38 @@ msgstr "Controles por celular conectados"
 msgid "Show a message on the stage screen"
 msgstr "Mostrar uma mensagem na tela do palco"
 
+#: ui/operator/topbar.slint
+msgid "Freeze"
+msgstr "Congelar"
+
+#: ui/operator/topbar.slint
+msgid "Frozen"
+msgstr "Congelado"
+
+#: ui/operator/topbar.slint
+msgid "Keep the stream's picture as it is now, while something private is on the screens"
+msgstr "Manter a imagem da transmissão como está agora, enquanto há algo privado nas telas"
+
+#: ui/operator/topbar.slint
+msgid "The stream shows a still picture. Click to show the live picture again"
+msgstr "A transmissão mostra uma imagem parada. Clique para mostrar a imagem ao vivo de novo"
+
+#: ui/operator/topbar.slint
+msgid "Mute"
+msgstr "Silenciar"
+
+#: ui/operator/topbar.slint
+msgid "Muted"
+msgstr "Silenciado"
+
+#: ui/operator/topbar.slint
+msgid "Send silence to the stream instead of the sound"
+msgstr "Enviar silêncio para a transmissão em vez do som"
+
+#: ui/operator/topbar.slint
+msgid "The stream is silent. Click to send the sound again"
+msgstr "A transmissão está sem som. Clique para enviar o som de novo"
+
 #: ui/operator/topbar.slint src/i18n/remote_strings.rs
 msgid "Phone"
 msgstr "Celular"

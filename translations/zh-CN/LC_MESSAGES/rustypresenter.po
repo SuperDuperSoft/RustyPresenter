@@ -4059,6 +4059,38 @@ msgstr "已连接的手机遥控器"
 msgid "Show a message on the stage screen"
 msgstr "在舞台屏幕上显示消息"
 
+#: ui/operator/topbar.slint
+msgid "Freeze"
+msgstr "定格"
+
+#: ui/operator/topbar.slint
+msgid "Frozen"
+msgstr "已定格"
+
+#: ui/operator/topbar.slint
+msgid "Keep the stream's picture as it is now, while something private is on the screens"
+msgstr "屏幕上有不宜公开的内容时，让直播画面保持现在的样子"
+
+#: ui/operator/topbar.slint
+msgid "The stream shows a still picture. Click to show the live picture again"
+msgstr "直播正在显示静止画面。点击恢复实时画面"
+
+#: ui/operator/topbar.slint
+msgid "Mute"
+msgstr "静音"
+
+#: ui/operator/topbar.slint
+msgid "Muted"
+msgstr "已静音"
+
+#: ui/operator/topbar.slint
+msgid "Send silence to the stream instead of the sound"
+msgstr "向直播发送静音，而不是声音"
+
+#: ui/operator/topbar.slint
+msgid "The stream is silent. Click to send the sound again"
+msgstr "直播已静音。点击重新发送声音"
+
 #: ui/operator/topbar.slint src/i18n/remote_strings.rs
 msgid "Phone"
 msgstr "手机"

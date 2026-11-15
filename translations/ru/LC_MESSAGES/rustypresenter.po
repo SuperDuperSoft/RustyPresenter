@@ -4059,6 +4059,38 @@ msgstr "Подключены телефоны-пульты"
 msgid "Show a message on the stage screen"
 msgstr "Показать сообщение на экране сцены"
 
+#: ui/operator/topbar.slint
+msgid "Freeze"
+msgstr "Стоп-кадр"
+
+#: ui/operator/topbar.slint
+msgid "Frozen"
+msgstr "Стоп-кадр вкл."
+
+#: ui/operator/topbar.slint
+msgid "Keep the stream's picture as it is now, while something private is on the screens"
+msgstr "Оставить изображение трансляции как сейчас, пока на экранах что-то личное"
+
+#: ui/operator/topbar.slint
+msgid "The stream shows a still picture. Click to show the live picture again"
+msgstr "Трансляция показывает неподвижное изображение. Нажмите, чтобы снова показывать живое изображение"
+
+#: ui/operator/topbar.slint
+msgid "Mute"
+msgstr "Без звука"
+
+#: ui/operator/topbar.slint
+msgid "Muted"
+msgstr "Звук выкл."
+
+#: ui/operator/topbar.slint
+msgid "Send silence to the stream instead of the sound"
+msgstr "Отправлять в трансляцию тишину вместо звука"
+
+#: ui/operator/topbar.slint
+msgid "The stream is silent. Click to send the sound again"
+msgstr "Трансляция без звука. Нажмите, чтобы снова отправлять звук"
+
 #: ui/operator/topbar.slint src/i18n/remote_strings.rs
 msgid "Phone"
 msgstr "Телефон"

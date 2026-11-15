@@ -4059,6 +4059,38 @@ msgstr "연결된 휴대폰 리모컨"
 msgid "Show a message on the stage screen"
 msgstr "무대 화면에 메시지 표시"
 
+#: ui/operator/topbar.slint
+msgid "Freeze"
+msgstr "화면 고정"
+
+#: ui/operator/topbar.slint
+msgid "Frozen"
+msgstr "고정됨"
+
+#: ui/operator/topbar.slint
+msgid "Keep the stream's picture as it is now, while something private is on the screens"
+msgstr "화면에 공개하면 안 되는 내용이 있는 동안 방송 화면을 지금 그대로 유지해요"
+
+#: ui/operator/topbar.slint
+msgid "The stream shows a still picture. Click to show the live picture again"
+msgstr "방송에 정지 화면이 나가고 있어요. 클릭하면 실시간 화면으로 돌아가요"
+
+#: ui/operator/topbar.slint
+msgid "Mute"
+msgstr "음소거"
+
+#: ui/operator/topbar.slint
+msgid "Muted"
+msgstr "음소거 중"
+
+#: ui/operator/topbar.slint
+msgid "Send silence to the stream instead of the sound"
+msgstr "소리 대신 무음을 방송으로 보내요"
+
+#: ui/operator/topbar.slint
+msgid "The stream is silent. Click to send the sound again"
+msgstr "방송이 무음이에요. 클릭하면 소리를 다시 보내요"
+
 #: ui/operator/topbar.slint src/i18n/remote_strings.rs
 msgid "Phone"
 msgstr "휴대폰"

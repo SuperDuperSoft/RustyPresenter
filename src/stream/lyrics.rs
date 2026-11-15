@@ -67,16 +67,17 @@ impl Drop for Feed {
     fn drop(&mut self) { self.stop() }
 }
 
-/// Starts sending the words picture for what `source` says is live, `size` wide and high.
-pub fn start(source: Source, size: (u32, u32)) -> Result<Feed, String> {
+/// Starts sending the words picture for what `source` says is live, `size` wide and high. While `hold` is set the
+/// words shown stay (the stream's Hold button).
+pub fn start(source: Source, size: (u32, u32), hold: Arc<AtomicBool>) -> Result<Feed, String> {
     let port = std::net::TcpListener::bind("127.0.0.1:0").and_then(|l| l.local_addr()).map_err(|e| e.to_string())?.port();
     let stop = Arc::new(AtomicBool::new(false));
     let s = stop.clone();
-    let thread = std::thread::Builder::new().name("stream-words".into()).spawn(move || run(source, size, port, &s)).map_err(|e| e.to_string())?;
+    let thread = std::thread::Builder::new().name("stream-words".into()).spawn(move || run(source, size, port, &s, &hold)).map_err(|e| e.to_string())?;
     Ok(Feed { port, stop, thread: Some(thread) })
 }
 
-fn run(source: Source, size: (u32, u32), port: u16, stop: &AtomicBool) {
+fn run(source: Source, size: (u32, u32), port: u16, stop: &AtomicBool, hold: &AtomicBool) {
     use std::io::Write;
     let began = Instant::now();
     let mut out = loop {
@@ -94,7 +95,7 @@ fn run(source: Source, size: (u32, u32), port: u16, stop: &AtomicBool) {
     let t0 = Instant::now();
     let mut sent: u64 = 0;
     while !stop.load(Ordering::Relaxed) {
-        let want = source();
+        let want = if hold.load(Ordering::Relaxed) { shown.clone() } else { source() };
         if want != shown {
             picture = match &want {
                 Some(key) => {

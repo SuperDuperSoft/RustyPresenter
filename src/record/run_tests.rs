@@ -31,7 +31,7 @@ fn probe(file: &Path) -> (Vec<(String, String, u64, u64)>, f64) {
 }
 
 fn plan(ffmpeg: PathBuf, dir: &Path, sound: Sound) -> Plan {
-    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, camera: None, words: None }
+    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, camera: None, words: None, controls: Controls::default() }
 }
 
 /// Records for `secs`, handing in a new solid picture every 100 ms (red, then green), with `each` called as it goes.
@@ -89,14 +89,42 @@ fn the_apps_sound_is_mixed_in_from_the_file_that_played() {
     std::fs::remove_dir_all(&dir).unwrap();
 }
 
+/// The sound input passes through the app (`stream::board_feed`): one that cannot be opened (unplugged, renamed)
+/// gives silence and the recording goes on, where FFmpeg opening it itself ended the recording. The operator hears of
+/// it from the no-sound warning.
 #[test]
-fn an_input_that_cannot_open_ends_the_recording_with_ffmpegs_reason() {
+fn an_input_that_cannot_open_gives_silence_and_the_recording_goes_on() {
     let Some(ff) = ffmpeg() else { return };
     let dir = scratch("badinput");
-    let ended = record_for(plan(ff, &dir, Sound::Input("no-such-input-here".into())), 1.5, |_, _| {});
-    let (text, err) = ended.toast();
-    assert!(err, "{text}");
-    assert!(ended.problem.is_some(), "{ended:?}");
+    let ended = record_for(plan(ff, &dir, Sound::Input("no-such-input-here".into())), 2.5, |_, _| {});
+    assert_eq!(ended.problem, None, "{ended:?}");
+    let (streams, secs) = probe(ended.file.as_ref().unwrap());
+    let kinds: Vec<&str> = streams.iter().map(|s| s.0.as_str()).collect();
+    assert_eq!(kinds, ["video", "audio"]);
+    assert!((2.0..3.5).contains(&secs), "{secs} s");
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// Hold: the recording (and so the stream) keeps the picture it had; set off, the live picture again.
+#[test]
+fn hold_keeps_the_picture_until_it_is_let_go() {
+    let Some(ff) = ffmpeg() else { return };
+    let dir = scratch("hold");
+    let p = plan(ff.clone(), &dir, Sound::None);
+    let hold = p.controls.hold.clone();
+    // The room: red, then green from 2 s. Held from 1 s to 3 s.
+    let ended = record_for(p, 4.0, |_, t| hold.store((1.0..3.0).contains(&t), std::sync::atomic::Ordering::Relaxed));
+    assert_eq!(ended.problem, None);
+    let rec = ended.file.unwrap();
+    let at = |t: &str| {
+        let png = dir.join(format!("f{t}.png"));
+        assert!(std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-ss", t, "-i"]).arg(&rec).args(["-frames:v", "1"]).arg(&png)
+            .status().unwrap().success());
+        image::open(&png).unwrap().to_rgb8().get_pixel(640, 360).0
+    };
+    let (held, after) = (at("2.6"), at("3.6"));
+    assert!(held[0] > 180 && held[1] < 60, "still red while held, though the room is green: {held:?}");
+    assert!(after[1] > 180 && after[0] < 60, "green once let go: {after:?}");
     std::fs::remove_dir_all(&dir).unwrap();
 }
 
@@ -400,35 +428,3 @@ fn a_camera_that_stops_drops_out_and_comes_back() {
     }
 }
 
-#[test]
-fn the_log_says_when_the_sound_input_goes_silent_and_keeps_only_warnings() {
-    assert_eq!(log_line("[Parsed_silencedetect_0 @ 000001] [info] silence_start: 10.02"), Said::Silence(true));
-    assert_eq!(log_line("[silencedetect @ 0x55] [info] silence_end: 31.5 | silence_duration: 21.48"), Said::Silence(false));
-    assert_eq!(log_line("[info] Stream mapping:"), Said::Nothing);
-    assert_eq!(log_line("[tee @ 0x1] [warning] Slave muxer #1 failed"), Said::Line("[tee @ 0x1] Slave muxer #1 failed".into()));
-    assert_eq!(log_line("[error] Conversion failed!"), Said::Line("Conversion failed!".into()));
-    // Without a sound input the lines have no level, as before.
-    assert_eq!(log_line("[tee @ 0x1] Slave muxer #1 failed"), Said::Line("[tee @ 0x1] Slave muxer #1 failed".into()));
-}
-
-/// A real FFmpeg, its log read as the recorder reads it: sound for 2 s, then nothing.
-#[test]
-fn a_real_ffmpeg_notes_that_the_sound_went_silent() {
-    let Some(ffmpeg) = ffmpeg() else { return };
-    let quiet_after = 2;
-    let source = format!("aevalsrc=if(lt(t\\,{quiet_after})\\,0.3*sin(2*PI*440*t)\\,0):s=48000");
-    let run = |total: u32| {
-        let out = std::process::Command::new(&ffmpeg).args(["-hide_banner", "-loglevel", "level+info", "-nostats", "-f", "lavfi", "-i", &source, "-af", &args::listen(),
-            "-t", &total.to_string(), "-f", "null", "-"]).output().expect("FFmpeg runs");
-        let text = String::from_utf8_lossy(&out.stderr).to_string();
-        assert!(out.status.success(), "{text}");
-        let heard: Vec<Said> = text.lines().map(log_line).filter(|s| *s != Said::Nothing).collect();
-        (heard, text)
-    };
-    let (heard, text) = run(quiet_after + args::SILENCE.1 + 2);
-    assert_eq!(heard.first(), Some(&Said::Silence(true)), "{text}");
-    assert!(heard.iter().all(|s| matches!(s, Said::Silence(_))), "nothing else to log: {heard:?}");
-    // A second short of the whole silence: nothing said yet.
-    let (heard, text) = run(quiet_after + args::SILENCE.1 - 1);
-    assert!(heard.is_empty(), "{heard:?} {text}");
-}

@@ -4059,6 +4059,38 @@ msgstr "Mga nakakonektang phone remote"
 msgid "Show a message on the stage screen"
 msgstr "Magpakita ng mensahe sa stage screen"
 
+#: ui/operator/topbar.slint
+msgid "Freeze"
+msgstr "I-freeze"
+
+#: ui/operator/topbar.slint
+msgid "Frozen"
+msgstr "Naka-freeze"
+
+#: ui/operator/topbar.slint
+msgid "Keep the stream's picture as it is now, while something private is on the screens"
+msgstr "Panatilihin ang larawan ng stream gaya ngayon, habang may pribadong nasa mga screen"
+
+#: ui/operator/topbar.slint
+msgid "The stream shows a still picture. Click to show the live picture again"
+msgstr "Isang hindi gumagalaw na larawan ang nasa stream. I-click para ipakita ulit ang live na larawan"
+
+#: ui/operator/topbar.slint
+msgid "Mute"
+msgstr "I-mute"
+
+#: ui/operator/topbar.slint
+msgid "Muted"
+msgstr "Naka-mute"
+
+#: ui/operator/topbar.slint
+msgid "Send silence to the stream instead of the sound"
+msgstr "Magpadala ng katahimikan sa stream sa halip na ang tunog"
+
+#: ui/operator/topbar.slint
+msgid "The stream is silent. Click to send the sound again"
+msgstr "Tahimik ang stream. I-click para ipadala ulit ang tunog"
+
 #: ui/operator/topbar.slint src/i18n/remote_strings.rs
 msgid "Phone"
 msgstr "Phone"

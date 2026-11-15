@@ -4059,6 +4059,38 @@ msgstr "接続中のスマホリモコン"
 msgid "Show a message on the stage screen"
 msgstr "ステージ画面にメッセージを表示"
 
+#: ui/operator/topbar.slint
+msgid "Freeze"
+msgstr "静止"
+
+#: ui/operator/topbar.slint
+msgid "Frozen"
+msgstr "静止中"
+
+#: ui/operator/topbar.slint
+msgid "Keep the stream's picture as it is now, while something private is on the screens"
+msgstr "画面に見せたくないものが映っている間、配信の映像を今のまま止めます"
+
+#: ui/operator/topbar.slint
+msgid "The stream shows a still picture. Click to show the live picture again"
+msgstr "配信は静止画を映しています。クリックするとライブ映像に戻ります"
+
+#: ui/operator/topbar.slint
+msgid "Mute"
+msgstr "ミュート"
+
+#: ui/operator/topbar.slint
+msgid "Muted"
+msgstr "ミュート中"
+
+#: ui/operator/topbar.slint
+msgid "Send silence to the stream instead of the sound"
+msgstr "音の代わりに無音を配信に送ります"
+
+#: ui/operator/topbar.slint
+msgid "The stream is silent. Click to send the sound again"
+msgstr "配信は無音です。クリックすると音を再び送ります"
+
 #: ui/operator/topbar.slint src/i18n/remote_strings.rs
 msgid "Phone"
 msgstr "スマホ"

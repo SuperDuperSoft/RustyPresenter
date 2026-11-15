@@ -6,7 +6,7 @@ import { EditMenu, Icon, TopBtn, Pill, Kbd, TipArea } from "../widgets.slint";
 import { BiblePickerList, TranslationChip } from "../bible-picker.slint";
 import { StageLayoutButton } from "../dialogs/stage-layouts.slint";
 import { PanelExtras } from "extras.slint";
-import { RecordBtn, LiveBtn } from "record.slint";
+import { RecordBtn, LiveBtn, PanicBtn } from "record.slint";
 
 export { TranslationChip }
 
@@ -56,6 +56,11 @@ export component TopBar inherits Rectangle {
     in property <int> live-up;
     in property <int> live-total;
     callback go-live();
+    /// The stream's panic buttons, shown while live: Freeze (every picture stays; `Recording::hold`) and Mute (silence goes out).
+    in property <bool> live-held;
+    in property <bool> live-muted;
+    callback hold-stream();
+    callback mute-stream();
     callback services();
     callback screens();
     callback phone();
@@ -605,6 +610,30 @@ export component TopBar inherits Rectangle {
                 up: root.live-up;
                 total: root.live-total;
                 clicked => { root.go-live(); }
+            }
+        }
+        if root.live: VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            hold-btn := PanicBtn {
+                on: root.live-held;
+                text: @tr("Freeze");
+                on-text: @tr("Frozen");
+                tip: @tr("Keep the stream's picture as it is now, while something private is on the screens");
+                on-tip: @tr("The stream shows a still picture. Click to show the live picture again");
+                clicked => { root.hold-stream(); }
+            }
+        }
+        if root.live: VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            mute-btn := PanicBtn {
+                on: root.live-muted;
+                text: @tr("Mute");
+                on-text: @tr("Muted");
+                tip: @tr("Send silence to the stream instead of the sound");
+                on-tip: @tr("The stream is silent. Click to send the sound again");
+                clicked => { root.mute-stream(); }
             }
         }
         VerticalLayout {

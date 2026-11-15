@@ -46,6 +46,48 @@ export component LiveBtn inherits Rectangle {
     TipArea { text: root.live ? @tr("Stop the livestream and save the recording") : @tr("Send the room screen to the livestream, and record it"); hover: live-ta.has-hover; pressed: live-ta.pressed; pointer-x: live-ta.mouse-x; }
 }
 
+/// The stream's panic buttons, beside Live while live: Freeze (every picture stays as it is) and Mute (silence goes
+/// out). On: amber with the word for it ("Frozen", "Muted"); clicking again sets it off.
+export component PanicBtn inherits Rectangle {
+    in property <bool> on;
+    in property <string> text;
+    in property <string> on-text;
+    in property <string> tip;
+    in property <string> on-tip;
+    callback clicked();
+
+    accessible-role: button;
+    accessible-label: root.on ? root.on-text : root.text;
+    accessible-description: root.on ? root.on-tip : root.tip;
+    accessible-action-default => { root.clicked(); }
+
+    border-radius: 9px;
+    border-width: 1px;
+    border-color: root.on ? Theme.accent : Theme.line;
+    background: root.on ? Theme.accent : panic-ta.has-hover ? Theme.raise : transparent;
+
+    HorizontalLayout {
+        padding: 8px;
+        padding-left: 10px;
+        padding-right: 10px;
+        Text {
+            text: root.on ? root.on-text : root.text;
+            color: root.on ? Theme.accent-ink : Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: 600;
+            vertical-alignment: center;
+        }
+    }
+
+    panic-ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+
+    TipArea { text: root.on ? root.on-tip : root.tip; hover: panic-ta.has-hover; pressed: panic-ta.pressed; pointer-x: panic-ta.mouse-x; }
+}
+
 export component RecordBtn inherits Rectangle {
     in property <bool> recording;
     /// "12:34" while recording.

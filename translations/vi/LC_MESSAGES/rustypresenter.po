@@ -4059,6 +4059,38 @@ msgstr "Điện thoại điều khiển đã kết nối"
 msgid "Show a message on the stage screen"
 msgstr "Hiện tin nhắn trên màn hình sân khấu"
 
+#: ui/operator/topbar.slint
+msgid "Freeze"
+msgstr "Đóng băng hình"
+
+#: ui/operator/topbar.slint
+msgid "Frozen"
+msgstr "Hình đã đóng băng"
+
+#: ui/operator/topbar.slint
+msgid "Keep the stream's picture as it is now, while something private is on the screens"
+msgstr "Giữ nguyên hình của buổi phát như hiện tại, trong lúc có nội dung riêng tư trên màn hình"
+
+#: ui/operator/topbar.slint
+msgid "The stream shows a still picture. Click to show the live picture again"
+msgstr "Buổi phát đang hiện một hình tĩnh. Bấm để hiện lại hình trực tiếp"
+
+#: ui/operator/topbar.slint
+msgid "Mute"
+msgstr "Tắt tiếng"
+
+#: ui/operator/topbar.slint
+msgid "Muted"
+msgstr "Đã tắt tiếng"
+
+#: ui/operator/topbar.slint
+msgid "Send silence to the stream instead of the sound"
+msgstr "Gửi im lặng đến buổi phát thay cho âm thanh"
+
+#: ui/operator/topbar.slint
+msgid "The stream is silent. Click to send the sound again"
+msgstr "Buổi phát đang im lặng. Bấm để gửi lại âm thanh"
+
 #: ui/operator/topbar.slint src/i18n/remote_strings.rs
 msgid "Phone"
 msgstr "Điện thoại"

@@ -89,6 +89,18 @@ pub struct Plan {
     pub camera: Option<args::Camera>,
     /// Go Live with the words over the camera: what is live, as the words picture to draw.
     pub words: Option<crate::stream::lyrics::Words>,
+    /// The stream's panic buttons.
+    pub controls: Controls,
+}
+
+/// The stream's panic buttons, shared with the feeds while the recording runs. The file and the stream are one
+/// encode, so the recording holds and goes quiet with the stream.
+#[derive(Clone, Debug, Default)]
+pub struct Controls {
+    /// Hold: every picture stays as it is (the room screen, the camera, the words over it).
+    pub hold: Arc<std::sync::atomic::AtomicBool>,
+    /// Mute: silence in place of the sound input and the PC's sound.
+    pub mute: Arc<std::sync::atomic::AtomicBool>,
 }
 
 impl Plan {
@@ -104,7 +116,7 @@ impl Plan {
             return Err(Some(tr::low_disk(&gb(free), &gb(prefs.size.bytes_per_hour()))));
         }
         let out = super::file_name(&folder, chrono::Local::now().naive_local());
-        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, camera: None, words: None })
+        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, camera: None, words: None, controls: Controls::default() })
     }
 }
 
@@ -143,9 +155,10 @@ pub struct Recording {
     pub out: PathBuf,
     /// Go Live: each destination's connection, up or not (`stream::send`); empty when only recording.
     links: crate::stream::send::Links,
+    controls: Controls,
     /// Go Live with a camera: whether its pictures are coming now (`stream::camera_feed`); `None` without one.
     camera_seen: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>,
-    /// With a sound input: whether it has been silent for `args::SILENCE` (`None` without one).
+    /// With a sound input: whether it has been quiet for `board_feed::QUIET_FOR` (`None` without one).
     silent: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>,
 }
 
@@ -157,7 +170,7 @@ impl Recording {
         let cancel = CancellationToken::new();
         let (started_tx, started_rx) = mpsc::channel();
         let (finished_tx, finished) = mpsc::channel();
-        let (s, c, out) = (sink.clone(), cancel.clone(), plan.out.clone());
+        let (s, c, out, controls) = (sink.clone(), cancel.clone(), plan.out.clone(), plan.controls.clone());
         let links: crate::stream::send::Links = Arc::new(Mutex::new(vec![crate::stream::send::Link::default(); plan.stream.len()]));
         let l = links.clone();
         let camera_seen: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>> = Arc::default();
@@ -174,7 +187,7 @@ impl Recording {
             let _ = finished_tx.send(());
         }).map_err(|e| tr::not_started(&e.to_string()))?;
         match started_rx.recv() {
-            Ok(Ok(())) => Ok(Recording { sink, cancel, finished, begun: Instant::now(), out, links, camera_seen, silent }),
+            Ok(Ok(())) => Ok(Recording { sink, cancel, finished, begun: Instant::now(), out, links, controls, camera_seen, silent }),
             Ok(Err(e)) => Err(tr::not_started(&e)),
             Err(_) => Err(tr::not_started(&tr::ffmpeg_ended())),
         }
@@ -195,6 +208,12 @@ impl Recording {
     pub fn silent(&self) -> Option<bool> {
         self.silent.lock().unwrap_or_else(|e| e.into_inner()).as_ref().map(|s| s.load(std::sync::atomic::Ordering::Relaxed))
     }
+
+    /// Hold: the stream (and the recording) keeps showing what it shows now, until set off again.
+    pub fn hold(&self, on: bool) { self.controls.hold.store(on, std::sync::atomic::Ordering::Relaxed) }
+
+    /// Mute: silence goes out in place of the sound, until set off again.
+    pub fn mute(&self, on: bool) { self.controls.mute.store(on, std::sync::atomic::Ordering::Relaxed) }
 
     /// Whole seconds recorded.
     pub fn secs(&self) -> u64 { self.begun.elapsed().as_secs() }
@@ -232,7 +251,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     // The camera through a feed of its own, which keeps it going through unplugging.
     let mut camera_feed = None;
     if let Some(cam) = camera.as_mut() {
-        match crate::stream::camera_feed::start(plan.ffmpeg.clone(), cam.input.clone(), sink.size, FPS) {
+        match crate::stream::camera_feed::start(plan.ffmpeg.clone(), cam.input.clone(), sink.size, FPS, plan.controls.hold.clone()) {
             Ok(feed) => {
                 cam.feed_port = Some(feed.port);
                 *camera_seen.lock().unwrap_or_else(|e| e.into_inner()) = Some(feed.seeing.clone());
@@ -242,18 +261,23 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
         }
     }
     if let (Some(cam), Some(source)) = (camera.as_mut(), &plan.words) && cam.layout == args::Layout::CameraWords {
-        match crate::stream::lyrics::start(source.0.clone(), sink.size) {
+        match crate::stream::lyrics::start(source.0.clone(), sink.size, plan.controls.hold.clone()) {
             Ok(feed) => { cam.words_port = Some(feed.port); words = Some(feed) }
             Err(e) => eprintln!("recording: the stream goes out without the words over the camera: {e}"),
         }
     }
     let mut pc = match (&plan.pc_sound, ports.is_empty()) {
-        (Some(device), false) => crate::stream::pc_sound::start(device).map_err(|e| eprintln!("recording: the stream goes out without the PC's sound: {e}")).ok(),
+        (Some(device), false) => crate::stream::pc_sound::start(device, plan.controls.mute.clone()).map_err(|e| eprintln!("recording: the stream goes out without the PC's sound: {e}")).ok(),
         _ => None,
     };
     let format = args::input_format(tools::OS);
     let input = match &plan.sound { Sound::Input(name) => Some((format, name.as_str())), _ => None };
-    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, out: &part, stream: &feeds, pc: pc.as_ref().map(|c| c.feed),
+    // The sound input through the app: Mute, its level watched, and it survives being unplugged. If that cannot
+    // start, FFmpeg reads the input itself.
+    let mut board = input.and_then(|(format, name)| crate::stream::board_feed::start(plan.ffmpeg.clone(), format, name, plan.controls.mute.clone())
+        .map_err(|e| eprintln!("recording: FFmpeg reads the sound input itself: {e}")).ok());
+    if let Some(b) = &board { *silent.lock().unwrap_or_else(|e| e.into_inner()) = Some(b.silent.clone()) }
+    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, board: board.as_ref().map(|b| b.feed), out: &part, stream: &feeds, pc: pc.as_ref().map(|c| c.feed),
         camera: camera.as_ref() });
     let mut cmd = tokio::process::Command::new(&plan.ffmpeg);
     cmd.args(a).stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::piped());
@@ -270,20 +294,9 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let said: Arc<Mutex<VecDeque<String>>> = Arc::default();
     let said2 = said.clone();
     let keys = plan.stream.clone();
-    if input.is_some() { *silent.lock().unwrap_or_else(|e| e.into_inner()) = Some(Arc::default()) }
-    let quiet = silent.lock().unwrap_or_else(|e| e.into_inner()).clone();
     tokio::spawn(async move {
         let mut lines = BufReader::new(err).lines();
         while let Ok(Some(l)) = lines.next_line().await {
-            let l = match log_line(&l) {
-                Said::Silence(now) => {
-                    if let Some(q) = &quiet { q.store(now, std::sync::atomic::Ordering::Relaxed) }
-                    eprintln!("ffmpeg (recording): the sound input {}", if now { "went silent" } else { "has sound again" });
-                    continue;
-                }
-                Said::Nothing => continue,
-                Said::Line(l) => l,
-            };
             // FFmpeg names the address it could not reach, and a stream key is part of it.
             let l = crate::stream::redact(&l, &keys);
             eprintln!("ffmpeg (recording): {l}");
@@ -301,7 +314,10 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let mut next_check = Duration::ZERO;
     let mut problem: Option<String> = None;
     'pump: loop {
-        if let Some(new) = sink.take() { sink.give_back(std::mem::replace(&mut current, new)) }
+        // Hold: the picture taken is handed back unused, and the last one goes on.
+        if let Some(new) = sink.take() {
+            if plan.controls.hold.load(std::sync::atomic::Ordering::Relaxed) { sink.give_back(new) } else { sink.give_back(std::mem::replace(&mut current, new)) }
+        }
         let due = pump.due(t0.elapsed());
         if due.dropped > 0 { eprintln!("recording: {} frames dropped (the writer fell behind)", due.dropped) }
         for _ in 0..due.write {
@@ -330,6 +346,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     drop(stdin);
     // The PC's sound has no end of its own: stopping it lets FFmpeg end its file.
     if let Some(c) = pc.as_mut() { c.stop() }
+    if let Some(b) = board.as_mut() { b.stop() }
     if let Some(w) = words.as_mut() { w.stop() }
     if let Some(c) = camera_feed.as_mut() { c.stop() }
     let end = t0.elapsed().as_secs_f64();
@@ -343,36 +360,6 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let mut done = finish_file(&plan.ffmpeg, &part, &notes.sound, &plan.out).await;
     if let Some(p) = problem { done.problem = Some(match (&done.file, done.problem) { (Some(_), Some(q)) => format!("{p} {q}"), _ => p }) }
     Some(done)
-}
-
-/// What one line of the recording FFmpeg's log says.
-#[derive(Debug, PartialEq)]
-pub(crate) enum Said {
-    /// The sound input has gone silent (`true`) or has sound again (`args::listen`).
-    Silence(bool),
-    /// Only information (what FFmpeg opened, and such): not kept.
-    Nothing,
-    /// A warning or an error, without its level.
-    Line(String),
-}
-
-/// Reads a line of FFmpeg's log. With a sound input every line says its level (`-loglevel level+info`):
-/// `[Parsed_silencedetect_0 @ 000001b0] [info] silence_start: 2` (when the silence began; said once it has lasted
-/// `args::SILENCE`). Without one there are only warnings, with no level.
-pub(crate) fn log_line(l: &str) -> Said {
-    // The filter's name on the log is `Parsed_silencedetect_0` (seen with FFmpeg 8).
-    if l.contains("silencedetect") {
-        if l.contains("silence_start") { return Said::Silence(true) }
-        if l.contains("silence_end") { return Said::Silence(false) }
-    }
-    for level in ["info", "verbose", "debug", "trace"] {
-        if l.contains(&format!("[{level}] ")) { return Said::Nothing }
-    }
-    for level in ["warning", "error", "fatal", "panic"] {
-        let tag = format!("[{level}] ");
-        if let Some(at) = l.find(&tag) { return Said::Line(format!("{}{}", &l[..at], &l[at + tag.len()..])) }
-    }
-    Said::Line(l.to_string())
 }
 
 fn write_notes(out: &Path, notes: &Notes) {

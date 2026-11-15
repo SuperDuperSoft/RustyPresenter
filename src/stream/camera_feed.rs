@@ -66,19 +66,21 @@ impl Drop for Feed {
     fn drop(&mut self) { self.stop() }
 }
 
-/// Starts the feed of camera `input` at `size` and `fps`, its FFmpeg being `ffmpeg`.
-pub fn start(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32) -> Result<Feed, String> {
+/// Starts the feed of camera `input` at `size` and `fps`, its FFmpeg being `ffmpeg`. While `hold` is set the last
+/// picture sent goes on being sent (the stream's Hold button).
+pub fn start(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32, hold: Arc<AtomicBool>) -> Result<Feed, String> {
     let port = std::net::TcpListener::bind("127.0.0.1:0").and_then(|l| l.local_addr()).map_err(|e| e.to_string())?.port();
     let (stop, seeing) = (Arc::new(AtomicBool::new(false)), Arc::new(AtomicBool::new(false)));
     let (s, v) = (stop.clone(), seeing.clone());
-    let thread = std::thread::Builder::new().name("stream-camera".into()).spawn(move || run(ffmpeg, input, size, fps, port, &s, &v)).map_err(|e| e.to_string())?;
+    let thread = std::thread::Builder::new().name("stream-camera".into()).spawn(move || run(ffmpeg, input, size, fps, port, &s, &v, &hold)).map_err(|e| e.to_string())?;
     Ok(Feed { port, seeing, stop, thread: Some(thread) })
 }
 
 /// The newest camera picture and when it came.
 type Latest = Arc<Mutex<Option<(Vec<u8>, Instant)>>>;
 
-fn run(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32, port: u16, stop: &AtomicBool, seeing: &AtomicBool) {
+#[allow(clippy::too_many_arguments)]
+fn run(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32, port: u16, stop: &AtomicBool, seeing: &AtomicBool, hold: &AtomicBool) {
     let began = Instant::now();
     let mut out = loop {
         if stop.load(Ordering::Relaxed) { return }
@@ -88,7 +90,7 @@ fn run(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32, port: u1
             Err(e) => { eprintln!("stream camera: FFmpeg did not listen: {e}"); return }
         }
     };
-    let clear = clear_frame(size);
+    let mut picture = clear_frame(size);
     let latest: Latest = Arc::default();
     // The camera's FFmpeg on a thread of its own: its stop flag, and the thread (finished: the camera stopped).
     let mut camera: Option<(Arc<AtomicBool>, std::thread::JoinHandle<()>)> = None;
@@ -103,11 +105,11 @@ fn run(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32, port: u1
         }
         let fresh = latest.lock().unwrap_or_else(|e| e.into_inner()).as_ref().filter(|(_, at)| at.elapsed() < STALE).map(|(f, _)| f.clone());
         seeing.store(fresh.is_some(), Ordering::Relaxed);
-        let picture = fresh.as_deref().unwrap_or(&clear);
+        if !hold.load(Ordering::Relaxed) { picture = fresh.unwrap_or_else(|| clear_frame(size)) }
         let due = (t0.elapsed().as_secs_f64() * fps as f64) as u64 + 1;
         let mut gone = false;
         while sent < due {
-            if out.write_all(picture).is_err() { gone = true; break }
+            if out.write_all(&picture).is_err() { gone = true; break }
             sent += 1;
         }
         if gone { break }

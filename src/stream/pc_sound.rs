@@ -76,11 +76,12 @@ impl Drop for Capture {
 
 /// Starts capturing output `device` (the app's name for it; empty: the default output). Returns once the format is
 /// known; the sound goes out when FFmpeg starts listening on `Capture::feed`.
-pub fn start(device: &str) -> Result<Capture, String> {
+/// Silence goes out in its place while `mute` is set (the stream's Mute button).
+pub fn start(device: &str, mute: std::sync::Arc<std::sync::atomic::AtomicBool>) -> Result<Capture, String> {
     #[cfg(windows)]
-    return windows::start(device_id(device).to_string());
+    return windows::start(device_id(device).to_string(), mute);
     #[cfg(not(windows))]
-    { let _ = device; Err("capturing the computer's sound is only built for Windows".into()) }
+    { let _ = (device, mute); Err("capturing the computer's sound is only built for Windows".into()) }
 }
 
 #[cfg(windows)]
@@ -126,7 +127,7 @@ mod windows {
         }
     }
 
-    pub fn start(id: String) -> Result<Capture, String> {
+    pub fn start(id: String, mute: Arc<AtomicBool>) -> Result<Capture, String> {
         let port = std::net::TcpListener::bind("127.0.0.1:0").and_then(|l| l.local_addr()).map_err(|e| e.to_string())?.port();
         let stop = Arc::new(AtomicBool::new(false));
         let (tx, rx) = std::sync::mpsc::channel::<Result<Format, String>>();
@@ -140,7 +141,7 @@ mod windows {
                 Err(e) => { let _ = tx.send(Err(e)); return }
             };
             let _ = tx.send(Ok(opened.format));
-            run(opened, port, &s);
+            run(opened, port, &s, &mute);
         }).map_err(|e| e.to_string())?;
         match rx.recv() {
             Ok(Ok(format)) => Ok(Capture { feed: Feed { format, port }, stop, thread: Some(thread) }),
@@ -150,7 +151,7 @@ mod windows {
     }
 
     /// Connects to FFmpeg, then sends what plays (and silence for the gaps) until stopped or FFmpeg goes.
-    fn run(o: Opened, port: u16, stop: &AtomicBool) {
+    fn run(o: Opened, port: u16, stop: &AtomicBool, mute: &AtomicBool) {
         let began = Instant::now();
         let mut out = loop {
             if stop.load(Ordering::Relaxed) { return }
@@ -193,6 +194,7 @@ mod windows {
             let gap = silence_needed(t0.elapsed(), written, o.format.rate);
             buf.resize(buf.len() + gap as usize * frame, 0);
             written += gap;
+            if mute.load(Ordering::Relaxed) { buf.fill(0) }
             if !buf.is_empty() && out.write_all(&buf).is_err() { break }
             std::thread::sleep(LOOK_EVERY);
         }
@@ -233,7 +235,7 @@ mod tests {
     #[ignore]
     fn captured_peak_while_a_tone_plays() {
         let device = std::env::var("RP_PC_SOUND").unwrap_or_default();
-        let mut c = start(&device).expect("capture starts");
+        let mut c = start(&device, Default::default()).expect("capture starts");
         let f = c.feed.format;
         let listener = std::net::TcpListener::bind(("127.0.0.1", c.feed.port)).unwrap();
         let (mut conn, _) = listener.accept().unwrap();
@@ -263,7 +265,7 @@ mod tests {
     #[cfg(windows)]
     #[test]
     fn the_default_output_is_captured_at_the_clocks_pace() {
-        let Ok(mut c) = start("") else { return eprintln!("no sound output here: skipped") };
+        let Ok(mut c) = start("", Default::default()) else { return eprintln!("no sound output here: skipped") };
         let f = c.feed.format;
         assert!(f.rate >= 8000 && f.channels >= 1, "{f:?}");
         let listener = std::net::TcpListener::bind(("127.0.0.1", c.feed.port)).expect("the port is free for the test to listen on");
