@@ -3776,6 +3776,14 @@ msgid "Go Live"
 msgstr "Ale an dirèk"
 
 #: ui/operator/record.slint
+msgid "{} of {} connected"
+msgstr "{} sou {} konekte"
+
+#: ui/operator/record.slint
+msgid "Live {}/{}"
+msgstr "An dirèk {}/{}"
+
+#: ui/operator/record.slint
 msgid "Live"
 msgstr "An dirèk"
 

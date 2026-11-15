@@ -278,6 +278,8 @@ export component OperatorWindow inherits Window {
     callback record();
     in property <bool> can-stream;
     in property <bool> live;
+    in property <int> live-up;
+    in property <int> live-total;
     callback go-live();
 
     /// One key press, for `keys::route_in` in Rust: the key's text, Ctrl (Cmd on macOS), Alt, Shift, whether a text
@@ -932,6 +934,8 @@ export component OperatorWindow inherits Window {
                 record => { root.focus-keys(); root.record(); }
                 can-stream: root.can-stream;
                 live: root.live;
+                live-up: root.live-up;
+                live-total: root.live-total;
                 go-live => { root.focus-keys(); root.go-live(); }
                 services => { root.focus-keys(); root.services(); }
                 screens => { root.focus-keys(); root.screens(); }

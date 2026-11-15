@@ -154,6 +154,9 @@ impl Operator {
             }
         }
         for (text, err) in said { self.toast(text, err) }
+        // The Live button: how many are connected now, of how many.
+        self.ui.set_live_total(now.len() as i32);
+        self.ui.set_live_up(now.iter().filter(|u| **u).count() as i32);
     }
 
     /// Whether a recording is under way.

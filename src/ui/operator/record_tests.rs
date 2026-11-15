@@ -167,6 +167,8 @@ fn the_operator_hears_when_a_destination_connects_and_when_it_drops() {
     op.say_links(&[false, true]);
     let said = toasts(&op);
     assert_eq!(said[said.len() - 2..], [(stream::tr::lost("YouTube"), true), (stream::tr::connected("Facebook"), false)]);
+    // The Live button counts them: one of two connected.
+    assert_eq!((op.ui.get_live_up(), op.ui.get_live_total()), (1, 2));
     // Only while live.
     op.record.live.set(false);
     op.say_links(&[true, true]);

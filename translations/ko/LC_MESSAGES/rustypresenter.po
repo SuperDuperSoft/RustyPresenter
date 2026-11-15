@@ -3776,6 +3776,14 @@ msgid "Go Live"
 msgstr "라이브 시작"
 
 #: ui/operator/record.slint
+msgid "{} of {} connected"
+msgstr "{}/{} 연결됨"
+
+#: ui/operator/record.slint
+msgid "Live {}/{}"
+msgstr "방송 중 {}/{}"
+
+#: ui/operator/record.slint
 msgid "Live"
 msgstr "방송 중"
 

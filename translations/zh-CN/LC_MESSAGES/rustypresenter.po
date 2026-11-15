@@ -3776,6 +3776,14 @@ msgid "Go Live"
 msgstr "开始直播"
 
 #: ui/operator/record.slint
+msgid "{} of {} connected"
+msgstr "已连接 {}/{}"
+
+#: ui/operator/record.slint
+msgid "Live {}/{}"
+msgstr "直播中 {}/{}"
+
+#: ui/operator/record.slint
 msgid "Live"
 msgstr "直播中"
 

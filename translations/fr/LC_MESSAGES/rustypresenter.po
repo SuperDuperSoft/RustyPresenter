@@ -3776,6 +3776,14 @@ msgid "Go Live"
 msgstr "Passer en direct"
 
 #: ui/operator/record.slint
+msgid "{} of {} connected"
+msgstr "{} sur {} connectées"
+
+#: ui/operator/record.slint
+msgid "Live {}/{}"
+msgstr "En direct {}/{}"
+
+#: ui/operator/record.slint
 msgid "Live"
 msgstr "En direct"
 

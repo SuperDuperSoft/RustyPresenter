@@ -53,6 +53,8 @@ export component TopBar inherits Rectangle {
     /// Livestreaming: a destination is switched on (the button shows), and a stream is going out.
     in property <bool> can-stream;
     in property <bool> live;
+    in property <int> live-up;
+    in property <int> live-total;
     callback go-live();
     callback services();
     callback screens();
@@ -600,6 +602,8 @@ export component TopBar inherits Rectangle {
             alignment: center;
             live-btn := LiveBtn {
                 live: root.live;
+                up: root.live-up;
+                total: root.live-total;
                 clicked => { root.go-live(); }
             }
         }

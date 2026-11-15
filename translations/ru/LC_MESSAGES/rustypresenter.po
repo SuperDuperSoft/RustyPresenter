@@ -3776,6 +3776,14 @@ msgid "Go Live"
 msgstr "В эфир"
 
 #: ui/operator/record.slint
+msgid "{} of {} connected"
+msgstr "подключено {} из {}"
+
+#: ui/operator/record.slint
+msgid "Live {}/{}"
+msgstr "В эфире {}/{}"
+
+#: ui/operator/record.slint
 msgid "Live"
 msgstr "В эфире"
 
