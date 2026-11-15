@@ -362,3 +362,41 @@ fn real_camera_goes_live_with_the_words() {
     assert!(streams.iter().any(|s| s.0 == "video" && s.2 == 1280 && s.3 == 720), "{streams:?}");
     assert!(spread > 20, "the camera's picture did not come through (flat): {spread}");
 }
+
+/// A camera that stops in the middle (unplugged), for each layout: the stream and the recording go on to the end,
+/// and after the camera is gone the room screen (red, then green) is what is seen.
+#[test]
+fn a_camera_that_stops_does_not_stop_the_stream() {
+    let Some(ff) = ffmpeg() else { return };
+    for layout in [args::Layout::CameraScreen, args::Layout::ScreenCamera, args::Layout::CameraWords] {
+        let dir = scratch("camstop");
+        let port = std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port();
+        let url = format!("rtmp://127.0.0.1:{port}/live/TEST-KEY");
+        let received = dir.join("received.flv");
+        let mut server = std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-listen", "1", "-analyzeduration", "2000000", "-f", "flv", "-i", &url, "-c", "copy"])
+            .arg(&received).stdin(Stdio::null()).spawn().unwrap();
+        std::thread::sleep(Duration::from_millis(1500));
+        // A blue camera that stops after 2 s.
+        let camera = args::Camera { input: ["-re", "-f", "lavfi", "-i", "color=c=blue:size=1280x720:rate=30:duration=2"].map(String::from).into(), layout, words_port: None };
+        let slide = crate::live::SlideLayer::Text { text: "Grace".into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: None };
+        let words = crate::stream::lyrics::Words(std::sync::Arc::new(move || crate::stream::lyrics::key_for(&slide, &crate::model::Theme::default(), (1280, 720))));
+        let ended = record_for(Plan { stream: vec![url], camera: Some(camera), words: Some(words), ..plan(ff.clone(), &dir, Sound::None) }, 8.0, |_, _| {});
+        let t = Instant::now();
+        while server.try_wait().unwrap().is_none() && t.elapsed() < Duration::from_secs(20) { std::thread::sleep(Duration::from_millis(100)) }
+        let _ = server.kill();
+        let _ = server.wait();
+        assert_eq!(ended.problem, None, "{layout:?}: {ended:?}");
+        let (_, secs) = probe(&received);
+        assert!(secs > 5.5, "{layout:?}: the stream ended with the camera ({secs} s)");
+        let (_, rec) = probe(&dir.join("Recording test.mp4"));
+        assert!(rec > 5.5, "{layout:?}: the recording ended with the camera ({rec} s)");
+        // 6 s in, the camera is long gone: the room screen (green by then) fills the picture.
+        let png = dir.join("frame.png");
+        assert!(std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-ss", "6", "-i"]).arg(&received).args(["-frames:v", "1"]).arg(&png)
+            .status().unwrap().success());
+        let img = image::open(&png).unwrap().to_rgb8();
+        let mid = img.get_pixel(640, 200).0;
+        assert!(mid[1] > 180 && mid[2] < 60, "{layout:?}: the room screen after the camera stopped: {mid:?}");
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+}

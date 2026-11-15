@@ -152,25 +152,29 @@ pub struct Camera {
 
 /// The filter that puts the camera and the room screen together into `[v]`: one fills the `w`×`h` picture (kept
 /// in shape, with black bars where it does not fit), the other a quarter as wide in the bottom right corner.
+///
+/// The room screen is always the base and the clock of the picture, the camera laid over it: so the picture ends
+/// with the room screen's (Stop), and a camera that stops (unplugged, failed) drops out (`eof_action=pass`): the
+/// stream goes on, showing the room screen in its place. With the camera as the base, a camera that stopped
+/// stopped the stream and the recording.
 pub fn picture_in_picture(screen: usize, camera: usize, (w, h): (u32, u32), fps: u32, camera_main: bool) -> String {
     let small = (w / 4) & !1;
     let edge = w / 40;
-    let fill = |i: usize, name: &str| format!("[{i}:v]scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,setsar=1,fps={fps},format=yuv420p[{name}]");
-    let corner = |i: usize, name: &str| format!("[{i}:v]scale={small}:-2,setsar=1,format=yuv420p[{name}]");
-    let (main, pip) = if camera_main { (camera, screen) } else { (screen, camera) };
-    // The picture ends when the room screen's pictures end (Stop), never by the camera: with the camera in the
-    // corner, a camera that stops leaves its last picture; with the camera filling it, the screen in the corner
-    // ending ends it (else FFmpeg went on with the camera after Stop and the file was lost).
-    let end = if camera_main { "endall" } else { "repeat" };
-    format!("{};{};[main][pip]overlay=W-w-{edge}:H-h-{edge}:eof_action={end}[v]", fill(main, "main"), corner(pip, "pip"))
+    let fit = |what: &str| format!("scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,setsar=1,fps={fps},format=yuv420p{what}");
+    if camera_main {
+        format!("[{screen}:v]split=2[r1][r2];[r1]{base};[{camera}:v]{cam};[base][cam]overlay=0:0:eof_action=pass[full];            [r2]scale={small}:-2,setsar=1,format=yuv420p[pip];[full][pip]overlay=W-w-{edge}:H-h-{edge}[v]", base = fit("[base]"), cam = fit("[cam]"))
+    } else {
+        format!("[{screen}:v]{base};[{camera}:v]scale={small}:-2,setsar=1,format=yuv420p[pip];[base][pip]overlay=W-w-{edge}:H-h-{edge}:eof_action=pass[v]",
+            base = fit("[base]"))
+    }
 }
 
 /// The camera filling the `w`×`h` picture with the words picture (premultiplied, clear where there are no words)
-/// over it. The room screen is not seen, but its end (Stop) ends the picture: it is put in as one clear dot.
+/// over it. The room screen is the base underneath (and the clock): not seen while the camera is there, it shows
+/// if the camera stops, and its end (Stop) ends the picture.
 pub fn camera_with_words(screen: usize, camera: usize, words: usize, (w, h): (u32, u32), fps: u32) -> String {
-    format!("[{camera}:v]scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,setsar=1,fps={fps},format=yuv420p[cam];\
-        [{words}:v]format=rgba[words];[cam][words]overlay=0:0:alpha=premultiplied:format=auto,format=yuv420p[seen];\
-        [{screen}:v]scale=2:2,format=yuva420p,colorchannelmixer=aa=0[dot];[seen][dot]overlay=0:0:eof_action=endall[v]")
+    let fit = |what: &str| format!("scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,setsar=1,fps={fps},format=yuv420p{what}");
+    format!("[{screen}:v]{base};[{camera}:v]{cam};[base][cam]overlay=0:0:eof_action=pass[seen];        [{words}:v]format=rgba[words];[seen][words]overlay=0:0:alpha=premultiplied:eof_action=pass:format=auto,format=yuv420p[v]", base = fit("[base]"), cam = fit("[cam]"))
 }
 
 fn quoted(l: &str) -> Option<&str> {
@@ -386,7 +390,7 @@ mod tests {
         assert!(a.windows(2).any(|w| w == ["-i", "testsrc"]), "{a:?}");
         let f = a.iter().rev().nth(0).map(|_| a.iter().filter(|x| x.contains("overlay")).cloned().collect::<Vec<_>>()).unwrap();
         assert_eq!(f, [picture_in_picture(0, 2, (1280, 720), 30, true)]);
-        assert!(f[0].starts_with("[2:v]scale=1280:720") && f[0].contains("[0:v]scale=320:-2"), "{f:?}");
+        assert!(f[0].starts_with("[0:v]split=2") && f[0].contains("[2:v]scale=1280:720") && f[0].contains("[r2]scale=320:-2"), "{f:?}");
         assert!(a.windows(2).any(|w| w == ["-map", "[v]"]) && !a.windows(2).any(|w| w == ["-map", "0:v"]), "{a:?}");
         // The screen filling it instead.
         assert!(picture_in_picture(0, 1, (1920, 1080), 30, false).starts_with("[0:v]scale=1920:1080"));
@@ -395,7 +399,7 @@ mod tests {
         let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, out: &out, stream: &to, pc: None, camera: Some(&words) }));
         assert!(a.windows(2).any(|w| w == ["-i", "tcp://127.0.0.1:40700?listen=1"]), "{a:?}");
         let f = a.iter().find(|x| x.contains("alpha=premultiplied")).expect("the words filter");
-        assert!(f.starts_with("[2:v]scale=1280:720") && f.contains("[3:v]format=rgba") && f.contains("[0:v]scale=2:2"), "{f}");
+        assert!(f.starts_with("[0:v]scale=1280:720") && f.contains("[2:v]scale=1280:720") && f.contains("[3:v]format=rgba"), "{f}");
         assert_eq!((Layout::from_index(2), Layout::CameraWords.index(), Layout::from_index(9)), (Layout::CameraWords, 2, Layout::CameraScreen));
     }
 
