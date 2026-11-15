@@ -6002,6 +6002,10 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "на цю адресу чи з цим ключем трансляцію надіслати не можна"
 
 #: src/stream/mod.rs
+msgid "You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once."
+msgstr "Ви в ефірі. Для трансляції пісень прославлення потрібна ліцензія на трансляцію (наприклад, CCLI Streaming License) на додачу до звичайної ліцензії вашої церкви на авторські права, а відео чи музика в ефірі теж потребують дозволу їхніх власників. Це повідомлення з’являється лише раз."
+
+#: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "Іде запис. Зупиніть його, тоді натисніть «В ефір»."
 

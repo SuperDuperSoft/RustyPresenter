@@ -5997,6 +5997,10 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "não dá para enviar uma transmissão para esse endereço ou com essa chave"
 
 #: src/stream/mod.rs
+msgid "You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once."
+msgstr "Você está ao vivo. Transmitir músicas de louvor exige uma licença de transmissão (por exemplo, a CCLI Streaming License) além da licença de direitos autorais habitual da sua igreja, e vídeos ou músicas na transmissão também precisam da permissão dos seus donos. Este aviso aparece só uma vez."
+
+#: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "Há uma gravação em andamento. Pare-a e depois toque em Ir ao vivo."
 

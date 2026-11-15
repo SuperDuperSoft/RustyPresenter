@@ -5997,6 +5997,10 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "matangazo hayawezi kutumwa kwa anwani au ufunguo wake"
 
 #: src/stream/mod.rs
+msgid "You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once."
+msgstr "Uko hewani moja kwa moja. Kutangaza nyimbo za kuabudu kunahitaji leseni ya matangazo (kwa mfano CCLI Streaming License) pamoja na leseni ya kawaida ya hakimiliki ya kanisa lako, na video au muziki ndani ya matangazo pia unahitaji ruhusa ya wamiliki wake. Ujumbe huu unaonyeshwa mara moja tu."
+
+#: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "Rekodi inaendelea. Isimamishe, kisha bonyeza Rusha moja kwa moja."
 

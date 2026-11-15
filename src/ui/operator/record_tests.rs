@@ -174,3 +174,18 @@ fn the_operator_hears_when_a_destination_connects_and_when_it_drops() {
     op.say_links(&[true, true]);
     assert_eq!(toasts(&op).len(), said.len());
 }
+
+#[test]
+fn the_streaming_licence_note_is_shown_once() {
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    op.note_stream_licence();
+    assert_eq!(op.state.borrow().asks, 1, "the note is up");
+    assert!(app.data.lock().unwrap().settings.record.licence_noted, "and its mark is kept");
+    crate::ui::dialogs::ask::answer(&op, true, String::new());
+    refresh(&op);
+    op.note_stream_licence();
+    assert_eq!(op.state.borrow().asks, 0, "not again");
+}

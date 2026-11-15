@@ -91,6 +91,7 @@ impl Operator {
                     if live && op.is_recording() {
                         op.ui.set_live(true);
                         op.toast(stream::tr::live_on(&names), false);
+                        op.note_stream_licence();
                     }
                 }
                 Err(Some(why)) => op.toast(why, true),
@@ -157,6 +158,15 @@ impl Operator {
         // The Live button: how many are connected now, of how many.
         self.ui.set_live_total(now.len() as i32);
         self.ui.set_live_up(now.iter().filter(|u| **u).count() as i32);
+    }
+
+    /// The first time a stream goes out from this computer: a note that streaming songs and videos needs a
+    /// licence. Shown once; the choice is kept with the settings.
+    pub(crate) fn note_stream_licence(self: &Rc<Self>) {
+        let noted = self.state.borrow().snap.as_ref().is_some_and(|s| s.settings.record.licence_noted);
+        if noted { return }
+        super::super::dialogs::ask::notice(self, &stream::tr::licence_note());
+        if let Err(e) = self.app().edit_untracked(|d| { d.settings.record.licence_noted = true; Ok(()) }) { eprintln!("go live: could not keep the licence note's mark: {e}") }
     }
 
     /// Whether a recording is under way.

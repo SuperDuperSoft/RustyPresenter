@@ -5997,6 +5997,10 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "yo pa ka voye yon emisyon nan adrès li oswa ak kle li"
 
 #: src/stream/mod.rs
+msgid "You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once."
+msgstr "Ou an dirèk. Pou fè emisyon chante adorasyon, ou bezwen yon lisans emisyon (pa egzanp CCLI Streaming License) anplis lisans dwa otè nòmal legliz ou a, epi videyo oswa mizik nan emisyon an bezwen pèmisyon mèt yo tou. Nòt sa a parèt yon sèl fwa."
+
+#: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "Gen yon anrejistreman k ap fèt. Kanpe l, apre sa peze Ale an dirèk."
 

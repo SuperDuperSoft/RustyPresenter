@@ -5992,6 +5992,10 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "그 주소나 키로는 방송을 보낼 수 없어요"
 
 #: src/stream/mod.rs
+msgid "You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once."
+msgstr "지금 라이브 중이에요. 찬양곡을 방송하려면 교회의 일반 저작권 라이선스 외에 스트리밍 라이선스(예: CCLI Streaming License)가 필요하고, 방송에 나오는 영상이나 음악도 그 소유자의 허락이 필요해요. 이 안내는 한 번만 보여요."
+
+#: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "녹화 중이에요. 녹화를 멈춘 다음 라이브 시작을 누르세요."
 

@@ -85,6 +85,9 @@ pub struct RecordPrefs {
     /// else its name as `Settings::audio_device` has it.
     #[serde(skip_serializing_if = "String::is_empty")]
     pub stream_sound: String,
+    /// The note about streaming licences was shown (once, the first time Go Live started).
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub licence_noted: bool,
 }
 
 impl RecordPrefs {

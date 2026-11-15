@@ -167,6 +167,9 @@ pub mod tr {
     pub fn no_key() -> String { tr!("it has no stream key") }
     pub fn no_address() -> String { tr!("it has no address") }
     pub fn bad_address() -> String { tr!("its address or key is not one a stream can be sent to") }
+    pub fn licence_note() -> String {
+        tr!("You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once.")
+    }
     pub fn stop_recording_first() -> String { tr!("A recording is under way. Stop it, then press Go Live.") }
 }
 

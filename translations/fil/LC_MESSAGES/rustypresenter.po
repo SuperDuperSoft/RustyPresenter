@@ -5997,6 +5997,10 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "hindi mapapadalhan ng stream ang address o key nito"
 
 #: src/stream/mod.rs
+msgid "You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once."
+msgstr "Live ka na. Ang pag-stream ng mga awit ng pagsamba ay nangangailangan ng streaming license (halimbawa, ang CCLI Streaming License) bukod sa karaniwang copyright license ng inyong simbahan, at kailangan din ng pahintulot ng may-ari para sa mga video o musika sa stream. Isang beses lang ipinapakita ang paalalang ito."
+
+#: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "May recording na tumatakbo. Itigil muna ito, saka pindutin ang Mag-live."
 
