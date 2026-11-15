@@ -50,10 +50,38 @@ pub fn stage_text(view: &LiveView) -> StageText {
 /// The largest font size (in % of the height) that `fits`: 9 % down to 3 % in 0.4 % steps, like `stage.html`.
 pub fn fit_size(fits: impl Fn(f32) -> bool) -> f32 { fit_between(9.0, 3.0, fits) }
 
-/// The largest size from `max` down to `min` in 0.4 % steps that `fits`; `min` when none does.
+/// The smallest words on the stage screen, in % of its height (13 px on a 1080p screen): smaller than a box's own
+/// smallest size, but all the words are seen. (Jake, November 15, 2026: long notes were cut off.)
+pub const FLOOR: f32 = 1.2;
+
+/// The largest size from `max` down to `min` in 0.4 % steps that `fits`. When none does, on down from `min` in
+/// 0.2 % steps to `FLOOR`: words that do not fit are made smaller, never cut off. `FLOOR` when even that does not
+/// fit (a whole page of notes in a small box: the end is cut off then).
 pub fn fit_between(max: f32, min: f32, fits: impl Fn(f32) -> bool) -> f32 {
     let steps = ((max - min) / 0.4 + 1e-3).floor().max(0.0) as usize;
-    (0..=steps).map(|k| max - 0.4 * k as f32).find(|s| fits(*s)).unwrap_or(min)
+    if let Some(s) = (0..=steps).map(|k| max - 0.4 * k as f32).find(|s| fits(*s)) { return s }
+    let below = ((min - FLOOR) / 0.2 + 1e-3).floor().max(0.0) as usize;
+    (1..=below).map(|k| min - 0.2 * k as f32).find(|s| fits(*s)).unwrap_or(FLOOR.min(min))
+}
+
+/// Classic's notes box: at most this share of the screen's height (in %), its words 3.2 % at most.
+const NOTES_MAX_H: f32 = 30.0;
+const NOTES_SIZE: f32 = 3.2;
+
+/// Classic's notes at the biggest size up to `NOTES_SIZE` at which they fit their box.
+fn fit_notes(ui: &StageWindow) {
+    let notes = ui.get_notes();
+    if notes.is_empty() { return ui.set_notes_size(NOTES_SIZE) }
+    let (ww, wh) = (ui.get_window_width(), ui.get_window_height());
+    let (vh, vw) = (wh / 100.0, ww / 100.0);
+    // The box's padding: 1.6 % of the width each side, 1.2 % of the height top and bottom.
+    let aw = ww - 2.0 * 1.6 * vw;
+    let ah = NOTES_MAX_H * vh - 2.0 * 1.2 * vh;
+    ui.set_probe_text(notes);
+    ui.set_probe_width(aw.max(1.0));
+    ui.set_probe_bold(false);
+    let size = fit_between(NOTES_SIZE, NOTES_SIZE, |s| { ui.set_probe_size(s); ui.get_probe_height() <= ah && ui.get_probe_min_width() <= aw });
+    ui.set_notes_size(size);
 }
 
 fn clock(t: chrono::NaiveTime) -> String { view::clock(t, false, false) }
@@ -210,6 +238,8 @@ fn tick(ui: &StageWindow, screen: &StageScreen) {
 }
 
 fn fit(ui: &StageWindow) {
+    // The notes first: their box's height decides the room the current slide has.
+    fit_notes(ui);
     let size = fit_size(|s| { ui.set_now_size(s); ui.get_now_fits() });
     ui.set_now_size(size);
 }
@@ -605,10 +635,12 @@ mod tests {
     }
 
     #[test]
-    fn fit_steps_down_to_three_percent() {
+    fn fit_steps_down_to_three_percent_then_on_rather_than_cut_words_off() {
         assert_eq!(fit_size(|_| true), 9.0);
         assert!((fit_size(|s| s < 7.0) - 6.6).abs() < 1e-4);
-        assert!((fit_size(|_| false) - 3.0).abs() < 1e-4);
+        // Too much for 3 %: smaller still, in 0.2 % steps, until it fits.
+        assert!((fit_size(|s| s < 2.1) - 2.0).abs() < 1e-4);
+        assert!((fit_size(|_| false) - FLOOR).abs() < 1e-4, "never below the floor");
     }
 
     #[test]
@@ -653,8 +685,9 @@ mod tests {
     fn fit_between_steps_from_the_boxes_biggest_size() {
         assert_eq!(fit_between(18.0, 3.0, |_| true), 18.0);
         assert!((fit_between(6.0, 3.0, |s| s < 5.0) - 4.8).abs() < 1e-4);
-        assert_eq!(fit_between(6.0, 3.0, |_| false), 3.0);
-        assert_eq!(fit_between(2.5, 2.5, |_| false), 2.5);
+        assert!((fit_between(6.0, 3.0, |s| s < 2.5) - 2.4).abs() < 1e-4, "below the box's smallest size rather than cut off");
+        assert_eq!(fit_between(6.0, 3.0, |_| false), FLOOR);
+        assert_eq!(fit_between(1.0, 1.0, |_| false), 1.0, "a box whose smallest is under the floor keeps it");
     }
 
     /// A text item live, its first slide on air, with `layout` as the stage default.
@@ -816,6 +849,72 @@ mod tests {
         show(&stage.ui, &screen, Shown { live: LiveUpdate::new(v), layout: crate::stage::presets::by_id(crate::stage::presets::BAND).unwrap().clone(), slides: vec![], timers: Default::default(), next_picture: None, live_picture: None, group: None });
         let cell = stage.ui.get_cells().iter().find(|c| c.text == long.as_str()).unwrap();
         assert!(cell.size < 10.0, "long words get smaller: {}", cell.size);
+        stage.ui.hide().unwrap();
+    }
+
+    /// A page of notes (Jake, November 15, 2026: "sometimes notes cut off when there are too much").
+    fn long_notes() -> String {
+        "Hold the last chorus twice, then the band drops out and we sing it once with just the keys. Watch for the pastor's nod before the bridge; \
+         if he walks to the front, go straight to the outro and keep it soft for the prayer. ".repeat(10)
+    }
+
+    /// Shows `layout` with `notes` on the live slide, at 1280 × 720.
+    fn stage_with_notes(layout: Uuid, notes: &str) -> std::rc::Rc<Stage> {
+        let app = app_with_layout(layout);
+        let stage = Stage::open(app.clone(), None).unwrap();
+        stage.ui.window().set_size(slint::LogicalSize::new(1280.0, 720.0));
+        let mut v = app.live_view();
+        v.slide.as_mut().unwrap().notes = notes.into();
+        let screen = StageScreen::default();
+        show(&stage.ui, &screen, Shown { live: LiveUpdate::new(v), layout: crate::stage::presets::by_id(layout).unwrap().clone(), slides: vec![], timers: Default::default(),
+            next_picture: None, live_picture: None, group: None });
+        stage
+    }
+
+    #[test]
+    fn long_notes_in_a_box_are_made_smaller_until_all_of_them_fit() {
+        i_slint_backend_testing::init_no_event_loop();
+        let notes = long_notes();
+        let mut checked = vec![];
+        for layout in [crate::stage::presets::SLIDES_NOTES, crate::stage::presets::SPEAKER] {
+            let stage = stage_with_notes(layout, &notes);
+            let Some(cell) = stage.ui.get_cells().iter().find(|c| c.text == notes.as_str()) else { stage.ui.hide().unwrap(); continue };
+            // Measured as the box measures: its room less padding (and the caption above, if any).
+            let (ww, wh) = (stage.ui.get_window_width(), stage.ui.get_window_height());
+            let vh = wh / 100.0;
+            let aw = cell.w * ww / 100.0 - 2.0 * PAD * vh;
+            let ah = cell.h * vh - 2.0 * PAD * vh - if cell.caption.is_empty() { 0.0 } else { CAPTION * vh };
+            stage.ui.set_probe_text(notes.as_str().into());
+            stage.ui.set_probe_width(aw);
+            stage.ui.set_probe_bold(cell.bold);
+            stage.ui.set_probe_size(cell.size);
+            assert!(stage.ui.get_probe_height() <= ah, "{layout}: the notes at {} % are {} px high in a {ah} px box: cut off",
+                cell.size, stage.ui.get_probe_height());
+            eprintln!("REAL notes box {layout}: {} % of the height", cell.size);
+            checked.push(layout);
+            stage.ui.hide().unwrap();
+        }
+        assert!(checked.contains(&crate::stage::presets::SLIDES_NOTES), "the Slides and notes layout has a notes box: {checked:?}");
+    }
+
+    #[test]
+    fn long_notes_on_the_classic_screen_fit_their_box() {
+        i_slint_backend_testing::init_no_event_loop();
+        let notes = long_notes();
+        let stage = stage_with_notes(crate::stage::presets::CLASSIC, &notes);
+        let size = stage.ui.get_notes_size();
+        assert!(size < NOTES_SIZE, "a page of notes is made smaller: {size}");
+        let (ww, wh) = (stage.ui.get_window_width(), stage.ui.get_window_height());
+        let (vh, vw) = (wh / 100.0, ww / 100.0);
+        stage.ui.set_probe_text(notes.as_str().into());
+        stage.ui.set_probe_width(ww - 2.0 * 1.6 * vw);
+        stage.ui.set_probe_bold(false);
+        stage.ui.set_probe_size(size);
+        assert!(stage.ui.get_probe_height() <= NOTES_MAX_H * vh - 2.4 * vh, "the notes at {size} % do not fit their box");
+        stage.ui.hide().unwrap();
+        // A short note stays at its usual size.
+        let stage = stage_with_notes(crate::stage::presets::CLASSIC, "Slow, hold the last line");
+        assert_eq!(stage.ui.get_notes_size(), NOTES_SIZE);
         stage.ui.hide().unwrap();
     }
 

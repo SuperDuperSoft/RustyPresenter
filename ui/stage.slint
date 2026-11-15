@@ -49,6 +49,8 @@ export component StageWindow inherits Window {
     /// N29: `now` is a slide for the stage only (the room shows something else).
     in property <bool> stage-only;
     in property <string> notes;
+    /// Classic's notes size in % of the window height: Rust lowers it until the notes fit their box (`fit_notes`).
+    in property <float> notes-size: 3.2;
     in property <string> next: @tr("End of service");
     /// The operator's message (spec §12.2); empty hides it.
     in property <string> message;
@@ -215,6 +217,9 @@ export component StageWindow inherits Window {
         if root.notes != "": Rectangle {
             background: #12151b;
             border-radius: 1 * vh;
+            // At most 30 % of the screen; the words are made smaller to fit it rather than cut off.
+            max-height: 30 * vh;
+            clip: true;
             VerticalLayout {
                 padding-top: 1.2 * vh;
                 padding-bottom: 1.2 * vh;
@@ -223,7 +228,7 @@ export component StageWindow inherits Window {
                 notes-t := Text {
                     text: root.notes;
                     color: #cfe3ff;
-                    font-size: 3.2 * vh;
+                    font-size: root.notes-size * vh;
                     wrap: word-wrap;
                 }
             }
