@@ -135,7 +135,7 @@ msgstr "改为粘贴经文"
 msgid "Verses per slide"
 msgstr "每张幻灯片的经节数"
 
-#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/record.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "自动"
 
@@ -1140,7 +1140,7 @@ msgstr "左右并排"
 msgid "Top and bottom"
 msgstr "上下排列"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "自动"
 
@@ -2439,25 +2439,77 @@ msgstr "这台电脑的声音"
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr "在这个输出上播放的所有声音都会进入直播（视频、歌曲，以及送到这里的其他任何声音），并与上面选择的麦克风或线路输入混在一起。"
 
-#: ui/dialogs/settings-media.slint src/strings/themes.rs src/ui/operator/video_inputs.rs
+#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "摄像头"
 
 #: ui/dialogs/settings-media.slint
-msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
-msgstr "在直播（及其录像）中与会众屏幕合在一起的摄像头或采集卡。"
+msgid "A camera or capture card for the stream's camera scenes (and its recording)."
+msgstr "用于直播镜头场景（及其录制）的摄像头或采集卡。"
 
 #: ui/dialogs/settings-media.slint
-msgid "Camera, with the screen in a corner"
-msgstr "摄像头为主，屏幕在角落"
+msgid "Scenes"
+msgstr "场景"
 
 #: ui/dialogs/settings-media.slint
-msgid "Screen, with the camera in a corner"
-msgstr "屏幕为主，摄像头在角落"
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgstr "诗歌和经文以镜头加歌词播出；视频和演示文稿以会堂屏幕播出；屏幕上没有内容时播出镜头。用“直播”旁的场景按钮选择的场景会保持到下一个聚会项目。"
 
 #: ui/dialogs/settings-media.slint
-msgid "Camera, with the words over it"
-msgstr "摄像头，上面叠加歌词"
+msgid "Choose the scene by itself from what is live"
+msgstr "根据正在直播的内容自动选择场景"
+
+#: ui/dialogs/settings-media.slint
+msgid "Presentations:"
+msgstr "演示文稿："
+
+#: ui/dialogs/settings-media.slint
+msgid "The room screen"
+msgstr "会堂屏幕"
+
+#: ui/dialogs/settings-media.slint
+msgid "The room screen with the camera in a corner"
+msgstr "会堂屏幕，镜头在角落"
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
+msgid "Starting soon"
+msgstr "即将开始"
+
+#: ui/dialogs/settings-media.slint
+msgid "Before the service, with the pre-service countdown under the words while it runs."
+msgstr "聚会开始前；倒计时进行时显示在文字下方。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Use a picture…"
+msgstr "使用图片…"
+
+#: ui/dialogs/settings-media.slint
+msgid "Use words"
+msgstr "使用文字"
+
+#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/song.rs
+msgid "Ending"
+msgstr "结尾"
+
+#: ui/dialogs/settings-media.slint
+msgid "After the service's last item."
+msgstr "在聚会的最后一项之后。"
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs
+msgid "Thanks for joining us"
+msgstr "感谢您的参与"
+
+#: ui/dialogs/settings-media.slint ui/operator/follow.slint src/i18n/remote_strings.rs src/stream/scene.rs
+msgid "Hold"
+msgstr "暂停"
+
+#: ui/dialogs/settings-media.slint
+msgid "For a break, chosen with the scene button."
+msgstr "用于休息，通过场景按钮选择。"
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs
+msgid "We'll be right back"
+msgstr "马上回来"
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
@@ -2813,7 +2865,7 @@ msgstr "测试哪个最快"
 
 #: ui/dialogs/settings.slint
 msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
-msgstr ""
+msgstr "大约一分钟。运行时会打开和关闭测试窗口，投影上没有内容时也会出现在投影上。"
 
 #: ui/dialogs/settings.slint
 msgid "Use this"
@@ -3571,10 +3623,6 @@ msgstr "自动跟随选项"
 msgid "Holding"
 msgstr "已暂停"
 
-#: ui/operator/follow.slint src/i18n/remote_strings.rs
-msgid "Hold"
-msgstr "暂停"
-
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
 msgstr "—"
@@ -3814,6 +3862,18 @@ msgstr "停止直播并保存录像"
 #: ui/operator/record.slint
 msgid "Send the room screen to the livestream, and record it"
 msgstr "把会众屏幕发送到直播，并录制下来"
+
+#: ui/operator/record.slint
+msgid "Stream scene"
+msgstr "直播场景"
+
+#: ui/operator/record.slint
+msgid "{} (automatic)"
+msgstr "{}（自动）"
+
+#: ui/operator/record.slint
+msgid "What the livestream shows. It changes by itself with what is live; click to choose"
+msgstr "直播显示的内容。会随正在直播的内容自动变化；点击选择"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
@@ -4770,6 +4830,14 @@ msgstr "让舞台布局跟随幻灯片"
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Hide the stage message"
 msgstr "隐藏舞台消息"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Livestream: {name}"
+msgstr "直播：{name}"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Livestream: automatic"
+msgstr "直播：自动"
 
 #: src/automation/slide_actions.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Theme: {name}"
@@ -6070,6 +6138,18 @@ msgstr "你正在直播。直播敬拜诗歌，除了教会平常的版权许可
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "正在录制。请先停止录制，再按“开始直播”。"
+
+#: src/stream/scene.rs
+msgid "Camera + words"
+msgstr "镜头 + 歌词"
+
+#: src/stream/scene.rs
+msgid "Full screen"
+msgstr "全屏"
+
+#: src/stream/scene.rs
+msgid "Screen + camera"
+msgstr "屏幕 + 镜头"
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -8443,10 +8523,6 @@ msgid "Intro"
 msgstr "前奏"
 
 #: src/strings/song.rs
-msgid "Ending"
-msgstr "结尾"
-
-#: src/strings/song.rs
 msgid "Interlude"
 msgstr "间奏"
 
@@ -9621,6 +9697,10 @@ msgid "Show a message to the stage"
 msgstr "向舞台显示消息"
 
 #: src/ui/dialogs/automation.rs
+msgid "Change the livestream's scene"
+msgstr "更改直播场景"
+
+#: src/ui/dialogs/automation.rs
 msgid "item {n}"
 msgstr "第 {n} 项"
 
@@ -10436,39 +10516,39 @@ msgstr "无法运行"
 
 #: src/video/bench.rs
 msgid "It stopped responding."
-msgstr ""
+msgstr "停止响应。"
 
 #: src/video/bench.rs
 msgid "It could not start."
-msgstr ""
+msgstr "无法启动。"
 
 #: src/video/bench.rs
 msgid "It closed before it finished. It may have crashed."
-msgstr ""
+msgstr "它在完成前关闭了，可能已崩溃。"
 
 #: src/video/bench.rs
 msgid "Slides never reached the room screen."
-msgstr ""
+msgstr "幻灯片从未到达会堂屏幕。"
 
 #: src/video/bench.rs
 msgid "This graphics card or its driver can't draw with it."
-msgstr ""
+msgstr "这块显卡或其驱动无法用它绘制。"
 
 #: src/video/bench.rs
 msgid "Slide change {ms} ms"
-msgstr ""
+msgstr "换片 {ms} 毫秒"
 
 #: src/video/bench.rs
 msgid "{n} hiccups a minute"
-msgstr ""
+msgstr "每分钟卡顿 {n} 次"
 
 #: src/video/bench.rs
 msgid "longest pause {ms} ms"
-msgstr ""
+msgstr "最长停顿 {ms} 毫秒"
 
 #: src/video/bench.rs
 msgid "processor {pct} %"
-msgstr ""
+msgstr "处理器 {pct} %"
 
 #: src/video/bench.rs
 msgid "Testing {mode}… ({at} of {count})"
@@ -10476,11 +10556,11 @@ msgstr "正在测试 {mode}…（{at} / {count}）"
 
 #: src/video/bench.rs
 msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About a minute"
-msgstr ""
+msgstr "显卡或其驱动已更改。要我再次为这台电脑寻找最佳图形方式吗？大约一分钟"
 
 #: src/video/bench.rs
 msgid "Want me to find the best graphics for this PC? About a minute"
-msgstr ""
+msgstr "要我为这台电脑寻找最佳图形方式吗？大约一分钟"
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
@@ -10601,6 +10681,18 @@ msgstr "yt-dlp 没有保存视频"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "不是媒体文件"
+
+#~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+#~ msgstr "在直播（及其录像）中与会众屏幕合在一起的摄像头或采集卡。"
+
+#~ msgid "Camera, with the screen in a corner"
+#~ msgstr "摄像头为主，屏幕在角落"
+
+#~ msgid "Screen, with the camera in a corner"
+#~ msgstr "屏幕为主，摄像头在角落"
+
+#~ msgid "Camera, with the words over it"
+#~ msgstr "摄像头，上面叠加歌词"
 
 #~ msgid "About 30 seconds. Test windows open and close while it runs."
 #~ msgstr "大约 30 秒。测试期间会有测试窗口打开和关闭。"

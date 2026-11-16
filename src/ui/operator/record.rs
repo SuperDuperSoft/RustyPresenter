@@ -5,7 +5,7 @@ use super::window::Operator;
 use crate::{
     platform::tools,
     record::{self, Ended, Plan, Recording, run},
-    stream,
+    stream::{self, scene::Scene},
     ui::dialogs::confirm,
     youtube::fetch::Tool,
 };
@@ -33,6 +33,8 @@ pub struct RecordUi {
     silent_was: Cell<bool>,
     /// Updates the time on the button once a second.
     ticker: Timer,
+    /// While live: the scene button, four times a second.
+    scene_ticker: Timer,
     /// Tests: how the recording ended, waited for by `testing::wait_ended` (no event loop to deliver it).
     #[cfg(test)]
     ended: RefCell<Option<tokio::sync::oneshot::Receiver<Ended>>>,
@@ -242,6 +244,22 @@ impl Operator {
         if self.while_live(|r| r.mute(on)) { self.ui.set_live_muted(on) }
     }
 
+    /// The scene button's list: `i` is a scene (`Scene::ALL`), -1 Automatic. Holds until another item goes live.
+    pub fn pick_scene(&self, i: i32) {
+        let scene = usize::try_from(i).ok().and_then(|i| Scene::ALL.get(i).copied());
+        self.app().set_stream_scene(scene);
+        self.show_scene();
+    }
+
+    /// The scene button: the scene going out, and the one chosen by hand while it holds.
+    pub fn show_scene(&self) {
+        let (info, choice, _) = self.app().stream_info();
+        let index = |s: Scene| Scene::ALL.iter().position(|x| *x == s).map_or(-1, |i| i as i32);
+        self.ui.set_scene_chosen(stream::scene::lit(choice, &info).map_or(-1, index));
+        let out = self.record.rec.borrow().as_ref().and_then(Recording::scene);
+        if let Some(s) = out { self.ui.set_scene_out(index(s)) }
+    }
+
     /// Runs `f` on the recording when it is live. True when it was.
     fn while_live(&self, f: impl FnOnce(&Recording)) -> bool {
         match self.record.rec.borrow().as_ref() {
@@ -262,7 +280,18 @@ impl Operator {
             self.ui.set_live_muted(false);
         }
         self.ui.set_record_time(record::clock(0).into());
-        if !on { return self.record.ticker.stop() }
+        if !on {
+            self.record.scene_ticker.stop();
+            return self.record.ticker.stop();
+        }
+        // The scene button, while live: its names, and what goes out looked at four times a second.
+        if self.record.live.get() {
+            let labels: Vec<slint::SharedString> = Scene::ALL.iter().map(|s| s.label().into()).collect();
+            self.ui.set_scene_labels(slint::ModelRc::new(slint::VecModel::from(labels)));
+            self.show_scene();
+            let me = self.me.clone();
+            self.record.scene_ticker.start(TimerMode::Repeated, Duration::from_millis(250), move || if let Some(op) = me.upgrade() { op.show_scene() });
+        }
         let me = self.me.clone();
         self.record.ticker.start(TimerMode::Repeated, Duration::from_secs(1), move || {
             let Some(op) = me.upgrade() else { return };
@@ -317,6 +346,8 @@ pub(super) fn wire(op: &Rc<Operator>) {
     op.ui.on_hold_stream(move || if let Some(op) = me.upgrade() { op.hold_stream() });
     let me = Rc::downgrade(op);
     op.ui.on_mute_stream(move || if let Some(op) = me.upgrade() { op.mute_stream() });
+    let me = Rc::downgrade(op);
+    op.ui.on_pick_scene(move |i| if let Some(op) = me.upgrade() { op.pick_scene(i) });
 }
 
 mod tr {

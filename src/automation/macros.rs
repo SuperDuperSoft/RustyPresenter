@@ -95,6 +95,8 @@ pub enum MacroStep {
     GoToSlide { slide: usize },
     /// A slide action only: that macro's steps run in its place.
     RunMacro { #[serde(rename = "macro")] macro_id: Uuid },
+    /// 1.3b: the livestream's scene from now until another item goes live; `None` gives it back to Automatic.
+    StreamScene { #[serde(default)] scene: Option<crate::stream::scene::Scene> },
 }
 
 impl MacroStep {
@@ -110,7 +112,7 @@ impl MacroStep {
         use MacroStep::*;
         matches!(self, TimerShow { .. } | TimerHide { .. } | MessageShow { .. } | MessageHide | Overlay { .. }
             | TimerStart { .. } | TimerPause { .. } | TimerReset { .. } | TimerRestart { .. }
-            | StageMessageShow { .. } | StageMessageHide | StageLayout { .. } | StageLayoutAuto | Music { .. })
+            | StageMessageShow { .. } | StageMessageHide | StageLayout { .. } | StageLayoutAuto | Music { .. } | StreamScene { .. })
     }
 }
 
@@ -180,6 +182,7 @@ pub enum PlannedStep {
     PlayPlaylist { playlist: Uuid },
     UseTheme { theme: Uuid },
     GoToSlide { slide: usize },
+    StreamScene { scene: Option<crate::stream::scene::Scene> },
 }
 
 impl PlannedStep {
@@ -191,7 +194,7 @@ impl PlannedStep {
             TimerStart { .. } | TimerPause { .. } | TimerReset { .. } | TimerRestart { .. } | AutoAdvance { .. } | PlayPlaylist { .. } => {
                 StepClass::Runtime
             }
-            StageMessageShow { .. } | StageMessageHide | StageLayout { .. } | StageLayoutAuto | Music { .. } => StepClass::Action,
+            StageMessageShow { .. } | StageMessageHide | StageLayout { .. } | StageLayoutAuto | Music { .. } | StreamScene { .. } => StepClass::Action,
         }
     }
 
@@ -306,6 +309,7 @@ pub fn resolve<Tz: TimeZone>(m: &Macro, ctx: &ResolveCtx<Tz>) -> Result<Resolved
             MacroStep::PlayPlaylist { playlist } => PlannedStep::PlayPlaylist { playlist: *playlist },
             MacroStep::UseTheme { theme } => PlannedStep::UseTheme { theme: *theme },
             MacroStep::GoToSlide { slide } => PlannedStep::GoToSlide { slide: *slide },
+            MacroStep::StreamScene { scene } => PlannedStep::StreamScene { scene: *scene },
             // Slide actions put the macro's own steps here before resolving; one left over was deleted.
             MacroStep::RunMacro { .. } => return Err(deleted(strings::StepTarget::Macro)),
         };
@@ -591,6 +595,18 @@ mod tests {
         assert_eq!(cant_run_deleted("Walk-in", 3, StepTarget::Timer),
                    "Couldn't run “Walk-in”: step 3's timer was deleted. Edit the macro.");
         assert_eq!(cant_run_newer("Walk-in", 4), "Couldn't run “Walk-in”: step 4 needs a newer RustyPresenter.");
+    }
+
+    #[test]
+    fn stream_scene_step_round_trips() {
+        use crate::stream::scene::Scene;
+        let step = MacroStep::StreamScene { scene: Some(Scene::Camera) };
+        assert_eq!(serde_json::to_value(&step).unwrap(), serde_json::json!({"step":"stream_scene","scene":"camera"}));
+        assert_eq!(serde_json::from_value::<MacroStep>(serde_json::json!({"step":"stream_scene","scene":null})).unwrap(), MacroStep::StreamScene { scene: None });
+        let newer: Lenient<MacroStep> = serde_json::from_value(serde_json::json!({"step":"stream_scene","scene":"drone_shot"})).unwrap();
+        assert!(newer.known().is_none(), "a scene from a newer version is kept, not run");
+        let m = Macro { steps: vec![Lenient::Known(step)], ..Macro::default() };
+        assert!(m.is_overlay_only() && !m.is_relative());
     }
 
     #[test]

@@ -88,6 +88,134 @@ export component PanicBtn inherits Rectangle {
     TipArea { text: root.on ? root.on-tip : root.tip; hover: panic-ta.has-hover; pressed: panic-ta.pressed; pointer-x: panic-ta.mouse-x; }
 }
 
+/// The stream's scene, beside Live while live (1.3b): the scene going out, and whether it was chosen by itself
+/// ("Auto") or by hand. Clicking opens the list: Automatic, then every scene. A scene clicked holds until another
+/// service item goes live; Automatic gives the choice back at once.
+export component SceneBtn inherits Rectangle {
+    /// The scenes' names, in `stream::scene::Scene::ALL` order.
+    in property <[string]> labels;
+    /// The scene going out (an index into `labels`).
+    in property <int> out;
+    /// The scene chosen by hand, or -1 for Automatic.
+    in property <int> chosen: -1;
+    callback pick(int);
+
+    property <string> name: root.out >= 0 && root.out < root.labels.length ? root.labels[root.out] : "";
+
+    accessible-role: button;
+    accessible-label: @tr("Stream scene");
+    accessible-value: root.chosen < 0 ? @tr("{} (automatic)", root.name) : root.name;
+    accessible-action-default => { menu.show(); }
+
+    border-radius: 9px;
+    border-width: 1px;
+    border-color: Theme.line;
+    background: scene-ta.has-hover ? Theme.raise : transparent;
+
+    HorizontalLayout {
+        padding: 8px;
+        padding-left: 10px;
+        padding-right: 10px;
+        spacing: 6px;
+        Text {
+            text: root.name;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: 600;
+            vertical-alignment: center;
+        }
+        if root.chosen < 0: Text {
+            text: @tr("Auto");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 12px;
+            vertical-alignment: center;
+        }
+    }
+
+    scene-ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { menu.show(); }
+    }
+
+    TipArea { text: @tr("What the livestream shows. It changes by itself with what is live; click to choose"); hover: scene-ta.has-hover; pressed: scene-ta.pressed; pointer-x: scene-ta.mouse-x; }
+
+    menu := PopupWindow {
+        x: 0;
+        y: root.height + 4px;
+        width: 220px;
+        height: (root.labels.length + 1) * 32px + 9px;
+        close-policy: close-on-click-outside;
+        Rectangle {
+            background: Theme.panel-2;
+            border-color: Theme.line;
+            border-width: 1px;
+            border-radius: 9px;
+            VerticalLayout {
+                padding: 4px;
+                auto-row := Rectangle {
+                    height: 32px;
+                    border-radius: 6px;
+                    background: auto-ta.has-hover ? Theme.raise : transparent;
+                    accessible-role: list-item;
+                    accessible-label: @tr("Automatic");
+                    accessible-checked: root.chosen < 0;
+                    auto-ta := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { root.pick(-1); menu.close(); }
+                    }
+                    HorizontalLayout {
+                        padding-left: 10px;
+                        spacing: 8px;
+                        VerticalLayout {
+                            alignment: center;
+                            Rectangle { width: 8px; height: 8px; border-radius: 4px; background: root.chosen < 0 ? Theme.accent : transparent; }
+                        }
+                        Text {
+                            text: @tr("Automatic");
+                            color: Theme.text;
+                            font-family: Theme.font;
+                            font-size: 13px;
+                            font-weight: root.chosen < 0 ? 600 : 400;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+                for n[i] in root.labels: scene-row := Rectangle {
+                    height: 32px;
+                    border-radius: 6px;
+                    background: row-ta.has-hover ? Theme.raise : transparent;
+                    accessible-role: list-item;
+                    accessible-label: n;
+                    accessible-checked: i == root.chosen;
+                    row-ta := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { root.pick(i); menu.close(); }
+                    }
+                    HorizontalLayout {
+                        padding-left: 10px;
+                        spacing: 8px;
+                        // The one chosen by hand: an accent dot. The one going out: red.
+                        VerticalLayout {
+                            alignment: center;
+                            Rectangle { width: 8px; height: 8px; border-radius: 4px; background: i == root.chosen ? Theme.accent : i == root.out ? Theme.live : transparent; }
+                        }
+                        Text {
+                            text: n;
+                            color: Theme.text;
+                            font-family: Theme.font;
+                            font-size: 13px;
+                            font-weight: i == root.out ? 600 : 400;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 export component RecordBtn inherits Rectangle {
     in property <bool> recording;
     /// "12:34" while recording.

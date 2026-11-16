@@ -135,7 +135,7 @@ msgstr "聖句を貼り付ける"
 msgid "Verses per slide"
 msgstr "スライドごとの節数"
 
-#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/record.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "自動"
 
@@ -1140,7 +1140,7 @@ msgstr "左右に並べる"
 msgid "Top and bottom"
 msgstr "上下に並べる"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "自動"
 
@@ -2439,25 +2439,77 @@ msgstr "このコンピューターの音"
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr "この出力で鳴るものはすべて配信に入ります (動画、曲、そこに送られるほかの音も)。上で選んだマイクまたはライン入力と混ぜて送られます。"
 
-#: ui/dialogs/settings-media.slint src/strings/themes.rs src/ui/operator/video_inputs.rs
+#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "カメラ"
 
 #: ui/dialogs/settings-media.slint
-msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
-msgstr "配信 (とその録画) で会場画面と組み合わせるカメラまたはキャプチャーカード。"
+msgid "A camera or capture card for the stream's camera scenes (and its recording)."
+msgstr "配信のカメラシーン（とその録画）に使うカメラまたはキャプチャカード。"
 
 #: ui/dialogs/settings-media.slint
-msgid "Camera, with the screen in a corner"
-msgstr "カメラを大きく、画面を隅に"
+msgid "Scenes"
+msgstr "シーン"
 
 #: ui/dialogs/settings-media.slint
-msgid "Screen, with the camera in a corner"
-msgstr "画面を大きく、カメラを隅に"
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgstr "賛美と聖書の箇所はカメラに歌詞を重ねて、動画とプレゼンテーションは会堂の画面として、画面に何もないときはカメラで配信されます。ライブの横のシーンボタンで選んだシーンは、次の礼拝項目まで続きます。"
 
 #: ui/dialogs/settings-media.slint
-msgid "Camera, with the words over it"
-msgstr "カメラに歌詞を重ねる"
+msgid "Choose the scene by itself from what is live"
+msgstr "ライブの内容に合わせてシーンを自動で選ぶ"
+
+#: ui/dialogs/settings-media.slint
+msgid "Presentations:"
+msgstr "プレゼンテーション:"
+
+#: ui/dialogs/settings-media.slint
+msgid "The room screen"
+msgstr "会堂の画面"
+
+#: ui/dialogs/settings-media.slint
+msgid "The room screen with the camera in a corner"
+msgstr "会堂の画面（隅にカメラ）"
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
+msgid "Starting soon"
+msgstr "まもなく始まります"
+
+#: ui/dialogs/settings-media.slint
+msgid "Before the service, with the pre-service countdown under the words while it runs."
+msgstr "礼拝の前。カウントダウン中は文字の下に表示されます。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Use a picture…"
+msgstr "画像を使う…"
+
+#: ui/dialogs/settings-media.slint
+msgid "Use words"
+msgstr "文字を使う"
+
+#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/song.rs
+msgid "Ending"
+msgstr "エンディング"
+
+#: ui/dialogs/settings-media.slint
+msgid "After the service's last item."
+msgstr "礼拝の最後の項目のあと。"
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs
+msgid "Thanks for joining us"
+msgstr "ご参加ありがとうございました"
+
+#: ui/dialogs/settings-media.slint ui/operator/follow.slint src/i18n/remote_strings.rs src/stream/scene.rs
+msgid "Hold"
+msgstr "一時停止"
+
+#: ui/dialogs/settings-media.slint
+msgid "For a break, chosen with the scene button."
+msgstr "休憩用。シーンボタンで選びます。"
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs
+msgid "We'll be right back"
+msgstr "まもなく再開します"
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
@@ -2813,7 +2865,7 @@ msgstr "最速をテスト"
 
 #: ui/dialogs/settings.slint
 msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
-msgstr ""
+msgstr "約1分。実行中はテスト用のウィンドウが開いたり閉じたりします。何も映していなければプロジェクターにも出ます。"
 
 #: ui/dialogs/settings.slint
 msgid "Use this"
@@ -3571,10 +3623,6 @@ msgstr "自動追従のオプション"
 msgid "Holding"
 msgstr "一時停止中"
 
-#: ui/operator/follow.slint src/i18n/remote_strings.rs
-msgid "Hold"
-msgstr "一時停止"
-
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
 msgstr "—"
@@ -3814,6 +3862,18 @@ msgstr "ライブ配信を止めて録画を保存"
 #: ui/operator/record.slint
 msgid "Send the room screen to the livestream, and record it"
 msgstr "会場画面をライブ配信に送り、録画もする"
+
+#: ui/operator/record.slint
+msgid "Stream scene"
+msgstr "配信シーン"
+
+#: ui/operator/record.slint
+msgid "{} (automatic)"
+msgstr "{}（自動）"
+
+#: ui/operator/record.slint
+msgid "What the livestream shows. It changes by itself with what is live; click to choose"
+msgstr "ライブ配信に映るもの。ライブの内容に合わせて自動で変わります。クリックして選択"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
@@ -4770,6 +4830,14 @@ msgstr "ステージレイアウトをスライドに追従させる"
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Hide the stage message"
 msgstr "ステージメッセージを隠す"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Livestream: {name}"
+msgstr "配信: {name}"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Livestream: automatic"
+msgstr "配信: 自動"
 
 #: src/automation/slide_actions.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Theme: {name}"
@@ -6070,6 +6138,18 @@ msgstr "ライブ配信中です。賛美の曲を配信するには、教会の
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "録画中です。録画を止めてから「ライブ配信」を押してください。"
+
+#: src/stream/scene.rs
+msgid "Camera + words"
+msgstr "カメラ＋歌詞"
+
+#: src/stream/scene.rs
+msgid "Full screen"
+msgstr "全画面"
+
+#: src/stream/scene.rs
+msgid "Screen + camera"
+msgstr "画面＋カメラ"
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -8443,10 +8523,6 @@ msgid "Intro"
 msgstr "イントロ"
 
 #: src/strings/song.rs
-msgid "Ending"
-msgstr "エンディング"
-
-#: src/strings/song.rs
 msgid "Interlude"
 msgstr "間奏"
 
@@ -9621,6 +9697,10 @@ msgid "Show a message to the stage"
 msgstr "ステージにメッセージを表示"
 
 #: src/ui/dialogs/automation.rs
+msgid "Change the livestream's scene"
+msgstr "ライブ配信のシーンを変える"
+
+#: src/ui/dialogs/automation.rs
 msgid "item {n}"
 msgstr "項目 {n}"
 
@@ -10436,39 +10516,39 @@ msgstr "失敗"
 
 #: src/video/bench.rs
 msgid "It stopped responding."
-msgstr ""
+msgstr "応答しなくなりました。"
 
 #: src/video/bench.rs
 msgid "It could not start."
-msgstr ""
+msgstr "起動できませんでした。"
 
 #: src/video/bench.rs
 msgid "It closed before it finished. It may have crashed."
-msgstr ""
+msgstr "終わる前に閉じました。クラッシュした可能性があります。"
 
 #: src/video/bench.rs
 msgid "Slides never reached the room screen."
-msgstr ""
+msgstr "スライドが会堂の画面に届きませんでした。"
 
 #: src/video/bench.rs
 msgid "This graphics card or its driver can't draw with it."
-msgstr ""
+msgstr "このグラフィックカードまたはドライバーでは描画できません。"
 
 #: src/video/bench.rs
 msgid "Slide change {ms} ms"
-msgstr ""
+msgstr "スライド切り替え {ms} ms"
 
 #: src/video/bench.rs
 msgid "{n} hiccups a minute"
-msgstr ""
+msgstr "1分あたり{n}回のカクつき"
 
 #: src/video/bench.rs
 msgid "longest pause {ms} ms"
-msgstr ""
+msgstr "最長の停止 {ms} ms"
 
 #: src/video/bench.rs
 msgid "processor {pct} %"
-msgstr ""
+msgstr "プロセッサー {pct} %"
 
 #: src/video/bench.rs
 msgid "Testing {mode}… ({at} of {count})"
@@ -10476,11 +10556,11 @@ msgstr "{mode} をテスト中… ({at} / {count})"
 
 #: src/video/bench.rs
 msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About a minute"
-msgstr ""
+msgstr "グラフィックカードまたはドライバーが変わりました。このPCに最適な描画方法をもう一度調べますか？約1分"
 
 #: src/video/bench.rs
 msgid "Want me to find the best graphics for this PC? About a minute"
-msgstr ""
+msgstr "このPCに最適な描画方法を調べますか？約1分"
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
@@ -10601,6 +10681,18 @@ msgstr "yt-dlp は動画を保存しませんでした"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "メディアファイルではありません"
+
+#~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+#~ msgstr "配信 (とその録画) で会場画面と組み合わせるカメラまたはキャプチャーカード。"
+
+#~ msgid "Camera, with the screen in a corner"
+#~ msgstr "カメラを大きく、画面を隅に"
+
+#~ msgid "Screen, with the camera in a corner"
+#~ msgstr "画面を大きく、カメラを隅に"
+
+#~ msgid "Camera, with the words over it"
+#~ msgstr "カメラに歌詞を重ねる"
 
 #~ msgid "About 30 seconds. Test windows open and close while it runs."
 #~ msgstr "約 30 秒かかります。実行中はテスト用のウィンドウが開いたり閉じたりします。"

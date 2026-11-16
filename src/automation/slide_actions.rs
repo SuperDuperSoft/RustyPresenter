@@ -153,6 +153,11 @@ pub fn palette(data: &Data, slides: usize) -> Vec<Tile> {
     }
     t.push(tile(Group::Stage, tr!("Let the stage layout follow the slides"), vec![MacroStep::StageLayoutAuto]));
     t.push(tile(Group::Stage, tr!("Hide the stage message"), vec![MacroStep::StageMessageHide]));
+    // 1.3b: the livestream's scene, in the Stage group (both are what other screens show).
+    for s in crate::stream::scene::Scene::ALL {
+        t.push(tile(Group::Stage, tr!("Livestream: {name}", name = s.label()), vec![MacroStep::StreamScene { scene: Some(s) }]));
+    }
+    t.push(tile(Group::Stage, tr!("Livestream: automatic"), vec![MacroStep::StreamScene { scene: None }]));
     for r in data.catalog().rows() {
         t.push(tile(Group::Themes, tr!("Theme: {name}", name = r.name), vec![MacroStep::UseTheme { theme: r.id }]));
     }

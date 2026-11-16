@@ -501,6 +501,17 @@ fn add_actions(app: &Arc<App>, item: Uuid, slide: usize, steps: Vec<MacroStep>) 
     act(app, "automation/slide-actions/add", serde_json::json!({ "item": item, "slide": slide, "steps": steps }))
 }
 
+/// 1.3b: a slide can choose the livestream's scene (the sermon's first slide: the camera). It holds for that item.
+#[test]
+fn a_slide_action_can_pick_the_stream_scene() {
+    use crate::stream::scene::{Choice, Scene};
+    let app = test_app();
+    let item = text_item(&app, "Sermon", 2);
+    add_actions(&app, item, 0, vec![MacroStep::StreamScene { scene: Some(Scene::Camera) }]).unwrap();
+    show(&app, item, 0);
+    assert_eq!(*app.stream_choice.lock().unwrap(), Choice { scene: Some(Scene::Camera), item: Some(item) });
+}
+
 #[test]
 fn slide_actions_run_when_the_slide_goes_live_once() {
     let app = test_app();

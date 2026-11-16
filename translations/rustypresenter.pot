@@ -132,7 +132,7 @@ msgstr ""
 msgid "Verses per slide"
 msgstr ""
 
-#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/record.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
 msgstr ""
 
@@ -1137,7 +1137,7 @@ msgstr ""
 msgid "Top and bottom"
 msgstr ""
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr ""
 
@@ -2436,24 +2436,76 @@ msgstr ""
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr ""
 
-#: ui/dialogs/settings-media.slint src/strings/themes.rs src/ui/operator/video_inputs.rs
+#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
-msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+msgid "A camera or capture card for the stream's camera scenes (and its recording)."
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
-msgid "Camera, with the screen in a corner"
+msgid "Scenes"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
-msgid "Screen, with the camera in a corner"
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
-msgid "Camera, with the words over it"
+msgid "Choose the scene by itself from what is live"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Presentations:"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "The room screen"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "The room screen with the camera in a corner"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
+msgid "Starting soon"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Before the service, with the pre-service countdown under the words while it runs."
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Use a picture…"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Use words"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/song.rs
+msgid "Ending"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "After the service's last item."
+msgstr ""
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs
+msgid "Thanks for joining us"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint ui/operator/follow.slint src/i18n/remote_strings.rs src/stream/scene.rs
+msgid "Hold"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "For a break, chosen with the scene button."
+msgstr ""
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs
+msgid "We'll be right back"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
@@ -3562,10 +3614,6 @@ msgstr ""
 msgid "Holding"
 msgstr ""
 
-#: ui/operator/follow.slint src/i18n/remote_strings.rs
-msgid "Hold"
-msgstr ""
-
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
 msgstr ""
@@ -3804,6 +3852,18 @@ msgstr ""
 
 #: ui/operator/record.slint
 msgid "Send the room screen to the livestream, and record it"
+msgstr ""
+
+#: ui/operator/record.slint
+msgid "Stream scene"
+msgstr ""
+
+#: ui/operator/record.slint
+msgid "{} (automatic)"
+msgstr ""
+
+#: ui/operator/record.slint
+msgid "What the livestream shows. It changes by itself with what is live; click to choose"
 msgstr ""
 
 #: ui/operator/record.slint ui/operator.slint
@@ -4760,6 +4820,14 @@ msgstr ""
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Hide the stage message"
+msgstr ""
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Livestream: {name}"
+msgstr ""
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Livestream: automatic"
 msgstr ""
 
 #: src/automation/slide_actions.rs src/strings/themes.rs src/ui/dialogs/automation.rs
@@ -6065,6 +6133,18 @@ msgstr ""
 
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
+msgstr ""
+
+#: src/stream/scene.rs
+msgid "Camera + words"
+msgstr ""
+
+#: src/stream/scene.rs
+msgid "Full screen"
+msgstr ""
+
+#: src/stream/scene.rs
+msgid "Screen + camera"
 msgstr ""
 
 #: src/strings/add.rs
@@ -8463,10 +8543,6 @@ msgid "Intro"
 msgstr ""
 
 #: src/strings/song.rs
-msgid "Ending"
-msgstr ""
-
-#: src/strings/song.rs
 msgid "Interlude"
 msgstr ""
 
@@ -9647,6 +9723,10 @@ msgstr ""
 
 #: src/ui/dialogs/automation.rs
 msgid "Show a message to the stage"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Change the livestream's scene"
 msgstr ""
 
 #: src/ui/dialogs/automation.rs

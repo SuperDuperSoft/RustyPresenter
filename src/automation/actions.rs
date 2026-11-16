@@ -469,7 +469,7 @@ impl App {
                 PlannedStep::UseTheme { theme } => Some(Command::UseTheme { theme: *theme }),
                 // Nothing live: a runtime step that says so.
                 PlannedStep::GoToSlide { slide } => live.cursor.as_ref().map(|c| Command::Show { item_id: c.item_id, slide: *slide }),
-                PlannedStep::StageMessageShow { .. } | PlannedStep::StageMessageHide | PlannedStep::StageLayout { .. } | PlannedStep::StageLayoutAuto
+                PlannedStep::StageMessageShow { .. } | PlannedStep::StageMessageHide | PlannedStep::StageLayout { .. } | PlannedStep::StageLayoutAuto | PlannedStep::StreamScene { .. }
                 | PlannedStep::Music { .. } => {
                     stage.push((p.number, p.step.clone()));
                     continue;
@@ -554,6 +554,7 @@ impl App {
             PlannedStep::StageMessageHide => self.set_stage_message(""),
             PlannedStep::StageLayout { layout } => { let _ = self.edit(|d| { d.settings.stage.layout = layout; Ok(()) }); }
             PlannedStep::StageLayoutAuto => self.set_notice(&strings::stage_auto_not_yet()),
+            PlannedStep::StreamScene { scene } => self.set_stream_scene(scene),
             PlannedStep::Music { play } => {
                 let op = if play { super::music::MusicOp::Play } else { super::music::MusicOp::Stop };
                 if let Err(e) = self.music(op) { self.set_notice(&e) }

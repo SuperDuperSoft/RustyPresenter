@@ -135,7 +135,7 @@ msgstr "Натомість вставити вірші"
 msgid "Verses per slide"
 msgstr "Віршів на слайд"
 
-#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/record.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "Авто"
 
@@ -1140,7 +1140,7 @@ msgstr "Поруч"
 msgid "Top and bottom"
 msgstr "Згори й знизу"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "Автоматично"
 
@@ -2439,25 +2439,77 @@ msgstr "Звук цього комп’ютера"
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr "Усе, що звучить на цьому виході, йде в трансляцію (відео, пісні та будь-який інший звук, надісланий туди), разом із мікрофоном або лінійним входом, вибраним вище."
 
-#: ui/dialogs/settings-media.slint src/strings/themes.rs src/ui/operator/video_inputs.rs
+#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "Камера"
 
 #: ui/dialogs/settings-media.slint
-msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
-msgstr "Камера або карта захоплення, поєднана з екраном залу в трансляції (і в її записі)."
+msgid "A camera or capture card for the stream's camera scenes (and its recording)."
+msgstr "Камера або карта захоплення для сцен з камерою в трансляції (і її запису)."
 
 #: ui/dialogs/settings-media.slint
-msgid "Camera, with the screen in a corner"
-msgstr "Камера, екран у куті"
+msgid "Scenes"
+msgstr "Сцени"
 
 #: ui/dialogs/settings-media.slint
-msgid "Screen, with the camera in a corner"
-msgstr "Екран, камера в куті"
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgstr "Пісні та вірші з Біблії йдуть як камера зі словами; відео та презентації — як екран зали; коли на екрані нічого немає — камера. Сцена, обрана кнопкою сцени поруч з «В ефірі», тримається до наступного пункту служіння."
 
 #: ui/dialogs/settings-media.slint
-msgid "Camera, with the words over it"
-msgstr "Камера, слова поверх"
+msgid "Choose the scene by itself from what is live"
+msgstr "Обирати сцену самостійно за тим, що в ефірі"
+
+#: ui/dialogs/settings-media.slint
+msgid "Presentations:"
+msgstr "Презентації:"
+
+#: ui/dialogs/settings-media.slint
+msgid "The room screen"
+msgstr "Екран зали"
+
+#: ui/dialogs/settings-media.slint
+msgid "The room screen with the camera in a corner"
+msgstr "Екран зали з камерою в куті"
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
+msgid "Starting soon"
+msgstr "Скоро почнемо"
+
+#: ui/dialogs/settings-media.slint
+msgid "Before the service, with the pre-service countdown under the words while it runs."
+msgstr "Перед служінням, зі зворотним відліком під словами, поки він триває."
+
+#: ui/dialogs/settings-media.slint
+msgid "Use a picture…"
+msgstr "Використати зображення…"
+
+#: ui/dialogs/settings-media.slint
+msgid "Use words"
+msgstr "Використати слова"
+
+#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/song.rs
+msgid "Ending"
+msgstr "Закінчення"
+
+#: ui/dialogs/settings-media.slint
+msgid "After the service's last item."
+msgstr "Після останнього пункту служіння."
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs
+msgid "Thanks for joining us"
+msgstr "Дякуємо, що були з нами"
+
+#: ui/dialogs/settings-media.slint ui/operator/follow.slint src/i18n/remote_strings.rs src/stream/scene.rs
+msgid "Hold"
+msgstr "Пауза"
+
+#: ui/dialogs/settings-media.slint
+msgid "For a break, chosen with the scene button."
+msgstr "Для перерви, обирається кнопкою сцени."
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs
+msgid "We'll be right back"
+msgstr "Скоро повернемося"
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
@@ -2813,7 +2865,7 @@ msgstr "Знайти найшвидший"
 
 #: ui/dialogs/settings.slint
 msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
-msgstr ""
+msgstr "Близько хвилини. Під час перевірки відкриваються й закриваються тестові вікна, зокрема на проєкторі, якщо на ньому нічого не показано."
 
 #: ui/dialogs/settings.slint
 msgid "Use this"
@@ -3571,10 +3623,6 @@ msgstr "Параметри автостеження"
 msgid "Holding"
 msgstr "На паузі"
 
-#: ui/operator/follow.slint src/i18n/remote_strings.rs
-msgid "Hold"
-msgstr "Пауза"
-
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
 msgstr "—"
@@ -3814,6 +3862,18 @@ msgstr "Зупинити трансляцію і зберегти запис"
 #: ui/operator/record.slint
 msgid "Send the room screen to the livestream, and record it"
 msgstr "Надіслати екран залу в трансляцію і записати його"
+
+#: ui/operator/record.slint
+msgid "Stream scene"
+msgstr "Сцена трансляції"
+
+#: ui/operator/record.slint
+msgid "{} (automatic)"
+msgstr "{} (автоматично)"
+
+#: ui/operator/record.slint
+msgid "What the livestream shows. It changes by itself with what is live; click to choose"
+msgstr "Що показує трансляція. Змінюється сама за тим, що в ефірі; натисніть, щоб обрати"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
@@ -4770,6 +4830,14 @@ msgstr "Дозволити макету сцени стежити за слай�
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Hide the stage message"
 msgstr "Сховати повідомлення на сцені"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Livestream: {name}"
+msgstr "Трансляція: {name}"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Livestream: automatic"
+msgstr "Трансляція: автоматично"
 
 #: src/automation/slide_actions.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Theme: {name}"
@@ -6080,6 +6148,18 @@ msgstr "Ви в ефірі. Для трансляції пісень просл�
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "Іде запис. Зупиніть його, тоді натисніть «В ефір»."
+
+#: src/stream/scene.rs
+msgid "Camera + words"
+msgstr "Камера + слова"
+
+#: src/stream/scene.rs
+msgid "Full screen"
+msgstr "Весь екран"
+
+#: src/stream/scene.rs
+msgid "Screen + camera"
+msgstr "Екран + камера"
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -8505,10 +8585,6 @@ msgid "Intro"
 msgstr "Вступ"
 
 #: src/strings/song.rs
-msgid "Ending"
-msgstr "Закінчення"
-
-#: src/strings/song.rs
 msgid "Interlude"
 msgstr "Програш"
 
@@ -9701,6 +9777,10 @@ msgid "Show a message to the stage"
 msgstr "Показати повідомлення на сцені"
 
 #: src/ui/dialogs/automation.rs
+msgid "Change the livestream's scene"
+msgstr "Змінити сцену трансляції"
+
+#: src/ui/dialogs/automation.rs
 msgid "item {n}"
 msgstr "пункт {n}"
 
@@ -10530,39 +10610,39 @@ msgstr "Не працює"
 
 #: src/video/bench.rs
 msgid "It stopped responding."
-msgstr ""
+msgstr "Перестало відповідати."
 
 #: src/video/bench.rs
 msgid "It could not start."
-msgstr ""
+msgstr "Не вдалося запустити."
 
 #: src/video/bench.rs
 msgid "It closed before it finished. It may have crashed."
-msgstr ""
+msgstr "Воно закрилося, не завершивши. Можливо, стався збій."
 
 #: src/video/bench.rs
 msgid "Slides never reached the room screen."
-msgstr ""
+msgstr "Слайди так і не дійшли до екрана в залі."
 
 #: src/video/bench.rs
 msgid "This graphics card or its driver can't draw with it."
-msgstr ""
+msgstr "Ця відеокарта або її драйвер не може цим малювати."
 
 #: src/video/bench.rs
 msgid "Slide change {ms} ms"
-msgstr ""
+msgstr "Зміна слайда {ms} мс"
 
 #: src/video/bench.rs
 msgid "{n} hiccups a minute"
-msgstr ""
+msgstr "{n} ривків за хвилину"
 
 #: src/video/bench.rs
 msgid "longest pause {ms} ms"
-msgstr ""
+msgstr "найдовша пауза {ms} мс"
 
 #: src/video/bench.rs
 msgid "processor {pct} %"
-msgstr ""
+msgstr "процесор {pct} %"
 
 #: src/video/bench.rs
 msgid "Testing {mode}… ({at} of {count})"
@@ -10570,11 +10650,11 @@ msgstr "Перевірка {mode}… ({at} з {count})"
 
 #: src/video/bench.rs
 msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About a minute"
-msgstr ""
+msgstr "Відеокарта або її драйвер змінилися. Знайти знову найкращий спосіб відображення для цього ПК? Близько хвилини"
 
 #: src/video/bench.rs
 msgid "Want me to find the best graphics for this PC? About a minute"
-msgstr ""
+msgstr "Знайти найкращий спосіб відображення для цього ПК? Близько хвилини"
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
@@ -10695,6 +10775,18 @@ msgstr "yt-dlp не зберіг відео"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "не медіафайл"
+
+#~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+#~ msgstr "Камера або карта захоплення, поєднана з екраном залу в трансляції (і в її записі)."
+
+#~ msgid "Camera, with the screen in a corner"
+#~ msgstr "Камера, екран у куті"
+
+#~ msgid "Screen, with the camera in a corner"
+#~ msgstr "Екран, камера в куті"
+
+#~ msgid "Camera, with the words over it"
+#~ msgstr "Камера, слова поверх"
 
 #~ msgid "About 30 seconds. Test windows open and close while it runs."
 #~ msgstr "Близько 30 секунд. Під час перевірки відкриваються й закриваються тестові вікна."

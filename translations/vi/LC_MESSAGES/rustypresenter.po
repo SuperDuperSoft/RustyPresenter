@@ -135,7 +135,7 @@ msgstr "Dán các câu thay vào đó"
 msgid "Verses per slide"
 msgstr "Số câu mỗi trang"
 
-#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/record.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "Tự động"
 
@@ -1140,7 +1140,7 @@ msgstr "Cạnh nhau"
 msgid "Top and bottom"
 msgstr "Trên và dưới"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "Tự động"
 
@@ -2439,25 +2439,77 @@ msgstr "Âm thanh từ máy tính này"
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr "Mọi thứ phát trên đầu ra này đều đi cùng buổi phát (video, bài hát và bất kỳ âm thanh nào khác được gửi tới đó), trộn với micrô hoặc line-in đã chọn ở trên."
 
-#: ui/dialogs/settings-media.slint src/strings/themes.rs src/ui/operator/video_inputs.rs
+#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "Máy quay"
 
 #: ui/dialogs/settings-media.slint
-msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
-msgstr "Máy quay hoặc thiết bị ghi hình được ghép với màn hình hội trường trong buổi phát (và bản ghi của nó)."
+msgid "A camera or capture card for the stream's camera scenes (and its recording)."
+msgstr "Camera hoặc thẻ ghi hình cho các cảnh camera của buổi phát trực tiếp (và bản ghi của nó)."
 
 #: ui/dialogs/settings-media.slint
-msgid "Camera, with the screen in a corner"
-msgstr "Máy quay, màn hình ở góc"
+msgid "Scenes"
+msgstr "Cảnh"
 
 #: ui/dialogs/settings-media.slint
-msgid "Screen, with the camera in a corner"
-msgstr "Màn hình, máy quay ở góc"
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgstr "Bài hát và câu Kinh Thánh phát ra dưới dạng camera kèm lời; video và bài trình chiếu là màn hình hội trường; khi màn hình trống thì là camera. Cảnh chọn bằng nút cảnh bên cạnh Trực tiếp giữ nguyên đến mục tiếp theo của buổi nhóm."
 
 #: ui/dialogs/settings-media.slint
-msgid "Camera, with the words over it"
-msgstr "Máy quay, có lời bài hát bên trên"
+msgid "Choose the scene by itself from what is live"
+msgstr "Tự chọn cảnh theo những gì đang chiếu"
+
+#: ui/dialogs/settings-media.slint
+msgid "Presentations:"
+msgstr "Bài trình chiếu:"
+
+#: ui/dialogs/settings-media.slint
+msgid "The room screen"
+msgstr "Màn hình hội trường"
+
+#: ui/dialogs/settings-media.slint
+msgid "The room screen with the camera in a corner"
+msgstr "Màn hình hội trường với camera ở góc"
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
+msgid "Starting soon"
+msgstr "Sắp bắt đầu"
+
+#: ui/dialogs/settings-media.slint
+msgid "Before the service, with the pre-service countdown under the words while it runs."
+msgstr "Trước buổi nhóm, với đồng hồ đếm ngược dưới dòng chữ khi đang chạy."
+
+#: ui/dialogs/settings-media.slint
+msgid "Use a picture…"
+msgstr "Dùng hình ảnh…"
+
+#: ui/dialogs/settings-media.slint
+msgid "Use words"
+msgstr "Dùng chữ"
+
+#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/song.rs
+msgid "Ending"
+msgstr "Kết thúc"
+
+#: ui/dialogs/settings-media.slint
+msgid "After the service's last item."
+msgstr "Sau mục cuối cùng của buổi nhóm."
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs
+msgid "Thanks for joining us"
+msgstr "Cảm ơn bạn đã tham dự"
+
+#: ui/dialogs/settings-media.slint ui/operator/follow.slint src/i18n/remote_strings.rs src/stream/scene.rs
+msgid "Hold"
+msgstr "Giữ"
+
+#: ui/dialogs/settings-media.slint
+msgid "For a break, chosen with the scene button."
+msgstr "Cho giờ nghỉ, chọn bằng nút cảnh."
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs
+msgid "We'll be right back"
+msgstr "Chúng tôi sẽ quay lại ngay"
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
@@ -2813,7 +2865,7 @@ msgstr "Thử cái nào nhanh nhất"
 
 #: ui/dialogs/settings.slint
 msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
-msgstr ""
+msgstr "Khoảng một phút. Các cửa sổ thử sẽ mở và đóng trong lúc chạy, cả trên máy chiếu khi ở đó không hiện gì."
 
 #: ui/dialogs/settings.slint
 msgid "Use this"
@@ -3571,10 +3623,6 @@ msgstr "Tùy chọn tự động theo"
 msgid "Holding"
 msgstr "Đang giữ"
 
-#: ui/operator/follow.slint src/i18n/remote_strings.rs
-msgid "Hold"
-msgstr "Giữ"
-
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
 msgstr "—"
@@ -3814,6 +3862,18 @@ msgstr "Dừng phát trực tiếp và lưu bản ghi"
 #: ui/operator/record.slint
 msgid "Send the room screen to the livestream, and record it"
 msgstr "Gửi màn hình hội trường lên buổi phát trực tiếp và ghi lại"
+
+#: ui/operator/record.slint
+msgid "Stream scene"
+msgstr "Cảnh phát trực tiếp"
+
+#: ui/operator/record.slint
+msgid "{} (automatic)"
+msgstr "{} (tự động)"
+
+#: ui/operator/record.slint
+msgid "What the livestream shows. It changes by itself with what is live; click to choose"
+msgstr "Những gì buổi phát trực tiếp hiển thị. Tự thay đổi theo những gì đang chiếu; bấm để chọn"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
@@ -4770,6 +4830,14 @@ msgstr "Để bố cục sân khấu theo trang chiếu"
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Hide the stage message"
 msgstr "Ẩn tin nhắn sân khấu"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Livestream: {name}"
+msgstr "Phát trực tiếp: {name}"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Livestream: automatic"
+msgstr "Phát trực tiếp: tự động"
 
 #: src/automation/slide_actions.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Theme: {name}"
@@ -6070,6 +6138,18 @@ msgstr "Bạn đang phát trực tiếp. Phát các bài thờ phượng cần g
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "Đang ghi. Hãy dừng ghi rồi bấm Phát trực tiếp."
+
+#: src/stream/scene.rs
+msgid "Camera + words"
+msgstr "Camera + lời"
+
+#: src/stream/scene.rs
+msgid "Full screen"
+msgstr "Toàn màn hình"
+
+#: src/stream/scene.rs
+msgid "Screen + camera"
+msgstr "Màn hình + camera"
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -8443,10 +8523,6 @@ msgid "Intro"
 msgstr "Dạo đầu"
 
 #: src/strings/song.rs
-msgid "Ending"
-msgstr "Kết thúc"
-
-#: src/strings/song.rs
 msgid "Interlude"
 msgstr "Gian tấu"
 
@@ -9621,6 +9697,10 @@ msgid "Show a message to the stage"
 msgstr "Hiện tin nhắn cho sân khấu"
 
 #: src/ui/dialogs/automation.rs
+msgid "Change the livestream's scene"
+msgstr "Đổi cảnh phát trực tiếp"
+
+#: src/ui/dialogs/automation.rs
 msgid "item {n}"
 msgstr "mục {n}"
 
@@ -10436,39 +10516,39 @@ msgstr "Không chạy"
 
 #: src/video/bench.rs
 msgid "It stopped responding."
-msgstr ""
+msgstr "Nó đã ngừng phản hồi."
 
 #: src/video/bench.rs
 msgid "It could not start."
-msgstr ""
+msgstr "Không thể khởi động."
 
 #: src/video/bench.rs
 msgid "It closed before it finished. It may have crashed."
-msgstr ""
+msgstr "Nó đóng trước khi xong. Có thể đã bị lỗi."
 
 #: src/video/bench.rs
 msgid "Slides never reached the room screen."
-msgstr ""
+msgstr "Các trang chưa bao giờ đến được màn hình hội trường."
 
 #: src/video/bench.rs
 msgid "This graphics card or its driver can't draw with it."
-msgstr ""
+msgstr "Card đồ họa này hoặc trình điều khiển của nó không vẽ được bằng cách này."
 
 #: src/video/bench.rs
 msgid "Slide change {ms} ms"
-msgstr ""
+msgstr "Chuyển trang {ms} ms"
 
 #: src/video/bench.rs
 msgid "{n} hiccups a minute"
-msgstr ""
+msgstr "{n} lần giật mỗi phút"
 
 #: src/video/bench.rs
 msgid "longest pause {ms} ms"
-msgstr ""
+msgstr "lần dừng lâu nhất {ms} ms"
 
 #: src/video/bench.rs
 msgid "processor {pct} %"
-msgstr ""
+msgstr "bộ xử lý {pct} %"
 
 #: src/video/bench.rs
 msgid "Testing {mode}… ({at} of {count})"
@@ -10476,11 +10556,11 @@ msgstr "Đang thử {mode}… ({at}/{count})"
 
 #: src/video/bench.rs
 msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About a minute"
-msgstr ""
+msgstr "Card đồ họa hoặc trình điều khiển đã thay đổi. Bạn có muốn tôi tìm lại cách hiển thị tốt nhất cho máy này không? Khoảng một phút"
 
 #: src/video/bench.rs
 msgid "Want me to find the best graphics for this PC? About a minute"
-msgstr ""
+msgstr "Bạn có muốn tôi tìm cách hiển thị tốt nhất cho máy này không? Khoảng một phút"
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
@@ -10601,6 +10681,18 @@ msgstr "yt-dlp không lưu được video nào"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "không phải tệp đa phương tiện"
+
+#~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+#~ msgstr "Máy quay hoặc thiết bị ghi hình được ghép với màn hình hội trường trong buổi phát (và bản ghi của nó)."
+
+#~ msgid "Camera, with the screen in a corner"
+#~ msgstr "Máy quay, màn hình ở góc"
+
+#~ msgid "Screen, with the camera in a corner"
+#~ msgstr "Màn hình, máy quay ở góc"
+
+#~ msgid "Camera, with the words over it"
+#~ msgstr "Máy quay, có lời bài hát bên trên"
 
 #~ msgid "About 30 seconds. Test windows open and close while it runs."
 #~ msgstr "Khoảng 30 giây. Các cửa sổ thử sẽ mở và đóng trong lúc chạy."

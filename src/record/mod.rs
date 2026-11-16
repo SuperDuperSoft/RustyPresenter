@@ -88,10 +88,6 @@ pub struct RecordPrefs {
     /// A camera in the livestream: its name as FFmpeg lists it; empty: none.
     #[serde(skip_serializing_if = "String::is_empty")]
     pub camera: String,
-    /// How the camera and the room are put together (`args::Layout::index`): 0 camera with the screen in a corner,
-    /// 1 screen with the camera in a corner, 2 camera with the words over it.
-    #[serde(skip_serializing_if = "is_zero_u8")]
-    pub camera_layout: u8,
     /// Livestream scenes chosen by themselves from what is live (`stream::scene::choose`); `None` is on.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub auto_scenes: Option<bool>,
@@ -106,7 +102,6 @@ pub struct RecordPrefs {
     pub licence_noted: bool,
 }
 
-fn is_zero_u8(v: &u8) -> bool { *v == 0 }
 
 impl RecordPrefs {
     /// The automatic scene choice's settings.

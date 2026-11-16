@@ -182,7 +182,17 @@ export global SettingsDlg {
     in property <[string]> stream-camera-labels;
     in property <[string]> stream-camera-names;
     in-out property <int> stream-camera-index;
-    in-out property <int> stream-camera-layout;
+    /// 1.3b scenes: automatic on, presentations with the camera (1) or not (0), and the three cards' words and pictures.
+    in-out property <bool> stream-auto-scenes: true;
+    in-out property <int> stream-presentation-camera;
+    in-out property <string> stream-card-words-0;
+    in-out property <string> stream-card-words-1;
+    in-out property <string> stream-card-words-2;
+    in-out property <string> stream-card-picture-0;
+    in-out property <string> stream-card-picture-1;
+    in-out property <string> stream-card-picture-2;
+    /// "Use a pictureâ€¦" on card `i` (0 Starting soon, 1 Ending, 2 Hold).
+    callback stream-card-choose(int);
     /// A key was typed for destination 0–3: it is kept at once (empty forgets it).
     callback stream-key-edited(int, string);
 

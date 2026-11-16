@@ -135,7 +135,7 @@ msgstr "Pegar los versículos"
 msgid "Verses per slide"
 msgstr "Versículos por diapositiva"
 
-#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/record.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "Auto"
 
@@ -1140,7 +1140,7 @@ msgstr "Lado a lado"
 msgid "Top and bottom"
 msgstr "Arriba y abajo"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "Automático"
 
@@ -2439,25 +2439,77 @@ msgstr "Sonido de esta computadora"
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr "Todo lo que suena en esta salida sale con la transmisión (videos, canciones y cualquier otro sonido enviado allí), mezclado con el micrófono o la entrada de línea elegidos arriba."
 
-#: ui/dialogs/settings-media.slint src/strings/themes.rs src/ui/operator/video_inputs.rs
+#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "Cámara"
 
 #: ui/dialogs/settings-media.slint
-msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
-msgstr "Una cámara o capturadora que se combina con la pantalla de la sala en la transmisión (y en su grabación)."
+msgid "A camera or capture card for the stream's camera scenes (and its recording)."
+msgstr "Una cámara o capturadora para las escenas de cámara de la transmisión (y su grabación)."
 
 #: ui/dialogs/settings-media.slint
-msgid "Camera, with the screen in a corner"
-msgstr "Cámara, con la pantalla en una esquina"
+msgid "Scenes"
+msgstr "Escenas"
 
 #: ui/dialogs/settings-media.slint
-msgid "Screen, with the camera in a corner"
-msgstr "Pantalla, con la cámara en una esquina"
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgstr "Las canciones y los versículos salen como la cámara con la letra; los videos y las presentaciones como la pantalla de la sala; sin nada en pantalla, la cámara. Una escena elegida con el botón de escena junto a En vivo se mantiene hasta el siguiente elemento del culto."
 
 #: ui/dialogs/settings-media.slint
-msgid "Camera, with the words over it"
-msgstr "Cámara, con las palabras encima"
+msgid "Choose the scene by itself from what is live"
+msgstr "Elegir la escena por sí sola según lo que está en vivo"
+
+#: ui/dialogs/settings-media.slint
+msgid "Presentations:"
+msgstr "Presentaciones:"
+
+#: ui/dialogs/settings-media.slint
+msgid "The room screen"
+msgstr "La pantalla de la sala"
+
+#: ui/dialogs/settings-media.slint
+msgid "The room screen with the camera in a corner"
+msgstr "La pantalla de la sala con la cámara en una esquina"
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
+msgid "Starting soon"
+msgstr "Comenzamos pronto"
+
+#: ui/dialogs/settings-media.slint
+msgid "Before the service, with the pre-service countdown under the words while it runs."
+msgstr "Antes del culto, con la cuenta regresiva previa debajo de las palabras mientras corre."
+
+#: ui/dialogs/settings-media.slint
+msgid "Use a picture…"
+msgstr "Usar una imagen…"
+
+#: ui/dialogs/settings-media.slint
+msgid "Use words"
+msgstr "Usar palabras"
+
+#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/song.rs
+msgid "Ending"
+msgstr "Final"
+
+#: ui/dialogs/settings-media.slint
+msgid "After the service's last item."
+msgstr "Después del último elemento del culto."
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs
+msgid "Thanks for joining us"
+msgstr "Gracias por acompañarnos"
+
+#: ui/dialogs/settings-media.slint ui/operator/follow.slint src/i18n/remote_strings.rs src/stream/scene.rs
+msgid "Hold"
+msgstr "Pausa"
+
+#: ui/dialogs/settings-media.slint
+msgid "For a break, chosen with the scene button."
+msgstr "Para un descanso, elegida con el botón de escena."
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs
+msgid "We'll be right back"
+msgstr "Volvemos enseguida"
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
@@ -2813,7 +2865,7 @@ msgstr "Probar cuál es más rápido"
 
 #: ui/dialogs/settings.slint
 msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
-msgstr ""
+msgstr "Alrededor de un minuto. Se abren y cierran ventanas de prueba mientras se ejecuta, también en el proyector cuando no se muestra nada allí."
 
 #: ui/dialogs/settings.slint
 msgid "Use this"
@@ -3571,10 +3623,6 @@ msgstr "Opciones del seguimiento automático"
 msgid "Holding"
 msgstr "En pausa"
 
-#: ui/operator/follow.slint src/i18n/remote_strings.rs
-msgid "Hold"
-msgstr "Pausa"
-
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
 msgstr "—"
@@ -3814,6 +3862,18 @@ msgstr "Detener la transmisión y guardar la grabación"
 #: ui/operator/record.slint
 msgid "Send the room screen to the livestream, and record it"
 msgstr "Enviar la pantalla de la sala a la transmisión en vivo y grabarla"
+
+#: ui/operator/record.slint
+msgid "Stream scene"
+msgstr "Escena de la transmisión"
+
+#: ui/operator/record.slint
+msgid "{} (automatic)"
+msgstr "{} (automática)"
+
+#: ui/operator/record.slint
+msgid "What the livestream shows. It changes by itself with what is live; click to choose"
+msgstr "Lo que muestra la transmisión. Cambia por sí sola según lo que está en vivo; haz clic para elegir"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
@@ -4770,6 +4830,14 @@ msgstr "Dejar que el diseño de escenario siga las diapositivas"
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Hide the stage message"
 msgstr "Ocultar el mensaje del escenario"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Livestream: {name}"
+msgstr "Transmisión: {name}"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Livestream: automatic"
+msgstr "Transmisión: automática"
 
 #: src/automation/slide_actions.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Theme: {name}"
@@ -6075,6 +6143,18 @@ msgstr "Estás en vivo. Transmitir canciones de adoración requiere una licencia
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "Hay una grabación en curso. Detenla y luego pulsa Transmitir."
+
+#: src/stream/scene.rs
+msgid "Camera + words"
+msgstr "Cámara + letra"
+
+#: src/stream/scene.rs
+msgid "Full screen"
+msgstr "Pantalla completa"
+
+#: src/stream/scene.rs
+msgid "Screen + camera"
+msgstr "Pantalla + cámara"
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -8474,10 +8554,6 @@ msgid "Intro"
 msgstr "Intro"
 
 #: src/strings/song.rs
-msgid "Ending"
-msgstr "Final"
-
-#: src/strings/song.rs
 msgid "Interlude"
 msgstr "Interludio"
 
@@ -9661,6 +9737,10 @@ msgid "Show a message to the stage"
 msgstr "Mostrar un mensaje al escenario"
 
 #: src/ui/dialogs/automation.rs
+msgid "Change the livestream's scene"
+msgstr "Cambiar la escena de la transmisión"
+
+#: src/ui/dialogs/automation.rs
 msgid "item {n}"
 msgstr "elemento {n}"
 
@@ -10483,39 +10563,39 @@ msgstr "No funcionó"
 
 #: src/video/bench.rs
 msgid "It stopped responding."
-msgstr ""
+msgstr "Dejó de responder."
 
 #: src/video/bench.rs
 msgid "It could not start."
-msgstr ""
+msgstr "No pudo iniciarse."
 
 #: src/video/bench.rs
 msgid "It closed before it finished. It may have crashed."
-msgstr ""
+msgstr "Se cerró antes de terminar. Puede que haya fallado."
 
 #: src/video/bench.rs
 msgid "Slides never reached the room screen."
-msgstr ""
+msgstr "Las diapositivas nunca llegaron a la pantalla de la sala."
 
 #: src/video/bench.rs
 msgid "This graphics card or its driver can't draw with it."
-msgstr ""
+msgstr "Esta tarjeta gráfica o su controlador no puede dibujar con esto."
 
 #: src/video/bench.rs
 msgid "Slide change {ms} ms"
-msgstr ""
+msgstr "Cambio de diapositiva {ms} ms"
 
 #: src/video/bench.rs
 msgid "{n} hiccups a minute"
-msgstr ""
+msgstr "{n} tirones por minuto"
 
 #: src/video/bench.rs
 msgid "longest pause {ms} ms"
-msgstr ""
+msgstr "pausa más larga {ms} ms"
 
 #: src/video/bench.rs
 msgid "processor {pct} %"
-msgstr ""
+msgstr "procesador {pct} %"
 
 #: src/video/bench.rs
 msgid "Testing {mode}… ({at} of {count})"
@@ -10523,11 +10603,11 @@ msgstr "Probando {mode}… ({at} de {count})"
 
 #: src/video/bench.rs
 msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About a minute"
-msgstr ""
+msgstr "La tarjeta gráfica o su controlador cambió. ¿Quieres que busque de nuevo los mejores gráficos para este PC? Alrededor de un minuto"
 
 #: src/video/bench.rs
 msgid "Want me to find the best graphics for this PC? About a minute"
-msgstr ""
+msgstr "¿Quieres que busque los mejores gráficos para este PC? Alrededor de un minuto"
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
@@ -10648,6 +10728,18 @@ msgstr "yt-dlp no guardó ningún video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "no es un archivo multimedia"
+
+#~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+#~ msgstr "Una cámara o capturadora que se combina con la pantalla de la sala en la transmisión (y en su grabación)."
+
+#~ msgid "Camera, with the screen in a corner"
+#~ msgstr "Cámara, con la pantalla en una esquina"
+
+#~ msgid "Screen, with the camera in a corner"
+#~ msgstr "Pantalla, con la cámara en una esquina"
+
+#~ msgid "Camera, with the words over it"
+#~ msgstr "Cámara, con las palabras encima"
 
 #~ msgid "About 30 seconds. Test windows open and close while it runs."
 #~ msgstr "Unos 30 segundos. Se abren y cierran ventanas de prueba mientras tanto."

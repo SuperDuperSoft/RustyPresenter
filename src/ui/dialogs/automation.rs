@@ -29,14 +29,14 @@ pub const CALENDAR_TAB: i32 = 4;
 /// The kinds of step the Add step list offers, in its order (spec §3.4).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum StepKind { ShowItem, Next, Prev, Clear(ClearWhich), Logo, TimerStart, TimerPause, TimerReset, TimerRestart, TimerShow, TimerHide,
-    MessageShow, MessageHide, OverlayOn, OverlayOff, AutoOff, AutoOn, StageMessage, StageMessageHide, MusicPlay, MusicStop }
+    MessageShow, MessageHide, OverlayOn, OverlayOff, AutoOff, AutoOn, StageMessage, StageMessageHide, MusicPlay, MusicStop, StreamScene }
 
-pub const STEP_KINDS: [StepKind; 25] = [
+pub const STEP_KINDS: [StepKind; 26] = [
     StepKind::ShowItem, StepKind::Next, StepKind::Prev, StepKind::Clear(ClearWhich::All), StepKind::Clear(ClearWhich::Slide),
     StepKind::Clear(ClearWhich::Media), StepKind::Clear(ClearWhich::Audio), StepKind::Clear(ClearWhich::Overlays), StepKind::Logo,
     StepKind::TimerStart, StepKind::TimerPause, StepKind::TimerReset, StepKind::TimerRestart, StepKind::TimerShow, StepKind::TimerHide,
     StepKind::MessageShow, StepKind::MessageHide, StepKind::OverlayOn, StepKind::OverlayOff, StepKind::AutoOff, StepKind::AutoOn,
-    StepKind::StageMessage, StepKind::StageMessageHide, StepKind::MusicPlay, StepKind::MusicStop,
+    StepKind::StageMessage, StepKind::StageMessageHide, StepKind::MusicPlay, StepKind::MusicStop, StepKind::StreamScene,
 ];
 
 fn kind_label(k: StepKind) -> String {
@@ -66,6 +66,7 @@ fn kind_label(k: StepKind) -> String {
         StepKind::StageMessageHide => crate::tr!("Hide the stage message"),
         StepKind::MusicPlay => crate::tr!("Play the walk-in music"),
         StepKind::MusicStop => crate::tr!("Stop the walk-in music"),
+        StepKind::StreamScene => crate::tr!("Change the livestream's scene"),
     }
 }
 
@@ -79,8 +80,20 @@ fn targets(k: StepKind, data: &Data) -> Vec<(Uuid, String)> {
         }
         StepKind::MessageShow => a.messages.iter().map(|t| (t.id, t.name.clone())).collect(),
         StepKind::OverlayOn | StepKind::OverlayOff => data.overlays.iter().map(|o| (o.id, o.name.clone())).collect(),
+        // Automatic, then each scene: the scene's place in `Scene::ALL` + 1 stands in for an id.
+        StepKind::StreamScene => std::iter::once((scene_id(None), crate::tr!("Automatic")))
+            .chain(crate::stream::scene::Scene::ALL.iter().map(|s| (scene_id(Some(*s)), s.label()))).collect(),
         _ => vec![],
     }
+}
+
+/// The stand-in id of a scene in the Add step row's second list (`None`: Automatic).
+fn scene_id(scene: Option<crate::stream::scene::Scene>) -> Uuid {
+    Uuid::from_u128(scene.and_then(|s| crate::stream::scene::Scene::ALL.iter().position(|x| *x == s)).map_or(0, |i| i as u128 + 1))
+}
+
+fn scene_of(id: Uuid) -> Option<crate::stream::scene::Scene> {
+    (id.as_u128() as usize).checked_sub(1).and_then(|i| crate::stream::scene::Scene::ALL.get(i).copied())
 }
 
 fn service_items(data: &Data) -> Vec<(Uuid, String, &'static str)> {
@@ -137,6 +150,8 @@ pub fn step_label(s: &Lenient<MacroStep>, a: &Automation, data: &Data) -> String
             crate::tr!("Theme: {name}", name = name)
         }
         MacroStep::GoToSlide { slide } => crate::tr!("Go to slide {n}", n = slide + 1),
+        MacroStep::StreamScene { scene: Some(s) } => crate::tr!("Livestream: {name}", name = s.label()),
+        MacroStep::StreamScene { scene: None } => crate::tr!("Livestream: automatic"),
         MacroStep::RunMacro { macro_id } => {
             let name = a.macros.iter().find(|m| m.id == *macro_id).map_or_else(|| "?".to_string(), |m| m.name.clone());
             crate::tr!("Run “{name}”", name = name)
@@ -169,6 +184,7 @@ pub fn build_step(k: StepKind, target: Option<(Uuid, String)>, text: &str) -> Op
         StepKind::StageMessageHide => MacroStep::StageMessageHide,
         StepKind::MusicPlay => MacroStep::Music { play: true },
         StepKind::MusicStop => MacroStep::Music { play: false },
+        StepKind::StreamScene => MacroStep::StreamScene { scene: scene_of(id?) },
     })
 }
 

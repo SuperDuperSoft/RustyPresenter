@@ -107,7 +107,15 @@ fn read_camera(g: &SettingsDlg) -> String {
 pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     fill_stream_sound(g, &[], &p.stream_sound);
     fill_camera(g, &[], &p.camera);
-    g.set_stream_camera_layout(i32::from(p.camera_layout.min(2)));
+    g.set_stream_auto_scenes(p.auto().on);
+    g.set_stream_presentation_camera(i32::from(p.presentation_camera));
+    let c = &p.cards;
+    g.set_stream_card_words_0(c.starting.words.as_str().into());
+    g.set_stream_card_words_1(c.ending.words.as_str().into());
+    g.set_stream_card_words_2(c.hold.words.as_str().into());
+    g.set_stream_card_picture_0(c.starting.picture.as_str().into());
+    g.set_stream_card_picture_1(c.ending.picture.as_str().into());
+    g.set_stream_card_picture_2(c.hold.picture.as_str().into());
     let (on, url) = stream_rows(p);
     g.set_stream_on_0(on[0]);
     g.set_stream_on_1(on[1]);
@@ -150,8 +158,16 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
     if pc != p.stream_sound { p.stream_sound = pc }
     let camera = read_camera(g);
     if camera != p.camera { p.camera = camera }
-    let layout = g.get_stream_camera_layout().clamp(0, 2) as u8;
-    if layout != p.camera_layout { p.camera_layout = layout }
+    // Unchanged keeps the saved form (`None` is on), so an untouched form has no changes.
+    let auto = g.get_stream_auto_scenes();
+    if auto != p.auto().on { p.auto_scenes = if auto { None } else { Some(false) } }
+    p.presentation_camera = g.get_stream_presentation_camera() == 1;
+    let card = |w: slint::SharedString, pic: slint::SharedString| stream::pictures::Card { words: w.trim().to_string(), picture: pic.trim().to_string() };
+    p.cards = stream::pictures::Cards {
+        starting: card(g.get_stream_card_words_0(), g.get_stream_card_picture_0()),
+        ending: card(g.get_stream_card_words_1(), g.get_stream_card_picture_1()),
+        hold: card(g.get_stream_card_words_2(), g.get_stream_card_picture_2()),
+    };
 }
 
 /// A stream key typed in Settings is kept in the computer's password store at once (it is no part of the
@@ -185,6 +201,18 @@ pub(super) fn load(op: &Rc<Operator>) {
         let _ = std::thread::Builder::new().name("record-inputs".into()).spawn(move || { let _ = tx.send(work()); });
         let _ = slint::spawn_local(async move { if let Ok(v) = rx.await { done(v) } });
     }
+    let me = Rc::downgrade(op);
+    op.ui.global::<SettingsDlg>().on_stream_card_choose(move |i| {
+        let Some(op) = me.upgrade() else { return };
+        let me = Rc::downgrade(&op);
+        crate::ui::operator::files::pick(&op, crate::ui::operator::file_input::Filter::Pictures, false, move |paths| {
+            let Some(op) = me.upgrade() else { return };
+            let g = op.ui.global::<SettingsDlg>();
+            let Some(path) = paths.first() else { return };
+            let path: slint::SharedString = path.display().to_string().into();
+            match i { 0 => g.set_stream_card_picture_0(path), 1 => g.set_stream_card_picture_1(path), _ => g.set_stream_card_picture_2(path) }
+        });
+    });
     let me = Rc::downgrade(op);
     op.ui.global::<SettingsDlg>().on_record_choose_folder(move || {
         let Some(op) = me.upgrade() else { return };

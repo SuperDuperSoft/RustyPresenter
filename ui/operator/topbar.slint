@@ -6,7 +6,7 @@ import { EditMenu, Icon, TopBtn, Pill, Kbd, TipArea } from "../widgets.slint";
 import { BiblePickerList, TranslationChip } from "../bible-picker.slint";
 import { StageLayoutButton } from "../dialogs/stage-layouts.slint";
 import { PanelExtras } from "extras.slint";
-import { RecordBtn, LiveBtn, PanicBtn } from "record.slint";
+import { RecordBtn, LiveBtn, PanicBtn, SceneBtn } from "record.slint";
 
 export { TranslationChip }
 
@@ -61,6 +61,11 @@ export component TopBar inherits Rectangle {
     in property <bool> live-muted;
     callback hold-stream();
     callback mute-stream();
+    /// The stream's scene (1.3b, `SceneBtn`): the names, the one going out, the one chosen by hand (-1 Automatic).
+    in property <[string]> scene-labels;
+    in property <int> scene-out;
+    in property <int> scene-chosen: -1;
+    callback pick-scene(int);
     callback services();
     callback screens();
     callback phone();
@@ -610,6 +615,16 @@ export component TopBar inherits Rectangle {
                 up: root.live-up;
                 total: root.live-total;
                 clicked => { root.go-live(); }
+            }
+        }
+        if root.live && root.scene-labels.length > 0: VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            scene-btn := SceneBtn {
+                labels: root.scene-labels;
+                out: root.scene-out;
+                chosen: root.scene-chosen;
+                pick(i) => { root.pick-scene(i); }
             }
         }
         if root.live: VerticalLayout {

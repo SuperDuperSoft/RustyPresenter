@@ -135,7 +135,7 @@ msgstr "Kole vèsè yo pito"
 msgid "Verses per slide"
 msgstr "Vèsè pou chak diapo"
 
-#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/record.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "Oto"
 
@@ -1140,7 +1140,7 @@ msgstr "Kòt a kòt"
 msgid "Top and bottom"
 msgstr "Anwo ak anba"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "Otomatik"
 
@@ -2439,25 +2439,77 @@ msgstr "Son ki soti nan òdinatè sa a"
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr "Tout sa k ap jwe sou sòti sa a ale ak emisyon an (videyo, chante, ak nenpòt lòt son yo voye la), melanje ak mikwofòn oswa antre liy ou chwazi anlè a."
 
-#: ui/dialogs/settings-media.slint src/strings/themes.rs src/ui/operator/video_inputs.rs
+#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "Kamera"
 
 #: ui/dialogs/settings-media.slint
-msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
-msgstr "Yon kamera oswa yon kat kaptire yo mete ansanm ak ekran sal la nan emisyon an (ak anrejistreman li)."
+msgid "A camera or capture card for the stream's camera scenes (and its recording)."
+msgstr "Yon kamera oswa yon kat kaptire pou sèn kamera difizyon an (ak anrejistreman li)."
 
 #: ui/dialogs/settings-media.slint
-msgid "Camera, with the screen in a corner"
-msgstr "Kamera, ak ekran an nan yon kwen"
+msgid "Scenes"
+msgstr "Sèn"
 
 #: ui/dialogs/settings-media.slint
-msgid "Screen, with the camera in a corner"
-msgstr "Ekran, ak kamera a nan yon kwen"
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgstr "Chante ak vèsè Bib yo soti kòm kamera ak pawòl yo; videyo ak prezantasyon kòm ekran sal la; lè pa gen anyen sou ekran an, kamera a. Yon sèn ou chwazi ak bouton sèn bò kote An dirèk rete jiskaske pwochen pati sèvis la."
 
 #: ui/dialogs/settings-media.slint
-msgid "Camera, with the words over it"
-msgstr "Kamera, ak pawòl yo sou li"
+msgid "Choose the scene by itself from what is live"
+msgstr "Chwazi sèn nan poukont li dapre sa k an dirèk"
+
+#: ui/dialogs/settings-media.slint
+msgid "Presentations:"
+msgstr "Prezantasyon:"
+
+#: ui/dialogs/settings-media.slint
+msgid "The room screen"
+msgstr "Ekran sal la"
+
+#: ui/dialogs/settings-media.slint
+msgid "The room screen with the camera in a corner"
+msgstr "Ekran sal la ak kamera a nan yon kwen"
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
+msgid "Starting soon"
+msgstr "N ap kòmanse talè"
+
+#: ui/dialogs/settings-media.slint
+msgid "Before the service, with the pre-service countdown under the words while it runs."
+msgstr "Anvan sèvis la, ak kontaj anvan sèvis la anba mo yo pandan l ap mache."
+
+#: ui/dialogs/settings-media.slint
+msgid "Use a picture…"
+msgstr "Sèvi ak yon foto…"
+
+#: ui/dialogs/settings-media.slint
+msgid "Use words"
+msgstr "Sèvi ak mo"
+
+#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/song.rs
+msgid "Ending"
+msgstr "Final"
+
+#: ui/dialogs/settings-media.slint
+msgid "After the service's last item."
+msgstr "Apre dènye pati sèvis la."
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs
+msgid "Thanks for joining us"
+msgstr "Mèsi paske w te avèk nou"
+
+#: ui/dialogs/settings-media.slint ui/operator/follow.slint src/i18n/remote_strings.rs src/stream/scene.rs
+msgid "Hold"
+msgstr "Kenbe"
+
+#: ui/dialogs/settings-media.slint
+msgid "For a break, chosen with the scene button."
+msgstr "Pou yon poz, chwazi ak bouton sèn nan."
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs
+msgid "We'll be right back"
+msgstr "N ap tounen touswit"
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
@@ -2813,7 +2865,7 @@ msgstr "Teste kiyès ki pi rapid"
 
 #: ui/dialogs/settings.slint
 msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
-msgstr ""
+msgstr "Anviwon yon minit. Fenèt tès ap louvri epi fèmen pandan l ap mache, sou pwojektè a tou lè pa gen anyen k ap parèt la."
 
 #: ui/dialogs/settings.slint
 msgid "Use this"
@@ -3571,10 +3623,6 @@ msgstr "Opsyon swiv otomatik"
 msgid "Holding"
 msgstr "An poz"
 
-#: ui/operator/follow.slint src/i18n/remote_strings.rs
-msgid "Hold"
-msgstr "Kenbe"
-
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
 msgstr "—"
@@ -3814,6 +3862,18 @@ msgstr "Kanpe emisyon an dirèk la epi sove anrejistreman an"
 #: ui/operator/record.slint
 msgid "Send the room screen to the livestream, and record it"
 msgstr "Voye ekran sal la nan emisyon an dirèk la, epi anrejistre l"
+
+#: ui/operator/record.slint
+msgid "Stream scene"
+msgstr "Sèn difizyon"
+
+#: ui/operator/record.slint
+msgid "{} (automatic)"
+msgstr "{} (otomatik)"
+
+#: ui/operator/record.slint
+msgid "What the livestream shows. It changes by itself with what is live; click to choose"
+msgstr "Sa difizyon an montre. Li chanje poukont li dapre sa k an dirèk; klike pou chwazi"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
@@ -4770,6 +4830,14 @@ msgstr "Kite aranjman sèn nan swiv diapo yo"
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Hide the stage message"
 msgstr "Kache mesaj sèn nan"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Livestream: {name}"
+msgstr "Difizyon: {name}"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Livestream: automatic"
+msgstr "Difizyon: otomatik"
 
 #: src/automation/slide_actions.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Theme: {name}"
@@ -6075,6 +6143,18 @@ msgstr "Ou an dirèk. Pou fè emisyon chante adorasyon, ou bezwen yon lisans emi
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "Gen yon anrejistreman k ap fèt. Kanpe l, apre sa peze Ale an dirèk."
+
+#: src/stream/scene.rs
+msgid "Camera + words"
+msgstr "Kamera + pawòl"
+
+#: src/stream/scene.rs
+msgid "Full screen"
+msgstr "Tout ekran"
+
+#: src/stream/scene.rs
+msgid "Screen + camera"
+msgstr "Ekran + kamera"
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -8474,10 +8554,6 @@ msgid "Intro"
 msgstr "Entwo"
 
 #: src/strings/song.rs
-msgid "Ending"
-msgstr "Final"
-
-#: src/strings/song.rs
 msgid "Interlude"
 msgstr "Entèlid"
 
@@ -9661,6 +9737,10 @@ msgid "Show a message to the stage"
 msgstr "Montre yon mesaj sou sèn nan"
 
 #: src/ui/dialogs/automation.rs
+msgid "Change the livestream's scene"
+msgstr "Chanje sèn difizyon an"
+
+#: src/ui/dialogs/automation.rs
 msgid "item {n}"
 msgstr "eleman {n}"
 
@@ -10483,39 +10563,39 @@ msgstr "Pa t mache"
 
 #: src/video/bench.rs
 msgid "It stopped responding."
-msgstr ""
+msgstr "Li sispann reponn."
 
 #: src/video/bench.rs
 msgid "It could not start."
-msgstr ""
+msgstr "Li pa t ka kòmanse."
 
 #: src/video/bench.rs
 msgid "It closed before it finished. It may have crashed."
-msgstr ""
+msgstr "Li fèmen anvan l fini. Li ka te kraze."
 
 #: src/video/bench.rs
 msgid "Slides never reached the room screen."
-msgstr ""
+msgstr "Diapo yo pa janm rive sou ekran sal la."
 
 #: src/video/bench.rs
 msgid "This graphics card or its driver can't draw with it."
-msgstr ""
+msgstr "Kat grafik sa a oswa chofè li pa ka desine avè l."
 
 #: src/video/bench.rs
 msgid "Slide change {ms} ms"
-msgstr ""
+msgstr "Chanjman diapo {ms} ms"
 
 #: src/video/bench.rs
 msgid "{n} hiccups a minute"
-msgstr ""
+msgstr "{n} sakad pa minit"
 
 #: src/video/bench.rs
 msgid "longest pause {ms} ms"
-msgstr ""
+msgstr "pi long poz {ms} ms"
 
 #: src/video/bench.rs
 msgid "processor {pct} %"
-msgstr ""
+msgstr "processeur {pct} %"
 
 #: src/video/bench.rs
 msgid "Testing {mode}… ({at} of {count})"
@@ -10523,11 +10603,11 @@ msgstr "Ap teste {mode}… ({at} sou {count})"
 
 #: src/video/bench.rs
 msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About a minute"
-msgstr ""
+msgstr "Kat grafik la oswa chofè li chanje. Ou vle m chèche ankò pi bon grafik pou PC sa a? Anviwon yon minit"
 
 #: src/video/bench.rs
 msgid "Want me to find the best graphics for this PC? About a minute"
-msgstr ""
+msgstr "Ou vle m chèche pi bon grafik pou PC sa a? Anviwon yon minit"
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
@@ -10648,6 +10728,18 @@ msgstr "yt-dlp pa anrejistre okenn videyo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "se pa yon fichye medya"
+
+#~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+#~ msgstr "Yon kamera oswa yon kat kaptire yo mete ansanm ak ekran sal la nan emisyon an (ak anrejistreman li)."
+
+#~ msgid "Camera, with the screen in a corner"
+#~ msgstr "Kamera, ak ekran an nan yon kwen"
+
+#~ msgid "Screen, with the camera in a corner"
+#~ msgstr "Ekran, ak kamera a nan yon kwen"
+
+#~ msgid "Camera, with the words over it"
+#~ msgstr "Kamera, ak pawòl yo sou li"
 
 #~ msgid "About 30 seconds. Test windows open and close while it runs."
 #~ msgstr "Anviwon 30 segonn. Fenèt tès ap ouvri epi fèmen pandan l ap mache."

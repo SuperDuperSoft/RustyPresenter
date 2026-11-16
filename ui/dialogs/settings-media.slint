@@ -142,19 +142,113 @@ export component SettingsMedia inherits VerticalLayout {
     }
     Field {
         label: @tr("Camera");
-        help: @tr("A camera or capture card put together with the room screen in the stream (and its recording).");
+        help: @tr("A camera or capture card for the stream's camera scenes (and its recording).");
+        stream-camera := Select {
+            options: SettingsDlg.stream-camera-labels;
+            index <=> SettingsDlg.stream-camera-index;
+        }
+    }
+    Field {
+        label: @tr("Scenes");
+        help: @tr("Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item.");
         VerticalLayout {
             spacing: 6px;
-            stream-camera := Select {
-                options: SettingsDlg.stream-camera-labels;
-                index <=> SettingsDlg.stream-camera-index;
-            }
-            if SettingsDlg.stream-camera-index > 0: HorizontalLayout {
+            stream-auto := Check { text: @tr("Choose the scene by itself from what is live"); checked <=> SettingsDlg.stream-auto-scenes; }
+            HorizontalLayout {
                 alignment: start;
-                stream-camera-layout := Segmented {
-                    labels: [@tr("Camera, with the screen in a corner"), @tr("Screen, with the camera in a corner"), @tr("Camera, with the words over it")];
-                    index <=> SettingsDlg.stream-camera-layout;
+                spacing: 8px;
+                Text {
+                    text: @tr("Presentations:");
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
                 }
+                stream-presentations := Segmented {
+                    labels: [@tr("The room screen"), @tr("The room screen with the camera in a corner")];
+                    index <=> SettingsDlg.stream-presentation-camera;
+                }
+            }
+        }
+    }
+    Field {
+        label: @tr("Starting soon");
+        help: @tr("Before the service, with the pre-service countdown under the words while it runs.");
+        HorizontalLayout {
+            spacing: 8px;
+            stream-card-words-0 := TextField {
+                horizontal-stretch: 1;
+                label: @tr("Starting soon");
+                placeholder: @tr("Starting soon");
+                text <=> SettingsDlg.stream-card-words-0;
+            }
+            if SettingsDlg.stream-card-picture-0 != "": Text {
+                text: SettingsDlg.stream-card-picture-0;
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                vertical-alignment: center;
+                overflow: elide;
+                max-width: 220px;
+            }
+            stream-card-pick-0 := Btn {
+                small: true;
+                text: SettingsDlg.stream-card-picture-0 == "" ? @tr("Use a picture…") : @tr("Use words");
+                clicked => { if SettingsDlg.stream-card-picture-0 == "" { SettingsDlg.stream-card-choose(0); } else { SettingsDlg.stream-card-picture-0 = ""; } }
+            }
+        }
+    }
+    Field {
+        label: @tr("Ending");
+        help: @tr("After the service's last item.");
+        HorizontalLayout {
+            spacing: 8px;
+            stream-card-words-1 := TextField {
+                horizontal-stretch: 1;
+                label: @tr("Ending");
+                placeholder: @tr("Thanks for joining us");
+                text <=> SettingsDlg.stream-card-words-1;
+            }
+            if SettingsDlg.stream-card-picture-1 != "": Text {
+                text: SettingsDlg.stream-card-picture-1;
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                vertical-alignment: center;
+                overflow: elide;
+                max-width: 220px;
+            }
+            stream-card-pick-1 := Btn {
+                small: true;
+                text: SettingsDlg.stream-card-picture-1 == "" ? @tr("Use a picture…") : @tr("Use words");
+                clicked => { if SettingsDlg.stream-card-picture-1 == "" { SettingsDlg.stream-card-choose(1); } else { SettingsDlg.stream-card-picture-1 = ""; } }
+            }
+        }
+    }
+    Field {
+        label: @tr("Hold");
+        help: @tr("For a break, chosen with the scene button.");
+        HorizontalLayout {
+            spacing: 8px;
+            stream-card-words-2 := TextField {
+                horizontal-stretch: 1;
+                label: @tr("Hold");
+                placeholder: @tr("We'll be right back");
+                text <=> SettingsDlg.stream-card-words-2;
+            }
+            if SettingsDlg.stream-card-picture-2 != "": Text {
+                text: SettingsDlg.stream-card-picture-2;
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                vertical-alignment: center;
+                overflow: elide;
+                max-width: 220px;
+            }
+            stream-card-pick-2 := Btn {
+                small: true;
+                text: SettingsDlg.stream-card-picture-2 == "" ? @tr("Use a picture…") : @tr("Use words");
+                clicked => { if SettingsDlg.stream-card-picture-2 == "" { SettingsDlg.stream-card-choose(2); } else { SettingsDlg.stream-card-picture-2 = ""; } }
             }
         }
     }

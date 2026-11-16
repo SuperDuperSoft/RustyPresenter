@@ -151,6 +151,30 @@ fn settings_keep_the_destinations_and_never_a_key() {
 }
 
 #[test]
+fn livestream_scene_settings_save() {
+    use crate::ui::SettingsDlg;
+    use slint::ComponentHandle;
+    let app = test_app();
+    let room = Arc::new(Room::default());
+    let op = open(&app, &room);
+    let g = op.ui.global::<SettingsDlg>();
+    let mut prefs = RecordPrefs::default();
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    assert!(g.get_stream_auto_scenes(), "automatic scenes are on to start with");
+    g.set_stream_auto_scenes(false);
+    g.set_stream_presentation_camera(1);
+    g.set_stream_card_words_2(" Back soon ".into());
+    g.set_stream_card_picture_0("C:/Pictures/welcome.png".into());
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!((prefs.auto_scenes, prefs.presentation_camera), (Some(false), true));
+    assert_eq!((prefs.cards.hold.words.as_str(), prefs.cards.starting.picture.as_str()), ("Back soon", "C:/Pictures/welcome.png"));
+    let json = serde_json::to_value(&prefs).unwrap();
+    assert_eq!(json["cards"]["hold"], serde_json::json!({ "words": "Back soon" }));
+    let old: RecordPrefs = serde_json::from_value(serde_json::json!({ "camera_layout": 2 })).unwrap();
+    assert_eq!(old, RecordPrefs::default(), "the old camera layout is left behind");
+}
+
+#[test]
 fn the_operator_hears_when_a_destination_connects_and_when_it_drops() {
     let app = test_app();
     let room = Arc::new(Room { open: true, ..Default::default() });
@@ -241,6 +265,37 @@ fn the_operator_hears_when_the_sound_input_goes_silent_and_comes_back() {
     // No sound input: nothing.
     op.say_silence(None);
     assert_eq!(toasts(&op).len(), before + 2);
+}
+
+/// A scene chosen with the scene button holds for the live item and lights; another item taken live gives the
+/// choice back to Automatic.
+#[test]
+fn a_scene_click_lights_and_holds_until_the_next_item() {
+    use crate::live::{Command, Envelope};
+    use crate::stream::scene::{Choice, Scene};
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    let add = |title: &str| -> uuid::Uuid {
+        let item = serde_json::json!({ "kind": "text", "title": title, "body": "Words" });
+        let r = tokio::runtime::Runtime::new().unwrap().block_on(app.do_action("service/add", serde_json::json!({ "item": item }).to_string().as_bytes())).unwrap();
+        serde_json::from_value(r["id"].clone()).unwrap()
+    };
+    let (a, b) = (add("Welcome"), add("Sermon"));
+    let show = |id| { let base = Some(app.live.lock().unwrap().version); assert!(app.command(Envelope { id: uuid::Uuid::new_v4().to_string(), base, cmd: Command::Show { item_id: id, slide: 0 } }).ok) };
+    show(a);
+    op.record.live.set(true);
+    op.ui.invoke_pick_scene(0);
+    assert_eq!(*app.stream_choice.lock().unwrap(), Choice { scene: Some(Scene::Camera), item: Some(a) });
+    assert_eq!(op.ui.get_scene_chosen(), 0, "Camera lit");
+    show(b);
+    op.show_scene();
+    assert_eq!(op.ui.get_scene_chosen(), -1, "Automatic again with the next item");
+    op.ui.invoke_pick_scene(6);
+    op.ui.invoke_pick_scene(-1);
+    assert_eq!(app.stream_choice.lock().unwrap().scene, None, "Automatic chosen by hand");
+    assert_eq!(op.ui.get_scene_chosen(), -1);
 }
 
 #[test]

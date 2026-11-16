@@ -135,7 +135,7 @@ msgstr "I-paste na lang ang mga talata"
 msgid "Verses per slide"
 msgstr "Talata bawat slide"
 
-#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/record.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "Auto"
 
@@ -1140,7 +1140,7 @@ msgstr "Magkatabi"
 msgid "Top and bottom"
 msgstr "Itaas at ibaba"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "Awtomatiko"
 
@@ -2439,25 +2439,77 @@ msgstr "Tunog mula sa computer na ito"
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr "Lahat ng tumutunog sa output na ito ay kasama sa stream (mga video, kanta, at anumang ibang tunog na ipinapadala roon), hinahalo sa mikropono o line-in na pinili sa itaas."
 
-#: ui/dialogs/settings-media.slint src/strings/themes.rs src/ui/operator/video_inputs.rs
+#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "Camera"
 
 #: ui/dialogs/settings-media.slint
-msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
-msgstr "Isang camera o capture card na isinasama sa screen ng silid sa stream (at sa recording nito)."
+msgid "A camera or capture card for the stream's camera scenes (and its recording)."
+msgstr "Isang camera o capture card para sa mga camera scene ng stream (at ng recording nito)."
 
 #: ui/dialogs/settings-media.slint
-msgid "Camera, with the screen in a corner"
-msgstr "Camera, nasa sulok ang screen"
+msgid "Scenes"
+msgstr "Mga scene"
 
 #: ui/dialogs/settings-media.slint
-msgid "Screen, with the camera in a corner"
-msgstr "Screen, nasa sulok ang camera"
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgstr "Ang mga awit at talata ng Biblia ay lumalabas bilang camera na may mga salita; ang mga video at presentasyon bilang screen ng sanktuwaryo; kapag walang nasa screen, ang camera. Ang scene na pinili gamit ang scene button sa tabi ng Live ay mananatili hanggang sa susunod na bahagi ng pagsamba."
 
 #: ui/dialogs/settings-media.slint
-msgid "Camera, with the words over it"
-msgstr "Camera, may mga salita sa ibabaw"
+msgid "Choose the scene by itself from what is live"
+msgstr "Kusang piliin ang scene ayon sa naka-live"
+
+#: ui/dialogs/settings-media.slint
+msgid "Presentations:"
+msgstr "Mga presentasyon:"
+
+#: ui/dialogs/settings-media.slint
+msgid "The room screen"
+msgstr "Ang screen ng sanktuwaryo"
+
+#: ui/dialogs/settings-media.slint
+msgid "The room screen with the camera in a corner"
+msgstr "Ang screen ng sanktuwaryo na may camera sa isang sulok"
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
+msgid "Starting soon"
+msgstr "Magsisimula na"
+
+#: ui/dialogs/settings-media.slint
+msgid "Before the service, with the pre-service countdown under the words while it runs."
+msgstr "Bago ang pagsamba, kasama ang countdown sa ilalim ng mga salita habang tumatakbo ito."
+
+#: ui/dialogs/settings-media.slint
+msgid "Use a picture…"
+msgstr "Gumamit ng larawan…"
+
+#: ui/dialogs/settings-media.slint
+msgid "Use words"
+msgstr "Gumamit ng mga salita"
+
+#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/song.rs
+msgid "Ending"
+msgstr "Ending"
+
+#: ui/dialogs/settings-media.slint
+msgid "After the service's last item."
+msgstr "Pagkatapos ng huling bahagi ng pagsamba."
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs
+msgid "Thanks for joining us"
+msgstr "Salamat sa pagsama sa amin"
+
+#: ui/dialogs/settings-media.slint ui/operator/follow.slint src/i18n/remote_strings.rs src/stream/scene.rs
+msgid "Hold"
+msgstr "Ihinto"
+
+#: ui/dialogs/settings-media.slint
+msgid "For a break, chosen with the scene button."
+msgstr "Para sa pahinga, pinipili gamit ang scene button."
+
+#: ui/dialogs/settings-media.slint src/stream/pictures.rs
+msgid "We'll be right back"
+msgstr "Babalik kami agad"
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream to"
@@ -2813,7 +2865,7 @@ msgstr "Subukan kung alin ang pinakamabilis"
 
 #: ui/dialogs/settings.slint
 msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
-msgstr ""
+msgstr "Mga isang minuto. May mga test window na magbubukas at magsasara habang tumatakbo, pati sa projector kapag walang ipinapakita roon."
 
 #: ui/dialogs/settings.slint
 msgid "Use this"
@@ -3571,10 +3623,6 @@ msgstr "Mga opsyon ng auto-sunod"
 msgid "Holding"
 msgstr "Nakahinto"
 
-#: ui/operator/follow.slint src/i18n/remote_strings.rs
-msgid "Hold"
-msgstr "Ihinto"
-
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
 msgstr "—"
@@ -3814,6 +3862,18 @@ msgstr "Itigil ang livestream at i-save ang recording"
 #: ui/operator/record.slint
 msgid "Send the room screen to the livestream, and record it"
 msgstr "Ipadala ang screen sa silid sa livestream, at i-record ito"
+
+#: ui/operator/record.slint
+msgid "Stream scene"
+msgstr "Scene ng stream"
+
+#: ui/operator/record.slint
+msgid "{} (automatic)"
+msgstr "{} (awtomatiko)"
+
+#: ui/operator/record.slint
+msgid "What the livestream shows. It changes by itself with what is live; click to choose"
+msgstr "Ang ipinapakita ng livestream. Kusa itong nagbabago ayon sa naka-live; i-click para pumili"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
@@ -4770,6 +4830,14 @@ msgstr "Hayaang sundan ng stage layout ang slides"
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Hide the stage message"
 msgstr "Itago ang stage message"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Livestream: {name}"
+msgstr "Livestream: {name}"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Livestream: automatic"
+msgstr "Livestream: awtomatiko"
 
 #: src/automation/slide_actions.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Theme: {name}"
@@ -6075,6 +6143,18 @@ msgstr "Live ka na. Ang pag-stream ng mga awit ng pagsamba ay nangangailangan ng
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "May recording na tumatakbo. Itigil muna ito, saka pindutin ang Mag-live."
+
+#: src/stream/scene.rs
+msgid "Camera + words"
+msgstr "Camera + mga salita"
+
+#: src/stream/scene.rs
+msgid "Full screen"
+msgstr "Buong screen"
+
+#: src/stream/scene.rs
+msgid "Screen + camera"
+msgstr "Screen + camera"
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -8474,10 +8554,6 @@ msgid "Intro"
 msgstr "Intro"
 
 #: src/strings/song.rs
-msgid "Ending"
-msgstr "Ending"
-
-#: src/strings/song.rs
 msgid "Interlude"
 msgstr "Interlude"
 
@@ -9661,6 +9737,10 @@ msgid "Show a message to the stage"
 msgstr "Magpakita ng mensahe sa stage"
 
 #: src/ui/dialogs/automation.rs
+msgid "Change the livestream's scene"
+msgstr "Palitan ang scene ng livestream"
+
+#: src/ui/dialogs/automation.rs
 msgid "item {n}"
 msgstr "item {n}"
 
@@ -10483,39 +10563,39 @@ msgstr "Hindi gumana"
 
 #: src/video/bench.rs
 msgid "It stopped responding."
-msgstr ""
+msgstr "Tumigil itong tumugon."
 
 #: src/video/bench.rs
 msgid "It could not start."
-msgstr ""
+msgstr "Hindi ito makapagsimula."
 
 #: src/video/bench.rs
 msgid "It closed before it finished. It may have crashed."
-msgstr ""
+msgstr "Nagsara ito bago matapos. Baka nag-crash ito."
 
 #: src/video/bench.rs
 msgid "Slides never reached the room screen."
-msgstr ""
+msgstr "Hindi umabot ang mga slide sa screen ng sanktuwaryo."
 
 #: src/video/bench.rs
 msgid "This graphics card or its driver can't draw with it."
-msgstr ""
+msgstr "Hindi ito kayang iguhit ng graphics card na ito o ng driver nito."
 
 #: src/video/bench.rs
 msgid "Slide change {ms} ms"
-msgstr ""
+msgstr "Pagpapalit ng slide {ms} ms"
 
 #: src/video/bench.rs
 msgid "{n} hiccups a minute"
-msgstr ""
+msgstr "{n} pagkautal bawat minuto"
 
 #: src/video/bench.rs
 msgid "longest pause {ms} ms"
-msgstr ""
+msgstr "pinakamahabang hinto {ms} ms"
 
 #: src/video/bench.rs
 msgid "processor {pct} %"
-msgstr ""
+msgstr "processor {pct} %"
 
 #: src/video/bench.rs
 msgid "Testing {mode}… ({at} of {count})"
@@ -10523,11 +10603,11 @@ msgstr "Sinusubukan ang {mode}… ({at} sa {count})"
 
 #: src/video/bench.rs
 msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About a minute"
-msgstr ""
+msgstr "Nagbago ang graphics card o ang driver nito. Gusto mo bang hanapin kong muli ang pinakamahusay na graphics para sa PC na ito? Mga isang minuto"
 
 #: src/video/bench.rs
 msgid "Want me to find the best graphics for this PC? About a minute"
-msgstr ""
+msgstr "Gusto mo bang hanapin ko ang pinakamahusay na graphics para sa PC na ito? Mga isang minuto"
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
@@ -10648,6 +10728,18 @@ msgstr "walang na-save na video ang yt-dlp"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "hindi media file"
+
+#~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+#~ msgstr "Isang camera o capture card na isinasama sa screen ng silid sa stream (at sa recording nito)."
+
+#~ msgid "Camera, with the screen in a corner"
+#~ msgstr "Camera, nasa sulok ang screen"
+
+#~ msgid "Screen, with the camera in a corner"
+#~ msgstr "Screen, nasa sulok ang camera"
+
+#~ msgid "Camera, with the words over it"
+#~ msgstr "Camera, may mga salita sa ibabaw"
 
 #~ msgid "About 30 seconds. Test windows open and close while it runs."
 #~ msgstr "Mga 30 segundo. Magbubukas at magsasara ang mga test window habang tumatakbo ito."
