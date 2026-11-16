@@ -9,7 +9,7 @@ use crate::{
     ui::dialogs::confirm,
     youtube::fetch::Tool,
 };
-use slint::{Timer, TimerMode};
+use slint::{ComponentHandle, Timer, TimerMode};
 use std::{cell::{Cell, RefCell}, path::PathBuf, rc::Rc, sync::Arc, time::Duration};
 use tokio_util::sync::CancellationToken;
 
@@ -37,6 +37,11 @@ pub struct RecordUi {
     cameras: RefCell<Vec<String>>,
     /// While live: the scene button, four times a second.
     scene_ticker: Timer,
+    /// Go Live, signed in: the broadcasts made for it, with their destinations' names (ended, and their replay
+    /// links said, when the stream stops).
+    broadcasts: RefCell<Vec<(String, stream::accounts::Live)>>,
+    /// Seconds since the viewers were last asked about.
+    viewers_age: Cell<u32>,
     /// Tests: how the recording ended, waited for by `testing::wait_ended` (no event loop to deliver it).
     #[cfg(test)]
     ended: RefCell<Option<tokio::sync::oneshot::Receiver<Ended>>>,
@@ -49,6 +54,25 @@ fn off_ui<T: Send + 'static>(op: &Operator, work: impl FnOnce() -> T + Send + 's
     let spawned = std::thread::Builder::new().name("record-start".into()).spawn(move || { let _ = tx.send(work()); });
     if spawned.is_err() { return }
     if let Err(e) = slint::spawn_local(async move { if let Ok(v) = rx.await { done(v) } }) { eprintln!("recording: {e}") }
+}
+
+/// How often (seconds) a signed-in stream's viewers are asked about.
+const VIEWERS_EVERY: u32 = 30;
+
+/// Signed in: a broadcast made at each service for Go Live, by the destination's name.
+fn make_broadcasts(ids: &stream::accounts::Ids, ends: &stream::accounts::Ends, signed: Vec<(stream::Destination, String, stream::accounts::Details)>)
+    -> Vec<(String, Result<stream::accounts::Live, String>)> {
+    if signed.is_empty() { return vec![] }
+    let fail = |e: String| signed.iter().map(|(d, _, _)| (d.title().to_string(), Err(e.clone()))).collect::<Vec<_>>();
+    let rt = match tokio::runtime::Builder::new_current_thread().enable_all().build() { Ok(r) => r, Err(e) => return fail(e.to_string()) };
+    let client = match crate::bible::sources::client() { Ok(c) => c, Err(e) => return fail(format!("{e:?}")) };
+    rt.block_on(async {
+        let mut out = vec![];
+        for (d, token, details) in &signed {
+            out.push((d.title().to_string(), stream::accounts::prepare(client, ends, ids, d, token, details).await));
+        }
+        out
+    })
 }
 
 impl Operator {
@@ -65,6 +89,7 @@ impl Operator {
         if self.record.starting.get() { return }
         if let Some(rec) = self.record.rec.borrow().as_ref() {
             rec.stop();
+            self.end_broadcasts(true);
             self.show_recording(false);
             self.toast(record::tr::finishing(), false);
             return;
@@ -75,21 +100,31 @@ impl Operator {
         let me = Rc::downgrade(self);
         // Go Live: the destinations that are on, with their keys from the computer's store. None ready: no
         // recording starts either (the operator asked for a stream).
-        let mut names = String::new();
+        let mut titles = vec![];
         let mut addresses = vec![];
+        // Signed in: the broadcast is made, and its address got, as the recording is got ready.
+        let mut signed: Vec<(stream::Destination, String)> = vec![];
         if live {
+            let store = stream::keys::app_store();
             let mut all = prefs.stream.clone();
-            stream::keys::fill(stream::keys::app_store().as_ref(), &mut all);
-            let (good, bad) = stream::ready(&all);
+            stream::keys::fill(store.as_ref(), &mut all);
+            let (with_sign_in, keyed): (Vec<_>, Vec<_>) = all.into_iter().partition(|d| d.on && stream::accounts::kept(store.as_ref(), d.id).is_some());
+            signed = with_sign_in.into_iter().filter_map(|d| stream::accounts::kept(store.as_ref(), d.id).map(|(_, token)| (d, token))).collect();
+            let (good, bad) = stream::ready(&keyed);
             for (name, why) in &bad { self.toast(stream::tr::not_ready(name, &why.words()), true) }
-            if good.is_empty() { return self.toast(stream::tr::nothing_ready(), true) }
-            let titles: Vec<String> = all.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.title().to_string()).collect();
-            names = titles.join(", ");
-            *self.record.links.borrow_mut() = titles.into_iter().map(|t| (t, false)).collect();
+            if good.is_empty() && signed.is_empty() { return self.toast(stream::tr::nothing_ready(), true) }
+            titles = keyed.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.title().to_string()).collect();
             self.record.slow_told.borrow_mut().clear();
             self.record.camera_was.set(None);
             addresses = good;
         }
+        let today = chrono::Local::now().date_naive();
+        let details = |service| stream::accounts::Details {
+            title: stream::accounts::title_for(&prefs.stream_title, today, service),
+            description: prefs.stream_description.clone(),
+            privacy: prefs.stream_privacy,
+        };
+        let signed: Vec<(stream::Destination, String, stream::accounts::Details)> = signed.into_iter().map(|(d, t)| { let x = details(d.service); (d, t, x) }).collect();
         self.record.starting.set(true);
         let prefs_pc = prefs.pc_sound(&app_output);
         let sound_delay = prefs.sound_delay_ms.min(record::MAX_SOUND_DELAY);
@@ -114,9 +149,21 @@ impl Operator {
             cards: prefs.cards.clone(),
             theme,
         };
-        off_ui(self, move || Plan::make(&data, &prefs), move |plan| {
+        let (ids, ends) = (stream::accounts::app_ids(), stream::accounts::app_ends());
+        off_ui(self, move || (Plan::make(&data, &prefs), make_broadcasts(&ids, &ends, signed)), move |(plan, made)| {
             let Some(op) = me.upgrade() else { return };
             op.record.starting.set(false);
+            let mut broadcasts = vec![];
+            for (title, r) in made {
+                match r {
+                    Ok(b) => { addresses.push(b.address.clone()); titles.push(title.clone()); broadcasts.push((title, b)) }
+                    Err(e) => { eprintln!("stream: {title}: {e}"); op.toast(stream::accounts::tr::prepare_failed(&title, &e), true) }
+                }
+            }
+            *op.record.broadcasts.borrow_mut() = broadcasts;
+            if live && addresses.is_empty() && plan.is_ok() { return op.toast(stream::tr::nothing_ready(), true) }
+            if live { *op.record.links.borrow_mut() = titles.iter().map(|t| (t.clone(), false)).collect() }
+            let names = titles.join(", ");
             match plan {
                 Ok(mut plan) => {
                     if live {
@@ -129,6 +176,8 @@ impl Operator {
                     op.record.live.set(live);
                     op.start_recording(plan);
                     if live && op.is_recording() {
+                        op.record.viewers_age.set(0);
+                        op.ui.set_live_watching(-1);
                         op.ui.set_live(true);
                         op.toast(stream::tr::live_on(&names), false);
                         op.note_stream_licence();
@@ -137,6 +186,8 @@ impl Operator {
                 Err(Some(why)) => op.toast(why, true),
                 Err(None) => op.offer_ffmpeg(),
             }
+            // Broadcasts made for a stream that did not start are ended at once, unsaid.
+            if !(live && op.is_recording()) { op.end_broadcasts(false) }
         });
     }
 
@@ -176,7 +227,45 @@ impl Operator {
         });
     }
 
+    /// Signed in: each broadcast is ended at its service (off the UI thread) and, with `say`, its replay link said.
+    fn end_broadcasts(&self, say: bool) {
+        let all = std::mem::take(&mut *self.record.broadcasts.borrow_mut());
+        if all.is_empty() { return }
+        if say { for (title, b) in &all { self.toast(stream::accounts::tr::replay(title, &b.watch), false) } }
+        if self.ops().is_inline() { return }
+        let ends = stream::accounts::app_ends();
+        let _ = std::thread::Builder::new().name("stream-end".into()).spawn(move || {
+            let Ok(rt) = tokio::runtime::Builder::new_current_thread().enable_all().build() else { return };
+            let Ok(client) = crate::bible::sources::client() else { return };
+            rt.block_on(async { for (_, b) in &all { stream::accounts::finish(client, &ends, b).await } });
+        });
+    }
+
+    /// Signed in: how many are watching, asked every `VIEWERS_EVERY` seconds off the UI thread.
+    fn ask_viewers(&self) {
+        let age = self.record.viewers_age.get() + 1;
+        self.record.viewers_age.set(age);
+        if age < VIEWERS_EVERY || self.ops().is_inline() { return }
+        self.record.viewers_age.set(0);
+        let all: Vec<stream::accounts::Live> = self.record.broadcasts.borrow().iter().map(|(_, b)| b.clone()).collect();
+        if all.is_empty() { return }
+        let (ui, ends) = (self.ui.as_weak(), stream::accounts::app_ends());
+        let _ = std::thread::Builder::new().name("stream-viewers".into()).spawn(move || {
+            let Ok(rt) = tokio::runtime::Builder::new_current_thread().enable_all().build() else { return };
+            let Ok(client) = crate::bible::sources::client() else { return };
+            let counts: Vec<Option<u64>> = rt.block_on(async {
+                let mut v = vec![];
+                for b in &all { v.push(stream::accounts::viewers(client, &ends, b).await) }
+                v
+            });
+            if counts.iter().all(Option::is_none) { return }
+            let total: u64 = counts.into_iter().flatten().sum();
+            let _ = ui.upgrade_in_event_loop(move |ui| if ui.get_live() { ui.set_live_watching(total.min(i32::MAX as u64) as i32) });
+        });
+    }
+
     fn recording_ended(&self, ended: Ended) {
+        self.end_broadcasts(true);
         self.screens().record_to(None);
         // The writer has finished; dropping it does not wait.
         drop(self.record.rec.borrow_mut().take());
@@ -294,6 +383,7 @@ impl Operator {
             self.ui.set_live(false);
             self.ui.set_live_held(false);
             self.ui.set_live_muted(false);
+            self.ui.set_live_watching(-1);
         }
         self.ui.set_record_time(record::clock(0).into());
         if !on {
@@ -325,6 +415,7 @@ impl Operator {
             op.say_camera(camera);
             let silent = op.record.rec.borrow().as_ref().and_then(Recording::silent);
             op.say_silence(silent);
+            op.ask_viewers();
         });
     }
 

@@ -2568,6 +2568,22 @@ msgid "Paste the stream key"
 msgstr "Dán khóa phát"
 
 #: ui/dialogs/settings-media.slint
+msgid "Sign in"
+msgstr "Đăng nhập"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
+msgstr "Đăng nhập thay vì dán khóa: Trực tiếp sẽ tự tạo buổi phát kèm tiêu đề"
+
+#: ui/dialogs/settings-media.slint
+msgid "Signed in as {}"
+msgstr "Đã đăng nhập là {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sign out"
+msgstr "Đăng xuất"
+
+#: ui/dialogs/settings-media.slint
 msgid "Facebook stream key"
 msgstr "Khóa phát Facebook"
 
@@ -2594,6 +2610,42 @@ msgstr "Khóa phát của máy chủ"
 #: ui/dialogs/settings-media.slint
 msgid "Its stream key, if it has one"
 msgstr "Khóa phát của nó, nếu có"
+
+#: ui/dialogs/settings-media.slint
+msgid "Broadcast title"
+msgstr "Tiêu đề buổi phát"
+
+#: ui/dialogs/settings-media.slint
+msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
+msgstr "Tên YouTube và Facebook đặt cho mỗi buổi phát. {{date}} sẽ thành ngày hôm đó."
+
+#: ui/dialogs/settings-media.slint
+msgid "Sunday Service — {{date}}"
+msgstr "Thờ phượng Chúa nhật — {{date}}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Description"
+msgstr "Mô tả"
+
+#: ui/dialogs/settings-media.slint
+msgid "Broadcast description"
+msgstr "Mô tả buổi phát"
+
+#: ui/dialogs/settings-media.slint
+msgid "What viewers read under the video"
+msgstr "Điều người xem đọc dưới video"
+
+#: ui/dialogs/settings-media.slint
+msgid "Who can watch on YouTube"
+msgstr "Ai có thể xem trên YouTube"
+
+#: ui/dialogs/settings-media.slint
+msgid "Everyone"
+msgstr "Mọi người"
+
+#: ui/dialogs/settings-media.slint
+msgid "Only people with the link"
+msgstr "Chỉ người có liên kết"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -3884,8 +3936,16 @@ msgid "{} of {} connected"
 msgstr "{} trên {} đã kết nối"
 
 #: ui/operator/record.slint
+msgid "{} watching"
+msgstr "{} người xem"
+
+#: ui/operator/record.slint
 msgid "Live {}/{}"
 msgstr "Đang phát {}/{}"
+
+#: ui/operator/record.slint
+msgid "Live · {} watching"
+msgstr "Trực tiếp · {} người xem"
 
 #: ui/operator/record.slint
 msgid "Live"
@@ -6142,6 +6202,38 @@ msgstr "Bản sao lưu không xác định."
 #: src/store.rs
 msgid "That backup is incomplete and cannot be restored."
 msgstr "Bản sao lưu đó không đầy đủ và không thể khôi phục."
+
+#: src/stream/accounts/mod.rs
+msgid "Sunday Service — {date}"
+msgstr "Thờ phượng Chúa nhật — {date}"
+
+#: src/stream/accounts/mod.rs
+msgid "Signed in as {name}."
+msgstr "Đã đăng nhập là {name}."
+
+#: src/stream/accounts/mod.rs
+msgid "Finish signing in in the web browser that opened."
+msgstr "Hãy đăng nhập xong trong trình duyệt vừa mở."
+
+#: src/stream/accounts/mod.rs
+msgid "Go to {at} on any phone or computer and type the code {code}."
+msgstr "Vào {at} trên bất kỳ điện thoại hay máy tính nào và nhập mã {code}."
+
+#: src/stream/accounts/mod.rs
+msgid "Signing in did not work: {why}"
+msgstr "Không đăng nhập được: {why}"
+
+#: src/stream/accounts/mod.rs
+msgid "This Facebook account manages no Page. A stream can only go to a Page."
+msgstr "Tài khoản Facebook này không quản lý Trang nào. Buổi phát chỉ có thể đến một Trang."
+
+#: src/stream/accounts/mod.rs
+msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Media → Livestream."
+msgstr "{name}: không tạo được buổi phát ({why}). Hãy đăng nhập lại trong Cài đặt → Đa phương tiện → Phát trực tiếp."
+
+#: src/stream/accounts/mod.rs
+msgid "{name}: the replay is at {link}"
+msgstr "{name}: bản phát lại ở {link}"
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

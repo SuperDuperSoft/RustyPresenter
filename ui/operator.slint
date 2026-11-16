@@ -279,6 +279,8 @@ export component OperatorWindow inherits Window {
     in property <bool> can-stream;
     in property <bool> live;
     in property <int> live-up;
+    /// Signed in, while live: how many are watching (-1: not known).
+    in property <int> live-watching: -1;
     in property <int> live-total;
     callback go-live();
     in property <bool> live-held;
@@ -948,6 +950,7 @@ export component OperatorWindow inherits Window {
                 live: root.live;
                 live-up: root.live-up;
                 live-total: root.live-total;
+                live-watching: root.live-watching;
                 go-live => { root.focus-keys(); root.go-live(); }
                 live-held: root.live-held;
                 live-muted: root.live-muted;

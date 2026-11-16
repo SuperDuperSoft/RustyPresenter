@@ -104,6 +104,14 @@ pub struct RecordPrefs {
     /// The Starting soon, Ending and Hold cards.
     #[serde(skip_serializing_if = "crate::stream::pictures::Cards::is_default")]
     pub cards: crate::stream::pictures::Cards,
+    /// Signed in: what a broadcast is called (`{date}`, `{service}`; empty: `accounts::default_title`), its
+    /// description, and who can watch on YouTube.
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub stream_title: String,
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub stream_description: String,
+    #[serde(skip_serializing_if = "crate::stream::accounts::Privacy::is_public")]
+    pub stream_privacy: crate::stream::accounts::Privacy,
     /// The note about streaming licences was shown (once, the first time Go Live started).
     #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub licence_noted: bool,

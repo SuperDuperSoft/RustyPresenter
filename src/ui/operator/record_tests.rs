@@ -337,3 +337,101 @@ fn hold_and_mute_do_nothing_unless_live() {
     op.mute_stream();
     assert!(!op.ui.get_live_held() && !op.ui.get_live_muted());
 }
+
+/// A stand-in for Google and Facebook, kept running by the runtime returned with it.
+fn stand_in() -> (tokio::runtime::Runtime, Arc<Mutex<stream::accounts::testing::Seen>>) {
+    let rt = tokio::runtime::Runtime::new().unwrap();
+    let seen = Arc::new(Mutex::new(stream::accounts::testing::Seen::default()));
+    let base = rt.block_on(stream::accounts::testing::serve(seen.clone()));
+    stream::accounts::testing::use_server(&base);
+    (rt, seen)
+}
+
+#[test]
+fn settings_sign_in_to_facebook_and_out_again() {
+    use crate::ui::SettingsDlg;
+    use slint::ComponentHandle;
+    let (_rt, _seen) = stand_in();
+    let app = test_app();
+    let room = Arc::new(Room::default());
+    let op = open(&app, &room);
+    let g = op.ui.global::<SettingsDlg>();
+    crate::ui::dialogs::settings_record::fill_form(&g, &RecordPrefs::default());
+    crate::ui::dialogs::settings_record::wire_keys(&op);
+    assert!(g.get_stream_can_sign_in_0() && g.get_stream_can_sign_in_1(), "this copy has the app's ids");
+    assert_eq!(g.get_stream_account_1(), "");
+    g.invoke_stream_sign_in(1);
+    assert!(!g.get_stream_signing_in());
+    assert_eq!(g.get_stream_account_1(), "Grace Page", "{}", g.get_stream_sign_in_text());
+    assert_eq!(g.get_stream_sign_in_text().as_str(), stream::accounts::tr::signed_in("Grace Page"));
+    let kept = stream::accounts::kept(stream::keys::app_store().as_ref(), stream::built_in_id(1));
+    assert_eq!(kept, Some(("Grace Page".to_string(), "p1|pt".to_string())), "kept in the password store, not the settings");
+    g.invoke_stream_sign_out(1);
+    assert_eq!(g.get_stream_account_1(), "");
+    assert_eq!(stream::accounts::kept(stream::keys::app_store().as_ref(), stream::built_in_id(1)), None);
+}
+
+#[test]
+fn settings_keep_the_broadcast_title_and_who_can_watch() {
+    use crate::ui::SettingsDlg;
+    use slint::ComponentHandle;
+    let app = test_app();
+    let room = Arc::new(Room::default());
+    let op = open(&app, &room);
+    let g = op.ui.global::<SettingsDlg>();
+    let mut prefs = RecordPrefs::default();
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    g.set_stream_title(" Morning worship {date} ".into());
+    g.set_stream_description("Welcome!".into());
+    g.set_stream_privacy(1);
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!((prefs.stream_title.as_str(), prefs.stream_description.as_str()), ("Morning worship {date}", "Welcome!"));
+    assert_eq!(prefs.stream_privacy, stream::accounts::Privacy::Unlisted);
+}
+
+#[test]
+fn go_live_signed_in_says_when_the_broadcast_cannot_be_made() {
+    let (_rt, _seen) = stand_in();
+    let app = test_app();
+    app.data.lock().unwrap().settings.record.stream = vec![dest(0, true)];
+    // A sign-in Google no longer accepts (taken back, or run out).
+    stream::accounts::keep(stream::keys::app_store().as_ref(), stream::built_in_id(0), "Grace Church", "revoked").unwrap();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    op.go_live();
+    assert!(!op.is_recording() && !op.ui.get_live());
+    let said = toasts(&op);
+    assert!(said.iter().any(|(t, err)| *err && t.starts_with("YouTube: the broadcast could not be made") && t.contains("expired or revoked")), "{said:?}");
+    assert!(!said.iter().any(|(t, _)| *t == stream::tr::not_ready("YouTube", &stream::tr::no_key())), "signed in, no key is needed: {said:?}");
+}
+
+#[test]
+fn go_live_signed_in_makes_the_broadcast_streams_to_it_and_gives_the_replay() {
+    if !has_ffmpeg() { return eprintln!("no ffmpeg here: skipped") }
+    let (_rt, seen) = stand_in();
+    // Nothing listens here: the stream is tried and fails, which is enough to see where it goes.
+    seen.lock().unwrap().ingest = "rtmp://127.0.0.1:9/live2".into();
+    let app = test_app();
+    let folder = std::env::temp_dir().join(format!("rp-signin-ui-{}", uuid::Uuid::new_v4()));
+    app.data.lock().unwrap().settings.record = RecordPrefs {
+        size: Preset::P720, folder: folder.display().to_string(), sound: "none".into(), stream: vec![dest(0, true)],
+        stream_title: "Service {date}".into(), ..Default::default()
+    };
+    stream::accounts::keep(stream::keys::app_store().as_ref(), stream::built_in_id(0), "Grace Church", "rt").unwrap();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    op.go_live();
+    assert!(op.is_recording() && op.ui.get_live(), "{:?}", toasts(&op));
+    assert_eq!(*op.record.links.borrow(), vec![("YouTube".to_string(), false)]);
+    let title = seen.lock().unwrap().broadcast["snippet"]["title"].as_str().unwrap_or_default().to_string();
+    assert_eq!(title, stream::accounts::title_for("Service {date}", chrono::Local::now().date_naive(), stream::Service::YouTube));
+    assert_eq!(op.record.broadcasts.borrow().first().map(|(_, b)| b.address.clone()), Some("rtmp://127.0.0.1:9/live2/new-key".to_string()));
+    op.go_live();
+    assert!(toasts(&op).contains(&(stream::accounts::tr::replay("YouTube", "https://youtu.be/b1"), false)), "{:?}", toasts(&op));
+    assert!(op.record.broadcasts.borrow().is_empty());
+    let ended = testing::wait_ended(&op);
+    drop(ended);
+    let _ = std::fs::remove_dir_all(&folder);
+}

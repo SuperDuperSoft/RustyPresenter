@@ -11,12 +11,14 @@ export component LiveBtn inherits Rectangle {
     /// the others reconnect by themselves.
     in property <int> up;
     in property <int> total;
+    /// Signed in, while live: how many are watching (-1: not known).
+    in property <int> watching: -1;
     property <bool> short: root.live && root.up < root.total;
     callback clicked();
 
     accessible-role: button;
     accessible-label: root.live ? @tr("Stop the livestream") : @tr("Go Live");
-    accessible-value: root.short ? @tr("{} of {} connected", root.up, root.total) : "";
+    accessible-value: root.short ? @tr("{} of {} connected", root.up, root.total) : root.live && root.watching >= 0 ? @tr("{} watching", root.watching) : "";
     accessible-action-default => { root.clicked(); }
 
     border-radius: 9px;
@@ -29,7 +31,7 @@ export component LiveBtn inherits Rectangle {
         padding-left: 10px;
         padding-right: 10px;
         Text {
-            text: root.short ? @tr("Live {}/{}", root.up, root.total) : root.live ? @tr("Live") : @tr("Go Live");
+            text: root.short ? @tr("Live {}/{}", root.up, root.total) : root.live && root.watching >= 0 ? @tr("Live · {} watching", root.watching) : root.live ? @tr("Live") : @tr("Go Live");
             color: root.short ? Theme.accent-ink : root.live ? white : Theme.text;
             font-family: Theme.font;
             font-size: Theme.base-size;

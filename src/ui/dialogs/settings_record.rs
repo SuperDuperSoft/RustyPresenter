@@ -135,6 +135,11 @@ pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     g.set_stream_on_3(on[3]);
     g.set_stream_url(url.into());
     fill_saved(g);
+    fill_accounts(g);
+    g.set_stream_sign_in_text("".into());
+    g.set_stream_title(p.stream_title.as_str().into());
+    g.set_stream_description(p.stream_description.as_str().into());
+    g.set_stream_privacy(i32::from(p.stream_privacy == stream::accounts::Privacy::Unlisted));
     g.set_record_size(Preset::ALL.iter().position(|s| *s == p.size).unwrap_or(1) as i32);
     g.set_record_folder(p.folder().display().to_string().into());
     fill_sound(g, &[], &p.sound());
@@ -183,6 +188,50 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
         ending: card(g.get_stream_card_words_1(), g.get_stream_card_picture_1()),
         hold: card(g.get_stream_card_words_2(), g.get_stream_card_picture_2()),
     };
+    p.stream_title = g.get_stream_title().trim().to_string();
+    p.stream_description = g.get_stream_description().trim().to_string();
+    p.stream_privacy = if g.get_stream_privacy() == 1 { stream::accounts::Privacy::Unlisted } else { stream::accounts::Privacy::Public };
+}
+
+/// Which of YouTube and Facebook this copy can sign in to, and the account each is signed in to on this computer.
+pub(crate) fn fill_accounts(g: &SettingsDlg) {
+    let store = stream::keys::app_store();
+    let ids = stream::accounts::app_ids();
+    let name = |i: usize| stream::accounts::kept(store.as_ref(), stream::built_in_id(i))
+        .map(|(n, _)| if n.is_empty() { stream::BUILT_IN[i].0.name().to_string() } else { n }).unwrap_or_default();
+    g.set_stream_can_sign_in_0(ids.can_sign_in(stream::Service::YouTube));
+    g.set_stream_can_sign_in_1(ids.can_sign_in(stream::Service::Facebook));
+    g.set_stream_account_0(name(0).into());
+    g.set_stream_account_1(name(1).into());
+}
+
+/// Signing in to YouTube (row 0: the web browser opens) or Facebook (row 1: a code to type at facebook.com/device),
+/// off the UI thread; what is kept goes to the computer's password store. Gives the account's name.
+fn sign_in(i: usize, ui: slint::Weak<crate::ui::OperatorWindow>) -> Result<String, String> {
+    use stream::accounts::{self, facebook, google};
+    let (ids, ends, store) = (accounts::app_ids(), accounts::app_ends(), stream::keys::app_store());
+    let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().map_err(|e| e.to_string())?;
+    let client = crate::bible::sources::client().map_err(|e| format!("{e:?}"))?;
+    let open = |url: &str| { let _ = crate::usage::open::open_file(std::path::Path::new(url)); };
+    let (token, name) = rt.block_on(async {
+        if i == 0 { return google::sign_in(client, &ends, &ids, open).await }
+        let device = facebook::start(client, &ends, &ids).await?;
+        let text = accounts::tr::facebook_code(&device.user_code, &device.at);
+        let _ = ui.upgrade_in_event_loop(move |ui| ui.global::<SettingsDlg>().set_stream_sign_in_text(text.into()));
+        open(&device.at);
+        facebook::wait(client, &ends, &ids, &device).await
+    })?;
+    accounts::keep(store.as_ref(), stream::built_in_id(i), &name, &token)?;
+    Ok(name)
+}
+
+fn signed_in(g: &SettingsDlg, r: Result<String, String>) {
+    g.set_stream_signing_in(false);
+    g.set_stream_sign_in_text(match r {
+        Ok(name) => stream::accounts::tr::signed_in(&name),
+        Err(e) => { eprintln!("stream sign-in: {e}"); stream::accounts::tr::sign_in_failed(&e) }
+    }.into());
+    fill_accounts(g);
 }
 
 /// A stream key typed in Settings is kept in the computer's password store at once (it is no part of the
@@ -194,6 +243,30 @@ pub(crate) fn wire_keys(op: &Rc<Operator>) {
         let id = stream::built_in_id(i.clamp(0, 3) as usize);
         if let Err(e) = stream::keys::app_store().set(id, key.as_str()) { op.toast(crate::tr!("The stream key could not be kept: {error}", error = e), true) }
         fill_saved(&op.ui.global::<SettingsDlg>());
+    });
+    let me = Rc::downgrade(op);
+    op.ui.global::<SettingsDlg>().on_stream_sign_in(move |i| {
+        let Some(op) = me.upgrade() else { return };
+        let g = op.ui.global::<SettingsDlg>();
+        if g.get_stream_signing_in() { return }
+        let i = i.clamp(0, 1) as usize;
+        g.set_stream_signing_in(true);
+        g.set_stream_sign_in_text(if i == 0 { stream::accounts::tr::open_browser() } else { String::new() }.into());
+        let ui = op.ui.as_weak();
+        // Tests have no event loop: the answer is waited for here.
+        if op.ops().is_inline() { return signed_in(&g, sign_in(i, ui)) }
+        let _ = std::thread::Builder::new().name("stream-sign-in".into()).spawn(move || {
+            let r = sign_in(i, ui.clone());
+            let _ = ui.upgrade_in_event_loop(move |ui| signed_in(&ui.global::<SettingsDlg>(), r));
+        });
+    });
+    let me = Rc::downgrade(op);
+    op.ui.global::<SettingsDlg>().on_stream_sign_out(move |i| {
+        let Some(op) = me.upgrade() else { return };
+        stream::accounts::forget(stream::keys::app_store().as_ref(), stream::built_in_id(i.clamp(0, 1) as usize));
+        let g = op.ui.global::<SettingsDlg>();
+        g.set_stream_sign_in_text("".into());
+        fill_accounts(&g);
     });
 }
 

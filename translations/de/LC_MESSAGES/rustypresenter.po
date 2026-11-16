@@ -2568,6 +2568,22 @@ msgid "Paste the stream key"
 msgstr "Streamschlüssel einfügen"
 
 #: ui/dialogs/settings-media.slint
+msgid "Sign in"
+msgstr "Anmelden"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
+msgstr "Anmelden statt einen Schlüssel einzufügen: Live erstellt die Übertragung dann selbst, mit Titel"
+
+#: ui/dialogs/settings-media.slint
+msgid "Signed in as {}"
+msgstr "Angemeldet als {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sign out"
+msgstr "Abmelden"
+
+#: ui/dialogs/settings-media.slint
 msgid "Facebook stream key"
 msgstr "Facebook-Streamschlüssel"
 
@@ -2594,6 +2610,42 @@ msgstr "Der Streamschlüssel des Servers"
 #: ui/dialogs/settings-media.slint
 msgid "Its stream key, if it has one"
 msgstr "Sein Streamschlüssel, falls er einen hat"
+
+#: ui/dialogs/settings-media.slint
+msgid "Broadcast title"
+msgstr "Titel der Übertragung"
+
+#: ui/dialogs/settings-media.slint
+msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
+msgstr "Wie YouTube und Facebook jede Übertragung nennen. {{date}} wird zum Datum des Tages."
+
+#: ui/dialogs/settings-media.slint
+msgid "Sunday Service — {{date}}"
+msgstr "Sonntagsgottesdienst — {{date}}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Description"
+msgstr "Beschreibung"
+
+#: ui/dialogs/settings-media.slint
+msgid "Broadcast description"
+msgstr "Beschreibung der Übertragung"
+
+#: ui/dialogs/settings-media.slint
+msgid "What viewers read under the video"
+msgstr "Was Zuschauer unter dem Video lesen"
+
+#: ui/dialogs/settings-media.slint
+msgid "Who can watch on YouTube"
+msgstr "Wer auf YouTube zuschauen kann"
+
+#: ui/dialogs/settings-media.slint
+msgid "Everyone"
+msgstr "Alle"
+
+#: ui/dialogs/settings-media.slint
+msgid "Only people with the link"
+msgstr "Nur wer den Link hat"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -3884,8 +3936,16 @@ msgid "{} of {} connected"
 msgstr "{} von {} verbunden"
 
 #: ui/operator/record.slint
+msgid "{} watching"
+msgstr "{} schauen zu"
+
+#: ui/operator/record.slint
 msgid "Live {}/{}"
 msgstr "Live {}/{}"
+
+#: ui/operator/record.slint
+msgid "Live · {} watching"
+msgstr "Live · {} schauen zu"
 
 #: ui/operator/record.slint
 msgid "Live"
@@ -6147,6 +6207,38 @@ msgstr "Unbekannte Sicherung."
 #: src/store.rs
 msgid "That backup is incomplete and cannot be restored."
 msgstr "Diese Sicherung ist unvollständig und kann nicht wiederhergestellt werden."
+
+#: src/stream/accounts/mod.rs
+msgid "Sunday Service — {date}"
+msgstr "Sonntagsgottesdienst — {date}"
+
+#: src/stream/accounts/mod.rs
+msgid "Signed in as {name}."
+msgstr "Angemeldet als {name}."
+
+#: src/stream/accounts/mod.rs
+msgid "Finish signing in in the web browser that opened."
+msgstr "Melden Sie sich im geöffneten Webbrowser fertig an."
+
+#: src/stream/accounts/mod.rs
+msgid "Go to {at} on any phone or computer and type the code {code}."
+msgstr "Öffnen Sie {at} auf einem Handy oder Computer und geben Sie den Code {code} ein."
+
+#: src/stream/accounts/mod.rs
+msgid "Signing in did not work: {why}"
+msgstr "Die Anmeldung hat nicht geklappt: {why}"
+
+#: src/stream/accounts/mod.rs
+msgid "This Facebook account manages no Page. A stream can only go to a Page."
+msgstr "Dieses Facebook-Konto verwaltet keine Seite. Ein Stream kann nur auf eine Seite gehen."
+
+#: src/stream/accounts/mod.rs
+msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Media → Livestream."
+msgstr "{name}: Die Übertragung konnte nicht erstellt werden ({why}). Melden Sie sich in Einstellungen → Medien → Livestream erneut an."
+
+#: src/stream/accounts/mod.rs
+msgid "{name}: the replay is at {link}"
+msgstr "{name}: Die Aufzeichnung ist unter {link}"
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

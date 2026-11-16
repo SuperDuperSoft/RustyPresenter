@@ -2568,6 +2568,22 @@ msgid "Paste the stream key"
 msgstr "I-paste ang stream key"
 
 #: ui/dialogs/settings-media.slint
+msgid "Sign in"
+msgstr "Mag-sign in"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
+msgstr "Mag-sign in sa halip na mag-paste ng key: ang Live na ang gagawa ng broadcast, kasama ang pamagat"
+
+#: ui/dialogs/settings-media.slint
+msgid "Signed in as {}"
+msgstr "Naka-sign in bilang {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sign out"
+msgstr "Mag-sign out"
+
+#: ui/dialogs/settings-media.slint
 msgid "Facebook stream key"
 msgstr "Stream key ng Facebook"
 
@@ -2594,6 +2610,42 @@ msgstr "Ang stream key ng server"
 #: ui/dialogs/settings-media.slint
 msgid "Its stream key, if it has one"
 msgstr "Ang stream key nito, kung mayroon"
+
+#: ui/dialogs/settings-media.slint
+msgid "Broadcast title"
+msgstr "Pamagat ng broadcast"
+
+#: ui/dialogs/settings-media.slint
+msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
+msgstr "Ang tawag ng YouTube at Facebook sa bawat broadcast. Ang {{date}} ay magiging petsa ng araw."
+
+#: ui/dialogs/settings-media.slint
+msgid "Sunday Service — {{date}}"
+msgstr "Pagsamba sa Linggo — {{date}}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Description"
+msgstr "Paglalarawan"
+
+#: ui/dialogs/settings-media.slint
+msgid "Broadcast description"
+msgstr "Paglalarawan ng broadcast"
+
+#: ui/dialogs/settings-media.slint
+msgid "What viewers read under the video"
+msgstr "Ang mababasa ng mga manonood sa ilalim ng video"
+
+#: ui/dialogs/settings-media.slint
+msgid "Who can watch on YouTube"
+msgstr "Sino ang puwedeng manood sa YouTube"
+
+#: ui/dialogs/settings-media.slint
+msgid "Everyone"
+msgstr "Lahat"
+
+#: ui/dialogs/settings-media.slint
+msgid "Only people with the link"
+msgstr "Ang may link lang"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -3884,8 +3936,16 @@ msgid "{} of {} connected"
 msgstr "{} sa {} ang nakakonekta"
 
 #: ui/operator/record.slint
+msgid "{} watching"
+msgstr "{} nanonood"
+
+#: ui/operator/record.slint
 msgid "Live {}/{}"
 msgstr "Live {}/{}"
+
+#: ui/operator/record.slint
+msgid "Live · {} watching"
+msgstr "Live · {} nanonood"
 
 #: ui/operator/record.slint
 msgid "Live"
@@ -6147,6 +6207,38 @@ msgstr "Hindi kilalang backup."
 #: src/store.rs
 msgid "That backup is incomplete and cannot be restored."
 msgstr "Hindi kumpleto ang backup na iyon at hindi maibabalik."
+
+#: src/stream/accounts/mod.rs
+msgid "Sunday Service — {date}"
+msgstr "Pagsamba sa Linggo — {date}"
+
+#: src/stream/accounts/mod.rs
+msgid "Signed in as {name}."
+msgstr "Naka-sign in bilang {name}."
+
+#: src/stream/accounts/mod.rs
+msgid "Finish signing in in the web browser that opened."
+msgstr "Tapusin ang pag-sign in sa web browser na bumukas."
+
+#: src/stream/accounts/mod.rs
+msgid "Go to {at} on any phone or computer and type the code {code}."
+msgstr "Pumunta sa {at} sa anumang phone o computer at i-type ang code na {code}."
+
+#: src/stream/accounts/mod.rs
+msgid "Signing in did not work: {why}"
+msgstr "Hindi gumana ang pag-sign in: {why}"
+
+#: src/stream/accounts/mod.rs
+msgid "This Facebook account manages no Page. A stream can only go to a Page."
+msgstr "Walang Page na pinamamahalaan ang Facebook account na ito. Sa Page lang puwedeng mapunta ang stream."
+
+#: src/stream/accounts/mod.rs
+msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Media → Livestream."
+msgstr "{name}: hindi magawa ang broadcast ({why}). Mag-sign in muli sa Settings → Media → Livestream."
+
+#: src/stream/accounts/mod.rs
+msgid "{name}: the replay is at {link}"
+msgstr "{name}: ang replay ay nasa {link}"
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

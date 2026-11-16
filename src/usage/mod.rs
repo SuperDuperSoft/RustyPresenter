@@ -5,7 +5,7 @@
 pub mod strings;
 mod actions;
 pub mod export;
-mod open;
+pub(crate) mod open;
 mod serde_dates;
 
 use chrono::{DateTime, Datelike, Days, Months, NaiveDate, Utc};

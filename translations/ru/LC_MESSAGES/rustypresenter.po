@@ -2568,6 +2568,22 @@ msgid "Paste the stream key"
 msgstr "Вставьте ключ трансляции"
 
 #: ui/dialogs/settings-media.slint
+msgid "Sign in"
+msgstr "Войти"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
+msgstr "Войти вместо ввода ключа: «В эфир» сам создаст трансляцию с названием"
+
+#: ui/dialogs/settings-media.slint
+msgid "Signed in as {}"
+msgstr "Вход выполнен: {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sign out"
+msgstr "Выйти"
+
+#: ui/dialogs/settings-media.slint
 msgid "Facebook stream key"
 msgstr "Ключ трансляции Facebook"
 
@@ -2594,6 +2610,42 @@ msgstr "Ключ трансляции сервера"
 #: ui/dialogs/settings-media.slint
 msgid "Its stream key, if it has one"
 msgstr "Его ключ трансляции, если есть"
+
+#: ui/dialogs/settings-media.slint
+msgid "Broadcast title"
+msgstr "Название трансляции"
+
+#: ui/dialogs/settings-media.slint
+msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
+msgstr "Как YouTube и Facebook называют каждую трансляцию. {{date}} заменяется датой дня."
+
+#: ui/dialogs/settings-media.slint
+msgid "Sunday Service — {{date}}"
+msgstr "Воскресное служение — {{date}}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Description"
+msgstr "Описание"
+
+#: ui/dialogs/settings-media.slint
+msgid "Broadcast description"
+msgstr "Описание трансляции"
+
+#: ui/dialogs/settings-media.slint
+msgid "What viewers read under the video"
+msgstr "Что зрители читают под видео"
+
+#: ui/dialogs/settings-media.slint
+msgid "Who can watch on YouTube"
+msgstr "Кто может смотреть на YouTube"
+
+#: ui/dialogs/settings-media.slint
+msgid "Everyone"
+msgstr "Все"
+
+#: ui/dialogs/settings-media.slint
+msgid "Only people with the link"
+msgstr "Только у кого есть ссылка"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -3884,8 +3936,16 @@ msgid "{} of {} connected"
 msgstr "подключено {} из {}"
 
 #: ui/operator/record.slint
+msgid "{} watching"
+msgstr "смотрят: {}"
+
+#: ui/operator/record.slint
 msgid "Live {}/{}"
 msgstr "В эфире {}/{}"
+
+#: ui/operator/record.slint
+msgid "Live · {} watching"
+msgstr "В эфире · смотрят: {}"
 
 #: ui/operator/record.slint
 msgid "Live"
@@ -6152,6 +6212,38 @@ msgstr "Неизвестная резервная копия."
 #: src/store.rs
 msgid "That backup is incomplete and cannot be restored."
 msgstr "Эта резервная копия неполная, её нельзя восстановить."
+
+#: src/stream/accounts/mod.rs
+msgid "Sunday Service — {date}"
+msgstr "Воскресное служение — {date}"
+
+#: src/stream/accounts/mod.rs
+msgid "Signed in as {name}."
+msgstr "Вход выполнен: {name}."
+
+#: src/stream/accounts/mod.rs
+msgid "Finish signing in in the web browser that opened."
+msgstr "Завершите вход в открывшемся браузере."
+
+#: src/stream/accounts/mod.rs
+msgid "Go to {at} on any phone or computer and type the code {code}."
+msgstr "Откройте {at} на любом телефоне или компьютере и введите код {code}."
+
+#: src/stream/accounts/mod.rs
+msgid "Signing in did not work: {why}"
+msgstr "Войти не удалось: {why}"
+
+#: src/stream/accounts/mod.rs
+msgid "This Facebook account manages no Page. A stream can only go to a Page."
+msgstr "Этот аккаунт Facebook не управляет ни одной страницей. Трансляция может идти только на страницу."
+
+#: src/stream/accounts/mod.rs
+msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Media → Livestream."
+msgstr "{name}: трансляцию не удалось создать ({why}). Войдите снова в «Настройки → Медиа → Трансляция»."
+
+#: src/stream/accounts/mod.rs
+msgid "{name}: the replay is at {link}"
+msgstr "{name}: запись здесь: {link}"
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

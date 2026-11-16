@@ -55,6 +55,7 @@ export component TopBar inherits Rectangle {
     in property <bool> live;
     in property <int> live-up;
     in property <int> live-total;
+    in property <int> live-watching: -1;
     callback go-live();
     /// The stream's panic buttons, shown while live: Freeze (every picture stays; `Recording::hold`) and Mute (silence goes out).
     in property <bool> live-held;
@@ -620,6 +621,7 @@ export component TopBar inherits Rectangle {
                 live: root.live;
                 up: root.live-up;
                 total: root.live-total;
+                watching: root.live-watching;
                 clicked => { root.go-live(); }
             }
         }

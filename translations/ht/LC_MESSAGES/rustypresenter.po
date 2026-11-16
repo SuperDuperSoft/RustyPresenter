@@ -2568,6 +2568,22 @@ msgid "Paste the stream key"
 msgstr "Kole kle emisyon an"
 
 #: ui/dialogs/settings-media.slint
+msgid "Sign in"
+msgstr "Konekte"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
+msgstr "Konekte olye w kole yon kle: An dirèk ap fè difizyon an li menm, ak tit li"
+
+#: ui/dialogs/settings-media.slint
+msgid "Signed in as {}"
+msgstr "Konekte kòm {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sign out"
+msgstr "Dekonekte"
+
+#: ui/dialogs/settings-media.slint
 msgid "Facebook stream key"
 msgstr "Kle emisyon Facebook"
 
@@ -2594,6 +2610,42 @@ msgstr "Kle emisyon sèvè a"
 #: ui/dialogs/settings-media.slint
 msgid "Its stream key, if it has one"
 msgstr "Kle emisyon li, si li genyen youn"
+
+#: ui/dialogs/settings-media.slint
+msgid "Broadcast title"
+msgstr "Tit difizyon an"
+
+#: ui/dialogs/settings-media.slint
+msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
+msgstr "Non YouTube ak Facebook bay chak difizyon. {{date}} vin dat jou a."
+
+#: ui/dialogs/settings-media.slint
+msgid "Sunday Service — {{date}}"
+msgstr "Sèvis dimanch — {{date}}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Description"
+msgstr "Deskripsyon"
+
+#: ui/dialogs/settings-media.slint
+msgid "Broadcast description"
+msgstr "Deskripsyon difizyon an"
+
+#: ui/dialogs/settings-media.slint
+msgid "What viewers read under the video"
+msgstr "Sa moun k ap gade yo li anba videyo a"
+
+#: ui/dialogs/settings-media.slint
+msgid "Who can watch on YouTube"
+msgstr "Ki moun ki ka gade sou YouTube"
+
+#: ui/dialogs/settings-media.slint
+msgid "Everyone"
+msgstr "Tout moun"
+
+#: ui/dialogs/settings-media.slint
+msgid "Only people with the link"
+msgstr "Sèlman moun ki gen lyen an"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -3884,8 +3936,16 @@ msgid "{} of {} connected"
 msgstr "{} sou {} konekte"
 
 #: ui/operator/record.slint
+msgid "{} watching"
+msgstr "{} ap gade"
+
+#: ui/operator/record.slint
 msgid "Live {}/{}"
 msgstr "An dirèk {}/{}"
+
+#: ui/operator/record.slint
+msgid "Live · {} watching"
+msgstr "An dirèk · {} ap gade"
 
 #: ui/operator/record.slint
 msgid "Live"
@@ -6147,6 +6207,38 @@ msgstr "Sovgad enkoni."
 #: src/store.rs
 msgid "That backup is incomplete and cannot be restored."
 msgstr "Sovgad sa a pa konplè, yo pa ka retabli l."
+
+#: src/stream/accounts/mod.rs
+msgid "Sunday Service — {date}"
+msgstr "Sèvis dimanch — {date}"
+
+#: src/stream/accounts/mod.rs
+msgid "Signed in as {name}."
+msgstr "Konekte kòm {name}."
+
+#: src/stream/accounts/mod.rs
+msgid "Finish signing in in the web browser that opened."
+msgstr "Fini konekte nan navigatè entènèt ki louvri a."
+
+#: src/stream/accounts/mod.rs
+msgid "Go to {at} on any phone or computer and type the code {code}."
+msgstr "Ale sou {at} nan nenpòt telefòn oswa òdinatè epi tape kòd {code} la."
+
+#: src/stream/accounts/mod.rs
+msgid "Signing in did not work: {why}"
+msgstr "Koneksyon an pa t mache: {why}"
+
+#: src/stream/accounts/mod.rs
+msgid "This Facebook account manages no Page. A stream can only go to a Page."
+msgstr "Kont Facebook sa a pa jere okenn Paj. Yon difizyon ka ale sèlman sou yon Paj."
+
+#: src/stream/accounts/mod.rs
+msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Media → Livestream."
+msgstr "{name}: difizyon an pa t ka fèt ({why}). Konekte ankò nan Paramèt → Medya → Emisyon an dirèk."
+
+#: src/stream/accounts/mod.rs
+msgid "{name}: the replay is at {link}"
+msgstr "{name}: rediffusion an nan {link}"
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

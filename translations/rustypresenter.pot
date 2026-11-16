@@ -2565,6 +2565,22 @@ msgid "Paste the stream key"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
+msgid "Sign in"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Signed in as {}"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Sign out"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
 msgid "Facebook stream key"
 msgstr ""
 
@@ -2590,6 +2606,42 @@ msgstr ""
 
 #: ui/dialogs/settings-media.slint
 msgid "Its stream key, if it has one"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Broadcast title"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Sunday Service — {{date}}"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Description"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Broadcast description"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "What viewers read under the video"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Who can watch on YouTube"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Everyone"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Only people with the link"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
@@ -3875,7 +3927,15 @@ msgid "{} of {} connected"
 msgstr ""
 
 #: ui/operator/record.slint
+msgid "{} watching"
+msgstr ""
+
+#: ui/operator/record.slint
 msgid "Live {}/{}"
+msgstr ""
+
+#: ui/operator/record.slint
+msgid "Live · {} watching"
 msgstr ""
 
 #: ui/operator/record.slint
@@ -6137,6 +6197,38 @@ msgstr ""
 
 #: src/store.rs
 msgid "That backup is incomplete and cannot be restored."
+msgstr ""
+
+#: src/stream/accounts/mod.rs
+msgid "Sunday Service — {date}"
+msgstr ""
+
+#: src/stream/accounts/mod.rs
+msgid "Signed in as {name}."
+msgstr ""
+
+#: src/stream/accounts/mod.rs
+msgid "Finish signing in in the web browser that opened."
+msgstr ""
+
+#: src/stream/accounts/mod.rs
+msgid "Go to {at} on any phone or computer and type the code {code}."
+msgstr ""
+
+#: src/stream/accounts/mod.rs
+msgid "Signing in did not work: {why}"
+msgstr ""
+
+#: src/stream/accounts/mod.rs
+msgid "This Facebook account manages no Page. A stream can only go to a Page."
+msgstr ""
+
+#: src/stream/accounts/mod.rs
+msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Media → Livestream."
+msgstr ""
+
+#: src/stream/accounts/mod.rs
+msgid "{name}: the replay is at {link}"
 msgstr ""
 
 #: src/stream/mod.rs

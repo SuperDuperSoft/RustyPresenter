@@ -205,6 +205,21 @@ export global SettingsDlg {
     callback stream-card-choose(int);
     /// A key was typed for destination 0–3: it is kept at once (empty forgets it).
     callback stream-key-edited(int, string);
+    /// Signing in instead of a key (YouTube 0, Facebook 1): whether this copy of the app can, the account signed
+    /// in to (empty: none), and what signing in is doing now.
+    in property <bool> stream-can-sign-in-0;
+    in property <bool> stream-can-sign-in-1;
+    in property <string> stream-account-0;
+    in property <string> stream-account-1;
+    in property <bool> stream-signing-in;
+    in property <string> stream-sign-in-text;
+    callback stream-sign-in(int);
+    callback stream-sign-out(int);
+    /// Signed in: what each broadcast is called, its description, and who can watch on YouTube (0 everyone,
+    /// 1 only people with the link).
+    in-out property <string> stream-title;
+    in-out property <string> stream-description;
+    in-out property <int> stream-privacy;
 
     // ---- Songs ----
     /// Lines per slide minus one (0–5).

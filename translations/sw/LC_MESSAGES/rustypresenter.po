@@ -2568,6 +2568,22 @@ msgid "Paste the stream key"
 msgstr "Bandika ufunguo wa matangazo"
 
 #: ui/dialogs/settings-media.slint
+msgid "Sign in"
+msgstr "Ingia"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
+msgstr "Ingia badala ya kubandika ufunguo: Hewani itaunda matangazo yenyewe, pamoja na kichwa"
+
+#: ui/dialogs/settings-media.slint
+msgid "Signed in as {}"
+msgstr "Umeingia kama {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sign out"
+msgstr "Toka"
+
+#: ui/dialogs/settings-media.slint
 msgid "Facebook stream key"
 msgstr "Ufunguo wa matangazo wa Facebook"
 
@@ -2594,6 +2610,42 @@ msgstr "Ufunguo wa matangazo wa seva"
 #: ui/dialogs/settings-media.slint
 msgid "Its stream key, if it has one"
 msgstr "Ufunguo wake wa matangazo, ikiwa unao"
+
+#: ui/dialogs/settings-media.slint
+msgid "Broadcast title"
+msgstr "Kichwa cha matangazo"
+
+#: ui/dialogs/settings-media.slint
+msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
+msgstr "Jina ambalo YouTube na Facebook zinaipa kila matangazo. {{date}} inakuwa tarehe ya siku."
+
+#: ui/dialogs/settings-media.slint
+msgid "Sunday Service — {{date}}"
+msgstr "Ibada ya Jumapili — {{date}}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Description"
+msgstr "Maelezo"
+
+#: ui/dialogs/settings-media.slint
+msgid "Broadcast description"
+msgstr "Maelezo ya matangazo"
+
+#: ui/dialogs/settings-media.slint
+msgid "What viewers read under the video"
+msgstr "Wanachosoma watazamaji chini ya video"
+
+#: ui/dialogs/settings-media.slint
+msgid "Who can watch on YouTube"
+msgstr "Nani anaweza kutazama kwenye YouTube"
+
+#: ui/dialogs/settings-media.slint
+msgid "Everyone"
+msgstr "Kila mtu"
+
+#: ui/dialogs/settings-media.slint
+msgid "Only people with the link"
+msgstr "Wenye kiungo tu"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -3884,8 +3936,16 @@ msgid "{} of {} connected"
 msgstr "{} kati ya {} vimeunganishwa"
 
 #: ui/operator/record.slint
+msgid "{} watching"
+msgstr "{} wanatazama"
+
+#: ui/operator/record.slint
 msgid "Live {}/{}"
 msgstr "Moja kwa moja {}/{}"
+
+#: ui/operator/record.slint
+msgid "Live · {} watching"
+msgstr "Hewani · {} wanatazama"
 
 #: ui/operator/record.slint
 msgid "Live"
@@ -6147,6 +6207,38 @@ msgstr "Nakala ya akiba isiyojulikana."
 #: src/store.rs
 msgid "That backup is incomplete and cannot be restored."
 msgstr "Nakala hiyo ya akiba haijakamilika na haiwezi kurejeshwa."
+
+#: src/stream/accounts/mod.rs
+msgid "Sunday Service — {date}"
+msgstr "Ibada ya Jumapili — {date}"
+
+#: src/stream/accounts/mod.rs
+msgid "Signed in as {name}."
+msgstr "Umeingia kama {name}."
+
+#: src/stream/accounts/mod.rs
+msgid "Finish signing in in the web browser that opened."
+msgstr "Maliza kuingia kwenye kivinjari kilichofunguka."
+
+#: src/stream/accounts/mod.rs
+msgid "Go to {at} on any phone or computer and type the code {code}."
+msgstr "Nenda {at} kwenye simu au kompyuta yoyote na uandike msimbo {code}."
+
+#: src/stream/accounts/mod.rs
+msgid "Signing in did not work: {why}"
+msgstr "Kuingia hakukufanikiwa: {why}"
+
+#: src/stream/accounts/mod.rs
+msgid "This Facebook account manages no Page. A stream can only go to a Page."
+msgstr "Akaunti hii ya Facebook haisimamii Ukurasa wowote. Matangazo yanaweza kwenda kwenye Ukurasa tu."
+
+#: src/stream/accounts/mod.rs
+msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Media → Livestream."
+msgstr "{name}: matangazo hayakuweza kuundwa ({why}). Ingia tena katika Mipangilio → Midia → Matangazo ya moja kwa moja."
+
+#: src/stream/accounts/mod.rs
+msgid "{name}: the replay is at {link}"
+msgstr "{name}: marudio yako kwenye {link}"
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

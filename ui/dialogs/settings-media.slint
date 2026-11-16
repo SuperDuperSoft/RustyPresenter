@@ -312,12 +312,50 @@ export component SettingsMedia inherits VerticalLayout {
             HorizontalLayout {
                 spacing: 8px;
                 stream-yt := Check { text: "YouTube"; checked <=> SettingsDlg.stream-on-0; }
-                stream-yt-key := TextField { horizontal-stretch: 1; password: true; label: @tr("YouTube stream key"); placeholder: SettingsDlg.stream-saved-0 ? @tr("A key is saved. Type a new one to change it.") : @tr("Paste the stream key"); edited(t) => { SettingsDlg.stream-key-edited(0, t); } }
+                if SettingsDlg.stream-account-0 == "": stream-yt-key := TextField { horizontal-stretch: 1; password: true; label: @tr("YouTube stream key"); placeholder: SettingsDlg.stream-saved-0 ? @tr("A key is saved. Type a new one to change it.") : @tr("Paste the stream key"); edited(t) => { SettingsDlg.stream-key-edited(0, t); } }
+                if SettingsDlg.stream-account-0 == "" && SettingsDlg.stream-can-sign-in-0: stream-yt-sign-in := Btn {
+                    small: true;
+                    text: @tr("Sign in");
+                    enabled: !SettingsDlg.stream-signing-in;
+                    tooltip: @tr("Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title");
+                    clicked => { SettingsDlg.stream-sign-in(0); }
+                }
+                if SettingsDlg.stream-account-0 != "": Text {
+                    text: @tr("Signed in as {}", SettingsDlg.stream-account-0);
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
+                    horizontal-stretch: 1;
+                    overflow: elide;
+                    accessible-role: text;
+                    accessible-label: self.text;
+                }
+                if SettingsDlg.stream-account-0 != "": stream-yt-sign-out := Btn { small: true; text: @tr("Sign out"); clicked => { SettingsDlg.stream-sign-out(0); } }
             }
             HorizontalLayout {
                 spacing: 8px;
                 stream-fb := Check { text: "Facebook"; checked <=> SettingsDlg.stream-on-1; }
-                stream-fb-key := TextField { horizontal-stretch: 1; password: true; label: @tr("Facebook stream key"); placeholder: SettingsDlg.stream-saved-1 ? @tr("A key is saved. Type a new one to change it.") : @tr("Paste the stream key"); edited(t) => { SettingsDlg.stream-key-edited(1, t); } }
+                if SettingsDlg.stream-account-1 == "": stream-fb-key := TextField { horizontal-stretch: 1; password: true; label: @tr("Facebook stream key"); placeholder: SettingsDlg.stream-saved-1 ? @tr("A key is saved. Type a new one to change it.") : @tr("Paste the stream key"); edited(t) => { SettingsDlg.stream-key-edited(1, t); } }
+                if SettingsDlg.stream-account-1 == "" && SettingsDlg.stream-can-sign-in-1: stream-fb-sign-in := Btn {
+                    small: true;
+                    text: @tr("Sign in");
+                    enabled: !SettingsDlg.stream-signing-in;
+                    tooltip: @tr("Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title");
+                    clicked => { SettingsDlg.stream-sign-in(1); }
+                }
+                if SettingsDlg.stream-account-1 != "": Text {
+                    text: @tr("Signed in as {}", SettingsDlg.stream-account-1);
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
+                    horizontal-stretch: 1;
+                    overflow: elide;
+                    accessible-role: text;
+                    accessible-label: self.text;
+                }
+                if SettingsDlg.stream-account-1 != "": stream-fb-sign-out := Btn { small: true; text: @tr("Sign out"); clicked => { SettingsDlg.stream-sign-out(1); } }
             }
             HorizontalLayout {
                 spacing: 8px;
@@ -330,6 +368,31 @@ export component SettingsMedia inherits VerticalLayout {
                 stream-custom-url := TextField { horizontal-stretch: 1; label: @tr("The server's address"); placeholder: @tr("Its address: rtmp://, rtmps:// or srt://"); text <=> SettingsDlg.stream-url; }
                 stream-custom-key := TextField { horizontal-stretch: 1; password: true; label: @tr("The server's stream key"); placeholder: SettingsDlg.stream-saved-3 ? @tr("A key is saved. Type a new one to change it.") : @tr("Its stream key, if it has one"); edited(t) => { SettingsDlg.stream-key-edited(3, t); } }
             }
+            if SettingsDlg.stream-sign-in-text != "": Text {
+                text: SettingsDlg.stream-sign-in-text;
+                color: Theme.text;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                wrap: word-wrap;
+                accessible-role: text;
+                accessible-label: self.text;
+            }
+        }
+    }
+    if SettingsDlg.stream-account-0 != "" || SettingsDlg.stream-account-1 != "": Field {
+        label: @tr("Broadcast title");
+        help: @tr("What YouTube and Facebook call each broadcast. {{date}} becomes the day's date.");
+        stream-title := TextField { label: @tr("Broadcast title"); placeholder: @tr("Sunday Service — {{date}}"); text <=> SettingsDlg.stream-title; }
+    }
+    if SettingsDlg.stream-account-0 != "" || SettingsDlg.stream-account-1 != "": Field {
+        label: @tr("Description");
+        stream-description := TextField { label: @tr("Broadcast description"); placeholder: @tr("What viewers read under the video"); text <=> SettingsDlg.stream-description; }
+    }
+    if SettingsDlg.stream-account-0 != "": Field {
+        label: @tr("Who can watch on YouTube");
+        stream-privacy := Segmented {
+            labels: [@tr("Everyone"), @tr("Only people with the link")];
+            index <=> SettingsDlg.stream-privacy;
         }
     }
     Rectangle { height: 14px; }

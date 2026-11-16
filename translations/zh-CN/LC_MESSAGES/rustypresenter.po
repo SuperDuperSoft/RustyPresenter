@@ -2568,6 +2568,22 @@ msgid "Paste the stream key"
 msgstr "粘贴推流密钥"
 
 #: ui/dialogs/settings-media.slint
+msgid "Sign in"
+msgstr "登录"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
+msgstr "登录而不粘贴密钥：“直播”会自动创建带标题的直播"
+
+#: ui/dialogs/settings-media.slint
+msgid "Signed in as {}"
+msgstr "已登录为 {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sign out"
+msgstr "退出登录"
+
+#: ui/dialogs/settings-media.slint
 msgid "Facebook stream key"
 msgstr "Facebook 推流密钥"
 
@@ -2594,6 +2610,42 @@ msgstr "服务器的推流密钥"
 #: ui/dialogs/settings-media.slint
 msgid "Its stream key, if it has one"
 msgstr "推流密钥（如果有）"
+
+#: ui/dialogs/settings-media.slint
+msgid "Broadcast title"
+msgstr "直播标题"
+
+#: ui/dialogs/settings-media.slint
+msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
+msgstr "YouTube 和 Facebook 上每场直播的名称。{{date}} 会换成当天日期。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sunday Service — {{date}}"
+msgstr "主日崇拜 — {{date}}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Description"
+msgstr "简介"
+
+#: ui/dialogs/settings-media.slint
+msgid "Broadcast description"
+msgstr "直播简介"
+
+#: ui/dialogs/settings-media.slint
+msgid "What viewers read under the video"
+msgstr "观众在视频下方看到的文字"
+
+#: ui/dialogs/settings-media.slint
+msgid "Who can watch on YouTube"
+msgstr "谁能在 YouTube 上观看"
+
+#: ui/dialogs/settings-media.slint
+msgid "Everyone"
+msgstr "所有人"
+
+#: ui/dialogs/settings-media.slint
+msgid "Only people with the link"
+msgstr "仅限有链接的人"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -3884,8 +3936,16 @@ msgid "{} of {} connected"
 msgstr "已连接 {}/{}"
 
 #: ui/operator/record.slint
+msgid "{} watching"
+msgstr "{} 人观看"
+
+#: ui/operator/record.slint
 msgid "Live {}/{}"
 msgstr "直播中 {}/{}"
+
+#: ui/operator/record.slint
+msgid "Live · {} watching"
+msgstr "直播中 · {} 人观看"
 
 #: ui/operator/record.slint
 msgid "Live"
@@ -6142,6 +6202,38 @@ msgstr "未知备份。"
 #: src/store.rs
 msgid "That backup is incomplete and cannot be restored."
 msgstr "该备份不完整，无法恢复。"
+
+#: src/stream/accounts/mod.rs
+msgid "Sunday Service — {date}"
+msgstr "主日崇拜 — {date}"
+
+#: src/stream/accounts/mod.rs
+msgid "Signed in as {name}."
+msgstr "已登录为 {name}。"
+
+#: src/stream/accounts/mod.rs
+msgid "Finish signing in in the web browser that opened."
+msgstr "请在打开的浏览器中完成登录。"
+
+#: src/stream/accounts/mod.rs
+msgid "Go to {at} on any phone or computer and type the code {code}."
+msgstr "在任意手机或电脑上打开 {at}，输入代码 {code}。"
+
+#: src/stream/accounts/mod.rs
+msgid "Signing in did not work: {why}"
+msgstr "登录失败：{why}"
+
+#: src/stream/accounts/mod.rs
+msgid "This Facebook account manages no Page. A stream can only go to a Page."
+msgstr "此 Facebook 账号没有管理任何公共主页。直播只能发到公共主页。"
+
+#: src/stream/accounts/mod.rs
+msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Media → Livestream."
+msgstr "{name}：无法创建直播（{why}）。请在 “设置 → 媒体 → 直播” 中重新登录。"
+
+#: src/stream/accounts/mod.rs
+msgid "{name}: the replay is at {link}"
+msgstr "{name}：回放在 {link}"
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

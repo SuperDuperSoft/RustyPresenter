@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 use std::path::Path;
 use uuid::Uuid;
 
+pub mod accounts;
 pub mod board_feed;
 pub mod camera_feed;
 pub mod compose;

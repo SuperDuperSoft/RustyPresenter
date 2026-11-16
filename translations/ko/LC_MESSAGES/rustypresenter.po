@@ -2568,6 +2568,22 @@ msgid "Paste the stream key"
 msgstr "스트림 키를 붙여 넣으세요"
 
 #: ui/dialogs/settings-media.slint
+msgid "Sign in"
+msgstr "로그인"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
+msgstr "키를 붙여 넣는 대신 로그인: 라이브가 제목과 함께 방송을 직접 만듭니다"
+
+#: ui/dialogs/settings-media.slint
+msgid "Signed in as {}"
+msgstr "{}(으)로 로그인됨"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sign out"
+msgstr "로그아웃"
+
+#: ui/dialogs/settings-media.slint
 msgid "Facebook stream key"
 msgstr "Facebook 스트림 키"
 
@@ -2594,6 +2610,42 @@ msgstr "서버의 스트림 키"
 #: ui/dialogs/settings-media.slint
 msgid "Its stream key, if it has one"
 msgstr "스트림 키 (있는 경우)"
+
+#: ui/dialogs/settings-media.slint
+msgid "Broadcast title"
+msgstr "방송 제목"
+
+#: ui/dialogs/settings-media.slint
+msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
+msgstr "YouTube와 Facebook에서 각 방송의 이름. {{date}}는 그날 날짜가 됩니다."
+
+#: ui/dialogs/settings-media.slint
+msgid "Sunday Service — {{date}}"
+msgstr "주일 예배 — {{date}}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Description"
+msgstr "설명"
+
+#: ui/dialogs/settings-media.slint
+msgid "Broadcast description"
+msgstr "방송 설명"
+
+#: ui/dialogs/settings-media.slint
+msgid "What viewers read under the video"
+msgstr "시청자가 동영상 아래에서 읽는 내용"
+
+#: ui/dialogs/settings-media.slint
+msgid "Who can watch on YouTube"
+msgstr "YouTube에서 볼 수 있는 사람"
+
+#: ui/dialogs/settings-media.slint
+msgid "Everyone"
+msgstr "모두"
+
+#: ui/dialogs/settings-media.slint
+msgid "Only people with the link"
+msgstr "링크가 있는 사람만"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint
 msgid "Media library"
@@ -3884,8 +3936,16 @@ msgid "{} of {} connected"
 msgstr "{}/{} 연결됨"
 
 #: ui/operator/record.slint
+msgid "{} watching"
+msgstr "{}명 시청 중"
+
+#: ui/operator/record.slint
 msgid "Live {}/{}"
 msgstr "방송 중 {}/{}"
+
+#: ui/operator/record.slint
+msgid "Live · {} watching"
+msgstr "라이브 · {}명 시청 중"
 
 #: ui/operator/record.slint
 msgid "Live"
@@ -6142,6 +6202,38 @@ msgstr "알 수 없는 백업이에요."
 #: src/store.rs
 msgid "That backup is incomplete and cannot be restored."
 msgstr "그 백업은 불완전해서 복원할 수 없어요."
+
+#: src/stream/accounts/mod.rs
+msgid "Sunday Service — {date}"
+msgstr "주일 예배 — {date}"
+
+#: src/stream/accounts/mod.rs
+msgid "Signed in as {name}."
+msgstr "{name}(으)로 로그인했습니다."
+
+#: src/stream/accounts/mod.rs
+msgid "Finish signing in in the web browser that opened."
+msgstr "열린 웹 브라우저에서 로그인을 마치세요."
+
+#: src/stream/accounts/mod.rs
+msgid "Go to {at} on any phone or computer and type the code {code}."
+msgstr "휴대폰이나 컴퓨터에서 {at}에 가서 코드 {code}를 입력하세요."
+
+#: src/stream/accounts/mod.rs
+msgid "Signing in did not work: {why}"
+msgstr "로그인하지 못했습니다: {why}"
+
+#: src/stream/accounts/mod.rs
+msgid "This Facebook account manages no Page. A stream can only go to a Page."
+msgstr "이 Facebook 계정이 관리하는 페이지가 없습니다. 방송은 페이지로만 보낼 수 있습니다."
+
+#: src/stream/accounts/mod.rs
+msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Media → Livestream."
+msgstr "{name}: 방송을 만들지 못했습니다({why}). 설정 → 미디어 → 라이브 방송에서 다시 로그인하세요."
+
+#: src/stream/accounts/mod.rs
+msgid "{name}: the replay is at {link}"
+msgstr "{name}: 다시보기는 {link}"
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."
