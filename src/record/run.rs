@@ -403,19 +403,26 @@ struct Mixer {
     camera: Option<Arc<Vec<u8>>>,
     words: Option<Arc<Vec<u8>>>,
     card: Option<Arc<Vec<u8>>>,
+    /// How many times the picture was put together (tests).
+    composes: u64,
 }
 
 impl Mixer {
     fn new(size: (u32, u32)) -> Mixer {
         let black = [0, 0, 0, 255].repeat(size.0 as usize * size.1 as usize);
-        Mixer { size, out: black.clone(), next: black, fade: None, scene: None, camera: None, words: None, card: None }
+        Mixer { size, out: black.clone(), next: black, fade: None, scene: None, camera: None, words: None, card: None, composes: 0 }
     }
 
     fn out(&self) -> &[u8] { &self.out }
 
     fn update(&mut self, shown: &crate::stream::pictures::Shown, room: &[u8], camera: Option<Arc<Vec<u8>>>, room_new: bool, now: Instant) {
         use crate::stream::compose::{FADE, Inputs, blend, compose};
+        use crate::stream::scene::Scene;
         let same = |a: &Option<Arc<Vec<u8>>>, b: &Option<Arc<Vec<u8>>>| match (a, b) { (Some(a), Some(b)) => Arc::ptr_eq(a, b), (None, None) => true, _ => false };
+        // Only what the scene shows counts: a card needs neither the room nor the camera, only Camera + words
+        // and Screen + camera need the camera, and the camera scenes need the room only while there is no camera.
+        let camera = camera.filter(|_| shown.scene.needs_camera());
+        let room_new = room_new && !shown.scene.is_card() && (camera.is_none() || shown.scene == Scene::ScreenCamera);
         let scene_changed = self.scene.is_some_and(|s| s != shown.scene);
         let changed = self.scene != Some(shown.scene) || room_new || !same(&self.camera, &camera) || !same(&self.words, &shown.words) || !same(&self.card, &shown.card);
         if scene_changed { self.fade = Some((self.out.clone(), now)) }
@@ -423,6 +430,7 @@ impl Mixer {
             compose(shown.scene, &Inputs { size: self.size, room, camera: camera.as_deref().map(Vec::as_slice), words: shown.words.as_deref().map(Vec::as_slice),
                 card: shown.card.as_deref().map(Vec::as_slice) }, &mut self.next);
             (self.scene, self.camera, self.words, self.card) = (Some(shown.scene), camera, shown.words.clone(), shown.card.clone());
+            self.composes += 1;
         }
         match &self.fade {
             Some((from, at)) if now.duration_since(*at) < FADE => {

@@ -14,7 +14,10 @@ impl App {
             let live = self.live.lock().unwrap();
             let pre: Option<PreRun> = self.automation.lock().unwrap().pre.clone();
             let cursor_item = live.cursor.as_ref().map(|c| c.item_id);
-            let last_item = cursor_item.is_some_and(|id| data.service().is_some_and(|s| s.items.last().is_some_and(|i| i.id == id)));
+            // The last item that shows anything: headers and unfilled blanks after it do not count.
+            let last_item = cursor_item.is_some_and(|id| data.service().is_some_and(|s| {
+                s.items.iter().rev().find(|i| !matches!(i.kind, crate::model::ItemKind::Header { .. } | crate::model::ItemKind::Blank { .. })).is_some_and(|i| i.id == id)
+            }));
             let media_playing = live.frame.media.is_some()
                 && !live.media_status.as_ref().is_some_and(|s| matches!(s.state, PlayState::Ended | PlayState::Error));
             let slide = match &live.frame.slide {
@@ -90,6 +93,17 @@ mod tests {
         assert!(app.stream_info().0.restored, "brought back by a restart");
         cmd(&app, Command::Show { item_id: b, slide: 0 });
         assert!(!app.stream_info().0.restored, "touched since");
+    }
+
+    #[test]
+    fn headers_and_blanks_after_the_last_item_do_not_count() {
+        let app = test_app();
+        let a = text_item(&app, "Closing song");
+        for item in [serde_json::json!({ "kind": "header", "title": "Post-service" }), serde_json::json!({ "kind": "blank", "label": "Maybe a video" })] {
+            block_on(app.do_action("service/add", serde_json::json!({ "item": item }).to_string().as_bytes())).unwrap();
+        }
+        cmd(&app, Command::Show { item_id: a, slide: 0 });
+        assert!(app.stream_info().0.last_item, "only a header and a blank follow it");
     }
 
     #[test]

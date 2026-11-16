@@ -302,6 +302,21 @@ fn the_mixer_fades_between_scenes() {
     assert_eq!(&m.out()[..4], &[0, 0, 200, 255], "the camera once the fade is over");
 }
 
+/// A card scene does not depend on the camera or the room: their new pictures do not make it put together again.
+#[test]
+fn a_card_is_not_put_together_again_for_each_camera_picture() {
+    use crate::stream::pictures::Shown;
+    let room = [9u8, 9, 9, 255].repeat(4);
+    let card = Shown { scene: Scene::Hold, card: Some(Arc::new([0u8, 0, 0, 0].repeat(4))), ..Shown::default() };
+    let mut m = Mixer::new((2, 2));
+    let t0 = Instant::now();
+    m.update(&card, &room, Some(Arc::new([1u8; 16].to_vec())), true, t0);
+    let after_first = m.composes;
+    m.update(&card, &room, Some(Arc::new([2u8; 16].to_vec())), true, t0 + Duration::from_millis(33));
+    m.update(&card, &room, Some(Arc::new([3u8; 16].to_vec())), true, t0 + Duration::from_millis(66));
+    assert_eq!(m.composes, after_first, "new camera and room pictures change nothing on a card");
+}
+
 fn lavfi_camera(spec: &str) -> Option<Vec<String>> { Some(["-re", "-f", "lavfi", "-i", spec].map(String::from).into()) }
 
 /// A local server that takes one stream into `received`; stopped by `finish_server`.
