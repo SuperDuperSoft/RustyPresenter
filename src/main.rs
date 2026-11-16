@@ -145,6 +145,8 @@ fn main() {
         for n in notices {
             match n { Notice::Dialog(t) => rustypresenter::ui::dialogs::ask::notice(&operator, &t), Notice::Toast(t) => operator.toast(t, true) }
         }
+        // Stopped in the middle of a recording or a livestream last time: its part kept, and Go Live offered.
+        operator.after_unfinished_recording();
         slint::Timer::single_shot(safe_mode::SETTLE, move || safe_mode::passed(&settle_root));
         // The graphics test is offered once the windows have drawn (they report the card), never after a crash.
         if offer_test {
@@ -162,6 +164,8 @@ fn main() {
     // The room and stage windows come and go; closing the operator (or Ctrl+C) quits.
     let result = slint::run_event_loop_until_quit();
     OPERATOR.with(|o| o.borrow_mut().take());
+    // Closed as it should be: a recording under way then is no recording the app stopped in the middle of.
+    rustypresenter::record::unfinished::clear(&app.store.root);
     native.shutdown();
     if let Err(e) = result { fail(&i18n::tr!("RustyPresenter could not run its windows: {reason}", reason = e)); }
     safe_mode::passed(&root);

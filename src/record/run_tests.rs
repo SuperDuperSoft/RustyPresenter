@@ -332,6 +332,30 @@ fn a_card_is_not_put_together_again_for_each_camera_picture() {
     assert_eq!(m.composes, after_first, "new camera and room pictures change nothing on a card");
 }
 
+/// A short recording on this computer keeps up, and says how far behind it was (the writer's most since asked).
+#[test]
+fn a_recording_says_how_far_behind_it_is() {
+    let Some(ff) = ffmpeg() else { return };
+    let dir = scratch("lag");
+    let (tx, rx) = mpsc::channel();
+    let rec = Recording::start(plan(ff, &dir, Sound::None), move |e| { let _ = tx.send(e); }).expect("starts");
+    let mut lags = vec![];
+    for _ in 0..3 {
+        let mut b = rec.sink().buffer();
+        b.fill(200);
+        rec.sink().put(b);
+        std::thread::sleep(Duration::from_secs(1));
+        lags.push(rec.lag());
+    }
+    rec.stop();
+    let ended = rx.recv_timeout(Duration::from_secs(60)).expect("finished");
+    assert!(rec.wait(Duration::from_secs(5)));
+    assert_eq!(ended.problem, None, "{ended:?}");
+    assert!(!lags.is_empty());
+    assert!(lags.iter().all(|l| *l < Duration::from_secs(2)), "{lags:?}");
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
 /// Every sound filter at once, through the real FFmpeg: it accepts them all.
 #[test]
 fn ffmpeg_takes_the_sound_filters() {

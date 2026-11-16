@@ -3971,7 +3971,7 @@ msgstr "Video, larawan, musika, presentation (PowerPoint, Keynote, PDF), SongSel
 msgid "Stop the livestream"
 msgstr "Itigil ang livestream"
 
-#: ui/operator/record.slint
+#: ui/operator/record.slint src/record/mod.rs
 msgid "Go Live"
 msgstr "Mag-live"
 
@@ -5961,6 +5961,18 @@ msgstr "Kailangan ng FFmpeg, isang libreng program, para makapag-record. {hint}"
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."
 msgstr "Hindi makagawa ng H.264 video ang kopyang ito ng FFmpeg. I-install ang buong FFmpeg at subukang muli."
+
+#: src/record/mod.rs
+msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
+msgstr "Huminto ang RustyPresenter sa gitna ng livestream. Naitago ang recording hanggang doon. Mag-live ulit?"
+
+#: src/record/mod.rs
+msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or close other programs."
+msgstr "Hindi nakakasabay ang computer na ito, kaya putol-putol ang recording at stream. Piliin ang 720p sa \"Laki ng larawan\" sa Settings → Media, o isara ang ibang programa."
+
+#: src/record/mod.rs
+msgid "The computer is keeping up again: the picture is smooth."
+msgstr "Nakakasabay na ulit ang computer: maayos na ang larawan."
 
 #: src/record/mod.rs
 msgid "Turn the room screen on first: the recording is what the room shows."

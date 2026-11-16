@@ -3971,7 +3971,7 @@ msgstr "Video, picha, muziki, mawasilisho (PowerPoint, Keynote, PDF), faili za m
 msgid "Stop the livestream"
 msgstr "Simamisha matangazo"
 
-#: ui/operator/record.slint
+#: ui/operator/record.slint src/record/mod.rs
 msgid "Go Live"
 msgstr "Rusha moja kwa moja"
 
@@ -5961,6 +5961,18 @@ msgstr "Kurekodi kunahitaji FFmpeg, programu ya bure. {hint}"
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."
 msgstr "Nakala hii ya FFmpeg haiwezi kutengeneza video ya H.264. Sakinisha FFmpeg kamili kisha ujaribu tena."
+
+#: src/record/mod.rs
+msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
+msgstr "RustyPresenter ilisimama katikati ya matangazo ya moja kwa moja. Rekodi hadi wakati huo imehifadhiwa. Kuwa mubashara tena?"
+
+#: src/record/mod.rs
+msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or close other programs."
+msgstr "Kompyuta hii haiendi sawa, kwa hiyo rekodi na matangazo yanakwama. Chagua 720p kwenye \"Ukubwa wa picha\" katika Mipangilio → Midia, au funga programu nyingine."
+
+#: src/record/mod.rs
+msgid "The computer is keeping up again: the picture is smooth."
+msgstr "Kompyuta inaenda sawa tena: picha ni laini."
 
 #: src/record/mod.rs
 msgid "Turn the room screen on first: the recording is what the room shows."

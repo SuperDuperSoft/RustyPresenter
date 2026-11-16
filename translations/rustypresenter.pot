@@ -3962,7 +3962,7 @@ msgstr ""
 msgid "Stop the livestream"
 msgstr ""
 
-#: ui/operator/record.slint
+#: ui/operator/record.slint src/record/mod.rs
 msgid "Go Live"
 msgstr ""
 
@@ -5951,6 +5951,18 @@ msgstr ""
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."
+msgstr ""
+
+#: src/record/mod.rs
+msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
+msgstr ""
+
+#: src/record/mod.rs
+msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or close other programs."
+msgstr ""
+
+#: src/record/mod.rs
+msgid "The computer is keeping up again: the picture is smooth."
 msgstr ""
 
 #: src/record/mod.rs

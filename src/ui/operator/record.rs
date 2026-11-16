@@ -31,6 +31,8 @@ pub struct RecordUi {
     /// The sound input being recorded (empty: none), and whether it was silent at the last look.
     input: RefCell<String>,
     silent_was: Cell<bool>,
+    /// Whether the computer keeps up with the recording, from the writer's lag each second.
+    slow: RefCell<record::slow::Slow>,
     /// Updates the time on the button once a second.
     ticker: Timer,
     /// Go Live: the cameras' names, in `Plan::cameras` order.
@@ -195,6 +197,7 @@ impl Operator {
         let (ffmpeg, folder) = (plan.ffmpeg.clone(), plan.out.parent().map(PathBuf::from).unwrap_or_default());
         *self.record.input.borrow_mut() = match &plan.sound { record::Sound::Input(name) => name.clone(), _ => String::new() };
         self.record.silent_was.set(false);
+        *self.record.slow.borrow_mut() = Default::default();
         let (tx, rx) = tokio::sync::oneshot::channel::<Ended>();
         let rec = match Recording::start(plan, move |e| { let _ = tx.send(e); }) {
             Ok(r) => r,
@@ -205,6 +208,7 @@ impl Operator {
             return self.toast(record::tr::no_room(), true);
         }
         let current = run::partial_of(&rec.out);
+        record::unfinished::mark(&self.app().store.root, &record::unfinished::Unfinished { file: current.clone(), live: self.record.live.get() });
         *self.record.rec.borrow_mut() = Some(rec);
         self.show_recording(true);
         self.toast(record::tr::recording(), false);
@@ -265,6 +269,7 @@ impl Operator {
     }
 
     fn recording_ended(&self, ended: Ended) {
+        record::unfinished::clear(&self.app().store.root);
         self.end_broadcasts(true);
         self.screens().record_to(None);
         // The writer has finished; dropping it does not wait.
@@ -317,6 +322,38 @@ impl Operator {
         }
         // Not seen yet and still not seen: still starting, nothing to say.
         if self.record.camera_was.get().is_some() || now { self.record.camera_was.set(Some(now)) }
+    }
+
+    /// At start: a recording the app never ended (it stopped in the middle, `record::unfinished`). Its part is
+    /// finished into a video, and after a livestream the operator is asked whether to go live again.
+    pub fn after_unfinished_recording(self: &Rc<Self>) {
+        let root = self.app().store.root.clone();
+        let Some(note) = record::unfinished::take(&root) else { return };
+        // The part, finished into a video (off the UI thread; FFmpeg is needed for it).
+        let folder = note.file.parent().map(PathBuf::from).unwrap_or_default();
+        let me = Rc::downgrade(self);
+        off_ui(self, move || run::find_ffmpeg(&root).map(|ff| run::finish_leftovers(&ff, &folder, std::path::Path::new(""))).unwrap_or_default(), move |done| {
+            let Some(op) = me.upgrade() else { return };
+            for e in done { let (text, err) = e.toast(); op.toast(text, err) }
+        });
+        if note.live {
+            let me = Rc::downgrade(self);
+            confirm(self, &record::tr::was_live(), &record::tr::go_live_again(), &tr::not_now(), false, move |yes| {
+                if yes && let Some(op) = me.upgrade() { op.go_live() }
+            });
+        }
+    }
+
+    /// Recording: says when the computer cannot keep up (the picture is jerky), and when it does again, from how
+    /// far behind the writer was in the last second (`None`: not recording, and the next recording starts afresh).
+    pub(crate) fn say_slow(&self, lag: Option<Duration>) {
+        let Some(lag) = lag else { *self.record.slow.borrow_mut() = Default::default(); return };
+        let said = self.record.slow.borrow_mut().note(lag);
+        match said {
+            Some(record::slow::Say::TooSlow) => self.toast(record::tr::too_slow(), true),
+            Some(record::slow::Say::Smooth) => self.toast(record::tr::smooth_again(), false),
+            None => {}
+        }
     }
 
     /// Recording or live with a sound input: says when it has gone silent for `args::SILENCE` (a muted send, a
@@ -415,6 +452,8 @@ impl Operator {
             op.say_camera(camera);
             let silent = op.record.rec.borrow().as_ref().and_then(Recording::silent);
             op.say_silence(silent);
+            let lag = op.record.rec.borrow().as_ref().map(Recording::lag);
+            op.say_slow(lag);
             op.ask_viewers();
         });
     }

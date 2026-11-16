@@ -55,6 +55,8 @@ fn record_then_stop_saves_an_mp4_in_the_chosen_folder() {
     assert!(op.ui.get_recording());
     assert_eq!(op.ui.get_record_time(), "0:00");
     assert_eq!(toasts(&op).last(), Some(&(record::tr::recording(), false)));
+    let note = record::unfinished::path(&app.store.root);
+    assert!(note.is_file(), "a note while it records, in case the app stops");
     let sink = room.sink.lock().unwrap().clone().expect("the room was handed the recording");
     assert_eq!(sink.size, (1280, 720));
     let mut b = sink.buffer();
@@ -70,8 +72,37 @@ fn record_then_stop_saves_an_mp4_in_the_chosen_folder() {
     assert!(file.extension().is_some_and(|e| e == "mp4") && file.is_file(), "{ended:?}");
     assert!(!op.is_recording());
     assert!(room.sink.lock().unwrap().is_none(), "the room stops feeding it");
+    assert!(!note.exists(), "ended: no note");
     assert_eq!(toasts(&op).last(), Some(&(record::tr::saved(&file.display().to_string()), false)));
     std::fs::remove_dir_all(&folder).unwrap();
+}
+
+#[test]
+fn after_the_app_stopped_while_live_it_asks_to_go_live_again() {
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    // No note: nothing.
+    op.after_unfinished_recording();
+    assert_eq!(op.ui.get_ask().row_count(), 0);
+    // Stopped while recording only: the part is finished (none is here), and nothing is asked.
+    let folder = std::env::temp_dir().join(format!("rp-record-gone-{}", uuid::Uuid::new_v4()));
+    let file = folder.join("Recording 2026-11-16 10-30.recording.mkv");
+    record::unfinished::mark(&app.store.root, &record::unfinished::Unfinished { file: file.clone(), live: false });
+    op.after_unfinished_recording();
+    assert_eq!(op.ui.get_ask().row_count(), 0);
+    assert!(!record::unfinished::path(&app.store.root).exists(), "asked once");
+    // Stopped while live: asked.
+    record::unfinished::mark(&app.store.root, &record::unfinished::Unfinished { file, live: true });
+    op.after_unfinished_recording();
+    let ask = op.ui.get_ask().row_data(0).expect("a question");
+    assert_eq!(ask.text, record::tr::was_live());
+    assert_eq!((ask.ok_label.as_str(), ask.cancel_label.as_str()), (record::tr::go_live_again().as_str(), "Not now"));
+    crate::ui::dialogs::ask::answer(&op, false, String::new());
+    assert!(!op.is_recording());
+    op.after_unfinished_recording();
+    assert_eq!(op.ui.get_ask().row_count(), 0, "asked once");
 }
 
 #[test]
@@ -346,6 +377,26 @@ fn the_operator_hears_when_the_sound_input_goes_silent_and_comes_back() {
     assert_eq!(toasts(&op).last(), Some(&(record::tr::sound_back("Line In (USB Audio)"), false)));
     // No sound input: nothing.
     op.say_silence(None);
+    assert_eq!(toasts(&op).len(), before + 2);
+}
+
+#[test]
+fn the_operator_hears_when_the_computer_cannot_keep_up_and_when_it_does_again() {
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    let before = toasts(&op).len();
+    let ms = Duration::from_millis;
+    for _ in 0..30 { op.say_slow(Some(ms(40))) }
+    assert_eq!(toasts(&op).len(), before, "keeping up: nothing to say");
+    for _ in 0..30 { op.say_slow(Some(ms(1200))) }
+    assert_eq!(toasts(&op).len(), before + 1, "said once");
+    assert_eq!(toasts(&op).last(), Some(&(record::tr::too_slow(), true)));
+    for _ in 0..30 { op.say_slow(Some(ms(40))) }
+    assert_eq!(toasts(&op).last(), Some(&(record::tr::smooth_again(), false)));
+    // Not recording: nothing, and a new recording starts afresh.
+    op.say_slow(None);
     assert_eq!(toasts(&op).len(), before + 2);
 }
 

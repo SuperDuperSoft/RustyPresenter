@@ -3971,7 +3971,7 @@ msgstr "動画、画像、音楽、プレゼンテーション（PowerPoint、Ke
 msgid "Stop the livestream"
 msgstr "ライブ配信を止める"
 
-#: ui/operator/record.slint
+#: ui/operator/record.slint src/record/mod.rs
 msgid "Go Live"
 msgstr "ライブ配信"
 
@@ -5957,6 +5957,18 @@ msgstr "録画には無料のプログラム FFmpeg が必要です。{hint}"
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."
 msgstr "この FFmpeg では H.264 動画を作成できません。完全版の FFmpeg をインストールして再試行してください。"
+
+#: src/record/mod.rs
+msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
+msgstr "ライブ配信の途中で RustyPresenter が止まりました。それまでの録画は保存されています。もう一度ライブを始めますか？"
+
+#: src/record/mod.rs
+msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or close other programs."
+msgstr "このコンピューターが追いつかず、録画と配信がカクカクしています。設定 → メディア の「画像サイズ」で 720p を選ぶか、ほかのプログラムを閉じてください。"
+
+#: src/record/mod.rs
+msgid "The computer is keeping up again: the picture is smooth."
+msgstr "コンピューターが追いつきました。映像はなめらかです。"
 
 #: src/record/mod.rs
 msgid "Turn the room screen on first: the recording is what the room shows."

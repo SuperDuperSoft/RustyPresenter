@@ -7,7 +7,9 @@ pub mod args;
 pub mod gl;
 pub mod pump;
 pub mod run;
+pub mod slow;
 pub mod sound;
+pub mod unfinished;
 
 pub use pump::FrameSink;
 pub use run::{Ended, Plan, Recording};
@@ -197,6 +199,10 @@ pub mod tr {
     use crate::tr;
     pub fn no_ffmpeg(hint: &str) -> String { tr!("Recording needs FFmpeg, a free program. {hint}", hint = hint) }
     pub fn no_h264() -> String { tr!("This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again.") }
+    pub fn was_live() -> String { tr!("RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?") }
+    pub fn go_live_again() -> String { tr!("Go Live") }
+    pub fn too_slow() -> String { tr!("This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or close other programs.") }
+    pub fn smooth_again() -> String { tr!("The computer is keeping up again: the picture is smooth.") }
     pub fn no_room() -> String { tr!("Turn the room screen on first: the recording is what the room shows.") }
     pub fn no_folder(path: &str, why: &str) -> String { tr!("Could not use the recordings folder {path}: {why}", path = path, why = why) }
     pub fn low_disk(free: &str, need: &str) -> String { tr!("The recordings folder's disk has only {free} free. An hour of recording needs about {need}. Choose another folder in Settings → Media.", free = free, need = need) }

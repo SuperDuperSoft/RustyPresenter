@@ -3971,7 +3971,7 @@ msgstr "视频、图片、音乐、演示文稿（PowerPoint、Keynote、PDF）�
 msgid "Stop the livestream"
 msgstr "停止直播"
 
-#: ui/operator/record.slint
+#: ui/operator/record.slint src/record/mod.rs
 msgid "Go Live"
 msgstr "开始直播"
 
@@ -5957,6 +5957,18 @@ msgstr "录制需要 FFmpeg（一个免费程序）。{hint}"
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."
 msgstr "此 FFmpeg 版本无法生成 H.264 视频。请安装完整版 FFmpeg 后重试。"
+
+#: src/record/mod.rs
+msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
+msgstr "RustyPresenter 在直播中途停止了。到那时为止的录像已保留。要重新开始直播吗？"
+
+#: src/record/mod.rs
+msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or close other programs."
+msgstr "这台电脑跟不上，录像和直播会卡顿。请在设置 → 媒体的“图片大小”中选择 720p，或关闭其他程序。"
+
+#: src/record/mod.rs
+msgid "The computer is keeping up again: the picture is smooth."
+msgstr "电脑又跟上了：画面流畅。"
 
 #: src/record/mod.rs
 msgid "Turn the room screen on first: the recording is what the room shows."

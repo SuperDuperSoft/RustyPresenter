@@ -18,6 +18,13 @@ pub struct Due {
     pub dropped: u64,
 }
 
+impl Due {
+    /// How far behind the writer was: the frames owed beyond the one due now, at `fps`.
+    pub fn lag(&self, fps: u32) -> Duration {
+        Duration::from_secs_f64((self.write + self.dropped).saturating_sub(1) as f64 / f64::from(fps.max(1)))
+    }
+}
+
 /// Counts frames against the clock. Frame `n` is due at `n / fps` seconds.
 #[derive(Debug)]
 pub struct Pump {
@@ -184,6 +191,14 @@ mod tests {
         p.due(ms(0));
         assert_eq!(p.due(ms(1000)), Due { write: 30, dropped: 0 });
         assert_eq!(p.sent(), 31, "one second is 30 frames after frame 0");
+    }
+
+    #[test]
+    fn how_far_behind_the_writer_is() {
+        assert_eq!(Due { write: 1, dropped: 0 }.lag(30), Duration::ZERO, "one frame due is on time");
+        assert_eq!(Due { write: 0, dropped: 0 }.lag(30), Duration::ZERO);
+        assert_eq!(Due { write: 31, dropped: 0 }.lag(30), Duration::from_secs(1));
+        assert_eq!(Due { write: 60, dropped: 90 }.lag(30), Duration::from_secs_f64(149.0 / 30.0));
     }
 
     #[test]

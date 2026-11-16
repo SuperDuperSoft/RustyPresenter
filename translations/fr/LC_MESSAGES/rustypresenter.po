@@ -3971,7 +3971,7 @@ msgstr "Vidéos, images, musique, présentations (PowerPoint, Keynote, PDF), fic
 msgid "Stop the livestream"
 msgstr "Arrêter la diffusion"
 
-#: ui/operator/record.slint
+#: ui/operator/record.slint src/record/mod.rs
 msgid "Go Live"
 msgstr "Passer en direct"
 
@@ -5961,6 +5961,18 @@ msgstr "L’enregistrement nécessite FFmpeg, un programme gratuit. {hint}"
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."
 msgstr "Cette copie de FFmpeg ne peut pas créer de vidéo H.264. Installez la version complète de FFmpeg et réessayez."
+
+#: src/record/mod.rs
+msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
+msgstr "RustyPresenter s’est arrêté au milieu d’une diffusion en direct. L’enregistrement jusque-là a été gardé. Repasser en direct ?"
+
+#: src/record/mod.rs
+msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or close other programs."
+msgstr "Cet ordinateur ne suit pas, donc l’enregistrement et la diffusion saccadent. Choisissez 720p dans « Taille de l’image » sous Paramètres → Médias, ou fermez d’autres programmes."
+
+#: src/record/mod.rs
+msgid "The computer is keeping up again: the picture is smooth."
+msgstr "L’ordinateur suit de nouveau : l’image est fluide."
 
 #: src/record/mod.rs
 msgid "Turn the room screen on first: the recording is what the room shows."

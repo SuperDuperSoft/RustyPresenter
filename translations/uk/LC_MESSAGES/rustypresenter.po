@@ -3971,7 +3971,7 @@ msgstr "Відео, зображення, музика, презентації (
 msgid "Stop the livestream"
 msgstr "Зупинити трансляцію"
 
-#: ui/operator/record.slint
+#: ui/operator/record.slint src/record/mod.rs
 msgid "Go Live"
 msgstr "В ефір"
 
@@ -5965,6 +5965,18 @@ msgstr "Для запису потрібна безкоштовна програ
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."
 msgstr "Ця версія FFmpeg не вміє створювати відео H.264. Установіть повну версію FFmpeg і спробуйте ще раз."
+
+#: src/record/mod.rs
+msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
+msgstr "RustyPresenter зупинився посеред трансляції. Запис до того моменту збережено. Знову вийти в ефір?"
+
+#: src/record/mod.rs
+msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or close other programs."
+msgstr "Цей комп’ютер не встигає, тому запис і трансляція смикаються. Виберіть 720p у «Розмір зображення» в розділі Налаштування → Медіа або закрийте інші програми."
+
+#: src/record/mod.rs
+msgid "The computer is keeping up again: the picture is smooth."
+msgstr "Комп’ютер знову встигає: зображення плавне."
 
 #: src/record/mod.rs
 msgid "Turn the room screen on first: the recording is what the room shows."

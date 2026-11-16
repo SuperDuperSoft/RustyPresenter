@@ -3971,7 +3971,7 @@ msgstr "Videyo, foto, mizik, prezantasyon (PowerPoint, Keynote, PDF), fichye paw
 msgid "Stop the livestream"
 msgstr "Kanpe emisyon an dirèk la"
 
-#: ui/operator/record.slint
+#: ui/operator/record.slint src/record/mod.rs
 msgid "Go Live"
 msgstr "Ale an dirèk"
 
@@ -5961,6 +5961,18 @@ msgstr "Anrejistreman bezwen FFmpeg, yon pwogram gratis. {hint}"
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."
 msgstr "Kopi FFmpeg sa a pa ka fè videyo H.264. Enstale FFmpeg konplè a epi eseye ankò."
+
+#: src/record/mod.rs
+msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
+msgstr "RustyPresenter te kanpe nan mitan yon difizyon an dirèk. Anrejistreman an jiska lè sa a te kenbe. Ale an dirèk ankò?"
+
+#: src/record/mod.rs
+msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or close other programs."
+msgstr "Òdinatè sa a pa ka suiv, kidonk anrejistreman an ak difizyon an ap sote. Chwazi 720p nan \"Gwosè imaj\" nan Paramèt → Medya, oswa fèmen lòt pwogram."
+
+#: src/record/mod.rs
+msgid "The computer is keeping up again: the picture is smooth."
+msgstr "Òdinatè a kenbe ankò: imaj la koule byen."
 
 #: src/record/mod.rs
 msgid "Turn the room screen on first: the recording is what the room shows."

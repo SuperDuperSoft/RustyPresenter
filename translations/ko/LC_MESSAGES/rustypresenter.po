@@ -3971,7 +3971,7 @@ msgstr "동영상, 사진, 음악, 프레젠테이션(PowerPoint, Keynote, PDF),
 msgid "Stop the livestream"
 msgstr "라이브 방송 멈추기"
 
-#: ui/operator/record.slint
+#: ui/operator/record.slint src/record/mod.rs
 msgid "Go Live"
 msgstr "라이브 시작"
 
@@ -5957,6 +5957,18 @@ msgstr "녹화하려면 무료 프로그램인 FFmpeg가 필요해요. {hint}"
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."
 msgstr "이 FFmpeg는 H.264 동영상을 만들 수 없어요. 전체 버전 FFmpeg를 설치하고 다시 시도하세요."
+
+#: src/record/mod.rs
+msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
+msgstr "라이브 방송 도중에 RustyPresenter가 멈췄습니다. 그때까지의 녹화는 보관되었습니다. 다시 라이브를 시작할까요?"
+
+#: src/record/mod.rs
+msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or close other programs."
+msgstr "이 컴퓨터가 따라가지 못해 녹화와 방송이 끊깁니다. 설정 → 미디어의 '사진 크기'에서 720p를 고르거나 다른 프로그램을 닫으세요."
+
+#: src/record/mod.rs
+msgid "The computer is keeping up again: the picture is smooth."
+msgstr "컴퓨터가 다시 따라잡았습니다. 화면이 부드럽습니다."
 
 #: src/record/mod.rs
 msgid "Turn the room screen on first: the recording is what the room shows."

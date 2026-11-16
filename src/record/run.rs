@@ -169,6 +169,8 @@ pub struct Recording {
     scenes: Arc<Mutex<Option<crate::stream::pictures::Slot>>>,
     /// How loud the sound going out is (the sound input's and the PC's), for the meter.
     levels: Levels,
+    /// The most the writer was behind (ms) since `lag` was last asked (`record::slow`).
+    lag: Arc<std::sync::atomic::AtomicU64>,
 }
 
 type Levels = Arc<Mutex<Vec<Arc<crate::stream::level::Level>>>>;
@@ -192,21 +194,27 @@ impl Recording {
         let sc = scenes.clone();
         let levels: Levels = Arc::default();
         let lv = levels.clone();
+        let lag: Arc<std::sync::atomic::AtomicU64> = Arc::default();
+        let lg = lag.clone();
         std::thread::Builder::new().name("recorder".into()).spawn(move || {
             let rt = match tokio::runtime::Builder::new_current_thread().enable_all().build() {
                 Ok(rt) => rt,
                 Err(e) => { let _ = started_tx.send(Err(e.to_string())); return }
             };
-            let ended = rt.block_on(write(plan, s, c, started_tx, l, cs, si, sc, lv));
+            let ended = rt.block_on(write(plan, s, c, started_tx, l, cs, si, sc, lv, lg));
             if let Some(ended) = ended { done(ended) }
             let _ = finished_tx.send(());
         }).map_err(|e| tr::not_started(&e.to_string()))?;
         match started_rx.recv() {
-            Ok(Ok(())) => Ok(Recording { sink, cancel, finished, begun: Instant::now(), out, links, controls, camera_seen, silent, scenes, levels }),
+            Ok(Ok(())) => Ok(Recording { sink, cancel, finished, begun: Instant::now(), out, links, controls, camera_seen, silent, scenes, levels, lag }),
             Ok(Err(e)) => Err(tr::not_started(&e)),
             Err(_) => Err(tr::not_started(&tr::ffmpeg_ended())),
         }
     }
+
+    /// The most the writer was behind since this was last asked: a computer too slow for the recording shows
+    /// here (`record::slow`).
+    pub fn lag(&self) -> Duration { Duration::from_millis(self.lag.swap(0, std::sync::atomic::Ordering::Relaxed)) }
 
     /// Where the room hands its pictures (and sound) in.
     pub fn sink(&self) -> &Arc<FrameSink> { &self.sink }
@@ -267,7 +275,7 @@ impl Drop for Recording {
 /// `None` when FFmpeg never started (the starter heard why).
 async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, started: mpsc::Sender<Result<(), String>>, links: crate::stream::send::Links,
     camera_seen: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>, silent: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>,
-    scenes: Arc<Mutex<Option<crate::stream::pictures::Slot>>>, levels: Levels) -> Option<Ended> {
+    scenes: Arc<Mutex<Option<crate::stream::pictures::Slot>>>, levels: Levels, lag: Arc<std::sync::atomic::AtomicU64>) -> Option<Ended> {
     let part = partial_of(&plan.out);
     // Go Live: the recorder sends to a local feed for each destination; a sender each passes it on and
     // reconnects (`stream::send`). With no free ports there is no stream, and the recording goes on.
@@ -359,6 +367,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
         }
         let out: &[u8] = mix.as_ref().map_or(&current, |m| m.out());
         let due = pump.due(t0.elapsed());
+        lag.fetch_max(due.lag(FPS).as_millis() as u64, std::sync::atomic::Ordering::Relaxed);
         if due.dropped > 0 { eprintln!("recording: {} frames dropped (the writer fell behind)", due.dropped) }
         for _ in 0..due.write {
             if stdin.write_all(out).await.is_err() {
