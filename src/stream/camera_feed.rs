@@ -1,11 +1,10 @@
 //! The camera, kept going through unplugging. FFmpeg opening a camera itself loses it for good when it stops. So a
-//! small FFmpeg of its own reads the camera (scaled to the stream's size, with an alpha plane), and this passes its
-//! pictures on to the recorder's FFmpeg over a local connection, at the stream's pace. While there is no camera
-//! picture (not yet, unplugged, failed) it sends see-through pictures, so the room screen under the camera shows,
-//! and starts the camera's FFmpeg again every `RETRY`; when pictures come again they go out again. The stream
-//! itself never sees the camera stop.
+//! small FFmpeg of its own reads the camera (scaled to the stream's size, black bars where its shape differs, as
+//! RGBA) and its newest picture is kept here, for the recorder's writer to put into the stream's picture
+//! (`compose`). When no picture has come for `STALE` (not yet, unplugged, failed) there is none, and the camera's
+//! FFmpeg is started again every `RETRY`; when pictures come again they are used again. The stream itself never
+//! sees the camera stop.
 use crate::platform::proc::spawn_tree;
-use std::io::Write;
 use std::path::PathBuf;
 use std::process::Stdio;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -14,41 +13,34 @@ use std::time::{Duration, Instant};
 
 /// How long after the camera stopped it is tried again.
 pub const RETRY: Duration = Duration::from_secs(2);
-/// A camera picture older than this is no picture: see-through is sent instead.
+/// A camera picture older than this is no picture.
 const STALE: Duration = Duration::from_millis(500);
-const CONNECT_FOR: Duration = Duration::from_secs(30);
 
-/// Bytes of one `w`×`h` picture in yuva420p (full Y and A, quarter U and V).
-pub fn frame_bytes((w, h): (u32, u32)) -> usize { let a = w as usize * h as usize; a * 2 + a / 2 }
+/// Bytes of one `w`×`h` RGBA picture.
+pub fn frame_bytes((w, h): (u32, u32)) -> usize { w as usize * h as usize * 4 }
 
-/// A see-through picture: black, alpha 0.
-pub fn clear_frame(size: (u32, u32)) -> Vec<u8> {
-    let a = size.0 as usize * size.1 as usize;
-    let mut f = vec![0u8; frame_bytes(size)];
-    f[a..a + a / 2].fill(128);
-    f
-}
-
-/// The camera's own FFmpeg: `input` (as `record::args::camera_input`) to raw yuva420p pictures of `size` at `fps`
-/// on its output, kept in shape with black bars.
+/// The camera's own FFmpeg: `input` (as `record::args::camera_input`) to raw RGBA pictures of `size` at `fps` on
+/// its output, kept in shape with black bars.
 pub fn camera_args(input: &[String], (w, h): (u32, u32), fps: u32) -> Vec<String> {
     let mut a: Vec<String> = ["-hide_banner", "-loglevel", "error", "-nostdin"].map(String::from).into();
     a.extend(input.iter().cloned());
     a.extend(["-an".into(), "-vf".into(),
-        format!("scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,setsar=1,fps={fps},format=yuva420p"),
+        format!("scale={w}:{h}:force_original_aspect_ratio=decrease,pad={w}:{h}:(ow-iw)/2:(oh-ih)/2:color=black,setsar=1,fps={fps},format=rgba"),
         "-f".into(), "rawvideo".into(), "-".into()]);
     a
 }
 
-/// The recorder's input arguments for the feed.
-pub fn input_args((w, h): (u32, u32), fps: u32, port: u16) -> Vec<String> {
-    vec!["-f".into(), "rawvideo".into(), "-pix_fmt".into(), "yuva420p".into(), "-video_size".into(), format!("{w}x{h}"), "-framerate".into(), fps.to_string(),
-        "-thread_queue_size".into(), "64".into(), "-i".into(), format!("tcp://127.0.0.1:{port}?listen=1")]
+/// The newest camera picture and when it came.
+pub type Latest = Arc<Mutex<Option<(Arc<Vec<u8>>, Instant)>>>;
+
+/// The picture in `latest` if it came less than `STALE` before `now`.
+pub fn fresh(latest: &Latest, now: Instant) -> Option<Arc<Vec<u8>>> {
+    latest.lock().unwrap_or_else(|e| e.into_inner()).as_ref().filter(|(_, at)| now.saturating_duration_since(*at) < STALE).map(|(p, _)| p.clone())
 }
 
 /// The feed under way. Dropping it stops it and the camera's FFmpeg.
 pub struct Feed {
-    pub port: u16,
+    pub latest: Latest,
     /// Whether camera pictures are coming now.
     pub seeing: Arc<AtomicBool>,
     stop: Arc<AtomicBool>,
@@ -56,6 +48,9 @@ pub struct Feed {
 }
 
 impl Feed {
+    /// The newest camera picture, `None` while none is coming.
+    pub fn picture(&self) -> Option<Arc<Vec<u8>>> { fresh(&self.latest, Instant::now()) }
+
     pub fn stop(&mut self) {
         self.stop.store(true, Ordering::Relaxed);
         if let Some(t) = self.thread.take() { let _ = t.join(); }
@@ -66,54 +61,27 @@ impl Drop for Feed {
     fn drop(&mut self) { self.stop() }
 }
 
-/// Starts the feed of camera `input` at `size` and `fps`, its FFmpeg being `ffmpeg`. While `hold` is set the last
-/// picture sent goes on being sent (the stream's Hold button).
-pub fn start(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32, hold: Arc<AtomicBool>) -> Result<Feed, String> {
-    let port = std::net::TcpListener::bind("127.0.0.1:0").and_then(|l| l.local_addr()).map_err(|e| e.to_string())?.port();
+/// Starts the feed of camera `input` at `size` and `fps`, its FFmpeg being `ffmpeg`.
+pub fn start(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32) -> Result<Feed, String> {
     let (stop, seeing) = (Arc::new(AtomicBool::new(false)), Arc::new(AtomicBool::new(false)));
-    let (s, v) = (stop.clone(), seeing.clone());
-    let thread = std::thread::Builder::new().name("stream-camera".into()).spawn(move || run(ffmpeg, input, size, fps, port, &s, &v, &hold)).map_err(|e| e.to_string())?;
-    Ok(Feed { port, seeing, stop, thread: Some(thread) })
+    let latest: Latest = Arc::default();
+    let (s, v, l) = (stop.clone(), seeing.clone(), latest.clone());
+    let thread = std::thread::Builder::new().name("stream-camera".into()).spawn(move || run(ffmpeg, input, size, fps, &s, &v, &l)).map_err(|e| e.to_string())?;
+    Ok(Feed { latest, seeing, stop, thread: Some(thread) })
 }
 
-/// The newest camera picture and when it came.
-type Latest = Arc<Mutex<Option<(Vec<u8>, Instant)>>>;
-
-#[allow(clippy::too_many_arguments)]
-fn run(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32, port: u16, stop: &AtomicBool, seeing: &AtomicBool, hold: &AtomicBool) {
-    let began = Instant::now();
-    let mut out = loop {
-        if stop.load(Ordering::Relaxed) { return }
-        match std::net::TcpStream::connect(("127.0.0.1", port)) {
-            Ok(s) => break s,
-            Err(_) if began.elapsed() < CONNECT_FOR => std::thread::sleep(Duration::from_millis(50)),
-            Err(e) => { eprintln!("stream camera: FFmpeg did not listen: {e}"); return }
-        }
-    };
-    let mut picture = clear_frame(size);
-    let latest: Latest = Arc::default();
+fn run(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32, stop: &AtomicBool, seeing: &AtomicBool, latest: &Latest) {
     // The camera's FFmpeg on a thread of its own: its stop flag, and the thread (finished: the camera stopped).
     let mut camera: Option<(Arc<AtomicBool>, std::thread::JoinHandle<()>)> = None;
     let mut next_try = Instant::now();
-    let t0 = Instant::now();
-    let mut sent: u64 = 0;
     while !stop.load(Ordering::Relaxed) {
         if camera.as_ref().is_some_and(|(_, t)| t.is_finished()) { camera = None; next_try = Instant::now() + RETRY }
         if camera.is_none() && Instant::now() >= next_try {
             camera = spawn_camera(ffmpeg.clone(), input.clone(), size, fps, latest.clone());
             if camera.is_none() { next_try = Instant::now() + RETRY }
         }
-        let fresh = latest.lock().unwrap_or_else(|e| e.into_inner()).as_ref().filter(|(_, at)| at.elapsed() < STALE).map(|(f, _)| f.clone());
-        seeing.store(fresh.is_some(), Ordering::Relaxed);
-        if !hold.load(Ordering::Relaxed) { picture = fresh.unwrap_or_else(|| clear_frame(size)) }
-        let due = (t0.elapsed().as_secs_f64() * fps as f64) as u64 + 1;
-        let mut gone = false;
-        while sent < due {
-            if out.write_all(&picture).is_err() { gone = true; break }
-            sent += 1;
-        }
-        if gone { break }
-        std::thread::sleep(Duration::from_millis(1000 / fps as u64 / 2));
+        seeing.store(fresh(latest, Instant::now()).is_some(), Ordering::Relaxed);
+        std::thread::sleep(Duration::from_millis(50));
     }
     seeing.store(false, Ordering::Relaxed);
     if let Some((s, t)) = camera { s.store(true, Ordering::Relaxed); let _ = t.join(); }
@@ -132,10 +100,10 @@ fn spawn_camera(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32,
             cmd.args(camera_args(&input, size, fps)).stdin(Stdio::null()).stdout(Stdio::piped()).stderr(Stdio::null());
             let mut tree = match spawn_tree(cmd) { Ok(t) => t, Err(e) => { eprintln!("stream camera: could not start: {e}"); return } };
             let Some(mut stdout) = tree.stdout() else { return };
-            let mut buf = vec![0u8; frame_bytes(size)];
             while !s.load(Ordering::Relaxed) {
+                let mut buf = vec![0u8; frame_bytes(size)];
                 match tokio::time::timeout(Duration::from_secs(1), stdout.read_exact(&mut buf)).await {
-                    Ok(Ok(_)) => *latest.lock().unwrap_or_else(|e| e.into_inner()) = Some((buf.clone(), Instant::now())),
+                    Ok(Ok(_)) => *latest.lock().unwrap_or_else(|e| e.into_inner()) = Some((Arc::new(buf), Instant::now())),
                     // No picture for a second: still waiting for a slow camera to start, or stuck; looked at again.
                     Err(_) => continue,
                     Ok(Err(_)) => break,
@@ -152,13 +120,19 @@ mod tests {
     use super::*;
 
     #[test]
-    fn the_feed_is_yuva_and_a_clear_picture_is_see_through() {
-        assert_eq!(frame_bytes((4, 2)), 8 + 8 + 4);
-        let f = clear_frame((4, 2));
-        assert_eq!((&f[..8], &f[8..12], &f[12..]), (&[0u8; 8][..], &[128u8; 4][..], &[0u8; 8][..]), "Y black, U and V grey, alpha 0");
+    fn the_feed_is_rgba_with_black_bars() {
+        assert_eq!(frame_bytes((4, 2)), 32);
         let a = camera_args(&["-f".into(), "dshow".into(), "-i".into(), "video=Cam".into()], (1280, 720), 30).join(" ");
-        assert!(a.contains("-i video=Cam -an -vf scale=1280:720") && a.ends_with("format=yuva420p -f rawvideo -"), "{a}");
-        assert_eq!(input_args((1280, 720), 30, 40800).join(" "),
-            "-f rawvideo -pix_fmt yuva420p -video_size 1280x720 -framerate 30 -thread_queue_size 64 -i tcp://127.0.0.1:40800?listen=1");
+        assert!(a.contains("-i video=Cam -an -vf scale=1280:720") && a.contains("color=black") && a.ends_with("format=rgba -f rawvideo -"), "{a}");
+    }
+
+    #[test]
+    fn the_camera_slot_goes_empty_when_pictures_stop() {
+        let latest: Latest = Arc::default();
+        let now = Instant::now();
+        assert!(fresh(&latest, now).is_none(), "nothing yet");
+        *latest.lock().unwrap() = Some((Arc::new(vec![1, 2, 3, 4]), now));
+        assert!(fresh(&latest, now + Duration::from_millis(100)).is_some());
+        assert!(fresh(&latest, now + Duration::from_secs(1)).is_none(), "a picture a second old is no picture");
     }
 }

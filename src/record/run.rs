@@ -85,10 +85,10 @@ pub struct Plan {
     pub stream: Vec<String>,
     /// Go Live: the sound output whose sound goes out too (`stream::pc_sound`; empty: the default output).
     pub pc_sound: Option<String>,
-    /// Go Live: a camera put together with the room screen.
-    pub camera: Option<args::Camera>,
-    /// Go Live with the words over the camera: what is live, as the words picture to draw.
-    pub words: Option<crate::stream::lyrics::Words>,
+    /// Go Live: the camera's FFmpeg input arguments (`args::camera_input`), for the camera scenes.
+    pub camera: Option<Vec<String>>,
+    /// Go Live: how the scenes are chosen and what the cards say (`stream::pictures`). `None`: the room screen as is.
+    pub look: Option<crate::stream::pictures::Look>,
     /// The stream's panic buttons.
     pub controls: Controls,
 }
@@ -116,7 +116,7 @@ impl Plan {
             return Err(Some(tr::low_disk(&gb(free), &gb(prefs.size.bytes_per_hour()))));
         }
         let out = super::file_name(&folder, chrono::Local::now().naive_local());
-        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, camera: None, words: None, controls: Controls::default() })
+        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, camera: None, look: None, controls: Controls::default() })
     }
 }
 
@@ -160,6 +160,8 @@ pub struct Recording {
     camera_seen: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>,
     /// With a sound input: whether it has been quiet for `board_feed::QUIET_FOR` (`None` without one).
     silent: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>,
+    /// Go Live with scenes: what goes out now (`stream::pictures`).
+    scenes: Arc<Mutex<Option<crate::stream::pictures::Slot>>>,
 }
 
 impl Recording {
@@ -177,17 +179,19 @@ impl Recording {
         let cs = camera_seen.clone();
         let silent: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>> = Arc::default();
         let si = silent.clone();
+        let scenes: Arc<Mutex<Option<crate::stream::pictures::Slot>>> = Arc::default();
+        let sc = scenes.clone();
         std::thread::Builder::new().name("recorder".into()).spawn(move || {
             let rt = match tokio::runtime::Builder::new_current_thread().enable_all().build() {
                 Ok(rt) => rt,
                 Err(e) => { let _ = started_tx.send(Err(e.to_string())); return }
             };
-            let ended = rt.block_on(write(plan, s, c, started_tx, l, cs, si));
+            let ended = rt.block_on(write(plan, s, c, started_tx, l, cs, si, sc));
             if let Some(ended) = ended { done(ended) }
             let _ = finished_tx.send(());
         }).map_err(|e| tr::not_started(&e.to_string()))?;
         match started_rx.recv() {
-            Ok(Ok(())) => Ok(Recording { sink, cancel, finished, begun: Instant::now(), out, links, controls, camera_seen, silent }),
+            Ok(Ok(())) => Ok(Recording { sink, cancel, finished, begun: Instant::now(), out, links, controls, camera_seen, silent, scenes }),
             Ok(Err(e)) => Err(tr::not_started(&e)),
             Err(_) => Err(tr::not_started(&tr::ffmpeg_ended())),
         }
@@ -207,6 +211,11 @@ impl Recording {
     /// With a sound input: whether it has gone silent (a muted send, a pulled cable); `None` without one.
     pub fn silent(&self) -> Option<bool> {
         self.silent.lock().unwrap_or_else(|e| e.into_inner()).as_ref().map(|s| s.load(std::sync::atomic::Ordering::Relaxed))
+    }
+
+    /// Go Live with scenes: the scene going out now.
+    pub fn scene(&self) -> Option<crate::stream::scene::Scene> {
+        self.scenes.lock().unwrap_or_else(|e| e.into_inner()).as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()).scene)
     }
 
     /// Hold: the stream (and the recording) keeps showing what it shows now, until set off again.
@@ -237,35 +246,33 @@ impl Drop for Recording {
 /// The writer: pictures into FFmpeg at `FPS`, until stopped, the disk fills or FFmpeg ends. Then the MP4.
 /// `None` when FFmpeg never started (the starter heard why).
 async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, started: mpsc::Sender<Result<(), String>>, links: crate::stream::send::Links,
-    camera_seen: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>, silent: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>) -> Option<Ended> {
+    camera_seen: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>, silent: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>,
+    scenes: Arc<Mutex<Option<crate::stream::pictures::Slot>>>) -> Option<Ended> {
     let part = partial_of(&plan.out);
     // Go Live: the recorder sends to a local feed for each destination; a sender each passes it on and
     // reconnects (`stream::send`). With no free ports there is no stream, and the recording goes on.
     let ports = if plan.stream.is_empty() { vec![] } else { crate::stream::send::free_ports(plan.stream.len()).unwrap_or_default() };
     if ports.len() != plan.stream.len() { eprintln!("recording: no local ports for the stream; recording only") }
     let feeds: Vec<String> = ports.iter().map(|p| crate::stream::send::feed(*p)).collect();
+    // Go Live with scenes: the camera through a feed of its own, which keeps it going through unplugging, and the
+    // worker that picks the scene and draws the words and cards. The writer puts the picture together.
+    let live = !ports.is_empty();
+    let mut camera_feed = match (&plan.camera, live && plan.look.is_some()) {
+        (Some(input), true) => crate::stream::camera_feed::start(plan.ffmpeg.clone(), input.clone(), sink.size, FPS)
+            .map_err(|e| eprintln!("recording: the stream goes out without the camera: {e}")).ok(),
+        _ => None,
+    };
+    if let Some(f) = &camera_feed { *camera_seen.lock().unwrap_or_else(|e| e.into_inner()) = Some(f.seeing.clone()) }
+    let mut worker = match (&plan.look, live) {
+        (Some(look), true) => {
+            let seeing = camera_feed.as_ref().map(|f| f.seeing.clone()).unwrap_or_default();
+            crate::stream::pictures::start(look.clone(), sink.size, seeing, plan.controls.hold.clone())
+                .map_err(|e| eprintln!("recording: the stream shows the room screen only: {e}")).ok()
+        }
+        _ => None,
+    };
+    if let Some(w) = &worker { *scenes.lock().unwrap_or_else(|e| e.into_inner()) = Some(w.slot.clone()) }
     // The PC's sound, when the stream has it. If it cannot be captured the stream goes out without it.
-    // The words over the camera, when the camera's layout has them.
-    let mut camera = if ports.is_empty() { None } else { plan.camera.clone() };
-    let mut words = None;
-    // The camera through a feed of its own, which keeps it going through unplugging.
-    let mut camera_feed = None;
-    if let Some(cam) = camera.as_mut() {
-        match crate::stream::camera_feed::start(plan.ffmpeg.clone(), cam.input.clone(), sink.size, FPS, plan.controls.hold.clone()) {
-            Ok(feed) => {
-                cam.feed_port = Some(feed.port);
-                *camera_seen.lock().unwrap_or_else(|e| e.into_inner()) = Some(feed.seeing.clone());
-                camera_feed = Some(feed);
-            }
-            Err(e) => eprintln!("recording: the camera is opened by FFmpeg itself (it will not come back if it stops): {e}"),
-        }
-    }
-    if let (Some(cam), Some(source)) = (camera.as_mut(), &plan.words) && cam.layout == args::Layout::CameraWords {
-        match crate::stream::lyrics::start(source.0.clone(), sink.size, plan.controls.hold.clone()) {
-            Ok(feed) => { cam.words_port = Some(feed.port); words = Some(feed) }
-            Err(e) => eprintln!("recording: the stream goes out without the words over the camera: {e}"),
-        }
-    }
     let mut pc = match (&plan.pc_sound, ports.is_empty()) {
         (Some(device), false) => crate::stream::pc_sound::start(device, plan.controls.mute.clone()).map_err(|e| eprintln!("recording: the stream goes out without the PC's sound: {e}")).ok(),
         _ => None,
@@ -277,8 +284,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let mut board = input.and_then(|(format, name)| crate::stream::board_feed::start(plan.ffmpeg.clone(), format, name, plan.controls.mute.clone())
         .map_err(|e| eprintln!("recording: FFmpeg reads the sound input itself: {e}")).ok());
     if let Some(b) = &board { *silent.lock().unwrap_or_else(|e| e.into_inner()) = Some(b.silent.clone()) }
-    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, board: board.as_ref().map(|b| b.feed), out: &part, stream: &feeds, pc: pc.as_ref().map(|c| c.feed),
-        camera: camera.as_ref() });
+    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, board: board.as_ref().map(|b| b.feed), out: &part, stream: &feeds, pc: pc.as_ref().map(|c| c.feed) });
     let mut cmd = tokio::process::Command::new(&plan.ffmpeg);
     cmd.args(a).stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::piped());
     let mut tree = match spawn_tree(cmd) {
@@ -311,17 +317,27 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let mut pump = Pump::new(FPS);
     // Black until the room's first picture comes.
     let mut current: Vec<u8> = [0, 0, 0, 255].repeat(sink.bytes() / 4);
+    // With scenes: the picture put together, written in place of the room's.
+    let mut mix = worker.as_ref().map(|_| Mixer::new(sink.size));
+    let mut room_new = true;
     let mut next_check = Duration::ZERO;
     let mut problem: Option<String> = None;
     'pump: loop {
         // Hold: the picture taken is handed back unused, and the last one goes on.
         if let Some(new) = sink.take() {
-            if plan.controls.hold.load(std::sync::atomic::Ordering::Relaxed) { sink.give_back(new) } else { sink.give_back(std::mem::replace(&mut current, new)) }
+            if plan.controls.hold.load(std::sync::atomic::Ordering::Relaxed) { sink.give_back(new) } else { sink.give_back(std::mem::replace(&mut current, new)); room_new = true }
         }
+        // Freeze keeps the picture going out as it is, mid-fade included.
+        if let (Some(m), Some(w)) = (mix.as_mut(), worker.as_ref()) && !plan.controls.hold.load(std::sync::atomic::Ordering::Relaxed) {
+            let shown = w.slot.lock().unwrap_or_else(|e| e.into_inner()).clone();
+            m.update(&shown, &current, camera_feed.as_ref().and_then(|f| f.picture()), room_new, Instant::now());
+            room_new = false;
+        }
+        let out: &[u8] = mix.as_ref().map_or(&current, |m| m.out());
         let due = pump.due(t0.elapsed());
         if due.dropped > 0 { eprintln!("recording: {} frames dropped (the writer fell behind)", due.dropped) }
         for _ in 0..due.write {
-            if stdin.write_all(&current).await.is_err() {
+            if stdin.write_all(out).await.is_err() {
                 let last = said.lock().unwrap_or_else(|e| e.into_inner()).back().cloned();
                 problem = Some(tr::failed(&last.unwrap_or_else(tr::ffmpeg_ended)));
                 break 'pump;
@@ -347,7 +363,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     // The PC's sound has no end of its own: stopping it lets FFmpeg end its file.
     if let Some(c) = pc.as_mut() { c.stop() }
     if let Some(b) = board.as_mut() { b.stop() }
-    if let Some(w) = words.as_mut() { w.stop() }
+    if let Some(w) = worker.as_mut() { w.stop() }
     if let Some(c) = camera_feed.as_mut() { c.stop() }
     let end = t0.elapsed().as_secs_f64();
     let ended = tree.wait(END_LIMIT, &CancellationToken::new()).await;
@@ -360,6 +376,51 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let mut done = finish_file(&plan.ffmpeg, &part, &notes.sound, &plan.out).await;
     if let Some(p) = problem { done.problem = Some(match (&done.file, done.problem) { (Some(_), Some(q)) => format!("{p} {q}"), _ => p }) }
     Some(done)
+}
+
+/// The stream's picture put together from the room, the camera and the scene worker's words and cards
+/// (`stream::compose`), with a fade at each scene change. Put together again only when something in it changed.
+struct Mixer {
+    size: (u32, u32),
+    out: Vec<u8>,
+    next: Vec<u8>,
+    /// The picture going out when the scene changed, and when: the fade runs from it.
+    fade: Option<(Vec<u8>, Instant)>,
+    scene: Option<crate::stream::scene::Scene>,
+    camera: Option<Arc<Vec<u8>>>,
+    words: Option<Arc<Vec<u8>>>,
+    card: Option<Arc<Vec<u8>>>,
+}
+
+impl Mixer {
+    fn new(size: (u32, u32)) -> Mixer {
+        let black = [0, 0, 0, 255].repeat(size.0 as usize * size.1 as usize);
+        Mixer { size, out: black.clone(), next: black, fade: None, scene: None, camera: None, words: None, card: None }
+    }
+
+    fn out(&self) -> &[u8] { &self.out }
+
+    fn update(&mut self, shown: &crate::stream::pictures::Shown, room: &[u8], camera: Option<Arc<Vec<u8>>>, room_new: bool, now: Instant) {
+        use crate::stream::compose::{FADE, Inputs, blend, compose};
+        let same = |a: &Option<Arc<Vec<u8>>>, b: &Option<Arc<Vec<u8>>>| match (a, b) { (Some(a), Some(b)) => Arc::ptr_eq(a, b), (None, None) => true, _ => false };
+        let scene_changed = self.scene.is_some_and(|s| s != shown.scene);
+        let changed = self.scene != Some(shown.scene) || room_new || !same(&self.camera, &camera) || !same(&self.words, &shown.words) || !same(&self.card, &shown.card);
+        if scene_changed { self.fade = Some((self.out.clone(), now)) }
+        if changed {
+            compose(shown.scene, &Inputs { size: self.size, room, camera: camera.as_deref().map(Vec::as_slice), words: shown.words.as_deref().map(Vec::as_slice),
+                card: shown.card.as_deref().map(Vec::as_slice) }, &mut self.next);
+            (self.scene, self.camera, self.words, self.card) = (Some(shown.scene), camera, shown.words.clone(), shown.card.clone());
+        }
+        match &self.fade {
+            Some((from, at)) if now.duration_since(*at) < FADE => {
+                let t = now.duration_since(*at).as_secs_f32() / FADE.as_secs_f32();
+                blend(from, &self.next, t, &mut self.out);
+            }
+            Some(_) => { self.fade = None; self.out.copy_from_slice(&self.next) }
+            None if changed => self.out.copy_from_slice(&self.next),
+            None => {}
+        }
+    }
 }
 
 fn write_notes(out: &Path, notes: &Notes) {

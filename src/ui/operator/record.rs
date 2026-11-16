@@ -88,17 +88,24 @@ impl Operator {
         }
         self.record.starting.set(true);
         let prefs_pc = prefs.pc_sound(&app_output);
-        let layout = record::args::Layout::from_index(prefs.camera_layout);
-        let camera = (!prefs.camera.is_empty()).then(|| record::args::Camera { input: record::args::camera_input(crate::platform::tools::OS, &prefs.camera), layout,
-            words_port: None, feed_port: None });
-        // The words over the camera: what is live now, read when the words picture is drawn.
+        let camera = (!prefs.camera.is_empty()).then(|| record::args::camera_input(crate::platform::tools::OS, &prefs.camera));
+        // The scenes: what is live now (read ten times a second by `stream::pictures`), the words over the camera,
+        // and the church's cards and choices. A new stream starts on Automatic.
         let canvas = prefs.size.size();
-        let app = self.app().clone();
-        let words = (layout == record::args::Layout::CameraWords).then(|| stream::lyrics::Words(Arc::new(move || {
-            let live = app.live.lock().unwrap();
-            let theme = live.item.as_ref().map(|i| i.theme.clone()).unwrap_or_default();
-            stream::lyrics::key_for(live.frame.slide.as_ref()?, &theme, canvas)
-        })));
+        let (app, app2) = (self.app().clone(), self.app().clone());
+        if live { self.app().clear_stream_choice() }
+        let theme = self.app().data.lock().unwrap().settings.theme.clone();
+        let look = stream::pictures::Look {
+            info: Arc::new(move || app.stream_info()),
+            words: Arc::new(move || {
+                let live = app2.live.lock().unwrap();
+                let theme = live.item.as_ref().map(|i| i.theme.clone()).unwrap_or_default();
+                stream::lyrics::key_for(live.frame.slide.as_ref()?, &theme, canvas)
+            }),
+            auto: prefs.auto(),
+            cards: prefs.cards.clone(),
+            theme,
+        };
         off_ui(self, move || Plan::make(&data, &prefs), move |plan| {
             let Some(op) = me.upgrade() else { return };
             op.record.starting.set(false);
@@ -107,7 +114,7 @@ impl Operator {
                     if live {
                         plan.pc_sound = prefs_pc;
                         plan.camera = camera;
-                        plan.words = words;
+                        plan.look = Some(look);
                     }
                     plan.stream = addresses;
                     op.record.live.set(live);

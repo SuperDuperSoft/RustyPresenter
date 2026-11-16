@@ -31,7 +31,7 @@ fn probe(file: &Path) -> (Vec<(String, String, u64, u64)>, f64) {
 }
 
 fn plan(ffmpeg: PathBuf, dir: &Path, sound: Sound) -> Plan {
-    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, camera: None, words: None, controls: Controls::default() }
+    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, camera: None, look: None, controls: Controls::default() }
 }
 
 /// Records for `secs`, handing in a new solid picture every 100 ms (red, then green), with `each` called as it goes.
@@ -266,40 +266,89 @@ fn go_live_sends_what_the_pc_plays() {
     std::fs::remove_dir_all(&dir).unwrap();
 }
 
-/// A camera in the stream, for real, with a stand-in camera (a blue test picture, made at the clock's pace like a
-/// camera's): the stream's picture is the camera, with the room screen (red) small in the bottom right corner.
+use crate::stream::scene::{AutoPrefs, Choice, LiveInfo, Scene, SlideKind};
+
+/// The scenes as the operator would have them: `live` is what is live (changed by the test as it goes), the live
+/// slide's words are `words`.
+fn look(live: Arc<Mutex<(LiveInfo, Choice)>>, words: &str, auto: AutoPrefs) -> crate::stream::pictures::Look {
+    let slide = crate::live::SlideLayer::Text { text: words.into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: None };
+    crate::stream::pictures::Look {
+        info: Arc::new(move || { let (i, c) = live.lock().unwrap().clone(); (i, c, None) }),
+        words: Arc::new(move || crate::stream::lyrics::key_for(&slide, &crate::model::Theme::default(), (1280, 720))),
+        auto, cards: Default::default(), theme: Default::default(),
+    }
+}
+
+/// One scene, chosen by hand, for the whole stream.
+fn only(scene: Scene, words: &str) -> crate::stream::pictures::Look {
+    look(Arc::new(Mutex::new((LiveInfo::default(), Choice::pick(Some(scene), None)))), words, AutoPrefs::default())
+}
+
+/// A scene change fades over half a second, from the picture going out to the new scene's.
 #[test]
-fn go_live_puts_the_camera_and_the_screen_together() {
-    let Some(ff) = ffmpeg() else { return };
-    let dir = scratch("camera");
+fn the_mixer_fades_between_scenes() {
+    use crate::stream::pictures::Shown;
+    let (red, blue) = ([200u8, 0, 0, 255].repeat(4), Arc::new([0u8, 0, 200, 255].repeat(4)));
+    let mut m = Mixer::new((2, 2));
+    let t0 = Instant::now();
+    m.update(&Shown { scene: Scene::Screen, ..Shown::default() }, &red, Some(blue.clone()), true, t0);
+    assert_eq!(&m.out()[..4], &[200, 0, 0, 255], "the room at once: nothing to fade from yet");
+    let camera = Shown { scene: Scene::Camera, ..Shown::default() };
+    m.update(&camera, &red, Some(blue.clone()), false, t0);
+    assert_eq!(&m.out()[..4], &[200, 0, 0, 255], "the fade starts from the room");
+    m.update(&camera, &red, Some(blue.clone()), false, t0 + Duration::from_millis(250));
+    assert_eq!(&m.out()[..4], &[100, 0, 100, 255], "half way");
+    m.update(&camera, &red, Some(blue.clone()), false, t0 + Duration::from_millis(600));
+    assert_eq!(&m.out()[..4], &[0, 0, 200, 255], "the camera once the fade is over");
+}
+
+fn lavfi_camera(spec: &str) -> Option<Vec<String>> { Some(["-re", "-f", "lavfi", "-i", spec].map(String::from).into()) }
+
+/// A local server that takes one stream into `received`; stopped by `finish_server`.
+fn server(ff: &Path, dir: &Path) -> (std::process::Child, String, PathBuf) {
     let port = std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port();
     let url = format!("rtmp://127.0.0.1:{port}/live/TEST-KEY");
     let received = dir.join("received.flv");
-    let mut server = std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-listen", "1", "-analyzeduration", "2000000", "-f", "flv", "-i", &url, "-c", "copy"])
+    let server = std::process::Command::new(ff).args(["-hide_banner", "-loglevel", "error", "-y", "-listen", "1", "-analyzeduration", "2000000", "-f", "flv", "-i", &url, "-c", "copy"])
         .arg(&received).stdin(Stdio::null()).spawn().unwrap();
     std::thread::sleep(Duration::from_millis(1500));
-    let camera = args::Camera { input: ["-re", "-f", "lavfi", "-i", "color=c=blue:size=640x480:rate=30"].map(String::from).into(), layout: args::Layout::CameraScreen,
-        words_port: None, feed_port: None };
-    let ended = record_for(Plan { stream: vec![url], camera: Some(camera), ..plan(ff.clone(), &dir, Sound::None) }, 8.0, |_, _| {});
+    (server, url, received)
+}
+
+fn finish_server(mut server: std::process::Child) {
     let t = Instant::now();
     while server.try_wait().unwrap().is_none() && t.elapsed() < Duration::from_secs(20) { std::thread::sleep(Duration::from_millis(100)) }
     let _ = server.kill();
     let _ = server.wait();
-    assert_eq!(ended.problem, None, "{ended:?}");
-    // A picture from the stream two seconds in (the room screen was red then).
-    let png = dir.join("frame.png");
-    assert!(std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-ss", "2", "-i"]).arg(&received).args(["-frames:v", "1"]).arg(&png)
+}
+
+/// The picture at `t` seconds into `file`.
+fn frame_at(ff: &Path, dir: &Path, file: &Path, t: &str) -> image::RgbImage {
+    let png = dir.join(format!("f{t}.png"));
+    assert!(std::process::Command::new(ff).args(["-hide_banner", "-loglevel", "error", "-y", "-ss", t, "-i"]).arg(file).args(["-frames:v", "1"]).arg(&png)
         .status().unwrap().success());
-    let img = image::open(&png).unwrap().to_rgb8();
-    let (w, h) = img.dimensions();
-    assert_eq!((w, h), (1280, 720));
-    let at = |x: u32, y: u32| img.get_pixel(x, y).0;
-    // A 4:3 camera in a 16:9 stream: black bars at the sides, the camera in the middle.
-    let (bar, blue) = (at(60, 300), at(640, 300));
-    assert!(blue[2] > 180 && blue[0] < 60, "the camera fills the middle: {blue:?}");
+    image::open(&png).unwrap().to_rgb8()
+}
+
+fn is_blue(p: [u8; 3]) -> bool { p[2] > 180 && p[0] < 60 }
+fn is_red(p: [u8; 3]) -> bool { p[0] > 180 && p[2] < 60 }
+
+/// The Camera scene, for real, with a stand-in 4:3 camera (blue, made at the clock's pace like a camera's): the
+/// camera in the middle of the 16:9 stream with black bars at the sides.
+#[test]
+fn go_live_shows_the_camera_with_black_bars() {
+    let Some(ff) = ffmpeg() else { return };
+    let dir = scratch("camera");
+    let (srv, url, received) = server(&ff, &dir);
+    let ended = record_for(Plan { stream: vec![url], camera: lavfi_camera("color=c=blue:size=640x480:rate=30"), look: Some(only(Scene::Camera, "x")),
+        ..plan(ff.clone(), &dir, Sound::None) }, 8.0, |_, _| {});
+    finish_server(srv);
+    assert_eq!(ended.problem, None, "{ended:?}");
+    let img = frame_at(&ff, &dir, &received, "3");
+    assert_eq!(img.dimensions(), (1280, 720));
+    let (bar, mid) = (img.get_pixel(60, 300).0, img.get_pixel(640, 300).0);
+    assert!(is_blue(mid), "the camera fills the middle: {mid:?}");
     assert!(bar.iter().all(|c| *c < 30), "black bars at the sides: {bar:?}");
-    let corner = at(w - 32 - 160, h - 18 - 90);
-    assert!(corner[0] > 180 && corner[2] < 60, "the room screen in the bottom right corner: {corner:?}");
     std::fs::remove_dir_all(&dir).unwrap();
 }
 
@@ -309,39 +358,46 @@ fn go_live_puts_the_camera_and_the_screen_together() {
 fn go_live_puts_the_words_over_the_camera() {
     let Some(ff) = ffmpeg() else { return };
     let dir = scratch("words");
-    let port = std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port();
-    let url = format!("rtmp://127.0.0.1:{port}/live/TEST-KEY");
-    let received = dir.join("received.flv");
-    let mut server = std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-listen", "1", "-analyzeduration", "2000000", "-f", "flv", "-i", &url, "-c", "copy"])
-        .arg(&received).stdin(Stdio::null()).spawn().unwrap();
-    std::thread::sleep(Duration::from_millis(1500));
-    let camera = args::Camera { input: ["-re", "-f", "lavfi", "-i", "color=c=blue:size=1280x720:rate=30"].map(String::from).into(), layout: args::Layout::CameraWords,
-        words_port: None, feed_port: None };
-    let slide = crate::live::SlideLayer::Text { text: "Amazing grace how sweet the sound".into(), footer: None, reference: None, scripture: false, size: 0,
-        passage: vec![], parallel: None, theme: None };
-    let words = crate::stream::lyrics::Words(std::sync::Arc::new(move || crate::stream::lyrics::key_for(&slide, &crate::model::Theme::default(), (1280, 720))));
-    let ended = record_for(Plan { stream: vec![url], camera: Some(camera), words: Some(words), ..plan(ff.clone(), &dir, Sound::None) }, 8.0, |_, _| {});
-    let t = Instant::now();
-    while server.try_wait().unwrap().is_none() && t.elapsed() < Duration::from_secs(20) { std::thread::sleep(Duration::from_millis(100)) }
-    let _ = server.kill();
-    let _ = server.wait();
+    let (srv, url, received) = server(&ff, &dir);
+    let ended = record_for(Plan { stream: vec![url], camera: lavfi_camera("color=c=blue:size=1280x720:rate=30"),
+        look: Some(only(Scene::CameraWords, "Amazing grace how sweet the sound")), ..plan(ff.clone(), &dir, Sound::None) }, 8.0, |_, _| {});
+    finish_server(srv);
     assert_eq!(ended.problem, None, "{ended:?}");
-    let png = dir.join("frame.png");
-    assert!(std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-ss", "4", "-i"]).arg(&received).args(["-frames:v", "1"]).arg(&png)
-        .status().unwrap().success());
-    let img = image::open(&png).unwrap().to_rgb8();
+    let img = frame_at(&ff, &dir, &received, "4");
     let top = img.get_pixel(640, 100).0;
-    assert!(top[2] > 180 && top[0] < 60, "the camera at the top: {top:?}");
+    assert!(is_blue(top), "the camera at the top: {top:?}");
     // The bottom third: the band darkens the camera, and letters are near-white.
     let bottom: Vec<[u8; 3]> = (0..1280).step_by(2).flat_map(|x| (520..700).step_by(2).map(move |y| (x, y))).map(|(x, y)| img.get_pixel(x, y).0).collect();
     let white = bottom.iter().filter(|p| p.iter().all(|c| *c > 200)).count();
     eprintln!("REAL words: {white} white of {}", bottom.len());
     assert!(white > 200, "letters in the lower third: {white}");
-    // The band wraps the line of words (seen: x 265-1010, y 612-690 for this line), darkening the camera; beside it
-    // the camera is as it was.
-    let (band, beside) = (img.get_pixel(272, 618).0, img.get_pixel(100, 650).0);
-    assert!(band[2] < 150, "the band behind the words: {band:?}");
-    assert!(beside[2] > 180 && beside[0] < 60, "the camera beside the band: {beside:?}");
+    let beside = img.get_pixel(100, 650).0;
+    assert!(is_blue(beside), "the camera beside the band: {beside:?}");
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// The scene follows what is live while streaming: a song first (the camera with words), then a presentation
+/// slide with "Presentations: with the camera in the corner" (the room screen, the camera in the corner).
+#[test]
+fn go_live_switches_scene_while_live() {
+    let Some(ff) = ffmpeg() else { return };
+    let dir = scratch("switch");
+    let dead = format!("rtmp://127.0.0.1:{}/live/TEST-KEY", std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port());
+    let item = Some(uuid::Uuid::from_u128(7));
+    let live = Arc::new(Mutex::new((LiveInfo { cursor_item: item, slide: SlideKind::Words, ..LiveInfo::default() }, Choice::default())));
+    let l = live.clone();
+    let corner = AutoPrefs { on: true, presentation_camera: true };
+    // The room screen: red for the first half (4 s), then green.
+    let ended = record_for(Plan { stream: vec![dead], camera: lavfi_camera("color=c=blue:size=1280x720:rate=30"), look: Some(look(live, "Grace", corner)),
+        ..plan(ff.clone(), &dir, Sound::None) }, 8.0, move |_, t| if t > 3.0 { l.lock().unwrap().0.slide = SlideKind::Picture });
+    assert_eq!(ended.problem, None, "{ended:?}");
+    let rec = dir.join("Recording test.mp4");
+    let before = frame_at(&ff, &dir, &rec, "2");
+    assert!(is_blue(before.get_pixel(640, 100).0), "the camera while the song is live: {:?}", before.get_pixel(640, 100).0);
+    let after = frame_at(&ff, &dir, &rec, "6");
+    let (room, cam) = (after.get_pixel(300, 200).0, after.get_pixel(1088, 598).0);
+    assert!(room[1] > 180 && room[0] < 60, "the room screen (green by then) fills it: {room:?}");
+    assert!(is_blue(cam), "the camera in the corner: {cam:?}");
     std::fs::remove_dir_all(&dir).unwrap();
 }
 
@@ -355,22 +411,11 @@ fn real_camera_goes_live_with_the_words() {
     let Some(ff) = ffmpeg() else { return };
     let name = std::env::var("RP_REAL_CAMERA").expect("RP_REAL_CAMERA");
     let dir = scratch("realcam");
-    let port = std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port();
-    let url = format!("rtmp://127.0.0.1:{port}/live/TEST-KEY");
-    let received = dir.join("received.flv");
-    let mut server = std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-listen", "1", "-analyzeduration", "2000000", "-f", "flv", "-i", &url, "-c", "copy"])
-        .arg(&received).stdin(Stdio::null()).spawn().unwrap();
-    std::thread::sleep(Duration::from_millis(1500));
-    let camera = args::Camera { input: args::camera_input(crate::platform::tools::OS, &name), layout: args::Layout::CameraWords, words_port: None, feed_port: None };
-    let slide = crate::live::SlideLayer::Text { text: "Amazing grace how sweet the sound".into(), footer: None, reference: None, scripture: false, size: 0,
-        passage: vec![], parallel: None, theme: None };
-    let words = crate::stream::lyrics::Words(std::sync::Arc::new(move || crate::stream::lyrics::key_for(&slide, &crate::model::Theme::default(), (1280, 720))));
+    let (srv, url, received) = server(&ff, &dir);
     let began = Instant::now();
-    let ended = record_for(Plan { stream: vec![url], camera: Some(camera), words: Some(words), ..plan(ff.clone(), &dir, Sound::None) }, 10.0, |_, _| {});
-    let t = Instant::now();
-    while server.try_wait().unwrap().is_none() && t.elapsed() < Duration::from_secs(20) { std::thread::sleep(Duration::from_millis(100)) }
-    let _ = server.kill();
-    let _ = server.wait();
+    let ended = record_for(Plan { stream: vec![url], camera: Some(args::camera_input(crate::platform::tools::OS, &name)),
+        look: Some(only(Scene::CameraWords, "Amazing grace how sweet the sound")), ..plan(ff.clone(), &dir, Sound::None) }, 10.0, |_, _| {});
+    finish_server(srv);
     let (streams, secs) = probe(&received);
     let png = dir.join("frame.png");
     let got_frame = std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-ss", "6", "-i"]).arg(&received).args(["-frames:v", "1"]).arg(&png)
@@ -391,40 +436,31 @@ fn real_camera_goes_live_with_the_words() {
     assert!(spread > 20, "the camera's picture did not come through (flat): {spread}");
 }
 
-/// A camera that stops in the middle (unplugged) and comes back, for each layout. The stand-in camera runs for
-/// 2.5 s each time it is started; `camera_feed` starts it again 2 s after it stops. So in the recording the
+/// A camera that stops in the middle (unplugged) and comes back, for each camera scene. The stand-in camera runs
+/// for 2.5 s each time it is started; `camera_feed` starts it again 2 s after it stops. So in the recording the
 /// camera (blue) is seen first, then the room screen (red) in the gap, then the camera again; and the stream and
 /// the recording run to the end. (The destination is one nobody listens on: the recording is what is looked at.)
 #[test]
 fn a_camera_that_stops_drops_out_and_comes_back() {
     let Some(ff) = ffmpeg() else { return };
-    for layout in [args::Layout::CameraScreen, args::Layout::ScreenCamera, args::Layout::CameraWords] {
+    for scene in [Scene::Camera, Scene::ScreenCamera, Scene::CameraWords] {
         let dir = scratch("camback");
         let dead = format!("rtmp://127.0.0.1:{}/live/TEST-KEY", std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port());
-        let camera = args::Camera { input: ["-re", "-f", "lavfi", "-i", "color=c=blue:size=1280x720:rate=30:duration=2.5"].map(String::from).into(), layout,
-            words_port: None, feed_port: None };
-        let slide = crate::live::SlideLayer::Text { text: "Grace".into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: None };
-        let words = crate::stream::lyrics::Words(std::sync::Arc::new(move || crate::stream::lyrics::key_for(&slide, &crate::model::Theme::default(), (1280, 720))));
         // The room screen: red for the first 4.6 s, then green (`record_for` changes at half way).
-        let ended = record_for(Plan { stream: vec![dead], camera: Some(camera), words: Some(words), ..plan(ff.clone(), &dir, Sound::None) }, 9.2, |_, _| {});
-        assert_eq!(ended.problem, None, "{layout:?}: {ended:?}");
+        let ended = record_for(Plan { stream: vec![dead], camera: lavfi_camera("color=c=blue:size=1280x720:rate=30:duration=2.5"), look: Some(only(scene, "Grace")),
+            ..plan(ff.clone(), &dir, Sound::None) }, 9.2, |_, _| {});
+        assert_eq!(ended.problem, None, "{scene:?}: {ended:?}");
         let rec = dir.join("Recording test.mp4");
         let (_, secs) = probe(&rec);
-        assert!(secs > 8.0, "{layout:?}: the recording ended with the camera ({secs} s)");
-        // Where the camera shows in this layout: the middle, or (screen filling it) the corner.
-        let (x, y) = if layout == args::Layout::ScreenCamera { (1280 - 32 - 160, 720 - 32 - 90) } else { (640, 200) };
-        let at = |t: &str| {
-            let png = dir.join(format!("f{t}.png"));
-            assert!(std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-y", "-ss", t, "-i"]).arg(&rec).args(["-frames:v", "1"]).arg(&png)
-                .status().unwrap().success());
-            image::open(&png).unwrap().to_rgb8().get_pixel(x, y).0
-        };
+        assert!(secs > 8.0, "{scene:?}: the recording ended with the camera ({secs} s)");
+        // Where the camera shows in this scene: the middle, or (screen filling it) the corner.
+        let (x, y) = if scene == Scene::ScreenCamera { (1280 - 32 - 160, 720 - 32 - 90) } else { (640, 200) };
+        let at = |t: &str| frame_at(&ff, &dir, &rec, t).get_pixel(x, y).0;
         let (first, gap, back) = (at("1.8"), at("3.9"), at("6.4"));
-        eprintln!("REAL {layout:?}: camera {first:?}, gap {gap:?}, back {back:?}");
-        assert!(first[2] > 180 && first[0] < 60, "{layout:?}: the camera at first: {first:?}");
-        assert!(gap[0] > 180 && gap[2] < 60, "{layout:?}: the room screen while the camera is gone: {gap:?}");
-        assert!(back[2] > 180 && back[0] < 60, "{layout:?}: the camera back: {back:?}");
+        eprintln!("REAL {scene:?}: camera {first:?}, gap {gap:?}, back {back:?}");
+        assert!(is_blue(first), "{scene:?}: the camera at first: {first:?}");
+        assert!(is_red(gap), "{scene:?}: the room screen while the camera is gone: {gap:?}");
+        assert!(is_blue(back), "{scene:?}: the camera back: {back:?}");
         std::fs::remove_dir_all(&dir).unwrap();
     }
 }
-
