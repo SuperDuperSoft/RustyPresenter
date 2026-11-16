@@ -13,9 +13,11 @@ use uuid::Uuid;
 
 pub mod board_feed;
 pub mod camera_feed;
+pub mod compose;
 pub mod keys;
 pub mod lyrics;
 pub mod pc_sound;
+pub mod scene;
 pub mod send;
 
 /// A place a stream can be sent.
