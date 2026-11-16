@@ -2539,7 +2539,7 @@ msgstr "音量"
 msgid "Turn each sound up or down in the stream only (not in the room)."
 msgstr "只在直播中调高或调低每个声音（不影响会场）。"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint src/record/mod.rs
 msgid "Microphone or line-in"
 msgstr "麦克风或线路输入"
 
@@ -2547,7 +2547,7 @@ msgstr "麦克风或线路输入"
 msgid "{} dB"
 msgstr "{} dB"
 
-#: ui/dialogs/settings-media.slint src/app.rs
+#: ui/dialogs/settings-media.slint src/app.rs src/record/mod.rs
 msgid "This computer"
 msgstr "这台电脑"
 
@@ -2566,6 +2566,10 @@ msgstr "让大声和小声更均匀"
 #: ui/dialogs/settings-media.slint
 msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
 msgstr "去除麦克风或线路输入中的嗡嗡声和嘶嘶声（可能使音乐发闷）"
+
+#: ui/dialogs/settings-media.slint
+msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
+msgstr ""
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
@@ -6145,6 +6149,10 @@ msgstr "网络摄像机 {host}"
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
 msgstr "录制需要 FFmpeg（一个免费程序）。{hint}"
+
+#: src/record/mod.rs
+msgid "Everything mixed"
+msgstr ""
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."

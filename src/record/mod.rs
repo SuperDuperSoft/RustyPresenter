@@ -118,6 +118,9 @@ pub struct RecordPrefs {
     /// (`stream::send::Ladder`); `None` is on.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub stream_lighter: Option<bool>,
+    /// Livestream with both sounds: the recording also keeps each on a track of its own (`args::SoundFx::tracks`).
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub stream_tracks: bool,
     /// The video encoder chosen by hand (one of `args::CHOOSABLE`); empty: automatic.
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub encoder: String,
@@ -184,6 +187,7 @@ impl RecordPrefs {
             pc_db: self.stream_pc_db.clamp(-MAX_LEVEL_DB, MAX_LEVEL_DB),
             even: self.stream_even.unwrap_or(true),
             quiet_noise: self.stream_quiet_noise,
+            tracks: self.stream_tracks,
         }
     }
 
@@ -233,6 +237,10 @@ pub fn clock(secs: u64) -> String {
 pub mod tr {
     use crate::tr;
     pub fn no_ffmpeg(hint: &str) -> String { tr!("Recording needs FFmpeg, a free program. {hint}", hint = hint) }
+    /// The recording's sound tracks, as players list them.
+    pub fn track_mix() -> String { tr!("Everything mixed") }
+    pub fn track_board() -> String { tr!("Microphone or line-in") }
+    pub fn track_pc() -> String { tr!("This computer") }
     pub fn no_h264() -> String { tr!("This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again.") }
     pub fn clip_started() -> String { tr!("Clip started. Press Clip again to end it; it is saved as its own video when the recording stops.") }
     pub fn clip_marked() -> String { tr!("Clip marked. It is saved as its own video when the recording stops.") }
@@ -285,10 +293,10 @@ mod tests {
     #[test]
     fn the_streams_sound_settings_are_kept_and_given_to_the_recorder() {
         let p = RecordPrefs::default();
-        assert_eq!(p.sound_fx(), args::SoundFx { delay_ms: 0, board_db: 0, pc_db: 0, even: true, quiet_noise: false }, "evened out unless turned off");
+        assert_eq!(p.sound_fx(), args::SoundFx { delay_ms: 0, board_db: 0, pc_db: 0, even: true, quiet_noise: false, tracks: false }, "evened out unless turned off");
         assert_eq!(serde_json::to_value(&p).unwrap().get("stream_even"), None);
         let p = RecordPrefs { sound_delay_ms: 5000, stream_board_db: 45, stream_pc_db: -45, stream_even: Some(false), stream_quiet_noise: true, ..RecordPrefs::default() };
-        assert_eq!(p.sound_fx(), args::SoundFx { delay_ms: MAX_SOUND_DELAY, board_db: MAX_LEVEL_DB, pc_db: -MAX_LEVEL_DB, even: false, quiet_noise: true });
+        assert_eq!(p.sound_fx(), args::SoundFx { delay_ms: MAX_SOUND_DELAY, board_db: MAX_LEVEL_DB, pc_db: -MAX_LEVEL_DB, even: false, quiet_noise: true, tracks: false });
         let back: RecordPrefs = serde_json::from_value(serde_json::to_value(&p).unwrap()).unwrap();
         assert_eq!(back, p);
     }

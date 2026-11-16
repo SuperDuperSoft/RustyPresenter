@@ -155,6 +155,7 @@ pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     g.set_stream_even(fx.even);
     g.set_stream_lighter(p.stream_lighter.unwrap_or(true));
     g.set_stream_quiet_noise(fx.quiet_noise);
+    g.set_stream_tracks(fx.tracks);
     g.set_stream_presentation_camera(i32::from(p.presentation_camera));
     let c = &p.cards;
     g.set_stream_card_words_0(c.starting.words.as_str().into());
@@ -245,6 +246,7 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
     p.stream_even = if g.get_stream_even() { None } else { Some(false) };
     p.stream_lighter = if g.get_stream_lighter() { None } else { Some(false) };
     p.stream_quiet_noise = g.get_stream_quiet_noise();
+    p.stream_tracks = g.get_stream_tracks();
     let card = |w: slint::SharedString, pic: slint::SharedString| stream::pictures::Card { words: w.trim().to_string(), picture: pic.trim().to_string() };
     p.cards = stream::pictures::Cards {
         starting: card(g.get_stream_card_words_0(), g.get_stream_card_picture_0()),

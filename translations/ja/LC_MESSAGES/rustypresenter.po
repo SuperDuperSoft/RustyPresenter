@@ -2539,7 +2539,7 @@ msgstr "音量"
 msgid "Turn each sound up or down in the stream only (not in the room)."
 msgstr "配信の中だけで各音を上げ下げします（会場の音は変わりません）。"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint src/record/mod.rs
 msgid "Microphone or line-in"
 msgstr "マイクまたはライン入力"
 
@@ -2547,7 +2547,7 @@ msgstr "マイクまたはライン入力"
 msgid "{} dB"
 msgstr "{} dB"
 
-#: ui/dialogs/settings-media.slint src/app.rs
+#: ui/dialogs/settings-media.slint src/app.rs src/record/mod.rs
 msgid "This computer"
 msgstr "このコンピューター"
 
@@ -2566,6 +2566,10 @@ msgstr "大きい音と小さい音をならす"
 #: ui/dialogs/settings-media.slint
 msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
 msgstr "マイクやライン入力のハムノイズとヒスノイズを除く（音楽がこもることがあります）"
+
+#: ui/dialogs/settings-media.slint
+msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
+msgstr ""
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
@@ -6145,6 +6149,10 @@ msgstr "ネットワークカメラ {host}"
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
 msgstr "録画には無料のプログラム FFmpeg が必要です。{hint}"
+
+#: src/record/mod.rs
+msgid "Everything mixed"
+msgstr ""
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."

@@ -277,6 +277,7 @@ export component SettingsMedia inherits VerticalLayout {
             spacing: 6px;
             stream-even := Check { text: @tr("Even out loud and quiet moments"); checked <=> SettingsDlg.stream-even; }
             stream-quiet-noise := Check { text: @tr("Take out hum and hiss from the microphone or line-in (can dull music)"); checked <=> SettingsDlg.stream-quiet-noise; }
+            stream-tracks := Check { text: @tr("Also keep each sound on a track of its own in the recording, to balance them again afterwards"); checked <=> SettingsDlg.stream-tracks; }
         }
     }
     Field {

@@ -2539,7 +2539,7 @@ msgstr "Рівні звуку"
 msgid "Turn each sound up or down in the stream only (not in the room)."
 msgstr "Робіть кожен звук гучнішим або тихішим лише в трансляції (не в залі)."
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint src/record/mod.rs
 msgid "Microphone or line-in"
 msgstr "Мікрофон або лінійний вхід"
 
@@ -2547,7 +2547,7 @@ msgstr "Мікрофон або лінійний вхід"
 msgid "{} dB"
 msgstr "{} дБ"
 
-#: ui/dialogs/settings-media.slint src/app.rs
+#: ui/dialogs/settings-media.slint src/app.rs src/record/mod.rs
 msgid "This computer"
 msgstr "Цей комп’ютер"
 
@@ -2566,6 +2566,10 @@ msgstr "Вирівнювати гучні й тихі моменти"
 #: ui/dialogs/settings-media.slint
 msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
 msgstr "Прибирати гул і шипіння мікрофона або лінійного входу (музика може звучати глухіше)"
+
+#: ui/dialogs/settings-media.slint
+msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
+msgstr ""
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
@@ -6153,6 +6157,10 @@ msgstr "Мережева камера {host}"
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
 msgstr "Для запису потрібна безкоштовна програма FFmpeg. {hint}"
+
+#: src/record/mod.rs
+msgid "Everything mixed"
+msgstr ""
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."

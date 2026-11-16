@@ -2539,7 +2539,7 @@ msgstr "소리 크기"
 msgid "Turn each sound up or down in the stream only (not in the room)."
 msgstr "방송에서만 각 소리를 키우거나 줄입니다 (예배당 소리는 그대로)."
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint src/record/mod.rs
 msgid "Microphone or line-in"
 msgstr "마이크 또는 라인 입력"
 
@@ -2547,7 +2547,7 @@ msgstr "마이크 또는 라인 입력"
 msgid "{} dB"
 msgstr "{} dB"
 
-#: ui/dialogs/settings-media.slint src/app.rs
+#: ui/dialogs/settings-media.slint src/app.rs src/record/mod.rs
 msgid "This computer"
 msgstr "이 컴퓨터"
 
@@ -2566,6 +2566,10 @@ msgstr "큰 소리와 작은 소리를 고르게"
 #: ui/dialogs/settings-media.slint
 msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
 msgstr "마이크나 라인 입력의 웅웅거림과 쉿 소리 없애기 (음악이 둔해질 수 있음)"
+
+#: ui/dialogs/settings-media.slint
+msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
+msgstr ""
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
@@ -6145,6 +6149,10 @@ msgstr "네트워크 카메라 {host}"
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
 msgstr "녹화하려면 무료 프로그램인 FFmpeg가 필요해요. {hint}"
+
+#: src/record/mod.rs
+msgid "Everything mixed"
+msgstr ""
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."

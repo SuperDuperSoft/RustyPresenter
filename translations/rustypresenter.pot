@@ -2536,7 +2536,7 @@ msgstr ""
 msgid "Turn each sound up or down in the stream only (not in the room)."
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint src/record/mod.rs
 msgid "Microphone or line-in"
 msgstr ""
 
@@ -2544,7 +2544,7 @@ msgstr ""
 msgid "{} dB"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint src/app.rs
+#: ui/dialogs/settings-media.slint src/app.rs src/record/mod.rs
 msgid "This computer"
 msgstr ""
 
@@ -2562,6 +2562,10 @@ msgstr ""
 
 #: ui/dialogs/settings-media.slint
 msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
@@ -6139,6 +6143,10 @@ msgstr ""
 
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
+msgstr ""
+
+#: src/record/mod.rs
+msgid "Everything mixed"
 msgstr ""
 
 #: src/record/mod.rs

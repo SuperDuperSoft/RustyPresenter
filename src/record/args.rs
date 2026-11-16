@@ -1,6 +1,6 @@
 //! What `ffmpeg` is asked to do, as plain argument lists: recording (`record`), making the MP4 (`finish`), and
 //! listing the sound inputs (`list_inputs_args`, `parse_inputs`). All pure, so all tested here.
-use super::{Preset, sound::Segment};
+use super::{Preset, sound::Segment, tr};
 use crate::platform::tools::Os;
 use std::ffi::OsString;
 use std::path::Path;
@@ -209,6 +209,9 @@ pub struct SoundFx {
     pub even: bool,
     /// Steady hum and hiss taken out of the microphone or line-in.
     pub quiet_noise: bool,
+    /// With both sounds: the recording also keeps each on a track of its own after the mix (the stream gets only
+    /// the mix), so they can be balanced again afterwards.
+    pub tracks: bool,
 }
 
 /// Evens the sound out: what is louder than about -18 dB is brought down (3 to 1), all of it brought up 6 dB, and
@@ -242,10 +245,17 @@ impl SoundFx {
     }
 
     /// The `-filter_complex` mixing input 1 (the microphone or line-in) and 2 (the computer's sound) into `[a]`.
+    /// With `tracks`, each also comes out alone, after its own filters and held back as the mix is: `[bt]` and
+    /// `[pt]`.
     fn mix(&self) -> String {
         let (board, pc) = (self.board(), self.pc());
         let mut graph = String::new();
-        let mut label = |n: u8, f: Vec<String>, name: &str| if f.is_empty() { format!("[{n}:a]") } else {
+        let held = if self.delay_ms > 0 { format!("adelay={}:all=1", self.delay_ms) } else { "anull".to_string() };
+        let mut label = |n: u8, f: Vec<String>, name: &str| if self.tracks {
+            let before: String = f.iter().map(|x| format!("{x},")).collect();
+            graph.push_str(&format!("[{n}:a]{before}asplit=2[{name}][{name}s];[{name}s]{held}[{name}t];"));
+            format!("[{name}]")
+        } else if f.is_empty() { format!("[{n}:a]") } else {
             graph.push_str(&format!("[{n}:a]{}[{name}];", f.join(",")));
             format!("[{name}]")
         };
@@ -270,6 +280,8 @@ pub fn record(r: &Record) -> Vec<OsString> {
     let mut graph: Option<String> = None;
     let mut sound: Vec<String> = vec![];
     let mut tall_sound: Vec<String> = vec![];
+    // The file has the sounds on tracks of their own after the mix: the destinations get the mix only.
+    let mut tracks = false;
     let v = |x: &[&str]| x.iter().map(|s| s.to_string()).collect::<Vec<String>>();
     if let Some((format, name)) = r.input {
         match r.board {
@@ -291,6 +303,14 @@ pub fn record(r: &Record) -> Vec<OsString> {
                 graph = Some(if talls.is_empty() { mix } else { format!("{},asplit=2[a][a2]", mix.trim_end_matches("[a]")) });
                 sound = v(&["-map", "[a]", "-shortest", "-shortest_buf_duration", "0.5"]);
                 tall_sound = v(&["-map", "[a2]", "-shortest", "-shortest_buf_duration", "0.5"]);
+                if r.fx.tracks {
+                    // The mix first (what players play), then each sound alone, named.
+                    sound.extend(v(&["-map", "[bt]", "-map", "[pt]"]));
+                    for (i, title) in [(0, tr::track_mix()), (1, tr::track_board()), (2, tr::track_pc())] {
+                        sound.extend([format!("-metadata:s:a:{i}"), format!("title={title}")]);
+                    }
+                    tracks = true;
+                }
             }
             None => {
                 sound = [v(&["-map", "1:a"]), r.fx.one(r.fx.board())].concat();
@@ -345,7 +365,7 @@ pub fn record(r: &Record) -> Vec<OsString> {
         // One encode, many outputs: the file and every destination (`stream::tee`). The outputs that are sent
         // need the encoder's headers up front.
         push(&["-flags", "+global_header", "-f", "tee"]);
-        a.push(crate::stream::tee(r.out, &wide).into());
+        a.push(crate::stream::tee(r.out, &wide, tracks).into());
     }
     // The tall output: its own encode, to the tall destinations only.
     if !talls.is_empty() {
@@ -501,7 +521,7 @@ mod tests {
         let rec = |input, pc, fx| strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input, board: None, out: &out, stream: &to, tall: &[], kbps: 0, pc, fx }));
         let pc = Some(Feed { format: Format { samples: "f32le", rate: 48000, channels: 2 }, port: 40500 });
         let line = Some(("dshow", "Line In"));
-        let fx = SoundFx { delay_ms: 0, board_db: 6, pc_db: -4, even: true, quiet_noise: true };
+        let fx = SoundFx { delay_ms: 0, board_db: 6, pc_db: -4, even: true, quiet_noise: true, tracks: false };
         // One sound: its level, the noise taken out of the microphone (never out of the PC's own sound), evened out.
         assert_eq!(after(&rec(line, None, fx), "-af"), format!("afftdn=nf=-25,volume=6dB,{EVEN_OUT}"));
         assert_eq!(after(&rec(None, pc, fx), "-af"), format!("volume=-4dB,{EVEN_OUT}"));
@@ -514,6 +534,34 @@ mod tests {
         let plain = rec(line, pc, SoundFx::default()).join(" ");
         assert!(!plain.contains("volume") && !plain.contains("acompressor") && !plain.contains("afftdn"), "{plain}");
         assert!(!rec(None, None, fx).iter().any(|x| x.contains("volume") || x.contains("acompressor")));
+    }
+
+    #[test]
+    fn the_recording_can_keep_each_sound_on_a_track_of_its_own() {
+        use crate::stream::pc_sound::{Feed, Format};
+        let out = PathBuf::from("/r/Recording.recording.mkv");
+        let to = ["udp://127.0.0.1:20001?pkt_size=1316".to_string()];
+        let pc = Some(Feed { format: Format { samples: "f32le", rate: 48000, channels: 2 }, port: 40500 });
+        let line = Some(("dshow", "Line In"));
+        let rec = |input, pc, fx| strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input, board: None, out: &out, stream: &to, tall: &[], kbps: 0, pc, fx }));
+        let fx = SoundFx { tracks: true, board_db: 6, delay_ms: 300, ..SoundFx::default() };
+        let a = rec(line, pc, fx);
+        // Each sound split after its own filters; the copies held back as the mix is.
+        assert_eq!(after(&a, "-filter_complex"),
+            "[1:a]volume=6dB,asplit=2[b][bs];[bs]adelay=300:all=1[bt];[2:a]asplit=2[p][ps];[ps]adelay=300:all=1[pt];[b][p]amix=inputs=2:duration=shortest:normalize=0,adelay=300:all=1[a]");
+        let j = a.join(" ");
+        assert!(j.contains("-map [a] -shortest -shortest_buf_duration 0.5 -map [bt] -map [pt]"), "{j}");
+        assert!(a.windows(2).any(|w| w[0] == "-metadata:s:a:1" && w[1] == format!("title={}", tr::track_board())), "{j}");
+        // The destinations get the picture and the mix only.
+        assert!(a.last().unwrap().contains(":select=\\'v,a:0\\':"), "{j}");
+        // Without a delay the copies pass as they are.
+        assert!(after(&rec(line, pc, SoundFx { tracks: true, ..SoundFx::default() }), "-filter_complex").starts_with("[1:a]asplit=2[b][bs];[bs]anull[bt];"));
+        // One sound only: nothing to keep apart.
+        let one = rec(line, None, fx).join(" ");
+        assert!(!one.contains("[bt]") && !one.contains("select="), "{one}");
+        // Off: as before.
+        let off = rec(line, pc, SoundFx::default()).join(" ");
+        assert!(!off.contains("[bt]") && !off.contains("select=") && !off.contains("-metadata:s:a"), "{off}");
     }
 
     #[test]

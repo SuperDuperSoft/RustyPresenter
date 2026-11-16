@@ -2539,7 +2539,7 @@ msgstr "Lakas ng tunog"
 msgid "Turn each sound up or down in the stream only (not in the room)."
 msgstr "Lakasan o hinaan ang bawat tunog sa stream lang (hindi sa loob ng simbahan)."
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint src/record/mod.rs
 msgid "Microphone or line-in"
 msgstr "Mikropono o line-in"
 
@@ -2547,7 +2547,7 @@ msgstr "Mikropono o line-in"
 msgid "{} dB"
 msgstr "{} dB"
 
-#: ui/dialogs/settings-media.slint src/app.rs
+#: ui/dialogs/settings-media.slint src/app.rs src/record/mod.rs
 msgid "This computer"
 msgstr "Ang computer na ito"
 
@@ -2566,6 +2566,10 @@ msgstr "Pantayin ang malalakas at mahihinang bahagi"
 #: ui/dialogs/settings-media.slint
 msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
 msgstr "Alisin ang ugong at sitsit sa mikropono o line-in (maaaring lumabo ang musika)"
+
+#: ui/dialogs/settings-media.slint
+msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
+msgstr ""
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
@@ -6149,6 +6153,10 @@ msgstr "Network camera {host}"
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
 msgstr "Kailangan ng FFmpeg, isang libreng program, para makapag-record. {hint}"
+
+#: src/record/mod.rs
+msgid "Everything mixed"
+msgstr ""
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."

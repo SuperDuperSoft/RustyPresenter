@@ -287,12 +287,14 @@ fn settings_keep_the_streams_sound_levels_and_clean_up() {
     assert_eq!((g.get_stream_board_level(), g.get_stream_pc_level()), (0, 0));
     assert!(g.get_stream_even(), "evened out to start with");
     assert!(!g.get_stream_quiet_noise());
+    assert!(!g.get_stream_tracks(), "one track to start with");
+    g.set_stream_tracks(true);
     g.set_stream_board_level(8);
     g.set_stream_pc_level(-50);
     g.set_stream_even(false);
     g.set_stream_quiet_noise(true);
     crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
-    assert_eq!(prefs.sound_fx(), record::args::SoundFx { delay_ms: 0, board_db: 8, pc_db: -20, even: false, quiet_noise: true });
+    assert_eq!(prefs.sound_fx(), record::args::SoundFx { delay_ms: 0, board_db: 8, pc_db: -20, even: false, quiet_noise: true, tracks: true });
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
     assert_eq!((g.get_stream_board_level(), g.get_stream_pc_level(), g.get_stream_even(), g.get_stream_quiet_noise()), (8, -20, false, true));
     // Turned on again: back to how it starts, so nothing is saved for it.

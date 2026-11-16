@@ -2539,7 +2539,7 @@ msgstr "Niveaux du son"
 msgid "Turn each sound up or down in the stream only (not in the room)."
 msgstr "Monter ou baisser chaque son dans la diffusion seulement (pas dans la salle)."
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint src/record/mod.rs
 msgid "Microphone or line-in"
 msgstr "Micro ou entrée ligne"
 
@@ -2547,7 +2547,7 @@ msgstr "Micro ou entrée ligne"
 msgid "{} dB"
 msgstr "{} dB"
 
-#: ui/dialogs/settings-media.slint src/app.rs
+#: ui/dialogs/settings-media.slint src/app.rs src/record/mod.rs
 msgid "This computer"
 msgstr "Cet ordinateur"
 
@@ -2566,6 +2566,10 @@ msgstr "Équilibrer les moments forts et doux"
 #: ui/dialogs/settings-media.slint
 msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
 msgstr "Retirer le bourdonnement et le souffle du micro ou de l’entrée ligne (peut ternir la musique)"
+
+#: ui/dialogs/settings-media.slint
+msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
+msgstr ""
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
@@ -6149,6 +6153,10 @@ msgstr "Caméra réseau {host}"
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
 msgstr "L’enregistrement nécessite FFmpeg, un programme gratuit. {hint}"
+
+#: src/record/mod.rs
+msgid "Everything mixed"
+msgstr ""
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."

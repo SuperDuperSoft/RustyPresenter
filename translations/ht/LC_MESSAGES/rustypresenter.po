@@ -2539,7 +2539,7 @@ msgstr "Nivo son yo"
 msgid "Turn each sound up or down in the stream only (not in the room)."
 msgstr "Monte oswa bese chak son nan difizyon an sèlman (pa nan sal la)."
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint src/record/mod.rs
 msgid "Microphone or line-in"
 msgstr "Mikwo oswa antre liy"
 
@@ -2547,7 +2547,7 @@ msgstr "Mikwo oswa antre liy"
 msgid "{} dB"
 msgstr "{} dB"
 
-#: ui/dialogs/settings-media.slint src/app.rs
+#: ui/dialogs/settings-media.slint src/app.rs src/record/mod.rs
 msgid "This computer"
 msgstr "Òdinatè sa a"
 
@@ -2566,6 +2566,10 @@ msgstr "Egalize moman ki fò ak moman ki dous"
 #: ui/dialogs/settings-media.slint
 msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
 msgstr "Retire bri ronfleman ak sifleman nan mikwo a oswa antre liy lan (ka fè mizik la mat)"
+
+#: ui/dialogs/settings-media.slint
+msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
+msgstr ""
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
@@ -6149,6 +6153,10 @@ msgstr "Kamera rezo {host}"
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
 msgstr "Anrejistreman bezwen FFmpeg, yon pwogram gratis. {hint}"
+
+#: src/record/mod.rs
+msgid "Everything mixed"
+msgstr ""
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."

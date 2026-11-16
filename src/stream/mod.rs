@@ -144,17 +144,19 @@ fn tee_escape(s: &str) -> String {
 
 /// FFmpeg's `tee` output: the recording `file` (Matroska, which survives a crash) and each address. A
 /// destination that fails (a wrong key, the internet gone) is dropped and the others, and the recording, go on.
-pub fn tee(file: &Path, addresses: &[String]) -> String {
+/// With `mix_only` (the file has more sound tracks than the mix), each address gets the picture and the first
+/// sound only.
+pub fn tee(file: &Path, addresses: &[String], mix_only: bool) -> String {
     let mut parts = vec![format!("[f=matroska]{}", tee_escape(&file.to_string_lossy().replace('\\', "/")))];
-    parts.extend(addresses.iter().map(|a| tee_part(a)));
+    parts.extend(addresses.iter().map(|a| tee_part(a, mix_only)));
     parts.join("|")
 }
 
 /// FFmpeg's `tee` output for `addresses` alone (the tall stream: no file).
-pub fn tee_only(addresses: &[String]) -> String { addresses.iter().map(|a| tee_part(a)).collect::<Vec<_>>().join("|") }
+pub fn tee_only(addresses: &[String]) -> String { addresses.iter().map(|a| tee_part(a, false)).collect::<Vec<_>>().join("|") }
 
 /// One address in a `tee` output, with the format it carries.
-fn tee_part(a: &str) -> String {
+fn tee_part(a: &str, mix_only: bool) -> String {
     {
         // FLV is what RTMP carries; SRT carries MPEG-TS.
         let lower = a.to_ascii_lowercase();
@@ -162,7 +164,9 @@ fn tee_part(a: &str) -> String {
         // MPEG-TS has no header of its own: the picture's is put in again at every keyframe, so whoever
         // starts reading in the middle (a sender that reconnects) can show it within two seconds.
         let extra = if format == "mpegts" { ":bsfs/v=dump_extra" } else { "" };
-        format!("[f={format}{extra}:onfail=ignore]{}", tee_escape(a))
+        // The quotes are escaped once for the tee's own reading, so its options see `'v,a:0'` whole.
+        let select = if mix_only { ":select=\\'v,a:0\\'" } else { "" };
+        format!("[f={format}{extra}{select}:onfail=ignore]{}", tee_escape(a))
     }
 }
 
@@ -293,10 +297,13 @@ mod tests {
     #[test]
     fn the_tee_output_keeps_the_recording_and_lets_a_destination_fail() {
         let t = tee(Path::new(r"C:\Users\A B\Videos\RustyPresenter\2026-11-15 10.30.part.mkv"),
-            &["rtmp://a.rtmp.youtube.com/live2/y|1".to_string(), "srt://h.example.org:9000?streamid=abc".to_string()]);
+            &["rtmp://a.rtmp.youtube.com/live2/y|1".to_string(), "srt://h.example.org:9000?streamid=abc".to_string()], false);
         assert_eq!(t, "[f=matroska]C:/Users/A B/Videos/RustyPresenter/2026-11-15 10.30.part.mkv\
             |[f=flv:onfail=ignore]rtmp://a.rtmp.youtube.com/live2/y\\|1|[f=mpegts:bsfs/v=dump_extra:onfail=ignore]srt://h.example.org:9000?streamid=abc");
-        assert_eq!(tee(Path::new("it's [1].mkv"), &[]), "[f=matroska]it\\'s \\[1\\].mkv");
+        assert_eq!(tee(Path::new("it's [1].mkv"), &[], false), "[f=matroska]it\\'s \\[1\\].mkv");
+        // A file with sound tracks of its own: the destinations get the picture and the mix.
+        assert_eq!(tee(Path::new("r.mkv"), &["rtmp://x.example/live/k".to_string(), "udp://127.0.0.1:20001?pkt_size=1316".to_string()], true),
+            "[f=matroska]r.mkv|[f=flv:select=\\'v,a:0\\':onfail=ignore]rtmp://x.example/live/k|[f=mpegts:bsfs/v=dump_extra:select=\\'v,a:0\\':onfail=ignore]udp://127.0.0.1:20001?pkt_size=1316");
     }
 
     #[test]
