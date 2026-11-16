@@ -31,7 +31,7 @@ fn probe(file: &Path) -> (Vec<(String, String, u64, u64)>, f64) {
 }
 
 fn plan(ffmpeg: PathBuf, dir: &Path, sound: Sound) -> Plan {
-    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None }
+    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![] }
 }
 
 /// Records for `secs`, handing in a new solid picture every 100 ms (red, then green), with `each` called as it goes.
@@ -330,6 +330,27 @@ fn a_card_is_not_put_together_again_for_each_camera_picture() {
     m.update(&card, &room, Some(Arc::new([2u8; 16].to_vec())), true, t0 + Duration::from_millis(33));
     m.update(&card, &room, Some(Arc::new([3u8; 16].to_vec())), true, t0 + Duration::from_millis(66));
     assert_eq!(m.composes, after_first, "new camera and room pictures change nothing on a card");
+}
+
+/// The tall stream for real: the destination gets 720×1280 (the wide picture across the middle), the file stays
+/// 1280×720.
+#[test]
+fn go_live_sends_a_tall_stream_to_a_tall_destination() {
+    let Some(ff) = ffmpeg() else { return };
+    let dir = scratch("tall");
+    let (srv, url, received) = server(&ff, &dir);
+    let ended = record_for(Plan { stream: vec![url], tall: vec![true], ..plan(ff.clone(), &dir, Sound::None) }, 6.0, |_, _| {});
+    finish_server(srv);
+    assert_eq!(ended.problem, None, "{ended:?}");
+    let (streams, _) = probe(&received);
+    assert!(streams.iter().any(|s| s.0 == "video" && (s.2, s.3) == (720, 1280)), "{streams:?}");
+    let (streams, _) = probe(&dir.join("Recording test.mp4"));
+    assert!(streams.iter().any(|s| s.0 == "video" && (s.2, s.3) == (1280, 720)), "{streams:?}");
+    // The wide picture (red, then green) across the middle, black above and below.
+    let img = frame_at(&ff, &dir, &received, "1");
+    let (top, mid) = (img.get_pixel(360, 100).0, img.get_pixel(360, 640).0);
+    assert!(top.iter().all(|c| *c < 30) && is_red(mid), "top {top:?}, middle {mid:?}");
+    std::fs::remove_dir_all(&dir).unwrap();
 }
 
 /// Chapters for real: "Welcome" live at first, "Amazing Grace" from half way; the MP4 has both, named.

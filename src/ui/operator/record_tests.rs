@@ -106,6 +106,53 @@ fn after_the_app_stopped_while_live_it_asks_to_go_live_again() {
 }
 
 #[test]
+fn a_clip_marked_while_recording_is_saved_as_its_own_video() {
+    if !has_ffmpeg() { return eprintln!("no ffmpeg here: skipped") }
+    let app = test_app();
+    let folder = std::env::temp_dir().join(format!("rp-record-clip-{}", uuid::Uuid::new_v4()));
+    app.data.lock().unwrap().settings.record = RecordPrefs { size: Preset::P720, folder: folder.display().to_string(), sound: "none".into(), ..Default::default() };
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    op.toggle_clip();
+    assert!(!op.ui.get_clipping(), "not recording: no clip");
+    op.toggle_recording();
+    let sink = room.sink.lock().unwrap().clone().expect("recording");
+    let feed = |ms: u64| {
+        let t = std::time::Instant::now();
+        while t.elapsed() < Duration::from_millis(ms) {
+            let mut b = sink.buffer();
+            b.fill(150);
+            sink.put(b);
+            std::thread::sleep(Duration::from_millis(100));
+        }
+    };
+    feed(1000);
+    op.toggle_clip();
+    assert!(op.ui.get_clipping());
+    assert_eq!(toasts(&op).last(), Some(&(record::tr::clip_started(), false)));
+    feed(2500);
+    op.toggle_clip();
+    assert!(!op.ui.get_clipping());
+    assert_eq!(toasts(&op).last(), Some(&(record::tr::clip_marked(), false)));
+    // A slide action can start one too: it runs to the end.
+    *app.clip_request.lock().unwrap() = Some(true);
+    op.take_clip_request();
+    assert!(op.ui.get_clipping());
+    feed(1500);
+    op.toggle_recording();
+    let ended = testing::wait_ended(&op);
+    let file = ended.file.expect("a file");
+    let clips = [record::clips::name(&file, 1), record::clips::name(&file, 2)];
+    // `name` gives the next free one, so the clips made are those just before.
+    let made: Vec<PathBuf> = std::fs::read_dir(&folder).unwrap().map(|e| e.unwrap().path()).filter(|p| p.to_string_lossy().contains(" clip ")).collect();
+    assert_eq!(made.len(), 2, "{made:?} (next free: {clips:?})");
+    for p in &made { assert!(toasts(&op).contains(&(record::tr::clip_saved(&p.display().to_string()), false)), "{:?}", toasts(&op)) }
+    assert!(!op.ui.get_clipping(), "the recording ended: no clip open");
+    std::fs::remove_dir_all(&folder).unwrap();
+}
+
+#[test]
 fn file_menu_and_the_top_bar_both_record() {
     let app = test_app();
     let room = Arc::new(Room::default());
@@ -244,6 +291,27 @@ fn settings_keep_the_streams_sound_levels_and_clean_up() {
 }
 
 #[test]
+fn settings_keep_which_destinations_get_the_tall_stream() {
+    use crate::ui::SettingsDlg;
+    use slint::ComponentHandle;
+    let app = test_app();
+    let room = Arc::new(Room::default());
+    let op = open(&app, &room);
+    let g = op.ui.global::<SettingsDlg>();
+    let mut prefs = RecordPrefs::default();
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    g.set_stream_on_0(true);
+    g.set_stream_on_2(true);
+    g.set_stream_tall_2(true);
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    let tall: Vec<(usize, bool)> = prefs.stream.iter().map(|d| ((0..4).find(|&i| stream::built_in_id(i) == d.id).unwrap(), d.tall)).collect();
+    assert_eq!(tall, [(0, false), (2, true)]);
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    assert!(g.get_stream_tall_2() && !g.get_stream_tall_0());
+    assert_eq!(serde_json::to_value(&prefs.stream[0]).unwrap().get("tall"), None, "not tall: nothing saved");
+}
+
+#[test]
 fn settings_keep_each_cameras_control_address() {
     use crate::ui::SettingsDlg;
     use slint::ComponentHandle;
@@ -365,6 +433,27 @@ fn the_operator_hears_when_a_destination_connects_and_when_it_drops() {
     op.record.live.set(false);
     op.say_links(&l(&[true, true]));
     assert_eq!(toasts(&op).len(), said.len() + 1);
+}
+
+#[test]
+fn stopping_the_stream_says_how_it_went() {
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    op.record.live.set(true);
+    *op.record.links.borrow_mut() = vec![("YouTube".into(), false), ("Facebook".into(), false), ("Twitch".into(), false)];
+    let l = |v: [bool; 3]| v.iter().map(|up| stream::send::Link { up: *up, ..Default::default() }).collect::<Vec<_>>();
+    op.say_links(&l([true, true, false]));
+    op.say_links(&l([true, false, false]));
+    op.say_links(&l([true, true, false]));
+    op.say_links(&l([true, false, false]));
+    op.say_links(&l([true, true, false]));
+    op.say_stream_summary(4530);
+    assert_eq!(toasts(&op).last(), Some(&(stream::tr::summary(4530, &[("YouTube".into(), 0, true), ("Facebook".into(), 2, true), ("Twitch".into(), 0, false)]), true)));
+    assert_eq!(stream::tr::summary(4530, &[("YouTube".into(), 0, true), ("Facebook".into(), 2, true), ("Twitch".into(), 0, false)]),
+        "The stream ran 1:15:30. YouTube: connected the whole time. Facebook: dropped 2 times and came back. Twitch: never connected.");
+    assert_eq!(stream::tr::summary(65, &[("YouTube".into(), 1, true)]), "The stream ran 1:05. YouTube: dropped once and came back.");
 }
 
 #[test]

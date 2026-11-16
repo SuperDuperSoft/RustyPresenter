@@ -5,6 +5,7 @@
 //! app's own sound from the files that played (`sound`), or a microphone recorded alongside.
 pub mod args;
 pub mod chapters;
+pub mod clips;
 pub mod gl;
 pub mod pump;
 pub mod run;
@@ -205,6 +206,10 @@ pub mod tr {
     use crate::tr;
     pub fn no_ffmpeg(hint: &str) -> String { tr!("Recording needs FFmpeg, a free program. {hint}", hint = hint) }
     pub fn no_h264() -> String { tr!("This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again.") }
+    pub fn clip_started() -> String { tr!("Clip started. Press Clip again to end it; it is saved as its own video when the recording stops.") }
+    pub fn clip_marked() -> String { tr!("Clip marked. It is saved as its own video when the recording stops.") }
+    pub fn clip_saved(path: &str) -> String { tr!("Clip saved: {path}", path = path) }
+    pub fn clip_failed(path: &str) -> String { tr!("The clip could not be saved: {path}", path = path) }
     pub fn was_live() -> String { tr!("RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?") }
     pub fn go_live_again() -> String { tr!("Go Live") }
     pub fn too_slow() -> String { tr!("This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or close other programs.") }

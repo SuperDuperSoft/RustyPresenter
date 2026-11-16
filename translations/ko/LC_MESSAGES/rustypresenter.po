@@ -2664,6 +2664,14 @@ msgid "Its stream key, if it has one"
 msgstr "스트림 키 (있는 경우)"
 
 #: ui/dialogs/settings-media.slint
+msgid "Tall for phones"
+msgstr "휴대폰용 세로 화면"
+
+#: ui/dialogs/settings-media.slint
+msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other phone apps): the wide picture across the middle, black above and below. The recording stays wide."
+msgstr "이 대상에는 세로 화면을 보냅니다(YouTube Shorts, 릴스, TikTok 등 휴대폰 앱용). 가로 화면을 가운데에 두고 위아래는 검게 채웁니다. 녹화는 가로 그대로입니다."
+
+#: ui/dialogs/settings-media.slint
 msgid "Broadcast title"
 msgstr "방송 제목"
 
@@ -4063,6 +4071,26 @@ msgstr "녹화를 멈추고 파일 저장"
 msgid "Record the room screen to a video file"
 msgstr "예배당 화면을 동영상 파일로 녹화"
 
+#: ui/operator/record.slint src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "End the clip"
+msgstr "클립 끝내기"
+
+#: ui/operator/record.slint
+msgid "Start a clip"
+msgstr "클립 시작"
+
+#: ui/operator/record.slint
+msgid "End clip"
+msgstr "클립 끝"
+
+#: ui/operator/record.slint
+msgid "Clip"
+msgstr "클립"
+
+#: ui/operator/record.slint
+msgid "Mark a part of the recording (the sermon, say) to save as its own video"
+msgstr "녹화의 일부(예: 설교)를 표시해 별도 동영상으로 저장합니다"
+
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
 msgstr "예배"
@@ -5006,6 +5034,10 @@ msgstr "생방송: {name}"
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Livestream: automatic"
 msgstr "생방송: 자동"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Start a clip of the recording"
+msgstr "녹화 클립 시작"
 
 #: src/automation/slide_actions.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Theme: {name}"
@@ -5971,6 +6003,22 @@ msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and 
 msgstr "이 FFmpeg는 H.264 동영상을 만들 수 없어요. 전체 버전 FFmpeg를 설치하고 다시 시도하세요."
 
 #: src/record/mod.rs
+msgid "Clip started. Press Clip again to end it; it is saved as its own video when the recording stops."
+msgstr "클립을 시작했습니다. 클립을 다시 누르면 끝납니다. 녹화가 끝나면 별도 동영상으로 저장됩니다."
+
+#: src/record/mod.rs
+msgid "Clip marked. It is saved as its own video when the recording stops."
+msgstr "클립을 표시했습니다. 녹화가 끝나면 별도 동영상으로 저장됩니다."
+
+#: src/record/mod.rs
+msgid "Clip saved: {path}"
+msgstr "클립을 저장했습니다: {path}"
+
+#: src/record/mod.rs
+msgid "The clip could not be saved: {path}"
+msgstr "클립을 저장하지 못했습니다: {path}"
+
+#: src/record/mod.rs
 msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
 msgstr "라이브 방송 도중에 RustyPresenter가 멈췄습니다. 그때까지의 녹화는 보관되었습니다. 다시 라이브를 시작할까요?"
 
@@ -6302,6 +6350,26 @@ msgstr "{name}: 방송을 만들지 못했습니다({why}). 설정 → 미디어
 #: src/stream/accounts/mod.rs
 msgid "{name}: the replay is at {link}"
 msgstr "{name}: 다시보기는 {link}"
+
+#: src/stream/mod.rs
+msgid "The stream ran {time}."
+msgstr "방송 시간: {time}."
+
+#: src/stream/mod.rs
+msgid "{name}: never connected."
+msgstr "{name}: 한 번도 연결되지 않았습니다."
+
+#: src/stream/mod.rs
+msgid "{name}: connected the whole time."
+msgstr "{name}: 계속 연결되어 있었습니다."
+
+#: src/stream/mod.rs
+msgid "{name}: dropped once and came back."
+msgstr "{name}: 한 번 끊겼다가 돌아왔습니다."
+
+#: src/stream/mod.rs
+msgid "{name}: dropped {n} times and came back."
+msgstr "{name}: {n}번 끊겼다가 돌아왔습니다."
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

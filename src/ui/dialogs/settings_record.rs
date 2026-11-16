@@ -32,15 +32,16 @@ fn not_connected() -> String { crate::tr!("not connected") }
 fn strings(v: Vec<String>) -> ModelRc<SharedString> { ModelRc::new(VecModel::from(v.into_iter().map(Into::into).collect::<Vec<SharedString>>())) }
 
 /// Settings' four destinations as saved: whether each is on, and the custom server's address.
-fn stream_rows(p: &RecordPrefs) -> ([bool; 4], String) {
-    let mut on = [false; 4];
+fn stream_rows(p: &RecordPrefs) -> ([bool; 4], [bool; 4], String) {
+    let (mut on, mut tall) = ([false; 4], [false; 4]);
     let mut url = String::new();
     for d in &p.stream {
         let Some(i) = (0..4).find(|&i| stream::built_in_id(i) == d.id) else { continue };
         on[i] = d.on;
+        tall[i] = d.tall;
         if i == 3 { url = d.url.clone() }
     }
-    (on, url)
+    (on, tall, url)
 }
 
 /// Which of the four have a key in this computer's store.
@@ -153,7 +154,11 @@ pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     g.set_stream_card_picture_0(c.starting.picture.as_str().into());
     g.set_stream_card_picture_1(c.ending.picture.as_str().into());
     g.set_stream_card_picture_2(c.hold.picture.as_str().into());
-    let (on, url) = stream_rows(p);
+    let (on, tall, url) = stream_rows(p);
+    g.set_stream_tall_0(tall[0]);
+    g.set_stream_tall_1(tall[1]);
+    g.set_stream_tall_2(tall[2]);
+    g.set_stream_tall_3(tall[3]);
     g.set_stream_on_0(on[0]);
     g.set_stream_on_1(on[1]);
     g.set_stream_on_2(on[2]);
@@ -191,9 +196,11 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
     if sound != p.sound() { p.sound = sound.key() }
     // The destinations: a row is kept while it is on, or (the custom one) has an address. Keys are not here.
     let on = [g.get_stream_on_0(), g.get_stream_on_1(), g.get_stream_on_2(), g.get_stream_on_3()];
+    let tall = [g.get_stream_tall_0(), g.get_stream_tall_1(), g.get_stream_tall_2(), g.get_stream_tall_3()];
     let url = g.get_stream_url().trim().to_string();
     let rows: Vec<stream::Destination> = (0..4).filter(|&i| on[i] || (i == 3 && !url.is_empty())).map(|i| stream::Destination {
         id: stream::built_in_id(i), name: String::new(), service: stream::BUILT_IN[i].0, url: if i == 3 { url.clone() } else { String::new() }, key: String::new(), on: on[i],
+        tall: tall[i],
     }).collect();
     if rows != p.stream { p.stream = rows }
     let pc = read_stream_sound(g);

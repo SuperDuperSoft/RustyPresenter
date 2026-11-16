@@ -470,7 +470,7 @@ impl App {
                 // Nothing live: a runtime step that says so.
                 PlannedStep::GoToSlide { slide } => live.cursor.as_ref().map(|c| Command::Show { item_id: c.item_id, slide: *slide }),
                 PlannedStep::StageMessageShow { .. } | PlannedStep::StageMessageHide | PlannedStep::StageLayout { .. } | PlannedStep::StageLayoutAuto | PlannedStep::StreamScene { .. }
-                | PlannedStep::Music { .. } | PlannedStep::CameraPosition { .. } => {
+                | PlannedStep::Music { .. } | PlannedStep::CameraPosition { .. } | PlannedStep::Clip { .. } => {
                     stage.push((p.number, p.step.clone()));
                     continue;
                 }
@@ -556,6 +556,8 @@ impl App {
             PlannedStep::StageLayoutAuto => self.set_notice(&strings::stage_auto_not_yet()),
             PlannedStep::StreamScene { scene } => self.set_stream_scene(scene),
             PlannedStep::CameraPosition { camera, position } => self.move_camera(camera, position),
+            // The operator's window takes it on its next tick (`Operator::take_clip_request`).
+            PlannedStep::Clip { start } => *self.clip_request.lock().unwrap() = Some(start),
             PlannedStep::Music { play } => {
                 let op = if play { super::music::MusicOp::Play } else { super::music::MusicOp::Stop };
                 if let Err(e) = self.music(op) { self.set_notice(&e) }

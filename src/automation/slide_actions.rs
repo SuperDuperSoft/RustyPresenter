@@ -158,6 +158,8 @@ pub fn palette(data: &Data, slides: usize) -> Vec<Tile> {
         t.push(tile(Group::Stage, tr!("Livestream: {name}", name = s.label()), vec![MacroStep::StreamScene { scene: Some(s) }]));
     }
     t.push(tile(Group::Stage, tr!("Livestream: automatic"), vec![MacroStep::StreamScene { scene: None }]));
+    t.push(tile(Group::Stage, tr!("Start a clip of the recording"), vec![MacroStep::Clip { start: true }]));
+    t.push(tile(Group::Stage, tr!("End the clip"), vec![MacroStep::Clip { start: false }]));
     // PTZ cameras with a control address: each saved position.
     for (camera, position) in crate::stream::ptz::moves(&data.settings.record) {
         t.push(tile(Group::Stage, crate::stream::ptz::label(camera, position), vec![MacroStep::CameraPosition { camera, position }]));

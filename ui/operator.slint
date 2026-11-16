@@ -274,6 +274,9 @@ export component OperatorWindow inherits Window {
     /// N22: the room screen is being recorded, and for how long ("12:34"). The Record button and File → Start
     /// recording call `record`.
     in property <bool> recording;
+    /// Recording with a clip open (Clip pressed once).
+    in property <bool> clipping;
+    callback toggle-clip();
     in property <string> record-time;
     callback record();
     in property <bool> can-stream;
@@ -947,6 +950,8 @@ export component OperatorWindow inherits Window {
                 stage-on: root.stage-on;
                 phones-label: root.phones-label;
                 recording: root.recording;
+                clipping: root.clipping;
+                toggle-clip => { root.focus-keys(); root.toggle-clip(); }
                 record-time: root.record-time;
                 record => { root.focus-keys(); root.record(); }
                 can-stream: root.can-stream;

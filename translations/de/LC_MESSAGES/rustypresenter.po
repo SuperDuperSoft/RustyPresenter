@@ -2664,6 +2664,14 @@ msgid "Its stream key, if it has one"
 msgstr "Sein Streamschlüssel, falls er einen hat"
 
 #: ui/dialogs/settings-media.slint
+msgid "Tall for phones"
+msgstr "Hochformat für Handys"
+
+#: ui/dialogs/settings-media.slint
+msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other phone apps): the wide picture across the middle, black above and below. The recording stays wide."
+msgstr "Diese bekommen ein Bild im Hochformat (für YouTube Shorts, Reels, TikTok und andere Handy-Apps): das breite Bild in der Mitte, oben und unten schwarz. Die Aufnahme bleibt im Querformat."
+
+#: ui/dialogs/settings-media.slint
 msgid "Broadcast title"
 msgstr "Titel der Übertragung"
 
@@ -4063,6 +4071,26 @@ msgstr "Aufnahme beenden und Datei speichern"
 msgid "Record the room screen to a video file"
 msgstr "Saalbildschirm als Videodatei aufnehmen"
 
+#: ui/operator/record.slint src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "End the clip"
+msgstr "Den Clip beenden"
+
+#: ui/operator/record.slint
+msgid "Start a clip"
+msgstr "Einen Clip beginnen"
+
+#: ui/operator/record.slint
+msgid "End clip"
+msgstr "Clip beenden"
+
+#: ui/operator/record.slint
+msgid "Clip"
+msgstr "Clip"
+
+#: ui/operator/record.slint
+msgid "Mark a part of the recording (the sermon, say) to save as its own video"
+msgstr "Einen Teil der Aufnahme (etwa die Predigt) markieren, um ihn als eigenes Video zu speichern"
+
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
 msgstr "Gottesdienst"
@@ -5006,6 +5034,10 @@ msgstr "Livestream: {name}"
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Livestream: automatic"
 msgstr "Livestream: automatisch"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Start a clip of the recording"
+msgstr "Einen Clip der Aufnahme beginnen"
 
 #: src/automation/slide_actions.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Theme: {name}"
@@ -5975,6 +6007,22 @@ msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and 
 msgstr "Diese FFmpeg-Version kann kein H.264-Video erzeugen. Installieren Sie das vollständige FFmpeg und versuchen Sie es erneut."
 
 #: src/record/mod.rs
+msgid "Clip started. Press Clip again to end it; it is saved as its own video when the recording stops."
+msgstr "Clip begonnen. Drücken Sie noch einmal Clip, um ihn zu beenden; er wird als eigenes Video gespeichert, wenn die Aufnahme endet."
+
+#: src/record/mod.rs
+msgid "Clip marked. It is saved as its own video when the recording stops."
+msgstr "Clip markiert. Er wird als eigenes Video gespeichert, wenn die Aufnahme endet."
+
+#: src/record/mod.rs
+msgid "Clip saved: {path}"
+msgstr "Clip gespeichert: {path}"
+
+#: src/record/mod.rs
+msgid "The clip could not be saved: {path}"
+msgstr "Der Clip konnte nicht gespeichert werden: {path}"
+
+#: src/record/mod.rs
 msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
 msgstr "RustyPresenter wurde mitten in einer Live-Übertragung beendet. Die Aufnahme bis dahin wurde behalten. Wieder live gehen?"
 
@@ -6307,6 +6355,26 @@ msgstr "{name}: Die Übertragung konnte nicht erstellt werden ({why}). Melden Si
 #: src/stream/accounts/mod.rs
 msgid "{name}: the replay is at {link}"
 msgstr "{name}: Die Aufzeichnung ist unter {link}"
+
+#: src/stream/mod.rs
+msgid "The stream ran {time}."
+msgstr "Die Übertragung lief {time}."
+
+#: src/stream/mod.rs
+msgid "{name}: never connected."
+msgstr "{name}: nie verbunden."
+
+#: src/stream/mod.rs
+msgid "{name}: connected the whole time."
+msgstr "{name}: die ganze Zeit verbunden."
+
+#: src/stream/mod.rs
+msgid "{name}: dropped once and came back."
+msgstr "{name}: einmal abgebrochen und wieder da."
+
+#: src/stream/mod.rs
+msgid "{name}: dropped {n} times and came back."
+msgstr "{name}: {n}-mal abgebrochen und wieder da."
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

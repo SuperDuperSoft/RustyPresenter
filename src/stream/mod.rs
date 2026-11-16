@@ -69,6 +69,9 @@ pub struct Destination {
     #[serde(skip)]
     pub key: String,
     pub on: bool,
+    /// Gets the tall picture (9:16, for phones: Shorts, Reels, TikTok) instead of the wide one.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub tall: bool,
 }
 
 /// Why a destination cannot be streamed to.
@@ -140,16 +143,24 @@ fn tee_escape(s: &str) -> String {
 /// destination that fails (a wrong key, the internet gone) is dropped and the others, and the recording, go on.
 pub fn tee(file: &Path, addresses: &[String]) -> String {
     let mut parts = vec![format!("[f=matroska]{}", tee_escape(&file.to_string_lossy().replace('\\', "/")))];
-    for a in addresses {
+    parts.extend(addresses.iter().map(|a| tee_part(a)));
+    parts.join("|")
+}
+
+/// FFmpeg's `tee` output for `addresses` alone (the tall stream: no file).
+pub fn tee_only(addresses: &[String]) -> String { addresses.iter().map(|a| tee_part(a)).collect::<Vec<_>>().join("|") }
+
+/// One address in a `tee` output, with the format it carries.
+fn tee_part(a: &str) -> String {
+    {
         // FLV is what RTMP carries; SRT carries MPEG-TS.
         let lower = a.to_ascii_lowercase();
         let format = if lower.starts_with("srt://") || lower.starts_with("udp://") { "mpegts" } else { "flv" };
         // MPEG-TS has no header of its own: the picture's is put in again at every keyframe, so whoever
         // starts reading in the middle (a sender that reconnects) can show it within two seconds.
         let extra = if format == "mpegts" { ":bsfs/v=dump_extra" } else { "" };
-        parts.push(format!("[f={format}{extra}:onfail=ignore]{}", tee_escape(a)));
+        format!("[f={format}{extra}:onfail=ignore]{}", tee_escape(a))
     }
-    parts.join("|")
 }
 
 /// `line` (something FFmpeg said) with every stream key of `addresses` taken out: the last part of an address,
@@ -170,6 +181,19 @@ pub fn redact(line: &str, addresses: &[String]) -> String {
 /// What the operator is told about streaming.
 pub mod tr {
     use crate::tr;
+    /// After a stream: how long it ran, and how each destination did (`(name, drops, ever connected)`).
+    pub fn summary(secs: u64, rows: &[(String, u32, bool)]) -> String {
+        let mut parts = vec![tr!("The stream ran {time}.", time = crate::record::clock(secs))];
+        for (name, drops, ever) in rows {
+            parts.push(match (*ever, *drops) {
+                (false, _) => tr!("{name}: never connected.", name = name),
+                (true, 0) => tr!("{name}: connected the whole time.", name = name),
+                (true, 1) => tr!("{name}: dropped once and came back.", name = name),
+                (true, n) => tr!("{name}: dropped {n} times and came back.", name = name, n = n),
+            });
+        }
+        parts.join(" ")
+    }
     pub fn live_on(names: &str) -> String { tr!("Going live on {names}. Recording too.", names = names) }
     pub fn connected(name: &str) -> String { tr!("{name}: the stream is going out.", name = name) }
     pub fn never_connected(name: &str) -> String { tr!("{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on.", name = name) }
@@ -215,7 +239,7 @@ mod tests {
     use super::*;
 
     fn dest(service: Service, url: &str, key: &str) -> Destination {
-        Destination { id: Uuid::new_v4(), name: String::new(), service, url: url.into(), key: key.into(), on: true }
+        Destination { id: Uuid::new_v4(), name: String::new(), service, url: url.into(), key: key.into(), on: true, tall: false }
     }
 
     #[test]

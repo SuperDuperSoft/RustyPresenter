@@ -99,6 +99,8 @@ pub enum MacroStep {
     StreamScene { #[serde(default)] scene: Option<crate::stream::scene::Scene> },
     /// A PTZ camera (1 or 2, Settings → Media → Livestream) moved to one of its saved positions (`stream::ptz`).
     CameraPosition { camera: u8, position: u8 },
+    /// Starts (or ends) a clip of the recording under way (`record::clips`).
+    Clip { start: bool },
 }
 
 impl MacroStep {
@@ -115,7 +117,7 @@ impl MacroStep {
         matches!(self, TimerShow { .. } | TimerHide { .. } | MessageShow { .. } | MessageHide | Overlay { .. }
             | TimerStart { .. } | TimerPause { .. } | TimerReset { .. } | TimerRestart { .. }
             | StageMessageShow { .. } | StageMessageHide | StageLayout { .. } | StageLayoutAuto | Music { .. } | StreamScene { .. }
-            | CameraPosition { .. })
+            | CameraPosition { .. } | Clip { .. })
     }
 }
 
@@ -187,6 +189,7 @@ pub enum PlannedStep {
     GoToSlide { slide: usize },
     StreamScene { scene: Option<crate::stream::scene::Scene> },
     CameraPosition { camera: u8, position: u8 },
+    Clip { start: bool },
 }
 
 impl PlannedStep {
@@ -199,7 +202,7 @@ impl PlannedStep {
                 StepClass::Runtime
             }
             StageMessageShow { .. } | StageMessageHide | StageLayout { .. } | StageLayoutAuto | Music { .. } | StreamScene { .. }
-            | CameraPosition { .. } => StepClass::Action,
+            | CameraPosition { .. } | Clip { .. } => StepClass::Action,
         }
     }
 
@@ -316,6 +319,7 @@ pub fn resolve<Tz: TimeZone>(m: &Macro, ctx: &ResolveCtx<Tz>) -> Result<Resolved
             MacroStep::GoToSlide { slide } => PlannedStep::GoToSlide { slide: *slide },
             MacroStep::StreamScene { scene } => PlannedStep::StreamScene { scene: *scene },
             MacroStep::CameraPosition { camera, position } => PlannedStep::CameraPosition { camera: *camera, position: *position },
+            MacroStep::Clip { start } => PlannedStep::Clip { start: *start },
             // Slide actions put the macro's own steps here before resolving; one left over was deleted.
             MacroStep::RunMacro { .. } => return Err(deleted(strings::StepTarget::Macro)),
         };
@@ -601,6 +605,12 @@ mod tests {
         assert_eq!(cant_run_deleted("Walk-in", 3, StepTarget::Timer),
                    "Couldn't run “Walk-in”: step 3's timer was deleted. Edit the macro.");
         assert_eq!(cant_run_newer("Walk-in", 4), "Couldn't run “Walk-in”: step 4 needs a newer RustyPresenter.");
+    }
+
+    #[test]
+    fn clip_steps_round_trip() {
+        assert_eq!(serde_json::to_value(MacroStep::Clip { start: true }).unwrap(), serde_json::json!({"step":"clip","start":true}));
+        assert_eq!(serde_json::from_value::<MacroStep>(serde_json::json!({"step":"clip","start":false})).unwrap(), MacroStep::Clip { start: false });
     }
 
     #[test]

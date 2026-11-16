@@ -2664,6 +2664,14 @@ msgid "Its stream key, if it has one"
 msgstr "Kle emisyon li, si li genyen youn"
 
 #: ui/dialogs/settings-media.slint
+msgid "Tall for phones"
+msgstr "Vètikal pou telefòn"
+
+#: ui/dialogs/settings-media.slint
+msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other phone apps): the wide picture across the middle, black above and below. The recording stays wide."
+msgstr "Sa yo resevwa yon imaj vètikal (pou YouTube Shorts, Reels, TikTok ak lòt aplikasyon telefòn): imaj laj la nan mitan, nwa anlè ak anba. Anrejistreman an rete laj."
+
+#: ui/dialogs/settings-media.slint
 msgid "Broadcast title"
 msgstr "Tit difizyon an"
 
@@ -4063,6 +4071,26 @@ msgstr "Kanpe anrejistreman an epi anrejistre fichye a"
 msgid "Record the room screen to a video file"
 msgstr "Anrejistre ekran sal la nan yon fichye videyo"
 
+#: ui/operator/record.slint src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "End the clip"
+msgstr "Fini klip la"
+
+#: ui/operator/record.slint
+msgid "Start a clip"
+msgstr "Kòmanse yon klip"
+
+#: ui/operator/record.slint
+msgid "End clip"
+msgstr "Fini klip"
+
+#: ui/operator/record.slint
+msgid "Clip"
+msgstr "Klip"
+
+#: ui/operator/record.slint
+msgid "Mark a part of the recording (the sermon, say) to save as its own video"
+msgstr "Make yon pati nan anrejistreman an (prèch la, pa egzanp) pou sove l kòm yon videyo apa"
+
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
 msgstr "Sèvis"
@@ -5006,6 +5034,10 @@ msgstr "Difizyon: {name}"
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Livestream: automatic"
 msgstr "Difizyon: otomatik"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Start a clip of the recording"
+msgstr "Kòmanse yon klip nan anrejistreman an"
 
 #: src/automation/slide_actions.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Theme: {name}"
@@ -5975,6 +6007,22 @@ msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and 
 msgstr "Kopi FFmpeg sa a pa ka fè videyo H.264. Enstale FFmpeg konplè a epi eseye ankò."
 
 #: src/record/mod.rs
+msgid "Clip started. Press Clip again to end it; it is saved as its own video when the recording stops."
+msgstr "Klip la kòmanse. Peze Klip ankò pou fini l; y ap sove l kòm yon videyo apa lè anrejistreman an fini."
+
+#: src/record/mod.rs
+msgid "Clip marked. It is saved as its own video when the recording stops."
+msgstr "Klip la make. Y ap sove l kòm yon videyo apa lè anrejistreman an fini."
+
+#: src/record/mod.rs
+msgid "Clip saved: {path}"
+msgstr "Klip la sove: {path}"
+
+#: src/record/mod.rs
+msgid "The clip could not be saved: {path}"
+msgstr "Klip la pa t ka sove: {path}"
+
+#: src/record/mod.rs
 msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
 msgstr "RustyPresenter te kanpe nan mitan yon difizyon an dirèk. Anrejistreman an jiska lè sa a te kenbe. Ale an dirèk ankò?"
 
@@ -6307,6 +6355,26 @@ msgstr "{name}: difizyon an pa t ka fèt ({why}). Konekte ankò nan Paramèt →
 #: src/stream/accounts/mod.rs
 msgid "{name}: the replay is at {link}"
 msgstr "{name}: rediffusion an nan {link}"
+
+#: src/stream/mod.rs
+msgid "The stream ran {time}."
+msgstr "Difizyon an te dire {time}."
+
+#: src/stream/mod.rs
+msgid "{name}: never connected."
+msgstr "{name}: pa janm konekte."
+
+#: src/stream/mod.rs
+msgid "{name}: connected the whole time."
+msgstr "{name}: konekte tout tan an."
+
+#: src/stream/mod.rs
+msgid "{name}: dropped once and came back."
+msgstr "{name}: koupe yon fwa epi li retounen."
+
+#: src/stream/mod.rs
+msgid "{name}: dropped {n} times and came back."
+msgstr "{name}: koupe {n} fwa epi li retounen."
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

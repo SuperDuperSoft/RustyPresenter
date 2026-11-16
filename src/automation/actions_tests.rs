@@ -512,6 +512,19 @@ fn a_slide_action_can_pick_the_stream_scene() {
     assert_eq!(*app.stream_choice.lock().unwrap(), Choice { scene: Some(Scene::Camera), item: Some(item) });
 }
 
+/// A slide can start or end a clip of the recording (the sermon's first and last slides).
+#[test]
+fn a_slide_action_can_start_and_end_a_clip() {
+    let app = test_app();
+    let item = text_item(&app, "Sermon", 2);
+    add_actions(&app, item, 0, vec![MacroStep::Clip { start: true }]).unwrap();
+    add_actions(&app, item, 1, vec![MacroStep::Clip { start: false }]).unwrap();
+    show(&app, item, 0);
+    assert_eq!(*app.clip_request.lock().unwrap(), Some(true));
+    show(&app, item, 1);
+    assert_eq!(*app.clip_request.lock().unwrap(), Some(false));
+}
+
 /// A slide can move a PTZ camera to a saved position (the sermon's first slide: the pulpit).
 #[test]
 fn a_slide_action_can_move_a_ptz_camera() {

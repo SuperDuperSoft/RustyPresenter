@@ -2664,6 +2664,14 @@ msgid "Its stream key, if it has one"
 msgstr "ストリームキー (ある場合)"
 
 #: ui/dialogs/settings-media.slint
+msgid "Tall for phones"
+msgstr "スマホ用の縦長"
+
+#: ui/dialogs/settings-media.slint
+msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other phone apps): the wide picture across the middle, black above and below. The recording stays wide."
+msgstr "これらには縦長の映像を送ります（YouTube ショート、リール、TikTok などのスマホアプリ用）。横長の映像を中央に置き、上下は黒です。録画は横長のままです。"
+
+#: ui/dialogs/settings-media.slint
 msgid "Broadcast title"
 msgstr "配信のタイトル"
 
@@ -4063,6 +4071,26 @@ msgstr "録画を停止してファイルを保存"
 msgid "Record the room screen to a video file"
 msgstr "会場画面を動画ファイルに録画"
 
+#: ui/operator/record.slint src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "End the clip"
+msgstr "クリップを終える"
+
+#: ui/operator/record.slint
+msgid "Start a clip"
+msgstr "クリップを開始"
+
+#: ui/operator/record.slint
+msgid "End clip"
+msgstr "クリップ終了"
+
+#: ui/operator/record.slint
+msgid "Clip"
+msgstr "クリップ"
+
+#: ui/operator/record.slint
+msgid "Mark a part of the recording (the sermon, say) to save as its own video"
+msgstr "録画の一部（説教など）に印を付けて別の動画として保存します"
+
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
 msgstr "礼拝"
@@ -5006,6 +5034,10 @@ msgstr "配信: {name}"
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Livestream: automatic"
 msgstr "配信: 自動"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Start a clip of the recording"
+msgstr "録画のクリップを開始"
 
 #: src/automation/slide_actions.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Theme: {name}"
@@ -5971,6 +6003,22 @@ msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and 
 msgstr "この FFmpeg では H.264 動画を作成できません。完全版の FFmpeg をインストールして再試行してください。"
 
 #: src/record/mod.rs
+msgid "Clip started. Press Clip again to end it; it is saved as its own video when the recording stops."
+msgstr "クリップを開始しました。もう一度「クリップ」を押すと終わります。録画を止めると別の動画として保存されます。"
+
+#: src/record/mod.rs
+msgid "Clip marked. It is saved as its own video when the recording stops."
+msgstr "クリップを記録しました。録画を止めると別の動画として保存されます。"
+
+#: src/record/mod.rs
+msgid "Clip saved: {path}"
+msgstr "クリップを保存しました: {path}"
+
+#: src/record/mod.rs
+msgid "The clip could not be saved: {path}"
+msgstr "クリップを保存できませんでした: {path}"
+
+#: src/record/mod.rs
 msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
 msgstr "ライブ配信の途中で RustyPresenter が止まりました。それまでの録画は保存されています。もう一度ライブを始めますか？"
 
@@ -6302,6 +6350,26 @@ msgstr "{name}: 配信を作成できませんでした ({why})。「設定 → 
 #: src/stream/accounts/mod.rs
 msgid "{name}: the replay is at {link}"
 msgstr "{name}: アーカイブは {link}"
+
+#: src/stream/mod.rs
+msgid "The stream ran {time}."
+msgstr "配信時間は {time} でした。"
+
+#: src/stream/mod.rs
+msgid "{name}: never connected."
+msgstr "{name}：一度も接続しませんでした。"
+
+#: src/stream/mod.rs
+msgid "{name}: connected the whole time."
+msgstr "{name}：ずっと接続していました。"
+
+#: src/stream/mod.rs
+msgid "{name}: dropped once and came back."
+msgstr "{name}：1 回切れて、戻りました。"
+
+#: src/stream/mod.rs
+msgid "{name}: dropped {n} times and came back."
+msgstr "{name}：{n} 回切れて、戻りました。"
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

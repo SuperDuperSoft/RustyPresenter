@@ -2664,6 +2664,14 @@ msgid "Its stream key, if it has one"
 msgstr "Його ключ трансляції, якщо є"
 
 #: ui/dialogs/settings-media.slint
+msgid "Tall for phones"
+msgstr "Вертикально для телефонів"
+
+#: ui/dialogs/settings-media.slint
+msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other phone apps): the wide picture across the middle, black above and below. The recording stays wide."
+msgstr "Сюди йде вертикальне зображення (для YouTube Shorts, Reels, TikTok та інших телефонних застосунків): широке зображення посередині, згори й знизу чорне. Запис лишається широким."
+
+#: ui/dialogs/settings-media.slint
 msgid "Broadcast title"
 msgstr "Назва трансляції"
 
@@ -4063,6 +4071,26 @@ msgstr "Зупинити запис і зберегти файл"
 msgid "Record the room screen to a video file"
 msgstr "Записати екран у залі у відеофайл"
 
+#: ui/operator/record.slint src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "End the clip"
+msgstr "Закінчити фрагмент"
+
+#: ui/operator/record.slint
+msgid "Start a clip"
+msgstr "Почати фрагмент"
+
+#: ui/operator/record.slint
+msgid "End clip"
+msgstr "Кінець фрагмента"
+
+#: ui/operator/record.slint
+msgid "Clip"
+msgstr "Фрагмент"
+
+#: ui/operator/record.slint
+msgid "Mark a part of the recording (the sermon, say) to save as its own video"
+msgstr "Позначити частину запису (наприклад, проповідь), щоб зберегти її окремим відео"
+
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
 msgstr "Служіння"
@@ -5006,6 +5034,10 @@ msgstr "Трансляція: {name}"
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Livestream: automatic"
 msgstr "Трансляція: автоматично"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Start a clip of the recording"
+msgstr "Почати фрагмент запису"
 
 #: src/automation/slide_actions.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Theme: {name}"
@@ -5979,6 +6011,22 @@ msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and 
 msgstr "Ця версія FFmpeg не вміє створювати відео H.264. Установіть повну версію FFmpeg і спробуйте ще раз."
 
 #: src/record/mod.rs
+msgid "Clip started. Press Clip again to end it; it is saved as its own video when the recording stops."
+msgstr "Фрагмент почато. Натисніть «Фрагмент» ще раз, щоб закінчити; його буде збережено окремим відео, коли запис зупиниться."
+
+#: src/record/mod.rs
+msgid "Clip marked. It is saved as its own video when the recording stops."
+msgstr "Фрагмент позначено. Його буде збережено окремим відео, коли запис зупиниться."
+
+#: src/record/mod.rs
+msgid "Clip saved: {path}"
+msgstr "Фрагмент збережено: {path}"
+
+#: src/record/mod.rs
+msgid "The clip could not be saved: {path}"
+msgstr "Не вдалося зберегти фрагмент: {path}"
+
+#: src/record/mod.rs
 msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
 msgstr "RustyPresenter зупинився посеред трансляції. Запис до того моменту збережено. Знову вийти в ефір?"
 
@@ -6312,6 +6360,26 @@ msgstr "{name}: трансляцію не вдалося створити ({why}
 #: src/stream/accounts/mod.rs
 msgid "{name}: the replay is at {link}"
 msgstr "{name}: запис тут: {link}"
+
+#: src/stream/mod.rs
+msgid "The stream ran {time}."
+msgstr "Трансляція тривала {time}."
+
+#: src/stream/mod.rs
+msgid "{name}: never connected."
+msgstr "{name}: так і не підключився."
+
+#: src/stream/mod.rs
+msgid "{name}: connected the whole time."
+msgstr "{name}: весь час на зв’язку."
+
+#: src/stream/mod.rs
+msgid "{name}: dropped once and came back."
+msgstr "{name}: один раз відключався й повернувся."
+
+#: src/stream/mod.rs
+msgid "{name}: dropped {n} times and came back."
+msgstr "{name}: відключався {n} разів і повернувся."
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

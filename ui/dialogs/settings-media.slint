@@ -471,6 +471,18 @@ export component SettingsMedia inherits VerticalLayout {
             }
         }
     }
+    Field {
+        label: @tr("Tall for phones");
+        help: @tr("These get a tall picture (for YouTube Shorts, Reels, TikTok and other phone apps): the wide picture across the middle, black above and below. The recording stays wide.");
+        HorizontalLayout {
+            alignment: start;
+            spacing: 14px;
+            stream-tall-yt := Check { text: "YouTube"; checked <=> SettingsDlg.stream-tall-0; }
+            stream-tall-fb := Check { text: "Facebook"; checked <=> SettingsDlg.stream-tall-1; }
+            stream-tall-tw := Check { text: "Twitch"; checked <=> SettingsDlg.stream-tall-2; }
+            stream-tall-custom := Check { text: @tr("Another server"); checked <=> SettingsDlg.stream-tall-3; }
+        }
+    }
     if SettingsDlg.stream-account-0 != "" || SettingsDlg.stream-account-1 != "": Field {
         label: @tr("Broadcast title");
         help: @tr("What YouTube and Facebook call each broadcast. {{date}} becomes the day's date.");

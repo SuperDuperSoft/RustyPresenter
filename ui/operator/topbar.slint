@@ -6,7 +6,7 @@ import { EditMenu, Icon, TopBtn, Pill, Kbd, TipArea } from "../widgets.slint";
 import { BiblePickerList, TranslationChip } from "../bible-picker.slint";
 import { StageLayoutButton } from "../dialogs/stage-layouts.slint";
 import { PanelExtras } from "extras.slint";
-import { RecordBtn, LiveBtn, PanicBtn, SceneBtn, SoundMeter } from "record.slint";
+import { RecordBtn, ClipBtn, LiveBtn, PanicBtn, SceneBtn, SoundMeter } from "record.slint";
 
 export { TranslationChip }
 
@@ -47,6 +47,9 @@ export component TopBar inherits Rectangle {
     in property <string> phones-label;
     /// N22: recording the room, and for how long.
     in property <bool> recording;
+    /// Recording with a clip open (Clip pressed once).
+    in property <bool> clipping;
+    callback toggle-clip();
     in property <string> record-time;
 
     callback record();
@@ -615,6 +618,14 @@ export component TopBar inherits Rectangle {
                 // Only the dot below 1400 px: with its word the bar overflows just above `narrow`.
                 narrow: root.compact;
                 clicked => { root.record(); }
+            }
+        }
+        if root.recording: VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            clip-btn := ClipBtn {
+                clipping: root.clipping;
+                clicked => { root.toggle-clip(); }
             }
         }
         if root.can-stream || root.live: VerticalLayout {

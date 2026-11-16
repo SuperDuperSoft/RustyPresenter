@@ -101,6 +101,8 @@ pub struct Plan {
     pub sound_fx: args::SoundFx,
     /// What is live, for the recording's chapters (`None`: none).
     pub chapters: Option<super::chapters::Source>,
+    /// Which of `stream` get the tall picture (phones), in the same order; missing: not tall.
+    pub tall: Vec<bool>,
 }
 
 /// The stream's panic buttons, shared with the feeds while the recording runs. The file and the stream are one
@@ -128,7 +130,7 @@ impl Plan {
             return Err(Some(tr::low_disk(&gb(free), &gb(prefs.size.bytes_per_hour()))));
         }
         let out = super::file_name(&folder, chrono::Local::now().naive_local());
-        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None })
+        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![] })
     }
 }
 
@@ -262,6 +264,9 @@ impl Recording {
     /// Whole seconds recorded.
     pub fn secs(&self) -> u64 { self.begun.elapsed().as_secs() }
 
+    /// Seconds since it started, to the millisecond (clips).
+    pub fn elapsed(&self) -> f64 { self.begun.elapsed().as_secs_f64() }
+
     /// Stops the recording; `done` follows once the file is finished.
     pub fn stop(&self) { self.cancel.cancel() }
 
@@ -320,7 +325,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
         .map_err(|e| eprintln!("recording: FFmpeg reads the sound input itself: {e}")).ok());
     if let Some(b) = &board { *silent.lock().unwrap_or_else(|e| e.into_inner()) = Some(b.silent.clone()) }
     *levels.lock().unwrap_or_else(|e| e.into_inner()) = board.iter().map(|b| b.level.clone()).chain(pc.iter().map(|c| c.level.clone())).collect();
-    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, board: board.as_ref().map(|b| b.feed), out: &part, stream: &feeds, pc: pc.as_ref().map(|c| c.feed), fx: if live { plan.sound_fx } else { args::SoundFx::default() } });
+    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, board: board.as_ref().map(|b| b.feed), out: &part, stream: &feeds, tall: &plan.tall, pc: pc.as_ref().map(|c| c.feed), fx: if live { plan.sound_fx } else { args::SoundFx::default() } });
     let mut cmd = tokio::process::Command::new(&plan.ffmpeg);
     cmd.args(a).stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::piped());
     let mut tree = match spawn_tree(cmd) {

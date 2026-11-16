@@ -2661,6 +2661,14 @@ msgid "Its stream key, if it has one"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
+msgid "Tall for phones"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other phone apps): the wide picture across the middle, black above and below. The recording stays wide."
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
 msgid "Broadcast title"
 msgstr ""
 
@@ -4054,6 +4062,26 @@ msgstr ""
 msgid "Record the room screen to a video file"
 msgstr ""
 
+#: ui/operator/record.slint src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "End the clip"
+msgstr ""
+
+#: ui/operator/record.slint
+msgid "Start a clip"
+msgstr ""
+
+#: ui/operator/record.slint
+msgid "End clip"
+msgstr ""
+
+#: ui/operator/record.slint
+msgid "Clip"
+msgstr ""
+
+#: ui/operator/record.slint
+msgid "Mark a part of the recording (the sermon, say) to save as its own video"
+msgstr ""
+
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
 msgstr ""
@@ -4996,6 +5024,10 @@ msgstr ""
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Livestream: automatic"
+msgstr ""
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Start a clip of the recording"
 msgstr ""
 
 #: src/automation/slide_actions.rs src/strings/themes.rs src/ui/dialogs/automation.rs
@@ -5966,6 +5998,22 @@ msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and 
 msgstr ""
 
 #: src/record/mod.rs
+msgid "Clip started. Press Clip again to end it; it is saved as its own video when the recording stops."
+msgstr ""
+
+#: src/record/mod.rs
+msgid "Clip marked. It is saved as its own video when the recording stops."
+msgstr ""
+
+#: src/record/mod.rs
+msgid "Clip saved: {path}"
+msgstr ""
+
+#: src/record/mod.rs
+msgid "The clip could not be saved: {path}"
+msgstr ""
+
+#: src/record/mod.rs
 msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
 msgstr ""
 
@@ -6297,6 +6345,26 @@ msgstr ""
 
 #: src/stream/accounts/mod.rs
 msgid "{name}: the replay is at {link}"
+msgstr ""
+
+#: src/stream/mod.rs
+msgid "The stream ran {time}."
+msgstr ""
+
+#: src/stream/mod.rs
+msgid "{name}: never connected."
+msgstr ""
+
+#: src/stream/mod.rs
+msgid "{name}: connected the whole time."
+msgstr ""
+
+#: src/stream/mod.rs
+msgid "{name}: dropped once and came back."
+msgstr ""
+
+#: src/stream/mod.rs
+msgid "{name}: dropped {n} times and came back."
 msgstr ""
 
 #: src/stream/mod.rs

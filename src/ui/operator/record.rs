@@ -24,6 +24,8 @@ pub struct RecordUi {
     /// Go Live: each destination's name and whether it was connected at the last look, in the order of
     /// `Plan::stream`. The ticker says when one drops or comes back.
     links: RefCell<Vec<(String, bool)>>,
+    /// Go Live: each destination's drops so far, and whether it ever connected (the summary at the end).
+    history: RefCell<Vec<(u32, bool)>>,
     /// The destinations the operator was told the internet is too slow for (once each).
     slow_told: RefCell<Vec<String>>,
     /// The destinations the operator was told have not connected after `NEVER_TRIES` (once each).
@@ -35,6 +37,8 @@ pub struct RecordUi {
     /// The sound input being recorded (empty: none), and whether it was silent at the last look.
     input: RefCell<String>,
     silent_was: Cell<bool>,
+    /// The clips marked in the recording under way (`record::clips`).
+    marks: RefCell<record::clips::Marks>,
     /// Whether the computer keeps up with the recording, from the writer's lag each second.
     slow: RefCell<record::slow::Slow>,
     /// Updates the time on the button once a second.
@@ -116,6 +120,8 @@ impl Operator {
         // recording starts either (the operator asked for a stream).
         let mut titles = vec![];
         let mut addresses = vec![];
+        // Which of `addresses` get the tall picture, in the same order.
+        let mut talls: Vec<bool> = vec![];
         // Signed in: the broadcast is made, and its address got, as the recording is got ready.
         let mut signed: Vec<(stream::Destination, String)> = vec![];
         if live {
@@ -128,6 +134,7 @@ impl Operator {
             for (name, why) in &bad { self.toast(stream::tr::not_ready(name, &why.words()), true) }
             if good.is_empty() && signed.is_empty() { return self.toast(stream::tr::nothing_ready(), true) }
             titles = keyed.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.title().to_string()).collect();
+            talls = keyed.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.tall).collect();
             self.record.slow_told.borrow_mut().clear();
             self.record.never_told.borrow_mut().clear();
             self.record.camera_was.set(None);
@@ -140,6 +147,7 @@ impl Operator {
             description: prefs.stream_description.clone(),
             privacy: prefs.stream_privacy,
         };
+        let signed_tall: Vec<(String, bool)> = signed.iter().map(|(d, _)| (d.title().to_string(), d.tall)).collect();
         let signed: Vec<(stream::Destination, String, stream::accounts::Details)> = signed.into_iter().map(|(d, t)| { let x = details(d.service); (d, t, x) }).collect();
         self.record.starting.set(true);
         let prefs_pc = prefs.pc_sound(&app_output);
@@ -176,13 +184,21 @@ impl Operator {
             let mut broadcasts = vec![];
             for (title, r) in made {
                 match r {
-                    Ok(b) => { addresses.push(b.address.clone()); titles.push(title.clone()); broadcasts.push((title, b)) }
+                    Ok(b) => {
+                        addresses.push(b.address.clone());
+                        talls.push(signed_tall.iter().any(|(t, tall)| *t == title && *tall));
+                        titles.push(title.clone());
+                        broadcasts.push((title, b))
+                    }
                     Err(e) => { eprintln!("stream: {title}: {e}"); op.toast(stream::accounts::tr::prepare_failed(&title, &e), true) }
                 }
             }
             *op.record.broadcasts.borrow_mut() = broadcasts;
             if live && addresses.is_empty() && plan.is_ok() { return op.toast(stream::tr::nothing_ready(), true) }
-            if live { *op.record.links.borrow_mut() = titles.iter().map(|t| (t.clone(), false)).collect() }
+            if live {
+                *op.record.links.borrow_mut() = titles.iter().map(|t| (t.clone(), false)).collect();
+                op.record.history.borrow_mut().clear();
+            }
             let names = titles.join(", ");
             match plan {
                 Ok(mut plan) => {
@@ -193,6 +209,7 @@ impl Operator {
                         plan.sound_fx = sound_fx;
                     }
                     plan.stream = addresses;
+                    plan.tall = talls;
                     op.record.live.set(live);
                     op.start_recording(plan);
                     if live && op.is_recording() {
@@ -219,6 +236,8 @@ impl Operator {
         *self.record.input.borrow_mut() = match &plan.sound { record::Sound::Input(name) => name.clone(), _ => String::new() };
         self.record.silent_was.set(false);
         *self.record.slow.borrow_mut() = Default::default();
+        *self.record.marks.borrow_mut() = Default::default();
+        self.ui.set_clipping(false);
         let (tx, rx) = tokio::sync::oneshot::channel::<Ended>();
         let rec = match Recording::start(plan, move |e| { let _ = tx.send(e); }) {
             Ok(r) => r,
@@ -289,8 +308,19 @@ impl Operator {
         });
     }
 
+    /// After a stream: how long it ran and how each destination did.
+    pub(crate) fn say_stream_summary(&self, secs: u64) {
+        let history = self.record.history.borrow();
+        let rows: Vec<(String, u32, bool)> = self.record.links.borrow().iter().enumerate()
+            .map(|(i, (name, _))| { let (drops, ever) = history.get(i).copied().unwrap_or_default(); (name.clone(), drops, ever) }).collect();
+        if rows.is_empty() { return }
+        let trouble = rows.iter().any(|(_, drops, ever)| *drops > 0 || !ever);
+        self.toast(stream::tr::summary(secs, &rows), trouble);
+    }
+
     fn recording_ended(&self, ended: Ended) {
         record::unfinished::clear(&self.app().store.root);
+        if self.record.live.get() && let Some(secs) = self.record.rec.borrow().as_ref().map(Recording::secs) { self.say_stream_summary(secs) }
         self.end_broadcasts(true);
         self.screens().record_to(None);
         // The writer has finished; dropping it does not wait.
@@ -298,6 +328,33 @@ impl Operator {
         self.show_recording(false);
         let (text, err) = ended.toast();
         self.toast(text, err);
+        // The clips marked, each copied out of the finished file.
+        let clips = std::mem::take(&mut *self.record.marks.borrow_mut()).finish();
+        self.ui.set_clipping(false);
+        if let (false, Some(file)) = (clips.is_empty(), ended.file.clone()) {
+            let root = self.app().store.root.clone();
+            let me = self.me.clone();
+            off_ui(self, move || run::find_ffmpeg(&root).map(|ff| record::clips::cut(&ff, &file, &clips)).unwrap_or_default(), move |made| {
+                let Some(op) = me.upgrade() else { return };
+                for m in made {
+                    match m { Ok(p) => op.toast(record::tr::clip_saved(&p.display().to_string()), false), Err(p) => op.toast(record::tr::clip_failed(&p), true) }
+                }
+            });
+        }
+    }
+
+    /// Clip: starts a clip of the recording under way, or ends the open one. Nothing while not recording.
+    pub fn toggle_clip(&self) {
+        let Some(at) = self.record.rec.borrow().as_ref().map(Recording::elapsed) else { return };
+        let open = self.record.marks.borrow_mut().toggle(at);
+        self.ui.set_clipping(open);
+        self.toast(if open { record::tr::clip_started() } else { record::tr::clip_marked() }, false);
+    }
+
+    /// A slide action or macro asked for a clip to start or end (`App::clip_request`).
+    pub(crate) fn take_clip_request(&self) {
+        let Some(start) = self.app().clip_request.lock().unwrap().take() else { return };
+        if self.is_recording() && self.record.marks.borrow().is_open() != start { self.toggle_clip() }
     }
 
     /// Go Live: says which destination has just connected, and which has lost its connection (it is tried
@@ -305,8 +362,11 @@ impl Operator {
     pub(crate) fn say_links(&self, now: &[stream::send::Link]) {
         if !self.record.live.get() { return }
         let mut said = vec![];
-        for ((name, was), link) in self.record.links.borrow_mut().iter_mut().zip(now) {
+        let mut history = self.record.history.borrow_mut();
+        for (i, ((name, was), link)) in self.record.links.borrow_mut().iter_mut().zip(now).enumerate() {
+            if history.len() <= i { history.resize(i + 1, (0, false)) }
             if *was != link.up {
+                if link.up { history[i].1 = true } else { history[i].0 += 1 }
                 *was = link.up;
                 said.push(if link.up { (stream::tr::connected(name), false) } else { (stream::tr::lost(name), true) });
             }
@@ -512,6 +572,7 @@ impl Operator {
             op.say_camera(camera);
             let silent = op.record.rec.borrow().as_ref().and_then(Recording::silent);
             op.say_silence(silent);
+            op.take_clip_request();
             let lag = op.record.rec.borrow().as_ref().map(Recording::lag);
             op.say_slow(lag);
             op.ask_viewers();
@@ -552,6 +613,8 @@ const SLOW_SKIPS: u32 = 3;
 pub(super) fn wire(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
     op.ui.on_record(move || if let Some(op) = me.upgrade() { op.toggle_recording() });
+    let me = Rc::downgrade(op);
+    op.ui.on_toggle_clip(move || if let Some(op) = me.upgrade() { op.toggle_clip() });
     let me = Rc::downgrade(op);
     op.ui.on_go_live(move || if let Some(op) = me.upgrade() { op.go_live() });
     let me = Rc::downgrade(op);

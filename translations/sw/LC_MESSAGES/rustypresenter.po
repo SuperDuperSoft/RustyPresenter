@@ -2664,6 +2664,14 @@ msgid "Its stream key, if it has one"
 msgstr "Ufunguo wake wa matangazo, ikiwa unao"
 
 #: ui/dialogs/settings-media.slint
+msgid "Tall for phones"
+msgstr "Wima kwa simu"
+
+#: ui/dialogs/settings-media.slint
+msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other phone apps): the wide picture across the middle, black above and below. The recording stays wide."
+msgstr "Hivi hupata picha ya wima (kwa YouTube Shorts, Reels, TikTok na programu nyingine za simu): picha pana katikati, nyeusi juu na chini. Rekodi inabaki pana."
+
+#: ui/dialogs/settings-media.slint
 msgid "Broadcast title"
 msgstr "Kichwa cha matangazo"
 
@@ -4063,6 +4071,26 @@ msgstr "Acha kurekodi na uhifadhi faili"
 msgid "Record the room screen to a video file"
 msgstr "Rekodi skrini ya ukumbi kwenye faili ya video"
 
+#: ui/operator/record.slint src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "End the clip"
+msgstr "Maliza kipande"
+
+#: ui/operator/record.slint
+msgid "Start a clip"
+msgstr "Anza kipande"
+
+#: ui/operator/record.slint
+msgid "End clip"
+msgstr "Maliza kipande"
+
+#: ui/operator/record.slint
+msgid "Clip"
+msgstr "Kipande"
+
+#: ui/operator/record.slint
+msgid "Mark a part of the recording (the sermon, say) to save as its own video"
+msgstr "Weka alama sehemu ya rekodi (kwa mfano mahubiri) ili kuihifadhi kama video yake"
+
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
 msgstr "Ibada"
@@ -5006,6 +5034,10 @@ msgstr "Matangazo: {name}"
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Livestream: automatic"
 msgstr "Matangazo: kiotomatiki"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Start a clip of the recording"
+msgstr "Anza kipande cha rekodi"
 
 #: src/automation/slide_actions.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Theme: {name}"
@@ -5975,6 +6007,22 @@ msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and 
 msgstr "Nakala hii ya FFmpeg haiwezi kutengeneza video ya H.264. Sakinisha FFmpeg kamili kisha ujaribu tena."
 
 #: src/record/mod.rs
+msgid "Clip started. Press Clip again to end it; it is saved as its own video when the recording stops."
+msgstr "Kipande kimeanza. Bonyeza Kipande tena kukimaliza; kitahifadhiwa kama video yake wakati rekodi itakaposimama."
+
+#: src/record/mod.rs
+msgid "Clip marked. It is saved as its own video when the recording stops."
+msgstr "Kipande kimewekwa alama. Kitahifadhiwa kama video yake wakati rekodi itakaposimama."
+
+#: src/record/mod.rs
+msgid "Clip saved: {path}"
+msgstr "Kipande kimehifadhiwa: {path}"
+
+#: src/record/mod.rs
+msgid "The clip could not be saved: {path}"
+msgstr "Kipande hakikuweza kuhifadhiwa: {path}"
+
+#: src/record/mod.rs
 msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
 msgstr "RustyPresenter ilisimama katikati ya matangazo ya moja kwa moja. Rekodi hadi wakati huo imehifadhiwa. Kuwa mubashara tena?"
 
@@ -6307,6 +6355,26 @@ msgstr "{name}: matangazo hayakuweza kuundwa ({why}). Ingia tena katika Mipangil
 #: src/stream/accounts/mod.rs
 msgid "{name}: the replay is at {link}"
 msgstr "{name}: marudio yako kwenye {link}"
+
+#: src/stream/mod.rs
+msgid "The stream ran {time}."
+msgstr "Matangazo yalidumu {time}."
+
+#: src/stream/mod.rs
+msgid "{name}: never connected."
+msgstr "{name}: haikuwahi kuunganishwa."
+
+#: src/stream/mod.rs
+msgid "{name}: connected the whole time."
+msgstr "{name}: iliunganishwa muda wote."
+
+#: src/stream/mod.rs
+msgid "{name}: dropped once and came back."
+msgstr "{name}: ilikatika mara moja na kurudi."
+
+#: src/stream/mod.rs
+msgid "{name}: dropped {n} times and came back."
+msgstr "{name}: ilikatika mara {n} na kurudi."
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

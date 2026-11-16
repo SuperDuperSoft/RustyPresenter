@@ -29,14 +29,14 @@ pub const CALENDAR_TAB: i32 = 4;
 /// The kinds of step the Add step list offers, in its order (spec §3.4).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum StepKind { ShowItem, Next, Prev, Clear(ClearWhich), Logo, TimerStart, TimerPause, TimerReset, TimerRestart, TimerShow, TimerHide,
-    MessageShow, MessageHide, OverlayOn, OverlayOff, AutoOff, AutoOn, StageMessage, StageMessageHide, MusicPlay, MusicStop, StreamScene, CameraPosition }
+    MessageShow, MessageHide, OverlayOn, OverlayOff, AutoOff, AutoOn, StageMessage, StageMessageHide, MusicPlay, MusicStop, StreamScene, CameraPosition, ClipStart, ClipEnd }
 
-pub const STEP_KINDS: [StepKind; 27] = [
+pub const STEP_KINDS: [StepKind; 29] = [
     StepKind::ShowItem, StepKind::Next, StepKind::Prev, StepKind::Clear(ClearWhich::All), StepKind::Clear(ClearWhich::Slide),
     StepKind::Clear(ClearWhich::Media), StepKind::Clear(ClearWhich::Audio), StepKind::Clear(ClearWhich::Overlays), StepKind::Logo,
     StepKind::TimerStart, StepKind::TimerPause, StepKind::TimerReset, StepKind::TimerRestart, StepKind::TimerShow, StepKind::TimerHide,
     StepKind::MessageShow, StepKind::MessageHide, StepKind::OverlayOn, StepKind::OverlayOff, StepKind::AutoOff, StepKind::AutoOn,
-    StepKind::StageMessage, StepKind::StageMessageHide, StepKind::MusicPlay, StepKind::MusicStop, StepKind::StreamScene, StepKind::CameraPosition,
+    StepKind::StageMessage, StepKind::StageMessageHide, StepKind::MusicPlay, StepKind::MusicStop, StepKind::StreamScene, StepKind::CameraPosition, StepKind::ClipStart, StepKind::ClipEnd,
 ];
 
 fn kind_label(k: StepKind) -> String {
@@ -68,6 +68,8 @@ fn kind_label(k: StepKind) -> String {
         StepKind::MusicStop => crate::tr!("Stop the walk-in music"),
         StepKind::StreamScene => crate::tr!("Change the livestream's scene"),
         StepKind::CameraPosition => crate::tr!("Move a PTZ camera"),
+        StepKind::ClipStart => crate::tr!("Start a clip of the recording"),
+        StepKind::ClipEnd => crate::tr!("End the clip"),
     }
 }
 
@@ -157,6 +159,7 @@ pub fn step_label(s: &Lenient<MacroStep>, a: &Automation, data: &Data) -> String
         MacroStep::StreamScene { scene: Some(s) } => crate::tr!("Livestream: {name}", name = s.label()),
         MacroStep::StreamScene { scene: None } => crate::tr!("Livestream: automatic"),
         MacroStep::CameraPosition { camera, position } => crate::stream::ptz::label(*camera, *position),
+        MacroStep::Clip { start } => kind_label(if *start { StepKind::ClipStart } else { StepKind::ClipEnd }),
         MacroStep::RunMacro { macro_id } => {
             let name = a.macros.iter().find(|m| m.id == *macro_id).map_or_else(|| "?".to_string(), |m| m.name.clone());
             crate::tr!("Run “{name}”", name = name)
@@ -190,6 +193,8 @@ pub fn build_step(k: StepKind, target: Option<(Uuid, String)>, text: &str) -> Op
         StepKind::MusicPlay => MacroStep::Music { play: true },
         StepKind::MusicStop => MacroStep::Music { play: false },
         StepKind::StreamScene => MacroStep::StreamScene { scene: scene_of(id?) },
+        StepKind::ClipStart => MacroStep::Clip { start: true },
+        StepKind::ClipEnd => MacroStep::Clip { start: false },
         StepKind::CameraPosition => {
             let n = id?.as_u128();
             MacroStep::CameraPosition { camera: u8::try_from(n / 256).ok()?, position: u8::try_from(n % 256).ok()? }
@@ -461,6 +466,7 @@ fn step_kind_of(step: &MacroStep) -> Option<StepKind> {
             (MacroStep::Overlay { on: a, .. }, MacroStep::Overlay { on: b, .. }) => a == b,
             (MacroStep::AutoAdvance { on: a }, MacroStep::AutoAdvance { on: b }) => a == b,
             (MacroStep::Music { play: a }, MacroStep::Music { play: b }) => a == b,
+            (MacroStep::Clip { start: a }, MacroStep::Clip { start: b }) => a == b,
             _ => true,
         })
     })

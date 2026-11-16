@@ -2664,6 +2664,14 @@ msgid "Its stream key, if it has one"
 msgstr "Ang stream key nito, kung mayroon"
 
 #: ui/dialogs/settings-media.slint
+msgid "Tall for phones"
+msgstr "Patayo para sa telepono"
+
+#: ui/dialogs/settings-media.slint
+msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other phone apps): the wide picture across the middle, black above and below. The recording stays wide."
+msgstr "Patayong larawan ang makukuha ng mga ito (para sa YouTube Shorts, Reels, TikTok at iba pang phone app): ang malapad na larawan sa gitna, itim sa itaas at ibaba. Malapad pa rin ang recording."
+
+#: ui/dialogs/settings-media.slint
 msgid "Broadcast title"
 msgstr "Pamagat ng broadcast"
 
@@ -4063,6 +4071,26 @@ msgstr "Ihinto ang pag-record at i-save ang file"
 msgid "Record the room screen to a video file"
 msgstr "I-record ang screen sa silid sa isang video file"
 
+#: ui/operator/record.slint src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "End the clip"
+msgstr "Tapusin ang clip"
+
+#: ui/operator/record.slint
+msgid "Start a clip"
+msgstr "Magsimula ng clip"
+
+#: ui/operator/record.slint
+msgid "End clip"
+msgstr "Tapusin ang clip"
+
+#: ui/operator/record.slint
+msgid "Clip"
+msgstr "Clip"
+
+#: ui/operator/record.slint
+msgid "Mark a part of the recording (the sermon, say) to save as its own video"
+msgstr "Markahan ang bahagi ng recording (halimbawa ang sermon) para itago bilang sariling video"
+
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
 msgstr "Service"
@@ -5006,6 +5034,10 @@ msgstr "Livestream: {name}"
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Livestream: automatic"
 msgstr "Livestream: awtomatiko"
+
+#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
+msgid "Start a clip of the recording"
+msgstr "Magsimula ng clip ng recording"
 
 #: src/automation/slide_actions.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Theme: {name}"
@@ -5975,6 +6007,22 @@ msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and 
 msgstr "Hindi makagawa ng H.264 video ang kopyang ito ng FFmpeg. I-install ang buong FFmpeg at subukang muli."
 
 #: src/record/mod.rs
+msgid "Clip started. Press Clip again to end it; it is saved as its own video when the recording stops."
+msgstr "Nagsimula ang clip. Pindutin ulit ang Clip para tapusin; itatago ito bilang sariling video kapag huminto ang recording."
+
+#: src/record/mod.rs
+msgid "Clip marked. It is saved as its own video when the recording stops."
+msgstr "Na-mark ang clip. Itatago ito bilang sariling video kapag huminto ang recording."
+
+#: src/record/mod.rs
+msgid "Clip saved: {path}"
+msgstr "Naitago ang clip: {path}"
+
+#: src/record/mod.rs
+msgid "The clip could not be saved: {path}"
+msgstr "Hindi naitago ang clip: {path}"
+
+#: src/record/mod.rs
 msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
 msgstr "Huminto ang RustyPresenter sa gitna ng livestream. Naitago ang recording hanggang doon. Mag-live ulit?"
 
@@ -6307,6 +6355,26 @@ msgstr "{name}: hindi magawa ang broadcast ({why}). Mag-sign in muli sa Settings
 #: src/stream/accounts/mod.rs
 msgid "{name}: the replay is at {link}"
 msgstr "{name}: ang replay ay nasa {link}"
+
+#: src/stream/mod.rs
+msgid "The stream ran {time}."
+msgstr "Tumagal ang stream nang {time}."
+
+#: src/stream/mod.rs
+msgid "{name}: never connected."
+msgstr "{name}: hindi kailanman nakakonekta."
+
+#: src/stream/mod.rs
+msgid "{name}: connected the whole time."
+msgstr "{name}: nakakonekta sa buong oras."
+
+#: src/stream/mod.rs
+msgid "{name}: dropped once and came back."
+msgstr "{name}: naputol nang isang beses at bumalik."
+
+#: src/stream/mod.rs
+msgid "{name}: dropped {n} times and came back."
+msgstr "{name}: naputol nang {n} beses at bumalik."
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

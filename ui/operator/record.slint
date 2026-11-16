@@ -365,3 +365,40 @@ export component RecordBtn inherits Rectangle {
 
     TipArea { text: root.recording ? @tr("Stop recording and save the file") : @tr("Record the room screen to a video file"); hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
 }
+
+/// Beside Record while recording: starts a clip (the sermon, say), and ends it. Each clip is saved as its own
+/// video when the recording stops.
+export component ClipBtn inherits Rectangle {
+    in property <bool> clipping;
+    callback clicked();
+
+    accessible-role: button;
+    accessible-label: root.clipping ? @tr("End the clip") : @tr("Start a clip");
+    accessible-action-default => { root.clicked(); }
+
+    border-radius: 9px;
+    border-width: 1px;
+    border-color: root.clipping ? Theme.live : Theme.line;
+    background: root.clipping ? Theme.notice-bg : clip-ta.has-hover ? Theme.raise : transparent;
+
+    HorizontalLayout {
+        padding: 8px;
+        padding-left: 10px;
+        padding-right: 10px;
+        Text {
+            text: root.clipping ? @tr("End clip") : @tr("Clip");
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: root.clipping ? 600 : 400;
+            vertical-alignment: center;
+        }
+    }
+
+    clip-ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+
+    TipArea { text: @tr("Mark a part of the recording (the sermon, say) to save as its own video"); hover: clip-ta.has-hover; pressed: clip-ta.pressed; pointer-x: clip-ta.mouse-x; }
+}
