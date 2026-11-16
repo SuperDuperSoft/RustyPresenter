@@ -2812,8 +2812,8 @@ msgid "Test which is fastest"
 msgstr "Thử cái nào nhanh nhất"
 
 #: ui/dialogs/settings.slint
-msgid "About 30 seconds. Test windows open and close while it runs."
-msgstr "Khoảng 30 giây. Các cửa sổ thử sẽ mở và đóng trong lúc chạy."
+msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
+msgstr ""
 
 #: ui/dialogs/settings.slint
 msgid "Use this"
@@ -10435,16 +10435,52 @@ msgid "Didn't work"
 msgstr "Không chạy"
 
 #: src/video/bench.rs
+msgid "It stopped responding."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "It could not start."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "It closed before it finished. It may have crashed."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "Slides never reached the room screen."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "This graphics card or its driver can't draw with it."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "Slide change {ms} ms"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "{n} hiccups a minute"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "longest pause {ms} ms"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "processor {pct} %"
+msgstr ""
+
+#: src/video/bench.rs
 msgid "Testing {mode}… ({at} of {count})"
 msgstr "Đang thử {mode}… ({at}/{count})"
 
 #: src/video/bench.rs
-msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About 30 seconds"
-msgstr "Card đồ họa hoặc trình điều khiển của nó đã thay đổi. Bạn có muốn tôi tìm lại đồ họa tốt nhất cho máy này không? Khoảng 30 giây"
+msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About a minute"
+msgstr ""
 
 #: src/video/bench.rs
-msgid "Want me to find the best graphics for this PC? About 30 seconds"
-msgstr "Bạn có muốn tôi tìm đồ họa tốt nhất cho máy này không? Khoảng 30 giây"
+msgid "Want me to find the best graphics for this PC? About a minute"
+msgstr ""
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
@@ -10565,6 +10601,15 @@ msgstr "yt-dlp không lưu được video nào"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "không phải tệp đa phương tiện"
+
+#~ msgid "About 30 seconds. Test windows open and close while it runs."
+#~ msgstr "Khoảng 30 giây. Các cửa sổ thử sẽ mở và đóng trong lúc chạy."
+
+#~ msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About 30 seconds"
+#~ msgstr "Card đồ họa hoặc trình điều khiển của nó đã thay đổi. Bạn có muốn tôi tìm lại đồ họa tốt nhất cho máy này không? Khoảng 30 giây"
+
+#~ msgid "Want me to find the best graphics for this PC? About 30 seconds"
+#~ msgstr "Bạn có muốn tôi tìm đồ họa tốt nhất cho máy này không? Khoảng 30 giây"
 
 #~ msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
 #~ msgstr "Bật một nơi phát và nút Phát trực tiếp sẽ hiện bên cạnh nút Ghi. Phát trực tiếp vẫn ghi như thường và gửi cùng hình ảnh và âm thanh đến mọi nơi phát đang bật. Âm thanh là micrô hoặc line-in đã chọn ở trên; âm thanh riêng của ứng dụng chưa có trong buổi phát."

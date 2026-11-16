@@ -2812,8 +2812,8 @@ msgid "Test which is fastest"
 msgstr "Teste kiyès ki pi rapid"
 
 #: ui/dialogs/settings.slint
-msgid "About 30 seconds. Test windows open and close while it runs."
-msgstr "Anviwon 30 segonn. Fenèt tès ap ouvri epi fèmen pandan l ap mache."
+msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
+msgstr ""
 
 #: ui/dialogs/settings.slint
 msgid "Use this"
@@ -10482,16 +10482,52 @@ msgid "Didn't work"
 msgstr "Pa t mache"
 
 #: src/video/bench.rs
+msgid "It stopped responding."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "It could not start."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "It closed before it finished. It may have crashed."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "Slides never reached the room screen."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "This graphics card or its driver can't draw with it."
+msgstr ""
+
+#: src/video/bench.rs
+msgid "Slide change {ms} ms"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "{n} hiccups a minute"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "longest pause {ms} ms"
+msgstr ""
+
+#: src/video/bench.rs
+msgid "processor {pct} %"
+msgstr ""
+
+#: src/video/bench.rs
 msgid "Testing {mode}… ({at} of {count})"
 msgstr "Ap teste {mode}… ({at} sou {count})"
 
 #: src/video/bench.rs
-msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About 30 seconds"
-msgstr "Kat grafik la oswa drayvè li chanje. Ou vle m chèche pi bon grafik pou PC sa a ankò? Anviwon 30 segonn"
+msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About a minute"
+msgstr ""
 
 #: src/video/bench.rs
-msgid "Want me to find the best graphics for this PC? About 30 seconds"
-msgstr "Ou vle m chèche pi bon grafik pou PC sa a? Anviwon 30 segonn"
+msgid "Want me to find the best graphics for this PC? About a minute"
+msgstr ""
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
@@ -10612,6 +10648,15 @@ msgstr "yt-dlp pa anrejistre okenn videyo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "se pa yon fichye medya"
+
+#~ msgid "About 30 seconds. Test windows open and close while it runs."
+#~ msgstr "Anviwon 30 segonn. Fenèt tès ap ouvri epi fèmen pandan l ap mache."
+
+#~ msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About 30 seconds"
+#~ msgstr "Kat grafik la oswa drayvè li chanje. Ou vle m chèche pi bon grafik pou PC sa a ankò? Anviwon 30 segonn"
+
+#~ msgid "Want me to find the best graphics for this PC? About 30 seconds"
+#~ msgstr "Ou vle m chèche pi bon grafik pou PC sa a? Anviwon 30 segonn"
 
 #~ msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on. The sound is the microphone or line-in chosen above; the app's own sound is not in a livestream yet."
 #~ msgstr "Limen yon destinasyon epi yon bouton Ale an dirèk ap parèt bò kote Anrejistre. Ale an dirèk anrejistre tankou dabitid epi voye menm imaj ak menm son an bay chak destinasyon ki limen. Son an se mikwofòn oswa antre liy ou chwazi anlè a; son pwòp aplikasyon an poko nan emisyon an."
