@@ -2505,6 +2505,30 @@ msgid "{} ms"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
+msgid "Stream delay"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer."
+msgstr ""
+
+#: ui/dialogs/settings-media.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
+msgid "None"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Slow internet"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "When a destination's internet cannot keep up, it gets a lighter stream until it can, instead of skipping. The recording and the other destinations keep the full picture. This uses more of the computer."
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Send a lighter stream where the internet is slow"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr ""
 
@@ -6548,6 +6572,14 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr ""
 
 #: src/stream/mod.rs
+msgid "{name}: the internet there is slow, so it gets a lighter stream ({kbps} kbit/s). The recording and the other destinations keep the full picture."
+msgstr ""
+
+#: src/stream/mod.rs
+msgid "{name} gets the full stream again."
+msgstr ""
+
+#: src/stream/mod.rs
 msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
 msgstr ""
 
@@ -6597,6 +6629,26 @@ msgstr ""
 
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer places, or use a faster connection."
+msgstr ""
+
+#: src/stream/tally.rs
+msgid "Camera {camera}: on air"
+msgstr ""
+
+#: src/stream/tally.rs
+msgid "Camera {camera}: next"
+msgstr ""
+
+#: src/stream/tally.rs
+msgid "Camera {camera}"
+msgstr ""
+
+#: src/stream/tally.rs
+msgid "Not streaming"
+msgstr ""
+
+#: src/stream/tally.rs
+msgid "Turn on the stage view in Settings → Network. If it has a password, open the stage view on this phone once and sign in."
 msgstr ""
 
 #: src/strings/add.rs
@@ -8304,10 +8356,6 @@ msgstr ""
 
 #: src/strings/screens.rs
 msgid "Unplugged"
-msgstr ""
-
-#: src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
-msgid "None"
 msgstr ""
 
 #: src/strings/screens.rs

@@ -2508,6 +2508,30 @@ msgid "{} ms"
 msgstr "{} ms"
 
 #: ui/dialogs/settings-media.slint
+msgid "Stream delay"
+msgstr "Kuchelewesha matangazo"
+
+#: ui/dialogs/settings-media.slint
+msgid "What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer."
+msgstr "Kinachotoka kwenye matangazo kinazuiliwa kwa muda huu, ili Simamisha au Nyamazisha viweze kuzuia jambo kabla mtazamaji yeyote hajaliona. Kurekodi hakucheleweshwi. Maoni ya watazamaji yanafika baadaye kuliko kile wanachojibu."
+
+#: ui/dialogs/settings-media.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
+msgid "None"
+msgstr "Hakuna"
+
+#: ui/dialogs/settings-media.slint
+msgid "Slow internet"
+msgstr "Intaneti ya polepole"
+
+#: ui/dialogs/settings-media.slint
+msgid "When a destination's internet cannot keep up, it gets a lighter stream until it can, instead of skipping. The recording and the other destinations keep the full picture. This uses more of the computer."
+msgstr "Intaneti ya kituo kimoja isipoweza kwenda sambamba, kinapata matangazo mepesi zaidi hadi iweze, badala ya kuruka. Rekodi na vituo vingine vinabaki na picha kamili. Hii inatumia kompyuta zaidi."
+
+#: ui/dialogs/settings-media.slint
+msgid "Send a lighter stream where the internet is slow"
+msgstr "Tuma matangazo mepesi zaidi pale intaneti ilipo polepole"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "Viwango vya sauti"
 
@@ -6557,6 +6581,14 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "matangazo hayawezi kutumwa kwa anwani au ufunguo wake"
 
 #: src/stream/mod.rs
+msgid "{name}: the internet there is slow, so it gets a lighter stream ({kbps} kbit/s). The recording and the other destinations keep the full picture."
+msgstr "{name}: intaneti huko ni ya polepole, kwa hiyo kinapata matangazo mepesi zaidi ({kbps} kbit/s). Rekodi na vituo vingine vinabaki na picha kamili."
+
+#: src/stream/mod.rs
+msgid "{name} gets the full stream again."
+msgstr "{name} kinapata matangazo kamili tena."
+
+#: src/stream/mod.rs
 msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
 msgstr "Kamera imesimama. Matangazo yanaonyesha slaidi hadi itakaporudi; inajaribu tena yenyewe."
 
@@ -6607,6 +6639,26 @@ msgstr "Kupakia: {speed} Mbit/s. Tangaza kwa 720p: 1080p inahitaji {need} Mbit/s
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer places, or use a faster connection."
 msgstr "Kupakia: {speed} Mbit/s. Ni polepole mno: 720p kwa kila kituo kilichowashwa inahitaji {need} Mbit/s. Tangaza kwa sehemu chache, au tumia muunganisho wa haraka zaidi."
+
+#: src/stream/tally.rs
+msgid "Camera {camera}: on air"
+msgstr "Kamera {camera}: hewani"
+
+#: src/stream/tally.rs
+msgid "Camera {camera}: next"
+msgstr "Kamera {camera}: inayofuata"
+
+#: src/stream/tally.rs
+msgid "Camera {camera}"
+msgstr "Kamera {camera}"
+
+#: src/stream/tally.rs
+msgid "Not streaming"
+msgstr "Hakuna matangazo"
+
+#: src/stream/tally.rs
+msgid "Turn on the stage view in Settings → Network. If it has a password, open the stage view on this phone once and sign in."
+msgstr "Washa mwonekano wa jukwaa katika Mipangilio → Mtandao. Kama una nenosiri, fungua mwonekano wa jukwaa mara moja kwenye simu hii na uingie."
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -8314,10 +8366,6 @@ msgstr "Hakuna onyesho"
 #: src/strings/screens.rs
 msgid "Unplugged"
 msgstr "Haijachomekwa"
-
-#: src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
-msgid "None"
-msgstr "Hakuna"
 
 #: src/strings/screens.rs
 msgid "In a window (for testing)"

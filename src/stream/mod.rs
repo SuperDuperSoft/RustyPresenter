@@ -16,6 +16,7 @@ pub mod board_feed;
 pub mod camera_feed;
 pub mod chat;
 pub mod compose;
+pub mod delay;
 pub mod keys;
 pub mod level;
 pub mod live_info;
@@ -26,6 +27,7 @@ pub mod ptz;
 pub mod scene;
 pub mod send;
 pub mod speed;
+pub mod tally;
 
 /// A place a stream can be sent.
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
@@ -205,6 +207,10 @@ pub mod tr {
     pub fn no_key() -> String { tr!("it has no stream key") }
     pub fn no_address() -> String { tr!("it has no address") }
     pub fn bad_address() -> String { tr!("its address or key is not one a stream can be sent to") }
+    pub fn lighter(name: &str, kbps: u32) -> String {
+        tr!("{name}: the internet there is slow, so it gets a lighter stream ({kbps} kbit/s). The recording and the other destinations keep the full picture.", name = name, kbps = kbps)
+    }
+    pub fn full_again(name: &str) -> String { tr!("{name} gets the full stream again.", name = name) }
     pub fn camera_lost() -> String { tr!("The camera stopped. The stream shows the slides until it is back; it is tried again by itself.") }
     pub fn camera_never() -> String { tr!("The camera is not sending pictures, so the stream shows the slides. Check that it is plugged in and that no other program is using it; it is tried again by itself.") }
     pub fn camera_back() -> String { tr!("The camera is back in the stream.") }

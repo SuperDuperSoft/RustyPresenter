@@ -32,6 +32,27 @@ pub fn routes() -> Router<Arc<App>> {
         .route("/stage-view/events", get(events))
         .route("/stage-view/next.jpg", get(next_picture))
         .route("/stage-view/live.jpg", get(live_picture))
+        .route("/stage-view/tally", get(tally_page))
+        .route("/stage-view/tally.json", get(tally))
+}
+
+async fn tally_page() -> Response { asset(include_str!("../../web/tally.html"), "text/html; charset=utf-8") }
+
+#[derive(Deserialize)]
+struct TallyAsk { camera: Option<usize> }
+
+/// A camera's tally light (`stream::tally`): `camera` is 1 for the first.
+async fn tally(State(app): State<Arc<App>>, headers: HeaderMap, Query(q): Query<TallyAsk>) -> Response {
+    use crate::stream::tally::{Light, tr};
+    let camera = q.camera.unwrap_or(1).clamp(1, 99);
+    if !allowed(&app, &headers) {
+        return Json(json!({ "allowed": false, "light": "off", "text": tr::needs_stage_view() })).into_response();
+    }
+    let t = *app.tally.lock().unwrap();
+    let light = t.light(camera - 1);
+    let text = match light { Light::OnAir => tr::on_air(camera), Light::Next => tr::next(camera), Light::Off => tr::off(camera) };
+    let sub = if t.live { String::new() } else { tr::not_live() };
+    ([(header::CACHE_CONTROL, "no-store")], Json(json!({ "allowed": true, "light": light.code(), "text": text, "sub": sub }))).into_response()
 }
 
 fn asset(body: &'static str, ctype: &'static str) -> Response {
@@ -236,6 +257,33 @@ mod tests {
     }
 
     fn with_cookie(c: &str) -> HeaderMap { let mut h = HeaderMap::new(); h.insert(header::COOKIE, c.parse().unwrap()); h }
+
+    async fn tally_of(app: &Arc<App>, camera: usize, headers: HeaderMap) -> Value {
+        let r = tally(State(app.clone()), headers, Query(TallyAsk { camera: Some(camera) })).await;
+        let body = axum::body::to_bytes(r.into_body(), 1 << 16).await.unwrap();
+        serde_json::from_slice(&body).unwrap()
+    }
+
+    #[tokio::test]
+    async fn a_cameras_tally_light_is_shown_with_the_stage_view() {
+        let app = test_app();
+        // Off with the stage view.
+        let v = tally_of(&app, 1, HeaderMap::new()).await;
+        assert_eq!((v["allowed"].as_bool(), v["light"].as_str()), (Some(false), Some("off")));
+        turn_on(&app, None);
+        let v = tally_of(&app, 1, HeaderMap::new()).await;
+        assert_eq!((v["allowed"].as_bool(), v["light"].as_str()), (Some(true), Some("off")));
+        assert_eq!(v["sub"].as_str(), Some(crate::stream::tally::tr::not_live().as_str()));
+        *app.tally.lock().unwrap() = crate::stream::tally::Tally::of(true, Some(1), true);
+        let (one, two) = (tally_of(&app, 1, HeaderMap::new()).await, tally_of(&app, 2, HeaderMap::new()).await);
+        assert_eq!((one["light"].as_str(), two["light"].as_str()), (Some("off"), Some("on_air")));
+        assert_eq!(two["text"].as_str(), Some(crate::stream::tally::tr::on_air(2).as_str()));
+        // With a password, only a phone that signed in.
+        turn_on(&app, Some("altos"));
+        assert_eq!(tally_of(&app, 2, HeaderMap::new()).await["allowed"].as_bool(), Some(false));
+        let (_, cookie) = sign_in(&app, 31, "altos").await;
+        assert_eq!(tally_of(&app, 2, with_cookie(&cookie.unwrap())).await["light"].as_str(), Some("on_air"));
+    }
 
     #[tokio::test]
     async fn off_by_default_then_open_or_behind_a_password() {

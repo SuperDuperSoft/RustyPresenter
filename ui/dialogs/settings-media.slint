@@ -201,6 +201,19 @@ export component SettingsMedia inherits VerticalLayout {
         }
     }
     Field {
+        label: @tr("Stream delay");
+        help: @tr("What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer.");
+        stream-hold-back := Select {
+            options: [@tr("None"), @tr("10 seconds"), @tr("30 seconds"), @tr("1 minute")];
+            index <=> SettingsDlg.stream-delay;
+        }
+    }
+    Field {
+        label: @tr("Slow internet");
+        help: @tr("When a destination's internet cannot keep up, it gets a lighter stream until it can, instead of skipping. The recording and the other destinations keep the full picture. This uses more of the computer.");
+        stream-lighter := Check { text: @tr("Send a lighter stream where the internet is slow"); checked <=> SettingsDlg.stream-lighter; }
+    }
+    Field {
         label: @tr("Sound levels");
         help: @tr("Turn each sound up or down in the stream only (not in the room).");
         VerticalLayout {

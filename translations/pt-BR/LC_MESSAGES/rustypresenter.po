@@ -2508,6 +2508,30 @@ msgid "{} ms"
 msgstr "{} ms"
 
 #: ui/dialogs/settings-media.slint
+msgid "Stream delay"
+msgstr "Atraso da transmissão"
+
+#: ui/dialogs/settings-media.slint
+msgid "What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer."
+msgstr "O que sai na transmissão fica retido por este tempo, para que Pausar ou Silenciar possa parar algo antes que alguém assistindo veja. A gravação não é atrasada. Os comentários dos espectadores chegam depois daquilo a que respondem."
+
+#: ui/dialogs/settings-media.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
+msgid "None"
+msgstr "Nenhuma"
+
+#: ui/dialogs/settings-media.slint
+msgid "Slow internet"
+msgstr "Internet lenta"
+
+#: ui/dialogs/settings-media.slint
+msgid "When a destination's internet cannot keep up, it gets a lighter stream until it can, instead of skipping. The recording and the other destinations keep the full picture. This uses more of the computer."
+msgstr "Quando a internet de um destino não acompanha, ele recebe uma transmissão mais leve até conseguir, em vez de pular partes. A gravação e os outros destinos mantêm a imagem completa. Isso usa mais o computador."
+
+#: ui/dialogs/settings-media.slint
+msgid "Send a lighter stream where the internet is slow"
+msgstr "Enviar uma transmissão mais leve onde a internet é lenta"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "Níveis de som"
 
@@ -6557,6 +6581,14 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "não dá para enviar uma transmissão para esse endereço ou com essa chave"
 
 #: src/stream/mod.rs
+msgid "{name}: the internet there is slow, so it gets a lighter stream ({kbps} kbit/s). The recording and the other destinations keep the full picture."
+msgstr "{name}: a internet lá está lenta, então recebe uma transmissão mais leve ({kbps} kbit/s). A gravação e os outros destinos mantêm a imagem completa."
+
+#: src/stream/mod.rs
+msgid "{name} gets the full stream again."
+msgstr "{name} volta a receber a transmissão completa."
+
+#: src/stream/mod.rs
 msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
 msgstr "A câmera parou. A transmissão mostra os slides até ela voltar; tentando de novo sozinho."
 
@@ -6607,6 +6639,26 @@ msgstr "Upload: {speed} Mbit/s. Transmita em 720p: 1080p precisa de {need} Mbit/
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer places, or use a faster connection."
 msgstr "Upload: {speed} Mbit/s. Lento demais: 720p para cada destino ligado precisa de {need} Mbit/s. Transmita para menos lugares ou use uma conexão mais rápida."
+
+#: src/stream/tally.rs
+msgid "Camera {camera}: on air"
+msgstr "Câmera {camera}: no ar"
+
+#: src/stream/tally.rs
+msgid "Camera {camera}: next"
+msgstr "Câmera {camera}: a seguir"
+
+#: src/stream/tally.rs
+msgid "Camera {camera}"
+msgstr "Câmera {camera}"
+
+#: src/stream/tally.rs
+msgid "Not streaming"
+msgstr "Sem transmissão"
+
+#: src/stream/tally.rs
+msgid "Turn on the stage view in Settings → Network. If it has a password, open the stage view on this phone once and sign in."
+msgstr "Ative a tela do palco em Configurações → Rede. Se tiver senha, abra a tela do palco uma vez neste telefone e entre."
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -8314,10 +8366,6 @@ msgstr "Sem saída"
 #: src/strings/screens.rs
 msgid "Unplugged"
 msgstr "Desconectada"
-
-#: src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
-msgid "None"
-msgstr "Nenhuma"
 
 #: src/strings/screens.rs
 msgid "In a window (for testing)"

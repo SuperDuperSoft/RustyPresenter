@@ -2508,6 +2508,30 @@ msgid "{} ms"
 msgstr "{} ms"
 
 #: ui/dialogs/settings-media.slint
+msgid "Stream delay"
+msgstr "방송 지연"
+
+#: ui/dialogs/settings-media.slint
+msgid "What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer."
+msgstr "방송으로 나가는 것을 이만큼 늦춰서, 시청자가 보기 전에 멈춤이나 음소거로 막을 수 있습니다. 녹화는 늦춰지지 않습니다. 시청자 댓글은 그 댓글이 답하는 장면보다 늦게 들어옵니다."
+
+#: ui/dialogs/settings-media.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
+msgid "None"
+msgstr "없음"
+
+#: ui/dialogs/settings-media.slint
+msgid "Slow internet"
+msgstr "느린 인터넷"
+
+#: ui/dialogs/settings-media.slint
+msgid "When a destination's internet cannot keep up, it gets a lighter stream until it can, instead of skipping. The recording and the other destinations keep the full picture. This uses more of the computer."
+msgstr "송출 대상의 인터넷이 따라가지 못하면, 끊기는 대신 따라갈 수 있을 때까지 더 가벼운 방송을 보냅니다. 녹화와 다른 송출 대상은 원래 화질을 유지합니다. 컴퓨터를 더 많이 사용합니다."
+
+#: ui/dialogs/settings-media.slint
+msgid "Send a lighter stream where the internet is slow"
+msgstr "인터넷이 느린 곳에는 더 가벼운 방송 보내기"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "소리 크기"
 
@@ -6552,6 +6576,14 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "그 주소나 키로는 방송을 보낼 수 없어요"
 
 #: src/stream/mod.rs
+msgid "{name}: the internet there is slow, so it gets a lighter stream ({kbps} kbit/s). The recording and the other destinations keep the full picture."
+msgstr "{name}: 그곳의 인터넷이 느려서 더 가벼운 방송을 보냅니다({kbps} kbit/s). 녹화와 다른 송출 대상은 원래 화질을 유지합니다."
+
+#: src/stream/mod.rs
+msgid "{name} gets the full stream again."
+msgstr "{name}에 다시 원래 방송을 보냅니다."
+
+#: src/stream/mod.rs
 msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
 msgstr "카메라가 멈췄어요. 돌아올 때까지 방송에는 슬라이드가 보여요. 알아서 다시 연결해요."
 
@@ -6602,6 +6634,26 @@ msgstr "업로드: {speed} Mbit/s. 720p로 방송하세요. 1080p에는 {need} M
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer places, or use a faster connection."
 msgstr "업로드: {speed} Mbit/s. 너무 느립니다. 켜 둔 모든 대상으로 720p를 보내려면 {need} Mbit/s가 필요합니다. 대상을 줄이거나 더 빠른 연결을 쓰세요."
+
+#: src/stream/tally.rs
+msgid "Camera {camera}: on air"
+msgstr "카메라 {camera}: 송출 중"
+
+#: src/stream/tally.rs
+msgid "Camera {camera}: next"
+msgstr "카메라 {camera}: 다음"
+
+#: src/stream/tally.rs
+msgid "Camera {camera}"
+msgstr "카메라 {camera}"
+
+#: src/stream/tally.rs
+msgid "Not streaming"
+msgstr "방송 중 아님"
+
+#: src/stream/tally.rs
+msgid "Turn on the stage view in Settings → Network. If it has a password, open the stage view on this phone once and sign in."
+msgstr "설정 → 네트워크에서 무대 보기를 켜세요. 비밀번호가 있으면 이 전화에서 무대 보기를 한 번 열고 로그인하세요."
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -8286,10 +8338,6 @@ msgstr "출력 없음"
 #: src/strings/screens.rs
 msgid "Unplugged"
 msgstr "연결 끊김"
-
-#: src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
-msgid "None"
-msgstr "없음"
 
 #: src/strings/screens.rs
 msgid "In a window (for testing)"

@@ -105,6 +105,11 @@ pub struct Plan {
     pub tall: Vec<bool>,
     /// The video bitrate set by hand (kbit/s); 0: the preset's.
     pub kbps: u32,
+    /// Go Live: the stream held back this many seconds before it goes out (`stream::delay`); 0: none. The
+    /// recording is not held back.
+    pub delay_secs: u32,
+    /// Go Live: a destination whose internet cannot keep up gets a lighter stream (`stream::send::Ladder`).
+    pub lighter: bool,
 }
 
 /// The stream's panic buttons, shared with the feeds while the recording runs. The file and the stream are one
@@ -132,7 +137,7 @@ impl Plan {
             return Err(Some(tr::low_disk(&gb(free), &gb(prefs.size.bytes_per_hour()))));
         }
         let out = super::file_name(&folder, chrono::Local::now().naive_local());
-        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![], kbps: prefs.bitrate_kbps })
+        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![], kbps: prefs.bitrate_kbps, delay_secs: 0, lighter: false })
     }
 }
 
@@ -338,6 +343,19 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
         .map_err(|e| eprintln!("recording: FFmpeg reads the sound input itself: {e}")).ok());
     if let Some(b) = &board { *silent.lock().unwrap_or_else(|e| e.into_inner()) = Some(b.silent.clone()) }
     *levels.lock().unwrap_or_else(|e| e.into_inner()) = board.iter().map(|b| b.level.clone()).chain(pc.iter().map(|c| c.level.clone())).collect();
+    // Stream delay: a relay between each feed and its sender, listening before the recorder starts writing.
+    let delay = Duration::from_secs(u64::from(crate::stream::delay::checked(plan.delay_secs)));
+    let mut delayed: Vec<(u16, tokio::net::UdpSocket)> = vec![];
+    if live && !delay.is_zero() {
+        let outs = crate::stream::send::free_ports(ports.len()).unwrap_or_default();
+        for (from, to) in ports.iter().zip(&outs) {
+            match crate::stream::delay::listen(*from).await {
+                Ok(s) => delayed.push((*to, s)),
+                Err(e) => { eprintln!("recording: the stream goes out without its delay: {e}"); delayed.clear(); break }
+            }
+        }
+        if outs.len() != ports.len() { eprintln!("recording: no local ports for the stream delay; it goes out at once") }
+    }
     let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, board: board.as_ref().map(|b| b.feed), out: &part, stream: &feeds, tall: &plan.tall, kbps: plan.kbps, pc: pc.as_ref().map(|c| c.feed), fx: if live { plan.sound_fx } else { args::SoundFx::default() } });
     let mut cmd = tokio::process::Command::new(&plan.ffmpeg);
     cmd.args(a).stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::piped());
@@ -348,8 +366,16 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let (Some(mut stdin), Some(err)) = (tree.stdin(), tree.stderr()) else { let _ = started.send(Err(tr::ffmpeg_ended())); return None };
     let _ = started.send(Ok(()));
     let senders = CancellationToken::new();
+    let relays = CancellationToken::new();
+    let lighter = plan.lighter.then(|| crate::stream::send::Lighter {
+        encoder: plan.encoder, full_kbps: if plan.kbps > 0 { plan.kbps } else { plan.preset.max_kbps() }, fps: FPS,
+    });
     for (i, (port, address)) in ports.iter().zip(&plan.stream).enumerate() {
-        tokio::spawn(crate::stream::send::keep_sending(plan.ffmpeg.clone(), *port, address.clone(), plan.stream.clone(), i, links.clone(), senders.clone()));
+        let port = delayed.get(i).map_or(*port, |(p, _)| *p);
+        tokio::spawn(crate::stream::send::keep_sending(plan.ffmpeg.clone(), port, address.clone(), plan.stream.clone(), i, links.clone(), lighter.clone(), senders.clone()));
+    }
+    for (socket, to) in delayed.into_iter().map(|(to, s)| (s, to)) {
+        tokio::spawn(crate::stream::delay::relay(socket, to, delay, relays.clone()));
     }
     let said: Arc<Mutex<VecDeque<String>>> = Arc::default();
     let said2 = said.clone();
@@ -436,8 +462,20 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let end = t0.elapsed().as_secs_f64();
     let ended = tree.wait(END_LIMIT, &CancellationToken::new()).await;
     // The last of the stream has gone to the senders: a moment for them to pass it on, then they stop.
-    if !ports.is_empty() { tokio::time::sleep(Duration::from_millis(500)).await }
-    senders.cancel();
+    // With a delay, what is still held goes out first (the stream ends as the service did); the file is finished
+    // meanwhile.
+    if !ports.is_empty() && !delay.is_zero() {
+        tokio::spawn(async move {
+            tokio::time::sleep(delay + Duration::from_millis(300)).await;
+            relays.cancel();
+            tokio::time::sleep(Duration::from_millis(500)).await;
+            senders.cancel();
+        });
+    } else {
+        if !ports.is_empty() { tokio::time::sleep(Duration::from_millis(500)).await }
+        senders.cancel();
+        relays.cancel();
+    }
     if let Err(e @ (Stop::Timeout | Stop::Io(_))) = &ended { eprintln!("recording: FFmpeg did not end its file by itself: {e:?}") }
     let notes = notes(&sink, end, &chapters);
     write_notes(&plan.out, &notes);

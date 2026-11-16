@@ -2508,6 +2508,30 @@ msgid "{} ms"
 msgstr "{} 毫秒"
 
 #: ui/dialogs/settings-media.slint
+msgid "Stream delay"
+msgstr "直播延迟"
+
+#: ui/dialogs/settings-media.slint
+msgid "What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer."
+msgstr "直播输出的内容会延迟这么久，这样在观众看到之前，可以用“暂停”或“静音”拦下。录像不延迟。观众的评论会比他们回应的内容来得晚。"
+
+#: ui/dialogs/settings-media.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
+msgid "None"
+msgstr "无"
+
+#: ui/dialogs/settings-media.slint
+msgid "Slow internet"
+msgstr "网速慢"
+
+#: ui/dialogs/settings-media.slint
+msgid "When a destination's internet cannot keep up, it gets a lighter stream until it can, instead of skipping. The recording and the other destinations keep the full picture. This uses more of the computer."
+msgstr "当某个推流目标的网络跟不上时，它会收到更轻的直播流，直到跟得上为止，而不是跳帧。录像和其他推流目标保持完整画面。这会更多占用电脑。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Send a lighter stream where the internet is slow"
+msgstr "向网速慢的目标发送更轻的直播流"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "音量"
 
@@ -6552,6 +6576,14 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "无法向这个地址或用这个密钥发送直播"
 
 #: src/stream/mod.rs
+msgid "{name}: the internet there is slow, so it gets a lighter stream ({kbps} kbit/s). The recording and the other destinations keep the full picture."
+msgstr "{name}：那里网速慢，因此改为发送更轻的直播流（{kbps} kbit/s）。录像和其他推流目标保持完整画面。"
+
+#: src/stream/mod.rs
+msgid "{name} gets the full stream again."
+msgstr "{name} 重新收到完整的直播流。"
+
+#: src/stream/mod.rs
 msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
 msgstr "摄像头停止了。在它恢复前，直播显示幻灯片；正在自动重试。"
 
@@ -6602,6 +6634,26 @@ msgstr "上传：{speed} Mbit/s。请以 720p 直播：1080p 需要 {need} Mbit/
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer places, or use a faster connection."
 msgstr "上传：{speed} Mbit/s。太慢了：以 720p 送到每个已开启的目的地需要 {need} Mbit/s。请减少直播目的地，或使用更快的网络。"
+
+#: src/stream/tally.rs
+msgid "Camera {camera}: on air"
+msgstr "摄像机 {camera}：直播中"
+
+#: src/stream/tally.rs
+msgid "Camera {camera}: next"
+msgstr "摄像机 {camera}：下一个"
+
+#: src/stream/tally.rs
+msgid "Camera {camera}"
+msgstr "摄像机 {camera}"
+
+#: src/stream/tally.rs
+msgid "Not streaming"
+msgstr "未在直播"
+
+#: src/stream/tally.rs
+msgid "Turn on the stage view in Settings → Network. If it has a password, open the stage view on this phone once and sign in."
+msgstr "请在“设置”→“网络”中打开舞台视图。如果设有密码，请在这部手机上打开舞台视图一次并登录。"
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -8286,10 +8338,6 @@ msgstr "无输出"
 #: src/strings/screens.rs
 msgid "Unplugged"
 msgstr "已拔出"
-
-#: src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
-msgid "None"
-msgstr "无"
 
 #: src/strings/screens.rs
 msgid "In a window (for testing)"

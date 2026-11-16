@@ -148,10 +148,12 @@ pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     g.set_stream_camera2_control(p.camera2_control.as_str().into());
     g.set_stream_auto_scenes(p.auto().on);
     g.set_stream_sound_delay(p.sound_delay_ms.min(record::MAX_SOUND_DELAY) as i32);
+    g.set_stream_delay(crate::stream::delay::DELAYS.iter().position(|d| *d == p.stream_delay_secs).map_or(0, |i| i as i32 + 1));
     let fx = p.sound_fx();
     g.set_stream_board_level(fx.board_db);
     g.set_stream_pc_level(fx.pc_db);
     g.set_stream_even(fx.even);
+    g.set_stream_lighter(p.stream_lighter.unwrap_or(true));
     g.set_stream_quiet_noise(fx.quiet_noise);
     g.set_stream_presentation_camera(i32::from(p.presentation_camera));
     let c = &p.cards;
@@ -236,10 +238,12 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
     if auto != p.auto().on { p.auto_scenes = if auto { None } else { Some(false) } }
     p.presentation_camera = g.get_stream_presentation_camera() == 1;
     p.sound_delay_ms = (g.get_stream_sound_delay().max(0) as u32).min(record::MAX_SOUND_DELAY);
+    p.stream_delay_secs = usize::try_from(g.get_stream_delay() - 1).ok().and_then(|i| crate::stream::delay::DELAYS.get(i)).copied().unwrap_or(0);
     let level = |db: i32| db.clamp(-record::MAX_LEVEL_DB, record::MAX_LEVEL_DB);
     p.stream_board_db = level(g.get_stream_board_level());
     p.stream_pc_db = level(g.get_stream_pc_level());
     p.stream_even = if g.get_stream_even() { None } else { Some(false) };
+    p.stream_lighter = if g.get_stream_lighter() { None } else { Some(false) };
     p.stream_quiet_noise = g.get_stream_quiet_noise();
     let card = |w: slint::SharedString, pic: slint::SharedString| stream::pictures::Card { words: w.trim().to_string(), picture: pic.trim().to_string() };
     p.cards = stream::pictures::Cards {

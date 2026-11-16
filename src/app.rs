@@ -276,6 +276,8 @@ pub struct App {
     pub(crate) automation_watching: AtomicBool,
     /// The livestream's scene the operator chose (a scene button, a slide action); Automatic by default.
     pub stream_choice: Mutex<crate::stream::scene::Choice>,
+    /// The phones' camera tally lights (`stream::tally`), kept by the operator window while it streams.
+    pub tally: Mutex<crate::stream::tally::Tally>,
     /// A slide action or macro asked to start (true) or end a clip of the recording; the operator takes it.
     pub clip_request: Mutex<Option<bool>>,
     /// A thread is taking faded ink away (`live::drawing::actions`).
@@ -350,7 +352,7 @@ impl App {
             state_writer: Mutex::new(None), state_seq: AtomicU64::new(0), resume: Mutex::new(HashMap::new()), probe_mpv: OnceLock::new(), converters: OnceLock::new(),
             bible_downloads: tokio::sync::Mutex::new(()), fade_ticking: AtomicBool::new(false), youtube, read_only: AtomicBool::new(false), usage, search: OnceLock::new(),
             history: Mutex::default(), save_seq: AtomicU64::new(0), saved_seq: Mutex::new(0),
-            automation: Mutex::default(), ticker_wake: tokio::sync::Notify::new(), automation_watching: AtomicBool::new(false), stream_choice: Mutex::default(), clip_request: Mutex::default(),
+            automation: Mutex::default(), ticker_wake: tokio::sync::Notify::new(), automation_watching: AtomicBool::new(false), stream_choice: Mutex::default(), tally: Mutex::default(), clip_request: Mutex::default(),
             listening: AtomicBool::new(false), room_canvas: AtomicU64::new(1920 << 32 | 1080), pplive: Default::default(), follower: OnceLock::new(),
             listen: Mutex::default(),
         });

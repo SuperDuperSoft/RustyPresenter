@@ -2508,6 +2508,30 @@ msgid "{} ms"
 msgstr "{} ms"
 
 #: ui/dialogs/settings-media.slint
+msgid "Stream delay"
+msgstr "Pagkaantala ng stream"
+
+#: ui/dialogs/settings-media.slint
+msgid "What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer."
+msgstr "Ang lumalabas sa stream ay pinipigil nang ganito katagal, para mapahinto ng Ihinto o I-mute ang isang bagay bago pa ito makita ng nanonood. Hindi naaantala ang recording. Mas huling dumarating ang mga komento ng manonood kaysa sa sinasagot nila."
+
+#: ui/dialogs/settings-media.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
+msgid "None"
+msgstr "Wala"
+
+#: ui/dialogs/settings-media.slint
+msgid "Slow internet"
+msgstr "Mabagal na internet"
+
+#: ui/dialogs/settings-media.slint
+msgid "When a destination's internet cannot keep up, it gets a lighter stream until it can, instead of skipping. The recording and the other destinations keep the full picture. This uses more of the computer."
+msgstr "Kapag hindi makasabay ang internet ng isang destinasyon, binibigyan ito ng mas magaan na stream hanggang kaya na nito, sa halip na lumaktaw. Buong larawan pa rin ang recording at ang ibang destinasyon. Mas gumagamit ito ng computer."
+
+#: ui/dialogs/settings-media.slint
+msgid "Send a lighter stream where the internet is slow"
+msgstr "Magpadala ng mas magaan na stream kung saan mabagal ang internet"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "Lakas ng tunog"
 
@@ -6557,6 +6581,14 @@ msgid "its address or key is not one a stream can be sent to"
 msgstr "hindi mapapadalhan ng stream ang address o key nito"
 
 #: src/stream/mod.rs
+msgid "{name}: the internet there is slow, so it gets a lighter stream ({kbps} kbit/s). The recording and the other destinations keep the full picture."
+msgstr "{name}: mabagal ang internet doon, kaya mas magaan na stream ang ibinibigay ({kbps} kbit/s). Buong larawan pa rin ang recording at ang ibang destinasyon."
+
+#: src/stream/mod.rs
+msgid "{name} gets the full stream again."
+msgstr "Buong stream na ulit ang natatanggap ng {name}."
+
+#: src/stream/mod.rs
 msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
 msgstr "Huminto ang camera. Ipinapakita ng stream ang mga slide hanggang bumalik ito; kusang susubukan ulit."
 
@@ -6607,6 +6639,26 @@ msgstr "Upload: {speed} Mbit/s. Mag-stream sa 720p: kailangan ng 1080p ang {need
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer places, or use a faster connection."
 msgstr "Upload: {speed} Mbit/s. Masyadong mabagal: kailangan ng 720p sa bawat destinasyong naka-on ang {need} Mbit/s. Mag-stream sa mas kaunting lugar, o gumamit ng mas mabilis na koneksyon."
+
+#: src/stream/tally.rs
+msgid "Camera {camera}: on air"
+msgstr "Camera {camera}: on air"
+
+#: src/stream/tally.rs
+msgid "Camera {camera}: next"
+msgstr "Camera {camera}: susunod"
+
+#: src/stream/tally.rs
+msgid "Camera {camera}"
+msgstr "Camera {camera}"
+
+#: src/stream/tally.rs
+msgid "Not streaming"
+msgstr "Hindi nagsi-stream"
+
+#: src/stream/tally.rs
+msgid "Turn on the stage view in Settings → Network. If it has a password, open the stage view on this phone once and sign in."
+msgstr "I-on ang stage view sa Settings → Network. Kung may password ito, buksan nang isang beses ang stage view sa teleponong ito at mag-sign in."
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -8314,10 +8366,6 @@ msgstr "Walang output"
 #: src/strings/screens.rs
 msgid "Unplugged"
 msgstr "Nakahugot"
-
-#: src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
-msgid "None"
-msgstr "Wala"
 
 #: src/strings/screens.rs
 msgid "In a window (for testing)"

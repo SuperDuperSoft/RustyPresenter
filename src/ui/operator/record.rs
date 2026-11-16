@@ -29,8 +29,9 @@ pub struct RecordUi {
     chat_seen: Cell<u64>,
     /// Stops the chat readers when the stream stops.
     chat_stop: RefCell<Arc<std::sync::atomic::AtomicBool>>,
-    /// Go Live: each destination's drops so far, and whether it ever connected (the summary at the end).
-    history: RefCell<Vec<(u32, bool)>>,
+    /// Go Live: each destination's drops so far, whether it ever connected (the summary at the end), and the
+    /// lighter stream it was last said to get (0: the full one).
+    history: RefCell<Vec<(u32, bool, u32)>>,
     /// The destinations the operator was told the internet is too slow for (once each).
     slow_told: RefCell<Vec<String>>,
     /// The destinations the operator was told have not connected after `NEVER_TRIES` (once each).
@@ -166,6 +167,8 @@ impl Operator {
         self.record.starting.set(true);
         let prefs_pc = prefs.pc_sound(&app_output);
         let sound_fx = prefs.sound_fx();
+        let delay_secs = stream::delay::checked(prefs.stream_delay_secs);
+        let lighter = prefs.stream_lighter.unwrap_or(true);
         // The cameras, first and second, and their names for the scene button.
         let chosen: Vec<(&String, &String)> = [(&prefs.camera, &prefs.camera_control), (&prefs.camera2, &prefs.camera2_control)].into_iter().filter(|(c, _)| !c.is_empty()).collect();
         let camera_names: Vec<String> = chosen.iter().map(|(c, _)| (*c).clone()).collect();
@@ -226,6 +229,8 @@ impl Operator {
                         plan.cameras = cameras;
                         plan.look = Some(look);
                         plan.sound_fx = sound_fx;
+                        plan.delay_secs = delay_secs;
+                        plan.lighter = lighter;
                     }
                     plan.stream = addresses;
                     plan.tall = talls;
@@ -395,7 +400,7 @@ impl Operator {
     pub(crate) fn say_stream_summary(&self, secs: u64) {
         let history = self.record.history.borrow();
         let rows: Vec<(String, u32, bool)> = self.record.links.borrow().iter().enumerate()
-            .map(|(i, (name, _))| { let (drops, ever) = history.get(i).copied().unwrap_or_default(); (name.clone(), drops, ever) }).collect();
+            .map(|(i, (name, _))| { let (drops, ever, _) = history.get(i).copied().unwrap_or_default(); (name.clone(), drops, ever) }).collect();
         if rows.is_empty() { return }
         let trouble = rows.iter().any(|(_, drops, ever)| *drops > 0 || !ever);
         self.toast(stream::tr::summary(secs, &rows), trouble);
@@ -447,7 +452,7 @@ impl Operator {
         let mut said = vec![];
         let mut history = self.record.history.borrow_mut();
         for (i, ((name, was), link)) in self.record.links.borrow_mut().iter_mut().zip(now).enumerate() {
-            if history.len() <= i { history.resize(i + 1, (0, false)) }
+            if history.len() <= i { history.resize(i + 1, (0, false, 0)) }
             if *was != link.up {
                 if link.up { history[i].1 = true } else { history[i].0 += 1 }
                 *was = link.up;
@@ -458,8 +463,13 @@ impl Operator {
                 self.record.never_told.borrow_mut().push(name.clone());
                 said.push((stream::tr::never_connected(name), true));
             }
-            // The upload cannot keep up: said once, with what to do.
-            if link.skips >= SLOW_SKIPS && !self.record.slow_told.borrow().contains(name) {
+            // Made lighter (or full again) because of its internet: said as it changes.
+            if history[i].2 != link.kbps {
+                said.push(if link.kbps > 0 { (stream::tr::lighter(name, link.kbps), false) } else { (stream::tr::full_again(name), false) });
+                history[i].2 = link.kbps;
+            }
+            // The upload cannot keep up even with the lightest stream: said once, with what to do.
+            if link.lightest && link.skips >= SLOW_SKIPS && !self.record.slow_told.borrow().contains(name) {
                 self.record.slow_told.borrow_mut().push(name.clone());
                 said.push((stream::tr::too_slow(name), true));
             }
@@ -598,6 +608,10 @@ impl Operator {
         self.ui.set_scene_chosen(stream::scene::lit(choice, &info).map_or(-1, index));
         let out = self.record.rec.borrow().as_ref().and_then(Recording::scene);
         if let Some(s) = out { self.ui.set_scene_out(index(s)) }
+        // The phones' tally lights.
+        let camera = usize::try_from(self.ui.get_camera_active()).ok().filter(|_| !self.record.cameras.borrow().is_empty());
+        let tally = stream::tally::Tally::of(self.record.live.get() && self.is_recording(), camera, out.is_some_and(Scene::needs_camera));
+        *self.app().tally.lock().unwrap() = tally;
         // The sound meter: the loudest since the last look (-1 hides it: no sound going out to measure).
         let level = self.record.rec.borrow().as_ref().and_then(Recording::level);
         self.ui.set_live_level(level.map_or(-1, stream::level::bars));
@@ -619,6 +633,7 @@ impl Operator {
         if !on {
             self.record.live.set(false);
             self.ui.set_live(false);
+            *self.app().tally.lock().unwrap() = Default::default();
             self.stop_chat();
             self.ui.set_camera_positions(0);
             self.ui.set_live_held(false);

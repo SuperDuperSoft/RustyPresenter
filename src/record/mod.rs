@@ -110,6 +110,14 @@ pub struct RecordPrefs {
     /// camera whose picture comes late.
     #[serde(skip_serializing_if = "is_zero_u32")]
     pub sound_delay_ms: u32,
+    /// Livestream: what goes out is held back this many seconds (one of `stream::delay::DELAYS`), so Hold or
+    /// Mute can stop something before anyone watching sees it; 0: none. The recording is not held back.
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub stream_delay_secs: u32,
+    /// Livestream: a destination whose internet cannot keep up gets a lighter stream, and the full one again later
+    /// (`stream::send::Ladder`); `None` is on.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stream_lighter: Option<bool>,
     /// The video encoder chosen by hand (one of `args::CHOOSABLE`); empty: automatic.
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub encoder: String,

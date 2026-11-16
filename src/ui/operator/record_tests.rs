@@ -252,6 +252,14 @@ fn livestream_scene_settings_save() {
     crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
     assert_eq!((prefs.auto_scenes, prefs.presentation_camera), (Some(false), true));
     assert_eq!(prefs.sound_delay_ms, 1000, "at most a second");
+    assert_eq!(prefs.stream_delay_secs, 0, "no stream delay to start with");
+    g.set_stream_delay(2);
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!(prefs.stream_delay_secs, 30);
+    assert!(g.get_stream_lighter(), "a lighter stream for slow internet is on to start with");
+    g.set_stream_lighter(false);
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!(prefs.stream_lighter, Some(false));
     assert_eq!((prefs.camera.as_str(), prefs.camera2.as_str()), ("Cam A", ""));
     g.set_stream_camera2_index(2);
     crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
@@ -261,6 +269,9 @@ fn livestream_scene_settings_save() {
     assert_eq!(json["cards"]["hold"], serde_json::json!({ "words": "Back soon" }));
     let old: RecordPrefs = serde_json::from_value(serde_json::json!({ "camera_layout": 2 })).unwrap();
     assert_eq!(old, RecordPrefs::default(), "the old camera layout is left behind");
+    // The stream delay and the lighter stream show again as saved.
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    assert_eq!((g.get_stream_delay(), g.get_stream_lighter()), (2, false));
 }
 
 #[test]
@@ -480,7 +491,16 @@ fn the_operator_hears_when_a_destination_connects_and_when_it_drops() {
     assert_eq!((op.ui.get_live_up(), op.ui.get_live_total()), (1, 2));
     // Only while live.
     // An upload too slow for Facebook: said once, after a few skips.
-    let slow = |skips| vec![stream::send::Link::default(), stream::send::Link { up: true, skips, ..Default::default() }];
+    // With a lighter stream to go to, the skips first make it lighter (said), and full again later (said).
+    let light = |skips, kbps, lightest| vec![stream::send::Link::default(), stream::send::Link { up: true, skips, kbps, lightest, ..Default::default() }];
+    op.say_links(&light(3, 0, false));
+    assert_eq!(toasts(&op).len(), said.len(), "a lighter stream is still to come");
+    op.say_links(&light(3, 4200, false));
+    assert_eq!(toasts(&op).last(), Some(&(stream::tr::lighter("Facebook", 4200), false)));
+    op.say_links(&light(3, 0, false));
+    assert_eq!(toasts(&op).last(), Some(&(stream::tr::full_again("Facebook"), false)));
+    let said = toasts(&op);
+    let slow = |skips| vec![stream::send::Link::default(), stream::send::Link { up: true, skips, lightest: true, ..Default::default() }];
     op.say_links(&slow(2));
     assert_eq!(toasts(&op).len(), said.len(), "two skips are a hiccup");
     op.say_links(&slow(3));
