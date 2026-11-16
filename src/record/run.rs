@@ -38,6 +38,11 @@ fn with_suffix(out: &Path, suffix: &str) -> PathBuf {
 struct Notes {
     out: PathBuf,
     sound: Vec<Segment>,
+    /// The chapters so far, and how long the recording was then (where the last chapter ends).
+    #[serde(default)]
+    chapters: Vec<super::chapters::Chapter>,
+    #[serde(default)]
+    secs: f64,
 }
 
 /// The FFmpeg to record with: the one RustyPresenter fetched (`<data>/deps/ffmpeg`), else the computer's own.
@@ -94,6 +99,8 @@ pub struct Plan {
     pub controls: Controls,
     /// Go Live: the sound held back this long to line up with the camera.
     pub sound_fx: args::SoundFx,
+    /// What is live, for the recording's chapters (`None`: none).
+    pub chapters: Option<super::chapters::Source>,
 }
 
 /// The stream's panic buttons, shared with the feeds while the recording runs. The file and the stream are one
@@ -121,7 +128,7 @@ impl Plan {
             return Err(Some(tr::low_disk(&gb(free), &gb(prefs.size.bytes_per_hour()))));
         }
         let out = super::file_name(&folder, chrono::Local::now().naive_local());
-        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default() })
+        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None })
     }
 }
 
@@ -341,7 +348,13 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
         }
     });
     let folder = plan.out.parent().map(Path::to_path_buf).unwrap_or_default();
-    let notes = |sink: &FrameSink, t: f64| Notes { out: plan.out.clone(), sound: sink.sound.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()).segments(t)).unwrap_or_default() };
+    let notes = |sink: &FrameSink, t: f64, chapters: &super::chapters::Log| Notes {
+        out: plan.out.clone(), sound: sink.sound.as_ref().map(|s| s.lock().unwrap_or_else(|e| e.into_inner()).segments(t)).unwrap_or_default(),
+        chapters: chapters.list.clone(), secs: t,
+    };
+    // What is live, looked at once a second, for the chapters.
+    let mut chapters = super::chapters::Log::default();
+    let mut next_chapter = Duration::ZERO;
     let t0 = sink.started();
     let mut pump = Pump::new(FPS);
     // Black until the room's first picture comes.
@@ -382,7 +395,11 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
                 problem = Some(tr::disk_full());
                 break;
             }
-            write_notes(&plan.out, &notes(&sink, t0.elapsed().as_secs_f64()));
+            write_notes(&plan.out, &notes(&sink, t0.elapsed().as_secs_f64(), &chapters));
+        }
+        if let Some(source) = &plan.chapters && t0.elapsed() >= next_chapter {
+            next_chapter += Duration::from_secs(1);
+            chapters.note(t0.elapsed().as_secs_f64(), (source.0)());
         }
         let wait = pump.next_at().saturating_sub(t0.elapsed());
         tokio::select! {
@@ -404,9 +421,9 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     if !ports.is_empty() { tokio::time::sleep(Duration::from_millis(500)).await }
     senders.cancel();
     if let Err(e @ (Stop::Timeout | Stop::Io(_))) = &ended { eprintln!("recording: FFmpeg did not end its file by itself: {e:?}") }
-    let notes = notes(&sink, end);
+    let notes = notes(&sink, end, &chapters);
     write_notes(&plan.out, &notes);
-    let mut done = finish_file(&plan.ffmpeg, &part, &notes.sound, &plan.out).await;
+    let mut done = finish_file(&plan.ffmpeg, &part, &notes.sound, &notes.chapters, notes.secs, &plan.out).await;
     if let Some(p) = problem { done.problem = Some(match (&done.file, done.problem) { (Some(_), Some(q)) => format!("{p} {q}"), _ => p }) }
     Some(done)
 }
@@ -488,7 +505,7 @@ async fn run_ffmpeg(ffmpeg: &Path, args: Vec<std::ffi::OsString>, limit: Duratio
 
 /// Makes the MP4 `out` from `part` (with the app's `sound` mixed in), then removes the part and its notes. If the
 /// sound cannot be added the MP4 is made without it; if no MP4 can be made the part is kept, renamed `.mkv`.
-pub async fn finish_file(ffmpeg: &Path, part: &Path, sound: &[Segment], out: &Path) -> Ended {
+pub async fn finish_file(ffmpeg: &Path, part: &Path, sound: &[Segment], chapters: &[super::chapters::Chapter], secs: f64, out: &Path) -> Ended {
     if std::fs::metadata(part).map(|m| m.len()).unwrap_or(0) == 0 {
         let _ = std::fs::remove_file(part);
         let _ = std::fs::remove_file(notes_of(out));
@@ -499,11 +516,16 @@ pub async fn finish_file(ffmpeg: &Path, part: &Path, sound: &[Segment], out: &Pa
     // Sound files that are gone (moved since) are left out rather than failing the whole mix.
     let sound: Vec<Segment> = sound.iter().filter(|s| s.path.is_file()).cloned().collect();
     let mut problem = None;
-    let mut ok = made(run_ffmpeg(ffmpeg, args::finish(part, &sound, &tmp), FINISH_LIMIT).await);
+    // The chapters, in a file of FFmpeg's for it to read (none when it cannot be written: the video matters more).
+    let meta = with_suffix(out, ".chapters.txt");
+    let meta = (!chapters.is_empty() && std::fs::write(&meta, super::chapters::metadata(chapters, secs)).is_ok()).then_some(meta);
+    let mut ok = made(run_ffmpeg(ffmpeg, args::finish(part, &sound, meta.as_deref(), &tmp), FINISH_LIMIT).await);
     if !ok && !sound.is_empty() {
-        ok = made(run_ffmpeg(ffmpeg, args::finish(part, &[], &tmp), FINISH_LIMIT).await);
+        ok = made(run_ffmpeg(ffmpeg, args::finish(part, &[], meta.as_deref(), &tmp), FINISH_LIMIT).await);
         if ok { problem = Some(tr::no_app_sound()) }
     }
+    if !ok && meta.is_some() { ok = made(run_ffmpeg(ffmpeg, args::finish(part, &[], None, &tmp), FINISH_LIMIT).await) }
+    if let Some(m) = &meta { let _ = std::fs::remove_file(m); }
     let _ = std::fs::remove_file(&tmp);
     if ok {
         let _ = std::fs::remove_file(part);
@@ -532,7 +554,7 @@ pub fn finish_leftovers(ffmpeg: &Path, folder: &Path, current: &Path) -> Vec<End
         let out = part.with_file_name(format!("{name}.mp4"));
         let notes: Notes = std::fs::read(notes_of(&out)).ok().and_then(|b| serde_json::from_slice(&b).ok()).unwrap_or_default();
         let out = if notes.out.as_os_str().is_empty() || notes.out.exists() { out } else { notes.out };
-        rt.block_on(finish_file(ffmpeg, &part, &notes.sound, &out))
+        rt.block_on(finish_file(ffmpeg, &part, &notes.sound, &notes.chapters, notes.secs, &out))
     }).collect()
 }
 

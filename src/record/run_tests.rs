@@ -31,7 +31,7 @@ fn probe(file: &Path) -> (Vec<(String, String, u64, u64)>, f64) {
 }
 
 fn plan(ffmpeg: PathBuf, dir: &Path, sound: Sound) -> Plan {
-    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default() }
+    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None }
 }
 
 /// Records for `secs`, handing in a new solid picture every 100 ms (red, then green), with `each` called as it goes.
@@ -332,6 +332,24 @@ fn a_card_is_not_put_together_again_for_each_camera_picture() {
     assert_eq!(m.composes, after_first, "new camera and room pictures change nothing on a card");
 }
 
+/// Chapters for real: "Welcome" live at first, "Amazing Grace" from half way; the MP4 has both, named.
+#[test]
+fn a_recording_has_a_chapter_at_each_item() {
+    let Some(ff) = ffmpeg() else { return };
+    let dir = scratch("chapters");
+    let began = Instant::now();
+    let source = super::super::chapters::Source(Arc::new(move || Some(if began.elapsed().as_secs_f64() < 2.0 { "Welcome" } else { "Amazing Grace" }.to_string())));
+    let ended = record_for(Plan { chapters: Some(source), ..plan(ff, &dir, Sound::None) }, 4.5, |_, _| {});
+    assert_eq!(ended.problem, None, "{ended:?}");
+    let out = std::process::Command::new("ffprobe").args(["-v", "error", "-show_chapters", "-of", "json"]).arg(dir.join("Recording test.mp4")).output().unwrap();
+    let v: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap_or_default();
+    let chapters: Vec<(String, f64)> = v["chapters"].as_array().cloned().unwrap_or_default().iter()
+        .map(|c| (c["tags"]["title"].as_str().unwrap_or("").to_string(), c["start_time"].as_str().and_then(|s| s.parse().ok()).unwrap_or(-1.0))).collect();
+    assert_eq!(chapters.iter().map(|c| c.0.as_str()).collect::<Vec<_>>(), ["Welcome", "Amazing Grace"], "{chapters:?}");
+    assert!(chapters[0].1 < 1.5 && (1.5..3.5).contains(&chapters[1].1), "{chapters:?}");
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
 /// A short recording on this computer keeps up, and says how far behind it was (the writer's most since asked).
 #[test]
 fn a_recording_says_how_far_behind_it_is() {
@@ -414,6 +432,8 @@ fn first_frame_where(ff: &Path, dir: &Path, file: &Path, seen: impl Fn(&image::R
 
 fn is_blue(p: [u8; 3]) -> bool { p[2] > 180 && p[0] < 60 }
 fn is_red(p: [u8; 3]) -> bool { p[0] > 180 && p[2] < 60 }
+/// The room screen after half way in `record_for`.
+fn is_green(p: [u8; 3]) -> bool { p[1] > 180 && p[0] < 60 && p[2] < 60 }
 
 /// The Camera scene, for real, with a stand-in 4:3 camera (blue, made at the clock's pace like a camera's): the
 /// camera in the middle of the 16:9 stream with black bars at the sides.
@@ -556,9 +576,9 @@ fn a_camera_that_stops_drops_out_and_comes_back() {
         // Where the camera shows in this scene: the middle, or (screen filling it) the corner.
         let (x, y) = if scene == Scene::ScreenCamera { (1280 - 32 - 160, 720 - 32 - 90) } else { (640, 200) };
         // In order, whenever the stand-in camera got going (later while the whole suite runs): the camera, the
-        // room screen in the gap, the camera again.
+        // room screen in the gap (red, or green after half way), the camera again.
         let seen: Vec<char> = quarter_seconds(&ff, &dir, &rec).iter().map(|f| f.get_pixel(x, y).0)
-            .map(|p| if is_blue(p) { 'C' } else if is_red(p) { 'R' } else { '.' }).collect();
+            .map(|p| if is_blue(p) { 'C' } else if is_red(p) || is_green(p) { 'R' } else { '.' }).collect();
         let seen: String = seen.into_iter().collect();
         eprintln!("REAL {scene:?}: every quarter second {seen}");
         let first = seen.find('C').unwrap_or_else(|| panic!("{scene:?}: the camera never showed: {seen}"));

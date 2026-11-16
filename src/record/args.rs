@@ -312,15 +312,20 @@ pub fn record(r: &Record) -> Vec<OsString> {
 
 /// Turns the Matroska file `part` into the MP4 `out`, the picture copied as it is. `sound` is the app's sound to
 /// mix in from its files; without it the part's own sound (a microphone, or none) is copied.
-pub fn finish(part: &Path, sound: &[Segment], out: &Path) -> Vec<OsString> {
+pub fn finish(part: &Path, sound: &[Segment], chapters: Option<&Path>, out: &Path) -> Vec<OsString> {
     let mut a: Vec<OsString> = ["-hide_banner", "-loglevel", "warning", "-y", "-i"].map(OsString::from).to_vec();
     a.push(part.into());
+    for s in sound {
+        a.extend(["-ss".into(), secs(s.from).into(), "-t".into(), secs(s.to - s.from).into(), OsString::from("-i"), s.path.clone().into_os_string()]);
+    }
+    // The chapters (`chapters::metadata`): the input after the sound files, giving only its chapters.
+    if let Some(c) = chapters {
+        let n = (sound.len() + 1).to_string();
+        a.extend([OsString::from("-i"), c.into(), "-map_metadata".into(), n.clone().into(), "-map_chapters".into(), n.into()]);
+    }
     if sound.is_empty() {
         a.extend(["-map", "0", "-c", "copy"].map(OsString::from));
     } else {
-        for s in sound {
-            a.extend(["-ss".into(), secs(s.from).into(), "-t".into(), secs(s.to - s.from).into(), OsString::from("-i"), s.path.clone().into_os_string()]);
-        }
         a.extend(["-filter_complex".into(), mix(sound).into(), OsString::from("-map"), "0:v".into(), "-map".into(), "[aout]".into()]);
         a.extend(["-c:v", "copy", "-c:a", "aac", "-b:a", "160k", "-shortest"].map(OsString::from));
     }
@@ -518,7 +523,7 @@ mod tests {
 
     #[test]
     fn finishing_without_app_sound_copies_everything() {
-        let a = strs(&finish(Path::new("p.mkv"), &[], Path::new("o.mp4.tmp")));
+        let a = strs(&finish(Path::new("p.mkv"), &[], None, Path::new("o.mp4.tmp")));
         assert_eq!(after(&a, "-i"), "p.mkv");
         assert_eq!(after(&a, "-c"), "copy");
         assert_eq!(after(&a, "-movflags"), "+faststart");
@@ -527,12 +532,26 @@ mod tests {
     }
 
     #[test]
+    fn finishing_puts_the_chapters_in() {
+        let meta = Path::new("o.chapters.txt");
+        // The chapters file is the input after the picture and any sound files; its chapters and nothing else.
+        let a = strs(&finish(Path::new("p.mkv"), &[], Some(meta), Path::new("o.mp4.tmp")));
+        assert!(a.windows(6).any(|w| w == ["-i", "o.chapters.txt", "-map_metadata", "1", "-map_chapters", "1"]), "{a:?}");
+        assert!(a.windows(4).any(|w| w == ["-map", "0", "-c", "copy"]), "{a:?}");
+        let s = vec![Segment { path: "/m/song.mp3".into(), from: 0.0, to: 10.0, at: 2.5, volume: 1.0 }];
+        let a = strs(&finish(Path::new("p.mkv"), &s, Some(meta), Path::new("o.mp4.tmp")));
+        assert!(a.windows(6).any(|w| w == ["-i", "o.chapters.txt", "-map_metadata", "2", "-map_chapters", "2"]), "{a:?}");
+        assert_eq!(after(&a, "-filter_complex").matches("[1:a]").count(), 1, "the chapters are no sound");
+        assert!(!strs(&finish(Path::new("p.mkv"), &[], None, Path::new("o.mp4.tmp"))).iter().any(|x| x == "-map_chapters"));
+    }
+
+    #[test]
     fn finishing_with_app_sound_cuts_each_stretch_from_its_file() {
         let s = vec![
             Segment { path: "/m/song.mp3".into(), from: 0.0, to: 10.0, at: 2.5, volume: 1.0 },
             Segment { path: "/m/clip.mp4".into(), from: 31.25, to: 40.0, at: 20.0, volume: 0.5 },
         ];
-        let a = strs(&finish(Path::new("p.mkv"), &s, Path::new("o.mp4.tmp")));
+        let a = strs(&finish(Path::new("p.mkv"), &s, None, Path::new("o.mp4.tmp")));
         assert!(a.windows(6).any(|w| w == ["-ss", "0.000", "-t", "10.000", "-i", "/m/song.mp3"]), "{a:?}");
         assert!(a.windows(6).any(|w| w == ["-ss", "31.250", "-t", "8.750", "-i", "/m/clip.mp4"]), "{a:?}");
         let f = after(&a, "-filter_complex");

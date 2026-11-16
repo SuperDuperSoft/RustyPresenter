@@ -4,6 +4,7 @@
 //! H.264 into a Matroska file that survives a crash. Stopping turns it into the MP4 (`args::finish`), adding the
 //! app's own sound from the files that played (`sound`), or a microphone recorded alongside.
 pub mod args;
+pub mod chapters;
 pub mod gl;
 pub mod pump;
 pub mod run;

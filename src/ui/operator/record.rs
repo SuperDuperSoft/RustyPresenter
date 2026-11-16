@@ -193,7 +193,10 @@ impl Operator {
         });
     }
 
-    fn start_recording(self: &Rc<Self>, plan: Plan) {
+    fn start_recording(self: &Rc<Self>, mut plan: Plan) {
+        // A chapter at each item taken live, named as the service list names it.
+        let app = self.app().clone();
+        plan.chapters = Some(record::chapters::Source(Arc::new(move || app.live.lock().ok()?.item.as_ref().map(|i| i.title.clone()))));
         let (ffmpeg, folder) = (plan.ffmpeg.clone(), plan.out.parent().map(PathBuf::from).unwrap_or_default());
         *self.record.input.borrow_mut() = match &plan.sound { record::Sound::Input(name) => name.clone(), _ => String::new() };
         self.record.silent_was.set(false);
