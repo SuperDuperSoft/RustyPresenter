@@ -17,6 +17,7 @@ pub mod compose;
 pub mod keys;
 pub mod lyrics;
 pub mod pc_sound;
+pub mod pictures;
 pub mod scene;
 pub mod send;
 

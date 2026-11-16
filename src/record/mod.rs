@@ -92,6 +92,15 @@ pub struct RecordPrefs {
     /// 1 screen with the camera in a corner, 2 camera with the words over it.
     #[serde(skip_serializing_if = "is_zero_u8")]
     pub camera_layout: u8,
+    /// Livestream scenes chosen by themselves from what is live (`stream::scene::choose`); `None` is on.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub auto_scenes: Option<bool>,
+    /// Presentations go out as the room screen with the camera in the corner (not the room screen alone).
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub presentation_camera: bool,
+    /// The Starting soon, Ending and Hold cards.
+    #[serde(skip_serializing_if = "crate::stream::pictures::Cards::is_default")]
+    pub cards: crate::stream::pictures::Cards,
     /// The note about streaming licences was shown (once, the first time Go Live started).
     #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub licence_noted: bool,
@@ -100,6 +109,11 @@ pub struct RecordPrefs {
 fn is_zero_u8(v: &u8) -> bool { *v == 0 }
 
 impl RecordPrefs {
+    /// The automatic scene choice's settings.
+    pub fn auto(&self) -> crate::stream::scene::AutoPrefs {
+        crate::stream::scene::AutoPrefs { on: self.auto_scenes.unwrap_or(true), presentation_camera: self.presentation_camera }
+    }
+
     /// The output to capture for a livestream (`app_output`: where the app plays its sound); `None`: no PC sound.
     pub fn pc_sound(&self, app_output: &str) -> Option<String> {
         match self.stream_sound.as_str() {
