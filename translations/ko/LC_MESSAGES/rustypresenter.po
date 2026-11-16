@@ -2476,6 +2476,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "방송의 카메라 장면(과 녹화)에 쓸 카메라 또는 캡처 카드."
 
 #: ui/dialogs/settings-media.slint
+msgid "Second camera"
+msgstr "두 번째 카메라"
+
+#: ui/dialogs/settings-media.slint
+msgid "Another camera to switch to while live, from the scene button beside Live."
+msgstr "라이브 중에 바꿀 다른 카메라. 라이브 옆 장면 버튼에서 고릅니다."
+
+#: ui/dialogs/settings-media.slint
 msgid "Scenes"
 msgstr "장면"
 
@@ -3902,6 +3910,10 @@ msgstr "{} (자동)"
 #: ui/operator/record.slint
 msgid "What the livestream shows. It changes by itself with what is live; click to choose"
 msgstr "생방송에 보이는 것. 라이브 내용에 따라 자동으로 바뀝니다. 클릭해서 고르기"
+
+#: ui/operator/record.slint
+msgid "Camera: {}"
+msgstr "카메라: {}"
 
 #: ui/operator/record.slint
 msgid "Stream sound"

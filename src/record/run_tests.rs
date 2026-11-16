@@ -31,7 +31,7 @@ fn probe(file: &Path) -> (Vec<(String, String, u64, u64)>, f64) {
 }
 
 fn plan(ffmpeg: PathBuf, dir: &Path, sound: Sound) -> Plan {
-    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, camera: None, look: None, controls: Controls::default(), sound_delay_ms: 0 }
+    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_delay_ms: 0 }
 }
 
 /// Records for `secs`, handing in a new solid picture every 100 ms (red, then green), with `each` called as it goes.
@@ -332,7 +332,7 @@ fn a_card_is_not_put_together_again_for_each_camera_picture() {
     assert_eq!(m.composes, after_first, "new camera and room pictures change nothing on a card");
 }
 
-fn lavfi_camera(spec: &str) -> Option<Vec<String>> { Some(["-re", "-f", "lavfi", "-i", spec].map(String::from).into()) }
+fn lavfi_camera(spec: &str) -> Vec<Vec<String>> { vec![["-re", "-f", "lavfi", "-i", spec].map(String::from).into()] }
 
 /// A local server that takes one stream into `received`; stopped by `finish_server`.
 fn server(ff: &Path, dir: &Path) -> (std::process::Child, String, PathBuf) {
@@ -370,7 +370,7 @@ fn go_live_shows_the_camera_with_black_bars() {
     let Some(ff) = ffmpeg() else { return };
     let dir = scratch("camera");
     let (srv, url, received) = server(&ff, &dir);
-    let ended = record_for(Plan { stream: vec![url], camera: lavfi_camera("color=c=blue:size=640x480:rate=30"), look: Some(only(Scene::Camera, "x")),
+    let ended = record_for(Plan { stream: vec![url], cameras: lavfi_camera("color=c=blue:size=640x480:rate=30"), look: Some(only(Scene::Camera, "x")),
         ..plan(ff.clone(), &dir, Sound::None) }, 8.0, |_, _| {});
     finish_server(srv);
     assert_eq!(ended.problem, None, "{ended:?}");
@@ -389,7 +389,7 @@ fn go_live_puts_the_words_over_the_camera() {
     let Some(ff) = ffmpeg() else { return };
     let dir = scratch("words");
     let (srv, url, received) = server(&ff, &dir);
-    let ended = record_for(Plan { stream: vec![url], camera: lavfi_camera("color=c=blue:size=1280x720:rate=30"),
+    let ended = record_for(Plan { stream: vec![url], cameras: lavfi_camera("color=c=blue:size=1280x720:rate=30"),
         look: Some(only(Scene::CameraWords, "Amazing grace how sweet the sound")), ..plan(ff.clone(), &dir, Sound::None) }, 8.0, |_, _| {});
     finish_server(srv);
     assert_eq!(ended.problem, None, "{ended:?}");
@@ -418,7 +418,7 @@ fn go_live_switches_scene_while_live() {
     let l = live.clone();
     let corner = AutoPrefs { on: true, presentation_camera: true };
     // The room screen: red for the first half (4 s), then green.
-    let ended = record_for(Plan { stream: vec![dead], camera: lavfi_camera("color=c=blue:size=1280x720:rate=30"), look: Some(look(live, "Grace", corner)),
+    let ended = record_for(Plan { stream: vec![dead], cameras: lavfi_camera("color=c=blue:size=1280x720:rate=30"), look: Some(look(live, "Grace", corner)),
         ..plan(ff.clone(), &dir, Sound::None) }, 8.0, move |_, t| if t > 3.0 { l.lock().unwrap().0.slide = SlideKind::Picture });
     assert_eq!(ended.problem, None, "{ended:?}");
     let rec = dir.join("Recording test.mp4");
@@ -428,6 +428,24 @@ fn go_live_switches_scene_while_live() {
     let (room, cam) = (after.get_pixel(300, 200).0, after.get_pixel(1088, 598).0);
     assert!(room[1] > 180 && room[0] < 60, "the room screen (green by then) fills it: {room:?}");
     assert!(is_blue(cam), "the camera in the corner: {cam:?}");
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// Two cameras: the operator switches from the first (blue) to the second (green) while live.
+#[test]
+fn go_live_switches_between_two_cameras() {
+    let Some(ff) = ffmpeg() else { return };
+    let dir = scratch("twocams");
+    let dead = format!("rtmp://127.0.0.1:{}/live/TEST-KEY", std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port());
+    let cameras = [lavfi_camera("color=c=blue:size=1280x720:rate=30"), lavfi_camera("color=c=green:size=1280x720:rate=30")].concat();
+    let p = Plan { stream: vec![dead], cameras, look: Some(only(Scene::Camera, "x")), ..plan(ff.clone(), &dir, Sound::None) };
+    let active = p.controls.camera.clone();
+    let ended = record_for(p, 7.0, move |_, t| if t > 3.5 { active.store(1, std::sync::atomic::Ordering::Relaxed) });
+    assert_eq!(ended.problem, None, "{ended:?}");
+    let rec = dir.join("Recording test.mp4");
+    let (first, second) = (frame_at(&ff, &dir, &rec, "2").get_pixel(640, 360).0, frame_at(&ff, &dir, &rec, "5.5").get_pixel(640, 360).0);
+    assert!(is_blue(first), "the first camera: {first:?}");
+    assert!(second[1] > 100 && second[2] < 60 && second[0] < 60, "the second camera: {second:?}");
     std::fs::remove_dir_all(&dir).unwrap();
 }
 
@@ -443,7 +461,7 @@ fn real_camera_goes_live_with_the_words() {
     let dir = scratch("realcam");
     let (srv, url, received) = server(&ff, &dir);
     let began = Instant::now();
-    let ended = record_for(Plan { stream: vec![url], camera: Some(args::camera_input(crate::platform::tools::OS, &name)),
+    let ended = record_for(Plan { stream: vec![url], cameras: vec![args::camera_input(crate::platform::tools::OS, &name)],
         look: Some(only(Scene::CameraWords, "Amazing grace how sweet the sound")), ..plan(ff.clone(), &dir, Sound::None) }, 10.0, |_, _| {});
     finish_server(srv);
     let (streams, secs) = probe(&received);
@@ -477,7 +495,7 @@ fn a_camera_that_stops_drops_out_and_comes_back() {
         let dir = scratch("camback");
         let dead = format!("rtmp://127.0.0.1:{}/live/TEST-KEY", std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port());
         // The room screen: red for the first 4.6 s, then green (`record_for` changes at half way).
-        let ended = record_for(Plan { stream: vec![dead], camera: lavfi_camera("color=c=blue:size=1280x720:rate=30:duration=2.5"), look: Some(only(scene, "Grace")),
+        let ended = record_for(Plan { stream: vec![dead], cameras: lavfi_camera("color=c=blue:size=1280x720:rate=30:duration=2.5"), look: Some(only(scene, "Grace")),
             ..plan(ff.clone(), &dir, Sound::None) }, 9.2, |_, _| {});
         assert_eq!(ended.problem, None, "{scene:?}: {ended:?}");
         let rec = dir.join("Recording test.mp4");

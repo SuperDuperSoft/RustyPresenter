@@ -2476,6 +2476,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "Kamera au kadi ya kunasa kwa mandhari za kamera za matangazo (na rekodi yake)."
 
 #: ui/dialogs/settings-media.slint
+msgid "Second camera"
+msgstr "Kamera ya pili"
+
+#: ui/dialogs/settings-media.slint
+msgid "Another camera to switch to while live, from the scene button beside Live."
+msgstr "Kamera nyingine ya kubadilisha ukiwa hewani, kutoka kitufe cha mandhari kando ya Hewani."
+
+#: ui/dialogs/settings-media.slint
 msgid "Scenes"
 msgstr "Mandhari"
 
@@ -3902,6 +3910,10 @@ msgstr "{} (kiotomatiki)"
 #: ui/operator/record.slint
 msgid "What the livestream shows. It changes by itself with what is live; click to choose"
 msgstr "Kinachoonyeshwa na matangazo. Hubadilika yenyewe kulingana na kilicho hewani; bofya kuchagua"
+
+#: ui/operator/record.slint
+msgid "Camera: {}"
+msgstr "Kamera: {}"
 
 #: ui/operator/record.slint
 msgid "Stream sound"

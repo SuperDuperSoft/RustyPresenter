@@ -182,6 +182,10 @@ export global SettingsDlg {
     in property <[string]> stream-camera-labels;
     in property <[string]> stream-camera-names;
     in-out property <int> stream-camera-index;
+    /// A second camera to switch to while live (the same list, its own pick).
+    in property <[string]> stream-camera2-labels;
+    in property <[string]> stream-camera2-names;
+    in-out property <int> stream-camera2-index;
     /// 1.3b scenes: automatic on, presentations with the camera (1) or not (0), and the three cards' words and pictures.
     in-out property <bool> stream-auto-scenes: true;
     /// The upload speed test: running, and what it found.

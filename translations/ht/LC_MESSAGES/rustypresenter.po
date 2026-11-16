@@ -2476,6 +2476,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "Yon kamera oswa yon kat kaptire pou sèn kamera difizyon an (ak anrejistreman li)."
 
 #: ui/dialogs/settings-media.slint
+msgid "Second camera"
+msgstr "Dezyèm kamera"
+
+#: ui/dialogs/settings-media.slint
+msgid "Another camera to switch to while live, from the scene button beside Live."
+msgstr "Yon lòt kamera pou chanje pandan w an dirèk, ak bouton sèn bò kote An dirèk."
+
+#: ui/dialogs/settings-media.slint
 msgid "Scenes"
 msgstr "Sèn"
 
@@ -3902,6 +3910,10 @@ msgstr "{} (otomatik)"
 #: ui/operator/record.slint
 msgid "What the livestream shows. It changes by itself with what is live; click to choose"
 msgstr "Sa difizyon an montre. Li chanje poukont li dapre sa k an dirèk; klike pou chwazi"
+
+#: ui/operator/record.slint
+msgid "Camera: {}"
+msgstr "Kamera: {}"
 
 #: ui/operator/record.slint
 msgid "Stream sound"

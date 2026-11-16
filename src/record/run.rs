@@ -85,8 +85,9 @@ pub struct Plan {
     pub stream: Vec<String>,
     /// Go Live: the sound output whose sound goes out too (`stream::pc_sound`; empty: the default output).
     pub pc_sound: Option<String>,
-    /// Go Live: the camera's FFmpeg input arguments (`args::camera_input`), for the camera scenes.
-    pub camera: Option<Vec<String>>,
+    /// Go Live: each camera's FFmpeg input arguments (`args::camera_input`), for the camera scenes; the one in the
+    /// picture is `Controls::camera`.
+    pub cameras: Vec<Vec<String>>,
     /// Go Live: how the scenes are chosen and what the cards say (`stream::pictures`). `None`: the room screen as is.
     pub look: Option<crate::stream::pictures::Look>,
     /// The stream's panic buttons.
@@ -103,6 +104,8 @@ pub struct Controls {
     pub hold: Arc<std::sync::atomic::AtomicBool>,
     /// Mute: silence in place of the sound input and the PC's sound.
     pub mute: Arc<std::sync::atomic::AtomicBool>,
+    /// Which of `Plan::cameras` is in the picture.
+    pub camera: Arc<std::sync::atomic::AtomicUsize>,
 }
 
 impl Plan {
@@ -118,7 +121,7 @@ impl Plan {
             return Err(Some(tr::low_disk(&gb(free), &gb(prefs.size.bytes_per_hour()))));
         }
         let out = super::file_name(&folder, chrono::Local::now().naive_local());
-        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, camera: None, look: None, controls: Controls::default(), sound_delay_ms: 0 })
+        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_delay_ms: 0 })
     }
 }
 
@@ -235,6 +238,9 @@ impl Recording {
     /// Hold: the stream (and the recording) keeps showing what it shows now, until set off again.
     pub fn hold(&self, on: bool) { self.controls.hold.store(on, std::sync::atomic::Ordering::Relaxed) }
 
+    /// The camera in the picture: `Plan::cameras[i]`.
+    pub fn set_camera(&self, i: usize) { self.controls.camera.store(i, std::sync::atomic::Ordering::Relaxed) }
+
     /// Mute: silence goes out in place of the sound, until set off again.
     pub fn mute(&self, on: bool) { self.controls.mute.store(on, std::sync::atomic::Ordering::Relaxed) }
 
@@ -271,16 +277,16 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     // Go Live with scenes: the camera through a feed of its own, which keeps it going through unplugging, and the
     // worker that picks the scene and draws the words and cards. The writer puts the picture together.
     let live = !ports.is_empty();
-    let mut camera_feed = match (&plan.camera, live && plan.look.is_some()) {
-        (Some(input), true) => crate::stream::camera_feed::start(plan.ffmpeg.clone(), input.clone(), sink.size, FPS)
-            .map_err(|e| eprintln!("recording: the stream goes out without the camera: {e}")).ok(),
-        _ => None,
-    };
-    if let Some(f) = &camera_feed { *camera_seen.lock().unwrap_or_else(|e| e.into_inner()) = Some(f.seeing.clone()) }
+    let mut camera_feeds: Vec<crate::stream::camera_feed::Feed> = if live && plan.look.is_some() {
+        plan.cameras.iter().filter_map(|input| crate::stream::camera_feed::start(plan.ffmpeg.clone(), input.clone(), sink.size, FPS)
+            .map_err(|e| eprintln!("recording: the stream goes out without a camera: {e}")).ok()).collect()
+    } else { vec![] };
+    // Whether the camera in the picture is sending pictures (kept by the writer as the operator switches).
+    let seeing: Arc<std::sync::atomic::AtomicBool> = Arc::default();
+    if !camera_feeds.is_empty() { *camera_seen.lock().unwrap_or_else(|e| e.into_inner()) = Some(seeing.clone()) }
     let mut worker = match (&plan.look, live) {
         (Some(look), true) => {
-            let seeing = camera_feed.as_ref().map(|f| f.seeing.clone()).unwrap_or_default();
-            crate::stream::pictures::start(look.clone(), sink.size, seeing, plan.controls.hold.clone())
+            crate::stream::pictures::start(look.clone(), sink.size, seeing.clone(), plan.controls.hold.clone())
                 .map_err(|e| eprintln!("recording: the stream shows the room screen only: {e}")).ok()
         }
         _ => None,
@@ -342,10 +348,13 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
         if let Some(new) = sink.take() {
             if plan.controls.hold.load(std::sync::atomic::Ordering::Relaxed) { sink.give_back(new) } else { sink.give_back(std::mem::replace(&mut current, new)); room_new = true }
         }
+        // The camera in the picture now.
+        let camera = camera_feeds.get(plan.controls.camera.load(std::sync::atomic::Ordering::Relaxed).min(camera_feeds.len().saturating_sub(1)));
+        seeing.store(camera.is_some_and(|f| f.seeing.load(std::sync::atomic::Ordering::Relaxed)), std::sync::atomic::Ordering::Relaxed);
         // Freeze keeps the picture going out as it is, mid-fade included.
         if let (Some(m), Some(w)) = (mix.as_mut(), worker.as_ref()) && !plan.controls.hold.load(std::sync::atomic::Ordering::Relaxed) {
             let shown = w.slot.lock().unwrap_or_else(|e| e.into_inner()).clone();
-            m.update(&shown, &current, camera_feed.as_ref().and_then(|f| f.picture()), room_new, Instant::now());
+            m.update(&shown, &current, camera.and_then(|f| f.picture()), room_new, Instant::now());
             room_new = false;
         }
         let out: &[u8] = mix.as_ref().map_or(&current, |m| m.out());
@@ -379,7 +388,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     if let Some(c) = pc.as_mut() { c.stop() }
     if let Some(b) = board.as_mut() { b.stop() }
     if let Some(w) = worker.as_mut() { w.stop() }
-    if let Some(c) = camera_feed.as_mut() { c.stop() }
+    for c in camera_feeds.iter_mut() { c.stop() }
     let end = t0.elapsed().as_secs_f64();
     let ended = tree.wait(END_LIMIT, &CancellationToken::new()).await;
     // The last of the stream has gone to the senders: a moment for them to pass it on, then they stop.

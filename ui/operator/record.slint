@@ -98,7 +98,11 @@ export component SceneBtn inherits Rectangle {
     in property <int> out;
     /// The scene chosen by hand, or -1 for Automatic.
     in property <int> chosen: -1;
+    /// Two cameras or more: their names, and the one in the picture.
+    in property <[string]> cameras;
+    in property <int> camera;
     callback pick(int);
+    callback pick-camera(int);
 
     property <string> name: root.out >= 0 && root.out < root.labels.length ? root.labels[root.out] : "";
 
@@ -145,7 +149,7 @@ export component SceneBtn inherits Rectangle {
         x: 0;
         y: root.height + 4px;
         width: 220px;
-        height: (root.labels.length + 1) * 32px + 9px;
+        height: (root.labels.length + 1 + root.cameras.length) * 32px + 9px + (root.cameras.length > 0 ? 9px : 0px);
         close-policy: close-on-click-outside;
         Rectangle {
             background: Theme.panel-2;
@@ -182,6 +186,36 @@ export component SceneBtn inherits Rectangle {
                         }
                     }
                 }
+                for c[i] in root.cameras: camera-row := Rectangle {
+                    height: 32px;
+                    border-radius: 6px;
+                    background: cam-ta.has-hover ? Theme.raise : transparent;
+                    accessible-role: list-item;
+                    accessible-label: c;
+                    accessible-checked: i == root.camera;
+                    cam-ta := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { root.pick-camera(i); menu.close(); }
+                    }
+                    HorizontalLayout {
+                        padding-left: 10px;
+                        spacing: 8px;
+                        VerticalLayout {
+                            alignment: center;
+                            Rectangle { width: 8px; height: 8px; border-radius: 4px; background: i == root.camera ? Theme.ok : transparent; }
+                        }
+                        Text {
+                            text: @tr("Camera: {}", c);
+                            color: Theme.text;
+                            font-family: Theme.font;
+                            font-size: 13px;
+                            font-weight: i == root.camera ? 600 : 400;
+                            overflow: elide;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+                if root.cameras.length > 0: Rectangle { height: 9px; Rectangle { height: 1px; background: Theme.line; } }
                 for n[i] in root.labels: scene-row := Rectangle {
                     height: 32px;
                     border-radius: 6px;

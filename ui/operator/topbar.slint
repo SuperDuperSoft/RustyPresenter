@@ -68,6 +68,10 @@ export component TopBar inherits Rectangle {
     callback pick-scene(int);
     /// The stream's sound meter: lit bars, or -1 to hide it (no sound going out to measure).
     in property <int> live-level: -1;
+    /// Two cameras or more while live: their names, and the one in the picture.
+    in property <[string]> camera-labels;
+    in property <int> camera-active;
+    callback pick-camera(int);
     callback services();
     callback screens();
     callback phone();
@@ -626,7 +630,10 @@ export component TopBar inherits Rectangle {
                 labels: root.scene-labels;
                 out: root.scene-out;
                 chosen: root.scene-chosen;
+                cameras: root.camera-labels;
+                camera: root.camera-active;
                 pick(i) => { root.pick-scene(i); }
+                pick-camera(i) => { root.pick-camera(i); }
             }
         }
         if root.live: VerticalLayout {

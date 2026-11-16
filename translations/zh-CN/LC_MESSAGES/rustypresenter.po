@@ -2476,6 +2476,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "用于直播镜头场景（及其录制）的摄像头或采集卡。"
 
 #: ui/dialogs/settings-media.slint
+msgid "Second camera"
+msgstr "第二台摄像头"
+
+#: ui/dialogs/settings-media.slint
+msgid "Another camera to switch to while live, from the scene button beside Live."
+msgstr "直播时可切换到的另一台摄像头，在“直播”旁的场景按钮中选择。"
+
+#: ui/dialogs/settings-media.slint
 msgid "Scenes"
 msgstr "场景"
 
@@ -3902,6 +3910,10 @@ msgstr "{}（自动）"
 #: ui/operator/record.slint
 msgid "What the livestream shows. It changes by itself with what is live; click to choose"
 msgstr "直播显示的内容。会随正在直播的内容自动变化；点击选择"
+
+#: ui/operator/record.slint
+msgid "Camera: {}"
+msgstr "镜头：{}"
 
 #: ui/operator/record.slint
 msgid "Stream sound"

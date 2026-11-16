@@ -88,6 +88,9 @@ pub struct RecordPrefs {
     /// A camera in the livestream: its name as FFmpeg lists it; empty: none.
     #[serde(skip_serializing_if = "String::is_empty")]
     pub camera: String,
+    /// A second camera to switch to while live; empty: none.
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub camera2: String,
     /// Livestream scenes chosen by themselves from what is live (`stream::scene::choose`); `None` is on.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub auto_scenes: Option<bool>,

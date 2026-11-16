@@ -33,6 +33,8 @@ pub struct RecordUi {
     silent_was: Cell<bool>,
     /// Updates the time on the button once a second.
     ticker: Timer,
+    /// Go Live: the cameras' names, in `Plan::cameras` order.
+    cameras: RefCell<Vec<String>>,
     /// While live: the scene button, four times a second.
     scene_ticker: Timer,
     /// Tests: how the recording ended, waited for by `testing::wait_ended` (no event loop to deliver it).
@@ -91,7 +93,10 @@ impl Operator {
         self.record.starting.set(true);
         let prefs_pc = prefs.pc_sound(&app_output);
         let sound_delay = prefs.sound_delay_ms.min(record::MAX_SOUND_DELAY);
-        let camera = (!prefs.camera.is_empty()).then(|| record::args::camera_input(crate::platform::tools::OS, &prefs.camera));
+        // The cameras, first and second, and their names for the scene button.
+        let camera_names: Vec<String> = [&prefs.camera, &prefs.camera2].into_iter().filter(|c| !c.is_empty()).cloned().collect();
+        let cameras: Vec<Vec<String>> = camera_names.iter().map(|c| record::args::camera_input(crate::platform::tools::OS, c)).collect();
+        if live { *self.record.cameras.borrow_mut() = camera_names }
         // The scenes: what is live now (read ten times a second by `stream::pictures`), the words over the camera,
         // and the church's cards and choices. A new stream starts on Automatic.
         let canvas = prefs.size.size();
@@ -116,7 +121,7 @@ impl Operator {
                 Ok(mut plan) => {
                     if live {
                         plan.pc_sound = prefs_pc;
-                        plan.camera = camera;
+                        plan.cameras = cameras;
                         plan.look = Some(look);
                         plan.sound_delay_ms = sound_delay;
                     }
@@ -253,6 +258,12 @@ impl Operator {
         self.show_scene();
     }
 
+    /// The scene button's camera rows: camera `i` goes into the picture.
+    pub fn pick_camera(&self, i: i32) {
+        let Ok(i) = usize::try_from(i) else { return };
+        if i < self.record.cameras.borrow().len() && self.while_live(|r| r.set_camera(i)) { self.ui.set_camera_active(i as i32) }
+    }
+
     /// The scene button: the scene going out, and the one chosen by hand while it holds.
     pub fn show_scene(&self) {
         let (info, choice, _) = self.app().stream_info();
@@ -294,6 +305,11 @@ impl Operator {
         if self.record.live.get() {
             let labels: Vec<slint::SharedString> = Scene::ALL.iter().map(|s| s.label().into()).collect();
             self.ui.set_scene_labels(slint::ModelRc::new(slint::VecModel::from(labels)));
+            // With two cameras the list offers each; the first is in the picture at the start.
+            let cams = self.record.cameras.borrow();
+            let cams: Vec<slint::SharedString> = if cams.len() > 1 { cams.iter().map(|c| c.as_str().into()).collect() } else { vec![] };
+            self.ui.set_camera_labels(slint::ModelRc::new(slint::VecModel::from(cams)));
+            self.ui.set_camera_active(0);
             self.show_scene();
             let me = self.me.clone();
             self.record.scene_ticker.start(TimerMode::Repeated, Duration::from_millis(250), move || if let Some(op) = me.upgrade() { op.show_scene() });
@@ -354,6 +370,8 @@ pub(super) fn wire(op: &Rc<Operator>) {
     op.ui.on_mute_stream(move || if let Some(op) = me.upgrade() { op.mute_stream() });
     let me = Rc::downgrade(op);
     op.ui.on_pick_scene(move |i| if let Some(op) = me.upgrade() { op.pick_scene(i) });
+    let me = Rc::downgrade(op);
+    op.ui.on_pick_camera(move |i| if let Some(op) = me.upgrade() { op.pick_camera(i) });
 }
 
 mod tr {

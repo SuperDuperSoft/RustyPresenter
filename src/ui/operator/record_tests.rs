@@ -166,9 +166,18 @@ fn livestream_scene_settings_save() {
     g.set_stream_card_words_2(" Back soon ".into());
     g.set_stream_card_picture_0("C:/Pictures/welcome.png".into());
     g.set_stream_sound_delay(5000);
+    // A second camera that is the first again is no second camera.
+    g.set_stream_camera_names(slint::ModelRc::new(slint::VecModel::from(vec![slint::SharedString::new(), "Cam A".into(), "Cam B".into()])));
+    g.set_stream_camera_index(1);
+    g.set_stream_camera2_names(slint::ModelRc::new(slint::VecModel::from(vec![slint::SharedString::new(), "Cam A".into(), "Cam B".into()])));
+    g.set_stream_camera2_index(1);
     crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
     assert_eq!((prefs.auto_scenes, prefs.presentation_camera), (Some(false), true));
     assert_eq!(prefs.sound_delay_ms, 1000, "at most a second");
+    assert_eq!((prefs.camera.as_str(), prefs.camera2.as_str()), ("Cam A", ""));
+    g.set_stream_camera2_index(2);
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!(prefs.camera2, "Cam B");
     assert_eq!((prefs.cards.hold.words.as_str(), prefs.cards.starting.picture.as_str()), ("Back soon", "C:/Pictures/welcome.png"));
     let json = serde_json::to_value(&prefs).unwrap();
     assert_eq!(json["cards"]["hold"], serde_json::json!({ "words": "Back soon" }));

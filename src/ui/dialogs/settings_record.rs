@@ -93,20 +93,31 @@ pub fn camera_choices(cameras: &[Input], saved: &str) -> Choices {
     Choices { labels, keys, index }
 }
 
-fn fill_camera(g: &SettingsDlg, cameras: &[Input], saved: &str) {
+fn fill_camera(g: &SettingsDlg, cameras: &[Input], saved: &str, saved2: &str) {
     let c = camera_choices(cameras, saved);
     g.set_stream_camera_labels(strings(c.labels));
     g.set_stream_camera_names(strings(c.keys));
     g.set_stream_camera_index(c.index as i32);
+    let c = camera_choices(cameras, saved2);
+    g.set_stream_camera2_labels(strings(c.labels));
+    g.set_stream_camera2_names(strings(c.keys));
+    g.set_stream_camera2_index(c.index as i32);
 }
 
 fn read_camera(g: &SettingsDlg) -> String {
     g.get_stream_camera_names().row_data(g.get_stream_camera_index().max(0) as usize).map(|s| s.to_string()).unwrap_or_default()
 }
 
+/// The second camera: none without a first, or when it is the first again.
+fn read_camera2(g: &SettingsDlg) -> String {
+    let first = read_camera(g);
+    let second = g.get_stream_camera2_names().row_data(g.get_stream_camera2_index().max(0) as usize).map(|s| s.to_string()).unwrap_or_default();
+    if first.is_empty() || second == first { String::new() } else { second }
+}
+
 pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     fill_stream_sound(g, &[], &p.stream_sound);
-    fill_camera(g, &[], &p.camera);
+    fill_camera(g, &[], &p.camera, &p.camera2);
     g.set_stream_auto_scenes(p.auto().on);
     g.set_stream_sound_delay(p.sound_delay_ms.min(record::MAX_SOUND_DELAY) as i32);
     g.set_stream_presentation_camera(i32::from(p.presentation_camera));
@@ -159,6 +170,8 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
     if pc != p.stream_sound { p.stream_sound = pc }
     let camera = read_camera(g);
     if camera != p.camera { p.camera = camera }
+    let camera2 = read_camera2(g);
+    if camera2 != p.camera2 { p.camera2 = camera2 }
     // Unchanged keeps the saved form (`None` is on), so an untouched form has no changes.
     let auto = g.get_stream_auto_scenes();
     if auto != p.auto().on { p.auto_scenes = if auto { None } else { Some(false) } }
@@ -210,8 +223,8 @@ pub(super) fn load(op: &Rc<Operator>) {
         let g = op.ui.global::<SettingsDlg>();
         let chosen = read_sound(&g);
         fill_sound(&g, &inputs, &chosen);
-        let camera = read_camera(&g);
-        fill_camera(&g, &cameras, &camera);
+        let (camera, camera2) = (read_camera(&g), read_camera2(&g));
+        fill_camera(&g, &cameras, &camera, &camera2);
     };
     // Tests never run FFmpeg for the list (`choices` is tested on its own).
     if !op.ops().is_inline() {

@@ -2476,6 +2476,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "Камера або карта захоплення для сцен з камерою в трансляції (і її запису)."
 
 #: ui/dialogs/settings-media.slint
+msgid "Second camera"
+msgstr "Друга камера"
+
+#: ui/dialogs/settings-media.slint
+msgid "Another camera to switch to while live, from the scene button beside Live."
+msgstr "Ще одна камера, на яку можна перемкнутися в ефірі, кнопкою сцени поруч з «В ефірі»."
+
+#: ui/dialogs/settings-media.slint
 msgid "Scenes"
 msgstr "Сцени"
 
@@ -3902,6 +3910,10 @@ msgstr "{} (автоматично)"
 #: ui/operator/record.slint
 msgid "What the livestream shows. It changes by itself with what is live; click to choose"
 msgstr "Що показує трансляція. Змінюється сама за тим, що в ефірі; натисніть, щоб обрати"
+
+#: ui/operator/record.slint
+msgid "Camera: {}"
+msgstr "Камера: {}"
 
 #: ui/operator/record.slint
 msgid "Stream sound"

@@ -2476,6 +2476,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "配信のカメラシーン（とその録画）に使うカメラまたはキャプチャカード。"
 
 #: ui/dialogs/settings-media.slint
+msgid "Second camera"
+msgstr "2台目のカメラ"
+
+#: ui/dialogs/settings-media.slint
+msgid "Another camera to switch to while live, from the scene button beside Live."
+msgstr "ライブ中に切り替えるもう1台のカメラ。ライブの横のシーンボタンから選びます。"
+
+#: ui/dialogs/settings-media.slint
 msgid "Scenes"
 msgstr "シーン"
 
@@ -3902,6 +3910,10 @@ msgstr "{}（自動）"
 #: ui/operator/record.slint
 msgid "What the livestream shows. It changes by itself with what is live; click to choose"
 msgstr "ライブ配信に映るもの。ライブの内容に合わせて自動で変わります。クリックして選択"
+
+#: ui/operator/record.slint
+msgid "Camera: {}"
+msgstr "カメラ: {}"
 
 #: ui/operator/record.slint
 msgid "Stream sound"

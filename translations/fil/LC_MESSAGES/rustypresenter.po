@@ -2476,6 +2476,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "Isang camera o capture card para sa mga camera scene ng stream (at ng recording nito)."
 
 #: ui/dialogs/settings-media.slint
+msgid "Second camera"
+msgstr "Ikalawang camera"
+
+#: ui/dialogs/settings-media.slint
+msgid "Another camera to switch to while live, from the scene button beside Live."
+msgstr "Isa pang camera na mapapalitan habang live, mula sa scene button sa tabi ng Live."
+
+#: ui/dialogs/settings-media.slint
 msgid "Scenes"
 msgstr "Mga scene"
 
@@ -3902,6 +3910,10 @@ msgstr "{} (awtomatiko)"
 #: ui/operator/record.slint
 msgid "What the livestream shows. It changes by itself with what is live; click to choose"
 msgstr "Ang ipinapakita ng livestream. Kusa itong nagbabago ayon sa naka-live; i-click para pumili"
+
+#: ui/operator/record.slint
+msgid "Camera: {}"
+msgstr "Camera: {}"
 
 #: ui/operator/record.slint
 msgid "Stream sound"

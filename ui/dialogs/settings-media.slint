@@ -192,6 +192,14 @@ export component SettingsMedia inherits VerticalLayout {
             index <=> SettingsDlg.stream-camera-index;
         }
     }
+    if SettingsDlg.stream-camera-index > 0: Field {
+        label: @tr("Second camera");
+        help: @tr("Another camera to switch to while live, from the scene button beside Live.");
+        stream-camera2 := Select {
+            options: SettingsDlg.stream-camera2-labels;
+            index <=> SettingsDlg.stream-camera2-index;
+        }
+    }
     Field {
         label: @tr("Scenes");
         help: @tr("Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item.");
