@@ -560,6 +560,43 @@ export component SettingsMedia inherits VerticalLayout {
     if SettingsDlg.stream-account-0 != "" || SettingsDlg.stream-account-1 != "": Field {
         label: @tr("Description");
         stream-description := TextField { label: @tr("Broadcast description"); placeholder: @tr("What viewers read under the video"); text <=> SettingsDlg.stream-description; }
+        if SettingsDlg.stream-account-0 != "": HorizontalLayout {
+            spacing: 8px;
+            Text {
+                text: SettingsDlg.stream-scheduled-link == "" ? @tr("Next YouTube broadcast: made when you go live") : @tr("Next YouTube broadcast: {}", SettingsDlg.stream-scheduled-link);
+                color: Theme.text;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                vertical-alignment: center;
+                horizontal-stretch: 1;
+                overflow: elide;
+            }
+            if SettingsDlg.stream-scheduled-link != "": stream-copy-link := Btn { small: true; text: @tr("Copy the link"); clicked => { SettingsDlg.stream-copy-link(); } }
+            stream-schedule := Btn {
+                small: true;
+                text: SettingsDlg.stream-scheduled-link == "" ? @tr("Make it now, to share the link") : @tr("Make a new one");
+                enabled: !SettingsDlg.stream-signing-in;
+                tooltip: @tr("Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it.");
+                clicked => { SettingsDlg.stream-schedule(); }
+            }
+        }
+        HorizontalLayout {
+            spacing: 8px;
+            Text {
+                text: SettingsDlg.stream-thumbnail == "" ? @tr("YouTube thumbnail: a frame of the stream") : @tr("YouTube thumbnail: {}", SettingsDlg.stream-thumbnail);
+                color: Theme.text;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                vertical-alignment: center;
+                horizontal-stretch: 1;
+                overflow: elide;
+            }
+            stream-thumbnail-btn := Btn {
+                small: true;
+                text: SettingsDlg.stream-thumbnail == "" ? @tr("Choose a picture…") : @tr("No picture");
+                clicked => { if SettingsDlg.stream-thumbnail == "" { SettingsDlg.stream-card-choose(3); } else { SettingsDlg.stream-thumbnail = ""; } }
+            }
+        }
     }
     if SettingsDlg.stream-account-0 != "": Field {
         label: @tr("Who can watch on YouTube");

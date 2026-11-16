@@ -2768,6 +2768,46 @@ msgid "What viewers read under the video"
 msgstr "시청자가 동영상 아래에서 읽는 내용"
 
 #: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: made when you go live"
+msgstr "다음 YouTube 방송: 라이브 시작 때 만들어짐"
+
+#: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: {}"
+msgstr "다음 YouTube 방송: {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Copy the link"
+msgstr "링크 복사"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make it now, to share the link"
+msgstr "지금 만들어 링크 공유"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make a new one"
+msgstr "새로 만들기"
+
+#: ui/dialogs/settings-media.slint
+msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
+msgstr "다음 예배의 YouTube 방송을 그날과 시작 시간으로 지금 만듭니다. 일요일 전에 링크를 공유할 수 있고, 라이브 시작 때 이것을 씁니다."
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: a frame of the stream"
+msgstr "YouTube 썸네일: 방송의 한 장면"
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: {}"
+msgstr "YouTube 썸네일: {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Choose a picture…"
+msgstr "그림 고르기…"
+
+#: ui/dialogs/settings-media.slint
+msgid "No picture"
+msgstr "그림 없음"
+
+#: ui/dialogs/settings-media.slint
 msgid "Who can watch on YouTube"
 msgstr "YouTube에서 볼 수 있는 사람"
 
@@ -4162,6 +4202,18 @@ msgstr "클립"
 #: ui/operator/record.slint
 msgid "Mark a part of the recording (the sermon, say) to save as its own video"
 msgstr "녹화의 일부(예: 설교)를 표시해 별도 동영상으로 저장합니다"
+
+#: ui/operator/record.slint
+msgid "Chat"
+msgstr "채팅"
+
+#: ui/operator/record.slint
+msgid "{} new"
+msgstr "새 글 {}"
+
+#: ui/operator/record.slint
+msgid "Nothing written yet."
+msgstr "아직 아무도 쓰지 않았습니다."
 
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
@@ -6420,6 +6472,22 @@ msgid "{name}: the broadcast could not be made ({why}). Sign in again in Setting
 msgstr "{name}: 방송을 만들지 못했습니다({why}). 설정 → 미디어 → 라이브 방송에서 다시 로그인하세요."
 
 #: src/stream/accounts/mod.rs
+msgid "Making the YouTube broadcast…"
+msgstr "YouTube 방송을 만드는 중…"
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast is ready for {when}. Share its link: {link}"
+msgstr "{when}에 맞춰 YouTube 방송이 준비되었습니다. 링크를 공유하세요: {link}"
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast could not be made: {why}"
+msgstr "YouTube 방송을 만들지 못했습니다: {why}"
+
+#: src/stream/accounts/mod.rs
+msgid "The link is copied."
+msgstr "링크를 복사했습니다."
+
+#: src/stream/accounts/mod.rs
 msgid "{name}: the replay is at {link}"
 msgstr "{name}: 다시보기는 {link}"
 
@@ -6442,6 +6510,10 @@ msgstr "{name}: 한 번 끊겼다가 돌아왔습니다."
 #: src/stream/mod.rs
 msgid "{name}: dropped {n} times and came back."
 msgstr "{name}: {n}번 끊겼다가 돌아왔습니다."
+
+#: src/stream/mod.rs
+msgid "{name} · {service}: {text}"
+msgstr "{name} · {service}: {text}"
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

@@ -2768,6 +2768,46 @@ msgid "What viewers read under the video"
 msgstr "Ang mababasa ng mga manonood sa ilalim ng video"
 
 #: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: made when you go live"
+msgstr "Susunod na YouTube broadcast: gagawin pag nag-live"
+
+#: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: {}"
+msgstr "Susunod na YouTube broadcast: {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Copy the link"
+msgstr "Kopyahin ang link"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make it now, to share the link"
+msgstr "Gawin ngayon, para maibahagi ang link"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make a new one"
+msgstr "Gumawa ng bago"
+
+#: ui/dialogs/settings-media.slint
+msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
+msgstr "Ginagawa na ngayon ang YouTube broadcast ng susunod na pagsamba, para sa araw at oras nito, para maibahagi ang link bago ang Linggo. Ito ang gagamitin ng Go Live."
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: a frame of the stream"
+msgstr "YouTube thumbnail: isang larawan mula sa stream"
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: {}"
+msgstr "YouTube thumbnail: {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Choose a picture…"
+msgstr "Pumili ng larawan…"
+
+#: ui/dialogs/settings-media.slint
+msgid "No picture"
+msgstr "Walang larawan"
+
+#: ui/dialogs/settings-media.slint
 msgid "Who can watch on YouTube"
 msgstr "Sino ang puwedeng manood sa YouTube"
 
@@ -4162,6 +4202,18 @@ msgstr "Clip"
 #: ui/operator/record.slint
 msgid "Mark a part of the recording (the sermon, say) to save as its own video"
 msgstr "Markahan ang bahagi ng recording (halimbawa ang sermon) para itago bilang sariling video"
+
+#: ui/operator/record.slint
+msgid "Chat"
+msgstr "Chat"
+
+#: ui/operator/record.slint
+msgid "{} new"
+msgstr "{} bago"
+
+#: ui/operator/record.slint
+msgid "Nothing written yet."
+msgstr "Wala pang sumusulat."
 
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
@@ -6425,6 +6477,22 @@ msgid "{name}: the broadcast could not be made ({why}). Sign in again in Setting
 msgstr "{name}: hindi magawa ang broadcast ({why}). Mag-sign in muli sa Settings → Media → Livestream."
 
 #: src/stream/accounts/mod.rs
+msgid "Making the YouTube broadcast…"
+msgstr "Ginagawa ang YouTube broadcast…"
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast is ready for {when}. Share its link: {link}"
+msgstr "Handa na ang YouTube broadcast para sa {when}. Ibahagi ang link: {link}"
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast could not be made: {why}"
+msgstr "Hindi nagawa ang YouTube broadcast: {why}"
+
+#: src/stream/accounts/mod.rs
+msgid "The link is copied."
+msgstr "Nakopya ang link."
+
+#: src/stream/accounts/mod.rs
 msgid "{name}: the replay is at {link}"
 msgstr "{name}: ang replay ay nasa {link}"
 
@@ -6447,6 +6515,10 @@ msgstr "{name}: naputol nang isang beses at bumalik."
 #: src/stream/mod.rs
 msgid "{name}: dropped {n} times and came back."
 msgstr "{name}: naputol nang {n} beses at bumalik."
+
+#: src/stream/mod.rs
+msgid "{name} · {service}: {text}"
+msgstr "{name} · {service}: {text}"
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

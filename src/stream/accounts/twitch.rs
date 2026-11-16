@@ -9,7 +9,9 @@ use serde_json::Value;
 use std::time::{Duration, Instant};
 
 /// What the app may do: set the channel's title, and read its stream key.
-pub const SCOPES: &str = "channel:manage:broadcast channel:read:stream_key";
+pub const SCOPES: &str = "channel:manage:broadcast channel:read:stream_key chat:read";
+/// Twitch's chat (IRC over TLS).
+pub const CHAT: &str = "ircs://irc.chat.twitch.tv:6697";
 /// Where Twitch takes streams.
 pub const INGEST: &str = "rtmp://live.twitch.tv/app/";
 
@@ -79,20 +81,29 @@ pub async fn wait(client: &reqwest::Client, ends: &Ends, ids: &Ids, device: &Dev
 pub async fn prepare(client: &reqwest::Client, ends: &Ends, ids: &Ids, saved: &str, details: &Details) -> Result<Live, String> {
     let mut parts = saved.splitn(3, '|');
     let (Some(id), Some(login), Some(refresh)) = (parts.next(), parts.next(), parts.next()) else { return Err("the sign-in is not complete".into()) };
-    let v = answer(client.post(format!("{}/token", ends.twitch_id)).form(&[
-        ("client_id", ids.twitch_client.as_str()), ("grant_type", "refresh_token"), ("refresh_token", refresh),
-    ]).send().await).await?;
-    let access = v["access_token"].as_str().ok_or("Twitch gave no access")?.to_string();
-    let renewed = v["refresh_token"].as_str().map(|r| format!("{id}|{login}|{r}"));
+    let (access, lasts, new_refresh) = renew(client, ends, ids, refresh).await?;
+    let renewed = Some(format!("{id}|{login}|{new_refresh}"));
     let auth = |b: reqwest::RequestBuilder| b.bearer_auth(&access).header("Client-Id", &ids.twitch_client);
     let title: String = details.title.chars().take(140).collect();
     answer(auth(client.patch(format!("{}/channels", ends.helix))).query(&[("broadcaster_id", id)]).json(&serde_json::json!({ "title": title })).send().await).await?;
     let key = answer(auth(client.get(format!("{}/streams/key", ends.helix))).query(&[("broadcaster_id", id)]).send().await).await?;
     let key = key.pointer("/data/0/stream_key").and_then(Value::as_str).ok_or("Twitch gave no stream key")?;
-    Ok(Live { service: Service::Twitch, id: id.to_string(), address: format!("{INGEST}{key}"), watch: format!("https://www.twitch.tv/{login}"), token: access, renewed, client: ids.twitch_client.clone() })
+    let mut live = Live::new(Service::Twitch, id.to_string(), format!("{INGEST}{key}"), format!("https://www.twitch.tv/{login}"), access, lasts, new_refresh, format!("{id}|{login}|"));
+    live.renewed = renewed;
+    Ok(live)
 }
 
-pub async fn viewers(client: &reqwest::Client, ends: &Ends, ids: &Ids, live: &Live) -> Option<u64> {
-    let v = answer(client.get(format!("{}/streams", ends.helix)).bearer_auth(&live.token).header("Client-Id", &ids.twitch_client).query(&[("user_id", live.id.as_str())]).send().await).await.ok()?;
+/// A new access from `refresh`, how long it lasts, and the refresh token to use next time (each works once).
+pub async fn renew(client: &reqwest::Client, ends: &Ends, ids: &Ids, refresh: &str) -> Result<(String, Duration, String), String> {
+    let v = answer(client.post(format!("{}/token", ends.twitch_id)).form(&[
+        ("client_id", ids.twitch_client.as_str()), ("grant_type", "refresh_token"), ("refresh_token", refresh),
+    ]).send().await).await?;
+    let access = v["access_token"].as_str().ok_or("Twitch gave no access")?.to_string();
+    let next = v["refresh_token"].as_str().unwrap_or(refresh).to_string();
+    Ok((access, Duration::from_secs(v["expires_in"].as_u64().unwrap_or(3600)), next))
+}
+
+pub async fn viewers(client: &reqwest::Client, ends: &Ends, ids: &Ids, live: &Live, access: &str) -> Option<u64> {
+    let v = answer(client.get(format!("{}/streams", ends.helix)).bearer_auth(access).header("Client-Id", &ids.twitch_client).query(&[("user_id", live.id.as_str())]).send().await).await.ok()?;
     v.pointer("/data/0/viewer_count").and_then(Value::as_u64)
 }

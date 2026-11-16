@@ -6,7 +6,7 @@ import { EditMenu, Icon, TopBtn, Pill, Kbd, TipArea } from "../widgets.slint";
 import { BiblePickerList, TranslationChip } from "../bible-picker.slint";
 import { StageLayoutButton } from "../dialogs/stage-layouts.slint";
 import { PanelExtras } from "extras.slint";
-import { RecordBtn, ClipBtn, LiveBtn, PanicBtn, SceneBtn, SoundMeter } from "record.slint";
+import { RecordBtn, ClipBtn, ChatBtn, LiveBtn, PanicBtn, SceneBtn, SoundMeter } from "record.slint";
 
 export { TranslationChip }
 
@@ -78,6 +78,11 @@ export component TopBar inherits Rectangle {
     callback pick-camera(int);
     /// The camera in the picture can be moved: how many saved positions it offers (0: none).
     in property <int> camera-positions;
+    /// Signed in, while live: the viewers' chat, newest last, and how many came since the list was last opened.
+    in property <bool> chat-on;
+    in property <[string]> chat-lines;
+    in property <int> chat-new;
+    callback chat-opened();
     callback pick-position(int);
     callback services();
     callback screens();
@@ -637,6 +642,15 @@ export component TopBar inherits Rectangle {
                 total: root.live-total;
                 watching: root.live-watching;
                 clicked => { root.go-live(); }
+            }
+        }
+        if root.live && root.chat-on: VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            chat-btn := ChatBtn {
+                lines: root.chat-lines;
+                new: root.chat-new;
+                opened => { root.chat-opened(); }
             }
         }
         if root.live && root.scene-labels.length > 0: VerticalLayout {

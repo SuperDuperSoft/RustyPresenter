@@ -246,6 +246,12 @@ export global SettingsDlg {
     /// 1 only people with the link).
     in-out property <string> stream-title;
     in-out property <string> stream-description;
+    in-out property <string> stream-thumbnail;
+    // Signed in to YouTube: the broadcast made ahead for the next service, and its link to share.
+    in-out property <string> stream-scheduled-id;
+    in-out property <string> stream-scheduled-link;
+    callback stream-schedule();
+    callback stream-copy-link();
     in-out property <int> stream-privacy;
 
     // ---- Songs ----

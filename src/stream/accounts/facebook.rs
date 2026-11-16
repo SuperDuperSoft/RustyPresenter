@@ -8,7 +8,7 @@ use std::time::{Duration, Instant};
 /// The Graph API version the app was written against.
 pub const VERSION: &str = "v21.0";
 /// What the app may do: find the Pages the account manages and go live on them.
-pub const SCOPE: &str = "pages_show_list,pages_read_engagement,pages_manage_posts,publish_video";
+pub const SCOPE: &str = "pages_show_list,pages_read_engagement,pages_manage_posts,publish_video,pages_read_user_content";
 
 /// A sign-in under way: what the operator types, and where.
 #[derive(Clone, Debug)]
@@ -71,16 +71,16 @@ pub async fn prepare(client: &reqwest::Client, ends: &Ends, saved: &str, details
     let address = made["secure_stream_url"].as_str().or_else(|| more["secure_stream_url"].as_str()).ok_or("Facebook gave no stream address")?.to_string();
     let link = more["permalink_url"].as_str().unwrap_or_default();
     let watch = if link.starts_with("http") { link.to_string() } else if link.is_empty() { format!("https://www.facebook.com/{page}/live") } else { format!("https://www.facebook.com{link}") };
-    Ok(Live { service: Service::Facebook, id, address, watch, token: token.to_string(), renewed: None, client: String::new() })
+    Ok(Live::new(Service::Facebook, id, address, watch, token.to_string(), super::FOREVER, String::new(), String::new()))
 }
 
-pub async fn viewers(client: &reqwest::Client, ends: &Ends, live: &Live) -> Option<u64> {
-    let v = json(client.get(format!("{}/{}", ends.graph, live.id)).query(&[("fields", "live_views"), ("access_token", live.token.as_str())]).send().await).await.ok()?;
+pub async fn viewers(client: &reqwest::Client, ends: &Ends, live: &Live, access: &str) -> Option<u64> {
+    let v = json(client.get(format!("{}/{}", ends.graph, live.id)).query(&[("fields", "live_views"), ("access_token", access)]).send().await).await.ok()?;
     v["live_views"].as_u64()
 }
 
 /// Ends the live video, so the Page shows it as a replay at once.
-pub async fn finish(client: &reqwest::Client, ends: &Ends, live: &Live) {
-    let r = client.post(format!("{}/{}", ends.graph, live.id)).form(&[("end_live_video", "true"), ("access_token", live.token.as_str())]).send().await;
+pub async fn finish(client: &reqwest::Client, ends: &Ends, live: &Live, access: &str) {
+    let r = client.post(format!("{}/{}", ends.graph, live.id)).form(&[("end_live_video", "true"), ("access_token", access)]).send().await;
     if let Err(e) = json(r).await { eprintln!("facebook: ending the live video: {e}") }
 }

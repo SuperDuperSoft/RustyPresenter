@@ -2768,6 +2768,46 @@ msgid "What viewers read under the video"
 msgstr "观众在视频下方看到的文字"
 
 #: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: made when you go live"
+msgstr "下次 YouTube 直播：开始直播时创建"
+
+#: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: {}"
+msgstr "下次 YouTube 直播：{}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Copy the link"
+msgstr "复制链接"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make it now, to share the link"
+msgstr "现在创建，以便分享链接"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make a new one"
+msgstr "重新创建"
+
+#: ui/dialogs/settings-media.slint
+msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
+msgstr "现在就按下次聚会的日期和开始时间创建 YouTube 直播，周日前就能分享链接。开始直播时会使用它。"
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: a frame of the stream"
+msgstr "YouTube 缩略图：直播中的一帧"
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: {}"
+msgstr "YouTube 缩略图：{}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Choose a picture…"
+msgstr "选择图片…"
+
+#: ui/dialogs/settings-media.slint
+msgid "No picture"
+msgstr "不用图片"
+
+#: ui/dialogs/settings-media.slint
 msgid "Who can watch on YouTube"
 msgstr "谁能在 YouTube 上观看"
 
@@ -4162,6 +4202,18 @@ msgstr "片段"
 #: ui/operator/record.slint
 msgid "Mark a part of the recording (the sermon, say) to save as its own video"
 msgstr "标记录像的一部分（例如讲道），另存为一个视频"
+
+#: ui/operator/record.slint
+msgid "Chat"
+msgstr "聊天"
+
+#: ui/operator/record.slint
+msgid "{} new"
+msgstr "{} 条新消息"
+
+#: ui/operator/record.slint
+msgid "Nothing written yet."
+msgstr "还没有人留言。"
 
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
@@ -6420,6 +6472,22 @@ msgid "{name}: the broadcast could not be made ({why}). Sign in again in Setting
 msgstr "{name}：无法创建直播（{why}）。请在 “设置 → 媒体 → 直播” 中重新登录。"
 
 #: src/stream/accounts/mod.rs
+msgid "Making the YouTube broadcast…"
+msgstr "正在创建 YouTube 直播…"
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast is ready for {when}. Share its link: {link}"
+msgstr "YouTube 直播已为 {when} 准备好。分享链接：{link}"
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast could not be made: {why}"
+msgstr "无法创建 YouTube 直播：{why}"
+
+#: src/stream/accounts/mod.rs
+msgid "The link is copied."
+msgstr "已复制链接。"
+
+#: src/stream/accounts/mod.rs
 msgid "{name}: the replay is at {link}"
 msgstr "{name}：回放在 {link}"
 
@@ -6442,6 +6510,10 @@ msgstr "{name}：断开一次后恢复。"
 #: src/stream/mod.rs
 msgid "{name}: dropped {n} times and came back."
 msgstr "{name}：断开 {n} 次后恢复。"
+
+#: src/stream/mod.rs
+msgid "{name} · {service}: {text}"
+msgstr "{name} · {service}：{text}"
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

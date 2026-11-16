@@ -24,6 +24,11 @@ pub struct RecordUi {
     /// Go Live: each destination's name and whether it was connected at the last look, in the order of
     /// `Plan::stream`. The ticker says when one drops or comes back.
     links: RefCell<Vec<(String, bool)>>,
+    /// Signed in, while live: the viewers' chat, and how many messages the operator has seen.
+    chat: stream::chat::Board,
+    chat_seen: Cell<u64>,
+    /// Stops the chat readers when the stream stops.
+    chat_stop: RefCell<Arc<std::sync::atomic::AtomicBool>>,
     /// Go Live: each destination's drops so far, and whether it ever connected (the summary at the end).
     history: RefCell<Vec<(u32, bool)>>,
     /// The destinations the operator was told the internet is too slow for (once each).
@@ -153,6 +158,8 @@ impl Operator {
             title: stream::accounts::title_for(&prefs.stream_title, today, service),
             description: prefs.stream_description.clone(),
             privacy: prefs.stream_privacy,
+            thumbnail: prefs.stream_thumbnail.clone(),
+            scheduled: if service == stream::Service::YouTube { prefs.stream_scheduled.clone() } else { String::new() },
         };
         let signed_tall: Vec<(String, bool)> = signed.iter().map(|(d, _)| (d.title().to_string(), d.tall)).collect();
         let signed: Vec<(stream::Destination, String, stream::accounts::Details)> = signed.into_iter().map(|(d, t)| { let x = details(d.service); (d, t, x) }).collect();
@@ -187,6 +194,7 @@ impl Operator {
             layout: prefs.stream_layout,
         };
         let (ids, ends) = (stream::accounts::app_ids(), stream::accounts::app_ends());
+        let scheduled_id = prefs.stream_scheduled.clone();
         off_ui(self, move || (Plan::make(&data, &prefs), make_broadcasts(&ids, &ends, signed)), move |(plan, made)| {
             let Some(op) = me.upgrade() else { return };
             op.record.starting.set(false);
@@ -202,6 +210,8 @@ impl Operator {
                     Err(e) => { eprintln!("stream: {title}: {e}"); op.toast(stream::accounts::tr::prepare_failed(&title, &e), true) }
                 }
             }
+            let used_ahead = broadcasts.iter().any(|(_, b)| b.service == stream::Service::YouTube && !scheduled_id.is_empty() && b.id == scheduled_id);
+            if used_ahead { let _ = op.app().edit(|d| { d.settings.record.stream_scheduled.clear(); d.settings.record.stream_scheduled_link.clear(); Ok(()) }); }
             *op.record.broadcasts.borrow_mut() = broadcasts;
             if live && addresses.is_empty() && plan.is_ok() { return op.toast(stream::tr::nothing_ready(), true) }
             if live {
@@ -226,6 +236,7 @@ impl Operator {
                         op.ui.set_live_watching(-1);
                         op.ui.set_live(true);
                         op.toast(stream::tr::live_on(&names), false);
+                        op.start_chat();
                         op.note_stream_licence();
                     }
                 }
@@ -302,19 +313,82 @@ impl Operator {
         self.record.viewers_age.set(0);
         let all: Vec<stream::accounts::Live> = self.record.broadcasts.borrow().iter().map(|(_, b)| b.clone()).collect();
         if all.is_empty() { return }
-        let (ui, ends) = (self.ui.as_weak(), stream::accounts::app_ends());
+        let (ui, ends, ids) = (self.ui.as_weak(), stream::accounts::app_ends(), stream::accounts::app_ids());
         let _ = std::thread::Builder::new().name("stream-viewers".into()).spawn(move || {
             let Ok(rt) = tokio::runtime::Builder::new_current_thread().enable_all().build() else { return };
             let Ok(client) = crate::bible::sources::client() else { return };
             let counts: Vec<Option<u64>> = rt.block_on(async {
                 let mut v = vec![];
-                for b in &all { v.push(stream::accounts::viewers(client, &ends, b).await) }
+                for b in &all { v.push(stream::accounts::viewers(client, &ends, &ids, b).await) }
                 v
             });
             if counts.iter().all(Option::is_none) { return }
             let total: u64 = counts.into_iter().flatten().sum();
             let _ = ui.upgrade_in_event_loop(move |ui| if ui.get_live() { ui.set_live_watching(total.min(i32::MAX as u64) as i32) });
         });
+    }
+
+    /// Signed in, live: starts reading the broadcasts' chat into the board (YouTube and Facebook every 5 s, Twitch
+    /// as it is written).
+    fn start_chat(&self) {
+        let all: Vec<stream::accounts::Live> = self.record.broadcasts.borrow().iter().map(|(_, b)| b.clone()).collect();
+        *self.record.chat.lock().unwrap_or_else(|e| e.into_inner()) = Default::default();
+        self.record.chat_seen.set(0);
+        let stop = Arc::new(std::sync::atomic::AtomicBool::new(false));
+        *self.record.chat_stop.borrow_mut() = stop.clone();
+        self.ui.set_chat_on(!all.is_empty());
+        self.show_chat();
+        if all.is_empty() || self.ops().is_inline() { return }
+        let (ends, ids) = (stream::accounts::app_ends(), stream::accounts::app_ids());
+        for live in all.iter().filter(|l| l.service == stream::Service::Twitch) {
+            let Some(login) = live.login() else { continue };
+            let (l, e, i) = (live.clone(), ends.clone(), ids.clone());
+            let access = Arc::new(move || {
+                let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().ok()?;
+                let client = crate::bible::sources::client().ok()?;
+                rt.block_on(l.access_now(client, &e, &i)).ok()
+            });
+            stream::chat::twitch_reader(stream::accounts::twitch::CHAT.into(), login, access, self.record.chat.clone(), stop.clone());
+        }
+        let polled: Vec<stream::accounts::Live> = all.into_iter().filter(|l| l.service != stream::Service::Twitch).collect();
+        if polled.is_empty() { return }
+        let board = self.record.chat.clone();
+        let _ = std::thread::Builder::new().name("stream-chat".into()).spawn(move || {
+            let Ok(rt) = tokio::runtime::Builder::new_current_thread().enable_all().build() else { return };
+            let Ok(client) = crate::bible::sources::client() else { return };
+            let mut cursors: Vec<stream::chat::Cursor> = polled.iter().map(|_| Default::default()).collect();
+            while !stop.load(std::sync::atomic::Ordering::Relaxed) {
+                for (live, cursor) in polled.iter().zip(cursors.iter_mut()) {
+                    match rt.block_on(stream::chat::next(client, &ends, &ids, live, cursor)) {
+                        Ok(new) => stream::chat::add(&board, new),
+                        Err(e) => eprintln!("stream chat: {e}"),
+                    }
+                }
+                for _ in 0..50 { if stop.load(std::sync::atomic::Ordering::Relaxed) { break } std::thread::sleep(Duration::from_millis(100)) }
+            }
+        });
+    }
+
+    /// The Chat button: how many new messages since the operator last looked, and the list.
+    pub(crate) fn show_chat(&self) {
+        let chat = self.record.chat.lock().unwrap_or_else(|e| e.into_inner());
+        let new = chat.total.saturating_sub(self.record.chat_seen.get());
+        self.ui.set_chat_new(new.min(999) as i32);
+        let lines: Vec<slint::SharedString> = chat.list.iter().map(|m| stream::tr::chat_line(&m.name, m.from.name(), &m.text).into()).collect();
+        self.ui.set_chat_lines(slint::ModelRc::new(slint::VecModel::from(lines)));
+    }
+
+    /// The chat list was opened: everything in it is seen.
+    pub(crate) fn chat_opened(&self) {
+        let total = self.record.chat.lock().unwrap_or_else(|e| e.into_inner()).total;
+        self.record.chat_seen.set(total);
+        self.show_chat();
+    }
+
+    /// The stream stopped: the readers stop.
+    fn stop_chat(&self) {
+        self.record.chat_stop.borrow().store(true, std::sync::atomic::Ordering::Relaxed);
+        self.ui.set_chat_on(false);
     }
 
     /// After a stream: how long it ran and how each destination did.
@@ -545,6 +619,7 @@ impl Operator {
         if !on {
             self.record.live.set(false);
             self.ui.set_live(false);
+            self.stop_chat();
             self.ui.set_camera_positions(0);
             self.ui.set_live_held(false);
             self.ui.set_live_muted(false);
@@ -585,6 +660,7 @@ impl Operator {
             let lag = op.record.rec.borrow().as_ref().map(Recording::lag);
             op.say_slow(lag);
             op.ask_viewers();
+            if op.ui.get_chat_on() { op.show_chat() }
         });
     }
 
@@ -634,6 +710,8 @@ pub(super) fn wire(op: &Rc<Operator>) {
     op.ui.on_pick_scene(move |i| if let Some(op) = me.upgrade() { op.pick_scene(i) });
     let me = Rc::downgrade(op);
     op.ui.on_pick_camera(move |i| if let Some(op) = me.upgrade() { op.pick_camera(i) });
+    let me = Rc::downgrade(op);
+    op.ui.on_chat_opened(move || if let Some(op) = me.upgrade() { op.chat_opened() });
     let me = Rc::downgrade(op);
     op.ui.on_pick_position(move |i| if let Some(op) = me.upgrade() { op.pick_position(i) });
 }

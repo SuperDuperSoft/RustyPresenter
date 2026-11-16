@@ -2768,6 +2768,46 @@ msgid "What viewers read under the video"
 msgstr "Что зрители читают под видео"
 
 #: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: made when you go live"
+msgstr "Следующая трансляция YouTube: создаётся при выходе в эфир"
+
+#: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: {}"
+msgstr "Следующая трансляция YouTube: {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Copy the link"
+msgstr "Скопировать ссылку"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make it now, to share the link"
+msgstr "Создать сейчас, чтобы поделиться ссылкой"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make a new one"
+msgstr "Создать новую"
+
+#: ui/dialogs/settings-media.slint
+msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
+msgstr "Создаёт трансляцию YouTube для следующего служения сейчас, на его день и время начала, чтобы поделиться ссылкой до воскресенья. «В эфир» использует её."
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: a frame of the stream"
+msgstr "Обложка YouTube: кадр из трансляции"
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: {}"
+msgstr "Обложка YouTube: {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Choose a picture…"
+msgstr "Выбрать картинку…"
+
+#: ui/dialogs/settings-media.slint
+msgid "No picture"
+msgstr "Без картинки"
+
+#: ui/dialogs/settings-media.slint
 msgid "Who can watch on YouTube"
 msgstr "Кто может смотреть на YouTube"
 
@@ -4162,6 +4202,18 @@ msgstr "Фрагмент"
 #: ui/operator/record.slint
 msgid "Mark a part of the recording (the sermon, say) to save as its own video"
 msgstr "Отметить часть записи (например, проповедь), чтобы сохранить её отдельным видео"
+
+#: ui/operator/record.slint
+msgid "Chat"
+msgstr "Чат"
+
+#: ui/operator/record.slint
+msgid "{} new"
+msgstr "Новых: {}"
+
+#: ui/operator/record.slint
+msgid "Nothing written yet."
+msgstr "Пока никто не написал."
 
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
@@ -6430,6 +6482,22 @@ msgid "{name}: the broadcast could not be made ({why}). Sign in again in Setting
 msgstr "{name}: трансляцию не удалось создать ({why}). Войдите снова в «Настройки → Медиа → Трансляция»."
 
 #: src/stream/accounts/mod.rs
+msgid "Making the YouTube broadcast…"
+msgstr "Создаётся трансляция YouTube…"
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast is ready for {when}. Share its link: {link}"
+msgstr "Трансляция YouTube готова на {when}. Поделитесь ссылкой: {link}"
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast could not be made: {why}"
+msgstr "Не удалось создать трансляцию YouTube: {why}"
+
+#: src/stream/accounts/mod.rs
+msgid "The link is copied."
+msgstr "Ссылка скопирована."
+
+#: src/stream/accounts/mod.rs
 msgid "{name}: the replay is at {link}"
 msgstr "{name}: запись здесь: {link}"
 
@@ -6452,6 +6520,10 @@ msgstr "{name}: один раз отключался и вернулся."
 #: src/stream/mod.rs
 msgid "{name}: dropped {n} times and came back."
 msgstr "{name}: отключался {n} раз и вернулся."
+
+#: src/stream/mod.rs
+msgid "{name} · {service}: {text}"
+msgstr "{name} · {service}: {text}"
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

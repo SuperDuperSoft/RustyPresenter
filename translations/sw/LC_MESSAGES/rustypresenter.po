@@ -2768,6 +2768,46 @@ msgid "What viewers read under the video"
 msgstr "Wanachosoma watazamaji chini ya video"
 
 #: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: made when you go live"
+msgstr "Matangazo yajayo ya YouTube: hutengenezwa ukianza moja kwa moja"
+
+#: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: {}"
+msgstr "Matangazo yajayo ya YouTube: {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Copy the link"
+msgstr "Nakili kiungo"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make it now, to share the link"
+msgstr "Litengeneze sasa, ili kushiriki kiungo"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make a new one"
+msgstr "Tengeneza jipya"
+
+#: ui/dialogs/settings-media.slint
+msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
+msgstr "Hutengeneza sasa matangazo ya YouTube ya ibada ijayo, kwa siku na saa yake ya kuanza, ili kiungo kishirikiwe kabla ya Jumapili. Moja kwa moja hutumia hayo."
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: a frame of the stream"
+msgstr "Picha ndogo ya YouTube: picha moja ya matangazo"
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: {}"
+msgstr "Picha ndogo ya YouTube: {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Choose a picture…"
+msgstr "Chagua picha…"
+
+#: ui/dialogs/settings-media.slint
+msgid "No picture"
+msgstr "Hakuna picha"
+
+#: ui/dialogs/settings-media.slint
 msgid "Who can watch on YouTube"
 msgstr "Nani anaweza kutazama kwenye YouTube"
 
@@ -4162,6 +4202,18 @@ msgstr "Kipande"
 #: ui/operator/record.slint
 msgid "Mark a part of the recording (the sermon, say) to save as its own video"
 msgstr "Weka alama sehemu ya rekodi (kwa mfano mahubiri) ili kuihifadhi kama video yake"
+
+#: ui/operator/record.slint
+msgid "Chat"
+msgstr "Gumzo"
+
+#: ui/operator/record.slint
+msgid "{} new"
+msgstr "{} mapya"
+
+#: ui/operator/record.slint
+msgid "Nothing written yet."
+msgstr "Bado hakuna aliyeandika."
 
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
@@ -6425,6 +6477,22 @@ msgid "{name}: the broadcast could not be made ({why}). Sign in again in Setting
 msgstr "{name}: matangazo hayakuweza kuundwa ({why}). Ingia tena katika Mipangilio → Midia → Matangazo ya moja kwa moja."
 
 #: src/stream/accounts/mod.rs
+msgid "Making the YouTube broadcast…"
+msgstr "Inatengeneza matangazo ya YouTube…"
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast is ready for {when}. Share its link: {link}"
+msgstr "Matangazo ya YouTube yako tayari kwa {when}. Shiriki kiungo: {link}"
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast could not be made: {why}"
+msgstr "Matangazo ya YouTube hayakuweza kutengenezwa: {why}"
+
+#: src/stream/accounts/mod.rs
+msgid "The link is copied."
+msgstr "Kiungo kimenakiliwa."
+
+#: src/stream/accounts/mod.rs
 msgid "{name}: the replay is at {link}"
 msgstr "{name}: marudio yako kwenye {link}"
 
@@ -6447,6 +6515,10 @@ msgstr "{name}: ilikatika mara moja na kurudi."
 #: src/stream/mod.rs
 msgid "{name}: dropped {n} times and came back."
 msgstr "{name}: ilikatika mara {n} na kurudi."
+
+#: src/stream/mod.rs
+msgid "{name} · {service}: {text}"
+msgstr "{name} · {service}: {text}"
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

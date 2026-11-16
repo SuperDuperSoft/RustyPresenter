@@ -2765,6 +2765,46 @@ msgid "What viewers read under the video"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: made when you go live"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: {}"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Copy the link"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Make it now, to share the link"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Make a new one"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: a frame of the stream"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: {}"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Choose a picture…"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "No picture"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
 msgid "Who can watch on YouTube"
 msgstr ""
 
@@ -4152,6 +4192,18 @@ msgstr ""
 
 #: ui/operator/record.slint
 msgid "Mark a part of the recording (the sermon, say) to save as its own video"
+msgstr ""
+
+#: ui/operator/record.slint
+msgid "Chat"
+msgstr ""
+
+#: ui/operator/record.slint
+msgid "{} new"
+msgstr ""
+
+#: ui/operator/record.slint
+msgid "Nothing written yet."
 msgstr ""
 
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
@@ -6416,6 +6468,22 @@ msgid "{name}: the broadcast could not be made ({why}). Sign in again in Setting
 msgstr ""
 
 #: src/stream/accounts/mod.rs
+msgid "Making the YouTube broadcast…"
+msgstr ""
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast is ready for {when}. Share its link: {link}"
+msgstr ""
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast could not be made: {why}"
+msgstr ""
+
+#: src/stream/accounts/mod.rs
+msgid "The link is copied."
+msgstr ""
+
+#: src/stream/accounts/mod.rs
 msgid "{name}: the replay is at {link}"
 msgstr ""
 
@@ -6437,6 +6505,10 @@ msgstr ""
 
 #: src/stream/mod.rs
 msgid "{name}: dropped {n} times and came back."
+msgstr ""
+
+#: src/stream/mod.rs
+msgid "{name} · {service}: {text}"
 msgstr ""
 
 #: src/stream/mod.rs

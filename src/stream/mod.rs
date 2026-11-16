@@ -14,6 +14,7 @@ use uuid::Uuid;
 pub mod accounts;
 pub mod board_feed;
 pub mod camera_feed;
+pub mod chat;
 pub mod compose;
 pub mod keys;
 pub mod level;
@@ -194,6 +195,7 @@ pub mod tr {
         }
         parts.join(" ")
     }
+    pub fn chat_line(name: &str, service: &str, text: &str) -> String { tr!("{name} · {service}: {text}", name = name, service = service, text = text) }
     pub fn live_on(names: &str) -> String { tr!("Going live on {names}. Recording too.", names = names) }
     pub fn connected(name: &str) -> String { tr!("{name}: the stream is going out.", name = name) }
     pub fn never_connected(name: &str) -> String { tr!("{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on.", name = name) }

@@ -140,6 +140,14 @@ pub struct RecordPrefs {
     pub stream_title: String,
     #[serde(skip_serializing_if = "String::is_empty")]
     pub stream_description: String,
+    /// Signed in to YouTube: the broadcast made ahead for the next service (its id and link); used by Go Live once.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub stream_scheduled: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub stream_scheduled_link: String,
+    /// Signed in to YouTube: a picture file for each broadcast's thumbnail; empty: none.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub stream_thumbnail: String,
     #[serde(skip_serializing_if = "crate::stream::accounts::Privacy::is_public")]
     pub stream_privacy: crate::stream::accounts::Privacy,
     /// The note about streaming licences was shown (once, the first time Go Live started).

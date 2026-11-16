@@ -176,6 +176,9 @@ pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     g.set_stream_sign_in_text("".into());
     g.set_stream_title(p.stream_title.as_str().into());
     g.set_stream_description(p.stream_description.as_str().into());
+    g.set_stream_thumbnail(p.stream_thumbnail.as_str().into());
+    g.set_stream_scheduled_id(p.stream_scheduled.as_str().into());
+    g.set_stream_scheduled_link(p.stream_scheduled_link.as_str().into());
     g.set_stream_privacy(i32::from(p.stream_privacy == stream::accounts::Privacy::Unlisted));
     g.set_record_size(Preset::ALL.iter().position(|s| *s == p.size).unwrap_or(1) as i32);
     g.set_record_folder(p.folder().display().to_string().into());
@@ -246,6 +249,9 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
     };
     p.stream_title = g.get_stream_title().trim().to_string();
     p.stream_description = g.get_stream_description().trim().to_string();
+    p.stream_thumbnail = g.get_stream_thumbnail().trim().to_string();
+    p.stream_scheduled = g.get_stream_scheduled_id().to_string();
+    p.stream_scheduled_link = g.get_stream_scheduled_link().to_string();
     p.stream_privacy = if g.get_stream_privacy() == 1 { stream::accounts::Privacy::Unlisted } else { stream::accounts::Privacy::Public };
 }
 
@@ -326,6 +332,57 @@ pub(crate) fn wire_keys(op: &Rc<Operator>) {
         });
     });
     let me = Rc::downgrade(op);
+    op.ui.global::<SettingsDlg>().on_stream_schedule(move || {
+        let Some(op) = me.upgrade() else { return };
+        let g = op.ui.global::<SettingsDlg>();
+        if g.get_stream_signing_in() { return }
+        let Some((_, refresh)) = stream::accounts::kept(stream::keys::app_store().as_ref(), stream::built_in_id(0)) else { return };
+        // The broadcast as Go Live would make it, for the open service's day and start time.
+        let mut prefs = RecordPrefs::default();
+        read_form(&g, &mut prefs);
+        let (day, time) = {
+            let d = op.app().data.lock().unwrap();
+            (d.service().and_then(|s| s.date), crate::automation::actions::starts_at(&d).map(|t| (u32::from(t.hour), u32::from(t.minute))))
+        };
+        let at = stream::accounts::google::schedule_time(day, time, chrono::Local::now());
+        let details = stream::accounts::Details {
+            title: stream::accounts::title_for(&prefs.stream_title, at.date_naive(), stream::Service::YouTube),
+            description: prefs.stream_description.clone(), privacy: prefs.stream_privacy, thumbnail: prefs.stream_thumbnail.clone(), scheduled: String::new(),
+        };
+        g.set_stream_signing_in(true);
+        g.set_stream_sign_in_text(stream::accounts::tr::scheduling().into());
+        let work = move || -> Result<(String, String), String> {
+            let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().map_err(|e| e.to_string())?;
+            let client = crate::bible::sources::client().map_err(|e| format!("{e:?}"))?;
+            let (ids, ends) = (stream::accounts::app_ids(), stream::accounts::app_ends());
+            rt.block_on(stream::accounts::google::schedule(client, &ends, &ids, &refresh, &details, at.with_timezone(&chrono::Utc)))
+        };
+        let when = at.format("%A %-d %B, %H:%M").to_string();
+        let done = move |g: &SettingsDlg, r: Result<(String, String), String>| {
+            g.set_stream_signing_in(false);
+            match r {
+                Ok((id, link)) => {
+                    g.set_stream_scheduled_id(id.into());
+                    g.set_stream_scheduled_link(link.as_str().into());
+                    g.set_stream_sign_in_text(stream::accounts::tr::scheduled(&when, &link).into());
+                }
+                Err(e) => { eprintln!("youtube: making the broadcast ahead: {e}"); g.set_stream_sign_in_text(stream::accounts::tr::schedule_failed(&e).into()) }
+            }
+        };
+        if op.ops().is_inline() { return done(&g, work()) }
+        let ui = op.ui.as_weak();
+        let _ = std::thread::Builder::new().name("youtube-schedule".into()).spawn(move || {
+            let r = work();
+            let _ = ui.upgrade_in_event_loop(move |ui| done(&ui.global::<SettingsDlg>(), r));
+        });
+    });
+    let me = Rc::downgrade(op);
+    op.ui.global::<SettingsDlg>().on_stream_copy_link(move || {
+        let Some(op) = me.upgrade() else { return };
+        let link = op.ui.global::<SettingsDlg>().get_stream_scheduled_link();
+        if !link.is_empty() { crate::ui::dialogs::settings::copy(&op, &link, &stream::accounts::tr::link_copied()) }
+    });
+    let me = Rc::downgrade(op);
     op.ui.global::<SettingsDlg>().on_stream_sign_out(move |i| {
         let Some(op) = me.upgrade() else { return };
         stream::accounts::forget(stream::keys::app_store().as_ref(), stream::built_in_id(i.clamp(0, 2) as usize));
@@ -395,7 +452,7 @@ pub(super) fn load(op: &Rc<Operator>) {
             let g = op.ui.global::<SettingsDlg>();
             let Some(path) = paths.first() else { return };
             let path: slint::SharedString = path.display().to_string().into();
-            match i { 0 => g.set_stream_card_picture_0(path), 1 => g.set_stream_card_picture_1(path), _ => g.set_stream_card_picture_2(path) }
+            match i { 0 => g.set_stream_card_picture_0(path), 1 => g.set_stream_card_picture_1(path), 3 => g.set_stream_thumbnail(path), _ => g.set_stream_card_picture_2(path) }
         });
     });
     let me = Rc::downgrade(op);

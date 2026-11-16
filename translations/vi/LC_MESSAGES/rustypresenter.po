@@ -2768,6 +2768,46 @@ msgid "What viewers read under the video"
 msgstr "Điều người xem đọc dưới video"
 
 #: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: made when you go live"
+msgstr "Buổi phát YouTube tới: tạo khi phát trực tiếp"
+
+#: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: {}"
+msgstr "Buổi phát YouTube tới: {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Copy the link"
+msgstr "Chép liên kết"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make it now, to share the link"
+msgstr "Tạo ngay để chia sẻ liên kết"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make a new one"
+msgstr "Tạo mới"
+
+#: ui/dialogs/settings-media.slint
+msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
+msgstr "Tạo ngay buổi phát YouTube của buổi nhóm tới, đúng ngày và giờ bắt đầu, để chia sẻ liên kết trước Chủ nhật. Phát trực tiếp sẽ dùng nó."
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: a frame of the stream"
+msgstr "Hình thu nhỏ YouTube: một khung hình của buổi phát"
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: {}"
+msgstr "Hình thu nhỏ YouTube: {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Choose a picture…"
+msgstr "Chọn hình…"
+
+#: ui/dialogs/settings-media.slint
+msgid "No picture"
+msgstr "Không có hình"
+
+#: ui/dialogs/settings-media.slint
 msgid "Who can watch on YouTube"
 msgstr "Ai có thể xem trên YouTube"
 
@@ -4162,6 +4202,18 @@ msgstr "Đoạn trích"
 #: ui/operator/record.slint
 msgid "Mark a part of the recording (the sermon, say) to save as its own video"
 msgstr "Đánh dấu một phần bản ghi (ví dụ bài giảng) để lưu thành video riêng"
+
+#: ui/operator/record.slint
+msgid "Chat"
+msgstr "Trò chuyện"
+
+#: ui/operator/record.slint
+msgid "{} new"
+msgstr "{} mới"
+
+#: ui/operator/record.slint
+msgid "Nothing written yet."
+msgstr "Chưa có ai viết."
 
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
@@ -6420,6 +6472,22 @@ msgid "{name}: the broadcast could not be made ({why}). Sign in again in Setting
 msgstr "{name}: không tạo được buổi phát ({why}). Hãy đăng nhập lại trong Cài đặt → Đa phương tiện → Phát trực tiếp."
 
 #: src/stream/accounts/mod.rs
+msgid "Making the YouTube broadcast…"
+msgstr "Đang tạo buổi phát YouTube…"
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast is ready for {when}. Share its link: {link}"
+msgstr "Buổi phát YouTube đã sẵn sàng cho {when}. Chia sẻ liên kết: {link}"
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast could not be made: {why}"
+msgstr "Không tạo được buổi phát YouTube: {why}"
+
+#: src/stream/accounts/mod.rs
+msgid "The link is copied."
+msgstr "Đã chép liên kết."
+
+#: src/stream/accounts/mod.rs
 msgid "{name}: the replay is at {link}"
 msgstr "{name}: bản phát lại ở {link}"
 
@@ -6442,6 +6510,10 @@ msgstr "{name}: rớt một lần rồi kết nối lại."
 #: src/stream/mod.rs
 msgid "{name}: dropped {n} times and came back."
 msgstr "{name}: rớt {n} lần rồi kết nối lại."
+
+#: src/stream/mod.rs
+msgid "{name} · {service}: {text}"
+msgstr "{name} · {service}: {text}"
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

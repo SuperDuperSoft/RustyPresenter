@@ -2768,6 +2768,46 @@ msgid "What viewers read under the video"
 msgstr "Sa moun k ap gade yo li anba videyo a"
 
 #: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: made when you go live"
+msgstr "Pwochen difizyon YouTube: y ap fè l lè w ale an dirèk"
+
+#: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: {}"
+msgstr "Pwochen difizyon YouTube: {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Copy the link"
+msgstr "Kopye lyen an"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make it now, to share the link"
+msgstr "Fè l kounye a, pou pataje lyen an"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make a new one"
+msgstr "Fè yon lòt"
+
+#: ui/dialogs/settings-media.slint
+msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
+msgstr "Fè difizyon YouTube pwochen sèvis la kounye a, pou jou ak lè li kòmanse, pou ka pataje lyen an anvan dimanch. An dirèk ap itilize l."
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: a frame of the stream"
+msgstr "Ti imaj YouTube: yon imaj nan difizyon an"
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: {}"
+msgstr "Ti imaj YouTube: {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Choose a picture…"
+msgstr "Chwazi yon imaj…"
+
+#: ui/dialogs/settings-media.slint
+msgid "No picture"
+msgstr "Pa gen imaj"
+
+#: ui/dialogs/settings-media.slint
 msgid "Who can watch on YouTube"
 msgstr "Ki moun ki ka gade sou YouTube"
 
@@ -4162,6 +4202,18 @@ msgstr "Klip"
 #: ui/operator/record.slint
 msgid "Mark a part of the recording (the sermon, say) to save as its own video"
 msgstr "Make yon pati nan anrejistreman an (prèch la, pa egzanp) pou sove l kòm yon videyo apa"
+
+#: ui/operator/record.slint
+msgid "Chat"
+msgstr "Chat"
+
+#: ui/operator/record.slint
+msgid "{} new"
+msgstr "{} nouvo"
+
+#: ui/operator/record.slint
+msgid "Nothing written yet."
+msgstr "Pèsonn poko ekri."
 
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
@@ -6425,6 +6477,22 @@ msgid "{name}: the broadcast could not be made ({why}). Sign in again in Setting
 msgstr "{name}: difizyon an pa t ka fèt ({why}). Konekte ankò nan Paramèt → Medya → Emisyon an dirèk."
 
 #: src/stream/accounts/mod.rs
+msgid "Making the YouTube broadcast…"
+msgstr "Y ap fè difizyon YouTube la…"
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast is ready for {when}. Share its link: {link}"
+msgstr "Difizyon YouTube la pare pou {when}. Pataje lyen li: {link}"
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast could not be made: {why}"
+msgstr "Difizyon YouTube la pa t ka fèt: {why}"
+
+#: src/stream/accounts/mod.rs
+msgid "The link is copied."
+msgstr "Lyen an kopye."
+
+#: src/stream/accounts/mod.rs
 msgid "{name}: the replay is at {link}"
 msgstr "{name}: rediffusion an nan {link}"
 
@@ -6447,6 +6515,10 @@ msgstr "{name}: koupe yon fwa epi li retounen."
 #: src/stream/mod.rs
 msgid "{name}: dropped {n} times and came back."
 msgstr "{name}: koupe {n} fwa epi li retounen."
+
+#: src/stream/mod.rs
+msgid "{name} · {service}: {text}"
+msgstr "{name} · {service}: {text}"
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

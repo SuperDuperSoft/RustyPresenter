@@ -402,3 +402,94 @@ export component ClipBtn inherits Rectangle {
 
     TipArea { text: @tr("Mark a part of the recording (the sermon, say) to save as its own video"); hover: clip-ta.has-hover; pressed: clip-ta.pressed; pointer-x: clip-ta.mouse-x; }
 }
+
+/// Signed in, while live: the viewers' chat (YouTube, Facebook, Twitch) in one list, newest at the bottom. The
+/// number is how many came since it was last opened.
+export component ChatBtn inherits Rectangle {
+    in property <[string]> lines;
+    in property <int> new;
+    callback opened();
+
+    accessible-role: button;
+    accessible-label: @tr("Chat");
+    accessible-value: root.new > 0 ? @tr("{} new", root.new) : "";
+    accessible-action-default => { menu.show(); root.opened(); }
+
+    border-radius: 9px;
+    border-width: 1px;
+    border-color: Theme.line;
+    background: chat-ta.has-hover ? Theme.raise : transparent;
+
+    HorizontalLayout {
+        padding: 8px;
+        padding-left: 10px;
+        padding-right: 10px;
+        spacing: 6px;
+        Text {
+            text: @tr("Chat");
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            vertical-alignment: center;
+        }
+        if root.new > 0: Rectangle {
+            width: max(20px, count.preferred-width + 10px);
+            height: 20px;
+            border-radius: 10px;
+            background: Theme.accent;
+            count := Text {
+                text: root.new;
+                color: white;
+                font-family: Theme.font;
+                font-size: 12px;
+                font-weight: 700;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+        }
+    }
+
+    chat-ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { menu.show(); root.opened(); }
+    }
+
+    menu := PopupWindow {
+        x: root.width - 420px;
+        y: root.height + 4px;
+        width: 420px;
+        height: 380px;
+        close-policy: close-on-click-outside;
+        Rectangle {
+            background: Theme.panel-2;
+            border-color: Theme.line;
+            border-width: 1px;
+            border-radius: 9px;
+            if root.lines.length == 0: Text {
+                text: @tr("Nothing written yet.");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 13px;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+            Flickable {
+                viewport-height: list.preferred-height;
+                viewport-y: min(0px, self.height - list.preferred-height);
+                list := VerticalLayout {
+                    padding: 10px;
+                    spacing: 6px;
+                    for line in root.lines: Text {
+                        text: line;
+                        color: Theme.text;
+                        font-family: Theme.font;
+                        font-size: 13px;
+                        wrap: word-wrap;
+                        accessible-role: text;
+                        accessible-label: self.text;
+                    }
+                }
+            }
+        }
+    }
+}

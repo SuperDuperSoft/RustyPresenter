@@ -57,6 +57,8 @@ pub struct Ends {
     pub google_auth: String,
     pub google_token: String,
     pub youtube: String,
+    /// YouTube's address for uploads (thumbnails).
+    pub youtube_upload: String,
     pub graph: String,
     pub twitch_id: String,
     pub helix: String,
@@ -68,6 +70,7 @@ impl Ends {
             google_auth: "https://accounts.google.com/o/oauth2/v2/auth".into(),
             google_token: "https://oauth2.googleapis.com/token".into(),
             youtube: "https://www.googleapis.com/youtube/v3".into(),
+            youtube_upload: "https://www.googleapis.com/upload/youtube/v3".into(),
             graph: format!("https://graph.facebook.com/{}", facebook::VERSION),
             twitch_id: "https://id.twitch.tv/oauth2".into(),
             helix: "https://api.twitch.tv/helix".into(),
@@ -76,7 +79,7 @@ impl Ends {
 
     /// All four at one address (a test's stand-in server).
     pub fn at(base: &str) -> Self {
-        Ends { google_auth: format!("{base}/auth"), google_token: format!("{base}/token"), youtube: format!("{base}/youtube/v3"), graph: format!("{base}/graph"),
+        Ends { google_auth: format!("{base}/auth"), google_token: format!("{base}/token"), youtube: format!("{base}/youtube/v3"), youtube_upload: format!("{base}/upload/youtube/v3"), graph: format!("{base}/graph"),
             twitch_id: format!("{base}/twitch-id"), helix: format!("{base}/helix") }
     }
 }
@@ -134,7 +137,15 @@ pub fn app_ends() -> Ends {
 
 /// What a broadcast is told: its title and description, and on YouTube who can watch.
 #[derive(Clone, Debug, Default)]
-pub struct Details { pub title: String, pub description: String, pub privacy: Privacy }
+pub struct Details {
+    pub title: String,
+    pub description: String,
+    pub privacy: Privacy,
+    /// YouTube: a picture file for the broadcast's thumbnail; empty: none (YouTube takes a frame).
+    pub thumbnail: String,
+    /// YouTube: the broadcast made ahead for this service (`google::schedule`), used if it is still to come.
+    pub scheduled: String,
+}
 
 /// A broadcast made for Go Live.
 #[derive(Clone, Debug)]
@@ -146,40 +157,117 @@ pub struct Live {
     pub address: String,
     /// Where it can be watched, and later the replay.
     pub watch: String,
-    /// What the service's other questions are asked with (a password).
-    token: String,
     /// What sign-in keeps from now on, when the service gave a new one (Twitch: a refresh token works once).
     pub renewed: Option<String>,
-    /// Twitch: the app's client id, sent with each question.
-    client: String,
+    /// The destination it was made for (where a renewed sign-in is kept).
+    pub destination: Uuid,
+    /// YouTube: the broadcast's live chat; empty: none.
+    pub chat: String,
+    /// What the service's other questions are asked with, shared by every copy, renewed before it runs out.
+    auth: std::sync::Arc<std::sync::Mutex<Auth>>,
+}
+
+/// An access (a password) and until when it works, and what renews it (empty: it does not run out).
+#[derive(Debug)]
+struct Auth {
+    access: String,
+    until: std::time::Instant,
+    refresh: String,
+    /// Twitch: what sign-in keeps before the refresh token ("id|login|").
+    kept_before: String,
+}
+
+/// An access is renewed this long before it runs out (OBS does the same: renewed on use, near its end).
+pub const RENEW_BEFORE: Duration = Duration::from_secs(300);
+/// What a Page's token (which does not run out) is said to last.
+const FOREVER: Duration = Duration::from_secs(100 * 24 * 3600);
+
+impl Live {
+    /// A broadcast whose questions are asked with `access`, good for `lasts`, renewed with `refresh` (empty: never).
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn new(service: Service, id: String, address: String, watch: String, access: String, lasts: Duration, refresh: String, kept_before: String) -> Live {
+        let until = std::time::Instant::now() + lasts;
+        Live { service, id, address, watch, renewed: None, destination: Uuid::nil(), chat: String::new(), auth: std::sync::Arc::new(std::sync::Mutex::new(Auth { access, until, refresh, kept_before })) }
+    }
+
+    /// The access to ask with now: renewed first when it runs out within `RENEW_BEFORE`. A Twitch renewal (its
+    /// refresh token works once) is kept in `store` at once, so the next sign-in still works.
+    async fn access(&self, client: &reqwest::Client, ends: &Ends, ids: &Ids, store: &dyn KeyStore) -> Result<String, String> {
+        let (access, due, refresh) = {
+            let a = self.auth.lock().unwrap_or_else(|e| e.into_inner());
+            (a.access.clone(), std::time::Instant::now() + RENEW_BEFORE >= a.until, a.refresh.clone())
+        };
+        if !due || refresh.is_empty() { return Ok(access) }
+        let (access, lasts, new_refresh) = match self.service {
+            Service::YouTube => { let (a, l) = google::access(client, ends, ids, &refresh).await?; (a, l, refresh) }
+            Service::Twitch => twitch::renew(client, ends, ids, &refresh).await?,
+            _ => return Ok(access),
+        };
+        let kept_before = {
+            let mut a = self.auth.lock().unwrap_or_else(|e| e.into_inner());
+            (a.access, a.until, a.refresh) = (access.clone(), std::time::Instant::now() + lasts, new_refresh.clone());
+            a.kept_before.clone()
+        };
+        if self.service == Service::Twitch && !self.destination.is_nil() {
+            let name = kept(store, self.destination).map(|(n, _)| n).unwrap_or_default();
+            if let Err(e) = keep(store, self.destination, &name, &format!("{kept_before}{new_refresh}")) { eprintln!("twitch: the renewed sign-in could not be kept: {e}") }
+        }
+        Ok(access)
+    }
+
+    /// The access to ask with now (renewed when needed, kept in the computer's password store).
+    pub async fn access_now(&self, client: &reqwest::Client, ends: &Ends, ids: &Ids) -> Result<String, String> {
+        self.access(client, ends, ids, super::keys::app_store().as_ref()).await
+    }
+
+    /// Twitch: the channel's login, for its chat.
+    pub fn login(&self) -> Option<String> {
+        if self.service != Service::Twitch { return None }
+        self.auth.lock().unwrap_or_else(|e| e.into_inner()).kept_before.split('|').nth(1).map(str::to_string)
+    }
+
+    /// The access as it is, not renewed (a Page's, which does not run out).
+    pub fn current(&self) -> String { self.auth.lock().unwrap_or_else(|e| e.into_inner()).access.clone() }
+
+    /// Tests: as if `by` had passed.
+    #[cfg(test)]
+    pub fn age_by(&self, by: Duration) {
+        let mut a = self.auth.lock().unwrap();
+        a.until = a.until.checked_sub(by).unwrap_or_else(std::time::Instant::now);
+    }
 }
 
 /// Makes a broadcast for `destination` (signed in with `saved`, what sign-in kept) with `details`.
 pub async fn prepare(client: &reqwest::Client, ends: &Ends, ids: &Ids, destination: &Destination, saved: &str, details: &Details) -> Result<Live, String> {
-    match destination.service {
+    let made = match destination.service {
         Service::YouTube => google::prepare(client, ends, ids, saved, details).await,
         Service::Facebook => facebook::prepare(client, ends, saved, details).await,
         Service::Twitch => twitch::prepare(client, ends, ids, saved, details).await,
         _ => Err("this service has no sign-in".into()),
-    }
+    };
+    made.map(|l| Live { destination: destination.id, ..l })
 }
 
-/// How many are watching `live` now; `None` when the service does not say.
-pub async fn viewers(client: &reqwest::Client, ends: &Ends, live: &Live) -> Option<u64> {
+/// How many are watching `live` now; `None` when the service does not say. The sign-in is renewed first when it
+/// is about to run out (a service longer than YouTube's hour).
+pub async fn viewers(client: &reqwest::Client, ends: &Ends, ids: &Ids, live: &Live) -> Option<u64> {
+    viewers_kept(client, ends, ids, live, super::keys::app_store().as_ref()).await
+}
+
+/// `viewers`, a renewed sign-in kept in `store`.
+pub async fn viewers_kept(client: &reqwest::Client, ends: &Ends, ids: &Ids, live: &Live, store: &dyn KeyStore) -> Option<u64> {
+    let access = live.access(client, ends, ids, store).await.map_err(|e| eprintln!("stream: renewing the sign-in: {e}")).ok()?;
     match live.service {
-        Service::YouTube => google::viewers(client, ends, live).await,
-        Service::Facebook => facebook::viewers(client, ends, live).await,
-        Service::Twitch => twitch::viewers(client, ends, &app_ids_or(live), live).await,
+        Service::YouTube => google::viewers(client, ends, live, &access).await,
+        Service::Facebook => facebook::viewers(client, ends, live, &access).await,
+        Service::Twitch => twitch::viewers(client, ends, ids, live, &access).await,
         _ => None,
     }
 }
 
-/// The ids Twitch's questions while live are asked with (its client id goes with each).
-fn app_ids_or(live: &Live) -> Ids { Ids { twitch_client: live.client.clone(), ..Ids::default() } }
-
 /// Ends `live` at the service (YouTube ends its own when the stream stops).
 pub async fn finish(client: &reqwest::Client, ends: &Ends, live: &Live) {
-    if live.service == Service::Facebook { facebook::finish(client, ends, live).await }
+    if live.service == Service::Facebook { facebook::finish(client, ends, live, &live.current()).await }
 }
 
 /// How long the operator has to finish signing in, in the browser.
@@ -210,6 +298,10 @@ pub mod tr {
     pub fn sign_in_failed(why: &str) -> String { tr!("Signing in did not work: {why}", why = why) }
     pub fn no_page() -> String { tr!("This Facebook account manages no Page. A stream can only go to a Page.") }
     pub fn prepare_failed(name: &str, why: &str) -> String { tr!("{name}: the broadcast could not be made ({why}). Sign in again in Settings → Media → Livestream.", name = name, why = why) }
+    pub fn scheduling() -> String { tr!("Making the YouTube broadcast…") }
+    pub fn scheduled(when: &str, link: &str) -> String { tr!("The YouTube broadcast is ready for {when}. Share its link: {link}", when = when, link = link) }
+    pub fn schedule_failed(why: &str) -> String { tr!("The YouTube broadcast could not be made: {why}", why = why) }
+    pub fn link_copied() -> String { tr!("The link is copied.") }
     pub fn replay(name: &str, link: &str) -> String { tr!("{name}: the replay is at {link}", name = name, link = link) }
 }
 

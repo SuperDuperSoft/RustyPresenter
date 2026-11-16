@@ -312,6 +312,22 @@ fn settings_keep_the_encoder_and_bitrate() {
 }
 
 #[test]
+fn settings_keep_the_broadcast_thumbnail() {
+    use crate::ui::SettingsDlg;
+    use slint::ComponentHandle;
+    let app = test_app();
+    let room = Arc::new(Room::default());
+    let op = open(&app, &room);
+    let g = op.ui.global::<SettingsDlg>();
+    let mut prefs = RecordPrefs { stream_thumbnail: "C:/Pictures/sunday.jpg".into(), ..RecordPrefs::default() };
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    assert_eq!(g.get_stream_thumbnail(), "C:/Pictures/sunday.jpg");
+    g.set_stream_thumbnail("".into());
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!(prefs.stream_thumbnail, "");
+}
+
+#[test]
 fn settings_keep_the_scene_layout() {
     use crate::ui::SettingsDlg;
     use slint::ComponentHandle;
@@ -474,6 +490,28 @@ fn the_operator_hears_when_a_destination_connects_and_when_it_drops() {
     op.record.live.set(false);
     op.say_links(&l(&[true, true]));
     assert_eq!(toasts(&op).len(), said.len() + 1);
+}
+
+#[test]
+fn the_chat_button_counts_new_messages_until_it_is_opened() {
+    use stream::chat::{Message, add};
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    op.show_chat();
+    assert_eq!((op.ui.get_chat_new(), op.ui.get_chat_lines().row_count()), (0, 0));
+    let m = |name: &str, from, text: &str| Message { from, name: name.into(), text: text.into() };
+    add(&op.record.chat, vec![m("Ruth", stream::Service::YouTube, "Hello from Ohio"), m("Mark", stream::Service::Facebook, "Amen")]);
+    op.show_chat();
+    assert_eq!(op.ui.get_chat_new(), 2);
+    assert_eq!(op.ui.get_chat_lines().row_data(0).unwrap().as_str(), stream::tr::chat_line("Ruth", "YouTube", "Hello from Ohio"));
+    assert_eq!(stream::tr::chat_line("Ruth", "YouTube", "Hello from Ohio"), "Ruth · YouTube: Hello from Ohio");
+    op.chat_opened();
+    assert_eq!(op.ui.get_chat_new(), 0, "seen");
+    add(&op.record.chat, vec![m("Ann", stream::Service::Twitch, "Good morning!")]);
+    op.show_chat();
+    assert_eq!((op.ui.get_chat_new(), op.ui.get_chat_lines().row_count()), (1, 3));
 }
 
 #[test]
@@ -709,6 +747,30 @@ fn settings_sign_in_to_twitch_and_out_again() {
     assert_eq!(kept, Some(("GraceChurch".to_string(), "u9|gracechurch|trt".to_string())));
     g.invoke_stream_sign_out(2);
     assert_eq!(g.get_stream_account_2(), "");
+}
+
+#[test]
+fn settings_make_next_sundays_youtube_broadcast_ahead() {
+    use crate::ui::SettingsDlg;
+    use slint::ComponentHandle;
+    let (_rt, _seen) = stand_in();
+    let app = test_app();
+    let room = Arc::new(Room::default());
+    let op = open(&app, &room);
+    let g = op.ui.global::<SettingsDlg>();
+    let mut prefs = RecordPrefs::default();
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    crate::ui::dialogs::settings_record::wire_keys(&op);
+    stream::accounts::keep(stream::keys::app_store().as_ref(), stream::built_in_id(0), "Grace Church", "rt").unwrap();
+    crate::ui::dialogs::settings_record::fill_accounts(&g);
+    assert_eq!(g.get_stream_scheduled_link(), "");
+    g.invoke_stream_schedule();
+    assert!(g.get_stream_scheduled_link().starts_with("https://youtu.be/"), "{}", g.get_stream_sign_in_text());
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert!(!prefs.stream_scheduled.is_empty() && prefs.stream_scheduled_link == g.get_stream_scheduled_link().as_str());
+    // Kept through Save and opened again.
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    assert_eq!(g.get_stream_scheduled_link().as_str(), prefs.stream_scheduled_link);
 }
 
 #[test]

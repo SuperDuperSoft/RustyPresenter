@@ -2768,6 +2768,46 @@ msgid "What viewers read under the video"
 msgstr "Ce que les spectateurs lisent sous la vidéo"
 
 #: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: made when you go live"
+msgstr "Prochaine diffusion YouTube : créée au passage en direct"
+
+#: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: {}"
+msgstr "Prochaine diffusion YouTube : {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Copy the link"
+msgstr "Copier le lien"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make it now, to share the link"
+msgstr "La créer maintenant, pour partager le lien"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make a new one"
+msgstr "En créer une autre"
+
+#: ui/dialogs/settings-media.slint
+msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
+msgstr "Crée dès maintenant la diffusion YouTube du prochain culte, pour son jour et son heure, afin de partager le lien avant dimanche. Direct l’utilise."
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: a frame of the stream"
+msgstr "Miniature YouTube : une image de la diffusion"
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: {}"
+msgstr "Miniature YouTube : {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Choose a picture…"
+msgstr "Choisir une image…"
+
+#: ui/dialogs/settings-media.slint
+msgid "No picture"
+msgstr "Pas d’image"
+
+#: ui/dialogs/settings-media.slint
 msgid "Who can watch on YouTube"
 msgstr "Qui peut regarder sur YouTube"
 
@@ -4162,6 +4202,18 @@ msgstr "Extrait"
 #: ui/operator/record.slint
 msgid "Mark a part of the recording (the sermon, say) to save as its own video"
 msgstr "Marquer une partie de l’enregistrement (la prédication, par exemple) pour l’enregistrer comme vidéo à part"
+
+#: ui/operator/record.slint
+msgid "Chat"
+msgstr "Chat"
+
+#: ui/operator/record.slint
+msgid "{} new"
+msgstr "{} nouveaux"
+
+#: ui/operator/record.slint
+msgid "Nothing written yet."
+msgstr "Personne n’a encore écrit."
 
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
@@ -6425,6 +6477,22 @@ msgid "{name}: the broadcast could not be made ({why}). Sign in again in Setting
 msgstr "{name} : la diffusion n'a pas pu être créée ({why}). Reconnectez-vous dans Paramètres → Médias → Diffusion en direct."
 
 #: src/stream/accounts/mod.rs
+msgid "Making the YouTube broadcast…"
+msgstr "Création de la diffusion YouTube…"
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast is ready for {when}. Share its link: {link}"
+msgstr "La diffusion YouTube est prête pour {when}. Partagez son lien : {link}"
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast could not be made: {why}"
+msgstr "La diffusion YouTube n’a pas pu être créée : {why}"
+
+#: src/stream/accounts/mod.rs
+msgid "The link is copied."
+msgstr "Lien copié."
+
+#: src/stream/accounts/mod.rs
 msgid "{name}: the replay is at {link}"
 msgstr "{name} : la rediffusion est sur {link}"
 
@@ -6447,6 +6515,10 @@ msgstr "{name} : coupé une fois, puis revenu."
 #: src/stream/mod.rs
 msgid "{name}: dropped {n} times and came back."
 msgstr "{name} : coupé {n} fois, revenu à chaque fois."
+
+#: src/stream/mod.rs
+msgid "{name} · {service}: {text}"
+msgstr "{name} · {service} : {text}"
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."

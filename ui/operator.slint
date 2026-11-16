@@ -300,6 +300,11 @@ export component OperatorWindow inherits Window {
     callback pick-camera(int);
     /// The camera in the picture can be moved: how many saved positions it offers (0: none).
     in property <int> camera-positions;
+    /// Signed in, while live: the viewers' chat, newest last, and how many came since the list was last opened.
+    in property <bool> chat-on;
+    in property <[string]> chat-lines;
+    in property <int> chat-new;
+    callback chat-opened();
     callback pick-position(int);
 
     /// One key press, for `keys::route_in` in Rust: the key's text, Ctrl (Cmd on macOS), Alt, Shift, whether a text
@@ -972,6 +977,10 @@ export component OperatorWindow inherits Window {
                 camera-active: root.camera-active;
                 pick-camera(i) => { root.focus-keys(); root.pick-camera(i); }
                 camera-positions: root.camera-positions;
+                chat-on: root.chat-on;
+                chat-lines: root.chat-lines;
+                chat-new: root.chat-new;
+                chat-opened => { root.chat-opened(); }
                 pick-position(i) => { root.focus-keys(); root.pick-position(i); }
                 pick-scene(i) => { root.focus-keys(); root.pick-scene(i); }
                 services => { root.focus-keys(); root.services(); }

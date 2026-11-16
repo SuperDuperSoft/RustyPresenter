@@ -40,6 +40,9 @@ encoding_rs = "=0.8.35"
 # Licensed Bible APIs. rustls with ring (aws-lc-rs needs cmake/nasm, which the MinGW toolchain lacks).
 reqwest = { version = "0.13", default-features = false, features = ["json", "query", "form", "rustls-no-provider"] }
 rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
+# Twitch's live chat is read over TLS (already in the build through reqwest).
+tokio-rustls = { version = "0.26", default-features = false }
+rustls-platform-verifier = "0.7"
 # Imported Bible files (Zefania, OSIS, USX, OpenSong).
 quick-xml = "0.38.4"
 # OpenLP song lyrics are XML. Already in Cargo.lock; refuses DTDs, so no entity expansion.

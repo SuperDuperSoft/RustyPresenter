@@ -2768,6 +2768,46 @@ msgid "What viewers read under the video"
 msgstr "動画の下に表示される説明"
 
 #: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: made when you go live"
+msgstr "次の YouTube 配信: ライブ開始時に作ります"
+
+#: ui/dialogs/settings-media.slint
+msgid "Next YouTube broadcast: {}"
+msgstr "次の YouTube 配信: {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Copy the link"
+msgstr "リンクをコピー"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make it now, to share the link"
+msgstr "今作ってリンクを共有"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make a new one"
+msgstr "作り直す"
+
+#: ui/dialogs/settings-media.slint
+msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
+msgstr "次の礼拝の YouTube 配信を、その日と開始時刻で今作ります。日曜より前にリンクを共有できます。ライブ開始時にこれを使います。"
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: a frame of the stream"
+msgstr "YouTube のサムネイル: 配信の 1 コマ"
+
+#: ui/dialogs/settings-media.slint
+msgid "YouTube thumbnail: {}"
+msgstr "YouTube のサムネイル: {}"
+
+#: ui/dialogs/settings-media.slint
+msgid "Choose a picture…"
+msgstr "画像を選ぶ…"
+
+#: ui/dialogs/settings-media.slint
+msgid "No picture"
+msgstr "画像なし"
+
+#: ui/dialogs/settings-media.slint
 msgid "Who can watch on YouTube"
 msgstr "YouTube で視聴できる人"
 
@@ -4162,6 +4202,18 @@ msgstr "クリップ"
 #: ui/operator/record.slint
 msgid "Mark a part of the recording (the sermon, say) to save as its own video"
 msgstr "録画の一部（説教など）に印を付けて別の動画として保存します"
+
+#: ui/operator/record.slint
+msgid "Chat"
+msgstr "チャット"
+
+#: ui/operator/record.slint
+msgid "{} new"
+msgstr "新着 {}"
+
+#: ui/operator/record.slint
+msgid "Nothing written yet."
+msgstr "まだ書き込みはありません。"
 
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
@@ -6420,6 +6472,22 @@ msgid "{name}: the broadcast could not be made ({why}). Sign in again in Setting
 msgstr "{name}: 配信を作成できませんでした ({why})。「設定 → メディア → ライブ配信」 でもう一度サインインしてください。"
 
 #: src/stream/accounts/mod.rs
+msgid "Making the YouTube broadcast…"
+msgstr "YouTube の配信を作っています…"
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast is ready for {when}. Share its link: {link}"
+msgstr "YouTube の配信は {when} に向けて準備できました。リンクを共有してください: {link}"
+
+#: src/stream/accounts/mod.rs
+msgid "The YouTube broadcast could not be made: {why}"
+msgstr "YouTube の配信を作れませんでした: {why}"
+
+#: src/stream/accounts/mod.rs
+msgid "The link is copied."
+msgstr "リンクをコピーしました。"
+
+#: src/stream/accounts/mod.rs
 msgid "{name}: the replay is at {link}"
 msgstr "{name}: アーカイブは {link}"
 
@@ -6442,6 +6510,10 @@ msgstr "{name}：1 回切れて、戻りました。"
 #: src/stream/mod.rs
 msgid "{name}: dropped {n} times and came back."
 msgstr "{name}：{n} 回切れて、戻りました。"
+
+#: src/stream/mod.rs
+msgid "{name} · {service}: {text}"
+msgstr "{name} · {service}: {text}"
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."
