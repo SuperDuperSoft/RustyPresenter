@@ -3875,6 +3875,22 @@ msgstr "{} (automatisch)"
 msgid "What the livestream shows. It changes by itself with what is live; click to choose"
 msgstr "Was der Livestream zeigt. Er wechselt selbst mit dem, was live ist; klicken zum Wählen"
 
+#: ui/operator/record.slint
+msgid "Stream sound"
+msgstr "Stream-Ton"
+
+#: ui/operator/record.slint
+msgid "Silent"
+msgstr "Stille"
+
+#: ui/operator/record.slint
+msgid "{} of 5"
+msgstr "{} von 5"
+
+#: ui/operator/record.slint
+msgid "How loud the stream's sound is. No bars: nothing is going out"
+msgstr "Wie laut der Ton des Streams ist. Keine Balken: es geht nichts hinaus"
+
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
 msgstr "Aufnahme beenden"

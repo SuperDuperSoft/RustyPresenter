@@ -56,9 +56,21 @@ pub fn silence_needed(elapsed: Duration, written_frames: u64, rate: u32) -> u64 
 /// default output.
 pub fn device_id(name: &str) -> &str { name.strip_prefix("wasapi/").unwrap_or("") }
 
+/// The loudest sample of `bytes` in `format`, on the 16-bit scale (0 to 32767), for the meter.
+pub fn peak(format: &Format, bytes: &[u8]) -> i32 {
+    if format.samples == "f32le" {
+        let m = bytes.chunks_exact(4).map(|b| f32::from_le_bytes([b[0], b[1], b[2], b[3]]).abs()).fold(0.0f32, f32::max);
+        (m.min(1.0) * 32_767.0) as i32
+    } else {
+        super::board_feed::peak(bytes)
+    }
+}
+
 /// A capture under way. Dropping it stops it.
 pub struct Capture {
     pub feed: Feed,
+    /// How loud what goes out is, for the meter (0 while muted).
+    pub level: std::sync::Arc<super::level::Level>,
     stop: std::sync::Arc<std::sync::atomic::AtomicBool>,
     thread: Option<std::thread::JoinHandle<()>>,
 }
@@ -132,6 +144,8 @@ mod windows {
         let stop = Arc::new(AtomicBool::new(false));
         let (tx, rx) = std::sync::mpsc::channel::<Result<Format, String>>();
         let s = stop.clone();
+        let level: Arc<super::super::level::Level> = Arc::default();
+        let l = level.clone();
         let thread = std::thread::Builder::new().name("pc-sound".into()).spawn(move || {
             // SAFETY: COM is set up for this thread only, before any COM call on it.
             let _ = unsafe { CoInitializeEx(None, COINIT_MULTITHREADED) };
@@ -141,17 +155,17 @@ mod windows {
                 Err(e) => { let _ = tx.send(Err(e)); return }
             };
             let _ = tx.send(Ok(opened.format));
-            run(opened, port, &s, &mute);
+            run(opened, port, &s, &mute, &l);
         }).map_err(|e| e.to_string())?;
         match rx.recv() {
-            Ok(Ok(format)) => Ok(Capture { feed: Feed { format, port }, stop, thread: Some(thread) }),
+            Ok(Ok(format)) => Ok(Capture { feed: Feed { format, port }, level, stop, thread: Some(thread) }),
             Ok(Err(e)) => { let _ = thread.join(); Err(e) }
             Err(_) => { let _ = thread.join(); Err("the sound capture ended".into()) }
         }
     }
 
     /// Connects to FFmpeg, then sends what plays (and silence for the gaps) until stopped or FFmpeg goes.
-    fn run(o: Opened, port: u16, stop: &AtomicBool, mute: &AtomicBool) {
+    fn run(o: Opened, port: u16, stop: &AtomicBool, mute: &AtomicBool, level: &super::super::level::Level) {
         let began = Instant::now();
         let mut out = loop {
             if stop.load(Ordering::Relaxed) { return }
@@ -194,7 +208,9 @@ mod windows {
             let gap = silence_needed(t0.elapsed(), written, o.format.rate);
             buf.resize(buf.len() + gap as usize * frame, 0);
             written += gap;
-            if mute.load(Ordering::Relaxed) { buf.fill(0) }
+            let muted = mute.load(Ordering::Relaxed);
+            if muted { buf.fill(0) }
+            level.hear(if muted { 0 } else { super::peak(&o.format, &buf) });
             if !buf.is_empty() && out.write_all(&buf).is_err() { break }
             std::thread::sleep(LOOK_EVERY);
         }
@@ -206,6 +222,16 @@ mod windows {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_peak_is_read_in_either_sample_format() {
+        let f32le = Format { samples: "f32le", ..Format { samples: "s16le", rate: 48_000, channels: 2 } };
+        let bytes: Vec<u8> = [0.25f32, -0.5, 0.1].iter().flat_map(|v| v.to_le_bytes()).collect();
+        assert_eq!(peak(&f32le, &bytes), 16_383);
+        let s16 = Format { samples: "s16le", rate: 48_000, channels: 2 };
+        let bytes: Vec<u8> = [100i16, -3000, 20].iter().flat_map(|v| v.to_le_bytes()).collect();
+        assert_eq!(peak(&s16, &bytes), 3000);
+    }
 
     #[test]
     fn silence_fills_the_gaps_by_the_clock() {

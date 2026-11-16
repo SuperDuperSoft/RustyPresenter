@@ -6,7 +6,7 @@ import { EditMenu, Icon, TopBtn, Pill, Kbd, TipArea } from "../widgets.slint";
 import { BiblePickerList, TranslationChip } from "../bible-picker.slint";
 import { StageLayoutButton } from "../dialogs/stage-layouts.slint";
 import { PanelExtras } from "extras.slint";
-import { RecordBtn, LiveBtn, PanicBtn, SceneBtn } from "record.slint";
+import { RecordBtn, LiveBtn, PanicBtn, SceneBtn, SoundMeter } from "record.slint";
 
 export { TranslationChip }
 
@@ -66,6 +66,8 @@ export component TopBar inherits Rectangle {
     in property <int> scene-out;
     in property <int> scene-chosen: -1;
     callback pick-scene(int);
+    /// The stream's sound meter: lit bars, or -1 to hide it (no sound going out to measure).
+    in property <int> live-level: -1;
     callback services();
     callback screens();
     callback phone();
@@ -650,6 +652,11 @@ export component TopBar inherits Rectangle {
                 on-tip: @tr("The stream is silent. Click to send the sound again");
                 clicked => { root.mute-stream(); }
             }
+        }
+        if root.live && root.live-level >= 0: VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            sound-meter := SoundMeter { bars: root.live-level; }
         }
         VerticalLayout {
             horizontal-stretch: 0;

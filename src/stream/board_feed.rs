@@ -60,6 +60,8 @@ pub struct Board {
     pub feed: Feed,
     /// Whether the input has been quiet for `QUIET_FOR`.
     pub silent: Arc<AtomicBool>,
+    /// How loud what goes out is, for the meter (0 while muted).
+    pub level: Arc<super::level::Level>,
     stop: Arc<AtomicBool>,
     thread: Option<std::thread::JoinHandle<()>>,
 }
@@ -80,12 +82,14 @@ pub fn start(ffmpeg: PathBuf, format: &str, name: &str, mute: Arc<AtomicBool>) -
     let port = std::net::TcpListener::bind("127.0.0.1:0").and_then(|l| l.local_addr()).map_err(|e| e.to_string())?.port();
     let (stop, silent) = (Arc::new(AtomicBool::new(false)), Arc::new(AtomicBool::new(false)));
     let (s, q) = (stop.clone(), silent.clone());
+    let level: Arc<super::level::Level> = Arc::default();
+    let l = level.clone();
     let args = input_args(format, name);
-    let thread = std::thread::Builder::new().name("stream-board".into()).spawn(move || run(ffmpeg, args, port, &s, &q, &mute)).map_err(|e| e.to_string())?;
-    Ok(Board { feed: Feed { format: FORMAT, port }, silent, stop, thread: Some(thread) })
+    let thread = std::thread::Builder::new().name("stream-board".into()).spawn(move || run(ffmpeg, args, port, &s, &q, &mute, &l)).map_err(|e| e.to_string())?;
+    Ok(Board { feed: Feed { format: FORMAT, port }, silent, level, stop, thread: Some(thread) })
 }
 
-fn run(ffmpeg: PathBuf, args: Vec<String>, port: u16, stop: &AtomicBool, silent: &AtomicBool, mute: &AtomicBool) {
+fn run(ffmpeg: PathBuf, args: Vec<String>, port: u16, stop: &AtomicBool, silent: &AtomicBool, mute: &AtomicBool, level: &super::level::Level) {
     let began = Instant::now();
     let mut out = loop {
         if stop.load(Ordering::Relaxed) { return }
@@ -125,7 +129,9 @@ fn run(ffmpeg: PathBuf, args: Vec<String>, port: u16, stop: &AtomicBool, silent:
         }
         let took = Duration::from_secs_f64((buf.len() / frame) as f64 / FORMAT.rate as f64);
         silent.store(quiet.hear(p, took), Ordering::Relaxed);
-        if mute.load(Ordering::Relaxed) { buf.fill(0) }
+        let muted = mute.load(Ordering::Relaxed);
+        if muted { buf.fill(0) }
+        level.hear(if muted { 0 } else { p });
         if !buf.is_empty() && out.write_all(&buf).is_err() { break }
         std::thread::sleep(LOOK_EVERY);
     }

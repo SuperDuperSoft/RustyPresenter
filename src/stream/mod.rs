@@ -15,6 +15,7 @@ pub mod board_feed;
 pub mod camera_feed;
 pub mod compose;
 pub mod keys;
+pub mod level;
 pub mod live_info;
 pub mod lyrics;
 pub mod pc_sound;

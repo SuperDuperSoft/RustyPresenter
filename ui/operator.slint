@@ -289,6 +289,7 @@ export component OperatorWindow inherits Window {
     in property <int> scene-out;
     in property <int> scene-chosen: -1;
     callback pick-scene(int);
+    in property <int> live-level: -1;
 
     /// One key press, for `keys::route_in` in Rust: the key's text, Ctrl (Cmd on macOS), Alt, Shift, whether a text
     /// field has focus and whether that field is the Bible box. True when the key was used.
@@ -952,6 +953,7 @@ export component OperatorWindow inherits Window {
                 scene-labels: root.scene-labels;
                 scene-out: root.scene-out;
                 scene-chosen: root.scene-chosen;
+                live-level: root.live-level;
                 pick-scene(i) => { root.focus-keys(); root.pick-scene(i); }
                 services => { root.focus-keys(); root.services(); }
                 screens => { root.focus-keys(); root.screens(); }

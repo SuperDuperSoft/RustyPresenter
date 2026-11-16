@@ -3875,6 +3875,22 @@ msgstr "{}（自動）"
 msgid "What the livestream shows. It changes by itself with what is live; click to choose"
 msgstr "ライブ配信に映るもの。ライブの内容に合わせて自動で変わります。クリックして選択"
 
+#: ui/operator/record.slint
+msgid "Stream sound"
+msgstr "配信の音"
+
+#: ui/operator/record.slint
+msgid "Silent"
+msgstr "無音"
+
+#: ui/operator/record.slint
+msgid "{} of 5"
+msgstr "5段階中{}"
+
+#: ui/operator/record.slint
+msgid "How loud the stream's sound is. No bars: nothing is going out"
+msgstr "配信の音の大きさ。バーが無いときは何も出ていません"
+
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
 msgstr "録画を停止"

@@ -3875,6 +3875,22 @@ msgstr "{} (자동)"
 msgid "What the livestream shows. It changes by itself with what is live; click to choose"
 msgstr "생방송에 보이는 것. 라이브 내용에 따라 자동으로 바뀝니다. 클릭해서 고르기"
 
+#: ui/operator/record.slint
+msgid "Stream sound"
+msgstr "방송 소리"
+
+#: ui/operator/record.slint
+msgid "Silent"
+msgstr "무음"
+
+#: ui/operator/record.slint
+msgid "{} of 5"
+msgstr "5 중 {}"
+
+#: ui/operator/record.slint
+msgid "How loud the stream's sound is. No bars: nothing is going out"
+msgstr "방송 소리의 크기. 막대가 없으면 아무 소리도 나가지 않습니다"
+
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
 msgstr "녹화 중지"

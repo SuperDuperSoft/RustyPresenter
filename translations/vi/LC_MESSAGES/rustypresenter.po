@@ -3875,6 +3875,22 @@ msgstr "{} (tự động)"
 msgid "What the livestream shows. It changes by itself with what is live; click to choose"
 msgstr "Những gì buổi phát trực tiếp hiển thị. Tự thay đổi theo những gì đang chiếu; bấm để chọn"
 
+#: ui/operator/record.slint
+msgid "Stream sound"
+msgstr "Âm thanh phát trực tiếp"
+
+#: ui/operator/record.slint
+msgid "Silent"
+msgstr "Im lặng"
+
+#: ui/operator/record.slint
+msgid "{} of 5"
+msgstr "{} trên 5"
+
+#: ui/operator/record.slint
+msgid "How loud the stream's sound is. No bars: nothing is going out"
+msgstr "Âm thanh phát trực tiếp to đến đâu. Không có vạch: không có gì phát ra"
+
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
 msgstr "Dừng ghi"

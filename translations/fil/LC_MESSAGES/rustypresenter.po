@@ -3875,6 +3875,22 @@ msgstr "{} (awtomatiko)"
 msgid "What the livestream shows. It changes by itself with what is live; click to choose"
 msgstr "Ang ipinapakita ng livestream. Kusa itong nagbabago ayon sa naka-live; i-click para pumili"
 
+#: ui/operator/record.slint
+msgid "Stream sound"
+msgstr "Tunog ng stream"
+
+#: ui/operator/record.slint
+msgid "Silent"
+msgstr "Tahimik"
+
+#: ui/operator/record.slint
+msgid "{} of 5"
+msgstr "{} sa 5"
+
+#: ui/operator/record.slint
+msgid "How loud the stream's sound is. No bars: nothing is going out"
+msgstr "Gaano kalakas ang tunog ng stream. Walang bar: walang lumalabas"
+
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
 msgstr "Ihinto ang pag-record"

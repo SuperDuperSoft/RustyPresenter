@@ -3866,6 +3866,22 @@ msgstr ""
 msgid "What the livestream shows. It changes by itself with what is live; click to choose"
 msgstr ""
 
+#: ui/operator/record.slint
+msgid "Stream sound"
+msgstr ""
+
+#: ui/operator/record.slint
+msgid "Silent"
+msgstr ""
+
+#: ui/operator/record.slint
+msgid "{} of 5"
+msgstr ""
+
+#: ui/operator/record.slint
+msgid "How loud the stream's sound is. No bars: nothing is going out"
+msgstr ""
+
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
 msgstr ""

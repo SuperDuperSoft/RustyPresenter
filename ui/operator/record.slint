@@ -216,6 +216,33 @@ export component SceneBtn inherits Rectangle {
     }
 }
 
+/// How loud the stream's sound is, beside Mute while live: five bars, the last two amber and red. No bars lit
+/// means nothing is going out (a pulled cable, the sound board's send turned down, or Mute).
+export component SoundMeter inherits Rectangle {
+    /// Lit bars, 0 to 5.
+    in property <int> bars;
+    accessible-role: progress-indicator;
+    accessible-label: @tr("Stream sound");
+    accessible-value: root.bars == 0 ? @tr("Silent") : @tr("{} of 5", root.bars);
+    width: 36px;
+    height: 22px;
+    HorizontalLayout {
+        spacing: 2px;
+        alignment: center;
+        for i in 5: VerticalLayout {
+            alignment: end;
+            Rectangle {
+                width: 5px;
+                height: 6px + i * 3px;
+                border-radius: 1px;
+                background: i >= root.bars ? Theme.line : i == 4 ? Theme.live : i == 3 ? Theme.accent : Theme.ok;
+            }
+        }
+    }
+    meter-ta := TouchArea {}
+    TipArea { text: @tr("How loud the stream's sound is. No bars: nothing is going out"); hover: meter-ta.has-hover; pressed: meter-ta.pressed; pointer-x: meter-ta.mouse-x; }
+}
+
 export component RecordBtn inherits Rectangle {
     in property <bool> recording;
     /// "12:34" while recording.

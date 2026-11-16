@@ -3875,6 +3875,22 @@ msgstr "{} (автоматично)"
 msgid "What the livestream shows. It changes by itself with what is live; click to choose"
 msgstr "Що показує трансляція. Змінюється сама за тим, що в ефірі; натисніть, щоб обрати"
 
+#: ui/operator/record.slint
+msgid "Stream sound"
+msgstr "Звук трансляції"
+
+#: ui/operator/record.slint
+msgid "Silent"
+msgstr "Тиша"
+
+#: ui/operator/record.slint
+msgid "{} of 5"
+msgstr "{} з 5"
+
+#: ui/operator/record.slint
+msgid "How loud the stream's sound is. No bars: nothing is going out"
+msgstr "Наскільки гучний звук трансляції. Немає смужок — нічого не виходить"
+
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
 msgstr "Зупинити запис"

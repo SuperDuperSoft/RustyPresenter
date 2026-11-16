@@ -3875,6 +3875,22 @@ msgstr "{}（自动）"
 msgid "What the livestream shows. It changes by itself with what is live; click to choose"
 msgstr "直播显示的内容。会随正在直播的内容自动变化；点击选择"
 
+#: ui/operator/record.slint
+msgid "Stream sound"
+msgstr "直播声音"
+
+#: ui/operator/record.slint
+msgid "Silent"
+msgstr "无声"
+
+#: ui/operator/record.slint
+msgid "{} of 5"
+msgstr "{}/5"
+
+#: ui/operator/record.slint
+msgid "How loud the stream's sound is. No bars: nothing is going out"
+msgstr "直播声音的大小。没有格子：没有声音传出"
+
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
 msgstr "停止录制"

@@ -258,6 +258,9 @@ impl Operator {
         self.ui.set_scene_chosen(stream::scene::lit(choice, &info).map_or(-1, index));
         let out = self.record.rec.borrow().as_ref().and_then(Recording::scene);
         if let Some(s) = out { self.ui.set_scene_out(index(s)) }
+        // The sound meter: the loudest since the last look (-1 hides it: no sound going out to measure).
+        let level = self.record.rec.borrow().as_ref().and_then(Recording::level);
+        self.ui.set_live_level(level.map_or(-1, stream::level::bars));
     }
 
     /// Runs `f` on the recording when it is live. True when it was.
@@ -281,6 +284,7 @@ impl Operator {
         }
         self.ui.set_record_time(record::clock(0).into());
         if !on {
+            self.ui.set_live_level(-1);
             self.record.scene_ticker.stop();
             return self.record.ticker.stop();
         }

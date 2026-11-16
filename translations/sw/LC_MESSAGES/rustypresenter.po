@@ -3875,6 +3875,22 @@ msgstr "{} (kiotomatiki)"
 msgid "What the livestream shows. It changes by itself with what is live; click to choose"
 msgstr "Kinachoonyeshwa na matangazo. Hubadilika yenyewe kulingana na kilicho hewani; bofya kuchagua"
 
+#: ui/operator/record.slint
+msgid "Stream sound"
+msgstr "Sauti ya matangazo"
+
+#: ui/operator/record.slint
+msgid "Silent"
+msgstr "Kimya"
+
+#: ui/operator/record.slint
+msgid "{} of 5"
+msgstr "{} kati ya 5"
+
+#: ui/operator/record.slint
+msgid "How loud the stream's sound is. No bars: nothing is going out"
+msgstr "Sauti ya matangazo ina nguvu kiasi gani. Hakuna vipau: hakuna kinachotoka"
+
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
 msgstr "Acha kurekodi"

@@ -162,7 +162,11 @@ pub struct Recording {
     silent: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>,
     /// Go Live with scenes: what goes out now (`stream::pictures`).
     scenes: Arc<Mutex<Option<crate::stream::pictures::Slot>>>,
+    /// How loud the sound going out is (the sound input's and the PC's), for the meter.
+    levels: Levels,
 }
+
+type Levels = Arc<Mutex<Vec<Arc<crate::stream::level::Level>>>>;
 
 impl Recording {
     /// Starts FFmpeg and the writer. `done` runs on the writer thread once the file is finished.
@@ -181,17 +185,19 @@ impl Recording {
         let si = silent.clone();
         let scenes: Arc<Mutex<Option<crate::stream::pictures::Slot>>> = Arc::default();
         let sc = scenes.clone();
+        let levels: Levels = Arc::default();
+        let lv = levels.clone();
         std::thread::Builder::new().name("recorder".into()).spawn(move || {
             let rt = match tokio::runtime::Builder::new_current_thread().enable_all().build() {
                 Ok(rt) => rt,
                 Err(e) => { let _ = started_tx.send(Err(e.to_string())); return }
             };
-            let ended = rt.block_on(write(plan, s, c, started_tx, l, cs, si, sc));
+            let ended = rt.block_on(write(plan, s, c, started_tx, l, cs, si, sc, lv));
             if let Some(ended) = ended { done(ended) }
             let _ = finished_tx.send(());
         }).map_err(|e| tr::not_started(&e.to_string()))?;
         match started_rx.recv() {
-            Ok(Ok(())) => Ok(Recording { sink, cancel, finished, begun: Instant::now(), out, links, controls, camera_seen, silent, scenes }),
+            Ok(Ok(())) => Ok(Recording { sink, cancel, finished, begun: Instant::now(), out, links, controls, camera_seen, silent, scenes, levels }),
             Ok(Err(e)) => Err(tr::not_started(&e)),
             Err(_) => Err(tr::not_started(&tr::ffmpeg_ended())),
         }
@@ -211,6 +217,12 @@ impl Recording {
     /// With a sound input: whether it has gone silent (a muted send, a pulled cable); `None` without one.
     pub fn silent(&self) -> Option<bool> {
         self.silent.lock().unwrap_or_else(|e| e.into_inner()).as_ref().map(|s| s.load(std::sync::atomic::Ordering::Relaxed))
+    }
+
+    /// The loudest sample of the sound going out since the last call (16-bit scale; 0 while muted); `None` with no
+    /// sound input and no PC sound.
+    pub fn level(&self) -> Option<i32> {
+        self.levels.lock().unwrap_or_else(|e| e.into_inner()).iter().map(|l| l.take()).max()
     }
 
     /// Go Live with scenes: the scene going out now.
@@ -247,7 +259,7 @@ impl Drop for Recording {
 /// `None` when FFmpeg never started (the starter heard why).
 async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, started: mpsc::Sender<Result<(), String>>, links: crate::stream::send::Links,
     camera_seen: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>, silent: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>,
-    scenes: Arc<Mutex<Option<crate::stream::pictures::Slot>>>) -> Option<Ended> {
+    scenes: Arc<Mutex<Option<crate::stream::pictures::Slot>>>, levels: Levels) -> Option<Ended> {
     let part = partial_of(&plan.out);
     // Go Live: the recorder sends to a local feed for each destination; a sender each passes it on and
     // reconnects (`stream::send`). With no free ports there is no stream, and the recording goes on.
@@ -284,6 +296,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let mut board = input.and_then(|(format, name)| crate::stream::board_feed::start(plan.ffmpeg.clone(), format, name, plan.controls.mute.clone())
         .map_err(|e| eprintln!("recording: FFmpeg reads the sound input itself: {e}")).ok());
     if let Some(b) = &board { *silent.lock().unwrap_or_else(|e| e.into_inner()) = Some(b.silent.clone()) }
+    *levels.lock().unwrap_or_else(|e| e.into_inner()) = board.iter().map(|b| b.level.clone()).chain(pc.iter().map(|c| c.level.clone())).collect();
     let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, board: board.as_ref().map(|b| b.feed), out: &part, stream: &feeds, pc: pc.as_ref().map(|c| c.feed) });
     let mut cmd = tokio::process::Command::new(&plan.ffmpeg);
     cmd.args(a).stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::piped());

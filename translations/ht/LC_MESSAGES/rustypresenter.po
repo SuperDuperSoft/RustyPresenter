@@ -3875,6 +3875,22 @@ msgstr "{} (otomatik)"
 msgid "What the livestream shows. It changes by itself with what is live; click to choose"
 msgstr "Sa difizyon an montre. Li chanje poukont li dapre sa k an dirèk; klike pou chwazi"
 
+#: ui/operator/record.slint
+msgid "Stream sound"
+msgstr "Son difizyon"
+
+#: ui/operator/record.slint
+msgid "Silent"
+msgstr "Silans"
+
+#: ui/operator/record.slint
+msgid "{} of 5"
+msgstr "{} sou 5"
+
+#: ui/operator/record.slint
+msgid "How loud the stream's sound is. No bars: nothing is going out"
+msgstr "Ki jan son difizyon an fò. Pa gen ba: anyen pa soti"
+
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
 msgstr "Kanpe anrejistreman"
