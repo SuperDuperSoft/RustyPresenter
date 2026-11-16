@@ -2467,6 +2467,42 @@ msgstr "Kung nauuna ang tunog sa stream bago gumalaw ang labi, nahuhuli ang lara
 msgid "{} ms"
 msgstr "{} ms"
 
+#: ui/dialogs/settings-media.slint
+msgid "Sound levels"
+msgstr "Lakas ng tunog"
+
+#: ui/dialogs/settings-media.slint
+msgid "Turn each sound up or down in the stream only (not in the room)."
+msgstr "Lakasan o hinaan ang bawat tunog sa stream lang (hindi sa loob ng simbahan)."
+
+#: ui/dialogs/settings-media.slint
+msgid "Microphone or line-in"
+msgstr "Mikropono o line-in"
+
+#: ui/dialogs/settings-media.slint
+msgid "{} dB"
+msgstr "{} dB"
+
+#: ui/dialogs/settings-media.slint src/app.rs
+msgid "This computer"
+msgstr "Ang computer na ito"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sound clean-up"
+msgstr "Paglilinis ng tunog"
+
+#: ui/dialogs/settings-media.slint
+msgid "For the stream only. Evening out keeps quiet speaking easy to hear at home and loud singing from crackling."
+msgstr "Para sa stream lang. Ang pagpapantay ay nagpapadali marinig sa bahay ang mahinang pagsasalita at pinipigilang lumabo ang malakas na pag-awit."
+
+#: ui/dialogs/settings-media.slint
+msgid "Even out loud and quiet moments"
+msgstr "Pantayin ang malalakas at mahihinang bahagi"
+
+#: ui/dialogs/settings-media.slint
+msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
+msgstr "Alisin ang ugong at sitsit sa mikropono o line-in (maaaring lumabo ang musika)"
+
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "Camera"
@@ -4706,10 +4742,6 @@ msgstr "Nag-restart ang screen sa silid."
 #: src/app.rs src/platform/instance.rs
 msgid "RustyPresenter is still starting. Try again in a moment."
 msgstr "Nagsisimula pa ang RustyPresenter. Subukang muli maya-maya."
-
-#: src/app.rs
-msgid "This computer"
-msgstr "Ang computer na ito"
 
 #: src/app.rs
 msgid "Not used"

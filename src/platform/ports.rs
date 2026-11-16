@@ -60,12 +60,18 @@ mod tests {
 
     #[test]
     fn a_port_in_use_is_passed_over() {
-        let p = tcp().unwrap();
-        let _held = std::net::UdpSocket::bind(("127.0.0.1", p + 1)).unwrap();
-        let _held_tcp = std::net::TcpListener::bind(("127.0.0.1", p + 1)).unwrap();
-        // The next one is past the port in use.
-        let next = udp(1).unwrap()[0];
-        assert_ne!(next, p + 1);
-        assert_ne!(tcp().unwrap(), p + 1);
+        // A port a few ahead of the next one handed out, held here for both kinds (never moving the place back:
+        // other tests take ports at the same time, and none may get one twice).
+        let _ = next();
+        let span = u32::from(LAST - FIRST);
+        let (held, _udp, _tcp) = (3..60).find_map(|ahead| {
+            let p = FIRST + ((NEXT.load(Ordering::Relaxed) + ahead) % span) as u16;
+            Some((p, std::net::UdpSocket::bind(("127.0.0.1", p)).ok()?, std::net::TcpListener::bind(("127.0.0.1", p)).ok()?))
+        }).unwrap();
+        // The looks go on past it.
+        for _ in 0..70 {
+            assert_ne!(udp(1).unwrap()[0], held);
+            assert_ne!(tcp().unwrap(), held);
+        }
     }
 }

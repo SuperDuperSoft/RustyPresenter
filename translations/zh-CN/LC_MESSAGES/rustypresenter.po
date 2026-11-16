@@ -2467,6 +2467,42 @@ msgstr "如果直播中声音先到、嘴唇后动，说明镜头画面来得晚
 msgid "{} ms"
 msgstr "{} 毫秒"
 
+#: ui/dialogs/settings-media.slint
+msgid "Sound levels"
+msgstr "音量"
+
+#: ui/dialogs/settings-media.slint
+msgid "Turn each sound up or down in the stream only (not in the room)."
+msgstr "只在直播中调高或调低每个声音（不影响会场）。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Microphone or line-in"
+msgstr "麦克风或线路输入"
+
+#: ui/dialogs/settings-media.slint
+msgid "{} dB"
+msgstr "{} dB"
+
+#: ui/dialogs/settings-media.slint src/app.rs
+msgid "This computer"
+msgstr "这台电脑"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sound clean-up"
+msgstr "声音清理"
+
+#: ui/dialogs/settings-media.slint
+msgid "For the stream only. Evening out keeps quiet speaking easy to hear at home and loud singing from crackling."
+msgstr "仅用于直播。均匀后，在家也能听清轻声讲话，大声唱诗也不会破音。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Even out loud and quiet moments"
+msgstr "让大声和小声更均匀"
+
+#: ui/dialogs/settings-media.slint
+msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
+msgstr "去除麦克风或线路输入中的嗡嗡声和嘶嘶声（可能使音乐发闷）"
+
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "摄像头"
@@ -4706,10 +4742,6 @@ msgstr "会众屏幕已重新启动。"
 #: src/app.rs src/platform/instance.rs
 msgid "RustyPresenter is still starting. Try again in a moment."
 msgstr "RustyPresenter 仍在启动中，请稍后再试。"
-
-#: src/app.rs
-msgid "This computer"
-msgstr "这台电脑"
 
 #: src/app.rs
 msgid "Not used"

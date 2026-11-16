@@ -2467,6 +2467,42 @@ msgstr "Se na transmissão o som chega antes de os lábios se mexerem, a imagem 
 msgid "{} ms"
 msgstr "{} ms"
 
+#: ui/dialogs/settings-media.slint
+msgid "Sound levels"
+msgstr "Níveis de som"
+
+#: ui/dialogs/settings-media.slint
+msgid "Turn each sound up or down in the stream only (not in the room)."
+msgstr "Aumente ou diminua cada som só na transmissão (não no salão)."
+
+#: ui/dialogs/settings-media.slint
+msgid "Microphone or line-in"
+msgstr "Microfone ou entrada de linha"
+
+#: ui/dialogs/settings-media.slint
+msgid "{} dB"
+msgstr "{} dB"
+
+#: ui/dialogs/settings-media.slint src/app.rs
+msgid "This computer"
+msgstr "Este computador"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sound clean-up"
+msgstr "Limpeza do som"
+
+#: ui/dialogs/settings-media.slint
+msgid "For the stream only. Evening out keeps quiet speaking easy to hear at home and loud singing from crackling."
+msgstr "Só para a transmissão. Equilibrar faz quem fala baixo ser bem ouvido em casa e evita que o canto alto distorça."
+
+#: ui/dialogs/settings-media.slint
+msgid "Even out loud and quiet moments"
+msgstr "Equilibrar momentos altos e baixos"
+
+#: ui/dialogs/settings-media.slint
+msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
+msgstr "Tirar o zumbido e o chiado do microfone ou da entrada de linha (pode abafar a música)"
+
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "Câmera"
@@ -4706,10 +4742,6 @@ msgstr "A tela do salão reiniciou."
 #: src/app.rs src/platform/instance.rs
 msgid "RustyPresenter is still starting. Try again in a moment."
 msgstr "O RustyPresenter ainda está iniciando. Tente de novo daqui a pouco."
-
-#: src/app.rs
-msgid "This computer"
-msgstr "Este computador"
 
 #: src/app.rs
 msgid "Not used"

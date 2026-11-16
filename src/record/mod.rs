@@ -101,6 +101,18 @@ pub struct RecordPrefs {
     /// camera whose picture comes late.
     #[serde(skip_serializing_if = "is_zero_u32")]
     pub sound_delay_ms: u32,
+    /// Livestream: the microphone or line-in, and the computer's own sound, turned up or down (dB, within
+    /// `MAX_LEVEL_DB`).
+    #[serde(skip_serializing_if = "is_zero_i32")]
+    pub stream_board_db: i32,
+    #[serde(skip_serializing_if = "is_zero_i32")]
+    pub stream_pc_db: i32,
+    /// Livestream: loud and quiet moments evened out (`None`: yes).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stream_even: Option<bool>,
+    /// Livestream: hum and hiss taken out of the microphone or line-in.
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub stream_quiet_noise: bool,
     /// The Starting soon, Ending and Hold cards.
     #[serde(skip_serializing_if = "crate::stream::pictures::Cards::is_default")]
     pub cards: crate::stream::pictures::Cards,
@@ -119,11 +131,25 @@ pub struct RecordPrefs {
 
 
 fn is_zero_u32(v: &u32) -> bool { *v == 0 }
+fn is_zero_i32(v: &i32) -> bool { *v == 0 }
 
 /// The longest sound delay Settings offers (a camera more than a second late is broken, not slow).
 pub const MAX_SOUND_DELAY: u32 = 1000;
+/// The most a sound is turned up or down in Settings, in dB.
+pub const MAX_LEVEL_DB: i32 = 20;
 
 impl RecordPrefs {
+    /// What a livestream does to its sound.
+    pub fn sound_fx(&self) -> args::SoundFx {
+        args::SoundFx {
+            delay_ms: self.sound_delay_ms.min(MAX_SOUND_DELAY),
+            board_db: self.stream_board_db.clamp(-MAX_LEVEL_DB, MAX_LEVEL_DB),
+            pc_db: self.stream_pc_db.clamp(-MAX_LEVEL_DB, MAX_LEVEL_DB),
+            even: self.stream_even.unwrap_or(true),
+            quiet_noise: self.stream_quiet_noise,
+        }
+    }
+
     /// The automatic scene choice's settings.
     pub fn auto(&self) -> crate::stream::scene::AutoPrefs {
         crate::stream::scene::AutoPrefs { on: self.auto_scenes.unwrap_or(true), presentation_camera: self.presentation_camera }
@@ -209,6 +235,17 @@ mod tests {
         let gb = Preset::P1080.bytes_per_hour() as f64 / 1e9;
         assert!((2.0..3.0).contains(&gb), "{gb}");
         assert!(Preset::P720.bytes_per_hour() < Preset::P1080.bytes_per_hour());
+    }
+
+    #[test]
+    fn the_streams_sound_settings_are_kept_and_given_to_the_recorder() {
+        let p = RecordPrefs::default();
+        assert_eq!(p.sound_fx(), args::SoundFx { delay_ms: 0, board_db: 0, pc_db: 0, even: true, quiet_noise: false }, "evened out unless turned off");
+        assert_eq!(serde_json::to_value(&p).unwrap().get("stream_even"), None);
+        let p = RecordPrefs { sound_delay_ms: 5000, stream_board_db: 45, stream_pc_db: -45, stream_even: Some(false), stream_quiet_noise: true, ..RecordPrefs::default() };
+        assert_eq!(p.sound_fx(), args::SoundFx { delay_ms: MAX_SOUND_DELAY, board_db: MAX_LEVEL_DB, pc_db: -MAX_LEVEL_DB, even: false, quiet_noise: true });
+        let back: RecordPrefs = serde_json::from_value(serde_json::to_value(&p).unwrap()).unwrap();
+        assert_eq!(back, p);
     }
 
     #[test]

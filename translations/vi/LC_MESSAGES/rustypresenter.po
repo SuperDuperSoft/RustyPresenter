@@ -2467,6 +2467,42 @@ msgstr "Nếu trong buổi phát tiếng đến trước khi môi cử động, 
 msgid "{} ms"
 msgstr "{} ms"
 
+#: ui/dialogs/settings-media.slint
+msgid "Sound levels"
+msgstr "Mức âm thanh"
+
+#: ui/dialogs/settings-media.slint
+msgid "Turn each sound up or down in the stream only (not in the room)."
+msgstr "Tăng hoặc giảm từng âm thanh chỉ trong buổi phát (không phải trong phòng)."
+
+#: ui/dialogs/settings-media.slint
+msgid "Microphone or line-in"
+msgstr "Micrô hoặc ngõ vào line"
+
+#: ui/dialogs/settings-media.slint
+msgid "{} dB"
+msgstr "{} dB"
+
+#: ui/dialogs/settings-media.slint src/app.rs
+msgid "This computer"
+msgstr "Máy tính này"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sound clean-up"
+msgstr "Làm sạch âm thanh"
+
+#: ui/dialogs/settings-media.slint
+msgid "For the stream only. Evening out keeps quiet speaking easy to hear at home and loud singing from crackling."
+msgstr "Chỉ cho buổi phát. Cân bằng giúp người ở nhà nghe rõ tiếng nói nhỏ và tiếng hát lớn không bị rè."
+
+#: ui/dialogs/settings-media.slint
+msgid "Even out loud and quiet moments"
+msgstr "Cân bằng lúc to và lúc nhỏ"
+
+#: ui/dialogs/settings-media.slint
+msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
+msgstr "Bỏ tiếng ù và tiếng xì từ micrô hoặc ngõ vào line (có thể làm nhạc bị đục)"
+
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "Máy quay"
@@ -4706,10 +4742,6 @@ msgstr "Màn hình hội trường đã khởi động lại."
 #: src/app.rs src/platform/instance.rs
 msgid "RustyPresenter is still starting. Try again in a moment."
 msgstr "RustyPresenter vẫn đang khởi động. Hãy thử lại sau giây lát."
-
-#: src/app.rs
-msgid "This computer"
-msgstr "Máy tính này"
 
 #: src/app.rs
 msgid "Not used"

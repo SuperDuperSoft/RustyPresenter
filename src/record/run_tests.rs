@@ -31,7 +31,7 @@ fn probe(file: &Path) -> (Vec<(String, String, u64, u64)>, f64) {
 }
 
 fn plan(ffmpeg: PathBuf, dir: &Path, sound: Sound) -> Plan {
-    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_delay_ms: 0 }
+    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default() }
 }
 
 /// Records for `secs`, handing in a new solid picture every 100 ms (red, then green), with `each` called as it goes.
@@ -111,7 +111,7 @@ fn a_sound_delay_keeps_the_stream_going() {
     let Some(ff) = ffmpeg() else { return };
     let dir = scratch("delay");
     let dead = format!("rtmp://127.0.0.1:{}/live/TEST-KEY", std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port());
-    let ended = record_for(Plan { stream: vec![dead], sound_delay_ms: 300, ..plan(ff, &dir, Sound::Input("no-such-input-here".into())) }, 3.0, |_, _| {});
+    let ended = record_for(Plan { stream: vec![dead], sound_fx: args::SoundFx { delay_ms: 300, even: true, ..args::SoundFx::default() }, ..plan(ff, &dir, Sound::Input("no-such-input-here".into())) }, 3.0, |_, _| {});
     assert_eq!(ended.problem, None, "{ended:?}");
     let (streams, secs) = probe(ended.file.as_ref().unwrap());
     let kinds: Vec<&str> = streams.iter().map(|s| s.0.as_str()).collect();
@@ -332,6 +332,16 @@ fn a_card_is_not_put_together_again_for_each_camera_picture() {
     assert_eq!(m.composes, after_first, "new camera and room pictures change nothing on a card");
 }
 
+/// Every sound filter at once, through the real FFmpeg: it accepts them all.
+#[test]
+fn ffmpeg_takes_the_sound_filters() {
+    let Some(ff) = ffmpeg() else { return };
+    let chain = format!("afftdn=nf=-25,volume=6dB,adelay=300:all=1,{}", args::EVEN_OUT);
+    let out = std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", "sine=frequency=440:duration=1", "-af", &chain, "-f", "null", "-"])
+        .output().unwrap();
+    assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
+}
+
 fn lavfi_camera(spec: &str) -> Vec<Vec<String>> { vec![["-re", "-f", "lavfi", "-i", spec].map(String::from).into()] }
 
 /// A local server that takes one stream into `received`; stopped by `finish_server`.
@@ -358,6 +368,17 @@ fn frame_at(ff: &Path, dir: &Path, file: &Path, t: &str) -> image::RgbImage {
     assert!(std::process::Command::new(ff).args(["-hide_banner", "-loglevel", "error", "-y", "-ss", t, "-i"]).arg(file).args(["-frames:v", "1"]).arg(&png)
         .status().unwrap().success());
     image::open(&png).unwrap().to_rgb8()
+}
+
+/// Every quarter second of `file`, as pictures.
+fn quarter_seconds(ff: &Path, dir: &Path, file: &Path) -> Vec<image::RgbImage> {
+    let q = dir.join("quarters");
+    std::fs::create_dir_all(&q).unwrap();
+    assert!(std::process::Command::new(ff).args(["-hide_banner", "-loglevel", "error", "-y", "-i"]).arg(file).args(["-vf", "fps=4"]).arg(q.join("q%03d.png"))
+        .status().unwrap().success());
+    let mut names: Vec<PathBuf> = std::fs::read_dir(&q).unwrap().map(|e| e.unwrap().path()).collect();
+    names.sort();
+    names.iter().map(|n| image::open(n).unwrap().to_rgb8()).collect()
 }
 
 /// The first picture of `file`, from 2 s on, for which `seen` holds (a camera's own FFmpeg can take a few seconds
@@ -510,12 +531,15 @@ fn a_camera_that_stops_drops_out_and_comes_back() {
         assert!(secs > 8.0, "{scene:?}: the recording ended with the camera ({secs} s)");
         // Where the camera shows in this scene: the middle, or (screen filling it) the corner.
         let (x, y) = if scene == Scene::ScreenCamera { (1280 - 32 - 160, 720 - 32 - 90) } else { (640, 200) };
-        let at = |t: &str| frame_at(&ff, &dir, &rec, t).get_pixel(x, y).0;
-        let (first, gap, back) = (at("1.8"), at("3.9"), at("6.4"));
-        eprintln!("REAL {scene:?}: camera {first:?}, gap {gap:?}, back {back:?}");
-        assert!(is_blue(first), "{scene:?}: the camera at first: {first:?}");
-        assert!(is_red(gap), "{scene:?}: the room screen while the camera is gone: {gap:?}");
-        assert!(is_blue(back), "{scene:?}: the camera back: {back:?}");
+        // In order, whenever the stand-in camera got going (later while the whole suite runs): the camera, the
+        // room screen in the gap, the camera again.
+        let seen: Vec<char> = quarter_seconds(&ff, &dir, &rec).iter().map(|f| f.get_pixel(x, y).0)
+            .map(|p| if is_blue(p) { 'C' } else if is_red(p) { 'R' } else { '.' }).collect();
+        let seen: String = seen.into_iter().collect();
+        eprintln!("REAL {scene:?}: every quarter second {seen}");
+        let first = seen.find('C').unwrap_or_else(|| panic!("{scene:?}: the camera never showed: {seen}"));
+        let gap = seen[first..].find('R').map(|i| first + i).unwrap_or_else(|| panic!("{scene:?}: the room screen while the camera is gone: {seen}"));
+        assert!(seen[gap..].contains('C'), "{scene:?}: the camera back: {seen}");
         std::fs::remove_dir_all(&dir).unwrap();
     }
 }

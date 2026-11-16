@@ -127,7 +127,7 @@ impl Operator {
         let signed: Vec<(stream::Destination, String, stream::accounts::Details)> = signed.into_iter().map(|(d, t)| { let x = details(d.service); (d, t, x) }).collect();
         self.record.starting.set(true);
         let prefs_pc = prefs.pc_sound(&app_output);
-        let sound_delay = prefs.sound_delay_ms.min(record::MAX_SOUND_DELAY);
+        let sound_fx = prefs.sound_fx();
         // The cameras, first and second, and their names for the scene button.
         let camera_names: Vec<String> = [&prefs.camera, &prefs.camera2].into_iter().filter(|c| !c.is_empty()).cloned().collect();
         let cameras: Vec<Vec<String>> = camera_names.iter().map(|c| record::args::camera_input(crate::platform::tools::OS, c)).collect();
@@ -170,7 +170,7 @@ impl Operator {
                         plan.pc_sound = prefs_pc;
                         plan.cameras = cameras;
                         plan.look = Some(look);
-                        plan.sound_delay_ms = sound_delay;
+                        plan.sound_fx = sound_fx;
                     }
                     plan.stream = addresses;
                     op.record.live.set(live);

@@ -2464,6 +2464,42 @@ msgstr ""
 msgid "{} ms"
 msgstr ""
 
+#: ui/dialogs/settings-media.slint
+msgid "Sound levels"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Turn each sound up or down in the stream only (not in the room)."
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Microphone or line-in"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "{} dB"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint src/app.rs
+msgid "This computer"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Sound clean-up"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "For the stream only. Evening out keeps quiet speaking easy to hear at home and loud singing from crackling."
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Even out loud and quiet moments"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
+msgstr ""
+
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr ""
@@ -4696,10 +4732,6 @@ msgstr ""
 
 #: src/app.rs src/platform/instance.rs
 msgid "RustyPresenter is still starting. Try again in a moment."
-msgstr ""
-
-#: src/app.rs
-msgid "This computer"
 msgstr ""
 
 #: src/app.rs

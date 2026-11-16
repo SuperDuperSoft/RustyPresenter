@@ -141,13 +141,13 @@ mod tests {
         let feed = start(ff, crate::record::args::camera_input(crate::platform::tools::OS, &address), (64, 36), 30).unwrap();
         let began = Instant::now();
         let picture = loop {
-            if let Some(p) = feed.picture() { break Some(p) }
+            // The picture, and the feed saying it sees the camera (looked at every 50 ms).
+            if let Some(p) = feed.picture().filter(|_| feed.seeing.load(Ordering::Relaxed)) { break Some(p) }
             if began.elapsed() > Duration::from_secs(20) { break None }
             std::thread::sleep(Duration::from_millis(100));
         };
         let _ = camera.kill();
         let picture = picture.expect("pictures from the network camera");
-        assert!(feed.seeing.load(Ordering::Relaxed));
         let middle = (18 * 64 + 32) * 4;
         let px = &picture[middle..middle + 4];
         assert!(px[0] > 200 && px[1] < 60 && px[2] < 60, "red: {px:?}");

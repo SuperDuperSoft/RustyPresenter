@@ -185,6 +185,72 @@ export component SettingsMedia inherits VerticalLayout {
         }
     }
     Field {
+        label: @tr("Sound levels");
+        help: @tr("Turn each sound up or down in the stream only (not in the room).");
+        VerticalLayout {
+            spacing: 6px;
+            HorizontalLayout {
+                spacing: 10px;
+                Text {
+                    text: @tr("Microphone or line-in");
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
+                    min-width: 150px;
+                }
+                stream-board-level := RangeSlider {
+                    minimum: -20;
+                    maximum: 20;
+                    value <=> SettingsDlg.stream-board-level;
+                    horizontal-stretch: 1;
+                }
+                Text {
+                    text: @tr("{} dB", SettingsDlg.stream-board-level);
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
+                    min-width: 64px;
+                }
+            }
+            HorizontalLayout {
+                spacing: 10px;
+                Text {
+                    text: @tr("This computer");
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
+                    min-width: 150px;
+                }
+                stream-pc-level := RangeSlider {
+                    minimum: -20;
+                    maximum: 20;
+                    value <=> SettingsDlg.stream-pc-level;
+                    horizontal-stretch: 1;
+                }
+                Text {
+                    text: @tr("{} dB", SettingsDlg.stream-pc-level);
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
+                    min-width: 64px;
+                }
+            }
+        }
+    }
+    Field {
+        label: @tr("Sound clean-up");
+        help: @tr("For the stream only. Evening out keeps quiet speaking easy to hear at home and loud singing from crackling.");
+        VerticalLayout {
+            spacing: 6px;
+            stream-even := Check { text: @tr("Even out loud and quiet moments"); checked <=> SettingsDlg.stream-even; }
+            stream-quiet-noise := Check { text: @tr("Take out hum and hiss from the microphone or line-in (can dull music)"); checked <=> SettingsDlg.stream-quiet-noise; }
+        }
+    }
+    Field {
         label: @tr("Camera");
         help: @tr("A camera or capture card for the stream's camera scenes (and its recording).");
         VerticalLayout {

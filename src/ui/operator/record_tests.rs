@@ -186,6 +186,33 @@ fn livestream_scene_settings_save() {
 }
 
 #[test]
+fn settings_keep_the_streams_sound_levels_and_clean_up() {
+    use crate::ui::SettingsDlg;
+    use slint::ComponentHandle;
+    let app = test_app();
+    let room = Arc::new(Room::default());
+    let op = open(&app, &room);
+    let g = op.ui.global::<SettingsDlg>();
+    let mut prefs = RecordPrefs::default();
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    assert_eq!((g.get_stream_board_level(), g.get_stream_pc_level()), (0, 0));
+    assert!(g.get_stream_even(), "evened out to start with");
+    assert!(!g.get_stream_quiet_noise());
+    g.set_stream_board_level(8);
+    g.set_stream_pc_level(-50);
+    g.set_stream_even(false);
+    g.set_stream_quiet_noise(true);
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!(prefs.sound_fx(), record::args::SoundFx { delay_ms: 0, board_db: 8, pc_db: -20, even: false, quiet_noise: true });
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    assert_eq!((g.get_stream_board_level(), g.get_stream_pc_level(), g.get_stream_even(), g.get_stream_quiet_noise()), (8, -20, false, true));
+    // Turned on again: back to how it starts, so nothing is saved for it.
+    g.set_stream_even(true);
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!(prefs.stream_even, None);
+}
+
+#[test]
 fn settings_keep_a_network_camera_by_its_address() {
     use crate::ui::SettingsDlg;
     use slint::ComponentHandle;

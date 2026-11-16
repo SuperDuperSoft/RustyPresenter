@@ -2467,6 +2467,42 @@ msgstr "配信で口が動く前に音が聞こえるときは、カメラの映
 msgid "{} ms"
 msgstr "{} ms"
 
+#: ui/dialogs/settings-media.slint
+msgid "Sound levels"
+msgstr "音量"
+
+#: ui/dialogs/settings-media.slint
+msgid "Turn each sound up or down in the stream only (not in the room)."
+msgstr "配信の中だけで各音を上げ下げします（会場の音は変わりません）。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Microphone or line-in"
+msgstr "マイクまたはライン入力"
+
+#: ui/dialogs/settings-media.slint
+msgid "{} dB"
+msgstr "{} dB"
+
+#: ui/dialogs/settings-media.slint src/app.rs
+msgid "This computer"
+msgstr "このコンピューター"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sound clean-up"
+msgstr "音のクリーンアップ"
+
+#: ui/dialogs/settings-media.slint
+msgid "For the stream only. Evening out keeps quiet speaking easy to hear at home and loud singing from crackling."
+msgstr "配信のみ。ならすと、小さな話し声も家で聞きやすくなり、大きな歌声も音割れしません。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Even out loud and quiet moments"
+msgstr "大きい音と小さい音をならす"
+
+#: ui/dialogs/settings-media.slint
+msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
+msgstr "マイクやライン入力のハムノイズとヒスノイズを除く（音楽がこもることがあります）"
+
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "カメラ"
@@ -4706,10 +4742,6 @@ msgstr "会場画面が再起動しました。"
 #: src/app.rs src/platform/instance.rs
 msgid "RustyPresenter is still starting. Try again in a moment."
 msgstr "RustyPresenter はまだ起動中です。少し待ってから再試行してください。"
-
-#: src/app.rs
-msgid "This computer"
-msgstr "このコンピューター"
 
 #: src/app.rs
 msgid "Not used"

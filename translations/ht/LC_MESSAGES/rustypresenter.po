@@ -2467,6 +2467,42 @@ msgstr "Si nan difizyon an son an rive anvan bouch moun yo bouje, foto kamera a 
 msgid "{} ms"
 msgstr "{} ms"
 
+#: ui/dialogs/settings-media.slint
+msgid "Sound levels"
+msgstr "Nivo son yo"
+
+#: ui/dialogs/settings-media.slint
+msgid "Turn each sound up or down in the stream only (not in the room)."
+msgstr "Monte oswa bese chak son nan difizyon an sèlman (pa nan sal la)."
+
+#: ui/dialogs/settings-media.slint
+msgid "Microphone or line-in"
+msgstr "Mikwo oswa antre liy"
+
+#: ui/dialogs/settings-media.slint
+msgid "{} dB"
+msgstr "{} dB"
+
+#: ui/dialogs/settings-media.slint src/app.rs
+msgid "This computer"
+msgstr "Òdinatè sa a"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sound clean-up"
+msgstr "Netwaye son an"
+
+#: ui/dialogs/settings-media.slint
+msgid "For the stream only. Evening out keeps quiet speaking easy to hear at home and loud singing from crackling."
+msgstr "Pou difizyon an sèlman. Egalize fè moun ki pale ba yo tande byen lakay, epi chante ki fò pa kraze."
+
+#: ui/dialogs/settings-media.slint
+msgid "Even out loud and quiet moments"
+msgstr "Egalize moman ki fò ak moman ki dous"
+
+#: ui/dialogs/settings-media.slint
+msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
+msgstr "Retire bri ronfleman ak sifleman nan mikwo a oswa antre liy lan (ka fè mizik la mat)"
+
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "Kamera"
@@ -4706,10 +4742,6 @@ msgstr "Ekran sal la te redemare."
 #: src/app.rs src/platform/instance.rs
 msgid "RustyPresenter is still starting. Try again in a moment."
 msgstr "RustyPresenter ap demare toujou. Eseye ankò nan yon ti moman."
-
-#: src/app.rs
-msgid "This computer"
-msgstr "Òdinatè sa a"
 
 #: src/app.rs
 msgid "Not used"

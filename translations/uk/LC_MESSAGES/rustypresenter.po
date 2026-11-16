@@ -2467,6 +2467,42 @@ msgstr "Якщо в трансляції звук чути раніше, ніж 
 msgid "{} ms"
 msgstr "{} мс"
 
+#: ui/dialogs/settings-media.slint
+msgid "Sound levels"
+msgstr "Рівні звуку"
+
+#: ui/dialogs/settings-media.slint
+msgid "Turn each sound up or down in the stream only (not in the room)."
+msgstr "Робіть кожен звук гучнішим або тихішим лише в трансляції (не в залі)."
+
+#: ui/dialogs/settings-media.slint
+msgid "Microphone or line-in"
+msgstr "Мікрофон або лінійний вхід"
+
+#: ui/dialogs/settings-media.slint
+msgid "{} dB"
+msgstr "{} дБ"
+
+#: ui/dialogs/settings-media.slint src/app.rs
+msgid "This computer"
+msgstr "Цей комп’ютер"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sound clean-up"
+msgstr "Очищення звуку"
+
+#: ui/dialogs/settings-media.slint
+msgid "For the stream only. Evening out keeps quiet speaking easy to hear at home and loud singing from crackling."
+msgstr "Лише для трансляції. Вирівнювання робить тиху мову розбірливою вдома, а гучний спів — без хрипу."
+
+#: ui/dialogs/settings-media.slint
+msgid "Even out loud and quiet moments"
+msgstr "Вирівнювати гучні й тихі моменти"
+
+#: ui/dialogs/settings-media.slint
+msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
+msgstr "Прибирати гул і шипіння мікрофона або лінійного входу (музика може звучати глухіше)"
+
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "Камера"
@@ -4706,10 +4742,6 @@ msgstr "Екран у залі перезапустився."
 #: src/app.rs src/platform/instance.rs
 msgid "RustyPresenter is still starting. Try again in a moment."
 msgstr "RustyPresenter ще запускається. Спробуйте за мить."
-
-#: src/app.rs
-msgid "This computer"
-msgstr "Цей комп’ютер"
 
 #: src/app.rs
 msgid "Not used"
