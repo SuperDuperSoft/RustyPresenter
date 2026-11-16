@@ -22,7 +22,9 @@ impl App {
                 Some(SlideLayer::Image { .. } | SlideLayer::Design { .. }) => SlideKind::Picture,
                 _ => SlideKind::None,
             };
-            (LiveInfo { pre_service: pre.is_some(), cursor_item, last_item, media_playing, slide }, pre)
+            // Brought back by a restart and not touched by hand since.
+            let restored = live.restored_version.is_some_and(|r| live.manual_version <= r);
+            (LiveInfo { pre_service: pre.is_some(), cursor_item, restored, last_item, media_playing, slide }, pre)
         };
         let countdown = pre.and_then(|_| self.timers().timers.iter().find(|t| t.id == PRE_SERVICE_TIMER_ID).map(|t| crate::timers::text(t.value_ms)));
         (info, *self.stream_choice.lock().unwrap(), countdown)
@@ -77,6 +79,17 @@ mod tests {
         assert_eq!(app.stream_info().1, Choice { scene: Some(Scene::Camera), item: Some(a) });
         app.clear_stream_choice();
         assert_eq!(app.stream_info().1, Choice::default());
+    }
+
+    #[test]
+    fn a_restored_slide_counts_as_not_live_until_touched() {
+        let app = test_app();
+        let (a, b) = (text_item(&app, "One"), text_item(&app, "Two"));
+        cmd(&app, Command::Show { item_id: a, slide: 0 });
+        { let mut live = app.live.lock().unwrap(); live.restored_version = Some(live.version); }
+        assert!(app.stream_info().0.restored, "brought back by a restart");
+        cmd(&app, Command::Show { item_id: b, slide: 0 });
+        assert!(!app.stream_info().0.restored, "touched since");
     }
 
     #[test]

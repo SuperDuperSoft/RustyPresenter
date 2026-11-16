@@ -67,6 +67,9 @@ pub struct LiveInfo {
     pub pre_service: bool,
     /// The service item live now; `None` before anything was taken live.
     pub cursor_item: Option<Uuid>,
+    /// What is live was brought back from the last run of the app (a restart) and nobody has touched it since:
+    /// counts as nothing live yet.
+    pub restored: bool,
     /// The live item is the service's last.
     pub last_item: bool,
     /// A video is playing on the media layer.
@@ -105,7 +108,7 @@ impl Choice {
 pub fn choose(info: &LiveInfo, prefs: AutoPrefs, choice: Choice, last: Scene) -> Scene {
     if let Some(s) = choice.holding(info) { return s }
     if !prefs.on { return last }
-    if info.pre_service || info.cursor_item.is_none() { return Scene::StartingSoon }
+    if info.pre_service || info.cursor_item.is_none() || info.restored { return Scene::StartingSoon }
     if info.media_playing { return Scene::Screen }
     match info.slide {
         SlideKind::Words => Scene::CameraWords,
@@ -135,6 +138,11 @@ mod tests {
     fn starting_soon_before_anything_and_while_the_countdown_runs() {
         assert_eq!(auto(&LiveInfo::default()), Scene::StartingSoon);
         assert_eq!(auto(&LiveInfo { pre_service: true, ..at(SlideKind::Words) }), Scene::StartingSoon);
+    }
+
+    #[test]
+    fn what_a_restart_brought_back_is_not_live_yet() {
+        assert_eq!(auto(&LiveInfo { restored: true, ..at(SlideKind::Words) }), Scene::StartingSoon);
     }
 
     #[test]
