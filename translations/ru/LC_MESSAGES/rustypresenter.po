@@ -2512,6 +2512,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "Камера или карта захвата для сцен с камерой в трансляции (и её записи)."
 
 #: ui/dialogs/settings-media.slint
+msgid "Camera control address"
+msgstr "Адрес управления камерой"
+
+#: ui/dialogs/settings-media.slint
+msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
+msgstr "Чтобы поворачивать PTZ-камеру в сохранённые положения: её адрес, например 192.168.1.60"
+
+#: ui/dialogs/settings-media.slint
 msgid "Network camera address"
 msgstr "Адрес сетевой камеры"
 
@@ -4018,6 +4026,10 @@ msgstr "Что показывает трансляция. Меняется са�
 #: ui/operator/record.slint
 msgid "Camera: {}"
 msgstr "Камера: {}"
+
+#: ui/operator/record.slint
+msgid "Camera position {}"
+msgstr "Положение камеры {}"
 
 #: ui/operator/record.slint
 msgid "Stream sound"
@@ -6360,6 +6372,10 @@ msgstr "Вы в эфире. Для трансляции песен поклон�
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "Идёт запись. Остановите её, затем нажмите «В эфир»."
+
+#: src/stream/ptz.rs
+msgid "Camera {camera}: position {position}"
+msgstr "Камера {camera}: положение {position}"
 
 #: src/stream/scene.rs
 msgid "Camera + words"
@@ -10003,6 +10019,10 @@ msgstr "Показать сообщение на сцене"
 #: src/ui/dialogs/automation.rs
 msgid "Change the livestream's scene"
 msgstr "Сменить сцену трансляции"
+
+#: src/ui/dialogs/automation.rs
+msgid "Move a PTZ camera"
+msgstr "Повернуть PTZ-камеру"
 
 #: src/ui/dialogs/automation.rs
 msgid "item {n}"

@@ -21,6 +21,7 @@ pub mod live_info;
 pub mod lyrics;
 pub mod pc_sound;
 pub mod pictures;
+pub mod ptz;
 pub mod scene;
 pub mod send;
 pub mod speed;

@@ -2512,6 +2512,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "Yon kamera oswa yon kat kaptire pou sèn kamera difizyon an (ak anrejistreman li)."
 
 #: ui/dialogs/settings-media.slint
+msgid "Camera control address"
+msgstr "Adrès kontwòl kamera a"
+
+#: ui/dialogs/settings-media.slint
+msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
+msgstr "Pou voye yon kamera PTZ nan pozisyon li anrejistre yo: adrès li, tankou 192.168.1.60"
+
+#: ui/dialogs/settings-media.slint
 msgid "Network camera address"
 msgstr "Adrès kamera rezo a"
 
@@ -4018,6 +4026,10 @@ msgstr "Sa difizyon an montre. Li chanje poukont li dapre sa k an dirèk; klike 
 #: ui/operator/record.slint
 msgid "Camera: {}"
 msgstr "Kamera: {}"
+
+#: ui/operator/record.slint
+msgid "Camera position {}"
+msgstr "Pozisyon kamera {}"
 
 #: ui/operator/record.slint
 msgid "Stream sound"
@@ -6355,6 +6367,10 @@ msgstr "Ou an dirèk. Pou fè emisyon chante adorasyon, ou bezwen yon lisans emi
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "Gen yon anrejistreman k ap fèt. Kanpe l, apre sa peze Ale an dirèk."
+
+#: src/stream/ptz.rs
+msgid "Camera {camera}: position {position}"
+msgstr "Kamera {camera}: pozisyon {position}"
 
 #: src/stream/scene.rs
 msgid "Camera + words"
@@ -9963,6 +9979,10 @@ msgstr "Montre yon mesaj sou sèn nan"
 #: src/ui/dialogs/automation.rs
 msgid "Change the livestream's scene"
 msgstr "Chanje sèn difizyon an"
+
+#: src/ui/dialogs/automation.rs
+msgid "Move a PTZ camera"
+msgstr "Deplase yon kamera PTZ"
 
 #: src/ui/dialogs/automation.rs
 msgid "item {n}"

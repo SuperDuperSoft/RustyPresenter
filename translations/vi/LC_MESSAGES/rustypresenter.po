@@ -2512,6 +2512,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "Camera hoặc thẻ ghi hình cho các cảnh camera của buổi phát trực tiếp (và bản ghi của nó)."
 
 #: ui/dialogs/settings-media.slint
+msgid "Camera control address"
+msgstr "Địa chỉ điều khiển camera"
+
+#: ui/dialogs/settings-media.slint
+msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
+msgstr "Để đưa camera PTZ đến các vị trí đã lưu: nhập địa chỉ của nó, ví dụ 192.168.1.60"
+
+#: ui/dialogs/settings-media.slint
 msgid "Network camera address"
 msgstr "Địa chỉ camera mạng"
 
@@ -4018,6 +4026,10 @@ msgstr "Những gì buổi phát trực tiếp hiển thị. Tự thay đổi th
 #: ui/operator/record.slint
 msgid "Camera: {}"
 msgstr "Camera: {}"
+
+#: ui/operator/record.slint
+msgid "Camera position {}"
+msgstr "Vị trí camera {}"
 
 #: ui/operator/record.slint
 msgid "Stream sound"
@@ -6350,6 +6362,10 @@ msgstr "Bạn đang phát trực tiếp. Phát các bài thờ phượng cần g
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "Đang ghi. Hãy dừng ghi rồi bấm Phát trực tiếp."
+
+#: src/stream/ptz.rs
+msgid "Camera {camera}: position {position}"
+msgstr "Camera {camera}: vị trí {position}"
 
 #: src/stream/scene.rs
 msgid "Camera + words"
@@ -9923,6 +9939,10 @@ msgstr "Hiện tin nhắn cho sân khấu"
 #: src/ui/dialogs/automation.rs
 msgid "Change the livestream's scene"
 msgstr "Đổi cảnh phát trực tiếp"
+
+#: src/ui/dialogs/automation.rs
+msgid "Move a PTZ camera"
+msgstr "Di chuyển camera PTZ"
 
 #: src/ui/dialogs/automation.rs
 msgid "item {n}"

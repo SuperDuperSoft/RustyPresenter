@@ -136,6 +136,8 @@ fn read_camera2(g: &SettingsDlg) -> String {
 pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     fill_stream_sound(g, &[], &p.stream_sound);
     fill_camera(g, &[], &p.camera, &p.camera2);
+    g.set_stream_camera_control(p.camera_control.as_str().into());
+    g.set_stream_camera2_control(p.camera2_control.as_str().into());
     g.set_stream_auto_scenes(p.auto().on);
     g.set_stream_sound_delay(p.sound_delay_ms.min(record::MAX_SOUND_DELAY) as i32);
     let fx = p.sound_fx();
@@ -200,6 +202,8 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
     if camera != p.camera { p.camera = camera }
     let camera2 = read_camera2(g);
     if camera2 != p.camera2 { p.camera2 = camera2 }
+    p.camera_control = g.get_stream_camera_control().trim().to_string();
+    p.camera2_control = g.get_stream_camera2_control().trim().to_string();
     // Unchanged keeps the saved form (`None` is on), so an untouched form has no changes.
     let auto = g.get_stream_auto_scenes();
     if auto != p.auto().on { p.auto_scenes = if auto { None } else { Some(false) } }

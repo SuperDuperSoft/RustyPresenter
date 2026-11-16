@@ -2512,6 +2512,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "Une caméra ou une carte d'acquisition pour les scènes caméra du direct (et son enregistrement)."
 
 #: ui/dialogs/settings-media.slint
+msgid "Camera control address"
+msgstr "Adresse de commande de la caméra"
+
+#: ui/dialogs/settings-media.slint
+msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
+msgstr "Pour amener une caméra PTZ à ses positions enregistrées : son adresse, par exemple 192.168.1.60"
+
+#: ui/dialogs/settings-media.slint
 msgid "Network camera address"
 msgstr "Adresse de la caméra réseau"
 
@@ -4018,6 +4026,10 @@ msgstr "Ce que montre le direct. Il change tout seul selon ce qui est à l'écra
 #: ui/operator/record.slint
 msgid "Camera: {}"
 msgstr "Caméra : {}"
+
+#: ui/operator/record.slint
+msgid "Camera position {}"
+msgstr "Position de caméra {}"
 
 #: ui/operator/record.slint
 msgid "Stream sound"
@@ -6355,6 +6367,10 @@ msgstr "Vous êtes en direct. Diffuser des chants de louange demande une licence
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "Un enregistrement est en cours. Arrêtez-le, puis appuyez sur « Passer en direct »."
+
+#: src/stream/ptz.rs
+msgid "Camera {camera}: position {position}"
+msgstr "Caméra {camera} : position {position}"
 
 #: src/stream/scene.rs
 msgid "Camera + words"
@@ -9963,6 +9979,10 @@ msgstr "Afficher un message sur la scène"
 #: src/ui/dialogs/automation.rs
 msgid "Change the livestream's scene"
 msgstr "Changer la scène du direct"
+
+#: src/ui/dialogs/automation.rs
+msgid "Move a PTZ camera"
+msgstr "Déplacer une caméra PTZ"
 
 #: src/ui/dialogs/automation.rs
 msgid "item {n}"

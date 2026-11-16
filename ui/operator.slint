@@ -295,6 +295,9 @@ export component OperatorWindow inherits Window {
     in property <[string]> camera-labels;
     in property <int> camera-active;
     callback pick-camera(int);
+    /// The camera in the picture can be moved: how many saved positions it offers (0: none).
+    in property <int> camera-positions;
+    callback pick-position(int);
 
     /// One key press, for `keys::route_in` in Rust: the key's text, Ctrl (Cmd on macOS), Alt, Shift, whether a text
     /// field has focus and whether that field is the Bible box. True when the key was used.
@@ -963,6 +966,8 @@ export component OperatorWindow inherits Window {
                 camera-labels: root.camera-labels;
                 camera-active: root.camera-active;
                 pick-camera(i) => { root.focus-keys(); root.pick-camera(i); }
+                camera-positions: root.camera-positions;
+                pick-position(i) => { root.focus-keys(); root.pick-position(i); }
                 pick-scene(i) => { root.focus-keys(); root.pick-scene(i); }
                 services => { root.focus-keys(); root.services(); }
                 screens => { root.focus-keys(); root.screens(); }

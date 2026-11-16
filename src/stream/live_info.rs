@@ -39,6 +39,15 @@ impl App {
         *self.stream_choice.lock().unwrap() = Choice::pick(scene, item);
     }
 
+    /// Moves PTZ camera `camera` (1 or 2) to its saved `position`, off this thread. A camera without a control
+    /// address in Settings is left alone.
+    pub fn move_camera(&self, camera: u8, position: u8) {
+        let Some(control) = crate::stream::ptz::control_of(&self.data.lock().unwrap().settings.record, camera) else { return };
+        let _ = std::thread::Builder::new().name("camera-control".into()).spawn(move || {
+            if let Err(e) = crate::stream::ptz::recall(&control, position) { eprintln!("camera control: {e}") }
+        });
+    }
+
     /// A new livestream starts on Automatic.
     pub fn clear_stream_choice(&self) { *self.stream_choice.lock().unwrap() = Choice::default() }
 }

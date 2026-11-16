@@ -103,8 +103,11 @@ export component SceneBtn inherits Rectangle {
     /// Two cameras or more: their names, and the one in the picture.
     in property <[string]> cameras;
     in property <int> camera;
+    /// The camera in the picture can be moved to this many saved positions (0: none).
+    in property <int> positions;
     callback pick(int);
     callback pick-camera(int);
+    callback pick-position(int);
 
     property <string> name: root.out >= 0 && root.out < root.labels.length ? root.labels[root.out] : "";
 
@@ -151,7 +154,7 @@ export component SceneBtn inherits Rectangle {
         x: 0;
         y: root.height + 4px;
         width: 220px;
-        height: (root.labels.length + 1 + root.cameras.length) * 32px + 9px + (root.cameras.length > 0 ? 9px : 0px);
+        height: (root.labels.length + 1 + root.cameras.length + root.positions) * 32px + 9px + (root.cameras.length > 0 ? 9px : 0px) + (root.positions > 0 ? 9px : 0px);
         close-policy: close-on-click-outside;
         Rectangle {
             background: Theme.panel-2;
@@ -213,6 +216,28 @@ export component SceneBtn inherits Rectangle {
                             font-size: 13px;
                             font-weight: i == root.camera ? 600 : 400;
                             overflow: elide;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+                if root.positions > 0: Rectangle { height: 9px; Rectangle { height: 1px; background: Theme.line; } }
+                for p[i] in root.positions: position-row := Rectangle {
+                    height: 32px;
+                    border-radius: 6px;
+                    background: pos-ta.has-hover ? Theme.raise : transparent;
+                    accessible-role: button;
+                    accessible-label: @tr("Camera position {}", i + 1);
+                    pos-ta := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { root.pick-position(i); menu.close(); }
+                    }
+                    HorizontalLayout {
+                        padding-left: 28px;
+                        Text {
+                            text: @tr("Camera position {}", i + 1);
+                            color: Theme.text;
+                            font-family: Theme.font;
+                            font-size: 13px;
                             vertical-alignment: center;
                         }
                     }

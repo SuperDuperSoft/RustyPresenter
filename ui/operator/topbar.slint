@@ -73,6 +73,9 @@ export component TopBar inherits Rectangle {
     in property <[string]> camera-labels;
     in property <int> camera-active;
     callback pick-camera(int);
+    /// The camera in the picture can be moved: how many saved positions it offers (0: none).
+    in property <int> camera-positions;
+    callback pick-position(int);
     callback services();
     callback screens();
     callback phone();
@@ -636,6 +639,8 @@ export component TopBar inherits Rectangle {
                 camera: root.camera-active;
                 pick(i) => { root.pick-scene(i); }
                 pick-camera(i) => { root.pick-camera(i); }
+                positions: root.camera-positions;
+                pick-position(i) => { root.pick-position(i); }
             }
         }
         if root.live: VerticalLayout {

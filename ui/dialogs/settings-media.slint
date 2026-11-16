@@ -259,6 +259,11 @@ export component SettingsMedia inherits VerticalLayout {
                 options: SettingsDlg.stream-camera-labels;
                 index <=> SettingsDlg.stream-camera-index;
             }
+            if SettingsDlg.stream-camera-index > 0: stream-camera-control := TextField {
+                label: @tr("Camera control address");
+                placeholder: @tr("To move a PTZ camera to its saved positions: its address, like 192.168.1.60");
+                text <=> SettingsDlg.stream-camera-control;
+            }
             if SettingsDlg.stream-camera-index > 0 && SettingsDlg.stream-camera-index == SettingsDlg.stream-camera-labels.length - 1: stream-camera-address := TextField {
                 label: @tr("Network camera address");
                 text <=> SettingsDlg.stream-camera-address;
@@ -274,6 +279,11 @@ export component SettingsMedia inherits VerticalLayout {
             stream-camera2 := Select {
                 options: SettingsDlg.stream-camera2-labels;
                 index <=> SettingsDlg.stream-camera2-index;
+            }
+            if SettingsDlg.stream-camera2-index > 0: stream-camera2-control := TextField {
+                label: @tr("Camera control address");
+                placeholder: @tr("To move a PTZ camera to its saved positions: its address, like 192.168.1.60");
+                text <=> SettingsDlg.stream-camera2-control;
             }
             if SettingsDlg.stream-camera2-index > 0 && SettingsDlg.stream-camera2-index == SettingsDlg.stream-camera2-labels.length - 1: stream-camera2-address := TextField {
                 label: @tr("Network camera address");

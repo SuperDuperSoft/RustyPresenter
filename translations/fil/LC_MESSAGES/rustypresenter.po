@@ -2512,6 +2512,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "Isang camera o capture card para sa mga camera scene ng stream (at ng recording nito)."
 
 #: ui/dialogs/settings-media.slint
+msgid "Camera control address"
+msgstr "Address ng kontrol ng camera"
+
+#: ui/dialogs/settings-media.slint
+msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
+msgstr "Para igalaw ang PTZ camera sa mga naka-save na posisyon nito: ang address nito, gaya ng 192.168.1.60"
+
+#: ui/dialogs/settings-media.slint
 msgid "Network camera address"
 msgstr "Address ng network camera"
 
@@ -4018,6 +4026,10 @@ msgstr "Ang ipinapakita ng livestream. Kusa itong nagbabago ayon sa naka-live; i
 #: ui/operator/record.slint
 msgid "Camera: {}"
 msgstr "Camera: {}"
+
+#: ui/operator/record.slint
+msgid "Camera position {}"
+msgstr "Posisyon ng camera {}"
 
 #: ui/operator/record.slint
 msgid "Stream sound"
@@ -6355,6 +6367,10 @@ msgstr "Live ka na. Ang pag-stream ng mga awit ng pagsamba ay nangangailangan ng
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "May recording na tumatakbo. Itigil muna ito, saka pindutin ang Mag-live."
+
+#: src/stream/ptz.rs
+msgid "Camera {camera}: position {position}"
+msgstr "Camera {camera}: posisyon {position}"
 
 #: src/stream/scene.rs
 msgid "Camera + words"
@@ -9963,6 +9979,10 @@ msgstr "Magpakita ng mensahe sa stage"
 #: src/ui/dialogs/automation.rs
 msgid "Change the livestream's scene"
 msgstr "Palitan ang scene ng livestream"
+
+#: src/ui/dialogs/automation.rs
+msgid "Move a PTZ camera"
+msgstr "Igalaw ang isang PTZ camera"
 
 #: src/ui/dialogs/automation.rs
 msgid "item {n}"

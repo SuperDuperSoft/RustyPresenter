@@ -512,6 +512,22 @@ fn a_slide_action_can_pick_the_stream_scene() {
     assert_eq!(*app.stream_choice.lock().unwrap(), Choice { scene: Some(Scene::Camera), item: Some(item) });
 }
 
+/// A slide can move a PTZ camera to a saved position (the sermon's first slide: the pulpit).
+#[test]
+fn a_slide_action_can_move_a_ptz_camera() {
+    let camera = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
+    camera.set_read_timeout(Some(std::time::Duration::from_secs(5))).unwrap();
+    let port = camera.local_addr().unwrap().port();
+    let app = test_app();
+    app.edit(|d| { d.settings.record.camera2_control = format!("127.0.0.1:{port}"); Ok(()) }).unwrap();
+    let item = text_item(&app, "Sermon", 2);
+    add_actions(&app, item, 0, vec![MacroStep::CameraPosition { camera: 2, position: 4 }]).unwrap();
+    show(&app, item, 0);
+    let mut buf = [0u8; 64];
+    let n = camera.recv(&mut buf).expect("the camera was moved");
+    assert_eq!(&buf[..n], [0x81, 0x01, 0x04, 0x3F, 0x02, 0x03, 0xFF], "position 4");
+}
+
 #[test]
 fn slide_actions_run_when_the_slide_goes_live_once() {
     let app = test_app();

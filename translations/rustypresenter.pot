@@ -2509,6 +2509,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
+msgid "Camera control address"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
 msgid "Network camera address"
 msgstr ""
 
@@ -4008,6 +4016,10 @@ msgstr ""
 
 #: ui/operator/record.slint
 msgid "Camera: {}"
+msgstr ""
+
+#: ui/operator/record.slint
+msgid "Camera position {}"
 msgstr ""
 
 #: ui/operator/record.slint
@@ -6345,6 +6357,10 @@ msgstr ""
 
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
+msgstr ""
+
+#: src/stream/ptz.rs
+msgid "Camera {camera}: position {position}"
 msgstr ""
 
 #: src/stream/scene.rs
@@ -9951,6 +9967,10 @@ msgstr ""
 
 #: src/ui/dialogs/automation.rs
 msgid "Change the livestream's scene"
+msgstr ""
+
+#: src/ui/dialogs/automation.rs
+msgid "Move a PTZ camera"
 msgstr ""
 
 #: src/ui/dialogs/automation.rs

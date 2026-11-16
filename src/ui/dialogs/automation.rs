@@ -29,14 +29,14 @@ pub const CALENDAR_TAB: i32 = 4;
 /// The kinds of step the Add step list offers, in its order (spec §3.4).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum StepKind { ShowItem, Next, Prev, Clear(ClearWhich), Logo, TimerStart, TimerPause, TimerReset, TimerRestart, TimerShow, TimerHide,
-    MessageShow, MessageHide, OverlayOn, OverlayOff, AutoOff, AutoOn, StageMessage, StageMessageHide, MusicPlay, MusicStop, StreamScene }
+    MessageShow, MessageHide, OverlayOn, OverlayOff, AutoOff, AutoOn, StageMessage, StageMessageHide, MusicPlay, MusicStop, StreamScene, CameraPosition }
 
-pub const STEP_KINDS: [StepKind; 26] = [
+pub const STEP_KINDS: [StepKind; 27] = [
     StepKind::ShowItem, StepKind::Next, StepKind::Prev, StepKind::Clear(ClearWhich::All), StepKind::Clear(ClearWhich::Slide),
     StepKind::Clear(ClearWhich::Media), StepKind::Clear(ClearWhich::Audio), StepKind::Clear(ClearWhich::Overlays), StepKind::Logo,
     StepKind::TimerStart, StepKind::TimerPause, StepKind::TimerReset, StepKind::TimerRestart, StepKind::TimerShow, StepKind::TimerHide,
     StepKind::MessageShow, StepKind::MessageHide, StepKind::OverlayOn, StepKind::OverlayOff, StepKind::AutoOff, StepKind::AutoOn,
-    StepKind::StageMessage, StepKind::StageMessageHide, StepKind::MusicPlay, StepKind::MusicStop, StepKind::StreamScene,
+    StepKind::StageMessage, StepKind::StageMessageHide, StepKind::MusicPlay, StepKind::MusicStop, StepKind::StreamScene, StepKind::CameraPosition,
 ];
 
 fn kind_label(k: StepKind) -> String {
@@ -67,6 +67,7 @@ fn kind_label(k: StepKind) -> String {
         StepKind::MusicPlay => crate::tr!("Play the walk-in music"),
         StepKind::MusicStop => crate::tr!("Stop the walk-in music"),
         StepKind::StreamScene => crate::tr!("Change the livestream's scene"),
+        StepKind::CameraPosition => crate::tr!("Move a PTZ camera"),
     }
 }
 
@@ -83,6 +84,9 @@ fn targets(k: StepKind, data: &Data) -> Vec<(Uuid, String)> {
         // Automatic, then each scene: the scene's place in `Scene::ALL` + 1 stands in for an id.
         StepKind::StreamScene => std::iter::once((scene_id(None), crate::tr!("Automatic")))
             .chain(crate::stream::scene::Scene::ALL.iter().map(|s| (scene_id(Some(*s)), s.label()))).collect(),
+        // Each camera that can be moved, with each position: camera × 256 + position stands in for an id.
+        StepKind::CameraPosition => crate::stream::ptz::moves(&data.settings.record).into_iter()
+            .map(|(c, p)| (Uuid::from_u128(u128::from(c) * 256 + u128::from(p)), crate::stream::ptz::label(c, p))).collect(),
         _ => vec![],
     }
 }
@@ -152,6 +156,7 @@ pub fn step_label(s: &Lenient<MacroStep>, a: &Automation, data: &Data) -> String
         MacroStep::GoToSlide { slide } => crate::tr!("Go to slide {n}", n = slide + 1),
         MacroStep::StreamScene { scene: Some(s) } => crate::tr!("Livestream: {name}", name = s.label()),
         MacroStep::StreamScene { scene: None } => crate::tr!("Livestream: automatic"),
+        MacroStep::CameraPosition { camera, position } => crate::stream::ptz::label(*camera, *position),
         MacroStep::RunMacro { macro_id } => {
             let name = a.macros.iter().find(|m| m.id == *macro_id).map_or_else(|| "?".to_string(), |m| m.name.clone());
             crate::tr!("Run “{name}”", name = name)
@@ -185,6 +190,10 @@ pub fn build_step(k: StepKind, target: Option<(Uuid, String)>, text: &str) -> Op
         StepKind::MusicPlay => MacroStep::Music { play: true },
         StepKind::MusicStop => MacroStep::Music { play: false },
         StepKind::StreamScene => MacroStep::StreamScene { scene: scene_of(id?) },
+        StepKind::CameraPosition => {
+            let n = id?.as_u128();
+            MacroStep::CameraPosition { camera: u8::try_from(n / 256).ok()?, position: u8::try_from(n % 256).ok()? }
+        }
     })
 }
 
@@ -468,6 +477,8 @@ fn calendar_targets(op: &Operator, st: &St, d: &Data, step: Option<&MacroStep>) 
         | MacroStep::TimerShow { timer } | MacroStep::TimerHide { timer } => t.iter().position(|(id, _)| id == timer),
         MacroStep::MessageShow { template, .. } => t.iter().position(|(id, _)| id == template),
         MacroStep::Overlay { id, .. } => t.iter().position(|(x, _)| x == id),
+        MacroStep::StreamScene { scene } => t.iter().position(|(id, _)| *id == scene_id(*scene)),
+        MacroStep::CameraPosition { camera, position } => t.iter().position(|(id, _)| id.as_u128() == u128::from(*camera) * 256 + u128::from(*position)),
         _ => None,
     });
     g.set_step_targets(set_strings(t.iter().map(|(_, n)| n.clone()).collect()));

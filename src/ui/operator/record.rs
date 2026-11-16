@@ -41,6 +41,8 @@ pub struct RecordUi {
     ticker: Timer,
     /// Go Live: the cameras' names, in `Plan::cameras` order.
     cameras: RefCell<Vec<String>>,
+    /// Go Live: each camera's PTZ control (`stream::ptz`), in the same order; `None`: it cannot be moved.
+    camera_controls: RefCell<Vec<Option<stream::ptz::Control>>>,
     /// While live: the scene button, four times a second.
     scene_ticker: Timer,
     /// Go Live, signed in: the broadcasts made for it, with their destinations' names (ended, and their replay
@@ -143,9 +145,13 @@ impl Operator {
         let prefs_pc = prefs.pc_sound(&app_output);
         let sound_fx = prefs.sound_fx();
         // The cameras, first and second, and their names for the scene button.
-        let camera_names: Vec<String> = [&prefs.camera, &prefs.camera2].into_iter().filter(|c| !c.is_empty()).cloned().collect();
+        let chosen: Vec<(&String, &String)> = [(&prefs.camera, &prefs.camera_control), (&prefs.camera2, &prefs.camera2_control)].into_iter().filter(|(c, _)| !c.is_empty()).collect();
+        let camera_names: Vec<String> = chosen.iter().map(|(c, _)| (*c).clone()).collect();
         let cameras: Vec<Vec<String>> = camera_names.iter().map(|c| record::args::camera_input(crate::platform::tools::OS, c)).collect();
-        if live { *self.record.cameras.borrow_mut() = camera_names }
+        if live {
+            *self.record.cameras.borrow_mut() = camera_names;
+            *self.record.camera_controls.borrow_mut() = chosen.iter().map(|(_, ctl)| stream::ptz::Control::parse(ctl)).collect();
+        }
         // The scenes: what is live now (read ten times a second by `stream::pictures`), the words over the camera,
         // and the church's cards and choices. A new stream starts on Automatic.
         let canvas = prefs.size.size();
@@ -414,9 +420,32 @@ impl Operator {
     }
 
     /// The scene button's camera rows: camera `i` goes into the picture.
+    /// While live: the scene button offers the positions of the camera in the picture, when it can be moved.
+    pub fn show_positions(&self) {
+        let n = if self.record.live.get() && self.active_control().is_some() { i32::from(stream::ptz::POSITIONS) } else { 0 };
+        self.ui.set_camera_positions(n);
+    }
+
+    /// The PTZ control of the camera in the picture, if it has one.
+    fn active_control(&self) -> Option<stream::ptz::Control> {
+        let i = usize::try_from(self.ui.get_camera_active()).unwrap_or(0);
+        self.record.camera_controls.borrow().get(i).cloned().flatten()
+    }
+
+    /// Sends the camera in the picture to position `i` (from 0). The packet is sent off the UI thread (a camera
+    /// named by host name is looked up first); a camera that does not answer changes nothing in the stream.
+    pub fn pick_position(&self, i: i32) {
+        let (Ok(i), Some(control)) = (u8::try_from(i), self.active_control()) else { return };
+        if !self.record.live.get() || i >= stream::ptz::POSITIONS { return }
+        let send = move || if let Err(e) = stream::ptz::recall(&control, i + 1) { eprintln!("camera control: {e}") };
+        if self.ops().is_inline() { return send() }
+        let _ = std::thread::Builder::new().name("camera-control".into()).spawn(send);
+    }
+
     pub fn pick_camera(&self, i: i32) {
         let Ok(i) = usize::try_from(i) else { return };
         if i < self.record.cameras.borrow().len() && self.while_live(|r| r.set_camera(i)) { self.ui.set_camera_active(i as i32) }
+        self.show_positions();
     }
 
     /// The scene button: the scene going out, and the one chosen by hand while it holds.
@@ -447,6 +476,7 @@ impl Operator {
         if !on {
             self.record.live.set(false);
             self.ui.set_live(false);
+            self.ui.set_camera_positions(0);
             self.ui.set_live_held(false);
             self.ui.set_live_muted(false);
             self.ui.set_live_watching(-1);
@@ -465,6 +495,7 @@ impl Operator {
             let cams = self.record.cameras.borrow();
             let cams: Vec<slint::SharedString> = if cams.len() > 1 { cams.iter().map(|c| record::args::camera_label(c).into()).collect() } else { vec![] };
             self.ui.set_camera_labels(slint::ModelRc::new(slint::VecModel::from(cams)));
+            self.show_positions();
             self.ui.set_camera_active(0);
             self.show_scene();
             let me = self.me.clone();
@@ -531,6 +562,8 @@ pub(super) fn wire(op: &Rc<Operator>) {
     op.ui.on_pick_scene(move |i| if let Some(op) = me.upgrade() { op.pick_scene(i) });
     let me = Rc::downgrade(op);
     op.ui.on_pick_camera(move |i| if let Some(op) = me.upgrade() { op.pick_camera(i) });
+    let me = Rc::downgrade(op);
+    op.ui.on_pick_position(move |i| if let Some(op) = me.upgrade() { op.pick_position(i) });
 }
 
 mod tr {

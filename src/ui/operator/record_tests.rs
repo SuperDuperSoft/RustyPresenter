@@ -244,6 +244,52 @@ fn settings_keep_the_streams_sound_levels_and_clean_up() {
 }
 
 #[test]
+fn settings_keep_each_cameras_control_address() {
+    use crate::ui::SettingsDlg;
+    use slint::ComponentHandle;
+    let app = test_app();
+    let room = Arc::new(Room::default());
+    let op = open(&app, &room);
+    let g = op.ui.global::<SettingsDlg>();
+    let mut prefs = RecordPrefs { camera_control: "192.168.1.60".into(), ..RecordPrefs::default() };
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    assert_eq!((g.get_stream_camera_control().as_str(), g.get_stream_camera2_control().as_str()), ("192.168.1.60", ""));
+    g.set_stream_camera_control(" 192.168.1.61:1259 ".into());
+    g.set_stream_camera2_control("192.168.1.62".into());
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!((prefs.camera_control.as_str(), prefs.camera2_control.as_str()), ("192.168.1.61:1259", "192.168.1.62"));
+    assert_eq!(serde_json::to_value(RecordPrefs::default()).unwrap().get("camera_control"), None, "none: nothing saved");
+}
+
+#[test]
+fn camera_positions_go_to_the_camera_in_the_picture() {
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    let camera = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
+    camera.set_read_timeout(Some(Duration::from_secs(5))).unwrap();
+    let port = camera.local_addr().unwrap().port();
+    // Two cameras; only the second can be moved.
+    *op.record.cameras.borrow_mut() = vec!["Cam A".into(), "Cam B".into()];
+    *op.record.camera_controls.borrow_mut() = vec![None, stream::ptz::Control::parse(&format!("127.0.0.1:{port}"))];
+    op.record.live.set(true);
+    op.show_positions();
+    assert_eq!(op.ui.get_camera_positions(), 0, "the first camera in the picture has no control");
+    op.ui.set_camera_active(1);
+    op.show_positions();
+    assert_eq!(op.ui.get_camera_positions(), i32::from(stream::ptz::POSITIONS));
+    op.pick_position(2);
+    let mut buf = [0u8; 64];
+    let n = camera.recv(&mut buf).expect("the camera was sent to its position");
+    assert_eq!(&buf[..n], [0x81, 0x01, 0x04, 0x3F, 0x02, 0x02, 0xFF], "position 3");
+    // Not live: nothing.
+    op.record.live.set(false);
+    op.show_positions();
+    assert_eq!(op.ui.get_camera_positions(), 0);
+}
+
+#[test]
 fn settings_keep_a_network_camera_by_its_address() {
     use crate::ui::SettingsDlg;
     use slint::ComponentHandle;

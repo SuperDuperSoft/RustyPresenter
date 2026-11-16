@@ -2512,6 +2512,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "방송의 카메라 장면(과 녹화)에 쓸 카메라 또는 캡처 카드."
 
 #: ui/dialogs/settings-media.slint
+msgid "Camera control address"
+msgstr "카메라 제어 주소"
+
+#: ui/dialogs/settings-media.slint
+msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
+msgstr "PTZ 카메라를 저장된 위치로 움직이려면 카메라 주소를 입력하세요 (예: 192.168.1.60)"
+
+#: ui/dialogs/settings-media.slint
 msgid "Network camera address"
 msgstr "네트워크 카메라 주소"
 
@@ -4018,6 +4026,10 @@ msgstr "생방송에 보이는 것. 라이브 내용에 따라 자동으로 바�
 #: ui/operator/record.slint
 msgid "Camera: {}"
 msgstr "카메라: {}"
+
+#: ui/operator/record.slint
+msgid "Camera position {}"
+msgstr "카메라 위치 {}"
 
 #: ui/operator/record.slint
 msgid "Stream sound"
@@ -6350,6 +6362,10 @@ msgstr "지금 라이브 중이에요. 찬양곡을 방송하려면 교회의 �
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "녹화 중이에요. 녹화를 멈춘 다음 라이브 시작을 누르세요."
+
+#: src/stream/ptz.rs
+msgid "Camera {camera}: position {position}"
+msgstr "카메라 {camera}: 위치 {position}"
 
 #: src/stream/scene.rs
 msgid "Camera + words"
@@ -9923,6 +9939,10 @@ msgstr "무대에 메시지 표시"
 #: src/ui/dialogs/automation.rs
 msgid "Change the livestream's scene"
 msgstr "생방송 장면 바꾸기"
+
+#: src/ui/dialogs/automation.rs
+msgid "Move a PTZ camera"
+msgstr "PTZ 카메라 움직이기"
 
 #: src/ui/dialogs/automation.rs
 msgid "item {n}"

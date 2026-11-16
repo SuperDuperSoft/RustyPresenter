@@ -2512,6 +2512,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "Kamera au kadi ya kunasa kwa mandhari za kamera za matangazo (na rekodi yake)."
 
 #: ui/dialogs/settings-media.slint
+msgid "Camera control address"
+msgstr "Anwani ya kudhibiti kamera"
+
+#: ui/dialogs/settings-media.slint
+msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
+msgstr "Ili kusogeza kamera ya PTZ kwenye nafasi zake zilizohifadhiwa: anwani yake, kama 192.168.1.60"
+
+#: ui/dialogs/settings-media.slint
 msgid "Network camera address"
 msgstr "Anwani ya kamera ya mtandao"
 
@@ -4018,6 +4026,10 @@ msgstr "Kinachoonyeshwa na matangazo. Hubadilika yenyewe kulingana na kilicho he
 #: ui/operator/record.slint
 msgid "Camera: {}"
 msgstr "Kamera: {}"
+
+#: ui/operator/record.slint
+msgid "Camera position {}"
+msgstr "Nafasi ya kamera {}"
 
 #: ui/operator/record.slint
 msgid "Stream sound"
@@ -6355,6 +6367,10 @@ msgstr "Uko hewani moja kwa moja. Kutangaza nyimbo za kuabudu kunahitaji leseni 
 #: src/stream/mod.rs
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "Rekodi inaendelea. Isimamishe, kisha bonyeza Rusha moja kwa moja."
+
+#: src/stream/ptz.rs
+msgid "Camera {camera}: position {position}"
+msgstr "Kamera {camera}: nafasi {position}"
 
 #: src/stream/scene.rs
 msgid "Camera + words"
@@ -9963,6 +9979,10 @@ msgstr "Onyesha ujumbe jukwaani"
 #: src/ui/dialogs/automation.rs
 msgid "Change the livestream's scene"
 msgstr "Badilisha mandhari ya matangazo"
+
+#: src/ui/dialogs/automation.rs
+msgid "Move a PTZ camera"
+msgstr "Sogeza kamera ya PTZ"
 
 #: src/ui/dialogs/automation.rs
 msgid "item {n}"

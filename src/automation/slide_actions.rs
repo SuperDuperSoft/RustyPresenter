@@ -158,6 +158,10 @@ pub fn palette(data: &Data, slides: usize) -> Vec<Tile> {
         t.push(tile(Group::Stage, tr!("Livestream: {name}", name = s.label()), vec![MacroStep::StreamScene { scene: Some(s) }]));
     }
     t.push(tile(Group::Stage, tr!("Livestream: automatic"), vec![MacroStep::StreamScene { scene: None }]));
+    // PTZ cameras with a control address: each saved position.
+    for (camera, position) in crate::stream::ptz::moves(&data.settings.record) {
+        t.push(tile(Group::Stage, crate::stream::ptz::label(camera, position), vec![MacroStep::CameraPosition { camera, position }]));
+    }
     for r in data.catalog().rows() {
         t.push(tile(Group::Themes, tr!("Theme: {name}", name = r.name), vec![MacroStep::UseTheme { theme: r.id }]));
     }
@@ -246,6 +250,18 @@ mod tests {
         assert!(look.off.is_some(), "a stub until screen views");
         let nursery = tiles.iter().find(|t| t.label == "Show “Nursery”").unwrap();
         assert!(nursery.off.is_some(), "a message with blanks needs a macro");
+    }
+
+    #[test]
+    fn a_camera_that_can_be_moved_has_its_positions_as_actions() {
+        let mut d = Data::default();
+        assert!(!palette(&d, 1).iter().any(|t| matches!(t.steps[..], [MacroStep::CameraPosition { .. }])), "no camera control: none");
+        d.settings.record.camera = "Cam A".into();
+        d.settings.record.camera_control = "192.168.1.60".into();
+        let moves: Vec<(String, Vec<MacroStep>)> = palette(&d, 1).into_iter().filter(|t| matches!(t.steps[..], [MacroStep::CameraPosition { .. }]))
+            .map(|t| (t.label, t.steps)).collect();
+        assert_eq!(moves.len(), usize::from(crate::stream::ptz::POSITIONS));
+        assert_eq!(moves[2], ("Camera 1: position 3".to_string(), vec![MacroStep::CameraPosition { camera: 1, position: 3 }]));
     }
 
     #[test]

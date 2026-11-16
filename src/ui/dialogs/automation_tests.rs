@@ -209,3 +209,18 @@ fn pre_service_tab_saves_a_stage_layout_and_the_menu_runs_it() {
     let m = data.automation.macros.first().unwrap();
     assert_eq!(m.steps.last(), Some(&Lenient::Known(MacroStep::StageLayout { layout: want })));
 }
+
+#[test]
+fn a_macro_step_can_move_a_ptz_camera() {
+    let mut d = crate::model::Data::default();
+    assert!(targets(StepKind::CameraPosition, &d).is_empty(), "no camera control: nothing to pick");
+    d.settings.record.camera = "Cam A".into();
+    d.settings.record.camera2 = "Cam B".into();
+    d.settings.record.camera2_control = "192.168.1.61".into();
+    let t = targets(StepKind::CameraPosition, &d);
+    assert_eq!(t.len(), usize::from(crate::stream::ptz::POSITIONS));
+    assert_eq!(t[0].1, "Camera 2: position 1");
+    let step = build_step(StepKind::CameraPosition, Some(t[0].clone()), "");
+    assert_eq!(step, Some(MacroStep::CameraPosition { camera: 2, position: 1 }));
+    assert_eq!(step_label(&Lenient::Known(step.unwrap()), &d.automation, &d), "Camera 2: position 1");
+}

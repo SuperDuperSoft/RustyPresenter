@@ -189,6 +189,9 @@ export global SettingsDlg {
     // A camera on the network: its address, when the last choice ("Network camera") is chosen.
     in-out property <string> stream-camera-address;
     in-out property <string> stream-camera2-address;
+    // Each camera's PTZ control address (VISCA over IP); empty: none.
+    in-out property <string> stream-camera-control;
+    in-out property <string> stream-camera2-control;
     /// 1.3b scenes: automatic on, presentations with the camera (1) or not (0), and the three cards' words and pictures.
     in-out property <bool> stream-auto-scenes: true;
     /// The upload speed test: running, and what it found.
