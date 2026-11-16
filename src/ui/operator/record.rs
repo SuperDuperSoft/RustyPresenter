@@ -86,8 +86,15 @@ fn make_broadcasts(ids: &stream::accounts::Ids, ends: &stream::accounts::Ends, s
     let client = match crate::bible::sources::client() { Ok(c) => c, Err(e) => return fail(format!("{e:?}")) };
     rt.block_on(async {
         let mut out = vec![];
+        let store = stream::keys::app_store();
         for (d, token, details) in &signed {
-            out.push((d.title().to_string(), stream::accounts::prepare(client, ends, ids, d, token, details).await));
+            let made = stream::accounts::prepare(client, ends, ids, d, token, details).await;
+            // A sign-in that works once (Twitch's) is kept again, renewed, for next time.
+            if let Ok(Some(renewed)) = made.as_ref().map(|l| l.renewed.clone()) {
+                let name = stream::accounts::kept(store.as_ref(), d.id).map(|(n, _)| n).unwrap_or_default();
+                if let Err(e) = stream::accounts::keep(store.as_ref(), d.id, &name, &renewed) { eprintln!("stream: {}: the sign-in could not be kept: {e}", d.title()) }
+            }
+            out.push((d.title().to_string(), made));
         }
         out
     })
@@ -166,16 +173,18 @@ impl Operator {
         let (app, app2) = (self.app().clone(), self.app().clone());
         if live { self.app().clear_stream_choice() }
         let theme = self.app().data.lock().unwrap().settings.theme.clone();
+        let words_top = prefs.stream_layout.words_top;
         let look = stream::pictures::Look {
             info: Arc::new(move || app.stream_info()),
             words: Arc::new(move || {
                 let live = app2.live.lock().unwrap();
                 let theme = live.item.as_ref().map(|i| i.theme.clone()).unwrap_or_default();
-                stream::lyrics::key_for(live.frame.slide.as_ref()?, &theme, canvas)
+                stream::lyrics::key_for_at(live.frame.slide.as_ref()?, &theme, canvas, words_top)
             }),
             auto: prefs.auto(),
             cards: prefs.cards.clone(),
             theme,
+            layout: prefs.stream_layout,
         };
         let (ids, ends) = (stream::accounts::app_ids(), stream::accounts::app_ends());
         off_ui(self, move || (Plan::make(&data, &prefs), make_broadcasts(&ids, &ends, signed)), move |(plan, made)| {

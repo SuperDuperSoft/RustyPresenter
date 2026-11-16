@@ -303,19 +303,19 @@ msgstr "ゼロになったとき"
 msgid "Place on the screen"
 msgstr "画面上の位置"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Top right"
 msgstr "右上"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Top left"
 msgstr "左上"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Bottom right"
 msgstr "右下"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Bottom left"
 msgstr "左下"
 
@@ -1140,7 +1140,7 @@ msgstr "左右に並べる"
 msgid "Top and bottom"
 msgstr "上下に並べる"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/settings-media.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "自動"
 
@@ -2408,6 +2408,46 @@ msgid "1080p"
 msgstr "1080p"
 
 #: ui/dialogs/settings-media.slint
+msgid "Video encoder"
+msgstr "映像エンコーダー"
+
+#: ui/dialogs/settings-media.slint
+msgid "Automatic suits most computers. A graphics card's encoder leaves the processor free; it is tried first, and Automatic is used if it does not work on this computer."
+msgstr "ほとんどのコンピューターは「自動」で十分です。グラフィックスのエンコーダーはプロセッサーの負担を減らします。まず試し、このコンピューターで使えなければ「自動」になります。"
+
+#: ui/dialogs/settings-media.slint
+msgid "The processor (x264)"
+msgstr "プロセッサー (x264)"
+
+#: ui/dialogs/settings-media.slint
+msgid "NVIDIA graphics card"
+msgstr "NVIDIA グラフィックス"
+
+#: ui/dialogs/settings-media.slint
+msgid "Intel graphics"
+msgstr "Intel グラフィックス"
+
+#: ui/dialogs/settings-media.slint
+msgid "AMD graphics card"
+msgstr "AMD グラフィックス"
+
+#: ui/dialogs/settings-media.slint
+msgid "Windows' own"
+msgstr "Windows 標準"
+
+#: ui/dialogs/settings-media.slint
+msgid "OpenH264"
+msgstr "OpenH264"
+
+#: ui/dialogs/settings-media.slint
+msgid "Bitrate"
+msgstr "ビットレート"
+
+#: ui/dialogs/settings-media.slint
+msgid "How much picture goes out each second. Automatic: 3000 kbit/s for 720p, 6000 for 1080p. More is sharper and needs a faster upload."
+msgstr "1 秒あたりに送る映像の量。自動: 720p で 3000 kbit/s、1080p で 6000。多いほど鮮明で、速いアップロードが必要です。"
+
+#: ui/dialogs/settings-media.slint
 msgid "Save recordings in"
 msgstr "録画の保存先"
 
@@ -2558,6 +2598,38 @@ msgstr "会堂の画面"
 #: ui/dialogs/settings-media.slint
 msgid "The room screen with the camera in a corner"
 msgstr "会堂の画面（隅にカメラ）"
+
+#: ui/dialogs/settings-media.slint
+msgid "Scene layout"
+msgstr "シーンの配置"
+
+#: ui/dialogs/settings-media.slint
+msgid "Where the camera goes when it is in a corner of the room screen, and where the words go over the camera."
+msgstr "会場画面の隅にカメラを置くときの位置と、カメラに重ねる歌詞の位置です。"
+
+#: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
+msgid "Small"
+msgstr "小"
+
+#: ui/dialogs/settings-media.slint
+msgid "Medium"
+msgstr "中"
+
+#: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
+msgid "Large"
+msgstr "大"
+
+#: ui/dialogs/settings-media.slint
+msgid "Words over the camera:"
+msgstr "カメラに重ねる歌詞:"
+
+#: ui/dialogs/settings-media.slint
+msgid "At the bottom"
+msgstr "下"
+
+#: ui/dialogs/settings-media.slint
+msgid "At the top"
+msgstr "上"
 
 #: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
 msgid "Starting soon"
@@ -9500,14 +9572,6 @@ msgstr "変換中 {percent} %"
 #: src/strings/themes.rs
 msgid "Gold"
 msgstr "金色"
-
-#: src/strings/themes.rs src/theme/richtext.rs
-msgid "Small"
-msgstr "小"
-
-#: src/strings/themes.rs src/theme/richtext.rs
-msgid "Large"
-msgstr "大"
 
 #: src/strings/themes.rs src/theme/richtext.rs
 msgid "Huge"

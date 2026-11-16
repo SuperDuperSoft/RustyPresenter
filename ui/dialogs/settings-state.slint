@@ -169,6 +169,15 @@ export global SettingsDlg {
     in-out property <bool> stream-on-2;
     in-out property <bool> stream-on-3;
     // Each destination gets the tall picture (phones) instead of the wide one.
+    // The scene layout: the corner camera's corner (top left, top right, bottom left, bottom right) and size
+    // (small, medium, large); the words over the camera at the bottom (0) or the top (1).
+    // Advanced: the encoder (0: automatic, then `record::args::CHOOSABLE`) and the bitrate (0: automatic, then
+    // `record::BITRATES`).
+    in-out property <int> record-encoder;
+    in-out property <int> record-bitrate;
+    in-out property <int> stream-corner: 3;
+    in-out property <int> stream-corner-size: 1;
+    in-out property <int> stream-words-top;
     in-out property <bool> stream-tall-0;
     in-out property <bool> stream-tall-1;
     in-out property <bool> stream-tall-2;
@@ -225,8 +234,10 @@ export global SettingsDlg {
     /// in to (empty: none), and what signing in is doing now.
     in property <bool> stream-can-sign-in-0;
     in property <bool> stream-can-sign-in-1;
+    in property <bool> stream-can-sign-in-2;
     in property <string> stream-account-0;
     in property <string> stream-account-1;
+    in property <string> stream-account-2;
     in property <bool> stream-signing-in;
     in property <string> stream-sign-in-text;
     callback stream-sign-in(int);

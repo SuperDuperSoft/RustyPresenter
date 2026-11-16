@@ -71,7 +71,7 @@ pub async fn prepare(client: &reqwest::Client, ends: &Ends, saved: &str, details
     let address = made["secure_stream_url"].as_str().or_else(|| more["secure_stream_url"].as_str()).ok_or("Facebook gave no stream address")?.to_string();
     let link = more["permalink_url"].as_str().unwrap_or_default();
     let watch = if link.starts_with("http") { link.to_string() } else if link.is_empty() { format!("https://www.facebook.com/{page}/live") } else { format!("https://www.facebook.com{link}") };
-    Ok(Live { service: Service::Facebook, id, address, watch, token: token.to_string() })
+    Ok(Live { service: Service::Facebook, id, address, watch, token: token.to_string(), renewed: None, client: String::new() })
 }
 
 pub async fn viewers(client: &reqwest::Client, ends: &Ends, live: &Live) -> Option<u64> {

@@ -88,6 +88,8 @@ pub struct Look {
     pub cards: Cards,
     /// The church default's style, for the cards' words.
     pub theme: Theme,
+    /// Where the corner camera and the words go (Settings).
+    pub layout: super::compose::Layout,
 }
 
 impl std::fmt::Debug for Look {
@@ -218,7 +220,7 @@ mod tests {
     }
 
     fn look(live: Arc<Mutex<LiveInfo>>, cards: Cards) -> Look {
-        Look { info: Arc::new(move || (live.lock().unwrap().clone(), Choice::default(), None)), words: words_slide(), auto: AutoPrefs::default(), cards, theme: Theme::default() }
+        Look { info: Arc::new(move || (live.lock().unwrap().clone(), Choice::default(), None)), words: words_slide(), auto: AutoPrefs::default(), cards, theme: Theme::default(), layout: Default::default() }
     }
 
     fn wait_for(slot: &Slot, scene: Scene) -> Shown {

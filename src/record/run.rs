@@ -103,6 +103,8 @@ pub struct Plan {
     pub chapters: Option<super::chapters::Source>,
     /// Which of `stream` get the tall picture (phones), in the same order; missing: not tall.
     pub tall: Vec<bool>,
+    /// The video bitrate set by hand (kbit/s); 0: the preset's.
+    pub kbps: u32,
 }
 
 /// The stream's panic buttons, shared with the feeds while the recording runs. The file and the stream are one
@@ -123,15 +125,26 @@ impl Plan {
     pub fn make(data_dir: &Path, prefs: &super::RecordPrefs) -> Result<Plan, Option<String>> {
         let ffmpeg = find_ffmpeg(data_dir).ok_or(None)?;
         let encoders = ask_ffmpeg(&ffmpeg, &["-hide_banner", "-encoders"]).ok_or(None)?;
-        let encoder = args::pick_encoder(&encoders).ok_or_else(|| Some(tr::no_h264()))?;
+        let encoder = args::choose_encoder(&encoders, &prefs.encoder, |e| encoder_works(&ffmpeg, e)).ok_or_else(|| Some(tr::no_h264()))?;
         let folder = prefs.folder();
         std::fs::create_dir_all(&folder).map_err(|e| Some(tr::no_folder(&folder.display().to_string(), &e.to_string())))?;
         if let Some(free) = disk::free_space(&folder) && free < prefs.size.bytes_per_hour() / START_SHARE {
             return Err(Some(tr::low_disk(&gb(free), &gb(prefs.size.bytes_per_hour()))));
         }
         let out = super::file_name(&folder, chrono::Local::now().naive_local());
-        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![] })
+        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![], kbps: prefs.bitrate_kbps })
     }
+}
+
+/// Whether `encoder` runs on this computer: one small picture encoded with it (a graphics card's encoder needs
+/// that card and its driver). Takes a moment; only for an encoder chosen by hand.
+pub fn encoder_works(ffmpeg: &Path, encoder: &str) -> bool {
+    let mut cmd = std::process::Command::new(ffmpeg);
+    cmd.args(["-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", "color=c=black:s=256x256:r=30", "-frames:v", "3", "-c:v", encoder, "-f", "null", "-"])
+        .stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null());
+    #[cfg(windows)]
+    { use std::os::windows::process::CommandExt; cmd.creation_flags(0x0800_0000); }
+    cmd.status().is_ok_and(|s| s.success())
 }
 
 fn gb(bytes: u64) -> String { format!("{:.1} GB", bytes as f64 / 1e9) }
@@ -325,7 +338,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
         .map_err(|e| eprintln!("recording: FFmpeg reads the sound input itself: {e}")).ok());
     if let Some(b) = &board { *silent.lock().unwrap_or_else(|e| e.into_inner()) = Some(b.silent.clone()) }
     *levels.lock().unwrap_or_else(|e| e.into_inner()) = board.iter().map(|b| b.level.clone()).chain(pc.iter().map(|c| c.level.clone())).collect();
-    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, board: board.as_ref().map(|b| b.feed), out: &part, stream: &feeds, tall: &plan.tall, pc: pc.as_ref().map(|c| c.feed), fx: if live { plan.sound_fx } else { args::SoundFx::default() } });
+    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, board: board.as_ref().map(|b| b.feed), out: &part, stream: &feeds, tall: &plan.tall, kbps: plan.kbps, pc: pc.as_ref().map(|c| c.feed), fx: if live { plan.sound_fx } else { args::SoundFx::default() } });
     let mut cmd = tokio::process::Command::new(&plan.ffmpeg);
     cmd.args(a).stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::piped());
     let mut tree = match spawn_tree(cmd) {
@@ -365,7 +378,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     // Black until the room's first picture comes.
     let mut current: Vec<u8> = [0, 0, 0, 255].repeat(sink.bytes() / 4);
     // With scenes: the picture put together, written in place of the room's.
-    let mut mix = worker.as_ref().map(|_| Mixer::new(sink.size));
+    let mut mix = worker.as_ref().map(|_| Mixer { layout: plan.look.as_ref().map(|l| l.layout).unwrap_or_default(), ..Mixer::new(sink.size) });
     let mut room_new = true;
     let mut next_check = Duration::ZERO;
     let mut problem: Option<String> = None;
@@ -437,6 +450,8 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
 /// (`stream::compose`), with a fade at each scene change. Put together again only when something in it changed.
 struct Mixer {
     size: (u32, u32),
+    /// Where the corner camera goes (Settings).
+    layout: crate::stream::compose::Layout,
     out: Vec<u8>,
     next: Vec<u8>,
     /// The picture going out when the scene changed, and when: the fade runs from it.
@@ -452,7 +467,7 @@ struct Mixer {
 impl Mixer {
     fn new(size: (u32, u32)) -> Mixer {
         let black = [0, 0, 0, 255].repeat(size.0 as usize * size.1 as usize);
-        Mixer { size, out: black.clone(), next: black, fade: None, scene: None, camera: None, words: None, card: None, composes: 0 }
+        Mixer { size, layout: Default::default(), out: black.clone(), next: black, fade: None, scene: None, camera: None, words: None, card: None, composes: 0 }
     }
 
     fn out(&self) -> &[u8] { &self.out }
@@ -470,7 +485,7 @@ impl Mixer {
         if scene_changed { self.fade = Some((self.out.clone(), now)) }
         if changed {
             compose(shown.scene, &Inputs { size: self.size, room, camera: camera.as_deref().map(Vec::as_slice), words: shown.words.as_deref().map(Vec::as_slice),
-                card: shown.card.as_deref().map(Vec::as_slice) }, &mut self.next);
+                card: shown.card.as_deref().map(Vec::as_slice) }, &self.layout, &mut self.next);
             (self.scene, self.camera, self.words, self.card) = (Some(shown.scene), camera, shown.words.clone(), shown.card.clone());
             self.composes += 1;
         }

@@ -51,6 +51,8 @@ fn no_ffmpeg_left() {
         ("Gyan.FFmpeg", "src/strings/tools.rs"),
         // The recording tests check the finished file.
         ("Command::new(\"ffprobe\"", "src/record/run_tests.rs"),
+        // The clip tests check a clip's length.
+        ("Command::new(\"ffprobe\"", "src/record/clips.rs"),
     ];
     let allowed = |u: &str, file: &Path| recording.iter().any(|(a, f)| *a == u && file == root().join(f));
     let found: Vec<String> = text_of(&["src", "ui"]).iter()

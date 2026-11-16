@@ -303,19 +303,19 @@ msgstr "0이 되면"
 msgid "Place on the screen"
 msgstr "화면 위치"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Top right"
 msgstr "오른쪽 위"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Top left"
 msgstr "왼쪽 위"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Bottom right"
 msgstr "오른쪽 아래"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Bottom left"
 msgstr "왼쪽 아래"
 
@@ -1140,7 +1140,7 @@ msgstr "좌우로"
 msgid "Top and bottom"
 msgstr "위아래로"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/settings-media.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "자동"
 
@@ -2408,6 +2408,46 @@ msgid "1080p"
 msgstr "1080p"
 
 #: ui/dialogs/settings-media.slint
+msgid "Video encoder"
+msgstr "비디오 인코더"
+
+#: ui/dialogs/settings-media.slint
+msgid "Automatic suits most computers. A graphics card's encoder leaves the processor free; it is tried first, and Automatic is used if it does not work on this computer."
+msgstr "대부분의 컴퓨터는 자동이 알맞습니다. 그래픽카드 인코더는 프로세서 부담을 덜어 줍니다. 먼저 시험해 보고, 이 컴퓨터에서 안 되면 자동을 씁니다."
+
+#: ui/dialogs/settings-media.slint
+msgid "The processor (x264)"
+msgstr "프로세서 (x264)"
+
+#: ui/dialogs/settings-media.slint
+msgid "NVIDIA graphics card"
+msgstr "NVIDIA 그래픽카드"
+
+#: ui/dialogs/settings-media.slint
+msgid "Intel graphics"
+msgstr "Intel 그래픽"
+
+#: ui/dialogs/settings-media.slint
+msgid "AMD graphics card"
+msgstr "AMD 그래픽카드"
+
+#: ui/dialogs/settings-media.slint
+msgid "Windows' own"
+msgstr "Windows 기본"
+
+#: ui/dialogs/settings-media.slint
+msgid "OpenH264"
+msgstr "OpenH264"
+
+#: ui/dialogs/settings-media.slint
+msgid "Bitrate"
+msgstr "비트레이트"
+
+#: ui/dialogs/settings-media.slint
+msgid "How much picture goes out each second. Automatic: 3000 kbit/s for 720p, 6000 for 1080p. More is sharper and needs a faster upload."
+msgstr "초당 보내는 화면의 양. 자동: 720p는 3000 kbit/s, 1080p는 6000. 높을수록 선명하고 더 빠른 업로드가 필요합니다."
+
+#: ui/dialogs/settings-media.slint
 msgid "Save recordings in"
 msgstr "녹화 저장 위치"
 
@@ -2558,6 +2598,38 @@ msgstr "예배당 화면"
 #: ui/dialogs/settings-media.slint
 msgid "The room screen with the camera in a corner"
 msgstr "모서리에 카메라가 있는 예배당 화면"
+
+#: ui/dialogs/settings-media.slint
+msgid "Scene layout"
+msgstr "장면 배치"
+
+#: ui/dialogs/settings-media.slint
+msgid "Where the camera goes when it is in a corner of the room screen, and where the words go over the camera."
+msgstr "예배당 화면 모서리에 카메라를 둘 때의 위치와, 카메라 위 가사의 위치입니다."
+
+#: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
+msgid "Small"
+msgstr "작게"
+
+#: ui/dialogs/settings-media.slint
+msgid "Medium"
+msgstr "보통"
+
+#: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
+msgid "Large"
+msgstr "크게"
+
+#: ui/dialogs/settings-media.slint
+msgid "Words over the camera:"
+msgstr "카메라 위 가사:"
+
+#: ui/dialogs/settings-media.slint
+msgid "At the bottom"
+msgstr "아래"
+
+#: ui/dialogs/settings-media.slint
+msgid "At the top"
+msgstr "위"
 
 #: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
 msgid "Starting soon"
@@ -9500,14 +9572,6 @@ msgstr "변환 중 {percent}%"
 #: src/strings/themes.rs
 msgid "Gold"
 msgstr "금색"
-
-#: src/strings/themes.rs src/theme/richtext.rs
-msgid "Small"
-msgstr "작게"
-
-#: src/strings/themes.rs src/theme/richtext.rs
-msgid "Large"
-msgstr "크게"
 
 #: src/strings/themes.rs src/theme/richtext.rs
 msgid "Huge"

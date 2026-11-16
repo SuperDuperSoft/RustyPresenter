@@ -6,6 +6,30 @@ use std::time::Duration;
 /// How long a scene change fades.
 pub const FADE: Duration = Duration::from_millis(500);
 
+/// Which corner the small camera goes in (Screen + camera).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Corner { TopLeft, TopRight, BottomLeft, #[default] BottomRight }
+
+/// How big the small camera is: a fifth, a quarter or a third as wide as the stream.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CornerSize { Small, #[default] Medium, Large }
+
+/// The church's arrangement of the built-in scenes (Settings → Media → Livestream).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+pub struct Layout {
+    pub corner: Corner,
+    pub corner_size: CornerSize,
+    /// The words over the camera at the top instead of the bottom.
+    pub words_top: bool,
+}
+
+impl Layout {
+    pub fn is_default(&self) -> bool { *self == Layout::default() }
+}
+
 /// The pictures a scene is made of, each RGBA of `size`. `camera` is opaque (its own FFmpeg kept its shape with
 /// black bars); `words` and `card` are premultiplied and clear where they show nothing. A picture of the wrong
 /// length counts as missing.
@@ -23,7 +47,7 @@ impl Inputs<'_> {
 }
 
 /// Draws `scene` into `out` (RGBA of `i.size`).
-pub fn compose(scene: Scene, i: &Inputs, out: &mut [u8]) {
+pub fn compose(scene: Scene, i: &Inputs, layout: &Layout, out: &mut [u8]) {
     if out.len() != i.bytes() { return }
     let room = i.ok(Some(i.room));
     let camera = i.ok(i.camera);
@@ -36,7 +60,7 @@ pub fn compose(scene: Scene, i: &Inputs, out: &mut [u8]) {
         Scene::Screen => fill_room(out),
         Scene::ScreenCamera => {
             fill_room(out);
-            if let Some(c) = camera { corner(c, i.size, out) }
+            if let Some(c) = camera { corner(c, i.size, layout, out) }
         }
         Scene::StartingSoon | Scene::Ending | Scene::Hold => {
             black(out);
@@ -47,17 +71,22 @@ pub fn compose(scene: Scene, i: &Inputs, out: &mut [u8]) {
 
 fn black(out: &mut [u8]) { out.chunks_exact_mut(4).for_each(|p| p.copy_from_slice(&[0, 0, 0, 255])) }
 
-/// Where the small picture goes in a `w`×`h` frame: `(x, y, width, height)`, a quarter as wide, bottom right.
-pub fn corner_rect((w, h): (u32, u32)) -> (u32, u32, u32, u32) {
-    let cw = ((w / 4) & !1).max(2);
+/// Where the small picture goes in a `w`×`h` frame: `(x, y, width, height)`, in `layout`'s corner and size, `w / 40`
+/// from the edges.
+pub fn corner_rect((w, h): (u32, u32), layout: &Layout) -> (u32, u32, u32, u32) {
+    let part = match layout.corner_size { CornerSize::Small => 5, CornerSize::Medium => 4, CornerSize::Large => 3 };
+    let cw = ((w / part) & !1).max(2);
     let ch = (((u64::from(cw) * u64::from(h) + u64::from(w) / 2) / u64::from(w.max(1))) as u32 & !1).max(2);
     let edge = w / 40;
-    (w.saturating_sub(cw + edge), h.saturating_sub(ch + edge), cw, ch)
+    let (left, top) = match layout.corner { Corner::TopLeft => (true, true), Corner::TopRight => (false, true), Corner::BottomLeft => (true, false), Corner::BottomRight => (false, false) };
+    let x = if left { edge } else { w.saturating_sub(cw + edge) };
+    let y = if top { edge } else { h.saturating_sub(ch + edge) };
+    (x, y, cw, ch)
 }
 
 /// `src` (the whole `size` picture) shrunk into the corner of `out`, nearest pixel.
-fn corner(src: &[u8], (w, h): (u32, u32), out: &mut [u8]) {
-    let (x0, y0, cw, ch) = corner_rect((w, h));
+fn corner(src: &[u8], (w, h): (u32, u32), layout: &Layout, out: &mut [u8]) {
+    let (x0, y0, cw, ch) = corner_rect((w, h), layout);
     if x0 + cw > w || y0 + ch > h { return }
     let sx: Vec<usize> = (0..cw).map(|x| (u64::from(x) * u64::from(w) / u64::from(cw)) as usize * 4).collect();
     for dy in 0..ch {
@@ -92,6 +121,32 @@ pub fn blend(from: &[u8], to: &[u8], t: f32, out: &mut [u8]) {
 mod tests {
     use super::*;
 
+    #[test]
+    fn the_corner_camera_goes_where_the_church_put_it() {
+        let size = (1280, 720);
+        let at = |corner, big| corner_rect(size, &Layout { corner, corner_size: big, ..Layout::default() });
+        // As before: bottom right, a quarter as wide.
+        assert_eq!(at(Corner::BottomRight, CornerSize::Medium), corner_rect(size, &Layout::default()));
+        assert_eq!(at(Corner::BottomRight, CornerSize::Medium), (1280 - 320 - 32, 720 - 180 - 32, 320, 180));
+        assert_eq!(at(Corner::TopLeft, CornerSize::Medium), (32, 32, 320, 180));
+        assert_eq!(at(Corner::TopRight, CornerSize::Small), (1280 - 256 - 32, 32, 256, 144));
+        assert_eq!(at(Corner::BottomLeft, CornerSize::Large), (32, 720 - 240 - 32, 426, 240));
+    }
+
+    #[test]
+    fn screen_and_camera_puts_the_camera_in_the_chosen_corner() {
+        let size = (40u32, 40u32);
+        let n = 40 * 40 * 4;
+        let room = vec![255u8; n];
+        let camera: Vec<u8> = [0, 0, 255, 255].repeat(40 * 40);
+        let mut out = vec![0u8; n];
+        let i = Inputs { size, room: &room, camera: Some(&camera), words: None, card: None };
+        compose(Scene::ScreenCamera, &i, &Layout { corner: Corner::TopLeft, ..Layout::default() }, &mut out);
+        let px = |x: usize, y: usize| out[(y * 40 + x) * 4..(y * 40 + x) * 4 + 4].to_vec();
+        assert_eq!(px(2, 2), [0, 0, 255, 255], "the camera top left");
+        assert_eq!(px(37, 37), [255, 255, 255, 255], "the room bottom right");
+    }
+
     const W: u32 = 40;
     const H: u32 = 20;
     const RED: [u8; 4] = [200, 0, 0, 255];
@@ -102,7 +157,7 @@ mod tests {
     fn px(img: &[u8], x: u32, y: u32) -> [u8; 4] { let i = ((y * W + x) * 4) as usize; img[i..i + 4].try_into().unwrap() }
     fn run(scene: Scene, room: &[u8], camera: Option<&[u8]>, words: Option<&[u8]>, card: Option<&[u8]>) -> Vec<u8> {
         let mut out = vec![7u8; (W * H * 4) as usize];
-        compose(scene, &Inputs { size: (W, H), room, camera, words, card }, &mut out);
+        compose(scene, &Inputs { size: (W, H), room, camera, words, card }, &Layout::default(), &mut out);
         out
     }
     /// Clear everywhere but one opaque white row.
@@ -131,10 +186,10 @@ mod tests {
 
     #[test]
     fn the_corner_is_a_quarter_wide_bottom_right() {
-        assert_eq!(corner_rect((1920, 1080)), (1392, 762, 480, 270));
+        assert_eq!(corner_rect((1920, 1080), &Layout::default()), (1392, 762, 480, 270));
         let (room, cam) = (solid(BLUE), solid(RED));
         let out = run(Scene::ScreenCamera, &room, Some(&cam), None, None);
-        let (x, y, cw, ch) = corner_rect((W, H));
+        let (x, y, cw, ch) = corner_rect((W, H), &Layout::default());
         assert!(cw > 0 && ch > 0);
         assert_eq!(px(&out, x + cw / 2, y + ch / 2), RED);
         assert_eq!(px(&out, 0, 0), BLUE);

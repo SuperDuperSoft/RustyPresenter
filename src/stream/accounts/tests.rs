@@ -21,6 +21,9 @@ pub struct Seen {
     pub has_stream: bool,
     /// Where YouTube says to send the stream (empty: its real address).
     pub ingest: String,
+    /// Twitch: how often the app asked whether the code was typed, and the channel title it set.
+    pub twitch_polls: u32,
+    pub twitch_title: String,
 }
 
 fn pairs(s: &str) -> HashMap<String, String> { url::form_urlencoded::parse(s.as_bytes()).into_owned().collect() }
@@ -60,6 +63,25 @@ pub async fn serve(seen: Arc<Mutex<Seen>>) -> String {
                 ("POST", "/youtube/v3/liveBroadcasts") => { s.broadcast = serde_json::from_str(&text).unwrap(); ok(json!({"id": "b1"})) }
                 ("POST", "/youtube/v3/liveBroadcasts/bind") => ok(json!({"id": "b1"})),
                 ("GET", "/youtube/v3/videos") => ok(json!({"items": [{"liveStreamingDetails": {"concurrentViewers": "12"}}]})),
+                ("POST", "/twitch-id/device") => ok(json!({"device_code": "tdc", "user_code": "TWCODE", "verification_uri": "https://www.twitch.tv/activate", "expires_in": 60, "interval": 0})),
+                ("POST", "/twitch-id/token") if form.get("grant_type").map(String::as_str) == Some("urn:ietf:params:oauth:grant-type:device_code") => {
+                    s.twitch_polls += 1;
+                    if s.twitch_polls < 2 { return no(json!({"status": 400, "message": "authorization_pending"})) }
+                    ok(json!({"access_token": "tat", "refresh_token": "trt"}))
+                }
+                // A public client's refresh token works once: a new one comes with each.
+                ("POST", "/twitch-id/token") if form.get("refresh_token").map(String::as_str) == Some("trt") => ok(json!({"access_token": "tat2", "refresh_token": "trt2"})),
+                ("POST", "/twitch-id/token") => no(json!({"status": 400, "message": "Invalid refresh token"})),
+                (_, p) if p.starts_with("/helix/") && (headers.get("client-id").and_then(|v| v.to_str().ok()) != Some("tw-app") || !bearer.starts_with("Bearer tat")) => {
+                    (axum::http::StatusCode::UNAUTHORIZED, axum::Json(json!({"message": "Invalid OAuth token"})))
+                }
+                ("GET", "/helix/users") => ok(json!({"data": [{"id": "u9", "login": "gracechurch", "display_name": "GraceChurch"}]})),
+                ("PATCH", "/helix/channels") if form.get("broadcaster_id").map(String::as_str) == Some("u9") => {
+                    s.twitch_title = serde_json::from_str::<Value>(&text).unwrap()["title"].as_str().unwrap_or("").to_string();
+                    (axum::http::StatusCode::NO_CONTENT, axum::Json(json!(null)))
+                }
+                ("GET", "/helix/streams/key") if form.get("broadcaster_id").map(String::as_str) == Some("u9") => ok(json!({"data": [{"stream_key": "live_123_abc"}]})),
+                ("GET", "/helix/streams") => ok(json!({"data": [{"viewer_count": 5}]})),
                 ("POST", "/graph/device/login") => ok(json!({"code": "dc", "user_code": "ABC123", "verification_uri": "https://www.facebook.com/device", "expires_in": 60, "interval": 0})),
                 ("POST", "/graph/device/login_status") => {
                     s.polls += 1;
@@ -81,7 +103,7 @@ pub async fn serve(seen: Arc<Mutex<Seen>>) -> String {
     base
 }
 
-fn ids() -> Ids { Ids { google_id: "app-id".into(), google_secret: "secret".into(), facebook_app: "fb-app".into(), facebook_token: "fb-token".into() } }
+fn ids() -> Ids { Ids { google_id: "app-id".into(), google_secret: "secret".into(), facebook_app: "fb-app".into(), facebook_token: "fb-token".into(), twitch_client: "tw-app".into() } }
 
 fn client() -> &'static reqwest::Client { crate::bible::sources::client().unwrap() }
 
@@ -195,6 +217,38 @@ async fn going_live_on_facebook_makes_a_live_video_on_the_page_and_ends_it() {
     assert_eq!(ended.2["end_live_video"], "true");
 }
 
+#[tokio::test]
+async fn twitch_sign_in_shows_a_code_and_keeps_the_channel() {
+    let seen = Arc::new(Mutex::new(Seen::default()));
+    let base = serve(seen.clone()).await;
+    let ends = Ends::at(&base);
+    let device = twitch::start(client(), &ends, &ids()).await.unwrap();
+    assert_eq!((device.user_code.as_str(), device.at.as_str()), ("TWCODE", "https://www.twitch.tv/activate"));
+    let (saved, name) = twitch::wait(client(), &ends, &ids(), &device).await.unwrap();
+    assert_eq!((saved.as_str(), name.as_str()), ("u9|gracechurch|trt", "GraceChurch"));
+    let s = seen.lock().unwrap();
+    assert_eq!(s.twitch_polls, 2, "asked again while the code was not typed yet");
+    let asked = s.calls.iter().find(|c| c.1 == "/twitch-id/device").unwrap();
+    assert_eq!(asked.2["client_id"], "tw-app");
+    assert!(asked.2["scopes"].contains("channel:read:stream_key") && asked.2["scopes"].contains("channel:manage:broadcast"));
+}
+
+#[tokio::test]
+async fn going_live_on_twitch_sets_the_title_and_gets_the_key() {
+    let seen = Arc::new(Mutex::new(Seen::default()));
+    let base = serve(seen.clone()).await;
+    let ends = Ends::at(&base);
+    let d = Destination { service: Service::Twitch, on: true, ..Default::default() };
+    let live = prepare(client(), &ends, &ids(), &d, "u9|gracechurch|trt", &details()).await.unwrap();
+    assert_eq!(live.address, "rtmp://live.twitch.tv/app/live_123_abc");
+    assert_eq!(live.watch, "https://www.twitch.tv/gracechurch");
+    assert_eq!(live.renewed.as_deref(), Some("u9|gracechurch|trt2"), "the new refresh token is kept for next time");
+    assert_eq!(viewers(client(), &ends, &live).await, Some(5));
+    assert_eq!(seen.lock().unwrap().twitch_title, "Sunday Service — November 16, 2026");
+    // The old refresh token no longer works: said, so the operator signs in again.
+    assert!(prepare(client(), &ends, &ids(), &d, "u9|gracechurch|used", &details()).await.is_err());
+}
+
 #[test]
 fn the_title_gets_the_date() {
     let day = chrono::NaiveDate::from_ymd_opt(2026, 11, 22).unwrap();
@@ -232,5 +286,6 @@ fn a_sign_in_is_kept_apart_from_the_stream_key() {
     assert_eq!(token_id(token_id(id)), id);
     assert!(!Ids::default().can_sign_in(Service::YouTube));
     assert!(ids().can_sign_in(Service::Facebook));
-    assert!(!ids().can_sign_in(Service::Twitch));
+    assert!(ids().can_sign_in(Service::Twitch));
+    assert!(!Ids::default().can_sign_in(Service::Twitch));
 }

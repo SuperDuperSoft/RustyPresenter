@@ -303,19 +303,19 @@ msgstr "Ikifika sifuri"
 msgid "Place on the screen"
 msgstr "Mahali kwenye skrini"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Top right"
 msgstr "Juu kulia"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Top left"
 msgstr "Juu kushoto"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Bottom right"
 msgstr "Chini kulia"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Bottom left"
 msgstr "Chini kushoto"
 
@@ -1140,7 +1140,7 @@ msgstr "Kando kwa kando"
 msgid "Top and bottom"
 msgstr "Juu na chini"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/settings-media.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "Otomatiki"
 
@@ -2408,6 +2408,46 @@ msgid "1080p"
 msgstr "1080p"
 
 #: ui/dialogs/settings-media.slint
+msgid "Video encoder"
+msgstr "Kisimbaji cha video"
+
+#: ui/dialogs/settings-media.slint
+msgid "Automatic suits most computers. A graphics card's encoder leaves the processor free; it is tried first, and Automatic is used if it does not work on this computer."
+msgstr "Otomatiki inafaa kompyuta nyingi. Kisimbaji cha kadi ya michoro hupunguza kazi ya prosesa; hujaribiwa kwanza, na kisipofanya kazi kwenye kompyuta hii, Otomatiki hutumika."
+
+#: ui/dialogs/settings-media.slint
+msgid "The processor (x264)"
+msgstr "Prosesa (x264)"
+
+#: ui/dialogs/settings-media.slint
+msgid "NVIDIA graphics card"
+msgstr "Kadi ya michoro ya NVIDIA"
+
+#: ui/dialogs/settings-media.slint
+msgid "Intel graphics"
+msgstr "Michoro ya Intel"
+
+#: ui/dialogs/settings-media.slint
+msgid "AMD graphics card"
+msgstr "Kadi ya michoro ya AMD"
+
+#: ui/dialogs/settings-media.slint
+msgid "Windows' own"
+msgstr "Cha Windows"
+
+#: ui/dialogs/settings-media.slint
+msgid "OpenH264"
+msgstr "OpenH264"
+
+#: ui/dialogs/settings-media.slint
+msgid "Bitrate"
+msgstr "Kasi ya biti"
+
+#: ui/dialogs/settings-media.slint
+msgid "How much picture goes out each second. Automatic: 3000 kbit/s for 720p, 6000 for 1080p. More is sharper and needs a faster upload."
+msgstr "Kiasi cha picha kinachotoka kila sekunde. Otomatiki: 3000 kbit/s kwa 720p, 6000 kwa 1080p. Zaidi ni wazi zaidi na kunahitaji upakiaji wa haraka zaidi."
+
+#: ui/dialogs/settings-media.slint
 msgid "Save recordings in"
 msgstr "Hifadhi rekodi katika"
 
@@ -2558,6 +2598,38 @@ msgstr "Skrini ya ukumbi"
 #: ui/dialogs/settings-media.slint
 msgid "The room screen with the camera in a corner"
 msgstr "Skrini ya ukumbi yenye kamera pembeni"
+
+#: ui/dialogs/settings-media.slint
+msgid "Scene layout"
+msgstr "Mpangilio wa matukio"
+
+#: ui/dialogs/settings-media.slint
+msgid "Where the camera goes when it is in a corner of the room screen, and where the words go over the camera."
+msgstr "Mahali kamera inapokaa ikiwa kwenye kona ya skrini ya ukumbi, na mahali maneno yanapokaa juu ya kamera."
+
+#: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
+msgid "Small"
+msgstr "Ndogo"
+
+#: ui/dialogs/settings-media.slint
+msgid "Medium"
+msgstr "Wastani"
+
+#: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
+msgid "Large"
+msgstr "Kubwa"
+
+#: ui/dialogs/settings-media.slint
+msgid "Words over the camera:"
+msgstr "Maneno juu ya kamera:"
+
+#: ui/dialogs/settings-media.slint
+msgid "At the bottom"
+msgstr "Chini"
+
+#: ui/dialogs/settings-media.slint
+msgid "At the top"
+msgstr "Juu"
 
 #: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
 msgid "Starting soon"
@@ -9538,14 +9610,6 @@ msgstr "Inageuza {percent} %"
 #: src/strings/themes.rs
 msgid "Gold"
 msgstr "Dhahabu"
-
-#: src/strings/themes.rs src/theme/richtext.rs
-msgid "Small"
-msgstr "Ndogo"
-
-#: src/strings/themes.rs src/theme/richtext.rs
-msgid "Large"
-msgstr "Kubwa"
 
 #: src/strings/themes.rs src/theme/richtext.rs
 msgid "Huge"

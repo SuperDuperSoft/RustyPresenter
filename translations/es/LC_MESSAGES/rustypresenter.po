@@ -303,19 +303,19 @@ msgstr "Al llegar a cero"
 msgid "Place on the screen"
 msgstr "Lugar en la pantalla"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Top right"
 msgstr "Arriba a la derecha"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Top left"
 msgstr "Arriba a la izquierda"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Bottom right"
 msgstr "Abajo a la derecha"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Bottom left"
 msgstr "Abajo a la izquierda"
 
@@ -1140,7 +1140,7 @@ msgstr "Lado a lado"
 msgid "Top and bottom"
 msgstr "Arriba y abajo"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/settings-media.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "Automático"
 
@@ -2408,6 +2408,46 @@ msgid "1080p"
 msgstr "1080p"
 
 #: ui/dialogs/settings-media.slint
+msgid "Video encoder"
+msgstr "Codificador de video"
+
+#: ui/dialogs/settings-media.slint
+msgid "Automatic suits most computers. A graphics card's encoder leaves the processor free; it is tried first, and Automatic is used if it does not work on this computer."
+msgstr "Automático sirve para la mayoría de las computadoras. El codificador de una tarjeta gráfica deja libre el procesador; primero se prueba, y si no funciona en esta computadora se usa Automático."
+
+#: ui/dialogs/settings-media.slint
+msgid "The processor (x264)"
+msgstr "El procesador (x264)"
+
+#: ui/dialogs/settings-media.slint
+msgid "NVIDIA graphics card"
+msgstr "Tarjeta gráfica NVIDIA"
+
+#: ui/dialogs/settings-media.slint
+msgid "Intel graphics"
+msgstr "Gráficos Intel"
+
+#: ui/dialogs/settings-media.slint
+msgid "AMD graphics card"
+msgstr "Tarjeta gráfica AMD"
+
+#: ui/dialogs/settings-media.slint
+msgid "Windows' own"
+msgstr "El de Windows"
+
+#: ui/dialogs/settings-media.slint
+msgid "OpenH264"
+msgstr "OpenH264"
+
+#: ui/dialogs/settings-media.slint
+msgid "Bitrate"
+msgstr "Tasa de bits"
+
+#: ui/dialogs/settings-media.slint
+msgid "How much picture goes out each second. Automatic: 3000 kbit/s for 720p, 6000 for 1080p. More is sharper and needs a faster upload."
+msgstr "Cuánta imagen sale por segundo. Automático: 3000 kbit/s para 720p, 6000 para 1080p. Más es más nítido y necesita más velocidad de subida."
+
+#: ui/dialogs/settings-media.slint
 msgid "Save recordings in"
 msgstr "Guardar grabaciones en"
 
@@ -2558,6 +2598,38 @@ msgstr "La pantalla de la sala"
 #: ui/dialogs/settings-media.slint
 msgid "The room screen with the camera in a corner"
 msgstr "La pantalla de la sala con la cámara en una esquina"
+
+#: ui/dialogs/settings-media.slint
+msgid "Scene layout"
+msgstr "Distribución de las escenas"
+
+#: ui/dialogs/settings-media.slint
+msgid "Where the camera goes when it is in a corner of the room screen, and where the words go over the camera."
+msgstr "Dónde va la cámara cuando está en una esquina de la pantalla del salón, y dónde van las palabras sobre la cámara."
+
+#: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
+msgid "Small"
+msgstr "Pequeño"
+
+#: ui/dialogs/settings-media.slint
+msgid "Medium"
+msgstr "Mediano"
+
+#: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
+msgid "Large"
+msgstr "Grande"
+
+#: ui/dialogs/settings-media.slint
+msgid "Words over the camera:"
+msgstr "Palabras sobre la cámara:"
+
+#: ui/dialogs/settings-media.slint
+msgid "At the bottom"
+msgstr "Abajo"
+
+#: ui/dialogs/settings-media.slint
+msgid "At the top"
+msgstr "Arriba"
 
 #: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
 msgid "Starting soon"
@@ -9538,14 +9610,6 @@ msgstr "Convirtiendo {percent} %"
 #: src/strings/themes.rs
 msgid "Gold"
 msgstr "Dorado"
-
-#: src/strings/themes.rs src/theme/richtext.rs
-msgid "Small"
-msgstr "Pequeño"
-
-#: src/strings/themes.rs src/theme/richtext.rs
-msgid "Large"
-msgstr "Grande"
 
 #: src/strings/themes.rs src/theme/richtext.rs
 msgid "Huge"

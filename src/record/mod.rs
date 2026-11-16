@@ -110,6 +110,15 @@ pub struct RecordPrefs {
     /// camera whose picture comes late.
     #[serde(skip_serializing_if = "is_zero_u32")]
     pub sound_delay_ms: u32,
+    /// The video encoder chosen by hand (one of `args::CHOOSABLE`); empty: automatic.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub encoder: String,
+    /// The video bitrate chosen by hand (kbit/s, one of `BITRATES`); 0: the size's own.
+    #[serde(default, skip_serializing_if = "is_zero_u32")]
+    pub bitrate_kbps: u32,
+    /// Where the corner camera and the words over the camera go.
+    #[serde(default, skip_serializing_if = "crate::stream::compose::Layout::is_default")]
+    pub stream_layout: crate::stream::compose::Layout,
     /// Livestream: the microphone or line-in, and the computer's own sound, turned up or down (dB, within
     /// `MAX_LEVEL_DB`).
     #[serde(skip_serializing_if = "is_zero_i32")]
@@ -144,6 +153,9 @@ fn is_zero_i32(v: &i32) -> bool { *v == 0 }
 
 /// The longest sound delay Settings offers (a camera more than a second late is broken, not slow).
 pub const MAX_SOUND_DELAY: u32 = 1000;
+/// The bitrates Settings offers (kbit/s), after Automatic.
+pub const BITRATES: [u32; 5] = [2500, 4500, 6000, 8000, 12000];
+
 /// The most a sound is turned up or down in Settings, in dB.
 pub const MAX_LEVEL_DB: i32 = 20;
 

@@ -1,10 +1,10 @@
-# Setting up "Sign in" for YouTube and Facebook
+# Setting up "Sign in" for YouTube, Facebook and Twitch
 
 RustyPresenter can stream with a pasted stream key and needs none of this. Sign-in lets Go Live make the broadcast
 itself, with its title and description, show how many are watching, and give the replay link afterwards.
 
 For that, the app has to be registered once with Google and with Meta, under the church's own accounts (Jake,
-November 16, 2026). Registering gives four ids. They go in a private file on the computer that builds the app,
+November 16, 2026). Registering gives four ids (five with Twitch). They go in a private file on the computer that builds the app,
 `.tools\sign-in-ids.cmd`, which is never committed:
 
 ```bat
@@ -12,6 +12,7 @@ set "RP_GOOGLE_CLIENT_ID=…"
 set "RP_GOOGLE_CLIENT_SECRET=…"
 set "RP_FACEBOOK_APP_ID=…"
 set "RP_FACEBOOK_CLIENT_TOKEN=…"
+set "RP_TWITCH_CLIENT_ID=…"
 ```
 
 `try-latest.cmd`, `windows-check.cmd` and `make-installer.cmd` read it. A copy built without it shows no Sign in
@@ -53,6 +54,17 @@ Sign in to Facebook with an account that is an admin of the church's Page.
 
 Before other churches use Facebook sign-in, Meta must review the app (**App Review**, one request per permission
 above), and it then goes **Live**.
+
+## Twitch, about 5 minutes
+
+Sign in to Twitch with the church's channel account. Twitch asks for two-factor sign-in to be on first.
+
+1. Open dev.twitch.tv/console and **Register Your Application**. Name: RustyPresenter. OAuth Redirect URL:
+   `http://localhost` (not used, but asked for). Category: Broadcaster Suite. **Client Type: Public.**
+2. Copy the **Client ID**. A public client has no secret.
+
+Signing in shows a short code to type at twitch.tv/activate. Go Live then sets the channel's title and gets its
+stream key by itself. Twitch needs no review before other churches use it.
 
 ## Using it
 

@@ -99,7 +99,7 @@ pub async fn prepare(client: &reqwest::Client, ends: &Ends, ids: &Ids, refresh: 
     })).send().await).await?;
     let id = broadcast["id"].as_str().ok_or("YouTube gave no broadcast")?.to_string();
     json(client.post(format!("{api}/liveBroadcasts/bind")).query(&[("id", id.as_str()), ("streamId", stream_id), ("part", "id")]).bearer_auth(&token).send().await).await?;
-    Ok(Live { service: Service::YouTube, watch: format!("https://youtu.be/{id}"), address: format!("{}/{key}", base.trim_end_matches('/')), id, token })
+    Ok(Live { service: Service::YouTube, watch: format!("https://youtu.be/{id}"), address: format!("{}/{key}", base.trim_end_matches('/')), id, token, renewed: None, client: String::new() })
 }
 
 pub async fn viewers(client: &reqwest::Client, ends: &Ends, live: &Live) -> Option<u64> {

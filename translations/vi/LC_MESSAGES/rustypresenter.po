@@ -303,19 +303,19 @@ msgstr "Khi về 0"
 msgid "Place on the screen"
 msgstr "Vị trí trên màn hình"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Top right"
 msgstr "Trên bên phải"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Top left"
 msgstr "Trên bên trái"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Bottom right"
 msgstr "Dưới bên phải"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
 msgid "Bottom left"
 msgstr "Dưới bên trái"
 
@@ -1140,7 +1140,7 @@ msgstr "Cạnh nhau"
 msgid "Top and bottom"
 msgstr "Trên và dưới"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/settings-media.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "Tự động"
 
@@ -2408,6 +2408,46 @@ msgid "1080p"
 msgstr "1080p"
 
 #: ui/dialogs/settings-media.slint
+msgid "Video encoder"
+msgstr "Bộ mã hóa video"
+
+#: ui/dialogs/settings-media.slint
+msgid "Automatic suits most computers. A graphics card's encoder leaves the processor free; it is tried first, and Automatic is used if it does not work on this computer."
+msgstr "Tự động hợp với hầu hết máy tính. Bộ mã hóa của card đồ họa giúp bộ xử lý nhẹ hơn; nó được thử trước, và nếu không chạy trên máy này thì dùng Tự động."
+
+#: ui/dialogs/settings-media.slint
+msgid "The processor (x264)"
+msgstr "Bộ xử lý (x264)"
+
+#: ui/dialogs/settings-media.slint
+msgid "NVIDIA graphics card"
+msgstr "Card đồ họa NVIDIA"
+
+#: ui/dialogs/settings-media.slint
+msgid "Intel graphics"
+msgstr "Đồ họa Intel"
+
+#: ui/dialogs/settings-media.slint
+msgid "AMD graphics card"
+msgstr "Card đồ họa AMD"
+
+#: ui/dialogs/settings-media.slint
+msgid "Windows' own"
+msgstr "Của Windows"
+
+#: ui/dialogs/settings-media.slint
+msgid "OpenH264"
+msgstr "OpenH264"
+
+#: ui/dialogs/settings-media.slint
+msgid "Bitrate"
+msgstr "Tốc độ bit"
+
+#: ui/dialogs/settings-media.slint
+msgid "How much picture goes out each second. Automatic: 3000 kbit/s for 720p, 6000 for 1080p. More is sharper and needs a faster upload."
+msgstr "Lượng hình gửi đi mỗi giây. Tự động: 3000 kbit/s cho 720p, 6000 cho 1080p. Cao hơn thì nét hơn và cần tải lên nhanh hơn."
+
+#: ui/dialogs/settings-media.slint
 msgid "Save recordings in"
 msgstr "Lưu bản ghi vào"
 
@@ -2558,6 +2598,38 @@ msgstr "Màn hình hội trường"
 #: ui/dialogs/settings-media.slint
 msgid "The room screen with the camera in a corner"
 msgstr "Màn hình hội trường với camera ở góc"
+
+#: ui/dialogs/settings-media.slint
+msgid "Scene layout"
+msgstr "Bố cục cảnh"
+
+#: ui/dialogs/settings-media.slint
+msgid "Where the camera goes when it is in a corner of the room screen, and where the words go over the camera."
+msgstr "Vị trí camera khi ở góc màn hình hội trường, và vị trí lời trên hình camera."
+
+#: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
+msgid "Small"
+msgstr "Nhỏ"
+
+#: ui/dialogs/settings-media.slint
+msgid "Medium"
+msgstr "Vừa"
+
+#: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
+msgid "Large"
+msgstr "Lớn"
+
+#: ui/dialogs/settings-media.slint
+msgid "Words over the camera:"
+msgstr "Lời trên hình camera:"
+
+#: ui/dialogs/settings-media.slint
+msgid "At the bottom"
+msgstr "Ở dưới"
+
+#: ui/dialogs/settings-media.slint
+msgid "At the top"
+msgstr "Ở trên"
 
 #: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
 msgid "Starting soon"
@@ -9500,14 +9572,6 @@ msgstr "Đang chuyển đổi {percent} %"
 #: src/strings/themes.rs
 msgid "Gold"
 msgstr "Vàng"
-
-#: src/strings/themes.rs src/theme/richtext.rs
-msgid "Small"
-msgstr "Nhỏ"
-
-#: src/strings/themes.rs src/theme/richtext.rs
-msgid "Large"
-msgstr "Lớn"
 
 #: src/strings/themes.rs src/theme/richtext.rs
 msgid "Huge"

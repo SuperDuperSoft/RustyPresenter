@@ -138,6 +138,13 @@ pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     fill_stream_sound(g, &[], &p.stream_sound);
     fill_camera(g, &[], &p.camera, &p.camera2);
     g.set_stream_camera_control(p.camera_control.as_str().into());
+    g.set_record_encoder(record::args::CHOOSABLE.iter().position(|e| *e == p.encoder).map_or(0, |i| i as i32 + 1));
+    g.set_record_bitrate(record::BITRATES.iter().position(|b| *b == p.bitrate_kbps).map_or(0, |i| i as i32 + 1));
+    use stream::compose::{Corner, CornerSize};
+    let l = p.stream_layout;
+    g.set_stream_corner(match l.corner { Corner::TopLeft => 0, Corner::TopRight => 1, Corner::BottomLeft => 2, Corner::BottomRight => 3 });
+    g.set_stream_corner_size(match l.corner_size { CornerSize::Small => 0, CornerSize::Medium => 1, CornerSize::Large => 2 });
+    g.set_stream_words_top(i32::from(l.words_top));
     g.set_stream_camera2_control(p.camera2_control.as_str().into());
     g.set_stream_auto_scenes(p.auto().on);
     g.set_stream_sound_delay(p.sound_delay_ms.min(record::MAX_SOUND_DELAY) as i32);
@@ -210,6 +217,16 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
     let camera2 = read_camera2(g);
     if camera2 != p.camera2 { p.camera2 = camera2 }
     p.camera_control = g.get_stream_camera_control().trim().to_string();
+    p.encoder = usize::try_from(g.get_record_encoder() - 1).ok().and_then(|i| record::args::CHOOSABLE.get(i)).map(|e| e.to_string()).unwrap_or_default();
+    p.bitrate_kbps = usize::try_from(g.get_record_bitrate() - 1).ok().and_then(|i| record::BITRATES.get(i)).copied().unwrap_or(0);
+    {
+        use stream::compose::{Corner, CornerSize, Layout};
+        p.stream_layout = Layout {
+            corner: match g.get_stream_corner() { 0 => Corner::TopLeft, 1 => Corner::TopRight, 2 => Corner::BottomLeft, _ => Corner::BottomRight },
+            corner_size: match g.get_stream_corner_size() { 0 => CornerSize::Small, 2 => CornerSize::Large, _ => CornerSize::Medium },
+            words_top: g.get_stream_words_top() == 1,
+        };
+    }
     p.camera2_control = g.get_stream_camera2_control().trim().to_string();
     // Unchanged keeps the saved form (`None` is on), so an untouched form has no changes.
     let auto = g.get_stream_auto_scenes();
@@ -242,18 +259,27 @@ pub(crate) fn fill_accounts(g: &SettingsDlg) {
     g.set_stream_can_sign_in_1(ids.can_sign_in(stream::Service::Facebook));
     g.set_stream_account_0(name(0).into());
     g.set_stream_account_1(name(1).into());
+    g.set_stream_can_sign_in_2(ids.can_sign_in(stream::Service::Twitch));
+    g.set_stream_account_2(name(2).into());
 }
 
 /// Signing in to YouTube (row 0: the web browser opens) or Facebook (row 1: a code to type at facebook.com/device),
 /// off the UI thread; what is kept goes to the computer's password store. Gives the account's name.
 fn sign_in(i: usize, ui: slint::Weak<crate::ui::OperatorWindow>) -> Result<String, String> {
-    use stream::accounts::{self, facebook, google};
+    use stream::accounts::{self, facebook, google, twitch};
     let (ids, ends, store) = (accounts::app_ids(), accounts::app_ends(), stream::keys::app_store());
     let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().map_err(|e| e.to_string())?;
     let client = crate::bible::sources::client().map_err(|e| format!("{e:?}"))?;
     let open = |url: &str| { let _ = crate::usage::open::open_file(std::path::Path::new(url)); };
     let (token, name) = rt.block_on(async {
         if i == 0 { return google::sign_in(client, &ends, &ids, open).await }
+        if i == 2 {
+            let device = twitch::start(client, &ends, &ids).await?;
+            let text = accounts::tr::twitch_code(&device.user_code, &device.at);
+            let _ = ui.upgrade_in_event_loop(move |ui| ui.global::<SettingsDlg>().set_stream_sign_in_text(text.into()));
+            open(&device.at);
+            return twitch::wait(client, &ends, &ids, &device).await;
+        }
         let device = facebook::start(client, &ends, &ids).await?;
         let text = accounts::tr::facebook_code(&device.user_code, &device.at);
         let _ = ui.upgrade_in_event_loop(move |ui| ui.global::<SettingsDlg>().set_stream_sign_in_text(text.into()));
@@ -288,7 +314,7 @@ pub(crate) fn wire_keys(op: &Rc<Operator>) {
         let Some(op) = me.upgrade() else { return };
         let g = op.ui.global::<SettingsDlg>();
         if g.get_stream_signing_in() { return }
-        let i = i.clamp(0, 1) as usize;
+        let i = i.clamp(0, 2) as usize;
         g.set_stream_signing_in(true);
         g.set_stream_sign_in_text(if i == 0 { stream::accounts::tr::open_browser() } else { String::new() }.into());
         let ui = op.ui.as_weak();
@@ -302,7 +328,7 @@ pub(crate) fn wire_keys(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
     op.ui.global::<SettingsDlg>().on_stream_sign_out(move |i| {
         let Some(op) = me.upgrade() else { return };
-        stream::accounts::forget(stream::keys::app_store().as_ref(), stream::built_in_id(i.clamp(0, 1) as usize));
+        stream::accounts::forget(stream::keys::app_store().as_ref(), stream::built_in_id(i.clamp(0, 2) as usize));
         let g = op.ui.global::<SettingsDlg>();
         g.set_stream_sign_in_text("".into());
         fill_accounts(&g);

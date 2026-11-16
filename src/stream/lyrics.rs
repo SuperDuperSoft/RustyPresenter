@@ -17,14 +17,17 @@ pub fn lower_third(base: &Theme) -> Theme {
 
 /// The words picture for live slide `slide` (`theme`: the item's own), at `canvas`. `None` for a slide with no
 /// words of its own to put over a camera (a picture, a designed slide).
-pub fn key_for(slide: &SlideLayer, theme: &Theme, canvas: (u32, u32)) -> Option<RenderKey> {
+pub fn key_for(slide: &SlideLayer, theme: &Theme, canvas: (u32, u32)) -> Option<RenderKey> { key_for_at(slide, theme, canvas, false) }
+
+/// `key_for`, with the words at the top of the picture when `top` (Settings: the scene layout).
+pub fn key_for_at(slide: &SlideLayer, theme: &Theme, canvas: (u32, u32), top: bool) -> Option<RenderKey> {
     let SlideLayer::Text { text, footer, reference, scripture, size, passage, parallel, theme: own } = slide else { return None };
     if text.trim().is_empty() { return None }
     let base = own.clone().unwrap_or_else(|| theme.clone());
     // The slide's own largest size is for the room; over a camera the lower third's size is the one.
     let _ = size;
     Some(RenderKey { text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: *scripture, size: 0, passage: passage.clone(),
-        parallel: parallel.clone(), theme: lower_third(&base), canvas, design: None })
+        parallel: parallel.clone(), theme: Theme { position: if top { "top".into() } else { "lower".into() }, ..lower_third(&base) }, canvas, design: None })
 }
 
 #[cfg(test)]
@@ -43,5 +46,8 @@ mod tests {
         assert_eq!((key.theme.font.as_str(), key.theme.color.as_str()), ("Georgia", "#ffee00"));
         assert_eq!(key.canvas, (1280, 720));
         assert_eq!(key_for(&text("  "), &theme, (1280, 720)), None, "no words, nothing over the camera");
+        // The words at the top instead, on the same band.
+        let top = key_for_at(&text("Amazing grace"), &theme, (1280, 720), true).unwrap();
+        assert_eq!((top.theme.position.as_str(), top.theme.band), ("top", true));
     }
 }

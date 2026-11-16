@@ -31,7 +31,7 @@ fn probe(file: &Path) -> (Vec<(String, String, u64, u64)>, f64) {
 }
 
 fn plan(ffmpeg: PathBuf, dir: &Path, sound: Sound) -> Plan {
-    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![] }
+    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![], kbps: 0 }
 }
 
 /// Records for `secs`, handing in a new solid picture every 100 ms (red, then green), with `each` called as it goes.
@@ -290,7 +290,7 @@ fn look(live: Arc<Mutex<(LiveInfo, Choice)>>, words: &str, auto: AutoPrefs) -> c
     crate::stream::pictures::Look {
         info: Arc::new(move || { let (i, c) = live.lock().unwrap().clone(); (i, c, None) }),
         words: Arc::new(move || crate::stream::lyrics::key_for(&slide, &crate::model::Theme::default(), (1280, 720))),
-        auto, cards: Default::default(), theme: Default::default(),
+        auto, cards: Default::default(), theme: Default::default(), layout: Default::default(),
     }
 }
 
@@ -393,6 +393,14 @@ fn a_recording_says_how_far_behind_it_is() {
     assert!(!lags.is_empty());
     assert!(lags.iter().all(|l| *l < Duration::from_secs(2)), "{lags:?}");
     std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// Trying an encoder for real: x264 works in every full FFmpeg; a made-up one does not.
+#[test]
+fn an_encoder_is_tried_before_it_is_used() {
+    let Some(ff) = ffmpeg() else { return };
+    assert!(encoder_works(&ff, "libx264"));
+    assert!(!encoder_works(&ff, "h264_no_such_encoder"));
 }
 
 /// Every sound filter at once, through the real FFmpeg: it accepts them all.

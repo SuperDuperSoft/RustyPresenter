@@ -13,6 +13,7 @@ use uuid::Uuid;
 
 pub mod facebook;
 pub mod google;
+pub mod twitch;
 
 /// The app's own ids with Google and Meta, from the build. Empty: that service cannot be signed in to.
 #[derive(Clone, Debug, Default)]
@@ -23,6 +24,8 @@ pub struct Ids {
     pub google_secret: String,
     pub facebook_app: String,
     pub facebook_token: String,
+    /// Twitch's client id for the app (a public client: no secret).
+    pub twitch_client: String,
 }
 
 impl Ids {
@@ -33,6 +36,7 @@ impl Ids {
             google_secret: option_env!("RP_GOOGLE_CLIENT_SECRET").unwrap_or_default().trim().to_string(),
             facebook_app: option_env!("RP_FACEBOOK_APP_ID").unwrap_or_default().trim().to_string(),
             facebook_token: option_env!("RP_FACEBOOK_CLIENT_TOKEN").unwrap_or_default().trim().to_string(),
+            twitch_client: option_env!("RP_TWITCH_CLIENT_ID").unwrap_or_default().trim().to_string(),
         }
     }
 
@@ -41,6 +45,7 @@ impl Ids {
         match service {
             Service::YouTube => !self.google_id.is_empty() && !self.google_secret.is_empty(),
             Service::Facebook => !self.facebook_app.is_empty() && !self.facebook_token.is_empty(),
+            Service::Twitch => !self.twitch_client.is_empty(),
             _ => false,
         }
     }
@@ -53,6 +58,8 @@ pub struct Ends {
     pub google_token: String,
     pub youtube: String,
     pub graph: String,
+    pub twitch_id: String,
+    pub helix: String,
 }
 
 impl Ends {
@@ -62,12 +69,15 @@ impl Ends {
             google_token: "https://oauth2.googleapis.com/token".into(),
             youtube: "https://www.googleapis.com/youtube/v3".into(),
             graph: format!("https://graph.facebook.com/{}", facebook::VERSION),
+            twitch_id: "https://id.twitch.tv/oauth2".into(),
+            helix: "https://api.twitch.tv/helix".into(),
         }
     }
 
     /// All four at one address (a test's stand-in server).
     pub fn at(base: &str) -> Self {
-        Ends { google_auth: format!("{base}/auth"), google_token: format!("{base}/token"), youtube: format!("{base}/youtube/v3"), graph: format!("{base}/graph") }
+        Ends { google_auth: format!("{base}/auth"), google_token: format!("{base}/token"), youtube: format!("{base}/youtube/v3"), graph: format!("{base}/graph"),
+            twitch_id: format!("{base}/twitch-id"), helix: format!("{base}/helix") }
     }
 }
 
@@ -138,6 +148,10 @@ pub struct Live {
     pub watch: String,
     /// What the service's other questions are asked with (a password).
     token: String,
+    /// What sign-in keeps from now on, when the service gave a new one (Twitch: a refresh token works once).
+    pub renewed: Option<String>,
+    /// Twitch: the app's client id, sent with each question.
+    client: String,
 }
 
 /// Makes a broadcast for `destination` (signed in with `saved`, what sign-in kept) with `details`.
@@ -145,6 +159,7 @@ pub async fn prepare(client: &reqwest::Client, ends: &Ends, ids: &Ids, destinati
     match destination.service {
         Service::YouTube => google::prepare(client, ends, ids, saved, details).await,
         Service::Facebook => facebook::prepare(client, ends, saved, details).await,
+        Service::Twitch => twitch::prepare(client, ends, ids, saved, details).await,
         _ => Err("this service has no sign-in".into()),
     }
 }
@@ -154,9 +169,13 @@ pub async fn viewers(client: &reqwest::Client, ends: &Ends, live: &Live) -> Opti
     match live.service {
         Service::YouTube => google::viewers(client, ends, live).await,
         Service::Facebook => facebook::viewers(client, ends, live).await,
+        Service::Twitch => twitch::viewers(client, ends, &app_ids_or(live), live).await,
         _ => None,
     }
 }
+
+/// The ids Twitch's questions while live are asked with (its client id goes with each).
+fn app_ids_or(live: &Live) -> Ids { Ids { twitch_client: live.client.clone(), ..Ids::default() } }
 
 /// Ends `live` at the service (YouTube ends its own when the stream stops).
 pub async fn finish(client: &reqwest::Client, ends: &Ends, live: &Live) {
@@ -186,6 +205,7 @@ pub mod tr {
     use crate::tr;
     pub fn signed_in(name: &str) -> String { tr!("Signed in as {name}.", name = name) }
     pub fn open_browser() -> String { tr!("Finish signing in in the web browser that opened.") }
+    pub fn twitch_code(code: &str, at: &str) -> String { tr!("Go to {at} on any phone or computer and type the code {code}.", at = at, code = code) }
     pub fn facebook_code(code: &str, at: &str) -> String { tr!("Go to {at} on any phone or computer and type the code {code}.", at = at, code = code) }
     pub fn sign_in_failed(why: &str) -> String { tr!("Signing in did not work: {why}", why = why) }
     pub fn no_page() -> String { tr!("This Facebook account manages no Page. A stream can only go to a Page.") }
@@ -216,7 +236,7 @@ pub(crate) mod testing {
     }
     /// This thread's sign-ins go to the stand-in at `base`, with made-up ids.
     pub fn use_server(base: &str) {
-        let ids = Ids { google_id: "app-id".into(), google_secret: "secret".into(), facebook_app: "fb-app".into(), facebook_token: "fb-token".into() };
+        let ids = Ids { google_id: "app-id".into(), google_secret: "secret".into(), facebook_app: "fb-app".into(), facebook_token: "fb-token".into(), twitch_client: "tw-app".into() };
         OVERRIDE.with(|o| *o.borrow_mut() = Some((ids, Ends::at(base))));
     }
     pub use super::tests::{Seen, serve};

@@ -291,6 +291,47 @@ fn settings_keep_the_streams_sound_levels_and_clean_up() {
 }
 
 #[test]
+fn settings_keep_the_encoder_and_bitrate() {
+    use crate::ui::SettingsDlg;
+    use slint::ComponentHandle;
+    let app = test_app();
+    let room = Arc::new(Room::default());
+    let op = open(&app, &room);
+    let g = op.ui.global::<SettingsDlg>();
+    let mut prefs = RecordPrefs::default();
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    assert_eq!((g.get_record_encoder(), g.get_record_bitrate()), (0, 0), "automatic, both");
+    g.set_record_encoder(2);
+    g.set_record_bitrate(3);
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!((prefs.encoder.as_str(), prefs.bitrate_kbps), (record::args::CHOOSABLE[1], record::BITRATES[2]));
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    assert_eq!((g.get_record_encoder(), g.get_record_bitrate()), (2, 3));
+    let json = serde_json::to_value(RecordPrefs::default()).unwrap();
+    assert!(json.get("encoder").is_none() && json.get("bitrate_kbps").is_none(), "automatic: nothing saved");
+}
+
+#[test]
+fn settings_keep_the_scene_layout() {
+    use crate::ui::SettingsDlg;
+    use slint::ComponentHandle;
+    use stream::compose::{Corner, CornerSize, Layout};
+    let app = test_app();
+    let room = Arc::new(Room::default());
+    let op = open(&app, &room);
+    let g = op.ui.global::<SettingsDlg>();
+    let mut prefs = RecordPrefs::default();
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    assert_eq!((g.get_stream_corner(), g.get_stream_corner_size(), g.get_stream_words_top()), (3, 1, 0), "bottom right, medium, at the bottom");
+    g.set_stream_corner(0);
+    g.set_stream_corner_size(2);
+    g.set_stream_words_top(1);
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!(prefs.stream_layout, Layout { corner: Corner::TopLeft, corner_size: CornerSize::Large, words_top: true });
+    assert_eq!(serde_json::to_value(RecordPrefs::default()).unwrap().get("stream_layout"), None, "as it starts: nothing saved");
+}
+
+#[test]
 fn settings_keep_which_destinations_get_the_tall_stream() {
     use crate::ui::SettingsDlg;
     use slint::ComponentHandle;
@@ -648,6 +689,26 @@ fn settings_sign_in_to_facebook_and_out_again() {
     g.invoke_stream_sign_out(1);
     assert_eq!(g.get_stream_account_1(), "");
     assert_eq!(stream::accounts::kept(stream::keys::app_store().as_ref(), stream::built_in_id(1)), None);
+}
+
+#[test]
+fn settings_sign_in_to_twitch_and_out_again() {
+    use crate::ui::SettingsDlg;
+    use slint::ComponentHandle;
+    let (_rt, _seen) = stand_in();
+    let app = test_app();
+    let room = Arc::new(Room::default());
+    let op = open(&app, &room);
+    let g = op.ui.global::<SettingsDlg>();
+    crate::ui::dialogs::settings_record::fill_form(&g, &RecordPrefs::default());
+    crate::ui::dialogs::settings_record::wire_keys(&op);
+    assert!(g.get_stream_can_sign_in_2());
+    g.invoke_stream_sign_in(2);
+    assert_eq!(g.get_stream_account_2(), "GraceChurch", "{}", g.get_stream_sign_in_text());
+    let kept = stream::accounts::kept(stream::keys::app_store().as_ref(), stream::built_in_id(2));
+    assert_eq!(kept, Some(("GraceChurch".to_string(), "u9|gracechurch|trt".to_string())));
+    g.invoke_stream_sign_out(2);
+    assert_eq!(g.get_stream_account_2(), "");
 }
 
 #[test]
