@@ -2439,6 +2439,18 @@ msgstr "Som deste computador"
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr "Tudo o que toca nesta saída vai junto com a transmissão (vídeos, músicas e qualquer outro som enviado para lá), misturado com o microfone ou a entrada de linha escolhidos acima."
 
+#: ui/dialogs/settings-media.slint
+msgid "Sound delay"
+msgstr "Atraso do som"
+
+#: ui/dialogs/settings-media.slint
+msgid "If the sound in the stream comes before people's lips move, the camera's picture is late: hold the sound back until they match."
+msgstr "Se na transmissão o som chega antes de os lábios se mexerem, a imagem da câmera está atrasada: segure o som até combinarem."
+
+#: ui/dialogs/settings-media.slint
+msgid "{} ms"
+msgstr "{} ms"
+
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "Câmera"

@@ -94,6 +94,10 @@ pub struct RecordPrefs {
     /// Presentations go out as the room screen with the camera in the corner (not the room screen alone).
     #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub presentation_camera: bool,
+    /// Livestream: the sound held back this many milliseconds (0 to `MAX_SOUND_DELAY`), so it lines up with a
+    /// camera whose picture comes late.
+    #[serde(skip_serializing_if = "is_zero_u32")]
+    pub sound_delay_ms: u32,
     /// The Starting soon, Ending and Hold cards.
     #[serde(skip_serializing_if = "crate::stream::pictures::Cards::is_default")]
     pub cards: crate::stream::pictures::Cards,
@@ -102,6 +106,11 @@ pub struct RecordPrefs {
     pub licence_noted: bool,
 }
 
+
+fn is_zero_u32(v: &u32) -> bool { *v == 0 }
+
+/// The longest sound delay Settings offers (a camera more than a second late is broken, not slow).
+pub const MAX_SOUND_DELAY: u32 = 1000;
 
 impl RecordPrefs {
     /// The automatic scene choice's settings.

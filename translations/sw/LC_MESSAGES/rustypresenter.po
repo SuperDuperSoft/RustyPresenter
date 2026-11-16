@@ -2439,6 +2439,18 @@ msgstr "Sauti kutoka kompyuta hii"
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr "Kila kinachocheza kwenye toleo hili kinaenda na matangazo (video, nyimbo, na sauti nyingine yoyote inayotumwa hapo), ikichanganywa na maikrofoni au line-in iliyochaguliwa juu."
 
+#: ui/dialogs/settings-media.slint
+msgid "Sound delay"
+msgstr "Kuchelewesha sauti"
+
+#: ui/dialogs/settings-media.slint
+msgid "If the sound in the stream comes before people's lips move, the camera's picture is late: hold the sound back until they match."
+msgstr "Ikiwa kwenye matangazo sauti inasikika kabla midomo haijasonga, picha ya kamera inachelewa: chelewesha sauti hadi zilingane."
+
+#: ui/dialogs/settings-media.slint
+msgid "{} ms"
+msgstr "{} ms"
+
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "Kamera"

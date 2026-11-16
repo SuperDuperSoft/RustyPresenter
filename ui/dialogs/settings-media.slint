@@ -2,7 +2,7 @@
 // Read and written by `src/ui/dialogs/settings_media.rs`.
 import { Theme } from "../theme.slint";
 import { Btn, Field, Segmented } from "../widgets.slint";
-import { TextField, Note, Select, Check } from "form.slint";
+import { TextField, Note, Select, Check, RangeSlider } from "form.slint";
 import { SettingsDlg } from "settings-state.slint";
 
 /// A group's title (also on Settings → Video).
@@ -138,6 +138,27 @@ export component SettingsMedia inherits VerticalLayout {
         stream-sound := Select {
             options: SettingsDlg.stream-sound-labels;
             index <=> SettingsDlg.stream-sound-index;
+        }
+    }
+    Field {
+        label: @tr("Sound delay");
+        help: @tr("If the sound in the stream comes before people's lips move, the camera's picture is late: hold the sound back until they match.");
+        HorizontalLayout {
+            spacing: 10px;
+            stream-delay := RangeSlider {
+                minimum: 0;
+                maximum: 1000;
+                value <=> SettingsDlg.stream-sound-delay;
+                horizontal-stretch: 1;
+            }
+            Text {
+                text: @tr("{} ms", SettingsDlg.stream-sound-delay);
+                color: Theme.text;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                vertical-alignment: center;
+                min-width: 64px;
+            }
         }
     }
     Field {

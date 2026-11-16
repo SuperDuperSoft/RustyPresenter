@@ -2439,6 +2439,18 @@ msgstr "Âm thanh từ máy tính này"
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr "Mọi thứ phát trên đầu ra này đều đi cùng buổi phát (video, bài hát và bất kỳ âm thanh nào khác được gửi tới đó), trộn với micrô hoặc line-in đã chọn ở trên."
 
+#: ui/dialogs/settings-media.slint
+msgid "Sound delay"
+msgstr "Độ trễ âm thanh"
+
+#: ui/dialogs/settings-media.slint
+msgid "If the sound in the stream comes before people's lips move, the camera's picture is late: hold the sound back until they match."
+msgstr "Nếu trong buổi phát tiếng đến trước khi môi cử động, hình camera đang trễ: hãy giữ âm thanh lại cho đến khi khớp."
+
+#: ui/dialogs/settings-media.slint
+msgid "{} ms"
+msgstr "{} ms"
+
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "Máy quay"

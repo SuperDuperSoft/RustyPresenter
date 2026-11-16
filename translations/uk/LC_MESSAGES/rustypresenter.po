@@ -2439,6 +2439,18 @@ msgstr "Звук цього комп’ютера"
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr "Усе, що звучить на цьому виході, йде в трансляцію (відео, пісні та будь-який інший звук, надісланий туди), разом із мікрофоном або лінійним входом, вибраним вище."
 
+#: ui/dialogs/settings-media.slint
+msgid "Sound delay"
+msgstr "Затримка звуку"
+
+#: ui/dialogs/settings-media.slint
+msgid "If the sound in the stream comes before people's lips move, the camera's picture is late: hold the sound back until they match."
+msgstr "Якщо в трансляції звук чути раніше, ніж рухаються губи, зображення камери надходить із запізненням: затримайте звук, доки вони не збіжаться."
+
+#: ui/dialogs/settings-media.slint
+msgid "{} ms"
+msgstr "{} мс"
+
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "Камера"

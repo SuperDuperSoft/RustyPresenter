@@ -2439,6 +2439,18 @@ msgstr "Tunog mula sa computer na ito"
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr "Lahat ng tumutunog sa output na ito ay kasama sa stream (mga video, kanta, at anumang ibang tunog na ipinapadala roon), hinahalo sa mikropono o line-in na pinili sa itaas."
 
+#: ui/dialogs/settings-media.slint
+msgid "Sound delay"
+msgstr "Antala ng tunog"
+
+#: ui/dialogs/settings-media.slint
+msgid "If the sound in the stream comes before people's lips move, the camera's picture is late: hold the sound back until they match."
+msgstr "Kung nauuna ang tunog sa stream bago gumalaw ang labi, nahuhuli ang larawan ng camera: ipagpaliban ang tunog hanggang magtugma."
+
+#: ui/dialogs/settings-media.slint
+msgid "{} ms"
+msgstr "{} ms"
+
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "Camera"

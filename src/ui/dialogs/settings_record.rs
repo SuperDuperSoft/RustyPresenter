@@ -108,6 +108,7 @@ pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     fill_stream_sound(g, &[], &p.stream_sound);
     fill_camera(g, &[], &p.camera);
     g.set_stream_auto_scenes(p.auto().on);
+    g.set_stream_sound_delay(p.sound_delay_ms.min(record::MAX_SOUND_DELAY) as i32);
     g.set_stream_presentation_camera(i32::from(p.presentation_camera));
     let c = &p.cards;
     g.set_stream_card_words_0(c.starting.words.as_str().into());
@@ -162,6 +163,7 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
     let auto = g.get_stream_auto_scenes();
     if auto != p.auto().on { p.auto_scenes = if auto { None } else { Some(false) } }
     p.presentation_camera = g.get_stream_presentation_camera() == 1;
+    p.sound_delay_ms = (g.get_stream_sound_delay().max(0) as u32).min(record::MAX_SOUND_DELAY);
     let card = |w: slint::SharedString, pic: slint::SharedString| stream::pictures::Card { words: w.trim().to_string(), picture: pic.trim().to_string() };
     p.cards = stream::pictures::Cards {
         starting: card(g.get_stream_card_words_0(), g.get_stream_card_picture_0()),

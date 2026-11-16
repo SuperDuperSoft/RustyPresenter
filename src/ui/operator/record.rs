@@ -90,6 +90,7 @@ impl Operator {
         }
         self.record.starting.set(true);
         let prefs_pc = prefs.pc_sound(&app_output);
+        let sound_delay = prefs.sound_delay_ms.min(record::MAX_SOUND_DELAY);
         let camera = (!prefs.camera.is_empty()).then(|| record::args::camera_input(crate::platform::tools::OS, &prefs.camera));
         // The scenes: what is live now (read ten times a second by `stream::pictures`), the words over the camera,
         // and the church's cards and choices. A new stream starts on Automatic.
@@ -117,6 +118,7 @@ impl Operator {
                         plan.pc_sound = prefs_pc;
                         plan.camera = camera;
                         plan.look = Some(look);
+                        plan.sound_delay_ms = sound_delay;
                     }
                     plan.stream = addresses;
                     op.record.live.set(live);

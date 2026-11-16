@@ -2439,6 +2439,18 @@ msgstr "このコンピューターの音"
 msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
 msgstr "この出力で鳴るものはすべて配信に入ります (動画、曲、そこに送られるほかの音も)。上で選んだマイクまたはライン入力と混ぜて送られます。"
 
+#: ui/dialogs/settings-media.slint
+msgid "Sound delay"
+msgstr "音の遅延"
+
+#: ui/dialogs/settings-media.slint
+msgid "If the sound in the stream comes before people's lips move, the camera's picture is late: hold the sound back until they match."
+msgstr "配信で口が動く前に音が聞こえるときは、カメラの映像が遅れています。合うまで音を遅らせてください。"
+
+#: ui/dialogs/settings-media.slint
+msgid "{} ms"
+msgstr "{} ms"
+
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
 msgstr "カメラ"

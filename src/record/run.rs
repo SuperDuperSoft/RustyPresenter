@@ -91,6 +91,8 @@ pub struct Plan {
     pub look: Option<crate::stream::pictures::Look>,
     /// The stream's panic buttons.
     pub controls: Controls,
+    /// Go Live: the sound held back this long to line up with the camera.
+    pub sound_delay_ms: u32,
 }
 
 /// The stream's panic buttons, shared with the feeds while the recording runs. The file and the stream are one
@@ -116,7 +118,7 @@ impl Plan {
             return Err(Some(tr::low_disk(&gb(free), &gb(prefs.size.bytes_per_hour()))));
         }
         let out = super::file_name(&folder, chrono::Local::now().naive_local());
-        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, camera: None, look: None, controls: Controls::default() })
+        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, camera: None, look: None, controls: Controls::default(), sound_delay_ms: 0 })
     }
 }
 
@@ -297,7 +299,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
         .map_err(|e| eprintln!("recording: FFmpeg reads the sound input itself: {e}")).ok());
     if let Some(b) = &board { *silent.lock().unwrap_or_else(|e| e.into_inner()) = Some(b.silent.clone()) }
     *levels.lock().unwrap_or_else(|e| e.into_inner()) = board.iter().map(|b| b.level.clone()).chain(pc.iter().map(|c| c.level.clone())).collect();
-    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, board: board.as_ref().map(|b| b.feed), out: &part, stream: &feeds, pc: pc.as_ref().map(|c| c.feed) });
+    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, board: board.as_ref().map(|b| b.feed), out: &part, stream: &feeds, pc: pc.as_ref().map(|c| c.feed), delay_ms: if live { plan.sound_delay_ms } else { 0 } });
     let mut cmd = tokio::process::Command::new(&plan.ffmpeg);
     cmd.args(a).stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::piped());
     let mut tree = match spawn_tree(cmd) {

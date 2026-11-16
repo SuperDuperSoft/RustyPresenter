@@ -31,7 +31,7 @@ fn probe(file: &Path) -> (Vec<(String, String, u64, u64)>, f64) {
 }
 
 fn plan(ffmpeg: PathBuf, dir: &Path, sound: Sound) -> Plan {
-    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, camera: None, look: None, controls: Controls::default() }
+    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, camera: None, look: None, controls: Controls::default(), sound_delay_ms: 0 }
 }
 
 /// Records for `secs`, handing in a new solid picture every 100 ms (red, then green), with `each` called as it goes.
@@ -102,6 +102,21 @@ fn an_input_that_cannot_open_gives_silence_and_the_recording_goes_on() {
     let kinds: Vec<&str> = streams.iter().map(|s| s.0.as_str()).collect();
     assert_eq!(kinds, ["video", "audio"]);
     assert!((2.0..3.5).contains(&secs), "{secs} s");
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// Live with a sound delay: FFmpeg takes the held-back sound, and the file has picture and sound to the end.
+#[test]
+fn a_sound_delay_keeps_the_stream_going() {
+    let Some(ff) = ffmpeg() else { return };
+    let dir = scratch("delay");
+    let dead = format!("rtmp://127.0.0.1:{}/live/TEST-KEY", std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port());
+    let ended = record_for(Plan { stream: vec![dead], sound_delay_ms: 300, ..plan(ff, &dir, Sound::Input("no-such-input-here".into())) }, 3.0, |_, _| {});
+    assert_eq!(ended.problem, None, "{ended:?}");
+    let (streams, secs) = probe(ended.file.as_ref().unwrap());
+    let kinds: Vec<&str> = streams.iter().map(|s| s.0.as_str()).collect();
+    assert_eq!(kinds, ["video", "audio"]);
+    assert!((2.4..4.0).contains(&secs), "{secs} s");
     std::fs::remove_dir_all(&dir).unwrap();
 }
 
