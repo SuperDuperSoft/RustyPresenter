@@ -295,7 +295,7 @@ fn the_operator_hears_when_a_destination_connects_and_when_it_drops() {
     refresh(&op);
     op.record.live.set(true);
     *op.record.links.borrow_mut() = vec![("YouTube".to_string(), false), ("Facebook".to_string(), false)];
-    let l = |v: &[bool]| v.iter().map(|up| stream::send::Link { up: *up, skips: 0 }).collect::<Vec<_>>();
+    let l = |v: &[bool]| v.iter().map(|up| stream::send::Link { up: *up, ..Default::default() }).collect::<Vec<_>>();
     let before = toasts(&op).len();
     op.say_links(&l(&[false, false]));
     assert_eq!(toasts(&op).len(), before, "nothing changed: nothing said");
@@ -309,7 +309,7 @@ fn the_operator_hears_when_a_destination_connects_and_when_it_drops() {
     assert_eq!((op.ui.get_live_up(), op.ui.get_live_total()), (1, 2));
     // Only while live.
     // An upload too slow for Facebook: said once, after a few skips.
-    let slow = |skips| vec![stream::send::Link { up: false, skips: 0 }, stream::send::Link { up: true, skips }];
+    let slow = |skips| vec![stream::send::Link::default(), stream::send::Link { up: true, skips, ..Default::default() }];
     op.say_links(&slow(2));
     assert_eq!(toasts(&op).len(), said.len(), "two skips are a hiccup");
     op.say_links(&slow(3));
@@ -319,6 +319,26 @@ fn the_operator_hears_when_a_destination_connects_and_when_it_drops() {
     op.record.live.set(false);
     op.say_links(&l(&[true, true]));
     assert_eq!(toasts(&op).len(), said.len() + 1);
+}
+
+#[test]
+fn a_destination_that_never_connects_is_said_once() {
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    op.record.live.set(true);
+    *op.record.links.borrow_mut() = vec![("YouTube".into(), false)];
+    let before = toasts(&op).len();
+    let tried = |failed| vec![stream::send::Link { failed, ..Default::default() }];
+    op.say_links(&tried(NEVER_TRIES - 1));
+    assert_eq!(toasts(&op).len(), before, "a try or two can fail");
+    op.say_links(&tried(NEVER_TRIES));
+    assert_eq!(toasts(&op).last(), Some(&(stream::tr::never_connected("YouTube"), true)));
+    op.say_links(&tried(NEVER_TRIES + 4));
+    assert_eq!(toasts(&op).len(), before + 1, "once");
+    op.say_links(&[stream::send::Link { up: true, ..Default::default() }]);
+    assert_eq!(toasts(&op).last(), Some(&(stream::tr::connected("YouTube"), false)));
 }
 
 #[test]
@@ -334,6 +354,26 @@ fn the_streaming_licence_note_is_shown_once() {
     refresh(&op);
     op.note_stream_licence();
     assert_eq!(op.state.borrow().asks, 0, "not again");
+}
+
+#[test]
+fn a_camera_that_never_starts_is_said_and_said_again_when_it_comes() {
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    op.record.live.set(true);
+    let before = toasts(&op).len();
+    // Starting takes a few seconds: nothing said.
+    for _ in 1..CAMERA_START_SECS { op.say_camera(Some(false)) }
+    assert_eq!(toasts(&op).len(), before);
+    // Still nothing: unplugged, or another program has it.
+    op.say_camera(Some(false));
+    assert_eq!(toasts(&op).last(), Some(&(stream::tr::camera_never(), true)));
+    for _ in 0..30 { op.say_camera(Some(false)) }
+    assert_eq!(toasts(&op).len(), before + 1, "said once");
+    op.say_camera(Some(true));
+    assert_eq!(toasts(&op).last(), Some(&(stream::tr::camera_back(), false)));
 }
 
 #[test]

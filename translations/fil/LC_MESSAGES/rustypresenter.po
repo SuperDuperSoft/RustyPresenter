@@ -6305,6 +6305,10 @@ msgid "{name}: the stream is going out."
 msgstr "{name}: lumalabas na ang stream."
 
 #: src/stream/mod.rs
+msgid "{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on."
+msgstr "Hindi pa nakakonekta ang {name} pagkatapos ng ilang subok. Tingnan ang stream key sa Settings → Media → Livestream, at ang internet. Patuloy na sinusubukan; tuloy ang recording."
+
+#: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr "Nawalan ng koneksyon ang {name}. Kusang susubukan ulit; tuloy ang recording."
 
@@ -6331,6 +6335,10 @@ msgstr "hindi mapapadalhan ng stream ang address o key nito"
 #: src/stream/mod.rs
 msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
 msgstr "Huminto ang camera. Ipinapakita ng stream ang mga slide hanggang bumalik ito; kusang susubukan ulit."
+
+#: src/stream/mod.rs
+msgid "The camera is not sending pictures, so the stream shows the slides. Check that it is plugged in and that no other program is using it; it is tried again by itself."
+msgstr "Walang larawang ipinapadala ang camera, kaya mga slide ang ipinapakita ng stream. Tingnan kung nakasaksak ito at walang ibang programang gumagamit nito; kusa itong susubukan ulit."
 
 #: src/stream/mod.rs
 msgid "The camera is back in the stream."

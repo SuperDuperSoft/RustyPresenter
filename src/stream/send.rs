@@ -22,6 +22,8 @@ pub struct Link {
     /// How often the sender fell behind and parts of the stream were skipped (`skipped`): the internet cannot keep
     /// up with this destination.
     pub skips: u32,
+    /// Tries in a row that ended without connecting (a wrong key, a service refusing, no internet).
+    pub failed: u32,
 }
 
 /// Each destination's connection, in the order they were given.
@@ -74,6 +76,7 @@ pub async fn keep_sending(ffmpeg: PathBuf, port: u16, address: String, all: Vec<
     let mut tries = 0;
     while !cancel.is_cancelled() {
         let began = Instant::now();
+        let mut connected = false;
         let mut cmd = tokio::process::Command::new(&ffmpeg);
         cmd.args(sender_args(port, &address)).stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::piped());
         match spawn_tree(cmd) {
@@ -92,6 +95,7 @@ pub async fn keep_sending(ffmpeg: PathBuf, port: u16, address: String, all: Vec<
                 // (which kills it).
                 let forever = Duration::from_secs(u64::MAX / 4);
                 if tokio::time::timeout(UP_AFTER, tree.wait(forever, &cancel)).await.is_err() {
+                    connected = true;
                     set(true);
                     let _ = tree.wait(forever, &cancel).await;
                 }
@@ -99,6 +103,8 @@ pub async fn keep_sending(ffmpeg: PathBuf, port: u16, address: String, all: Vec<
             Err(e) => eprintln!("stream {}: the sender could not start: {e}", index + 1),
         }
         set(false);
+        if cancel.is_cancelled() && connected { break }
+        if let Some(l) = links.lock().unwrap_or_else(|e| e.into_inner()).get_mut(index) { l.failed = if connected { 0 } else { l.failed + 1 } }
         if cancel.is_cancelled() { break }
         tries = if began.elapsed() >= HELD { 1 } else { tries + 1 };
         eprintln!("stream {}: the connection ended; trying again in {} s", index + 1, retry_after(tries).as_secs());
@@ -123,6 +129,17 @@ mod tests {
         let a = s(sender_args(40123, "srt://h.example.org:9000?streamid=x"));
         assert!(a.windows(2).any(|w| w == ["-f", "mpegts"]) && !a.contains(&"aac_adtstoasc".to_string()));
         assert_eq!(feed(40123), "udp://127.0.0.1:40123?pkt_size=1316");
+    }
+
+    #[tokio::test]
+    async fn a_sender_that_cannot_connect_counts_its_tries() {
+        let links: Links = Arc::new(Mutex::new(vec![Link::default()]));
+        let cancel = CancellationToken::new();
+        let run = tokio::spawn(keep_sending(PathBuf::from("no-such-ffmpeg-here"), 40999, "rtmp://127.0.0.1:1/live/k".into(), vec![], 0, links.clone(), cancel.clone()));
+        tokio::time::sleep(Duration::from_millis(500)).await;
+        cancel.cancel();
+        let _ = run.await;
+        assert_eq!(links.lock().unwrap()[0], Link { up: false, skips: 0, failed: 1 });
     }
 
     #[test]

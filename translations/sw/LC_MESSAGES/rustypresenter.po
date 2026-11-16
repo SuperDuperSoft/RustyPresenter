@@ -6305,6 +6305,10 @@ msgid "{name}: the stream is going out."
 msgstr "{name}: matangazo yanatoka."
 
 #: src/stream/mod.rs
+msgid "{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on."
+msgstr "{name} haijaunganishwa baada ya majaribio kadhaa. Angalia ufunguo wa matangazo katika Mipangilio → Midia → Matangazo ya moja kwa moja, na intaneti. Bado inajaribu; rekodi inaendelea."
+
+#: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr "{name} imepoteza muunganisho. Inajaribu tena yenyewe; rekodi inaendelea."
 
@@ -6331,6 +6335,10 @@ msgstr "matangazo hayawezi kutumwa kwa anwani au ufunguo wake"
 #: src/stream/mod.rs
 msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
 msgstr "Kamera imesimama. Matangazo yanaonyesha slaidi hadi itakaporudi; inajaribu tena yenyewe."
+
+#: src/stream/mod.rs
+msgid "The camera is not sending pictures, so the stream shows the slides. Check that it is plugged in and that no other program is using it; it is tried again by itself."
+msgstr "Kamera haitumi picha, kwa hiyo matangazo yanaonyesha slaidi. Hakikisha imeunganishwa na hakuna programu nyingine inayoitumia; itajaribiwa tena yenyewe."
 
 #: src/stream/mod.rs
 msgid "The camera is back in the stream."

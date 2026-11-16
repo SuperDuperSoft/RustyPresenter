@@ -26,8 +26,12 @@ pub struct RecordUi {
     links: RefCell<Vec<(String, bool)>>,
     /// The destinations the operator was told the internet is too slow for (once each).
     slow_told: RefCell<Vec<String>>,
+    /// The destinations the operator was told have not connected after `NEVER_TRIES` (once each).
+    never_told: RefCell<Vec<String>>,
     /// The camera in the stream: whether its pictures came at the last look (`None`: not yet seen at all).
     camera_was: Cell<Option<bool>>,
+    /// Seconds the camera has been waited for since Go Live, before its first picture.
+    camera_wait: Cell<u32>,
     /// The sound input being recorded (empty: none), and whether it was silent at the last look.
     input: RefCell<String>,
     silent_was: Cell<bool>,
@@ -59,6 +63,12 @@ fn off_ui<T: Send + 'static>(op: &Operator, work: impl FnOnce() -> T + Send + 's
 }
 
 /// How often (seconds) a signed-in stream's viewers are asked about.
+/// Go Live: tries in a row without connecting before the operator is told a destination does not connect.
+pub(crate) const NEVER_TRIES: u32 = 3;
+
+/// Go Live with a camera: seconds it may take to send its first picture before the operator is told it does not.
+pub(crate) const CAMERA_START_SECS: u32 = 15;
+
 const VIEWERS_EVERY: u32 = 30;
 
 /// Signed in: a broadcast made at each service for Go Live, by the destination's name.
@@ -117,7 +127,9 @@ impl Operator {
             if good.is_empty() && signed.is_empty() { return self.toast(stream::tr::nothing_ready(), true) }
             titles = keyed.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.title().to_string()).collect();
             self.record.slow_told.borrow_mut().clear();
+            self.record.never_told.borrow_mut().clear();
             self.record.camera_was.set(None);
+            self.record.camera_wait.set(0);
             addresses = good;
         }
         let today = chrono::Local::now().date_naive();
@@ -292,6 +304,11 @@ impl Operator {
                 *was = link.up;
                 said.push(if link.up { (stream::tr::connected(name), false) } else { (stream::tr::lost(name), true) });
             }
+            // Never connected after a few tries: a wrong key, or the service or the internet refusing. Said once.
+            if !link.up && link.failed >= NEVER_TRIES && !self.record.never_told.borrow().contains(name) {
+                self.record.never_told.borrow_mut().push(name.clone());
+                said.push((stream::tr::never_connected(name), true));
+            }
             // The upload cannot keep up: said once, with what to do.
             if link.skips >= SLOW_SKIPS && !self.record.slow_told.borrow().contains(name) {
                 self.record.slow_told.borrow_mut().push(name.clone());
@@ -314,10 +331,19 @@ impl Operator {
     }
 
     /// Go Live with a camera: says when its pictures stop (the stream shows the slides meanwhile) and when they
-    /// come back. Nothing before the camera has been seen once (it is still starting).
+    /// come back; and when it has sent none `CAMERA_START_SECS` after Go Live (before that it is still starting).
     pub(crate) fn say_camera(&self, seen: Option<bool>) {
         let Some(now) = seen else { return };
         if !self.record.live.get() { return }
+        // Never seen for `CAMERA_START_SECS`: it is not starting (unplugged, or another program has it).
+        if self.record.camera_was.get().is_none() && !now {
+            self.record.camera_wait.set(self.record.camera_wait.get() + 1);
+            if self.record.camera_wait.get() >= CAMERA_START_SECS {
+                self.record.camera_was.set(Some(false));
+                self.toast(stream::tr::camera_never(), true);
+            }
+            return;
+        }
         match (self.record.camera_was.get(), now) {
             (Some(true), false) => self.toast(stream::tr::camera_lost(), true),
             (Some(false), true) => self.toast(stream::tr::camera_back(), false),

@@ -6305,6 +6305,10 @@ msgid "{name}: the stream is going out."
 msgstr "{name} : la diffusion est en cours."
 
 #: src/stream/mod.rs
+msgid "{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on."
+msgstr "{name} ne s’est pas connecté après plusieurs essais. Vérifiez la clé de diffusion dans Paramètres → Médias → Diffusion en direct, et Internet. Les essais continuent ; l’enregistrement continue."
+
+#: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr "{name} a perdu la connexion. Nouvel essai automatique ; l’enregistrement continue."
 
@@ -6331,6 +6335,10 @@ msgstr "son adresse ou sa clé ne permet pas d’envoyer une diffusion"
 #: src/stream/mod.rs
 msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
 msgstr "La caméra s’est arrêtée. La diffusion montre les diapositives jusqu’à son retour ; nouvel essai automatique."
+
+#: src/stream/mod.rs
+msgid "The camera is not sending pictures, so the stream shows the slides. Check that it is plugged in and that no other program is using it; it is tried again by itself."
+msgstr "La caméra n’envoie pas d’image, la diffusion montre donc les diapositives. Vérifiez qu’elle est branchée et qu’aucun autre programme ne l’utilise ; elle est réessayée toute seule."
 
 #: src/stream/mod.rs
 msgid "The camera is back in the stream."

@@ -6310,6 +6310,10 @@ msgid "{name}: the stream is going out."
 msgstr "{name}: трансляція йде."
 
 #: src/stream/mod.rs
+msgid "{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on."
+msgstr "{name} не підключився після кількох спроб. Перевірте ключ трансляції в розділі Налаштування → Медіа → Трансляція та інтернет. Спроби тривають; запис іде."
+
+#: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr "{name}: з’єднання втрачено. Повторна спроба відбувається сама; запис триває."
 
@@ -6336,6 +6340,10 @@ msgstr "на цю адресу чи з цим ключем трансляцію 
 #: src/stream/mod.rs
 msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
 msgstr "Камера зупинилася. Поки її немає, у трансляції видно слайди; повторна спроба відбувається сама."
+
+#: src/stream/mod.rs
+msgid "The camera is not sending pictures, so the stream shows the slides. Check that it is plugged in and that no other program is using it; it is tried again by itself."
+msgstr "Камера не передає зображення, тому в трансляції показуються слайди. Перевірте, що її підключено і її не використовує інша програма; спроби повторюються самі."
 
 #: src/stream/mod.rs
 msgid "The camera is back in the stream."

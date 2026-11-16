@@ -6305,6 +6305,10 @@ msgid "{name}: the stream is going out."
 msgstr "{name}: Der Stream geht hinaus."
 
 #: src/stream/mod.rs
+msgid "{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on."
+msgstr "{name} hat sich nach mehreren Versuchen nicht verbunden. Prüfen Sie den Streamschlüssel unter Einstellungen → Medien → Livestream und das Internet. Es wird weiter versucht; die Aufnahme läuft weiter."
+
+#: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr "{name} hat die Verbindung verloren. Es wird von selbst erneut versucht; die Aufnahme läuft weiter."
 
@@ -6331,6 +6335,10 @@ msgstr "an seine Adresse oder mit seinem Schlüssel kann kein Stream gesendet we
 #: src/stream/mod.rs
 msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
 msgstr "Die Kamera ist ausgefallen. Der Stream zeigt die Folien, bis sie wieder da ist; es wird von selbst erneut versucht."
+
+#: src/stream/mod.rs
+msgid "The camera is not sending pictures, so the stream shows the slides. Check that it is plugged in and that no other program is using it; it is tried again by itself."
+msgstr "Die Kamera sendet kein Bild, deshalb zeigt die Übertragung die Folien. Prüfen Sie, ob sie angeschlossen ist und kein anderes Programm sie benutzt; sie wird von selbst neu versucht."
 
 #: src/stream/mod.rs
 msgid "The camera is back in the stream."

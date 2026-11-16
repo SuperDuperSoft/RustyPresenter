@@ -6305,6 +6305,10 @@ msgid "{name}: the stream is going out."
 msgstr "{name}: emisyon an ap soti."
 
 #: src/stream/mod.rs
+msgid "{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on."
+msgstr "{name} pa konekte apre plizyè esè. Tcheke kle difizyon an nan Paramèt → Medya → Emisyon an dirèk, ak entènèt la. Y ap kontinye eseye; anrejistreman an kontinye."
+
+#: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr "{name} pèdi koneksyon an. L ap eseye ankò poukont li; anrejistreman an kontinye."
 
@@ -6331,6 +6335,10 @@ msgstr "yo pa ka voye yon emisyon nan adrès li oswa ak kle li"
 #: src/stream/mod.rs
 msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
 msgstr "Kamera a kanpe. Emisyon an montre diapozitif yo jiskaske li tounen; l ap eseye ankò poukont li."
+
+#: src/stream/mod.rs
+msgid "The camera is not sending pictures, so the stream shows the slides. Check that it is plugged in and that no other program is using it; it is tried again by itself."
+msgstr "Kamera a pa voye imaj, kidonk difizyon an montre slayd yo. Tcheke si li branche e si okenn lòt pwogram pa itilize l; y ap eseye l ankò poukont li."
 
 #: src/stream/mod.rs
 msgid "The camera is back in the stream."

@@ -6300,6 +6300,10 @@ msgid "{name}: the stream is going out."
 msgstr "{name}: 방송이 나가고 있어요."
 
 #: src/stream/mod.rs
+msgid "{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on."
+msgstr "{name}이(가) 여러 번 시도해도 연결되지 않았습니다. 설정 → 미디어 → 라이브 방송의 스트림 키와 인터넷을 확인하세요. 계속 시도 중이며 녹화는 계속됩니다."
+
+#: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr "{name} 연결이 끊겼어요. 알아서 다시 연결해요. 녹화는 계속돼요."
 
@@ -6326,6 +6330,10 @@ msgstr "그 주소나 키로는 방송을 보낼 수 없어요"
 #: src/stream/mod.rs
 msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
 msgstr "카메라가 멈췄어요. 돌아올 때까지 방송에는 슬라이드가 보여요. 알아서 다시 연결해요."
+
+#: src/stream/mod.rs
+msgid "The camera is not sending pictures, so the stream shows the slides. Check that it is plugged in and that no other program is using it; it is tried again by itself."
+msgstr "카메라에서 화면이 오지 않아 방송에 슬라이드가 나갑니다. 카메라가 연결되어 있는지, 다른 프로그램이 쓰고 있지 않은지 확인하세요. 자동으로 다시 시도합니다."
 
 #: src/stream/mod.rs
 msgid "The camera is back in the stream."

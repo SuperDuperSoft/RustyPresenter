@@ -6300,6 +6300,10 @@ msgid "{name}: the stream is going out."
 msgstr "{name}：直播正在发送。"
 
 #: src/stream/mod.rs
+msgid "{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on."
+msgstr "{name} 尝试多次仍未连接。请检查设置 → 媒体 → 直播中的推流密钥和网络。仍在重试；录像继续。"
+
+#: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr "{name} 连接中断，正在自动重试；录制仍在继续。"
 
@@ -6326,6 +6330,10 @@ msgstr "无法向这个地址或用这个密钥发送直播"
 #: src/stream/mod.rs
 msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
 msgstr "摄像头停止了。在它恢复前，直播显示幻灯片；正在自动重试。"
+
+#: src/stream/mod.rs
+msgid "The camera is not sending pictures, so the stream shows the slides. Check that it is plugged in and that no other program is using it; it is tried again by itself."
+msgstr "摄像机没有画面，所以直播显示幻灯片。请检查它是否已连接，以及是否有其他程序在使用它；会自动重试。"
 
 #: src/stream/mod.rs
 msgid "The camera is back in the stream."

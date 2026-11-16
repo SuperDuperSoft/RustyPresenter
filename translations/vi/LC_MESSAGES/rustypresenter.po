@@ -6300,6 +6300,10 @@ msgid "{name}: the stream is going out."
 msgstr "{name}: buổi phát đang được gửi đi."
 
 #: src/stream/mod.rs
+msgid "{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on."
+msgstr "{name} chưa kết nối được sau nhiều lần thử. Hãy kiểm tra khóa phát trực tiếp trong Cài đặt → Đa phương tiện → Phát trực tiếp và mạng internet. Vẫn đang thử; bản ghi vẫn tiếp tục."
+
+#: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr "{name} mất kết nối. Đang tự thử lại; việc ghi vẫn tiếp tục."
 
@@ -6326,6 +6330,10 @@ msgstr "không thể gửi buổi phát tới địa chỉ hoặc bằng khóa �
 #: src/stream/mod.rs
 msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
 msgstr "Máy quay đã dừng. Buổi phát hiển thị trang chiếu cho đến khi máy quay trở lại; đang tự thử lại."
+
+#: src/stream/mod.rs
+msgid "The camera is not sending pictures, so the stream shows the slides. Check that it is plugged in and that no other program is using it; it is tried again by itself."
+msgstr "Camera không gửi hình, nên buổi phát hiện các trang chiếu. Hãy kiểm tra camera đã cắm và không có chương trình nào khác đang dùng; ứng dụng tự thử lại."
 
 #: src/stream/mod.rs
 msgid "The camera is back in the stream."

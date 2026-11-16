@@ -171,6 +171,7 @@ pub mod tr {
     use crate::tr;
     pub fn live_on(names: &str) -> String { tr!("Going live on {names}. Recording too.", names = names) }
     pub fn connected(name: &str) -> String { tr!("{name}: the stream is going out.", name = name) }
+    pub fn never_connected(name: &str) -> String { tr!("{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on.", name = name) }
     pub fn lost(name: &str) -> String { tr!("{name} lost its connection. Trying again by itself; the recording goes on.", name = name) }
     pub fn nothing_ready() -> String { tr!("Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream.") }
     pub fn not_ready(name: &str, why: &str) -> String { tr!("{name} is not streamed to: {why}", name = name, why = why) }
@@ -178,6 +179,7 @@ pub mod tr {
     pub fn no_address() -> String { tr!("it has no address") }
     pub fn bad_address() -> String { tr!("its address or key is not one a stream can be sent to") }
     pub fn camera_lost() -> String { tr!("The camera stopped. The stream shows the slides until it is back; it is tried again by itself.") }
+    pub fn camera_never() -> String { tr!("The camera is not sending pictures, so the stream shows the slides. Check that it is plugged in and that no other program is using it; it is tried again by itself.") }
     pub fn camera_back() -> String { tr!("The camera is back in the stream.") }
     pub fn too_slow(name: &str) -> String {
         tr!("{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off.", name = name)
