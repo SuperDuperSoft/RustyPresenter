@@ -360,6 +360,13 @@ fn frame_at(ff: &Path, dir: &Path, file: &Path, t: &str) -> image::RgbImage {
     image::open(&png).unwrap().to_rgb8()
 }
 
+/// The first picture of `file`, from 2 s on, for which `seen` holds (a camera's own FFmpeg can take a few seconds
+/// to start while the whole suite runs).
+fn first_frame_where(ff: &Path, dir: &Path, file: &Path, seen: impl Fn(&image::RgbImage) -> bool) -> image::RgbImage {
+    let frames: Vec<image::RgbImage> = (2..=7).map(|t| frame_at(ff, dir, file, &t.to_string())).collect();
+    frames.iter().find(|f| seen(f)).cloned().unwrap_or_else(|| frames[1].clone())
+}
+
 fn is_blue(p: [u8; 3]) -> bool { p[2] > 180 && p[0] < 60 }
 fn is_red(p: [u8; 3]) -> bool { p[0] > 180 && p[2] < 60 }
 
@@ -374,7 +381,7 @@ fn go_live_shows_the_camera_with_black_bars() {
         ..plan(ff.clone(), &dir, Sound::None) }, 8.0, |_, _| {});
     finish_server(srv);
     assert_eq!(ended.problem, None, "{ended:?}");
-    let img = frame_at(&ff, &dir, &received, "3");
+    let img = first_frame_where(&ff, &dir, &received, |f| is_blue(f.get_pixel(640, 300).0));
     assert_eq!(img.dimensions(), (1280, 720));
     let (bar, mid) = (img.get_pixel(60, 300).0, img.get_pixel(640, 300).0);
     assert!(is_blue(mid), "the camera fills the middle: {mid:?}");
@@ -393,7 +400,7 @@ fn go_live_puts_the_words_over_the_camera() {
         look: Some(only(Scene::CameraWords, "Amazing grace how sweet the sound")), ..plan(ff.clone(), &dir, Sound::None) }, 8.0, |_, _| {});
     finish_server(srv);
     assert_eq!(ended.problem, None, "{ended:?}");
-    let img = frame_at(&ff, &dir, &received, "4");
+    let img = first_frame_where(&ff, &dir, &received, |f| is_blue(f.get_pixel(640, 100).0));
     let top = img.get_pixel(640, 100).0;
     assert!(is_blue(top), "the camera at the top: {top:?}");
     // The bottom third: the band darkens the camera, and letters are near-white.

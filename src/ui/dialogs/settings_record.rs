@@ -79,39 +79,57 @@ pub(crate) fn read_stream_sound(g: &SettingsDlg) -> String {
     g.get_stream_sound_names().row_data(g.get_stream_sound_index().max(0) as usize).map(|s| s.to_string()).unwrap_or_default()
 }
 
-/// The list "Camera": none, then each camera; a saved one that is not plugged in stays chosen.
+/// The key of the last choice in the camera lists, "Network camera": the address is typed below it.
+const NETWORK_CAMERA: &str = "://";
+
+/// The list "Camera": none, each camera, then a camera on the network; a saved one that is not plugged in stays
+/// chosen, and a saved address chooses "Network camera".
 pub fn camera_choices(cameras: &[Input], saved: &str) -> Choices {
     let mut labels = vec![crate::tr!("No camera")];
     let mut keys = vec![String::new()];
     labels.extend(cameras.iter().map(|c| c.label.clone()));
     keys.extend(cameras.iter().map(|c| c.name.clone()));
-    if !saved.is_empty() && !keys.iter().any(|k| k == saved) {
+    let network = record::args::is_network_camera(saved);
+    if !saved.is_empty() && !network && !keys.iter().any(|k| k == saved) {
         labels.push(format!("{saved} ({})", not_connected()));
         keys.push(saved.to_string());
     }
-    let index = keys.iter().position(|k| k == saved).unwrap_or(0);
+    labels.push(crate::tr!("Network camera"));
+    keys.push(NETWORK_CAMERA.to_string());
+    let index = if network { keys.len() - 1 } else { keys.iter().position(|k| k == saved).unwrap_or(0) };
     Choices { labels, keys, index }
 }
 
 fn fill_camera(g: &SettingsDlg, cameras: &[Input], saved: &str, saved2: &str) {
+    let address = |s: &str| if record::args::is_network_camera(s) { s.into() } else { slint::SharedString::new() };
     let c = camera_choices(cameras, saved);
     g.set_stream_camera_labels(strings(c.labels));
     g.set_stream_camera_names(strings(c.keys));
     g.set_stream_camera_index(c.index as i32);
+    g.set_stream_camera_address(address(saved));
     let c = camera_choices(cameras, saved2);
     g.set_stream_camera2_labels(strings(c.labels));
     g.set_stream_camera2_names(strings(c.keys));
     g.set_stream_camera2_index(c.index as i32);
+    g.set_stream_camera2_address(address(saved2));
+}
+
+/// The camera chosen in a list: its name, or the address typed for "Network camera" (none if it is no address).
+fn chosen_camera(names: slint::ModelRc<slint::SharedString>, index: i32, address: &str) -> String {
+    let key = names.row_data(index.max(0) as usize).map(|s| s.to_string()).unwrap_or_default();
+    if key != NETWORK_CAMERA { return key }
+    let address = address.trim();
+    if record::args::is_network_camera(address) { address.to_string() } else { String::new() }
 }
 
 fn read_camera(g: &SettingsDlg) -> String {
-    g.get_stream_camera_names().row_data(g.get_stream_camera_index().max(0) as usize).map(|s| s.to_string()).unwrap_or_default()
+    chosen_camera(g.get_stream_camera_names(), g.get_stream_camera_index(), &g.get_stream_camera_address())
 }
 
 /// The second camera: none without a first, or when it is the first again.
 fn read_camera2(g: &SettingsDlg) -> String {
     let first = read_camera(g);
-    let second = g.get_stream_camera2_names().row_data(g.get_stream_camera2_index().max(0) as usize).map(|s| s.to_string()).unwrap_or_default();
+    let second = chosen_camera(g.get_stream_camera2_names(), g.get_stream_camera2_index(), &g.get_stream_camera2_address());
     if first.is_empty() || second == first { String::new() } else { second }
 }
 

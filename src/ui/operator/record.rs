@@ -397,7 +397,7 @@ impl Operator {
             self.ui.set_scene_labels(slint::ModelRc::new(slint::VecModel::from(labels)));
             // With two cameras the list offers each; the first is in the picture at the start.
             let cams = self.record.cameras.borrow();
-            let cams: Vec<slint::SharedString> = if cams.len() > 1 { cams.iter().map(|c| c.as_str().into()).collect() } else { vec![] };
+            let cams: Vec<slint::SharedString> = if cams.len() > 1 { cams.iter().map(|c| record::args::camera_label(c).into()).collect() } else { vec![] };
             self.ui.set_camera_labels(slint::ModelRc::new(slint::VecModel::from(cams)));
             self.ui.set_camera_active(0);
             self.show_scene();

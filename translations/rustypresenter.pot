@@ -2473,6 +2473,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
+msgid "Network camera address"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "The camera's address, like rtsp://192.168.1.50:554/stream1"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
 msgid "Second camera"
 msgstr ""
 
@@ -5899,6 +5907,10 @@ msgstr ""
 
 #: src/print/html.rs src/strings/operator.rs src/theme/layouts.rs
 msgid "Scripture"
+msgstr ""
+
+#: src/record/args.rs
+msgid "Network camera {host}"
 msgstr ""
 
 #: src/record/mod.rs
@@ -10191,6 +10203,10 @@ msgstr ""
 
 #: src/ui/dialogs/settings_record.rs
 msgid "No camera"
+msgstr ""
+
+#: src/ui/dialogs/settings_record.rs
+msgid "Network camera"
 msgstr ""
 
 #: src/ui/dialogs/settings_record.rs

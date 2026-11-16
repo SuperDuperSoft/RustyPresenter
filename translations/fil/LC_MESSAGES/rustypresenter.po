@@ -2476,6 +2476,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "Isang camera o capture card para sa mga camera scene ng stream (at ng recording nito)."
 
 #: ui/dialogs/settings-media.slint
+msgid "Network camera address"
+msgstr "Address ng network camera"
+
+#: ui/dialogs/settings-media.slint
+msgid "The camera's address, like rtsp://192.168.1.50:554/stream1"
+msgstr "Ang address ng camera, gaya ng rtsp://192.168.1.50:554/stream1"
+
+#: ui/dialogs/settings-media.slint
 msgid "Second camera"
 msgstr "Ikalawang camera"
 
@@ -5909,6 +5917,10 @@ msgstr "Hindi nakakonekta ang screen na iyon sa ngayon."
 #: src/print/html.rs src/strings/operator.rs src/theme/layouts.rs
 msgid "Scripture"
 msgstr "Kasulatan"
+
+#: src/record/args.rs
+msgid "Network camera {host}"
+msgstr "Network camera {host}"
 
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
@@ -10203,6 +10215,10 @@ msgstr "Ang output kung saan pinatutugtog ng app ang tunog nito"
 #: src/ui/dialogs/settings_record.rs
 msgid "No camera"
 msgstr "Walang camera"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "Network camera"
+msgstr "Network camera"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"

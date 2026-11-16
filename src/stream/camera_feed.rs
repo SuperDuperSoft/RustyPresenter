@@ -127,6 +127,33 @@ mod tests {
     }
 
     #[test]
+    fn a_network_camera_sends_its_pictures() {
+        let Some(ff) = std::env::var_os("PATH").and_then(|p| std::env::split_paths(&p).flat_map(|d| [d.join("ffmpeg"), d.join("ffmpeg.exe")]).find(|p| p.is_file())) else {
+            eprintln!("no ffmpeg here: skipped");
+            return;
+        };
+        // A camera on the network, played by FFmpeg: red pictures, waiting for the app to connect.
+        let port = crate::platform::ports::tcp().unwrap();
+        let address = format!("http://127.0.0.1:{port}/camera");
+        let mut camera = std::process::Command::new(&ff)
+            .args(["-hide_banner", "-loglevel", "error", "-re", "-f", "lavfi", "-i", "color=c=red:size=320x240:rate=30", "-c:v", "mpeg2video", "-f", "mpegts", "-listen", "1"])
+            .arg(&address).stdin(Stdio::null()).spawn().unwrap();
+        let feed = start(ff, crate::record::args::camera_input(crate::platform::tools::OS, &address), (64, 36), 30).unwrap();
+        let began = Instant::now();
+        let picture = loop {
+            if let Some(p) = feed.picture() { break Some(p) }
+            if began.elapsed() > Duration::from_secs(20) { break None }
+            std::thread::sleep(Duration::from_millis(100));
+        };
+        let _ = camera.kill();
+        let picture = picture.expect("pictures from the network camera");
+        assert!(feed.seeing.load(Ordering::Relaxed));
+        let middle = (18 * 64 + 32) * 4;
+        let px = &picture[middle..middle + 4];
+        assert!(px[0] > 200 && px[1] < 60 && px[2] < 60, "red: {px:?}");
+    }
+
+    #[test]
     fn the_camera_slot_goes_empty_when_pictures_stop() {
         let latest: Latest = Arc::default();
         let now = Instant::now();

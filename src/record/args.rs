@@ -114,12 +114,40 @@ pub fn parse_cameras(os: Os, out: &str) -> Vec<Input> {
 /// FFmpeg's input arguments for camera `name` on `os`.
 pub fn camera_input(os: Os, name: &str) -> Vec<String> {
     let v = |a: &[&str]| a.iter().map(|s| s.to_string()).collect::<Vec<_>>();
+    if is_network_camera(name) {
+        let address = name.trim();
+        // RTSP over TCP: over UDP a busy network loses pieces of pictures. A camera that does not answer in 5 s
+        // is given up on, and the camera feed tries again.
+        let rtsp = address.to_ascii_lowercase().starts_with("rtsp");
+        let how: &[&str] = if rtsp { &["-rtsp_transport", "tcp", "-timeout", "5000000"] } else { &[] };
+        return [v(how), v(&["-thread_queue_size", "64", "-i"]), vec![address.to_string()]].concat();
+    }
     match os {
         // A camera's pictures wait in a bigger buffer than DirectShow's own, so a busy moment drops none.
         Os::Windows => [v(&["-f", "dshow", "-rtbufsize", "100M", "-thread_queue_size", "64", "-i"]), vec![format!("video={name}")]].concat(),
         Os::MacOs => [v(&["-f", "avfoundation", "-framerate", "30", "-thread_queue_size", "64", "-i"]), vec![format!("{name}:none")]].concat(),
         Os::Linux => [v(&["-f", "v4l2", "-thread_queue_size", "64", "-i"]), vec![name.to_string()]].concat(),
     }
+}
+
+/// The kinds of address a camera on the network is reached at.
+const NETWORK: [&str; 10] = ["rtsp://", "rtsps://", "srt://", "rtmp://", "rtmps://", "http://", "https://", "udp://", "rtp://", "tcp://"];
+
+/// Whether camera `name` is a camera on the network, given by its address (`rtsp://…`, `srt://…`).
+pub fn is_network_camera(name: &str) -> bool {
+    let n = name.trim().to_ascii_lowercase();
+    NETWORK.iter().any(|s| n.starts_with(s) && n.len() > s.len())
+}
+
+/// What camera `name` is called on the scene button: a camera on the network by where it is, never with the
+/// password its address may hold.
+pub fn camera_label(name: &str) -> String {
+    if !is_network_camera(name) { return name.to_string() }
+    let rest = name.trim().split_once("://").map_or("", |(_, r)| r);
+    let place = &rest[..rest.find(['/', '?']).unwrap_or(rest.len())];
+    let place = place.rsplit_once('@').map_or(place, |(_, p)| p);
+    let host = if place.starts_with('[') { &place[..place.find(']').map_or(place.len(), |i| i + 1)] } else { place.split(':').next().unwrap_or(place) };
+    crate::tr!("Network camera {host}", host = host)
 }
 
 fn quoted(l: &str) -> Option<&str> {
@@ -339,6 +367,24 @@ mod tests {
         let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: Some(("dshow", "Line In")), board, out: &out, stream: &[], pc: None, delay_ms: 0 }));
         assert!(a.join(" ").contains("-f s16le -ar 48000 -ac 2 -thread_queue_size 1024 -i tcp://127.0.0.1:40700?listen=1 -map 0:v -map 1:a"), "{a:?}");
         assert!(!a.iter().any(|x| x.starts_with("audio=")), "not the device itself");
+    }
+
+    #[test]
+    fn a_network_camera_is_opened_by_its_address() {
+        let address = "rtsp://admin:secret@192.168.1.50:554/stream1";
+        let a = camera_input(Os::Windows, address);
+        assert!(a.join(" ").contains("-rtsp_transport tcp"), "{a:?}");
+        assert_eq!(a.last().unwrap(), address);
+        assert!(!a.iter().any(|x| x == "dshow" || x.starts_with("video=")), "{a:?}");
+        let a = camera_input(Os::Linux, "srt://192.168.1.60:9000");
+        assert_eq!(a.last().unwrap(), "srt://192.168.1.60:9000");
+        assert!(!a.iter().any(|x| x == "v4l2" || x == "-rtsp_transport"), "{a:?}");
+        assert!(is_network_camera("RTSP://cam") && is_network_camera("http://10.0.0.2/video"));
+        assert!(!is_network_camera("Integrated Camera") && !is_network_camera(""));
+        // Named by where it is, never with its password.
+        assert_eq!(camera_label(address), "Network camera 192.168.1.50");
+        assert_eq!(camera_label("srt://cam.local:9000?streamid=x"), "Network camera cam.local");
+        assert_eq!(camera_label("Integrated Camera"), "Integrated Camera");
     }
 
     #[test]

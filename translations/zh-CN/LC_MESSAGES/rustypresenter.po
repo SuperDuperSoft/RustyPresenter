@@ -2476,6 +2476,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "用于直播镜头场景（及其录制）的摄像头或采集卡。"
 
 #: ui/dialogs/settings-media.slint
+msgid "Network camera address"
+msgstr "网络摄像机地址"
+
+#: ui/dialogs/settings-media.slint
+msgid "The camera's address, like rtsp://192.168.1.50:554/stream1"
+msgstr "摄像机的地址，例如 rtsp://192.168.1.50:554/stream1"
+
+#: ui/dialogs/settings-media.slint
 msgid "Second camera"
 msgstr "第二台摄像头"
 
@@ -5905,6 +5913,10 @@ msgstr "该屏幕当前未连接。"
 #: src/print/html.rs src/strings/operator.rs src/theme/layouts.rs
 msgid "Scripture"
 msgstr "经文"
+
+#: src/record/args.rs
+msgid "Network camera {host}"
+msgstr "网络摄像机 {host}"
 
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
@@ -10161,6 +10173,10 @@ msgstr "软件播放声音所用的输出"
 #: src/ui/dialogs/settings_record.rs
 msgid "No camera"
 msgstr "无摄像头"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "Network camera"
+msgstr "网络摄像机"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"

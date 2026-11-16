@@ -79,7 +79,7 @@ impl Drop for Board {
 
 /// Starts passing sound input `name` (FFmpeg input `format`) on, read by `ffmpeg`; silence while `mute` is set.
 pub fn start(ffmpeg: PathBuf, format: &str, name: &str, mute: Arc<AtomicBool>) -> Result<Board, String> {
-    let port = std::net::TcpListener::bind("127.0.0.1:0").and_then(|l| l.local_addr()).map_err(|e| e.to_string())?.port();
+    let port = crate::platform::ports::tcp().map_err(|e| e.to_string())?;
     let (stop, silent) = (Arc::new(AtomicBool::new(false)), Arc::new(AtomicBool::new(false)));
     let (s, q) = (stop.clone(), silent.clone());
     let level: Arc<super::level::Level> = Arc::default();

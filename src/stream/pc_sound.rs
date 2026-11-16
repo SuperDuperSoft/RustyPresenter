@@ -140,7 +140,7 @@ mod windows {
     }
 
     pub fn start(id: String, mute: Arc<AtomicBool>) -> Result<Capture, String> {
-        let port = std::net::TcpListener::bind("127.0.0.1:0").and_then(|l| l.local_addr()).map_err(|e| e.to_string())?.port();
+        let port = crate::platform::ports::tcp().map_err(|e| e.to_string())?;
         let stop = Arc::new(AtomicBool::new(false));
         let (tx, rx) = std::sync::mpsc::channel::<Result<Format, String>>();
         let s = stop.clone();

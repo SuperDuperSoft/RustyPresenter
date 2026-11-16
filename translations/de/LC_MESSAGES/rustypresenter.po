@@ -2476,6 +2476,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "Eine Kamera oder Capture-Karte für die Kamera-Szenen des Streams (und seine Aufnahme)."
 
 #: ui/dialogs/settings-media.slint
+msgid "Network camera address"
+msgstr "Adresse der Netzwerkkamera"
+
+#: ui/dialogs/settings-media.slint
+msgid "The camera's address, like rtsp://192.168.1.50:554/stream1"
+msgstr "Die Adresse der Kamera, z. B. rtsp://192.168.1.50:554/stream1"
+
+#: ui/dialogs/settings-media.slint
 msgid "Second camera"
 msgstr "Zweite Kamera"
 
@@ -5909,6 +5917,10 @@ msgstr "Dieser Bildschirm ist gerade nicht verbunden."
 #: src/print/html.rs src/strings/operator.rs src/theme/layouts.rs
 msgid "Scripture"
 msgstr "Bibeltext"
+
+#: src/record/args.rs
+msgid "Network camera {host}"
+msgstr "Netzwerkkamera {host}"
 
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
@@ -10203,6 +10215,10 @@ msgstr "Der Ausgang, auf dem die App ihren Ton abspielt"
 #: src/ui/dialogs/settings_record.rs
 msgid "No camera"
 msgstr "Keine Kamera"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "Network camera"
+msgstr "Netzwerkkamera"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"

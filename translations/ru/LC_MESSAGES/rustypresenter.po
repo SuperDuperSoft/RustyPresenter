@@ -2476,6 +2476,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "Камера или карта захвата для сцен с камерой в трансляции (и её записи)."
 
 #: ui/dialogs/settings-media.slint
+msgid "Network camera address"
+msgstr "Адрес сетевой камеры"
+
+#: ui/dialogs/settings-media.slint
+msgid "The camera's address, like rtsp://192.168.1.50:554/stream1"
+msgstr "Адрес камеры, например rtsp://192.168.1.50:554/stream1"
+
+#: ui/dialogs/settings-media.slint
 msgid "Second camera"
 msgstr "Вторая камера"
 
@@ -5913,6 +5921,10 @@ msgstr "Этот экран сейчас не подключён."
 #: src/print/html.rs src/strings/operator.rs src/theme/layouts.rs
 msgid "Scripture"
 msgstr "Писание"
+
+#: src/record/args.rs
+msgid "Network camera {host}"
+msgstr "Сетевая камера {host}"
 
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
@@ -10245,6 +10257,10 @@ msgstr "Выход, на котором приложение воспроизв�
 #: src/ui/dialogs/settings_record.rs
 msgid "No camera"
 msgstr "Без камеры"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "Network camera"
+msgstr "Сетевая камера"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"

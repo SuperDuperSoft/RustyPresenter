@@ -2476,6 +2476,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "Camera hoặc thẻ ghi hình cho các cảnh camera của buổi phát trực tiếp (và bản ghi của nó)."
 
 #: ui/dialogs/settings-media.slint
+msgid "Network camera address"
+msgstr "Địa chỉ camera mạng"
+
+#: ui/dialogs/settings-media.slint
+msgid "The camera's address, like rtsp://192.168.1.50:554/stream1"
+msgstr "Địa chỉ của camera, ví dụ rtsp://192.168.1.50:554/stream1"
+
+#: ui/dialogs/settings-media.slint
 msgid "Second camera"
 msgstr "Camera thứ hai"
 
@@ -5905,6 +5913,10 @@ msgstr "Màn hình đó hiện chưa được kết nối."
 #: src/print/html.rs src/strings/operator.rs src/theme/layouts.rs
 msgid "Scripture"
 msgstr "Kinh Thánh"
+
+#: src/record/args.rs
+msgid "Network camera {host}"
+msgstr "Camera mạng {host}"
 
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
@@ -10161,6 +10173,10 @@ msgstr "Đầu ra mà ứng dụng phát âm thanh của nó"
 #: src/ui/dialogs/settings_record.rs
 msgid "No camera"
 msgstr "Không có máy quay"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "Network camera"
+msgstr "Camera mạng"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"

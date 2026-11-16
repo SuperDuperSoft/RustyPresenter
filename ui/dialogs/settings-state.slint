@@ -186,6 +186,9 @@ export global SettingsDlg {
     in property <[string]> stream-camera2-labels;
     in property <[string]> stream-camera2-names;
     in-out property <int> stream-camera2-index;
+    // A camera on the network: its address, when the last choice ("Network camera") is chosen.
+    in-out property <string> stream-camera-address;
+    in-out property <string> stream-camera2-address;
     /// 1.3b scenes: automatic on, presentations with the camera (1) or not (0), and the three cards' words and pictures.
     in-out property <bool> stream-auto-scenes: true;
     /// The upload speed test: running, and what it found.

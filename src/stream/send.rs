@@ -43,11 +43,7 @@ const HELD: Duration = Duration::from_secs(30);
 pub fn feed(port: u16) -> String { format!("udp://127.0.0.1:{port}?pkt_size=1316") }
 
 /// `n` UDP ports on this computer that nobody uses now, one for each destination.
-pub fn free_ports(n: usize) -> Option<Vec<u16>> {
-    // All held at once, so no two are the same; freed together for FFmpeg to take.
-    let held: Vec<std::net::UdpSocket> = (0..n).map(|_| std::net::UdpSocket::bind("127.0.0.1:0")).collect::<Result<_, _>>().ok()?;
-    held.iter().map(|s| s.local_addr().ok().map(|a| a.port())).collect()
-}
+pub fn free_ports(n: usize) -> Option<Vec<u16>> { crate::platform::ports::udp(n) }
 
 /// A sender's FFmpeg: the local feed in, the destination out, nothing encoded again.
 pub fn sender_args(port: u16, address: &str) -> Vec<OsString> {

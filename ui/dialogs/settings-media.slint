@@ -187,17 +187,33 @@ export component SettingsMedia inherits VerticalLayout {
     Field {
         label: @tr("Camera");
         help: @tr("A camera or capture card for the stream's camera scenes (and its recording).");
-        stream-camera := Select {
-            options: SettingsDlg.stream-camera-labels;
-            index <=> SettingsDlg.stream-camera-index;
+        VerticalLayout {
+            spacing: 6px;
+            stream-camera := Select {
+                options: SettingsDlg.stream-camera-labels;
+                index <=> SettingsDlg.stream-camera-index;
+            }
+            if SettingsDlg.stream-camera-index > 0 && SettingsDlg.stream-camera-index == SettingsDlg.stream-camera-labels.length - 1: stream-camera-address := TextField {
+                label: @tr("Network camera address");
+                text <=> SettingsDlg.stream-camera-address;
+                placeholder: @tr("The camera's address, like rtsp://192.168.1.50:554/stream1");
+            }
         }
     }
     if SettingsDlg.stream-camera-index > 0: Field {
         label: @tr("Second camera");
         help: @tr("Another camera to switch to while live, from the scene button beside Live.");
-        stream-camera2 := Select {
-            options: SettingsDlg.stream-camera2-labels;
-            index <=> SettingsDlg.stream-camera2-index;
+        VerticalLayout {
+            spacing: 6px;
+            stream-camera2 := Select {
+                options: SettingsDlg.stream-camera2-labels;
+                index <=> SettingsDlg.stream-camera2-index;
+            }
+            if SettingsDlg.stream-camera2-index > 0 && SettingsDlg.stream-camera2-index == SettingsDlg.stream-camera2-labels.length - 1: stream-camera2-address := TextField {
+                label: @tr("Network camera address");
+                text <=> SettingsDlg.stream-camera2-address;
+                placeholder: @tr("The camera's address, like rtsp://192.168.1.50:554/stream1");
+            }
         }
     }
     Field {

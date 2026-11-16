@@ -2476,6 +2476,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "配信のカメラシーン（とその録画）に使うカメラまたはキャプチャカード。"
 
 #: ui/dialogs/settings-media.slint
+msgid "Network camera address"
+msgstr "ネットワークカメラのアドレス"
+
+#: ui/dialogs/settings-media.slint
+msgid "The camera's address, like rtsp://192.168.1.50:554/stream1"
+msgstr "カメラのアドレス（例: rtsp://192.168.1.50:554/stream1）"
+
+#: ui/dialogs/settings-media.slint
 msgid "Second camera"
 msgstr "2台目のカメラ"
 
@@ -5905,6 +5913,10 @@ msgstr "その画面は現在接続されていません。"
 #: src/print/html.rs src/strings/operator.rs src/theme/layouts.rs
 msgid "Scripture"
 msgstr "聖句"
+
+#: src/record/args.rs
+msgid "Network camera {host}"
+msgstr "ネットワークカメラ {host}"
 
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
@@ -10161,6 +10173,10 @@ msgstr "アプリが音を鳴らしている出力"
 #: src/ui/dialogs/settings_record.rs
 msgid "No camera"
 msgstr "カメラなし"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "Network camera"
+msgstr "ネットワークカメラ"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"

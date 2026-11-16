@@ -186,6 +186,32 @@ fn livestream_scene_settings_save() {
 }
 
 #[test]
+fn settings_keep_a_network_camera_by_its_address() {
+    use crate::ui::SettingsDlg;
+    use slint::ComponentHandle;
+    let app = test_app();
+    let room = Arc::new(Room::default());
+    let op = open(&app, &room);
+    let g = op.ui.global::<SettingsDlg>();
+    let mut prefs = RecordPrefs { camera: "rtsp://192.168.1.50/stream1".into(), ..RecordPrefs::default() };
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    let labels: Vec<String> = g.get_stream_camera_labels().iter().map(|s| s.to_string()).collect();
+    assert_eq!(labels, ["No camera", "Network camera"], "an address is no camera that is not connected");
+    assert_eq!(g.get_stream_camera_index(), 1);
+    assert_eq!(g.get_stream_camera_address(), "rtsp://192.168.1.50/stream1");
+    assert_eq!(g.get_stream_camera2_index(), 0);
+    // The second camera on the network too.
+    g.set_stream_camera2_index(1);
+    g.set_stream_camera2_address("  srt://192.168.1.60:9000 ".into());
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!((prefs.camera.as_str(), prefs.camera2.as_str()), ("rtsp://192.168.1.50/stream1", "srt://192.168.1.60:9000"));
+    // Network camera with no address, or something that is not one: no camera.
+    g.set_stream_camera_address("192.168.1.50".into());
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!((prefs.camera.as_str(), prefs.camera2.as_str()), ("", ""));
+}
+
+#[test]
 fn the_speed_test_says_what_fits_and_picks_the_size() {
     use crate::ui::SettingsDlg;
     use slint::ComponentHandle;

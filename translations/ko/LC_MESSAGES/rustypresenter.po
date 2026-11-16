@@ -2476,6 +2476,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "방송의 카메라 장면(과 녹화)에 쓸 카메라 또는 캡처 카드."
 
 #: ui/dialogs/settings-media.slint
+msgid "Network camera address"
+msgstr "네트워크 카메라 주소"
+
+#: ui/dialogs/settings-media.slint
+msgid "The camera's address, like rtsp://192.168.1.50:554/stream1"
+msgstr "카메라 주소 (예: rtsp://192.168.1.50:554/stream1)"
+
+#: ui/dialogs/settings-media.slint
 msgid "Second camera"
 msgstr "두 번째 카메라"
 
@@ -5905,6 +5913,10 @@ msgstr "그 화면은 지금 연결되어 있지 않아요."
 #: src/print/html.rs src/strings/operator.rs src/theme/layouts.rs
 msgid "Scripture"
 msgstr "성경 말씀"
+
+#: src/record/args.rs
+msgid "Network camera {host}"
+msgstr "네트워크 카메라 {host}"
 
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
@@ -10161,6 +10173,10 @@ msgstr "앱이 소리를 내보내는 출력"
 #: src/ui/dialogs/settings_record.rs
 msgid "No camera"
 msgstr "카메라 없음"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "Network camera"
+msgstr "네트워크 카메라"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"

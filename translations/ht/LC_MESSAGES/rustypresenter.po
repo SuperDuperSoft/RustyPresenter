@@ -2476,6 +2476,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "Yon kamera oswa yon kat kaptire pou sèn kamera difizyon an (ak anrejistreman li)."
 
 #: ui/dialogs/settings-media.slint
+msgid "Network camera address"
+msgstr "Adrès kamera rezo a"
+
+#: ui/dialogs/settings-media.slint
+msgid "The camera's address, like rtsp://192.168.1.50:554/stream1"
+msgstr "Adrès kamera a, tankou rtsp://192.168.1.50:554/stream1"
+
+#: ui/dialogs/settings-media.slint
 msgid "Second camera"
 msgstr "Dezyèm kamera"
 
@@ -5909,6 +5917,10 @@ msgstr "Ekran sa a pa konekte kounye a."
 #: src/print/html.rs src/strings/operator.rs src/theme/layouts.rs
 msgid "Scripture"
 msgstr "Ekriti"
+
+#: src/record/args.rs
+msgid "Network camera {host}"
+msgstr "Kamera rezo {host}"
 
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
@@ -10203,6 +10215,10 @@ msgstr "Sòti kote aplikasyon an jwe son li"
 #: src/ui/dialogs/settings_record.rs
 msgid "No camera"
 msgstr "Pa gen kamera"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "Network camera"
+msgstr "Kamera rezo"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"

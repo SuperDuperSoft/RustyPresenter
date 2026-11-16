@@ -2476,6 +2476,14 @@ msgid "A camera or capture card for the stream's camera scenes (and its recordin
 msgstr "Kamera au kadi ya kunasa kwa mandhari za kamera za matangazo (na rekodi yake)."
 
 #: ui/dialogs/settings-media.slint
+msgid "Network camera address"
+msgstr "Anwani ya kamera ya mtandao"
+
+#: ui/dialogs/settings-media.slint
+msgid "The camera's address, like rtsp://192.168.1.50:554/stream1"
+msgstr "Anwani ya kamera, kama rtsp://192.168.1.50:554/stream1"
+
+#: ui/dialogs/settings-media.slint
 msgid "Second camera"
 msgstr "Kamera ya pili"
 
@@ -5909,6 +5917,10 @@ msgstr "Skrini hiyo haijaunganishwa kwa sasa."
 #: src/print/html.rs src/strings/operator.rs src/theme/layouts.rs
 msgid "Scripture"
 msgstr "Maandiko"
+
+#: src/record/args.rs
+msgid "Network camera {host}"
+msgstr "Kamera ya mtandao {host}"
 
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
@@ -10203,6 +10215,10 @@ msgstr "Toleo ambapo programu hucheza sauti yake"
 #: src/ui/dialogs/settings_record.rs
 msgid "No camera"
 msgstr "Hakuna kamera"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "Network camera"
+msgstr "Kamera ya mtandao"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
