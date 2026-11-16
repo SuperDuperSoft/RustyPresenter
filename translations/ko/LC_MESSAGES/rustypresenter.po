@@ -2569,7 +2569,7 @@ msgstr "마이크나 라인 입력의 웅웅거림과 쉿 소리 없애기 (음�
 
 #: ui/dialogs/settings-media.slint
 msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
-msgstr ""
+msgstr "녹화에 각 소리를 별도 트랙으로도 남겨서 나중에 다시 균형을 맞출 수 있게 하기"
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
@@ -6152,7 +6152,7 @@ msgstr "녹화하려면 무료 프로그램인 FFmpeg가 필요해요. {hint}"
 
 #: src/record/mod.rs
 msgid "Everything mixed"
-msgstr ""
+msgstr "모두 섞음"
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."

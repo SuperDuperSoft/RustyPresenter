@@ -2569,7 +2569,7 @@ msgstr "Quitar el zumbido y el siseo del micrófono o la entrada de línea (pued
 
 #: ui/dialogs/settings-media.slint
 msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
-msgstr ""
+msgstr "Guardar también cada sonido en su propia pista de la grabación, para volver a equilibrarlos después"
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
@@ -6156,7 +6156,7 @@ msgstr "Para grabar se necesita FFmpeg, un programa gratuito. {hint}"
 
 #: src/record/mod.rs
 msgid "Everything mixed"
-msgstr ""
+msgstr "Todo mezclado"
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."

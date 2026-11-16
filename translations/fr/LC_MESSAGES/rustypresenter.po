@@ -2569,7 +2569,7 @@ msgstr "Retirer le bourdonnement et le souffle du micro ou de l’entrée ligne 
 
 #: ui/dialogs/settings-media.slint
 msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
-msgstr ""
+msgstr "Garder aussi chaque son sur sa propre piste dans l'enregistrement, pour les rééquilibrer ensuite"
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
@@ -6156,7 +6156,7 @@ msgstr "L’enregistrement nécessite FFmpeg, un programme gratuit. {hint}"
 
 #: src/record/mod.rs
 msgid "Everything mixed"
-msgstr ""
+msgstr "Tout mélangé"
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."

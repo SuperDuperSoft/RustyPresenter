@@ -2569,7 +2569,7 @@ msgstr "Retire bri ronfleman ak sifleman nan mikwo a oswa antre liy lan (ka fè 
 
 #: ui/dialogs/settings-media.slint
 msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
-msgstr ""
+msgstr "Kenbe chak son sou pwòp pis li tou nan anrejistreman an, pou balanse yo ankò apre"
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
@@ -6156,7 +6156,7 @@ msgstr "Anrejistreman bezwen FFmpeg, yon pwogram gratis. {hint}"
 
 #: src/record/mod.rs
 msgid "Everything mixed"
-msgstr ""
+msgstr "Tout melanje"
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."

@@ -2569,7 +2569,7 @@ msgstr "Убирать гул и шипение микрофона или лин
 
 #: ui/dialogs/settings-media.slint
 msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
-msgstr ""
+msgstr "Также сохранять каждый звук на отдельной дорожке записи, чтобы потом заново их сбалансировать"
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
@@ -6160,7 +6160,7 @@ msgstr "Для записи нужна FFmpeg — бесплатная прог�
 
 #: src/record/mod.rs
 msgid "Everything mixed"
-msgstr ""
+msgstr "Всё вместе"
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."

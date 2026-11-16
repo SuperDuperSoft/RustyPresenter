@@ -2569,7 +2569,7 @@ msgstr "去除麦克风或线路输入中的嗡嗡声和嘶嘶声（可能使音
 
 #: ui/dialogs/settings-media.slint
 msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
-msgstr ""
+msgstr "在录像中另外把每路声音单独存为一条音轨，以便之后重新调整平衡"
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
@@ -6152,7 +6152,7 @@ msgstr "录制需要 FFmpeg（一个免费程序）。{hint}"
 
 #: src/record/mod.rs
 msgid "Everything mixed"
-msgstr ""
+msgstr "全部混合"
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."

@@ -2569,7 +2569,7 @@ msgstr "Alisin ang ugong at sitsit sa mikropono o line-in (maaaring lumabo ang m
 
 #: ui/dialogs/settings-media.slint
 msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
-msgstr ""
+msgstr "Itago rin ang bawat tunog sa sariling track sa recording, para maibalanse muli pagkatapos"
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
@@ -6156,7 +6156,7 @@ msgstr "Kailangan ng FFmpeg, isang libreng program, para makapag-record. {hint}"
 
 #: src/record/mod.rs
 msgid "Everything mixed"
-msgstr ""
+msgstr "Lahat pinagsama"
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."

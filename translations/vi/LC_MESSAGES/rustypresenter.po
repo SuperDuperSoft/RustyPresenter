@@ -2569,7 +2569,7 @@ msgstr "Bỏ tiếng ù và tiếng xì từ micrô hoặc ngõ vào line (có t
 
 #: ui/dialogs/settings-media.slint
 msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
-msgstr ""
+msgstr "Giữ thêm mỗi âm thanh trên một rãnh riêng trong bản ghi, để cân chỉnh lại sau"
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
@@ -6152,7 +6152,7 @@ msgstr "Ghi hình cần FFmpeg, một chương trình miễn phí. {hint}"
 
 #: src/record/mod.rs
 msgid "Everything mixed"
-msgstr ""
+msgstr "Tất cả đã trộn"
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."

@@ -2569,7 +2569,7 @@ msgstr "Brummen und Rauschen aus Mikrofon oder Line-Eingang entfernen (kann Musi
 
 #: ui/dialogs/settings-media.slint
 msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
-msgstr ""
+msgstr "Jeden Ton zusätzlich auf einer eigenen Spur der Aufnahme behalten, um sie später neu abzumischen"
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
@@ -6156,7 +6156,7 @@ msgstr "Für die Aufnahme wird FFmpeg benötigt, ein kostenloses Programm. {hint
 
 #: src/record/mod.rs
 msgid "Everything mixed"
-msgstr ""
+msgstr "Alles gemischt"
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."

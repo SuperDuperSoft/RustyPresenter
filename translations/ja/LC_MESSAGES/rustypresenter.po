@@ -2569,7 +2569,7 @@ msgstr "マイクやライン入力のハムノイズとヒスノイズを除く
 
 #: ui/dialogs/settings-media.slint
 msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
-msgstr ""
+msgstr "録画では各音声を別トラックにも保存し、後でバランスを調整できるようにする"
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
@@ -6152,7 +6152,7 @@ msgstr "録画には無料のプログラム FFmpeg が必要です。{hint}"
 
 #: src/record/mod.rs
 msgid "Everything mixed"
-msgstr ""
+msgstr "すべてミックス"
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."

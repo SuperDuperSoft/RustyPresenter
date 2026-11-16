@@ -2569,7 +2569,7 @@ msgstr "Ondoa mvumo na mzomeo kutoka maikrofoni au line-in (inaweza kufifisha mu
 
 #: ui/dialogs/settings-media.slint
 msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
-msgstr ""
+msgstr "Pia weka kila sauti kwenye wimbo wake katika rekodi, ili kuzisawazisha tena baadaye"
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
@@ -6156,7 +6156,7 @@ msgstr "Kurekodi kunahitaji FFmpeg, programu ya bure. {hint}"
 
 #: src/record/mod.rs
 msgid "Everything mixed"
-msgstr ""
+msgstr "Vyote vimechanganywa"
 
 #: src/record/mod.rs
 msgid "This copy of FFmpeg cannot make H.264 video. Install the full FFmpeg and try again."
