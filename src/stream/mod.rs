@@ -22,6 +22,7 @@ pub mod pc_sound;
 pub mod pictures;
 pub mod scene;
 pub mod send;
+pub mod speed;
 
 /// A place a stream can be sent.
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]

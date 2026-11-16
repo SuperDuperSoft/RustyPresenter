@@ -2440,6 +2440,22 @@ msgid "Everything that plays on this output goes out with the stream (videos, so
 msgstr "この出力で鳴るものはすべて配信に入ります (動画、曲、そこに送られるほかの音も)。上で選んだマイクまたはライン入力と混ぜて送られます。"
 
 #: ui/dialogs/settings-media.slint
+msgid "Upload speed"
+msgstr "アップロード速度"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits."
+msgstr "公開の速度テストに数メガバイトのゼロを送り、オンにしたすべての配信先へ送れるかを調べます。合う録画サイズを選びます。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Testing…"
+msgstr "テスト中…"
+
+#: ui/dialogs/settings-media.slint
+msgid "Test the upload speed"
+msgstr "アップロード速度をテスト"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound delay"
 msgstr "音の遅延"
 
@@ -6178,6 +6194,18 @@ msgstr "全画面"
 #: src/stream/scene.rs
 msgid "Screen + camera"
 msgstr "画面＋カメラ"
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
+msgstr "アップロード: {speed} Mbit/s。1080pで配信できます。"
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. Stream in 720p: 1080p needs {need} Mbit/s."
+msgstr "アップロード: {speed} Mbit/s。720pで配信してください。1080pには{need} Mbit/s必要です。"
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer places, or use a faster connection."
+msgstr "アップロード: {speed} Mbit/s。遅すぎます。オンにしたすべての配信先へ720pで送るには{need} Mbit/s必要です。配信先を減らすか、速い回線を使ってください。"
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -10033,6 +10061,10 @@ msgstr "カメラなし"
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
 msgstr "ストリームキーを保存できませんでした: {error}"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "The speed test could not reach the internet. Check the connection and try again."
+msgstr "速度テストがインターネットにつながりませんでした。接続を確認してもう一度お試しください。"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"

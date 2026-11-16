@@ -2440,6 +2440,22 @@ msgid "Everything that plays on this output goes out with the stream (videos, so
 msgstr "Mọi thứ phát trên đầu ra này đều đi cùng buổi phát (video, bài hát và bất kỳ âm thanh nào khác được gửi tới đó), trộn với micrô hoặc line-in đã chọn ở trên."
 
 #: ui/dialogs/settings-media.slint
+msgid "Upload speed"
+msgstr "Tốc độ tải lên"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits."
+msgstr "Gửi vài megabyte số không đến một bài kiểm tra tốc độ công khai và cho biết mạng có chở được buổi phát đến mọi nơi đang bật không. Nó chọn kích thước ghi hình phù hợp."
+
+#: ui/dialogs/settings-media.slint
+msgid "Testing…"
+msgstr "Đang kiểm tra…"
+
+#: ui/dialogs/settings-media.slint
+msgid "Test the upload speed"
+msgstr "Kiểm tra tốc độ tải lên"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound delay"
 msgstr "Độ trễ âm thanh"
 
@@ -6178,6 +6194,18 @@ msgstr "Toàn màn hình"
 #: src/stream/scene.rs
 msgid "Screen + camera"
 msgstr "Màn hình + camera"
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
+msgstr "Tải lên: {speed} Mbit/s. Đủ để phát ở 1080p."
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. Stream in 720p: 1080p needs {need} Mbit/s."
+msgstr "Tải lên: {speed} Mbit/s. Hãy phát ở 720p: 1080p cần {need} Mbit/s."
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer places, or use a faster connection."
+msgstr "Tải lên: {speed} Mbit/s. Quá chậm: 720p đến mọi nơi đang bật cần {need} Mbit/s. Hãy phát đến ít nơi hơn hoặc dùng kết nối nhanh hơn."
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -10033,6 +10061,10 @@ msgstr "Không có máy quay"
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
 msgstr "Không giữ được khóa phát: {error}"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "The speed test could not reach the internet. Check the connection and try again."
+msgstr "Bài kiểm tra tốc độ không kết nối được Internet. Hãy kiểm tra kết nối và thử lại."
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"

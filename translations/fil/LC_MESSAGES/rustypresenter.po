@@ -2440,6 +2440,22 @@ msgid "Everything that plays on this output goes out with the stream (videos, so
 msgstr "Lahat ng tumutunog sa output na ito ay kasama sa stream (mga video, kanta, at anumang ibang tunog na ipinapadala roon), hinahalo sa mikropono o line-in na pinili sa itaas."
 
 #: ui/dialogs/settings-media.slint
+msgid "Upload speed"
+msgstr "Upload speed"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits."
+msgstr "Nagpapadala ng ilang megabyte ng zero sa isang pampublikong speed test at sinasabi kung kaya ng internet ang stream sa bawat destinasyong naka-on. Pinipili nito ang laki ng recording na kasya."
+
+#: ui/dialogs/settings-media.slint
+msgid "Testing…"
+msgstr "Sinusubukan…"
+
+#: ui/dialogs/settings-media.slint
+msgid "Test the upload speed"
+msgstr "Subukan ang upload speed"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound delay"
 msgstr "Antala ng tunog"
 
@@ -6183,6 +6199,18 @@ msgstr "Buong screen"
 #: src/stream/scene.rs
 msgid "Screen + camera"
 msgstr "Screen + camera"
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
+msgstr "Upload: {speed} Mbit/s. Sapat para mag-stream sa 1080p."
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. Stream in 720p: 1080p needs {need} Mbit/s."
+msgstr "Upload: {speed} Mbit/s. Mag-stream sa 720p: kailangan ng 1080p ang {need} Mbit/s."
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer places, or use a faster connection."
+msgstr "Upload: {speed} Mbit/s. Masyadong mabagal: kailangan ng 720p sa bawat destinasyong naka-on ang {need} Mbit/s. Mag-stream sa mas kaunting lugar, o gumamit ng mas mabilis na koneksyon."
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -10075,6 +10103,10 @@ msgstr "Walang camera"
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
 msgstr "Hindi naitago ang stream key: {error}"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "The speed test could not reach the internet. Check the connection and try again."
+msgstr "Hindi maabot ng speed test ang internet. Tingnan ang koneksyon at subukang muli."
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"

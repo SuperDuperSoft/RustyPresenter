@@ -2440,6 +2440,22 @@ msgid "Everything that plays on this output goes out with the stream (videos, so
 msgstr "이 출력에서 나는 모든 소리가 방송에 함께 나가요 (영상, 노래, 그리고 그쪽으로 보내지는 다른 소리도요). 위에서 고른 마이크 또는 라인 입력과 섞여요."
 
 #: ui/dialogs/settings-media.slint
+msgid "Upload speed"
+msgstr "업로드 속도"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits."
+msgstr "공개 속도 테스트에 몇 메가바이트의 0을 보내고, 켜 둔 모든 대상으로 방송을 보낼 수 있는지 알려줍니다. 맞는 녹화 크기를 고릅니다."
+
+#: ui/dialogs/settings-media.slint
+msgid "Testing…"
+msgstr "테스트 중…"
+
+#: ui/dialogs/settings-media.slint
+msgid "Test the upload speed"
+msgstr "업로드 속도 테스트"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound delay"
 msgstr "소리 지연"
 
@@ -6178,6 +6194,18 @@ msgstr "전체 화면"
 #: src/stream/scene.rs
 msgid "Screen + camera"
 msgstr "화면 + 카메라"
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
+msgstr "업로드: {speed} Mbit/s. 1080p로 방송하기에 충분합니다."
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. Stream in 720p: 1080p needs {need} Mbit/s."
+msgstr "업로드: {speed} Mbit/s. 720p로 방송하세요. 1080p에는 {need} Mbit/s가 필요합니다."
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer places, or use a faster connection."
+msgstr "업로드: {speed} Mbit/s. 너무 느립니다. 켜 둔 모든 대상으로 720p를 보내려면 {need} Mbit/s가 필요합니다. 대상을 줄이거나 더 빠른 연결을 쓰세요."
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -10033,6 +10061,10 @@ msgstr "카메라 없음"
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
 msgstr "스트림 키를 보관하지 못했어요: {error}"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "The speed test could not reach the internet. Check the connection and try again."
+msgstr "속도 테스트가 인터넷에 연결하지 못했습니다. 연결을 확인하고 다시 시도하세요."
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"

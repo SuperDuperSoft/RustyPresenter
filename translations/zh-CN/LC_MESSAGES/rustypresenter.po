@@ -2440,6 +2440,22 @@ msgid "Everything that plays on this output goes out with the stream (videos, so
 msgstr "在这个输出上播放的所有声音都会进入直播（视频、歌曲，以及送到这里的其他任何声音），并与上面选择的麦克风或线路输入混在一起。"
 
 #: ui/dialogs/settings-media.slint
+msgid "Upload speed"
+msgstr "上传速度"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits."
+msgstr "向公共测速服务发送几兆字节的零，并说明网络能否把直播送到每个已开启的目的地。它会选择合适的录制尺寸。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Testing…"
+msgstr "正在测试…"
+
+#: ui/dialogs/settings-media.slint
+msgid "Test the upload speed"
+msgstr "测试上传速度"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound delay"
 msgstr "声音延迟"
 
@@ -6178,6 +6194,18 @@ msgstr "全屏"
 #: src/stream/scene.rs
 msgid "Screen + camera"
 msgstr "屏幕 + 镜头"
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
+msgstr "上传：{speed} Mbit/s。足够以 1080p 直播。"
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. Stream in 720p: 1080p needs {need} Mbit/s."
+msgstr "上传：{speed} Mbit/s。请以 720p 直播：1080p 需要 {need} Mbit/s。"
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer places, or use a faster connection."
+msgstr "上传：{speed} Mbit/s。太慢了：以 720p 送到每个已开启的目的地需要 {need} Mbit/s。请减少直播目的地，或使用更快的网络。"
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -10033,6 +10061,10 @@ msgstr "无摄像头"
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
 msgstr "无法保存推流密钥：{error}"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "The speed test could not reach the internet. Check the connection and try again."
+msgstr "测速无法连接互联网。请检查网络后重试。"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"

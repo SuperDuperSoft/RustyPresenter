@@ -184,6 +184,10 @@ export global SettingsDlg {
     in-out property <int> stream-camera-index;
     /// 1.3b scenes: automatic on, presentations with the camera (1) or not (0), and the three cards' words and pictures.
     in-out property <bool> stream-auto-scenes: true;
+    /// The upload speed test: running, and what it found.
+    in property <bool> stream-speed-testing;
+    in property <string> stream-speed-text;
+    callback stream-speed-test();
     /// Livestream: the sound held back, in milliseconds (0 to 1000).
     in-out property <int> stream-sound-delay;
     in-out property <int> stream-presentation-camera;

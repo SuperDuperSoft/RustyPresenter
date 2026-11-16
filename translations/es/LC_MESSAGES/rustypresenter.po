@@ -2440,6 +2440,22 @@ msgid "Everything that plays on this output goes out with the stream (videos, so
 msgstr "Todo lo que suena en esta salida sale con la transmisión (videos, canciones y cualquier otro sonido enviado allí), mezclado con el micrófono o la entrada de línea elegidos arriba."
 
 #: ui/dialogs/settings-media.slint
+msgid "Upload speed"
+msgstr "Velocidad de subida"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits."
+msgstr "Envía unos megabytes de ceros a una prueba de velocidad pública y dice si internet puede llevar la transmisión a cada destino activado. Elige el tamaño de grabación que cabe."
+
+#: ui/dialogs/settings-media.slint
+msgid "Testing…"
+msgstr "Probando…"
+
+#: ui/dialogs/settings-media.slint
+msgid "Test the upload speed"
+msgstr "Probar la velocidad de subida"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound delay"
 msgstr "Retraso del sonido"
 
@@ -6183,6 +6199,18 @@ msgstr "Pantalla completa"
 #: src/stream/scene.rs
 msgid "Screen + camera"
 msgstr "Pantalla + cámara"
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
+msgstr "Subida: {speed} Mbit/s. Suficiente para transmitir en 1080p."
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. Stream in 720p: 1080p needs {need} Mbit/s."
+msgstr "Subida: {speed} Mbit/s. Transmite en 720p: 1080p necesita {need} Mbit/s."
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer places, or use a faster connection."
+msgstr "Subida: {speed} Mbit/s. Es demasiado lenta: 720p a cada destino activado necesita {need} Mbit/s. Transmite a menos lugares o usa una conexión más rápida."
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -10075,6 +10103,10 @@ msgstr "Sin cámara"
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
 msgstr "No se pudo guardar la clave de transmisión: {error}"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "The speed test could not reach the internet. Check the connection and try again."
+msgstr "La prueba de velocidad no pudo llegar a internet. Revisa la conexión e inténtalo de nuevo."
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"

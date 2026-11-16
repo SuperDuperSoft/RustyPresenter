@@ -184,6 +184,22 @@ pub(crate) fn wire_keys(op: &Rc<Operator>) {
     });
 }
 
+/// The speed test's answer: what it found, and the recording size that fits picked.
+pub(crate) fn show_speed(g: &SettingsDlg, measured: Result<f64, String>, destinations: usize) {
+    g.set_stream_speed_testing(false);
+    match measured {
+        Ok(mbps) => {
+            let (preset, text) = stream::speed::advice(mbps, destinations);
+            if let Some(p) = preset && let Some(i) = Preset::ALL.iter().position(|x| *x == p) { g.set_record_size(i as i32) }
+            g.set_stream_speed_text(text.into());
+        }
+        Err(e) => {
+            eprintln!("speed test: {e}");
+            g.set_stream_speed_text(crate::tr!("The speed test could not reach the internet. Check the connection and try again.").into());
+        }
+    }
+}
+
 /// Lists the microphones (when FFmpeg is there) and connects "Choose folder…".
 pub(super) fn load(op: &Rc<Operator>) {
     let data = op.app().store.root.clone();
@@ -203,6 +219,22 @@ pub(super) fn load(op: &Rc<Operator>) {
         let _ = std::thread::Builder::new().name("record-inputs".into()).spawn(move || { let _ = tx.send(work()); });
         let _ = slint::spawn_local(async move { if let Ok(v) = rx.await { done(v) } });
     }
+    let me = Rc::downgrade(op);
+    op.ui.global::<SettingsDlg>().on_stream_speed_test(move || {
+        let Some(op) = me.upgrade() else { return };
+        let g = op.ui.global::<SettingsDlg>();
+        let destinations = [g.get_stream_on_0(), g.get_stream_on_1(), g.get_stream_on_2(), g.get_stream_on_3()].iter().filter(|on| **on).count();
+        g.set_stream_speed_testing(true);
+        g.set_stream_speed_text("".into());
+        let ui = op.ui.as_weak();
+        let _ = std::thread::Builder::new().name("speed-test".into()).spawn(move || {
+            let measured = tokio::runtime::Builder::new_current_thread().enable_all().build().map_err(|e| e.to_string()).and_then(|rt| {
+                let client = crate::bible::sources::client().map_err(|e| format!("{e:?}"))?;
+                rt.block_on(stream::speed::measure(client, stream::speed::URL, stream::speed::BYTES))
+            });
+            let _ = ui.upgrade_in_event_loop(move |ui| show_speed(&ui.global::<SettingsDlg>(), measured, destinations));
+        });
+    });
     let me = Rc::downgrade(op);
     op.ui.global::<SettingsDlg>().on_stream_card_choose(move |i| {
         let Some(op) = me.upgrade() else { return };

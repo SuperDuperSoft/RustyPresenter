@@ -2440,6 +2440,22 @@ msgid "Everything that plays on this output goes out with the stream (videos, so
 msgstr "Усе, що звучить на цьому виході, йде в трансляцію (відео, пісні та будь-який інший звук, надісланий туди), разом із мікрофоном або лінійним входом, вибраним вище."
 
 #: ui/dialogs/settings-media.slint
+msgid "Upload speed"
+msgstr "Швидкість вивантаження"
+
+#: ui/dialogs/settings-media.slint
+msgid "Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits."
+msgstr "Надсилає кілька мегабайтів нулів на загальнодоступний тест швидкості й каже, чи витримає інтернет трансляцію в усі ввімкнені місця. Обирає відповідний розмір запису."
+
+#: ui/dialogs/settings-media.slint
+msgid "Testing…"
+msgstr "Перевірка…"
+
+#: ui/dialogs/settings-media.slint
+msgid "Test the upload speed"
+msgstr "Перевірити швидкість вивантаження"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound delay"
 msgstr "Затримка звуку"
 
@@ -6188,6 +6204,18 @@ msgstr "Весь екран"
 #: src/stream/scene.rs
 msgid "Screen + camera"
 msgstr "Екран + камера"
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
+msgstr "Вивантаження: {speed} Мбіт/с. Досить для трансляції в 1080p."
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. Stream in 720p: 1080p needs {need} Mbit/s."
+msgstr "Вивантаження: {speed} Мбіт/с. Транслюйте в 720p: для 1080p потрібно {need} Мбіт/с."
+
+#: src/stream/speed.rs
+msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer places, or use a faster connection."
+msgstr "Вивантаження: {speed} Мбіт/с. Надто повільно: для 720p в усі ввімкнені місця потрібно {need} Мбіт/с. Транслюйте в менше місць або скористайтеся швидшим підключенням."
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -10117,6 +10145,10 @@ msgstr "Без камери"
 #: src/ui/dialogs/settings_record.rs
 msgid "The stream key could not be kept: {error}"
 msgstr "Не вдалося зберегти ключ трансляції: {error}"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "The speed test could not reach the internet. Check the connection and try again."
+msgstr "Тест швидкості не зміг вийти в інтернет. Перевірте підключення й спробуйте ще раз."
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"

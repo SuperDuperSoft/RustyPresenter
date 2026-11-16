@@ -141,6 +141,29 @@ export component SettingsMedia inherits VerticalLayout {
         }
     }
     Field {
+        label: @tr("Upload speed");
+        help: @tr("Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits.");
+        HorizontalLayout {
+            spacing: 10px;
+            stream-speed := Btn {
+                small: true;
+                text: SettingsDlg.stream-speed-testing ? @tr("Testing…") : @tr("Test the upload speed");
+                clicked => { if !SettingsDlg.stream-speed-testing { SettingsDlg.stream-speed-test(); } }
+            }
+            Text {
+                text: SettingsDlg.stream-speed-text;
+                color: Theme.text;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                vertical-alignment: center;
+                wrap: word-wrap;
+                horizontal-stretch: 1;
+                accessible-role: text;
+                accessible-label: self.text;
+            }
+        }
+    }
+    Field {
         label: @tr("Sound delay");
         help: @tr("If the sound in the stream comes before people's lips move, the camera's picture is late: hold the sound back until they match.");
         HorizontalLayout {

@@ -177,6 +177,24 @@ fn livestream_scene_settings_save() {
 }
 
 #[test]
+fn the_speed_test_says_what_fits_and_picks_the_size() {
+    use crate::ui::SettingsDlg;
+    use slint::ComponentHandle;
+    let app = test_app();
+    let room = Arc::new(Room::default());
+    let op = open(&app, &room);
+    let g = op.ui.global::<SettingsDlg>();
+    g.set_stream_speed_testing(true);
+    g.set_record_size(1);
+    crate::ui::dialogs::settings_record::show_speed(&g, Ok(6.0), 1);
+    assert!(!g.get_stream_speed_testing());
+    assert_eq!(g.get_record_size(), 0, "720p fits, 1080p does not");
+    assert!(g.get_stream_speed_text().contains("720p"), "{}", g.get_stream_speed_text());
+    crate::ui::dialogs::settings_record::show_speed(&g, Err("no route".into()), 1);
+    assert!(g.get_stream_speed_text().contains("could not reach"), "{}", g.get_stream_speed_text());
+}
+
+#[test]
 fn the_operator_hears_when_a_destination_connects_and_when_it_drops() {
     let app = test_app();
     let room = Arc::new(Room { open: true, ..Default::default() });
