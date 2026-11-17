@@ -110,7 +110,7 @@ fn event_stream(app: Arc<App>, first: String, map: impl Fn(&App, Option<&Update>
 
 // ---------- phone remote ----------
 
-fn phone_for(app: &App, headers: &HeaderMap) -> Option<Uuid> {
+pub(crate) fn phone_for(app: &App, headers: &HeaderMap) -> Option<Uuid> {
     let token = cookie_token(headers)?;
     let h = hash_token(&token);
     let mut phones = app.phones.lock().unwrap();
@@ -204,7 +204,7 @@ async fn remote_status(State(app): State<Arc<App>>, headers: HeaderMap) -> Respo
 
 fn same_origin(headers: &HeaderMap) -> bool {
     let host = headers.get(header::HOST).and_then(|h| h.to_str().ok()).unwrap_or("");
-    headers.get(header::ORIGIN).and_then(|h| h.to_str().ok()).is_none_or(|o| o == format!("http://{host}"))
+    headers.get(header::ORIGIN).and_then(|h| h.to_str().ok()).is_none_or(|o| o == format!("http://{host}") || o == format!("https://{host}"))
 }
 
 /// What a phone's remote stream sends for each update: a fresh remote view, nothing for import
@@ -487,6 +487,8 @@ pub fn router(app: Arc<App>) -> Router {
         .merge(crate::network::phone_mic::routes())
         // Remote guests: the invitation page and the guest's picture, this computer only (`network::guest`).
         .merge(crate::network::guest::routes())
+        // A phone as a livestream camera.
+        .merge(crate::network::phone_camera::routes())
         .with_state(app)
 }
 

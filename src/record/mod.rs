@@ -223,6 +223,9 @@ pub struct RecordPrefs {
     /// graphics card's encoder when there is one that works (`run::Plan::make`).
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub x264_too_slow: bool,
+    /// Go Live: what shows in a camera's place while it sends nothing (`stream::camera_lost`).
+    #[serde(skip_serializing_if = "crate::stream::camera_lost::CameraLost::is_default")]
+    pub camera_lost: crate::stream::camera_lost::CameraLost,
 }
 
 

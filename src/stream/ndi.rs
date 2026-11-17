@@ -141,6 +141,12 @@ pub struct Ndi {
     recv_set_tally: unsafe extern "C" fn(Ptr, *const TallyC) -> bool,
     recv_ptz_is_supported: unsafe extern "C" fn(Ptr) -> bool,
     recv_ptz_recall_preset: unsafe extern "C" fn(Ptr, i32, f32) -> bool,
+    /// `NDIlib_recv_ptz_store_preset(p_instance, const int preset_no)`.
+    recv_ptz_store_preset: unsafe extern "C" fn(Ptr, i32) -> bool,
+    /// `NDIlib_recv_ptz_pan_tilt_speed(p_instance, const float pan_speed, const float tilt_speed)`.
+    recv_ptz_pan_tilt_speed: unsafe extern "C" fn(Ptr, f32, f32) -> bool,
+    /// `NDIlib_recv_ptz_zoom_speed(p_instance, const float zoom_speed)`.
+    recv_ptz_zoom_speed: unsafe extern "C" fn(Ptr, f32) -> bool,
     send_create: unsafe extern "C" fn(*const SendCreate) -> Ptr,
     send_destroy: unsafe extern "C" fn(Ptr),
     send_video: unsafe extern "C" fn(Ptr, *const VideoFrame),
@@ -167,6 +173,9 @@ impl Ndi {
                 recv_set_tally: sym!(b"NDIlib_recv_set_tally\0"),
                 recv_ptz_is_supported: sym!(b"NDIlib_recv_ptz_is_supported\0"),
                 recv_ptz_recall_preset: sym!(b"NDIlib_recv_ptz_recall_preset\0"),
+                recv_ptz_store_preset: sym!(b"NDIlib_recv_ptz_store_preset\0"),
+                recv_ptz_pan_tilt_speed: sym!(b"NDIlib_recv_ptz_pan_tilt_speed\0"),
+                recv_ptz_zoom_speed: sym!(b"NDIlib_recv_ptz_zoom_speed\0"),
                 send_create: sym!(b"NDIlib_send_create\0"),
                 send_destroy: sym!(b"NDIlib_send_destroy\0"),
                 send_video: sym!(b"NDIlib_send_send_video_v2\0"),
@@ -276,6 +285,15 @@ impl Receiver {
     /// Calls back the camera's saved preset `preset` (from 0), at full speed. False when it was not sent.
     pub fn recall(&self, preset: u8) -> bool { unsafe { (self.ndi.recv_ptz_recall_preset)(self.me, i32::from(preset), 1.0) } }
 
+    /// Saves the camera's shot now as its preset `preset` (from 0). False when it was not sent.
+    pub fn store(&self, preset: u8) -> bool { unsafe { (self.ndi.recv_ptz_store_preset)(self.me, i32::from(preset)) } }
+
+    /// Turns the camera at these speeds (-1 to 1; pan: + left, tilt: + up; 0, 0 stops it).
+    pub fn turn(&self, pan: f32, tilt: f32) -> bool { unsafe { (self.ndi.recv_ptz_pan_tilt_speed)(self.me, pan.clamp(-1.0, 1.0), tilt.clamp(-1.0, 1.0)) } }
+
+    /// Zooms the camera at this speed (-1 out to 1 in; 0 stops it).
+    pub fn zoom(&self, speed: f32) -> bool { unsafe { (self.ndi.recv_ptz_zoom_speed)(self.me, speed.clamp(-1.0, 1.0)) } }
+
     /// The camera's tally light: on air, next.
     fn set_tally(&self, t: TallyC) -> bool { unsafe { (self.ndi.recv_set_tally)(self.me, &t) } }
 }
@@ -299,6 +317,11 @@ struct Asks {
     tally: TallyC,
     /// A preset to call back (from 0).
     preset: Option<u8>,
+    /// A preset to save the shot as (from 0).
+    store: Option<u8>,
+    /// Turning and zooming by hand: the newest speeds asked for.
+    turn: Option<(f32, f32)>,
+    zoom: Option<f32>,
 }
 
 impl Remote {
@@ -367,6 +390,36 @@ pub fn recall_position(source: &str, n: u8) -> Result<(), String> {
     Ok(())
 }
 
+/// Turns and zooms NDI camera `source` by hand (`super::ptz::ndi_speeds`). Only while its feed receives it (the
+/// Cameras box shows only while live): a move needs its stop to come over the same connection.
+pub fn drive(source: &str, (turn, zoom): (Option<(f32, f32)>, Option<f32>)) -> Result<(), String> {
+    let r = remote(source).ok_or_else(|| format!("{source} is not being received"))?;
+    let mut a = r.asks();
+    if turn.is_some() { a.turn = turn }
+    if zoom.is_some() { a.zoom = zoom }
+    Ok(())
+}
+
+/// Saves NDI camera `source`'s shot now as its position `n` (from 1: preset `n - 1`). While its feed receives it,
+/// the feed sends it; otherwise a short connection of its own does (waits: not on the UI thread).
+pub fn store_position(source: &str, n: u8) -> Result<(), String> {
+    let preset = n.saturating_sub(1);
+    if let Some(r) = remote(source) {
+        r.asks().store = Some(preset);
+        return Ok(());
+    }
+    if runtime().is_none() { return Err("the NDI runtime is not installed".into()) }
+    let r = Receiver::connect_with(source, BANDWIDTH_METADATA).ok_or_else(|| format!("{source}: no NDI connection"))?;
+    let end = Instant::now() + MOVE_WAIT;
+    while !r.can_move() {
+        if Instant::now() >= end { return Err(format!("{source} does not say it can be moved")) }
+        std::thread::sleep(Duration::from_millis(50));
+    }
+    if !r.store(preset) { return Err(format!("{source}: the position was not saved")) }
+    std::thread::sleep(Duration::from_millis(300));
+    Ok(())
+}
+
 /// How often a camera being received is asked whether it can move, and its tally sent again.
 const ASK_MOVE: Duration = Duration::from_millis(500);
 const TALLY_AGAIN: Duration = Duration::from_secs(2);
@@ -378,8 +431,11 @@ fn serve(r: &Receiver, remote: &Remote, sent: &mut Option<(TallyC, Instant)>, as
         remote.can_move.store(r.can_move(), Ordering::Relaxed);
         *asked = Some(Instant::now());
     }
-    let (tally, preset) = { let mut a = remote.asks(); (a.tally, a.preset.take()) };
+    let (tally, preset, store, turn, zoom) = { let mut a = remote.asks(); (a.tally, a.preset.take(), a.store.take(), a.turn.take(), a.zoom.take()) };
     if let Some(p) = preset && !r.recall(p) { eprintln!("ndi: the camera's position {} was not sent", u16::from(p) + 1) }
+    if let Some((pan, tilt)) = turn && !r.turn(pan, tilt) { eprintln!("ndi: the camera's turn was not sent") }
+    if let Some(z) = zoom && !r.zoom(z) { eprintln!("ndi: the camera's zoom was not sent") }
+    if let Some(p) = store && !r.store(p) { eprintln!("ndi: the camera's position {} was not saved", u16::from(p) + 1) }
     // Sent again now and then: NDI may have connected again by itself.
     if sent.is_none_or(|(t, at)| t != tally || at.elapsed() >= TALLY_AGAIN) {
         r.set_tally(tally);
@@ -830,6 +886,23 @@ mod tests {
         eprintln!("NDI camera got: {msg}");
         assert!(msg.contains("recall") && msg.contains("\"2\""), "position 3 is preset 2: {msg}");
 
+        // Moved by hand and its shot saved, as from the Cameras box.
+        super::super::ptz::drive(&control, super::super::ptz::Move::Left).unwrap();
+        let msg = cam.message(&sender, "pan_tilt_speed", Duration::from_secs(5)).expect("the turn reached the camera");
+        eprintln!("NDI camera got: {msg}");
+        assert!(msg.contains("pan_speed=\"0.25") && msg.contains("tilt_speed=\"0"), "left at a quarter speed: {msg}");
+        super::super::ptz::drive(&control, super::super::ptz::Move::Stop).unwrap();
+        let msg = cam.message(&sender, "pan_tilt_speed", Duration::from_secs(5)).expect("the stop reached the camera");
+        assert!(msg.contains("pan_speed=\"0"), "stopped: {msg}");
+        super::super::ptz::drive(&control, super::super::ptz::Move::ZoomOut).unwrap();
+        let msg = cam.message(&sender, "zoom_speed", Duration::from_secs(5)).expect("the zoom reached the camera");
+        eprintln!("NDI camera got: {msg}");
+        assert!(msg.contains("-0.4"), "zooming out: {msg}");
+        super::super::ptz::save(&control, 5).unwrap();
+        let msg = cam.message(&sender, "store", Duration::from_secs(5)).expect("the save reached the camera");
+        eprintln!("NDI camera got: {msg}");
+        assert!(msg.contains("\"4\""), "position 5 is preset 4: {msg}");
+
         // Its tally light: on air, then next, then off.
         let cameras = vec!["USB Cam".to_string(), saved.clone()];
         show_tally(&cameras, &super::super::tally::Tally::of(true, Some(1), None, true));
@@ -848,6 +921,11 @@ mod tests {
         super::super::ptz::recall(&control, 1).unwrap();
         let msg = cam.message(&sender, "preset", Duration::from_secs(5)).expect("the position reached the camera");
         assert!(msg.contains("\"0\""), "position 1 is preset 0: {msg}");
+        // Saved with a connection of its own too; a move by hand needs the feed.
+        super::super::ptz::save(&control, 2).unwrap();
+        let msg = cam.message(&sender, "store", Duration::from_secs(5)).expect("the save reached the camera");
+        assert!(msg.contains("\"1\""), "position 2 is preset 1: {msg}");
+        assert!(super::super::ptz::drive(&control, super::super::ptz::Move::Up).is_err());
 
         stop.store(true, Ordering::Relaxed);
         let _ = sending.join();

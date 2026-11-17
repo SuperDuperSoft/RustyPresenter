@@ -1,9 +1,13 @@
 // The Cameras box in the live column while live with cameras (design 2026-11-17): the stream's picture as it goes
-// out ("Live") beside the camera chosen to go out next ("Next"), a button per camera to choose the next one (three
-// cameras or more), and Switch / Fade to put it out. No keys: the keyboard belongs to the presentation. Filled by
-// `src/ui/operator/record.rs` (`Operator::show_cameras`).
+// out ("Live") beside the camera chosen to go out next ("Next"), every camera small (three cameras or more; a click
+// chooses the next one), the next camera's moves by hand and saved positions, and Switch / Fade to put it out. Keys
+// only when the church sets them (Settings → Help: off by default, the keyboard belongs to the presentation).
+// Filled by `src/ui/operator/record.rs` (`Operator::show_cameras`).
 import { Theme } from "../theme.slint";
 import { Btn, TipArea } from "../widgets.slint";
+
+/// One camera's small picture in the view of all cameras.
+export struct CameraTile { picture: image, has-picture: bool }
 
 export global CameraSwitch {
     /// Live with one camera or more: the box shows.
@@ -21,13 +25,109 @@ export global CameraSwitch {
     /// Under the pictures: which camera, and for Live whether the scene going out shows it.
     in property <string> live-caption;
     in property <string> next-caption;
-    /// The next camera can be moved to this many saved positions (0: none).
+    /// The camera the box moves (the next one; with one camera, the one out) can be moved to this many saved
+    /// positions, by hand and saved (0: it cannot be moved).
     in property <int> next-positions;
+    /// Which camera that is, for the words beside the controls ("Camera 2").
+    in property <string> move-caption;
+    /// Every camera's small picture, in `names` order (three cameras or more).
+    in property <[CameraTile]> tiles;
     callback choose-next(int);
     /// Switch puts the next camera out at once; Fade with a short fade.
     callback switch();
     callback fade();
     callback move-next(int);
+    /// While an arrow is held: 1 up, 2 down, 3 left, 4 right; 0 when it is let go.
+    callback drive(int);
+    /// While a zoom button is held: 1 in, -1 out; 0 when it is let go.
+    callback zoom(int);
+    /// Saves the camera's shot now as position i + 1.
+    callback save-position(int);
+}
+
+/// A button that does something while it is held (a camera turning): `held` when pressed and when let go.
+component HoldBtn inherits Rectangle {
+    in property <string> text;
+    in property <string> tooltip;
+    callback held(bool);
+    width: 30px;
+    height: 28px;
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: hold-ta.pressed ? Theme.ok : Theme.line;
+    background: hold-ta.pressed ? Theme.raise : hold-ta.has-hover ? Theme.raise : transparent;
+    accessible-role: button;
+    accessible-label: root.tooltip;
+    Text {
+        text: root.text;
+        color: Theme.text;
+        font-family: Theme.font;
+        font-size: 14px;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    hold-ta := TouchArea {
+        mouse-cursor: pointer;
+        changed pressed => { root.held(self.pressed); }
+    }
+    TipArea { text: root.tooltip; hover: hold-ta.has-hover; pressed: hold-ta.pressed; pointer-x: hold-ta.mouse-x; }
+}
+
+/// One camera small in the view of all cameras: red outline going out, green next; a click chooses it as next.
+component Tile inherits VerticalLayout {
+    in property <string> text;
+    in property <image> picture;
+    in property <bool> has-picture;
+    in property <bool> live;
+    in property <bool> next;
+    callback clicked();
+    spacing: 2px;
+    min-width: 0px;
+    horizontal-stretch: 1;
+    Rectangle {
+        height: self.width * 9 / 16;
+        background: black;
+        border-radius: 4px;
+        border-width: root.live || root.next ? 2px : 1px;
+        border-color: root.live ? Theme.live : root.next ? Theme.ok : tile-ta.has-hover ? Theme.btn-hover : Theme.line;
+        clip: true;
+        accessible-role: button;
+        accessible-label: root.text;
+        accessible-checked: root.next;
+        accessible-description: root.live ? @tr("Going out now") : root.next ? @tr("Next") : "";
+        accessible-action-default => { if !root.live { root.clicked(); } }
+        if root.has-picture: Image {
+            x: 2px;
+            y: 2px;
+            width: parent.width - 4px;
+            height: parent.height - 4px;
+            source: root.picture;
+            image-fit: contain;
+        }
+        if !root.has-picture: Text {
+            text: @tr("No picture");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 10px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            wrap: word-wrap;
+        }
+        tile-ta := TouchArea {
+            mouse-cursor: root.live ? default : pointer;
+            clicked => { if !root.live { root.clicked(); } }
+        }
+        TipArea { text: root.live ? @tr("This camera is going out now") : @tr("Show this camera next"); hover: tile-ta.has-hover; pressed: tile-ta.pressed; pointer-x: tile-ta.mouse-x; }
+    }
+    Text {
+        text: root.text;
+        color: root.live ? Theme.live : Theme.text;
+        font-family: Theme.font;
+        font-size: 11px;
+        font-weight: root.live || root.next ? 700 : 400;
+        overflow: elide;
+        horizontal-alignment: center;
+    }
 }
 
 /// One small picture with its title and caption. Red outline: going out. Green: next.
@@ -83,44 +183,6 @@ component Peek inherits VerticalLayout {
     }
 }
 
-/// A camera's button for choosing it as next: "2 Wide". The one going out is red and cannot be chosen; the one
-/// chosen as next is green.
-component CameraChoice inherits Rectangle {
-    in property <string> text;
-    in property <bool> live;
-    in property <bool> next;
-    callback clicked();
-    height: 30px;
-    border-radius: 6px;
-    border-width: 1px;
-    border-color: root.live ? Theme.live : root.next ? Theme.ok : Theme.line;
-    background: root.next ? Theme.raise : choice-ta.has-hover && !root.live ? Theme.raise : transparent;
-    accessible-role: button;
-    accessible-label: root.text;
-    accessible-checked: root.next;
-    accessible-description: root.live ? @tr("Going out now") : root.next ? @tr("Next") : "";
-    accessible-action-default => { if !root.live { root.clicked(); } }
-    HorizontalLayout {
-        padding-left: 8px;
-        padding-right: 8px;
-        Text {
-            text: root.text;
-            color: root.live ? Theme.live : Theme.text;
-            font-family: Theme.font;
-            font-size: 12px;
-            font-weight: root.live || root.next ? 700 : 400;
-            overflow: elide;
-            horizontal-alignment: center;
-            vertical-alignment: center;
-        }
-    }
-    choice-ta := TouchArea {
-        mouse-cursor: root.live ? default : pointer;
-        clicked => { if !root.live { root.clicked(); } }
-    }
-    TipArea { text: root.live ? @tr("This camera is going out now") : @tr("Show this camera next"); hover: choice-ta.has-hover; pressed: choice-ta.pressed; pointer-x: choice-ta.mouse-x; }
-}
-
 export component CameraStrip inherits VerticalLayout {
     vertical-stretch: 0;
     if CameraSwitch.shown: VerticalLayout {
@@ -147,31 +209,66 @@ export component CameraStrip inherits VerticalLayout {
                 caption: CameraSwitch.next-caption;
             }
         }
+        // All the cameras at once (three or more): a click chooses the next one.
         if CameraSwitch.names.length > 2: HorizontalLayout {
             spacing: 6px;
-            for name[i] in CameraSwitch.names: CameraChoice {
-                horizontal-stretch: 1;
-                min-width: 0px;
+            for name[i] in CameraSwitch.names: Tile {
                 text: (i + 1) + " " + name;
+                picture: CameraSwitch.tiles[i].picture;
+                has-picture: CameraSwitch.tiles[i].has-picture;
                 live: i == CameraSwitch.live;
                 next: i == CameraSwitch.next;
                 clicked => { CameraSwitch.choose-next(i); }
             }
         }
-        if CameraSwitch.next >= 0 && CameraSwitch.next-positions > 0: HorizontalLayout {
+        // Moving the next camera by hand (held), its saved positions, and saving its shot as one.
+        if CameraSwitch.next-positions > 0: VerticalLayout {
             spacing: 4px;
-            Text {
-                text: @tr("Position");
-                color: Theme.muted;
-                font-family: Theme.font;
-                font-size: 12px;
-                vertical-alignment: center;
+            property <bool> saving;
+            HorizontalLayout {
+                spacing: 4px;
+                alignment: start;
+                Text {
+                    text: CameraSwitch.move-caption;
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12px;
+                    vertical-alignment: center;
+                    overflow: elide;
+                    min-width: 0px;
+                    horizontal-stretch: 1;
+                }
+                left-btn := HoldBtn { text: "◀"; tooltip: @tr("Turn left while held"); held(on) => { CameraSwitch.drive(on ? 3 : 0); } }
+                up-btn := HoldBtn { text: "▲"; tooltip: @tr("Tilt up while held"); held(on) => { CameraSwitch.drive(on ? 1 : 0); } }
+                down-btn := HoldBtn { text: "▼"; tooltip: @tr("Tilt down while held"); held(on) => { CameraSwitch.drive(on ? 2 : 0); } }
+                right-btn := HoldBtn { text: "▶"; tooltip: @tr("Turn right while held"); held(on) => { CameraSwitch.drive(on ? 4 : 0); } }
+                Rectangle { width: 4px; }
+                zoom-out-btn := HoldBtn { text: "−"; tooltip: @tr("Zoom out while held"); held(on) => { CameraSwitch.zoom(on ? -1 : 0); } }
+                zoom-in-btn := HoldBtn { text: "+"; tooltip: @tr("Zoom in while held"); held(on) => { CameraSwitch.zoom(on ? 1 : 0); } }
             }
-            for p[i] in CameraSwitch.next-positions: position-btn := Btn {
-                small: true;
-                text: i + 1;
-                tooltip: @tr("Move the next camera to its saved position {}", i + 1);
-                clicked => { CameraSwitch.move-next(i); }
+            HorizontalLayout {
+                spacing: 4px;
+                Text {
+                    text: saving ? @tr("Save this shot as") : @tr("Position");
+                    color: saving ? Theme.ok : Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12px;
+                    vertical-alignment: center;
+                }
+                for p[i] in CameraSwitch.next-positions: position-btn := Btn {
+                    small: true;
+                    text: i + 1;
+                    tooltip: saving ? @tr("Save this shot as position {}", i + 1) : @tr("Move the camera to its saved position {}", i + 1);
+                    clicked => {
+                        if saving { CameraSwitch.save-position(i); saving = false; } else { CameraSwitch.move-next(i); }
+                    }
+                }
+                save-btn := Btn {
+                    small: true;
+                    text: saving ? @tr("Cancel") : @tr("Save…");
+                    tooltip: saving ? @tr("Keep the saved positions as they are") : @tr("Save the camera's shot now as one of its positions");
+                    clicked => { saving = !saving; }
+                }
             }
         }
         if CameraSwitch.next >= 0: HorizontalLayout {

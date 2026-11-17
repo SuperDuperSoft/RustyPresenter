@@ -239,6 +239,10 @@ export global SettingsDlg {
     in-out property <bool> stream-ndi;
     in-out property <bool> stream-ndi-words;
     in-out property <bool> stream-words-file;
+    // What shows in a camera's place while it sends nothing: 0 the room screen, 1 the church's logo, 2 black.
+    in-out property <int> stream-camera-lost;
+    // How to make a phone a camera, with this computer's address for it.
+    in property <string> phone-camera-help;
     // Whether the NDI runtime is on this computer (looked for as Settings opens).
     in-out property <bool> ndi-ready: true;
     in-out property <int> stream-presentation-camera;

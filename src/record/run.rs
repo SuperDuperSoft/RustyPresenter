@@ -130,6 +130,8 @@ pub struct Plan {
     pub more: super::advanced::More,
     /// Go Live: how each of `stream` is sent beyond copying (its own picture), in the same order; missing: copied.
     pub ways: Vec<crate::stream::send::Way>,
+    /// Go Live: what shows in a camera's place while it sends nothing (`stream::camera_lost`).
+    pub camera_lost: crate::stream::camera_lost::Lost,
 }
 
 /// What `Plan::make_with` needs to know beyond Settings.
@@ -195,7 +197,7 @@ impl Plan {
         let keep = &prefs.more.keep;
         let out = super::named(&folder, &super::advanced::file_stem(&keep.name, chrono::Local::now().naive_local(), &making.title), keep.format.extension());
         Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![], kbps: prefs.bitrate_kbps, delay_secs: 0, lighter: false, ndi: Default::default(), words_file: prefs.words_file, more_inputs: prefs.more_inputs(), listen: Some(prefs.stream_listen.clone()).filter(|l| !l.is_empty()),
-            more: prefs.more.clone(), ways: vec![] })
+            more: prefs.more.clone(), ways: vec![], camera_lost: Default::default() })
     }
 }
 
@@ -434,6 +436,8 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     // Whether the camera in the picture is sending pictures (kept by the writer as the operator switches).
     let seeing: Arc<std::sync::atomic::AtomicBool> = Arc::default();
     if !camera_feeds.is_empty() { *camera_seen.lock().unwrap_or_else(|e| e.into_inner()) = Some(seeing.clone()) }
+    // What goes in a camera's place while it sends nothing (`None`: the room screen, as before).
+    let lost = if camera_feeds.is_empty() { None } else { crate::stream::camera_lost::prepare(&plan.camera_lost, sink.size) };
     let mut worker = match (&plan.look, live) {
         (Some(look), true) => {
             crate::stream::pictures::start(look.clone(), sink.size, seeing.clone(), plan.controls.hold.clone())
@@ -580,15 +584,19 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
             let shown = w.slot.lock().unwrap_or_else(|e| e.into_inner()).clone();
             if let Some(n) = ndi.as_mut() { n.words(&shown.words) }
             if let Some(f) = words_file.as_mut() { f.words(&shown.words) }
+            // A camera sending nothing: the church's choice in its place (not in the room screen's corner).
+            let stand_in = |p: Option<Arc<Vec<u8>>>| p.or_else(|| lost.clone());
             // The church's own scenes can show any camera, not only the one on air.
-            if matches!(shown.scene, crate::stream::scene::Scene::Own(_)) { m.cameras = camera_feeds.iter().map(|f| f.as_ref().and_then(|f| f.picture())).collect() }
+            if matches!(shown.scene, crate::stream::scene::Scene::Own(_)) { m.cameras = camera_feeds.iter().map(|f| stand_in(f.as_ref().and_then(|f| f.picture()))).collect() }
             m.captions = plan.controls.captions.lock().unwrap_or_else(|e| e.into_inner()).clone().filter(|_| crate::stream::captions::shows_over(&shown));
-            m.update(&shown, &current, camera.and_then(|f| f.picture()), room_new, Instant::now());
+            let on_air = camera.and_then(|f| f.picture());
+            let on_air = if shown.scene == crate::stream::scene::Scene::ScreenCamera { on_air } else { stand_in(on_air) };
+            m.update(&shown, &current, on_air.clone(), room_new, Instant::now());
             // The same without the words.
             if let Some(c) = clean_mix.as_mut() {
                 c.cameras = m.cameras.clone();
                 let bare = crate::stream::pictures::Shown { words: None, ..shown.clone() };
-                c.update(&bare, &current, camera.and_then(|f| f.picture()), room_new, Instant::now());
+                c.update(&bare, &current, on_air, room_new, Instant::now());
             }
             room_new = false;
         }
@@ -606,7 +614,11 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
             next_peek = t0.elapsed() + PEEK_EVERY;
             let next = camera_feeds.get(plan.controls.next.load(std::sync::atomic::Ordering::Relaxed)).and_then(Option::as_ref).and_then(|f| f.picture());
             let small = |p: &[u8]| super::peek::shrink(p, sink.size, super::peek::WIDTH).map(Arc::new);
-            let made = super::peek::Peek { live: small(out), next: next.as_deref().and_then(|p| small(p)) };
+            // Three cameras or more: each one small too, for the view of all cameras.
+            let cameras = if camera_feeds.len() > 2 {
+                camera_feeds.iter().map(|f| f.as_ref().and_then(|f| f.picture()).and_then(|p| super::peek::shrink(&p, sink.size, super::peek::WIDTH / 2).map(Arc::new))).collect()
+            } else { vec![] };
+            let made = super::peek::Peek { live: small(out), next: next.as_deref().and_then(|p| small(p)), cameras };
             *peek.lock().unwrap_or_else(|e| e.into_inner()) = made;
         }
         for _ in 0..due.write {

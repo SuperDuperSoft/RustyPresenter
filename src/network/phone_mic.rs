@@ -31,7 +31,7 @@ async fn page() -> Response {
 /// The page's words, whether this phone may send, and the secure address of the page (for the microphone).
 async fn status(State(app): State<Arc<App>>, headers: HeaderMap) -> Response {
     let host = headers.get(header::HOST).and_then(|h| h.to_str().ok()).unwrap_or("");
-    let secure = super::secure::port().map(|p| secure_url(host, p)).unwrap_or_default();
+    let secure = Some(super::https::port_for(app.port)).map(|p| secure_url(host, p)).unwrap_or_default();
     Json(json!({
         "allowed": allowed(&app, &headers), "taken": phone_mic::taken(), "secure_url": secure,
         "words": { "title": tr::title(), "start": tr::start(), "stop": tr::stop(), "sending": tr::sending(), "not_taken": tr::not_taken(),

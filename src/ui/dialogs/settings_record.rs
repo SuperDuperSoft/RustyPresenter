@@ -190,6 +190,7 @@ pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     g.set_stream_ndi(p.ndi_stream);
     g.set_stream_ndi_words(p.ndi_words);
     g.set_stream_words_file(p.words_file);
+    g.set_stream_camera_lost(p.camera_lost.index());
     g.set_stream_presentation_camera(i32::from(p.presentation_camera));
     let c = &p.cards;
     g.set_stream_card_words_0(c.starting.words.as_str().into());
@@ -301,6 +302,7 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
     p.ndi_stream = g.get_stream_ndi();
     p.ndi_words = g.get_stream_ndi_words();
     p.words_file = g.get_stream_words_file();
+    p.camera_lost = stream::camera_lost::CameraLost::from_index(g.get_stream_camera_lost());
     let card = |w: slint::SharedString, pic: slint::SharedString| stream::pictures::Card { words: w.trim().to_string(), picture: pic.trim().to_string() };
     p.cards = stream::pictures::Cards {
         starting: card(g.get_stream_card_words_0(), g.get_stream_card_picture_0()),
@@ -472,6 +474,7 @@ pub(crate) fn show_speed(g: &SettingsDlg, measured: Result<f64, String>, destina
 /// Lists the microphones (when FFmpeg is there) and connects "Choose folder…".
 pub(super) fn load(op: &Rc<Operator>) {
     let data = op.app().store.root.clone();
+    op.ui.global::<SettingsDlg>().set_phone_camera_help(crate::network::phone_camera::settings_help(op.app()).into());
     let me = Rc::downgrade(op);
     let work = move || {
         let (inputs, mut cameras) = record::run::find_ffmpeg(&data).map(|f| (record::run::list_inputs(&f), record::run::list_cameras(&f))).unwrap_or_default();
@@ -479,6 +482,8 @@ pub(super) fn load(op: &Rc<Operator>) {
         let ready = stream::ndi::runtime().is_some();
         cameras.extend(stream::ndi::sources(std::time::Duration::from_millis(1500)).into_iter()
             .map(|n| Input { label: stream::ndi::label(&n), name: format!("{}{n}", stream::ndi::SCHEME) }));
+        // The phones that have sent pictures since the app started (`stream::phone_camera`).
+        cameras.extend(stream::phone_camera::names().into_iter().map(|n| Input { label: stream::phone_camera::label(&n), name: format!("{}{n}", stream::phone_camera::SCHEME) }));
         (inputs, cameras, ready)
     };
     let done = move |(inputs, cameras, ready): (Vec<Input>, Vec<Input>, bool)| {

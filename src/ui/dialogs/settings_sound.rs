@@ -156,7 +156,7 @@ pub(crate) fn wire(op: &Rc<Operator>) {
     let app = op.app();
     let host = app.lan_url.as_deref().and_then(|u| u.strip_prefix("http://")).and_then(|u| u.split('/').next()).unwrap_or("").to_string();
     g.set_stream_phone_address(if host.is_empty() { SharedString::new() } else { format!("http://{host}/stage-view/mic").into() });
-    let secure = crate::network::secure::port().or_else(|| app.port.checked_add(1)).filter(|_| !host.is_empty());
+    let secure = Some(crate::network::https::port_for(app.port)).filter(|_| !host.is_empty());
     g.set_stream_phone_secure_address(secure.map(|p| crate::network::phone_mic::secure_url(&host, p)).unwrap_or_default().into());
     let me = Rc::downgrade(op);
     g.on_stream_sound_mode_chosen(move |i| {

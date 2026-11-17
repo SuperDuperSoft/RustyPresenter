@@ -3,10 +3,12 @@
 //! TCP control for other gear (`tcp`, see `docs/tcp-control.md`). Passwords are kept only as hashes (`password`).
 pub mod actions;
 pub mod guest;
+pub mod https;
+pub mod phone_camera;
+pub mod websocket;
 pub mod password;
 pub mod stage_view;
 pub mod phone_mic;
-pub mod secure;
 pub mod live_anim;
 pub mod tcp;
 #[path = "../strings/network.rs"]
@@ -50,6 +52,8 @@ pub struct NetState {
     pub(crate) stage_tokens: Mutex<Vec<(String, Instant)>>,
     pub(crate) tcp: Mutex<Option<tcp::Running>>,
     pub(crate) tries: Mutex<HashMap<IpAddr, Instant>>,
+    /// The port the phone pages are served on over https (`https`, for the phone camera), once they are.
+    pub(crate) https: Mutex<Option<u16>>,
 }
 
 impl NetState {

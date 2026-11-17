@@ -13,6 +13,7 @@ use uuid::Uuid;
 
 pub mod accounts;
 pub mod board_feed;
+pub mod camera_lost;
 pub mod camera_feed;
 pub mod captions;
 pub mod chat;
@@ -30,6 +31,7 @@ pub mod ndi;
 pub mod network_card;
 pub mod own_scenes;
 pub mod pc_sound;
+pub mod phone_camera;
 pub mod pictures;
 pub mod preflight;
 pub mod ptz;
