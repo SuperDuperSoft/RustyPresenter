@@ -84,6 +84,7 @@ pub fn open(op: &Rc<Operator>, tab: SettingsTab) {
     super::settings_record::load(op);
     super::settings_record::wire_keys(op);
     super::settings_sound::wire(op);
+    super::settings_stream_extras::load(op);
     settings_follow::load(op);
     super::settings_model::load(op);
     if tab == SettingsTab::Look { settings_look::render_now(op, &edit) }
@@ -123,6 +124,7 @@ fn fill_form(g: &SettingsDlg, s: &Settings) {
     settings_graphics::fill(g, s.graphics);
     settings_media::fill_form(g, &s.media, &[]);
     super::settings_record::fill_form(g, &s.record);
+    super::settings_stream_extras::fill_form(g, &s.record);
     settings_follow::fill_form(g, &s.follow, &[]);
 }
 
@@ -149,6 +151,7 @@ pub(crate) fn read_form(g: &SettingsDlg, s: &mut Settings) {
     s.audio_device = settings_audio::read(g);
     settings_media::read_form(g, &mut s.media);
     super::settings_record::read_form(g, &mut s.record);
+    super::settings_stream_extras::read_form(g, &mut s.record);
     settings_follow::read_form(g, &mut s.follow);
     super::stage_layouts::read_settings(g, s);
 }

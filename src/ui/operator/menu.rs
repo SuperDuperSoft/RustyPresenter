@@ -66,6 +66,8 @@ pub enum MenuAction {
     Edit(crate::shortcuts::EditKey),
     /// Edit → Paste: the copied service item, or a copied YouTube link.
     Paste,
+    /// File → Go Live, or Stop the livestream (also the Live button; the first-time helper when nothing is set up).
+    GoLive,
 }
 
 /// The action of a `menu("…")` id; `None` for an unknown id.
@@ -124,6 +126,7 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "move-up" => MenuAction::Edit(crate::shortcuts::EditKey::MoveUp),
         "move-down" => MenuAction::Edit(crate::shortcuts::EditKey::MoveDown),
         "paste" => MenuAction::Paste,
+        "go-live" => MenuAction::GoLive,
         _ => return None,
     })
 }
@@ -174,6 +177,7 @@ impl Operator {
             Some(MenuAction::StartPreService) => self.start_preservice(),
             Some(MenuAction::Edit(key)) => { self.edit_key(key); }
             Some(MenuAction::Paste) => { self.paste(); }
+            Some(MenuAction::GoLive) => self.go_live(),
             None => {}
         }
     }

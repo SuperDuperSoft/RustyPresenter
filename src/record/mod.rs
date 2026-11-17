@@ -208,6 +208,9 @@ pub struct RecordPrefs {
     /// `stream::listen::DEFAULT`, the computer's usual output; else an output as `Settings::audio_device` has it.
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub stream_listen: String,
+    /// Livestream: live captions and the website player (`stream::extras`).
+    #[serde(default, skip_serializing_if = "crate::stream::extras::Extras::is_default")]
+    pub extras: crate::stream::extras::Extras,
 }
 
 

@@ -118,6 +118,7 @@ impl Operator {
 
     /// The Go Live button: a recording that is also sent to the destinations that are on; again stops both.
     pub fn go_live(self: &Rc<Self>) {
+        if self.go_live_helper_instead() { return }
         if self.is_recording() && !self.record.live.get() { return self.toast(stream::tr::stop_recording_first(), true) }
         self.record_or_stop(true)
     }
@@ -163,9 +164,11 @@ impl Operator {
             addresses = good;
         }
         let today = chrono::Local::now().date_naive();
-        let details = |service| stream::accounts::Details {
-            title: stream::accounts::title_for(&prefs.stream_title, today, service),
-            description: prefs.stream_description.clone(),
+        // `{time}` and `{weekday}` too, in the title and the description (`stream::health::fill`).
+        let now = chrono::Local::now().naive_local();
+        let details = |service: stream::Service| stream::accounts::Details {
+            title: stream::health::fill(&stream::accounts::title_for(&prefs.stream_title, today, service), now, service.name()),
+            description: stream::health::fill(&prefs.stream_description, now, service.name()),
             privacy: prefs.stream_privacy,
             thumbnail: prefs.stream_thumbnail.clone(),
             scheduled: if service == stream::Service::YouTube { prefs.stream_scheduled.clone() } else { String::new() },
@@ -207,6 +210,7 @@ impl Operator {
             own: prefs.own_scenes.clone(),
         };
         if live { *self.record.own_scenes.borrow_mut() = prefs.own_scenes.clone() }
+        let live_prefs = prefs.clone();
         let (ids, ends) = (stream::accounts::app_ids(), stream::accounts::app_ends());
         let scheduled_id = prefs.stream_scheduled.clone();
         off_ui(self, move || (Plan::make(&data, &prefs), make_broadcasts(&ids, &ends, signed)), move |(plan, made)| {
@@ -244,6 +248,7 @@ impl Operator {
                         plan.lighter = lighter;
                         plan.ndi = ndi;
                         if ndi.any() && stream::ndi::runtime().is_none() { op.toast(stream::tr::ndi_missing(), true) }
+                        op.started_live(&plan, &live_prefs);
                     }
                     plan.stream = addresses;
                     plan.tall = talls;
@@ -262,7 +267,7 @@ impl Operator {
                 Err(None) => op.offer_ffmpeg(),
             }
             // Broadcasts made for a stream that did not start are ended at once, unsaid.
-            if !(live && op.is_recording()) { op.end_broadcasts(false) }
+            if !(live && op.is_recording()) { op.end_broadcasts(false); op.stop_captions(false) }
         });
     }
 
@@ -741,6 +746,7 @@ impl Operator {
             self.ui.set_live_held(false);
             self.ui.set_live_muted(false);
             self.ui.set_live_watching(-1);
+            self.stop_captions(true);
         }
         self.ui.set_record_time(record::clock(0).into());
         if !on {
@@ -790,6 +796,7 @@ impl Operator {
             op.say_slow(lag);
             op.ask_viewers();
             if op.ui.get_chat_on() { op.show_chat() }
+            op.show_health();
         });
     }
 
@@ -825,6 +832,7 @@ impl Operator {
 const SLOW_SKIPS: u32 = 3;
 
 pub(super) fn wire(op: &Rc<Operator>) {
+    super::stream_extras::wire(op);
     let me = Rc::downgrade(op);
     op.ui.on_record(move || if let Some(op) = me.upgrade() { op.toggle_recording() });
     let me = Rc::downgrade(op);
@@ -881,3 +889,23 @@ pub(crate) mod testing {
 #[cfg(test)]
 #[path = "record_tests.rs"]
 mod tests;
+
+impl Operator {
+    /// What the Go Live status list needs from the recording now (`stream::health`); `None` while not live.
+    pub(crate) fn health_inputs(&self) -> Option<stream::health::Inputs> {
+        let rec = self.record.rec.borrow();
+        let rec = rec.as_ref().filter(|_| self.record.live.get())?;
+        let links = self.record.links.borrow().iter().map(|(n, _)| n.clone()).zip(rec.links()).collect();
+        let input = self.record.input.borrow().clone();
+        Some(stream::health::Inputs {
+            links,
+            camera: rec.camera_seen(),
+            sound: (!input.is_empty()).then(|| (input, rec.silent().unwrap_or(false))),
+            slow: self.record.slow.borrow().is_slow(),
+            held: self.ui.get_live_held(),
+            muted: self.ui.get_live_muted(),
+            never_after: NEVER_TRIES,
+            ..Default::default()
+        })
+    }
+}

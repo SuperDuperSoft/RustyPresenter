@@ -29,6 +29,9 @@ pub struct Slow {
 }
 
 impl Slow {
+    /// Whether it was said to be too slow and has not been smooth again since.
+    pub fn is_slow(&self) -> bool { self.said }
+
     /// One second's lag (the most the writer was behind in it). What to say now, if anything.
     pub fn note(&mut self, lag: Duration) -> Option<Say> {
         self.recent.push_back(lag > BEHIND);

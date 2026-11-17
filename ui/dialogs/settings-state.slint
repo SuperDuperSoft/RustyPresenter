@@ -435,4 +435,27 @@ export global SettingsDlg {
     callback credit-template-edited();
     /// Settings → Songs' "Song use report…" (FEAT-7 §3.3).
     callback usage-report();
+    /// Media → Livestream → Live captions (`stream::captions`): on, on the picture, in a file, YouTube's captions
+    /// address, and what they listen to (0: the stream's own sound input, then each input). `captions-model` says
+    /// whether the English speech model is downloaded.
+    in-out property <bool> captions-on;
+    in-out property <bool> captions-picture: true;
+    in-out property <bool> captions-file: true;
+    in-out property <string> captions-youtube;
+    in property <[string]> captions-inputs;
+    in-out property <int> captions-input;
+    in property <bool> captions-model;
+    /// Media → Livestream → On your website (`stream::website`): the channel and Page, and what went wrong.
+    in-out property <string> website-youtube;
+    in-out property <string> website-facebook;
+    in property <string> website-note;
+    callback website-fill();
+    callback website-copy(int);
+    /// The first-time Go Live helper, from Settings.
+    callback go-live-helper();
+    /// Media → Livestream → Remote guest (`network::guest`): the invitation page in this computer's browser, and the
+    /// guest put in the first free camera row.
+    callback guest-invite();
+    callback guest-camera();
+    in property <string> guest-note;
 }

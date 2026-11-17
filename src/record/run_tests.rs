@@ -758,3 +758,24 @@ fn go_live_records_the_words_alone_beside_the_recording() {
     assert!(shown > 200, "the words' band in the lower third: {shown}");
     std::fs::remove_dir_all(&dir).unwrap();
 }
+
+/// Live captions go on top of the picture as soon as they change, and come off again.
+#[test]
+fn live_captions_are_laid_over_the_picture() {
+    use crate::stream::pictures::Shown;
+    let blue = Arc::new([0u8, 0, 200, 255].repeat(4));
+    let room = [0u8; 16];
+    let camera = Shown { scene: Scene::Camera, ..Shown::default() };
+    let mut m = Mixer::new((2, 2));
+    let t0 = Instant::now();
+    m.update(&camera, &room, Some(blue.clone()), true, t0);
+    let mut caption = vec![0u8; 16];
+    caption[12..16].copy_from_slice(&[255, 255, 255, 255]);
+    m.captions = Some(Arc::new(caption));
+    m.update(&camera, &room, Some(blue.clone()), false, t0 + Duration::from_millis(40));
+    assert_eq!(&m.out()[12..16], &[255, 255, 255, 255], "the caption's pixel");
+    assert_eq!(&m.out()[..4], &[0, 0, 200, 255], "the camera around it");
+    m.captions = None;
+    m.update(&camera, &room, Some(blue.clone()), false, t0 + Duration::from_millis(80));
+    assert_eq!(&m.out()[12..16], &[0, 0, 200, 255], "taken off");
+}

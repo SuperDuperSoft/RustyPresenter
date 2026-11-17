@@ -38,6 +38,8 @@ pub mod show_message;
 pub mod song_editor;
 pub mod stage_layouts;
 pub mod stream_scenes;
+pub mod go_live_helper;
+pub mod settings_stream_extras;
 pub mod translation_editor;
 pub mod usage;
 #[path = "../../strings/dialogs.rs"]
@@ -98,6 +100,8 @@ pub enum DialogKind {
     Design(Option<Uuid>),
     /// Settings → Media → Livestream → Your scenes… (the church's own livestream scenes).
     StreamScenes,
+    /// Go Live with nowhere to stream to: the first-time helper's steps.
+    GoLiveHelper,
 }
 
 impl DialogKind {
@@ -136,6 +140,7 @@ impl DialogKind {
             DialogKind::Network => "network",
             DialogKind::Design(_) => "design",
             DialogKind::StreamScenes => "stream-scenes",
+            DialogKind::GoLiveHelper => "go-live-helper",
         }
     }
 }
@@ -261,6 +266,7 @@ impl Operator {
             DialogKind::Network => network::title(),
             DialogKind::Design(_) => crate::design::strings::editor_title(),
             DialogKind::StreamScenes => stream_scenes::title(),
+            DialogKind::GoLiveHelper => go_live_helper::title(),
         }
     }
 }
@@ -283,6 +289,8 @@ pub(crate) fn wire(op: &Rc<Operator>) {
     settings::wire(op);
     usage::wire(op);
     stage_layouts::wire(op);
+    go_live_helper::wire(op);
+    settings_stream_extras::wire(op);
 }
 
 #[cfg(test)]

@@ -156,6 +156,7 @@ pub fn is_network_camera(name: &str) -> bool {
 /// What camera `name` is called on the scene button: a camera on the network by where it is, never with the
 /// password its address may hold.
 pub fn camera_label(name: &str) -> String {
+    if crate::network::guest::is_guest_camera(name) { return crate::network::guest::tr::camera() }
     if let Some(source) = crate::stream::ndi::source_name(name) { return crate::stream::ndi::label(source) }
     // Linux: a camera is saved as its device (`devices::cameras`).
     if name.starts_with("/dev/") { return super::devices::linux_camera_label(name) }

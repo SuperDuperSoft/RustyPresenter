@@ -485,6 +485,8 @@ pub fn router(app: Arc<App>) -> Router {
         .merge(crate::network::stage_view::routes())
         // The phone as a microphone for the livestream.
         .merge(crate::network::phone_mic::routes())
+        // Remote guests: the invitation page and the guest's picture, this computer only (`network::guest`).
+        .merge(crate::network::guest::routes())
         .with_state(app)
 }
 

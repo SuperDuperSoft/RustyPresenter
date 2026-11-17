@@ -1,0 +1,145 @@
+// The first-time Go Live helper: Go Live pressed with nowhere to stream to opens these few steps instead of a
+// message. Where to stream (paste the key), which camera, which sound, a check, done. The same choices as
+// Settings → Media → Livestream. Filled and answered by `src/ui/dialogs/go_live_helper.rs`.
+import { Theme } from "../theme.slint";
+import { Btn, Segmented } from "../widgets.slint";
+import { DialogBody, DialogFoot } from "shell.slint";
+import { TextField, Lbl, Note, Select } from "form.slint";
+
+export global GoLiveHelperDlg {
+    /// 0 where, 1 camera, 2 sound, 3 check, 4 done.
+    in-out property <int> step;
+    /// 0 YouTube, 1 Facebook, 2 Twitch, 3 another server.
+    in-out property <int> service;
+    in-out property <string> key;
+    in property <bool> key-kept;
+    in-out property <string> url;
+    in property <string> key-help;
+    in property <[string]> cameras;
+    in-out property <int> camera;
+    in property <[string]> sounds;
+    in-out property <int> sound;
+    /// The check's lines so far, and whether it is running.
+    in property <[string]> results;
+    in property <bool> checking;
+    in property <string> test-help;
+    in property <string> error;
+    callback service-changed(int);
+    callback next();
+    callback back();
+    callback check();
+    callback test-stream();
+    callback sign-in-instead();
+    callback finish(bool);
+}
+
+component Muted inherits Text {
+    color: Theme.muted;
+    font-family: Theme.font;
+    font-size: 13px;
+    wrap: word-wrap;
+}
+
+component Big inherits Text {
+    color: Theme.text;
+    font-family: Theme.font;
+    font-size: 17px;
+    font-weight: 700;
+    wrap: word-wrap;
+    accessible-role: text;
+    accessible-label: self.text;
+}
+
+export component GoLiveHelperDialog inherits VerticalLayout {
+    DialogBody {
+        VerticalLayout {
+            padding: 22px;
+            spacing: 12px;
+            Muted { text: @tr("Step {} of 4", min(GoLiveHelperDlg.step + 1, 4)); }
+            if GoLiveHelperDlg.step == 0: VerticalLayout {
+                spacing: 10px;
+                Big { text: @tr("Where should the service go?"); }
+                helper-service := Segmented {
+                    labels: ["YouTube", "Facebook", "Twitch", @tr("Another server")];
+                    index <=> GoLiveHelperDlg.service;
+                    changed(i) => { GoLiveHelperDlg.service-changed(i); }
+                }
+                if GoLiveHelperDlg.service == 3: helper-url := TextField {
+                    label: @tr("The server's address");
+                    placeholder: @tr("Its address: rtmp://, rtmps:// or srt://");
+                    text <=> GoLiveHelperDlg.url;
+                }
+                helper-key := TextField {
+                    password: true;
+                    label: @tr("Stream key");
+                    placeholder: GoLiveHelperDlg.key-kept ? @tr("A key is saved. Type a new one to change it.") : @tr("Paste the stream key");
+                    text <=> GoLiveHelperDlg.key;
+                }
+                Note { text: GoLiveHelperDlg.key-help; }
+                Muted { text: @tr("A stream key is a password: whoever has it can broadcast as you. It is kept in this computer's own password store."); }
+                if GoLiveHelperDlg.service < 2: HorizontalLayout {
+                    alignment: start;
+                    helper-sign-in := Btn {
+                        small: true;
+                        text: @tr("Sign in instead…");
+                        tooltip: @tr("Opens Settings, where you can sign in: Go Live then makes each broadcast itself, with its title");
+                        clicked => { GoLiveHelperDlg.sign-in-instead(); }
+                    }
+                }
+            }
+            if GoLiveHelperDlg.step == 1: VerticalLayout {
+                spacing: 10px;
+                Big { text: @tr("Which camera?"); }
+                helper-camera := Select { options: GoLiveHelperDlg.cameras; index <=> GoLiveHelperDlg.camera; }
+                Muted { text: @tr("Songs and Bible verses go out with the words over the camera. With no camera, viewers see the room screen."); }
+            }
+            if GoLiveHelperDlg.step == 2: VerticalLayout {
+                spacing: 10px;
+                Big { text: @tr("Which sound?"); }
+                helper-sound := Select { options: GoLiveHelperDlg.sounds; index <=> GoLiveHelperDlg.sound; }
+                Muted { text: @tr("Choose the sound board's input (a USB sound interface or the line-in) if it sends the service to this computer. The sound of videos and songs the app plays goes out too."); }
+            }
+            if GoLiveHelperDlg.step == 3: VerticalLayout {
+                spacing: 10px;
+                Big { text: @tr("Check it"); }
+                Muted { text: @tr("The check measures the internet, takes a picture from the camera and listens to the sound for a moment. Nothing is sent to viewers."); }
+                HorizontalLayout {
+                    alignment: start;
+                    spacing: 8px;
+                    helper-check := Btn { text: GoLiveHelperDlg.checking ? @tr("Checking…") : @tr("Check"); enabled: !GoLiveHelperDlg.checking; clicked => { GoLiveHelperDlg.check(); } }
+                    helper-test := Btn { text: @tr("Send a 20-second test"); enabled: !GoLiveHelperDlg.checking; clicked => { GoLiveHelperDlg.test-stream(); } }
+                }
+                for line in GoLiveHelperDlg.results: Text {
+                    text: line;
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    wrap: word-wrap;
+                    accessible-role: text;
+                    accessible-label: self.text;
+                }
+                Muted { text: GoLiveHelperDlg.test-help; }
+            }
+            if GoLiveHelperDlg.step == 4: VerticalLayout {
+                spacing: 10px;
+                Big { text: @tr("Ready to go live"); }
+                Muted { text: @tr("Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Media → Livestream."); }
+            }
+            if GoLiveHelperDlg.error != "": helper-error := Text {
+                text: GoLiveHelperDlg.error;
+                color: Theme.danger-text;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                wrap: word-wrap;
+                accessible-role: text;
+                accessible-label: self.text;
+            }
+        }
+    }
+    DialogFoot {
+        if GoLiveHelperDlg.step > 0 && GoLiveHelperDlg.step < 4: helper-back := Btn { text: @tr("Back"); clicked => { GoLiveHelperDlg.back(); } }
+        if GoLiveHelperDlg.step < 4: helper-next := Btn { primary: true; text: @tr("Next"); enabled: !GoLiveHelperDlg.checking; clicked => { GoLiveHelperDlg.next(); } }
+        if GoLiveHelperDlg.step == 4: helper-close := Btn { text: @tr("Close"); clicked => { GoLiveHelperDlg.finish(false); } }
+        if GoLiveHelperDlg.step == 4: helper-go := Btn { primary: true; text: @tr("Go Live now"); clicked => { GoLiveHelperDlg.finish(true); } }
+    }
+}

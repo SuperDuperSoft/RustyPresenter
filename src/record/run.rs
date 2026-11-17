@@ -130,6 +130,8 @@ pub struct Controls {
     pub next: Arc<std::sync::atomic::AtomicUsize>,
     /// The next change of `camera` fades (set with it by `Recording::switch_camera`).
     pub fade: Arc<std::sync::atomic::AtomicBool>,
+    /// Live captions' picture, laid over the stream when there are no song words or card (`stream::captions`).
+    pub captions: crate::stream::captions::Slot,
 }
 
 impl Plan {
@@ -483,6 +485,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
             if let Some(f) = words_file.as_mut() { f.words(&shown.words) }
             // The church's own scenes can show any camera, not only the one on air.
             if matches!(shown.scene, crate::stream::scene::Scene::Own(_)) { m.cameras = camera_feeds.iter().map(|f| f.as_ref().and_then(|f| f.picture())).collect() }
+            m.captions = plan.controls.captions.lock().unwrap_or_else(|e| e.into_inner()).clone().filter(|_| crate::stream::captions::shows_over(&shown));
             m.update(&shown, &current, camera.and_then(|f| f.picture()), room_new, Instant::now());
             room_new = false;
         }
@@ -585,12 +588,15 @@ struct Mixer {
     used: Vec<Option<Arc<Vec<u8>>>>,
     /// How many times the picture was put together (tests).
     composes: u64,
+    /// Live captions to lay on top (set by the writer), and the ones in the picture as last put together.
+    captions: Option<Arc<Vec<u8>>>,
+    captions_used: Option<Arc<Vec<u8>>>,
 }
 
 impl Mixer {
     fn new(size: (u32, u32)) -> Mixer {
         let black = [0, 0, 0, 255].repeat(size.0 as usize * size.1 as usize);
-        Mixer { size, layout: Default::default(), out: black.clone(), next: black, fade: None, scene: None, camera: None, words: None, card: None, own: None, cameras: vec![], used: vec![], composes: 0 }
+        Mixer { size, layout: Default::default(), out: black.clone(), next: black, fade: None, scene: None, camera: None, words: None, card: None, own: None, cameras: vec![], used: vec![], composes: 0, captions: None, captions_used: None }
     }
 
     fn out(&self) -> &[u8] { &self.out }
@@ -619,12 +625,14 @@ impl Mixer {
         let same_used = self.used.len() == used.len() && self.used.iter().zip(&used).all(|(a, b)| same(a, b));
         let scene_changed = self.scene.is_some_and(|s| s != shown.scene);
         let changed = self.scene != Some(shown.scene) || room_new || !same(&self.camera, &camera) || !same(&self.words, &shown.words) || !same(&self.card, &shown.card)
-            || !same_own || !same_used;
+            || !same_own || !same_used || !same(&self.captions_used, &self.captions);
         if scene_changed { self.fade = Some((self.out.clone(), now)) }
         if changed {
             let cameras: Vec<Option<&[u8]>> = self.cameras.iter().map(|c| c.as_deref().map(Vec::as_slice)).collect();
             compose(shown.scene, &Inputs { size: self.size, room, camera: camera.as_deref().map(Vec::as_slice), words: shown.words.as_deref().map(Vec::as_slice),
                 card: shown.card.as_deref().map(Vec::as_slice), cameras: &cameras, own: own.as_deref() }, &self.layout, &mut self.next);
+            if let Some(c) = self.captions.as_deref().filter(|c| c.len() == self.next.len()) { crate::stream::compose::over(&mut self.next, c) }
+            self.captions_used = self.captions.clone();
             (self.scene, self.camera, self.words, self.card, self.own, self.used) = (Some(shown.scene), camera, shown.words.clone(), shown.card.clone(), own, used);
             self.composes += 1;
         }

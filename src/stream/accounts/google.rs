@@ -166,3 +166,10 @@ pub async fn viewers(client: &reqwest::Client, ends: &Ends, live: &Live, access:
     let n = v.pointer("/items/0/liveStreamingDetails/concurrentViewers")?;
     n.as_str().and_then(|s| s.parse().ok()).or_else(|| n.as_u64())
 }
+
+/// The signed-in channel's id ("UC…"), for the website player (`stream::website`).
+pub async fn channel_id(client: &reqwest::Client, ends: &Ends, ids: &Ids, refresh: &str) -> Result<String, String> {
+    let (token, _) = access(client, ends, ids, refresh).await?;
+    let me = json(client.get(format!("{}/channels", ends.youtube)).query(&[("part", "id"), ("mine", "true")]).bearer_auth(&token).send().await).await?;
+    me.pointer("/items/0/id").and_then(Value::as_str).map(str::to_string).ok_or_else(|| "this Google account has no YouTube channel".into())
+}

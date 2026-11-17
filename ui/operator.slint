@@ -29,6 +29,7 @@ import { ShowMessageDialog } from "dialogs/show-message.slint";
 import { MusicDialog } from "dialogs/music.slint";
 import { NetworkDialog } from "dialogs/network.slint";
 import { StreamScenesDialog } from "dialogs/stream-scenes.slint";
+import { GoLiveHelperDialog } from "dialogs/go-live-helper.slint";
 import { AutomationStrip } from "operator/automation-strip.slint";
 import { CameraStrip } from "operator/cameras.slint";
 import { FindVerseDialog } from "dialogs/find-verse.slint";
@@ -498,6 +499,11 @@ export component OperatorWindow inherits Window {
                 title: root.recording ? @tr("Stop recording") : @tr("Start recording");
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.record(); }
+            }
+            MenuItem {
+                title: root.live ? @tr("Stop the livestream") : @tr("Go Live");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("go-live"); }
             }
             MenuItem {
                 title: @tr("Recording settings…");
@@ -1194,6 +1200,7 @@ export component OperatorWindow inherits Window {
             if root.dialog-kind == "music": MusicDialog {}
             if root.dialog-kind == "network": NetworkDialog {}
             if root.dialog-kind == "stream-scenes": StreamScenesDialog {}
+            if root.dialog-kind == "go-live-helper": GoLiveHelperDialog {}
         }
 
         for a in root.ask: AskOverlay {

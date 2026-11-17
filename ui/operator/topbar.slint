@@ -7,6 +7,7 @@ import { BiblePickerList, TranslationChip } from "../bible-picker.slint";
 import { StageLayoutButton } from "../dialogs/stage-layouts.slint";
 import { PanelExtras } from "extras.slint";
 import { RecordBtn, ClipBtn, ChatBtn, LiveBtn, PanicBtn, SceneBtn, SoundMeter } from "record.slint";
+import { LiveStatusBtn } from "live-status.slint";
 
 export { TranslationChip }
 
@@ -643,6 +644,11 @@ export component TopBar inherits Rectangle {
                 watching: root.live-watching;
                 clicked => { root.go-live(); }
             }
+        }
+        if root.live: VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            live-status := LiveStatusBtn { }
         }
         if root.live && root.chat-on: VerticalLayout {
             horizontal-stretch: 0;
