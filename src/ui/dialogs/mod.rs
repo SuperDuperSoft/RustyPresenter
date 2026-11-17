@@ -37,6 +37,7 @@ pub mod settings_themes;
 pub mod show_message;
 pub mod song_editor;
 pub mod songselect;
+pub mod songs_folder;
 pub mod stage_layouts;
 pub mod stream_more;
 pub mod stream_scenes;

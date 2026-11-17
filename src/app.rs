@@ -1155,6 +1155,8 @@ impl App {
             if song.id.is_nil() { song.id = Uuid::new_v4(); }
             song.lines_per_slide = song.lines_per_slide.min(Song::MAX_LINES);
             if song.text_size > 0 { song.text_size = song.text_size.clamp(Song::MIN_TEXT, Song::MAX_TEXT) }
+            song.transpose = crate::transpose::clamp(song.transpose);
+            song.key = song.key.trim().to_string();
             let id = song.id;
             tryr!(app.edit(|d| { match d.songs.iter_mut().find(|s| s.id == id) { Some(s) => *s = song, None => d.songs.push(song) } Ok(()) }));
             Ok(json!({ "id": id }))
@@ -1172,6 +1174,22 @@ impl App {
                 Ok(())
             }));
             Ok(json!({ "id": id }))
+        }
+        // One song's key and how far the stage screen moves its chords; the rest of the song stays as it is. When
+        // the song is live, the stage screen shows the moved chords at once: only the chords differ, so the live
+        // engine takes the new slides in quietly (`Live::reconcile`) and the room's words never change.
+        "song/key" => {
+            #[derive(Deserialize)]
+            struct K { id: Uuid, #[serde(default)] transpose: Option<i8>, #[serde(default)] step: Option<i8>, #[serde(default)] key: Option<String> }
+            let K { id, transpose, step, key } = parse(body)?;
+            let now = tryr!(app.edit(|d| {
+                let Some(s) = d.songs.iter_mut().find(|s| s.id == id) else { return Err(tr!("That song is not in the library any more.")) };
+                if let Some(t) = transpose { s.transpose = crate::transpose::clamp(t) }
+                if let Some(n) = step { s.transpose = crate::transpose::clamp(s.transpose.saturating_add(n)) }
+                if let Some(k) = key { s.key = k.trim().to_string() }
+                Ok(s.transpose)
+            }));
+            Ok(json!({ "id": id, "transpose": now }))
         }
         "song/delete" => {
             let Id { id } = parse(body)?;
@@ -1528,10 +1546,29 @@ impl App {
                 s.look_fade_ms = s.look_fade_ms.min(crate::model::LOOK_FADE_MAX_MS);
                 // N31: only `network/save` changes these (it hashes the passwords).
                 s.network = std::mem::take(&mut d.settings.network);
+                // Settings → Songs → "Keep my songs in a folder" saves itself (`songs-folder/set`).
+                s.songs_folder = std::mem::take(&mut d.settings.songs_folder);
                 d.settings = s;
                 Ok(())
             }));
             Ok(json!({}))
+        }
+        // Settings → Songs → "Keep my songs in a folder" (`crate::songs_folder`): each choice saves at once.
+        "songs-folder/set" => {
+            #[derive(Deserialize)]
+            struct F { #[serde(default)] on: Option<bool>, #[serde(default)] folder: Option<std::path::PathBuf>, #[serde(default)] usual: bool, #[serde(default)] tidy: Option<bool> }
+            let F { on, folder, usual, tidy } = parse(body)?;
+            if let Some(f) = &folder && !f.is_absolute() { return Err(ActionError::bad(tr!("Choose a whole folder path."))) }
+            let prefs = tryr!(app.edit(|d| {
+                let p = &mut d.settings.songs_folder;
+                if let Some(on) = on { p.on = on }
+                if let Some(f) = folder { p.folder = Some(f) }
+                if usual { p.folder = None }
+                if let Some(t) = tidy { p.tidy = t }
+                Ok(p.clone())
+            }));
+            crate::songs_folder::wake();
+            Ok(json!({ "on": prefs.on, "folder": prefs.dir(), "chosen": prefs.folder.is_some(), "tidy": prefs.tidy }))
         }
         "settings/translation" => {
             #[derive(Deserialize)] struct T { translation: String }
@@ -2297,6 +2334,45 @@ mod tests {
         app.save_live_state();
         let second = wait_for_state(&app.store.root, first.seq + 1);
         assert_eq!(second.windows, ["room", "stage"]);
+    }
+
+    #[test]
+    fn moving_the_live_songs_key_changes_the_stage_chords_at_once_and_never_the_room() {
+        let app = test_app();
+        let song = Song { id: Uuid::new_v4(), title: "Grace".into(), key: "G".into(), lyrics: "Verse 1
+[G]Amazing [C]grace".into(), ..Default::default() };
+        let (song_id, item_id) = (song.id, Uuid::new_v4());
+        {
+            let mut d = app.data.lock().unwrap();
+            d.songs.push(song);
+            d.services[0].items.push(ServiceItem { id: item_id, kind: ItemKind::Song { song_id, arrangement: None }, background: None, notes: String::new(), theme: None });
+        }
+        app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Show { item_id, slide: 0 } });
+        let frame = app.live_view().frame.clone();
+        assert_eq!(app.live_view().slide.unwrap().chords.as_deref(), Some("[G]Amazing [C]grace"));
+        let r = block_on(app.do_action("song/key", serde_json::json!({ "id": song_id, "step": 3 }).to_string().as_bytes())).unwrap();
+        assert_eq!(r["transpose"], 3);
+        let v = app.live_view();
+        assert_eq!(v.slide.unwrap().chords.as_deref(), Some("[Bb]Amazing [Eb]grace"), "the stage has the moved chords");
+        assert_eq!(format!("{:?}", v.frame), format!("{frame:?}"), "the room shows the same");
+        assert!(v.changed.is_none(), "no Update screen banner");
+        // Kept to −11 … +11, and the song's words and chords as written never change.
+        block_on(app.do_action("song/key", serde_json::json!({ "id": song_id, "step": 40 }).to_string().as_bytes())).unwrap();
+        let d = app.data.lock().unwrap();
+        let s = d.songs.iter().find(|s| s.id == song_id).unwrap();
+        assert_eq!((s.transpose, s.lyrics.as_str()), (11, "Verse 1
+[G]Amazing [C]grace"));
+    }
+
+    #[test]
+    fn songs_saved_before_keys_load_with_no_key_and_no_move() {
+        let s: Song = serde_json::from_str(r#"{"id":"00000000-0000-0000-0000-000000000001","title":"Old","lyrics":"Verse 1
+la"}"#).unwrap();
+        assert_eq!((s.key.as_str(), s.transpose), ("", 0));
+        let json = serde_json::to_string(&s).unwrap();
+        assert!(!json.contains("key") && !json.contains("transpose"), "nothing new is written for a song without them: {json}");
+        let moved: Song = serde_json::from_str(&serde_json::to_string(&Song { key: "D".into(), transpose: -2, ..s }).unwrap()).unwrap();
+        assert_eq!((moved.key.as_str(), moved.transpose), ("D", -2));
     }
 
     #[test]

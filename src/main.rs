@@ -104,6 +104,8 @@ fn main() {
     // 1.3: songs set to follow the singers start listening now (FFmpeg lists the inputs: off the main thread).
     { let app = app.clone(); let _ = std::thread::Builder::new().name("follow-start".into()).spawn(move || app.start_follow_if_wanted()); }
     rt.spawn(rustypresenter::import::init(&app));
+    // Settings → Songs → "Keep my songs in a folder": its own thread looks at the folder while the app is open.
+    rustypresenter::songs_folder::start(&app);
     // The open service's online Bible text that isn't in the cache yet (Nov 5 spec §5).
     { let app = app.clone(); rt.spawn(async move { app.fetch_online_text().await }); }
     if headless_mode() {

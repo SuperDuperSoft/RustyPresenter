@@ -913,3 +913,17 @@ fn a_place_heard_while_not_looking_is_old_when_they_look_again() {
     }
     assert_eq!(r.tick(2.5, &at(3), Voice::Singing, 2.0, 2), Some(Show(0)));
 }
+
+#[test]
+fn an_intro_of_chords_waits_for_the_singing_like_any_instrumental_slide() {
+    // A song whose first slide is its intro chords (no words in the room): auto-follow treats it as a slide with
+    // nothing to sing, so the intro stays up while the band plays, and the first words come up as singing starts.
+    let song = crate::model::Song { lyrics: "Intro\n[G] [D] [Em] [C]\n\nVerse 1\n[G]Amazing grace\nhow sweet the sound".into(), ..Default::default() };
+    let slides = crate::slides::song_slides(&song, &crate::model::Settings { credits: "none".into(), ..Default::default() });
+    let s = SongText::from_slides(&slides);
+    assert!(s.slides[0].instrumental && !s.slides[1].instrumental, "the intro has nothing to sing");
+    assert_eq!(s.words[0].text, "Amazing", "no chord is taken for a word");
+    let mut r = Rules::new(auto(2.0), &s);
+    for i in 0..100 { assert_eq!(r.tick(i as f64 * 0.1, &nowhere(), Voice::Music, 4.0, 0), None, "intro {i}") }
+    assert_eq!(r.tick(12.0, &nowhere(), Voice::Singing, 2.0, 0), Some(Show(1)));
+}

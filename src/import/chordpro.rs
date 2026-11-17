@@ -9,7 +9,10 @@
 //! as are `#` comment lines, tab/grid/abc/lilypond/svg blocks, and directives or sections meant for one instrument
 //! (`{start_of_verse-guitar}`). Chords (`[G]`) stay in the words, where they were: the room shows the words alone and
 //! a stage layout can show the chords (`slides::strip_chords`). Annotations (`[*Slowly]`), other brackets and
-//! formatting tags (`<b>`) inside lyric lines are removed, and so are lines with chords and no words. Text
+//! formatting tags (`<b>`) inside lyric lines are removed. A line of chords and no words is kept (an intro or a
+//! break the band plays: the stage screen shows it, the room never does), and a paragraph of chords alone outside
+//! any section is an "Intro" (before the first words) or an "Instrumental". `{key}` and `{transpose}` are kept as
+//! the song's key and how far the stage moves its chords (`crate::transpose`). Text
 //! outside any section is split at blank lines into verses. Files are only read, never written.
 use super::common::{find_files, label_line, section_name, ImportReport};
 use super::easyworship::split_writers;
@@ -244,6 +247,8 @@ struct Draft {
     artists: Vec<String>,
     copyright: String,
     ccli: String,
+    key: String,
+    transpose: i8,
     /// (name, slides) in written order.
     sections: Vec<(String, Vec<Vec<String>>)>,
     /// Section names in the order they are played.
@@ -302,7 +307,13 @@ impl Draft {
         if self.sections.len() >= MAX_SECTIONS { self.too_many = true; return; }
         // A directive's kind wins over its label: `{soc: Coro}` is still the chorus `{chorus}` plays.
         // A hint's kind is its label's first word; plain paragraphs are verses.
-        let kind = base.clone();
+        let mut kind = base.clone();
+        // A paragraph of chords and no words, outside any section: the intro before the words, else a break.
+        if label.is_empty() && o.mode == Mode::Paragraph && o.groups.iter().flatten().all(|l| strip_chords(l).0.is_empty()) {
+            let intro = self.sections.iter().all(|(_, g)| g.iter().flatten().all(|l| strip_chords(l).0.is_empty()));
+            label = if intro { "Intro".into() } else { "Instrumental".into() };
+            kind = label.to_lowercase();
+        }
         if label.is_empty() {
             label = match base.as_str() {
                 "verse" => {
@@ -345,7 +356,14 @@ impl Draft {
             return;
         }
         self.chordpro |= chord;
-        if line.is_empty() { return; } // a chord-only line
+        if line.is_empty() {
+            // A line of chords and no words (an intro, a turnaround): kept for the stage screen.
+            let chords = keep_chords(raw);
+            if chords.is_empty() { return; }
+            if self.open.is_none() { self.open = Some(Open { label: String::new(), kind: "verse".into(), mode: Mode::Paragraph, groups: vec![], group: vec![] }); }
+            if let Some(o) = &mut self.open { o.group.push(chords); }
+            return;
+        }
         if self.first_line.is_none() { self.first_line = Some(line.clone()); }
         if self.open.is_none() { self.open = Some(Open { label: String::new(), kind: "verse".into(), mode: Mode::Paragraph, groups: vec![], group: vec![] }); }
         // The words with their chords: the band's stage screen can show them, the room never does.
@@ -388,6 +406,8 @@ impl Draft {
             "artist" => { known(self); Self::add_writer(&mut self.artists, value); }
             "copyright" => { known(self); if self.copyright.is_empty() { self.copyright = value.to_string(); } }
             "ccli" => { known(self); if self.ccli.is_empty() { self.ccli = ccli(value); } }
+            "key" | "k" => { known(self); if self.key.is_empty() { self.key = value.to_string(); } }
+            "transpose" => { known(self); if let Ok(n) = value.trim().trim_start_matches('+').parse::<i8>() { self.transpose = crate::transpose::clamp(n) } }
             "meta" => {
                 known(self);
                 let (n, v) = value.split_once(char::is_whitespace).unwrap_or((value, ""));
@@ -436,7 +456,7 @@ impl Draft {
         let arrangement = if self.replayed { self.order.clone() } else { vec![] };
         let writers = if self.writers.is_empty() { &self.artists } else { &self.writers };
         let song = Song { id: Uuid::new_v4(), title: title.clone(), writers: writers.join(" | "), ccli: self.ccli.clone(),
-            copyright: self.copyright.trim().to_string(), lyrics, arrangement, ..Default::default() };
+            copyright: self.copyright.trim().to_string(), lyrics, arrangement, key: self.key.trim().to_string(), transpose: self.transpose, ..Default::default() };
         (title, Ok(song))
     }
 }
@@ -835,5 +855,69 @@ And grace my fears relieved;
         assert!(read_chordpro(&empty.0).unwrap_err().contains("No ChordPro files"));
         // Files are only read.
         assert_eq!(std::fs::read_to_string(d.join("Amazing Grace.cho")).unwrap(), GRACE);
+    }
+
+    #[test]
+    fn intro_chords_and_breaks_are_kept_for_the_stage() {
+        // As SongSelect writes it: a commented Intro of chords alone, then the words.
+        let text = "{title: Intro Test}
+{key: G}
+
+{comment: Intro}
+[G] [D] [Em] [C]
+
+{comment: Verse 1}
+[G]Amazing [C]grace
+
+{comment: Instrumental}
+[C] [G]
+";
+        let s = parse_str(text).songs.remove(0);
+        assert_eq!(s.key, "G");
+        assert_eq!(s.lyrics, "Intro
+[G] [D] [Em] [C]
+
+Verse 1
+[G]Amazing [C]grace
+
+Instrumental
+[C] [G]");
+        assert_eq!(room(&s.lyrics), "Intro
+
+Verse 1
+Amazing grace
+
+Instrumental", "the room never sees a chord");
+        // Chords alone in a section of their own, and outside any section before and between the words.
+        let s = parse_str("{t: E}
+{start_of_verse: Intro}
+[A] [E]
+{end_of_verse}
+[A]Words here
+").songs.remove(0);
+        assert!(s.lyrics.starts_with("Intro
+[A] [E]
+
+"), "{}", s.lyrics);
+        let s = parse_str("{t: P}
+[G] [C]
+
+[G]Sung words
+
+[D] [G]
+
+[G]More words
+").songs.remove(0);
+        let labels: Vec<String> = parse_sections(&s.lyrics).into_iter().map(|x| x.label).collect();
+        assert_eq!(labels, ["Intro", "Verse 1", "Instrumental", "Verse 2"], "{}", s.lyrics);
+        // Chords over a pause in a sung line still work as before.
+        let s = parse_str("{t: M}
+[G]Amazing [C] [D]grace
+").songs.remove(0);
+        assert_eq!(room(&s.lyrics), "Verse 1
+Amazing grace");
+        assert_eq!(parse_str("{t: X}
+{transpose: +2}
+la").songs[0].transpose, 2);
     }
 }

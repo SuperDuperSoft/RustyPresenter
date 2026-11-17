@@ -36,6 +36,13 @@ export global SongEditorState {
     /// What 0 stands for now, so the first press steps from what the slides show.
     in property <int> lines-default: 2;
     in property <int> text-size-default: 84;
+    /// The key the song is written in, as typed ("G", "Bb", "F#m"); empty = not known.
+    in-out property <string> key;
+    /// How far the stage screen moves the chords, in semitones (−11 … +11).
+    in-out property <int> transpose;
+    /// Where the song is now ("G → A, +2"), and the capo that plays the written shapes ("Capo 2 to play G shapes").
+    in property <string> key-text;
+    in property <string> capo-text;
     in property <[SectionChipRow]> chips;
     in property <[PreviewSlide]> previews;
     /// "Not in the lyrics: X, Y", or empty.
@@ -71,6 +78,8 @@ export global SongEditorState {
     pure callback arr-drag-index(data-transfer) -> int;
     /// N34: a slide break at the caret (a byte offset); gives the caret's new place.
     callback slide-break(int) -> int;
+    /// The key or the move changed: Rust fills `key-text` and `capo-text`.
+    callback key-changed();
     /// N19: label `i` on top of the slide the caret is in; gives the caret's new place.
     callback label-slide(int, int) -> int;
     callback save();
@@ -362,6 +371,68 @@ export component SongEditor inherits VerticalLayout {
                             SongEditorState.text-size = 0;
                             SongEditorState.edited();
                         }
+                    }
+                }
+                Rectangle { height: 8px; }
+                // The song's key, and how far the stage screen moves the chords (the room never shows them).
+                HorizontalLayout {
+                    spacing: 6px;
+                    alignment: start;
+                    VerticalLayout {
+                        alignment: center;
+                        Text { text: @tr("Key"); color: Theme.muted; font-family: Theme.font; font-size: 12.5px; }
+                    }
+                    key-field := TextField {
+                        width: 64px;
+                        text <=> SongEditorState.key;
+                        placeholder: @tr("G");
+                        label: @tr("The key the song is written in");
+                        edited => { SongEditorState.key-changed(); }
+                    }
+                    key-down := Btn {
+                        small: true;
+                        text: "−";
+                        accessible-role: button;
+                        accessible-label: @tr("Chords one step lower on the stage screen");
+                        clicked => {
+                            SongEditorState.transpose = max(-11, SongEditorState.transpose - 1);
+                            SongEditorState.key-changed();
+                        }
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        key-now := Text {
+                            min-width: 34px;
+                            text: SongEditorState.key-text != "" ? SongEditorState.key-text : @tr("As written");
+                            color: SongEditorState.transpose != 0 ? Theme.text : Theme.muted;
+                            font-family: Theme.font;
+                            font-size: 12.5px;
+                            font-weight: 600;
+                            horizontal-alignment: center;
+                        }
+                    }
+                    key-up := Btn {
+                        small: true;
+                        text: "+";
+                        accessible-role: button;
+                        accessible-label: @tr("Chords one step higher on the stage screen");
+                        clicked => {
+                            SongEditorState.transpose = min(11, SongEditorState.transpose + 1);
+                            SongEditorState.key-changed();
+                        }
+                    }
+                    if SongEditorState.transpose != 0: key-reset := Btn {
+                        small: true;
+                        text: @tr("As written");
+                        tooltip: @tr("Show the chords as they are written");
+                        clicked => {
+                            SongEditorState.transpose = 0;
+                            SongEditorState.key-changed();
+                        }
+                    }
+                    if SongEditorState.capo-text != "": VerticalLayout {
+                        alignment: center;
+                        key-capo := Text { text: SongEditorState.capo-text; color: Theme.muted; font-family: Theme.font; font-size: 12px; }
                     }
                 }
                 Rectangle { height: 10px; }

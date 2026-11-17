@@ -102,7 +102,9 @@ pub fn parse(text: &str) -> Result<Song, String> {
         }
     };
     Ok(Song { id: Uuid::new_v4(), title, writers: writers(get("author")), ccli, copyright, lyrics: sections.join("\n\n"),
-        arrangement: if replayed { order } else { vec![] }, ..Default::default() })
+        arrangement: if replayed { order } else { vec![] },
+        // The first of the keys SongSelect lists is the one the song is written in.
+        key: parts(get("keys")).into_iter().find(|k| crate::transpose::Key::parse(k).is_some()).unwrap_or_default(), ..Default::default() })
 }
 
 #[cfg(test)]
@@ -118,6 +120,7 @@ pub(crate) mod tests {
         let s = parse(SAMPLE).unwrap();
         assert_eq!(s.title, "Morning Light Test Song");
         assert_eq!(s.ccli, "7654321");
+        assert_eq!(s.key, "G", "the key SongSelect gives");
         assert_eq!(s.writers, "Test Writer | Other Writer");
         assert_eq!(s.copyright, "© 2026 Test Music Publishing | Sample Songs (Admin. by Test Admin Co.)");
         assert_eq!(s.lyrics, "Verse 1\nMorning light is breaking\nOver every hill\n\nChorus\nSing it out\nSing it out again\n\nVerse 2\nSecond verse is here\nStill the light");
