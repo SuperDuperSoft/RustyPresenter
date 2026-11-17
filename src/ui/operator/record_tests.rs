@@ -431,6 +431,152 @@ fn camera_positions_go_to_the_camera_in_the_picture() {
     assert_eq!(op.ui.get_camera_positions(), 0);
 }
 
+/// Live with cameras, as Go Live leaves the window (no recording: the choices are the window's).
+fn live_with(op: &Rc<Operator>, cameras: &[&str]) {
+    *op.record.cameras.borrow_mut() = cameras.iter().map(|c| c.to_string()).collect();
+    *op.record.camera_controls.borrow_mut() = vec![None; cameras.len()];
+    op.record.live.set(true);
+    op.ui.set_camera_active(0);
+    op.record.next.set((cameras.len() > 1).then_some(1));
+    op.show_cameras();
+}
+
+#[test]
+fn switch_and_fade_put_the_next_camera_out_and_the_one_out_becomes_next() {
+    use crate::ui::CameraSwitch;
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    let g = op.ui.global::<CameraSwitch>();
+    assert!(!g.get_shown(), "not live: no Cameras box");
+    live_with(&op, &["Pulpit", "Wide"]);
+    assert!(g.get_shown());
+    assert_eq!((g.get_live(), g.get_next()), (0, 1));
+    assert_eq!((g.get_live_caption().as_str(), g.get_next_caption().as_str()), ("1 Pulpit", "2 Wide"));
+    g.invoke_switch();
+    assert_eq!((op.ui.get_camera_active(), g.get_live(), g.get_next()), (1, 1, 0), "the second out, the first next");
+    g.invoke_fade();
+    assert_eq!((op.ui.get_camera_active(), g.get_live(), g.get_next()), (0, 0, 1), "and back again");
+    // The scene button's camera rows switch at once in the same way.
+    op.pick_camera(1);
+    assert_eq!((g.get_live(), g.get_next()), (1, 0));
+    // The stream stops: the box goes.
+    op.show_recording(false);
+    assert!(!g.get_shown());
+    g.invoke_switch();
+    assert_eq!(op.ui.get_camera_active(), 1, "not live: nothing switches");
+}
+
+#[test]
+fn with_more_cameras_any_but_the_one_out_can_be_chosen_next() {
+    use crate::ui::CameraSwitch;
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    let g = op.ui.global::<CameraSwitch>();
+    live_with(&op, &["A", "B", "C", "D"]);
+    assert_eq!(g.get_names().row_count(), 4);
+    g.invoke_choose_next(3);
+    assert_eq!(g.get_next(), 3);
+    g.invoke_choose_next(0);
+    assert_eq!(g.get_next(), 3, "the camera out cannot be next");
+    g.invoke_choose_next(7);
+    assert_eq!(g.get_next(), 3, "no such camera");
+    g.invoke_switch();
+    assert_eq!((g.get_live(), g.get_next()), (3, 0));
+    // Switching to a camera that was not next leaves next as it was.
+    op.pick_camera(2);
+    assert_eq!((g.get_live(), g.get_next()), (2, 0));
+}
+
+#[test]
+fn one_camera_shows_the_live_picture_only() {
+    use crate::ui::CameraSwitch;
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    let g = op.ui.global::<CameraSwitch>();
+    live_with(&op, &["Pulpit"]);
+    assert!(g.get_shown());
+    assert_eq!(g.get_next(), -1, "no Next, no Switch");
+    g.invoke_switch();
+    assert_eq!(op.ui.get_camera_active(), 0);
+}
+
+#[test]
+fn the_small_pictures_are_shown_and_no_picture_is_said() {
+    use crate::record::peek::{Peek, Small};
+    use crate::ui::CameraSwitch;
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    let g = op.ui.global::<CameraSwitch>();
+    live_with(&op, &["Pulpit", "Wide"]);
+    let blue = Arc::new(Small { width: 4, height: 2, rgba: [0, 0, 200, 255].repeat(8) });
+    op.show_peek(Peek { live: Some(blue.clone()), next: None });
+    assert!(g.get_live_has_picture() && !g.get_next_has_picture(), "the next camera sends nothing: No picture");
+    let size = g.get_live_picture().size();
+    assert_eq!((size.width, size.height), (4, 2));
+    op.show_peek(Peek { live: Some(blue.clone()), next: Some(blue) });
+    assert!(g.get_next_has_picture());
+    op.show_peek(Peek::default());
+    assert!(!g.get_live_has_picture() && !g.get_next_has_picture());
+}
+
+#[test]
+fn the_next_camera_can_be_moved_before_it_goes_out() {
+    use crate::ui::CameraSwitch;
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    let camera = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
+    camera.set_read_timeout(Some(Duration::from_secs(5))).unwrap();
+    let port = camera.local_addr().unwrap().port();
+    let g = op.ui.global::<CameraSwitch>();
+    live_with(&op, &["Pulpit", "Wide"]);
+    assert_eq!(g.get_next_positions(), 0, "the next camera cannot be moved");
+    *op.record.camera_controls.borrow_mut() = vec![None, stream::ptz::Control::parse(&format!("127.0.0.1:{port}"))];
+    op.show_cameras();
+    assert_eq!(g.get_next_positions(), i32::from(stream::ptz::POSITIONS));
+    g.invoke_move_next(4);
+    let mut buf = [0u8; 64];
+    let n = camera.recv(&mut buf).expect("the next camera was moved");
+    assert_eq!(&buf[..n], [0x81, 0x01, 0x04, 0x3F, 0x02, 0x04, 0xFF], "position 5");
+    g.invoke_switch();
+    assert_eq!(g.get_next_positions(), 0, "the first camera is next now, and it cannot be moved");
+}
+
+#[test]
+fn settings_keep_a_third_and_fourth_camera_with_their_control_addresses() {
+    use crate::ui::SettingsDlg;
+    use slint::ComponentHandle;
+    let app = test_app();
+    let room = Arc::new(Room::default());
+    let op = open(&app, &room);
+    let g = op.ui.global::<SettingsDlg>();
+    let mut prefs = RecordPrefs { camera: "rtsp://192.168.1.50/a".into(), camera2: "rtsp://192.168.1.51/b".into(), camera3: "ndi://PC (OBS)".into(),
+        camera3_control: "192.168.1.63".into(), ..RecordPrefs::default() };
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    assert_eq!(g.get_stream_camera3_control(), "192.168.1.63");
+    assert_eq!(g.get_stream_camera4_index(), 0);
+    g.set_stream_camera4_index(g.get_stream_camera4_labels().row_count() as i32 - 1);
+    g.set_stream_camera4_address(" srt://192.168.1.64:9000 ".into());
+    g.set_stream_camera4_control("192.168.1.64".into());
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!((prefs.camera3.as_str(), prefs.camera4.as_str()), ("ndi://PC (OBS)", "srt://192.168.1.64:9000"));
+    assert_eq!((prefs.camera3_control.as_str(), prefs.camera4_control.as_str()), ("192.168.1.63", "192.168.1.64"));
+    assert_eq!(prefs.cameras().len(), 4);
+    // No second camera: the third and fourth are not kept either.
+    g.set_stream_camera2_index(0);
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!((prefs.camera2.as_str(), prefs.camera3.as_str(), prefs.camera4.as_str()), ("", "", ""));
+}
+
 #[test]
 fn settings_keep_a_network_camera_by_its_address() {
     use crate::ui::SettingsDlg;

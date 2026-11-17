@@ -48,16 +48,15 @@ pub fn recall_packet(n: u8, seq: u32, sony: bool) -> Vec<u8> {
     p
 }
 
-/// The cameras that can be moved (1: the first camera, 2: the second), each with its saved positions.
+/// The cameras that can be moved (1: the first camera, 2: the second, up to 4), each with its saved positions.
 pub fn moves(prefs: &crate::record::RecordPrefs) -> Vec<(u8, u8)> {
-    [(1u8, &prefs.camera, &prefs.camera_control), (2, &prefs.camera2, &prefs.camera2_control)].into_iter()
-        .filter(|(_, cam, ctl)| !cam.is_empty() && Control::parse(ctl).is_some())
-        .flat_map(|(c, _, _)| (1..=POSITIONS).map(move |p| (c, p))).collect()
+    prefs.cameras().into_iter().enumerate().filter(|(_, (_, ctl))| Control::parse(ctl).is_some())
+        .flat_map(|(i, _)| (1..=POSITIONS).map(move |p| (i as u8 + 1, p))).collect()
 }
 
-/// A camera's control (1 or 2) from Settings.
+/// A camera's control (1 to 4) from Settings.
 pub fn control_of(prefs: &crate::record::RecordPrefs, camera: u8) -> Option<Control> {
-    Control::parse(match camera { 1 => &prefs.camera_control, 2 => &prefs.camera2_control, _ => "" })
+    Control::parse(prefs.camera_control_of(camera))
 }
 
 /// "Camera 2: position 3".

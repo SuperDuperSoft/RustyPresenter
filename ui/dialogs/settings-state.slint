@@ -206,6 +206,17 @@ export global SettingsDlg {
     // Each camera's PTZ control address (VISCA over IP); empty: none.
     in-out property <string> stream-camera-control;
     in-out property <string> stream-camera2-control;
+    /// A third and fourth camera, as the second.
+    in property <[string]> stream-camera3-labels;
+    in property <[string]> stream-camera3-names;
+    in-out property <int> stream-camera3-index;
+    in-out property <string> stream-camera3-address;
+    in-out property <string> stream-camera3-control;
+    in property <[string]> stream-camera4-labels;
+    in property <[string]> stream-camera4-names;
+    in-out property <int> stream-camera4-index;
+    in-out property <string> stream-camera4-address;
+    in-out property <string> stream-camera4-control;
     /// 1.3b scenes: automatic on, presentations with the camera (1) or not (0), and the three cards' words and pictures.
     in-out property <bool> stream-auto-scenes: true;
     /// The upload speed test: running, and what it found.

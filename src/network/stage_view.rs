@@ -274,7 +274,7 @@ mod tests {
         let v = tally_of(&app, 1, HeaderMap::new()).await;
         assert_eq!((v["allowed"].as_bool(), v["light"].as_str()), (Some(true), Some("off")));
         assert_eq!(v["sub"].as_str(), Some(crate::stream::tally::tr::not_live().as_str()));
-        *app.tally.lock().unwrap() = crate::stream::tally::Tally::of(true, Some(1), true);
+        *app.tally.lock().unwrap() = crate::stream::tally::Tally::of(true, Some(1), None, true);
         let (one, two) = (tally_of(&app, 1, HeaderMap::new()).await, tally_of(&app, 2, HeaderMap::new()).await);
         assert_eq!((one["light"].as_str(), two["light"].as_str()), (Some("off"), Some("on_air")));
         assert_eq!(two["text"].as_str(), Some(crate::stream::tally::tr::on_air(2).as_str()));

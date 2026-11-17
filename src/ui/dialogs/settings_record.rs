@@ -101,18 +101,29 @@ pub fn camera_choices(cameras: &[Input], saved: &str) -> Choices {
     Choices { labels, keys, index }
 }
 
-fn fill_camera(g: &SettingsDlg, cameras: &[Input], saved: &str, saved2: &str) {
+/// The four camera lists, each with its saved camera (`saved[0]` the first).
+fn fill_camera(g: &SettingsDlg, cameras: &[Input], saved: [&str; 4]) {
     let address = |s: &str| if record::args::is_network_camera(s) { s.into() } else { slint::SharedString::new() };
-    let c = camera_choices(cameras, saved);
+    let c = camera_choices(cameras, saved[0]);
     g.set_stream_camera_labels(strings(c.labels));
     g.set_stream_camera_names(strings(c.keys));
     g.set_stream_camera_index(c.index as i32);
-    g.set_stream_camera_address(address(saved));
-    let c = camera_choices(cameras, saved2);
+    g.set_stream_camera_address(address(saved[0]));
+    let c = camera_choices(cameras, saved[1]);
     g.set_stream_camera2_labels(strings(c.labels));
     g.set_stream_camera2_names(strings(c.keys));
     g.set_stream_camera2_index(c.index as i32);
-    g.set_stream_camera2_address(address(saved2));
+    g.set_stream_camera2_address(address(saved[1]));
+    let c = camera_choices(cameras, saved[2]);
+    g.set_stream_camera3_labels(strings(c.labels));
+    g.set_stream_camera3_names(strings(c.keys));
+    g.set_stream_camera3_index(c.index as i32);
+    g.set_stream_camera3_address(address(saved[2]));
+    let c = camera_choices(cameras, saved[3]);
+    g.set_stream_camera4_labels(strings(c.labels));
+    g.set_stream_camera4_names(strings(c.keys));
+    g.set_stream_camera4_index(c.index as i32);
+    g.set_stream_camera4_address(address(saved[3]));
 }
 
 /// The camera chosen in a list: its name, or the address typed for "Network camera" (none if it is no address).
@@ -127,16 +138,25 @@ fn read_camera(g: &SettingsDlg) -> String {
     chosen_camera(g.get_stream_camera_names(), g.get_stream_camera_index(), &g.get_stream_camera_address())
 }
 
-/// The second camera: none without a first, or when it is the first again.
-fn read_camera2(g: &SettingsDlg) -> String {
-    let first = read_camera(g);
-    let second = chosen_camera(g.get_stream_camera2_names(), g.get_stream_camera2_index(), &g.get_stream_camera2_address());
-    if first.is_empty() || second == first { String::new() } else { second }
+/// The four cameras chosen: each none without the one before it, or when it is one of those again.
+fn read_cameras(g: &SettingsDlg) -> [String; 4] {
+    let picked = [
+        read_camera(g),
+        chosen_camera(g.get_stream_camera2_names(), g.get_stream_camera2_index(), &g.get_stream_camera2_address()),
+        chosen_camera(g.get_stream_camera3_names(), g.get_stream_camera3_index(), &g.get_stream_camera3_address()),
+        chosen_camera(g.get_stream_camera4_names(), g.get_stream_camera4_index(), &g.get_stream_camera4_address()),
+    ];
+    let mut out: [String; 4] = Default::default();
+    for (i, c) in picked.into_iter().enumerate() {
+        if c.is_empty() || out[..i].iter().any(|o| o.is_empty() || *o == c) { break }
+        out[i] = c;
+    }
+    out
 }
 
 pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     fill_stream_sound(g, &[], &p.stream_sound);
-    fill_camera(g, &[], &p.camera, &p.camera2);
+    fill_camera(g, &[], [&p.camera, &p.camera2, &p.camera3, &p.camera4]);
     g.set_stream_camera_control(p.camera_control.as_str().into());
     g.set_record_encoder(record::args::CHOOSABLE.iter().position(|e| *e == p.encoder).map_or(0, |i| i as i32 + 1));
     g.set_record_bitrate(record::BITRATES.iter().position(|b| *b == p.bitrate_kbps).map_or(0, |i| i as i32 + 1));
@@ -146,6 +166,8 @@ pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     g.set_stream_corner_size(match l.corner_size { CornerSize::Small => 0, CornerSize::Medium => 1, CornerSize::Large => 2 });
     g.set_stream_words_top(i32::from(l.words_top));
     g.set_stream_camera2_control(p.camera2_control.as_str().into());
+    g.set_stream_camera3_control(p.camera3_control.as_str().into());
+    g.set_stream_camera4_control(p.camera4_control.as_str().into());
     g.set_stream_auto_scenes(p.auto().on);
     g.set_stream_sound_delay(p.sound_delay_ms.min(record::MAX_SOUND_DELAY) as i32);
     g.set_stream_delay(crate::stream::delay::DELAYS.iter().position(|d| *d == p.stream_delay_secs).map_or(0, |i| i as i32 + 1));
@@ -220,10 +242,11 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
     if rows != p.stream { p.stream = rows }
     let pc = read_stream_sound(g);
     if pc != p.stream_sound { p.stream_sound = pc }
-    let camera = read_camera(g);
+    let [camera, camera2, camera3, camera4] = read_cameras(g);
     if camera != p.camera { p.camera = camera }
-    let camera2 = read_camera2(g);
     if camera2 != p.camera2 { p.camera2 = camera2 }
+    if camera3 != p.camera3 { p.camera3 = camera3 }
+    if camera4 != p.camera4 { p.camera4 = camera4 }
     p.camera_control = g.get_stream_camera_control().trim().to_string();
     p.encoder = usize::try_from(g.get_record_encoder() - 1).ok().and_then(|i| record::args::CHOOSABLE.get(i)).map(|e| e.to_string()).unwrap_or_default();
     p.bitrate_kbps = usize::try_from(g.get_record_bitrate() - 1).ok().and_then(|i| record::BITRATES.get(i)).copied().unwrap_or(0);
@@ -236,6 +259,8 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
         };
     }
     p.camera2_control = g.get_stream_camera2_control().trim().to_string();
+    p.camera3_control = g.get_stream_camera3_control().trim().to_string();
+    p.camera4_control = g.get_stream_camera4_control().trim().to_string();
     // Unchanged keeps the saved form (`None` is on), so an untouched form has no changes.
     let auto = g.get_stream_auto_scenes();
     if auto != p.auto().on { p.auto_scenes = if auto { None } else { Some(false) } }
@@ -436,8 +461,8 @@ pub(super) fn load(op: &Rc<Operator>) {
         g.set_ndi_ready(ready);
         let chosen = read_sound(&g);
         fill_sound(&g, &inputs, &chosen);
-        let (camera, camera2) = (read_camera(&g), read_camera2(&g));
-        fill_camera(&g, &cameras, &camera, &camera2);
+        let chosen = read_cameras(&g);
+        fill_camera(&g, &cameras, [&chosen[0], &chosen[1], &chosen[2], &chosen[3]]);
     };
     // Tests never run FFmpeg for the list (`choices` is tested on its own).
     if !op.ops().is_inline() {

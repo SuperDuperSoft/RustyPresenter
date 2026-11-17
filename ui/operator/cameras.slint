@@ -1,0 +1,197 @@
+// The Cameras box in the live column while live with cameras (design 2026-11-17): the stream's picture as it goes
+// out ("Live") beside the camera chosen to go out next ("Next"), a button per camera to choose the next one (three
+// cameras or more), and Switch / Fade to put it out. No keys: the keyboard belongs to the presentation. Filled by
+// `src/ui/operator/record.rs` (`Operator::show_cameras`).
+import { Theme } from "../theme.slint";
+import { Btn, TipArea } from "../widgets.slint";
+
+export global CameraSwitch {
+    /// Live with one camera or more: the box shows.
+    in property <bool> shown;
+    /// The cameras' names, in Settings' order (camera 1 first).
+    in property <[string]> names;
+    /// The camera out now and the one chosen to go out next (indexes into `names`; -1 none).
+    in property <int> live: 0;
+    in property <int> next: -1;
+    /// The small pictures, and whether there is one (else "No picture").
+    in property <image> live-picture;
+    in property <bool> live-has-picture;
+    in property <image> next-picture;
+    in property <bool> next-has-picture;
+    /// Under the pictures: which camera, and for Live whether the scene going out shows it.
+    in property <string> live-caption;
+    in property <string> next-caption;
+    /// The next camera can be moved to this many saved positions (0: none).
+    in property <int> next-positions;
+    callback choose-next(int);
+    /// Switch puts the next camera out at once; Fade with a short fade.
+    callback switch();
+    callback fade();
+    callback move-next(int);
+}
+
+/// One small picture with its title and caption. Red outline: going out. Green: next.
+component Peek inherits VerticalLayout {
+    in property <string> title;
+    in property <image> picture;
+    in property <bool> has-picture;
+    in property <string> caption;
+    in property <bool> live;
+    spacing: 3px;
+    width: 160px;
+    Text {
+        text: root.title;
+        color: root.live ? Theme.live : Theme.ok;
+        font-family: Theme.font;
+        font-size: 12px;
+        font-weight: 700;
+    }
+    Rectangle {
+        width: 160px;
+        height: 90px;
+        background: black;
+        border-radius: 6px;
+        border-width: 2px;
+        border-color: root.live ? Theme.live : Theme.ok;
+        clip: true;
+        accessible-role: image;
+        accessible-label: root.title;
+        accessible-description: root.has-picture ? root.caption : @tr("No picture");
+        if root.has-picture: Image {
+            x: 2px;
+            y: 2px;
+            width: parent.width - 4px;
+            height: parent.height - 4px;
+            source: root.picture;
+            image-fit: contain;
+        }
+        if !root.has-picture: Text {
+            text: @tr("No picture");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 12px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+    Text {
+        text: root.caption;
+        color: Theme.text;
+        font-family: Theme.font;
+        font-size: 12px;
+        overflow: elide;
+    }
+}
+
+/// A camera's button for choosing it as next: "2 Wide". The one going out is red and cannot be chosen; the one
+/// chosen as next is green.
+component CameraChoice inherits Rectangle {
+    in property <string> text;
+    in property <bool> live;
+    in property <bool> next;
+    callback clicked();
+    height: 30px;
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: root.live ? Theme.live : root.next ? Theme.ok : Theme.line;
+    background: root.next ? Theme.raise : choice-ta.has-hover && !root.live ? Theme.raise : transparent;
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-checked: root.next;
+    accessible-description: root.live ? @tr("Going out now") : root.next ? @tr("Next") : "";
+    accessible-action-default => { if !root.live { root.clicked(); } }
+    HorizontalLayout {
+        padding-left: 8px;
+        padding-right: 8px;
+        Text {
+            text: root.text;
+            color: root.live ? Theme.live : Theme.text;
+            font-family: Theme.font;
+            font-size: 12px;
+            font-weight: root.live || root.next ? 700 : 400;
+            overflow: elide;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+    choice-ta := TouchArea {
+        mouse-cursor: root.live ? default : pointer;
+        clicked => { if !root.live { root.clicked(); } }
+    }
+    TipArea { text: root.live ? @tr("This camera is going out now") : @tr("Show this camera next"); hover: choice-ta.has-hover; pressed: choice-ta.pressed; pointer-x: choice-ta.mouse-x; }
+}
+
+export component CameraStrip inherits VerticalLayout {
+    vertical-stretch: 0;
+    if CameraSwitch.shown: VerticalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        padding-top: 8px;
+        padding-bottom: 4px;
+        spacing: 6px;
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: start;
+            live-peek := Peek {
+                title: @tr("Live");
+                live: true;
+                picture: CameraSwitch.live-picture;
+                has-picture: CameraSwitch.live-has-picture;
+                caption: CameraSwitch.live-caption;
+            }
+            if CameraSwitch.next >= 0: next-peek := Peek {
+                title: @tr("Next");
+                live: false;
+                picture: CameraSwitch.next-picture;
+                has-picture: CameraSwitch.next-has-picture;
+                caption: CameraSwitch.next-caption;
+            }
+        }
+        if CameraSwitch.names.length > 2: HorizontalLayout {
+            spacing: 6px;
+            for name[i] in CameraSwitch.names: CameraChoice {
+                horizontal-stretch: 1;
+                min-width: 0px;
+                text: (i + 1) + " " + name;
+                live: i == CameraSwitch.live;
+                next: i == CameraSwitch.next;
+                clicked => { CameraSwitch.choose-next(i); }
+            }
+        }
+        if CameraSwitch.next >= 0 && CameraSwitch.next-positions > 0: HorizontalLayout {
+            spacing: 4px;
+            Text {
+                text: @tr("Position");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 12px;
+                vertical-alignment: center;
+            }
+            for p[i] in CameraSwitch.next-positions: position-btn := Btn {
+                small: true;
+                text: i + 1;
+                tooltip: @tr("Move the next camera to its saved position {}", i + 1);
+                clicked => { CameraSwitch.move-next(i); }
+            }
+        }
+        if CameraSwitch.next >= 0: HorizontalLayout {
+            height: 34px;
+            spacing: 6px;
+            switch-btn := Btn {
+                horizontal-stretch: 1;
+                small: true;
+                primary: true;
+                text: @tr("Switch");
+                tooltip: @tr("Put the next camera on the stream now");
+                clicked => { CameraSwitch.switch(); }
+            }
+            fade-btn := Btn {
+                horizontal-stretch: 1;
+                small: true;
+                text: @tr("Fade");
+                tooltip: @tr("Fade the stream over to the next camera");
+                clicked => { CameraSwitch.fade(); }
+            }
+        }
+    }
+}

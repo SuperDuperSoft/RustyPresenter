@@ -317,6 +317,27 @@ fn the_mixer_fades_between_scenes() {
     assert_eq!(&m.out()[..4], &[0, 0, 200, 255], "the camera once the fade is over");
 }
 
+/// A camera switched with Fade blends from the camera before over the same half second as a scene change; one
+/// switched without is there at once.
+#[test]
+fn a_camera_switch_can_fade_from_the_camera_before() {
+    use crate::stream::pictures::Shown;
+    let (blue, green) = (Arc::new([0u8, 0, 200, 255].repeat(4)), Arc::new([0u8, 200, 0, 255].repeat(4)));
+    let room = [0u8; 16];
+    let camera = Shown { scene: Scene::Camera, ..Shown::default() };
+    let mut m = Mixer::new((2, 2));
+    let t0 = Instant::now();
+    m.update(&camera, &room, Some(blue.clone()), true, t0);
+    assert_eq!(&m.out()[..4], &[0, 0, 200, 255]);
+    m.fade_from_now(t0);
+    m.update(&camera, &room, Some(green.clone()), false, t0 + Duration::from_millis(250));
+    assert_eq!(&m.out()[..4], &[0, 100, 100, 255], "half way from the first camera to the second");
+    m.update(&camera, &room, Some(green.clone()), false, t0 + Duration::from_millis(600));
+    assert_eq!(&m.out()[..4], &[0, 200, 0, 255], "the second camera once the fade is over");
+    m.update(&camera, &room, Some(blue.clone()), false, t0 + Duration::from_millis(700));
+    assert_eq!(&m.out()[..4], &[0, 0, 200, 255], "a cut: at once");
+}
+
 /// A card scene does not depend on the camera or the room: their new pictures do not make it put together again.
 #[test]
 fn a_card_is_not_put_together_again_for_each_camera_picture() {
@@ -547,6 +568,49 @@ fn go_live_switches_between_two_cameras() {
     let (first, second) = (frame_at(&ff, &dir, &rec, "2").get_pixel(640, 360).0, frame_at(&ff, &dir, &rec, "5.5").get_pixel(640, 360).0);
     assert!(is_blue(first), "the first camera: {first:?}");
     assert!(second[1] > 100 && second[2] < 60 && second[0] < 60, "the second camera: {second:?}");
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// Two cameras live, for real: the small Live picture is the stream's (the blue camera) and Next is the second
+/// camera (green). Fade puts the second out and the first becomes next; the stream shows the second after.
+#[test]
+fn go_live_shows_small_live_and_next_pictures_and_fades_to_the_next_camera() {
+    let Some(ff) = ffmpeg() else { return };
+    let dir = scratch("peek");
+    let dead = format!("rtmp://127.0.0.1:{}/live/TEST-KEY", std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port());
+    let cameras = [lavfi_camera("color=c=blue:size=1280x720:rate=30"), lavfi_camera("color=c=green:size=1280x720:rate=30")].concat();
+    let p = Plan { stream: vec![dead], cameras, look: Some(only(Scene::Camera, "x")), ..plan(ff.clone(), &dir, Sound::None) };
+    p.controls.next.store(1, std::sync::atomic::Ordering::Relaxed);
+    let (tx, rx) = mpsc::channel();
+    let rec = Recording::start(p, move |e| { let _ = tx.send(e); }).expect("starts");
+    let middle = |s: &Option<Arc<super::super::peek::Small>>| s.as_ref().map(|s| {
+        assert_eq!((s.width, s.height), (320, 180));
+        let p = ((90 * s.width + 160) * 4) as usize;
+        [s.rgba[p], s.rgba[p + 1], s.rgba[p + 2]]
+    });
+    let wait_for = |what: &str, ok: &dyn Fn(Option<[u8; 3]>, Option<[u8; 3]>) -> bool| {
+        let t = Instant::now();
+        loop {
+            let peek = rec.peek();
+            let (live, next) = (middle(&peek.live), middle(&peek.next));
+            if ok(live, next) { break t.elapsed() }
+            assert!(t.elapsed() < Duration::from_secs(15), "{what}: live {live:?}, next {next:?}");
+            std::thread::sleep(Duration::from_millis(100));
+        }
+    };
+    wait_for("the first camera live, the second next", &|l, n| l.is_some_and(is_blue) && n.is_some_and(|p| p[1] > 100 && p[0] < 60 && p[2] < 60));
+    rec.switch_camera(1, true);
+    rec.set_next(0);
+    let took = wait_for("the second camera live, the first next", &|l, n| l.is_some_and(|p| p[1] > 100 && p[0] < 60 && p[2] < 60) && n.is_some_and(is_blue));
+    assert!(took < Duration::from_secs(3), "the switch shows within a moment: {took:?}");
+    std::thread::sleep(Duration::from_secs(1));
+    rec.stop();
+    let ended = rx.recv_timeout(Duration::from_secs(60)).expect("finished");
+    assert_eq!(ended.problem, None, "{ended:?}");
+    let rec_file = dir.join("Recording test.mp4");
+    let (_, secs) = probe(&rec_file);
+    let last = frame_at(&ff, &dir, &rec_file, &format!("{:.1}", (secs - 0.5).max(0.0))).get_pixel(640, 360).0;
+    assert!(last[1] > 100 && last[0] < 60 && last[2] < 60, "the second camera at the end: {last:?}");
     std::fs::remove_dir_all(&dir).unwrap();
 }
 

@@ -314,7 +314,7 @@ export component SettingsMedia inherits VerticalLayout {
     }
     if SettingsDlg.stream-camera-index > 0: Field {
         label: @tr("Second camera");
-        help: @tr("Another camera to switch to while live, from the scene button beside Live.");
+        help: @tr("Another camera to switch to while live, from the Cameras box beside the live screen.");
         VerticalLayout {
             spacing: 6px;
             stream-camera2 := Select {
@@ -329,6 +329,48 @@ export component SettingsMedia inherits VerticalLayout {
             if SettingsDlg.stream-camera2-index > 0 && SettingsDlg.stream-camera2-index == SettingsDlg.stream-camera2-labels.length - 1: stream-camera2-address := TextField {
                 label: @tr("Network camera address");
                 text <=> SettingsDlg.stream-camera2-address;
+                placeholder: @tr("The camera's address, like rtsp://192.168.1.50:554/stream1");
+            }
+        }
+    }
+    if SettingsDlg.stream-camera2-index > 0: Field {
+        label: @tr("Third camera");
+        help: @tr("Another camera to switch to while live.");
+        VerticalLayout {
+            spacing: 6px;
+            stream-camera3 := Select {
+                options: SettingsDlg.stream-camera3-labels;
+                index <=> SettingsDlg.stream-camera3-index;
+            }
+            if SettingsDlg.stream-camera3-index > 0: stream-camera3-control := TextField {
+                label: @tr("Camera control address");
+                placeholder: @tr("To move a PTZ camera to its saved positions: its address, like 192.168.1.60");
+                text <=> SettingsDlg.stream-camera3-control;
+            }
+            if SettingsDlg.stream-camera3-index > 0 && SettingsDlg.stream-camera3-index == SettingsDlg.stream-camera3-labels.length - 1: stream-camera3-address := TextField {
+                label: @tr("Network camera address");
+                text <=> SettingsDlg.stream-camera3-address;
+                placeholder: @tr("The camera's address, like rtsp://192.168.1.50:554/stream1");
+            }
+        }
+    }
+    if SettingsDlg.stream-camera3-index > 0: Field {
+        label: @tr("Fourth camera");
+        help: @tr("Another camera to switch to while live.");
+        VerticalLayout {
+            spacing: 6px;
+            stream-camera4 := Select {
+                options: SettingsDlg.stream-camera4-labels;
+                index <=> SettingsDlg.stream-camera4-index;
+            }
+            if SettingsDlg.stream-camera4-index > 0: stream-camera4-control := TextField {
+                label: @tr("Camera control address");
+                placeholder: @tr("To move a PTZ camera to its saved positions: its address, like 192.168.1.60");
+                text <=> SettingsDlg.stream-camera4-control;
+            }
+            if SettingsDlg.stream-camera4-index > 0 && SettingsDlg.stream-camera4-index == SettingsDlg.stream-camera4-labels.length - 1: stream-camera4-address := TextField {
+                label: @tr("Network camera address");
+                text <=> SettingsDlg.stream-camera4-address;
                 placeholder: @tr("The camera's address, like rtsp://192.168.1.50:554/stream1");
             }
         }
