@@ -128,6 +128,10 @@ pub struct RecordPrefs {
     /// Livestream: the words over the camera go out over NDI alone, see-through around them, for keying.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub ndi_words: bool,
+    /// Livestream: the words over the camera are also recorded alone, see-through around them, beside the
+    /// recording (`stream::words_file`), for video editing.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub words_file: bool,
     /// The video encoder chosen by hand (one of `args::CHOOSABLE`); empty: automatic.
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub encoder: String,

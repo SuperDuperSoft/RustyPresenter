@@ -159,6 +159,7 @@ pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     g.set_stream_tracks(fx.tracks);
     g.set_stream_ndi(p.ndi_stream);
     g.set_stream_ndi_words(p.ndi_words);
+    g.set_stream_words_file(p.words_file);
     g.set_stream_presentation_camera(i32::from(p.presentation_camera));
     let c = &p.cards;
     g.set_stream_card_words_0(c.starting.words.as_str().into());
@@ -252,6 +253,7 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
     p.stream_tracks = g.get_stream_tracks();
     p.ndi_stream = g.get_stream_ndi();
     p.ndi_words = g.get_stream_ndi_words();
+    p.words_file = g.get_stream_words_file();
     let card = |w: slint::SharedString, pic: slint::SharedString| stream::pictures::Card { words: w.trim().to_string(), picture: pic.trim().to_string() };
     p.cards = stream::pictures::Cards {
         starting: card(g.get_stream_card_words_0(), g.get_stream_card_picture_0()),

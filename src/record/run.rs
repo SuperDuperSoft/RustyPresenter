@@ -106,6 +106,8 @@ pub struct Plan {
     pub lighter: bool,
     /// Go Live: what goes out over NDI too (`stream::ndi::Out`).
     pub ndi: crate::stream::ndi::OutPrefs,
+    /// Go Live: the words alone are recorded beside the recording too (`stream::words_file`).
+    pub words_file: bool,
 }
 
 /// The stream's panic buttons, shared with the feeds while the recording runs. The file and the stream are one
@@ -133,7 +135,7 @@ impl Plan {
             return Err(Some(tr::low_disk(&gb(free), &gb(prefs.size.bytes_per_hour()))));
         }
         let out = super::file_name(&folder, chrono::Local::now().naive_local());
-        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![], kbps: prefs.bitrate_kbps, delay_secs: 0, lighter: false, ndi: Default::default() })
+        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![], kbps: prefs.bitrate_kbps, delay_secs: 0, lighter: false, ndi: Default::default(), words_file: prefs.words_file })
     }
 }
 
@@ -407,6 +409,10 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     // With scenes: the picture put together, written in place of the room's.
     let mut mix = worker.as_ref().map(|_| Mixer { layout: plan.look.as_ref().map(|l| l.layout).unwrap_or_default(), ..Mixer::new(sink.size) });
     let mut room_new = true;
+    // The words alone in a file of their own, beside the recording, when asked for (`stream::words_file`).
+    let mut words_file = if live && worker.is_some() && plan.words_file {
+        crate::stream::words_file::WordsFile::start(&plan.ffmpeg, &plan.out, sink.size, FPS).map_err(|e| eprintln!("recording: no words file: {e}")).ok()
+    } else { None };
     let mut next_check = Duration::ZERO;
     let mut problem: Option<String> = None;
     'pump: loop {
@@ -421,6 +427,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
         if let (Some(m), Some(w)) = (mix.as_mut(), worker.as_ref()) && !plan.controls.hold.load(std::sync::atomic::Ordering::Relaxed) {
             let shown = w.slot.lock().unwrap_or_else(|e| e.into_inner()).clone();
             if let Some(n) = ndi.as_mut() { n.words(&shown.words) }
+            if let Some(f) = words_file.as_mut() { f.words(&shown.words) }
             m.update(&shown, &current, camera.and_then(|f| f.picture()), room_new, Instant::now());
             room_new = false;
         }
@@ -455,6 +462,8 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
         }
     }
     sink.close();
+    // The words file finishes beside the recording (waited for below).
+    if let Some(f) = &words_file { f.stop() }
     let _ = stdin.flush().await;
     drop(stdin);
     // The PC's sound has no end of its own: stopping it lets FFmpeg end its file.
@@ -466,6 +475,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let ended = tree.wait(END_LIMIT, &CancellationToken::new()).await;
     // After FFmpeg: it sends NDI its sound to the end.
     if let Some(n) = ndi.as_mut() { n.stop() }
+    if let Some(f) = words_file.take() { let _ = tokio::task::spawn_blocking(move || f.finish()).await; }
     // The last of the stream has gone to the senders: a moment for them to pass it on, then they stop.
     // With a delay, what is still held goes out first (the stream ends as the service did); the file is finished
     // meanwhile.

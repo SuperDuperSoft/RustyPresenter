@@ -5,11 +5,13 @@
 //! - In: an NDI source as a camera (`ndi://<source name>`, `camera_feed` runs `receive` for it).
 //! - Out: the stream's picture and sound as the source "RustyPresenter Stream", and the words over the camera with
 //!   a see-through background as "RustyPresenter Words" (`Out`).
+//! - Back to an NDI camera (docs/superpowers/specs/2026-11-17-ndi-extras-design.md): its saved positions
+//!   (`recall_position`) and its tally light (`show_tally`), through the camera's `Remote` while it is received.
 use std::ffi::{CStr, CString, OsString, c_char, c_void};
 use std::io::Read;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, Condvar, Mutex, OnceLock};
+use std::sync::{Arc, Condvar, Mutex, OnceLock, Weak};
 use std::time::{Duration, Instant};
 
 /// How a saved camera names an NDI source: `ndi://` and the source's name ("PC (OBS)").
@@ -103,12 +105,19 @@ struct RecvCreate { source: Source, color: i32, bandwidth: i32, fields: bool, na
 #[repr(C)]
 struct SendCreate { name: *const c_char, groups: *const c_char, clock_video: bool, clock_audio: bool }
 
+/// `NDIlib_tally_t`: the camera is in the program (on air) or in the preview (next).
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+struct TallyC { on_program: bool, on_preview: bool }
+
 const fn fourcc(c: &[u8; 4]) -> u32 { c[0] as u32 | (c[1] as u32) << 8 | (c[2] as u32) << 16 | (c[3] as u32) << 24 }
 const RGBA: u32 = fourcc(b"RGBA");
 const RGBX: u32 = fourcc(b"RGBX");
 /// `NDIlib_recv_color_format_RGBX_RGBA`, `NDIlib_recv_bandwidth_highest`, `NDIlib_frame_format_type_progressive`.
 const COLOR_RGB: i32 = 2;
 const BANDWIDTH_HIGHEST: i32 = 100;
+/// `NDIlib_recv_bandwidth_metadata_only`: no pictures or sound, only the camera's messages (to move it).
+const BANDWIDTH_METADATA: i32 = -10;
 const PROGRESSIVE: i32 = 1;
 /// `NDIlib_send_timecode_synthesize`: NDI makes the time codes.
 const SYNTHESIZE: i64 = i64::MAX;
@@ -129,6 +138,9 @@ pub struct Ndi {
     recv_destroy: unsafe extern "C" fn(Ptr),
     recv_capture: unsafe extern "C" fn(Ptr, *mut VideoFrame, *mut AudioFrame, *mut c_void, u32) -> i32,
     recv_free_video: unsafe extern "C" fn(Ptr, *const VideoFrame),
+    recv_set_tally: unsafe extern "C" fn(Ptr, *const TallyC) -> bool,
+    recv_ptz_is_supported: unsafe extern "C" fn(Ptr) -> bool,
+    recv_ptz_recall_preset: unsafe extern "C" fn(Ptr, i32, f32) -> bool,
     send_create: unsafe extern "C" fn(*const SendCreate) -> Ptr,
     send_destroy: unsafe extern "C" fn(Ptr),
     send_video: unsafe extern "C" fn(Ptr, *const VideoFrame),
@@ -152,6 +164,9 @@ impl Ndi {
                 recv_destroy: sym!(b"NDIlib_recv_destroy\0"),
                 recv_capture: sym!(b"NDIlib_recv_capture_v2\0"),
                 recv_free_video: sym!(b"NDIlib_recv_free_video_v2\0"),
+                recv_set_tally: sym!(b"NDIlib_recv_set_tally\0"),
+                recv_ptz_is_supported: sym!(b"NDIlib_recv_ptz_is_supported\0"),
+                recv_ptz_recall_preset: sym!(b"NDIlib_recv_ptz_recall_preset\0"),
                 send_create: sym!(b"NDIlib_send_create\0"),
                 send_destroy: sym!(b"NDIlib_send_destroy\0"),
                 send_video: sym!(b"NDIlib_send_send_video_v2\0"),
@@ -225,10 +240,12 @@ pub struct Receiver { ndi: &'static Ndi, me: Ptr }
 unsafe impl Send for Receiver {}
 
 impl Receiver {
-    pub fn connect(source: &str) -> Option<Receiver> {
+    pub fn connect(source: &str) -> Option<Receiver> { Receiver::connect_with(source, BANDWIDTH_HIGHEST) }
+
+    fn connect_with(source: &str, bandwidth: i32) -> Option<Receiver> {
         let ndi = runtime()?;
         let (name, me) = (CString::new(source).ok()?, CString::new("RustyPresenter").ok()?);
-        let settings = RecvCreate { source: Source { name: name.as_ptr(), url: std::ptr::null() }, color: COLOR_RGB, bandwidth: BANDWIDTH_HIGHEST, fields: false, name: me.as_ptr() };
+        let settings = RecvCreate { source: Source { name: name.as_ptr(), url: std::ptr::null() }, color: COLOR_RGB, bandwidth, fields: false, name: me.as_ptr() };
         // SAFETY: the settings live until the call returns; NDI copies them.
         let r = unsafe { (ndi.recv_create)(&settings) };
         (!r.is_null()).then_some(Receiver { ndi, me: r })
@@ -252,10 +269,122 @@ impl Receiver {
         }
         true
     }
+
+    /// Whether the camera says it can be moved (it says so once connected).
+    pub fn can_move(&self) -> bool { unsafe { (self.ndi.recv_ptz_is_supported)(self.me) } }
+
+    /// Calls back the camera's saved preset `preset` (from 0), at full speed. False when it was not sent.
+    pub fn recall(&self, preset: u8) -> bool { unsafe { (self.ndi.recv_ptz_recall_preset)(self.me, i32::from(preset), 1.0) } }
+
+    /// The camera's tally light: on air, next.
+    fn set_tally(&self, t: TallyC) -> bool { unsafe { (self.ndi.recv_set_tally)(self.me, &t) } }
 }
 
 impl Drop for Receiver {
     fn drop(&mut self) { unsafe { (self.ndi.recv_destroy)(self.me) } }
+}
+
+// ---- Back to an NDI camera: its positions and its tally light ----
+
+/// What the app asks of an NDI camera while its feed receives it. The receiving thread carries it out between
+/// pictures, so nobody else touches the receiver.
+#[derive(Default)]
+pub struct Remote {
+    asks: Mutex<Asks>,
+    can_move: AtomicBool,
+}
+
+#[derive(Default)]
+struct Asks {
+    tally: TallyC,
+    /// A preset to call back (from 0).
+    preset: Option<u8>,
+}
+
+impl Remote {
+    /// Whether the camera, connected now, says it can be moved.
+    pub fn can_move(&self) -> bool { self.can_move.load(Ordering::Relaxed) }
+
+    fn asks(&self) -> std::sync::MutexGuard<'_, Asks> { self.asks.lock().unwrap_or_else(|e| e.into_inner()) }
+}
+
+/// The NDI cameras being received now, by source name. Each feed keeps its `Remote`; when it stops, it goes.
+fn remotes() -> &'static Mutex<Vec<(String, Weak<Remote>)>> {
+    static REMOTES: OnceLock<Mutex<Vec<(String, Weak<Remote>)>>> = OnceLock::new();
+    REMOTES.get_or_init(Mutex::default)
+}
+
+/// A new `Remote` for NDI source `source`, listed until it is dropped.
+pub fn remote_of(source: &str) -> Arc<Remote> {
+    let r = Arc::new(Remote::default());
+    let mut list = remotes().lock().unwrap_or_else(|e| e.into_inner());
+    list.retain(|(_, w)| w.strong_count() > 0);
+    list.push((source.to_string(), Arc::downgrade(&r)));
+    r
+}
+
+/// The NDI cameras being received now, with their source names.
+fn live_remotes() -> Vec<(String, Arc<Remote>)> {
+    remotes().lock().unwrap_or_else(|e| e.into_inner()).iter().filter_map(|(n, w)| w.upgrade().map(|r| (n.clone(), r))).collect()
+}
+
+/// NDI source `source`'s `Remote`, while a feed receives it.
+pub fn remote(source: &str) -> Option<Arc<Remote>> { live_remotes().into_iter().find(|(n, _)| n == source).map(|(_, r)| r) }
+
+/// Tells each NDI camera being received whether it is on air or next, by `tally` (`cameras`: the saved cameras in
+/// the order `tally` counts them).
+pub fn show_tally(cameras: &[String], tally: &super::tally::Tally) {
+    use super::tally::Light;
+    for (source, remote) in live_remotes() {
+        let lights: Vec<Light> = cameras.iter().enumerate().filter(|(_, c)| source_name(c) == Some(source.as_str())).map(|(i, _)| tally.light(i)).collect();
+        let t = TallyC { on_program: lights.contains(&Light::OnAir), on_preview: lights.contains(&Light::Next) };
+        remote.asks().tally = t;
+    }
+}
+
+/// How long a camera that is not being received is waited for to say it can move.
+const MOVE_WAIT: Duration = Duration::from_secs(5);
+
+/// Sends NDI camera `source` to its saved position `n` (from 1: preset `n - 1`, as VISCA counts). While its feed
+/// receives it, the feed sends it; otherwise a short connection of its own, without pictures, does. Waits: not on
+/// the UI thread.
+pub fn recall_position(source: &str, n: u8) -> Result<(), String> {
+    let preset = n.saturating_sub(1);
+    if let Some(r) = remote(source) {
+        r.asks().preset = Some(preset);
+        return Ok(());
+    }
+    if runtime().is_none() { return Err("the NDI runtime is not installed".into()) }
+    let r = Receiver::connect_with(source, BANDWIDTH_METADATA).ok_or_else(|| format!("{source}: no NDI connection"))?;
+    let end = Instant::now() + MOVE_WAIT;
+    while !r.can_move() {
+        if Instant::now() >= end { return Err(format!("{source} does not say it can be moved")) }
+        std::thread::sleep(Duration::from_millis(50));
+    }
+    if !r.recall(preset) { return Err(format!("{source}: the position was not sent")) }
+    // A moment for the call to go out before the connection closes.
+    std::thread::sleep(Duration::from_millis(300));
+    Ok(())
+}
+
+/// How often a camera being received is asked whether it can move, and its tally sent again.
+const ASK_MOVE: Duration = Duration::from_millis(500);
+const TALLY_AGAIN: Duration = Duration::from_secs(2);
+
+/// Carries out what `remote` asks of the camera on `r`, between pictures. `sent`: the tally last sent and when;
+/// `asked`: when the camera was last asked whether it can move.
+fn serve(r: &Receiver, remote: &Remote, sent: &mut Option<(TallyC, Instant)>, asked: &mut Option<Instant>) {
+    if asked.is_none_or(|t| t.elapsed() >= ASK_MOVE) {
+        remote.can_move.store(r.can_move(), Ordering::Relaxed);
+        *asked = Some(Instant::now());
+    }
+    let (tally, preset) = { let mut a = remote.asks(); (a.tally, a.preset.take()) };
+    if let Some(p) = preset && !r.recall(p) { eprintln!("ndi: the camera's position {} was not sent", u16::from(p) + 1) }
+    // Sent again now and then: NDI may have connected again by itself.
+    if sent.is_none_or(|(t, at)| t != tally || at.elapsed() >= TALLY_AGAIN) {
+        r.set_tally(tally);
+        *sent = Some((tally, Instant::now()));
+    }
 }
 
 /// Puts an NDI picture (`w`×`h`, rows `stride` bytes apart) into `dst`, `size` RGBA, keeping its shape with black
@@ -268,15 +397,17 @@ pub fn fit_picture(w: u32, h: u32, stride: usize, rows: &[u8], dst: &mut [u8], s
     crate::record::pump::fit(&crate::record::pump::Raw { w, h, bottom_up: false, rgba: &tight }, dst, size.0, size.1);
 }
 
-/// Receives NDI source `name` into `latest` (`camera_feed`), `size` RGBA, until `stop`. Without the runtime, or
-/// while the receiver cannot be made, it is tried again every `retry`.
-pub fn receive(name: &str, size: (u32, u32), latest: &super::camera_feed::Latest, stop: &AtomicBool, retry: Duration) {
+/// Receives NDI source `name` into `latest` (`camera_feed`), `size` RGBA, until `stop`, and carries out what
+/// `remote` asks of the camera. Without the runtime, or while the receiver cannot be made, it is tried again every
+/// `retry`.
+pub fn receive(name: &str, size: (u32, u32), latest: &super::camera_feed::Latest, stop: &AtomicBool, retry: Duration, remote: &Remote) {
     while !stop.load(Ordering::Relaxed) {
         let Some(r) = Receiver::connect(name) else {
             let end = Instant::now() + retry;
             while Instant::now() < end && !stop.load(Ordering::Relaxed) { std::thread::sleep(Duration::from_millis(50)) }
             continue;
         };
+        let (mut sent, mut asked) = (None, None);
         while !stop.load(Ordering::Relaxed) {
             let ok = r.picture(Duration::from_millis(200), |w, h, stride, rows| {
                 let mut buf = vec![0u8; super::camera_feed::frame_bytes(size)];
@@ -284,7 +415,9 @@ pub fn receive(name: &str, size: (u32, u32), latest: &super::camera_feed::Latest
                 *latest.lock().unwrap_or_else(|e| e.into_inner()) = Some((Arc::new(buf), Instant::now()));
             });
             if !ok { break }
+            serve(&r, remote, &mut sent, &mut asked);
         }
+        remote.can_move.store(false, Ordering::Relaxed);
     }
 }
 
@@ -601,7 +734,7 @@ mod tests {
         let found = found.expect("the app's NDI source on the network");
         let latest: super::super::camera_feed::Latest = Arc::default();
         let (l2, st) = (latest.clone(), stop.clone());
-        let receiving = std::thread::spawn(move || receive(&found, (32, 18), &l2, &st, Duration::from_millis(200)));
+        let receiving = std::thread::spawn(move || receive(&found, (32, 18), &l2, &st, Duration::from_millis(200), &Remote::default()));
         let began = Instant::now();
         let picture = loop {
             if let Some(p) = super::super::camera_feed::fresh(&latest, Instant::now()) { break Some(p) }
@@ -613,5 +746,110 @@ mod tests {
         let p = picture.expect("a picture over NDI");
         let mid = (9 * 32 + 16) * 4;
         assert!(p[mid] > 150 && p[mid + 1] < 60 && p[mid + 3] == 255, "red: {:?}", &p[mid..mid + 4]);
+    }
+
+    /// `NDIlib_metadata_frame_t`, for the stand-in camera below.
+    #[repr(C)]
+    struct MetaFrame { length: i32, timecode: i64, data: *mut c_char }
+
+    /// The SDK calls a camera makes (a source that can be moved, and sees its tally), looked up here only.
+    struct CameraSide {
+        add_meta: unsafe extern "C" fn(Ptr, *const MetaFrame),
+        capture: unsafe extern "C" fn(Ptr, *mut MetaFrame, u32) -> i32,
+        free_meta: unsafe extern "C" fn(Ptr, *const MetaFrame),
+        get_tally: unsafe extern "C" fn(Ptr, *mut TallyC, u32) -> bool,
+    }
+
+    impl CameraSide {
+        fn load(ndi: &Ndi) -> CameraSide {
+            unsafe {
+                CameraSide {
+                    add_meta: *ndi._lib.get(b"NDIlib_send_add_connection_metadata\0").unwrap(),
+                    capture: *ndi._lib.get(b"NDIlib_send_capture\0").unwrap(),
+                    free_meta: *ndi._lib.get(b"NDIlib_send_free_metadata\0").unwrap(),
+                    get_tally: *ndi._lib.get(b"NDIlib_send_get_tally\0").unwrap(),
+                }
+            }
+        }
+
+        /// The next message to the camera containing `part`, within `wait`.
+        fn message(&self, s: &Sender, part: &str, wait: Duration) -> Option<String> {
+            let end = Instant::now() + wait;
+            while Instant::now() < end {
+                let mut m = MetaFrame { length: 0, timecode: 0, data: std::ptr::null_mut() };
+                let kind = unsafe { (self.capture)(s.me, &mut m, 200) };
+                if kind == 3 && !m.data.is_null() {
+                    let text = unsafe { CStr::from_ptr(m.data).to_string_lossy().into_owned() };
+                    unsafe { (self.free_meta)(s.me, &m) };
+                    if text.contains(part) { return Some(text) }
+                }
+            }
+            None
+        }
+
+        /// The camera's tally once it is `want`, within `wait`.
+        fn tally_becomes(&self, s: &Sender, want: TallyC, wait: Duration) -> TallyC {
+            let end = Instant::now() + wait;
+            let mut t = TallyC::default();
+            while Instant::now() < end {
+                unsafe { (self.get_tally)(s.me, &mut t, 200) };
+                if t == want { break }
+            }
+            t
+        }
+    }
+
+    /// With the NDI runtime installed (skipped without it): a stand-in PTZ camera (an NDI source of the app's own
+    /// that says it can be moved). Received as a camera, it shows as able to move, a position asked for reaches it
+    /// as a preset, and its tally light follows the app's tally. With no feed receiving it, a short connection of
+    /// its own still moves it.
+    #[test]
+    fn an_ndi_camera_is_moved_and_told_its_tally() {
+        let Some(ndi) = runtime() else { eprintln!("no NDI runtime here: skipped"); return };
+        let cam = CameraSide::load(ndi);
+        let name = format!("RustyPresenter PTZ test {}", std::process::id());
+        let sender = Arc::new(Sender::new(&name).expect("sender"));
+        let caps = CString::new(r#"<ndi_capabilities ntk_ptz="true" ntk_pan_tilt="true" ntk_zoom="true"/>"#).unwrap();
+        unsafe { (cam.add_meta)(sender.me, &MetaFrame { length: 0, timecode: SYNTHESIZE, data: caps.as_ptr() as *mut c_char }) };
+        let stop = Arc::new(AtomicBool::new(false));
+        let (s2, st) = (sender.clone(), stop.clone());
+        let grey: Vec<u8> = [90, 90, 90, 255].repeat(32 * 18);
+        let sending = std::thread::spawn(move || while !st.load(Ordering::Relaxed) { s2.picture((32, 18), 30, &grey, false); std::thread::sleep(Duration::from_millis(33)) });
+        let found = (0..10).find_map(|_| sources(Duration::from_millis(1000)).into_iter().find(|s| s.ends_with(&format!("({name})")))).expect("the stand-in camera on the network");
+        let saved = format!("{SCHEME}{found}");
+        let control = super::super::ptz::Control::of(&saved, "").expect("an NDI camera can be moved");
+        assert!(!control.ready(), "not received yet");
+
+        // Received as a camera, as while live.
+        let mut feed = super::super::camera_feed::start(PathBuf::from("ffmpeg"), vec![INPUT.into(), found.clone()], (32, 18), 30).unwrap();
+        let began = Instant::now();
+        while !control.ready() && began.elapsed() < Duration::from_secs(15) { std::thread::sleep(Duration::from_millis(50)) }
+        assert!(control.ready(), "the camera says it can be moved");
+        super::super::ptz::recall(&control, 3).unwrap();
+        let msg = cam.message(&sender, "preset", Duration::from_secs(5)).expect("the position reached the camera");
+        eprintln!("NDI camera got: {msg}");
+        assert!(msg.contains("recall") && msg.contains("\"2\""), "position 3 is preset 2: {msg}");
+
+        // Its tally light: on air, then next, then off.
+        let cameras = vec!["USB Cam".to_string(), saved.clone()];
+        show_tally(&cameras, &super::super::tally::Tally::of(true, Some(1), true));
+        let on_air = TallyC { on_program: true, on_preview: false };
+        assert_eq!(cam.tally_becomes(&sender, on_air, Duration::from_secs(5)), on_air);
+        show_tally(&cameras, &super::super::tally::Tally::of(true, Some(1), false));
+        let next = TallyC { on_program: false, on_preview: true };
+        assert_eq!(cam.tally_becomes(&sender, next, Duration::from_secs(5)), next);
+        show_tally(&cameras, &super::super::tally::Tally::of(true, Some(0), true));
+        assert_eq!(cam.tally_becomes(&sender, TallyC::default(), Duration::from_secs(5)), TallyC::default(), "the other camera is on air");
+
+        // Not received (a macro before the service): a connection of its own.
+        feed.stop();
+        drop(feed);
+        assert!(remote(&found).is_none(), "the feed's remote went with it");
+        super::super::ptz::recall(&control, 1).unwrap();
+        let msg = cam.message(&sender, "preset", Duration::from_secs(5)).expect("the position reached the camera");
+        assert!(msg.contains("\"0\""), "position 1 is preset 0: {msg}");
+
+        stop.store(true, Ordering::Relaxed);
+        let _ = sending.join();
     }
 }

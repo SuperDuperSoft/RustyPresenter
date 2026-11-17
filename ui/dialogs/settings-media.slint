@@ -226,6 +226,11 @@ export component SettingsMedia inherits VerticalLayout {
         }
     }
     Field {
+        label: @tr("Words alone");
+        help: @tr("While you are live, a second video is saved next to the recording, its name ending in words.mov: only the words, with nothing behind them. When you edit the service video, put it on top to add the words. It stays small because the words seldom change.");
+        stream-words-file := Check { text: @tr("Also record the words alone, on a see-through background (for video editing)"); checked <=> SettingsDlg.stream-words-file; }
+    }
+    Field {
         label: @tr("Sound levels");
         help: @tr("Turn each sound up or down in the stream only (not in the room).");
         VerticalLayout {

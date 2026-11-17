@@ -863,3 +863,23 @@ fn go_live_signed_in_makes_the_broadcast_streams_to_it_and_gives_the_replay() {
     drop(ended);
     let _ = std::fs::remove_dir_all(&folder);
 }
+
+#[test]
+fn settings_keep_the_words_alone_file() {
+    use crate::ui::SettingsDlg;
+    use slint::ComponentHandle;
+    let app = test_app();
+    let room = Arc::new(Room::default());
+    let op = open(&app, &room);
+    let g = op.ui.global::<SettingsDlg>();
+    let mut prefs = RecordPrefs::default();
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    assert!(!g.get_stream_words_file(), "off to start with");
+    assert_eq!(serde_json::to_value(&prefs).unwrap().get("words_file"), None, "off: nothing saved");
+    g.set_stream_words_file(true);
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert!(prefs.words_file);
+    g.set_stream_words_file(false);
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    assert!(g.get_stream_words_file(), "shown again as saved");
+}

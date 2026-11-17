@@ -29,6 +29,7 @@ pub mod scene;
 pub mod send;
 pub mod speed;
 pub mod tally;
+pub mod words_file;
 
 /// A place a stream can be sent.
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
