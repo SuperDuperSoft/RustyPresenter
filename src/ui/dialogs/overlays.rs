@@ -476,7 +476,7 @@ mod tests {
         click(&op, "OverlaysDialog::save");
         assert!(matches!(app.data.lock().unwrap().overlays[0].source, OverlaySource::Clock { h24: true, .. }));
         click(&op, "OverlayList::new-picture");
-        assert_eq!(g(&op).get_logo_note(), "Choose a church logo first (Settings → Look).");
+        assert_eq!(g(&op).get_logo_note(), "Choose a church logo first (Settings → Look → Text and logo).");
         assert_eq!(g(&op).get_name(), "New overlay copy", "a free name");
     }
 

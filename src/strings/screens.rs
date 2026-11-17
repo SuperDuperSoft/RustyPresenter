@@ -46,4 +46,4 @@ pub fn corner_at(x: f32, y: f32) -> String {
     tr!("Moved {side} {x} %, {way} {y} %", side = side, x = format!("{:.1}", x.abs() * 100.0), way = way, y = format!("{:.1}", y.abs() * 100.0))
 }
 pub fn delay_ms(ms: u64) -> String { tr!("about {ms} ms", ms = ms) }
-pub fn fix_needs_opengl() -> String { tr!("Colour and corner changes show when the screens draw with OpenGL (Settings → Video → Graphics: Automatic or OpenGL). Test patterns and the delay work either way.") }
+pub fn fix_needs_opengl() -> String { tr!("Colour and corner changes show when the screens draw with OpenGL (Settings → General → Screens and graphics → Graphics: Automatic or OpenGL). Test patterns and the delay work either way.") }

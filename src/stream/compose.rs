@@ -16,7 +16,7 @@ pub enum Corner { TopLeft, TopRight, BottomLeft, #[default] BottomRight }
 #[serde(rename_all = "snake_case")]
 pub enum CornerSize { Small, #[default] Medium, Large }
 
-/// The church's arrangement of the built-in scenes (Settings → Media → Livestream).
+/// The church's arrangement of the built-in scenes (Settings → Livestream).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 pub struct Layout {

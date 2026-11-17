@@ -64,7 +64,7 @@ pub enum ThemeSource {
     Church(ThemeId),
 }
 
-/// One row of Settings → Themes.
+/// One row of Settings → Look → Themes and backgrounds.
 #[derive(Clone, Debug, PartialEq)]
 pub struct ThemeRow {
     pub id: ThemeId,

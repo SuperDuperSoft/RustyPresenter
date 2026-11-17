@@ -79,14 +79,14 @@ pub(super) fn render(g: &SettingsDlg) {
 
 /// Connects the model buttons and shows the state (Settings opened).
 pub(super) fn load(op: &Rc<Operator>) {
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     if DOWNLOAD.with(|d| d.borrow().is_none()) { g.set_model_status("".into()) }
     g.set_model_speed("".into());
     render(&g);
     let me = Rc::downgrade(op);
-    g.on_model_pick_changed(move |_| if let Some(op) = me.upgrade() { render(&op.ui.global::<SettingsDlg>()) });
+    g.on_model_pick_changed(move |_| if let Some(op) = me.upgrade() { render(&crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>()) });
     let me = Rc::downgrade(op);
-    g.on_model_download(move || if let Some(op) = me.upgrade() { download(&op, pick(op.ui.global::<SettingsDlg>().get_model_pick())) });
+    g.on_model_download(move || if let Some(op) = me.upgrade() { download(&op, pick(crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().get_model_pick())) });
     g.on_model_cancel(|| DOWNLOAD.with(|d| if let Some((_, c)) = d.borrow().as_ref() { c.cancel() }));
     let me = Rc::downgrade(op);
     g.on_model_remove(move || if let Some(op) = me.upgrade() { remove(&op) });
@@ -100,11 +100,11 @@ pub(crate) fn download(op: &Rc<Operator>, c: Choice) {
     if DOWNLOAD.with(|d| d.borrow().is_some()) { return }
     let cancel = CancellationToken::new();
     DOWNLOAD.with(|d| *d.borrow_mut() = Some((c, cancel.clone())));
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     g.set_model_progress(0.0);
     g.set_model_status(crate::tr!("Downloading…").into());
     render(&g);
-    let (ui, app, deps, m) = (op.ui.as_weak(), op.app().clone(), deps(), model(c));
+    let (ui, app, deps, m) = (crate::ui::dialogs::settings_window::win(&op).as_weak(), op.app().clone(), deps(), model(c));
     let total = m.size;
     let progress = {
         let ui = ui.clone();
@@ -140,7 +140,7 @@ fn finished(g: &SettingsDlg, words: String) {
 
 /// Remove: the model's folder goes, and auto-follow listens again (with the other model, or none).
 fn remove(op: &Rc<Operator>) {
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let m = model(pick(g.get_model_pick()));
     let dir = fetch::models_dir(&deps()).join(m.folder);
     let words = match std::fs::remove_dir_all(&dir) {
@@ -159,12 +159,12 @@ fn remove(op: &Rc<Operator>) {
 
 /// Test speed: runs each downloaded model on a little sound, off the UI thread, and says which suits this PC.
 fn speed_check(op: &Rc<Operator>) {
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let deps = deps();
     if !any_installed(&deps) { return g.set_model_speed(speed_words(Choice::Off, &deps).into()) }
     g.set_model_checking(true);
     g.set_model_speed(crate::tr!("Testing… this takes a few seconds.").into());
-    let ui = op.ui.as_weak();
+    let ui = crate::ui::dialogs::settings_window::win(&op).as_weak();
     let _ = std::thread::Builder::new().name("follow-speed".into()).spawn(move || {
         let words = speed_words(crate::follow::model::speed_check(), &deps);
         let _ = ui.upgrade_in_event_loop(move |ui| {
@@ -184,7 +184,7 @@ pub(crate) fn offer(op: &Rc<Operator>) {
     super::confirm(op, &question, &crate::tr!("Download"), &crate::tr!("Not now"), false, move |yes| {
         let Some(op) = me.upgrade().filter(|_| yes) else { return };
         super::settings_follow::open_page(&op, 0);
-        op.ui.global::<SettingsDlg>().set_model_pick(0);
+        crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().set_model_pick(0);
         download(&op, Choice::Fast);
     });
 }
@@ -230,7 +230,7 @@ mod tests {
         let op = open(&app);
         refresh(&op);
         settings::open(&op, SettingsTab::AutoFollow);
-        let g = op.ui.global::<SettingsDlg>();
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
         assert_eq!((g.get_model_pick(), g.get_model_size().as_str(), g.get_model_installed()), (0, "378 MB", false), "Fast: not yet");
         assert!(!g.get_model_downloading() && !g.get_model_busy(), "Download shows");
         g.set_model_pick(1);

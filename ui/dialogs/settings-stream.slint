@@ -1,0 +1,752 @@
+// Settings → Livestream (November 17, 2026 reorganisation): one short page each for where the stream goes, its
+// picture, the cameras, the scenes, the recording, captions and the website player, NDI and saved setups. The
+// livestream's sound is `settings-sound.slint`. What was "More settings and saved setups…" (`StreamMoreDlg`) is now
+// the advanced rows of these pages. Read and written by `src/ui/dialogs/settings_record.rs`,
+// `settings_stream_extras.rs` and `stream_more.rs`.
+import { Theme } from "../theme.slint";
+import { Btn, Segmented } from "../widgets.slint";
+import { TextField, Note, Select, Check } from "form.slint";
+import { SettingsDlg } from "settings-state.slint";
+import { StreamMoreDlg } from "stream-more.slint";
+import { SetRow, SetLink, Hint, Gap } from "settings-row.slint";
+
+/// A label above its choice, side by side with others (advanced rows).
+component Pick inherits VerticalLayout {
+    in property <string> label;
+    in property <[string]> options;
+    in-out property <int> index;
+    spacing: 4px;
+    horizontal-stretch: 1;
+    min-width: 140px;
+    Text {
+        text: root.label;
+        color: Theme.muted;
+        font-family: Theme.font;
+        font-size: 12.5px;
+    }
+    Select {
+        options: root.options;
+        index <=> root.index;
+    }
+}
+
+/// Text in the row's own colour, beside a control.
+component Words inherits Text {
+    color: Theme.text;
+    font-family: Theme.font;
+    font-size: Theme.base-size;
+    vertical-alignment: center;
+}
+
+/// One destination: on or off, then its key (or the account signed in to), and for some the server's address.
+component Destination inherits HorizontalLayout {
+    in property <string> name;
+    in-out property <bool> on;
+    in property <bool> saved;
+    in property <bool> has-url;
+    in-out property <string> url;
+    in property <string> url-label;
+    in property <string> url-placeholder;
+    in property <string> key-label;
+    in property <string> key-placeholder: @tr("Paste the stream key");
+    in property <string> account;
+    in property <bool> can-sign-in;
+    callback key-edited(string);
+    callback sign-in();
+    callback sign-out();
+    spacing: 8px;
+    check := Check { text: root.name; checked <=> root.on; min-width: 120px; }
+    if root.has-url: url-field := TextField { horizontal-stretch: 1; label: root.url-label; placeholder: root.url-placeholder; text <=> root.url; }
+    if root.account == "": key := TextField {
+        horizontal-stretch: 1;
+        password: true;
+        label: root.key-label;
+        placeholder: root.saved ? @tr("A key is saved. Type a new one to change it.") : root.key-placeholder;
+        edited(t) => { root.key-edited(t); }
+    }
+    if root.account == "" && root.can-sign-in: sign-in-btn := Btn {
+        small: true;
+        text: @tr("Sign in");
+        enabled: !SettingsDlg.stream-signing-in;
+        tooltip: @tr("Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title");
+        clicked => { root.sign-in(); }
+    }
+    if root.account != "": Words {
+        text: @tr("Signed in as {}", root.account);
+        horizontal-stretch: 1;
+        overflow: elide;
+    }
+    if root.account != "": sign-out-btn := Btn { small: true; text: @tr("Sign out"); clicked => { root.sign-out(); } }
+}
+
+/// Livestream → Where to stream.
+export component StreamWherePage inherits VerticalLayout {
+    alignment: start;
+    helper-row := SetRow {
+        key: "stream-helper";
+        label: @tr("Getting started");
+        help: @tr("A few steps: where to stream, which camera, which sound, and a check.");
+        HorizontalLayout {
+            alignment: start;
+            helper-btn := Btn { text: @tr("Set up step by step…"); clicked => { SettingsDlg.go-live-helper(); } }
+        }
+    }
+    where-row := SetRow {
+        key: "stream-to";
+        label: @tr("Stream to");
+        help: @tr("Switch a destination on and a Go Live button appears beside Record. A stream key is a password: whoever has it can stream as you. It is kept in this computer's own password store as you type it, never in a backup or a service file.");
+        stream-yt := Destination {
+            name: "YouTube"; on <=> SettingsDlg.stream-on-0; saved: SettingsDlg.stream-saved-0; key-label: @tr("YouTube stream key");
+            account: SettingsDlg.stream-account-0; can-sign-in: SettingsDlg.stream-can-sign-in-0;
+            key-edited(t) => { SettingsDlg.stream-key-edited(0, t); }
+            sign-in => { SettingsDlg.stream-sign-in(0); }
+            sign-out => { SettingsDlg.stream-sign-out(0); }
+        }
+        stream-fb := Destination {
+            name: "Facebook"; on <=> SettingsDlg.stream-on-1; saved: SettingsDlg.stream-saved-1; key-label: @tr("Facebook stream key");
+            account: SettingsDlg.stream-account-1; can-sign-in: SettingsDlg.stream-can-sign-in-1;
+            key-edited(t) => { SettingsDlg.stream-key-edited(1, t); }
+            sign-in => { SettingsDlg.stream-sign-in(1); }
+            sign-out => { SettingsDlg.stream-sign-out(1); }
+        }
+        stream-tw := Destination {
+            name: "Twitch"; on <=> SettingsDlg.stream-on-2; saved: SettingsDlg.stream-saved-2; key-label: @tr("Twitch stream key");
+            account: SettingsDlg.stream-account-2; can-sign-in: SettingsDlg.stream-can-sign-in-2;
+            key-edited(t) => { SettingsDlg.stream-key-edited(2, t); }
+            sign-in => { SettingsDlg.stream-sign-in(2); }
+            sign-out => { SettingsDlg.stream-sign-out(2); }
+        }
+        stream-custom := Destination {
+            name: @tr("Another server"); on <=> SettingsDlg.stream-on-3; saved: SettingsDlg.stream-saved-3;
+            has-url: true; url <=> SettingsDlg.stream-url; url-label: @tr("The server's address"); url-placeholder: @tr("Its address: rtmp://, rtmps:// or srt://");
+            key-label: @tr("The server's stream key"); key-placeholder: @tr("Its stream key, if it has one");
+            key-edited(t) => { SettingsDlg.stream-key-edited(3, t); }
+        }
+        stream-ig := Destination {
+            name: "Instagram"; on <=> SettingsDlg.stream-on-4; saved: SettingsDlg.stream-saved-4;
+            has-url: true; url <=> SettingsDlg.stream-url-4; url-label: @tr("Instagram's server address"); url-placeholder: @tr("Its server address, if Instagram shows one");
+            key-label: @tr("Instagram stream key");
+            key-edited(t) => { SettingsDlg.stream-key-edited(4, t); }
+        }
+        stream-x := Destination {
+            name: "X"; on <=> SettingsDlg.stream-on-5; saved: SettingsDlg.stream-saved-5;
+            has-url: true; url <=> SettingsDlg.stream-url-5; url-label: @tr("X's server address"); url-placeholder: @tr("Its server address, if X shows one");
+            key-label: @tr("X stream key");
+            key-edited(t) => { SettingsDlg.stream-key-edited(5, t); }
+        }
+        stream-tt := Destination {
+            name: "TikTok"; on <=> SettingsDlg.stream-on-6; saved: SettingsDlg.stream-saved-6;
+            has-url: true; url <=> SettingsDlg.stream-url-6; url-label: @tr("TikTok's server address"); url-placeholder: @tr("The server address TikTok shows with the key");
+            key-label: @tr("TikTok stream key");
+            key-edited(t) => { SettingsDlg.stream-key-edited(6, t); }
+        }
+        if SettingsDlg.stream-on-4 || SettingsDlg.stream-on-5 || SettingsDlg.stream-on-6: Hint {
+            text: @tr("Instagram, X and TikTok give stream keys only to some accounts (TikTok asks for enough followers; Instagram's come from Live Producer on a computer). Each shows a server address with the key: paste both. Their keys often work for one broadcast only.");
+        }
+        if SettingsDlg.cap-notes != "": cap-notes := Hint { text: SettingsDlg.cap-notes; }
+        if SettingsDlg.stream-sign-in-text != "": sign-in-text := Words { text: SettingsDlg.stream-sign-in-text; wrap: word-wrap; }
+    }
+    broadcast-row := SetRow {
+        key: "stream-broadcast";
+        label: @tr("Broadcast title");
+        help: @tr("What YouTube and Facebook call each broadcast. {{date}} becomes the day's date, {{weekday}} the day's name and {{time}} the time; the description can have them too.");
+        if SettingsDlg.stream-account-0 == "" && SettingsDlg.stream-account-1 == "": Hint { text: @tr("Sign in to YouTube or Facebook above to name each broadcast."); }
+        if SettingsDlg.stream-account-0 != "" || SettingsDlg.stream-account-1 != "": VerticalLayout {
+            spacing: 6px;
+            stream-title := TextField { label: @tr("Broadcast title"); placeholder: @tr("Sunday Service — {{date}}"); text <=> SettingsDlg.stream-title; }
+            stream-description := TextField { label: @tr("Broadcast description"); placeholder: @tr("What viewers read under the video"); text <=> SettingsDlg.stream-description; }
+            if SettingsDlg.stream-account-0 != "": HorizontalLayout {
+                spacing: 8px;
+                Words {
+                    text: SettingsDlg.stream-scheduled-link == "" ? @tr("Next YouTube broadcast: made when you go live") : @tr("Next YouTube broadcast: {}", SettingsDlg.stream-scheduled-link);
+                    horizontal-stretch: 1;
+                    overflow: elide;
+                }
+                if SettingsDlg.stream-scheduled-link != "": stream-copy-link := Btn { small: true; text: @tr("Copy the link"); clicked => { SettingsDlg.stream-copy-link(); } }
+                stream-schedule := Btn {
+                    small: true;
+                    text: SettingsDlg.stream-scheduled-link == "" ? @tr("Make it now, to share the link") : @tr("Make a new one");
+                    enabled: !SettingsDlg.stream-signing-in;
+                    tooltip: @tr("Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it.");
+                    clicked => { SettingsDlg.stream-schedule(); }
+                }
+            }
+            if SettingsDlg.stream-account-0 != "": HorizontalLayout {
+                spacing: 8px;
+                Words {
+                    text: SettingsDlg.stream-thumbnail == "" ? @tr("YouTube thumbnail: a frame of the stream") : @tr("YouTube thumbnail: {}", SettingsDlg.stream-thumbnail);
+                    horizontal-stretch: 1;
+                    overflow: elide;
+                }
+                stream-thumbnail-btn := Btn {
+                    small: true;
+                    text: SettingsDlg.stream-thumbnail == "" ? @tr("Choose a picture…") : @tr("No picture");
+                    clicked => { if SettingsDlg.stream-thumbnail == "" { SettingsDlg.stream-card-choose(3); } else { SettingsDlg.stream-thumbnail = ""; } }
+                }
+            }
+            if SettingsDlg.stream-account-0 != "": HorizontalLayout {
+                alignment: start;
+                spacing: 8px;
+                Words { text: @tr("Who can watch on YouTube"); }
+                stream-privacy := Segmented {
+                    labels: [@tr("Everyone"), @tr("Only people with the link")];
+                    index <=> SettingsDlg.stream-privacy;
+                }
+            }
+        }
+    }
+    speed-row := SetRow {
+        key: "stream-speed";
+        label: @tr("Upload speed");
+        help: @tr("Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits.");
+        HorizontalLayout {
+            spacing: 10px;
+            stream-speed := Btn {
+                small: true;
+                text: SettingsDlg.stream-speed-testing ? @tr("Testing…") : @tr("Test the upload speed");
+                clicked => { if !SettingsDlg.stream-speed-testing { SettingsDlg.stream-speed-test(); } }
+            }
+            stream-speed-text := Words {
+                text: SettingsDlg.stream-speed-text;
+                wrap: word-wrap;
+                horizontal-stretch: 1;
+            }
+        }
+    }
+    if SettingsDlg.advanced: VerticalLayout {
+        tall-row := SetRow {
+            key: "stream-tall";
+            label: @tr("Tall for phones");
+            help: @tr("These get a tall picture (for YouTube Shorts, Reels, TikTok and other phone apps): the wide picture across the middle, black above and below. The recording stays wide.");
+            advanced: true;
+            HorizontalLayout {
+                alignment: start;
+                spacing: 14px;
+                stream-tall-yt := Check { text: "YouTube"; checked <=> SettingsDlg.stream-tall-0; }
+                stream-tall-fb := Check { text: "Facebook"; checked <=> SettingsDlg.stream-tall-1; }
+                stream-tall-tw := Check { text: "Twitch"; checked <=> SettingsDlg.stream-tall-2; }
+                stream-tall-custom := Check { text: @tr("Another server"); checked <=> SettingsDlg.stream-tall-3; }
+            }
+            HorizontalLayout {
+                alignment: start;
+                spacing: 14px;
+                stream-tall-ig := Check { text: "Instagram"; checked <=> SettingsDlg.stream-tall-4; }
+                stream-tall-x := Check { text: "X"; checked <=> SettingsDlg.stream-tall-5; }
+                stream-tall-tt := Check { text: "TikTok"; checked <=> SettingsDlg.stream-tall-6; }
+            }
+        }
+        delay-row := SetRow {
+            key: "stream-delay";
+            label: @tr("Stream delay");
+            help: @tr("What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer.");
+            advanced: true;
+            stream-hold-back := Select {
+                options: [@tr("None"), @tr("10 seconds"), @tr("30 seconds"), @tr("1 minute")];
+                index <=> SettingsDlg.stream-delay;
+            }
+        }
+        lighter-row := SetRow {
+            key: "stream-lighter";
+            label: @tr("Slow internet");
+            help: @tr("When a destination's internet cannot keep up, it gets a lighter stream until it can, instead of skipping. The recording and the other destinations keep the full picture. This uses more of the computer.");
+            advanced: true;
+            stream-lighter := Check { text: @tr("Send a lighter stream where the internet is slow"); checked <=> SettingsDlg.stream-lighter; }
+        }
+        quality-row := SetRow {
+            key: "stream-own-quality";
+            label: @tr("Each destination's quality");
+            help: @tr("A destination can get a smaller picture or a lower bitrate than the main stream (a phone app, a slow server). Each one that differs costs the computer a second encode.");
+            advanced: true;
+            for d[i] in StreamMoreDlg.destinations: HorizontalLayout {
+                spacing: 12px;
+                Words { width: 110px; text: d.name; }
+                Select {
+                    horizontal-stretch: 1;
+                    options: StreamMoreDlg.size-labels;
+                    index: d.size;
+                    changed(v) => { StreamMoreDlg.destination-size(i, v); }
+                }
+                Select {
+                    horizontal-stretch: 1;
+                    options: StreamMoreDlg.dest-kbps-labels;
+                    index: d.kbps;
+                    changed(v) => { StreamMoreDlg.destination-kbps(i, v); }
+                }
+            }
+        }
+        network-row := SetRow {
+            key: "stream-network";
+            label: @tr("Network");
+            help: @tr("Send from a wired network card to keep the stream off busy Wi-Fi (YouTube, Facebook, Twitch and other RTMP servers; an SRT server is reached however the computer chooses). Safer send gives an SRT server time to ask again for what got lost on a poor line; the picture arrives that much later.");
+            advanced: true;
+            HorizontalLayout {
+                spacing: 12px;
+                bind := Pick { label: @tr("Send the stream from"); options: StreamMoreDlg.bind-labels; index <=> StreamMoreDlg.bind-index; }
+                srt := Pick { label: @tr("Safer send (SRT servers)"); options: [@tr("Off (SRT's own)"), @tr("Half a second"), @tr("1 second"), @tr("2 seconds"), @tr("4 seconds")]; index <=> StreamMoreDlg.srt-index; }
+            }
+        }
+    }
+}
+
+/// Livestream → Picture and quality: the size and how the picture is made, for the stream and the recording.
+export component StreamPicturePage inherits VerticalLayout {
+    alignment: start;
+    size-row := SetRow {
+        key: "record-size";
+        label: @tr("Picture size");
+        help: @tr("For the livestream and the recording. Bigger is sharper and needs a faster computer, a faster upload and more disk space.");
+        record-size := Select {
+            options: SettingsDlg.record-size-labels;
+            index <=> SettingsDlg.record-size;
+            changed => { SettingsDlg.record-size-changed(); }
+        }
+        if SettingsDlg.size-warning != "": size-warning := Text {
+            text: SettingsDlg.size-warning;
+            color: Theme.accent;
+            font-family: Theme.font;
+            font-size: 12.5px;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+    }
+    if SettingsDlg.advanced: VerticalLayout {
+        custom-size-row := SetRow {
+            key: "record-custom-size";
+            label: @tr("Custom size");
+            help: @tr("Any width and height from 320 × 180 to 7680 × 4320 (made even). Most services and screens expect 16:9.");
+            advanced: true;
+            HorizontalLayout {
+                alignment: start;
+                spacing: 8px;
+                record-width := TextField { width: 90px; label: @tr("Width"); placeholder: @tr("Width"); text <=> SettingsDlg.record-width; }
+                Words { text: "×"; }
+                record-height := TextField { width: 90px; label: @tr("Height"); placeholder: @tr("Height"); text <=> SettingsDlg.record-height; }
+                record-custom := Btn { small: true; text: @tr("Use this size"); clicked => { SettingsDlg.record-custom-size(); } }
+            }
+        }
+        fps-row := SetRow {
+            key: "stream-fps";
+            label: @tr("Pictures a second");
+            help: @tr("30 suits most churches. 50 or 60 makes movement smoother and needs a faster computer and upload.");
+            advanced: true;
+            fps := Select {
+                options: ["24", "25", @tr("30 (usual)"), "50", "60"];
+                index <=> StreamMoreDlg.fps-index;
+                changed => { SettingsDlg.record-size-changed(); }
+            }
+        }
+        bitrate-row := SetRow {
+            key: "record-bitrate";
+            label: @tr("Bitrate");
+            help: @tr("How much picture goes out each second. Automatic grows with the picture size and pictures a second. More is sharper and needs a faster upload.");
+            advanced: true;
+            record-bitrate := Select {
+                options: StreamMoreDlg.kbps-labels;
+                index <=> SettingsDlg.record-bitrate;
+            }
+        }
+        encoder-row := SetRow {
+            key: "record-encoder";
+            label: @tr("Video encoder");
+            help: @tr("Automatic suits most computers. A graphics card's encoder leaves the processor free; it is tried first, and Automatic is used if it does not work on this computer.");
+            advanced: true;
+            record-encoder := Select {
+                options: [@tr("Automatic"), @tr("The processor (x264)"), @tr("NVIDIA graphics card"), @tr("Intel graphics"), @tr("AMD graphics card"), @tr("Windows' own"), @tr("OpenH264"), @tr("The Mac's own")];
+                index <=> SettingsDlg.record-encoder;
+            }
+        }
+        codec-row := SetRow {
+            key: "stream-codec";
+            label: @tr("Video format");
+            help: @tr("HEVC and AV1 give a sharper picture for the same upload. HEVC is used when every destination that is on takes it (YouTube and your own server do); otherwise H.264. AV1 is for recordings only: while live, H.264 is used. Both need a newer computer or graphics card.");
+            advanced: true;
+            HorizontalLayout {
+                spacing: 12px;
+                codec := Pick { label: @tr("Video format"); options: [@tr("H.264 (plays everywhere)"), "HEVC (H.265)", "AV1"]; index <=> StreamMoreDlg.codec-index; }
+                rate := Pick { label: @tr("Bitrate kept"); options: [@tr("Automatic"), @tr("Always the same (CBR)"), @tr("Varies with the picture (VBR)")]; index <=> StreamMoreDlg.rate-index; }
+            }
+        }
+        encoder-more-row := SetRow {
+            key: "stream-encoder-details";
+            label: @tr("Encoder details");
+            help: @tr("Leave these on Automatic unless a service or a video editor asks for something else. Faster leaves more of the computer free; Baseline is only for very old players.");
+            advanced: true;
+            HorizontalLayout {
+                spacing: 12px;
+                keyframe := Pick { label: @tr("A whole picture every"); options: [@tr("1 second"), @tr("2 seconds (usual)"), @tr("3 seconds"), @tr("4 seconds")]; index <=> StreamMoreDlg.keyframe-index; }
+                speed := Pick { label: @tr("Encoder speed"); options: [@tr("Automatic"), @tr("Fastest (least work)"), @tr("Fast"), @tr("Balanced"), @tr("Best picture (most work)")]; index <=> StreamMoreDlg.speed-index; }
+            }
+            HorizontalLayout {
+                spacing: 12px;
+                profile := Pick { label: @tr("Profile"); options: [@tr("Automatic"), "Baseline", "Main", "High"]; index <=> StreamMoreDlg.profile-index; }
+                b-frames := Pick { label: @tr("B-frames"); options: [@tr("Automatic"), "0", "1", "2", "3"]; index <=> StreamMoreDlg.b-frames-index; }
+            }
+        }
+        sound-quality-row := SetRow {
+            key: "stream-sound-quality";
+            label: @tr("Sound quality");
+            advanced: true;
+            HorizontalLayout {
+                spacing: 12px;
+                sound-rate := Pick { label: @tr("Sample rate"); options: [@tr("As it comes (usual)"), "44.1 kHz", "48 kHz"]; index <=> StreamMoreDlg.sound-rate-index; }
+                sound-kbps := Pick { label: @tr("Sound bitrate"); options: ["96 kbit/s", "128 kbit/s", @tr("160 kbit/s (usual)"), "192 kbit/s", "256 kbit/s", "320 kbit/s"]; index <=> StreamMoreDlg.sound-kbps-index; }
+                channels := Pick { label: @tr("Channels"); options: [@tr("Stereo"), @tr("Mono")]; index <=> StreamMoreDlg.channels-index; }
+            }
+        }
+    }
+}
+
+/// One camera's list, and its control and network addresses when it has them.
+component CameraPick inherits VerticalLayout {
+    in property <string> title;
+    in property <[string]> labels;
+    in-out property <int> index;
+    in-out property <string> control;
+    in-out property <string> address;
+    spacing: 6px;
+    HorizontalLayout {
+        spacing: 10px;
+        Words { text: root.title; min-width: 110px; }
+        camera := Select { horizontal-stretch: 1; options: root.labels; index <=> root.index; }
+    }
+    if root.index > 0 && root.index == root.labels.length - 1: camera-address := TextField {
+        label: @tr("Network camera address");
+        text <=> root.address;
+        placeholder: @tr("The camera's address, like rtsp://192.168.1.50:554/stream1");
+    }
+    if root.index > 0 && SettingsDlg.advanced: camera-control := TextField {
+        label: @tr("Camera control address");
+        placeholder: @tr("To move a PTZ camera to its saved positions: its address, like 192.168.1.60");
+        text <=> root.control;
+    }
+}
+
+/// Livestream → Cameras.
+export component StreamCamerasPage inherits VerticalLayout {
+    alignment: start;
+    cameras-row := SetRow {
+        key: "stream-cameras";
+        label: @tr("Cameras");
+        help: @tr("A camera or capture card for the stream's camera scenes (and its recording). More cameras can be switched to while live, from the Cameras box beside the live screen.");
+        camera1 := CameraPick {
+            title: @tr("Camera 1");
+            labels: SettingsDlg.stream-camera-labels;
+            index <=> SettingsDlg.stream-camera-index;
+            control <=> SettingsDlg.stream-camera-control;
+            address <=> SettingsDlg.stream-camera-address;
+        }
+        if SettingsDlg.stream-camera-index > 0: camera2 := CameraPick {
+            title: @tr("Camera 2");
+            labels: SettingsDlg.stream-camera2-labels;
+            index <=> SettingsDlg.stream-camera2-index;
+            control <=> SettingsDlg.stream-camera2-control;
+            address <=> SettingsDlg.stream-camera2-address;
+        }
+        if SettingsDlg.stream-camera-index > 0 && SettingsDlg.stream-camera2-index > 0: camera3 := CameraPick {
+            title: @tr("Camera 3");
+            labels: SettingsDlg.stream-camera3-labels;
+            index <=> SettingsDlg.stream-camera3-index;
+            control <=> SettingsDlg.stream-camera3-control;
+            address <=> SettingsDlg.stream-camera3-address;
+        }
+        if SettingsDlg.stream-camera-index > 0 && SettingsDlg.stream-camera2-index > 0 && SettingsDlg.stream-camera3-index > 0: camera4 := CameraPick {
+            title: @tr("Camera 4");
+            labels: SettingsDlg.stream-camera4-labels;
+            index <=> SettingsDlg.stream-camera4-index;
+            control <=> SettingsDlg.stream-camera4-control;
+            address <=> SettingsDlg.stream-camera4-address;
+        }
+        SetLink {
+            text: @tr("A phone as a camera: Settings → Remote and network");
+            page: 14;
+            key: "phone-camera";
+        }
+    }
+    lost-row := SetRow {
+        key: "camera-lost";
+        label: @tr("When a camera sends nothing");
+        help: @tr("What the stream shows in a camera's place while it is unplugged or sends no picture. The camera comes back by itself as soon as it sends again.");
+        HorizontalLayout {
+            alignment: start;
+            stream-camera-lost := Segmented {
+                labels: [@tr("The audience screen"), @tr("The church logo"), @tr("Black")];
+                index <=> SettingsDlg.stream-camera-lost;
+            }
+        }
+    }
+    guest-row := SetRow {
+        key: "remote-guest";
+        label: @tr("Remote guest");
+        help: @tr("A guest speaker or missionary joins from a browser at home: their picture comes in as a camera, their voice through this computer's sound. The connection goes directly between the two computers; some internets do not allow that, and the pages then say so.");
+        HorizontalLayout {
+            alignment: start;
+            spacing: 8px;
+            guest-invite := Btn { text: @tr("Invite a guest…"); tooltip: @tr("Opens the invitation page in this computer's web browser"); clicked => { SettingsDlg.guest-invite(); } }
+            guest-camera := Btn { text: @tr("Use the guest as a camera"); tooltip: @tr("Puts the guest in the first free camera row above"); clicked => { SettingsDlg.guest-camera(); } }
+        }
+        if SettingsDlg.guest-note != "": guest-note := Words { text: SettingsDlg.guest-note; wrap: word-wrap; }
+    }
+}
+
+/// A card's words, or the picture used instead.
+component Card inherits HorizontalLayout {
+    in property <string> title;
+    in property <string> placeholder;
+    in-out property <string> words;
+    in property <string> picture;
+    callback choose();
+    callback use-words();
+    spacing: 8px;
+    Words { text: root.title; min-width: 110px; }
+    card-words := TextField { horizontal-stretch: 1; label: root.title; placeholder: root.placeholder; text <=> root.words; }
+    if root.picture != "": Text {
+        text: root.picture;
+        color: Theme.muted;
+        font-family: Theme.font;
+        vertical-alignment: center;
+        overflow: elide;
+        max-width: 180px;
+    }
+    card-pick := Btn {
+        small: true;
+        text: root.picture == "" ? @tr("Use a picture…") : @tr("Use words");
+        clicked => { if root.picture == "" { root.choose(); } else { root.use-words(); } }
+    }
+}
+
+/// Livestream → Scenes.
+export component StreamScenesPage inherits VerticalLayout {
+    alignment: start;
+    auto-row := SetRow {
+        key: "stream-auto-scenes";
+        label: @tr("Scenes");
+        help: @tr("Songs and Bible verses go out as the camera with the words; videos and presentations as the audience screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item.");
+        stream-auto := Check { text: @tr("Choose the scene by itself from what is live"); checked <=> SettingsDlg.stream-auto-scenes; }
+        HorizontalLayout {
+            alignment: start;
+            spacing: 8px;
+            Words { text: @tr("Presentations:"); }
+            stream-presentations := Segmented {
+                labels: [@tr("The audience screen"), @tr("The audience screen with the camera in a corner")];
+                index <=> SettingsDlg.stream-presentation-camera;
+            }
+        }
+    }
+    layout-row := SetRow {
+        key: "scene-layout";
+        label: @tr("Scene layout");
+        help: @tr("Where the camera goes when it is in a corner of the audience screen, and where the words go over the camera.");
+        HorizontalLayout {
+            alignment: start;
+            spacing: 8px;
+            stream-corner := Segmented {
+                labels: [@tr("Top left"), @tr("Top right"), @tr("Bottom left"), @tr("Bottom right")];
+                index <=> SettingsDlg.stream-corner;
+            }
+            stream-corner-size := Segmented {
+                labels: [@tr("Small"), @tr("Medium"), @tr("Large")];
+                index <=> SettingsDlg.stream-corner-size;
+            }
+        }
+        HorizontalLayout {
+            alignment: start;
+            spacing: 8px;
+            Words { text: @tr("Words over the camera:"); }
+            stream-words-top := Segmented {
+                labels: [@tr("At the bottom"), @tr("At the top")];
+                index <=> SettingsDlg.stream-words-top;
+            }
+        }
+    }
+    own-row := SetRow {
+        key: "own-scenes";
+        label: @tr("Your scenes");
+        help: @tr("Make scenes of your own from cameras, the audience screen, the words, pictures, colours and text. They are listed after the built-in scenes while live.");
+        HorizontalLayout {
+            alignment: start;
+            spacing: 8px;
+            own-scenes-btn := Btn {
+                text: @tr("Your scenes…");
+                clicked => { SettingsDlg.edit-own-scenes(); }
+            }
+            Words {
+                text: SettingsDlg.stream-own-count == 0 ? @tr("None yet") : SettingsDlg.stream-own-count == 1 ? @tr("1 scene") : @tr("{} scenes", SettingsDlg.stream-own-count);
+                color: Theme.muted;
+            }
+        }
+    }
+    cards-row := SetRow {
+        key: "stream-cards";
+        label: @tr("Cards");
+        help: @tr("Starting soon shows before the service, with the countdown under the words while it runs; Ending after the last item; Hold for a break, chosen with the scene button.");
+        card-0 := Card {
+            title: @tr("Starting soon"); placeholder: @tr("Starting soon");
+            words <=> SettingsDlg.stream-card-words-0; picture: SettingsDlg.stream-card-picture-0;
+            choose => { SettingsDlg.stream-card-choose(0); }
+            use-words => { SettingsDlg.stream-card-picture-0 = ""; }
+        }
+        card-1 := Card {
+            title: @tr("Ending"); placeholder: @tr("Thanks for joining us");
+            words <=> SettingsDlg.stream-card-words-1; picture: SettingsDlg.stream-card-picture-1;
+            choose => { SettingsDlg.stream-card-choose(1); }
+            use-words => { SettingsDlg.stream-card-picture-1 = ""; }
+        }
+        card-2 := Card {
+            title: @tr("Hold"); placeholder: @tr("We'll be right back");
+            words <=> SettingsDlg.stream-card-words-2; picture: SettingsDlg.stream-card-picture-2;
+            choose => { SettingsDlg.stream-card-choose(2); }
+            use-words => { SettingsDlg.stream-card-picture-2 = ""; }
+        }
+    }
+}
+
+/// Livestream → Recording.
+export component RecordingPage inherits VerticalLayout {
+    alignment: start;
+    Note {
+        text: @tr("File → Start recording (or the Record button at the top) saves what the audience screen shows as an MP4 video.");
+    }
+    Gap {}
+    folder-row := SetRow {
+        key: "record-folder";
+        label: @tr("Save recordings in");
+        HorizontalLayout {
+            spacing: 8px;
+            record-folder := Words {
+                text: SettingsDlg.record-folder;
+                overflow: elide;
+                horizontal-stretch: 1;
+                accessible-role: text;
+                accessible-label: self.text;
+            }
+            record-choose := Btn {
+                small: true;
+                text: @tr("Choose folder…");
+                clicked => { SettingsDlg.record-choose-folder(); }
+            }
+        }
+    }
+    SetLink { text: @tr("Picture size: Settings → Livestream → Picture and quality"); page: 23; key: "record-size"; }
+    SetLink { text: @tr("Sound: Settings → Livestream → Sound"); page: 25; key: "stream-mics"; }
+    if SettingsDlg.advanced: VerticalLayout {
+        Gap {}
+        file-row := SetRow {
+            key: "record-file";
+            label: @tr("File type and name");
+            help: @tr("{{date}} becomes the day, {{time}} the time it started, {{title}} the service's name.");
+            advanced: true;
+            format := Pick { label: @tr("File type"); options: [@tr("MP4 (plays everywhere)"), @tr("MKV (as written; nothing to wait for at the end)")]; index <=> StreamMoreDlg.format-index; }
+            name := TextField {
+                label: @tr("Recording file name");
+                placeholder: @tr("Recording {{date}} {{time}}");
+                text <=> StreamMoreDlg.name;
+                edited(t) => { StreamMoreDlg.name-edited(); }
+            }
+            Hint { text: @tr("Now: {}", StreamMoreDlg.name-example); }
+        }
+        split-row := SetRow {
+            key: "record-split";
+            label: @tr("Long recordings");
+            advanced: true;
+            HorizontalLayout {
+                spacing: 12px;
+                split := Pick { label: @tr("Cut long recordings"); options: [@tr("Never"), @tr("Every 30 minutes"), @tr("Every hour"), @tr("Every 2 hours"), @tr("At 2 GB"), @tr("At 4 GB (old USB sticks)"), @tr("At 8 GB")]; index <=> StreamMoreDlg.split-index; }
+                replay := Pick { label: @tr("“Save last” button keeps"); options: [@tr("No button"), @tr("1 minute"), @tr("2 minutes"), @tr("5 minutes"), @tr("10 minutes"), @tr("15 minutes")]; index <=> StreamMoreDlg.replay-index; }
+            }
+        }
+        extra-row := SetRow {
+            key: "record-extra";
+            label: @tr("Extra recordings");
+            help: @tr("While you are live, a second video is saved next to the recording, its name ending in words.mov: only the words, with nothing behind them. When you edit the service video, put it on top to add the words. It stays small because the words seldom change.");
+            advanced: true;
+            clean := Check { text: @tr("While live, also record the stream without the words (for editing)"); checked <=> StreamMoreDlg.clean; }
+            stream-words-file := Check { text: @tr("Also record the words alone, on a see-through background (for video editing)"); checked <=> SettingsDlg.stream-words-file; }
+            stream-tracks := Check { text: @tr("Also keep each sound on a track of its own in the recording, to balance them again afterwards"); checked <=> SettingsDlg.stream-tracks; }
+        }
+    }
+}
+
+/// Livestream → Captions and website.
+export component StreamCaptionsPage inherits VerticalLayout {
+    alignment: start;
+    captions-row := SetRow {
+        key: "captions";
+        label: @tr("Live captions");
+        help: @tr("Captions are made on this computer from the microphone, in English only. They are often wrong: names, Bible places, quiet or echoing speech and songs come out badly, and there is no punctuation. They show about two seconds after the words are said.");
+        captions-on := Check { text: @tr("Write out what is said while live"); checked <=> SettingsDlg.captions-on; }
+        if !SettingsDlg.captions-model: Hint { text: @tr("Live captions need the English speech model. Download the fast model in Settings → Auto-follow → Speech model."); }
+        if !SettingsDlg.captions-model: SetLink { text: @tr("Settings → Auto-follow → Speech model"); page: 19; key: "follow-model"; }
+        if SettingsDlg.captions-on: VerticalLayout {
+            spacing: 6px;
+            captions-picture := Check { text: @tr("Show them at the bottom of the stream (not over song words or verses)"); checked <=> SettingsDlg.captions-picture; }
+            captions-file := Check { text: @tr("Keep them in a captions file beside the recording (for YouTube's replay and video players)"); checked <=> SettingsDlg.captions-file; }
+            HorizontalLayout {
+                spacing: 8px;
+                Words { text: @tr("Listen to:"); }
+                captions-input := Select { horizontal-stretch: 1; options: SettingsDlg.captions-inputs; index <=> SettingsDlg.captions-input; }
+            }
+            if SettingsDlg.advanced: captions-youtube := TextField {
+                password: true;
+                label: @tr("YouTube captions address");
+                placeholder: @tr("YouTube's captions address (optional)");
+                text <=> SettingsDlg.captions-youtube;
+            }
+            if SettingsDlg.advanced: Hint { text: @tr("For captions viewers can turn on and off on YouTube: in YouTube Studio, open the stream's settings, turn on Closed captions, choose \"POST captions to URL\", and paste the address it gives here."); }
+        }
+    }
+    website-row := SetRow {
+        key: "website";
+        label: @tr("On your website");
+        help: @tr("To play the livestream on your church's website: copy the code, then in your website's editor add an \"HTML\", \"Embed\" or \"Code\" block where the video should go and paste it there. You do this once: the same code plays every week's service.");
+        HorizontalLayout {
+            spacing: 8px;
+            website-youtube := TextField { horizontal-stretch: 1; label: @tr("YouTube channel id"); placeholder: @tr("YouTube channel id (starts with UC)"); text <=> SettingsDlg.website-youtube; }
+            if SettingsDlg.stream-account-0 != "": website-fill := Btn { small: true; text: @tr("Fill in"); tooltip: @tr("Fill in the channel of the YouTube account signed in above"); clicked => { SettingsDlg.website-fill(); } }
+            website-copy-yt := Btn { small: true; text: @tr("Copy the code"); clicked => { SettingsDlg.website-copy(0); } }
+        }
+        Hint { text: @tr("YouTube plays whatever your channel has live; between services it shows the next scheduled stream or says nothing is live. YouTube Studio must allow embedding (it does unless it was turned off)."); }
+        HorizontalLayout {
+            spacing: 8px;
+            website-facebook := TextField { horizontal-stretch: 1; label: @tr("Facebook Page"); placeholder: @tr("Facebook Page address"); text <=> SettingsDlg.website-facebook; }
+            website-copy-fb := Btn { small: true; text: @tr("Copy the code"); clicked => { SettingsDlg.website-copy(1); } }
+        }
+        Hint { text: @tr("Facebook shows your Page with its posts; while you are live the live video is at the top. The Page must be public."); }
+        if SettingsDlg.website-note != "": website-note := Words { text: SettingsDlg.website-note; wrap: word-wrap; }
+    }
+}
+
+/// Livestream → NDI.
+export component StreamNdiPage inherits VerticalLayout {
+    alignment: start;
+    ndi-row := SetRow {
+        key: "ndi";
+        label: @tr("NDI");
+        help: @tr("Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras.");
+        if !SettingsDlg.ndi-ready: Hint { text: @tr("NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."); }
+        stream-ndi := Check { text: @tr("Send the stream over NDI too (picture and sound)"); checked <=> SettingsDlg.stream-ndi; }
+        stream-ndi-words := Check { text: @tr("Send the words alone over NDI, on a see-through background (for keying)"); checked <=> SettingsDlg.stream-ndi-words; }
+    }
+}
+
+/// Livestream → Saved setups.
+export component StreamSetupsPage inherits VerticalLayout {
+    alignment: start;
+    setups-row := SetRow {
+        key: "stream-setups";
+        label: @tr("Saved setups");
+        help: @tr("Keep everything set for the livestream (destinations, cameras, sound, scenes and these settings) under a name, and use it again in one go. Stream keys stay as they are.");
+        HorizontalLayout {
+            spacing: 8px;
+            setup := Select {
+                horizontal-stretch: 1;
+                options: StreamMoreDlg.setups;
+                index <=> StreamMoreDlg.setup-index;
+                changed(i) => { StreamMoreDlg.setup-use(i); }
+            }
+            setup-save := Btn { small: true; text: @tr("Save as a setup…"); clicked => { StreamMoreDlg.setup-save(); } }
+            setup-delete := Btn { small: true; text: @tr("Delete"); enabled: StreamMoreDlg.setup-index >= 0; clicked => { StreamMoreDlg.setup-delete(); } }
+        }
+        if StreamMoreDlg.setups.length == 0: Hint { text: @tr("No setups saved yet."); }
+    }
+}

@@ -1,4 +1,4 @@
-//! Settings → Video → "Test which is fastest": each graphics choice this computer has is tried in a child process of
+//! Settings → General → Screens and graphics → "Test which is fastest": each graphics choice this computer has is tried in a child process of
 //! the app (`rustypresenter --graphics-bench <choice> --bench-out <file>`, `ui::graphics_test`), because the backend
 //! is chosen once per process. Each child opens the real operator, room and stage windows over a data folder of its
 //! own, changes lyrics slides over a moving background for a few seconds, and writes what it measured (`Measured`)

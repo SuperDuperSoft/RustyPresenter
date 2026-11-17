@@ -367,7 +367,7 @@ pub fn record(r: &Record) -> Vec<OsString> {
     let mut a: Vec<OsString> = Vec::new();
     let mut push = |v: &[&str]| a.extend(v.iter().map(OsString::from));
     let (w, h) = r.size;
-    let (size, fps, kbps) = (format!("{w}x{h}"), r.fps.to_string(), if r.kbps > 0 { r.kbps } else { r.preset.max_kbps() });
+    let (size, fps, kbps) = (format!("{w}x{h}"), r.fps.to_string(), if r.kbps > 0 { r.kbps } else { r.preset.kbps_at(r.fps) });
     // The destinations that get the tall picture (`stream::Destination::tall`), and the others.
     let is_tall = |i: usize| r.tall.get(i).copied().unwrap_or(false);
     let wide: Vec<String> = r.stream.iter().enumerate().filter(|(i, _)| !is_tall(*i)).map(|(_, s)| s.clone()).collect();
@@ -586,6 +586,26 @@ mod tests {
         assert_eq!(choose_encoder(list, "h264_amf", |_| true), Some("libx264"), "not in this FFmpeg: automatic");
         assert_eq!(choose_encoder(list, "", |_| panic!("automatic is not tried")), Some("libx264"));
         assert_eq!(choose_encoder(list, "rm -rf", |_| true), Some("libx264"), "only the encoders offered");
+    }
+
+    #[test]
+    fn any_picture_size_reaches_ffmpeg_with_a_bitrate_to_match() {
+        // November 17, 2026: 480p to 4K and sizes typed by hand, not only 720p and 1080p.
+        let out = PathBuf::from("/r/Recording.recording.mkv");
+        let rec = |preset: Preset, fps: u32| strs(&record(&Record { size: preset.size(), fps, preset, encoder: "h264_nvenc", input: None, board: None, out: &out, stream: &[], tall: &[], kbps: 0, pc: None, fx: SoundFx::default(), ndi_sound: None, more: &[], listen: None, video: Default::default(), sound: Default::default() }));
+        let a = rec(Preset::P2160, 30);
+        assert_eq!((after(&a, "-video_size"), after(&a, "-b:v")), ("3840x2160", "20000k"));
+        let a = rec(Preset::P2160, 60);
+        assert_eq!((after(&a, "-video_size"), after(&a, "-framerate"), after(&a, "-b:v")), ("3840x2160", "60", "30000k"), "more pictures a second, more bits");
+        let a = rec(Preset::P480, 30);
+        assert_eq!((after(&a, "-video_size"), after(&a, "-b:v")), ("854x480", "1500k"));
+        let custom = Preset::custom(1600, 900);
+        let a = rec(custom, 25);
+        assert_eq!(after(&a, "-video_size"), "1600x900");
+        assert_eq!(after(&a, "-b:v"), format!("{}k", custom.max_kbps()));
+        // The tall picture for phones follows the size.
+        assert_eq!(tall_size(Preset::P2160.size()), (2160, 3840));
+        assert_eq!(tall_size(custom.size()), (900, 1600));
     }
 
     #[test]

@@ -3,6 +3,7 @@
 import { Theme } from "../theme.slint";
 import { Btn, Field } from "../widgets.slint";
 import { TextField, Select } from "form.slint";
+import { SetRow } from "settings-row.slint";
 
 /// A kind of section: its colour, the name and key typed (empty = the usual, shown as the placeholder).
 export struct SectionKindRow { color: color, name: string, usual-name: string, key: string, usual-key: string }
@@ -72,8 +73,10 @@ component Picker inherits VerticalLayout {
 }
 
 export component SettingsSections inherits VerticalLayout {
-    spacing: 14px;
-    Field {
+    alignment: start;
+    spacing: 6px;
+    sections-row := SetRow {
+        key: "sections";
         label: @tr("Sections");
         help: @tr("Each kind of section has a colour and a key. Leave a box empty for the usual name or key.");
         VerticalLayout {
@@ -107,7 +110,8 @@ export component SettingsSections inherits VerticalLayout {
             }
         }
     }
-    Field {
+    section-names-row := SetRow {
+        key: "section-names";
         label: @tr("More section names");
         help: @tr("A name your songs use, like “Spontaneous”. It gets the colour and key of the kind you choose.");
         VerticalLayout {
@@ -155,7 +159,8 @@ export component SettingsSections inherits VerticalLayout {
             }
         }
     }
-    Field {
+    slide-labels-row := SetRow {
+        key: "slide-labels";
         label: @tr("Slide labels");
         help: @tr("In the song editor, “Label this slide” puts one on a slide. It shows on the slide’s thumbnail.");
         VerticalLayout {

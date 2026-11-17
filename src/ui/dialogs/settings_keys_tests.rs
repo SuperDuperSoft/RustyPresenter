@@ -1,11 +1,12 @@
 use super::*;
+use crate::ui::dialogs::settings::testing::{find_all_any as find_all};
 use crate::{
     app::{App, test_app},
     live::Command,
     shortcuts::BUILTIN_GROUP,
     ui::{
-        dialogs::{DialogKind, SettingsTab, settings},
-        operator::{keys::{KeyAction, KeyCtx, route, route_in}, window::testing::{find_all, open as open_window, refresh}},
+        dialogs::{SettingsTab, settings},
+        operator::{keys::{KeyAction, KeyCtx, route, route_in}, window::testing::{open as open_window, refresh}},
     },
 };
 use slint::{Model, platform::{Key, PointerEventButton, WindowEvent}};
@@ -40,7 +41,7 @@ fn press(op: &Operator, text: &str) {
 fn key(k: Key) -> String { char::from(k).into() }
 
 fn shown(op: &Operator) -> Vec<(String, String)> {
-    op.ui.global::<SettingsDlg>().get_help().iter().map(|r| (r.keys.to_string(), r.what.to_string())).collect()
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().get_help().iter().map(|r| (r.keys.to_string(), r.what.to_string())).collect()
 }
 
 /// The Help row of `what`.
@@ -50,9 +51,9 @@ fn row_of(op: &Operator, what: &str) -> usize {
 
 /// The Change button of row `row` (only shortcut rows have one).
 fn change(op: &Operator, row: usize) {
-    let ids: Vec<bool> = op.ui.global::<SettingsDlg>().get_help().iter().map(|r| !r.id.is_empty()).collect();
+    let ids: Vec<bool> = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().get_help().iter().map(|r| !r.id.is_empty()).collect();
     let n = ids[..row].iter().filter(|b| **b).count();
-    click(op, "SettingsHelp::change", n);
+    click(op, "KeysPage::change", n);
 }
 
 #[test]
@@ -122,8 +123,8 @@ fn change_a_key_then_save_and_the_window_uses_it() {
     let row = row_of(&op, "Clear text");
     change(&op, row);
     assert!(capturing());
-    assert_eq!(op.ui.global::<KeysDlg>().get_capturing(), row as i32);
-    assert_eq!(op.ui.global::<KeysDlg>().get_capture_text(), "Press the new key for “Clear text”");
+    assert_eq!(crate::ui::dialogs::settings_window::win(&op).global::<KeysDlg>().get_capturing(), row as i32);
+    assert_eq!(crate::ui::dialogs::settings_window::win(&op).global::<KeysDlg>().get_capture_text(), "Press the new key for “Clear text”");
     // The menu bar lets go of its shortcuts meanwhile, so F11 cannot run anything.
     assert_eq!(op.ui.global::<crate::ui::MenuKeys>().get_clear_all().to_string(), "");
     press(&op, &key(Key::Shift));
@@ -131,12 +132,12 @@ fn change_a_key_then_save_and_the_window_uses_it() {
     press(&op, &key(Key::F11));
     assert!(!capturing());
     assert_eq!(shown(&op)[row].0, "F11");
-    assert!(op.ui.global::<KeysDlg>().get_any_changed());
-    assert!(op.ui.global::<SettingsDlg>().get_help().row_data(row).unwrap().changed);
+    assert!(crate::ui::dialogs::settings_window::win(&op).global::<KeysDlg>().get_any_changed());
+    assert!(crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().get_help().row_data(row).unwrap().changed);
     assert_eq!(op.ui.global::<crate::ui::MenuKeys>().get_clear_all(), slint::Keys::from_parts(["F1"]).unwrap(), "the menu has its keys again");
     // Not saved yet: the window still has F2.
     assert_eq!(op.keymap().action_for(&Chord::parse("F11").unwrap()), None);
-    click(&op, "SettingsDialog::save", 0);
+    click(&op, "SettingsWindow::save", 0);
     refresh(&op);
     assert_eq!(op.dialog(), None);
     assert_eq!(app.data.lock().unwrap().settings.keys.changed.len(), 1);
@@ -155,19 +156,19 @@ fn esc_cancels_and_a_clash_asks_before_moving_the_key() {
     change(&op, row);
     press(&op, &key(Key::Escape));
     assert!(!capturing());
-    assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Help)), "Esc cancelled the change, not the dialog");
+    assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Help), "Esc cancelled the change, not the dialog");
     assert_eq!(shown(&op)[row].0, "F7");
     change(&op, row);
     let version = app.live_view().version;
     press(&op, &key(Key::F2));
     assert_eq!(app.live_view().version, version, "F2 did not clear the screen while it was being picked");
-    assert_eq!(op.state.borrow().asks, 1, "asks first");
+    assert_eq!(crate::ui::dialogs::settings_window::win(&op).get_ask().row_count(), 1, "asks first, over Settings");
     click(&op, "AskOverlay::ok", 0);
     assert_eq!(shown(&op)[row].0, "F2");
     assert_eq!(shown(&op)[row_of(&op, "Clear text")].0, "", "Clear text has no key now");
-    click(&op, "SettingsHelp::reset-all", 0);
+    click(&op, "KeysPage::reset-all", 0);
     assert_eq!(shown(&op)[row].0, "F7");
-    assert!(!op.ui.global::<KeysDlg>().get_any_changed());
+    assert!(!crate::ui::dialogs::settings_window::win(&op).global::<KeysDlg>().get_any_changed());
 }
 
 #[test]
@@ -176,7 +177,7 @@ fn clear_groups_are_edited_here_and_run_from_their_key() {
     let op = opened(&app);
     settings::open(&op, SettingsTab::Help);
     settle();
-    let k = op.ui.global::<KeysDlg>();
+    let k = crate::ui::dialogs::settings_window::win(&op).global::<KeysDlg>();
     assert_eq!(k.get_groups().row_count(), 1);
     let builtin = k.get_groups().row_data(0).unwrap();
     assert_eq!(builtin.name, "Everything but the background");
@@ -184,14 +185,18 @@ fn clear_groups_are_edited_here_and_run_from_their_key() {
     let names = k.get_layer_names().iter().collect::<Vec<_>>();
     assert_eq!(names.len(), builtin.layers.row_count(), "one name per layer");
     assert_eq!(names.last().map(|n| n.as_str()), Some("Phone drawing"));
-    click(&op, "SettingsHelp::add-group", 0);
+    settings::go(&op, SettingsTab::ClearGroups, "");
+    settle();
+    click(&op, "ClearGroupsPage::add-group", 0);
     assert_eq!(k.get_groups().row_count(), 2);
     k.invoke_group_renamed(1, "Words only ".into());
     k.invoke_group_layer(1, 5, true);
+    settings::go(&op, SettingsTab::Help, "");
+    settle();
     let row = row_of(&op, "Clear group: Words only");
     change(&op, row);
     press(&op, &key(Key::F10));
-    click(&op, "SettingsDialog::save", 0);
+    click(&op, "SettingsWindow::save", 0);
     refresh(&op);
     let groups = app.data.lock().unwrap().settings.keys.clear_groups.clone();
     assert_eq!(groups[1].name, "Words only");
@@ -199,10 +204,10 @@ fn clear_groups_are_edited_here_and_run_from_their_key() {
     assert_eq!(route_in(&Chord::parse("F10").unwrap(), TYPING, &op.keymap()), KeyAction::ClearGroup(groups[1].id));
     assert_eq!(route_in(&Chord::parse("F9").unwrap(), TYPING, &op.keymap()), KeyAction::ClearGroup(BUILTIN_GROUP));
     // Deleting a group takes its key away too.
-    settings::open(&op, SettingsTab::Help);
+    settings::open(&op, SettingsTab::ClearGroups);
     settle();
-    click(&op, "SettingsHelp::delete-group", 1);
-    click(&op, "SettingsDialog::save", 0);
+    click(&op, "ClearGroupsPage::delete-group", 1);
+    click(&op, "SettingsWindow::save", 0);
     refresh(&op);
     let keys = app.data.lock().unwrap().settings.keys.clone();
     assert_eq!(keys.clear_groups.len(), 1);

@@ -17,7 +17,7 @@ pub const SLOW_FPS: f32 = 20.0;
 
 static WANTED: AtomicBool = AtomicBool::new(false);
 
-/// Turns the counting on or off (Settings → Video → Show performance).
+/// Turns the counting on or off (Settings → General → Screens and graphics → Show performance).
 pub fn set_wanted(on: bool) {
     if !WANTED.swap(on, Ordering::Relaxed) && on { METER.with(|m| { let mut m = m.borrow_mut(); m.frames.clear(); m.memory_at = None; }) }
 }

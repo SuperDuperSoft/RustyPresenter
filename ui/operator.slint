@@ -19,7 +19,6 @@ import { ServicesDialog, ServicesDialogState } from "dialogs/services.slint";
 import { PrintDialog } from "dialogs/print.slint";
 import { ScreensDialog } from "dialogs/screens.slint";
 import { PhoneDialog } from "dialogs/phone.slint";
-import { SettingsDialog } from "dialogs/settings.slint";
 import { UsageDialog } from "dialogs/usage.slint";
 import { StageLayoutsDialog } from "dialogs/stage-layouts.slint";
 import { DesignEditorDialog } from "dialogs/design-editor.slint";
@@ -28,10 +27,8 @@ import { AutomationDialog } from "dialogs/automation.slint";
 import { ShowMessageDialog } from "dialogs/show-message.slint";
 import { MusicDialog } from "dialogs/music.slint";
 import { SongSelectDialog } from "dialogs/songselect.slint";
-import { NetworkDialog } from "dialogs/network.slint";
 import { StreamScenesDialog } from "dialogs/stream-scenes.slint";
 import { GoLiveHelperDialog } from "dialogs/go-live-helper.slint";
-import { StreamMoreDialog } from "dialogs/stream-more.slint";
 import { AutomationStrip } from "operator/automation-strip.slint";
 import { CameraStrip } from "operator/cameras.slint";
 import { FindVerseDialog } from "dialogs/find-verse.slint";
@@ -518,7 +515,7 @@ export component OperatorWindow inherits Window {
             MenuItem {
                 title: @tr("Recording settings…");
                 enabled: root.menu-ready;
-                activated => { root.focus-keys(); root.menu("settings-media"); }
+                activated => { root.focus-keys(); root.menu("settings-recording"); }
             }
             MenuSeparator {}
             MenuItem {
@@ -778,7 +775,7 @@ export component OperatorWindow inherits Window {
                 activated => { root.focus-keys(); OutputsState.toggle-room-window(); }
             }
             MenuItem {
-                title: @tr("Phone remote…");
+                title: @tr("Remote…");
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.phone(); }
             }
@@ -850,7 +847,7 @@ export component OperatorWindow inherits Window {
                 activated => { root.focus-keys(); root.menu("overlays"); }
             }
             MenuItem {
-                title: @tr("Network…");
+                title: @tr("Remote and network…");
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.menu("network"); }
             }
@@ -1198,7 +1195,6 @@ export component OperatorWindow inherits Window {
             if root.dialog-kind == "print": PrintDialog {}
             if root.dialog-kind == "screens": ScreensDialog {}
             if root.dialog-kind == "phone": PhoneDialog {}
-            if root.dialog-kind == "settings": SettingsDialog {}
             if root.dialog-kind == "usage": UsageDialog {}
             if root.dialog-kind == "stage-layouts": StageLayoutsDialog {}
             if root.dialog-kind == "design": DesignEditorDialog {}
@@ -1211,10 +1207,8 @@ export component OperatorWindow inherits Window {
             if root.dialog-kind == "translations": TranslationEditorDialog { window-height: root.height; }
             if root.dialog-kind == "music": MusicDialog {}
             if root.dialog-kind == "songselect": SongSelectDialog {}
-            if root.dialog-kind == "network": NetworkDialog {}
             if root.dialog-kind == "stream-scenes": StreamScenesDialog {}
             if root.dialog-kind == "go-live-helper": GoLiveHelperDialog {}
-            if root.dialog-kind == "stream-more": StreamMoreDialog {}
         }
 
         for a in root.ask: AskOverlay {

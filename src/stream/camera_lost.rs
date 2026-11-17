@@ -1,5 +1,5 @@
 //! What the stream shows in a camera's place while that camera sends nothing (unplugged, a phone out of Wi-Fi, a
-//! network camera restarting): Settings → Media → Livestream → "When a camera sends nothing". The audience screen (as
+//! network camera restarting): Settings → Livestream → "When a camera sends nothing". The audience screen (as
 //! before), the church's logo, or black. The camera's own picture comes back by itself as soon as it sends again
 //! (`camera_feed`); the lost-camera light still says the camera is not sending.
 use serde::{Deserialize, Serialize};

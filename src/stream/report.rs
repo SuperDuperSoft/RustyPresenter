@@ -48,7 +48,7 @@ impl Report {
         use crate::tr;
         let mut parts = vec![];
         if self.dropped > 0 || self.slow_secs > 0 {
-            parts.push(tr!("The computer could not keep up for {secs} seconds and left out {frames} pictures: the stream was jerky then. Next time, try 720p or the graphics card's encoder (Settings → Media).",
+            parts.push(tr!("The computer could not keep up for {secs} seconds and left out {frames} pictures: the stream was jerky then. Next time, try a smaller picture size or the graphics card's encoder (Settings → Livestream → Picture and quality).",
                 secs = self.slow_secs, frames = self.dropped));
         }
         for r in self.rows.iter().filter(|r| r.lowest_kbps > 0) {
@@ -101,7 +101,7 @@ mod tests {
         };
         assert!(bad.trouble());
         let more = bad.more().unwrap();
-        assert!(more.contains("35 seconds") && more.contains("240 pictures") && more.contains("720p"), "{more}");
+        assert!(more.contains("35 seconds") && more.contains("240 pictures") && more.contains("smaller picture size"), "{more}");
         assert!(more.contains("Facebook got a lighter stream (down to 2100 kbit/s)") && more.contains("At most 57 watching"), "{more}");
         assert!(!more.contains("YouTube got"), "{more}");
     }

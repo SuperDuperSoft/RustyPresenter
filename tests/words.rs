@@ -50,9 +50,18 @@ const RETIRED: &[(&str, &str)] = &[
     ("organize", "organise"),
     // Settings paths: the tab's name, then the section, with →.
     ("Settings → Bibles", "Settings → Bible"),
-    ("Settings → Recording", "Settings → Media → Recording"),
-    ("Settings → Livestream", "Settings → Media → Livestream"),
-    ("Settings → Stream", "Settings → Media → Livestream"),
+    ("Settings → Recording", "Settings → Livestream → Recording"),
+    ("Settings → Stream", "Settings → Livestream"),
+    // The pages before the November 17, 2026 reorganisation (docs/superpowers/specs/2026-11-17-settings-design.md).
+    ("Settings → Media", "Settings → Video and media, or Settings → Livestream → …"),
+    ("Settings → Video →", "Settings → General → Screens and graphics"),
+    ("Settings → Network…", "Settings → Remote and network"),
+    ("Settings → Help", "Settings → Keys"),
+    ("Settings → Songs → Section keys", "Settings → Keys → Keyboard shortcuts"),
+    ("Media → Livestream", "Settings → Livestream → …"),
+    // The remote (Jake, November 17, 2026: "Phones should say remotes").
+    ("phone remote", "remote (it works on a phone or a tablet)"),
+    ("phone remotes", "remotes"),
     ("Settings ->", "Settings →"),
     ("Settings >", "Settings →"),
 ];

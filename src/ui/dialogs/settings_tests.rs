@@ -1,11 +1,12 @@
 use super::*;
+use crate::ui::dialogs::settings::testing::{find_any as find, find_all_any as find_all};
 use crate::ui::operator::files::testing::will_pick;
 use crate::{
     app::{App, test_app},
     ui::{
         block_on,
-        dialogs::{DialogKind, SettingsTab, settings_look::PREVIEW_DELAY},
-        operator::window::testing::{find, find_all, open as open_window, refresh},
+        dialogs::{SettingsTab, settings_look::PREVIEW_DELAY},
+        operator::window::testing::{open as open_window, refresh},
     },
 };
 use i_slint_backend_testing::mock_elapsed_time;
@@ -20,7 +21,7 @@ fn opened(app: &Arc<App>) -> Rc<Operator> {
     op
 }
 
-fn g(op: &Operator) -> SettingsDlg<'_> { op.ui.global::<SettingsDlg>() }
+fn g(op: &Operator) -> SettingsDlg<'_> { crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>() }
 
 fn settle() { slint::platform::update_timers_and_animations(); }
 
@@ -49,11 +50,11 @@ fn top_bar_settings_opens_on_look() {
     let app = test_app();
     let op = opened(&app);
     op.ui.invoke_settings();
-    assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Look)));
-    assert_eq!(op.ui.get_dialog_title(), "Settings");
-    assert!(op.ui.get_dialog_wide());
-    assert!(find(&op, "SettingsDialog::save").is_some());
-    assert_eq!(g(&op).get_tab(), 0);
+    assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Look));
+    assert_eq!(op.dialog(), None, "the operator stays free");
+    assert!(find(&op, "SettingsWindow::save").is_some());
+    assert_eq!(g(&op).get_tab(), tab_index(SettingsTab::Look));
+    assert_eq!(g(&op).get_page_title(), "Look → Text and logo");
 }
 
 #[test]
@@ -90,7 +91,7 @@ fn save_settings_round_trips_theme_and_lines() {
     f.set_section_keys(false);
     assert_eq!(f.get_audio_labels().row_count(), 1, "the default, before a list arrives");
     assert_eq!(f.get_audio_index(), 0);
-    click(&op, "SettingsDialog::save");
+    click(&op, "SettingsWindow::save");
     let s = app.data.lock().unwrap().settings.clone();
     assert_eq!((s.theme.font.as_str(), s.theme.size, s.theme.scripture_size), ("Arial", 120, 70));
     assert_eq!((s.theme.color.as_str(), s.theme.position.as_str(), s.theme.shadow, s.theme.uppercase), ("#ffcc00", "lower", false, true));
@@ -102,7 +103,7 @@ fn save_settings_round_trips_theme_and_lines() {
     assert_eq!(app.live.lock().unwrap().drawing.fade_after, std::time::Duration::from_secs(30));
     assert!(app.live.lock().unwrap().keep_drawing, "the live engine follows at once");
     assert!(!s.section_keys, "Settings → Songs can turn the section keys off");
-    assert_eq!(op.dialog(), None, "Save closes the dialog");
+    assert!(!is_open(&op), "Save closes Settings");
     assert!(toasts(&op).contains(&"Settings saved".to_string()));
 
     // Opening again shows what was saved.
@@ -118,11 +119,13 @@ fn bible_verses_per_slide_round_trips_and_sits_with_the_scripture_size() {
     let op = opened(&app);
     open(&op, SettingsTab::Look);
     assert_eq!(g(&op).get_bible_per_slide(), 0, "Automatic by default");
-    assert!(find(&op, "SettingsLook::bible-per-slide").is_some());
-    assert!(find(&op, "SettingsLook::scripture-size").is_some());
+    assert!(find(&op, "LookText::scripture-size").is_some(), "the Bible text size is with the other text sizes");
+    go(&op, SettingsTab::Bible, "");
+    settle();
+    assert!(find(&op, "BiblePage::bible-per-slide").is_some(), "verses per slide is with the Bibles");
     g(&op).set_bible_per_slide(2);
     g(&op).set_scripture_size(90);
-    click(&op, "SettingsDialog::save");
+    click(&op, "SettingsWindow::save");
     let s = app.data.lock().unwrap().settings.clone();
     assert_eq!((s.bible_per_slide, s.theme.scripture_size), (2, 90));
     refresh(&op);
@@ -136,9 +139,12 @@ fn look_fade_slider_round_trips_in_tenths() {
     let op = opened(&app);
     open(&op, SettingsTab::Look);
     assert_eq!(g(&op).get_look_fade(), 10, "one second by default");
-    assert!(find(&op, "SettingsLook::look-fade").is_some());
+    assert!(find(&op, "LookText::look-fade").is_none(), "an advanced row");
+    g(&op).set_advanced(true);
+    settle();
+    assert!(find(&op, "LookText::look-fade").is_some());
     g(&op).set_look_fade(25);
-    click(&op, "SettingsDialog::save");
+    click(&op, "SettingsWindow::save");
     assert_eq!(app.data.lock().unwrap().settings.look_fade_ms, 2500);
     assert_eq!(app.live_view().look_fade_ms, 2500, "the room reads it from the live view");
     refresh(&op);
@@ -155,7 +161,7 @@ fn save_settings_keeps_translation_and_displays_changed_meanwhile() {
     block_on(app.do_action("settings/translation", br#"{"translation":"WEB"}"#)).unwrap();
     app.data.lock().unwrap().settings.screens.assign("audience", crate::model::ScreenTarget::Monitor(r"\\.\DISPLAY2".into()));
     refresh(&op);
-    click(&op, "SettingsDialog::save");
+    click(&op, "SettingsWindow::save");
     let s = app.data.lock().unwrap().settings.clone();
     assert_eq!(s.translation, "WEB", "the translation picked meanwhile is kept");
     assert_eq!(s.screens.monitors("audience"), [r"\\.\DISPLAY2"], "the screen chosen meanwhile is kept");
@@ -170,8 +176,10 @@ fn cancel_discards_changes() {
     open(&op, SettingsTab::Songs);
     g(&op).set_ccli("999".into());
     g(&op).set_lines(5);
-    click(&op, "SettingsDialog::cancel");
-    assert_eq!(op.dialog(), None);
+    click(&op, "SettingsWindow::cancel");
+    // Changed: it asks first; Don't save leaves.
+    crate::ui::dialogs::ask::answer_other_settings(&op);
+    assert!(!is_open(&op));
     let after = app.data.lock().unwrap().settings.clone();
     assert_eq!((after.church_ccli, after.lines_per_slide), (before.church_ccli.clone(), before.lines_per_slide));
     open(&op, SettingsTab::Songs);
@@ -191,8 +199,8 @@ fn settings_keeps_typed_text_across_a_data_update() {
     refresh(&op);
     assert_eq!(g(&op).get_ccli(), "typed by hand");
     assert_eq!(g(&op).get_lines(), 0);
-    assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Songs)));
-    click(&op, "SettingsDialog::save");
+    assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Songs));
+    click(&op, "SettingsWindow::save");
     assert_eq!(app.data.lock().unwrap().settings.church_ccli, "typed by hand");
 }
 
@@ -225,15 +233,13 @@ fn look_preview_rebuilt_on_tab_return() {
     g(&op).set_position(1);
     g(&op).invoke_look_changed();
     // Leave before the preview is drawn again: the image goes.
-    let tabs = find_all(&op, "Tabs::tab");
-    assert_eq!(tabs.len(), 11);
-    tabs[1].mock_single_click(PointerEventButton::Left);
+    g(&op).invoke_nav_pick(tab_index(SettingsTab::Themes));
     settle();
-    assert_eq!(g(&op).get_tab(), 1);
+    assert_eq!(g(&op).get_tab(), tab_index(SettingsTab::Themes));
     assert!(pixels(&g(&op).get_preview()).is_empty(), "switching tabs drops the preview");
     mock_elapsed_time(PREVIEW_DELAY * 2);
     assert!(pixels(&g(&op).get_preview()).is_empty(), "the pending redraw was dropped too");
-    find_all(&op, "Tabs::tab")[0].mock_single_click(PointerEventButton::Left);
+    g(&op).invoke_nav_pick(tab_index(SettingsTab::Look));
     settle();
     let back = pixels(&g(&op).get_preview());
     assert!(!back.is_empty(), "Look draws it again");
@@ -248,18 +254,18 @@ fn missing_font_shows_note() {
     open(&op, SettingsTab::Look);
     settle();
     assert_eq!(g(&op).get_font_note(), "“No Such Font” isn't installed on this computer, so slides use Noto Sans.");
-    let note = find(&op, "SettingsLook::font-note").expect("the note under the font box");
+    let note = find(&op, "LookText::font-note").expect("the note under the font box");
     assert_eq!(note.accessible_label().unwrap_or_default(), g(&op).get_font_note());
     let fonts: Vec<String> = g(&op).get_fonts().iter().map(|f| f.to_string()).collect();
     assert_eq!(fonts[g(&op).get_font_index() as usize], "No Such Font", "the box shows the saved font");
-    op.close_dialog();
+    close(&op);
 
     app.data.lock().unwrap().settings.theme.font = "Noto Sans".into();
     refresh(&op);
     open(&op, SettingsTab::Look);
     settle();
     assert_eq!(g(&op).get_font_note(), "");
-    assert!(find(&op, "SettingsLook::font-note").is_none());
+    assert!(find(&op, "LookText::font-note").is_none());
 }
 
 #[test]
@@ -268,24 +274,24 @@ fn choose_logo_imports_a_picture_and_remove_clears_it() {
     let op = opened(&app);
     open(&op, SettingsTab::Look);
     settle();
-    assert!(find(&op, "SettingsLook::no-logo").is_some());
+    assert!(find(&op, "LookText::no-logo").is_some());
     let mut png = Vec::new();
     image::RgbaImage::from_pixel(40, 20, image::Rgba([200, 30, 30, 255]))
         .write_to(&mut std::io::Cursor::new(&mut png), image::ImageFormat::Png).unwrap();
     will_pick(vec![temp_file("logo.png", &png)]);
-    click(&op, "SettingsLook::choose-logo");
+    click(&op, "LookText::choose-logo");
     assert!(g(&op).get_has_logo());
     assert!(!pixels(&g(&op).get_logo()).is_empty(), "the 44 px logo preview");
-    assert!(find(&op, "SettingsLook::no-logo").is_none());
-    click(&op, "SettingsDialog::save");
+    assert!(find(&op, "LookText::no-logo").is_none());
+    click(&op, "SettingsWindow::save");
     let logo = app.data.lock().unwrap().settings.logo.clone().expect("logo saved");
     assert!(app.store.asset_path(&logo).exists());
 
     refresh(&op);
     open(&op, SettingsTab::Look);
-    click(&op, "SettingsLook::remove-logo");
+    click(&op, "LookText::remove-logo");
     assert!(!g(&op).get_has_logo());
-    click(&op, "SettingsDialog::save");
+    click(&op, "SettingsWindow::save");
     assert_eq!(app.data.lock().unwrap().settings.logo, None);
 }
 
@@ -299,7 +305,7 @@ fn default_background_pick_is_saved() {
     assert!(rows[0].on, "black is the default");
     g(&op).invoke_pick_background(1);
     assert!(g(&op).get_backgrounds().row_data(1).unwrap().on);
-    click(&op, "SettingsDialog::save");
+    click(&op, "SettingsWindow::save");
     assert_eq!(app.data.lock().unwrap().settings.background, crate::model::Background::Color { color: "#0b1a33".into() });
 }
 
@@ -311,7 +317,7 @@ fn default_background_custom_colour_is_saved() {
     g(&op).invoke_background_hex("#12AB3".into());
     g(&op).invoke_background_hex("#12AB34".into());
     assert!(g(&op).get_backgrounds().iter().all(|r| !r.on), "a custom colour is no tile");
-    click(&op, "SettingsDialog::save");
+    click(&op, "SettingsWindow::save");
     assert_eq!(app.data.lock().unwrap().settings.background, crate::model::Background::Color { color: "#12ab34".into() });
 }
 
@@ -319,17 +325,12 @@ fn default_background_custom_colour_is_saved() {
 fn text_color_from_the_grid_and_its_hex_field() {
     let app = test_app();
     let op = opened(&app);
-    // `find` skips what the dialog's scroll box clips, and Text colour sits below the Bible verses group: the dialog
-    // keeps one height (at most 860 px), so its body is scrolled down to the grid.
-    op.window().set_size(slint::LogicalSize::new(1400.0, 1600.0));
-    settle();
+    // `find` skips what the page's scroll box clips: the window is made tall enough for the colour grid.
     open(&op, SettingsTab::Look);
+    crate::ui::dialogs::settings_window::win(&op).window().set_size(slint::LogicalSize::new(1400.0, 1600.0));
+    settle();
     assert!(find(&op, "ColorGrid::hex").is_none(), "the grid opens from the swatch");
     click(&op, "ColorPicker::swatch");
-    let card = find(&op, "DialogShell::card").expect("the dialog");
-    let (p, sz) = (card.absolute_position(), card.size());
-    let at = slint::LogicalPosition::new(p.x + sz.width / 2.0, p.y + sz.height / 2.0);
-    op.window().dispatch_event(slint::platform::WindowEvent::PointerScrolled { position: at, delta_x: 0.0, delta_y: -3000.0 });
     settle();
     assert!(find(&op, "ColorGrid::hex").is_some());
     let before = g(&op).get_color();
@@ -339,7 +340,7 @@ fn text_color_from_the_grid_and_its_hex_field() {
     assert_eq!(g(&op).get_color(), "#12ab34");
     g(&op).invoke_text_color(slint::Color::from_rgb_u8(255, 0, 0));
     assert_eq!(g(&op).get_color(), "#ff0000");
-    click(&op, "SettingsDialog::save");
+    click(&op, "SettingsWindow::save");
     assert_eq!(app.data.lock().unwrap().settings.theme.color, "#ff0000");
 }
 
@@ -356,9 +357,9 @@ fn backup_now_toasts_and_lists_it() {
     let op = opened(&app);
     open(&op, SettingsTab::Backups);
     settle();
-    assert!(find(&op, "SettingsBackups::no-backups").is_some());
+    assert!(find(&op, "BackupsPage::no-backups").is_some());
     assert!(g(&op).get_backups_folder().ends_with("\\backups"));
-    click(&op, "SettingsBackups::backup-now");
+    click(&op, "BackupsPage::backup-now");
     assert_eq!(toasts(&op), ["Backup made"]);
     refresh(&op);
     settle();
@@ -378,17 +379,17 @@ fn restore_asks_then_restores() {
     refresh(&op);
     open(&op, SettingsTab::Backups);
     settle();
-    click(&op, "SettingsBackups::restore");
-    let ask = op.ui.get_ask().row_data(0).expect("a confirm");
+    click(&op, "BackupsPage::restore");
+    let ask = crate::ui::dialogs::settings_window::win(&op).get_ask().row_data(0).expect("a confirm, over Settings");
     assert_eq!(ask.text, "Restore this backup? Your current songs and services are replaced (a copy of them is kept).");
     // Cancel keeps everything.
     click(&op, "AskOverlay::cancel");
     assert_eq!(app.data.lock().unwrap().songs.len(), 1);
-    assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Backups)));
-    click(&op, "SettingsBackups::restore");
+    assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Backups));
+    click(&op, "BackupsPage::restore");
     click(&op, "AskOverlay::ok");
     assert!(app.data.lock().unwrap().songs.is_empty(), "the backup's data is back");
-    assert_eq!(op.dialog(), None);
+    assert!(!is_open(&op));
     assert_eq!(toasts(&op), ["Backup restored"]);
 }
 
@@ -439,7 +440,7 @@ fn bible_tab_shows_sources_keys_and_import() {
     assert_eq!(toasts(&op).last().map(String::as_str), Some("HCSB removed"));
     refresh(&op);
     assert!(!g(&op).get_bible_sources().iter().any(|r| r.imported));
-    assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Bible)), "Bible actions keep Settings open");
+    assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Bible), "Bible actions keep Settings open");
 }
 
 #[test]
@@ -448,9 +449,9 @@ fn video_tab_shows_player_status_not_ffmpeg() {
     let op = opened(&app);
     open(&op, SettingsTab::Video);
     settle();
-    assert!(find(&op, "SettingsVideo::player").is_some(), "the player line");
-    assert!(find(&op, "SettingsVideo::drawing").is_some(), "the drawing line");
-    for gone in ["SettingsVideo::missing", "SettingsVideo::found", "SettingsVideo::check-again"] {
+    assert!(find(&op, "ScreensPage::player").is_some(), "the player line");
+    assert!(find(&op, "ScreensPage::drawing").is_some(), "the drawing line");
+    for gone in ["ScreensPage::missing", "ScreensPage::found", "ScreensPage::check-again"] {
         assert!(find(&op, gone).is_none(), "{gone}");
     }
 }
@@ -462,8 +463,8 @@ fn the_graphics_picker_lists_this_builds_choices_and_saves_at_once() {
     let op = opened(&app);
     open(&op, SettingsTab::Video);
     settle();
-    assert!(find(&op, "SettingsVideo::graphics").is_some(), "the picker");
-    assert!(find(&op, "SettingsVideo::graphics-now").is_some(), "the line saying what is in use");
+    assert!(find(&op, "ScreensPage::graphics").is_some(), "the picker");
+    assert!(find(&op, "ScreensPage::graphics-now").is_some(), "the line saying what is in use");
     let labels: Vec<String> = g(&op).get_graphics_labels().iter().map(|l| l.to_string()).collect();
     let want: Vec<String> = graphics::available(graphics::Build::this()).into_iter().map(graphics::label).collect();
     assert_eq!(labels, want, "only what this build can draw with");
@@ -478,10 +479,10 @@ fn the_graphics_picker_lists_this_builds_choices_and_saves_at_once() {
     settle();
     assert_eq!(app.data.lock().unwrap().settings.graphics, Graphics::Software);
     assert!(toasts(&op).contains(&"Restart RustyPresenter to use the new graphics setting.".to_string()));
-    assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Video)), "the dialog stays open");
+    assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Video), "the dialog stays open");
 
     // Save keeps it, and opening again shows it.
-    click(&op, "SettingsDialog::save");
+    click(&op, "SettingsWindow::save");
     assert_eq!(app.data.lock().unwrap().settings.graphics, Graphics::Software);
     refresh(&op);
     open(&op, SettingsTab::Video);
@@ -495,10 +496,10 @@ fn the_graphics_test_shows_each_choice_and_use_this_saves_the_pick() {
     let op = opened(&app);
     open(&op, SettingsTab::Video);
     settle();
-    assert!(find(&op, "SettingsVideo::graphics-test").is_some(), "the button");
-    assert_eq!(find(&op, "SettingsVideo::graphics-test-status").unwrap().accessible_label().unwrap(), "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there.");
-    assert!(find(&op, "SettingsVideo::graphics-test-use").is_none(), "nothing to use yet");
-    assert!(find(&op, "SettingsVideo::graphics-restart").is_none(), "nothing to restart for yet");
+    assert!(find(&op, "ScreensPage::graphics-test").is_some(), "the button");
+    assert_eq!(find(&op, "ScreensPage::graphics-test-status").unwrap().accessible_label().unwrap(), "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there.");
+    assert!(find(&op, "ScreensPage::graphics-test-use").is_none(), "nothing to use yet");
+    assert!(find(&op, "ScreensPage::graphics-restart").is_none(), "nothing to restart for yet");
 
     let root = app.store.data_path().parent().unwrap().to_path_buf();
     let ran = |graphics| Measured {
@@ -513,19 +514,19 @@ fn the_graphics_test_shows_each_choice_and_use_this_saves_the_pick() {
     assert_eq!(rows, [("OpenGL".into(), "Smooth".into(), true), ("Software".into(), "Didn't work".into(), false)]);
     let details: Vec<String> = g(&op).get_graphics_test_rows().iter().map(|r| r.details.to_string()).collect();
     assert_eq!(details, ["Slide change 70 ms · 0 hiccups a minute · longest pause 20 ms · processor 20 %", "It closed before it finished. It may have crashed."]);
-    assert_eq!(find_all(&op, "SettingsVideo::graphics-test-details").len(), 2, "each row says what was measured or why");
-    assert_eq!(find_all(&op, "SettingsVideo::graphics-test-row").len(), 2);
+    assert_eq!(find_all(&op, "ScreensPage::graphics-test-details").len(), 2, "each row says what was measured or why");
+    assert_eq!(find_all(&op, "ScreensPage::graphics-test-row").len(), 2);
     assert_eq!(g(&op).get_graphics_test_pick(), 0, "the best is picked");
     assert_eq!(g(&op).get_graphics_test_status(), "OpenGL is the best for this computer. Automatic will use it from the next start.");
     assert_eq!(bench::load(&root).unwrap().winner, Some(Graphics::OpenGl), "kept for Automatic");
 
-    click(&op, "SettingsVideo::graphics-test-use");
+    click(&op, "ScreensPage::graphics-test-use");
     assert_eq!(app.data.lock().unwrap().settings.graphics, Graphics::OpenGl);
     assert!(toasts(&op).contains(&"Restart RustyPresenter to use the new graphics setting.".to_string()));
     let want = graphics_choices().iter().position(|c| *c == Graphics::OpenGl).unwrap() as i32;
     assert_eq!(g(&op).get_graphics_index(), want);
     // Nothing else changed: restarts at once, without asking.
-    click(&op, "SettingsVideo::graphics-restart");
+    click(&op, "ScreensPage::graphics-restart");
     assert_eq!(op.state.borrow().asks, 0);
     assert_eq!(crate::recovery::restart::requests_here(), 1, "Restart now");
 
@@ -558,18 +559,19 @@ fn restart_now_asks_to_save_other_changes_first() {
     g(&op).set_graphics_restart(true);
     let before = app.data.lock().unwrap().settings.show_performance;
     g(&op).set_show_performance(!before);
-    click(&op, "SettingsVideo::graphics-restart");
-    assert_eq!(op.state.borrow().asks, 1, "asks once");
-    let ask = op.ui.get_ask().row_data(0).unwrap();
+    click(&op, "ScreensPage::graphics-restart");
+    let w = crate::ui::dialogs::settings_window::win(&op);
+    assert_eq!(w.get_ask().row_count(), 1, "asks once, over Settings");
+    let ask = w.get_ask().row_data(0).unwrap();
     assert_eq!((ask.text.as_str(), ask.ok_label.as_str(), ask.cancel_label.as_str()), ("Save your other changes and restart?", "Save and restart", "Cancel"));
-    crate::ui::dialogs::ask::answer(&op, false, String::new());
+    crate::ui::dialogs::ask::answer_settings(&op, false, String::new());
     settle();
     assert_eq!(requests_here(), 0, "Cancel: no restart");
     assert_eq!(app.data.lock().unwrap().settings.show_performance, before, "and nothing saved");
-    assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Video)), "Settings stays open");
+    assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Video), "Settings stays open");
 
-    click(&op, "SettingsVideo::graphics-restart");
-    crate::ui::dialogs::ask::answer(&op, true, String::new());
+    click(&op, "ScreensPage::graphics-restart");
+    crate::ui::dialogs::ask::answer_settings(&op, true, String::new());
     settle();
     assert_eq!(app.data.lock().unwrap().settings.show_performance, !before, "saved first");
     assert_eq!(requests_here(), 1, "then restarted");
@@ -598,12 +600,12 @@ fn the_sound_output_is_saved_and_shown_again() {
     refresh(&op);
     open(&op, SettingsTab::Video);
     assert_eq!(g(&op).get_audio_index(), 1, "kept though no list came");
-    click(&op, "SettingsDialog::save");
+    click(&op, "SettingsWindow::save");
     assert_eq!(app.data.lock().unwrap().settings.audio_device, "wasapi/{board}");
     refresh(&op);
     open(&op, SettingsTab::Video);
     g(&op).set_audio_index(0);
-    click(&op, "SettingsDialog::save");
+    click(&op, "SettingsWindow::save");
     assert_eq!(app.data.lock().unwrap().settings.audio_device, "");
 }
 
@@ -648,7 +650,7 @@ fn bible_library_lists_searches_and_filters_the_saved_catalog() {
     let spanish = lines.iter().position(|l| l.starts_with("# Spanish")).expect("Spanish heading");
     assert!(greek < spanish, "then English names A to Z: {lines:?}");
     assert!(lines.iter().any(|l| l == "# Spanish · Español"), "{lines:?}");
-    assert!(find(&op, "SettingsBible::catalog-search").is_some());
+    assert!(find(&op, "BiblePage::catalog-search").is_some());
 
     // Search folds accents and case, and needs every word.
     g(&op).set_catalog_search("REINA valéra".into());
@@ -693,7 +695,7 @@ fn bible_library_warns_on_a_row_no_font_can_draw() {
     assert_eq!(warned, ["መጽሐፍ ቅዱስ"], "Latin and Greek are drawn by the bundled Noto Sans; Ethiopic isn't");
     let amh = rows.iter().find(|r| r.title == "መጽሐፍ ቅዱስ").unwrap();
     assert_eq!((amh.font_warning.as_str(), amh.button.as_str()), ("Your computer may not have a font for this language.", "Add"));
-    assert!(find(&op, "SettingsBible::font-warning").is_some(), "the warning is on the page");
+    assert!(find(&op, "BiblePage::font-warning").is_some(), "the warning is on the page");
 }
 
 #[test]
@@ -740,7 +742,7 @@ fn default_bible_lists_what_can_be_used_and_is_applied_at_once() {
     let op = opened(&app);
     open(&op, SettingsTab::Bible);
     settle();
-    assert!(find(&op, "SettingsBible::default-bible").is_some());
+    assert!(find(&op, "BiblePage::default-bible").is_some());
     let options: Vec<String> = g(&op).get_default_bibles().iter().map(|s| s.to_string()).collect();
     assert!(options.contains(&"KJV — King James Version".to_string()), "{options:?}");
     assert!(options.contains(&"RVR — Reina Valera Revisada".to_string()), "a download by its abbreviation: {options:?}");
@@ -753,7 +755,7 @@ fn default_bible_lists_what_can_be_used_and_is_applied_at_once() {
     g(&op).invoke_default_bible_changed(rvr as i32);
     assert_eq!(app.data.lock().unwrap().settings.translation, "ebible:spaRVR", "applied before Save, by its id");
     assert_eq!(toasts(&op).last().map(String::as_str), Some("Default Bible changed"));
-    click(&op, "SettingsDialog::cancel");
+    click(&op, "SettingsWindow::cancel");
     assert_eq!(app.data.lock().unwrap().settings.translation, "ebible:spaRVR", "Cancel doesn't undo it");
     refresh(&op);
     open(&op, SettingsTab::Bible);
@@ -785,9 +787,9 @@ fn language_tab_lists_languages_and_switches_the_app_at_once() {
     let op = opened(&app);
     open(&op, SettingsTab::Language);
     settle();
-    assert_eq!(g(&op).get_tab(), 2, "Language comes right after Look and Themes");
-    let tab_labels = || find_all(&op, "Tabs::tab").iter().map(|t| t.accessible_label().unwrap_or_default().to_string()).collect::<Vec<_>>();
-    assert_eq!(tab_labels()[..3], ["Look", "Themes", "Language"]);
+    assert_eq!(g(&op).get_tab(), 0, "Language is the first page, under General");
+    let tab_labels = || g(&op).get_nav().iter().map(|t| t.title.to_string()).collect::<Vec<_>>();
+    assert_eq!(tab_labels()[..3], ["General", "Language", "Screens and graphics"]);
     let rows: Vec<crate::ui::SettingsLanguageRow> = g(&op).get_languages().iter().collect();
     assert!(rows[0].title.starts_with("Use the computer's language ("), "{:?}", rows[0].title);
     assert!(rows[0].on, "new data follows the computer");
@@ -805,7 +807,7 @@ fn language_tab_lists_languages_and_switches_the_app_at_once() {
     assert_eq!(app.data.lock().unwrap().settings.ui_language, "es", "saved at once");
     assert!(op.toast_log().iter().any(|(t, _)| t == "Idioma cambiado"), "the toast is in Spanish: {:?}", op.toast_log());
     assert_eq!(format!("{:?}", slint::select_bundled_translation("es")), "Ok(())", "Spanish is bundled into the Slint side");
-    assert_eq!(tab_labels()[2], "Idioma", "the window's own words changed without a restart");
+    assert_eq!(tab_labels()[1], "Idioma", "the window's own words changed without a restart");
     assert!(g(&op).get_languages().row_data(es).unwrap().on);
 
     // Cancel keeps it; English again from its row.
@@ -814,7 +816,7 @@ fn language_tab_lists_languages_and_switches_the_app_at_once() {
     settle();
     g(&op).invoke_choose_language(1);
     settle();
-    assert_eq!((crate::i18n::current().as_str(), tab_labels()[2].as_str()), ("en", "Language"));
+    assert_eq!((crate::i18n::current().as_str(), tab_labels()[1].as_str()), ("en", "Language"));
     assert_eq!(app.data.lock().unwrap().settings.ui_language, "en");
 }
 

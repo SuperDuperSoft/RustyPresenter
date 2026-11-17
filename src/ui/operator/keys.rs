@@ -722,8 +722,9 @@ mod window_tests {
         let app = test_app();
         let op = opened(&app);
         // Opened for real, so the window's menu bar sees it too (its Ctrl+B item is off while a dialog is up).
-        crate::ui::dialogs::settings::open(&op, crate::ui::dialogs::SettingsTab::Look);
-        assert_eq!(op.dialog(), Some(DialogKind::Settings(crate::ui::dialogs::SettingsTab::Look)));
+        // (Settings is a window of its own now and leaves the operator's keys alone; Services covers the window.)
+        crate::ui::dialogs::services::open(&op);
+        assert!(op.dialog().is_some());
         chord(&op, Key::Control, "b");
         type_text(&op, "x");
         assert_eq!(op.ui.get_bible_text(), "", "the Bible box did not take focus");

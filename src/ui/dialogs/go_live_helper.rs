@@ -1,5 +1,5 @@
 //! The first-time Go Live helper (`ui/dialogs/go-live-helper.slint`, pure steps in `stream::helper`): Go Live with
-//! nowhere to stream to opens it. Its choices are saved into Settings → Media → Livestream as each step is left,
+//! nowhere to stream to opens it. Its choices are saved into Settings → Livestream as each step is left,
 //! so closing it half way keeps what was done.
 use super::DialogKind;
 use crate::{
@@ -142,6 +142,7 @@ fn check(op: &Rc<Operator>) {
     g.set_results(strings(vec![tr::checking()]));
     let c = choice(&g);
     let sound = Sound::parse(&c.sound);
+    let record_size = op.app().data.lock().unwrap().settings.record.size;
     let data = op.app().store.root.clone();
     let me = Rc::downgrade(op);
     off_ui(op, move || {
@@ -151,7 +152,7 @@ fn check(op: &Rc<Operator>) {
             Some(rt.block_on(stream::speed::measure(client, stream::speed::URL, stream::speed::BYTES)))
         });
         lines.push(match speed {
-            Some(Ok(mbps)) => stream::speed::advice(mbps, 1).1,
+            Some(Ok(mbps)) => stream::speed::advice(mbps, 1, record_size).1,
             _ => tr::no_internet(),
         });
         let ffmpeg = run::find_ffmpeg(&data);
@@ -237,7 +238,7 @@ pub(crate) fn wire(op: &Rc<Operator>) {
     g.on_sign_in_instead(move || if let Some(op) = me.upgrade() {
         let _ = save(&op, 0);
         op.close_dialog();
-        super::settings::open(&op, crate::ui::dialogs::SettingsTab::Media);
+        super::settings::open(&op, crate::ui::dialogs::SettingsTab::StreamWhere);
     });
     let me = Rc::downgrade(op);
     g.on_finish(move |go| if let Some(op) = me.upgrade() {

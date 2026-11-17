@@ -37,7 +37,7 @@ pub(super) fn fill(op: &Operator, edit: &Edit) {
     let rows = rows(&setting, i18n::system_language().as_deref(), &i18n::languages(), &mut |t| super::settings_bible::lacks_font(t));
     let (codes, rows): (Vec<String>, Vec<SettingsLanguageRow>) = rows.into_iter().unzip();
     *edit.language.codes.borrow_mut() = codes;
-    op.ui.global::<SettingsDlg>().set_languages(ModelRc::new(VecModel::from(rows)));
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().set_languages(ModelRc::new(VecModel::from(rows)));
 }
 
 /// A row's Use button: the whole app changes language now, and the Rust-made text is drawn again.
@@ -52,6 +52,7 @@ pub(super) fn choose(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
                 // The action may have run on another thread: this one's windows change here.
                 i18n::sync_slint();
                 fill(&op, &edit);
+                super::settings::relabel(&op);
                 redraw_on_next_read(&op, &edit);
                 op.request_refresh();
                 if let Some(t) = v["toast"].as_str() { op.toast(t, false) }

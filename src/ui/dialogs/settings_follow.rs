@@ -118,14 +118,14 @@ pub(super) fn load(op: &Rc<Operator>) {
         let _ = std::thread::Builder::new().name("follow-inputs".into()).spawn(move || { let _ = tx.send(audio::input_devices()); });
         let _ = slint::spawn_local(async move {
             let (Ok(devices), Some(op)) = (rx.await, me.upgrade()) else { return };
-            let g = op.ui.global::<SettingsDlg>();
+            let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
             let chosen = read_device(&g);
             fill_devices(&g, &devices, chosen.as_deref().unwrap_or(""));
         });
     }
     let me = Rc::downgrade(op);
-    op.ui.global::<SettingsDlg>().on_follow_test(move || if let Some(op) = me.upgrade() { test(&op) });
-    let g = op.ui.global::<SettingsDlg>();
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().on_follow_test(move || if let Some(op) = me.upgrade() { test(&op) });
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let me = Rc::downgrade(op);
     g.on_practice_choose(move || if let Some(op) = me.upgrade() { choose_recording(&op) });
     let me = Rc::downgrade(op);
@@ -135,15 +135,14 @@ pub(super) fn load(op: &Rc<Operator>) {
         let text = review_lines(&op).join("\n");
         super::settings::copy(&op, &text, &crate::tr!("Review log copied"));
     });
-    g.set_follow_page(0);
     fill_practice(op);
     g.set_review_lines(strings(review_lines(op)));
 }
 
-/// Settings → Auto-follow on `page` (1 Practice, 2 Review log): the Auto chip's menu.
+/// Settings → Auto-follow on `page` (0 Listening, 1 Practice, 2 Review log): the Auto chip's menu.
 pub fn open_page(op: &Rc<Operator>, page: i32) {
-    super::settings::open(op, super::SettingsTab::AutoFollow);
-    op.ui.global::<SettingsDlg>().set_follow_page(page);
+    use super::SettingsTab::{AutoFollow, FollowPractice, FollowReview};
+    super::settings::open(op, match page { 1 => FollowPractice, 2 => FollowReview, _ => AutoFollow });
 }
 
 /// The songs Practice offers: the open service's first, then the rest of the library, by title.
@@ -166,7 +165,7 @@ pub fn practice_songs(data: &Data) -> Vec<(String, ServiceItem)> {
 }
 
 fn fill_practice(op: &Operator) {
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let Some(snap) = super::settings::snap(op) else { return };
     let songs = practice_songs(&snap.data);
     g.set_practice_songs(strings(songs.iter().map(|(t, _)| t.clone()).collect()));
@@ -183,14 +182,14 @@ fn choose_recording(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
     crate::ui::operator::files::pick(op, crate::ui::operator::file_input::Filter::Recording, false, move |paths| {
         let (Some(op), Some(path)) = (me.upgrade(), paths.into_iter().next()) else { return };
-        op.ui.global::<SettingsDlg>().set_practice_file(path.display().to_string().into());
+        crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().set_practice_file(path.display().to_string().into());
         PRACTICE.with(|p| p.borrow_mut().1 = Some(path));
     });
 }
 
 /// Practice: the chosen song over the recording, off the UI thread; its log shows when done.
 fn run_practice(op: &Rc<Operator>) {
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let Some(snap) = super::settings::snap(op) else { return };
     let (item, file) = PRACTICE.with(|p| { let p = p.borrow(); (p.0.get(g.get_practice_song().max(0) as usize).cloned(), p.1.clone()) });
     let (Some(item), Some(file)) = (item, file) else { return };
@@ -204,7 +203,7 @@ fn run_practice(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
     let done = move |r: Result<Vec<LogEntry>, String>| {
         let Some(op) = me.upgrade() else { return };
-        let g = op.ui.global::<SettingsDlg>();
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
         g.set_practice_running(false);
         match r {
             Ok(log) => {
@@ -236,7 +235,7 @@ fn review_lines(op: &Operator) -> Vec<String> {
 
 /// Test: listens to the chosen input until the dialog closes, the meter showing its level, or says why it can't.
 fn test(op: &Rc<Operator>) {
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     stop();
     let (tx, rx) = std::sync::mpsc::channel();
     let device = read_device(&g).or_else(|| audio::input_devices().into_iter().next());
@@ -251,7 +250,7 @@ fn test(op: &Rc<Operator>) {
             METER.with(|m| m.start(slint::TimerMode::Repeated, std::time::Duration::from_millis(100), move || {
                 let Some(op) = me.upgrade() else { return };
                 let level = TEST.with(|t| t.borrow().as_ref().map(|(c, rx)| { while rx.try_recv().is_ok() {} c.level() }));
-                op.ui.global::<SettingsDlg>().set_follow_level(level.unwrap_or(0.0));
+                crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().set_follow_level(level.unwrap_or(0.0));
             }));
             crate::tr!("Listening… sing or say a line.")
         }
@@ -278,8 +277,8 @@ mod tests {
         let op = open(&app);
         refresh(&op);
         settings::open(&op, SettingsTab::AutoFollow);
-        let g = op.ui.global::<SettingsDlg>();
-        assert_eq!(g.get_tab(), 4, "Auto-follow comes right after Songs");
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
+        assert_eq!(settings::shown(&op), Some(SettingsTab::AutoFollow));
         // The defaults: 2 s lead, no words-off timers (15 s and 30 s offered when switched on), 4 words to jump.
         assert_eq!((g.get_follow_lead(), g.get_follow_blank_secs().as_str(), g.get_follow_talk_secs().as_str(), g.get_follow_jump().as_str()), (20, "15", "30", "4"));
         assert!(!g.get_follow_blank_on() && !g.get_follow_talk_on());
@@ -323,8 +322,8 @@ mod tests {
         let op = open(&app);
         refresh(&op);
         open_page(&op, 1);
-        let g = op.ui.global::<SettingsDlg>();
-        assert_eq!((g.get_tab(), g.get_follow_page()), (4, 1));
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
+        assert_eq!(settings::shown(&op), Some(SettingsTab::FollowPractice));
         assert_eq!(g.get_practice_songs().row_data(0).unwrap(), "Grace");
         assert!(g.get_practice_file().is_empty());
         crate::ui::operator::files::testing::will_pick(vec![PathBuf::from("/rec/sunday.mp4")]);
@@ -356,30 +355,29 @@ mod tests {
         let op = open(&app);
         refresh(&op);
         op.ui.global::<crate::ui::FollowUi>().invoke_open_log();
-        let g = op.ui.global::<SettingsDlg>();
-        assert_eq!((g.get_tab(), g.get_follow_page()), (4, 2), "Settings → Auto-follow → Review log");
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
+        assert_eq!(settings::shown(&op), Some(SettingsTab::FollowReview), "Settings → Auto-follow → Review log");
         assert_eq!(g.get_review_lines().row_count(), 0, "nothing yet");
-        assert!(crate::ui::operator::window::testing::find(&op, "SettingsFollowReview::review-copy").is_some());
+        assert!(crate::ui::dialogs::settings::testing::find(&op, "FollowReviewPage::review-copy").is_some());
     }
 
     #[test]
-    fn the_usual_settings_entry_keeps_its_tab() {
+    fn the_usual_settings_entry_opens_the_last_page() {
         crate::ui::ui_test_init();
         let app = test_app();
         let op = open(&app);
         refresh(&op);
-        let g = op.ui.global::<SettingsDlg>();
         op.ui.invoke_settings();
-        assert_eq!(g.get_tab(), 0, "the gear opens on Look, as before");
-        op.close_dialog();
+        assert_eq!(settings::shown(&op), Some(SettingsTab::Look), "the gear opens on Look the first time");
+        settings::close(&op);
         open_page(&op, 2);
-        assert_eq!((g.get_tab(), g.get_follow_page()), (4, 2), "⋯ → Review log");
-        op.close_dialog();
+        assert_eq!(settings::shown(&op), Some(SettingsTab::FollowReview), "⋯ → Review log");
+        settings::close(&op);
         op.ui.invoke_settings();
-        assert_eq!(g.get_tab(), 0, "the gear still opens on Look after the ⋯ menu");
-        op.close_dialog();
+        assert_eq!(settings::shown(&op), Some(SettingsTab::FollowReview), "then the gear opens on the last page shown");
+        settings::close(&op);
         settings::open(&op, SettingsTab::Bible);
-        assert_eq!(g.get_tab(), settings::tab_index(SettingsTab::Bible), "a menu asking for a tab gets it");
+        assert_eq!(settings::shown(&op), Some(SettingsTab::Bible), "a menu asking for a page gets it");
     }
 
     #[test]

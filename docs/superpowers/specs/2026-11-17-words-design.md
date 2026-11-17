@@ -16,7 +16,7 @@ Counts are texts (msgids) before the change.
 | Thing | Word to use | Retired (texts that used it) | Notes |
 |---|---|---|---|
 | The screen the people in the room see | **audience screen** (Jake chose it, November 17, 2026: "I like Stage Screen and audience screen better") | room screen, Audience / Audience *n* as a bare screen name, "what the audience sees" | "projector" or "TV" stays for the device you plug in ("Plug in the projector/TV"). "Output" stays for the monitor a screen goes to (Screens → Output) and for a sound output. |
-| The screen the band and speaker see | **stage screen** (24) | stage display (5), Stage Display *n*, stage view (4) | On a phone or tablet: "the stage screen for phones" (Settings → Network…). A **stage layout** is what it shows. |
+| The screen the band and speaker see | **stage screen** (24) | stage display (5), Stage Display *n*, stage view (4) | On a phone or tablet: "the stage screen on phones" (Settings → Remote and network). A **stage layout** is what it shows. |
 | The window that sets them up | **Screens** (Window → Screens…) | Screen Configuration (window title) | The title now matches the menu item. |
 | Sending the service to YouTube etc. | **livestream** (27); **stream** as the short noun ("the stream", "stream key") | live stream (3) | **Go Live** is the button's name (capitals when naming it); "go live" as a verb. **broadcast** only for YouTube's and Facebook's own event ("Broadcast title"); "can broadcast as you" became "can stream as you". |
 | Where the stream goes | **destination** (14) | "places" (1) | YouTube, Facebook… as companies: **streaming service** (only in the setup help). |
@@ -29,7 +29,7 @@ Counts are texts (msgids) before the change.
 | Cameras | **Camera *n*** | — | A camera's saved aim is a **position** ("Save this shot as position 2"); where a layer sits in a scene is its **place**. Kept apart on purpose. "On air" is kept for the camera the stream shows now (tally), as TV crews say. |
 | What you hear | **sound** (77) | — | **audio** (19) stays for audio files and items (the Audio chip, "Import audio…", Clear audio). |
 | Sound equipment | **microphone or line-in**, **sound board** | sound desk (1) | The preset "Sound board or mixer" keeps "mixer" on purpose, to help people who call it that. |
-| The phone that runs the slides | **phone remote** (7) | Remote password, "This remote…", "RustyPresenter Remote" | "Phone remote password", "This phone remote needs a password too.", page title "Phone remote — RustyPresenter". |
+| The phone or tablet that runs the slides | **remote** (Jake, November 17, 2026: "Phones should say remotes") | phone remote, "RustyPresenter Remote" | "Remote", "Remote password", "Pair a phone or tablet", "Use your phone or tablet as a remote", "This remote needs a password too.", page title "Remote — RustyPresenter". A phone used as a camera or microphone keeps "phone". |
 | Clear keys (F1–F8, View menu, Live column, macros, phone) | **Clear all**, **Clear text**, **Clear media & background**, **Clear audio**, **Logo**, **Clear overlays** | Clear All (3), Clear everything (1), Clear words (1), Clear video and pictures (1), Stop audio (1), "Clear Audio (F4)" | The Live column and phone show the short chips Text, Media, Audio, Logo under Clear all. |
 | Seeing through a layer | **see-through** (8) | Opacity (1) | |
 | The church's logo | **logo** / **church logo** | — | It is chosen in **Settings → Look** (two texts sent people to Settings → Themes or just "Settings"). |
@@ -46,10 +46,11 @@ Counts are texts (msgids) before the change.
 - **Spelling:** British, as most of the app already was: colour (21 vs 7 "color"), centre (4 vs 1), licence for the
   noun (licensed for the verb), grey, favourite, recognise. Other people's names keep theirs (CCLI's "Streaming
   License", TikTok's "LIVE Center"); `{color}` and `{{license}}` are gaps the code fills, not words.
-- **Settings paths:** the tab, then the section, joined by " → " (the arrow character, with spaces): "Settings →
-  Media → Livestream", "Settings → Bible", "Settings → Look". A Settings menu item that is not a tab is written as
-  the menu shows it, with its "…": "Settings → Network…", "Settings → Keys and clear groups…". Other menus the
-  same way: "Window → Screens…", "File → New service…", "Edit → Find a verse…".
+- **Settings paths:** the category, then the page, joined by " → " (the arrow character, with spaces), as the
+  Settings window's sidebar and page title show them (November 17, 2026 reorganisation): "Settings → Livestream →
+  Sound", "Settings → Bible → Bibles", "Settings → Remote and network". A category of one page is its name alone
+  ("Settings → Backups"). Other menus the same way: "Window → Screens…", "File → New service…", "Edit → Find a
+  verse…".
 - **Ellipsis:** the one character "…", never three dots. On a menu item or button that opens a window where you
   choose or type something before anything happens ("Screens…", "Choose a video…"); not on one that acts at once
   or only shows something (Keyboard shortcuts, About RustyPresenter, Check the service).

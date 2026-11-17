@@ -97,7 +97,7 @@ pub enum MacroStep {
     RunMacro { #[serde(rename = "macro")] macro_id: Uuid },
     /// 1.3b: the livestream's scene from now until another item goes live; `None` gives it back to Automatic.
     StreamScene { #[serde(default)] scene: Option<crate::stream::scene::Scene> },
-    /// A PTZ camera (1 or 2, Settings → Media → Livestream) moved to one of its saved positions (`stream::ptz`).
+    /// A PTZ camera (1 or 2, Settings → Livestream) moved to one of its saved positions (`stream::ptz`).
     CameraPosition { camera: u8, position: u8 },
     /// Starts (or ends) a clip of the recording under way (`record::clips`).
     Clip { start: bool },

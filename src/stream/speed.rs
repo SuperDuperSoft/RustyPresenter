@@ -26,16 +26,20 @@ pub fn needed(preset: Preset, destinations: usize) -> f64 {
 }
 
 /// The size to stream at with `mbps` of upload to `destinations` (`None`: too slow even for 720p), and what to tell
-/// the operator.
-pub fn advice(mbps: f64, destinations: usize) -> (Option<Preset>, String) {
+/// the operator. The size chosen now (`chosen`) is kept when it fits; otherwise the biggest named size under it that
+/// fits is advised.
+pub fn advice(mbps: f64, destinations: usize, chosen: Preset) -> (Option<Preset>, String) {
     let speed = format!("{mbps:.1}");
-    if mbps >= needed(Preset::P1080, destinations) {
-        (Some(Preset::P1080), tr!("Upload: {speed} Mbit/s. Enough to stream in 1080p.", speed = speed))
-    } else if mbps >= needed(Preset::P720, destinations) {
-        (Some(Preset::P720), tr!("Upload: {speed} Mbit/s. Stream in 720p: 1080p needs {need} Mbit/s.", speed = speed, need = format!("{:.0}", needed(Preset::P1080, destinations).ceil())))
-    } else {
-        (None, tr!("Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer destinations, or use a faster connection.",
-            speed = speed, need = format!("{:.0}", needed(Preset::P720, destinations).ceil())))
+    let need = |p: Preset| format!("{:.0}", needed(p, destinations).ceil());
+    if mbps >= needed(chosen, destinations) {
+        return (Some(chosen), tr!("Upload: {speed} Mbit/s. Enough to stream in {size}.", speed = speed, size = chosen.label()))
+    }
+    let (_, h) = chosen.size();
+    let smaller = Preset::ALL.into_iter().rev().filter(|p| p.size().1 < h && p.size().1 >= 720).find(|p| mbps >= needed(*p, destinations));
+    match smaller {
+        Some(p) => (Some(p), tr!("Upload: {speed} Mbit/s. Stream in {size}: {chosen} needs {need} Mbit/s.", speed = speed, size = p.label(), chosen = chosen.label(), need = need(chosen))),
+        None => (None, tr!("Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer destinations, or use a faster connection.",
+            speed = speed, need = need(Preset::P720))),
     }
 }
 
@@ -54,13 +58,21 @@ mod tests {
 
     #[test]
     fn the_advice_picks_the_biggest_size_that_fits() {
-        assert_eq!(advice(25.0, 1).0, Some(Preset::P1080));
-        assert_eq!(advice(6.0, 1).0, Some(Preset::P720));
-        assert_eq!(advice(6.0, 2).0, None, "two destinations need twice as much");
-        let (none, text) = advice(2.0, 1);
+        let p1080 = Preset::P1080;
+        assert_eq!(advice(25.0, 1, p1080).0, Some(Preset::P1080));
+        assert_eq!(advice(6.0, 1, p1080).0, Some(Preset::P720));
+        assert_eq!(advice(6.0, 2, p1080).0, None, "two destinations need twice as much");
+        let (none, text) = advice(2.0, 1, p1080);
         assert_eq!(none, None);
         assert!(text.contains("2.0 Mbit/s") && text.contains("too slow"), "{text}");
-        assert!(advice(25.0, 1).1.contains("1080p"), "{}", advice(25.0, 1).1);
+        assert!(advice(25.0, 1, p1080).1.contains("1080p"), "{}", advice(25.0, 1, p1080).1);
+        // 4K chosen: kept with a fast line, else the biggest size under it that fits.
+        assert_eq!(advice(60.0, 1, Preset::P2160).0, Some(Preset::P2160));
+        let (p, text) = advice(16.0, 1, Preset::P2160);
+        assert_eq!(p, Some(Preset::P1440));
+        assert!(text.contains("4K needs"), "{text}");
+        // A small typed size that fits is kept.
+        assert_eq!(advice(3.0, 1, Preset::P480).0, Some(Preset::P480));
     }
 
     #[test]

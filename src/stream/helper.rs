@@ -1,6 +1,6 @@
 //! The first-time Go Live helper (livestreaming design §4 item 9, "first-time wizard"): when Go Live is pressed
 //! with nowhere to stream to, a few plain steps instead of a message: where to stream (paste the key), which
-//! camera, which sound, a check, done. The choices are the same ones Settings → Media → Livestream keeps, so the
+//! camera, which sound, a check, done. The choices are the same ones Settings → Livestream keeps, so the
 //! church can change them there later. Pure: the dialog is `ui::dialogs::go_live_helper`.
 use super::{Destination, Service, built_in_id};
 use crate::record::RecordPrefs;

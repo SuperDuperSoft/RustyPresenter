@@ -206,7 +206,7 @@ fn settings_keep_the_destinations_and_never_a_key() {
     let app = test_app();
     let room = Arc::new(Room::default());
     let op = open(&app, &room);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let mut prefs = RecordPrefs::default();
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
     crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
@@ -235,7 +235,7 @@ fn livestream_scene_settings_save() {
     let app = test_app();
     let room = Arc::new(Room::default());
     let op = open(&app, &room);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let mut prefs = RecordPrefs::default();
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
     assert!(g.get_stream_auto_scenes(), "automatic scenes are on to start with");
@@ -285,7 +285,7 @@ fn settings_keep_the_streams_sound_levels_and_clean_up() {
     let app = test_app();
     let room = Arc::new(Room::default());
     let op = open(&app, &room);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let mut prefs = RecordPrefs::default();
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
     assert_eq!((g.get_stream_board_level(), g.get_stream_pc_level()), (0, 0));
@@ -314,7 +314,7 @@ fn settings_keep_the_encoder_and_bitrate() {
     let app = test_app();
     let room = Arc::new(Room::default());
     let op = open(&app, &room);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let mut prefs = RecordPrefs::default();
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
     assert_eq!((g.get_record_encoder(), g.get_record_bitrate()), (0, 0), "automatic, both");
@@ -335,7 +335,7 @@ fn settings_keep_the_broadcast_thumbnail() {
     let app = test_app();
     let room = Arc::new(Room::default());
     let op = open(&app, &room);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let mut prefs = RecordPrefs { stream_thumbnail: "C:/Pictures/sunday.jpg".into(), ..RecordPrefs::default() };
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
     assert_eq!(g.get_stream_thumbnail(), "C:/Pictures/sunday.jpg");
@@ -352,7 +352,7 @@ fn settings_keep_the_scene_layout() {
     let app = test_app();
     let room = Arc::new(Room::default());
     let op = open(&app, &room);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let mut prefs = RecordPrefs::default();
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
     assert_eq!((g.get_stream_corner(), g.get_stream_corner_size(), g.get_stream_words_top()), (3, 1, 0), "bottom right, medium, at the bottom");
@@ -371,7 +371,7 @@ fn settings_keep_which_destinations_get_the_tall_stream() {
     let app = test_app();
     let room = Arc::new(Room::default());
     let op = open(&app, &room);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let mut prefs = RecordPrefs::default();
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
     g.set_stream_on_0(true);
@@ -392,7 +392,7 @@ fn settings_keep_each_cameras_control_address() {
     let app = test_app();
     let room = Arc::new(Room::default());
     let op = open(&app, &room);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let mut prefs = RecordPrefs { camera_control: "192.168.1.60".into(), ..RecordPrefs::default() };
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
     assert_eq!((g.get_stream_camera_control().as_str(), g.get_stream_camera2_control().as_str()), ("192.168.1.60", ""));
@@ -558,7 +558,7 @@ fn settings_keep_a_third_and_fourth_camera_with_their_control_addresses() {
     let app = test_app();
     let room = Arc::new(Room::default());
     let op = open(&app, &room);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let mut prefs = RecordPrefs { camera: "rtsp://192.168.1.50/a".into(), camera2: "rtsp://192.168.1.51/b".into(), camera3: "ndi://PC (OBS)".into(),
         camera3_control: "192.168.1.63".into(), ..RecordPrefs::default() };
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
@@ -584,7 +584,7 @@ fn settings_keep_a_network_camera_by_its_address() {
     let app = test_app();
     let room = Arc::new(Room::default());
     let op = open(&app, &room);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let mut prefs = RecordPrefs { camera: "rtsp://192.168.1.50/stream1".into(), ..RecordPrefs::default() };
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
     let labels: Vec<String> = g.get_stream_camera_labels().iter().map(|s| s.to_string()).collect();
@@ -610,12 +610,12 @@ fn the_speed_test_says_what_fits_and_picks_the_size() {
     let app = test_app();
     let room = Arc::new(Room::default());
     let op = open(&app, &room);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     g.set_stream_speed_testing(true);
-    g.set_record_size(1);
+    g.set_record_size(2);
     crate::ui::dialogs::settings_record::show_speed(&g, Ok(6.0), 1);
     assert!(!g.get_stream_speed_testing());
-    assert_eq!(g.get_record_size(), 0, "720p fits, 1080p does not");
+    assert_eq!(g.get_record_size(), 1, "720p fits, 1080p does not");
     assert!(g.get_stream_speed_text().contains("720p"), "{}", g.get_stream_speed_text());
     crate::ui::dialogs::settings_record::show_speed(&g, Err("no route".into()), 1);
     assert!(g.get_stream_speed_text().contains("could not reach"), "{}", g.get_stream_speed_text());
@@ -902,7 +902,7 @@ fn settings_sign_in_to_facebook_and_out_again() {
     let app = test_app();
     let room = Arc::new(Room::default());
     let op = open(&app, &room);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     crate::ui::dialogs::settings_record::fill_form(&g, &RecordPrefs::default());
     crate::ui::dialogs::settings_record::wire_keys(&op);
     assert!(g.get_stream_can_sign_in_0() && g.get_stream_can_sign_in_1(), "this copy has the app's ids");
@@ -926,7 +926,7 @@ fn settings_sign_in_to_twitch_and_out_again() {
     let app = test_app();
     let room = Arc::new(Room::default());
     let op = open(&app, &room);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     crate::ui::dialogs::settings_record::fill_form(&g, &RecordPrefs::default());
     crate::ui::dialogs::settings_record::wire_keys(&op);
     assert!(g.get_stream_can_sign_in_2());
@@ -946,7 +946,7 @@ fn settings_make_next_sundays_youtube_broadcast_ahead() {
     let app = test_app();
     let room = Arc::new(Room::default());
     let op = open(&app, &room);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let mut prefs = RecordPrefs::default();
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
     crate::ui::dialogs::settings_record::wire_keys(&op);
@@ -969,7 +969,7 @@ fn settings_keep_the_broadcast_title_and_who_can_watch() {
     let app = test_app();
     let room = Arc::new(Room::default());
     let op = open(&app, &room);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let mut prefs = RecordPrefs::default();
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
     g.set_stream_title(" Morning worship {date} ".into());
@@ -1034,7 +1034,7 @@ fn settings_keep_the_words_alone_file() {
     let app = test_app();
     let room = Arc::new(Room::default());
     let op = open(&app, &room);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let mut prefs = RecordPrefs::default();
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
     assert!(!g.get_stream_words_file(), "off to start with");
@@ -1058,7 +1058,7 @@ fn settings_keep_the_streams_sound_setup_other_inputs_filters_and_listen() {
     let app = test_app();
     let room = Arc::new(Room::default());
     let op = open(&app, &room);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let mut prefs = RecordPrefs { sound: "input:Line In".into(), ..RecordPrefs::default() };
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
     assert_eq!((g.get_stream_sound_mode(), g.get_stream_input2_index(), g.get_stream_board_filters().limit), (0, 0, true), "custom, no second input, the limiter on");
@@ -1106,9 +1106,9 @@ fn settings_keep_instagram_x_and_tiktok_with_their_servers_and_each_ones_own_qua
     let app = test_app();
     let room = Arc::new(Room::default());
     let op = open(&app, &room);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     // Facebook has a quality of its own (More settings) while it is off.
-    let own = stream::Quality { size: Some(Preset::P720), kbps: 2500 };
+    let own = stream::Quality { size: Some(Preset::P720), kbps: 2500, cap: None };
     let mut prefs = RecordPrefs { stream: vec![stream::Destination { id: stream::built_in_id(1), service: stream::Service::Facebook, quality: own, ..Default::default() }], ..RecordPrefs::default() };
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
     g.set_stream_on_4(true);
@@ -1288,7 +1288,7 @@ fn settings_keep_what_a_lost_camera_shows_and_say_how_to_use_a_phone() {
     let app = test_app();
     let room = Arc::new(Room::default());
     let op = open(&app, &room);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let mut prefs = RecordPrefs { camera: "phone://Balcony".into(), ..RecordPrefs::default() };
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
     assert_eq!(g.get_stream_camera_lost(), 0, "the audience screen, as before");

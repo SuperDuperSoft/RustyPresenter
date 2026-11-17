@@ -477,8 +477,8 @@ mod tests {
         op.ui.invoke_open_bible_picker();
         op.ui.set_picker_search("Reina".into());
         op.ui.invoke_find_more_bibles("Reina".into());
-        assert!(op.state.borrow().dialog.is_some(), "Settings opened");
-        let g = slint::ComponentHandle::global::<crate::ui::SettingsDlg>(&op.ui);
+        assert!(crate::ui::dialogs::settings::is_open(&op), "Settings opened");
+        let g = slint::ComponentHandle::global::<crate::ui::SettingsDlg>(crate::ui::dialogs::settings_window::win(&op));
         assert_eq!(g.get_tab(), crate::ui::dialogs::settings::tab_index(crate::ui::dialogs::SettingsTab::Bible));
         assert_eq!(g.get_catalog_search(), "Reina");
     }

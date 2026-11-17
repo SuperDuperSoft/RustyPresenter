@@ -118,10 +118,11 @@ fn your_scenes_are_made_in_their_own_dialog_from_settings_and_saved() {
     let app = test_app();
     let op = open_window(&app);
     refresh(&op);
-    super::super::settings::open(&op, SettingsTab::Media);
-    assert_eq!(op.ui.global::<SettingsDlg>().get_stream_own_count(), 0);
-    op.ui.global::<SettingsDlg>().invoke_edit_own_scenes();
-    assert_eq!(op.dialog(), Some(DialogKind::StreamScenes), "nothing to save first: opened at once");
+    super::super::settings::open(&op, crate::ui::dialogs::SettingsTab::StreamScenes);
+    assert_eq!(crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().get_stream_own_count(), 0);
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().invoke_edit_own_scenes();
+    assert_eq!(op.dialog(), Some(DialogKind::StreamScenes), "opened at once in the operator window");
+    assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(crate::ui::dialogs::SettingsTab::StreamScenes), "Settings stays open beside it");
     assert_eq!(op.ui.get_dialog_title(), "Your livestream scenes");
     let g = dlg(&op);
     assert_eq!(g.get_scenes().row_count(), 0);
@@ -142,7 +143,8 @@ fn your_scenes_are_made_in_their_own_dialog_from_settings_and_saved() {
     assert_eq!(saved.len(), 1);
     assert_eq!(saved[0].layers[2].shows, Shows::Text { text: "Welcome!".into(), look: Default::default() });
     assert_eq!(saved[0].instead_of, Some(Scene::ALL[0]));
-    assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Media)), "back to Settings");
+    assert_eq!(op.dialog(), None, "Your scenes closed");
+    assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(crate::ui::dialogs::SettingsTab::StreamScenes), "Settings is still open");
 }
 
 #[test]
@@ -158,22 +160,27 @@ fn leaving_with_changes_asks_first() {
     assert_eq!(op.dialog(), Some(DialogKind::StreamScenes), "kept editing");
     dlg(&op).invoke_cancel();
     ask::answer(&op, true, String::new());
-    assert!(matches!(op.dialog(), Some(DialogKind::Settings(_))));
+    assert_eq!(op.dialog(), None);
     assert!(app.data.lock().unwrap().settings.record.own_scenes.is_empty(), "nothing saved");
 }
 
 #[test]
-fn settings_with_changes_are_saved_before_your_scenes_open() {
+fn settings_changes_wait_for_their_own_save_while_your_scenes_open() {
     let app = test_app();
     let op = open_window(&app);
     refresh(&op);
-    super::super::settings::open(&op, SettingsTab::Media);
-    op.ui.global::<SettingsDlg>().set_stream_words_top(1);
-    op.ui.global::<SettingsDlg>().invoke_edit_own_scenes();
-    assert!(matches!(op.dialog(), Some(DialogKind::Settings(_))), "asked first");
-    ask::answer(&op, true, String::new());
-    assert!(app.data.lock().unwrap().settings.record.stream_layout.words_top, "the other change saved");
-    assert_eq!(op.dialog(), Some(DialogKind::StreamScenes));
+    super::super::settings::open(&op, crate::ui::dialogs::SettingsTab::StreamScenes);
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().set_stream_words_top(1);
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().invoke_edit_own_scenes();
+    assert_eq!(op.dialog(), Some(DialogKind::StreamScenes), "opened at once: Settings keeps its changes");
+    dlg(&op).invoke_add_scene();
+    dlg(&op).invoke_save();
+    assert_eq!(app.data.lock().unwrap().settings.record.own_scenes.len(), 1);
+    refresh(&op);
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().invoke_save();
+    let s = app.data.lock().unwrap().settings.record.clone();
+    assert!(s.stream_layout.words_top, "the Settings change saved");
+    assert_eq!(s.own_scenes.len(), 1, "and the scene saved meanwhile is kept");
 }
 
 // ---- the scene extras (design 2026-11-17-scene-extras-design.md) ----

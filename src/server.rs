@@ -130,7 +130,7 @@ struct PairReq {
     /// The one-time secret from the QR code's `#pair=` (instead of the PIN).
     #[serde(default)] pair: String,
     #[serde(default)] name: String,
-    /// N31: the remote's password, when the church set one (Settings → Network).
+    /// N31: the remote's password, when the church set one (Settings → Remote and network).
     #[serde(default)] password: String,
 }
 
@@ -151,7 +151,7 @@ async fn remote_pair(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo
     let mut pairing = app.pairing.lock().unwrap();
     let Some(p) = pairing.as_mut().filter(|p| p.until > Instant::now()) else {
         *pairing = None;
-        return pair_closed(crate::tr!("Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."));
+        return pair_closed(crate::tr!("Pairing isn't open. On the computer, click “Phone” → “Pair a phone or tablet”."));
     };
     let by_qr = !req.pair.trim().is_empty();
     let right = if by_qr { ct_eq(req.pair.trim(), &p.secret) } else { ct_eq(req.pin.trim(), &p.pin) };
@@ -166,7 +166,7 @@ async fn remote_pair(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo
         }
         if !right {
             return if by_qr {
-                pair_closed(crate::tr!("That QR code has expired. On the computer, click Pair a phone again."))
+                pair_closed(crate::tr!("That QR code has expired. On the computer, click Pair a phone or tablet again."))
             } else {
                 bad(crate::tr!("That code isn't right."))
             };
@@ -273,7 +273,7 @@ async fn remote_draw(State(app): State<Arc<App>>, headers: HeaderMap, body: Byte
 #[derive(Deserialize)]
 struct SlideSize { #[serde(default)] w: Option<u32> }
 
-/// The live slide as a JPEG for the phone's drawing view, `w` pixels wide, the audience screen's shape. Paired phones only.
+/// The live slide as a JPEG for the phone's drawing view, `w` pixels wide, the audience screen's shape. Paired phones and tablets only.
 async fn remote_live_slide(State(app): State<Arc<App>>, headers: HeaderMap, Query(q): Query<SlideSize>) -> Response {
     if phone_for(&app, &headers).is_none() { return (StatusCode::UNAUTHORIZED, "pair first").into_response() }
     let width = q.w.unwrap_or(960);
@@ -287,7 +287,7 @@ async fn remote_live_slide(State(app): State<Arc<App>>, headers: HeaderMap, Quer
 struct AnimPic { v: u64, w: u32, i: usize }
 
 /// The live designed slide's click group for the phone to play (`network::live_anim`), `w` pixels wide: `null`
-/// when none plays. Its pictures are at `/remote/live-anim/pic?v=…&w=…&i=…`. Paired phones only.
+/// when none plays. Its pictures are at `/remote/live-anim/pic?v=…&w=…&i=…`. Paired phones and tablets only.
 async fn remote_live_anim(State(app): State<Arc<App>>, headers: HeaderMap, Query(q): Query<SlideSize>) -> Response {
     if phone_for(&app, &headers).is_none() { return (StatusCode::UNAUTHORIZED, "pair first").into_response() }
     let width = q.w.unwrap_or(960);
@@ -853,7 +853,7 @@ msgstr[1] "{n} Folien"
         let app = lan_app();
         let (_, _, secret) = start(&app).await;
         let (s, _, v) = pair(&app, 2, json!({ "pair": "0".repeat(64) })).await;
-        assert_eq!((s, v["error"].as_str()), (StatusCode::BAD_REQUEST, Some("That QR code has expired. On the computer, click Pair a phone again.")));
+        assert_eq!((s, v["error"].as_str()), (StatusCode::BAD_REQUEST, Some("That QR code has expired. On the computer, click Pair a phone or tablet again.")));
         assert_eq!(app.pairing.lock().unwrap().as_ref().unwrap().failures, 1);
         for ip in 3..6 { pair(&app, ip, json!({ "pair": "x" })).await; }
         let (_, _, v) = pair(&app, 6, json!({ "pin": "nope" })).await;

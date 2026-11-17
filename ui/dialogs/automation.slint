@@ -168,7 +168,7 @@ component TimerForm inherits VerticalLayout {
         t-caption := TextField { text <=> AutomationDlg.t-caption; placeholder: @tr("Service starts in"); }
     }
     t-on-stage := Check { text: @tr("Show on stage"); checked <=> AutomationDlg.t-on-stage; }
-    t-on-phone := Check { text: @tr("Show on the phone remote"); checked <=> AutomationDlg.t-on-phone; }
+    t-on-phone := Check { text: @tr("Show on the remote"); checked <=> AutomationDlg.t-on-phone; }
 }
 
 component MessageForm inherits VerticalLayout {
@@ -224,7 +224,7 @@ component MacroForm inherits VerticalLayout {
             index <=> AutomationDlg.k-color;
         }
     }
-    k-phone := Check { text: @tr("Show on the phone remote"); checked <=> AutomationDlg.k-phone; }
+    k-phone := Check { text: @tr("Show on the remote"); checked <=> AutomationDlg.k-phone; }
     Lbl { label: @tr("Steps"); }
     Rectangle { height: 6px; }
     for s[i] in AutomationDlg.k-steps: step-row := Rectangle {

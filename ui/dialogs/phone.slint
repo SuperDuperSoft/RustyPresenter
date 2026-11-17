@@ -28,7 +28,7 @@ export component PhoneDialog inherits VerticalLayout {
         VerticalLayout {
             padding-bottom: 12px;
             note := Note {
-                text: @tr("Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer.")
+                text: @tr("Use your phone or tablet as a remote: it runs the slides from anywhere on the church Wi-Fi. It must be on the same network as this computer.")
                     + (PhoneDialogState.lan-url == "" ? @tr(" (No network found — connect this computer to Wi-Fi.)") : "");
                 accessible-role: text;
                 accessible-label: self.text;
@@ -55,7 +55,7 @@ export component PhoneDialog inherits VerticalLayout {
             pair-btn := Btn {
                 primary: true;
                 icon: "phone";
-                text: @tr("Pair a phone");
+                text: @tr("Pair a phone or tablet");
                 clicked => { PhoneDialogState.pair(); }
             }
         }
@@ -146,7 +146,7 @@ export component PhoneDialog inherits VerticalLayout {
         VerticalLayout {
             padding-top: 18px;
             padding-bottom: 8px;
-            Lbl { label: @tr("Paired phones"); }
+            Lbl { label: @tr("Paired phones and tablets"); }
         }
         if PhoneDialogState.phones.length > 0: VerticalLayout {
             spacing: 4px;
