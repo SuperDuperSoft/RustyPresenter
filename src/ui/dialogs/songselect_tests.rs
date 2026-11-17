@@ -97,15 +97,17 @@ fn the_churchs_own_copy_is_never_changed() {
     look_twice(&op);
     let notes: Vec<(String, String)> = rows(&op).iter().map(|r| (r.title.to_string(), r.note.to_string())).collect();
     assert_eq!(notes, [
-        ("Hills Of Test".into(), "Already in your song library".into()),
+        ("Hills Of Test".into(), "Chords added to your copy".into()),
         ("River Of Test Songs".into(), "Your copy has other words, so this one is kept as “River Of Test Songs (from SongSelect)”".into()),
     ]);
     let lib = songs(&app);
     assert_eq!(lib.len(), 3);
     assert_eq!(lib[0], mine, "the church's edits are kept");
-    assert_eq!(lib[1], same);
+    // The same words: only the chords came in, for the stage screen.
+    assert_eq!(Song { lyrics: same.lyrics.clone(), ..lib[1].clone() }, same);
+    assert_eq!(crate::slides::strip_chords(&lib[1].lyrics).as_deref(), Some(same.lyrics.as_str()));
     assert!(lib.iter().any(|s| s.title == "River Of Test Songs (from SongSelect)" && s.ccli == "1234567"));
-    // "Add to the service" on "already there" adds the church's own song.
+    // "Add to the service" on it adds the church's own song.
     let hills = rows(&op)[0].id.clone();
     assert_eq!(hills, same.id.to_string());
 }

@@ -124,6 +124,9 @@ pub enum Landed {
     Added,
     /// The library already has this song with these words: nothing changed.
     AlreadyThere,
+    /// The library had this song with exactly these words and no chords: the chords were put in it (the band's
+    /// stage screen shows them; nothing else changed).
+    ChordsAdded,
     /// The library has this CCLI number with other words (the church's edits): this one was added beside it,
     /// under this title.
     KeptBoth(String),
@@ -149,7 +152,21 @@ pub fn second_title(title: &str) -> String { crate::tr!("{title} (from SongSelec
 pub fn place(songs: &mut Vec<Song>, mut song: Song) -> (Uuid, Landed) {
     let ccli = song.ccli.trim().to_string();
     let same_number: Vec<&Song> = songs.iter().filter(|s| !ccli.is_empty() && s.ccli.trim() == ccli).collect();
-    if let Some(s) = same_number.iter().find(|s| same_words(&s.lyrics, &song.lyrics)) { return (s.id, Landed::AlreadyThere) }
+    if let Some(s) = same_number.iter().find(|s| same_words(&s.lyrics, &song.lyrics)) {
+        // The ChordPro download of a song first brought in as words alone: its chords go into the church's copy
+        // when that is exactly these words (nothing of the church's is lost); when the church changed something,
+        // the copy with chords is kept beside it.
+        let chords = |l: &str| crate::slides::strip_chords(l).is_some();
+        if !chords(&song.lyrics) || chords(&s.lyrics) { return (s.id, Landed::AlreadyThere) }
+        let plain = crate::slides::strip_chords(&song.lyrics).unwrap_or_default();
+        let lines = |l: &str| l.lines().map(str::trim_end).collect::<Vec<_>>().join("
+").trim().to_string();
+        if lines(&plain) == lines(&s.lyrics) {
+            let id = s.id;
+            if let Some(mine) = songs.iter_mut().find(|m| m.id == id) { mine.lyrics = song.lyrics }
+            return (id, Landed::ChordsAdded);
+        }
+    }
     if same_number.is_empty() {
         let id = song.id;
         songs.push(song);
@@ -255,5 +272,43 @@ pub(crate) mod tests {
         // The same download again: that copy is already there.
         assert_eq!(place(&mut songs, song("River", "1234567", "Verse 1\nA different first line")), (id, Landed::AlreadyThere));
         assert_eq!(songs.len(), 3);
+    }
+
+    #[test]
+    fn a_chordpro_download_puts_its_chords_in_the_same_song_brought_in_before() {
+        let mine = song("Hills", "7000001", "Verse 1
+Over the hills
+
+Chorus
+Sing, sing");
+        let mut songs = vec![mine.clone()];
+        // The same words with chords: the church's copy gets them, nothing else changes.
+        let (id, landed) = place(&mut songs, song("Hills", "7000001", "Verse 1
+[D]Over the [G]hills
+
+Chorus
+[G]Sing, [D]sing"));
+        assert_eq!((id, landed), (mine.id, Landed::ChordsAdded));
+        assert_eq!(songs.len(), 1);
+        assert_eq!(songs[0].lyrics, "Verse 1
+[D]Over the [G]hills
+
+Chorus
+[G]Sing, [D]sing");
+        assert_eq!((songs[0].title.as_str(), songs[0].id), ("Hills", mine.id));
+        // The same again: already there, with its chords.
+        assert_eq!(place(&mut songs, song("Hills", "7000001", "Verse 1
+[D]Over the [G]hills
+
+Chorus
+[G]Sing, [D]sing")).1, Landed::AlreadyThere);
+        // A copy the church changed (here a section name) keeps its words; the one with chords sits beside it.
+        let edited = song("Hills", "7000002", "VERSE 1
+Over the hills");
+        let mut songs = vec![edited.clone()];
+        let (_, landed) = place(&mut songs, song("Hills", "7000002", "Verse 1
+[D]Over the [G]hills"));
+        assert_eq!(landed, Landed::KeptBoth("Hills (from SongSelect)".into()));
+        assert_eq!(songs[0], edited);
     }
 }

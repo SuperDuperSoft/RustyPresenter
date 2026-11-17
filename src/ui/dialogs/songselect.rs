@@ -176,6 +176,7 @@ fn arrived(op: &Rc<Operator>, came: Vec<Came>) {
         match &c.landed {
             Ok((_, Landed::Added)) => op.toast(tr!("“{title}” came in from SongSelect.", title = c.title), false),
             Ok((_, Landed::AlreadyThere)) => op.toast(tr!("“{title}” from SongSelect is already in your library.", title = c.title), false),
+            Ok((_, Landed::ChordsAdded)) => op.toast(tr!("“{title}” was already in your library: its chords were added for the stage screen.", title = c.title), false),
             Ok((_, Landed::KeptBoth(new))) => op.toast(tr!("“{title}” from SongSelect has other words than your copy, so it was kept as “{new}”.", title = c.title, new = new), false),
             Err(why) => op.toast(tr!("{file} could not be read: {why}", file = c.file, why = why), true),
         }
@@ -187,6 +188,7 @@ fn note(c: &Came) -> String {
     match &c.landed {
         Ok((_, Landed::Added)) => tr!("Added to your song library"),
         Ok((_, Landed::AlreadyThere)) => tr!("Already in your song library"),
+        Ok((_, Landed::ChordsAdded)) => tr!("Chords added to your copy"),
         Ok((_, Landed::KeptBoth(new))) => tr!("Your copy has other words, so this one is kept as “{new}”", new = new),
         Err(why) => tr!("Could not read it: {why}", why = why),
     }

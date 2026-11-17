@@ -285,7 +285,8 @@ mod tests {
         match c { CellContent::Text { text, dim, .. } => (text.as_str(), *dim), other => panic!("not text: {other:?}") }
     }
     fn cell_of<'a>(v: &'a StageView, kind: &ElementKind, layout: &StageLayout) -> &'a CellContent {
-        let id = layout.elements.iter().filter_map(|e| e.known()).find(|e| &e.kind == kind).unwrap().id;
+        // The same kind of box, whatever its settings (the Band layout shows chords).
+        let id = layout.elements.iter().filter_map(|e| e.known()).find(|e| std::mem::discriminant(&e.kind) == std::mem::discriminant(kind)).unwrap().id;
         &v.cells.iter().find(|c| c.element == id).unwrap().content
     }
     const CUR: ElementKind = ElementKind::CurrentSlide { pictures: false, keep_after_clear: false, chords: false };
