@@ -43,6 +43,11 @@ rustls = { version = "0.23", default-features = false, features = ["ring", "std"
 # Twitch's live chat is read over TLS (already in the build through reqwest).
 tokio-rustls = { version = "0.26", default-features = false }
 rustls-platform-verifier = "0.7"
+# Phone cameras (`network::https`, `network::websocket`): the self-signed certificate is made and signed with ring,
+# and the camera's pictures come over a WebSocket on hyper's upgrade. All three are already in the build.
+ring = "0.17"
+hyper = { version = "1", default-features = false }
+hyper-util = { version = "0.1", default-features = false, features = ["tokio"] }
 # Imported Bible files (Zefania, OSIS, USX, OpenSong).
 quick-xml = "0.38.4"
 # OpenLP song lyrics are XML. Already in Cargo.lock; refuses DTDs, so no entity expansion.

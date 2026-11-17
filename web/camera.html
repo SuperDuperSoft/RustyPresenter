@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone camera</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; min-height: 100%; background: #111; color: #eceef3; font: 17px/1.35 -apple-system, "Segoe UI", Roboto, system-ui, sans-serif; }
+  main { max-width: 640px; margin: 0 auto; padding: 16px; box-sizing: border-box; }
+  h1 { font-size: 22px; margin: 4px 0 12px; }
+  p { margin: 0 0 12px; color: #c8ccd6; }
+  .hidden { display: none !important; }
+  .btn { display: block; width: 100%; box-sizing: border-box; padding: 14px; margin: 8px 0; border-radius: 10px; border: 0; font: inherit; font-weight: 700;
+    text-align: center; text-decoration: none; background: #2f6fed; color: #fff; }
+  .btn.quiet { background: #2a2d35; color: #eceef3; }
+  .row { display: flex; gap: 8px; }
+  .row .btn { flex: 1; }
+  .btn.on { outline: 3px solid #2f6fed; }
+  label { display: block; font-size: 14px; color: #9aa0ad; margin: 10px 0 4px; }
+  input { width: 100%; box-sizing: border-box; padding: 12px; border-radius: 8px; border: 1px solid #3a3e48; background: #1b1d22; color: #eceef3; font: inherit; }
+  .hint { font-size: 14px; color: #8a90a0; margin-top: 4px; }
+  #frame { position: relative; background: #000; border-radius: 10px; overflow: hidden; border: 5px solid #2a2d35; aspect-ratio: 16 / 9; }
+  #frame.on_air { border-color: #d6202a; }
+  #frame.next { border-color: #1d8f4e; }
+  video { width: 100%; height: 100%; object-fit: contain; display: block; }
+  #state { margin: 8px 0; font-weight: 700; }
+  #state.on_air { color: #ff5a62; }
+  #state.next { color: #3fcf7f; }
+  #error { color: #ff8a8a; }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">Phone camera</h1>
+
+  <!-- A plain (http) page: the camera needs the private page. -->
+  <section id="secure" class="hidden">
+    <h1 id="secure_title"></h1>
+    <p id="secure_body"></p>
+    <p id="secure_how"></p>
+    <a id="secure_go" class="btn" href="#"></a>
+    <p id="secure_off" class="hidden"></p>
+  </section>
+
+  <!-- Not paired yet: the 6-digit code, as for the phone remote. -->
+  <section id="pair" class="hidden">
+    <h1 id="pair_title"></h1>
+    <p id="pair_body"></p>
+    <label for="pin" id="code_label"></label>
+    <input id="pin" inputmode="numeric" autocomplete="one-time-code" maxlength="6">
+    <div id="password_box" class="hidden">
+      <label for="password" id="password_label"></label>
+      <input id="password" type="password" autocomplete="current-password">
+    </div>
+    <button id="connect" class="btn"></button>
+    <p id="pair_error" class="hidden" style="color:#ff8a8a"></p>
+  </section>
+
+  <!-- The camera. -->
+  <section id="cam" class="hidden">
+    <label for="name" id="name_label"></label>
+    <input id="name" maxlength="40" autocomplete="off">
+    <div class="hint" id="name_hint"></div>
+    <div class="row" style="margin-top:12px">
+      <button id="back" class="btn quiet on"></button>
+      <button id="front" class="btn quiet"></button>
+    </div>
+    <div id="frame"><video id="video" autoplay muted playsinline></video></div>
+    <div id="state"></div>
+    <p id="error" class="hidden"></p>
+    <p id="sideways" class="hint"></p>
+    <button id="start" class="btn"></button>
+    <button id="stop" class="btn quiet hidden"></button>
+    <p id="choose" class="hint"></p>
+  </section>
+</main>
+<script>
+  // The words come from the computer, in its language (`stream::phone_camera::tr::page_words`).
+  const $ = id => document.getElementById(id);
+  let W = {}, info = null;
+  let facing = 'environment', stream = null, running = false, wake = null;
+  let ws = null, wsFails = 0, waiting = false, lastSent = 0, timer = null;
+  const canvas = document.createElement('canvas');
+
+  function show(id) { for (const s of ['secure', 'pair', 'cam']) $(s).classList.toggle('hidden', s !== id); }
+  function words() {
+    for (const k of ['title', 'secure_title', 'secure_body', 'secure_how', 'secure_go', 'secure_off', 'pair_title', 'pair_body', 'connect',
+      'name_hint', 'start', 'stop', 'front', 'back', 'sideways', 'choose']) { if ($(k)) $(k).textContent = W[k] || ''; }
+    $('code_label').textContent = W.code || '';
+    $('password_label').textContent = W.password || '';
+    $('name_label').textContent = W.name || '';
+    document.title = W.title || document.title;
+  }
+
+  async function load() {
+    try { info = await (await fetch('/camera/info', { cache: 'no-store' })).json(); } catch (e) { setTimeout(load, 2000); return; }
+    W = info.words || {};
+    words();
+    if (!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      show('secure');
+      if (info.secure_port) {
+        $('secure_go').href = 'https://' + location.hostname + ':' + info.secure_port + '/camera';
+      } else {
+        $('secure_go').classList.add('hidden');
+        $('secure_off').classList.remove('hidden');
+      }
+      return;
+    }
+    if (!info.paired) {
+      show('pair');
+      $('password_box').classList.toggle('hidden', !info.password);
+      return;
+    }
+    show('cam');
+    $('name').value = localStorage.getItem('rp_camera_name') || info.name || W.title || 'Phone camera';
+  }
+
+  $('connect').onclick = async () => {
+    $('pair_error').classList.add('hidden');
+    try {
+      const r = await fetch('/remote/pair', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: $('pin').value.trim(), password: $('password').value, name: W.title || 'Phone camera' }) });
+      const j = await r.json().catch(() => ({}));
+      if (r.ok && j.ok) { load(); return; }
+      $('pair_error').textContent = j.error || ('' + r.status);
+    } catch (e) { $('pair_error').textContent = W.lost || '…'; }
+    $('pair_error').classList.remove('hidden');
+  };
+
+  function cameraName() {
+    const n = $('name').value.trim().slice(0, 40) || W.title || 'Phone camera';
+    localStorage.setItem('rp_camera_name', n);
+    return n;
+  }
+
+  async function keepAwake() { try { if (!wake && navigator.wakeLock) { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => { wake = null; }); } } catch (e) {} }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && running) keepAwake(); });
+
+  async function openCamera() {
+    if (stream) stream.getTracks().forEach(t => t.stop());
+    stream = null;
+    $('error').classList.add('hidden');
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: {
+        facingMode: { ideal: facing }, width: { ideal: info.width }, height: { ideal: info.height }, frameRate: { ideal: info.fps } } });
+      $('video').srcObject = stream;
+      await $('video').play().catch(() => {});
+      return true;
+    } catch (e) {
+      $('error').textContent = W.no_camera || ('' + e);
+      $('error').classList.remove('hidden');
+      return false;
+    }
+  }
+
+  function setFacing(f) {
+    facing = f;
+    $('back').classList.toggle('on', f === 'environment');
+    $('front').classList.toggle('on', f === 'user');
+    if (running) openCamera();
+  }
+  $('back').onclick = () => setFacing('environment');
+  $('front').onclick = () => setFacing('user');
+
+  // The tally light the computer answers with: red on the stream, green next.
+  function light(j) {
+    const l = (j && j.light) || 'off';
+    $('frame').className = l;
+    $('state').className = l;
+    $('state').textContent = (j && j.text) || W.sending || '';
+  }
+
+  // The WebSocket to the computer (wss on the private page). Two failures: one picture a request instead.
+  function connect() {
+    if (!running || wsFails >= 2) return;
+    const url = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/camera/ws?name=' + encodeURIComponent(cameraName());
+    let opened = false;
+    try { ws = new WebSocket(url); } catch (e) { wsFails++; ws = null; return; }
+    ws.binaryType = 'arraybuffer';
+    ws.onopen = () => { opened = true; wsFails = 0; waiting = false; };
+    ws.onmessage = ev => { waiting = false; try { light(JSON.parse(ev.data)); } catch (e) {} };
+    ws.onclose = () => {
+      if (!opened) wsFails++;
+      ws = null; waiting = false;
+      if (running) { $('state').textContent = W.lost || ''; setTimeout(connect, 1000); }
+    };
+  }
+
+  // One picture: the camera drawn into the stream's size (black bars when its shape differs), as JPEG.
+  function draw() {
+    const v = $('video');
+    if (!v.videoWidth) return null;
+    canvas.width = info.width; canvas.height = info.height;
+    const g = canvas.getContext('2d');
+    g.fillStyle = '#000'; g.fillRect(0, 0, canvas.width, canvas.height);
+    const s = Math.min(canvas.width / v.videoWidth, canvas.height / v.videoHeight);
+    const w = v.videoWidth * s, h = v.videoHeight * s;
+    g.drawImage(v, (canvas.width - w) / 2, (canvas.height - h) / 2, w, h);
+    return new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.7));
+  }
+
+  async function tick() {
+    timer = null;
+    if (!running) return;
+    const gap = 1000 / (info.fps || 30);
+    const now = performance.now();
+    // No answer for 3 seconds: the connection is stuck; it is made again.
+    if (waiting && now - lastSent > 3000) { waiting = false; if (ws) ws.close(); }
+    // Paced by the computer's answers: the next picture only once the last one arrived.
+    if (waiting || now - lastSent < gap) { timer = setTimeout(tick, Math.max(5, gap - (now - lastSent))); return; }
+    const pending = draw();
+    const blob = pending && await pending;
+    if (blob && running) {
+      lastSent = performance.now();
+      if (ws && ws.readyState === 1) {
+        waiting = true;
+        ws.send(await blob.arrayBuffer());
+      } else if (wsFails >= 2) {
+        waiting = true;
+        try {
+          const r = await fetch('/camera/frame?name=' + encodeURIComponent(cameraName()), { method: 'POST', headers: { 'Content-Type': 'image/jpeg' }, body: blob });
+          light(await r.json());
+        } catch (e) { $('state').textContent = W.lost || ''; }
+        waiting = false;
+      }
+    }
+    timer = setTimeout(tick, 5);
+  }
+
+  $('start').onclick = async () => {
+    cameraName();
+    if (!await openCamera()) return;
+    running = true;
+    $('start').classList.add('hidden');
+    $('stop').classList.remove('hidden');
+    $('state').textContent = W.waiting || '';
+    keepAwake();
+    connect();
+    tick();
+  };
+  $('stop').onclick = () => {
+    running = false;
+    if (ws) ws.close();
+    if (stream) stream.getTracks().forEach(t => t.stop());
+    stream = null;
+    if (timer) clearTimeout(timer);
+    $('start').classList.remove('hidden');
+    $('stop').classList.add('hidden');
+    light(null);
+    $('state').textContent = '';
+    if (wake) wake.release();
+  };
+  load();
+</script>
+</body>
+</html>

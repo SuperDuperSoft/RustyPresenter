@@ -52,6 +52,9 @@ pub fn what(action: Action, groups: &[ClearGroup]) -> String {
         Action::FindMouse => sh::find_mouse(),
         Action::FollowAuto => sh::follow_auto(),
         Action::FollowHold => sh::follow_hold(),
+        Action::CameraNext(n) => sh::camera_next(n),
+        Action::CameraSwitch => sh::camera_switch(),
+        Action::CameraFade => sh::camera_fade(),
     }
 }
 

@@ -2,6 +2,9 @@
 //! pairs), the stage screen on a phone or tablet (`stage_view`, read only, password optional) and a plain-text
 //! TCP control for other gear (`tcp`, see `docs/tcp-control.md`). Passwords are kept only as hashes (`password`).
 pub mod actions;
+pub mod https;
+pub mod phone_camera;
+pub mod websocket;
 pub mod password;
 pub mod stage_view;
 pub mod live_anim;
@@ -47,6 +50,8 @@ pub struct NetState {
     pub(crate) stage_tokens: Mutex<Vec<(String, Instant)>>,
     pub(crate) tcp: Mutex<Option<tcp::Running>>,
     pub(crate) tries: Mutex<HashMap<IpAddr, Instant>>,
+    /// The port the phone pages are served on over https (`https`, for the phone camera), once they are.
+    pub(crate) https: Mutex<Option<u16>>,
 }
 
 impl NetState {

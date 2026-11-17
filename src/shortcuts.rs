@@ -128,6 +128,9 @@ pub enum Action {
     PasteLink, Undo, Redo, Find, ShowMessage, FindMouse,
     /// 1.3: the live song's auto-follow on or off (A), and Hold (H).
     FollowAuto, FollowHold,
+    /// While live with cameras: camera 1–4 chosen to go out next, and Switch / Fade to it (the Cameras box). No
+    /// keys until the church gives them some: the keyboard belongs to the presentation.
+    CameraNext(u8), CameraSwitch, CameraFade,
 }
 
 /// Where a shortcut works.
@@ -142,11 +145,12 @@ pub enum Reach {
 }
 
 /// The fixed actions in the Help table's order; the clear groups follow `ClearTimers`.
-const FIXED: [Action; 20] = [
+const FIXED: [Action; 26] = [
     Action::Next, Action::Back, Action::Take, Action::FocusBible, Action::ClearAll, Action::ClearSlide, Action::ClearMedia,
     Action::ClearAudio, Action::Logo, Action::ClearOverlays, Action::ClearMessage, Action::ClearTimers,
     Action::PasteLink, Action::Undo, Action::Redo, Action::Find, Action::ShowMessage, Action::FindMouse,
     Action::FollowAuto, Action::FollowHold,
+    Action::CameraNext(1), Action::CameraNext(2), Action::CameraNext(3), Action::CameraNext(4), Action::CameraSwitch, Action::CameraFade,
 ];
 
 /// The clear group every church starts with: "Everything but the background" on F9.
@@ -157,6 +161,8 @@ impl Action {
     pub fn id(&self) -> String {
         let id = match self {
             Action::Group(id) => return format!("group:{id}"),
+            Action::CameraNext(n) => return format!("camera_next_{n}"),
+            Action::CameraSwitch => "camera_switch", Action::CameraFade => "camera_fade",
             Action::Next => "next", Action::Back => "back", Action::Take => "show_selected", Action::FocusBible => "bible_box",
             Action::ClearAll => "clear_all", Action::ClearSlide => "clear_slide", Action::ClearMedia => "clear_media",
             Action::ClearAudio => "clear_audio", Action::Logo => "logo", Action::ClearOverlays => "clear_overlays",
@@ -199,6 +205,7 @@ impl Action {
             Action::FindMouse => vec![Chord::new("m", false, true, false)],
             Action::FollowAuto => f("a"),
             Action::FollowHold => f("h"),
+            Action::CameraNext(_) | Action::CameraSwitch | Action::CameraFade => vec![],
         }
     }
 
@@ -208,7 +215,7 @@ impl Action {
             | Action::ClearMessage | Action::ClearTimers | Action::Group(_) | Action::FindMouse => Reach::Anywhere,
             Action::FocusBible | Action::Find | Action::ShowMessage => Reach::Window,
             Action::Next | Action::Back | Action::Take | Action::PasteLink | Action::Undo | Action::Redo
-            | Action::FollowAuto | Action::FollowHold => Reach::Free,
+            | Action::FollowAuto | Action::FollowHold | Action::CameraNext(_) | Action::CameraSwitch | Action::CameraFade => Reach::Free,
         }
     }
 
@@ -417,6 +424,9 @@ pub mod strings {
     pub fn find_mouse() -> String { tr!("Find my mouse") }
     pub fn follow_auto() -> String { tr!("Auto-follow on or off for the live song") }
     pub fn follow_hold() -> String { tr!("Hold auto-follow (the slides stay put)") }
+    pub fn camera_next(n: u8) -> String { tr!("Livestream: camera {n} next", n = n) }
+    pub fn camera_switch() -> String { tr!("Livestream: switch to the next camera") }
+    pub fn camera_fade() -> String { tr!("Livestream: fade to the next camera") }
     pub fn all_but_background() -> String { tr!("Everything but the background") }
 }
 

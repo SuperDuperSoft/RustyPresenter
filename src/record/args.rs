@@ -128,6 +128,8 @@ pub fn camera_input(os: Os, name: &str) -> Vec<String> {
     let v = |a: &[&str]| a.iter().map(|s| s.to_string()).collect::<Vec<_>>();
     // An NDI source is not read by FFmpeg (`stream::camera_feed` receives it).
     if let Some(source) = crate::stream::ndi::source_name(name) { return vec![crate::stream::ndi::INPUT.into(), source.to_string()] }
+    // Nor a phone camera (`stream::phone_camera`): its pictures come to the app's phone server.
+    if let Some(phone) = crate::stream::phone_camera::source_name(name) { return vec![crate::stream::phone_camera::INPUT.into(), phone.to_string()] }
     if is_network_camera(name) {
         let address = name.trim();
         // RTSP over TCP: over UDP a busy network loses pieces of pictures. A camera that does not answer in 5 s
@@ -157,6 +159,7 @@ pub fn is_network_camera(name: &str) -> bool {
 /// password its address may hold.
 pub fn camera_label(name: &str) -> String {
     if let Some(source) = crate::stream::ndi::source_name(name) { return crate::stream::ndi::label(source) }
+    if let Some(phone) = crate::stream::phone_camera::source_name(name) { return crate::stream::phone_camera::label(phone) }
     // Linux: a camera is saved as its device (`devices::cameras`).
     if name.starts_with("/dev/") { return super::devices::linux_camera_label(name) }
     if !is_network_camera(name) { return name.to_string() }

@@ -381,6 +381,27 @@ export component SettingsMedia inherits VerticalLayout {
             }
         }
     }
+    if SettingsDlg.stream-camera-index > 0: Field {
+        label: @tr("When a camera sends nothing");
+        help: @tr("What the stream shows in a camera's place while it is unplugged or sends no picture. The camera comes back by itself as soon as it sends again.");
+        HorizontalLayout {
+            alignment: start;
+            stream-camera-lost := Segmented {
+                labels: [@tr("The room screen"), @tr("The church logo"), @tr("Black")];
+                index <=> SettingsDlg.stream-camera-lost;
+            }
+        }
+    }
+    Field {
+        label: @tr("Phone as a camera");
+        phone-camera-help := Text {
+            text: SettingsDlg.phone-camera-help;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            wrap: word-wrap;
+        }
+    }
     Field {
         label: @tr("Scenes");
         help: @tr("Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item.");

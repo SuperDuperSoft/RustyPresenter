@@ -517,11 +517,11 @@ fn the_small_pictures_are_shown_and_no_picture_is_said() {
     let g = op.ui.global::<CameraSwitch>();
     live_with(&op, &["Pulpit", "Wide"]);
     let blue = Arc::new(Small { width: 4, height: 2, rgba: [0, 0, 200, 255].repeat(8) });
-    op.show_peek(Peek { live: Some(blue.clone()), next: None });
+    op.show_peek(Peek { live: Some(blue.clone()), next: None, cameras: vec![] });
     assert!(g.get_live_has_picture() && !g.get_next_has_picture(), "the next camera sends nothing: No picture");
     let size = g.get_live_picture().size();
     assert_eq!((size.width, size.height), (4, 2));
-    op.show_peek(Peek { live: Some(blue.clone()), next: Some(blue) });
+    op.show_peek(Peek { live: Some(blue.clone()), next: Some(blue), cameras: vec![] });
     assert!(g.get_next_has_picture());
     op.show_peek(Peek::default());
     assert!(!g.get_live_has_picture() && !g.get_next_has_picture());
@@ -1045,4 +1045,120 @@ fn settings_keep_the_words_alone_file() {
     g.set_stream_words_file(false);
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
     assert!(g.get_stream_words_file(), "shown again as saved");
+}
+
+/// What a stand-in VISCA camera gets within a second, in order.
+fn received(camera: &std::net::UdpSocket, n: usize) -> Vec<Vec<u8>> {
+    let mut buf = [0u8; 64];
+    (0..n).map(|_| { let k = camera.recv(&mut buf).expect("a packet for the camera"); buf[..k].to_vec() }).collect()
+}
+
+#[test]
+fn the_next_camera_is_moved_by_hand_and_its_shot_saved() {
+    use crate::ui::CameraSwitch;
+    use stream::ptz::{Move, move_command, save_command};
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    let camera = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
+    camera.set_read_timeout(Some(Duration::from_secs(5))).unwrap();
+    let control = stream::ptz::Control::parse(&format!("127.0.0.1:{}", camera.local_addr().unwrap().port()));
+    let g = op.ui.global::<CameraSwitch>();
+    live_with(&op, &["Pulpit", "Wide"]);
+    *op.record.camera_controls.borrow_mut() = vec![None, control.clone()];
+    op.show_cameras();
+    assert_eq!(g.get_move_caption(), "Move 2 Wide");
+    // Held, let go; zoom in, let go; saved as position 3.
+    g.invoke_drive(3);
+    g.invoke_drive(0);
+    g.invoke_zoom(1);
+    g.invoke_zoom(0);
+    g.invoke_save_position(2);
+    assert_eq!(received(&camera, 5), [move_command(Move::Left), move_command(Move::Stop), move_command(Move::ZoomIn), move_command(Move::ZoomStop), save_command(3)]);
+    assert!(toasts(&op).iter().any(|(t, _)| t.contains("position 3")));
+    // Held while the camera goes out (its controls go away): it is told to stop.
+    g.invoke_drive(1);
+    g.invoke_switch();
+    assert_eq!(received(&camera, 3), [move_command(Move::Up), move_command(Move::Stop), move_command(Move::ZoomStop)]);
+    assert_eq!(g.get_next_positions(), 0, "the first camera is next now, and it cannot be moved");
+
+    // One camera: the one going out is moved.
+    live_with(&op, &["Wide"]);
+    *op.record.camera_controls.borrow_mut() = vec![control];
+    op.show_cameras();
+    assert_eq!(g.get_next_positions(), i32::from(stream::ptz::POSITIONS));
+    g.invoke_zoom(-1);
+    assert_eq!(received(&camera, 1), [move_command(Move::ZoomOut)]);
+    g.invoke_zoom(0);
+    assert_eq!(received(&camera, 1), [move_command(Move::ZoomStop)]);
+}
+
+#[test]
+fn every_camera_is_shown_small_and_a_click_makes_it_next() {
+    use crate::ui::CameraSwitch;
+    use record::peek::{Peek, Small};
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    let g = op.ui.global::<CameraSwitch>();
+    live_with(&op, &["Pulpit", "Wide", "Band"]);
+    let small = Some(Arc::new(Small { width: 2, height: 1, rgba: vec![9; 8] }));
+    op.show_peek(Peek { cameras: vec![small.clone(), None, small], ..Default::default() });
+    let tiles: Vec<bool> = g.get_tiles().iter().map(|t| t.has_picture).collect();
+    assert_eq!(tiles, [true, false, true], "the second camera sends nothing");
+    g.invoke_choose_next(2);
+    assert_eq!(g.get_next(), 2);
+    g.invoke_choose_next(0);
+    assert_eq!(g.get_next(), 2, "the one going out cannot be next");
+}
+
+#[test]
+fn camera_keys_work_only_while_live_and_have_no_keys_until_set() {
+    use crate::shortcuts::{Action, Chord, KeySettings, Keymap};
+    let map = Keymap::default();
+    for a in [Action::CameraNext(1), Action::CameraNext(4), Action::CameraSwitch, Action::CameraFade] {
+        assert!(map.keys(a).is_empty(), "{a:?} has no key by default");
+        assert_eq!(Action::from_id(&a.id()), Some(a));
+    }
+    let mut keys = KeySettings::default();
+    keys.assign(Action::CameraNext(3), Chord::new("3", true, false, false));
+    keys.assign(Action::CameraSwitch, Chord::new("Enter", true, false, false));
+    let map = Keymap::new(&keys);
+    assert_eq!(map.action_for(&Chord::new("3", true, false, false)), Some(Action::CameraNext(3)));
+    assert_eq!(map.action_for(&Chord::new("Enter", false, false, false)), Some(Action::Take), "Enter alone still shows the selected item");
+
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    assert!(!op.camera_key(Some(2), false), "not live: the key is left alone");
+    live_with(&op, &["Pulpit", "Wide", "Band"]);
+    assert!(op.camera_key(Some(3), false));
+    assert_eq!(op.record.next.get(), Some(2));
+    assert!(op.camera_key(None, false));
+    assert_eq!((op.ui.get_camera_active(), op.record.next.get()), (2, Some(0)), "switched; the one that was out is next");
+}
+
+#[test]
+fn settings_keep_what_a_lost_camera_shows_and_say_how_to_use_a_phone() {
+    use crate::ui::SettingsDlg;
+    use slint::ComponentHandle;
+    use stream::camera_lost::CameraLost;
+    let app = test_app();
+    let room = Arc::new(Room::default());
+    let op = open(&app, &room);
+    let g = op.ui.global::<SettingsDlg>();
+    let mut prefs = RecordPrefs { camera: "phone://Balcony".into(), ..RecordPrefs::default() };
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    assert_eq!(g.get_stream_camera_lost(), 0, "the room screen, as before");
+    assert!(g.get_stream_camera_labels().iter().any(|l| l.contains("Phone camera: Balcony")), "a saved phone camera stays listed");
+    g.set_stream_camera_lost(1);
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!((prefs.camera_lost, prefs.camera.as_str()), (CameraLost::Logo, "phone://Balcony"));
+    let saved = serde_json::to_value(&prefs).unwrap();
+    assert_eq!(saved["camera_lost"], "logo");
+    assert!(serde_json::to_value(RecordPrefs::default()).unwrap().get("camera_lost").is_none(), "the default is not saved");
+    assert!(!crate::network::phone_camera::settings_help(&app).is_empty());
 }

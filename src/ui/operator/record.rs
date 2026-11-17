@@ -66,6 +66,9 @@ pub struct RecordUi {
     viewers_age: Cell<u32>,
     /// Go Live: the church's own scenes, listed after the built-in ones on the scene button.
     own_scenes: RefCell<Vec<stream::own_scenes::OwnScene>>,
+    /// The camera being turned or zoomed by hand now (`Plan::cameras` order), so it is told to stop if the
+    /// Cameras box stops showing its controls while a button is held.
+    moving: Cell<Option<usize>>,
     /// Tests: how the recording ended, waited for by `testing::wait_ended` (no event loop to deliver it).
     #[cfg(test)]
     ended: RefCell<Option<tokio::sync::oneshot::Receiver<Ended>>>,
@@ -192,6 +195,9 @@ impl Operator {
         let (app, app2) = (self.app().clone(), self.app().clone());
         if live { self.app().clear_stream_choice() }
         let theme = self.app().data.lock().unwrap().settings.theme.clone();
+        // A camera that sends nothing: the church's choice in its place (the logo read when the stream starts).
+        let logo = self.app().data.lock().unwrap().settings.logo.clone().map(|id| self.app().store.asset_path(&id));
+        let camera_lost = stream::camera_lost::Lost { choice: prefs.camera_lost, logo };
         let words_top = prefs.stream_layout.words_top;
         let look = stream::pictures::Look {
             info: Arc::new(move || app.stream_info()),
@@ -238,6 +244,7 @@ impl Operator {
                     if live {
                         plan.pc_sound = prefs_pc;
                         plan.cameras = cameras;
+                        plan.camera_lost = camera_lost;
                         plan.look = Some(look);
                         plan.sound_fx = sound_fx;
                         plan.delay_secs = delay_secs;
@@ -626,6 +633,17 @@ impl Operator {
         self.show_cameras();
     }
 
+    /// A camera key (Settings → Help): camera `n` (from 1) chosen as next, or with `None` Switch / Fade. False
+    /// when not live with cameras, so the key is left alone.
+    pub(crate) fn camera_key(&self, n: Option<u8>, fade: bool) -> bool {
+        if !self.record.live.get() || self.record.cameras.borrow().is_empty() { return false }
+        match n {
+            Some(n) => self.choose_next(i32::from(n) - 1),
+            None => self.switch_to_next(fade),
+        }
+        true
+    }
+
     /// Switch (`fade` false) or Fade: the next camera goes out, and the one that was out becomes next.
     pub fn switch_to_next(&self, fade: bool) {
         if let Some(n) = self.record.next.get() { self.put_camera_out(n, fade) }
@@ -647,12 +665,63 @@ impl Operator {
 
     /// Sends the next camera to position `i` (from 0), to get its shot ready before it goes out.
     pub fn move_next(&self, i: i32) {
-        let control = self.record.next.get().and_then(|n| self.record.camera_controls.borrow().get(n).cloned().flatten());
-        let (Ok(i), Some(control)) = (u8::try_from(i), control) else { return };
-        if !self.record.live.get() || i >= stream::ptz::POSITIONS { return }
-        let send = move || if let Err(e) = stream::ptz::recall(&control, i + 1) { eprintln!("camera control: {e}") };
-        if self.ops().is_inline() { return send() }
-        let _ = std::thread::Builder::new().name("camera-control".into()).spawn(send);
+        let Ok(i) = u8::try_from(i) else { return };
+        if i < stream::ptz::POSITIONS { self.order_camera(stream::ptz::Order::Recall(i + 1)) }
+    }
+
+    /// The camera the Cameras box moves: the next one; with one camera, the one going out.
+    fn moved_camera(&self) -> Option<usize> {
+        let count = self.record.cameras.borrow().len();
+        self.record.next.get().filter(|n| *n < count).or((count == 1).then_some(0))
+    }
+
+    /// Sends `order` to the camera the Cameras box moves, while live. In order, off the UI thread (`ptz::send`).
+    fn order_camera(&self, order: stream::ptz::Order) {
+        let Some(i) = self.moved_camera().filter(|_| self.record.live.get()) else { return };
+        let Some(control) = self.record.camera_controls.borrow().get(i).cloned().flatten() else { return };
+        self.order(control, order);
+    }
+
+    fn order(&self, control: stream::ptz::Control, order: stream::ptz::Order) {
+        if self.ops().is_inline() {
+            if let Err(e) = stream::ptz::carry_out(&control, &order) { eprintln!("camera control: {e}") }
+        } else {
+            stream::ptz::send(control, order)
+        }
+    }
+
+    /// An arrow held (1 up, 2 down, 3 left, 4 right) or let go (0): the camera turns until it is let go.
+    pub fn drive_camera(&self, arrow: i32) {
+        use stream::ptz::{Move, Order};
+        self.record.moving.set(if arrow == 0 { None } else { self.moved_camera() });
+        self.order_camera(Order::Move(Move::of_arrow(arrow)))
+    }
+
+    /// A zoom button held (1 in, -1 out) or let go (0).
+    pub fn zoom_camera(&self, zoom: i32) {
+        use stream::ptz::{Move, Order};
+        self.record.moving.set(if zoom == 0 { None } else { self.moved_camera() });
+        self.order_camera(Order::Move(Move::of_zoom(zoom)))
+    }
+
+    /// "Save…", then a number: the camera's shot now becomes its position `i + 1`.
+    pub fn save_position(&self, i: i32) {
+        let Ok(i) = u8::try_from(i) else { return };
+        if i < stream::ptz::POSITIONS {
+            self.order_camera(stream::ptz::Order::Save(i + 1));
+            self.toast(tr::position_saved(i + 1), false);
+        }
+    }
+
+    /// A camera turned or zoomed by hand whose controls went away (another camera chosen, the stream stopped) is
+    /// told to stop.
+    fn stop_moving_unless(&self, still: Option<usize>) {
+        let Some(m) = self.record.moving.get().filter(|m| Some(*m) != still) else { return };
+        self.record.moving.set(None);
+        if let Some(control) = self.record.camera_controls.borrow().get(m).cloned().flatten() {
+            self.order(control.clone(), stream::ptz::Order::Move(stream::ptz::Move::Stop));
+            self.order(control, stream::ptz::Order::Move(stream::ptz::Move::ZoomStop));
+        }
     }
 
     /// The Cameras box: shown while live with a camera; which camera is out and which is next, and their names.
@@ -661,6 +730,7 @@ impl Operator {
         let names: Vec<String> = self.record.cameras.borrow().iter().map(|c| record::args::camera_label(c)).collect();
         let shown = self.record.live.get() && !names.is_empty();
         g.set_shown(shown);
+        self.stop_moving_unless(if shown { self.moved_camera() } else { None });
         if !shown { return }
         let out = usize::try_from(self.ui.get_camera_active()).unwrap_or(0).min(names.len() - 1);
         let next = self.record.next.get().filter(|n| *n < names.len() && *n != out);
@@ -670,8 +740,11 @@ impl Operator {
         g.set_next(next.map_or(-1, |n| n as i32));
         g.set_live_caption(if in_picture { named(out) } else { tr::not_in_scene(&named(out)) }.into());
         g.set_next_caption(next.map(named).unwrap_or_default().into());
-        let movable = next.is_some_and(|n| self.record.camera_controls.borrow().get(n).is_some_and(Option::is_some));
-        g.set_next_positions(if movable { i32::from(stream::ptz::POSITIONS) } else { 0 });
+        // The camera the box moves: the next one, or with one camera the one going out.
+        let moved = next.or((names.len() == 1).then_some(0));
+        let movable = moved.filter(|m| self.record.camera_controls.borrow().get(*m).is_some_and(Option::is_some));
+        g.set_next_positions(if movable.is_some() { i32::from(stream::ptz::POSITIONS) } else { 0 });
+        g.set_move_caption(movable.map(|m| tr::move_caption(&named(m))).unwrap_or_default().into());
         let listed: Vec<slint::SharedString> = names.into_iter().map(Into::into).collect();
         if g.get_names().row_count() != listed.len() || g.get_names().iter().zip(&listed).any(|(a, b)| a != *b) {
             g.set_names(slint::ModelRc::new(slint::VecModel::from(listed)));
@@ -692,6 +765,12 @@ impl Operator {
         if !same(&shown.next, &peek.next) {
             g.set_next_has_picture(peek.next.is_some());
             g.set_next_picture(peek.next.as_deref().map(image).unwrap_or_default());
+        }
+        // Every camera small (three or more): made into images only when one changed.
+        if shown.cameras.len() != peek.cameras.len() || shown.cameras.iter().zip(&peek.cameras).any(|(a, b)| !same(a, b)) {
+            let tiles: Vec<crate::ui::CameraTile> = peek.cameras.iter().map(|c| crate::ui::CameraTile {
+                picture: c.as_deref().map(image).unwrap_or_default(), has_picture: c.is_some() }).collect();
+            g.set_tiles(slint::ModelRc::new(slint::VecModel::from(tiles)));
         }
         *shown = peek;
     }
@@ -852,6 +931,12 @@ pub(super) fn wire(op: &Rc<Operator>) {
     cams.on_fade(move || if let Some(op) = me.upgrade() { op.switch_to_next(true) });
     let me = Rc::downgrade(op);
     cams.on_move_next(move |i| if let Some(op) = me.upgrade() { op.move_next(i) });
+    let me = Rc::downgrade(op);
+    cams.on_drive(move |a| if let Some(op) = me.upgrade() { op.drive_camera(a) });
+    let me = Rc::downgrade(op);
+    cams.on_zoom(move |z| if let Some(op) = me.upgrade() { op.zoom_camera(z) });
+    let me = Rc::downgrade(op);
+    cams.on_save_position(move |i| if let Some(op) = me.upgrade() { op.save_position(i) });
 }
 
 mod tr {
@@ -863,6 +948,9 @@ mod tr {
     pub fn ffmpeg_failed(command: &str) -> String { tr!("FFmpeg could not be downloaded. Check the internet connection, or install it yourself: {command}", command = command) }
     /// Under the Live picture when the scene going out shows no camera: the camera that comes with a camera scene.
     pub fn not_in_scene(camera: &str) -> String { tr!("{camera} (not in this scene)", camera = camera) }
+    /// Beside the arrows and zoom buttons: the camera they move.
+    pub fn move_caption(camera: &str) -> String { tr!("Move {camera}", camera = camera) }
+    pub fn position_saved(n: u8) -> String { tr!("The camera's shot is saved as position {n}.", n = n) }
 }
 
 #[cfg(test)]

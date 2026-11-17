@@ -20,6 +20,8 @@ pub struct Small {
 pub struct Peek {
     pub live: Option<Arc<Small>>,
     pub next: Option<Arc<Small>>,
+    /// Every camera small (half as wide), in `Plan::cameras` order, for the view of all cameras (three or more).
+    pub cameras: Vec<Option<Arc<Small>>>,
 }
 
 /// `rgba` (`size` pixels) shrunk to `width` wide, keeping its shape; each pixel the average of four samples around

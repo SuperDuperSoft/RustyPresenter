@@ -90,7 +90,7 @@ struct Login { #[serde(default)] password: String }
 
 fn same_origin(headers: &HeaderMap) -> bool {
     let host = headers.get(header::HOST).and_then(|h| h.to_str().ok()).unwrap_or("");
-    headers.get(header::ORIGIN).and_then(|h| h.to_str().ok()).is_none_or(|o| o == format!("http://{host}"))
+    headers.get(header::ORIGIN).and_then(|h| h.to_str().ok()).is_none_or(|o| o == format!("http://{host}") || o == format!("https://{host}"))
 }
 
 fn err(status: StatusCode, msg: String) -> Response { (status, Json(json!({ "error": msg }))).into_response() }

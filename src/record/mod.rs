@@ -188,6 +188,9 @@ pub struct RecordPrefs {
     /// The note about streaming licences was shown (once, the first time Go Live started).
     #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub licence_noted: bool,
+    /// Go Live: what shows in a camera's place while it sends nothing (`stream::camera_lost`).
+    #[serde(skip_serializing_if = "crate::stream::camera_lost::CameraLost::is_default")]
+    pub camera_lost: crate::stream::camera_lost::CameraLost,
 }
 
 

@@ -37,6 +37,9 @@ pub enum KeyAction {
     /// 1.3: A turns auto-follow on or off for the live song; H holds it.
     FollowAuto,
     FollowHold,
+    /// While live with cameras: camera n (from 1) chosen as next; Switch (`false`) or Fade (`true`) to it.
+    CameraNext(u8),
+    CameraSwitch(bool),
     None,
 }
 
@@ -157,6 +160,9 @@ fn key_action(action: Action) -> KeyAction {
         Action::FindMouse => KeyAction::FindMouse,
         Action::FollowAuto => KeyAction::FollowAuto,
         Action::FollowHold => KeyAction::FollowHold,
+        Action::CameraNext(n) => KeyAction::CameraNext(n),
+        Action::CameraSwitch => KeyAction::CameraSwitch(false),
+        Action::CameraFade => KeyAction::CameraSwitch(true),
         _ => KeyAction::None,
     }
 }
@@ -254,6 +260,8 @@ impl Operator {
             KeyAction::FindMouse => self.find_mouse(),
             KeyAction::FollowAuto => return super::follow::toggle_auto(self, true),
             KeyAction::FollowHold => return super::follow::toggle_hold(self, true),
+            KeyAction::CameraNext(n) => return self.camera_key(Some(n), false),
+            KeyAction::CameraSwitch(fade) => return self.camera_key(None, fade),
             KeyAction::None => return false,
         }
         true

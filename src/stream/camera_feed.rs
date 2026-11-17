@@ -62,14 +62,16 @@ impl Drop for Feed {
 }
 
 /// Starts the feed of camera `input` at `size` and `fps`, its FFmpeg being `ffmpeg`.
-/// An NDI source (`super::ndi::input_source`) is received over NDI instead.
+/// An NDI source (`super::ndi::input_source`) is received over NDI instead, and a phone camera
+/// (`super::phone_camera::input_source`) from the phone server.
 pub fn start(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32) -> Result<Feed, String> {
     let (stop, seeing) = (Arc::new(AtomicBool::new(false)), Arc::new(AtomicBool::new(false)));
     let latest: Latest = Arc::default();
     let (s, v, l) = (stop.clone(), seeing.clone(), latest.clone());
-    let thread = match super::ndi::input_source(&input).map(str::to_string) {
-        Some(name) => std::thread::Builder::new().name("stream-camera-ndi".into()).spawn(move || run_ndi(&name, size, &s, &v, &l)),
-        None => std::thread::Builder::new().name("stream-camera".into()).spawn(move || run(ffmpeg, input, size, fps, &s, &v, &l)),
+    let thread = match (super::ndi::input_source(&input).map(str::to_string), super::phone_camera::input_source(&input).map(str::to_string)) {
+        (Some(name), _) => std::thread::Builder::new().name("stream-camera-ndi".into()).spawn(move || run_ndi(&name, size, &s, &v, &l)),
+        (None, Some(name)) => std::thread::Builder::new().name("stream-camera-phone".into()).spawn(move || run_phone(&name, size, &s, &v, &l)),
+        (None, None) => std::thread::Builder::new().name("stream-camera".into()).spawn(move || run(ffmpeg, input, size, fps, &s, &v, &l)),
     }.map_err(|e| e.to_string())?;
     Ok(Feed { latest, seeing, stop, thread: Some(thread) })
 }
@@ -86,6 +88,18 @@ fn run_ndi(name: &str, size: (u32, u32), stop: &Arc<AtomicBool>, seeing: &Atomic
     }
     seeing.store(false, Ordering::Relaxed);
     if let Some(t) = receiver { let _ = t.join(); }
+}
+
+/// A phone camera (`super::phone_camera`): its pictures decoded on a thread of their own, `seeing` kept here.
+fn run_phone(name: &str, size: (u32, u32), stop: &Arc<AtomicBool>, seeing: &AtomicBool, latest: &Latest) {
+    let (n, s, l) = (name.to_string(), stop.clone(), latest.clone());
+    let decoder = std::thread::Builder::new().name("stream-camera-phone-read".into()).spawn(move || super::phone_camera::receive(&n, size, &l, &s)).ok();
+    while !stop.load(Ordering::Relaxed) {
+        seeing.store(fresh(latest, Instant::now()).is_some(), Ordering::Relaxed);
+        std::thread::sleep(Duration::from_millis(50));
+    }
+    seeing.store(false, Ordering::Relaxed);
+    if let Some(t) = decoder { let _ = t.join(); }
 }
 
 fn run(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32, stop: &AtomicBool, seeing: &AtomicBool, latest: &Latest) {
