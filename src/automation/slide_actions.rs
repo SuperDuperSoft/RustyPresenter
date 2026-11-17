@@ -154,8 +154,10 @@ pub fn palette(data: &Data, slides: usize) -> Vec<Tile> {
     t.push(tile(Group::Stage, tr!("Let the stage layout follow the slides"), vec![MacroStep::StageLayoutAuto]));
     t.push(tile(Group::Stage, tr!("Hide the stage message"), vec![MacroStep::StageMessageHide]));
     // 1.3b: the livestream's scene, in the Stage group (both are what other screens show).
-    for s in crate::stream::scene::Scene::ALL {
-        t.push(tile(Group::Stage, tr!("Livestream: {name}", name = s.label()), vec![MacroStep::StreamScene { scene: Some(s) }]));
+    // The church's own scenes after the built-in ones, kept by their id.
+    let own = &data.settings.record.own_scenes;
+    for s in crate::stream::own_scenes::all(own) {
+        t.push(tile(Group::Stage, tr!("Livestream: {name}", name = crate::stream::own_scenes::name(s, own)), vec![MacroStep::StreamScene { scene: Some(s) }]));
     }
     t.push(tile(Group::Stage, tr!("Livestream: automatic"), vec![MacroStep::StreamScene { scene: None }]));
     t.push(tile(Group::Stage, tr!("Start a clip of the recording"), vec![MacroStep::Clip { start: true }]));

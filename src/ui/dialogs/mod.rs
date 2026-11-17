@@ -36,6 +36,7 @@ pub mod settings_themes;
 pub mod show_message;
 pub mod song_editor;
 pub mod stage_layouts;
+pub mod stream_scenes;
 pub mod translation_editor;
 pub mod usage;
 #[path = "../../strings/dialogs.rs"]
@@ -94,6 +95,8 @@ pub enum DialogKind {
     Network,
     /// N26: the slide editor on a designed item (`None`: new slides).
     Design(Option<Uuid>),
+    /// Settings → Media → Livestream → Your scenes… (the church's own livestream scenes).
+    StreamScenes,
 }
 
 impl DialogKind {
@@ -102,7 +105,7 @@ impl DialogKind {
     pub fn refreshes(&self) -> bool { matches!(self, DialogKind::Add(_) | DialogKind::Screens | DialogKind::Phone) }
 
     /// `dialog(…, { wide: true })`: the song editor and Settings.
-    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::StageLayouts | DialogKind::Overlays | DialogKind::Automation | DialogKind::FindVerse | DialogKind::SlideBreaks(_) | DialogKind::Translations | DialogKind::Design(_)) }
+    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::StageLayouts | DialogKind::Overlays | DialogKind::Automation | DialogKind::FindVerse | DialogKind::SlideBreaks(_) | DialogKind::Translations | DialogKind::Design(_) | DialogKind::StreamScenes) }
 
     /// A fixed height whatever is in it: the wide ones and Add, which switch tabs or views (switching must never
     /// resize or move the dialog).
@@ -131,6 +134,7 @@ impl DialogKind {
             DialogKind::Music => "music",
             DialogKind::Network => "network",
             DialogKind::Design(_) => "design",
+            DialogKind::StreamScenes => "stream-scenes",
         }
     }
 }
@@ -255,6 +259,7 @@ impl Operator {
             DialogKind::Music => crate::tr!("Walk-in music"),
             DialogKind::Network => network::title(),
             DialogKind::Design(_) => crate::design::strings::editor_title(),
+            DialogKind::StreamScenes => stream_scenes::title(),
         }
     }
 }

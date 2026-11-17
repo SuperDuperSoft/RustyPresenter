@@ -83,9 +83,13 @@ fn targets(k: StepKind, data: &Data) -> Vec<(Uuid, String)> {
         }
         StepKind::MessageShow => a.messages.iter().map(|t| (t.id, t.name.clone())).collect(),
         StepKind::OverlayOn | StepKind::OverlayOff => data.overlays.iter().map(|o| (o.id, o.name.clone())).collect(),
-        // Automatic, then each scene: the scene's place in `Scene::ALL` + 1 stands in for an id.
-        StepKind::StreamScene => std::iter::once((scene_id(None), crate::tr!("Automatic")))
-            .chain(crate::stream::scene::Scene::ALL.iter().map(|s| (scene_id(Some(*s)), s.label()))).collect(),
+        // Automatic, then each scene: a built-in scene's place in `Scene::ALL` + 1 stands in for an id; the church's
+        // own scenes have ids of their own.
+        StepKind::StreamScene => {
+            let own = &data.settings.record.own_scenes;
+            std::iter::once((scene_id(None), crate::tr!("Automatic")))
+                .chain(crate::stream::own_scenes::all(own).into_iter().map(|s| (scene_id(Some(s)), crate::stream::own_scenes::name(s, own)))).collect()
+        }
         // Each camera that can be moved, with each position: camera × 256 + position stands in for an id.
         StepKind::CameraPosition => crate::stream::ptz::moves(&data.settings.record).into_iter()
             .map(|(c, p)| (Uuid::from_u128(u128::from(c) * 256 + u128::from(p)), crate::stream::ptz::label(c, p))).collect(),
@@ -95,11 +99,14 @@ fn targets(k: StepKind, data: &Data) -> Vec<(Uuid, String)> {
 
 /// The stand-in id of a scene in the Add step row's second list (`None`: Automatic).
 fn scene_id(scene: Option<crate::stream::scene::Scene>) -> Uuid {
+    if let Some(crate::stream::scene::Scene::Own(id)) = scene { return id }
     Uuid::from_u128(scene.and_then(|s| crate::stream::scene::Scene::ALL.iter().position(|x| *x == s)).map_or(0, |i| i as u128 + 1))
 }
 
 fn scene_of(id: Uuid) -> Option<crate::stream::scene::Scene> {
-    (id.as_u128() as usize).checked_sub(1).and_then(|i| crate::stream::scene::Scene::ALL.get(i).copied())
+    use crate::stream::scene::Scene;
+    if id.as_u128() > Scene::ALL.len() as u128 { return Some(Scene::Own(id)) }
+    (id.as_u128() as usize).checked_sub(1).and_then(|i| Scene::ALL.get(i).copied())
 }
 
 fn service_items(data: &Data) -> Vec<(Uuid, String, &'static str)> {
@@ -156,7 +163,7 @@ pub fn step_label(s: &Lenient<MacroStep>, a: &Automation, data: &Data) -> String
             crate::tr!("Theme: {name}", name = name)
         }
         MacroStep::GoToSlide { slide } => crate::tr!("Go to slide {n}", n = slide + 1),
-        MacroStep::StreamScene { scene: Some(s) } => crate::tr!("Livestream: {name}", name = s.label()),
+        MacroStep::StreamScene { scene: Some(s) } => crate::tr!("Livestream: {name}", name = crate::stream::own_scenes::name(*s, &data.settings.record.own_scenes)),
         MacroStep::StreamScene { scene: None } => crate::tr!("Livestream: automatic"),
         MacroStep::CameraPosition { camera, position } => crate::stream::ptz::label(*camera, *position),
         MacroStep::Clip { start } => kind_label(if *start { StepKind::ClipStart } else { StepKind::ClipEnd }),

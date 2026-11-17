@@ -1,0 +1,383 @@
+// Your livestream scenes (Settings → Media → Livestream → Your scenes…): the church's own scenes on the left, a
+// picture of the chosen one in the middle, its layers and the chosen layer's settings on the right. Set and answered
+// by `src/ui/dialogs/stream_scenes.rs`.
+import { Theme } from "../theme.slint";
+import { Btn } from "../widgets.slint";
+import { DialogBody, DialogFoot } from "shell.slint";
+import { TextField, Lbl, Select, RangeSlider } from "form.slint";
+
+export global StreamScenesDlg {
+    /// The scenes' names and the chosen one (-1: none yet).
+    in property <[string]> scenes;
+    in property <int> scene-index: -1;
+    /// "Use it by itself in place of": Never, then each built-in scene.
+    in property <[string]> instead-names;
+    in-out property <int> instead-index;
+    /// How the chosen scene looks.
+    in property <image> picture;
+    /// The chosen scene's layers, the one in front first, and the chosen one.
+    in property <[string]> layers;
+    in property <int> layer-index: -1;
+    in property <bool> has-layer;
+    /// The chosen layer was made by a newer RustyPresenter: it can only be removed.
+    in property <bool> layer-unknown;
+    in property <[string]> shows-names;
+    in-out property <int> shows-index;
+    in property <[string]> place-names;
+    in-out property <int> place-index;
+    in property <bool> is-box;
+    in-out property <int> box-x;
+    in-out property <int> box-y;
+    in-out property <int> box-w;
+    in-out property <int> box-h;
+    in-out property <int> see-through;
+    in property <bool> is-picture;
+    in property <string> picture-name;
+    in property <bool> is-colour;
+    in-out property <string> colour;
+    in property <bool> is-text;
+    in-out property <string> text;
+    /// Something is not saved yet.
+    in property <bool> changed;
+
+    callback select-scene(int);
+    callback add-scene();
+    callback copy-scene();
+    callback rename-scene();
+    callback delete-scene();
+    /// 1: up the list, 0: down.
+    callback move-scene(int);
+    callback instead-changed(int);
+    /// The row in the layer list (the front layer first).
+    callback select-layer(int);
+    callback add-layer();
+    callback remove-layer();
+    /// 1: in front, 0: behind.
+    callback move-layer(int);
+    callback shows-changed(int);
+    callback place-changed(int);
+    callback box-changed(int, int, int, int);
+    callback see-through-changed(int);
+    callback choose-picture();
+    callback colour-changed(string);
+    callback text-edited(string);
+    callback cancel();
+    callback save();
+}
+
+component SmallText inherits Text {
+    color: Theme.muted;
+    font-family: Theme.font;
+    font-size: 12px;
+    wrap: word-wrap;
+}
+
+/// One row of a list: its name, chosen or not.
+component PickRow inherits Rectangle {
+    in property <string> name;
+    in property <bool> chosen;
+    callback picked();
+    height: 32px;
+    border-radius: 7px;
+    background: root.chosen ? Theme.raise : row-ta.has-hover ? Theme.panel-2 : transparent;
+    border-color: root.chosen ? Theme.accent : transparent;
+    border-width: 1px;
+    accessible-role: list-item;
+    accessible-label: root.name;
+    accessible-item-selected: root.chosen;
+    row-ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.picked(); }
+    }
+    Text {
+        x: 10px;
+        width: parent.width - 20px;
+        text: root.name;
+        color: Theme.text;
+        font-family: Theme.font;
+        font-size: 13px;
+        font-weight: root.chosen ? 600 : 400;
+        overflow: elide;
+        vertical-alignment: center;
+    }
+}
+
+component Swatch inherits Rectangle {
+    in property <string> hex;
+    in property <color> shade;
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    background: root.shade;
+    border-color: StreamScenesDlg.colour == root.hex ? Theme.accent : Theme.line;
+    border-width: 2px;
+    accessible-role: button;
+    accessible-label: root.hex;
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { StreamScenesDlg.colour-changed(root.hex); }
+    }
+}
+
+/// One of the box's four numbers, with a slider.
+component BoxSlider inherits VerticalLayout {
+    in property <string> label;
+    in-out property <int> value;
+    callback changed(int);
+    spacing: 2px;
+    SmallText { text: root.label; }
+    RangeSlider {
+        minimum: 0;
+        maximum: 100;
+        value <=> root.value;
+        changed(v) => { root.changed(v); }
+    }
+}
+
+/// The church's scenes and what can be done with the chosen one.
+component SceneList inherits VerticalLayout {
+    spacing: 4px;
+    alignment: start;
+    Lbl { label: @tr("Your scenes"); }
+    for s[i] in StreamScenesDlg.scenes: PickRow {
+        name: s;
+        chosen: i == StreamScenesDlg.scene-index;
+        picked => { StreamScenesDlg.select-scene(i); }
+    }
+    if StreamScenesDlg.scenes.length == 0: SmallText {
+        text: @tr("No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it.");
+    }
+    Rectangle { height: 8px; }
+    add-scene-btn := Btn {
+        small: true;
+        icon: "plus";
+        text: @tr("Add a scene");
+        clicked => { StreamScenesDlg.add-scene(); }
+    }
+    copy-scene-btn := Btn {
+        small: true;
+        icon: "copy";
+        text: @tr("Copy");
+        enabled: StreamScenesDlg.scene-index >= 0;
+        clicked => { StreamScenesDlg.copy-scene(); }
+    }
+    rename-scene-btn := Btn {
+        small: true;
+        icon: "edit";
+        text: @tr("Rename…");
+        enabled: StreamScenesDlg.scene-index >= 0;
+        clicked => { StreamScenesDlg.rename-scene(); }
+    }
+    delete-scene-btn := Btn {
+        small: true;
+        icon: "trash";
+        danger: true;
+        text: @tr("Delete…");
+        enabled: StreamScenesDlg.scene-index >= 0;
+        clicked => { StreamScenesDlg.delete-scene(); }
+    }
+    HorizontalLayout {
+        spacing: 6px;
+        scene-up-btn := Btn {
+            small: true;
+            text: @tr("Move up");
+            enabled: StreamScenesDlg.scene-index > 0;
+            clicked => { StreamScenesDlg.move-scene(1); }
+        }
+        scene-down-btn := Btn {
+            small: true;
+            text: @tr("Move down");
+            enabled: StreamScenesDlg.scene-index >= 0 && StreamScenesDlg.scene-index < StreamScenesDlg.scenes.length - 1;
+            clicked => { StreamScenesDlg.move-scene(0); }
+        }
+    }
+}
+
+/// The chosen scene's layers and the chosen layer's settings.
+component LayerPanel inherits VerticalLayout {
+    spacing: 6px;
+    alignment: start;
+    Lbl { label: @tr("Layers (in front at the top)"); }
+    for l[i] in StreamScenesDlg.layers: PickRow {
+        name: l;
+        chosen: i == StreamScenesDlg.layer-index;
+        picked => { StreamScenesDlg.select-layer(i); }
+    }
+    if StreamScenesDlg.layers.length == 0: SmallText {
+        text: @tr("No layers: the stream shows black. Add one.");
+    }
+    HorizontalLayout {
+        spacing: 6px;
+        alignment: start;
+        add-layer-btn := Btn {
+            small: true;
+            icon: "plus";
+            text: @tr("Add layer");
+            clicked => { StreamScenesDlg.add-layer(); }
+        }
+        remove-layer-btn := Btn {
+            small: true;
+            icon: "trash";
+            text: @tr("Remove");
+            enabled: StreamScenesDlg.has-layer;
+            clicked => { StreamScenesDlg.remove-layer(); }
+        }
+    }
+    HorizontalLayout {
+        spacing: 6px;
+        alignment: start;
+        front-btn := Btn {
+            small: true;
+            text: @tr("In front");
+            enabled: StreamScenesDlg.layer-index > 0;
+            clicked => { StreamScenesDlg.move-layer(1); }
+        }
+        behind-btn := Btn {
+            small: true;
+            text: @tr("Behind");
+            enabled: StreamScenesDlg.layer-index >= 0 && StreamScenesDlg.layer-index < StreamScenesDlg.layers.length - 1;
+            clicked => { StreamScenesDlg.move-layer(0); }
+        }
+    }
+    Rectangle { height: 6px; }
+    if StreamScenesDlg.has-layer && StreamScenesDlg.layer-unknown: SmallText {
+        text: @tr("A newer RustyPresenter made this layer. It can be removed but not changed here.");
+    }
+    if StreamScenesDlg.has-layer && !StreamScenesDlg.layer-unknown: VerticalLayout {
+        spacing: 6px;
+        Lbl { label: @tr("Shows"); }
+        shows := Select {
+            options: StreamScenesDlg.shows-names;
+            index <=> StreamScenesDlg.shows-index;
+            changed(i) => { StreamScenesDlg.shows-changed(i); }
+        }
+        if StreamScenesDlg.is-picture: VerticalLayout {
+            spacing: 4px;
+            SmallText { text: StreamScenesDlg.picture-name == "" ? @tr("No picture chosen yet.") : StreamScenesDlg.picture-name; }
+            HorizontalLayout {
+                alignment: start;
+                choose-picture-btn := Btn {
+                    small: true;
+                    icon: "image";
+                    text: @tr("Choose a picture…");
+                    clicked => { StreamScenesDlg.choose-picture(); }
+                }
+            }
+        }
+        if StreamScenesDlg.is-colour: VerticalLayout {
+            spacing: 6px;
+            HorizontalLayout {
+                spacing: 6px;
+                alignment: start;
+                Swatch { hex: "#000000"; shade: #000000; }
+                Swatch { hex: "#ffffff"; shade: #ffffff; }
+                Swatch { hex: "#1e3a8a"; shade: #1e3a8a; }
+                Swatch { hex: "#7f1d1d"; shade: #7f1d1d; }
+                Swatch { hex: "#14532d"; shade: #14532d; }
+                Swatch { hex: "#f5c66b"; shade: #f5c66b; }
+            }
+            colour-field := TextField {
+                label: @tr("Colour");
+                text <=> StreamScenesDlg.colour;
+                edited(t) => { StreamScenesDlg.colour-changed(t); }
+            }
+        }
+        if StreamScenesDlg.is-text: text-field := TextField {
+            label: @tr("Words");
+            text <=> StreamScenesDlg.text;
+            edited(t) => { StreamScenesDlg.text-edited(t); }
+        }
+        Lbl { label: @tr("Place"); }
+        place := Select {
+            options: StreamScenesDlg.place-names;
+            index <=> StreamScenesDlg.place-index;
+            changed(i) => { StreamScenesDlg.place-changed(i); }
+        }
+        if StreamScenesDlg.is-box: VerticalLayout {
+            spacing: 4px;
+            BoxSlider {
+                label: @tr("From the left: {}%", StreamScenesDlg.box-x);
+                value <=> StreamScenesDlg.box-x;
+                changed => { StreamScenesDlg.box-changed(StreamScenesDlg.box-x, StreamScenesDlg.box-y, StreamScenesDlg.box-w, StreamScenesDlg.box-h); }
+            }
+            BoxSlider {
+                label: @tr("From the top: {}%", StreamScenesDlg.box-y);
+                value <=> StreamScenesDlg.box-y;
+                changed => { StreamScenesDlg.box-changed(StreamScenesDlg.box-x, StreamScenesDlg.box-y, StreamScenesDlg.box-w, StreamScenesDlg.box-h); }
+            }
+            BoxSlider {
+                label: @tr("Width: {}%", StreamScenesDlg.box-w);
+                value <=> StreamScenesDlg.box-w;
+                changed => { StreamScenesDlg.box-changed(StreamScenesDlg.box-x, StreamScenesDlg.box-y, StreamScenesDlg.box-w, StreamScenesDlg.box-h); }
+            }
+            BoxSlider {
+                label: @tr("Height: {}%", StreamScenesDlg.box-h);
+                value <=> StreamScenesDlg.box-h;
+                changed => { StreamScenesDlg.box-changed(StreamScenesDlg.box-x, StreamScenesDlg.box-y, StreamScenesDlg.box-w, StreamScenesDlg.box-h); }
+            }
+        }
+        Lbl { label: @tr("See-through: {}%", StreamScenesDlg.see-through); }
+        see-through := RangeSlider {
+            minimum: 0;
+            maximum: 100;
+            value <=> StreamScenesDlg.see-through;
+            changed(v) => { StreamScenesDlg.see-through-changed(v); }
+        }
+    }
+}
+
+export component StreamScenesDialog inherits VerticalLayout {
+    DialogBody {
+        HorizontalLayout {
+            spacing: 18px;
+            list := SceneList {
+                width: 200px;
+            }
+            VerticalLayout {
+                horizontal-stretch: 1;
+                spacing: 8px;
+                alignment: start;
+                if StreamScenesDlg.scene-index >= 0: Rectangle {
+                    height: 320px;
+                    background: #000000;
+                    border-color: Theme.line;
+                    border-width: 1px;
+                    preview := Image {
+                        width: parent.width;
+                        height: parent.height;
+                        source: StreamScenesDlg.picture;
+                        image-fit: contain;
+                        accessible-role: image;
+                        accessible-label: @tr("How the scene looks");
+                    }
+                }
+                if StreamScenesDlg.scene-index >= 0: SmallText {
+                    text: @tr("Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place.");
+                }
+                if StreamScenesDlg.scene-index >= 0: Lbl { label: @tr("Use it by itself in place of"); }
+                if StreamScenesDlg.scene-index >= 0: instead := Select {
+                    options: StreamScenesDlg.instead-names;
+                    index <=> StreamScenesDlg.instead-index;
+                    changed(i) => { StreamScenesDlg.instead-changed(i); }
+                }
+                if StreamScenesDlg.scene-index >= 0: SmallText {
+                    text: @tr("When the scene is chosen by itself from what is live, this scene goes out instead of that one. For example, choose “Camera + words” to use it for songs and verses.");
+                }
+            }
+            if StreamScenesDlg.scene-index >= 0: layers := LayerPanel {
+                width: 280px;
+            }
+        }
+    }
+    DialogFoot {
+        cancel := Btn {
+            text: @tr("Cancel");
+            clicked => { StreamScenesDlg.cancel(); }
+        }
+        save := Btn {
+            primary: true;
+            text: @tr("Save");
+            clicked => { StreamScenesDlg.save(); }
+        }
+    }
+}

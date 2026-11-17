@@ -224,3 +224,23 @@ fn a_macro_step_can_move_a_ptz_camera() {
     assert_eq!(step, Some(MacroStep::CameraPosition { camera: 2, position: 1 }));
     assert_eq!(step_label(&Lenient::Known(step.unwrap()), &d.automation, &d), "Camera 2: position 1");
 }
+
+#[test]
+fn a_macro_step_can_choose_the_churchs_own_scene_by_its_id() {
+    use crate::stream::{own_scenes::OwnScene, scene::Scene};
+    let mut d = crate::model::Data::default();
+    let ours = OwnScene::new("Welcome".into());
+    d.settings.record.own_scenes = vec![ours.clone()];
+    let t = targets(StepKind::StreamScene, &d);
+    assert_eq!(t.len(), 1 + Scene::ALL.len() + 1, "Automatic, the built-in scenes, then the church's");
+    let last = t.last().unwrap().clone();
+    assert_eq!(last, (ours.id, "Welcome".to_string()));
+    let step = build_step(StepKind::StreamScene, Some(last), "").unwrap();
+    assert_eq!(step, MacroStep::StreamScene { scene: Some(Scene::Own(ours.id)) });
+    let built_in = build_step(StepKind::StreamScene, Some(t[1].clone()), "").unwrap();
+    assert_eq!(built_in, MacroStep::StreamScene { scene: Some(Scene::ALL[0]) });
+    d.settings.record.own_scenes[0].name = "Welcome home".into();
+    assert_eq!(step_label(&Lenient::Known(step.clone()), &d.automation, &d), "Livestream: Welcome home", "renaming keeps the step");
+    let tiles = crate::automation::slide_actions::palette(&d, 1);
+    assert!(tiles.iter().any(|x| x.label == "Livestream: Welcome home" && x.steps == vec![step.clone()]), "a slide action too");
+}

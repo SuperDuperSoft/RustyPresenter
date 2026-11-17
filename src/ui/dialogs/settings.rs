@@ -280,6 +280,7 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_cancel(with(|op, _| op.close_dialog()));
     g.on_save(with(save));
     g.on_usage_report(with(usage_report));
+    g.on_edit_own_scenes(with(own_scenes));
     g.on_credit_template_edited(with(|op, edit| {
         let g = op.ui.global::<SettingsDlg>();
         let mut s = edit.settings.borrow().clone();
@@ -352,6 +353,23 @@ fn usage_report(op: &Rc<Operator>, edit: &Rc<Edit>) {
     });
 }
 
+/// "Your scenes…" in Media → Livestream: at once, or, with changes not saved yet, asks to save them first (the
+/// scenes editor takes the dialog's place and brings Settings back when it closes).
+fn own_scenes(op: &Rc<Operator>, edit: &Rc<Edit>) {
+    let mut s = edit.settings.borrow().clone();
+    read_form(&op.ui.global::<SettingsDlg>(), &mut s);
+    if s == *edit.settings.borrow() {
+        // Closed first, so it stops what it runs (the Look preview, listening for auto-follow).
+        op.close_dialog();
+        return super::stream_scenes::open(op);
+    }
+    let (me, edit) = (Rc::downgrade(op), edit.clone());
+    confirm(op, &crate::tr!("Save your other changes first?"), &crate::tr!("Save and go on"), &dlg::cancel(), false, move |ok| {
+        let Some(op) = me.upgrade().filter(|_| ok) else { return };
+        save_then(&op, &edit, super::stream_scenes::open);
+    });
+}
+
 /// "Restart now" (`recovery::restart`): at once, or, with other changes not saved yet, asks to save them first.
 fn restart_now(op: &Rc<Operator>, edit: &Rc<Edit>) {
     let mut s = edit.settings.borrow().clone();
@@ -372,6 +390,8 @@ fn save_then(op: &Rc<Operator>, edit: &Rc<Edit>, then: impl FnOnce(&Rc<Operator>
     if let Some(latest) = snap(op) {
         s.translation = latest.settings.translation.clone();
         s.screens = latest.settings.screens.clone();
+        // Kept by Your scenes, which saves them itself.
+        s.record.own_scenes = latest.settings.record.own_scenes.clone();
     }
     let body = serde_json::to_value(&s).unwrap_or_default();
     // 1.3: a new sound input for auto-follow is listened to at once.

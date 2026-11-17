@@ -156,6 +156,9 @@ pub struct RecordPrefs {
     /// The Starting soon, Ending and Hold cards.
     #[serde(skip_serializing_if = "crate::stream::pictures::Cards::is_default")]
     pub cards: crate::stream::pictures::Cards,
+    /// The church's own livestream scenes (`stream::own_scenes`), in the order of the scene button.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub own_scenes: Vec<crate::stream::own_scenes::OwnScene>,
     /// Signed in: what a broadcast is called (`{date}`, `{service}`; empty: `accounts::default_title`), its
     /// description, and who can watch on YouTube.
     #[serde(skip_serializing_if = "String::is_empty")]

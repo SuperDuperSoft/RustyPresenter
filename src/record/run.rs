@@ -428,6 +428,8 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
             let shown = w.slot.lock().unwrap_or_else(|e| e.into_inner()).clone();
             if let Some(n) = ndi.as_mut() { n.words(&shown.words) }
             if let Some(f) = words_file.as_mut() { f.words(&shown.words) }
+            // The church's own scenes can show any camera, not only the one on air.
+            if matches!(shown.scene, crate::stream::scene::Scene::Own(_)) { m.cameras = camera_feeds.iter().map(|f| f.picture()).collect() }
             m.update(&shown, &current, camera.and_then(|f| f.picture()), room_new, Instant::now());
             room_new = false;
         }
@@ -513,6 +515,11 @@ struct Mixer {
     camera: Option<Arc<Vec<u8>>>,
     words: Option<Arc<Vec<u8>>>,
     card: Option<Arc<Vec<u8>>>,
+    /// The church's own scene: it made ready, every camera's newest picture (set by the writer, the first camera
+    /// first), and the pictures of the cameras it shows, as last put together.
+    own: Option<Arc<crate::stream::own_scenes::Prepared>>,
+    cameras: Vec<Option<Arc<Vec<u8>>>>,
+    used: Vec<Option<Arc<Vec<u8>>>>,
     /// How many times the picture was put together (tests).
     composes: u64,
 }
@@ -520,7 +527,7 @@ struct Mixer {
 impl Mixer {
     fn new(size: (u32, u32)) -> Mixer {
         let black = [0, 0, 0, 255].repeat(size.0 as usize * size.1 as usize);
-        Mixer { size, layout: Default::default(), out: black.clone(), next: black, fade: None, scene: None, camera: None, words: None, card: None, composes: 0 }
+        Mixer { size, layout: Default::default(), out: black.clone(), next: black, fade: None, scene: None, camera: None, words: None, card: None, own: None, cameras: vec![], used: vec![], composes: 0 }
     }
 
     fn out(&self) -> &[u8] { &self.out }
@@ -531,15 +538,28 @@ impl Mixer {
         let same = |a: &Option<Arc<Vec<u8>>>, b: &Option<Arc<Vec<u8>>>| match (a, b) { (Some(a), Some(b)) => Arc::ptr_eq(a, b), (None, None) => true, _ => false };
         // Only what the scene shows counts: a card needs neither the room nor the camera, only Camera + words
         // and Screen + camera need the camera, and the camera scenes need the room only while there is no camera.
-        let camera = camera.filter(|_| shown.scene.needs_camera());
-        let room_new = room_new && !shown.scene.is_card() && (camera.is_none() || shown.scene == Scene::ScreenCamera);
+        // The church's own scene needs the cameras it has layers of, and the room when it has a layer of it or one
+        // of its cameras sends nothing.
+        let own = shown.own.clone().filter(|_| matches!(shown.scene, Scene::Own(_)));
+        let on_air = own.as_ref().is_some_and(|p| p.cameras().any(|n| n == 0));
+        let camera = camera.filter(|_| shown.scene.needs_camera() || on_air);
+        let used: Vec<Option<Arc<Vec<u8>>>> = own.as_ref().map(|p| p.cameras().filter(|n| *n > 0).map(|n| self.cameras.get(usize::from(n) - 1).cloned().flatten()).collect()).unwrap_or_default();
+        let needs_room = match &own {
+            Some(p) => p.shows_room() || (on_air && camera.is_none()) || used.iter().any(Option::is_none),
+            None => !shown.scene.is_card() && (camera.is_none() || shown.scene == Scene::ScreenCamera),
+        };
+        let room_new = room_new && needs_room;
+        let same_own = match (&self.own, &own) { (Some(a), Some(b)) => Arc::ptr_eq(a, b), (None, None) => true, _ => false };
+        let same_used = self.used.len() == used.len() && self.used.iter().zip(&used).all(|(a, b)| same(a, b));
         let scene_changed = self.scene.is_some_and(|s| s != shown.scene);
-        let changed = self.scene != Some(shown.scene) || room_new || !same(&self.camera, &camera) || !same(&self.words, &shown.words) || !same(&self.card, &shown.card);
+        let changed = self.scene != Some(shown.scene) || room_new || !same(&self.camera, &camera) || !same(&self.words, &shown.words) || !same(&self.card, &shown.card)
+            || !same_own || !same_used;
         if scene_changed { self.fade = Some((self.out.clone(), now)) }
         if changed {
+            let cameras: Vec<Option<&[u8]>> = self.cameras.iter().map(|c| c.as_deref().map(Vec::as_slice)).collect();
             compose(shown.scene, &Inputs { size: self.size, room, camera: camera.as_deref().map(Vec::as_slice), words: shown.words.as_deref().map(Vec::as_slice),
-                card: shown.card.as_deref().map(Vec::as_slice) }, &self.layout, &mut self.next);
-            (self.scene, self.camera, self.words, self.card) = (Some(shown.scene), camera, shown.words.clone(), shown.card.clone());
+                card: shown.card.as_deref().map(Vec::as_slice), cameras: &cameras, own: own.as_deref() }, &self.layout, &mut self.next);
+            (self.scene, self.camera, self.words, self.card, self.own, self.used) = (Some(shown.scene), camera, shown.words.clone(), shown.card.clone(), own, used);
             self.composes += 1;
         }
         match &self.fade {

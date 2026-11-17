@@ -22,6 +22,7 @@ pub mod level;
 pub mod live_info;
 pub mod lyrics;
 pub mod ndi;
+pub mod own_scenes;
 pub mod pc_sound;
 pub mod pictures;
 pub mod ptz;
