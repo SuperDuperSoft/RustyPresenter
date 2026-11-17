@@ -7,7 +7,7 @@ pub fn stage_layout() -> String { tr!("Stage layout") }
 
 /// The built-in stage layouts.
 pub fn classic() -> String { tr!("Classic") }
-pub fn lyrics_only() -> String { tr!("Lyrics only") }
+pub fn lyrics_only() -> String { tr!("Words only") }
 pub fn band() -> String { tr!("Band") }
 pub fn speaker() -> String { tr!("Speaker") }
 pub fn clock_countdown() -> String { tr!("Clock and countdown") }

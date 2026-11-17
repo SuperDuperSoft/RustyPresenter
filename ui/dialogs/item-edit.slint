@@ -157,8 +157,8 @@ export component ItemEditDialog inherits VerticalLayout {
                     NoteText {
                         horizontal-stretch: 1;
                         text: ItemEdit.song-exists
-                            ? @tr("Lyrics, order and credits belong to the song in your library.")
-                            : @tr("Lyrics, order and credits belong to the song in your library. This song was deleted from the library.");
+                            ? @tr("Words, order and credits belong to the song in your library.")
+                            : @tr("Words, order and credits belong to the song in your library. This song was deleted from the library.");
                     }
                     if ItemEdit.song-exists: VerticalLayout {
                         alignment: center;
@@ -377,7 +377,7 @@ export component ItemEditDialog inherits VerticalLayout {
         if ItemEdit.kind == "audio": VerticalLayout {
             padding-bottom: 12px;
             Note {
-                text: @tr("Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All.");
+                text: @tr("Audio keeps playing while you change slides. Stop it with Clear audio (F4) or Clear all.");
             }
         }
         if ItemEdit.has-name: Field {
@@ -546,7 +546,7 @@ export component ItemEditDialog inherits VerticalLayout {
             notes-box := TextArea {
                 label: @tr("Stage notes");
                 min-height: 64px;
-                placeholder: @tr("Shown on the stage display only");
+                placeholder: @tr("Shown on the stage screen only");
                 text <=> ItemEdit.notes;
             }
         }

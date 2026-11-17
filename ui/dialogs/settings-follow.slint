@@ -17,7 +17,7 @@ component SettingsFollowMain inherits VerticalLayout {
     Rectangle { height: 6px; }
     Field {
         label: @tr("Sound input");
-        help: @tr("Best: the lead singer's microphone on its own, sent from the sound desk. Next best: the main mix. A microphone in the room hears too much else.");
+        help: @tr("Best: the lead singer's microphone on its own, sent from the sound board. Next best: the main mix. A microphone in the room hears too much else.");
         follow-device := Select {
             options: SettingsDlg.follow-device-labels;
             index <=> SettingsDlg.follow-device-index;
@@ -174,7 +174,7 @@ component SettingsFollowMain inherits VerticalLayout {
                 small: true;
                 enabled: !SettingsDlg.model-checking;
                 text: @tr("Test speed");
-                tooltip: @tr("Tries the downloaded models on this PC and says which one suits it.");
+                tooltip: @tr("Tries the downloaded models on this computer and says which one suits it.");
                 clicked => { SettingsDlg.model-speed-check(); }
             }
         }

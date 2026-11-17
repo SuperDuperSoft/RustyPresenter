@@ -118,7 +118,7 @@ fn draw_library(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g(op).set_library(ModelRc::new(VecModel::from(rows)));
 }
 
-/// "Picture", "Video", "Color", "Gradient", or how its conversion is going.
+/// "Picture", "Video", "Colour", "Gradient", or how its conversion is going.
 pub fn library_sub(e: &crate::model::BackgroundEntry) -> String {
     use crate::model::MediaStatus;
     match &e.status {

@@ -15,7 +15,7 @@ pub fn standard_name() -> String { tr!("Standard") }
 pub fn church_default() -> String { tr!("Church default") }
 /// The built-in lower-third theme's name.
 pub fn lower_third_name() -> String { tr!("Lower third") }
-pub fn standard_hint() -> String { tr!("Built in — the style RustyPresenter started with") }
+pub fn standard_hint() -> String { tr!("Built-in — the style RustyPresenter started with") }
 pub fn default_hint() -> String { tr!("Church default — used whenever nothing else is picked") }
 pub fn new_theme_name() -> String { tr!("New theme") }
 pub fn service_gone() -> String { tr!("That service is gone.") }
@@ -46,7 +46,7 @@ pub fn overlay_gone() -> String { tr!("That overlay is gone.") }
 /// The spec gives no wording for this one; it is the plan's.
 pub fn overlay_kind() -> String { tr!("Only text, picture and clock overlays can be saved.") }
 pub fn overlay_cap() -> String { tr!("Up to 8 overlays can be on at once. Turn one off first.") }
-pub fn logo_first() -> String { tr!("Choose a church logo first (Settings → Themes).") }
+pub fn logo_first() -> String { tr!("Choose a church logo first (Settings → Look).") }
 pub fn picture_gone() -> String { tr!("That picture is gone.") }
 /// The reason part of `overlay_failed` when an overlay's picture can't be read.
 pub fn picture_unreadable() -> String { tr!("the picture could not be loaded.") }
@@ -66,7 +66,7 @@ pub fn remove() -> String { tr!("Remove") }
 pub fn make_default() -> String { tr!("Make default") }
 pub fn theme_reset() -> String { tr!("Theme put back as it came") }
 pub fn rename_background() -> String { tr!("New name for this background") }
-pub fn kind_color() -> String { tr!("Color") }
+pub fn kind_color() -> String { tr!("Colour") }
 pub fn kind_gradient() -> String { tr!("Gradient") }
 pub fn kind_picture() -> String { tr!("Picture") }
 pub fn kind_video() -> String { tr!("Video") }
@@ -200,7 +200,7 @@ pub fn range_chip(style: &crate::theme::richtext::RunStyle, text: &str) -> Strin
         parts.push(match c.to_ascii_lowercase().as_str() {
             "#f5b94a" => tr!("Gold"),
             "#ff4f55" => tr!("Red"),
-            _ => tr!("Color"),
+            _ => tr!("Colour"),
         });
     }
     match style.size {
@@ -268,7 +268,7 @@ mod tests {
         let st = RunStyle { color: Some("#f5b94a".into()), size: 125, ..Default::default() };
         assert_eq!(range_chip(&st, "Pancake breakfast"), "Gold, Large: ‘Pancake breakfast’");
         let st = RunStyle { bold: true, italic: true, underline: true, color: Some("#123456".into()), size: 75, ..Default::default() };
-        assert_eq!(range_chip(&st, "x"), "Bold, Italic, Underline, Color, Small: ‘x’");
+        assert_eq!(range_chip(&st, "x"), "Bold, Italic, Underline, Colour, Small: ‘x’");
         let st = RunStyle { color: Some("#FF4F55".into()), size: 150, ..Default::default() };
         assert_eq!(range_chip(&st, "y"), "Red, Huge: ‘y’");
     }

@@ -12,7 +12,7 @@ pub struct PrintDoc { pub title: String, pub subtitle: String, pub blocks: Vec<B
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Block {
-    /// A part heading ("Service order", "Lyrics") or a song's or reading's title.
+    /// A part heading ("Service order", "Words") or a song's or reading's title.
     Heading(String),
     /// A coloured header of the service list, in the order.
     OrderHeader(String),

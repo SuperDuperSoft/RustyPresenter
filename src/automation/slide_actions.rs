@@ -106,9 +106,9 @@ pub fn palette(data: &Data, slides: usize) -> Vec<Tile> {
     let a = &data.automation;
     let mut t = vec![];
     for (label, step) in [
-        (tr!("Clear everything"), MacroStep::Clear { which: ClearWhich::All }),
-        (tr!("Clear words"), MacroStep::Clear { which: ClearWhich::Slide }),
-        (tr!("Clear video and pictures"), MacroStep::Clear { which: ClearWhich::Media }),
+        (tr!("Clear all"), MacroStep::Clear { which: ClearWhich::All }),
+        (tr!("Clear text"), MacroStep::Clear { which: ClearWhich::Slide }),
+        (tr!("Clear media & background"), MacroStep::Clear { which: ClearWhich::Media }),
         (tr!("Clear audio"), MacroStep::Clear { which: ClearWhich::Audio }),
         (tr!("Clear overlays"), MacroStep::Clear { which: ClearWhich::Overlays }),
         (tr!("Hide the message"), MacroStep::MessageHide),

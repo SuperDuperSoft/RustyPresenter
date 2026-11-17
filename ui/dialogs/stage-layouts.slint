@@ -318,7 +318,7 @@ component BoxPanel inherits VerticalLayout {
             changed(i) => { StageLayoutsDlg.kind-changed(i); }
         }
         if StageLayoutsDlg.box-is-slide: chords-check := Check {
-            text: @tr("Show chords (typed in the lyrics like [G])");
+            text: @tr("Show chords (typed in the words like [G])");
             checked <=> StageLayoutsDlg.box-chords;
             toggled(v) => { StageLayoutsDlg.chords-changed(v); }
         }

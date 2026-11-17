@@ -27,8 +27,8 @@ fn kind(role: &str) -> &str { role.split(':').next().unwrap_or(role) }
 fn named(role: &str) -> &'static str {
     match (kind(role), role.contains(':')) {
         ("room", false) => "room screen",
-        ("room", true) => "extra audience screen",
-        (_, false) => "stage display",
+        ("room", true) => "extra room screen",
+        (_, false) => "stage screen",
         (_, true) => "extra stage screen",
     }
 }
@@ -37,8 +37,8 @@ fn named(role: &str) -> &'static str {
 pub fn gone_notice(role: &str) -> String {
     match (kind(role), role.contains(':')) {
         ("room", false) => crate::tr!("The room screen was unplugged. It comes back by itself when that screen is plugged in again."),
-        ("room", true) => crate::tr!("The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."),
-        (_, false) => crate::tr!("The stage display was unplugged. It comes back by itself when that screen is plugged in again."),
+        ("room", true) => crate::tr!("The extra room screen was unplugged. It comes back by itself when that screen is plugged in again."),
+        (_, false) => crate::tr!("The stage screen was unplugged. It comes back by itself when that screen is plugged in again."),
         (_, true) => crate::tr!("The extra stage screen was unplugged. It comes back by itself when that screen is plugged in again."),
     }
 }
@@ -47,8 +47,8 @@ pub fn gone_notice(role: &str) -> String {
 fn back_failed(role: &str, error: &str) -> String {
     match (kind(role), role.contains(':')) {
         ("room", false) => crate::tr!("The room screen is plugged in again, but it could not open: {error}", error = error),
-        ("room", true) => crate::tr!("The extra audience screen is plugged in again, but it could not open: {error}", error = error),
-        (_, false) => crate::tr!("The stage display is plugged in again, but it could not open: {error}", error = error),
+        ("room", true) => crate::tr!("The extra room screen is plugged in again, but it could not open: {error}", error = error),
+        (_, false) => crate::tr!("The stage screen is plugged in again, but it could not open: {error}", error = error),
         (_, true) => crate::tr!("The extra stage screen is plugged in again, but it could not open: {error}", error = error),
     }
 }
@@ -676,7 +676,7 @@ mod tests {
         let s = screens(&app);
         let (laptop, projector) = (mon(r"\\.\DISPLAY1", 1920, 0), mon(r"\\.\DISPLAY2", 1280, 1920));
         s.look_at(vec![laptop.clone(), projector.clone()], Some(laptop.clone()));
-        s.identify(vec![(laptop.key(), "1".into(), "This computer".into()), (projector.key(), "2".into(), "Audience".into()), ("gone".into(), "3".into(), "x".into())]);
+        s.identify(vec![(laptop.key(), "1".into(), "This computer".into()), (projector.key(), "2".into(), "Room screen".into()), ("gone".into(), "3".into(), "x".into())]);
         assert_eq!(DESK.with(|d| d.borrow().badges.len()), 2);
         s.shutdown();
         assert_eq!(DESK.with(|d| d.borrow().badges.len()), 0);
@@ -721,7 +721,7 @@ mod tests {
         assert!(s.open_roles().is_empty(), "the room window closes");
         assert_eq!(app.live_view().notice, Some(gone_notice("room")));
         assert!(gone_notice("room").contains("room screen was unplugged"));
-        assert!(gone_notice("room:1").contains("extra audience screen was unplugged"));
+        assert!(gone_notice("room:1").contains("extra room screen was unplugged"));
         // Plugged in again: the room reopens on it, and the operator hears it restarted.
         s.look_at(vec![laptop.clone(), projector], Some(laptop));
         assert_eq!(s.open_roles(), ["room"]);

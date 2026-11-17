@@ -110,9 +110,9 @@ pub(crate) fn verse_text(verse: roxmltree::Node) -> String {
 
 /// The `<verse>` elements of OpenLP's lyrics XML, in document order. DTDs are refused (no entity tricks).
 pub fn parse_verses(xml: &str) -> Result<Vec<Verse>, String> {
-    let doc = roxmltree::Document::parse(xml.trim_start_matches(is_bom_or_space)).map_err(|e| tr!("the lyrics are not valid XML ({error})", error = e))?;
+    let doc = roxmltree::Document::parse(xml.trim_start_matches(is_bom_or_space)).map_err(|e| tr!("the words are not valid XML ({error})", error = e))?;
     let verses: Vec<_> = doc.descendants().filter(|n| n.is_element() && n.tag_name().name().eq_ignore_ascii_case("verse")).collect();
-    if verses.len() > MAX_VERSES { return Err(tr!("the lyrics have too many verses (more than {max})", max = MAX_VERSES)); }
+    if verses.len() > MAX_VERSES { return Err(tr!("the words have too many verses (more than {max})", max = MAX_VERSES)); }
     Ok(verses.into_iter().map(|n| {
         let (mut kind, mut label) = (n.attribute("type").unwrap_or("").trim().to_string(), n.attribute("label").unwrap_or("").trim().to_string());
         // OpenLyrics style `name="v1"` when there is no type.
@@ -243,10 +243,10 @@ fn join_groups(groups: &[Vec<String>]) -> String {
 /// when that is just the written order. Err is why the lyrics can't be used.
 pub fn lyrics_from_xml(xml: &str, verse_order: &str) -> Result<(String, Vec<String>), String> {
     let trimmed = xml.trim_matches(is_bom_or_space);
-    if trimmed.len() > MAX_LYRICS { return Err(tr!("the lyrics are too long to be a song")); }
+    if trimmed.len() > MAX_LYRICS { return Err(tr!("the words are too long to be a song")); }
     if !trimmed.starts_with('<') {
         let out = join_groups(&verse_groups(trimmed));
-        return if out.is_empty() { Err(tr!("the lyrics are empty")) } else { Ok((out, vec![])) };
+        return if out.is_empty() { Err(tr!("the words are empty")) } else { Ok((out, vec![])) };
     }
     lyrics_from_verses(parse_verses(trimmed)?, verse_order)
 }
@@ -254,11 +254,11 @@ pub fn lyrics_from_xml(xml: &str, verse_order: &str) -> Result<(String, Vec<Stri
 /// Verses (from OpenLP, OpenLyrics or OpenSong) plus a verse order ("v1 c1 v2 c1") → lyrics and arrangement, as
 /// `lyrics_from_xml` describes.
 pub(crate) fn lyrics_from_verses(verses: Vec<Verse>, verse_order: &str) -> Result<(String, Vec<String>), String> {
-    if verses.len() > MAX_VERSES { return Err(tr!("the lyrics have too many verses (more than {max})", max = MAX_VERSES)); }
-    if verses.iter().map(|v| v.text.len()).sum::<usize>() > MAX_LYRICS { return Err(tr!("the lyrics are too long to be a song")); }
+    if verses.len() > MAX_VERSES { return Err(tr!("the words have too many verses (more than {max})", max = MAX_VERSES)); }
+    if verses.iter().map(|v| v.text.len()).sum::<usize>() > MAX_LYRICS { return Err(tr!("the words are too long to be a song")); }
     let verses: Vec<(Verse, Vec<Vec<String>>)> = verses.into_iter()
         .map(|v| { let g = verse_groups(&v.text); (v, g) }).filter(|(_, g)| !g.is_empty()).collect();
-    if verses.is_empty() { return Err(tr!("the lyrics have no verses")); }
+    if verses.is_empty() { return Err(tr!("the words have no verses")); }
     let codes: Vec<char> = verses.iter().map(|(v, _)| kind_code(&v.kind)).collect();
     let mut count: HashMap<char, usize> = HashMap::new();
     for c in &codes { *count.entry(*c).or_default() += 1; }
@@ -346,7 +346,7 @@ fn display_title(row: &OlpSong) -> String {
 /// Err is the reason the row is skipped.
 pub fn to_song(row: &OlpSong) -> Result<Song, String> {
     if row.temporary { return Err(tr!("a temporary copy OpenLP keeps for a service file")); }
-    if row.lyrics.trim().is_empty() { return Err(tr!("no lyrics")); }
+    if row.lyrics.trim().is_empty() { return Err(tr!("no words")); }
     let (lyrics, arrangement) = lyrics_from_xml(&row.lyrics, &row.verse_order)?;
     let writers = row.authors.iter().map(|a| a.trim()).filter(|a| !a.is_empty()).collect::<Vec<_>>().join(" | ");
     Ok(Song { id: Uuid::new_v4(), title: display_title(row), writers, ccli: ccli(&row.ccli_number), copyright: row.copyright.trim().to_string(),
@@ -648,7 +648,7 @@ Sing it all the day]]></verse><verse type="v" label="2"><![CDATA[Evening comes{b
 
     #[test]
     fn rows_that_are_not_songs_are_skipped_with_a_reason() {
-        assert!(to_song(&row("Empty", "")).unwrap_err().contains("no lyrics"));
+        assert!(to_song(&row("Empty", "")).unwrap_err().contains("no words"));
         assert!(to_song(&row("Broken", "<song><lyrics><verse>")).unwrap_err().contains("XML"));
         assert!(to_song(&OlpSong { temporary: true, ..row("Temp", GRACE) }).unwrap_err().contains("service"));
         assert_eq!(to_song(&row("  ", GRACE)).unwrap().title, "Untitled song");
@@ -756,7 +756,7 @@ Sing it all the day]]></verse><verse type="v" label="2"><![CDATA[Evening comes{b
         let report = read_library(&dir).unwrap();
         assert_eq!(report.songs.len(), 1);
         assert_eq!((report.songs[0].title.as_str(), report.songs[0].writers.as_str()), ("Untitled song", ""));
-        assert_eq!(report.skipped, [("No words".to_string(), "no lyrics".to_string())]);
+        assert_eq!(report.skipped, [("No words".to_string(), "no words".to_string())]);
         std::fs::remove_dir_all(&dir).ok();
     }
 

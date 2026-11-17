@@ -511,7 +511,7 @@ mod tests {
         assert_eq!(sub(media_row(&pic, "image", EndAction::Stop, false)), "Picture");
         assert_eq!(sub(media_row(&audio, "audio", EndAction::Stop, true)), "Audio · loops");
         assert_eq!(sub(row("song", 4)), "Song · 4 slides");
-        assert_eq!(sub(row("scripture", 1)), "Scripture · 1 slide");
+        assert_eq!(sub(row("scripture", 1)), "Bible passage · 1 slide");
         assert_eq!(sub(row("deck", 2)), "Slides · 2 slides");
         assert_eq!(sub(row("text", 1)), "Announcement · 1 slide");
     }

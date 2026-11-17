@@ -34,7 +34,7 @@ pub fn advice(mbps: f64, destinations: usize) -> (Option<Preset>, String) {
     } else if mbps >= needed(Preset::P720, destinations) {
         (Some(Preset::P720), tr!("Upload: {speed} Mbit/s. Stream in 720p: 1080p needs {need} Mbit/s.", speed = speed, need = format!("{:.0}", needed(Preset::P1080, destinations).ceil())))
     } else {
-        (None, tr!("Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer places, or use a faster connection.",
+        (None, tr!("Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer destinations, or use a faster connection.",
             speed = speed, need = format!("{:.0}", needed(Preset::P720, destinations).ceil())))
     }
 }

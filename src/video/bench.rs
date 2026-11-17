@@ -420,8 +420,8 @@ pub fn mark_offered(root: &Path, why: Offer) {
 
 pub fn offer_text(why: Offer) -> String {
     match why {
-        Offer::DriverChanged => tr!("The graphics card or its driver changed. Want me to find the best graphics for this PC again? About a minute"),
-        _ => tr!("Want me to find the best graphics for this PC? About a minute"),
+        Offer::DriverChanged => tr!("The graphics card or its driver changed. Want me to find the best graphics for this computer again? About a minute"),
+        _ => tr!("Want me to find the best graphics for this computer? About a minute"),
     }
 }
 
@@ -429,7 +429,7 @@ pub fn button() -> String { tr!("Test which is fastest") }
 pub fn not_now() -> String { tr!("Not now") }
 pub fn nothing_worked() -> String { tr!("None of the graphics choices worked in the test. RustyPresenter keeps the current setting.") }
 pub fn done_text(winner: Graphics) -> String {
-    tr!("{mode} is the best for this PC. Automatic will use it from the next start.", mode = super::graphics::name(winner))
+    tr!("{mode} is the best for this computer. Automatic will use it from the next start.", mode = super::graphics::name(winner))
 }
 
 #[cfg(test)]

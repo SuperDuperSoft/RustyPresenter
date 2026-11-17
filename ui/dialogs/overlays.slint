@@ -91,7 +91,7 @@ component OverlayList inherits VerticalLayout {
     property <string> filter;
     spacing: 4px;
     Note {
-        text: @tr("Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top.");
+        text: @tr("Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top.");
     }
     Rectangle { height: 10px; }
     if OverlaysDlg.rows.length >= ListFilter.min-rows || root.filter != "": HorizontalLayout {
@@ -259,7 +259,7 @@ component OverlayEditor inherits HorizontalLayout {
             }
         }
         if OverlaysDlg.kind == 1: Field {
-            label: @tr("Opacity");
+            label: @tr("See-through");
             overlay-opacity := RangeSlider {
                 minimum: 10;
                 maximum: 100;
@@ -314,7 +314,7 @@ component OverlayEditor inherits HorizontalLayout {
             }
             Field {
                 horizontal-stretch: 1;
-                label: @tr("Text color");
+                label: @tr("Text colour");
                 color := ColorPicker {
                     value: OverlaysDlg.color-swatch;
                     palette: OverlaysDlg.palette;
@@ -343,7 +343,7 @@ component OverlayEditor inherits HorizontalLayout {
             spacing: 14px;
             Field {
                 horizontal-stretch: 1;
-                label: @tr("Box color");
+                label: @tr("Box colour");
                 box-color := ColorPicker {
                     value: OverlaysDlg.box-swatch;
                     palette: OverlaysDlg.palette;

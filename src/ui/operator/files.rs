@@ -1197,7 +1197,7 @@ mod window_tests {
         op.window_events().dispatch(&WindowEvent::HoveredFile("a.mp4".into()));
         let hint = find(&op, "DropHint::box").expect("the drop hint");
         assert_eq!(hint.accessible_label().unwrap_or_default(), "Drop to add to the service");
-        assert_eq!(hint.accessible_description().unwrap_or_default(), "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect lyric files");
+        assert_eq!(hint.accessible_description().unwrap_or_default(), "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect song files");
         op.window_events().dispatch(&WindowEvent::HoveredFileCancelled);
         assert!(!hint_shown(&op));
     }

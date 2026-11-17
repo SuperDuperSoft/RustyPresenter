@@ -466,7 +466,7 @@ export component LiveColumn inherits Rectangle {
             clears := VerticalLayout {
                 spacing: 8px;
                 clear-all := ClearAllBtn {
-                    text: @tr("Clear All");
+                    text: @tr("Clear all");
                     key: MenuKeys.clear-all-label;
                     clicked => { root.clear("clear_all"); }
                 }

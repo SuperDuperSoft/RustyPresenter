@@ -73,7 +73,7 @@ pub fn read_chordpro(text: &str) -> Result<Song, String> {
     let report = chordpro::parse_str(&kept.join("\n"));
     let mut song = match report.songs.into_iter().next() {
         Some(s) => s,
-        None => return Err(report.skipped.into_iter().next().map(|(_, why)| why).unwrap_or_else(|| crate::tr!("No lyrics were found in this file."))),
+        None => return Err(report.skipped.into_iter().next().map(|(_, why)| why).unwrap_or_else(|| crate::tr!("No song words were found in this file."))),
     };
     if song.ccli.is_empty() { song.ccli = ccli }
     if song.copyright.is_empty() { song.copyright = copyright }
@@ -83,7 +83,7 @@ pub fn read_chordpro(text: &str) -> Result<Song, String> {
 
 /// A song file picked or dropped by the person (any of SongSelect's song downloads). A CCLI number is not needed.
 pub fn read_song_file(name: &str, bytes: &[u8]) -> Result<Song, String> {
-    if bytes.len() as u64 > MAX_BYTES { return Err(crate::tr!("That file is too big to be a lyric file.")) }
+    if bytes.len() as u64 > MAX_BYTES { return Err(crate::tr!("That file is too big to be a song file.")) }
     let text = chordpro::decode(bytes);
     match ext_of(name).as_str() {
         "usr" => usr::parse(&text),
@@ -165,7 +165,7 @@ pub fn place(songs: &mut Vec<Song>, mut song: Song) -> (Uuid, Landed) {
 pub(crate) mod tests {
     use super::*;
 
-    /// Made up in the style of SongSelect's "Lyrics" download (not a real song).
+    /// Made up in the style of SongSelect's "Words" download (not a real song).
     pub(crate) const LYRICS_TXT: &str = "River Of Test Songs\r\n\r\nVerse 1\r\nWe are walking by the river\r\nSinging all the way\r\n\r\nChorus\r\nOh the river runs\r\nOh the river sings\r\n\r\nVerse 2\r\nEvery morning by the water\r\nNew songs every day\r\n\r\nSample Writer | Another Writer\r\nCCLI Song # 1234567\r\n© 2026 Example Worship Music (Admin. by Example Publishing)\r\nFor use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com\r\nCCLI License # 11223344\r\n";
 
     /// Made up in the style of SongSelect's ChordPro download (not a real song).

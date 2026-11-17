@@ -34,7 +34,7 @@ fn opens_on_the_stage_default_and_lists_builtins_first() {
     let ed = Editor::new(vec![o.clone()], o.id);
     assert_eq!(ed.layout, o.id);
     let names: Vec<&str> = ed.all().iter().map(|l| l.name.as_str()).collect();
-    assert_eq!(names, ["Classic", "Lyrics only", "Band", "Speaker", "Clock and countdown", "Slides and notes", "Ours"]);
+    assert_eq!(names, ["Classic", "Words only", "Band", "Speaker", "Clock and countdown", "Slides and notes", "Ours"]);
     assert!(!ed.locked());
     assert!(Editor::new(vec![], Uuid::new_v4()).locked(), "a default that is gone opens Classic");
 }
@@ -257,7 +257,7 @@ fn hide_chords_and_shapes_are_box_settings() {
 #[test]
 fn picker_lists_every_layout_with_the_one_on_stage() {
     let o = ours("Ours");
-    assert_eq!(picker(&[o.clone()], o.id), (vec!["Classic".into(), "Lyrics only".into(), "Band".into(), "Speaker".into(), "Clock and countdown".into(), "Slides and notes".into(), "Ours".into()], 6));
+    assert_eq!(picker(&[o.clone()], o.id), (vec!["Classic".into(), "Words only".into(), "Band".into(), "Speaker".into(), "Clock and countdown".into(), "Slides and notes".into(), "Ours".into()], 6));
     assert_eq!(picker(&[], Uuid::new_v4()).1, 0);
 }
 

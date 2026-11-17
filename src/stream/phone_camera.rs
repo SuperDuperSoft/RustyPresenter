@@ -146,7 +146,7 @@ pub mod tr {
             "on_air": tr!("On the stream now"),
             "next": tr!("Next on the stream"),
             "off_air": tr!("Not on the stream"),
-            "choose": tr!("On the computer, choose this phone in Settings, Media, Livestream, Camera."),
+            "choose": tr!("On the computer, choose this phone in Settings → Media → Livestream → Camera."),
         })
     }
 

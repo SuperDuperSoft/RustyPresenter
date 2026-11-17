@@ -486,14 +486,31 @@ pub struct ScreenSetup { pub audience: ScreenGroup, pub stage: ScreenGroup }
 impl Default for ScreenSetup {
     fn default() -> Self {
         Self {
-            audience: ScreenGroup { on: false, screens: vec![Screen::new(Uuid::from_u128(1), "Audience")] },
-            stage: ScreenGroup { on: false, screens: vec![Screen::new(Uuid::from_u128(2), "Stage Display")] },
+            audience: ScreenGroup { on: false, screens: vec![Screen::new(Uuid::from_u128(1), "Room screen")] },
+            stage: ScreenGroup { on: false, screens: vec![Screen::new(Uuid::from_u128(2), "Stage screen")] },
         }
     }
 }
 
 impl ScreenSetup {
     pub const GROUPS: [&str; 2] = ["audience", "stage"];
+
+    /// Older versions named new screens "Audience", "Audience 2", "Stage Display", "Stage Display 2"; the app now
+    /// says room screen and stage screen everywhere. Only those exact names change: a name typed by hand stays.
+    /// True when one changed.
+    pub fn rename_old_defaults(&mut self) -> bool {
+        let mut changed = false;
+        for (group, old, new) in [(&mut self.audience, "Audience", "Room screen"), (&mut self.stage, "Stage Display", "Stage screen")] {
+            for s in &mut group.screens {
+                let Some(rest) = s.name.strip_prefix(old) else { continue };
+                let number = rest.strip_prefix(' ').filter(|n| !n.is_empty() && n.bytes().all(|b| b.is_ascii_digit()));
+                let renamed = match (rest.is_empty(), number) { (true, _) => new.to_string(), (_, Some(n)) => format!("{new} {n}"), _ => continue };
+                s.name = renamed;
+                changed = true;
+            }
+        }
+        changed
+    }
 
     pub fn group(&self, name: &str) -> Option<&ScreenGroup> {
         match name { "audience" => Some(&self.audience), "stage" => Some(&self.stage), _ => None }
@@ -881,6 +898,8 @@ impl Data {
         }
         // FEAT-2: the built-in timers and messages, once.
         changed |= crate::automation::seed(&mut self.automation);
+        // November 17, 2026 (one word for each thing): screens still named as older versions named them.
+        changed |= self.settings.screens.rename_old_defaults();
         changed
     }
 
@@ -1088,8 +1107,25 @@ mod screen_tests {
     fn find_names_the_group() {
         let s = ScreenSetup::default();
         let id = s.stage.screens[0].id;
-        assert_eq!(s.find(id).map(|(g, x)| (g, x.name.as_str())), Some(("stage", "Stage Display")));
+        assert_eq!(s.find(id).map(|(g, x)| (g, x.name.as_str())), Some(("stage", "Stage screen")));
         assert!(s.find(Uuid::nil()).is_none());
+    }
+
+    #[test]
+    fn old_default_screen_names_become_room_and_stage_screen() {
+        let mut s = ScreenSetup::default();
+        let add = |g: &mut ScreenGroup, name: &str| g.screens.push(Screen::new(Uuid::new_v4(), name));
+        s.audience.screens[0].name = "Audience".into();
+        add(&mut s.audience, "Audience 2");
+        add(&mut s.audience, "Audience overflow");
+        s.stage.screens[0].name = "Stage Display".into();
+        add(&mut s.stage, "Stage Display 3");
+        add(&mut s.stage, "Drummer");
+        assert!(s.rename_old_defaults());
+        let names = |g: &ScreenGroup| g.screens.iter().map(|x| x.name.clone()).collect::<Vec<_>>();
+        assert_eq!(names(&s.audience), ["Room screen", "Room screen 2", "Audience overflow"], "a name typed by hand stays");
+        assert_eq!(names(&s.stage), ["Stage screen", "Stage screen 3", "Drummer"]);
+        assert!(!s.rename_old_defaults(), "once is enough");
     }
 
     #[test]

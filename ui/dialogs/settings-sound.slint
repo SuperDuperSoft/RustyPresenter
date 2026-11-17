@@ -119,7 +119,7 @@ export component StreamSoundSetup inherits VerticalLayout {
     }
     if root.phone: Field {
         label: @tr("Phone microphone");
-        help: @tr("Turn on the stage view (Network), then open this page on the phone and press Start: {}", SettingsDlg.stream-phone-secure-address != "" ? SettingsDlg.stream-phone-secure-address : SettingsDlg.stream-phone-address)
+        help: @tr("Turn on the stage screen for phones (Settings → Network…), then open this page on the phone and press Start: {}", SettingsDlg.stream-phone-secure-address != "" ? SettingsDlg.stream-phone-secure-address : SettingsDlg.stream-phone-address)
             + " " + @tr("The first time, the phone warns that the page is not private, because this computer made its own certificate: tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in.");
     }
     Field {

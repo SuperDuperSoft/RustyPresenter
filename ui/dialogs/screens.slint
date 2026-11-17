@@ -450,12 +450,12 @@ export component ScreensDialog inherits VerticalLayout {
                     spacing: 10px;
                     mirror-toggle := Toggle {
                         on: ScreensDialogState.mirror;
-                        label: @tr("Show what the audience sees");
+                        label: @tr("Show what the room screen shows");
                         toggled(on) => { ScreensDialogState.set-mirror(on); }
                     }
                     Text {
                         horizontal-stretch: 1;
-                        text: @tr("Show what the audience sees");
+                        text: @tr("Show what the room screen shows");
                         color: Theme.text;
                         font-family: Theme.font;
                         font-size: Theme.base-size;

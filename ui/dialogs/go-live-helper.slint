@@ -76,7 +76,7 @@ export component GoLiveHelperDialog inherits VerticalLayout {
                     text <=> GoLiveHelperDlg.key;
                 }
                 Note { text: GoLiveHelperDlg.key-help; }
-                Muted { text: @tr("A stream key is a password: whoever has it can broadcast as you. It is kept in this computer's own password store."); }
+                Muted { text: @tr("A stream key is a password: whoever has it can stream as you. It is kept in this computer's own password store."); }
                 if GoLiveHelperDlg.service < 2: HorizontalLayout {
                     alignment: start;
                     helper-sign-in := Btn {

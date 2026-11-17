@@ -1264,7 +1264,7 @@ impl App {
             #[derive(Deserialize)] struct N { name: String, copy_from: Option<Uuid> }
             let N { name, copy_from } = parse(body)?;
             let id = tryr!(app.edit(|d| {
-                let mut s = Service::new(&if name.trim().is_empty() { tr!("New Service") } else { name.trim().to_string() });
+                let mut s = Service::new(&if name.trim().is_empty() { tr!("New service") } else { name.trim().to_string() });
                 s.date = Some(chrono::Local::now().date_naive());
                 if let Some(src) = copy_from.and_then(|c| d.services.iter().find(|x| x.id == c)) {
                     s.template = src.template;
@@ -1656,7 +1656,7 @@ impl App {
             let id = tryr!(app.edit(|d| {
                 let g = d.settings.screens.group_mut(&group).ok_or_else(|| tr!("Unknown screen."))?;
                 let n = g.screens.len() + 1;
-                let name = (n..).map(|i| if group == "audience" { tr!("Audience {number}", number = i) } else { tr!("Stage Display {number}", number = i) }).find(|name| !g.screens.iter().any(|s| s.name == *name)).unwrap_or_default();
+                let name = (n..).map(|i| if group == "audience" { tr!("Room screen {number}", number = i) } else { tr!("Stage screen {number}", number = i) }).find(|name| !g.screens.iter().any(|s| s.name == *name)).unwrap_or_default();
                 let screen = Screen::new(Uuid::new_v4(), &name);
                 let id = screen.id;
                 g.screens.push(screen);

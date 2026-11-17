@@ -8,7 +8,7 @@ use crate::{tr, trc};
 pub fn remote_strings() -> Vec<(&'static str, String)> {
     vec![
         // remote.html
-        ("RustyPresenter Remote", tr!("RustyPresenter Remote")),
+        ("Phone remote — RustyPresenter", tr!("Phone remote — RustyPresenter")),
         ("Phone remote", tr!("Phone remote")),
         // {phone} and {pair} are the names of the computer's buttons, shown in bold.
         ("On the presentation computer, click {phone} → {pair}, then type the 6-digit code here.",
@@ -23,7 +23,7 @@ pub fn remote_strings() -> Vec<(&'static str, String)> {
         ("Pause video", tr!("Pause video")),
         ("Play video", tr!("Play video")),
         ("Up next", tr!("Up next")),
-        ("Clear All", tr!("Clear All")),
+        ("Clear all", tr!("Clear all")),
         ("Text", tr!("Text")),
         ("Media", tr!("Media")),
         ("Audio", tr!("Audio")),
@@ -74,7 +74,7 @@ pub fn remote_strings() -> Vec<(&'static str, String)> {
         ("Highlighter", tr!("Highlighter")),
         ("Pen size", tr!("Pen size")),
         ("Undo", tr!("Undo")),
-        ("Clear all", tr!("Clear all")),
+        // "Clear all" is listed with the clear keys above.
         // The ink switch: lines that stay, or fade away by themselves like a laser pointer.
         ("Stays", tr!("Stays")),
         ("Fades", tr!("Fades")),
@@ -94,7 +94,7 @@ pub fn remote_strings() -> Vec<(&'static str, String)> {
         ("Play", tr!("Play")),
         // N31: the remote's password (Settings → Network), and the stage screen on a phone or tablet (web/stage-view.*).
         ("Password", tr!("Password")),
-        ("This remote needs a password too.", tr!("This remote needs a password too.")),
+        ("This phone remote needs a password too.", tr!("This phone remote needs a password too.")),
         ("Stage screen", tr!("Stage screen")),
         ("This stage screen needs a password.", tr!("This stage screen needs a password.")),
         ("Open", tr!("Open")),

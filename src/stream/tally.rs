@@ -50,7 +50,7 @@ pub mod tr {
     pub fn off(camera: usize) -> String { tr!("Camera {camera}", camera = camera) }
     pub fn not_live() -> String { tr!("Not streaming") }
     pub fn needs_stage_view() -> String {
-        tr!("Turn on the stage view in Settings → Network. If it has a password, open the stage view on this phone once and sign in.")
+        tr!("Turn on the stage screen for phones (Settings → Network…). If it has a password, open the stage screen on this phone once and sign in.")
     }
 }
 

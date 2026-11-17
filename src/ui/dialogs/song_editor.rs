@@ -623,7 +623,7 @@ mod tests {
         st(&op).set_order("Chorus, Bridge".into());
         st(&op).invoke_edited();
         mock_elapsed_time(PREVIEW_AFTER);
-        assert_eq!(st(&op).get_warning(), "Not in the lyrics: Bridge");
+        assert_eq!(st(&op).get_warning(), "Not in the words: Bridge");
         assert_eq!(labels(&op), ["Chorus"], "the core leaves the unknown name out");
     }
 

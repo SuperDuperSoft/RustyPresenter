@@ -37,12 +37,12 @@ impl LayoutKind {
             LayoutKind::TitleSubtitle => crate::tr!("Title + subtitle"),
             LayoutKind::Quote => crate::tr!("Quote"),
             LayoutKind::MainPoint => crate::tr!("Main point"),
-            LayoutKind::Scripture => crate::tr!("Scripture"),
+            LayoutKind::Scripture => crate::tr!("Bible passage"),
             LayoutKind::Picture => crate::tr!("Picture"),
             LayoutKind::Points => crate::tr!("Points"),
             LayoutKind::Text => crate::trc!("layout", "Text"),
-            LayoutKind::Lyrics => crate::tr!("Lyrics"),
-            LayoutKind::LowerThirdLyrics => crate::tr!("Lower-third lyrics"),
+            LayoutKind::Lyrics => crate::tr!("Words"),
+            LayoutKind::LowerThirdLyrics => crate::tr!("Lower-third words"),
         }
     }
 
@@ -57,7 +57,7 @@ impl LayoutKind {
             LayoutKind::Picture => crate::tr!("A small caption at the bottom, so the background picture shows."),
             LayoutKind::Points => crate::tr!("Each line becomes a bullet point."),
             LayoutKind::Text => crate::tr!("Plain text, like an announcement."),
-            LayoutKind::Lyrics => crate::tr!("Laid out like song lyrics."),
+            LayoutKind::Lyrics => crate::tr!("Laid out like song words."),
             LayoutKind::LowerThirdLyrics => crate::tr!("Small text at the bottom of the screen."),
         }
     }
@@ -283,7 +283,7 @@ mod tests {
     fn ten_layouts_with_names() {
         assert_eq!(LayoutKind::ALL.len(), 10);
         let names: Vec<String> = LayoutKind::ALL.iter().map(|k| k.label()).collect();
-        assert_eq!(names, ["Title", "Title + subtitle", "Quote", "Main point", "Scripture", "Picture", "Points", "Text", "Lyrics", "Lower-third lyrics"]);
+        assert_eq!(names, ["Title", "Title + subtitle", "Quote", "Main point", "Bible passage", "Picture", "Points", "Text", "Words", "Lower-third words"]);
         for k in LayoutKind::ALL {
             assert_eq!(LayoutKind::from_index(k.index() as i32), k);
             assert!(!k.hint().is_empty());

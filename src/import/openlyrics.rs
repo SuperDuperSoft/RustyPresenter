@@ -158,7 +158,7 @@ pub(crate) fn from_document(doc: &roxmltree::Document, fallback: Option<&str>) -
     let verses: Vec<_> = all.into_iter().filter(|v| chosen.get(&name_of(*v)).is_some_and(|c| *c == lang_of(*v))).collect();
     let title = title_of(props, primary.as_deref(), fallback);
 
-    if verses.is_empty() { return (title, Err(tr!("no lyrics"))); }
+    if verses.is_empty() { return (title, Err(tr!("no words"))); }
 
     // Writers are who wrote the words and music, and the translator of the language imported; not arrangers.
     let mut writers: Vec<String> = Vec::new();
@@ -479,7 +479,7 @@ Verse 2\n'Twas grace that taught my heart to fear,\nAnd grace my fears relieved;
         assert!(parse_str("<set><slide_groups/></set>").unwrap_err().contains("isn't an OpenLyrics"));
         assert!(parse_str("<song><title>X</title><lyrics>[V1]\n x</lyrics></song>").unwrap_err().contains("OpenSong"));
         let empty = r#"<song xmlns="http://openlyrics.info/namespace/2009/song"><properties><titles><title>E</title></titles></properties><lyrics/></song>"#;
-        assert_eq!(parse_str(empty).unwrap_err(), "no lyrics");
+        assert_eq!(parse_str(empty).unwrap_err(), "no words");
         let blank = r#"<song xmlns="http://openlyrics.info/namespace/2009/song"><lyrics><verse name="v1"><lines> </lines></verse></lyrics></song>"#;
         assert!(parse_str(blank).is_err());
         let dtd = "<!DOCTYPE song [<!ENTITY a \"aaaa\">]><song xmlns=\"http://openlyrics.info/namespace/2009/song\"><lyrics><verse name=\"v1\"><lines>&a;</lines></verse></lyrics></song>";

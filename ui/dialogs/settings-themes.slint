@@ -345,7 +345,7 @@ component ThemeList inherits VerticalLayout {
                     alignment: start;
                     padding-bottom: 10px;
                     add-kind := Segmented {
-                        labels: [@tr("Color"), @tr("Gradient")];
+                        labels: [@tr("Colour"), @tr("Gradient")];
                         index <=> ThemesDlg.add-kind;
                         changed => { ThemesDlg.add-changed(); }
                     }
@@ -354,7 +354,7 @@ component ThemeList inherits VerticalLayout {
                     spacing: 14px;
                     Field {
                         horizontal-stretch: 1;
-                        label: ThemesDlg.add-kind == 1 ? @tr("From") : @tr("Color");
+                        label: ThemesDlg.add-kind == 1 ? @tr("From") : @tr("Colour");
                         add-from := ColorPicker {
                             value: ThemesDlg.add-from;
                             palette: ThemesDlg.palette;
@@ -464,7 +464,7 @@ component ThemeEditor inherits HorizontalLayout {
             }
         }
         Field {
-            label: @tr("Lyrics size");
+            label: @tr("Song text size");
             help: @tr("(biggest; long lines shrink to fit)");
             size := RangeSlider {
                 minimum: 40;
@@ -474,7 +474,7 @@ component ThemeEditor inherits HorizontalLayout {
             }
         }
         Field {
-            label: @tr("Scripture text size");
+            label: @tr("Bible text size");
             help: @tr("(biggest)");
             scripture-size := RangeSlider {
                 minimum: 36;
@@ -487,7 +487,7 @@ component ThemeEditor inherits HorizontalLayout {
             spacing: 14px;
             Field {
                 horizontal-stretch: 1;
-                label: @tr("Text color");
+                label: @tr("Text colour");
                 color := ColorPicker {
                     value: ThemesDlg.color-swatch;
                     palette: ThemesDlg.palette;
@@ -501,7 +501,7 @@ component ThemeEditor inherits HorizontalLayout {
                 HorizontalLayout {
                     alignment: start;
                     align := Segmented {
-                        labels: [@tr("Left"), @tr("Center"), @tr("Right")];
+                        labels: [@tr("Left"), @tr("Centre"), @tr("Right")];
                         index <=> ThemesDlg.align;
                         changed => { ThemesDlg.changed(); }
                     }
@@ -520,7 +520,7 @@ component ThemeEditor inherits HorizontalLayout {
             }
         }
         caps := Check {
-            text: @tr("ALL CAPS lyrics");
+            text: @tr("ALL CAPS song words");
             checked <=> ThemesDlg.uppercase;
             toggled => { ThemesDlg.changed(); }
         }
@@ -545,7 +545,7 @@ component ThemeEditor inherits HorizontalLayout {
             }
             if ThemesDlg.outline > 0: Field {
                 horizontal-stretch: 1;
-                label: @tr("Outline color");
+                label: @tr("Outline colour");
                 outline-color := ColorPicker {
                     value: ThemesDlg.outline-swatch;
                     palette: ThemesDlg.palette;
@@ -563,7 +563,7 @@ component ThemeEditor inherits HorizontalLayout {
             spacing: 14px;
             Field {
                 horizontal-stretch: 1;
-                label: @tr("Band color");
+                label: @tr("Band colour");
                 band-color := ColorPicker {
                     value: ThemesDlg.band-swatch;
                     palette: ThemesDlg.palette;
@@ -699,7 +699,7 @@ component ThemeEditor inherits HorizontalLayout {
                 HorizontalLayout {
                     alignment: start;
                     layout-align := Segmented {
-                        labels: [@tr("Left"), @tr("Center"), @tr("Right")];
+                        labels: [@tr("Left"), @tr("Centre"), @tr("Right")];
                         index <=> ThemesDlg.layout-align;
                         changed => { ThemesDlg.layout-edited(); }
                     }

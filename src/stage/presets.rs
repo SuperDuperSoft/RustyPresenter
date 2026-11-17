@@ -243,7 +243,7 @@ mod tests {
     #[test]
     fn builtin_names_are_unique() {
         let names: Vec<&str> = builtins().iter().map(|l| l.name.as_str()).collect();
-        assert_eq!(names, vec!["Classic", "Lyrics only", "Band", "Speaker", "Clock and countdown", "Slides and notes"]);
+        assert_eq!(names, vec!["Classic", "Words only", "Band", "Speaker", "Clock and countdown", "Slides and notes"]);
     }
 
     #[test]
@@ -312,7 +312,7 @@ mod tests {
         assert_eq!(find_layout(&church, ours.id), Some(&ours));
         assert_eq!(find_layout(&church, Uuid::from_u128(5)), None);
         assert_eq!(all_layouts(&church).map(|l| l.name.as_str()).collect::<Vec<_>>(),
-            ["Classic", "Lyrics only", "Band", "Speaker", "Clock and countdown", "Slides and notes", "Ours"]);
+            ["Classic", "Words only", "Band", "Speaker", "Clock and countdown", "Slides and notes", "Ours"]);
         assert!(is_builtin(SPEAKER) && !is_builtin(ours.id));
     }
 

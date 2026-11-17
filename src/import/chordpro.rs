@@ -429,7 +429,7 @@ impl Draft {
             .or_else(|| self.first_line.as_ref().map(|l| l.chars().take(MAX_TITLE).collect::<String>().trim_end_matches([',', ';', ':', '.']).to_string()))
             .unwrap_or_else(|| tr!("Untitled song"));
         if self.too_many { return (title, Err(tr!("more than {max} sections, so it isn't a song", max = MAX_SECTIONS))); }
-        if self.sections.is_empty() { return (title, Err(tr!("no lyrics"))); }
+        if self.sections.is_empty() { return (title, Err(tr!("no words"))); }
         let lyrics = self.sections.iter()
             .map(|(name, groups)| format!("{}\n{}", label_line(name), groups.iter().map(|g| g.join("\n")).collect::<Vec<_>>().join("\n\n")))
             .collect::<Vec<_>>().join("\n\n");
@@ -647,7 +647,7 @@ And grace my fears relieved;
     fn several_songs_per_file() {
         let r = parse_str("{ns}\n{title: One}\na\n{new_song}\n{title: Two}\nb\n{ns}\n{title: Empty}\n{ns}\n");
         assert_eq!(r.songs.iter().map(|s| s.title.as_str()).collect::<Vec<_>>(), ["One", "Two"]);
-        assert_eq!(r.skipped, [("Empty".to_string(), "no lyrics".to_string())]);
+        assert_eq!(r.skipped, [("Empty".to_string(), "no words".to_string())]);
     }
 
     #[test]

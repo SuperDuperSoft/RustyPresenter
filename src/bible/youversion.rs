@@ -86,7 +86,7 @@ pub async fn fetch(client: &reqwest::Client, key: &str, translation: &str, book:
 /// 403 here means a recognised key without that publisher's license, not a bad key.
 fn status_error(status: u16, bible: u32) -> FetchError {
     match status {
-        403 => FetchError::Other(crate::tr!("this YouVersion app isn't licensed for Bible {bible}; accept the publisher's license at platform.youversion.com", bible = bible)),
+        403 => FetchError::Other(crate::tr!("this YouVersion app isn't licensed for Bible {bible}; accept the publisher's licence at platform.youversion.com", bible = bible)),
         412 => FetchError::Other(crate::tr!("the YouVersion app is archived or removed; check it at platform.youversion.com")),
         s => FetchError::from_status(s),
     }

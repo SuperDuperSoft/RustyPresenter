@@ -393,9 +393,9 @@ pub fn ccli_number(reference: &str, vendor: Option<i64>) -> String {
 
 /// Err is the reason the row is skipped.
 pub fn to_song(row: &EwSong) -> Result<Song, String> {
-    let words = row.words.as_deref().filter(|w| !w.trim().is_empty()).ok_or_else(|| tr!("no lyrics (probably a video or announcement item)"))?;
+    let words = row.words.as_deref().filter(|w| !w.trim().is_empty()).ok_or_else(|| tr!("no words (probably a video or announcement item)"))?;
     let (lyrics, arrangement) = words_to_lyrics(words);
-    if lyrics.trim().is_empty() { return Err(tr!("the lyrics are empty")); }
+    if lyrics.trim().is_empty() { return Err(tr!("the words are empty")); }
     let admin = row.administrator.trim();
     let mut copyright = row.copyright.trim().to_string();
     if !admin.is_empty() {
@@ -601,7 +601,7 @@ pub(crate) mod tests {
     #[test]
     fn rows_without_lyrics_are_skipped_with_a_reason() {
         let none = EwSong { title: "Video".into(), ..Default::default() };
-        assert!(to_song(&none).unwrap_err().contains("no lyrics"));
+        assert!(to_song(&none).unwrap_err().contains("no words"));
         let blank = EwSong { title: "Blank".into(), words: Some(r"{\rtf1\ansi\par}".into()), ..Default::default() };
         assert!(to_song(&blank).unwrap_err().contains("empty"));
     }
@@ -695,7 +695,7 @@ pub(crate) mod tests {
         assert_eq!(report.songs[0].copyright, "© 2020 Test Music, Administered by Admin Co");
         assert_eq!(report.songs[1].ccli, "777");
         assert_eq!(report.skipped.iter().map(|(t, _)| t.as_str()).collect::<Vec<_>>(), ["Video Item", "Blank"]);
-        assert!(report.skipped[0].1.contains("no lyrics"));
+        assert!(report.skipped[0].1.contains("no words"));
         // Never write to EasyWorship data.
         let after: Vec<_> = ["Songs.DB", "SongWords.db"].iter().map(|n| std::fs::read(data.join(n)).unwrap()).collect();
         assert_eq!(before, after);

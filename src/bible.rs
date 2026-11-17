@@ -176,7 +176,7 @@ pub fn parse_reference(input: &str) -> Result<Reference, String> {
     }
     let book_part: String = chars[..split].iter().collect();
     let nums: String = chars[split..].iter().collect();
-    let book = find_book(&book_part).ok_or_else(|| tr!("I don't recognize the book \"{book}\".", book = book_part.trim()))?;
+    let book = find_book(&book_part).ok_or_else(|| tr!("I don't recognise the book \"{book}\".", book = book_part.trim()))?;
     let nums = nums.trim();
     if nums.is_empty() { return Err(tr!("Add a chapter, like John 3 or John 3:16.")); }
     // "3 16-18" (no colon) means chapter 3, verses 16-18.

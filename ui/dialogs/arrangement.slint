@@ -76,7 +76,7 @@ export component ArrangementStrip inherits FocusScope {
                 opacity: arr-drag.dragging ? 0.4 : c.faded ? 0.55 : 1;
                 accessible-role: button;
                 accessible-label: c.label;
-                accessible-description: c.missing ? @tr("Not in the lyrics — it is skipped") : "";
+                accessible-description: c.missing ? @tr("Not in the words — it is skipped") : "";
                 accessible-item-selected: self.chosen;
                 HorizontalLayout {
                     padding-left: 7px;
@@ -135,7 +135,7 @@ export component ArrangementStrip inherits FocusScope {
                     }
                     TouchArea { clicked => { root.remove(c.index); } }
                 }
-                TipArea { text: c.missing ? @tr("Not in the lyrics — it is skipped") : ""; hover: arr-ta.has-hover; pressed: arr-ta.pressed; pointer-x: arr-ta.mouse-x; }
+                TipArea { text: c.missing ? @tr("Not in the words — it is skipped") : ""; hover: arr-ta.has-hover; pressed: arr-ta.pressed; pointer-x: arr-ta.mouse-x; }
             }
         }
         if root.rows.length > 0: HorizontalLayout {

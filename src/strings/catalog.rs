@@ -24,7 +24,7 @@ pub fn too_large() -> String { tr!("This Bible is larger than expected, so it wa
 /// `mb`: megabytes it needs.
 pub fn no_space(mb: u64) -> String { tr!("Not enough disk space for this Bible (needs about {n} MB).", n = mb) }
 pub fn unusable(name: &str) -> String { tr!("{name} couldn't be used, so it wasn't added.", name = name) }
-pub fn not_in_list() -> String { tr!("That Bible is no longer in the list. Open Settings → Bibles again to see the current list.") }
+pub fn not_in_list() -> String { tr!("That Bible is no longer in the list. Open Settings → Bible again to see the current list.") }
 pub fn offline_no_add() -> String { tr!("You're offline, so Bibles can't be added right now.") }
 
 // Settings → Bible, the library list (§7.1).

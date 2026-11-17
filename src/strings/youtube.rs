@@ -53,9 +53,9 @@ pub fn private() -> String { tr!("This video is private, so only its owner can d
 pub fn sign_in() -> String { tr!("YouTube only shows this video to signed-in viewers (for example, it is age-restricted), so it can't be downloaded here.") }
 pub fn members() -> String { tr!("This video is only for the channel's members, so it can't be downloaded here.") }
 pub fn bot_check() -> String { tr!("YouTube wants a sign-in to check this isn't a robot. Wait a while and try again.") }
-pub fn live() -> String { tr!("This live stream hasn't finished yet. Try again after it ends.") }
-pub fn upcoming() -> String { tr!("This live stream or premiere hasn't started yet.") }
-pub fn processing() -> String { tr!("This live stream just ended and YouTube is still preparing it. Try again in a while.") }
+pub fn live() -> String { tr!("This livestream hasn't finished yet. Try again after it ends.") }
+pub fn upcoming() -> String { tr!("This livestream or premiere hasn't started yet.") }
+pub fn processing() -> String { tr!("This livestream just ended and YouTube is still preparing it. Try again in a while.") }
 pub fn not_a_video() -> String { tr!("That link isn't a YouTube video. Copy the link from the video's page and try again.") }
 pub fn unavailable() -> String { tr!("This video isn't available. It may have been removed, or blocked in this country.") }
 pub fn empty_playlist() -> String { tr!("This playlist has no videos that can be downloaded.") }

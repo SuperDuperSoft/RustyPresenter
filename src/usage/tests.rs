@@ -217,8 +217,8 @@ fn html_page_escapes_and_names_the_range() {
     let html = export::to_html(&rows, "998877", (day(2026, 8, 1), day(2026, 10, 31)));
     assert!(html.contains("&lt;b&gt;Grace&lt;/b&gt; &amp; Peace"));
     assert!(html.contains("2026-08-01 to 2026-10-31"));
-    assert!(html.contains("CCLI license #: 998877"));
-    assert!(export::to_html(&[], "", (day(2026, 8, 1), day(2026, 10, 31))).contains("Add your church&#39;s CCLI license number"), "no licence: the note, escaped");
+    assert!(html.contains("CCLI licence #: 998877"));
+    assert!(export::to_html(&[], "", (day(2026, 8, 1), day(2026, 10, 31))).contains("Add your church&#39;s CCLI licence number"), "no licence: the note, escaped");
     assert_eq!(export::file_name(day(2026, 8, 1), day(2026, 10, 31), "csv"), "song-use-2026-08-01-to-2026-10-31.csv");
 }
 

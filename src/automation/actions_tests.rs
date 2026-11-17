@@ -461,7 +461,7 @@ fn walk_in_music_keeps_playing_through_slides_and_stops_on_clear_audio() {
     assert_eq!(state(&app), Some(MusicState::Stopped));
     act(&app, "automation/music/play", serde_json::json!({})).unwrap();
     cmd(&app, Command::ClearAll, None);
-    assert_eq!(state(&app), Some(MusicState::Stopped), "Clear All stops it too");
+    assert_eq!(state(&app), Some(MusicState::Stopped), "Clear all stops it too");
     // A macro step starts it.
     let m = act(&app, "automation/macro/save", serde_json::json!({ "name": "Walk-in", "steps": [{ "step": "music", "play": true }] })).unwrap();
     let out = act(&app, "automation/run", serde_json::json!({ "id": m["id"] })).unwrap();

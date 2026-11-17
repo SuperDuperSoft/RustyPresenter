@@ -48,10 +48,10 @@ pub fn speed_words(choice: Choice, deps: &Path) -> String {
     let best = fetch::installed(deps, &fetch::BEST).is_some();
     match choice {
         Choice::Best => crate::tr!("Best runs fine here."),
-        Choice::Fast if best => crate::tr!("Use Fast on this PC: Best is too slow here."),
+        Choice::Fast if best => crate::tr!("Use Fast on this computer: Best is too slow here."),
         Choice::Fast => crate::tr!("Fast runs fine here. Download Best to check it too."),
         Choice::Off if !any_installed(deps) => crate::tr!("Download a model first, then test its speed."),
-        Choice::Off => crate::tr!("This PC is too slow for the speech models: auto-follow can't hear the words here, so it can't follow the songs."),
+        Choice::Off => crate::tr!("This computer is too slow for the speech models: auto-follow can't hear the words here, so it can't follow the songs."),
     }
 }
 
@@ -216,8 +216,8 @@ mod tests {
         assert_eq!(speed_words(Choice::Fast, &deps), "Fast runs fine here. Download Best to check it too.");
         put(&deps, &fetch::BEST);
         assert_eq!(speed_words(Choice::Best, &deps), "Best runs fine here.");
-        assert_eq!(speed_words(Choice::Fast, &deps), "Use Fast on this PC: Best is too slow here.");
-        assert!(speed_words(Choice::Off, &deps).starts_with("This PC is too slow"));
+        assert_eq!(speed_words(Choice::Fast, &deps), "Use Fast on this computer: Best is too slow here.");
+        assert!(speed_words(Choice::Off, &deps).starts_with("This computer is too slow"));
         TEST_DEPS.with(|t| t.borrow_mut().take());
     }
 

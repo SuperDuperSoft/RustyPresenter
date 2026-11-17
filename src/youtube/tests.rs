@@ -254,7 +254,7 @@ async fn look_up_errors_are_plain() {
     let live = file(&dir, "live.json", r#"{"id":"aqz-KE-bpKQ","title":"Sunday","live_status":"is_live"}"#);
     *app.youtube.fake.lock().unwrap() = Some(Fake::new(&format!("out:{live}"), "", &log));
     let r = app.youtube.look_up(&link("youtu.be/aqz-KE-bpKQ").unwrap(), Quality::Best, &quiet, &CancellationToken::new()).await;
-    assert_eq!(r.err().map(|e| e.message()), Some("This live stream hasn't finished yet. Try again after it ends.".into()));
+    assert_eq!(r.err().map(|e| e.message()), Some("This livestream hasn't finished yet. Try again after it ends.".into()));
 }
 
 /// Waits for the job to leave the list or finish; returns it as it last was (`None` once it is gone).

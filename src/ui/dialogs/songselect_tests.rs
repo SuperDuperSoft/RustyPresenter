@@ -132,7 +132,7 @@ fn with_the_setting_on_downloads_come_in_while_the_window_is_closed() {
     assert_eq!(songs(&app).len(), 1);
     let t = toasts(&op);
     assert!(t.contains(&("“River Of Test Songs” came in from SongSelect.".into(), false)), "{t:?}");
-    assert!(t.contains(&("broken.usr could not be read: No lyrics were found in this file.".into(), true)), "{t:?}");
+    assert!(t.contains(&("broken.usr could not be read: No song words were found in this file.".into(), true)), "{t:?}");
     // The window opened now lists only what comes in from now on, from the same watcher (nothing twice).
     open(&op);
     assert!(rows(&op).is_empty());

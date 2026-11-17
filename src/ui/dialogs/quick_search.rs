@@ -17,7 +17,7 @@ use uuid::Uuid;
 const MAX_HITS: usize = 60;
 
 pub fn title() -> String { tr!("Quick search") }
-fn type_hint() -> String { tr!("Type a song title, words from the lyrics, a file name or a service.") }
+fn type_hint() -> String { tr!("Type a song title, some of its words, a file name or a service.") }
 fn nothing_matches() -> String { tr!("Nothing matches.") }
 fn tag_song() -> String { tr!("Song") }
 fn tag_slides() -> String { tr!("Slides") }
@@ -236,7 +236,7 @@ mod tests {
         ctrl(&op, "f");
         assert_eq!(op.dialog(), Some(DialogKind::QuickSearch));
         let g = op.ui.global::<QuickSearchDlg>();
-        assert_eq!(g.get_note(), "Type a song title, words from the lyrics, a file name or a service.");
+        assert_eq!(g.get_note(), "Type a song title, some of its words, a file name or a service.");
         typed(&op, "grace");
         assert_eq!(g.get_hits().row_count(), 1);
         assert_eq!(g.get_current(), 0);

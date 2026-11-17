@@ -87,7 +87,7 @@ impl Provider {
             Provider::Esv => tr!("Free for churches. Create an “API application”, then copy its key."),
             Provider::Nlt => tr!("Free for non-commercial use. Register, then copy the key from your account."),
             Provider::ApiBible => tr!("The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (and NIV or NLT if you want them from here)."),
-            Provider::YouVersion => tr!("Create an app, then accept each Bible’s license in the portal (NIV from Biblica; HCSB if it is offered)."),
+            Provider::YouVersion => tr!("Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."),
         }
     }
 

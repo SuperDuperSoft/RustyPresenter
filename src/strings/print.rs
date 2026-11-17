@@ -9,7 +9,7 @@ pub fn order_line(labels: &str) -> String { tr!("Order: {sections}", sections = 
 pub fn slides(n: usize) -> String { trn!("{n} slide", "{n} slides", n) }
 pub fn blank_title(label: &str) -> String { tr!("Blank — {label}", label = label) }
 pub fn not_chosen() -> String { tr!("(not chosen yet)") }
-pub fn no_lyrics() -> String { tr!("(no lyrics)") }
+pub fn no_lyrics() -> String { tr!("(no words)") }
 pub fn no_verse_text() -> String { tr!("(the verse text isn't saved with this service)") }
 pub fn missing_song() -> String { tr!("Missing song") }
 pub fn missing_media() -> String { tr!("Missing media") }
@@ -19,8 +19,8 @@ pub fn picture() -> String { tr!("Picture") }
 pub fn audio() -> String { tr!("Audio") }
 pub fn loops() -> String { tr!(" (loops)") }
 pub fn order_heading() -> String { tr!("Service order") }
-pub fn lyrics_heading() -> String { tr!("Lyrics") }
-pub fn nothing_to_print() -> String { tr!("No songs or Bible readings in this service.") }
+pub fn lyrics_heading() -> String { tr!("Words") }
+pub fn nothing_to_print() -> String { tr!("No songs or Bible passages in this service.") }
 pub fn empty_service() -> String { tr!("This service is empty.") }
 pub fn printed(date: &str) -> String { tr!("Printed from RustyPresenter · {date}", date = date) }
 /// The page's file name, without ".html". File names stay in English.

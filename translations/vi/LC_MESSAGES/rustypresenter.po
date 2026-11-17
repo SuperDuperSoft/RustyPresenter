@@ -191,9 +191,9 @@ msgstr "Thêm thông báo"
 msgid "Song"
 msgstr "Bài hát"
 
-#: ui/dialogs/add.slint ui/dialogs/print.slint ui/dialogs/song-editor.slint src/strings/print.rs src/theme/layouts.rs
-msgid "Lyrics"
-msgstr "Lời bài hát"
+#: ui/dialogs/add.slint ui/dialogs/design-editor.slint ui/dialogs/print.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/strings/print.rs src/theme/layouts.rs
+msgid "Words"
+msgstr "Chữ"
 
 #: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings.slint
 msgid "Bible"
@@ -228,7 +228,7 @@ msgid "Your own text"
 msgstr "Văn bản của bạn"
 
 #: ui/dialogs/arrangement.slint src/strings/song.rs
-msgid "Not in the lyrics — it is skipped"
+msgid "Not in the words — it is skipped"
 msgstr "Không có trong lời — sẽ bị bỏ qua"
 
 #: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
@@ -403,7 +403,7 @@ msgstr "Có thể hiện từ điện thoại"
 msgid "Change it in the Pre-service tab"
 msgstr "Thay đổi trong thẻ Trước lễ"
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/i18n/remote_strings.rs
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/i18n/remote_strings.rs src/strings/themes.rs
 msgid "Colour"
 msgstr "Màu"
 
@@ -495,7 +495,7 @@ msgstr "Lặp lại các trang này"
 msgid "Play music"
 msgstr "Phát nhạc"
 
-#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/outputs.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs
 msgid "Stage screen"
 msgstr "Màn hình sân khấu"
 
@@ -515,8 +515,8 @@ msgstr "Ẩn đồng hồ đếm ngược"
 msgid "Show the logo"
 msgstr "Hiện logo"
 
-#: ui/dialogs/automation.slint src/automation/slide_actions.rs src/ui/dialogs/automation.rs
-msgid "Clear everything"
+#: ui/dialogs/automation.slint ui/operator/live.slint ui/operator.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/settings.rs src/ui/dialogs/automation.rs
+msgid "Clear all"
 msgstr "Xóa tất cả"
 
 #: ui/dialogs/automation.slint
@@ -624,7 +624,7 @@ msgid "Hex"
 msgstr "Hex"
 
 #: ui/dialogs/background-picker.slint
-msgid "Pick any color"
+msgid "Pick any colour"
 msgstr "Chọn màu bất kỳ"
 
 #: ui/dialogs/design-canvas.slint src/stream/transition.rs
@@ -699,10 +699,6 @@ msgstr "Cho màn hình sân khấu và người điều khiển"
 msgid "{} objects chosen. Changes go on all of them."
 msgstr "Đã chọn {} đối tượng. Thay đổi áp dụng cho tất cả."
 
-#: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
-msgid "Words"
-msgstr "Chữ"
-
 #: ui/dialogs/design-editor.slint
 msgid "Text size ({} px)"
 msgstr "Cỡ chữ ({} px)"
@@ -743,7 +739,7 @@ msgstr "Bảng: mỗi dòng là một hàng, các ô cách nhau bằng phím Tab
 msgid "Shrink to fit the box"
 msgstr "Thu nhỏ cho vừa ô"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Text colour"
 msgstr "Màu chữ"
 
@@ -751,7 +747,7 @@ msgstr "Màu chữ"
 msgid "Left"
 msgstr "Trái"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Centre"
 msgstr "Giữa"
 
@@ -827,7 +823,7 @@ msgstr "Màu nền"
 msgid "Outline"
 msgstr "Viền chữ"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/settings-themes.slint
 msgid "Outline colour"
 msgstr "Màu viền"
 
@@ -1137,7 +1133,7 @@ msgid "Paste the stream key"
 msgstr "Dán khóa phát"
 
 #: ui/dialogs/go-live-helper.slint
-msgid "A stream key is a password: whoever has it can broadcast as you. It is kept in this computer's own password store."
+msgid "A stream key is a password: whoever has it can stream as you. It is kept in this computer's own password store."
 msgstr "Khóa phát trực tiếp giống như mật khẩu: ai có nó đều có thể phát dưới tên bạn. Khóa được lưu trong kho mật khẩu riêng của máy tính này."
 
 #: ui/dialogs/go-live-helper.slint
@@ -1209,11 +1205,11 @@ msgid "Go Live now"
 msgstr "Phát trực tiếp ngay"
 
 #: ui/dialogs/item-edit.slint
-msgid "Lyrics, order and credits belong to the song in your library."
+msgid "Words, order and credits belong to the song in your library."
 msgstr "Lời, thứ tự và thông tin bản quyền thuộc về bài hát trong thư viện."
 
 #: ui/dialogs/item-edit.slint
-msgid "Lyrics, order and credits belong to the song in your library. This song was deleted from the library."
+msgid "Words, order and credits belong to the song in your library. This song was deleted from the library."
 msgstr "Lời, thứ tự và thông tin bản quyền thuộc về bài hát trong thư viện. Bài hát này đã bị xóa khỏi thư viện."
 
 #: ui/dialogs/item-edit.slint src/strings/dialogs.rs
@@ -1333,7 +1329,7 @@ msgid "Repeat until stopped"
 msgstr "Lặp đến khi dừng"
 
 #: ui/dialogs/item-edit.slint
-msgid "Audio keeps playing while you change slides. Stop it with Clear Audio (F4) or Clear All."
+msgid "Audio keeps playing while you change slides. Stop it with Clear audio (F4) or Clear all."
 msgstr "Âm thanh vẫn phát khi bạn chuyển trang chiếu. Dừng bằng Xóa âm thanh (F4) hoặc Xóa tất cả."
 
 #: ui/dialogs/item-edit.slint
@@ -1436,7 +1432,7 @@ msgid "Stage notes"
 msgstr "Ghi chú sân khấu"
 
 #: ui/dialogs/item-edit.slint
-msgid "Shown on the stage display only"
+msgid "Shown on the stage screen only"
 msgstr "Chỉ hiện trên màn hình sân khấu"
 
 #: ui/dialogs/item-edit.slint
@@ -1444,7 +1440,7 @@ msgid "Remove from service"
 msgstr "Gỡ khỏi buổi lễ"
 
 #: ui/dialogs/music.slint
-msgid "The walk-in music plays on while the slides change. Clear audio and Clear All stop it."
+msgid "The walk-in music plays on while the slides change. Clear audio and Clear all stop it."
 msgstr "Nhạc chào đón vẫn phát khi chuyển trang chiếu. Xóa âm thanh và Xóa tất cả sẽ dừng nhạc."
 
 #: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
@@ -1508,7 +1504,7 @@ msgid "Ask for a password when a phone pairs"
 msgstr "Hỏi mật khẩu khi ghép nối điện thoại"
 
 #: ui/dialogs/network.slint
-msgid "Remote password"
+msgid "Phone remote password"
 msgstr "Mật khẩu điều khiển"
 
 #: ui/dialogs/network.slint
@@ -1560,7 +1556,7 @@ msgid "TCP password"
 msgstr "Mật khẩu TCP"
 
 #: ui/dialogs/overlays.slint
-msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Next in the Live column. The last one in the list is drawn on top."
+msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
 msgstr "Lớp phủ luôn nằm trên màn hình hội trường khi chuyển trang: logo ở góc, đồng hồ hoặc một bảng ngắn. Bật tắt chúng bằng các nhãn dưới Tiếp trong cột Đang chiếu. Lớp cuối trong danh sách được vẽ trên cùng."
 
 #: ui/dialogs/overlays.slint
@@ -1603,9 +1599,9 @@ msgstr "Hình ảnh riêng"
 msgid "Choose picture…"
 msgstr "Chọn hình…"
 
-#: ui/dialogs/overlays.slint
-msgid "Opacity"
-msgstr "Độ mờ đục"
+#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
+msgid "See-through"
+msgstr "Trong suốt"
 
 #: ui/dialogs/overlays.slint
 msgid "Show seconds"
@@ -1628,10 +1624,6 @@ msgid "(share of the screen's width)"
 msgstr "(phần chiều rộng màn hình)"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
-msgid "Text color"
-msgstr "Màu chữ"
-
-#: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Shadow behind text (easier to read on pictures)"
 msgstr "Đổ bóng sau chữ (dễ đọc hơn trên hình)"
 
@@ -1648,12 +1640,8 @@ msgid "Full-width bar"
 msgstr "Thanh hết chiều ngang"
 
 #: ui/dialogs/overlays.slint
-msgid "Box color"
+msgid "Box colour"
 msgstr "Màu khung"
-
-#: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
-msgid "See-through"
-msgstr "Trong suốt"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-look.slint
 msgid "Preview"
@@ -1736,7 +1724,7 @@ msgid "Include item notes"
 msgstr "Kèm ghi chú mục"
 
 #: ui/dialogs/print.slint
-msgid "Include Bible readings with the lyrics"
+msgid "Include Bible passages with the song words"
 msgstr "Kèm phần đọc Kinh Thánh với lời bài hát"
 
 #: ui/dialogs/print.slint
@@ -1852,7 +1840,7 @@ msgid "Aspect ratio: {}"
 msgstr "Tỷ lệ khung hình: {}"
 
 #: ui/dialogs/screens.slint
-msgid "Show what the audience sees"
+msgid "Show what the room screen shows"
 msgstr "Hiện những gì hội chúng thấy"
 
 #: ui/dialogs/screens.slint
@@ -1944,7 +1932,7 @@ msgid "Date…"
 msgstr "Ngày…"
 
 #: ui/dialogs/services.slint
-msgid "Print the order of service and the lyrics, or save them as a web page"
+msgid "Print the service order and the song words, or save them as a web page"
 msgstr "In thứ tự buổi lễ và lời bài hát, hoặc lưu thành trang web"
 
 #: ui/dialogs/services.slint
@@ -1968,7 +1956,7 @@ msgid "Your data:"
 msgstr "Dữ liệu của bạn:"
 
 #: ui/dialogs/settings-about.slint
-msgid "Show licenses"
+msgid "Show licences"
 msgstr "Xem giấy phép"
 
 #: ui/dialogs/settings-bible.slint src/strings/catalog.rs
@@ -2088,7 +2076,7 @@ msgid "Sound input"
 msgstr "Đầu vào âm thanh"
 
 #: ui/dialogs/settings-follow.slint
-msgid "Best: the lead singer's microphone on its own, sent from the sound desk. Next best: the main mix. A microphone in the room hears too much else."
+msgid "Best: the lead singer's microphone on its own, sent from the sound board. Next best: the main mix. A microphone in the room hears too much else."
 msgstr "Tốt nhất: micro của ca sĩ hát chính, gửi riêng từ bàn mixer. Kế đến: bản phối chính. Micro đặt trong phòng thu quá nhiều âm thanh khác."
 
 #: ui/dialogs/settings-follow.slint
@@ -2180,7 +2168,7 @@ msgid "Test speed"
 msgstr "Thử tốc độ"
 
 #: ui/dialogs/settings-follow.slint
-msgid "Tries the downloaded models on this PC and says which one suits it."
+msgid "Tries the downloaded models on this computer and says which one suits it."
 msgstr "Chạy thử các mô hình đã tải trên máy này và cho biết mô hình nào phù hợp."
 
 #: ui/dialogs/settings-follow.slint
@@ -2320,7 +2308,7 @@ msgid "Font"
 msgstr "Phông chữ"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
-msgid "Lyrics size"
+msgid "Song text size"
 msgstr "Cỡ chữ lời hát"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
@@ -2336,7 +2324,7 @@ msgid "(for new passages)"
 msgstr "(cho phân đoạn mới)"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
-msgid "Scripture text size"
+msgid "Bible text size"
 msgstr "Cỡ chữ Kinh Thánh"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
@@ -2356,7 +2344,7 @@ msgid "Lower third"
 msgstr "Phần ba dưới"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
-msgid "ALL CAPS lyrics"
+msgid "ALL CAPS song words"
 msgstr "Lời hát IN HOA"
 
 #: ui/dialogs/settings-look.slint
@@ -2904,7 +2892,7 @@ msgid "Stream to"
 msgstr "Phát tới"
 
 #: ui/dialogs/settings-media.slint
-msgid "A stream key is a password: whoever has it can broadcast as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
+msgid "A stream key is a password: whoever has it can stream as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
 msgstr "Khóa phát là một mật khẩu: ai có nó đều có thể phát dưới tên bạn. Khóa được giữ trong kho mật khẩu của máy tính này ngay khi bạn gõ, không bao giờ nằm trong bản sao lưu hay tệp buổi nhóm."
 
 #: ui/dialogs/settings-media.slint
@@ -3212,7 +3200,7 @@ msgid "Phone microphone"
 msgstr "Micrô điện thoại"
 
 #: ui/dialogs/settings-sound.slint
-msgid "Turn on the stage view (Network), then open this page on the phone and press Start: {}"
+msgid "Turn on the stage screen for phones (Settings → Network…), then open this page on the phone and press Start: {}"
 msgstr "Bật chế độ xem sân khấu (Mạng), rồi mở trang này trên điện thoại và bấm Bắt đầu: {}"
 
 #: ui/dialogs/settings-sound.slint
@@ -3412,10 +3400,6 @@ msgid "Add colour or gradient…"
 msgstr "Thêm màu hoặc dải màu…"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
-msgid "Color"
-msgstr "Màu"
-
-#: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Gradient"
 msgstr "Dải màu"
 
@@ -3456,10 +3440,6 @@ msgid "Align"
 msgstr "Căn lề"
 
 #: ui/dialogs/settings-themes.slint
-msgid "Center"
-msgstr "Giữa"
-
-#: ui/dialogs/settings-themes.slint
 msgid "Thin"
 msgstr "Mảnh"
 
@@ -3468,15 +3448,11 @@ msgid "Thick"
 msgstr "Dày"
 
 #: ui/dialogs/settings-themes.slint
-msgid "Outline color"
-msgstr "Màu viền"
-
-#: ui/dialogs/settings-themes.slint
 msgid "Text band (a see-through strip behind the words)"
 msgstr "Dải nền chữ (dải trong suốt phía sau chữ)"
 
 #: ui/dialogs/settings-themes.slint
-msgid "Band color"
+msgid "Band colour"
 msgstr "Màu dải"
 
 #: ui/dialogs/settings-themes.slint
@@ -3548,7 +3524,7 @@ msgid "Use {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyrig
 msgstr "Dùng {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}} và {{license}}. Các phần giữa dấu · không có nội dung sẽ bị bỏ qua. Để trống: dùng dòng mặc định."
 
 #: ui/dialogs/settings.slint
-msgid "Church CCLI license #"
+msgid "Church CCLI licence #"
 msgstr "Số giấy phép CCLI của hội thánh"
 
 #: ui/dialogs/settings.slint
@@ -3631,11 +3607,11 @@ msgstr "Hiện bên dưới bản xem trước đang chiếu số khung hình m�
 msgid "Show performance"
 msgstr "Hiện hiệu năng"
 
-#: ui/dialogs/settings.slint ui/operator/slides.slint ui/operator/topbar.slint
+#: ui/dialogs/settings.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "Màn hình"
 
-#: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs
+#: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs src/strings/screens.rs
 msgid "Room screen"
 msgstr "Màn hình hội trường"
 
@@ -4032,7 +4008,7 @@ msgid "Shows"
 msgstr "Hiển thị"
 
 #: ui/dialogs/stage-layouts.slint
-msgid "Show chords (typed in the lyrics like [G])"
+msgid "Show chords (typed in the words like [G])"
 msgstr "Hiện hợp âm (gõ trong lời như [G])"
 
 #: ui/dialogs/stage-layouts.slint
@@ -5047,10 +5023,6 @@ msgstr "Lùi (← hoặc Page Up)"
 msgid "Next (→, Space or Page Down)"
 msgstr "Tiếp (→, Space hoặc Page Down)"
 
-#: ui/operator/live.slint src/i18n/remote_strings.rs
-msgid "Clear All"
-msgstr "Xóa tất cả"
-
 #: ui/operator/live.slint ui/operator/media.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/print.rs src/ui/dialogs/settings_keys.rs
 msgid "Audio"
 msgstr "Âm thanh"
@@ -5180,7 +5152,7 @@ msgid "Drop to add to the service"
 msgstr "Thả để thêm vào buổi lễ"
 
 #: ui/operator/overlays.slint
-msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect lyric files"
+msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect song files"
 msgstr "Video, hình ảnh, nhạc, bài trình chiếu (PowerPoint, Keynote, PDF), tệp lời hát SongSelect"
 
 #: ui/operator/record.slint ui/operator.slint
@@ -5515,17 +5487,13 @@ msgstr "Số câu: {}"
 msgid "Ctrl B"
 msgstr "Ctrl B"
 
-#: ui/operator/topbar.slint src/ui/perf.rs
+#: ui/operator/topbar.slint src/strings/screens.rs src/ui/perf.rs
 msgid "Room"
 msgstr "Hội trường"
 
 #: ui/operator/topbar.slint src/strings/screens.rs src/ui/perf.rs
 msgid "Stage"
 msgstr "Sân khấu"
-
-#: ui/operator/topbar.slint
-msgid "Stage display"
-msgstr "Màn hình sân khấu"
 
 #: ui/operator/topbar.slint
 msgid "Phone remotes connected"
@@ -5723,21 +5691,17 @@ msgstr "Về bản Kinh Thánh này…"
 msgid "View"
 msgstr "Xem"
 
-#: ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Clear all"
-msgstr "Xóa tất cả"
-
-#: ui/operator.slint src/strings/settings.rs
+#: ui/operator.slint src/automation/slide_actions.rs src/strings/settings.rs src/ui/dialogs/automation.rs
 msgid "Clear text"
 msgstr "Xóa chữ"
 
-#: ui/operator.slint src/strings/settings.rs
+#: ui/operator.slint src/automation/slide_actions.rs src/strings/settings.rs src/ui/dialogs/automation.rs
 msgid "Clear media & background"
 msgstr "Xóa đa phương tiện & nền"
 
-#: ui/operator.slint src/strings/settings.rs
-msgid "Stop audio"
-msgstr "Dừng âm thanh"
+#: ui/operator.slint src/automation/slide_actions.rs src/strings/settings.rs src/ui/dialogs/automation.rs
+msgid "Clear audio"
+msgstr "Xóa âm thanh"
 
 #: ui/operator.slint
 msgid "Stop listening in headphones"
@@ -6035,8 +5999,8 @@ msgstr "Yêu cầu không hợp lệ: {error}"
 msgid "That item is gone."
 msgstr "Mục đó không còn nữa."
 
-#: src/app.rs
-msgid "New Service"
+#: src/app.rs src/strings/settings.rs
+msgid "New service"
 msgstr "Buổi lễ mới"
 
 #: src/app.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
@@ -6104,11 +6068,11 @@ msgid "Add a screen first."
 msgstr "Hãy thêm màn hình trước."
 
 #: src/app.rs
-msgid "Audience {number}"
+msgid "Room screen {number}"
 msgstr "Hội trường {number}"
 
 #: src/app.rs
-msgid "Stage Display {number}"
+msgid "Stage screen {number}"
 msgstr "Màn hình sân khấu {number}"
 
 #: src/app.rs
@@ -6170,18 +6134,6 @@ msgstr "Trang {n}"
 #: src/automation/slide_actions.rs src/strings/operator.rs
 msgid "Clear"
 msgstr "Xóa"
-
-#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
-msgid "Clear words"
-msgstr "Xóa chữ"
-
-#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
-msgid "Clear video and pictures"
-msgstr "Xóa video và hình ảnh"
-
-#: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
-msgid "Clear audio"
-msgstr "Xóa âm thanh"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Hide the message"
@@ -6380,7 +6332,7 @@ msgid "The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (
 msgstr "Gói Starter miễn phí cho phép 3 bản Kinh Thánh có bản quyền: ở mục Plan, chọn CSB (và NIV hoặc NLT nếu bạn muốn lấy từ đây)."
 
 #: src/bible/sources.rs
-msgid "Create an app, then accept each Bible’s license in the portal (NIV from Biblica; HCSB if it is offered)."
+msgid "Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."
 msgstr "Tạo một ứng dụng, rồi chấp nhận giấy phép của từng bản Kinh Thánh trên cổng thông tin (NIV từ Biblica; HCSB nếu có)."
 
 #: src/bible/sources.rs
@@ -6420,7 +6372,7 @@ msgid "that passage spans too many chapters; choose fewer"
 msgstr "phân đoạn đó trải qua quá nhiều chương; hãy chọn ít hơn"
 
 #: src/bible/youversion.rs
-msgid "this YouVersion app isn't licensed for Bible {bible}; accept the publisher's license at platform.youversion.com"
+msgid "this YouVersion app isn't licensed for Bible {bible}; accept the publisher's licence at platform.youversion.com"
 msgstr "ứng dụng YouVersion này chưa được cấp phép cho Kinh Thánh {bible}; hãy chấp nhận giấy phép của nhà xuất bản tại platform.youversion.com"
 
 #: src/bible/youversion.rs
@@ -6436,7 +6388,7 @@ msgid "Type a reference, like John 3:16."
 msgstr "Gõ một câu tham chiếu, như John 3:16."
 
 #: src/bible.rs
-msgid "I don't recognize the book \"{book}\"."
+msgid "I don't recognise the book \"{book}\"."
 msgstr "Không nhận ra sách \"{book}\"."
 
 #: src/bible.rs
@@ -6456,7 +6408,7 @@ msgid "Paste the verse text first."
 msgstr "Hãy dán nội dung câu trước."
 
 #: src/follow/audio.rs
-msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Recording."
+msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Media → Recording."
 msgstr "Tự động theo cần FFmpeg để nghe trong phòng. Hãy tải trong Cài đặt → Ghi hình."
 
 #: src/follow/audio.rs
@@ -6592,7 +6544,7 @@ msgid "The translation file {file} could not be read ({reason}), so it is not us
 msgstr "Không đọc được tệp bản dịch {file} ({reason}), nên tệp không được dùng."
 
 #: src/i18n/remote_strings.rs
-msgid "RustyPresenter Remote"
+msgid "Phone remote — RustyPresenter"
 msgstr "RustyPresenter Remote"
 
 #: src/i18n/remote_strings.rs
@@ -6759,7 +6711,7 @@ msgid "Password"
 msgstr "Mật khẩu"
 
 #: src/i18n/remote_strings.rs
-msgid "This remote needs a password too."
+msgid "This phone remote needs a password too."
 msgstr "Điều khiển này cũng cần mật khẩu."
 
 #: src/i18n/remote_strings.rs
@@ -6811,7 +6763,7 @@ msgid "more than {max} sections, so it isn't a song"
 msgstr "nhiều hơn {max} đoạn, nên không phải bài hát"
 
 #: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
-msgid "no lyrics"
+msgid "no words"
 msgstr "không có lời"
 
 #: src/import/chordpro.rs
@@ -6879,11 +6831,11 @@ msgid "{path} is empty or damaged, so there is nothing to import."
 msgstr "{path} trống hoặc bị hỏng, nên không có gì để nhập."
 
 #: src/import/easyworship.rs
-msgid "no lyrics (probably a video or announcement item)"
+msgid "no words (probably a video or announcement item)"
 msgstr "không có lời (có lẽ là mục video hoặc thông báo)"
 
 #: src/import/easyworship.rs src/import/openlp.rs
-msgid "the lyrics are empty"
+msgid "the words are empty"
 msgstr "lời bài hát trống"
 
 #: src/import/easyworship.rs
@@ -6911,19 +6863,19 @@ msgid "SongWords.db has no word table. Is this an EasyWorship library?"
 msgstr "SongWords.db không có bảng lời. Đây có phải thư viện EasyWorship không?"
 
 #: src/import/openlp.rs
-msgid "the lyrics are not valid XML ({error})"
+msgid "the words are not valid XML ({error})"
 msgstr "lời bài hát không phải XML hợp lệ ({error})"
 
 #: src/import/openlp.rs
-msgid "the lyrics have too many verses (more than {max})"
+msgid "the words have too many verses (more than {max})"
 msgstr "lời bài hát có quá nhiều đoạn (hơn {max})"
 
 #: src/import/openlp.rs src/import/propresenter.rs
-msgid "the lyrics are too long to be a song"
+msgid "the words are too long to be a song"
 msgstr "lời quá dài để là một bài hát"
 
 #: src/import/openlp.rs
-msgid "the lyrics have no verses"
+msgid "the words have no verses"
 msgstr "lời bài hát không có đoạn nào"
 
 #: src/import/openlp.rs
@@ -6987,7 +6939,7 @@ msgid "No OpenLyrics or OpenSong songs were found in {path}."
 msgstr "Không tìm thấy bài hát OpenLyrics hay OpenSong nào trong {path}."
 
 #: src/import/opensong.rs
-msgid "the lyrics have too many sections to be a song"
+msgid "the words have too many sections to be a song"
 msgstr "lời có quá nhiều đoạn để là một bài hát"
 
 #: src/import/opensong.rs
@@ -7202,8 +7154,8 @@ msgstr "Cổng {port} đang được chương trình khác dùng, nên RustyPres
 msgid "That screen is not connected right now."
 msgstr "Màn hình đó hiện chưa được kết nối."
 
-#: src/print/html.rs src/strings/operator.rs src/theme/layouts.rs
-msgid "Scripture"
+#: src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/theme/layouts.rs
+msgid "Bible passage"
 msgstr "Kinh Thánh"
 
 #: src/record/advanced.rs
@@ -7540,11 +7492,11 @@ msgid "Missing slides"
 msgstr "Thiếu trang chiếu"
 
 #: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
-msgid "No lyrics were found in this file."
+msgid "No song words were found in this file."
 msgstr "Không tìm thấy lời bài hát trong tệp này."
 
 #: src/songselect/inbox.rs src/songselect.rs src/ui/dialogs/songselect.rs
-msgid "That file is too big to be a lyric file."
+msgid "That file is too big to be a song file."
 msgstr "Tệp đó quá lớn để là tệp lời bài hát."
 
 #: src/songselect/inbox.rs
@@ -7564,7 +7516,7 @@ msgid "The song file has no title."
 msgstr "Tệp bài hát không có tên."
 
 #: src/songselect.rs
-msgid "The lyric file is empty."
+msgid "The song file is empty."
 msgstr "Tệp lời bài hát trống."
 
 #: src/songselect.rs
@@ -8164,7 +8116,7 @@ msgid "Not on the stream"
 msgstr "Không ở trên luồng phát"
 
 #: src/stream/phone_camera.rs
-msgid "On the computer, choose this phone in Settings, Media, Livestream, Camera."
+msgid "On the computer, choose this phone in Settings → Media → Livestream → Camera."
 msgstr "Trên máy tính, chọn điện thoại này trong Cài đặt, Đa phương tiện, Phát trực tiếp, Máy quay."
 
 #: src/stream/phone_camera.rs
@@ -8200,7 +8152,7 @@ msgid "The phone did not let the page use its microphone. Allow it in the browse
 msgstr "Điện thoại không cho trang dùng micrô. Hãy cho phép trong cài đặt trình duyệt cho trang này, rồi thử lại."
 
 #: src/stream/phone_mic.rs
-msgid "Turn on the stage view in RustyPresenter (Network), and sign in to it on this phone first."
+msgid "Turn on the stage screen for phones in RustyPresenter (Settings → Network…), and sign in to it on this phone first."
 msgstr "Hãy bật chế độ xem sân khấu trong RustyPresenter (Mạng), và đăng nhập vào đó trên điện thoại này trước."
 
 #: src/stream/preflight.rs
@@ -8288,7 +8240,7 @@ msgid "Upload: {speed} Mbit/s. Stream in 720p: 1080p needs {need} Mbit/s."
 msgstr "Tải lên: {speed} Mbit/s. Hãy phát ở 720p: 1080p cần {need} Mbit/s."
 
 #: src/stream/speed.rs
-msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer places, or use a faster connection."
+msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer destinations, or use a faster connection."
 msgstr "Tải lên: {speed} Mbit/s. Quá chậm: 720p đến mọi nơi đang bật cần {need} Mbit/s. Hãy phát đến ít nơi hơn hoặc dùng kết nối nhanh hơn."
 
 #: src/stream/tally.rs
@@ -8308,7 +8260,7 @@ msgid "Not streaming"
 msgstr "Không phát trực tiếp"
 
 #: src/stream/tally.rs
-msgid "Turn on the stage view in Settings → Network. If it has a password, open the stage view on this phone once and sign in."
+msgid "Turn on the stage screen for phones (Settings → Network…). If it has a password, open the stage screen on this phone once and sign in."
 msgstr "Bật chế độ xem sân khấu trong Cài đặt → Mạng. Nếu có mật khẩu, hãy mở chế độ xem sân khấu một lần trên điện thoại này và đăng nhập."
 
 #: src/stream/transition.rs
@@ -8436,7 +8388,7 @@ msgid "Song saved"
 msgstr "Đã lưu bài hát"
 
 #: src/strings/add.rs
-msgid "Not in the lyrics: {sections}"
+msgid "Not in the words: {sections}"
 msgstr "Không có trong lời: {sections}"
 
 #: src/strings/automation.rs src/strings/themes.rs
@@ -8842,7 +8794,7 @@ msgid "{name} couldn't be used, so it wasn't added."
 msgstr "Không dùng được {name}, nên không được thêm."
 
 #: src/strings/catalog.rs
-msgid "That Bible is no longer in the list. Open Settings → Bibles again to see the current list."
+msgid "That Bible is no longer in the list. Open Settings → Bible again to see the current list."
 msgstr "Bản Kinh Thánh đó không còn trong danh sách. Hãy mở lại Cài đặt → Kinh Thánh để xem danh sách hiện tại."
 
 #: src/strings/catalog.rs
@@ -9049,10 +9001,6 @@ msgstr "{n}. {effect} · {start} · {secs} s"
 msgid "Services"
 msgstr "Các buổi lễ"
 
-#: src/strings/dialogs.rs
-msgid "Screen Configuration"
-msgstr "Cấu hình màn hình"
-
 #: src/strings/import.rs
 msgid "This presentation has a password. Open it in PowerPoint, remove the password (File → Info → Protect), save, and import again."
 msgstr "Bài trình chiếu này có mật khẩu. Hãy mở trong PowerPoint, gỡ mật khẩu (Tệp → Thông tin → Bảo vệ), lưu lại, rồi nhập lại."
@@ -9231,7 +9179,7 @@ msgid "That password isn't right."
 msgstr "Mật khẩu không đúng."
 
 #: src/strings/network.rs
-msgid "The stage view is turned off on the presentation computer."
+msgid "The stage screen for phones is turned off on the presentation computer."
 msgstr "Chế độ xem sân khấu đang tắt trên máy tính trình chiếu."
 
 #: src/strings/network.rs
@@ -9319,7 +9267,7 @@ msgid "Presentations"
 msgstr "Bài trình chiếu"
 
 #: src/strings/operator.rs
-msgid "SongSelect lyric files"
+msgid "SongSelect song files"
 msgstr "Tệp lời hát SongSelect"
 
 #: src/strings/operator.rs
@@ -9631,10 +9579,6 @@ msgid "December"
 msgstr "Tháng 12"
 
 #: src/strings/planning.rs
-msgid "Bible reading"
-msgstr "Đọc Kinh Thánh"
-
-#: src/strings/planning.rs
 msgid "Something"
 msgstr "Nội dung"
 
@@ -9718,7 +9662,7 @@ msgid "Make a service for {date} from “{service}”?"
 msgstr "Tạo buổi lễ cho {date} từ “{service}”?"
 
 #: src/strings/planning.rs
-msgid "Copy, with blanks for songs and Bible readings"
+msgid "Copy, with blanks for songs and Bible passages"
 msgstr "Sao chép, để trống chỗ cho bài hát và đọc Kinh Thánh"
 
 #: src/strings/planning.rs
@@ -9874,11 +9818,11 @@ msgid "The sound output is not connected, so the video or audio was paused. Plug
 msgstr "Đầu ra âm thanh chưa được kết nối, nên video hoặc âm thanh đã tạm dừng. Hãy cắm vào, hoặc chọn đầu ra khác trong Cài đặt → Video, rồi bấm phát."
 
 #: src/strings/preflight.rs
-msgid "The logo's file is missing. Choose it again in Settings."
+msgid "The logo's file is missing. Choose it again in Settings → Look."
 msgstr "Thiếu tệp logo. Hãy chọn lại trong Cài đặt."
 
 #: src/strings/preflight.rs
-msgid "The default background's file is missing. Choose it again in Settings."
+msgid "The default background's file is missing. Choose it again in Settings → Look."
 msgstr "Thiếu tệp nền mặc định. Hãy chọn lại trong Cài đặt."
 
 #: src/strings/preflight.rs
@@ -9944,7 +9888,7 @@ msgid "(not chosen yet)"
 msgstr "(chưa chọn)"
 
 #: src/strings/print.rs
-msgid "(no lyrics)"
+msgid "(no words)"
 msgstr "(không có lời)"
 
 #: src/strings/print.rs
@@ -9956,7 +9900,7 @@ msgid " (loops)"
 msgstr " (lặp lại)"
 
 #: src/strings/print.rs
-msgid "No songs or Bible readings in this service."
+msgid "No songs or Bible passages in this service."
 msgstr "Buổi lễ này không có bài hát hay phần đọc Kinh Thánh nào."
 
 #: src/strings/print.rs
@@ -9990,14 +9934,6 @@ msgstr "Trang đã được lưu tại {path} nhưng không có chương trình 
 #: src/strings/print.rs
 msgid "Print or save"
 msgstr "In hoặc lưu"
-
-#: src/strings/screens.rs
-msgid "Audience"
-msgstr "Hội trường"
-
-#: src/strings/screens.rs
-msgid "Audience screen"
-msgstr "Màn hình hội trường"
 
 #: src/strings/screens.rs
 msgid "Showing"
@@ -10044,7 +9980,7 @@ msgid "Nothing shows on a placeholder. Set it up now, then pick the projector he
 msgstr "Màn hình giữ chỗ không hiện gì. Hãy thiết lập ngay, rồi chọn máy chiếu ở đây khi đã cắm vào."
 
 #: src/strings/screens.rs
-msgid "Shows the audience picture instead of a stage layout. It has no sound."
+msgid "Shows the room screen's picture instead of a stage layout. It has no sound."
 msgstr "Hiện hình ảnh hội chúng thấy thay cho bố cục sân khấu. Không có âm thanh."
 
 #: src/strings/screens.rs
@@ -10310,7 +10246,7 @@ msgid "{bible} needs the internet for this passage."
 msgstr "{bible} cần internet cho phân đoạn này."
 
 #: src/strings/scripture.rs
-msgid "That Bible was removed. Add it again in Settings → Bibles."
+msgid "That Bible was removed. Add it again in Settings → Bible."
 msgstr "Bản Kinh Thánh đó đã bị gỡ. Hãy thêm lại trong Cài đặt → Kinh Thánh."
 
 #: src/strings/scripture.rs
@@ -10567,10 +10503,6 @@ msgid "Move the selected service item down"
 msgstr "Chuyển mục buổi lễ đang chọn xuống"
 
 #: src/strings/settings.rs
-msgid "New service"
-msgstr "Buổi lễ mới"
-
-#: src/strings/settings.rs
 msgid "Open a service file"
 msgstr "Mở tệp buổi lễ"
 
@@ -10803,7 +10735,7 @@ msgid "Classic"
 msgstr "Cổ điển"
 
 #: src/strings/stage.rs
-msgid "Lyrics only"
+msgid "Words only"
 msgstr "Chỉ lời hát"
 
 #: src/strings/stage.rs
@@ -11118,7 +11050,7 @@ msgid "Standard"
 msgstr "Chuẩn"
 
 #: src/strings/themes.rs
-msgid "Built in — the style RustyPresenter started with"
+msgid "Built-in — the style RustyPresenter started with"
 msgstr "Có sẵn — kiểu ban đầu của RustyPresenter"
 
 #: src/strings/themes.rs
@@ -11194,7 +11126,7 @@ msgid "Up to 8 overlays can be on at once. Turn one off first."
 msgstr "Chỉ bật được tối đa 8 lớp phủ cùng lúc. Hãy tắt một lớp trước."
 
 #: src/strings/themes.rs
-msgid "Choose a church logo first (Settings → Themes)."
+msgid "Choose a church logo first (Settings → Look)."
 msgstr "Hãy chọn logo hội thánh trước (Cài đặt → Chủ đề)."
 
 #: src/strings/themes.rs
@@ -11398,11 +11330,11 @@ msgid "Song use report"
 msgstr "Báo cáo sử dụng bài hát"
 
 #: src/strings/usage.rs
-msgid "CCLI license #: {license}"
+msgid "CCLI licence #: {license}"
 msgstr "Số giấy phép CCLI: {license}"
 
 #: src/strings/usage.rs
-msgid "Add your church's CCLI license number in Settings → Songs."
+msgid "Add your church's CCLI licence number in Settings → Songs."
 msgstr "Hãy thêm số giấy phép CCLI của hội thánh trong Cài đặt → Bài hát."
 
 #: src/strings/usage.rs
@@ -11580,15 +11512,15 @@ msgid "YouTube wants a sign-in to check this isn't a robot. Wait a while and try
 msgstr "YouTube yêu cầu đăng nhập để xác minh không phải robot. Hãy chờ một lúc rồi thử lại."
 
 #: src/strings/youtube.rs
-msgid "This live stream hasn't finished yet. Try again after it ends."
+msgid "This livestream hasn't finished yet. Try again after it ends."
 msgstr "Buổi phát trực tiếp này chưa kết thúc. Hãy thử lại sau khi kết thúc."
 
 #: src/strings/youtube.rs
-msgid "This live stream or premiere hasn't started yet."
+msgid "This livestream or premiere hasn't started yet."
 msgstr "Buổi phát trực tiếp hoặc công chiếu này chưa bắt đầu."
 
 #: src/strings/youtube.rs
-msgid "This live stream just ended and YouTube is still preparing it. Try again in a while."
+msgid "This livestream just ended and YouTube is still preparing it. Try again in a while."
 msgstr "Buổi phát trực tiếp này vừa kết thúc và YouTube vẫn đang xử lý. Hãy thử lại sau ít phút."
 
 #: src/strings/youtube.rs
@@ -11737,7 +11669,7 @@ msgid "Text"
 msgstr "Văn bản"
 
 #: src/theme/layouts.rs
-msgid "Lower-third lyrics"
+msgid "Lower-third words"
 msgstr "Lời phần ba dưới"
 
 #: src/theme/layouts.rs
@@ -11773,7 +11705,7 @@ msgid "Plain text, like an announcement."
 msgstr "Văn bản thường, như thông báo."
 
 #: src/theme/layouts.rs
-msgid "Laid out like song lyrics."
+msgid "Laid out like song words."
 msgstr "Trình bày như lời bài hát."
 
 #: src/theme/layouts.rs
@@ -11978,7 +11910,7 @@ msgid "Send one command a line: next, prev, clear, clear slide, logo, go 3 (item
 msgstr "Gửi mỗi dòng một lệnh: next, prev, clear, clear slide, logo, go 3 (mục 3), go 3 2 (trang 2 của mục đó), status. Nếu có mật khẩu, hãy gửi “password …” trước. Mỗi dòng được trả lời bằng OK hoặc ERR."
 
 #: src/ui/dialogs/quick_search.rs
-msgid "Type a song title, words from the lyrics, a file name or a service."
+msgid "Type a song title, some of its words, a file name or a service."
 msgstr "Nhập tên bài hát, vài chữ trong lời hát, tên tệp hoặc buổi lễ."
 
 #: src/ui/dialogs/quick_search.rs
@@ -12123,7 +12055,7 @@ msgid "Best runs fine here."
 msgstr "Tốt nhất chạy tốt ở đây."
 
 #: src/ui/dialogs/settings_model.rs
-msgid "Use Fast on this PC: Best is too slow here."
+msgid "Use Fast on this computer: Best is too slow here."
 msgstr "Hãy dùng Nhanh trên máy này: Tốt nhất quá chậm ở đây."
 
 #: src/ui/dialogs/settings_model.rs
@@ -12135,7 +12067,7 @@ msgid "Download a model first, then test its speed."
 msgstr "Hãy tải một mô hình trước, rồi thử tốc độ."
 
 #: src/ui/dialogs/settings_model.rs
-msgid "This PC is too slow for the speech models: auto-follow can't hear the words here, so it can't follow the songs."
+msgid "This computer is too slow for the speech models: auto-follow can't hear the words here, so it can't follow the songs."
 msgstr "Máy này quá chậm cho các mô hình giọng nói: tự động theo không nghe được lời ở đây nên không thể theo các bài hát."
 
 #: src/ui/dialogs/settings_model.rs
@@ -12511,7 +12443,7 @@ msgid "The app's log files are in this folder (Help → Open logs folder):"
 msgstr "Tệp nhật ký của ứng dụng nằm trong thư mục này (Trợ giúp → Mở thư mục nhật ký):"
 
 #: src/ui/operator/help.rs
-msgid "Save this file, then send it with the newest log files to the person who looks after RustyPresenter for your church, on a USB stick or by e-mail from another computer."
+msgid "Save this file, then send it with the newest log files to the person who looks after RustyPresenter for your church, on a USB stick or by email from another computer."
 msgstr "Hãy lưu tệp này, rồi gửi kèm các tệp nhật ký mới nhất cho người phụ trách RustyPresenter ở hội thánh, bằng USB hoặc qua e-mail từ máy tính khác."
 
 #: src/ui/operator/help.rs
@@ -12527,7 +12459,7 @@ msgid "Get ready for Sunday"
 msgstr "Chuẩn bị cho Chúa Nhật"
 
 #: src/ui/operator/help.rs
-msgid "File → New service makes this week's service. File → Services… opens an older one or copies last week."
+msgid "File → New service… makes this week's service. File → Services… opens an older one or copies last week."
 msgstr "Tệp → Buổi lễ mới tạo buổi lễ tuần này. Tệp → Các buổi lễ… mở buổi lễ cũ hoặc sao chép buổi lễ tuần trước."
 
 #: src/ui/operator/help.rs
@@ -12758,11 +12690,11 @@ msgid "The room screen was unplugged. It comes back by itself when that screen i
 msgstr "Màn hình hội trường đã bị rút. Sẽ tự hiện lại khi cắm lại màn hình đó."
 
 #: src/ui/screens.rs
-msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The extra room screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr "Màn hình hội trường phụ đã bị rút. Sẽ tự hiện lại khi cắm lại màn hình đó."
 
 #: src/ui/screens.rs
-msgid "The stage display was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The stage screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr "Màn hình sân khấu đã bị rút. Sẽ tự hiện lại khi cắm lại màn hình đó."
 
 #: src/ui/screens.rs
@@ -12774,11 +12706,11 @@ msgid "The room screen is plugged in again, but it could not open: {error}"
 msgstr "Màn hình hội trường đã được cắm lại, nhưng không mở được: {error}"
 
 #: src/ui/screens.rs
-msgid "The extra audience screen is plugged in again, but it could not open: {error}"
+msgid "The extra room screen is plugged in again, but it could not open: {error}"
 msgstr "Màn hình hội trường phụ đã được cắm lại, nhưng không mở được: {error}"
 
 #: src/ui/screens.rs
-msgid "The stage display is plugged in again, but it could not open: {error}"
+msgid "The stage screen is plugged in again, but it could not open: {error}"
 msgstr "Màn hình sân khấu đã được cắm lại, nhưng không mở được: {error}"
 
 #: src/ui/screens.rs
@@ -12919,11 +12851,11 @@ msgid "Testing {mode}… ({at} of {count})"
 msgstr "Đang thử {mode}… ({at}/{count})"
 
 #: src/video/bench.rs
-msgid "The graphics card or its driver changed. Want me to find the best graphics for this PC again? About a minute"
+msgid "The graphics card or its driver changed. Want me to find the best graphics for this computer again? About a minute"
 msgstr "Card đồ họa hoặc trình điều khiển đã thay đổi. Bạn có muốn tôi tìm lại cách hiển thị tốt nhất cho máy này không? Khoảng một phút"
 
 #: src/video/bench.rs
-msgid "Want me to find the best graphics for this PC? About a minute"
+msgid "Want me to find the best graphics for this computer? About a minute"
 msgstr "Bạn có muốn tôi tìm cách hiển thị tốt nhất cho máy này không? Khoảng một phút"
 
 #: src/video/bench.rs
@@ -12931,7 +12863,7 @@ msgid "None of the graphics choices worked in the test. RustyPresenter keeps the
 msgstr "Không lựa chọn đồ họa nào chạy được trong lần thử. RustyPresenter giữ cài đặt hiện tại."
 
 #: src/video/bench.rs
-msgid "{mode} is the best for this PC. Automatic will use it from the next start."
+msgid "{mode} is the best for this computer. Automatic will use it from the next start."
 msgstr "{mode} là tốt nhất cho máy này. Tự động sẽ dùng nó từ lần khởi động sau."
 
 #: src/video/ffi.rs

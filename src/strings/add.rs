@@ -73,4 +73,4 @@ pub fn cancel() -> String { tr!("Cancel") }
 /// The song editor (`operator.js:689-708`).
 pub fn song_saved() -> String { tr!("Song saved") }
 /// New: an Order name that matches no section (the core leaves it out without a word).
-pub fn not_in_lyrics(names: &[String]) -> String { tr!("Not in the lyrics: {sections}", sections = names.join(", ")) }
+pub fn not_in_lyrics(names: &[String]) -> String { tr!("Not in the words: {sections}", sections = names.join(", ")) }

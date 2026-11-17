@@ -35,7 +35,7 @@ pub fn lyrics_to_verses(lyrics: &str) -> Result<Vec<Verse>, String> {
     let mut own: Option<usize> = None;
     let mut numbered: HashMap<char, usize> = HashMap::new();
     let new_verse = |verses: &mut Vec<Verse>, kind: &str, label: String, name: &str| -> Result<usize, String> {
-        if verses.len() >= MAX_PARTS { return Err(tr!("the lyrics have too many sections to be a song")); }
+        if verses.len() >= MAX_PARTS { return Err(tr!("the words have too many sections to be a song")); }
         verses.push(Verse { kind: kind.into(), label, text: String::new(), name: name.into() });
         Ok(verses.len() - 1)
     };
@@ -92,7 +92,7 @@ pub(crate) fn from_document(doc: &roxmltree::Document, fallback: Option<&str>) -
     let title = title_or(&field("title"), fallback);
     // The lyrics keep their line breaks, so not `text_of`.
     let lyrics: String = child(root, "lyrics").map(|l| l.descendants().filter(|d| d.is_text()).filter_map(|d| d.text()).collect()).unwrap_or_default();
-    if lyrics.trim().is_empty() { return (title, Err(tr!("no lyrics"))); }
+    if lyrics.trim().is_empty() { return (title, Err(tr!("no words"))); }
     let song = lyrics_to_verses(&lyrics)
         .and_then(|v| lyrics_from_verses(v, &field("presentation").replace(',', " ")))
         .map(|(lyrics, arrangement)| Song {
@@ -188,8 +188,8 @@ Verse 2\n'Twas grace that taught my heart to fear\n\nAnd grace my fears relieved
     #[test]
     fn errors_are_clear() {
         assert!(parse_str("not xml").unwrap_err().contains("valid XML"));
-        assert_eq!(parse_str("<song><title>X</title><lyrics>  </lyrics></song>").unwrap_err(), "no lyrics");
-        assert_eq!(parse_str("<song><title>X</title></song>").unwrap_err(), "no lyrics");
+        assert_eq!(parse_str("<song><title>X</title><lyrics>  </lyrics></song>").unwrap_err(), "no words");
+        assert_eq!(parse_str("<song><title>X</title></song>").unwrap_err(), "no words");
         assert!(parse_str("<song><title>X</title><lyrics>.G C\n;only notes</lyrics></song>").is_err());
         assert!(parse_str("<set/>").unwrap_err().contains("isn't an OpenSong"));
         let many = format!("<song><title>M</title><lyrics>{}</lyrics></song>", (0..1500).map(|i| format!("[V{i}]\n x\n")).collect::<String>());

@@ -319,7 +319,7 @@ fn default_background_custom_colour_is_saved() {
 fn text_color_from_the_grid_and_its_hex_field() {
     let app = test_app();
     let op = opened(&app);
-    // `find` skips what the dialog's scroll box clips, and Text color sits below the Bible verses group: the dialog
+    // `find` skips what the dialog's scroll box clips, and Text colour sits below the Bible verses group: the dialog
     // keeps one height (at most 860 px), so its body is scrolled down to the grid.
     op.window().set_size(slint::LogicalSize::new(1400.0, 1600.0));
     settle();
@@ -516,7 +516,7 @@ fn the_graphics_test_shows_each_choice_and_use_this_saves_the_pick() {
     assert_eq!(find_all(&op, "SettingsVideo::graphics-test-details").len(), 2, "each row says what was measured or why");
     assert_eq!(find_all(&op, "SettingsVideo::graphics-test-row").len(), 2);
     assert_eq!(g(&op).get_graphics_test_pick(), 0, "the best is picked");
-    assert_eq!(g(&op).get_graphics_test_status(), "OpenGL is the best for this PC. Automatic will use it from the next start.");
+    assert_eq!(g(&op).get_graphics_test_status(), "OpenGL is the best for this computer. Automatic will use it from the next start.");
     assert_eq!(bench::load(&root).unwrap().winner, Some(Graphics::OpenGl), "kept for Automatic");
 
     click(&op, "SettingsVideo::graphics-test-use");

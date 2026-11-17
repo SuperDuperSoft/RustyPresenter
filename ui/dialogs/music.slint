@@ -35,7 +35,7 @@ export global MusicDlg {
 
 export component MusicDialog inherits VerticalLayout {
     DialogBody {
-        Note { text: @tr("The walk-in music plays on while the slides change. Clear audio and Clear All stop it."); }
+        Note { text: @tr("The walk-in music plays on while the slides change. Clear audio and Clear all stop it."); }
         Rectangle { height: 12px; }
         if MusicDlg.now != "": music-now := Text {
             text: MusicDlg.now;

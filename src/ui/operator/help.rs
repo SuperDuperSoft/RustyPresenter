@@ -218,11 +218,11 @@ mod tr {
     pub fn report_what() -> String { tr!("Please write below what happened and what you expected instead.") }
     pub fn report_steps() -> String { tr!("If you can, list the steps that make it happen again.") }
     pub fn report_logs() -> String { tr!("The app's log files are in this folder (Help → Open logs folder):") }
-    pub fn report_send() -> String { tr!("Save this file, then send it with the newest log files to the person who looks after RustyPresenter for your church, on a USB stick or by e-mail from another computer.") }
+    pub fn report_send() -> String { tr!("Save this file, then send it with the newest log files to the person who looks after RustyPresenter for your church, on a USB stick or by email from another computer.") }
     pub fn report_write_here() -> String { tr!("What happened:") }
     pub fn tutorials_title() -> String { tr!("RustyPresenter: quick tutorials") }
     pub fn t_sunday() -> String { tr!("Get ready for Sunday") }
-    pub fn t_sunday_1() -> String { tr!("File → New service makes this week's service. File → Services… opens an older one or copies last week.") }
+    pub fn t_sunday_1() -> String { tr!("File → New service… makes this week's service. File → Services… opens an older one or copies last week.") }
     pub fn t_sunday_2() -> String { tr!("File → Add to service adds songs, Bible passages, videos, slides and announcements. Drag items to change their order.") }
     pub fn t_sunday_3() -> String { tr!("Help → Check the service finds missing files and empty items before the service starts.") }
     pub fn t_show() -> String { tr!("Put things on the screen") }

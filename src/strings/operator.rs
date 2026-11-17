@@ -7,7 +7,7 @@ use crate::{tr, trn};
 pub fn kind_name(kind: &str) -> String {
     match kind {
         "song" => tr!("Song"),
-        "scripture" => tr!("Scripture"),
+        "scripture" => tr!("Bible passage"),
         "video" => tr!("Video"),
         "image" => tr!("Picture"),
         "audio" => tr!("Audio"),
@@ -69,7 +69,7 @@ pub fn separate_pictures() -> String { tr!("Separate pictures") }
 /// File picker filter names. The web `accept` lists have none, so these are new.
 pub fn filter_media() -> String { tr!("Videos, pictures and music") }
 pub fn filter_powerpoint() -> String { tr!("Presentations") }
-pub fn filter_lyrics() -> String { tr!("SongSelect lyric files") }
+pub fn filter_lyrics() -> String { tr!("SongSelect song files") }
 pub fn filter_pictures() -> String { tr!("Pictures") }
 pub fn filter_pictures_and_videos() -> String { tr!("Pictures and videos") }
 pub fn filter_bibles() -> String { tr!("Bible files") }

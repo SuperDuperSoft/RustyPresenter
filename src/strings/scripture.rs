@@ -156,7 +156,7 @@ pub fn lower_third_left_out(abbr: &str) -> String { tr!("Lower-third themes show
 pub fn needs_internet(abbr: &str) -> String { tr!("{bible} needs the internet for this passage.", bible = abbr) }
 
 /// An Also Bible that is no longer in the library (Bible library spec §13).
-pub fn bible_removed() -> String { tr!("That Bible was removed. Add it again in Settings → Bibles.") }
+pub fn bible_removed() -> String { tr!("That Bible was removed. Add it again in Settings → Bible.") }
 
 // ---- N6: Bible extras ----
 

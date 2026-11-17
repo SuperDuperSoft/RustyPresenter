@@ -63,7 +63,7 @@ fn order_rows_for_every_kind() {
         s("text", "Welcome", "Welcome to <church> & friends", false),
         s("blank", "Blank — Song", "(not chosen yet)", true),
     ]);
-    assert!(!doc.blocks.iter().any(|b| matches!(b, Block::Heading(h) if h == "Lyrics")), "order only");
+    assert!(!doc.blocks.iter().any(|b| matches!(b, Block::Heading(h) if h == "Words")), "order only");
 }
 
 #[test]

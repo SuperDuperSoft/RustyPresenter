@@ -812,7 +812,7 @@ mod tests {
         if let ItemKind::Scripture { also, .. } = &mut item.kind { also.truncate(1); also[0] = crate::scripture::AlsoShow { translation: "ebible:spaRV1909".into(), verses: vec![] } }
         let b = build_scripture(&Data::default(), &item);
         assert!(b.slides.iter().all(|s| matches!(&s.content, SlideContent::Text { parallel: None, .. })), "only the main Bible is left");
-        assert_eq!(b.notes, ["That Bible was removed. Add it again in Settings → Bibles."]);
+        assert_eq!(b.notes, ["That Bible was removed. Add it again in Settings → Bible."]);
     }
 
     #[test]

@@ -99,7 +99,7 @@ fn pcm_out() -> Vec<OsString> { ["-vn", "-ac", "1", "-ar", "16000", "-f", "s16le
 /// The FFmpeg to listen with (the app's own, else the computer's).
 pub(crate) fn ffmpeg() -> Result<PathBuf, String> {
     let data = crate::server::data_dir().unwrap_or_default();
-    find_ffmpeg(&data).ok_or_else(|| crate::tr!("Auto-follow needs FFmpeg to hear the room. Download it in Settings → Recording."))
+    find_ffmpeg(&data).ok_or_else(|| crate::tr!("Auto-follow needs FFmpeg to hear the room. Download it in Settings → Media → Recording."))
 }
 
 /// The microphones and line-ins auto-follow can listen to (names as FFmpeg opens them).

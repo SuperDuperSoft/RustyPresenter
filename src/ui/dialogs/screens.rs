@@ -458,7 +458,7 @@ mod tests {
         op.ui.invoke_screens();
         settle(&op);
         assert_eq!(op.dialog(), Some(DialogKind::Screens));
-        assert_eq!(op.ui.get_dialog_title(), "Screen Configuration");
+        assert_eq!(op.ui.get_dialog_title(), "Screens");
         op
     }
 
@@ -484,11 +484,11 @@ mod tests {
         let (app, _d) = with_displays(vec![mon("A", true)]);
         let op = open_screens(&app);
         let lists: Vec<ScreenList> = state(&op).get_lists().iter().collect();
-        assert_eq!(lists.iter().map(|l| l.title.to_string()).collect::<Vec<_>>(), ["Audience", "Stage"]);
+        assert_eq!(lists.iter().map(|l| l.title.to_string()).collect::<Vec<_>>(), ["Room", "Stage"]);
         assert!(lists.iter().all(|l| !l.on));
-        assert_eq!(rows(&op, 0)[0].name, "Audience");
-        assert_eq!(rows(&op, 1)[0].name, "Stage Display");
-        assert_eq!(state(&op).get_name(), "Audience", "the first screen is picked");
+        assert_eq!(rows(&op, 0)[0].name, "Room screen");
+        assert_eq!(rows(&op, 1)[0].name, "Stage screen");
+        assert_eq!(state(&op).get_name(), "Room screen", "the first screen is picked");
         assert_eq!(state(&op).get_output(), 0, "and goes nowhere yet");
         assert!(!state(&op).get_can_remove(), "a list keeps one screen");
         assert!(find(&op, "ScreensDialog::one-screen-note").is_some(), "only one monitor");
@@ -563,12 +563,12 @@ mod tests {
         refresh(&op);
         settle(&op);
         let rows0 = rows(&op, 0);
-        assert_eq!(rows0.iter().map(|r| r.name.to_string()).collect::<Vec<_>>(), ["Audience", "Audience 2"]);
+        assert_eq!(rows0.iter().map(|r| r.name.to_string()).collect::<Vec<_>>(), ["Room screen", "Room screen 2"]);
         assert_eq!(state(&op).get_selected(), rows0[1].id, "the new screen is picked");
         assert!(state(&op).get_can_remove());
         update(&op, json!({ "id": rows0[0].id.as_str(), "target": { "kind": "monitor", "monitor": "B" } }));
         update(&op, json!({ "id": rows0[1].id.as_str(), "target": { "kind": "monitor", "monitor": "C" } }));
-        assert!(state(&op).get_note().contains("Sound only plays from Audience"));
+        assert!(state(&op).get_note().contains("Sound only plays from Room screen"));
         act(&op, "screens/power", json!({ "group": "audience", "on": true }));
         let extra = format!("room:{}", rows0[1].id);
         assert_eq!(*d.calls.lock().unwrap(), [("room".to_string(), Some("B".to_string())), (extra.clone(), Some("C".to_string()))]);
@@ -590,7 +590,7 @@ mod tests {
         refresh(&op);
         settle(&op);
         click(&op, "ScreensDialog::remove-btn", 0);
-        assert_eq!(asked(&op).unwrap().0, "Remove “Stage Display 2”?");
+        assert_eq!(asked(&op).unwrap().0, "Remove “Stage screen 2”?");
         assert_eq!(app.data.lock().unwrap().settings.screens.stage.screens.len(), 2, "not yet");
         click(&op, "AskOverlay::ok", 0);
         assert_eq!(app.data.lock().unwrap().settings.screens.stage.screens.len(), 1);
@@ -602,7 +602,7 @@ mod tests {
         let op = open_screens(&app);
         state(&op).invoke_rename("Lobby TV".into());
         assert_eq!(rows(&op, 0)[0].name, "Lobby TV", "the list follows the typing");
-        assert_eq!(app.data.lock().unwrap().settings.screens.audience.screens[0].name, "Audience", "not saved on each key");
+        assert_eq!(app.data.lock().unwrap().settings.screens.audience.screens[0].name, "Room screen", "not saved on each key");
         op.close_dialog();
         settle(&op);
         assert_eq!(app.data.lock().unwrap().settings.screens.audience.screens[0].name, "Lobby TV");
@@ -689,7 +689,7 @@ mod tests {
         assert_eq!(*d.marks.lock().unwrap(), [
             ("A".to_string(), "1".to_string(), "This computer".to_string()),
             ("B".to_string(), "2".to_string(), "Not used".to_string()),
-            ("C".to_string(), "3".to_string(), "Stage Display".to_string()),
+            ("C".to_string(), "3".to_string(), "Stage screen".to_string()),
         ]);
     }
 
@@ -811,6 +811,6 @@ mod tests {
         settle(&op);
         assert!(app.data.lock().unwrap().settings.screens.stage.screens[0].mirror);
         assert_eq!(*d.open.lock().unwrap(), [format!("room:{stage}")], "an audience window on the stage monitor");
-        assert!(state(&op).get_note().contains("Shows the audience picture"));
+        assert!(state(&op).get_note().contains("Shows the room screen's picture"));
     }
 }

@@ -44,7 +44,7 @@ pub fn banner_lost() -> String { tr!("The part of the song on screen was removed
 pub fn banner_no_slides() -> String { tr!("This song has no words now. The screen keeps the old words.") }
 
 pub fn chip_show_hint() -> String { tr!("Click to show this part") }
-pub fn not_in_lyrics() -> String { tr!("Not in the lyrics — it is skipped") }
+pub fn not_in_lyrics() -> String { tr!("Not in the words — it is skipped") }
 pub fn written_order_hint() -> String { tr!("Written order — drag to change") }
 pub fn saved_as_usual() -> String { tr!("Saved as the usual order.") }
 

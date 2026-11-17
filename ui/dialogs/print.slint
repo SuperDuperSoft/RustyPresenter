@@ -35,7 +35,7 @@ export component PrintDialog inherits VerticalLayout {
             HorizontalLayout {
                 alignment: start;
                 what := Segmented {
-                    labels: [@tr("Service order"), @tr("Lyrics"), @tr("Both")];
+                    labels: [@tr("Service order"), @tr("Words"), @tr("Both")];
                     index <=> PrintDialogState.what;
                 }
             }
@@ -46,7 +46,7 @@ export component PrintDialog inherits VerticalLayout {
                 checked <=> PrintDialogState.notes;
             }
             scripture := Check {
-                text: @tr("Include Bible readings with the lyrics");
+                text: @tr("Include Bible passages with the song words");
                 checked <=> PrintDialogState.scripture;
             }
             song-per-page := Check {

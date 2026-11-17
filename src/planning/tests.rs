@@ -178,7 +178,7 @@ fn copy_items_blanks_keep_notes_and_background() {
     assert_eq!(n, 2);
     assert!(matches!(&out[0].kind, ItemKind::Blank { label, want: BlankKind::Song } if label == "Song"));
     assert_eq!((out[0].notes.as_str(), &out[0].background), ("Key of G", &a.background));
-    assert!(matches!(&out[1].kind, ItemKind::Blank { label, want: BlankKind::Scripture } if label == "Bible reading"));
+    assert!(matches!(&out[1].kind, ItemKind::Blank { label, want: BlankKind::Scripture } if label == "Bible passage"));
     assert!(matches!(&out[2].kind, ItemKind::Text { .. }));
     assert!(matches!(&out[3].kind, ItemKind::Header { .. }));
     let (_, n) = copy_items(&items, CopyMode::ThisService);
@@ -221,7 +221,7 @@ fn template_from_service_keep_and_blank() {
 fn template_blank_labels_default_by_kind() {
     let labels: Vec<String> = [BlankKind::Song, BlankKind::Scripture, BlankKind::Media, BlankKind::Deck, BlankKind::Text, BlankKind::Any]
         .into_iter().map(strings::blank_label).collect();
-    assert_eq!(labels, ["Song", "Bible reading", "Media", "Slides", "Announcement", "Something"]);
+    assert_eq!(labels, ["Song", "Bible passage", "Media", "Slides", "Announcement", "Something"]);
     assert_eq!(blank_title("", BlankKind::Song), "Song (blank)");
     assert_eq!(blank_title("Closing song", BlankKind::Song), "Closing song (blank)");
 }

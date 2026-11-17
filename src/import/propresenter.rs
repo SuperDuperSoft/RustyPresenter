@@ -159,7 +159,7 @@ fn read_groups(root: Node) -> Result<Vec<Group>, String> {
         let out: Vec<Vec<String>> = slides.into_iter().filter(|s| !attr(*s, "enabled").is_some_and(|v| v.trim().eq_ignore_ascii_case("false")))
             .map(slide_lines).filter(|l| !l.is_empty()).collect();
         words += out.iter().flatten().map(String::len).sum::<usize>();
-        if words > MAX_LYRICS { return Err(tr!("the lyrics are too long to be a song")); }
+        if words > MAX_LYRICS { return Err(tr!("the words are too long to be a song")); }
         Ok(out)
     };
     if groupings.is_empty() {

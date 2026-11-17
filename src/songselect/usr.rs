@@ -90,7 +90,7 @@ pub fn parse(text: &str) -> Result<Song, String> {
         order.push(key);
         sections.push(format!("{}\n{}", label_line(&label), lines.join("\n")));
     }
-    if sections.is_empty() { return Err(crate::tr!("No lyrics were found in this file.")) }
+    if sections.is_empty() { return Err(crate::tr!("No song words were found in this file.")) }
     let copyright = {
         let c = parts(get("copyright")).into_iter().filter(|p| !p.is_empty()).collect::<Vec<_>>().join(" | ");
         let admin = parts(get("admin")).into_iter().filter(|p| !p.is_empty()).collect::<Vec<_>>().join(" | ");

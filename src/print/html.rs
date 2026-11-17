@@ -46,7 +46,7 @@ const STYLE: &str = r#"
 fn kind_label(kind: &str) -> String {
     match kind {
         "song" => crate::tr!("Song"),
-        "scripture" => crate::tr!("Scripture"),
+        "scripture" => crate::tr!("Bible passage"),
         "media" => crate::tr!("Media"),
         "deck" => crate::tr!("Slides"),
         "text" => crate::tr!("Announcement"),

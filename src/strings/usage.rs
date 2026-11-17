@@ -6,8 +6,8 @@ use crate::tr;
 pub fn title() -> String { tr!("Song use report") }
 
 /// The report's header.
-pub fn license_line(license: &str) -> String { tr!("CCLI license #: {license}", license = license) }
-pub fn no_license() -> String { tr!("Add your church's CCLI license number in Settings → Songs.") }
+pub fn license_line(license: &str) -> String { tr!("CCLI licence #: {license}", license = license) }
+pub fn no_license() -> String { tr!("Add your church's CCLI licence number in Settings → Songs.") }
 
 /// The Mark button and its question.
 pub fn mark_reported(to: &str) -> String { tr!("Mark as reported through {date}", date = to) }

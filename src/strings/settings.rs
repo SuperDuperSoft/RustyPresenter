@@ -113,7 +113,7 @@ pub fn do_bible() -> String { tr!("Bible box") }
 pub fn do_clear_all() -> String { tr!("Clear all") }
 pub fn do_clear_text() -> String { tr!("Clear text") }
 pub fn do_clear_media() -> String { tr!("Clear media & background") }
-pub fn do_stop_audio() -> String { tr!("Stop audio") }
+pub fn do_stop_audio() -> String { tr!("Clear audio") }
 pub fn do_logo() -> String { tr!("Logo") }
 pub fn do_translation() -> String { tr!("Pick a Bible chip (in the Bible box)") }
 pub fn do_esc() -> String { tr!("Leave a text box") }

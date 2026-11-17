@@ -374,7 +374,7 @@ mod tests {
         let app = test_app();
         let op = opened(&app);
         type_and_enter(&op, "Hezekiah 1:1");
-        assert_eq!(last_toast(&op), Some(("I don't recognize the book \"Hezekiah\".".into(), true)));
+        assert_eq!(last_toast(&op), Some(("I don't recognise the book \"Hezekiah\".".into(), true)));
         assert_eq!(op.ui.get_bible_text(), "Hezekiah 1:1");
         assert!(ids(&app).is_empty());
         assert_eq!(op.state.borrow().armed, None);

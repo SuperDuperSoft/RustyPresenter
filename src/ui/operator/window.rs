@@ -531,7 +531,7 @@ mod tests {
         refresh(&op);
         let pill = find(&op, "TopBar::status-stage").expect("stage pill once configured");
         assert_eq!(pill.accessible_value().unwrap_or_default(), "off");
-        assert_eq!(pill.accessible_description().unwrap_or_default(), "Stage display");
+        assert_eq!(pill.accessible_description().unwrap_or_default(), "Stage screen");
         let _stage = app.screen_guard("stage");
         refresh(&op);
         assert_eq!(find(&op, "TopBar::status-stage").unwrap().accessible_value().unwrap_or_default(), "on");

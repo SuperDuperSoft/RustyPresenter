@@ -33,7 +33,7 @@ export component SettingsLook inherits HorizontalLayout {
             }
         }
         Field {
-            label: @tr("Lyrics size");
+            label: @tr("Song text size");
             help: @tr("(biggest; long lines shrink to fit)");
             size := RangeSlider {
                 minimum: 40;
@@ -64,7 +64,7 @@ export component SettingsLook inherits HorizontalLayout {
                     }
                 }
                 Field {
-                    label: @tr("Scripture text size");
+                    label: @tr("Bible text size");
                     help: @tr("(biggest)");
                     scripture-size := RangeSlider {
                         minimum: 36;
@@ -88,7 +88,7 @@ export component SettingsLook inherits HorizontalLayout {
             spacing: 14px;
             Field {
                 horizontal-stretch: 1;
-                label: @tr("Text color");
+                label: @tr("Text colour");
                 color := ColorPicker {
                     value: SettingsDlg.color-swatch;
                     palette: SettingsDlg.palette;
@@ -115,7 +115,7 @@ export component SettingsLook inherits HorizontalLayout {
             toggled => { SettingsDlg.look-changed(); }
         }
         caps := Check {
-            text: @tr("ALL CAPS lyrics");
+            text: @tr("ALL CAPS song words");
             checked <=> SettingsDlg.uppercase;
             toggled => { SettingsDlg.look-changed(); }
         }

@@ -1675,3 +1675,30 @@ breaking any terms with them". Design: `docs/superpowers/specs/2026-11-17-songse
   style; the real ChordPro and `.usr` files may differ in small ways), the window and the Settings row by eye, the
   Downloads folder moved to another drive, the browser opening on Windows, and the copied words pasted into
   SongSelect's search.
+
+### November 17, 2026 — One word for each thing (branch `consistency`)
+
+Jake: "Make sure the app has consistency. For example: does it use the same wording? Is stage screen always called
+stage screen?" Glossary and rules: `docs/superpowers/specs/2026-11-17-words-design.md`.
+
+- **Looked at:** all 3,235 texts in the template, the phone and guest pages in `web/`, the plain names in
+  `translations/allow-bare.txt`, the menus, buttons, Settings tabs and the default names of new screens.
+- **Changed (100 texts):** room screen everywhere (no more "audience screen", "Audience 2"); stage screen everywhere
+  (no more "stage display", "Stage Display 2", "stage view"; on a phone it is "the stage screen for phones"); the
+  Screens window is titled "Screens" like its menu item (was "Screen Configuration"); "words" for song words (no more
+  "lyrics", except SongSelect's own names); "Bible passage" (no more "Scripture", "Bible reading"); one name for each
+  clear key (Clear all, Clear text, Clear media & background, Clear audio) in the menus, keys, macros and phone;
+  "see-through" (was "Opacity"); "phone remote"; "sound board"; "this computer" (was "this PC"); "livestream"; British
+  spelling as most of the app already was (colour, centre, licence); Settings paths as "Settings → Tab → Section"
+  with menu items written with their "…" (two paths pointed to tabs that do not exist and two sent people to Themes
+  for the logo, which is in Look); sentence case ("Clear all", "New service").
+- **Saved data:** screens still named "Audience", "Audience 2", "Stage Display", "Stage Display 2" are renamed once
+  to "Room screen", "Room screen 2", "Stage screen", "Stage screen 2" on load (`ScreenSetup::rename_old_defaults`);
+  names typed by hand stay.
+- **Translations:** each changed text was renamed in place in the template and all 13 `.po` files with its
+  translation kept (no text became untranslated or obsolete); the translators should check the 100 texts
+  (list: `renamed-msgids.json` in the lead's scratchpad: old → new and what changed).
+- **Keeping it:** `tests/words.rs` fails when a text in the template uses a retired word or three dots, with the word
+  to use instead; other companies' names are allowed in one short list.
+- **Not verified by a person:** the changed texts on screen (they are text only; no layout changed, but a few are a
+  little longer, like "Phone remote password" and "Clear media & background" in the macro list).

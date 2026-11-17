@@ -7,7 +7,7 @@ pub fn add() -> String { tr!("Add to service") }
 pub fn new_song() -> String { tr!("New song") }
 pub fn edit_song() -> String { tr!("Edit song") }
 pub fn services() -> String { tr!("Services") }
-pub fn screens() -> String { tr!("Screen Configuration") }
+pub fn screens() -> String { tr!("Screens") }
 pub fn phone() -> String { tr!("Phone remote") }
 pub fn settings() -> String { tr!("Settings") }
 

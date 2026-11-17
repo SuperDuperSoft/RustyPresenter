@@ -81,7 +81,7 @@ fn read_limited(path: &std::path::Path) -> Result<Vec<u8>, String> {
     let mut bytes = Vec::new();
     let f = std::fs::File::open(path).map_err(|e| e.to_string())?;
     f.take(inbox::MAX_BYTES + 1).read_to_end(&mut bytes).map_err(|e| e.to_string())?;
-    if bytes.len() as u64 > inbox::MAX_BYTES { return Err(tr!("That file is too big to be a lyric file.")) }
+    if bytes.len() as u64 > inbox::MAX_BYTES { return Err(tr!("That file is too big to be a song file.")) }
     Ok(bytes)
 }
 

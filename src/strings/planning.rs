@@ -32,7 +32,7 @@ pub fn months() -> [String; 12] {
 pub fn blank_label(want: BlankKind) -> String {
     match want {
         BlankKind::Song => tr!("Song"),
-        BlankKind::Scripture => tr!("Bible reading"),
+        BlankKind::Scripture => tr!("Bible passage"),
         BlankKind::Media => tr!("Media"),
         BlankKind::Deck => tr!("Slides"),
         BlankKind::Text => tr!("Announcement"),
@@ -73,7 +73,7 @@ pub fn copy_week_question(date: &str, source: &str) -> String {
     tr!("Make a service for {date} from “{service}”?", date = date, service = source)
 }
 pub fn copy() -> String { tr!("Copy") }
-pub fn copy_with_blanks() -> String { tr!("Copy, with blanks for songs and Bible readings") }
+pub fn copy_with_blanks() -> String { tr!("Copy, with blanks for songs and Bible passages") }
 pub fn already_on_date(date: &str, name: &str) -> String {
     tr!("There is already a service for {date} (“{name}”).", date = date, name = name)
 }

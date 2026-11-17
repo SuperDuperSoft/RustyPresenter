@@ -52,7 +52,7 @@ export component NetworkDialog inherits VerticalLayout {
             }
             if NetworkDlg.remote-pw-on: remote-pw := TextField {
                 password: true;
-                label: @tr("Remote password");
+                label: @tr("Phone remote password");
                 placeholder: NetworkDlg.remote-pw-set ? @tr("Saved — type to change it") : @tr("New password");
                 text <=> NetworkDlg.remote-pw;
             }

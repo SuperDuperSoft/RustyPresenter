@@ -426,8 +426,8 @@ pub(crate) mod tests {
         use crate::app::LibraryImport;
         let all = LibraryImport { added: 2, ..Default::default() };
         assert_eq!(tr::library_report(&all), "Imported 2 songs.");
-        let one = LibraryImport { added: 1, duplicates: vec!["Dup".into()], skipped: vec![("Video".into(), "no lyrics".into())] };
-        assert_eq!(tr::library_report(&one), "Imported 1 song.\n\n1 already in the library: Dup\n\nNot imported:\nVideo: no lyrics");
+        let one = LibraryImport { added: 1, duplicates: vec!["Dup".into()], skipped: vec![("Video".into(), "no words".into())] };
+        assert_eq!(tr::library_report(&one), "Imported 1 song.\n\n1 already in the library: Dup\n\nNot imported:\nVideo: no words");
         let many = LibraryImport { added: 0, duplicates: vec![], skipped: (0..14).map(|i| (format!("S{i}"), "why".into())).collect() };
         let text = tr::library_report(&many);
         assert!(text.starts_with("Imported 0 songs."), "{text}");
