@@ -1,11 +1,16 @@
-//! The church's own livestream scenes (design `docs/superpowers/specs/2026-11-17-own-scenes-design.md`): a name and
-//! layers, back to front, each a camera, the room screen, the words, a picture file, a colour or a short text, in a
-//! place and as see-through as the church wants. `Prepared` is a scene made ready for one picture size: what does not
-//! move is drawn once, so putting a frame together (`compose`) is quick enough for 1080p at 30 a second on an old PC.
+//! The church's own livestream scenes (designs `docs/superpowers/specs/2026-11-17-own-scenes-design.md` and
+//! `2026-11-17-scene-extras-design.md`): a name and layers, back to front, each a camera, the room screen, the words,
+//! a picture file, a colour, a short text, a clock, a countdown, a video or a web page, in a place, cropped, with a
+//! colour taken out and as see-through as the church wants. A scene can have its own places for the tall (phone)
+//! picture. `Prepared` is a scene made ready for one picture size: what does not move is drawn once, so putting a frame
+//! together (`compose`) is quick enough for 1080p at 30 a second on an old PC.
 use super::compose::{Corner, CornerSize, Inputs, Layout, black, corner_rect, over};
+use super::key_out::{Cutout, Key};
 use super::scene::Scene;
+use super::transition::Transition;
 use crate::model::Theme;
 use crate::render::cache::{RenderKey, draw_key};
+use crate::timers::TimeOfDay;
 use crate::tr;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -14,11 +19,11 @@ use uuid::Uuid;
 /// The cameras a layer can name (besides the camera on air).
 pub const CAMERAS: u8 = 4;
 
-/// The size the editor draws its picture at.
+/// The size the editor draws its picture at (the tall picture the other way round).
 pub const PREVIEW: (u32, u32) = (640, 360);
 
 /// One of the church's scenes.
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 pub struct OwnScene {
     /// Slide actions and macros keep the scene by this, so renaming never breaks them.
     pub id: Uuid,
@@ -30,6 +35,12 @@ pub struct OwnScene {
     /// The built-in scene this one stands in for when scenes are chosen by themselves.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub instead_of: Option<Scene>,
+    /// How the stream changes to this scene; `None`: the default from Settings.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub transition: Option<Transition>,
+    /// The tall (phone) picture has places of its own (`Layer::tall`); otherwise it is the wide one fitted across.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub tall: bool,
 }
 
 /// One layer of a scene.
@@ -41,9 +52,42 @@ pub struct Layer {
     /// 0 (solid) to 100 (not seen at all), in percent.
     #[serde(skip_serializing_if = "is_zero")]
     pub see_through: u8,
+    /// The edges cut off its picture.
+    #[serde(skip_serializing_if = "Crop::is_none")]
+    pub crop: Crop,
+    /// A colour, or the dark or light parts, taken out (cameras, pictures and videos).
+    #[serde(skip_serializing_if = "Key::is_nothing")]
+    pub key: Key,
+    /// Its place in the scene's tall picture; `None`: the same as in the wide one.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tall: Option<Place>,
 }
 
 fn is_zero(v: &u8) -> bool { *v == 0 }
+
+/// How much is cut off each edge of a layer's picture, in percent of it.
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[serde(default)]
+pub struct Crop { pub left: u8, pub top: u8, pub right: u8, pub bottom: u8 }
+
+impl Crop {
+    pub fn is_none(&self) -> bool { *self == Crop::default() }
+
+    /// The part of a `(w, h)` picture left, `(x, y, width, height)`: at least one pixel each way.
+    pub fn rect(&self, (w, h): (u32, u32)) -> Rect {
+        let pct = |v: u8, of: u32| (u64::from(v.min(100)) * u64::from(of) / 100) as u32;
+        let (x0, y0) = (pct(self.left, w).min(w.saturating_sub(1)), pct(self.top, h).min(h.saturating_sub(1)));
+        let (x1, y1) = (w.saturating_sub(pct(self.right, w)).max(x0 + 1), h.saturating_sub(pct(self.bottom, h)).max(y0 + 1));
+        (x0, y0, x1.min(w) - x0, y1.min(h) - y0)
+    }
+
+    /// Kept so that at least 1% of the picture is left each way.
+    pub fn checked(self) -> Crop {
+        let (left, right) = (self.left.min(99), self.right.min(99 - self.left.min(99)));
+        let (top, bottom) = (self.top.min(99), self.bottom.min(99 - self.top.min(99)));
+        Crop { left, top, right, bottom }
+    }
+}
 
 /// What a layer shows.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
@@ -61,11 +105,39 @@ pub enum Shows {
     /// A colour, `#rrggbb`.
     Colour { #[serde(default)] colour: String },
     /// A few words of the church's own, such as "Welcome".
-    Text { #[serde(default)] text: String },
+    Text { #[serde(default)] text: String, #[serde(flatten)] look: TextLook },
+    /// A video file, played again and again, without its sound.
+    Video { #[serde(default)] path: String },
+    /// The time now.
+    Clock {
+        #[serde(default, skip_serializing_if = "std::ops::Not::not")] seconds: bool,
+        #[serde(default, skip_serializing_if = "std::ops::Not::not")] h24: bool,
+        #[serde(flatten)] look: TextLook,
+    },
+    /// The time left until `to`, or (`None`) until the service's start time.
+    Countdown {
+        #[serde(default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::timers::lenient_time")] to: Option<TimeOfDay>,
+        #[serde(flatten)] look: TextLook,
+    },
+    /// A web page (an address), as a browser shows it.
+    Web { #[serde(default)] address: String },
     /// Made by a newer RustyPresenter: shows nothing here.
     #[serde(other)]
     Unknown,
 }
+
+/// How a text, clock or countdown layer's words look: their largest size in pixels on a 1080p stream (0: the
+/// church's default size) and colour (`#rrggbb`; empty: the church's default colour).
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Default)]
+#[serde(default)]
+pub struct TextLook {
+    #[serde(skip_serializing_if = "is_zero_u16")]
+    pub size: u16,
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub colour: String,
+}
+
+fn is_zero_u16(v: &u16) -> bool { *v == 0 }
 
 /// Where a layer goes in the picture.
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
@@ -105,14 +177,16 @@ impl Place {
         }
     }
 
-    /// The same place as a box in percent (to start a box from where the layer was).
-    pub fn as_box(&self) -> Place {
+    /// The same place as a box in percent (to start a box from where the layer was) in a picture of `size`'s shape.
+    pub fn as_box_in(&self, (w, h): (u32, u32)) -> Place {
         if let Place::Box { .. } = self { return *self }
-        let (w, h) = (1920u32, 1080u32);
         let (x, y, rw, rh) = self.rect((w, h));
-        let pct = |v: u32, of: u32| ((u64::from(v) * 100 + u64::from(of) / 2) / u64::from(of)) as u8;
+        let pct = |v: u32, of: u32| ((u64::from(v) * 100 + u64::from(of) / 2) / u64::from(of.max(1))) as u8;
         Place::Box { x: pct(x, w), y: pct(y, h), w: pct(rw, w), h: pct(rh, h) }
     }
+
+    /// `as_box_in` a wide picture.
+    pub fn as_box(&self) -> Place { self.as_box_in((1920, 1080)) }
 
     /// The places the editor's list offers, in order: the whole picture, each corner in each size, the halves, a box.
     pub fn choices() -> Vec<Place> {
@@ -146,10 +220,14 @@ impl Place {
 }
 
 impl Shows {
-    /// What the editor's "Shows" list offers, in order (a picture, colour or text with nothing in it yet).
+    /// What the editor's "Shows" list offers, in order (a picture, colour, text, video, countdown or web page with
+    /// nothing in it yet).
     pub fn choices() -> Vec<Shows> {
         let mut out: Vec<Shows> = (0..=CAMERAS).map(|number| Shows::Camera { number }).collect();
-        out.extend([Shows::Room, Shows::Words, Shows::Picture { path: String::new() }, Shows::Colour { colour: String::new() }, Shows::Text { text: String::new() }]);
+        out.extend([Shows::Room, Shows::Words, Shows::Picture { path: String::new() }, Shows::Colour { colour: String::new() },
+            Shows::Text { text: String::new(), look: TextLook::default() }, Shows::Video { path: String::new() },
+            Shows::Clock { seconds: false, h24: false, look: TextLook::default() }, Shows::Countdown { to: None, look: TextLook::default() },
+            Shows::Web { address: String::new() }]);
         out
     }
 
@@ -163,6 +241,10 @@ impl Shows {
             Shows::Picture { .. } => n + 2,
             Shows::Colour { .. } => n + 3,
             Shows::Text { .. } => n + 4,
+            Shows::Video { .. } => n + 5,
+            Shows::Clock { .. } => n + 6,
+            Shows::Countdown { .. } => n + 7,
+            Shows::Web { .. } => n + 8,
             Shows::Unknown => return None,
         })
     }
@@ -177,20 +259,29 @@ impl Shows {
             Shows::Picture { .. } => tr!("A picture"),
             Shows::Colour { .. } => tr!("A colour"),
             Shows::Text { .. } => tr!("Some words of your own"),
+            Shows::Video { .. } => tr!("A video"),
+            Shows::Clock { .. } => tr!("A clock (the time now)"),
+            Shows::Countdown { .. } => tr!("A countdown"),
+            Shows::Web { .. } => tr!("A web page"),
             Shows::Unknown => tr!("Needs a newer RustyPresenter"),
         }
     }
 
     /// The layer list's name: the kind with what is in it.
     pub fn label(&self) -> String {
+        let file = |path: &str| std::path::Path::new(path.trim()).file_name().map_or_else(|| path.to_string(), |n| n.to_string_lossy().into_owned());
         match self {
             Shows::Picture { path } if path.trim().is_empty() => tr!("A picture (none chosen yet)"),
-            Shows::Picture { path } => {
-                let name = std::path::Path::new(path.trim()).file_name().map_or_else(|| path.clone(), |n| n.to_string_lossy().into_owned());
-                tr!("Picture: {name}", name = name)
-            }
+            Shows::Picture { path } => tr!("Picture: {name}", name = file(path)),
+            Shows::Video { path } if path.trim().is_empty() => tr!("A video (none chosen yet)"),
+            Shows::Video { path } => tr!("Video: {name}", name = file(path)),
             Shows::Colour { colour } => tr!("Colour {hex}", hex = hex_or_black(colour)),
-            Shows::Text { text } => tr!("Your words: {text}", text = text.trim()),
+            Shows::Text { text, .. } => tr!("Your words: {text}", text = text.trim()),
+            Shows::Clock { .. } => tr!("Clock"),
+            Shows::Countdown { to: None, .. } => tr!("Countdown to the service's start"),
+            Shows::Countdown { to: Some(t), .. } => tr!("Countdown to {time}", time = t.label()),
+            Shows::Web { address } if address.trim().is_empty() => tr!("A web page (no address yet)"),
+            Shows::Web { address } => tr!("Web page: {address}", address = address.trim()),
             s => s.kind_label(),
         }
     }
@@ -198,12 +289,32 @@ impl Shows {
     /// `choice` (from `choices`) keeping what `self` holds when it is the same kind; a new picture, colour or text
     /// starts with nothing, black or "Welcome".
     pub fn changed_to(&self, choice: &Shows) -> Shows {
-        match (choice, self) {
-            (Shows::Picture { .. }, Shows::Picture { .. }) | (Shows::Colour { .. }, Shows::Colour { .. }) | (Shows::Text { .. }, Shows::Text { .. }) => self.clone(),
-            (Shows::Colour { .. }, _) => Shows::Colour { colour: "#000000".into() },
-            (Shows::Text { .. }, _) => Shows::Text { text: tr!("Welcome") },
-            (c, _) => c.clone(),
+        use std::mem::discriminant;
+        if discriminant(choice) == discriminant(self) && !matches!(self, Shows::Camera { .. }) { return self.clone() }
+        match choice {
+            Shows::Colour { .. } => Shows::Colour { colour: "#000000".into() },
+            Shows::Text { .. } => Shows::Text { text: tr!("Welcome"), look: self.look().cloned().unwrap_or_default() },
+            Shows::Clock { .. } => Shows::Clock { seconds: false, h24: false, look: self.look().cloned().unwrap_or_default() },
+            Shows::Countdown { .. } => Shows::Countdown { to: None, look: self.look().cloned().unwrap_or_default() },
+            c => c.clone(),
         }
+    }
+
+    /// The look of a text, clock or countdown layer's words.
+    pub fn look(&self) -> Option<&TextLook> {
+        match self { Shows::Text { look, .. } | Shows::Clock { look, .. } | Shows::Countdown { look, .. } => Some(look), _ => None }
+    }
+
+    pub fn look_mut(&mut self) -> Option<&mut TextLook> {
+        match self { Shows::Text { look, .. } | Shows::Clock { look, .. } | Shows::Countdown { look, .. } => Some(look), _ => None }
+    }
+
+    /// A colour or the dark or light parts can be taken out of it: cameras, pictures and videos.
+    pub fn can_key(&self) -> bool { matches!(self, Shows::Camera { .. } | Shows::Picture { .. } | Shows::Video { .. }) }
+
+    /// Its edges can be cut off: everything with a picture of its own.
+    pub fn can_crop(&self) -> bool {
+        matches!(self, Shows::Camera { .. } | Shows::Room | Shows::Words | Shows::Picture { .. } | Shows::Video { .. } | Shows::Web { .. })
     }
 }
 
@@ -213,6 +324,9 @@ impl Layer {
         let main = tr!("{what} · {place}", what = self.shows.label(), place = self.place.label());
         if self.see_through == 0 { main } else { tr!("{layer} · {n}% see-through", layer = main, n = self.see_through.min(100)) }
     }
+
+    /// Where it goes in the wide (`tall` false) or the tall picture.
+    pub fn place_in(&self, tall: bool) -> Place { if tall { self.tall.unwrap_or(self.place) } else { self.place } }
 }
 
 impl OwnScene {
@@ -223,9 +337,9 @@ impl OwnScene {
             name,
             layers: vec![
                 Layer { shows: Shows::Room, ..Layer::default() },
-                Layer { shows: Shows::Camera { number: 0 }, place: Place::Corner { corner: Corner::BottomRight, size: CornerSize::Medium }, see_through: 0 },
+                Layer { shows: Shows::Camera { number: 0 }, place: Place::Corner { corner: Corner::BottomRight, size: CornerSize::Medium }, ..Layer::default() },
             ],
-            instead_of: None,
+            ..OwnScene::default()
         }
     }
 
@@ -266,13 +380,39 @@ pub fn shows_camera(scene: Scene, on_air: usize, own: &[OwnScene]) -> bool {
     }
 }
 
+/// How the stream changes to `scene`: its own transition, or the church's default.
+pub fn transition_to(scene: Scene, own: &[OwnScene], default: &Transition) -> Transition {
+    match scene {
+        Scene::Own(id) => find(own, id).and_then(|s| s.transition.clone()).unwrap_or_else(|| default.clone()),
+        _ => default.clone(),
+    }
+}
+
+/// Every video file the church's scenes play, each once.
+pub fn videos(own: &[OwnScene]) -> Vec<String> {
+    let mut out: Vec<String> = vec![];
+    for l in own.iter().flat_map(|s| &s.layers) {
+        if let Shows::Video { path } = &l.shows && !path.trim().is_empty() && !out.iter().any(|p| p == path.trim()) { out.push(path.trim().to_string()) }
+    }
+    out
+}
+
+/// Every web page the church's scenes show, each once.
+pub fn web_pages(own: &[OwnScene]) -> Vec<String> {
+    let mut out: Vec<String> = vec![];
+    for l in own.iter().flat_map(|s| &s.layers) {
+        if let Shows::Web { address } = &l.shows && !address.trim().is_empty() && !out.iter().any(|p| p == address.trim()) { out.push(address.trim().to_string()) }
+    }
+    out
+}
+
 /// `#rrggbb` in small letters; black when it is not a colour.
 fn hex_or_black(hex: &str) -> String {
     let h = hex.trim().trim_start_matches('#');
     if h.len() == 6 && h.chars().all(|c| c.is_ascii_hexdigit()) { format!("#{}", h.to_ascii_lowercase()) } else { "#000000".into() }
 }
 
-fn rgb(hex: &str) -> [u8; 3] {
+pub(crate) fn rgb(hex: &str) -> [u8; 3] {
     let h = hex_or_black(hex);
     let byte = |i: usize| u8::from_str_radix(&h[i..i + 2], 16).unwrap_or(0);
     [byte(1), byte(3), byte(5)]
@@ -280,22 +420,61 @@ fn rgb(hex: &str) -> [u8; 3] {
 
 /// What moves, filled in each frame.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Live { Camera(u8), Room, Words }
+pub enum Live {
+    Camera(u8),
+    Room,
+    Words,
+    /// `Prepared::moving()[i]`.
+    Moving(usize),
+}
+
+/// A picture that changes all the time besides the cameras, the room and the words: one for each video file and web
+/// page a scene shows, each at the stream's size (`Inputs::more`, in the same order).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Moving {
+    /// A video file: opaque, its shape kept with black bars.
+    Video(String),
+    /// A web page: premultiplied, clear where the page is.
+    Web(String),
+}
 
 /// A layer made ready. `alpha` 0 to 255 is how much of it shows.
+#[derive(Clone)]
 enum Ready {
-    Live { from: Live, rect: Rect, alpha: u32 },
+    Live { from: Live, rect: Rect, alpha: u32, crop: Crop, cut: Option<Arc<Cutout>> },
     /// One colour, premultiplied.
     Fill { rect: Rect, px: [u8; 4] },
     /// A picture the size of `rect`, premultiplied, see-through already in it.
-    Patch { rect: Rect, rgba: Vec<u8> },
+    Patch { rect: Rect, rgba: Arc<Vec<u8>> },
+}
+
+/// A clock or a countdown: drawn again (as its layer's `Patch`) when its words change.
+#[derive(Clone, Debug)]
+struct Ticking { layer: usize, tick: Tick, look: TextLook, rect: Rect, alpha: u32 }
+
+#[derive(Clone, Debug, PartialEq)]
+enum Tick { Clock { seconds: bool, h24: bool }, Countdown { to: Option<TimeOfDay> } }
+
+/// The time it is and the service's start time, for the clocks and countdowns.
+#[derive(Clone, Copy, Debug)]
+pub struct Now { pub at: chrono::NaiveDateTime, pub starts_at: Option<TimeOfDay> }
+
+impl Now {
+    pub fn local(starts_at: Option<TimeOfDay>) -> Now { Now { at: chrono::Local::now().naive_local(), starts_at } }
 }
 
 /// A scene made ready for one picture size.
+#[derive(Clone)]
 pub struct Prepared {
     pub id: Uuid,
     pub size: (u32, u32),
     layers: Vec<Ready>,
+    moving: Vec<Moving>,
+    ticking: Vec<Ticking>,
+    /// The words the clocks and countdowns show now, in `ticking`'s order.
+    texts: Vec<String>,
+    /// The church's default look, for drawing the clocks again.
+    theme: Theme,
 }
 
 impl std::fmt::Debug for Prepared {
@@ -309,32 +488,98 @@ impl Prepared {
     }
 
     pub fn shows_room(&self) -> bool { self.layers.iter().any(|l| matches!(l, Ready::Live { from: Live::Room, .. })) }
+
+    /// The videos and web pages it shows, in the order `Inputs::more` gives their pictures.
+    pub fn moving(&self) -> &[Moving] { &self.moving }
+
+    /// It has a clock or a countdown.
+    pub fn ticks(&self) -> bool { !self.ticking.is_empty() }
+
+    /// The words its clocks and countdowns show at `now`.
+    pub fn tick_texts(&self, now: &Now) -> Vec<String> { self.ticking.iter().map(|t| tick_text(&t.tick, now)).collect() }
+
+    /// The same scene with its clocks and countdowns showing `now`: `None` when nothing they show changed.
+    pub fn retick(&self, now: &Now, fonts: &mut crate::render::Fonts) -> Option<Prepared> {
+        let texts = self.tick_texts(now);
+        if texts == self.texts { return None }
+        let mut p = self.clone();
+        for (t, (text, old)) in self.ticking.iter().zip(texts.iter().zip(&self.texts)) {
+            if text == old { continue }
+            if let Some(rgba) = text_patch(text, &t.look, self.size, (t.rect.2, t.rect.3), t.alpha, &self.theme, fonts) {
+                p.layers[t.layer] = Ready::Patch { rect: t.rect, rgba: Arc::new(rgba) };
+            }
+        }
+        p.texts = texts;
+        Some(p)
+    }
 }
 
-/// `scene` made ready for a `size` picture: places worked out, pictures read, colours and text drawn, each with
+/// A clock's or countdown's words at `now`.
+fn tick_text(tick: &Tick, now: &Now) -> String {
+    match tick {
+        Tick::Clock { seconds, h24 } => crate::stage::view::clock(now.at.time(), *seconds, *h24),
+        Tick::Countdown { to } => match to.or(now.starts_at) {
+            None => "–:––".to_string(),
+            Some(t) => {
+                let target = now.at.date().and_hms_opt(u32::from(t.hour), u32::from(t.minute), 0).unwrap_or(now.at);
+                // Whole seconds left, rounded up, so it shows 0:00 only at the time.
+                let ms = (target - now.at).num_milliseconds().max(0);
+                crate::timers::text((ms + 999) / 1000 * 1000)
+            }
+        },
+    }
+}
+
+/// `scene` made ready for a `size` wide picture: places worked out, pictures read, colours and text drawn, each with
 /// its see-through. Layers that would not be seen are left out. `theme` is the church default's (text layers).
 pub fn prepare(scene: &OwnScene, size: (u32, u32), theme: &Theme, fonts: &mut crate::render::Fonts) -> Prepared {
-    let mut layers = vec![];
+    prepare_at(scene, size, false, theme, fonts, &Now::local(None))
+}
+
+/// `prepare` for the wide picture or (`tall`) the scene's tall picture, its clocks and countdowns at `now`.
+pub fn prepare_at(scene: &OwnScene, size: (u32, u32), tall: bool, theme: &Theme, fonts: &mut crate::render::Fonts, now: &Now) -> Prepared {
+    let mut p = Prepared { id: scene.id, size, layers: vec![], moving: vec![], ticking: vec![], texts: vec![], theme: theme.clone() };
     for l in &scene.layers {
-        let rect = l.place.rect(size);
+        let rect = l.place_in(tall).rect(size);
         let alpha = (u32::from(100 - l.see_through.min(100)) * 255 + 50) / 100;
         if alpha == 0 || rect.2 == 0 || rect.3 == 0 { continue }
+        let cut = if l.shows.can_key() { Cutout::new(&l.key).map(Arc::new) } else { None };
+        let crop = if l.shows.can_crop() { l.crop.checked() } else { Crop::default() };
+        let live = |from: Live| Ready::Live { from, rect, alpha, crop, cut: cut.clone() };
+        let moving = |m: Moving, p: &mut Prepared| {
+            let i = p.moving.iter().position(|x| *x == m).unwrap_or_else(|| { p.moving.push(m); p.moving.len() - 1 });
+            live(Live::Moving(i))
+        };
         let ready = match &l.shows {
-            Shows::Camera { number } => Ready::Live { from: Live::Camera((*number).min(CAMERAS)), rect, alpha },
-            Shows::Room => Ready::Live { from: Live::Room, rect, alpha },
-            Shows::Words => Ready::Live { from: Live::Words, rect, alpha },
+            Shows::Camera { number } => live(Live::Camera((*number).min(CAMERAS))),
+            Shows::Room => live(Live::Room),
+            Shows::Words => live(Live::Words),
+            Shows::Video { path } if !path.trim().is_empty() => moving(Moving::Video(path.trim().to_string()), &mut p),
+            Shows::Web { address } if !address.trim().is_empty() => moving(Moving::Web(address.trim().to_string()), &mut p),
             Shows::Colour { colour } => {
                 let [r, g, b] = rgb(colour);
                 let k = |c: u8| ((u32::from(c) * alpha + 127) / 255) as u8;
                 Ready::Fill { rect, px: [k(r), k(g), k(b), alpha as u8] }
             }
-            Shows::Picture { path } => match picture_patch(path, (rect.2, rect.3), alpha) { Some(rgba) => Ready::Patch { rect, rgba }, None => continue },
-            Shows::Text { text } => match text_patch(text, size, (rect.2, rect.3), alpha, theme, fonts) { Some(rgba) => Ready::Patch { rect, rgba }, None => continue },
-            Shows::Unknown => continue,
+            Shows::Picture { path } => match picture_patch(path, (rect.2, rect.3), alpha, crop, cut.as_deref()) { Some(rgba) => Ready::Patch { rect, rgba: Arc::new(rgba) }, None => continue },
+            Shows::Text { text, look } => match text_patch(text, look, size, (rect.2, rect.3), alpha, theme, fonts) { Some(rgba) => Ready::Patch { rect, rgba: Arc::new(rgba) }, None => continue },
+            Shows::Clock { seconds, h24, look } => ticking(&mut p, Tick::Clock { seconds: *seconds, h24: *h24 }, look, rect, alpha, fonts, now),
+            Shows::Countdown { to, look } => ticking(&mut p, Tick::Countdown { to: *to }, look, rect, alpha, fonts, now),
+            _ => continue,
         };
-        layers.push(ready);
+        p.layers.push(ready);
     }
-    Prepared { id: scene.id, size, layers }
+    p
+}
+
+/// A clock or countdown layer, its words at `now`, noted in `p` to be drawn again when they change.
+fn ticking(p: &mut Prepared, tick: Tick, look: &TextLook, rect: Rect, alpha: u32, fonts: &mut crate::render::Fonts, now: &Now) -> Ready {
+    let text = tick_text(&tick, now);
+    // A clear patch until it can be drawn.
+    let rgba = text_patch(&text, look, p.size, (rect.2, rect.3), alpha, &p.theme, fonts).unwrap_or_else(|| vec![0; rect.2 as usize * rect.3 as usize * 4]);
+    p.ticking.push(Ticking { layer: p.layers.len(), tick, look: look.clone(), rect, alpha });
+    p.texts.push(text);
+    Ready::Patch { rect, rgba: Arc::new(rgba) }
 }
 
 /// Every byte of a premultiplied picture times `alpha` / 255.
@@ -343,13 +588,32 @@ fn fade(rgba: &mut [u8], alpha: u32) {
     rgba.iter_mut().for_each(|b| *b = ((u32::from(*b) * alpha + 127) / 255) as u8);
 }
 
-/// The picture file fitted inside `(w, h)`, its shape kept, see-through around it and where it is.
-fn picture_patch(path: &str, (w, h): (u32, u32), alpha: u32) -> Option<Vec<u8>> {
+/// Picture files read lately: the editor draws its picture again at each change, and a picture is read only once.
+static PICTURES: std::sync::Mutex<Vec<(String, Option<std::time::SystemTime>, Arc<image::RgbaImage>)>> = std::sync::Mutex::new(Vec::new());
+
+/// The picture file `path` (from the files read lately when it has not changed since).
+fn read_picture(path: &str) -> Option<Arc<image::RgbaImage>> {
+    let changed = std::fs::metadata(path).and_then(|m| m.modified()).ok();
+    let mut kept = PICTURES.lock().unwrap_or_else(|e| e.into_inner());
+    if let Some((_, _, img)) = kept.iter().find(|(p, t, _)| p == path && *t == changed) { return Some(img.clone()) }
+    let img = Arc::new(image::open(path).map_err(|e| eprintln!("stream scene: could not read {path}: {e}")).ok()?.to_rgba8());
+    kept.retain(|(p, ..)| p != path);
+    kept.push((path.to_string(), changed, img.clone()));
+    if kept.len() > 8 { kept.remove(0); }
+    Some(img)
+}
+
+/// The picture file cropped and fitted inside `(w, h)`, its shape kept, see-through around it and where it is or
+/// where `cut` takes it out.
+fn picture_patch(path: &str, (w, h): (u32, u32), alpha: u32, crop: Crop, cut: Option<&Cutout>) -> Option<Vec<u8>> {
     if path.trim().is_empty() { return None }
-    let img = image::open(path.trim()).map_err(|e| eprintln!("stream scene: could not read {path}: {e}")).ok()?.to_rgba8();
+    let whole = read_picture(path.trim())?;
+    let (cx, cy, cw, ch) = crop.rect((whole.width(), whole.height()));
+    let img = image::imageops::crop_imm(&*whole, cx, cy, cw, ch).to_image();
     let (x0, y0, fw, fh) = crate::record::pump::fit_rect(img.width(), img.height(), w, h);
     if fw == 0 || fh == 0 { return None }
-    let small = image::imageops::resize(&img, fw, fh, image::imageops::FilterType::Triangle);
+    let mut small = image::imageops::resize(&img, fw, fh, image::imageops::FilterType::Triangle);
+    if let Some(c) = cut { c.apply_straight(&mut small) }
     let mut out = vec![0u8; w as usize * h as usize * 4];
     for (y, row) in small.rows().enumerate() {
         let d0 = ((y0 as usize + y) * w as usize + x0 as usize) * 4;
@@ -363,14 +627,16 @@ fn picture_patch(path: &str, (w, h): (u32, u32), alpha: u32) -> Option<Vec<u8>> 
     Some(out)
 }
 
-/// `text` in the middle of a `(w, h)` box, in the church's font and colour, as big as it would be on the whole
-/// `canvas` (smaller only when it does not fit).
-fn text_patch(text: &str, canvas: (u32, u32), (w, h): (u32, u32), alpha: u32, theme: &Theme, fonts: &mut crate::render::Fonts) -> Option<Vec<u8>> {
+/// `text` in the middle of a `(w, h)` box, in the church's font, in `look`'s size and colour (else the church's), as
+/// big as it would be on the whole `canvas` (smaller only when it does not fit).
+fn text_patch(text: &str, look: &TextLook, canvas: (u32, u32), (w, h): (u32, u32), alpha: u32, theme: &Theme, fonts: &mut crate::render::Fonts) -> Option<Vec<u8>> {
     let text = text.trim();
     if text.is_empty() { return None }
-    let size = (u64::from(theme.size) * u64::from(canvas.0) / u64::from(w.max(1))).min(2000) as u32;
+    let base = if look.size > 0 { u32::from(look.size) } else { theme.size };
+    let size = (u64::from(base) * u64::from(canvas.0) / u64::from(w.max(1))).min(2000) as u32;
+    let color = if look.colour.trim().is_empty() { theme.color.clone() } else { hex_or_black(&look.colour) };
     let key = RenderKey { text: text.to_string(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None,
-        theme: Theme { position: "center".into(), band: false, size, ..theme.clone() }, canvas: (w, h), design: None };
+        theme: Theme { position: "center".into(), band: false, size, color, ..theme.clone() }, canvas: (w, h), design: None };
     let r = draw_key(fonts, &key);
     if (r.width, r.height) != (w, h) { return None }
     let mut out = r.rgba_premul.buffer().as_bytes().to_vec();
@@ -378,24 +644,33 @@ fn text_patch(text: &str, canvas: (u32, u32), (w, h): (u32, u32), alpha: u32, th
     Some(out)
 }
 
-/// Draws the prepared scene into `out` (RGBA of `i.size`), over black. A camera with no picture shows the room
-/// screen in its place.
+/// Draws the prepared scene into `out` (RGBA of `p.size`), over black. The live pictures in `i` are of `i.size`
+/// (the wide stream); the scene may be the tall picture. A camera with no picture shows the room screen in its
+/// place.
 pub fn compose(p: &Prepared, i: &Inputs, out: &mut [u8]) {
     black(out);
-    if p.size != i.size { return }
+    if out.len() != p.size.0 as usize * p.size.1 as usize * 4 { return }
     let room = i.ok(Some(i.room));
     for l in &p.layers {
         match l {
-            Ready::Fill { rect, px } => fill(out, i.size, *rect, *px),
-            Ready::Patch { rect, rgba } => patch(out, i.size, *rect, rgba),
-            Ready::Live { from, rect, alpha } => {
-                let (src, opaque) = match from {
-                    Live::Camera(0) => (i.ok(i.camera).or(room), true),
-                    Live::Camera(n) => (i.ok(i.cameras.get(usize::from(*n) - 1).copied().flatten()).or(room), true),
-                    Live::Room => (room, true),
-                    Live::Words => (i.ok(i.words), false),
+            Ready::Fill { rect, px } => fill(out, p.size, *rect, *px),
+            Ready::Patch { rect, rgba } => patch(out, p.size, *rect, rgba),
+            Ready::Live { from, rect, alpha, crop, cut } => {
+                let (src, opaque, cut) = match from {
+                    Live::Camera(n) => {
+                        let c = if *n == 0 { i.ok(i.camera) } else { i.ok(i.cameras.get(usize::from(*n) - 1).copied().flatten()) };
+                        // Without a picture the room stands in, with nothing taken out of it.
+                        match c { Some(c) => (Some(c), true, cut.as_deref()), None => (room, true, None) }
+                    }
+                    Live::Room => (room, true, None),
+                    Live::Words => (i.ok(i.words), false, None),
+                    Live::Moving(k) => match p.moving.get(*k) {
+                        Some(Moving::Video(_)) => (i.ok(i.more.get(*k).copied().flatten()), true, cut.as_deref()),
+                        Some(Moving::Web(_)) => (i.ok(i.more.get(*k).copied().flatten()), false, None),
+                        None => (None, true, None),
+                    },
                 };
-                if let Some(src) = src { place(src, i.size, *rect, *alpha, opaque, out) }
+                if let Some(src) = src { place(src, i.size, p.size, *rect, *alpha, opaque, *crop, cut, out) }
             }
         }
     }
@@ -420,23 +695,26 @@ fn patch(out: &mut [u8], (w, _): (u32, u32), (x0, y0, rw, rh): Rect, rgba: &[u8]
     }
 }
 
-/// A live picture of the whole `size` into `rect`. An opaque one (camera, room) fills it, its shape kept, cut off
-/// equally on both sides; a premultiplied one (the words) fits inside it whole. Nearest pixel.
-fn place(src: &[u8], (w, h): (u32, u32), rect: Rect, alpha: u32, opaque: bool, out: &mut [u8]) {
-    let whole = (0, 0, w, h);
-    if rect == whole && alpha >= 255 {
+/// A live picture of `src_size`, cropped by `crop`, into `rect` of an `out_size` picture. An opaque one (camera,
+/// room, video) fills it, its shape kept, cut off equally on both sides; a premultiplied one (the words, a web page)
+/// fits inside it whole. `cut` takes a colour or the dark or light parts out. Nearest pixel.
+#[allow(clippy::too_many_arguments)]
+fn place(src: &[u8], (w, h): (u32, u32), (ow, _): (u32, u32), rect: Rect, alpha: u32, opaque: bool, crop: Crop, cut: Option<&Cutout>, out: &mut [u8]) {
+    let region = crop.rect((w, h));
+    if rect == (0, 0, w, h) && ow == w && region == (0, 0, w, h) && alpha >= 255 && cut.is_none() {
         if opaque { out.copy_from_slice(src) } else { over(out, src) }
         return;
     }
+    let (gx, gy, gw, gh) = region;
     let (rx, ry, rw, rh) = rect;
     let (from, to) = if opaque {
         // The part of the picture with the place's shape, from its middle.
-        let cw = ((u64::from(h) * u64::from(rw) / u64::from(rh.max(1))) as u32).clamp(1, w);
-        let ch = ((u64::from(w) * u64::from(rh) / u64::from(rw.max(1))) as u32).clamp(1, h);
-        ((((w - cw) / 2), (h - ch) / 2, cw, ch), rect)
+        let cw = ((u64::from(gh) * u64::from(rw) / u64::from(rh.max(1))) as u32).clamp(1, gw);
+        let ch = ((u64::from(gw) * u64::from(rh) / u64::from(rw.max(1))) as u32).clamp(1, gh);
+        ((gx + (gw - cw) / 2, gy + (gh - ch) / 2, cw, ch), rect)
     } else {
-        let (fx, fy, fw, fh) = crate::record::pump::fit_rect(w, h, rw, rh);
-        (whole, (rx + fx, ry + fy, fw, fh))
+        let (fx, fy, fw, fh) = crate::record::pump::fit_rect(gw, gh, rw, rh);
+        (region, (rx + fx, ry + fy, fw, fh))
     };
     let (sx0, sy0, sw, sh) = from;
     let (dx0, dy0, dw, dh) = to;
@@ -445,27 +723,33 @@ fn place(src: &[u8], (w, h): (u32, u32), rect: Rect, alpha: u32, opaque: bool, o
     for dy in 0..dh {
         let sy = (sy0 + (u64::from(dy) * u64::from(sh) / u64::from(dh)) as u32) as usize;
         let row = &src[sy * w as usize * 4..(sy + 1) * w as usize * 4];
-        let d0 = ((dy0 + dy) as usize * w as usize + dx0 as usize) * 4;
+        let d0 = ((dy0 + dy) as usize * ow as usize + dx0 as usize) * 4;
         for (d, &o) in out[d0..d0 + dw as usize * 4].chunks_exact_mut(4).zip(&sx) {
             let s = &row[o..o + 4];
-            if opaque && alpha >= 255 { d.copy_from_slice(s); continue }
-            let sa = if opaque { alpha } else { (u32::from(s[3]) * alpha + 127) / 255 };
+            // How much of it shows: the layer's see-through times what the key leaves.
+            let k = match cut { Some(c) => (alpha * c.keep(s) + 127) / 255, None => alpha };
+            if opaque && k >= 255 { d.copy_from_slice(s); continue }
+            let sa = if opaque { k } else { (u32::from(s[3]) * k + 127) / 255 };
             if sa == 0 { continue }
             for c in 0..3 {
-                let sc = (u32::from(s[c]) * alpha + 127) / 255;
+                let sc = (u32::from(s[c]) * k + 127) / 255;
                 d[c] = (sc + (u32::from(d[c]) * (255 - sa) + 127) / 255).min(255) as u8;
             }
         }
     }
 }
 
-/// Stand-in pictures for the editor: a grey picture named for each camera, a blue "Room screen", sample words.
+/// Stand-in pictures for the editor: a grey picture named for each camera, a blue "Room screen", sample words, and
+/// named pictures for a video and a web page.
 pub struct StandIns {
     pub size: (u32, u32),
     pub room: Vec<u8>,
     /// Camera 1 to `CAMERAS`.
     pub cameras: Vec<Vec<u8>>,
     pub words: Option<Vec<u8>>,
+    pub video: Vec<u8>,
+    /// Premultiplied: clear around its words.
+    pub web: Vec<u8>,
 }
 
 impl StandIns {
@@ -480,214 +764,37 @@ impl StandIns {
         };
         let room = named([24, 48, 96, 255], tr!("Room screen"));
         let cameras = (1..=CAMERAS).map(|n| named([92, 92, 92, 255], tr!("Camera {n}", n = n))).collect();
+        let video = named([72, 40, 96, 255], tr!("Video"));
+        let web = named([0, 0, 0, 0], tr!("Web page"));
         let slide = crate::live::SlideLayer::Text { text: tr!("The words of the song go here"), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: None };
         let words = super::lyrics::key_for(&slide, theme, size).map(|k| draw_key(fonts, &k)).filter(|r| (r.width, r.height) == size)
             .map(|r| r.rgba_premul.buffer().as_bytes().to_vec());
-        StandIns { size, room, cameras, words }
+        StandIns { size, room, cameras, words, video, web }
     }
 }
 
-/// How `scene` looks, with the stand-ins in place of the cameras, the room and the words: drawn by the same code as
-/// the stream. The camera on air is camera 1.
-pub fn preview(scene: &OwnScene, stand: &StandIns, theme: &Theme, fonts: &mut crate::render::Fonts) -> Vec<u8> {
-    let p = prepare(scene, stand.size, theme, fonts);
+/// How `scene` looks, with the stand-ins in place of the cameras, the room, the words, videos and web pages: drawn by
+/// the same code as the stream. The camera on air is camera 1. `tall`: the scene's tall picture (`stand.size` the
+/// other way round).
+pub fn preview_at(scene: &OwnScene, stand: &StandIns, tall: bool, theme: &Theme, fonts: &mut crate::render::Fonts, now: &Now) -> Vec<u8> {
+    let size = if tall { (stand.size.1, stand.size.0) } else { stand.size };
+    let p = prepare_at(scene, size, tall, theme, fonts, now);
     let cameras: Vec<Option<&[u8]>> = stand.cameras.iter().map(|c| Some(c.as_slice())).collect();
-    let i = Inputs { size: stand.size, room: &stand.room, camera: cameras.first().copied().flatten(), words: stand.words.as_deref(), card: None, cameras: &cameras, own: None };
-    let mut out = vec![0u8; stand.size.0 as usize * stand.size.1 as usize * 4];
+    let more: Vec<Option<&[u8]>> = p.moving().iter().map(|m| Some(match m { Moving::Video(_) => stand.video.as_slice(), Moving::Web(_) => stand.web.as_slice() })).collect();
+    let i = Inputs { size: stand.size, room: &stand.room, camera: cameras.first().copied().flatten(), words: stand.words.as_deref(), card: None, cameras: &cameras, own: None, more: &more };
+    let mut out = vec![0u8; size.0 as usize * size.1 as usize * 4];
     compose(&p, &i, &mut out);
     out
+}
+
+/// `preview_at` the wide picture, now.
+pub fn preview(scene: &OwnScene, stand: &StandIns, theme: &Theme, fonts: &mut crate::render::Fonts) -> Vec<u8> {
+    preview_at(scene, stand, false, theme, fonts, &Now::local(None))
 }
 
 /// A shared prepared scene, as the scene worker hands it to the writer.
 pub type Shared = Arc<Prepared>;
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    const W: u32 = 40;
-    const H: u32 = 20;
-    const RED: [u8; 4] = [200, 0, 0, 255];
-    const BLUE: [u8; 4] = [0, 0, 200, 255];
-    const GREEN: [u8; 4] = [0, 200, 0, 255];
-
-    fn solid(c: [u8; 4]) -> Vec<u8> { c.repeat((W * H) as usize) }
-    fn px(img: &[u8], x: u32, y: u32) -> [u8; 4] { let i = ((y * W + x) * 4) as usize; img[i..i + 4].try_into().unwrap() }
-    fn scene(layers: Vec<Layer>) -> OwnScene { OwnScene { id: Uuid::from_u128(7), name: "Ours".into(), layers, instead_of: None } }
-    fn layer(shows: Shows, place: Place) -> Layer { Layer { shows, place, see_through: 0 } }
-    fn draw(s: &OwnScene, room: &[u8], camera: Option<&[u8]>, cameras: &[Option<&[u8]>], words: Option<&[u8]>) -> Vec<u8> {
-        let mut fonts = crate::render::Fonts::bundled_only();
-        let p = prepare(s, (W, H), &Theme::default(), &mut fonts);
-        let mut out = vec![7u8; (W * H * 4) as usize];
-        compose(&p, &Inputs { size: (W, H), room, camera, words, card: None, cameras, own: None }, &mut out);
-        out
-    }
-
-    #[test]
-    fn layers_go_back_to_front() {
-        let s = scene(vec![layer(Shows::Room, Place::Full), layer(Shows::Camera { number: 0 }, Place::RightHalf)]);
-        let (room, cam) = (solid(BLUE), solid(RED));
-        let out = draw(&s, &room, Some(&cam), &[], None);
-        assert_eq!((px(&out, 5, 10), px(&out, 30, 10)), (BLUE, RED), "the room on the left, the camera in front on the right");
-        let s = scene(s.layers.into_iter().rev().collect());
-        assert_eq!(draw(&s, &room, Some(&cam), &[], None), room, "the room in front covers the camera");
-    }
-
-    #[test]
-    fn each_camera_by_its_number_and_a_missing_one_shows_the_room() {
-        let s = scene(vec![layer(Shows::Camera { number: 1 }, Place::LeftHalf), layer(Shows::Camera { number: 2 }, Place::RightHalf)]);
-        let (room, one, two) = (solid(BLUE), solid(RED), solid(GREEN));
-        let out = draw(&s, &room, None, &[Some(&one), Some(&two)], None);
-        assert_eq!((px(&out, 5, 10), px(&out, 30, 10)), (RED, GREEN));
-        let out = draw(&s, &room, None, &[Some(&one), None], None);
-        assert_eq!(px(&out, 30, 10), BLUE, "camera 2 sends nothing: the room in its place");
-        let s = scene(vec![layer(Shows::Camera { number: 3 }, Place::Full)]);
-        assert_eq!(draw(&s, &room, None, &[Some(&one)], None), room, "a camera that is not set up");
-    }
-
-    #[test]
-    fn see_through_lets_what_is_behind_show() {
-        let s = scene(vec![layer(Shows::Room, Place::Full), Layer { see_through: 50, ..layer(Shows::Camera { number: 0 }, Place::Full) }]);
-        let out = draw(&s, &solid([200, 0, 0, 255]), Some(&solid([0, 0, 200, 255])), &[], None);
-        let p = px(&out, 10, 10);
-        assert!((95..=105).contains(&p[0]) && (95..=105).contains(&p[2]) && p[3] == 255, "half of each: {p:?}");
-        let gone = scene(vec![layer(Shows::Room, Place::Full), Layer { see_through: 100, ..layer(Shows::Colour { colour: "#ffffff".into() }, Place::Full) }]);
-        assert_eq!(draw(&gone, &solid(RED), None, &[], None), solid(RED), "100% see-through is not seen");
-    }
-
-    #[test]
-    fn a_colour_fills_its_place_and_black_is_behind_everything() {
-        let s = scene(vec![layer(Shows::Colour { colour: "#00c800".into() }, Place::Box { x: 50, y: 0, w: 50, h: 50 })]);
-        let out = draw(&s, &solid(RED), None, &[], None);
-        assert_eq!((px(&out, 30, 2), px(&out, 30, 15), px(&out, 5, 2)), (GREEN, [0, 0, 0, 255], [0, 0, 0, 255]));
-    }
-
-    #[test]
-    fn the_words_go_over_what_is_behind() {
-        let mut words = vec![0u8; (W * H * 4) as usize];
-        words[(15 * W * 4) as usize..(16 * W * 4) as usize].fill(255);
-        let s = scene(vec![layer(Shows::Camera { number: 0 }, Place::Full), layer(Shows::Words, Place::Full)]);
-        let out = draw(&s, &solid(BLUE), Some(&solid(RED)), &[], Some(&words));
-        assert_eq!((px(&out, 3, 15), px(&out, 3, 2)), ([255; 4], RED));
-        assert_eq!(draw(&s, &solid(BLUE), Some(&solid(RED)), &[], None), solid(RED), "no words live: nothing over the camera");
-    }
-
-    #[test]
-    fn a_camera_in_a_half_keeps_its_shape() {
-        // A picture with a red left half and a blue right half, in the left half of the stream: its middle shows.
-        let mut cam = vec![0u8; (W * H * 4) as usize];
-        for y in 0..H { for x in 0..W { let i = ((y * W + x) * 4) as usize; cam[i..i + 4].copy_from_slice(if x < W / 2 { &RED } else { &BLUE }) } }
-        let s = scene(vec![layer(Shows::Camera { number: 0 }, Place::LeftHalf)]);
-        let out = draw(&s, &solid(GREEN), Some(&cam), &[], None);
-        assert_eq!((px(&out, 1, 10), px(&out, 18, 10)), (RED, BLUE), "the middle of the picture, not squeezed");
-        assert_eq!(px(&out, 30, 10), [0, 0, 0, 255]);
-    }
-
-    #[test]
-    fn places_stay_inside_the_picture() {
-        assert_eq!(Place::Full.rect((1920, 1080)), (0, 0, 1920, 1080));
-        assert_eq!(Place::LeftHalf.rect((1920, 1080)), (0, 0, 960, 1080));
-        assert_eq!(Place::RightHalf.rect((1921, 1080)), (960, 0, 961, 1080));
-        assert_eq!(Place::Box { x: 90, y: 90, w: 50, h: 50 }.rect((1000, 500)), (900, 450, 100, 50));
-        assert_eq!(Place::Box { x: 10, y: 20, w: 30, h: 40 }.rect((1000, 500)), (100, 100, 300, 200));
-        let corner = Place::Corner { corner: Corner::TopLeft, size: CornerSize::Large };
-        assert_eq!(corner.rect((1280, 720)), corner_rect((1280, 720), &Layout { corner: Corner::TopLeft, corner_size: CornerSize::Large, words_top: false }));
-        assert_eq!(Place::RightHalf.as_box(), Place::Box { x: 50, y: 0, w: 50, h: 100 });
-    }
-
-    #[test]
-    fn every_choice_has_its_own_place_in_the_lists() {
-        for (i, p) in Place::choices().iter().enumerate() { assert_eq!(p.index(), i, "{p:?}") }
-        for (i, s) in Shows::choices().iter().enumerate() { assert_eq!(s.index(), Some(i), "{s:?}") }
-        assert_eq!(Place::Box { x: 1, y: 2, w: 3, h: 4 }.index(), Place::choices().len() - 1);
-        assert_eq!(Shows::Unknown.index(), None);
-    }
-
-    #[test]
-    fn changing_what_a_layer_shows_keeps_what_it_held() {
-        let pic = Shows::Picture { path: "logo.png".into() };
-        assert_eq!(pic.changed_to(&Shows::Picture { path: String::new() }), pic);
-        assert_eq!(Shows::Room.changed_to(&Shows::Text { text: String::new() }), Shows::Text { text: "Welcome".into() });
-        assert_eq!(Shows::Room.changed_to(&Shows::Colour { colour: String::new() }), Shows::Colour { colour: "#000000".into() });
-        assert_eq!(pic.changed_to(&Shows::Camera { number: 2 }), Shows::Camera { number: 2 });
-    }
-
-    #[test]
-    fn a_text_layer_is_drawn_in_its_place_only() {
-        let s = scene(vec![layer(Shows::Text { text: "Welcome".into() }, Place::Box { x: 0, y: 0, w: 50, h: 100 })]);
-        let mut fonts = crate::render::Fonts::bundled_only();
-        let size = (320, 180);
-        let p = prepare(&s, size, &Theme::default(), &mut fonts);
-        let room = [0u8, 0, 0, 255].repeat(320 * 180);
-        let mut out = vec![0u8; 320 * 180 * 4];
-        compose(&p, &Inputs { size, room: &room, camera: None, words: None, card: None, cameras: &[], own: None }, &mut out);
-        let lit = |x0: usize, x1: usize| (0..180).any(|y| (x0..x1).any(|x| out[(y * 320 + x) * 4] > 100));
-        assert!(lit(0, 160), "the words in the left half");
-        assert!(!lit(160, 320), "nothing in the right half");
-    }
-
-    #[test]
-    fn a_picture_layer_keeps_its_see_through_parts() {
-        let dir = std::env::temp_dir().join(format!("rp-test-own-scene-{}", Uuid::new_v4()));
-        std::fs::create_dir_all(&dir).unwrap();
-        let path = dir.join("logo.png");
-        // Left half red, right half clear.
-        let img = image::RgbaImage::from_fn(20, 20, |x, _| if x < 10 { image::Rgba([200, 0, 0, 255]) } else { image::Rgba([0, 0, 0, 0]) });
-        img.save(&path).unwrap();
-        let s = scene(vec![layer(Shows::Room, Place::Full), layer(Shows::Picture { path: path.to_string_lossy().into() }, Place::Box { x: 0, y: 0, w: 50, h: 100 })]);
-        let out = draw(&s, &solid(BLUE), None, &[], None);
-        assert_eq!(px(&out, 7, 10), RED, "the picture's solid part");
-        assert_eq!(px(&out, 13, 10), BLUE, "its clear part shows the room");
-        assert_eq!(px(&out, 30, 10), BLUE);
-        let missing = scene(vec![layer(Shows::Room, Place::Full), layer(Shows::Picture { path: "C:/no/such.png".into() }, Place::Full)]);
-        assert_eq!(draw(&missing, &solid(BLUE), None, &[], None), solid(BLUE), "a picture that cannot be read is left out");
-        let _ = std::fs::remove_dir_all(dir);
-    }
-
-    #[test]
-    fn a_church_scene_stands_in_only_where_it_is_asked_to() {
-        let mut ours = OwnScene::new("Songs".into());
-        ours.instead_of = Some(Scene::CameraWords);
-        let list = vec![ours.clone()];
-        assert_eq!(stand_in(Scene::CameraWords, &list), Scene::Own(ours.id));
-        assert_eq!(stand_in(Scene::Camera, &list), Scene::Camera);
-        assert_eq!(name(Scene::Own(ours.id), &list), "Songs");
-        assert_eq!(name(Scene::Own(Uuid::from_u128(9)), &list), "A scene that was deleted");
-        assert_eq!(all(&list).last(), Some(&Scene::Own(ours.id)));
-        assert_eq!(all(&list).len(), Scene::ALL.len() + 1);
-    }
-
-    #[test]
-    fn which_camera_a_scene_shows() {
-        let s = scene(vec![layer(Shows::Camera { number: 2 }, Place::Full)]);
-        assert!(s.shows_camera(1) && !s.shows_camera(0));
-        let list = vec![s.clone()];
-        assert!(shows_camera(Scene::Own(s.id), 1, &list));
-        assert!(!shows_camera(Scene::Own(s.id), 0, &list));
-        assert!(shows_camera(Scene::Camera, 0, &list));
-        assert!(OwnScene::new("x".into()).shows_camera(3), "the camera on air, whichever it is");
-    }
-
-    #[test]
-    fn scenes_are_kept_and_read_back_and_newer_kinds_do_not_break_them() {
-        let s = OwnScene::new("Welcome".into());
-        let v = serde_json::to_value(&s).unwrap();
-        assert_eq!(v["layers"][1], serde_json::json!({ "shows": { "kind": "camera", "number": 0 }, "place": { "at": "corner", "corner": "bottom_right", "size": "medium" } }));
-        assert_eq!(serde_json::from_value::<OwnScene>(v).unwrap(), s);
-        let newer = serde_json::json!({ "id": Uuid::from_u128(1), "name": "x", "layers": [{ "shows": { "kind": "hologram" }, "place": { "at": "spiral" }, "see_through": 10 }] });
-        let s: OwnScene = serde_json::from_value(newer).unwrap();
-        assert_eq!((s.layers[0].shows.clone(), s.layers[0].place), (Shows::Unknown, Place::Full));
-    }
-
-    #[test]
-    fn the_preview_draws_the_stand_ins() {
-        let mut fonts = crate::render::Fonts::bundled_only();
-        let stand = StandIns::new((160, 90), &Theme::default(), &mut fonts);
-        let out = preview(&OwnScene::new("x".into()), &stand, &Theme::default(), &mut fonts);
-        assert_eq!(out.len(), 160 * 90 * 4);
-        assert_eq!(&out[..3], &stand.room[..3], "the room screen behind");
-        let (x, y, _, ch) = corner_rect((160, 90), &Layout::default());
-        let i = (((y + ch - 1) * 160 + x + 1) * 4) as usize;
-        assert_eq!(&out[i..i + 3], &[92, 92, 92], "the grey camera in the corner");
-    }
-}
+#[path = "own_scenes_tests.rs"]
+mod tests;

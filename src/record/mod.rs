@@ -226,6 +226,9 @@ pub struct RecordPrefs {
     /// Go Live: what shows in a camera's place while it sends nothing (`stream::camera_lost`).
     #[serde(skip_serializing_if = "crate::stream::camera_lost::CameraLost::is_default")]
     pub camera_lost: crate::stream::camera_lost::CameraLost,
+    /// How the stream changes between scenes, unless the church's scene has its own way (`stream::transition`).
+    #[serde(default, skip_serializing_if = "crate::stream::transition::Transition::is_fade")]
+    pub scene_transition: crate::stream::transition::Transition,
 }
 
 

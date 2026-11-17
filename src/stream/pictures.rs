@@ -4,7 +4,8 @@
 //! countdown, Ending, Hold), each a picture the church chose or words. The recorder's writer reads the newest of
 //! all three from `Slot` and puts the stream's picture together (`compose`).
 use super::lyrics;
-use super::own_scenes::{self, OwnScene, Prepared};
+use super::own_scenes::{self, Now, OwnScene, Prepared};
+use super::transition::Transition;
 use super::scene::{AutoPrefs, Choice, LiveInfo, Scene, choose, effective, lit};
 use crate::model::Theme;
 use crate::render::cache::{RenderKey, draw_key};
@@ -93,6 +94,20 @@ pub struct Look {
     pub layout: super::compose::Layout,
     /// The church's own scenes (Settings → Livestream → Your scenes).
     pub own: Vec<OwnScene>,
+    /// The scene changes, the tall picture and the service's start time (`More`).
+    pub more: More,
+}
+
+/// More of the church's choices for the scenes (design `2026-11-17-scene-extras-design.md`).
+#[derive(Clone, Default)]
+pub struct More {
+    /// How the stream changes between scenes, unless the scene it changes to has its own way.
+    pub transition: Transition,
+    /// The service's start time, for countdown layers (asked when one is shown).
+    pub starts_at: Option<Arc<dyn Fn() -> Option<crate::timers::TimeOfDay> + Send + Sync>>,
+    /// The tall (phone) picture's size, when the app puts it together (the church has tall scenes and a tall
+    /// destination); `None`: FFmpeg fits the wide picture across, as before.
+    pub tall: Option<(u32, u32)>,
 }
 
 impl std::fmt::Debug for Look {
@@ -100,13 +115,16 @@ impl std::fmt::Debug for Look {
 }
 
 /// What the stream shows now: its scene, and the words and card pictures (premultiplied RGBA of the stream's size).
-/// For the church's own scene, `own` is it made ready for the stream's size.
+/// For the church's own scene, `own` is it made ready for the stream's size, and `own_tall` for the tall picture
+/// when it has places of its own there. `transition`: how the stream changes to this scene.
 #[derive(Clone, Debug, Default)]
 pub struct Shown {
     pub scene: Scene,
     pub words: Option<Arc<Vec<u8>>>,
     pub card: Option<Arc<Vec<u8>>>,
     pub own: Option<Arc<Prepared>>,
+    pub own_tall: Option<Arc<Prepared>>,
+    pub transition: Transition,
 }
 
 pub type Slot = Arc<Mutex<Shown>>;
@@ -152,8 +170,8 @@ struct State {
     last: Scene,
     words: Option<(RenderKey, Option<Arc<Vec<u8>>>)>,
     card: Option<(Scene, Card, Option<String>, Option<Arc<Vec<u8>>>)>,
-    /// The church's scene made ready last, and what it was made from.
-    own: Option<(OwnScene, Arc<Prepared>)>,
+    /// The church's scene made ready last (wide and tall, its clocks as last drawn), and what it was made from.
+    own: Option<(OwnScene, Arc<Prepared>, Option<Arc<Prepared>>)>,
 }
 
 impl State {
@@ -169,20 +187,32 @@ impl State {
         if lit(choice, &info).is_none() { scene = own_scenes::stand_in(scene, &look.own) }
         let ours = match scene { Scene::Own(id) => own_scenes::find(&look.own, id), _ => None };
         if matches!(scene, Scene::Own(_)) && ours.is_none() { scene = Scene::Screen }
-        let own = ours.map(|s| self.prepared(s, &look.theme));
+        let (own, own_tall) = match ours { Some(s) => { let (w, t) = self.prepared(s, look); (Some(w), t) } None => (None, None) };
         let wants_words = scene == Scene::CameraWords || wanted == Scene::CameraWords || ours.is_some_and(OwnScene::shows_words);
         let words = if wants_words { self.words_picture(look) } else { None };
         let card = look.cards.of(scene).map(|c| self.card_picture(c, scene, countdown.filter(|_| scene == Scene::StartingSoon), &look.theme));
         let card = card.flatten();
-        *slot.lock().unwrap_or_else(|e| e.into_inner()) = Shown { scene, words, card, own };
+        let transition = own_scenes::transition_to(scene, &look.own, &look.more.transition);
+        *slot.lock().unwrap_or_else(|e| e.into_inner()) = Shown { scene, words, card, own, own_tall, transition };
     }
 
-    /// The church's scene made ready for the stream, again only when it changed.
-    fn prepared(&mut self, scene: &OwnScene, theme: &Theme) -> Arc<Prepared> {
-        if let Some((s, p)) = &self.own && s == scene { return p.clone() }
-        let p = Arc::new(own_scenes::prepare(scene, self.size, theme, &mut self.fonts));
-        self.own = Some((scene.clone(), p.clone()));
-        p
+    /// The church's scene made ready for the stream (and its tall picture), again only when it changed; its clocks
+    /// and countdowns drawn again when their words change.
+    fn prepared(&mut self, scene: &OwnScene, look: &Look) -> (Arc<Prepared>, Option<Arc<Prepared>>) {
+        let now = || Now::local(look.more.starts_at.as_ref().and_then(|f| f()));
+        if let Some((s, p, t)) = &mut self.own && s == scene {
+            if p.ticks() || t.as_ref().is_some_and(|t| t.ticks()) {
+                let now = now();
+                if let Some(q) = p.retick(&now, &mut self.fonts) { *p = Arc::new(q) }
+                if let Some(t) = t && let Some(q) = t.retick(&now, &mut self.fonts) { *t = Arc::new(q) }
+            }
+            return (p.clone(), t.clone());
+        }
+        let now = now();
+        let p = Arc::new(own_scenes::prepare_at(scene, self.size, false, &look.theme, &mut self.fonts, &now));
+        let t = look.more.tall.filter(|_| scene.tall).map(|size| Arc::new(own_scenes::prepare_at(scene, size, true, &look.theme, &mut self.fonts, &now)));
+        self.own = Some((scene.clone(), p.clone(), t.clone()));
+        (p, t)
     }
 
     fn words_picture(&mut self, look: &Look) -> Option<Arc<Vec<u8>>> {
@@ -242,7 +272,7 @@ mod tests {
     }
 
     fn look(live: Arc<Mutex<LiveInfo>>, cards: Cards) -> Look {
-        Look { info: Arc::new(move || (live.lock().unwrap().clone(), Choice::default(), None)), words: words_slide(), auto: AutoPrefs::default(), cards, theme: Theme::default(), layout: Default::default(), own: vec![] }
+        Look { info: Arc::new(move || (live.lock().unwrap().clone(), Choice::default(), None)), words: words_slide(), auto: AutoPrefs::default(), cards, theme: Theme::default(), layout: Default::default(), own: vec![], more: More::default() }
     }
 
     fn wait_for(slot: &Slot, scene: Scene) -> Shown {

@@ -227,6 +227,11 @@ impl Operator {
             theme,
             layout: prefs.stream_layout,
             own: prefs.own_scenes.clone(),
+            more: stream::pictures::More {
+                transition: prefs.scene_transition.clone(),
+                starts_at: Some({ let app = self.app().clone(); Arc::new(move || crate::automation::actions::starts_at(&app.data.lock().unwrap())) }),
+                tall: None,
+            },
         };
         if live { *self.record.own_scenes.borrow_mut() = prefs.own_scenes.clone() }
         let live_prefs = prefs.clone();
@@ -678,6 +683,13 @@ impl Operator {
     pub fn pick_scene(&self, i: i32) {
         let scene = usize::try_from(i).ok().and_then(|i| self.scenes().get(i).copied());
         self.app().set_stream_scene(scene);
+        self.show_scene();
+    }
+
+    /// A livestream scene's key (Settings → Help): that scene, as from the scene button. Only while live.
+    pub(crate) fn key_scene(&self, scene: Scene) {
+        if !(self.record.live.get() && self.is_recording()) { return self.toast(crate::shortcuts::strings::scene_keys_live_only(), false) }
+        self.app().set_stream_scene(Some(scene));
         self.show_scene();
     }
 

@@ -193,3 +193,29 @@ fn edit_keys_are_the_windows_ones_and_clash_with_no_default_shortcut() {
     s.assign(Action::ClearAll, c("Delete"));
     assert_eq!(EditKey::Delete.menu_key(&Keymap::new(&s)), None);
 }
+
+#[test]
+fn livestream_scenes_have_no_key_until_the_church_gives_one() {
+    use crate::stream::scene::Scene;
+    let map = Keymap::default();
+    for s in Scene::ALL { assert!(map.keys(Action::Scene(s)).is_empty(), "{s:?}") }
+    assert_eq!(Action::Scene(Scene::CameraWords).id(), "scene:camera_words");
+    let ours = Uuid::from_u128(77);
+    assert_eq!(Action::from_id(&format!("scene:{ours}")), Some(Action::Scene(Scene::Own(ours))));
+    assert_eq!(Action::from_id("scene:camera_words"), Some(Action::Scene(Scene::CameraWords)));
+    assert_eq!(Action::from_id("scene:nonsense"), None);
+    // A key for one of the church's scenes works without the list of scenes; the editor lists them all.
+    let mut s = KeySettings::default();
+    s.set(Action::Scene(Scene::Own(ours)), vec![Chord::parse("Ctrl+1").unwrap()]);
+    s.set(Action::Scene(Scene::Hold), vec![Chord::parse("F11").unwrap()]);
+    let map = Keymap::new(&s);
+    assert_eq!(map.action_for(&Chord::parse("Ctrl+1").unwrap()), Some(Action::Scene(Scene::Own(ours))));
+    assert_eq!(map.action_for(&Chord::parse("F11").unwrap()), Some(Action::Scene(Scene::Hold)));
+    assert_eq!(Action::Scene(Scene::Hold).reach(), Reach::Anywhere);
+    let other = Uuid::from_u128(78);
+    let all = Keymap::with_scenes(&s, &[other, ours]);
+    let listed: Vec<Action> = all.entries().iter().map(|(a, _)| *a).filter(|a| matches!(a, Action::Scene(Scene::Own(_)))).collect();
+    assert_eq!(listed, [Action::Scene(Scene::Own(other)), Action::Scene(Scene::Own(ours))], "each once");
+    let back: KeySettings = serde_json::from_value(serde_json::to_value(&s).unwrap()).unwrap();
+    assert_eq!(back, s);
+}

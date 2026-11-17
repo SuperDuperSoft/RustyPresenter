@@ -55,6 +55,15 @@ pub fn what(action: Action, groups: &[ClearGroup]) -> String {
         Action::CameraNext(n) => sh::camera_next(n),
         Action::CameraSwitch => sh::camera_switch(),
         Action::CameraFade => sh::camera_fade(),
+        Action::Scene(scene) => sh::stream_scene(&crate::stream::own_scenes::name(scene, &[])),
+    }
+}
+
+/// `what`, naming the church's livestream scenes from `own`.
+pub fn what_named(action: Action, groups: &[ClearGroup], own: &[crate::stream::own_scenes::OwnScene]) -> String {
+    match action {
+        Action::Scene(scene) => crate::shortcuts::strings::stream_scene(&crate::stream::own_scenes::name(scene, own)),
+        a => what(a, groups),
     }
 }
 
@@ -67,8 +76,12 @@ pub fn section_keys_label(look: &SectionLook) -> String {
 }
 
 /// The Help table (`operator.js:993`): every shortcut with its keys as the church set them, and the fixed keys.
-pub fn help_rows(keys: &KeySettings, sections: &SectionLook) -> Vec<HelpRow> {
-    let map = Keymap::new(keys);
+pub fn help_rows(keys: &KeySettings, sections: &SectionLook) -> Vec<HelpRow> { help_rows_with(keys, sections, &[]) }
+
+/// `help_rows` with every one of the church's livestream scenes `own`, named.
+pub fn help_rows_with(keys: &KeySettings, sections: &SectionLook, own: &[crate::stream::own_scenes::OwnScene]) -> Vec<HelpRow> {
+    let ids: Vec<uuid::Uuid> = own.iter().map(|s| s.id).collect();
+    let map = Keymap::with_scenes(keys, &ids);
     let fixed = |k: String, w: String| HelpRow { keys: k, what: w, action: None, changed: false };
     let mut rows = vec![];
     for (action, chords) in map.entries() {
@@ -78,7 +91,7 @@ pub fn help_rows(keys: &KeySettings, sections: &SectionLook) -> Vec<HelpRow> {
             rows.push(fixed(section_keys_label(sections), st::do_sections()));
         }
         let changed = keys.changed.iter().any(|b| b.action == action.id());
-        rows.push(HelpRow { keys: labels(chords), what: what(*action, &keys.clear_groups), action: Some(*action), changed });
+        rows.push(HelpRow { keys: labels(chords), what: what_named(*action, &keys.clear_groups, own), action: Some(*action), changed });
     }
     rows.push(fixed(st::key_esc(), st::do_esc()));
     // The fixed Windows keys (`EditKey`), and ↑ ↓ in the service list.
@@ -105,8 +118,8 @@ pub fn edit_what(e: EditKey) -> String {
 
 /// Draws the table and the groups from the edited settings.
 pub(crate) fn fill(op: &Operator, edit: &Edit) {
-    let (keys, sections) = { let s = edit.settings.borrow(); (s.keys.clone(), s.sections.clone()) };
-    let rows: Vec<SettingsHelpRow> = help_rows(&keys, &sections).into_iter().map(|r| SettingsHelpRow {
+    let (keys, sections, own) = { let s = edit.settings.borrow(); (s.keys.clone(), s.sections.clone(), s.record.own_scenes.clone()) };
+    let rows: Vec<SettingsHelpRow> = help_rows_with(&keys, &sections, &own).into_iter().map(|r| SettingsHelpRow {
         keys: r.keys.into(), what: r.what.into(), id: r.action.map(|a| a.id()).unwrap_or_default().into(), changed: r.changed,
     }).collect();
     op.ui.global::<SettingsDlg>().set_help(ModelRc::new(VecModel::from(rows)));
@@ -136,7 +149,7 @@ fn layer_name(l: ClearLayer) -> String {
 /// The action on Help row `i` of the edited settings.
 fn row_action(edit: &Edit, i: i32) -> Option<Action> {
     let s = edit.settings.borrow();
-    help_rows(&s.keys, &s.sections).get(usize::try_from(i).ok()?)?.action
+    help_rows_with(&s.keys, &s.sections, &s.record.own_scenes).get(usize::try_from(i).ok()?)?.action
 }
 
 /// Waits for the next key for row `i`'s action. The menu bar's shortcuts are off meanwhile.
@@ -145,7 +158,7 @@ fn start(op: &Rc<Operator>, edit: &Rc<Edit>, i: i32) {
     CAPTURE.with(|c| *c.borrow_mut() = Some((edit.clone(), action)));
     let k = op.ui.global::<KeysDlg>();
     k.set_capturing(i);
-    k.set_capture_text(tr::press_for(&what(action, &edit.settings.borrow().keys.clear_groups)).into());
+    k.set_capture_text(tr::press_for(&{ let s = edit.settings.borrow(); what_named(action, &s.keys.clear_groups, &s.record.own_scenes) }).into());
     crate::ui::operator::help::rerender_keys(op);
 }
 

@@ -131,6 +131,8 @@ pub enum Action {
     /// While live with cameras: camera 1–4 chosen to go out next, and Switch / Fade to it (the Cameras box). No
     /// keys until the church gives them some: the keyboard belongs to the presentation.
     CameraNext(u8), CameraSwitch, CameraFade,
+    /// A livestream scene, chosen as from the scene button while live. No key until the church gives it one.
+    Scene(crate::stream::scene::Scene),
 }
 
 /// Where a shortcut works.
@@ -163,6 +165,7 @@ impl Action {
             Action::Group(id) => return format!("group:{id}"),
             Action::CameraNext(n) => return format!("camera_next_{n}"),
             Action::CameraSwitch => "camera_switch", Action::CameraFade => "camera_fade",
+            Action::Scene(scene) => return format!("scene:{}", scene_id(*scene)),
             Action::Next => "next", Action::Back => "back", Action::Take => "show_selected", Action::FocusBible => "bible_box",
             Action::ClearAll => "clear_all", Action::ClearSlide => "clear_slide", Action::ClearMedia => "clear_media",
             Action::ClearAudio => "clear_audio", Action::Logo => "logo", Action::ClearOverlays => "clear_overlays",
@@ -176,6 +179,7 @@ impl Action {
 
     pub fn from_id(id: &str) -> Option<Action> {
         if let Some(g) = id.strip_prefix("group:") { return Uuid::parse_str(g).ok().map(Action::Group) }
+        if let Some(sc) = id.strip_prefix("scene:") { return scene_of(sc).map(Action::Scene) }
         FIXED.into_iter().find(|a| a.id() == id)
     }
 
@@ -206,13 +210,14 @@ impl Action {
             Action::FollowAuto => f("a"),
             Action::FollowHold => f("h"),
             Action::CameraNext(_) | Action::CameraSwitch | Action::CameraFade => vec![],
+            Action::Scene(_) => vec![],
         }
     }
 
     pub fn reach(&self) -> Reach {
         match self {
             Action::ClearAll | Action::ClearSlide | Action::ClearMedia | Action::ClearAudio | Action::Logo | Action::ClearOverlays
-            | Action::ClearMessage | Action::ClearTimers | Action::Group(_) | Action::FindMouse => Reach::Anywhere,
+            | Action::ClearMessage | Action::ClearTimers | Action::Group(_) | Action::FindMouse | Action::Scene(_) => Reach::Anywhere,
             Action::FocusBible | Action::Find | Action::ShowMessage => Reach::Window,
             Action::Next | Action::Back | Action::Take | Action::PasteLink | Action::Undo | Action::Redo
             | Action::FollowAuto | Action::FollowHold | Action::CameraNext(_) | Action::CameraSwitch | Action::CameraFade => Reach::Free,
@@ -233,6 +238,20 @@ impl Action {
             _ => return None,
         })
     }
+}
+
+/// A scene's stored name: a built-in scene's (`camera_words`), or the church's scene's id.
+fn scene_id(scene: crate::stream::scene::Scene) -> String {
+    match scene {
+        crate::stream::scene::Scene::Own(id) => id.to_string(),
+        s => serde_json::to_value(s).ok().and_then(|v| v.as_str().map(str::to_string)).unwrap_or_default(),
+    }
+}
+
+fn scene_of(text: &str) -> Option<crate::stream::scene::Scene> {
+    use crate::stream::scene::Scene;
+    if let Ok(id) = Uuid::parse_str(text) { return Some(Scene::Own(id)) }
+    Scene::ALL.into_iter().find(|s| scene_id(*s) == text)
 }
 
 /// A church's own mix of clears (N18), run by its key, the View menu or the phone's clear buttons' neighbours.
@@ -304,10 +323,23 @@ impl Default for Keymap {
 }
 
 impl Keymap {
-    pub fn new(s: &KeySettings) -> Keymap {
+    /// The keys as the church set them: every shortcut, the built-in livestream scenes, and the church's own scenes
+    /// that have a key.
+    pub fn new(s: &KeySettings) -> Keymap { Keymap::with_scenes(s, &[]) }
+
+    /// `new`, with every one of the church's own scenes (`own`, by id) listed, key or not (Settings → Help).
+    pub fn with_scenes(s: &KeySettings, own: &[Uuid]) -> Keymap {
+        use crate::stream::scene::Scene;
         let mut actions: Vec<Action> = FIXED[..12].to_vec();
         actions.extend(s.clear_groups.iter().map(|g| Action::Group(g.id)));
         actions.extend_from_slice(&FIXED[12..]);
+        // The livestream scenes last: the built-in ones, then the church's.
+        actions.extend(Scene::ALL.into_iter().map(Action::Scene));
+        let mut ours: Vec<Uuid> = own.to_vec();
+        for b in &s.changed {
+            if let Some(Action::Scene(Scene::Own(id))) = Action::from_id(&b.action) && !ours.contains(&id) { ours.push(id) }
+        }
+        actions.extend(ours.into_iter().map(|id| Action::Scene(Scene::Own(id))));
         let entries = actions.into_iter().map(|a| {
             let id = a.id();
             let keys = match s.changed.iter().find(|b| b.action == id) {
@@ -428,6 +460,8 @@ pub mod strings {
     pub fn camera_switch() -> String { tr!("Livestream: switch to the next camera") }
     pub fn camera_fade() -> String { tr!("Livestream: fade to the next camera") }
     pub fn all_but_background() -> String { tr!("Everything but the background") }
+    pub fn stream_scene(name: &str) -> String { tr!("Livestream scene: {name}", name = name) }
+    pub fn scene_keys_live_only() -> String { tr!("Scene keys work while the stream is live.") }
 }
 
 #[cfg(test)]

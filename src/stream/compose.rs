@@ -42,6 +42,8 @@ pub struct Inputs<'a> {
     pub card: Option<&'a [u8]>,
     pub cameras: &'a [Option<&'a [u8]>],
     pub own: Option<&'a super::own_scenes::Prepared>,
+    /// The newest picture of each video and web page the own scene shows (`Prepared::moving`, in its order).
+    pub more: &'a [Option<&'a [u8]>],
 }
 
 impl Inputs<'_> {
@@ -148,7 +150,7 @@ mod tests {
         let room = vec![255u8; n];
         let camera: Vec<u8> = [0, 0, 255, 255].repeat(40 * 40);
         let mut out = vec![0u8; n];
-        let i = Inputs { size, room: &room, camera: Some(&camera), words: None, card: None, cameras: &[], own: None };
+        let i = Inputs { size, room: &room, camera: Some(&camera), words: None, card: None, cameras: &[], own: None, more: &[] };
         compose(Scene::ScreenCamera, &i, &Layout { corner: Corner::TopLeft, ..Layout::default() }, &mut out);
         let px = |x: usize, y: usize| out[(y * 40 + x) * 4..(y * 40 + x) * 4 + 4].to_vec();
         assert_eq!(px(2, 2), [0, 0, 255, 255], "the camera top left");
@@ -165,7 +167,7 @@ mod tests {
     fn px(img: &[u8], x: u32, y: u32) -> [u8; 4] { let i = ((y * W + x) * 4) as usize; img[i..i + 4].try_into().unwrap() }
     fn run(scene: Scene, room: &[u8], camera: Option<&[u8]>, words: Option<&[u8]>, card: Option<&[u8]>) -> Vec<u8> {
         let mut out = vec![7u8; (W * H * 4) as usize];
-        compose(scene, &Inputs { size: (W, H), room, camera, words, card, cameras: &[], own: None }, &Layout::default(), &mut out);
+        compose(scene, &Inputs { size: (W, H), room, camera, words, card, cameras: &[], own: None, more: &[] }, &Layout::default(), &mut out);
         out
     }
     /// Clear everywhere but one opaque white row.

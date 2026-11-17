@@ -343,7 +343,7 @@ fn look(live: Arc<Mutex<(LiveInfo, Choice)>>, words: &str, auto: AutoPrefs) -> c
     crate::stream::pictures::Look {
         info: Arc::new(move || { let (i, c) = live.lock().unwrap().clone(); (i, c, None) }),
         words: Arc::new(move || crate::stream::lyrics::key_for(&slide, &crate::model::Theme::default(), (1280, 720))),
-        auto, cards: Default::default(), theme: Default::default(), layout: Default::default(), own: vec![],
+        auto, cards: Default::default(), theme: Default::default(), layout: Default::default(), own: vec![], more: Default::default(),
     }
 }
 
@@ -412,10 +412,10 @@ fn a_card_is_not_put_together_again_for_each_camera_picture() {
 fn the_mixer_puts_a_church_scene_together_from_the_cameras_it_names() {
     use crate::stream::own_scenes::{Layer, OwnScene, Place, Shows, prepare};
     use crate::stream::pictures::Shown;
-    let ours = OwnScene { id: uuid::Uuid::from_u128(3), name: "Two cameras".into(), instead_of: None, layers: vec![
-        Layer { shows: Shows::Camera { number: 1 }, place: Place::LeftHalf, see_through: 0 },
-        Layer { shows: Shows::Camera { number: 2 }, place: Place::RightHalf, see_through: 0 },
-    ] };
+    let ours = OwnScene { id: uuid::Uuid::from_u128(3), name: "Two cameras".into(), layers: vec![
+        Layer { shows: Shows::Camera { number: 1 }, place: Place::LeftHalf, ..Layer::default() },
+        Layer { shows: Shows::Camera { number: 2 }, place: Place::RightHalf, ..Layer::default() },
+    ], ..OwnScene::default() };
     let size = (4, 2);
     let p = Arc::new(prepare(&ours, size, &Default::default(), &mut crate::render::Fonts::bundled_only()));
     let shown = Shown { scene: Scene::Own(ours.id), own: Some(p), ..Shown::default() };
@@ -433,6 +433,54 @@ fn the_mixer_puts_a_church_scene_together_from_the_cameras_it_names() {
     m.cameras[1] = Some(solid([0, 200, 0, 255]));
     m.update(&shown, &room, None, false, t0 + Duration::from_millis(66));
     assert_eq!(&m.out()[12..16], &[0, 200, 0, 255], "a new picture from camera 2");
+}
+
+/// A scene can come in with a slide or a cut instead of the fade.
+#[test]
+fn the_mixer_changes_scenes_the_way_the_scene_asks() {
+    use crate::stream::{pictures::Shown, transition::Transition};
+    let (red, blue) = ([200u8, 0, 0, 255].repeat(4), Arc::new([0u8, 0, 200, 255].repeat(4)));
+    let t0 = Instant::now();
+    let mut m = Mixer::new((2, 2));
+    m.update(&Shown { scene: Scene::Screen, ..Shown::default() }, &red, Some(blue.clone()), true, t0);
+    let camera = Shown { scene: Scene::Camera, transition: Transition::Slide, ..Shown::default() };
+    m.update(&camera, &red, Some(blue.clone()), false, t0);
+    m.update(&camera, &red, Some(blue.clone()), false, t0 + Duration::from_millis(250));
+    assert_eq!((&m.out()[..4], &m.out()[4..8]), (&[200u8, 0, 0, 255][..], &[0u8, 0, 200, 255][..]), "half way: the room going out left, the camera coming in right");
+    m.update(&camera, &red, Some(blue.clone()), false, t0 + Duration::from_millis(600));
+    assert_eq!(&m.out()[..4], &[0, 0, 200, 255]);
+    let cut = Shown { scene: Scene::Screen, transition: Transition::Cut, ..Shown::default() };
+    m.update(&cut, &red, Some(blue.clone()), false, t0 + Duration::from_millis(700));
+    assert_eq!(&m.out()[..4], &[200, 0, 0, 255], "a cut: at once");
+}
+
+/// With the church's tall scenes the Mixer puts the tall picture together: the scene's tall places, or the wide
+/// picture fitted across for a scene without them.
+#[test]
+fn the_mixer_puts_the_tall_picture_together() {
+    use crate::stream::own_scenes::{Layer, Now, OwnScene, Place, Shows, prepare_at};
+    use crate::stream::pictures::Shown;
+    let solid = |c: [u8; 4], n: usize| Arc::new(c.repeat(n));
+    let (wide, tall) = ((4, 2), (2, 4));
+    let room = [0u8, 0, 200, 255].repeat(8);
+    let mut m = Mixer { tall: Some(TallMix::new(tall)), ..Mixer::new(wide) };
+    let t0 = Instant::now();
+    m.update(&Shown { scene: Scene::Screen, ..Shown::default() }, &room, None, true, t0);
+    let t = m.tall_out().expect("a new tall picture").to_vec();
+    assert_eq!((&t[..4], &t[12..16]), (&[0u8, 0, 0, 255][..], &[0u8, 0, 200, 255][..]), "black above, the wide picture across the middle");
+    assert!(m.tall_out().is_none(), "taken once until it changes");
+    let ours = OwnScene { tall: true, layers: vec![
+        Layer { shows: Shows::Room, ..Layer::default() },
+        Layer { shows: Shows::Camera { number: 0 }, place: Place::RightHalf, tall: Some(Place::Box { x: 0, y: 50, w: 100, h: 50 }), ..Layer::default() },
+    ], ..OwnScene::new("Phones".into()) };
+    let mut fonts = crate::render::Fonts::bundled_only();
+    let now = Now::local(None);
+    let shown = Shown { scene: Scene::Own(ours.id), own: Some(Arc::new(prepare_at(&ours, wide, false, &Default::default(), &mut fonts, &now))),
+        own_tall: Some(Arc::new(prepare_at(&ours, tall, true, &Default::default(), &mut fonts, &now))), transition: crate::stream::transition::Transition::Cut, ..Shown::default() };
+    m.update(&shown, &room, Some(solid([200, 0, 0, 255], 8)), true, t0 + Duration::from_millis(33));
+    let t = m.tall_out().expect("the tall scene").to_vec();
+    assert_eq!((&t[..4], &t[28..32]), (&[0u8, 0, 200, 255][..], &[200u8, 0, 0, 255][..]), "the room on top, the camera across the bottom");
+    assert_eq!((&m.out()[..4], &m.out()[12..16]), (&[0u8, 0, 200, 255][..], &[200u8, 0, 0, 255][..]), "the wide picture keeps its own places");
 }
 
 /// The tall stream for real: the destination gets 720×1280 (the wide picture across the middle), the file stays
@@ -453,6 +501,34 @@ fn go_live_sends_a_tall_stream_to_a_tall_destination() {
     let img = frame_at(&ff, &dir, &received, "1");
     let (top, mid) = (img.get_pixel(360, 100).0, img.get_pixel(360, 640).0);
     assert!(top.iter().all(|c| *c < 30) && is_red(mid), "top {top:?}, middle {mid:?}");
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// The church's tall scene for real: the app puts the tall picture together (blue across the top, the room under
+/// it) and FFmpeg reads it from the app; the wide picture keeps its own places (all blue).
+#[test]
+fn go_live_sends_the_churchs_tall_scene_to_a_tall_destination() {
+    use crate::stream::own_scenes::{Layer, OwnScene, Place, Shows};
+    let Some(ff) = ffmpeg() else { return };
+    let dir = scratch("tall-scene");
+    let (srv, url, received) = server(&ff, &dir);
+    let ours = OwnScene { tall: true, layers: vec![
+        Layer { shows: Shows::Room, place: Place::LeftHalf, tall: Some(Place::Full), ..Layer::default() },
+        Layer { shows: Shows::Colour { colour: "#0000ff".into() }, place: Place::Full, tall: Some(Place::Box { x: 0, y: 0, w: 100, h: 50 }), ..Layer::default() },
+    ], ..OwnScene::new("Phones".into()) };
+    let mut look = only(Scene::Own(ours.id), "x");
+    look.own = vec![ours];
+    let ended = record_for(Plan { stream: vec![url], tall: vec![true], look: Some(look), ..plan(ff.clone(), &dir, Sound::None) }, 6.0, |_, _| {});
+    finish_server(srv);
+    assert_eq!(ended.problem, None, "{ended:?}");
+    let (streams, _) = probe(&received);
+    assert!(streams.iter().any(|s| s.0 == "video" && (s.2, s.3) == (720, 1280)), "{streams:?}");
+    let img = frame_at(&ff, &dir, &received, "1");
+    let (top, bottom) = (img.get_pixel(360, 300).0, img.get_pixel(360, 1000).0);
+    assert!(top[2] > 180 && top[0] < 60 && is_red(bottom), "top {top:?}, bottom {bottom:?}");
+    let wide = frame_at(&ff, &dir, &dir.join("Recording test.mp4"), "1");
+    let w = wide.get_pixel(320, 360).0;
+    assert!(w[2] > 180 && w[0] < 60, "the wide picture all blue: {w:?}");
     std::fs::remove_dir_all(&dir).unwrap();
 }
 
