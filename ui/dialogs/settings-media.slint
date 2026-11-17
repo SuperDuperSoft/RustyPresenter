@@ -4,6 +4,7 @@ import { Theme } from "../theme.slint";
 import { Btn, Field, Segmented } from "../widgets.slint";
 import { TextField, Note, Select, Check, RangeSlider } from "form.slint";
 import { SettingsDlg } from "settings-state.slint";
+import { StreamSoundSetup, StreamSoundMore } from "settings-sound.slint";
 
 /// A group's title (also on Settings → Video).
 export component Heading inherits Text {
@@ -157,6 +158,8 @@ export component SettingsMedia inherits VerticalLayout {
             index <=> SettingsDlg.stream-sound-index;
         }
     }
+    // The sound setup, the other inputs, the phone and Listen (settings-sound.slint).
+    StreamSoundSetup {}
     Field {
         label: @tr("Upload speed");
         help: @tr("Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits.");
@@ -297,6 +300,7 @@ export component SettingsMedia inherits VerticalLayout {
             stream-tracks := Check { text: @tr("Also keep each sound on a track of its own in the recording, to balance them again afterwards"); checked <=> SettingsDlg.stream-tracks; }
         }
     }
+    StreamSoundMore {}
     Field {
         label: @tr("Camera");
         help: @tr("A camera or capture card for the stream's camera scenes (and its recording).");

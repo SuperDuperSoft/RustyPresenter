@@ -188,6 +188,26 @@ pub struct RecordPrefs {
     /// The note about streaming licences was shown (once, the first time Go Live started).
     #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub licence_noted: bool,
+    /// Livestream: the sound set up with one choice (`stream::sound_setup`); Custom: as set by hand.
+    #[serde(default, skip_serializing_if = "crate::stream::sound_setup::Mode::is_custom")]
+    pub stream_sound_mode: crate::stream::sound_setup::Mode,
+    /// Livestream: a second and third microphone or line-in (names as `args::list_inputs` gives them; empty:
+    /// none), mixed with the recording's sound input, each turned up or down (dB, within `MAX_LEVEL_DB`).
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub stream_input2: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub stream_input3: String,
+    #[serde(default, skip_serializing_if = "is_zero_i32")]
+    pub stream_input2_db: i32,
+    #[serde(default, skip_serializing_if = "is_zero_i32")]
+    pub stream_input3_db: i32,
+    /// Livestream: each sound's filters (More sound settings); `None`: as they start (only the limiter).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stream_filters: Option<crate::stream::sound_setup::StreamFilters>,
+    /// Livestream: where the stream's sound is played to listen to it (`stream::listen`): empty, nowhere;
+    /// `stream::listen::DEFAULT`, the computer's usual output; else an output as `Settings::audio_device` has it.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub stream_listen: String,
 }
 
 
@@ -215,7 +235,25 @@ impl RecordPrefs {
             even: self.stream_even.unwrap_or(true),
             quiet_noise: self.stream_quiet_noise,
             tracks: self.stream_tracks,
+            board_filters: self.filters().board,
+            pc_filters: self.filters().pc,
         }
+    }
+
+    /// Each sound's filters for the stream.
+    pub fn filters(&self) -> crate::stream::sound_setup::StreamFilters { self.stream_filters.unwrap_or_default() }
+
+    /// The stream's second and third microphone or line-in: `(name, dB, filters)`, only with a first one, and each
+    /// only after the one before, never one already used.
+    pub fn more_inputs(&self) -> Vec<(String, i32, args::Filters)> {
+        let Sound::Input(first) = self.sound() else { return vec![] };
+        let f = self.filters();
+        let mut out: Vec<(String, i32, args::Filters)> = vec![];
+        for (name, db, filters) in [(&self.stream_input2, self.stream_input2_db, f.input2), (&self.stream_input3, self.stream_input3_db, f.input3)] {
+            if name.is_empty() || *name == first || out.iter().any(|(o, _, _)| o == name) { break }
+            out.push((name.clone(), db.clamp(-MAX_LEVEL_DB, MAX_LEVEL_DB), filters));
+        }
+        out
     }
 
     /// The automatic scene choice's settings.
@@ -340,12 +378,34 @@ mod tests {
     #[test]
     fn the_streams_sound_settings_are_kept_and_given_to_the_recorder() {
         let p = RecordPrefs::default();
-        assert_eq!(p.sound_fx(), args::SoundFx { delay_ms: 0, board_db: 0, pc_db: 0, even: true, quiet_noise: false, tracks: false }, "evened out unless turned off");
+        assert_eq!(p.sound_fx(), args::SoundFx { delay_ms: 0, board_db: 0, pc_db: 0, even: true, quiet_noise: false, tracks: false, board_filters: args::Filters::SAFE, pc_filters: args::Filters::SAFE }, "evened out unless turned off");
         assert_eq!(serde_json::to_value(&p).unwrap().get("stream_even"), None);
         let p = RecordPrefs { sound_delay_ms: 5000, stream_board_db: 45, stream_pc_db: -45, stream_even: Some(false), stream_quiet_noise: true, ..RecordPrefs::default() };
-        assert_eq!(p.sound_fx(), args::SoundFx { delay_ms: MAX_SOUND_DELAY, board_db: MAX_LEVEL_DB, pc_db: -MAX_LEVEL_DB, even: false, quiet_noise: true, tracks: false });
+        assert_eq!(p.sound_fx(), args::SoundFx { delay_ms: MAX_SOUND_DELAY, board_db: MAX_LEVEL_DB, pc_db: -MAX_LEVEL_DB, even: false, quiet_noise: true, tracks: false, board_filters: args::Filters::SAFE, pc_filters: args::Filters::SAFE });
         let back: RecordPrefs = serde_json::from_value(serde_json::to_value(&p).unwrap()).unwrap();
         assert_eq!(back, p);
+    }
+
+    #[test]
+    fn the_other_inputs_filters_and_listen_are_kept() {
+        use crate::stream::sound_setup::{Mode, StreamFilters};
+        // Nothing new saved for settings as they start.
+        let v = serde_json::to_value(RecordPrefs::default()).unwrap();
+        for k in ["stream_sound_mode", "stream_input2", "stream_filters", "stream_listen"] { assert_eq!(v.get(k), None, "{k}") }
+        let gate = args::Filters { gate: args::Strength::Light, ..args::Filters::SAFE };
+        let p = RecordPrefs {
+            sound: "input:Line In".into(), stream_input2: "USB Mic".into(), stream_input2_db: 30, stream_input3: "Phone".into(), stream_input3_db: -3,
+            stream_filters: Some(StreamFilters { input2: gate, ..StreamFilters::default() }), stream_listen: "default".into(), stream_sound_mode: Mode::UsbMic,
+            ..RecordPrefs::default()
+        };
+        let back: RecordPrefs = serde_json::from_value(serde_json::to_value(&p).unwrap()).unwrap();
+        assert_eq!(back, p);
+        assert_eq!(p.more_inputs(), [("USB Mic".to_string(), MAX_LEVEL_DB, gate), ("Phone".to_string(), -3, args::Filters::SAFE)]);
+        // Only with a first input, each after the one before, and never the same twice.
+        assert!(RecordPrefs { sound: "app".into(), ..p.clone() }.more_inputs().is_empty());
+        assert_eq!(RecordPrefs { stream_input2: String::new(), ..p.clone() }.more_inputs(), []);
+        assert_eq!(RecordPrefs { stream_input3: "USB Mic".into(), ..p.clone() }.more_inputs().len(), 1);
+        assert_eq!(RecordPrefs { stream_input2: "Line In".into(), ..p.clone() }.more_inputs(), []);
     }
 
     #[test]

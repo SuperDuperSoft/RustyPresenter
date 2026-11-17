@@ -90,6 +90,7 @@ cargo packager --release -c Packager.toml -f nsis          # Windows
 cargo packager --release -c Packager.toml -f app,dmg       # macOS (MACOSX_DEPLOYMENT_TARGET=12.0)
 sudo install -m 0644 packaging/out/libmpv-linux/libmpv.so.2 /usr/lib/x86_64-linux-gnu/ && sudo ldconfig
 cargo packager --release -c Packager.toml -f appimage,deb  # Linux
+packaging/linux/deb-recommends.sh dist/*.deb               # Linux: Recommends: pulseaudio-utils
 ```
 
 - Always pass `-c Packager.toml`. Without it cargo-packager searches the whole tree for

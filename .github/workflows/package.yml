@@ -75,6 +75,11 @@ jobs:
       - name: Package
         run: cargo packager --release -c Packager.toml -f ${{ matrix.formats }}
 
+      # cargo-packager has no Recommends field: pulseaudio-utils (parec, pactl, pacat) is added after.
+      - name: Recommend pulseaudio-utils in the .deb
+        if: runner.os == 'Linux'
+        run: packaging/linux/deb-recommends.sh dist/*.deb
+
       - name: Verify the app signature
         if: runner.os == 'macOS'
         run: codesign --verify --deep --strict -v dist/RustyPresenter.app

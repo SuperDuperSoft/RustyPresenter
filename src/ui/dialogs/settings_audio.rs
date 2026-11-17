@@ -44,6 +44,7 @@ pub(super) fn load(op: &Rc<Operator>) {
         fill(&g, &devices, &read(&g));
         super::settings_media::fill_listen(&g, &devices, &super::settings_media::read_listen(&g));
         super::settings_record::fill_stream_sound(&g, &devices, &super::settings_record::read_stream_sound(&g));
+        super::settings_sound::fill_listen(&g, &devices, &super::settings_sound::read_listen(&g));
     });
 }
 

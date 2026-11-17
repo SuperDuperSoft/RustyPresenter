@@ -31,12 +31,19 @@ pub fn inputs(ffmpeg: &Path) -> Vec<Input> {
 /// What reads sound input `name` (FFmpeg input `format`) as `stream::board_feed::FORMAT` on its output: the
 /// program and its arguments. FFmpeg, except on Linux when this FFmpeg has no PulseAudio and `parec` is there.
 pub fn sound_reader(ffmpeg: &Path, format: &str, name: &str) -> (PathBuf, Vec<String>) {
-    let ffmpegs = || (ffmpeg.to_path_buf(), crate::stream::board_feed::input_args(format, name));
-    if format != "pulse" { return ffmpegs() }
-    if ask_ffmpeg(ffmpeg, &["-hide_banner", "-devices"]).is_some_and(|out| has_input(&out, "pulse")) { return ffmpegs() }
+    let f = crate::stream::board_feed::FORMAT;
+    reader_as(ffmpeg, format, name, || crate::stream::board_feed::input_args(format, name), f.rate, f.channels)
+}
+
+/// The same for other uses (auto-follow's listening): FFmpeg with `ffmpeg_args`, else (Linux, no PulseAudio in this
+/// FFmpeg) `parec` sending raw 16-bit sound at `rate` with `channels`.
+pub fn reader_as(ffmpeg: &Path, format: &str, name: &str, ffmpeg_args: impl FnOnce() -> Vec<String>, rate: u32, channels: u16) -> (PathBuf, Vec<String>) {
+    let ffmpegs = |a: Vec<String>| (ffmpeg.to_path_buf(), a);
+    if format != "pulse" { return ffmpegs(ffmpeg_args()) }
+    if ask_ffmpeg(ffmpeg, &["-hide_banner", "-devices"]).is_some_and(|out| has_input(&out, "pulse")) { return ffmpegs(ffmpeg_args()) }
     match on_path("parec") {
-        Some(parec) => (parec, parec_args(name)),
-        None => ffmpegs(),
+        Some(parec) => (parec, parec_args_as(name, rate, channels)),
+        None => ffmpegs(ffmpeg_args()),
     }
 }
 
@@ -51,7 +58,12 @@ pub fn has_input(devices: &str, name: &str) -> bool {
 /// `parec`'s arguments for source `name`: raw 16-bit stereo at 48 kHz, 20 ms at a time.
 pub fn parec_args(name: &str) -> Vec<String> {
     let f = crate::stream::board_feed::FORMAT;
-    vec![format!("--device={name}"), "--format=s16le".into(), format!("--rate={}", f.rate), format!("--channels={}", f.channels),
+    parec_args_as(name, f.rate, f.channels)
+}
+
+/// `parec`'s arguments for source `name`: raw 16-bit at `rate` with `channels`, 20 ms at a time.
+pub fn parec_args_as(name: &str, rate: u32, channels: u16) -> Vec<String> {
+    vec![format!("--device={name}"), "--format=s16le".into(), format!("--rate={rate}"), format!("--channels={channels}"),
         "--raw".into(), "--latency-msec=20".into()]
 }
 
@@ -209,6 +221,7 @@ mod tests {
         let without = "Devices:\n D. = Demuxing supported\n ---\n D  lavfi           Libavfilter virtual input device\n D  v4l2            Video4Linux2\n";
         assert!(!has_input(without, "pulse"));
         assert_eq!(parec_args("x.monitor").join(" "), "--device=x.monitor --format=s16le --rate=48000 --channels=2 --raw --latency-msec=20");
+        assert_eq!(parec_args_as("mic", 16_000, 1).join(" "), "--device=mic --format=s16le --rate=16000 --channels=1 --raw --latency-msec=20", "auto-follow's listening");
         // Not PulseAudio: FFmpeg, as always, without asking it anything.
         let (program, a) = sound_reader(Path::new("no-such-ffmpeg"), "dshow", "Line In");
         assert_eq!((program, a), (PathBuf::from("no-such-ffmpeg"), crate::stream::board_feed::input_args("dshow", "Line In")));

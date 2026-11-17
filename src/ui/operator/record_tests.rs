@@ -298,7 +298,7 @@ fn settings_keep_the_streams_sound_levels_and_clean_up() {
     g.set_stream_even(false);
     g.set_stream_quiet_noise(true);
     crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
-    assert_eq!(prefs.sound_fx(), record::args::SoundFx { delay_ms: 0, board_db: 8, pc_db: -20, even: false, quiet_noise: true, tracks: true });
+    assert_eq!(prefs.sound_fx(), record::args::SoundFx { delay_ms: 0, board_db: 8, pc_db: -20, even: false, quiet_noise: true, tracks: true, board_filters: record::args::Filters::SAFE, pc_filters: record::args::Filters::SAFE });
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
     assert_eq!((g.get_stream_board_level(), g.get_stream_pc_level(), g.get_stream_even(), g.get_stream_quiet_noise()), (8, -20, false, true));
     // Turned on again: back to how it starts, so nothing is saved for it.
@@ -1045,4 +1045,56 @@ fn settings_keep_the_words_alone_file() {
     g.set_stream_words_file(false);
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
     assert!(g.get_stream_words_file(), "shown again as saved");
+}
+
+/// Settings, Media, Livestream: the sound: the setup puts in the input it finds and its filters, the other inputs,
+/// each sound's filters and Listen are kept, and a change by hand makes the setup Custom.
+#[test]
+fn settings_keep_the_streams_sound_setup_other_inputs_filters_and_listen() {
+    use crate::record::args::{Filters, Input, Strength};
+    use crate::stream::sound_setup::{Mode, setup};
+    use crate::ui::{SettingsDlg, dialogs::settings_sound};
+    use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
+    let app = test_app();
+    let room = Arc::new(Room::default());
+    let op = open(&app, &room);
+    let g = op.ui.global::<SettingsDlg>();
+    let mut prefs = RecordPrefs { sound: "input:Line In".into(), ..RecordPrefs::default() };
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    assert_eq!((g.get_stream_sound_mode(), g.get_stream_input2_index(), g.get_stream_board_filters().limit), (0, 0, true), "custom, no second input, the limiter on");
+    // The inputs, as Settings lists them once FFmpeg has answered.
+    let inputs = ["Microphone Array (Realtek(R) Audio)", "Microphone (Yeti Stereo Microphone)", "Line In"];
+    let strings = |v: Vec<String>| ModelRc::new(VecModel::from(v.into_iter().map(SharedString::from).collect::<Vec<_>>()));
+    let mut names = vec!["none".to_string(), "app".into()];
+    names.extend(inputs.iter().map(|i| format!("input:{i}")));
+    g.set_record_sound_labels(strings(names.clone()));
+    g.set_record_sound_names(strings(names));
+    g.set_record_sound_index(4);
+    settings_sound::fill_inputs_found(&g, &inputs.map(|i| Input { name: i.into(), label: i.into() }));
+    let yeti = (0..g.get_stream_input_names().row_count()).find(|r| g.get_stream_input_names().row_data(*r).unwrap() == inputs[1]).unwrap();
+    g.set_stream_input2_index(yeti as i32);
+    g.set_stream_input2_level(6);
+    g.set_stream_pc_filters(settings_sound::to_ui(Filters { gate: Strength::Strong, ..Filters::SAFE }));
+    settings_sound::fill_listen(&g, &[crate::video::ffi::AudioDevice { name: "wasapi/{h}".into(), label: "Headphones".into() }], "");
+    g.set_stream_listen_index(2);
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!((prefs.stream_input2.as_str(), prefs.stream_input2_db, prefs.stream_listen.as_str()), (inputs[1], 6, "wasapi/{h}"));
+    assert_eq!(prefs.filters().pc.gate, Strength::Strong);
+    assert_eq!(prefs.stream_sound_mode, Mode::Custom);
+    // "USB microphone": the Yeti becomes the input, no second one, its filters.
+    settings_sound::choose_mode(&g, Mode::UsbMic.index());
+    assert_eq!(g.get_record_sound_index(), 3);
+    assert_eq!(g.get_stream_input2_index(), 0);
+    assert!(g.get_stream_quiet_noise());
+    assert_eq!(settings_sound::from_ui(&g.get_stream_board_filters()), setup(Mode::UsbMic).unwrap().board);
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!((prefs.stream_sound_mode, prefs.sound.as_str(), prefs.stream_input2.as_str()), (Mode::UsbMic, "input:Microphone (Yeti Stereo Microphone)", ""));
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    assert_eq!(g.get_stream_sound_mode(), Mode::UsbMic.index());
+    // Changed by hand: Custom.
+    let mut f = g.get_stream_board_filters();
+    f.high = 9;
+    g.set_stream_board_filters(f);
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!((prefs.stream_sound_mode, prefs.filters().board.high_db), (Mode::Custom, 9));
 }

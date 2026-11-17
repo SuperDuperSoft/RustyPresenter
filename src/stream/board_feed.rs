@@ -77,20 +77,55 @@ impl Drop for Board {
     fn drop(&mut self) { self.stop() }
 }
 
+/// What reads the input.
+#[derive(Clone)]
+enum Reader {
+    /// A program (FFmpeg, `parec`) with its arguments, sending `FORMAT` on its output.
+    Program(PathBuf, Vec<String>),
+    /// The phone's page (`super::phone_mic`).
+    Phone,
+}
+
 /// Starts passing sound input `name` (FFmpeg input `format`) on, read by `ffmpeg` (on Linux, by `parec` when this
-/// FFmpeg has no PulseAudio: `record::devices::sound_reader`); silence while `mute` is set.
+/// FFmpeg has no PulseAudio: `record::devices::sound_reader`; the phone, from its page); silence while `mute` is set.
 pub fn start(ffmpeg: PathBuf, format: &str, name: &str, mute: Arc<AtomicBool>) -> Result<Board, String> {
     let port = crate::platform::ports::tcp().map_err(|e| e.to_string())?;
     let (stop, silent) = (Arc::new(AtomicBool::new(false)), Arc::new(AtomicBool::new(false)));
     let (s, q) = (stop.clone(), silent.clone());
     let level: Arc<super::level::Level> = Arc::default();
     let l = level.clone();
-    let (reader, args) = crate::record::devices::sound_reader(&ffmpeg, format, name);
-    let thread = std::thread::Builder::new().name("stream-board".into()).spawn(move || run(reader, args, port, &s, &q, &mute, &l)).map_err(|e| e.to_string())?;
+    let reader = if name == super::phone_mic::INPUT { Reader::Phone } else {
+        let (program, args) = crate::record::devices::sound_reader(&ffmpeg, format, name);
+        Reader::Program(program, args)
+    };
+    let thread = std::thread::Builder::new().name("stream-board".into()).spawn(move || run(reader, port, &s, &q, &mute, &l)).map_err(|e| e.to_string())?;
     Ok(Board { feed: Feed { format: FORMAT, port }, silent, level, stop, thread: Some(thread) })
 }
 
-fn run(ffmpeg: PathBuf, args: Vec<String>, port: u16, stop: &AtomicBool, silent: &AtomicBool, mute: &AtomicBool, level: &super::level::Level) {
+/// An input being read: its sound comes on `rx`.
+struct Input {
+    stop: Arc<AtomicBool>,
+    /// The program's reading thread; `None` for the phone, which never ends by itself.
+    thread: Option<std::thread::JoinHandle<()>>,
+    rx: mpsc::Receiver<Vec<u8>>,
+}
+
+impl Input {
+    fn finished(&self) -> bool { self.thread.as_ref().is_some_and(|t| t.is_finished()) }
+    fn stop(self) {
+        self.stop.store(true, Ordering::Relaxed);
+        if let Some(t) = self.thread { let _ = t.join(); }
+    }
+}
+
+fn open(reader: &Reader) -> Option<Input> {
+    match reader {
+        Reader::Program(program, args) => spawn_input(program.clone(), args.clone()).map(|(stop, thread, rx)| Input { stop, thread: Some(thread), rx }),
+        Reader::Phone => Some(Input { stop: Arc::default(), thread: None, rx: super::phone_mic::listen() }),
+    }
+}
+
+fn run(reader: Reader, port: u16, stop: &AtomicBool, silent: &AtomicBool, mute: &AtomicBool, level: &super::level::Level) {
     let began = Instant::now();
     let mut out = loop {
         if stop.load(Ordering::Relaxed) { return }
@@ -102,7 +137,7 @@ fn run(ffmpeg: PathBuf, args: Vec<String>, port: u16, stop: &AtomicBool, silent:
     };
     let _ = out.set_nodelay(true);
     let frame = FORMAT.frame_bytes();
-    let mut input: Option<(Arc<AtomicBool>, std::thread::JoinHandle<()>, mpsc::Receiver<Vec<u8>>)> = None;
+    let mut input: Option<Input> = None;
     let mut next_try = Instant::now();
     let mut quiet = Quiet::default();
     let t0 = Instant::now();
@@ -110,13 +145,13 @@ fn run(ffmpeg: PathBuf, args: Vec<String>, port: u16, stop: &AtomicBool, silent:
     let mut written: u64 = 0;
     let mut buf: Vec<u8> = Vec::new();
     while !stop.load(Ordering::Relaxed) {
-        if input.as_ref().is_some_and(|(_, t, _)| t.is_finished()) { input = None; next_try = Instant::now() + RETRY }
+        if input.as_ref().is_some_and(Input::finished) { input = None; next_try = Instant::now() + RETRY }
         if input.is_none() && Instant::now() >= next_try {
-            input = spawn_input(ffmpeg.clone(), args.clone());
+            input = open(&reader);
             if input.is_none() { next_try = Instant::now() + RETRY }
         }
         buf.clear();
-        if let Some((_, _, rx)) = &input { while let Ok(b) = rx.try_recv() { buf.extend_from_slice(&b) } }
+        if let Some(i) = &input { while let Ok(b) = i.rx.try_recv() { buf.extend_from_slice(&b) } }
         let heard = buf.len() / frame;
         buf.truncate(heard * frame);
         if heard > 0 { last_heard = Instant::now() }
@@ -136,7 +171,7 @@ fn run(ffmpeg: PathBuf, args: Vec<String>, port: u16, stop: &AtomicBool, silent:
         if !buf.is_empty() && out.write_all(&buf).is_err() { break }
         std::thread::sleep(LOOK_EVERY);
     }
-    if let Some((s, t, _)) = input { s.store(true, Ordering::Relaxed); let _ = t.join(); }
+    if let Some(i) = input { i.stop() }
 }
 
 /// Starts the input's FFmpeg on a thread of its own that hands its sound over in pieces, until the input stops or
@@ -231,6 +266,31 @@ mod tests {
         assert!((11.5..14.0).contains(&secs), "{secs:.2} s of sound in 13 s");
         let at = noticed.expect("the quiet was noticed").as_secs_f64();
         assert!((10.5..12.5).contains(&at), "noticed {at:.1} s in (quiet from about 1 s)");
+    }
+
+    /// The phone as the input: what it sends goes out, and silence by the clock once it stops. About 3 s.
+    #[test]
+    fn the_phones_sound_is_passed_on_like_any_input() {
+        let _turn = super::super::phone_mic::TEST_TURN.lock().unwrap_or_else(|e| e.into_inner());
+        let mut board = start(PathBuf::from("no-ffmpeg-needed"), "dshow", super::super::phone_mic::INPUT, Arc::default()).unwrap();
+        let tone: Vec<u8> = (0..4800).flat_map(|i| (if i % 2 == 0 { 3000i16 } else { -3000 }).to_le_bytes()).collect();
+        let sending = Arc::new(AtomicBool::new(true));
+        let s = sending.clone();
+        // The phone: 100 ms of sound ten times a second for 1.5 s, then nothing.
+        let phone = std::thread::spawn(move || {
+            let t = Instant::now();
+            while t.elapsed() < Duration::from_millis(1500) && s.load(Ordering::Relaxed) {
+                super::super::phone_mic::hand_in(48_000, &tone);
+                std::thread::sleep(Duration::from_millis(100));
+            }
+        });
+        let mut loud = 0;
+        let secs = listen(&board, 3, |t, b| if t < Duration::from_millis(900) { loud = loud.max(peak(b)) });
+        sending.store(false, Ordering::Relaxed);
+        let _ = phone.join();
+        board.stop();
+        assert_eq!(loud, 3000, "the phone's sound came through");
+        assert!((2.5..3.5).contains(&secs), "{secs:.2} s of sound in 3 s");
     }
 
     /// Mute while a tone plays: silence goes out from then on; unmuted, the tone again.
