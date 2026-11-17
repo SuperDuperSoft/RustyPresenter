@@ -614,7 +614,7 @@ pub fn picker(church: &[StageLayout], default: Uuid) -> (Vec<String>, usize) {
     (all.iter().map(|l| l.name.clone()).collect(), current)
 }
 
-/// Settings → Video: the stage layout choice, filled from the stored data.
+/// Settings → General → Screens and graphics: the stage layout choice, filled from the stored data.
 pub(crate) fn fill_settings(g: &SettingsDlg, church: &[StageLayout], default: Uuid) {
     let (names, current) = picker(church, default);
     let ids: Vec<SharedString> = presets::all_layouts(church).map(|l| l.id.to_string().into()).collect();
@@ -623,7 +623,7 @@ pub(crate) fn fill_settings(g: &SettingsDlg, church: &[StageLayout], default: Uu
     g.set_stage_layout(current as i32);
 }
 
-/// The stage layout chosen in Settings → Video.
+/// The stage layout chosen in Settings → General → Screens and graphics.
 pub(crate) fn read_settings(g: &SettingsDlg, s: &mut crate::model::Settings) {
     use slint::Model;
     if let Some(id) = g.get_stage_layout_ids().row_data(g.get_stage_layout().max(0) as usize).and_then(|id| id.parse().ok()) { s.stage.layout = id }

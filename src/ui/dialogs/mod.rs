@@ -34,6 +34,8 @@ pub mod settings_record;
 pub mod settings_sound;
 pub mod settings_sections;
 pub mod settings_themes;
+pub mod settings_find;
+pub mod settings_window;
 pub mod show_message;
 pub mod song_editor;
 pub mod songselect;
@@ -60,9 +62,80 @@ pub use ask::{choose, choose3, confirm, prompt};
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum AddTab { #[default] Song, Scripture, Media, Deck, Text }
 
-/// The tabs of Settings (`operator.js:883`), and About (native spec §7).
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
-pub enum SettingsTab { #[default] Look, Themes, Language, Songs, AutoFollow, Bible, Video, Media, Backups, Help, About, Sections }
+/// The pages of Settings (November 17, 2026 reorganisation), in the sidebar's order: `settings::tab_index` is a
+/// page's place, which `ui/dialogs/settings.slint` switches on. Each is in one category (`settings_find::category`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default, Hash)]
+pub enum SettingsTab {
+    // General
+    Language,
+    /// Screens and graphics.
+    Video,
+    // Look
+    #[default]
+    Look,
+    Themes,
+    // Songs
+    Songs,
+    Sections,
+    SongSelect,
+    // Bible
+    Bible,
+    BibleOnline,
+    // Video and media: pictures and videos.
+    Media,
+    // Sound in the room.
+    Sound,
+    // Stage screen.
+    Stage,
+    // Remote and network
+    Remote,
+    PhoneStage,
+    PhoneCamMic,
+    OtherGear,
+    // Keys: keyboard shortcuts, clear groups.
+    Help,
+    ClearGroups,
+    // Auto-follow
+    AutoFollow,
+    FollowModel,
+    FollowPractice,
+    FollowReview,
+    // Livestream
+    StreamWhere,
+    StreamPicture,
+    StreamCameras,
+    StreamSound,
+    StreamScenes,
+    Recording,
+    StreamCaptions,
+    StreamNdi,
+    StreamSetups,
+    // Backups
+    Backups,
+    // Help and about
+    About,
+}
+
+impl SettingsTab {
+    /// Every page, in the sidebar's order.
+    pub const ALL: [SettingsTab; 33] = [
+        SettingsTab::Language, SettingsTab::Video, SettingsTab::Look, SettingsTab::Themes, SettingsTab::Songs, SettingsTab::Sections,
+        SettingsTab::SongSelect, SettingsTab::Bible, SettingsTab::BibleOnline, SettingsTab::Media, SettingsTab::Sound, SettingsTab::Stage,
+        SettingsTab::Remote, SettingsTab::PhoneStage, SettingsTab::PhoneCamMic, SettingsTab::OtherGear, SettingsTab::Help,
+        SettingsTab::ClearGroups, SettingsTab::AutoFollow, SettingsTab::FollowModel, SettingsTab::FollowPractice, SettingsTab::FollowReview,
+        SettingsTab::StreamWhere, SettingsTab::StreamPicture, SettingsTab::StreamCameras, SettingsTab::StreamSound, SettingsTab::StreamScenes,
+        SettingsTab::Recording, SettingsTab::StreamCaptions, SettingsTab::StreamNdi, SettingsTab::StreamSetups, SettingsTab::Backups,
+        SettingsTab::About,
+    ];
+
+    /// The page at `i` in the sidebar's order.
+    pub fn at(i: usize) -> Option<SettingsTab> { Self::ALL.get(i).copied() }
+
+    /// Its name as saved for "remember the last page" (stable across new pages).
+    pub fn key(self) -> String { format!("{self:?}") }
+
+    pub fn from_key(k: &str) -> Option<SettingsTab> { Self::ALL.into_iter().find(|t| t.key() == k) }
+}
 
 /// The dialogs of the web operator; one at a time.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -76,7 +149,6 @@ pub enum DialogKind {
     Print(Uuid),
     Screens,
     Phone,
-    Settings(SettingsTab),
     /// The song use report (FEAT-7 §3.3).
     Usage,
     /// The stage layout editor (FEAT-3 §3.6).
@@ -97,16 +169,12 @@ pub enum DialogKind {
     Translations,
     /// N13: the walk-in music's songs, shuffle and volume.
     Music,
-    /// N31: Settings → Network… (remote password, stage view on phones, TCP control).
-    Network,
     /// N26: the slide editor on a designed item (`None`: new slides).
     Design(Option<Uuid>),
-    /// Settings → Media → Livestream → Your scenes… (the church's own livestream scenes).
+    /// Settings → Livestream → Scenes → Your scenes… (the church's own livestream scenes).
     StreamScenes,
     /// Go Live with nowhere to stream to: the first-time helper's steps.
     GoLiveHelper,
-    /// Settings → Media → Livestream → More settings (`stream_more`).
-    StreamMore,
     /// Songs from SongSelect: the songs the church downloads in its own browser come in (`songselect`).
     SongSelect,
 }
@@ -117,7 +185,7 @@ impl DialogKind {
     pub fn refreshes(&self) -> bool { matches!(self, DialogKind::Add(_) | DialogKind::Screens | DialogKind::Phone) }
 
     /// `dialog(…, { wide: true })`: the song editor and Settings.
-    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::StageLayouts | DialogKind::Overlays | DialogKind::Automation | DialogKind::FindVerse | DialogKind::SlideBreaks(_) | DialogKind::Translations | DialogKind::Design(_) | DialogKind::StreamScenes | DialogKind::StreamMore) }
+    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Usage | DialogKind::StageLayouts | DialogKind::Overlays | DialogKind::Automation | DialogKind::FindVerse | DialogKind::SlideBreaks(_) | DialogKind::Translations | DialogKind::Design(_) | DialogKind::StreamScenes) }
 
     /// A fixed height whatever is in it: the wide ones and Add, which switch tabs or views (switching must never
     /// resize or move the dialog).
@@ -133,7 +201,6 @@ impl DialogKind {
             DialogKind::Print(_) => "print",
             DialogKind::Screens => "screens",
             DialogKind::Phone => "phone",
-            DialogKind::Settings(_) => "settings",
             DialogKind::Usage => "usage",
             DialogKind::StageLayouts => "stage-layouts",
             DialogKind::Overlays => "overlays",
@@ -144,11 +211,9 @@ impl DialogKind {
             DialogKind::QuickSearch => "quick-search",
             DialogKind::Translations => "translations",
             DialogKind::Music => "music",
-            DialogKind::Network => "network",
             DialogKind::Design(_) => "design",
             DialogKind::StreamScenes => "stream-scenes",
             DialogKind::GoLiveHelper => "go-live-helper",
-            DialogKind::StreamMore => "stream-more",
             DialogKind::SongSelect => "songselect",
         }
     }
@@ -226,7 +291,7 @@ impl Operator {
     pub fn on_next_read(&self, then: impl FnOnce(&Rc<Operator>) + 'static) {
         {
             let mut st = self.state.borrow_mut();
-            if st.dialog.is_none() { return }
+            if st.dialog.is_none() && !settings::is_open(self) { return }
             st.dialogs.next_read.push((view::read_number(), Box::new(then)));
         }
         self.request_refresh();
@@ -261,7 +326,6 @@ impl Operator {
             DialogKind::Print(_) => print::title().into(),
             DialogKind::Screens => strings::screens().into(),
             DialogKind::Phone => strings::phone().into(),
-            DialogKind::Settings(_) => strings::settings().into(),
             DialogKind::Usage => crate::usage::strings::title().into(),
             DialogKind::StageLayouts => crate::stage::strings::editor_title().into(),
             DialogKind::Overlays => crate::theme::strings::overlays_title(),
@@ -272,11 +336,9 @@ impl Operator {
             DialogKind::QuickSearch => quick_search::title(),
             DialogKind::Translations => translation_editor::title(),
             DialogKind::Music => crate::tr!("Walk-in music"),
-            DialogKind::Network => network::title(),
             DialogKind::Design(_) => crate::design::strings::editor_title(),
             DialogKind::StreamScenes => stream_scenes::title(),
             DialogKind::GoLiveHelper => go_live_helper::title(),
-            DialogKind::StreamMore => stream_more::title(),
             DialogKind::SongSelect => songselect::title(),
         }
     }
@@ -305,6 +367,10 @@ pub(crate) fn wire(op: &Rc<Operator>) {
 }
 
 #[cfg(test)]
+#[path = "fit_small_tests.rs"]
+mod fit_small_tests;
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use crate::{
@@ -320,7 +386,7 @@ mod tests {
     fn dialog_refresh_only_for_add_screens_phone() {
         let refreshing: Vec<DialogKind> = [
             DialogKind::Add(AddTab::Media), DialogKind::SongEditor { song_id: None, add_after: false }, DialogKind::ItemEdit(Uuid::nil()),
-            DialogKind::Services, DialogKind::Screens, DialogKind::Phone, DialogKind::Settings(SettingsTab::Look),
+            DialogKind::Services, DialogKind::Screens, DialogKind::Phone, DialogKind::Usage,
         ].into_iter().filter(DialogKind::refreshes).collect();
         assert_eq!(refreshing, [DialogKind::Add(AddTab::Media), DialogKind::Screens, DialogKind::Phone]);
 
@@ -340,7 +406,7 @@ mod tests {
         assert_eq!(count(DialogKind::Add(AddTab::Song)), 1, "the read, not the patch that shares its data");
         assert_eq!(count(DialogKind::Screens), 1);
         assert_eq!(count(DialogKind::Phone), 1);
-        assert_eq!(count(DialogKind::Settings(SettingsTab::Look)), 0);
+        assert_eq!(count(DialogKind::Usage), 0);
         assert_eq!(count(DialogKind::SongEditor { song_id: None, add_after: true }), 0);
         assert_eq!(count(DialogKind::Services), 0);
     }
@@ -349,7 +415,7 @@ mod tests {
     fn next_read_waits_for_a_read_started_after_it() {
         let app = test_app();
         let op = opened(&app);
-        op.open_dialog(DialogKind::Settings(SettingsTab::Bible));
+        op.open_dialog(DialogKind::Usage);
         let ran = Rc::new(Cell::new(0));
         let r = ran.clone();
         // As `on_next_read` registers it, minus the read it asks for (the follower's read comes later in the app).
@@ -549,13 +615,13 @@ mod tests {
     fn esc_on_ask_cancels_only_the_ask() {
         let app = test_app();
         let op = opened(&app);
-        op.open_dialog(DialogKind::Settings(SettingsTab::Backups));
+        op.open_dialog(DialogKind::Services);
         settle(&op);
         let answer = confirm_cell(&op);
         key(&op, Key::Escape);
         assert_eq!(answer.get(), Some(false));
         assert!(!ask_up(&op));
-        assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Backups)), "the dialog under it stays open");
+        assert_eq!(op.dialog(), Some(DialogKind::Services), "the dialog under it stays open");
         assert!(op.ui.get_dialog_open());
         key(&op, Key::Escape);
         assert_eq!(op.dialog(), None, "the dialog has the keyboard again");
@@ -599,7 +665,7 @@ mod tests {
         let op = opened(&app);
         show(&op, id, 0);
         op.open_dialog(DialogKind::Phone);
-        assert_eq!(op.ui.get_dialog_title(), "Phone remote");
+        assert_eq!(op.ui.get_dialog_title(), "Remote");
         let closed = Rc::new(Cell::new(0));
         let seen = closed.clone();
         op.on_dialog_close(move |_| seen.set(seen.get() + 1));
@@ -631,7 +697,7 @@ mod tests {
         find(&op, "DialogShell::close-btn").unwrap().mock_single_click(PointerEventButton::Left);
         assert_eq!(op.dialog(), None);
         assert_eq!(closed.get(), 0, "a replaced dialog's close hook is dropped, as the web replaces `onclose`");
-        op.open_dialog(DialogKind::Settings(SettingsTab::Help));
+        op.open_dialog(DialogKind::Usage);
         assert!(op.ui.get_dialog_wide());
     }
 }

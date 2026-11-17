@@ -1,4 +1,4 @@
-//! Settings → Video → Graphics (`video::graphics`): the choices this build can draw with, saved at once and used from
+//! Settings → General → Screens and graphics → Graphics (`video::graphics`): the choices this build can draw with, saved at once and used from
 //! the next start, and the one in use now.
 use super::{SettingsTab, settings::Edit};
 use crate::{model::Graphics, tr, ui::{GraphicsTestRow, SettingsDlg, operator::window::Operator}, video::{bench::{self, Measured, Offer}, graphics::{self, Build}}};
@@ -27,7 +27,7 @@ pub(super) fn choose(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
             Ok(v) => {
                 edit.settings.borrow_mut().graphics = choice;
                 if let Some(t) = v["toast"].as_str() { op.toast(t, false) }
-                op.ui.global::<SettingsDlg>().set_graphics_restart(true);
+                crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().set_graphics_restart(true);
             }
             Err(e) => op.toast(e, true),
         }
@@ -78,7 +78,7 @@ pub(super) fn fill_test(g: &SettingsDlg) {
 pub(super) fn start_test(op: &Rc<Operator>, _edit: &Rc<Edit>) { run_test(op) }
 
 fn run_test(op: &Rc<Operator>) {
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     if g.get_graphics_testing() { return }
     let exe = match std::env::current_exe() { Ok(e) => e, Err(e) => { op.toast(e.to_string(), true); return } };
     let list = bench::choices(&choices());
@@ -92,7 +92,7 @@ fn run_test(op: &Rc<Operator>) {
     g.set_graphics_test_rows(ModelRc::default());
     let total = bench::schedule(&list).len();
     if let Some(first) = list.first() { g.set_graphics_test_status(bench::testing(*first, 0, total).into()) }
-    let ui = op.ui.as_weak();
+    let ui = crate::ui::dialogs::settings_window::win(&op).as_weak();
     std::thread::spawn(move || {
         let progress = ui.clone();
         let results = bench::run_all(&bench::Exe { exe, room }, &list, &std::env::temp_dir(), bench::LIMIT, Duration::from_millis(100), |i, n, choice| {
@@ -109,12 +109,12 @@ pub(super) fn use_picked(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
     let Some(m) = LAST.with(|l| l.borrow().get(i).cloned()) else { return };
     if bench::verdict(&m) == bench::Verdict::Failed { return }
     let Some(at) = choices().iter().position(|c| *c == m.graphics) else { return };
-    op.ui.global::<SettingsDlg>().set_graphics_index(at as i32);
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().set_graphics_index(at as i32);
     choose(op, edit, at);
 }
 
 /// At start (once the operator is open): offers the test the first time, and again when the card or driver changed.
-/// Yes opens Settings → Video and starts it.
+/// Yes opens Settings → General → Screens and graphics and starts it.
 pub fn offer_at_start(op: &Rc<Operator>) {
     let root = data_root(op);
     let why = bench::offer(bench::load(&root).as_ref(), graphics::chosen().graphics, &graphics::adapter());

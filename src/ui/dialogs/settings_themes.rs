@@ -1,4 +1,4 @@
-//! Settings → Themes (FEAT-1 spec §3.1 and §3.4; `ui/dialogs/settings-themes.slint`): the theme list with the church
+//! Settings → Look → Themes and backgrounds (FEAT-1 spec §3.1 and §3.4; `ui/dialogs/settings-themes.slint`): the theme list with the church
 //! default's star, the theme editor with a live preview, and the background library. Every button runs its action
 //! at once (`theme/*`, `background/*`), so nothing here waits for Save settings. Standard's style is the Look tab's,
 //! so its Edit button goes there.
@@ -52,7 +52,7 @@ impl ThemesState {
     }
 }
 
-fn g(op: &Operator) -> ThemesDlg<'_> { op.ui.global::<ThemesDlg>() }
+fn g(op: &Operator) -> ThemesDlg<'_> { crate::ui::dialogs::settings_window::win(&op).global::<ThemesDlg>() }
 
 /// The line under a theme's name: Standard's or the default's note, then how many items and services use it.
 pub fn row_sub(row: &theme::ThemeRow, items: usize, services: usize) -> String {
@@ -233,13 +233,7 @@ fn make_default(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
 /// Edit: Standard is the Look tab; any other theme opens the editor.
 fn edit_row(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
     let Some(t) = theme_at(op, edit, i) else { return };
-    if t.id == STANDARD_ID {
-        let s = op.ui.global::<SettingsDlg>();
-        let look = super::settings::tab_index(super::SettingsTab::Look);
-        s.set_tab(look);
-        s.invoke_tab_changed(look);
-        return;
-    }
+    if t.id == STANDARD_ID { return super::settings::go(op, super::SettingsTab::Look, "") }
     open_editor(op, edit, t);
 }
 

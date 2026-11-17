@@ -1,4 +1,4 @@
-//! Settings → Media → Livestream: the stream's sound beyond the levels and clean-up (`ui/dialogs/settings-sound.slint`):
+//! Settings → Livestream: the stream's sound beyond the levels and clean-up (`ui/dialogs/settings-sound.slint`):
 //! "Sound setup" (`stream::sound_setup`), the second and third microphone or line-in, the phone as a microphone,
 //! Listen, and each sound's filters (More sound settings).
 use crate::{
@@ -152,7 +152,7 @@ pub(crate) fn choose_mode(g: &SettingsDlg, i: i32) {
 
 /// The phone page's addresses, and "Sound setup".
 pub(crate) fn wire(op: &Rc<Operator>) {
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let app = op.app();
     let host = app.lan_url.as_deref().and_then(|u| u.strip_prefix("http://")).and_then(|u| u.split('/').next()).unwrap_or("").to_string();
     g.set_stream_phone_address(if host.is_empty() { SharedString::new() } else { format!("http://{host}/stage-view/mic").into() });
@@ -161,7 +161,7 @@ pub(crate) fn wire(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
     g.on_stream_sound_mode_chosen(move |i| {
         let Some(op) = me.upgrade() else { return };
-        choose_mode(&op.ui.global::<SettingsDlg>(), i);
+        choose_mode(&crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>(), i);
     });
 }
 

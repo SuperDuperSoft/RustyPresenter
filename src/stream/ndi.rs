@@ -548,7 +548,7 @@ pub fn straight(premultiplied: &[u8], out: &mut Vec<u8>) {
     }
 }
 
-/// What NDI out sends (Settings → Media → Livestream).
+/// What NDI out sends (Settings → Livestream).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct OutPrefs {
     /// The stream's picture and sound.

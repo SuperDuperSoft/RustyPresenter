@@ -93,7 +93,7 @@ mod tests {
         app::test_app,
         model::{Background, ItemKind, ServiceItem},
         theme::SavedTheme,
-        ui::{dialogs::DialogKind, operator::window::testing::{find, open, refresh}},
+        ui::operator::window::testing::{find, open, refresh},
     };
     use slint::Model;
     use uuid::Uuid;
@@ -136,7 +136,7 @@ mod tests {
         op.ui.global::<ServicePlanning>().invoke_pick_theme(0);
         assert_eq!(app.data.lock().unwrap().services[0].theme, None, "back to the church default");
         op.ui.global::<ServicePlanning>().invoke_pick_theme(at + 1);
-        assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Themes)));
+        assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Themes));
         assert_eq!(op.ui.global::<ServicePlanning>().get_theme_index(), 0, "Manage themes… is not a theme");
     }
 

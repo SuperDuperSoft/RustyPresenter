@@ -1,4 +1,4 @@
-//! "Restart now" for settings used from the next start (Settings → Video → Graphics): `request()` quits through the
+//! "Restart now" for settings used from the next start (Settings → General → Screens and graphics → Graphics): `request()` quits through the
 //! normal quit path (`main`), which then starts a new copy (`relaunch`) with this run's arguments, minus the ones
 //! for one run only, plus `--wait-for <this pid>`. The new copy waits for this one to end before it takes the port
 //! (`wait_for`), so it doesn't find "RustyPresenter is already running".

@@ -297,7 +297,7 @@ pub mod tr {
     pub fn facebook_code(code: &str, at: &str) -> String { tr!("Go to {at} on any phone or computer and type the code {code}.", at = at, code = code) }
     pub fn sign_in_failed(why: &str) -> String { tr!("Signing in did not work: {why}", why = why) }
     pub fn no_page() -> String { tr!("This Facebook account manages no Page. A stream can only go to a Page.") }
-    pub fn prepare_failed(name: &str, why: &str) -> String { tr!("{name}: the broadcast could not be made ({why}). Sign in again in Settings → Media → Livestream.", name = name, why = why) }
+    pub fn prepare_failed(name: &str, why: &str) -> String { tr!("{name}: the broadcast could not be made ({why}). Sign in again in Settings → Livestream → Where to stream.", name = name, why = why) }
     pub fn scheduling() -> String { tr!("Making the YouTube broadcast…") }
     pub fn scheduled(when: &str, link: &str) -> String { tr!("The YouTube broadcast is ready for {when}. Share its link: {link}", when = when, link = link) }
     pub fn schedule_failed(why: &str) -> String { tr!("The YouTube broadcast could not be made: {why}", why = why) }

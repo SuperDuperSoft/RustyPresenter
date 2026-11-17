@@ -1,4 +1,4 @@
-//! Settings → Media → Recording (N22): the picture size, the folder and the sound of File → Start recording. The
+//! Settings → Livestream → Recording (N22): the picture size, the folder and the sound of File → Start recording. The
 //! microphones are asked of FFmpeg off the UI thread; a saved one that is not plugged in stays chosen.
 use crate::{
     record::{self, Preset, RecordPrefs, Sound, args::Input},
@@ -209,7 +209,6 @@ pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     g.set_stream_url_4(url[4].as_str().into());
     g.set_stream_url_5(url[5].as_str().into());
     g.set_stream_url_6(url[6].as_str().into());
-    g.set_stream_setup(record::setups::current(p).unwrap_or_default().into());
     g.set_stream_tall_0(tall[0]);
     g.set_stream_tall_1(tall[1]);
     g.set_stream_tall_2(tall[2]);
@@ -228,7 +227,8 @@ pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     g.set_stream_scheduled_id(p.stream_scheduled.as_str().into());
     g.set_stream_scheduled_link(p.stream_scheduled_link.as_str().into());
     g.set_stream_privacy(i32::from(p.stream_privacy == stream::accounts::Privacy::Unlisted));
-    g.set_record_size(Preset::ALL.iter().position(|s| *s == p.size).unwrap_or(1) as i32);
+    CUSTOM.with(|c| c.set(None));
+    fill_size(g, p.size);
     g.set_record_folder(p.folder().display().to_string().into());
     fill_sound(g, &[], &p.sound());
     super::settings_sound::fill_form(g, p);
@@ -247,7 +247,7 @@ fn read_sound(g: &SettingsDlg) -> Sound {
 
 /// Reads the form back. The default folder is saved as empty, so it follows the computer's Videos folder.
 pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
-    p.size = usize::try_from(g.get_record_size()).ok().and_then(|i| Preset::ALL.get(i).copied()).unwrap_or(p.size);
+    p.size = read_size(g, p.size);
     let folder = g.get_record_folder().to_string();
     p.folder = if std::path::Path::new(&folder) == record::default_folder() { String::new() } else { folder };
     // Unchanged keeps the saved spelling (empty is the app's sound too), so an untouched form has no changes.
@@ -318,6 +318,78 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
     super::settings_sound::read_form(g, p);
 }
 
+thread_local! {
+    /// The size typed by hand that the size list shows after the named ones (none: the list has only those).
+    static CUSTOM: std::cell::Cell<Option<Preset>> = const { std::cell::Cell::new(None) };
+}
+
+/// The picture size list: the named sizes, then the typed one when it is in use; the typed width and height.
+pub(crate) fn fill_size(g: &SettingsDlg, size: Preset) {
+    let custom = match size { Preset::Custom(..) => Some(size), _ => CUSTOM.with(std::cell::Cell::get) };
+    CUSTOM.with(|c| c.set(custom));
+    let mut labels: Vec<String> = Preset::ALL.iter().map(|p| p.label()).collect();
+    if let Some(c) = custom { labels.push(crate::tr!("{size} (custom)", size = c.label())) }
+    g.set_record_size_labels(strings(labels));
+    let index = Preset::ALL.iter().position(|p| *p == size).unwrap_or(Preset::ALL.len());
+    g.set_record_size(index as i32);
+    let (w, h) = size.size();
+    g.set_record_width(w.to_string().into());
+    g.set_record_height(h.to_string().into());
+}
+
+/// The size chosen in the list (`before` when the list says nothing that makes sense).
+pub(crate) fn read_size(g: &SettingsDlg, before: Preset) -> Preset {
+    let i = g.get_record_size();
+    match usize::try_from(i).ok() {
+        Some(i) if i < Preset::ALL.len() => Preset::ALL[i],
+        Some(_) => CUSTOM.with(std::cell::Cell::get).unwrap_or(before),
+        None => before,
+    }
+}
+
+/// What the page says about the size chosen: too much for this computer or the internet, and the destinations
+/// that take less; and the bitrate Automatic gives.
+pub(crate) fn size_notes(op: &Operator) {
+    let g = crate::ui::dialogs::settings_window::win(op).global::<SettingsDlg>();
+    let size = read_size(&g, Preset::default());
+    let fps = super::stream_more::fps(op);
+    let cores = std::thread::available_parallelism().map_or(4, |n| n.get());
+    g.set_size_warning(record::size_warning(size, fps, cores).unwrap_or_default().into());
+    let mut p = RecordPrefs::default();
+    read_form(&g, &mut p);
+    g.set_cap_notes(stream::cap_notes(size, &p.stream).join(" ").into());
+    let index = g.get_record_bitrate();
+    super::stream_more::fill_labels(op, size.kbps_at(fps));
+    g.set_record_bitrate(index);
+}
+
+/// "Use this size" (a width and height typed), and a size or frame rate chosen: the notes follow.
+pub(crate) fn wire_size(op: &Rc<Operator>) {
+    let g = crate::ui::dialogs::settings_window::win(op).global::<SettingsDlg>();
+    let me = Rc::downgrade(op);
+    g.on_record_custom_size(move || {
+        let Some(op) = me.upgrade() else { return };
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
+        let (w, h) = (g.get_record_width().trim().parse::<u32>(), g.get_record_height().trim().parse::<u32>());
+        let (Ok(w), Ok(h)) = (w, h) else { return op.toast(crate::tr!("Type the width and the height as whole numbers, like 1600 and 900."), true) };
+        let size = Preset::custom(w, h);
+        if let Preset::Custom(..) = size { CUSTOM.with(|c| c.set(Some(size))) }
+        fill_size(&g, size);
+        size_notes(&op);
+    });
+    let me = Rc::downgrade(op);
+    g.on_record_size_changed(move || if let Some(op) = me.upgrade() { size_notes(&op) });
+}
+
+/// The livestream's rows again from `p` (a saved setup was chosen): the lists are asked for again.
+pub(crate) fn refill(op: &Rc<Operator>, p: &RecordPrefs) {
+    let g = crate::ui::dialogs::settings_window::win(op).global::<SettingsDlg>();
+    fill_form(&g, p);
+    super::settings_stream_extras::fill_form(&g, p);
+    load(op);
+    size_notes(op);
+}
+
 /// Which of YouTube and Facebook this copy can sign in to, and the account each is signed in to on this computer.
 pub(crate) fn fill_accounts(g: &SettingsDlg) {
     let store = stream::keys::app_store();
@@ -334,7 +406,7 @@ pub(crate) fn fill_accounts(g: &SettingsDlg) {
 
 /// Signing in to YouTube (row 0: the web browser opens) or Facebook (row 1: a code to type at facebook.com/device),
 /// off the UI thread; what is kept goes to the computer's password store. Gives the account's name.
-fn sign_in(i: usize, ui: slint::Weak<crate::ui::OperatorWindow>) -> Result<String, String> {
+fn sign_in(i: usize, ui: slint::Weak<crate::ui::SettingsWindow>) -> Result<String, String> {
     use stream::accounts::{self, facebook, google, twitch};
     let (ids, ends, store) = (accounts::app_ids(), accounts::app_ends(), stream::keys::app_store());
     let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().map_err(|e| e.to_string())?;
@@ -372,21 +444,21 @@ fn signed_in(g: &SettingsDlg, r: Result<String, String>) {
 /// settings, so Save and Cancel do not touch it); an emptied field forgets it.
 pub(crate) fn wire_keys(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
-    op.ui.global::<SettingsDlg>().on_stream_key_edited(move |i, key| {
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().on_stream_key_edited(move |i, key| {
         let Some(op) = me.upgrade() else { return };
         let id = stream::built_in_id(i.clamp(0, stream::ROWS as i32 - 1) as usize);
         if let Err(e) = stream::keys::app_store().set(id, key.as_str()) { op.toast(crate::tr!("The stream key could not be kept: {error}", error = e), true) }
-        fill_saved(&op.ui.global::<SettingsDlg>());
+        fill_saved(&crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>());
     });
     let me = Rc::downgrade(op);
-    op.ui.global::<SettingsDlg>().on_stream_sign_in(move |i| {
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().on_stream_sign_in(move |i| {
         let Some(op) = me.upgrade() else { return };
-        let g = op.ui.global::<SettingsDlg>();
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
         if g.get_stream_signing_in() { return }
         let i = i.clamp(0, 2) as usize;
         g.set_stream_signing_in(true);
         g.set_stream_sign_in_text(if i == 0 { stream::accounts::tr::open_browser() } else { String::new() }.into());
-        let ui = op.ui.as_weak();
+        let ui = crate::ui::dialogs::settings_window::win(&op).as_weak();
         // Tests have no event loop: the answer is waited for here.
         if op.ops().is_inline() { return signed_in(&g, sign_in(i, ui)) }
         let _ = std::thread::Builder::new().name("stream-sign-in".into()).spawn(move || {
@@ -395,9 +467,9 @@ pub(crate) fn wire_keys(op: &Rc<Operator>) {
         });
     });
     let me = Rc::downgrade(op);
-    op.ui.global::<SettingsDlg>().on_stream_schedule(move || {
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().on_stream_schedule(move || {
         let Some(op) = me.upgrade() else { return };
-        let g = op.ui.global::<SettingsDlg>();
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
         if g.get_stream_signing_in() { return }
         let Some((_, refresh)) = stream::accounts::kept(stream::keys::app_store().as_ref(), stream::built_in_id(0)) else { return };
         // The broadcast as Go Live would make it, for the open service's day and start time.
@@ -433,35 +505,36 @@ pub(crate) fn wire_keys(op: &Rc<Operator>) {
             }
         };
         if op.ops().is_inline() { return done(&g, work()) }
-        let ui = op.ui.as_weak();
+        let ui = crate::ui::dialogs::settings_window::win(&op).as_weak();
         let _ = std::thread::Builder::new().name("youtube-schedule".into()).spawn(move || {
             let r = work();
             let _ = ui.upgrade_in_event_loop(move |ui| done(&ui.global::<SettingsDlg>(), r));
         });
     });
     let me = Rc::downgrade(op);
-    op.ui.global::<SettingsDlg>().on_stream_copy_link(move || {
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().on_stream_copy_link(move || {
         let Some(op) = me.upgrade() else { return };
-        let link = op.ui.global::<SettingsDlg>().get_stream_scheduled_link();
+        let link = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().get_stream_scheduled_link();
         if !link.is_empty() { crate::ui::dialogs::settings::copy(&op, &link, &stream::accounts::tr::link_copied()) }
     });
     let me = Rc::downgrade(op);
-    op.ui.global::<SettingsDlg>().on_stream_sign_out(move |i| {
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().on_stream_sign_out(move |i| {
         let Some(op) = me.upgrade() else { return };
         stream::accounts::forget(stream::keys::app_store().as_ref(), stream::built_in_id(i.clamp(0, 2) as usize));
-        let g = op.ui.global::<SettingsDlg>();
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
         g.set_stream_sign_in_text("".into());
         fill_accounts(&g);
     });
 }
 
-/// The speed test's answer: what it found, and the recording size that fits picked.
+/// The speed test's answer: what it found, and a smaller picture size picked when the one chosen does not fit.
 pub(crate) fn show_speed(g: &SettingsDlg, measured: Result<f64, String>, destinations: usize) {
     g.set_stream_speed_testing(false);
     match measured {
         Ok(mbps) => {
-            let (preset, text) = stream::speed::advice(mbps, destinations);
-            if let Some(p) = preset && let Some(i) = Preset::ALL.iter().position(|x| *x == p) { g.set_record_size(i as i32) }
+            let chosen = read_size(g, Preset::default());
+            let (preset, text) = stream::speed::advice(mbps, destinations, chosen);
+            if let Some(p) = preset && p != chosen { fill_size(g, p) }
             g.set_stream_speed_text(text.into());
         }
         Err(e) => {
@@ -474,7 +547,7 @@ pub(crate) fn show_speed(g: &SettingsDlg, measured: Result<f64, String>, destina
 /// Lists the microphones (when FFmpeg is there) and connects "Choose folder…".
 pub(super) fn load(op: &Rc<Operator>) {
     let data = op.app().store.root.clone();
-    op.ui.global::<SettingsDlg>().set_phone_camera_help(crate::network::phone_camera::settings_help(op.app()).into());
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().set_phone_camera_help(crate::network::phone_camera::settings_help(op.app()).into());
     let me = Rc::downgrade(op);
     let work = move || {
         let (inputs, mut cameras) = record::run::find_ffmpeg(&data).map(|f| (record::run::list_inputs(&f), record::run::list_cameras(&f))).unwrap_or_default();
@@ -488,7 +561,7 @@ pub(super) fn load(op: &Rc<Operator>) {
     };
     let done = move |(inputs, cameras, ready): (Vec<Input>, Vec<Input>, bool)| {
         let Some(op) = me.upgrade() else { return };
-        let g = op.ui.global::<SettingsDlg>();
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
         g.set_ndi_ready(ready);
         let chosen = read_sound(&g);
         fill_sound(&g, &inputs, &chosen);
@@ -503,13 +576,13 @@ pub(super) fn load(op: &Rc<Operator>) {
         let _ = slint::spawn_local(async move { if let Ok(v) = rx.await { done(v) } });
     }
     let me = Rc::downgrade(op);
-    op.ui.global::<SettingsDlg>().on_stream_speed_test(move || {
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().on_stream_speed_test(move || {
         let Some(op) = me.upgrade() else { return };
-        let g = op.ui.global::<SettingsDlg>();
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
         let destinations = [g.get_stream_on_0(), g.get_stream_on_1(), g.get_stream_on_2(), g.get_stream_on_3()].iter().filter(|on| **on).count();
         g.set_stream_speed_testing(true);
         g.set_stream_speed_text("".into());
-        let ui = op.ui.as_weak();
+        let ui = crate::ui::dialogs::settings_window::win(&op).as_weak();
         let _ = std::thread::Builder::new().name("speed-test".into()).spawn(move || {
             let measured = tokio::runtime::Builder::new_current_thread().enable_all().build().map_err(|e| e.to_string()).and_then(|rt| {
                 let client = crate::bible::sources::client().map_err(|e| format!("{e:?}"))?;
@@ -519,24 +592,24 @@ pub(super) fn load(op: &Rc<Operator>) {
         });
     });
     let me = Rc::downgrade(op);
-    op.ui.global::<SettingsDlg>().on_stream_card_choose(move |i| {
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().on_stream_card_choose(move |i| {
         let Some(op) = me.upgrade() else { return };
         let me = Rc::downgrade(&op);
         crate::ui::operator::files::pick(&op, crate::ui::operator::file_input::Filter::Pictures, false, move |paths| {
             let Some(op) = me.upgrade() else { return };
-            let g = op.ui.global::<SettingsDlg>();
+            let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
             let Some(path) = paths.first() else { return };
             let path: slint::SharedString = path.display().to_string().into();
             match i { 0 => g.set_stream_card_picture_0(path), 1 => g.set_stream_card_picture_1(path), 3 => g.set_stream_thumbnail(path), _ => g.set_stream_card_picture_2(path) }
         });
     });
     let me = Rc::downgrade(op);
-    op.ui.global::<SettingsDlg>().on_record_choose_folder(move || {
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().on_record_choose_folder(move || {
         let Some(op) = me.upgrade() else { return };
-        let start = std::path::PathBuf::from(op.ui.global::<SettingsDlg>().get_record_folder().as_str());
+        let start = std::path::PathBuf::from(crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().get_record_folder().as_str());
         let me = Rc::downgrade(&op);
         crate::ui::operator::files::pick_folder(&op, &start, move |dir| {
-            if let Some(op) = me.upgrade() { op.ui.global::<SettingsDlg>().set_record_folder(dir.display().to_string().into()) }
+            if let Some(op) = me.upgrade() { crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().set_record_folder(dir.display().to_string().into()) }
         });
     });
 }

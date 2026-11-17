@@ -103,7 +103,7 @@ fn redraw_backgrounds(op: &Rc<Operator>, edit: &Rc<Edit>) {
     let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
     let redraw = move || if let (Some(op), Some(edit)) = (me.upgrade(), e.upgrade()) { redraw_backgrounds(&op, &edit) };
     let rows = edit.look.picker.borrow().as_ref().map(|p| p.rows(redraw)).unwrap_or_default();
-    op.ui.global::<SettingsDlg>().set_backgrounds(ModelRc::new(VecModel::from(rows)));
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().set_backgrounds(ModelRc::new(VecModel::from(rows)));
 }
 
 /// The picker's value into the edited settings, then the tiles and the preview.
@@ -137,13 +137,13 @@ pub(super) fn upload_background(op: &Rc<Operator>, edit: &Rc<Edit>) {
 
 /// Text color from the grid or its hex field: the form's field, then the preview.
 pub(super) fn text_color(op: &Rc<Operator>, edit: &Rc<Edit>, hex: String) {
-    op.ui.global::<SettingsDlg>().set_color(hex.into());
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().set_color(hex.into());
     changed(op, edit);
 }
 
 /// Any Look field changed: take it into the clone and draw the preview 150 ms later.
 pub(super) fn changed(op: &Rc<Operator>, edit: &Rc<Edit>) {
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     read_all(&g, &mut edit.settings.borrow_mut());
     g.set_color_swatch(swatch(&edit.settings.borrow().theme.color));
     schedule(op, edit);
@@ -166,7 +166,7 @@ pub(crate) fn logo_from(op: &Rc<Operator>, edit: &Rc<Edit>, path: PathBuf) {
         match r {
             Ok(Imported::Asset(asset)) => {
                 edit.settings.borrow_mut().logo = Some(asset);
-                op.ui.global::<SettingsDlg>().set_has_logo(true);
+                crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().set_has_logo(true);
                 render_now(&op, &edit);
             }
             Ok(_) => {}
@@ -177,7 +177,7 @@ pub(crate) fn logo_from(op: &Rc<Operator>, edit: &Rc<Edit>, path: PathBuf) {
 
 pub(super) fn remove_logo(op: &Rc<Operator>, edit: &Rc<Edit>) {
     edit.settings.borrow_mut().logo = None;
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     g.set_has_logo(false);
     g.set_logo(Image::default());
     render_now(op, edit);
@@ -186,7 +186,7 @@ pub(super) fn remove_logo(op: &Rc<Operator>, edit: &Rc<Edit>) {
 /// Leaving Look: the preview image goes, and any render still coming is dropped.
 pub(super) fn drop_preview(op: &Operator, edit: &Edit) {
     edit.look.stop();
-    op.ui.global::<SettingsDlg>().set_preview(Image::default());
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().set_preview(Image::default());
 }
 
 fn schedule(op: &Rc<Operator>, edit: &Rc<Edit>) {
@@ -237,7 +237,7 @@ pub(crate) fn render_now(op: &Rc<Operator>, edit: &Rc<Edit>) {
     let apply = move |d: Drawn| {
         let Some(op) = me.upgrade() else { return };
         if edit.look.generation.get() != generation { return }
-        let g = op.ui.global::<SettingsDlg>();
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
         g.set_preview(Image::from_rgba8(d.preview));
         g.set_font_note(if d.font_missing { strings::font_missing(&edit.settings.borrow().theme.font) } else { String::new() }.into());
         g.set_logo(d.logo.map(Image::from_rgba8).unwrap_or_default());

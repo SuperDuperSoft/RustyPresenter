@@ -140,7 +140,7 @@ msgstr ""
 msgid "Paste the verses instead"
 msgstr ""
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/topbar.slint
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/slide-breaks.slint ui/operator/topbar.slint src/ui/dialogs/settings_find.rs
 msgid "Verses per slide"
 msgstr ""
 
@@ -184,7 +184,7 @@ msgstr ""
 msgid "Add announcement"
 msgstr ""
 
-#: ui/dialogs/add.slint ui/dialogs/settings-follow.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
+#: ui/dialogs/add.slint ui/dialogs/settings-follow.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs src/ui/dialogs/settings_find.rs
 msgid "Song"
 msgstr ""
 
@@ -192,7 +192,7 @@ msgstr ""
 msgid "Words"
 msgstr ""
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings.slint
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint src/ui/dialogs/settings_find.rs
 msgid "Bible"
 msgstr ""
 
@@ -312,19 +312,19 @@ msgstr ""
 msgid "Place on the screen"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-stream.slint src/strings/screens.rs
 msgid "Top right"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-stream.slint src/strings/screens.rs
 msgid "Top left"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-stream.slint src/strings/screens.rs
 msgid "Bottom right"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-stream.slint src/strings/screens.rs
 msgid "Bottom left"
 msgstr ""
 
@@ -345,7 +345,7 @@ msgid "Show on stage"
 msgstr ""
 
 #: ui/dialogs/automation.slint
-msgid "Show on the phone remote"
+msgid "Show on the remote"
 msgstr ""
 
 #: ui/dialogs/automation.slint
@@ -368,7 +368,7 @@ msgstr ""
 msgid "Hide after"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/stream-more.slint src/ui/dialogs/stream_scenes.rs
+#: ui/dialogs/automation.slint ui/dialogs/settings-stream.slint src/ui/dialogs/stream_scenes.rs
 msgid "Never"
 msgstr ""
 
@@ -492,7 +492,7 @@ msgstr ""
 msgid "Play music"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs src/ui/dialogs/settings_find.rs
 msgid "Stage screen"
 msgstr ""
 
@@ -608,11 +608,11 @@ msgstr ""
 msgid "Start"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/dialogs/stream-more.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/dialogs/settings-stream.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
 msgid "Delete"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-more.slint ui/dialogs/stream-scenes.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings.rs
 msgid "Save"
 msgstr ""
 
@@ -736,7 +736,7 @@ msgstr ""
 msgid "Shrink to fit the box"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/settings_find.rs
 msgid "Text colour"
 msgstr ""
 
@@ -780,7 +780,7 @@ msgstr ""
 msgid "Arrow"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/stream-more.slint src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
 msgid "Picture"
 msgstr ""
 
@@ -792,7 +792,7 @@ msgstr ""
 msgid "Fill"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/settings-general.slint
 msgid "Stretch"
 msgstr ""
 
@@ -1057,7 +1057,7 @@ msgstr ""
 msgid "Video: {}"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-more.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr ""
 
@@ -1105,15 +1105,15 @@ msgstr ""
 msgid "Where should the service go?"
 msgstr ""
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "Another server"
 msgstr ""
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "The server's address"
 msgstr ""
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "Its address: rtmp://, rtmps:// or srt://"
 msgstr ""
 
@@ -1121,11 +1121,11 @@ msgstr ""
 msgid "Stream key"
 msgstr ""
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "A key is saved. Type a new one to change it."
 msgstr ""
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "Paste the stream key"
 msgstr ""
 
@@ -1182,7 +1182,7 @@ msgid "Ready to go live"
 msgstr ""
 
 #: ui/dialogs/go-live-helper.slint
-msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Media → Livestream."
+msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Livestream."
 msgstr ""
 
 #: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
@@ -1249,7 +1249,7 @@ msgstr ""
 msgid "Top and bottom"
 msgstr ""
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/settings-media.slint ui/dialogs/slide-breaks.slint ui/dialogs/stream-more.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-stream.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr ""
 
@@ -1286,7 +1286,7 @@ msgid "Choose"
 msgstr ""
 
 #: ui/dialogs/item-edit.slint
-msgid "Same as Settings → Look"
+msgid "Same as Settings → Look → Text and logo"
 msgstr ""
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
@@ -1305,19 +1305,19 @@ msgstr ""
 msgid "When the video ends"
 msgstr ""
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-media.slint src/ui/operator/help.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-general.slint src/ui/operator/help.rs
 msgid "Clear the screen"
 msgstr ""
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-general.slint
 msgid "Stay on last frame"
 msgstr ""
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-general.slint
 msgid "Play again (loop)"
 msgstr ""
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-general.slint
 msgid "Go to the next slide"
 msgstr ""
 
@@ -1440,7 +1440,7 @@ msgstr ""
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear all stop it."
 msgstr ""
 
-#: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
+#: ui/dialogs/music.slint ui/operator/media.slint src/ui/dialogs/settings_find.rs src/ui/operator/help.rs
 msgid "Songs"
 msgstr ""
 
@@ -1490,66 +1490,6 @@ msgstr ""
 
 #: ui/dialogs/music.slint ui/dialogs/translation-editor.slint src/i18n/remote_strings.rs
 msgid "Done"
-msgstr ""
-
-#: ui/dialogs/network.slint src/i18n/remote_strings.rs src/strings/dialogs.rs
-msgid "Phone remote"
-msgstr ""
-
-#: ui/dialogs/network.slint
-msgid "Ask for a password when a phone pairs"
-msgstr ""
-
-#: ui/dialogs/network.slint
-msgid "Phone remote password"
-msgstr ""
-
-#: ui/dialogs/network.slint
-msgid "Saved — type to change it"
-msgstr ""
-
-#: ui/dialogs/network.slint
-msgid "New password"
-msgstr ""
-
-#: ui/dialogs/network.slint
-msgid "Phones still pair with the code or the QR code; the password is asked too. Phones already paired stay paired."
-msgstr ""
-
-#: ui/dialogs/network.slint
-msgid "Stage screen on a phone or tablet"
-msgstr ""
-
-#: ui/dialogs/network.slint
-msgid "Show the stage screen to phones and tablets (read only)"
-msgstr ""
-
-#: ui/dialogs/network.slint
-msgid "Ask for a password"
-msgstr ""
-
-#: ui/dialogs/network.slint
-msgid "Stage screen password"
-msgstr ""
-
-#: ui/dialogs/network.slint
-msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this computer)."
-msgstr ""
-
-#: ui/dialogs/network.slint
-msgid "Control from other gear (TCP)"
-msgstr ""
-
-#: ui/dialogs/network.slint
-msgid "Let other gear send commands over the network"
-msgstr ""
-
-#: ui/dialogs/network.slint
-msgid "Port"
-msgstr ""
-
-#: ui/dialogs/network.slint
-msgid "TCP password"
 msgstr ""
 
 #: ui/dialogs/overlays.slint
@@ -1653,7 +1593,7 @@ msgid "Save overlay"
 msgstr ""
 
 #: ui/dialogs/phone.slint
-msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
+msgid "Use your phone or tablet as a remote: it runs the slides from anywhere on the church Wi-Fi. It must be on the same network as this computer."
 msgstr ""
 
 #: ui/dialogs/phone.slint
@@ -1665,7 +1605,7 @@ msgid "Address: "
 msgstr ""
 
 #: ui/dialogs/phone.slint src/i18n/remote_strings.rs
-msgid "Pair a phone"
+msgid "Pair a phone or tablet"
 msgstr ""
 
 #: ui/dialogs/phone.slint
@@ -1689,7 +1629,7 @@ msgid "2. Enter this code on the phone:"
 msgstr ""
 
 #: ui/dialogs/phone.slint
-msgid "Paired phones"
+msgid "Paired phones and tablets"
 msgstr ""
 
 #: ui/dialogs/phone.slint
@@ -1824,11 +1764,11 @@ msgstr ""
 msgid "Output"
 msgstr ""
 
-#: ui/dialogs/screens.slint
+#: ui/dialogs/screens.slint ui/dialogs/settings-stream.slint
 msgid "Width"
 msgstr ""
 
-#: ui/dialogs/screens.slint
+#: ui/dialogs/screens.slint ui/dialogs/settings-stream.slint
 msgid "Height"
 msgstr ""
 
@@ -1956,20 +1896,28 @@ msgstr ""
 msgid "Show licences"
 msgstr ""
 
-#: ui/dialogs/settings-bible.slint src/strings/catalog.rs
+#: ui/dialogs/settings-bible.slint src/strings/catalog.rs src/ui/dialogs/settings_find.rs
 msgid "Default Bible"
 msgstr ""
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Also show with every new passage"
 msgstr ""
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Pick up to two. Each slide then shows the same verses from every Bible."
 msgstr ""
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
+msgid "For new passages. Text shrinks automatically when a slide holds more words."
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Add Bibles"
+msgstr ""
+
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
+msgid "KJV, WEB and BSB are built in and work offline. The others come from the internet or from their publisher's service."
 msgstr ""
 
 #: ui/dialogs/settings-bible.slint
@@ -1992,11 +1940,11 @@ msgstr ""
 msgid "The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops."
 msgstr ""
 
-#: ui/dialogs/settings-bible.slint src/ui/dialogs/translation_editor.rs
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/translation_editor.rs
 msgid "Translations"
 msgstr ""
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Online services"
 msgstr ""
 
@@ -2040,11 +1988,11 @@ msgstr ""
 msgid "Disconnect"
 msgstr ""
 
-#: ui/dialogs/settings-bible.slint src/strings/operator.rs
+#: ui/dialogs/settings-bible.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Bible files"
 msgstr ""
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Import a Zefania, OSIS, USX or OpenSong file (.xml or .usx). Only import Bibles that are public domain or that your church is licensed to use. Give it the short name of a translation above (like HCSB) to use the file for that translation."
 msgstr ""
 
@@ -2056,7 +2004,7 @@ msgstr ""
 msgid "Import a Bible file"
 msgstr ""
 
-#: ui/dialogs/settings-bible.slint ui/dialogs/settings.slint src/strings/catalog.rs
+#: ui/dialogs/settings-bible.slint ui/dialogs/settings-general.slint src/strings/catalog.rs src/ui/dialogs/settings_find.rs
 msgid "Credits"
 msgstr ""
 
@@ -2064,15 +2012,11 @@ msgstr ""
 msgid "RustyPresenter listens to the band and moves the song's slides by itself. The sound never leaves this computer."
 msgstr ""
 
-#: ui/dialogs/settings-follow.slint
-msgid "Listening"
-msgstr ""
-
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Sound input"
 msgstr ""
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Best: the lead singer's microphone on its own, sent from the sound board. Next best: the main mix. A microphone in the room hears too much else."
 msgstr ""
 
@@ -2088,23 +2032,19 @@ msgstr ""
 msgid "Sing or say a line: the meter moves when it hears you."
 msgstr ""
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Songs follow the singers"
 msgstr ""
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "A song can have its own in Edit item. Key A turns Auto on and off for the live song, H holds it."
 msgstr ""
 
-#: ui/dialogs/settings-follow.slint
-msgid "Timing"
-msgstr ""
-
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Show the next slide before it is sung"
 msgstr ""
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Early enough to read, not so early that people sing ahead."
 msgstr ""
 
@@ -2112,7 +2052,7 @@ msgstr ""
 msgid "{} s"
 msgstr ""
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "When nobody sings"
 msgstr ""
 
@@ -2120,27 +2060,23 @@ msgstr ""
 msgid "Take the words off after (seconds)"
 msgstr ""
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "When someone talks or prays"
 msgstr ""
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Jump to another part of the song after (words heard there)"
 msgstr ""
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "More words: fewer wrong jumps, but slower to follow a change in the order."
 msgstr ""
 
-#: ui/dialogs/settings-follow.slint
-msgid "Listening model"
-msgstr ""
-
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Speech model"
 msgstr ""
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Downloaded once, then it works without internet. Apache-2.0, by Facebook AI."
 msgstr ""
 
@@ -2172,7 +2108,7 @@ msgstr ""
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
 msgstr ""
 
-#: ui/dialogs/settings-follow.slint ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Recording"
 msgstr ""
 
@@ -2184,7 +2120,7 @@ msgstr ""
 msgid "Choose recording…"
 msgstr ""
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Practice"
 msgstr ""
 
@@ -2204,16 +2140,296 @@ msgstr ""
 msgid "Copy to clipboard"
 msgstr ""
 
-#: ui/dialogs/settings-follow.slint ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
-msgid "Settings"
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Audience screen in front"
 msgstr ""
 
-#: ui/dialogs/settings-follow.slint
-msgid "Review log"
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Keeps the audience screen above other windows when it has its own monitor, so fades stay smooth."
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "Keep the audience screen in front"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "At start"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "Turn the screens on when RustyPresenter starts"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Screens…"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Graphics"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/video/bench.rs
+msgid "Test which is fastest"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "Use this"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "Restart now"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Performance"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Shows under the live preview how many frames a second the screens draw, and the free video memory when the graphics card says. Low numbers mean the computer is struggling."
+msgstr ""
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Show performance"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint ui/dialogs/song-editor.slint ui/operator/slides.slint src/ui/dialogs/settings_find.rs
+msgid "Lines per slide"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage."
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "Show the copyright line"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "On first and last slide"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "On first slide"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "On last slide"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Copyright line"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Use {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}} and {{license}}. Parts between · with nothing in them are left out. Empty: the usual line."
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Church CCLI licence #"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Song use report…"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted."
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "Bring in SongSelect downloads whenever RustyPresenter is open"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Songs from SongSelect…"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "When the shape doesn't match the screen"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "Fit (black bars)"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "Fill (cut the edges)"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "When a video ends"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "For videos added from now on. Change one video in its Edit window."
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Pictures added together as slides"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Each picture stays this long, then the next one comes up."
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "Until Next is pressed"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "5 seconds"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "8 seconds"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint ui/dialogs/settings-stream.slint
+msgid "10 seconds"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "15 seconds"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "20 seconds"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint ui/dialogs/settings-stream.slint
+msgid "30 seconds"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint ui/dialogs/settings-stream.slint
+msgid "1 minute"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint ui/operator/media.slint src/ui/dialogs/settings_find.rs
+msgid "Media library"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Every file you add is copied into RustyPresenter's own folder, so moving or deleting the original never breaks a slide."
+msgstr ""
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Clean up unused media…"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Sound goes to"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Headphones (Listen)"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "View → Listen in headphones sends the sound here only, so you can check a video without the room hearing it."
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Delay the room's sound (milliseconds)"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "If the sound comes before the picture on the projector, try 50 to 150. 0 is no delay."
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Speakers"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "Stereo (as recorded)"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "Mono (both speakers the same)"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "Swap left and right"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "Left speaker only"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "Right speaker only"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "The livestream's sound: Settings → Livestream → Sound"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/strings/stage.rs src/ui/dialogs/settings_find.rs
+msgid "Stage layout"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "What the stage screen shows. Window → Stage layouts… makes your own."
+msgstr ""
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Stage layouts…"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Drawings"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "Show drawings on the stage screen"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "The stage screen on phones and tablets: Settings → Remote and network"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "Back up now"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "Restore"
+msgstr ""
+
+#: ui/dialogs/settings-general.slint
+msgid "No backups yet."
+msgstr ""
+
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
+msgid "Section keys (C, B, 1–9…)"
+msgstr ""
+
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
+msgid "Turn off if letters typed by mistake move the screen."
 msgstr ""
 
 #: ui/dialogs/settings-keys.slint
-msgid "Keyboard"
+msgid "Letters and numbers jump the live song to a section"
+msgstr ""
+
+#: ui/dialogs/settings-keys.slint ui/operator.slint src/ui/dialogs/settings_find.rs
+msgid "Keyboard shortcuts"
+msgstr ""
+
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
+msgid "Change any key that has a Change button. New keys work once you save the settings."
 msgstr ""
 
 #: ui/dialogs/settings-keys.slint
@@ -2244,11 +2460,19 @@ msgstr ""
 msgid "Change"
 msgstr ""
 
-#: ui/dialogs/settings-keys.slint
-msgid "Clear groups"
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
+msgid "In the slide editor"
 msgstr ""
 
 #: ui/dialogs/settings-keys.slint
+msgid "Ctrl+Alt+C copies the chosen box's style and Ctrl+Alt+V pastes it (with nothing chosen: on every text box of the slide). Ctrl+Z undo, Ctrl+Y redo, Ctrl+D duplicate, Ctrl+A choose all, Delete removes, arrows nudge (Shift+arrows resize), Tab chooses the next object."
+msgstr ""
+
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
+msgid "Clear groups"
+msgstr ""
+
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
 msgid "A clear group takes several layers off the screen with one key. The View menu lists them too."
 msgstr ""
 
@@ -2264,16 +2488,8 @@ msgstr ""
 msgid "Add a clear group"
 msgstr ""
 
-#: ui/dialogs/settings-keys.slint
-msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
-msgstr ""
-
-#: ui/dialogs/settings-keys.slint
-msgid "In the slide editor"
-msgstr ""
-
-#: ui/dialogs/settings-keys.slint
-msgid "Ctrl+Alt+C copies the chosen box's style and Ctrl+Alt+V pastes it (with nothing chosen: on every text box of the slide). Ctrl+Z undo, Ctrl+Y redo, Ctrl+D duplicate, Ctrl+A choose all, Delete removes, arrows nudge (Shift+arrows resize), Tab chooses the next object."
+#: ui/dialogs/settings-language.slint src/ui/dialogs/settings_find.rs
+msgid "Language"
 msgstr ""
 
 #: ui/dialogs/settings-language.slint
@@ -2300,39 +2516,27 @@ msgstr ""
 msgid "Help translate RustyPresenter"
 msgstr ""
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "Font"
 msgstr ""
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "Song text size"
 msgstr ""
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "(biggest; long lines shrink to fit)"
 msgstr ""
 
-#: ui/dialogs/settings-look.slint
-msgid "Bible verses"
-msgstr ""
-
-#: ui/dialogs/settings-look.slint
-msgid "(for new passages)"
-msgstr ""
-
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "Bible text size"
 msgstr ""
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
-msgid "(biggest)"
-msgstr ""
-
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint src/ui/dialogs/settings_find.rs
 msgid "Text shrinks automatically when a slide holds more words."
 msgstr ""
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "Text position"
 msgstr ""
 
@@ -2340,11 +2544,15 @@ msgstr ""
 msgid "Lower third"
 msgstr ""
 
+#: ui/dialogs/settings-look.slint src/ui/dialogs/settings_find.rs
+msgid "Text style"
+msgstr ""
+
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "ALL CAPS song words"
 msgstr ""
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint src/ui/dialogs/settings_find.rs
 msgid "Fade when the theme changes"
 msgstr ""
 
@@ -2356,7 +2564,7 @@ msgstr ""
 msgid "({} s)"
 msgstr ""
 
-#: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs
+#: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs src/ui/dialogs/settings_find.rs
 msgid "Logo"
 msgstr ""
 
@@ -2368,723 +2576,179 @@ msgstr ""
 msgid "Choose logo"
 msgstr ""
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint src/ui/dialogs/settings_find.rs
 msgid "Default background"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "New pictures and videos"
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Use your phone or tablet as a remote"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "When the shape doesn't match the screen"
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Pair it once with the code or the QR code; it stays paired. It runs the slides from anywhere in the room on the same Wi-Fi."
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Fit (black bars)"
+#: ui/dialogs/settings-remote.slint
+msgid "Pair a phone or tablet…"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Fill (cut the edges)"
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Remote password"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "When a video ends"
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Phones and tablets still pair with the code or the QR code; the password is asked too. Ones already paired stay paired."
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "For videos added from now on. Change one video in its Edit window."
+#: ui/dialogs/settings-remote.slint
+msgid "Ask for a password when a phone or tablet pairs"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Pictures added together as slides"
+#: ui/dialogs/settings-remote.slint
+msgid "Saved — type to change it"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Each picture stays this long, then the next one comes up."
+#: ui/dialogs/settings-remote.slint
+msgid "New password"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Until Next is pressed"
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Drawing from a phone"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "5 seconds"
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "On the phone, “Fades” ink works like a laser pointer: it goes away by itself."
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "8 seconds"
+#: ui/dialogs/settings-remote.slint
+msgid "Keep drawings when the slide changes"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "10 seconds"
+#: ui/dialogs/settings-remote.slint
+msgid "Fading ink disappears after (seconds, 1–30)"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "15 seconds"
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Limits"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "20 seconds"
+#: ui/dialogs/settings-remote.slint
+msgid "Limit phone drawing"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "30 seconds"
+#: ui/dialogs/settings-remote.slint
+msgid "Most lines on the screen at once"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
-msgid "1 minute"
+#: ui/dialogs/settings-remote.slint
+msgid "Most drawing updates a second from one phone"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
-msgid "Sound"
+#: ui/dialogs/settings-remote.slint
+msgid "Show drawings on the stage screen: Settings → Stage screen"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Headphones (Listen)"
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Stage screen on phones and tablets"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "View → Listen in headphones sends the sound here only, so you can check a video without the room hearing it."
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Singers and musicians see the stage screen on their own phone or tablet (read only), on the same Wi-Fi as this computer."
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Delay the room's sound (milliseconds)"
+#: ui/dialogs/settings-remote.slint
+msgid "Show the stage screen to phones and tablets (read only)"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "If the sound comes before the picture on the projector, try 50 to 150. 0 is no delay."
+#: ui/dialogs/settings-remote.slint
+msgid "Ask for a password"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Speakers"
+#: ui/dialogs/settings-remote.slint
+msgid "Stage screen password"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Stereo (as recorded)"
+#: ui/dialogs/settings-remote.slint
+msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this computer)."
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Mono (both speakers the same)"
+#: ui/dialogs/settings-remote.slint
+msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Swap left and right"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Left speaker only"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Right speaker only"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "File → Start recording (or the Record button at the top) saves what the audience screen shows as an MP4 video."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint ui/operator/media.slint ui/operator/slides.slint
-msgid "Picture size"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "720p uses less of the computer and the disk (about 1.4 GB an hour at most); 1080p is sharper (about 2.8 GB)."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "720p"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "1080p"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Video encoder"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Automatic suits most computers. A graphics card's encoder leaves the processor free; it is tried first, and Automatic is used if it does not work on this computer."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "The processor (x264)"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "NVIDIA graphics card"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Intel graphics"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "AMD graphics card"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Windows' own"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "OpenH264"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "The Mac's own"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Bitrate"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "How much picture goes out each second. Automatic: 3000 kbit/s for 720p, 6000 for 1080p. More is sharper and needs a faster upload."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Save recordings in"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Choose folder…"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound in the recording"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "The app's sound is taken from the video and song files when the recording stops, so nothing else on the computer is heard."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Livestream"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound from this computer"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Upload speed"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Testing…"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Test the upload speed"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound delay"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "If the sound in the stream comes before people's lips move, the camera's picture is late: hold the sound back until they match."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "{} ms"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Stream delay"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint src/stream/sound_setup.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
-msgid "None"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Slow internet"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "When a destination's internet cannot keep up, it gets a lighter stream until it can, instead of skipping. The recording and the other destinations keep the full picture. This uses more of the computer."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Send a lighter stream where the internet is slow"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "NDI"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras above."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Send the stream over NDI too (picture and sound)"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Send the words alone over NDI, on a see-through background (for keying)"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Words alone"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "While you are live, a second video is saved next to the recording, its name ending in words.mov: only the words, with nothing behind them. When you edit the service video, put it on top to add the words. It stays small because the words seldom change."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Also record the words alone, on a see-through background (for video editing)"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound levels"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Turn each sound up or down in the stream only (not in the room)."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint src/record/mod.rs
-msgid "Microphone or line-in"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint
-msgid "{} dB"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint src/app.rs src/record/mod.rs
-msgid "This computer"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound clean-up"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "For the stream only. Evening out keeps quiet speaking easy to hear at home and loud singing from crackling."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Even out loud and quiet moments"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
-msgid "Camera"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "A camera or capture card for the stream's camera scenes (and its recording)."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Camera control address"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Network camera address"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "The camera's address, like rtsp://192.168.1.50:554/stream1"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Second camera"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Another camera to switch to while live, from the Cameras box beside the live screen."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Third camera"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Another camera to switch to while live."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Fourth camera"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "When a camera sends nothing"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "What the stream shows in a camera's place while it is unplugged or sends no picture. The camera comes back by itself as soon as it sends again."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
-msgid "The audience screen"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "The church logo"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint src/strings/screens.rs src/theme/backgrounds.rs
-msgid "Black"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Phone as a camera"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Scenes"
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the audience screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+#: ui/dialogs/settings-remote.slint
+msgid "On the phone, open:"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Choose the scene by itself from what is live"
+#: ui/dialogs/settings-remote.slint
+msgid "Then choose it in Settings → Livestream → Cameras"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Presentations:"
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Phone as a microphone"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "The audience screen with the camera in a corner"
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Scene layout"
+#: ui/dialogs/settings-remote.slint
+msgid "On the phone, open this page and press Start:"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Where the camera goes when it is in a corner of the audience screen, and where the words go over the camera."
+#: ui/dialogs/settings-remote.slint
+msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
 msgstr ""
 
-#: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
-msgid "Small"
+#: ui/dialogs/settings-remote.slint
+msgid "Then choose Phone in Settings → Livestream → Sound"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Medium"
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Control from other gear (TCP)"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
-msgid "Large"
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "For a stream deck, a lighting desk or a control system that sends text commands."
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Words over the camera:"
+#: ui/dialogs/settings-remote.slint
+msgid "Let other gear send commands over the network"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "At the bottom"
+#: ui/dialogs/settings-remote.slint
+msgid "Port"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "At the top"
+#: ui/dialogs/settings-remote.slint
+msgid "TCP password"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
-msgid "Your scenes"
+#: ui/dialogs/settings-row.slint
+msgid "Advanced"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Make scenes of your own from cameras, the audience screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+#: ui/dialogs/settings-row.slint
+msgid "Hide help"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "Your scenes…"
+#: ui/dialogs/settings-row.slint ui/operator.slint
+msgid "Help"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
-msgid "None yet"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "1 scene"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "{} scenes"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
-msgid "Starting soon"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Before the service, with the pre-service countdown under the words while it runs."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Use a picture…"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Use words"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/song.rs
-msgid "Ending"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "After the service's last item."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint src/stream/pictures.rs
-msgid "Thanks for joining us"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint ui/operator/follow.slint src/i18n/remote_strings.rs src/stream/scene.rs
-msgid "Hold"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "For a break, chosen with the scene button."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint src/stream/pictures.rs
-msgid "We'll be right back"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Stream to"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "A stream key is a password: whoever has it can stream as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "YouTube stream key"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Sign in"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Signed in as {}"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Sign out"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Facebook stream key"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Twitch stream key"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "The server's stream key"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Its stream key, if it has one"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Instagram's server address"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Its server address, if Instagram shows one"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Instagram stream key"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "X's server address"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Its server address, if X shows one"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "X stream key"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "TikTok's server address"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "The server address TikTok shows with the key"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "TikTok stream key"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint src/stream/mod.rs
-msgid "Instagram, X and TikTok give stream keys only to some accounts (TikTok asks for enough followers; Instagram's come from Live Producer on a computer). Each shows a server address with the key: paste both. Their keys often work for one broadcast only."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Tall for phones"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other phone apps): the wide picture across the middle, black above and below. The recording stays wide."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "More settings"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Pictures a second, video format, sound quality, which network card sends, each destination's own quality, the recording's file type and name, and setups saved by name (Sunday, Wedding) to use again in one go."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "More settings and saved setups…"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Setup: {}"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Broadcast title"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date, {{weekday}} the day's name and {{time}} the time; the description can have them too."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Sunday Service — {{date}}"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Description"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Broadcast description"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "What viewers read under the video"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Next YouTube broadcast: made when you go live"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Next YouTube broadcast: {}"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Copy the link"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Make it now, to share the link"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Make a new one"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "YouTube thumbnail: a frame of the stream"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "YouTube thumbnail: {}"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
-msgid "Choose a picture…"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint ui/operator/cameras.slint
-msgid "No picture"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Who can watch on YouTube"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Everyone"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Only people with the link"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint ui/operator/media.slint
-msgid "Media library"
-msgstr ""
-
-#: ui/dialogs/settings-media.slint
-msgid "Every file you add is copied into RustyPresenter's own folder, so moving or deleting the original never breaks a slide."
-msgstr ""
-
-#: ui/dialogs/settings-media.slint ui/operator.slint
-msgid "Clean up unused media…"
-msgstr ""
-
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "Sections"
 msgstr ""
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "Each kind of section has a colour and a key. Leave a box empty for the usual name or key."
 msgstr ""
 
@@ -3100,11 +2764,11 @@ msgstr ""
 msgid "Key for {}"
 msgstr ""
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "More section names"
 msgstr ""
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "A name your songs use, like “Spontaneous”. It gets the colour and key of the kind you choose."
 msgstr ""
 
@@ -3112,11 +2776,11 @@ msgstr ""
 msgid "New section name"
 msgstr ""
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "Slide labels"
 msgstr ""
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "In the song editor, “Label this slide” puts one on a slide. It shows on the slide’s thumbnail."
 msgstr ""
 
@@ -3134,6 +2798,10 @@ msgstr ""
 
 #: ui/dialogs/settings-sections.slint
 msgid "Use the usual names, colours and labels"
+msgstr ""
+
+#: ui/dialogs/settings-sound.slint
+msgid "{} dB"
 msgstr ""
 
 #: ui/dialogs/settings-sound.slint
@@ -3168,55 +2836,91 @@ msgstr ""
 msgid "Never too loud (keeps the stream from crackling; best left on)"
 msgstr ""
 
-#: ui/dialogs/settings-sound.slint
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "Sound setup"
 msgstr ""
 
-#: ui/dialogs/settings-sound.slint
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "One choice sets the microphone and how each sound is cleaned up. Anything changed by hand below makes it Custom."
 msgstr ""
 
-#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
-msgid "Second microphone or line-in"
+#: ui/dialogs/settings-sound.slint src/record/mod.rs src/ui/dialogs/settings_find.rs
+msgid "Microphone or line-in"
 msgstr ""
 
-#: ui/dialogs/settings-sound.slint
-msgid "While you are live, mixed with the one chosen under \"Sound in the recording\": for a second sound board, a pulpit microphone or the phone."
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "For the livestream and the recording: the sound board, a microphone, or a phone (choose Phone). Up to three are mixed while you are live."
 msgstr ""
 
 #: ui/dialogs/settings-sound.slint
 msgid "Its level"
 msgstr ""
 
-#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
-msgid "Third microphone or line-in"
-msgstr ""
-
-#: ui/dialogs/settings-sound.slint src/stream/phone_mic.rs
-msgid "Phone microphone"
-msgstr ""
-
 #: ui/dialogs/settings-sound.slint
-msgid "Turn on the stage screen for phones (Settings → Network…), then open this page on the phone and press Start: {}"
+msgid "A phone as a microphone: Settings → Remote and network"
 msgstr ""
 
-#: ui/dialogs/settings-sound.slint
-msgid "The first time, the phone warns that the page is not private, because this computer made its own certificate: tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Sound from this computer"
 msgstr ""
 
-#: ui/dialogs/settings-sound.slint
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
+msgstr ""
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "Listen to the stream"
 msgstr ""
 
-#: ui/dialogs/settings-sound.slint
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "While you are live, the stream's sound plays here as viewers hear it (cleaned up and with the sound delay), for headphones at the desk. The room does not hear it unless it is the room's output."
 msgstr ""
 
-#: ui/dialogs/settings-sound.slint
-msgid "More sound settings"
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Sound delay"
+msgstr ""
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "If the sound in the stream comes before people's lips move, the camera's picture is late: hold the sound back until they match."
 msgstr ""
 
 #: ui/dialogs/settings-sound.slint
+msgid "{} ms"
+msgstr ""
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Sound levels"
+msgstr ""
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Turn each sound up or down in the stream only (not in the room)."
+msgstr ""
+
+#: ui/dialogs/settings-sound.slint src/app.rs src/record/mod.rs
+msgid "This computer"
+msgstr ""
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Sound clean-up"
+msgstr ""
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "For the stream only. Evening out keeps quiet speaking easy to hear at home and loud singing from crackling."
+msgstr ""
+
+#: ui/dialogs/settings-sound.slint
+msgid "Even out loud and quiet moments"
+msgstr ""
+
+#: ui/dialogs/settings-sound.slint
+msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
+msgstr ""
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "More sound settings"
+msgstr ""
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "For the stream only. Each sound has its own: start with the Sound setup above and change little at a time."
 msgstr ""
 
@@ -3224,128 +2928,912 @@ msgstr ""
 msgid "Show each sound's gate, evener, low, middle and high"
 msgstr ""
 
+#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
+msgid "Second microphone or line-in"
+msgstr ""
+
+#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
+msgid "Third microphone or line-in"
+msgstr ""
+
 #: ui/dialogs/settings-state.slint src/strings/catalog.rs
 msgid "All languages"
 msgstr ""
 
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Live captions"
+#: ui/dialogs/settings-stream.slint
+msgid "Sign in"
 msgstr ""
 
-#: ui/dialogs/settings-stream-extras.slint src/stream/captions.rs
-msgid "Captions are made on this computer from the microphone, in English only. They are often wrong: names, Bible places, quiet or echoing speech and songs come out badly, and there is no punctuation. They show about two seconds after the words are said."
+#: ui/dialogs/settings-stream.slint
+msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
 msgstr ""
 
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Write out what is said while live"
+#: ui/dialogs/settings-stream.slint
+msgid "Signed in as {}"
 msgstr ""
 
-#: ui/dialogs/settings-stream-extras.slint src/stream/captions.rs
-msgid "Live captions need the English speech model. Download the fast model in Settings → Auto-follow."
+#: ui/dialogs/settings-stream.slint
+msgid "Sign out"
 msgstr ""
 
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Show them at the bottom of the stream (not over song words or verses)"
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Keep them in a captions file beside the recording (for YouTube's replay and video players)"
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Listen to:"
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "YouTube captions address"
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "YouTube's captions address (optional)"
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "For captions viewers can turn on and off on YouTube: in YouTube Studio, open the stream's settings, turn on Closed captions, choose \"POST captions to URL\", and paste the address it gives here."
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "On your website"
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
-msgid "To play the livestream on your church's website: copy the code, then in your website's editor add an \"HTML\", \"Embed\" or \"Code\" block where the video should go and paste it there. You do this once: the same code plays every week's service."
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "YouTube channel id"
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "YouTube channel id (starts with UC)"
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Fill in"
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Fill in the channel of the YouTube account signed in above"
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Copy the code"
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
-msgid "YouTube plays whatever your channel has live; between services it shows the next scheduled stream or says nothing is live. YouTube Studio must allow embedding (it does unless it was turned off)."
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Facebook Page"
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Facebook Page address"
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
-msgid "Facebook shows your Page with its posts; while you are live the live video is at the top. The Page must be public."
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint src/network/guest.rs
-msgid "Remote guest"
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "A guest speaker or missionary joins from a browser at home: their picture comes in as a camera, their voice through this computer's sound. The connection goes directly between the two computers; some internets do not allow that, and the pages then say so."
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Invite a guest…"
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Opens the invitation page in this computer's web browser"
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Use the guest as a camera"
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Puts the guest in the first free camera row above"
-msgstr ""
-
-#: ui/dialogs/settings-stream-extras.slint
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
 msgid "Getting started"
 msgstr ""
 
-#: ui/dialogs/settings-stream-extras.slint
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
 msgid "A few steps: where to stream, which camera, which sound, and a check."
 msgstr ""
 
-#: ui/dialogs/settings-stream-extras.slint
+#: ui/dialogs/settings-stream.slint
 msgid "Set up step by step…"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Stream to"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Switch a destination on and a Go Live button appears beside Record. A stream key is a password: whoever has it can stream as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube stream key"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Facebook stream key"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Twitch stream key"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "The server's stream key"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Its stream key, if it has one"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Instagram's server address"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Its server address, if Instagram shows one"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Instagram stream key"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "X's server address"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Its server address, if X shows one"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "X stream key"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "TikTok's server address"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "The server address TikTok shows with the key"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "TikTok stream key"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/stream/mod.rs
+msgid "Instagram, X and TikTok give stream keys only to some accounts (TikTok asks for enough followers; Instagram's come from Live Producer on a computer). Each shows a server address with the key: paste both. Their keys often work for one broadcast only."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Broadcast title"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date, {{weekday}} the day's name and {{time}} the time; the description can have them too."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sign in to YouTube or Facebook above to name each broadcast."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sunday Service — {{date}}"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Broadcast description"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "What viewers read under the video"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Next YouTube broadcast: made when you go live"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Next YouTube broadcast: {}"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Copy the link"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Make it now, to share the link"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Make a new one"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube thumbnail: a frame of the stream"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube thumbnail: {}"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint ui/dialogs/stream-scenes.slint
+msgid "Choose a picture…"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint ui/operator/cameras.slint
+msgid "No picture"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Who can watch on YouTube"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Everyone"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Only people with the link"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Upload speed"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Testing…"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Test the upload speed"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Tall for phones"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other phone apps): the wide picture across the middle, black above and below. The recording stays wide."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Stream delay"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/stream/sound_setup.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
+msgid "None"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Slow internet"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "When a destination's internet cannot keep up, it gets a lighter stream until it can, instead of skipping. The recording and the other destinations keep the full picture. This uses more of the computer."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Send a lighter stream where the internet is slow"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Each destination's quality"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "A destination can get a smaller picture or a lower bitrate than the main stream (a phone app, a slow server). Each one that differs costs the computer a second encode."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/network.rs src/ui/dialogs/settings_find.rs
+msgid "Network"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Send from a wired network card to keep the stream off busy Wi-Fi (YouTube, Facebook, Twitch and other RTMP servers; an SRT server is reached however the computer chooses). Safer send gives an SRT server time to ask again for what got lost on a poor line; the picture arrives that much later."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Send the stream from"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Safer send (SRT servers)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Off (SRT's own)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Half a second"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "1 second"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "2 seconds"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "4 seconds"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint ui/operator/media.slint ui/operator/slides.slint src/ui/dialogs/settings_find.rs
+msgid "Picture size"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "For the livestream and the recording. Bigger is sharper and needs a faster computer, a faster upload and more disk space."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Custom size"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Any width and height from 320 × 180 to 7680 × 4320 (made even). Most services and screens expect 16:9."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Use this size"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Pictures a second"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "30 suits most churches. 50 or 60 makes movement smoother and needs a faster computer and upload."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "30 (usual)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Bitrate"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "How much picture goes out each second. Automatic grows with the picture size and pictures a second. More is sharper and needs a faster upload."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Video encoder"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Automatic suits most computers. A graphics card's encoder leaves the processor free; it is tried first, and Automatic is used if it does not work on this computer."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "The processor (x264)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "NVIDIA graphics card"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Intel graphics"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "AMD graphics card"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Windows' own"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "OpenH264"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "The Mac's own"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Video format"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "HEVC and AV1 give a sharper picture for the same upload. HEVC is used when every destination that is on takes it (YouTube and your own server do); otherwise H.264. AV1 is for recordings only: while live, H.264 is used. Both need a newer computer or graphics card."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "H.264 (plays everywhere)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Bitrate kept"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Always the same (CBR)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Varies with the picture (VBR)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Encoder details"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Leave these on Automatic unless a service or a video editor asks for something else. Faster leaves more of the computer free; Baseline is only for very old players."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "A whole picture every"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "2 seconds (usual)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "3 seconds"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Encoder speed"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Fastest (least work)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Fast"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Balanced"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Best picture (most work)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Profile"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "B-frames"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Sound quality"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sample rate"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "As it comes (usual)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sound bitrate"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "160 kbit/s (usual)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Channels"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Stereo"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Mono"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Network camera address"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "The camera's address, like rtsp://192.168.1.50:554/stream1"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera control address"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Cameras"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "A camera or capture card for the stream's camera scenes (and its recording). More cameras can be switched to while live, from the Cameras box beside the live screen."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera 1"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera 2"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera 3"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera 4"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "A phone as a camera: Settings → Remote and network"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "When a camera sends nothing"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "What the stream shows in a camera's place while it is unplugged or sends no picture. The camera comes back by itself as soon as it sends again."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/stream/own_scenes.rs
+msgid "The audience screen"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "The church logo"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/strings/screens.rs src/theme/backgrounds.rs
+msgid "Black"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/network/guest.rs src/ui/dialogs/settings_find.rs
+msgid "Remote guest"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "A guest speaker or missionary joins from a browser at home: their picture comes in as a camera, their voice through this computer's sound. The connection goes directly between the two computers; some internets do not allow that, and the pages then say so."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Invite a guest…"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Opens the invitation page in this computer's web browser"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Use the guest as a camera"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Puts the guest in the first free camera row above"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Use a picture…"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Use words"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Scenes"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the audience screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Choose the scene by itself from what is live"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Presentations:"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "The audience screen with the camera in a corner"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Scene layout"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Where the camera goes when it is in a corner of the audience screen, and where the words go over the camera."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/strings/themes.rs src/theme/richtext.rs
+msgid "Small"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Medium"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/strings/themes.rs src/theme/richtext.rs
+msgid "Large"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Words over the camera:"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "At the bottom"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "At the top"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings_find.rs
+msgid "Your scenes"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Make scenes of your own from cameras, the audience screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Your scenes…"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "None yet"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "1 scene"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "{} scenes"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Cards"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Starting soon shows before the service, with the countdown under the words while it runs; Ending after the last item; Hold for a break, chosen with the scene button."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/stream/pictures.rs src/stream/scene.rs
+msgid "Starting soon"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/stream/scene.rs src/strings/song.rs
+msgid "Ending"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/stream/pictures.rs
+msgid "Thanks for joining us"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint ui/operator/follow.slint src/i18n/remote_strings.rs src/stream/scene.rs
+msgid "Hold"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/stream/pictures.rs
+msgid "We'll be right back"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "File → Start recording (or the Record button at the top) saves what the audience screen shows as an MP4 video."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Save recordings in"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Choose folder…"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Picture size: Settings → Livestream → Picture and quality"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sound: Settings → Livestream → Sound"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "File type and name"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "{{date}} becomes the day, {{time}} the time it started, {{title}} the service's name."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "File type"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "MP4 (plays everywhere)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "MKV (as written; nothing to wait for at the end)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Recording file name"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Recording {{date}} {{time}}"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Now: {}"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Long recordings"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Cut long recordings"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Every 30 minutes"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Every hour"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Every 2 hours"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "At 2 GB"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "At 4 GB (old USB sticks)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "At 8 GB"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "“Save last” button keeps"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "No button"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "2 minutes"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "5 minutes"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "10 minutes"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "15 minutes"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Extra recordings"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "While you are live, a second video is saved next to the recording, its name ending in words.mov: only the words, with nothing behind them. When you edit the service video, put it on top to add the words. It stays small because the words seldom change."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "While live, also record the stream without the words (for editing)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Also record the words alone, on a see-through background (for video editing)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Live captions"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/stream/captions.rs src/ui/dialogs/settings_find.rs
+msgid "Captions are made on this computer from the microphone, in English only. They are often wrong: names, Bible places, quiet or echoing speech and songs come out badly, and there is no punctuation. They show about two seconds after the words are said."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Write out what is said while live"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/stream/captions.rs
+msgid "Live captions need the English speech model. Download the fast model in Settings → Auto-follow → Speech model."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Settings → Auto-follow → Speech model"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Show them at the bottom of the stream (not over song words or verses)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Keep them in a captions file beside the recording (for YouTube's replay and video players)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Listen to:"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube captions address"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube's captions address (optional)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "For captions viewers can turn on and off on YouTube: in YouTube Studio, open the stream's settings, turn on Closed captions, choose \"POST captions to URL\", and paste the address it gives here."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "On your website"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/stream/website.rs src/ui/dialogs/settings_find.rs
+msgid "To play the livestream on your church's website: copy the code, then in your website's editor add an \"HTML\", \"Embed\" or \"Code\" block where the video should go and paste it there. You do this once: the same code plays every week's service."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube channel id"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube channel id (starts with UC)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Fill in"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Fill in the channel of the YouTube account signed in above"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Copy the code"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/stream/website.rs
+msgid "YouTube plays whatever your channel has live; between services it shows the next scheduled stream or says nothing is live. YouTube Studio must allow embedding (it does unless it was turned off)."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Facebook Page"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Facebook Page address"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/stream/website.rs
+msgid "Facebook shows your Page with its posts; while you are live the live video is at the top. The Page must be public."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "NDI"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Send the stream over NDI too (picture and sound)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Send the words alone over NDI, on a see-through background (for keying)"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Saved setups"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Keep everything set for the livestream (destinations, cameras, sound, scenes and these settings) under a name, and use it again in one go. Stream keys stay as they are."
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "Save as a setup…"
+msgstr ""
+
+#: ui/dialogs/settings-stream.slint
+msgid "No setups saved yet."
 msgstr ""
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
@@ -3433,6 +3921,10 @@ msgid "Semibold"
 msgstr ""
 
 #: ui/dialogs/settings-themes.slint
+msgid "(biggest)"
+msgstr ""
+
+#: ui/dialogs/settings-themes.slint
 msgid "Align"
 msgstr ""
 
@@ -3488,240 +3980,20 @@ msgstr ""
 msgid "Makes text easier to read"
 msgstr ""
 
-#: ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
-msgid "Lines per slide"
+#: ui/dialogs/settings.slint ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
+msgid "Settings"
 msgstr ""
 
 #: ui/dialogs/settings.slint
-msgid "Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage."
+msgid "Find a setting"
 msgstr ""
 
 #: ui/dialogs/settings.slint
-msgid "Show the copyright line"
+msgid "No setting has those words."
 msgstr ""
 
 #: ui/dialogs/settings.slint
-msgid "On first and last slide"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "On first slide"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "On last slide"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Copyright line"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Use {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}} and {{license}}. Parts between · with nothing in them are left out. Empty: the usual line."
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Church CCLI licence #"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Section keys (C, B, 1–9…)"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Turn off if letters typed by mistake move the screen."
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Letters and numbers jump the live song to a section"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted."
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Bring in SongSelect downloads whenever RustyPresenter is open"
-msgstr ""
-
-#: ui/dialogs/settings.slint ui/operator.slint
-msgid "Songs from SongSelect…"
-msgstr ""
-
-#: ui/dialogs/settings.slint ui/operator.slint
-msgid "Song use report…"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "General"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Sections and labels"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Video and graphics"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Sound goes to"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Graphics"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
-msgstr ""
-
-#: ui/dialogs/settings.slint src/video/bench.rs
-msgid "Test which is fastest"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Use this"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Restart now"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Performance"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Shows under the live preview how many frames a second the screens draw, and the free video memory when the graphics card says. Low numbers mean the computer is struggling."
-msgstr ""
-
-#: ui/dialogs/settings.slint ui/operator.slint
-msgid "Show performance"
-msgstr ""
-
-#: ui/dialogs/settings.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
-msgid "Screens"
-msgstr ""
-
-#: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs src/strings/screens.rs
-msgid "Audience screen"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Keep the audience screen in front when it has its own monitor (smoother fades)"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "At start"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Turn the screens on when RustyPresenter starts"
-msgstr ""
-
-#: ui/dialogs/settings.slint src/strings/stage.rs
-msgid "Stage layout"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "What the stage screen shows. Window → Stage layouts… makes your own."
-msgstr ""
-
-#: ui/dialogs/settings.slint src/ui/dialogs/settings_keys.rs
-msgid "Phone drawing"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Drawing from a phone"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Keep drawings when the slide changes"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Show drawings on the stage screen"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Fading ink disappears after (seconds, 1–30)"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "On the phone, “Fades” ink works like a laser pointer: it goes away by itself."
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Limits"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Limit phone drawing"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Most lines on the screen at once"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Most drawing updates a second from one phone"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Back up now"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Restore"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "No backups yet."
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Look"
-msgstr ""
-
-#: ui/dialogs/settings.slint src/automation/slide_actions.rs src/ui/operator/transfer.rs
-msgid "Themes"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Language"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Auto-follow"
-msgstr ""
-
-#: ui/dialogs/settings.slint src/stream/own_scenes.rs src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/ui/operator/file_input.rs
-msgid "Video"
-msgstr ""
-
-#: ui/dialogs/settings.slint ui/operator/live.slint src/i18n/remote_strings.rs src/print/html.rs src/strings/planning.rs
-msgid "Media"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "Backups"
-msgstr ""
-
-#: ui/dialogs/settings.slint ui/operator.slint
-msgid "Help"
-msgstr ""
-
-#: ui/dialogs/settings.slint
-msgid "About"
+msgid "Show advanced settings"
 msgstr ""
 
 #: ui/dialogs/settings.slint
@@ -4032,262 +4304,6 @@ msgstr ""
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Edit stage layouts…"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Saved setups"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Keep everything set for the livestream (destinations, cameras, sound, scenes and these settings) under a name, and use it again in one go. Stream keys stay as they are."
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Save as a setup…"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "No setups saved yet."
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Pictures a second"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "30 (usual)"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Video format"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "H.264 (plays everywhere)"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Bitrate kept"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Always the same (CBR)"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Varies with the picture (VBR)"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "HEVC and AV1 give a sharper picture for the same upload. HEVC is used when every destination that is on takes it (YouTube and your own server do); otherwise H.264. AV1 is for recordings only: while live, H.264 is used. Both need a newer computer or graphics card."
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "A whole picture every"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "1 second"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "2 seconds (usual)"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "3 seconds"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "4 seconds"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Encoder speed"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Fastest (least work)"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Fast"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Balanced"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Best picture (most work)"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Profile"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "B-frames"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Leave these on Automatic unless a service or a video editor asks for something else. Faster leaves more of the computer free; Baseline is only for very old players."
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Sample rate"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "As it comes (usual)"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Sound bitrate"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "160 kbit/s (usual)"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Channels"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Stereo"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Mono"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint src/ui/dialogs/network.rs
-msgid "Network"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Send the stream from"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Safer send (SRT servers)"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Off (SRT's own)"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Half a second"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "2 seconds"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Send from a wired network card to keep the stream off busy Wi-Fi (YouTube, Facebook, Twitch and other RTMP servers; an SRT server is reached however the computer chooses). Safer send gives an SRT server time to ask again for what got lost on a poor line; the picture arrives that much later."
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Each destination's quality"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "A destination can get a smaller picture or a lower bitrate than the main stream (a phone app, a slow server). Each one that differs costs the computer a second encode."
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Size: the main stream's"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Bitrate: the main stream's"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "File type"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "MP4 (plays everywhere)"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "MKV (as written; nothing to wait for at the end)"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Cut long recordings"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Every 30 minutes"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Every hour"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Every 2 hours"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "At 2 GB"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "At 4 GB (old USB sticks)"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "At 8 GB"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "“Save last” button keeps"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "No button"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "2 minutes"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "5 minutes"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "10 minutes"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "15 minutes"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "File name"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Recording file name"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "Recording {{date}} {{time}}"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "{{date}} becomes the day, {{time}} the time it started, {{title}} the service's name. Now: {}"
-msgstr ""
-
-#: ui/dialogs/stream-more.slint
-msgid "While live, also record the stream without the words (for editing)"
 msgstr ""
 
 #: ui/dialogs/stream-scenes.slint
@@ -5014,6 +5030,10 @@ msgstr ""
 msgid "Next (→, Space or Page Down)"
 msgstr ""
 
+#: ui/operator/live.slint src/i18n/remote_strings.rs src/print/html.rs src/strings/planning.rs
+msgid "Media"
+msgstr ""
+
 #: ui/operator/live.slint ui/operator/media.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/print.rs src/ui/dialogs/settings_keys.rs
 msgid "Audio"
 msgstr ""
@@ -5108,6 +5128,10 @@ msgstr ""
 
 #: ui/operator/monitor.slint
 msgid "Stage screen is off"
+msgstr ""
+
+#: ui/operator/outputs.slint src/stream/own_scenes.rs src/strings/screens.rs
+msgid "Audience screen"
 msgstr ""
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
@@ -5350,6 +5374,10 @@ msgstr ""
 msgid "Use the big Next button (or the → key) during the service."
 msgstr ""
 
+#: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
+msgid "Screens"
+msgstr ""
+
 #: ui/operator/slides.slint ui/operator.slint
 msgid "Nothing selected"
 msgstr ""
@@ -5487,7 +5515,7 @@ msgid "Stage"
 msgstr ""
 
 #: ui/operator/topbar.slint
-msgid "Phone remotes connected"
+msgid "Remotes connected"
 msgstr ""
 
 #: ui/operator/topbar.slint
@@ -5763,10 +5791,6 @@ msgid "Window"
 msgstr ""
 
 #: ui/operator.slint
-msgid "Screens…"
-msgstr ""
-
-#: ui/operator.slint
 msgid "Close the room window"
 msgstr ""
 
@@ -5775,7 +5799,7 @@ msgid "Audience screen in a window"
 msgstr ""
 
 #: ui/operator.slint
-msgid "Phone remote…"
+msgid "Remote…"
 msgstr ""
 
 #: ui/operator.slint
@@ -5792,10 +5816,6 @@ msgstr ""
 
 #: ui/operator.slint
 msgid "Take the stage-only slide down"
-msgstr ""
-
-#: ui/operator.slint
-msgid "Stage layouts…"
 msgstr ""
 
 #: ui/operator.slint
@@ -5831,7 +5851,7 @@ msgid "Themes and backgrounds…"
 msgstr ""
 
 #: ui/operator.slint
-msgid "Network…"
+msgid "Remote and network…"
 msgstr ""
 
 #: ui/operator.slint
@@ -5864,10 +5884,6 @@ msgstr ""
 
 #: ui/operator.slint
 msgid "Translations…"
-msgstr ""
-
-#: ui/operator.slint
-msgid "Keyboard shortcuts"
 msgstr ""
 
 #: ui/operator.slint
@@ -6124,6 +6140,10 @@ msgstr ""
 
 #: src/automation/slide_actions.rs src/strings/operator.rs
 msgid "Clear"
+msgstr ""
+
+#: src/automation/slide_actions.rs src/ui/operator/transfer.rs
+msgid "Themes"
 msgstr ""
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
@@ -6399,7 +6419,7 @@ msgid "Paste the verse text first."
 msgstr ""
 
 #: src/follow/audio.rs
-msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Media → Recording."
+msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Livestream → Recording."
 msgstr ""
 
 #: src/follow/audio.rs
@@ -6535,7 +6555,11 @@ msgid "The translation file {file} could not be read ({reason}), so it is not us
 msgstr ""
 
 #: src/i18n/remote_strings.rs
-msgid "Phone remote — RustyPresenter"
+msgid "Remote — RustyPresenter"
+msgstr ""
+
+#: src/i18n/remote_strings.rs src/strings/dialogs.rs src/ui/dialogs/settings_find.rs
+msgid "Remote"
 msgstr ""
 
 #: src/i18n/remote_strings.rs
@@ -6630,7 +6654,7 @@ msgid "The screen changed just now — tap the slide again."
 msgstr ""
 
 #: src/i18n/remote_strings.rs src/server.rs
-msgid "That QR code has expired. On the computer, click Pair a phone again."
+msgid "That QR code has expired. On the computer, click Pair a phone or tablet again."
 msgstr ""
 
 #: src/i18n/remote_strings.rs
@@ -6702,7 +6726,7 @@ msgid "Password"
 msgstr ""
 
 #: src/i18n/remote_strings.rs
-msgid "This phone remote needs a password too."
+msgid "This remote needs a password too."
 msgstr ""
 
 #: src/i18n/remote_strings.rs
@@ -7120,7 +7144,7 @@ msgid "{n} KB"
 msgstr ""
 
 #: src/media_care.rs
-msgid "Choose your headphones in Settings → Media first."
+msgid "Choose your headphones in Settings → Sound first."
 msgstr ""
 
 #: src/media_care.rs
@@ -7162,6 +7186,18 @@ msgid "Network camera {host}"
 msgstr ""
 
 #: src/record/mod.rs
+msgid "{size} at {fps} pictures a second may be more than this computer can make while live. If the stream stutters, choose a smaller size."
+msgstr ""
+
+#: src/record/mod.rs
+msgid "Graphics card encoders stop at 4096 wide for H.264, so the processor makes this size: it is slow."
+msgstr ""
+
+#: src/record/mod.rs
+msgid "This size needs about {mbps} Mbit/s of upload for each destination. Test the upload speed before Sunday."
+msgstr ""
+
+#: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
 msgstr ""
 
@@ -7194,7 +7230,7 @@ msgid "RustyPresenter stopped in the middle of a livestream. The recording up to
 msgstr ""
 
 #: src/record/mod.rs
-msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or the graphics card under Video encoder, and close other programs."
+msgid "This computer is not keeping up, so the recording and stream are jerky. Choose a smaller picture size in Settings → Livestream → Picture and quality, or the graphics card under Video encoder, and close other programs."
 msgstr ""
 
 #: src/record/mod.rs
@@ -7210,7 +7246,7 @@ msgid "Could not use the recordings folder {path}: {why}"
 msgstr ""
 
 #: src/record/mod.rs
-msgid "The recordings folder's disk has only {free} free. An hour of recording needs about {need}. Choose another folder in Settings → Media."
+msgid "The recordings folder's disk has only {free} free. An hour of recording needs about {need}. Choose another folder in Settings → Livestream → Recording."
 msgstr ""
 
 #: src/record/mod.rs
@@ -7354,7 +7390,7 @@ msgid "Too fast — wait a second and try again."
 msgstr ""
 
 #: src/server.rs
-msgid "Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."
+msgid "Pairing isn't open. On the computer, click “Phone” → “Pair a phone or tablet”."
 msgstr ""
 
 #: src/server.rs
@@ -7572,7 +7608,7 @@ msgid "This Facebook account manages no Page. A stream can only go to a Page."
 msgstr ""
 
 #: src/stream/accounts/mod.rs
-msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Media → Livestream."
+msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Livestream → Where to stream."
 msgstr ""
 
 #: src/stream/accounts/mod.rs
@@ -7600,7 +7636,7 @@ msgid "Live captions could not start: {why}"
 msgstr ""
 
 #: src/stream/captions.rs
-msgid "Live captions need a microphone or line-in: choose one under Sound in Settings → Media, or under Live captions."
+msgid "Live captions need a microphone or line-in: choose one in Settings → Livestream → Sound, or under Live captions."
 msgstr ""
 
 #: src/stream/captions.rs
@@ -7764,6 +7800,10 @@ msgid "Listening to the stream could not start: {error}"
 msgstr ""
 
 #: src/stream/mod.rs
+msgid "{name} takes at most {most}: it gets a smaller copy, made by this computer while live."
+msgstr ""
+
+#: src/stream/mod.rs
 msgid "The stream ran {time}."
 msgstr ""
 
@@ -7800,7 +7840,7 @@ msgid "{name}: the stream is going out."
 msgstr ""
 
 #: src/stream/mod.rs
-msgid "{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on."
+msgid "{name} has not connected after several tries. Check the stream key in Settings → Livestream → Where to stream, and the internet. Still trying; the recording goes on."
 msgstr ""
 
 #: src/stream/mod.rs
@@ -7812,7 +7852,7 @@ msgid "Nothing goes out over NDI: it needs the free NDI Tools from ndi.video on 
 msgstr ""
 
 #: src/stream/mod.rs
-msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
+msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Livestream → Where to stream."
 msgstr ""
 
 #: src/stream/mod.rs
@@ -7852,7 +7892,7 @@ msgid "The camera is back in the stream."
 msgstr ""
 
 #: src/stream/mod.rs
-msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
+msgid "{name}: the internet is not fast enough, so the stream skips. Choose a smaller picture size in Settings → Livestream → Picture and quality, or switch a destination off."
 msgstr ""
 
 #: src/stream/mod.rs
@@ -8019,6 +8059,10 @@ msgstr ""
 msgid "A scene that was deleted"
 msgstr ""
 
+#: src/stream/own_scenes.rs src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/ui/operator/file_input.rs
+msgid "Video"
+msgstr ""
+
 #: src/stream/own_scenes.rs
 msgid "The words of the song go here"
 msgstr ""
@@ -8056,7 +8100,7 @@ msgid "Connect this phone"
 msgstr ""
 
 #: src/stream/phone_camera.rs
-msgid "On the presentation computer, click Phone remote, then Pair a phone, and type the 6-digit code here."
+msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
 msgstr ""
 
 #: src/stream/phone_camera.rs
@@ -8112,11 +8156,7 @@ msgid "Not on the stream"
 msgstr ""
 
 #: src/stream/phone_camera.rs
-msgid "On the computer, choose this phone in Settings → Media → Livestream → Camera."
-msgstr ""
-
-#: src/stream/phone_camera.rs
-msgid "Any phone on the church's Wi-Fi can be a camera. On the phone, open {address} and follow the steps there. The first time, the phone warns that the connection is not private: that is expected, because the page comes from this computer. Tap Advanced (or Show Details), then Proceed (or Visit this website). Then pair it with the code from Phone remote, Pair a phone. Once it sends its picture, it is listed in the camera lists above as Phone camera and its name."
+msgid "On the computer, choose this phone in Settings → Livestream → Cameras."
 msgstr ""
 
 #: src/stream/phone_camera.rs
@@ -8128,6 +8168,10 @@ msgid "Phone microphone (open its page on the phone)"
 msgstr ""
 
 #: src/stream/phone_mic.rs
+msgid "Phone microphone"
+msgstr ""
+
+#: src/stream/phone_mic.rs
 msgid "Start sending sound"
 msgstr ""
 
@@ -8136,7 +8180,7 @@ msgid "Sending to the stream. Keep this page open and the phone awake."
 msgstr ""
 
 #: src/stream/phone_mic.rs
-msgid "Sending, but the stream is not using this phone yet. Choose \"Phone microphone\" in Settings → Media → Livestream, then go live."
+msgid "Sending, but the stream is not using this phone yet. Choose \"Phone microphone\" in Settings → Livestream → Sound, then go live."
 msgstr ""
 
 #: src/stream/phone_mic.rs
@@ -8148,11 +8192,11 @@ msgid "The phone did not let the page use its microphone. Allow it in the browse
 msgstr ""
 
 #: src/stream/phone_mic.rs
-msgid "Turn on the stage screen for phones in RustyPresenter (Settings → Network…), and sign in to it on this phone first."
+msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
 msgstr ""
 
 #: src/stream/preflight.rs
-msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Media → Livestream. The stream shows the slides in its place."
+msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Livestream → Cameras. The stream shows the slides in its place."
 msgstr ""
 
 #: src/stream/preflight.rs
@@ -8164,7 +8208,7 @@ msgid "Camera {n} ({camera}) comes over NDI, but NDI is not installed on this co
 msgstr ""
 
 #: src/stream/preflight.rs
-msgid "The sound input {name} is not connected. Check its cable, or choose it again in Settings → Media. The stream goes out without it."
+msgid "The sound input {name} is not connected. Check its cable, or choose it again in Settings → Livestream → Sound. The stream goes out without it."
 msgstr ""
 
 #: src/stream/preflight.rs
@@ -8176,7 +8220,7 @@ msgid "Camera {camera}: position {position}"
 msgstr ""
 
 #: src/stream/report.rs
-msgid "The computer could not keep up for {secs} seconds and left out {frames} pictures: the stream was jerky then. Next time, try 720p or the graphics card's encoder (Settings → Media)."
+msgid "The computer could not keep up for {secs} seconds and left out {frames} pictures: the stream was jerky then. Next time, try a smaller picture size or the graphics card's encoder (Settings → Livestream → Picture and quality)."
 msgstr ""
 
 #: src/stream/report.rs
@@ -8185,6 +8229,10 @@ msgstr ""
 
 #: src/stream/report.rs
 msgid "At most {viewers} watching at once."
+msgstr ""
+
+#: src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
+msgid "Camera"
 msgstr ""
 
 #: src/stream/scene.rs
@@ -8228,11 +8276,11 @@ msgid "No sound input here looks like one. Choose it under \"Sound in the record
 msgstr ""
 
 #: src/stream/speed.rs
-msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
+msgid "Upload: {speed} Mbit/s. Enough to stream in {size}."
 msgstr ""
 
 #: src/stream/speed.rs
-msgid "Upload: {speed} Mbit/s. Stream in 720p: 1080p needs {need} Mbit/s."
+msgid "Upload: {speed} Mbit/s. Stream in {size}: {chosen} needs {need} Mbit/s."
 msgstr ""
 
 #: src/stream/speed.rs
@@ -8256,7 +8304,7 @@ msgid "Not streaming"
 msgstr ""
 
 #: src/stream/tally.rs
-msgid "Turn on the stage screen for phones (Settings → Network…). If it has a password, open the stage screen on this phone once and sign in."
+msgid "Turn on the stage screen on phones (Settings → Remote and network). If it has a password, open the stage screen on this phone once and sign in."
 msgstr ""
 
 #: src/stream/transition.rs
@@ -8911,7 +8959,7 @@ msgstr ""
 msgid "Throw away"
 msgstr ""
 
-#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
+#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_scenes.rs
 msgid "Keep editing"
 msgstr ""
 
@@ -9281,7 +9329,7 @@ msgstr ""
 msgid "SongSelect song files"
 msgstr ""
 
-#: src/strings/operator.rs
+#: src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Pictures and videos"
 msgstr ""
 
@@ -9444,7 +9492,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/strings/phone.rs
-msgid "Code expired — click Pair a phone again."
+msgid "Code expired — click Pair a phone or tablet again."
 msgstr ""
 
 #: src/strings/planning.rs
@@ -9827,19 +9875,19 @@ msgid "The stage screen is not connected. The service can run without it."
 msgstr ""
 
 #: src/strings/preflight.rs
-msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video."
+msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Sound."
 msgstr ""
 
 #: src/strings/preflight.rs
-msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play."
+msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Sound, then press play."
 msgstr ""
 
 #: src/strings/preflight.rs
-msgid "The logo's file is missing. Choose it again in Settings → Look."
+msgid "The logo's file is missing. Choose it again in Settings → Look → Text and logo."
 msgstr ""
 
 #: src/strings/preflight.rs
-msgid "The default background's file is missing. Choose it again in Settings → Look."
+msgid "The default background's file is missing. Choose it again in Settings → Look → Text and logo."
 msgstr ""
 
 #: src/strings/preflight.rs
@@ -10035,7 +10083,7 @@ msgid "about {ms} ms"
 msgstr ""
 
 #: src/strings/screens.rs
-msgid "Colour and corner changes show when the screens draw with OpenGL (Settings → Video → Graphics: Automatic or OpenGL). Test patterns and the delay work either way."
+msgid "Colour and corner changes show when the screens draw with OpenGL (Settings → General → Screens and graphics → Graphics: Automatic or OpenGL). Test patterns and the delay work either way."
 msgstr ""
 
 #: src/strings/scripture.rs
@@ -11149,7 +11197,7 @@ msgid "Up to 8 overlays can be on at once. Turn one off first."
 msgstr ""
 
 #: src/strings/themes.rs
-msgid "Choose a church logo first (Settings → Look)."
+msgid "Choose a church logo first (Settings → Look → Text and logo)."
 msgstr ""
 
 #: src/strings/themes.rs
@@ -11361,7 +11409,7 @@ msgid "CCLI licence #: {license}"
 msgstr ""
 
 #: src/strings/usage.rs
-msgid "Add your church's CCLI licence number in Settings → Songs."
+msgid "Add your church's CCLI licence number in Settings → Songs → Slides and credits."
 msgstr ""
 
 #: src/strings/usage.rs
@@ -11750,7 +11798,7 @@ msgid "This service has no songs."
 msgstr ""
 
 #: src/transfer.rs
-msgid "There are no saved themes to export. Make one in Settings → Themes."
+msgid "There are no saved themes to export. Make one in Settings → Look → Themes and backgrounds."
 msgstr ""
 
 #: src/transfer.rs
@@ -11960,11 +12008,11 @@ msgid "{time} UTC"
 msgstr ""
 
 #: src/ui/dialogs/settings.rs
-msgid "Save your other changes first?"
+msgid "Save your changes to the settings?"
 msgstr ""
 
 #: src/ui/dialogs/settings.rs
-msgid "Save and go on"
+msgid "Don't save"
 msgstr ""
 
 #: src/ui/dialogs/settings.rs
@@ -11973,6 +12021,118 @@ msgstr ""
 
 #: src/ui/dialogs/settings.rs
 msgid "Save and restart"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "General"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Look"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Video and media"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Sound"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Remote and network"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Keys"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Auto-follow"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Livestream"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Backups"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Help and about"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Screens and graphics"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Text and logo"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Themes and backgrounds"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Slides and credits"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Sections and labels"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Bibles"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Online services and files"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Sound in the room"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Stage screen on phones"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Phone camera and microphone"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Other gear"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Listening"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Review log"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Where to stream"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Picture and quality"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Captions and website"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "About"
+msgstr ""
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Page"
 msgstr ""
 
 #: src/ui/dialogs/settings_follow.rs
@@ -12030,6 +12190,10 @@ msgid "Overlays (pictures, clocks, signs)"
 msgstr ""
 
 #: src/ui/dialogs/settings_keys.rs
+msgid "Phone drawing"
+msgstr ""
+
+#: src/ui/dialogs/settings_keys.rs
 msgid "New clear group"
 msgstr ""
 
@@ -12050,7 +12214,7 @@ msgid "{key} is already the key for “{what}”. It will move here."
 msgstr ""
 
 #: src/ui/dialogs/settings_keys.rs
-msgid "{key} also jumps the live song to a section (Settings → Songs → Section keys)."
+msgid "{key} also jumps the live song to a section (Settings → Keys → Section keys)."
 msgstr ""
 
 #: src/ui/dialogs/settings_keys.rs
@@ -12166,6 +12330,14 @@ msgid "Network camera"
 msgstr ""
 
 #: src/ui/dialogs/settings_record.rs
+msgid "{size} (custom)"
+msgstr ""
+
+#: src/ui/dialogs/settings_record.rs
+msgid "Type the width and the height as whole numbers, like 1600 and 900."
+msgstr ""
+
+#: src/ui/dialogs/settings_record.rs
 msgid "The speed test could not reach the internet. Check the connection and try again."
 msgstr ""
 
@@ -12247,6 +12419,10 @@ msgid "“{title}” from SongSelect is already in your library."
 msgstr ""
 
 #: src/ui/dialogs/songselect.rs
+msgid "“{title}” was already in your library: its chords were added for the stage screen."
+msgstr ""
+
+#: src/ui/dialogs/songselect.rs
 msgid "“{title}” from SongSelect has other words than your copy, so it was kept as “{new}”."
 msgstr ""
 
@@ -12260,6 +12436,10 @@ msgstr ""
 
 #: src/ui/dialogs/songselect.rs
 msgid "Already in your song library"
+msgstr ""
+
+#: src/ui/dialogs/songselect.rs
+msgid "Chords added to your copy"
 msgstr ""
 
 #: src/ui/dialogs/songselect.rs
@@ -12279,7 +12459,15 @@ msgid "Your Downloads folder could not be found. Use “Choose a file…” for 
 msgstr ""
 
 #: src/ui/dialogs/stream_more.rs
-msgid "More livestream settings"
+msgid "Size: the main stream's"
+msgstr ""
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Bitrate: the main stream's"
+msgstr ""
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Automatic ({kbps} kbit/s)"
 msgstr ""
 
 #: src/ui/dialogs/stream_more.rs
@@ -12292,18 +12480,6 @@ msgstr ""
 
 #: src/ui/dialogs/stream_more.rs
 msgid "Delete the setup “{name}”? The settings in use now stay as they are."
-msgstr ""
-
-#: src/ui/dialogs/stream_more.rs
-msgid "Leave without saving these settings?"
-msgstr ""
-
-#: src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
-msgid "Leave"
-msgstr ""
-
-#: src/ui/dialogs/stream_more.rs
-msgid "Livestream settings saved."
 msgstr ""
 
 #: src/ui/dialogs/stream_scenes.rs
@@ -12344,6 +12520,10 @@ msgstr ""
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Leave without saving your scene changes?"
+msgstr ""
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave"
 msgstr ""
 
 #: src/ui/dialogs/stream_scenes.rs
@@ -12513,7 +12693,7 @@ msgid "Window → Screens… picks which monitor is the audience screen and whic
 msgstr ""
 
 #: src/ui/operator/help.rs
-msgid "Settings → Keys and clear groups… changes these keys and makes your own clear groups."
+msgid "Settings → Keys changes these keys and makes your own clear groups."
 msgstr ""
 
 #: src/ui/operator/help.rs
@@ -12932,7 +13112,7 @@ msgid "The {wanted} graphics mode could not be used on this computer, so RustyPr
 msgstr ""
 
 #: src/video/graphics.rs
-msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
+msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → General → Screens and graphics."
 msgstr ""
 
 #: src/video/player.rs

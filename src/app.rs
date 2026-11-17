@@ -1215,7 +1215,7 @@ impl App {
             if item.get("id").is_none() { item["id"] = json!(Uuid::new_v4()); }
             // Pictures added together as one item (`"slideshow": true` beside the item's fields).
             let slideshow = item.as_object_mut().and_then(|o| o.remove("slideshow")).and_then(|v| v.as_bool()).unwrap_or(false);
-            // A video added without a choice does what Settings → Media says when it ends (N24).
+            // A video added without a choice does what Settings → General → Screens and graphics and media says when it ends (N24).
             if item.get("kind").and_then(Value::as_str) == Some("media") && item.get("end").is_none() {
                 item["end"] = json!(app.data.lock().unwrap().settings.media.video_end);
             }
@@ -1235,7 +1235,7 @@ impl App {
                 let s = d.service_mut().ok_or_else(|| tr!("No service is open."))?;
                 let pos = position.unwrap_or(s.items.len()).min(s.items.len());
                 s.items.insert(pos, item);
-                // Pictures added as one slideshow turn by themselves (Settings → Media, N24).
+                // Pictures added as one slideshow turn by themselves (Settings → General → Screens and graphics and media, N24).
                 let secs = d.settings.media.picture_secs;
                 if slideshow && crate::automation::advance::AutoAdvance::validate(secs).is_ok() {
                     d.automation.advance.insert(id, crate::automation::advance::AutoAdvance { secs, loop_item: true });
@@ -1601,7 +1601,7 @@ impl App {
             }
             Ok(json!({ "toast": crate::tr!("Language changed") }))
         }
-        // Settings → Video → Graphics: saved now, used from the next start (`video::graphics`).
+        // Settings → General → Screens and graphics → Graphics: saved now, used from the next start (`video::graphics`).
         "settings/graphics" => {
             #[derive(Deserialize)] struct G { graphics: crate::model::Graphics }
             let G { graphics } = parse(body)?;

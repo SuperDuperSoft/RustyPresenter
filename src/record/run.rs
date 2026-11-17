@@ -511,7 +511,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let _ = started.send(Ok(()));
     let senders = CancellationToken::new();
     let relays = CancellationToken::new();
-    let full_kbps = if plan.kbps > 0 { plan.kbps } else { plan.preset.max_kbps() };
+    let full_kbps = if plan.kbps > 0 { plan.kbps } else { plan.preset.kbps_at(fps) };
     // The tall picture's own feed: the newest tall picture at the frame rate.
     let tall_slot: crate::stream::tall::Slot = Arc::new(Mutex::new(crate::stream::tall::black(tall_size)));
     let tall_stop = CancellationToken::new();

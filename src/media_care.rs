@@ -171,7 +171,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
             #[derive(Deserialize)] struct L { on: bool }
             let L { on } = parse(body)?;
             if on && app.data.lock().unwrap().settings.media.listen_device.is_empty() {
-                return Err(ActionError::bad(crate::tr!("Choose your headphones in Settings → Media first.")));
+                return Err(ActionError::bad(crate::tr!("Choose your headphones in Settings → Sound first.")));
             }
             app.listening.store(on, Ordering::Relaxed);
             app.broadcast_data();
@@ -342,7 +342,7 @@ mod tests {
     async fn listen_needs_headphones_chosen_and_is_never_saved() {
         let app = test_app();
         let err = app.do_action("sound/listen", br#"{"on":true}"#).await.unwrap_err();
-        assert_eq!(err.message, "Choose your headphones in Settings → Media first.");
+        assert_eq!(err.message, "Choose your headphones in Settings → Sound first.");
         app.data.lock().unwrap().settings.media.listen_device = "wasapi/{phones}".into();
         app.data.lock().unwrap().settings.audio_device = "wasapi/{board}".into();
         app.do_action("sound/listen", br#"{"on":true}"#).await.unwrap();

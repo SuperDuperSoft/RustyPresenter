@@ -128,7 +128,7 @@ pub mod tr {
             "secure_go": tr!("Open the camera page"),
             "secure_off": tr!("The private camera page is not running on the computer. Close the app and open it again; if it still does not start, another program is using its port."),
             "pair_title": tr!("Connect this phone"),
-            "pair_body": tr!("On the presentation computer, click Phone remote, then Pair a phone, and type the 6-digit code here."),
+            "pair_body": tr!("On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."),
             "code": tr!("6-digit code"),
             "password": tr!("Password"),
             "connect": tr!("Connect"),
@@ -146,13 +146,8 @@ pub mod tr {
             "on_air": tr!("On the stream now"),
             "next": tr!("Next on the stream"),
             "off_air": tr!("Not on the stream"),
-            "choose": tr!("On the computer, choose this phone in Settings → Media → Livestream → Camera."),
+            "choose": tr!("On the computer, choose this phone in Settings → Livestream → Cameras."),
         })
-    }
-
-    /// Settings → Media → Livestream, under the cameras: how to make a phone a camera.
-    pub fn settings_help(address: &str) -> String {
-        tr!("Any phone on the church's Wi-Fi can be a camera. On the phone, open {address} and follow the steps there. The first time, the phone warns that the connection is not private: that is expected, because the page comes from this computer. Tap Advanced (or Show Details), then Proceed (or Visit this website). Then pair it with the code from Phone remote, Pair a phone. Once it sends its picture, it is listed in the camera lists above as Phone camera and its name.", address = address)
     }
 
     /// When the computer has no network address for phones.

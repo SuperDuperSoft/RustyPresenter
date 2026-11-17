@@ -10,7 +10,7 @@
 //!   (`plugins/page.php`, timeline): while live, the live video is at the top of it.
 use serde::{Deserialize, Serialize};
 
-/// Settings → Media → Livestream → On your website.
+/// Settings → Livestream → On your website.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 #[serde(default)]
 pub struct Prefs {

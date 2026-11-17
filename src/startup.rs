@@ -38,7 +38,7 @@ pub fn open(listener: TcpListener, root: PathBuf, port: u16) -> Result<Started, 
 /// The console banner; `quit` says how to quit.
 pub fn banner(s: &Started, quit: &str) {
     println!("\n  RustyPresenter {}\n", env!("CARGO_PKG_VERSION"));
-    if let Some(u) = &s.app.lan_url { println!("  Phone remote:  {u}"); }
+    if let Some(u) = &s.app.lan_url { println!("  Remote:        {u}"); }
     println!("  Your data:     {}", s.root.display());
     println!("\n  {quit}\n");
 }

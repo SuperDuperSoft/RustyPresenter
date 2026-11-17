@@ -1,11 +1,12 @@
 use super::*;
+use crate::ui::dialogs::settings::testing::{find_any as find, find_all_any as find_all};
 use crate::{
     app::{App, test_app},
     model::{ItemKind, ServiceItem},
     ui::{
         SettingsDlg, SlideCell, Theme,
-        dialogs::{DialogKind, SettingsTab, settings},
-        operator::window::testing::{find, find_all, open as open_window, refresh},
+        dialogs::{SettingsTab, settings},
+        operator::window::testing::{open as open_window, refresh},
     },
 };
 use slint::{Model, platform::PointerEventButton};
@@ -20,7 +21,7 @@ fn opened(app: &Arc<App>) -> Rc<Operator> {
     op
 }
 
-fn d(op: &Operator) -> SectionsDlg<'_> { op.ui.global::<SectionsDlg>() }
+fn d(op: &Operator) -> SectionsDlg<'_> { crate::ui::dialogs::settings_window::win(&op).global::<SectionsDlg>() }
 
 fn click(op: &Operator, id: &str) {
     slint::platform::update_timers_and_animations();
@@ -39,8 +40,8 @@ fn sections_page_edits_names_colours_keys_and_labels() {
     let app = test_app();
     let op = opened(&app);
     settings::open(&op, SettingsTab::Sections);
-    assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Sections)));
-    assert_eq!((op.ui.global::<SettingsDlg>().get_tab(), op.ui.global::<SettingsDlg>().get_songs_page()), (3, 1), "Songs, on Sections and labels");
+    assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Sections));
+    assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Sections), "Songs → Sections and labels");
     assert!(find(&op, "SettingsSections::kind-name").is_some());
     let kinds: Vec<(String, String)> = d(&op).get_kinds().iter().map(|k| (k.usual_name.to_string(), k.usual_key.to_string())).collect();
     assert_eq!(kinds.len(), 8);
@@ -63,7 +64,7 @@ fn sections_page_edits_names_colours_keys_and_labels() {
     d(&op).invoke_pick("#3ccf91".into());
     let labels: Vec<String> = d(&op).get_labels().iter().map(|l| l.name.to_string()).collect();
     assert_eq!(labels, ["Instrumental", "Repeat", "Spoken Word", "Choir only"]);
-    click(&op, "SettingsDialog::save");
+    click(&op, "SettingsWindow::save");
     assert_eq!(op.dialog(), None);
 
     let look = app.data.lock().unwrap().settings.sections.clone();
@@ -80,7 +81,7 @@ fn sections_page_edits_names_colours_keys_and_labels() {
     settings::open(&op, SettingsTab::Sections);
     assert_eq!(d(&op).get_kinds().row_data(1).unwrap().name, "Refrain");
     d(&op).invoke_reset();
-    click(&op, "SettingsDialog::save");
+    click(&op, "SettingsWindow::save");
     assert_eq!(app.data.lock().unwrap().settings.sections, SectionLook::default());
     refresh(&op);
     assert_eq!(hex(op.ui.global::<Theme>().get_sec_chorus()), "#ff8f93");
@@ -92,9 +93,9 @@ fn a_key_two_kinds_share_is_not_saved() {
     let op = opened(&app);
     settings::open(&op, SettingsTab::Sections);
     d(&op).invoke_key_edited(1, "b".into());
-    click(&op, "SettingsDialog::save");
+    click(&op, "SettingsWindow::save");
     assert!(toasts(&op).contains(&"Chorus and Bridge both use the key B.".to_string()), "{:?}", toasts(&op));
-    assert!(op.dialog().is_some(), "the dialog stays open");
+    assert!(settings::is_open(&op), "Settings stays open");
     assert_eq!(app.data.lock().unwrap().settings.sections, SectionLook::default());
 }
 
@@ -124,7 +125,7 @@ fn credits_on_off_where_and_template() {
     let app = test_app();
     let op = opened(&app);
     settings::open(&op, SettingsTab::Songs);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     assert!(g.get_credits_on());
     assert_eq!(g.get_credits(), 0, "first and last slide");
     assert_eq!(g.get_credit_sample(), "Example: Amazing Grace (My Chains Are Gone) · John Newton, Chris Tomlin, Louie Giglio · © 2006 sixsteps Music · CCLI Song #4768151");
@@ -132,16 +133,16 @@ fn credits_on_off_where_and_template() {
     g.invoke_credit_template_edited();
     assert_eq!(g.get_credit_sample(), "Example: Amazing Grace (My Chains Are Gone) — Chris Tomlin");
     g.set_credits(2);
-    click(&op, "SettingsDialog::save");
+    click(&op, "SettingsWindow::save");
     let s = app.data.lock().unwrap().settings.clone();
     assert_eq!((s.credits.as_str(), s.credit_template.as_str()), ("last", "{title} — {artist}"));
 
     refresh(&op);
     settings::open(&op, SettingsTab::Songs);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     assert_eq!(g.get_credits(), 2);
     g.set_credits_on(false);
-    assert_eq!(settings::tab_index(SettingsTab::Songs), 3);
-    click(&op, "SettingsDialog::save");
+    assert_eq!(settings::tab_index(SettingsTab::Songs), 4);
+    click(&op, "SettingsWindow::save");
     assert_eq!(app.data.lock().unwrap().settings.credits, "none");
 }

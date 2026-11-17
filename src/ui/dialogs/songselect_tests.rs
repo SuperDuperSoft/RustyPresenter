@@ -1,10 +1,11 @@
 //! Songs from SongSelect, driven inline: files appear in a stand-in Downloads folder and the window's watcher looks.
 use super::*;
+use crate::ui::dialogs::settings::testing::{find_any as find};
 use crate::{
     app::test_app,
     model::{ItemKind, Song},
     songselect::{inbox::tests::{CHORDPRO, LYRICS_TXT}, usr::tests::SAMPLE as USR, watch::testing::fake_downloads},
-    ui::{AddState, SettingsDlg, dialogs::{AddTab, SettingsTab, add, settings}, operator::window::testing::{find, open as open_window, refresh}},
+    ui::{AddState, SettingsDlg, dialogs::{AddTab, SettingsTab, add, settings}, operator::window::testing::{open as open_window, refresh}},
 };
 use slint::Model;
 use std::fs;
@@ -119,12 +120,12 @@ fn with_the_setting_on_downloads_come_in_while_the_window_is_closed() {
     let op = opened(&app);
     assert!(op.songselect.watch.borrow().is_none(), "off by default");
     // Settings → Songs: the choice is saved and watching starts.
-    settings::open(&op, SettingsTab::Songs);
-    let f = op.ui.global::<SettingsDlg>();
+    settings::open(&op, SettingsTab::SongSelect);
+    let f = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     assert!(!f.get_songselect_inbox());
-    assert!(find(&op, "SettingsSongsGeneral::songselect-inbox").is_some());
+    assert!(find(&op, "SongSelectPage::songselect-inbox").is_some());
     f.set_songselect_inbox(true);
-    find(&op, "SettingsDialog::save").unwrap().mock_single_click(slint::platform::PointerEventButton::Left);
+    find(&op, "SettingsWindow::save").unwrap().mock_single_click(slint::platform::PointerEventButton::Left);
     assert!(app.data.lock().unwrap().settings.songselect_inbox);
     refresh(&op);
     assert!(op.songselect.watch.borrow().is_some(), "watching whenever the app is open");

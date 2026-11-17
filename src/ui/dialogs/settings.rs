@@ -1,14 +1,17 @@
-//! Settings (`openSettings`, `operator.js:877-1007`): a wide dialog editing a clone of `Settings`, never redrawn by
-//! `dialog_refresh`, so a phone or a conversion never wipes what the user typed. The form lives in the `SettingsDlg`
-//! global (`ui/dialogs/settings-state.slint`); Look is in `settings_look`, Bible in `settings_bible`.
+//! Settings (November 17, 2026 reorganisation, design `docs/superpowers/specs/2026-11-17-settings-design.md`): a
+//! window of its own (`settings_window`) with a sidebar of categories and short pages, "Find a setting" and Show
+//! advanced settings. It edits a clone of `Settings`, never redrawn by a read, so a phone or a conversion never wipes
+//! what the user typed; Save keeps it, Cancel (or closing the window) leaves it. The form lives in the Settings
+//! window's own `SettingsDlg` global (`ui/dialogs/settings-state.slint`); Look is in `settings_look`, Bible in
+//! `settings_bible`, the search in `settings_find`.
 #[path = "../../strings/settings.rs"]
 pub mod strings;
 
-use super::{DialogKind, SettingsTab, about, background, confirm, settings_audio, settings_bible, settings_follow, settings_graphics, settings_language, settings_look, settings_media, settings_sections, settings_themes, strings as dlg};
+use super::{SettingsTab, about, background, settings_audio, settings_bible, settings_find, settings_follow, settings_graphics, settings_language, settings_look, settings_media, settings_sections, settings_themes, settings_window::{self, win}, strings as dlg};
 use crate::{
     model::Settings,
     store::BackupInfo,
-    ui::{SettingsBackupRow, SettingsDlg, operator::{view::OperatorSnapshot, window::Operator}},
+    ui::{SettingsBackupRow, SettingsDlg, SettingsFindRow, SettingsNavRow, operator::{view::OperatorSnapshot, window::Operator}},
 };
 use slint::{ComponentHandle, ModelRc, VecModel};
 use std::{cell::RefCell, rc::{Rc, Weak}};
@@ -23,22 +26,27 @@ pub struct Edit {
     pub(crate) themes: settings_themes::ThemesState,
 }
 
-/// The tab's index in the `Tabs` row.
-pub fn tab_index(tab: SettingsTab) -> i32 {
-    match tab {
-        SettingsTab::Look => 0,
-        SettingsTab::Themes => 1,
-        SettingsTab::Language => 2,
-        SettingsTab::Songs | SettingsTab::Sections => 3,
-        SettingsTab::AutoFollow => 4,
-        SettingsTab::Bible => 5,
-        SettingsTab::Video => 6,
-        SettingsTab::Media => 7,
-        SettingsTab::Backups => 8,
-        SettingsTab::Help => 9,
-        SettingsTab::About => 10,
-    }
+/// The page's place in the sidebar (what `SettingsDlg.tab` holds).
+pub fn tab_index(tab: SettingsTab) -> i32 { SettingsTab::ALL.iter().position(|t| *t == tab).unwrap_or(0) as i32 }
+
+/// The page at `SettingsDlg.tab`.
+pub fn tab_at(i: i32) -> SettingsTab { usize::try_from(i).ok().and_then(SettingsTab::at).unwrap_or_default() }
+
+thread_local! {
+    /// The open Settings window's edits (none while it is closed).
+    static EDIT: RefCell<Option<Rc<Edit>>> = const { RefCell::new(None) };
 }
+
+/// The edits of the open Settings window.
+pub(crate) fn editing() -> Option<Rc<Edit>> { EDIT.with(|e| e.borrow().clone()) }
+
+/// Whether the Settings window is open, and on which page.
+pub fn shown(op: &Operator) -> Option<SettingsTab> {
+    settings_window::is_open(op).then(|| tab_at(win(op).global::<SettingsDlg>().get_tab()))
+}
+
+/// Whether the Settings window is open.
+pub fn is_open(op: &Operator) -> bool { settings_window::is_open(op) }
 
 /// `b.created.replace('_', ' at ').replace(/(\d\d)(\d\d)(\d\d)$/, '$1:$2') + ' UTC'` (`operator.js:988`).
 pub fn backup_label(created: &str) -> String {
@@ -56,10 +64,22 @@ pub fn backup_label(created: &str) -> String {
     }
 }
 
-/// Opens Settings on `tab`, editing a clone of the newest snapshot's settings. Nothing happens before the first read.
-pub fn open(op: &Rc<Operator>, tab: SettingsTab) {
+/// Opens Settings on `tab`, editing a clone of the newest snapshot's settings. Already open: it comes to the front on
+/// that page, its edits kept. Nothing happens before the first read.
+pub fn open(op: &Rc<Operator>, tab: SettingsTab) { open_at(op, Some(tab)) }
+
+/// Opens Settings on the page it showed last (the Settings button and menu item).
+pub fn open_last(op: &Rc<Operator>) { open_at(op, None) }
+
+fn open_at(op: &Rc<Operator>, tab: Option<SettingsTab>) {
+    if let Some(edit) = editing().filter(|_| settings_window::is_open(op)) {
+        if let Some(tab) = tab { show_page(op, &edit, tab, "") }
+        settings_window::raise(op);
+        return;
+    }
     let Some(snap) = op.state.borrow().snap.clone() else { return };
-    op.open_dialog(DialogKind::Settings(tab));
+    let remembered = settings_window::load(&op.app().store.root);
+    let tab = tab.or_else(|| SettingsTab::from_key(&remembered.page)).unwrap_or_default();
     let edit = Rc::new(Edit {
         settings: RefCell::new(snap.settings.clone()),
         backups: RefCell::default(),
@@ -68,13 +88,19 @@ pub fn open(op: &Rc<Operator>, tab: SettingsTab) {
         language: settings_language::LanguageState::default(),
         themes: settings_themes::ThemesState::default(),
     });
-    let g = op.ui.global::<SettingsDlg>();
+    EDIT.with(|e| *e.borrow_mut() = Some(edit.clone()));
+    let w = win(op);
+    let g = w.global::<SettingsDlg>();
+    crate::ui::operator::slides::apply_section_colors(&w.global::<crate::ui::Theme>());
     fill_form(&g, &edit.settings.borrow());
     g.set_palette(ModelRc::new(VecModel::from(background::palette())));
-    g.set_tab(tab_index(tab));
-    g.set_songs_page(i32::from(tab == SettingsTab::Sections));
     super::stage_layouts::fill_settings(&g, &snap.data.stage_layouts, snap.settings.stage.layout);
     about::show_licences(op, false);
+    fill_nav(&g);
+    g.set_find_text("".into());
+    g.set_find_rows(ModelRc::default());
+    g.set_highlight("".into());
+    g.set_advanced(remembered.advanced);
     fill_pages(op, &edit, &snap);
     connect(op, &edit);
     settings_sections::open(op, &edit);
@@ -83,14 +109,110 @@ pub fn open(op: &Rc<Operator>, tab: SettingsTab) {
     settings_audio::load(op);
     super::settings_record::load(op);
     super::settings_record::wire_keys(op);
+    super::settings_record::wire_size(op);
     super::settings_sound::wire(op);
     super::settings_stream_extras::load(op);
     settings_follow::load(op);
     super::settings_model::load(op);
-    if tab == SettingsTab::Look { settings_look::render_now(op, &edit) }
-    if tab == SettingsTab::Bible { settings_bible::load_catalog(op, &edit) }
-    let closing = edit.clone();
-    op.on_dialog_close(move |op| { closing.look.stop(); closing.themes.stop(); super::settings_keys::stop(op); settings_follow::stop() });
+    super::network::load(op);
+    super::stream_more::load(op, &edit);
+    super::settings_record::size_notes(op);
+    settings_window::set_open(true);
+    show_page(op, &edit, tab, "");
+    settings_window::restore(op, &remembered);
+    w.window().on_close_requested({
+        let (me, edit) = (Rc::downgrade(op), edit.clone());
+        move || {
+            if let Some(op) = me.upgrade() { cancel(&op, &edit) }
+            slint::CloseRequestResponse::KeepWindowShown
+        }
+    });
+    if let Err(e) = w.show() { op.toast(e.to_string(), true) }
+    w.invoke_focus_keys();
+}
+
+/// Closes the Settings window without saving: what it runs stops (the Look preview, listening for auto-follow, a
+/// key being changed), and its place, page and Show advanced settings are kept for next time.
+pub fn close(op: &Rc<Operator>) {
+    if !settings_window::is_open(op) { return }
+    let w = win(op);
+    let g = w.global::<SettingsDlg>();
+    settings_window::remember(op, &tab_at(g.get_tab()).key(), g.get_advanced());
+    if let Some(edit) = EDIT.with(|e| e.borrow_mut().take()) {
+        edit.look.stop();
+        edit.themes.stop();
+    }
+    super::settings_keys::stop(op);
+    settings_follow::stop();
+    super::ask::clear_settings(op);
+    settings_window::set_open(false);
+    let _ = w.hide();
+}
+
+/// Shows `tab`, lighting up the row `key` there (none when empty). A row that only shows with Show advanced settings
+/// turns that on.
+pub fn go(op: &Rc<Operator>, tab: SettingsTab, key: &str) {
+    if let Some(edit) = editing() { show_page(op, &edit, tab, key) }
+}
+
+fn show_page(op: &Rc<Operator>, edit: &Rc<Edit>, tab: SettingsTab, key: &str) {
+    let g = win(op).global::<SettingsDlg>();
+    if settings_find::find_row(key).is_some_and(|r| r.advanced) && !g.get_advanced() {
+        g.set_advanced(true);
+    }
+    let i = tab_index(tab);
+    if g.get_tab() != i || !settings_window::is_open(op) {
+        g.set_tab(i);
+        page_changed(op, edit, tab);
+    }
+    g.set_page_title(settings_find::path(tab).into());
+    light(op, key);
+}
+
+/// Lights up a row for a moment (the page scrolls to it).
+fn light(op: &Rc<Operator>, key: &str) {
+    let g = win(op).global::<SettingsDlg>();
+    g.set_highlight("".into());
+    if key.is_empty() { return }
+    g.set_highlight(key.into());
+    let (me, key) = (Rc::downgrade(op), key.to_string());
+    slint::Timer::single_shot(std::time::Duration::from_millis(2500), move || {
+        if let Some(op) = me.upgrade() {
+            let g = win(&op).global::<SettingsDlg>();
+            if g.get_highlight() == key.as_str() { g.set_highlight("".into()) }
+        }
+    });
+}
+
+/// The sidebar's lines.
+fn fill_nav(g: &SettingsDlg) {
+    let rows: Vec<SettingsNavRow> = settings_find::nav().into_iter().map(|(title, page)| SettingsNavRow {
+        title: title.into(), page: page.map_or(-1, tab_index), heading: page.is_none(),
+    }).collect();
+    g.set_nav(ModelRc::new(VecModel::from(rows)));
+}
+
+/// The sidebar, the page's title and what the search found again, in the language chosen now.
+pub(crate) fn relabel(op: &Rc<Operator>) {
+    let g = win(op).global::<SettingsDlg>();
+    fill_nav(&g);
+    g.set_page_title(settings_find::path(tab_at(g.get_tab())).into());
+    let text = g.get_find_text();
+    if !text.is_empty() { find(op, &text) }
+}
+
+/// "Find a setting": what matches the words typed.
+fn find(op: &Rc<Operator>, text: &str) {
+    let rows: Vec<SettingsFindRow> = settings_find::search(text).into_iter().map(|f| SettingsFindRow {
+        title: f.title.into(), path: f.path.into(), page: tab_index(f.page), key: f.key.into(),
+    }).collect();
+    win(op).global::<SettingsDlg>().set_find_rows(ModelRc::new(VecModel::from(rows)));
+}
+
+fn find_pick(op: &Rc<Operator>, i: usize) {
+    let g = win(op).global::<SettingsDlg>();
+    let Some(row) = slint::Model::row_data(&g.get_find_rows(), i) else { return };
+    go(op, tab_at(row.page), &row.key);
 }
 
 /// "Find more Bibles…" in the Bible picker: Settings on the Bible tab, with the picker's search in the library's
@@ -161,7 +283,7 @@ pub(crate) fn read_form(g: &SettingsDlg, s: &mut Settings) {
 /// Draws the pages that show the core's state rather than the form: Bible, Video, Backups and Help. The web
 /// rebuilds them from the newest `S` on every tab switch and after their own actions.
 pub(crate) fn fill_pages(op: &Rc<Operator>, edit: &Rc<Edit>, snap: &OperatorSnapshot) {
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     settings_look::fill_backgrounds(op, edit, snap);
     settings_themes::fill(op, edit, snap);
     settings_bible::fill(&g, edit, snap);
@@ -229,11 +351,37 @@ pub(crate) mod testing {
     }
 
     pub(crate) fn set_clipboard(text: Option<&str>) { CLIPBOARD.with(|c| *c.borrow_mut() = text.map(str::to_string)) }
+
+    use crate::ui::operator::window::Operator;
+    use i_slint_backend_testing::ElementHandle;
+
+    /// An element of the Settings window by its id (`Component::element`).
+    pub(crate) fn find(op: &Operator, id: &str) -> Option<ElementHandle> { ElementHandle::find_by_element_id(super::win(op), id).next() }
+
+    pub(crate) fn find_all(op: &Operator, id: &str) -> Vec<ElementHandle> { ElementHandle::find_by_element_id(super::win(op), id).collect() }
+
+    /// An element of the Settings window, or else of the operator window.
+    pub(crate) fn find_any(op: &Operator, id: &str) -> Option<ElementHandle> {
+        find(op, id).or_else(|| crate::ui::operator::window::testing::find(op, id))
+    }
+
+    pub(crate) fn find_all_any(op: &Operator, id: &str) -> Vec<ElementHandle> {
+        let mut all = find_all(op, id);
+        all.extend(crate::ui::operator::window::testing::find_all(op, id));
+        all
+    }
+
+    /// Clicks an element of the Settings window.
+    pub(crate) fn click(op: &Operator, id: &str) {
+        find(op, id).unwrap_or_else(|| panic!("{id} is in the Settings window")).mock_single_click(slint::platform::PointerEventButton::Left);
+        slint::platform::update_timers_and_animations();
+    }
 }
 
 /// Sets every `SettingsDlg` callback for this dialog; each holds a `Weak`, so the window does not keep itself alive.
 fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
-    let g = op.ui.global::<SettingsDlg>();
+    let w = win(op);
+    let g = w.global::<SettingsDlg>();
     let with = |f: fn(&Rc<Operator>, &Rc<Edit>)| {
         let (me, edit): (Weak<Operator>, Rc<Edit>) = (Rc::downgrade(op), edit.clone());
         move || if let Some(op) = me.upgrade() { f(&op, &edit) }
@@ -283,32 +431,51 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_restore(with_i(restore));
     let me = Rc::downgrade(op);
     g.on_show_licences(move |show| if let Some(op) = me.upgrade() { about::show_licences(&op, show) });
-    g.on_cancel(with(|op, _| op.close_dialog()));
+    g.on_cancel(with(cancel));
     g.on_save(with(save));
     g.on_usage_report(with(usage_report));
     g.on_open_songselect(with(songselect));
     g.on_edit_own_scenes(with(own_scenes));
-    g.on_edit_stream_more(with(stream_more));
     g.on_credit_template_edited(with(|op, edit| {
-        let g = op.ui.global::<SettingsDlg>();
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
         let mut s = edit.settings.borrow().clone();
         read_form(&g, &mut s);
         g.set_credit_sample(settings_sections::credit_sample(&s).into());
     }));
     g.on_cleanup_media(with(|op, _| settings_media::clean_up(op)));
+    let me = Rc::downgrade(op);
+    g.on_find_edited(move |t| if let Some(op) = me.upgrade() { find(&op, &t) });
+    g.on_find_pick(with_i(|op, _, i| find_pick(op, i)));
+    g.on_nav_pick(with_i(|op, edit, i| { if let Some(t) = SettingsTab::at(i) { show_page(op, edit, t, "") } }));
+    let me = Rc::downgrade(op);
+    g.on_go(move |page, key| if let Some(op) = me.upgrade() { if let Some(t) = usize::try_from(page).ok().and_then(SettingsTab::at) { go(&op, t, &key) } });
+    g.on_advanced_changed(|_| {});
+    g.on_pair_remote(with(|op, _| { super::phone::open(op); settings_window::raise_operator(op) }));
+    g.on_open_screens(with(|op, _| { super::screens::open(op); settings_window::raise_operator(op) }));
+    g.on_open_stage_layouts(with(|op, _| { super::stage_layouts::open(op); settings_window::raise_operator(op) }));
+    let me = Rc::downgrade(op);
+    w.on_ask_answer(move |ok, text| if let Some(op) = me.upgrade() { super::ask::answer_settings(&op, ok, text.to_string()) });
+    let me = Rc::downgrade(op);
+    w.on_ask_other(move || if let Some(op) = me.upgrade() { super::ask::answer_other_settings(&op) });
+    let me = Rc::downgrade(op);
+    w.on_ask_third(move || if let Some(op) = me.upgrade() { super::ask::answer_third_settings(&op) });
     settings_themes::connect(op, edit);
     super::settings_keys::connect(op, edit);
 }
 
-/// Switching tabs drops the Look preview; coming back to Look draws it again from the current edits
+/// Another page: the Look preview stops; coming back to Look draws it again from the current edits
 /// (`operator.js:937, 1000`). The state pages are rebuilt from the newest snapshot, as `draw()` does.
-fn tab_changed(op: &Rc<Operator>, edit: &Rc<Edit>, tab: usize) {
+fn page_changed(op: &Rc<Operator>, edit: &Rc<Edit>, tab: SettingsTab) {
     settings_look::drop_preview(op, edit);
     settings_themes::close_editor(op, edit);
     if super::settings_keys::capturing() { super::settings_keys::stop(op) }
     if let Some(s) = snap(op) { fill_pages(op, edit, &s) }
-    if tab == tab_index(SettingsTab::Look) as usize { settings_look::render_now(op, edit) }
-    if tab == tab_index(SettingsTab::Bible) as usize { settings_bible::load_catalog(op, edit) }
+    if tab == SettingsTab::Look { settings_look::render_now(op, edit) }
+    if tab == SettingsTab::Bible { settings_bible::load_catalog(op, edit) }
+}
+
+fn tab_changed(op: &Rc<Operator>, edit: &Rc<Edit>, tab: usize) {
+    if let Some(t) = SettingsTab::at(tab) { page_changed(op, edit, t) }
 }
 
 fn backup_now(op: &Rc<Operator>, edit: &Rc<Edit>) {
@@ -328,122 +495,126 @@ fn backup_now(op: &Rc<Operator>, edit: &Rc<Edit>) {
 fn restore(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
     let Some(name) = edit.backups.borrow().get(i).map(|b| b.name.clone()) else { return };
     let me = Rc::downgrade(op);
-    confirm(op, &strings::restore_confirm(), &dlg::ok(), &dlg::cancel(), false, move |ok| {
+    super::ask::in_settings(op, || super::ask::confirm(op, &strings::restore_confirm(), &dlg::ok(), &dlg::cancel(), false, move |ok| {
         let Some(op) = me.upgrade().filter(|_| ok) else { return };
         let me = Rc::downgrade(&op);
         op.ops().call::<serde_json::Value>("backup/restore", serde_json::json!({ "name": name }), move |r| {
             let Some(op) = me.upgrade() else { return };
             match r {
                 Ok(_) => {
-                    op.close_dialog();
+                    close(&op);
                     op.toast(strings::backup_restored(), false);
                 }
                 Err(e) => op.toast(e, true),
             }
         });
-    });
+    }));
+}
+
+/// The settings as the form has them now (every page, the advanced rows too).
+pub(crate) fn current(op: &Operator, edit: &Edit) -> Settings {
+    let mut s = edit.settings.borrow().clone();
+    read_form(&win(op).global::<SettingsDlg>(), &mut s);
+    super::stream_more::read_into(op, &mut s.record);
+    s
+}
+
+/// Whether anything was changed and not saved yet.
+pub(crate) fn changed(op: &Operator, edit: &Edit) -> bool {
+    current(op, edit) != *edit.settings.borrow() || super::network::changed(op)
+}
+
+/// Cancel, Esc or the window's close button: closes at once, or asks first when something was changed.
+fn cancel(op: &Rc<Operator>, edit: &Rc<Edit>) {
+    if !changed(op, edit) { return close(op) }
+    let (me, edit) = (Rc::downgrade(op), edit.clone());
+    super::ask::in_settings(op, || super::ask::choose(op, &crate::tr!("Save your changes to the settings?"), &crate::tr!("Save"), &crate::tr!("Don't save"), move |answer| {
+        let Some(op) = me.upgrade() else { return };
+        match answer {
+            Some(true) => save(&op, &edit),
+            Some(false) => close(&op),
+            None => {}
+        }
+    }));
 }
 
 /// Save settings: the form over the clone, with the translation and screens taken from the **newest** snapshot, so
-/// a translation picked meanwhile (`settings/translation`) or a monitor chosen in Screens is never undone.
-fn save(op: &Rc<Operator>, edit: &Rc<Edit>) { save_then(op, edit, |_| {}) }
+/// a translation picked meanwhile (`settings/translation`) or a monitor chosen in Screens is never undone. Then the
+/// network rows (`network/save`), and the window closes.
+fn save(op: &Rc<Operator>, edit: &Rc<Edit>) { save_then(op, edit, true, |_| {}) }
 
-/// The Song use report from Settings → Songs: opens at once, or, with changes not saved yet, asks to save them first
-/// (FEAT-7 §3.3).
+/// Asks to save the changes first (in the Settings window), then runs `then`; at once with nothing changed.
+fn saved_first(op: &Rc<Operator>, edit: &Rc<Edit>, question: String, yes: String, then: fn(&Rc<Operator>)) {
+    if !changed(op, edit) { return then(op) }
+    let (me, edit) = (Rc::downgrade(op), edit.clone());
+    super::ask::in_settings(op, || super::ask::confirm(op, &question, &yes, &dlg::cancel(), false, move |ok| {
+        let Some(op) = me.upgrade().filter(|_| ok) else { return };
+        save_then(&op, &edit, false, then);
+    }));
+}
+
+/// The Song use report from Settings → Songs: opens at once (in the operator window), or, with changes not saved
+/// yet, asks to save them first (FEAT-7 §3.3).
 fn usage_report(op: &Rc<Operator>, edit: &Rc<Edit>) {
-    let mut s = edit.settings.borrow().clone();
-    read_form(&op.ui.global::<SettingsDlg>(), &mut s);
-    if s == *edit.settings.borrow() { return super::usage::open(op) }
-    let (me, edit) = (Rc::downgrade(op), edit.clone());
-    confirm(op, &crate::usage::strings::save_first(), &crate::usage::strings::save_and_open(), &dlg::cancel(), false, move |ok| {
-        let Some(op) = me.upgrade().filter(|_| ok) else { return };
-        save_then(&op, &edit, super::usage::open);
+    saved_first(op, edit, crate::usage::strings::save_first(), crate::usage::strings::save_and_open(), |op| {
+        super::usage::open(op);
+        settings_window::raise_operator(op);
     });
 }
 
-/// "Your scenes…" in Media → Livestream: at once, or, with changes not saved yet, asks to save them first (the
-/// scenes editor takes the dialog's place and brings Settings back when it closes).
-fn own_scenes(op: &Rc<Operator>, edit: &Rc<Edit>) {
-    let mut s = edit.settings.borrow().clone();
-    read_form(&op.ui.global::<SettingsDlg>(), &mut s);
-    if s == *edit.settings.borrow() {
-        // Closed first, so it stops what it runs (the Look preview, listening for auto-follow).
-        op.close_dialog();
-        return super::stream_scenes::open(op);
-    }
-    let (me, edit) = (Rc::downgrade(op), edit.clone());
-    confirm(op, &crate::tr!("Save your other changes first?"), &crate::tr!("Save and go on"), &dlg::cancel(), false, move |ok| {
-        let Some(op) = me.upgrade().filter(|_| ok) else { return };
-        save_then(&op, &edit, super::stream_scenes::open);
-    });
+/// "Your scenes…" in Livestream → Scenes: the scenes editor opens in the operator window (it saves the scenes
+/// itself, and Save here keeps them as it found them).
+fn own_scenes(op: &Rc<Operator>, _edit: &Rc<Edit>) {
+    super::stream_scenes::open(op);
+    settings_window::raise_operator(op);
 }
 
-/// "Songs from SongSelect…" in Songs: as "Your scenes…", it takes the dialog's place, after any changes are saved.
-fn songselect(op: &Rc<Operator>, edit: &Rc<Edit>) {
-    let mut s = edit.settings.borrow().clone();
-    read_form(&op.ui.global::<SettingsDlg>(), &mut s);
-    if s == *edit.settings.borrow() {
-        op.close_dialog();
-        return super::songselect::open(op);
-    }
-    let (me, edit) = (Rc::downgrade(op), edit.clone());
-    confirm(op, &crate::tr!("Save your other changes first?"), &crate::tr!("Save and go on"), &dlg::cancel(), false, move |ok| {
-        let Some(op) = me.upgrade().filter(|_| ok) else { return };
-        save_then(&op, &edit, super::songselect::open);
-    });
-}
-
-/// "More settings and saved setups…" in Media → Livestream: as "Your scenes…", it takes the dialog's place, after
-/// any changes are saved.
-fn stream_more(op: &Rc<Operator>, edit: &Rc<Edit>) {
-    let mut s = edit.settings.borrow().clone();
-    read_form(&op.ui.global::<SettingsDlg>(), &mut s);
-    if s == *edit.settings.borrow() {
-        op.close_dialog();
-        return super::stream_more::open(op);
-    }
-    let (me, edit) = (Rc::downgrade(op), edit.clone());
-    confirm(op, &crate::tr!("Save your other changes first?"), &crate::tr!("Save and go on"), &dlg::cancel(), false, move |ok| {
-        let Some(op) = me.upgrade().filter(|_| ok) else { return };
-        save_then(&op, &edit, super::stream_more::open);
-    });
+/// "Songs from SongSelect…" in Songs → SongSelect: opens in the operator window.
+fn songselect(op: &Rc<Operator>, _edit: &Rc<Edit>) {
+    super::songselect::open(op);
+    settings_window::raise_operator(op);
 }
 
 /// "Restart now" (`recovery::restart`): at once, or, with other changes not saved yet, asks to save them first.
 fn restart_now(op: &Rc<Operator>, edit: &Rc<Edit>) {
-    let mut s = edit.settings.borrow().clone();
-    read_form(&op.ui.global::<SettingsDlg>(), &mut s);
-    if s == *edit.settings.borrow() { return crate::recovery::restart::request() }
-    let (me, edit) = (Rc::downgrade(op), edit.clone());
-    confirm(op, &crate::tr!("Save your other changes and restart?"), &crate::tr!("Save and restart"), &dlg::cancel(), false, move |ok| {
-        let Some(op) = me.upgrade().filter(|_| ok) else { return };
-        save_then(&op, &edit, |_| crate::recovery::restart::request());
-    });
+    saved_first(op, edit, crate::tr!("Save your other changes and restart?"), crate::tr!("Save and restart"), |_| crate::recovery::restart::request());
 }
 
-/// `save`, then `then` once the settings are saved and the dialog closed.
-fn save_then(op: &Rc<Operator>, edit: &Rc<Edit>, then: impl FnOnce(&Rc<Operator>) + 'static) {
-    let mut s = edit.settings.borrow().clone();
-    read_form(&op.ui.global::<SettingsDlg>(), &mut s);
+/// Saves, then runs `then` once the settings (and the network rows) are saved; `close_after`: the window closes.
+fn save_then(op: &Rc<Operator>, edit: &Rc<Edit>, close_after: bool, then: fn(&Rc<Operator>)) {
+    let mut s = current(op, edit);
     if let Some(problem) = s.sections.problem() { return op.toast(problem, true) }
+    // The network rows are checked before anything is saved (a port that is not a number).
+    let network = match super::network::body_if_changed(op) {
+        Ok(n) => n,
+        Err(e) => { show_page(op, edit, SettingsTab::OtherGear, "tcp"); return super::network::show_error(op, &e) }
+    };
     if let Some(latest) = snap(op) {
         s.translation = latest.settings.translation.clone();
         s.screens = latest.settings.screens.clone();
-        // Kept by Your scenes, which saves them itself.
+        // Kept by Your scenes, which saves them itself, and by `network/save` below.
         s.record.own_scenes = latest.settings.record.own_scenes.clone();
+        s.network = latest.settings.network.clone();
     }
     let body = serde_json::to_value(&s).unwrap_or_default();
     // 1.3: a new sound input for auto-follow is listened to at once.
     let input_changed = s.follow.input != edit.settings.borrow().follow.input;
-    let me = Rc::downgrade(op);
+    let (me, edit) = (Rc::downgrade(op), edit.clone());
     op.ops().call::<serde_json::Value>("settings", body, move |r| {
         let Some(op) = me.upgrade() else { return };
         match r {
             Ok(_) => {
                 crate::ui::operator::follow::listen(&op, input_changed);
-                op.close_dialog();
-                op.toast(strings::saved(), false);
-                then(&op);
+                *edit.settings.borrow_mut() = s;
+                let done = move |op: &Rc<Operator>| {
+                    if close_after { close(op) }
+                    op.toast(strings::saved(), false);
+                    then(op);
+                };
+                match network {
+                    Some(body) => super::network::save(&op, body, done),
+                    None => done(&op),
+                }
             }
             Err(e) => op.toast(e, true),
         }
@@ -453,9 +624,13 @@ fn save_then(op: &Rc<Operator>, edit: &Rc<Edit>, then: impl FnOnce(&Rc<Operator>
 /// Connects the top bar's Settings button.
 pub(crate) fn wire(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
-    op.ui.on_settings(move || if let Some(op) = me.upgrade() { open(&op, SettingsTab::Look) });
+    op.ui.on_settings(move || if let Some(op) = me.upgrade() { open_last(&op) });
 }
 
 #[cfg(test)]
 #[path = "settings_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "settings_window_tests.rs"]
+mod window_tests;

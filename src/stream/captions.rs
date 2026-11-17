@@ -29,7 +29,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, mpsc};
 use std::time::{Duration, Instant, SystemTime};
 
-/// Settings → Media → Livestream → Live captions.
+/// Settings → Livestream → Live captions.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 #[serde(default)]
 pub struct Prefs {
@@ -513,9 +513,9 @@ pub mod tr {
     pub fn how_good() -> String {
         tr!("Captions are made on this computer from the microphone, in English only. They are often wrong: names, Bible places, quiet or echoing speech and songs come out badly, and there is no punctuation. They show about two seconds after the words are said.")
     }
-    pub fn no_model() -> String { tr!("Live captions need the English speech model. Download the fast model in Settings → Auto-follow.") }
+    pub fn no_model() -> String { tr!("Live captions need the English speech model. Download the fast model in Settings → Auto-follow → Speech model.") }
     pub fn failed(why: &str) -> String { tr!("Live captions could not start: {why}", why = why) }
-    pub fn no_input() -> String { tr!("Live captions need a microphone or line-in: choose one under Sound in Settings → Media, or under Live captions.") }
+    pub fn no_input() -> String { tr!("Live captions need a microphone or line-in: choose one in Settings → Livestream → Sound, or under Live captions.") }
     pub fn input_stopped(why: &str) -> String { tr!("Live captions stopped hearing the microphone ({why}). Trying again…", why = why) }
     pub fn no_file(path: &str, why: &str) -> String { tr!("The captions file {path} could not be made: {why}", path = path, why = why) }
     pub fn on() -> String { tr!("Live captions are on.") }

@@ -4,7 +4,7 @@ use crate::{
     app::{LiveUpdate, test_app},
     model::{ItemKind, ServiceItem},
     ui::{
-        dialogs::{AddTab, SettingsTab, add, ask, automation, find_verse, item_edit, overlays, phone, print, screens, services, settings, show_message, slide_breaks, song_editor, stage_layouts, usage},
+        dialogs::{AddTab, add, ask, automation, find_verse, item_edit, overlays, phone, print, screens, services, show_message, slide_breaks, song_editor, stage_layouts, usage},
         operator::window::{Operator, testing::{find, open, refresh}},
     },
 };
@@ -119,7 +119,7 @@ fn every_dialog_starts_at_the_same_top_and_fits_the_window() {
     refresh(&op);
     let item = with_text_item(&op);
     let service = op.app().data.lock().unwrap().services[0].id;
-    let dialogs: [(&str, Box<dyn Fn(&Rc<Operator>)>); 32] = [
+    let dialogs: [(&str, Box<dyn Fn(&Rc<Operator>)>); 21] = [
         ("Add song", Box::new(|op| add::open_add(op, AddTab::Song))),
         ("Add scripture", Box::new(|op| add::open_add(op, AddTab::Scripture))),
         ("Add media", Box::new(|op| add::open_add(op, AddTab::Media))),
@@ -131,17 +131,6 @@ fn every_dialog_starts_at_the_same_top_and_fits_the_window() {
         ("Print", Box::new(move |op| print::open(op, service))),
         ("Screens", Box::new(screens::open)),
         ("Phone", Box::new(phone::open)),
-        ("Settings look", Box::new(|op| settings::open(op, SettingsTab::Look))),
-        ("Settings themes", Box::new(|op| settings::open(op, SettingsTab::Themes))),
-        ("Settings language", Box::new(|op| settings::open(op, SettingsTab::Language))),
-        ("Settings songs", Box::new(|op| settings::open(op, SettingsTab::Songs))),
-        ("Settings sections", Box::new(|op| settings::open(op, SettingsTab::Sections))),
-        ("Settings Bible", Box::new(|op| settings::open(op, SettingsTab::Bible))),
-        ("Settings video", Box::new(|op| settings::open(op, SettingsTab::Video))),
-        ("Settings media", Box::new(|op| settings::open(op, SettingsTab::Media))),
-        ("Settings backups", Box::new(|op| settings::open(op, SettingsTab::Backups))),
-        ("Settings help", Box::new(|op| settings::open(op, SettingsTab::Help))),
-        ("Settings about", Box::new(|op| settings::open(op, SettingsTab::About))),
         ("Usage", Box::new(usage::open)),
         ("Stage layouts", Box::new(stage_layouts::open)),
         ("Overlays", Box::new(overlays::open)),
@@ -172,7 +161,7 @@ fn questions_start_at_the_dialogs_top_over_a_dialog_or_the_bare_window() {
     for size in [(1366.0, 768.0), (1809.0, 1000.0)] {
         resize(&op, size);
         for over_dialog in [false, true] {
-            if over_dialog { settings::open(&op, SettingsTab::Language) }
+            if over_dialog { services::open(&op) }
             ask::confirm(&op, "Delete this?", "Delete", "Cancel", true, |_| {});
             resize(&op, size);
             let (_, top, _, _) = bounds(&op, "OperatorWindow::keys");
@@ -189,37 +178,12 @@ fn questions_start_at_the_dialogs_top_over_a_dialog_or_the_bare_window() {
 #[test]
 fn tabbed_dialogs_keep_their_place_and_size_on_every_tab() {
     use crate::ui::AddState;
-    use crate::ui::operator::window::testing::find_all;
-    use slint::{ComponentHandle, platform::PointerEventButton};
+    use slint::ComponentHandle;
     let app = test_app();
     let op = open(&app);
     refresh(&op);
     for size in [(1366.0, 768.0), (1809.0, 1000.0)] {
         resize(&op, size);
-        // Settings: click through every tab and back.
-        settings::open(&op, SettingsTab::Themes);
-        resize(&op, size);
-        let first = card(&op);
-        let tabs = find_all(&op, "Tabs::tab");
-        assert_eq!(tabs.len(), 11, "the eleven Settings tabs (Auto-follow added in 1.3)");
-        for (i, tab) in tabs.iter().enumerate().chain(tabs.iter().enumerate().rev()) {
-            tab.mock_single_click(PointerEventButton::Left);
-            resize(&op, size);
-            let name = format!("Settings tab {i}");
-            assert_eq!(card(&op), first, "{name} keeps the dialog's place and size at {size:?}");
-            assert_dialog_fits(&op, &name, size);
-        }
-        // Songs: its General and "Sections and labels" pages.
-        tabs[settings::tab_index(SettingsTab::Songs) as usize].mock_single_click(PointerEventButton::Left);
-        for page in [1, 0] {
-            op.ui.global::<crate::ui::SettingsDlg>().set_songs_page(page);
-            resize(&op, size);
-            let name = format!("Settings Songs page {page}");
-            assert_eq!(card(&op), first, "{name} keeps the dialog's place and size at {size:?}");
-            assert_dialog_fits(&op, &name, size);
-        }
-        assert!(first.3 <= 860.5 && first.3 >= (size.1 - 200.0).min(800.0), "Settings is tall: {first:?} at {size:?}");
-        op.close_dialog();
         // Automation: its five tabs.
         automation::open(&op);
         resize(&op, size);

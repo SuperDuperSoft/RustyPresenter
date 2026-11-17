@@ -213,7 +213,6 @@ mod tests {
 
     #[test]
     fn options_button_opens_the_menu() {
-        use crate::ui::SettingsDlg;
         crate::ui::ui_test_init();
         let app = test_app();
         let song = add_song(&app);
@@ -225,9 +224,10 @@ mod tests {
         let pick = |id: &str, page: i32| {
             let line = find(&op, id).unwrap_or_else(|| panic!("{id} in the menu"));
             line.invoke_accessible_default_action();
-            let g = op.ui.global::<SettingsDlg>();
-            assert_eq!((g.get_tab(), g.get_follow_page()), (4, page), "{id}");
-            op.close_dialog();
+            use crate::ui::dialogs::{SettingsTab, settings};
+            let want = match page { 1 => SettingsTab::FollowPractice, 2 => SettingsTab::FollowReview, _ => SettingsTab::AutoFollow };
+            assert_eq!(settings::shown(&op), Some(want), "{id}");
+            settings::close(&op);
         };
         pick("FollowRow::follow-menu-log", 2);
         more.mock_single_click(PointerEventButton::Left);
