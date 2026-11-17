@@ -51,7 +51,19 @@ const LIBRARY: &str = "libndi.so.6";
 fn candidates(env: impl Fn(&str) -> Option<OsString>) -> Vec<PathBuf> {
     let mut c: Vec<PathBuf> = ["NDI_RUNTIME_DIR_V6", "NDI_RUNTIME_DIR_V5"].iter().filter_map(|v| env(v)).filter(|d| !d.is_empty()).map(|d| PathBuf::from(d).join(LIBRARY)).collect();
     c.push(PathBuf::from(LIBRARY));
+    c.extend(known(crate::platform::tools::OS).iter().map(PathBuf::from));
     c
+}
+
+/// Where the runtime is put on `os` when the system's own search does not find it (the places OBS's NDI plugin
+/// looks too). Windows' installer always sets `NDI_RUNTIME_DIR_V6`.
+fn known(os: crate::platform::tools::Os) -> &'static [&'static str] {
+    use crate::platform::tools::Os;
+    match os {
+        Os::Windows => &[],
+        Os::MacOs => &["/usr/local/lib/libndi.dylib", "/Library/NDI SDK for Apple/lib/macOS/libndi.dylib"],
+        Os::Linux => &["/usr/local/lib/libndi.so.6", "/usr/lib/x86_64-linux-gnu/libndi.so.6", "/usr/lib64/libndi.so.6", "libndi.so.5", "/usr/local/lib/libndi.so.5"],
+    }
 }
 
 #[repr(C)]
@@ -538,7 +550,11 @@ mod tests {
         let env = |v: &str| (v == "NDI_RUNTIME_DIR_V6").then(|| OsString::from("C:/NDI/Runtime"));
         let c = candidates(env);
         assert_eq!(c, vec![PathBuf::from("C:/NDI/Runtime").join(LIBRARY), PathBuf::from(LIBRARY)]);
-        assert_eq!(candidates(|_| None), vec![PathBuf::from(LIBRARY)]);
+        assert_eq!(candidates(|_| None)[0], PathBuf::from(LIBRARY));
+        use crate::platform::tools::Os;
+        assert!(known(Os::Windows).is_empty());
+        assert!(known(Os::MacOs).iter().all(|p| p.ends_with("libndi.dylib")));
+        assert!(known(Os::Linux).iter().all(|p| p.contains("libndi.so.")));
     }
 
     #[test]

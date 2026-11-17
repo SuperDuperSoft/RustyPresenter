@@ -95,7 +95,12 @@ libc = "0.2"
 # Plan 4's `signal-hook` is a thin layer over this, which tokio already brings in.
 signal-hook-registry = "1.4"
 
-# Linux: ask the desktop (KDE, XFCE, Cinnamon, MATE...) not to blank the screen, over D-Bus.
+# macOS: stream keys in the Keychain (`stream::keys`). Already in the lock file (rustls's certificate check uses it).
+[target.'cfg(target_os = "macos")'.dependencies]
+security-framework = "3.7"
+
+# Linux: ask the desktop (KDE, XFCE, Cinnamon, MATE...) not to blank the screen, and keep stream keys in its
+# password store (`stream::keys`), over D-Bus.
 [target.'cfg(target_os = "linux")'.dependencies]
 # Not pinned exactly: slint pulls zbus too, and Cargo.lock already fixes the version.
 zbus = { version = "5.19", default-features = false, features = ["blocking-api", "async-io"] }

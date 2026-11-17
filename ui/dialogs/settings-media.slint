@@ -100,7 +100,7 @@ export component SettingsMedia inherits VerticalLayout {
         label: @tr("Video encoder");
         help: @tr("Automatic suits most computers. A graphics card's encoder leaves the processor free; it is tried first, and Automatic is used if it does not work on this computer.");
         record-encoder := Select {
-            options: [@tr("Automatic"), @tr("The processor (x264)"), @tr("NVIDIA graphics card"), @tr("Intel graphics"), @tr("AMD graphics card"), @tr("Windows' own"), @tr("OpenH264")];
+            options: [@tr("Automatic"), @tr("The processor (x264)"), @tr("NVIDIA graphics card"), @tr("Intel graphics"), @tr("AMD graphics card"), @tr("Windows' own"), @tr("OpenH264"), @tr("The Mac's own")];
             index <=> SettingsDlg.record-encoder;
         }
     }
@@ -150,7 +150,8 @@ export component SettingsMedia inherits VerticalLayout {
     }
     Field {
         label: @tr("Sound from this computer");
-        help: @tr("Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above.");
+        help: @tr("Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above.")
+            + (SettingsDlg.stream-sound-note != "" ? " " + SettingsDlg.stream-sound-note : "");
         stream-sound := Select {
             options: SettingsDlg.stream-sound-labels;
             index <=> SettingsDlg.stream-sound-index;

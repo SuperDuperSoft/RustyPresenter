@@ -136,6 +136,7 @@ fn read_camera2(g: &SettingsDlg) -> String {
 
 pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     fill_stream_sound(g, &[], &p.stream_sound);
+    g.set_stream_sound_note(if crate::platform::tools::OS == crate::platform::tools::Os::MacOs { stream::tr::mac_needs_loopback().into() } else { Default::default() });
     fill_camera(g, &[], &p.camera, &p.camera2);
     g.set_stream_camera_control(p.camera_control.as_str().into());
     g.set_record_encoder(record::args::CHOOSABLE.iter().position(|e| *e == p.encoder).map_or(0, |i| i as i32 + 1));

@@ -77,15 +77,16 @@ impl Drop for Board {
     fn drop(&mut self) { self.stop() }
 }
 
-/// Starts passing sound input `name` (FFmpeg input `format`) on, read by `ffmpeg`; silence while `mute` is set.
+/// Starts passing sound input `name` (FFmpeg input `format`) on, read by `ffmpeg` (on Linux, by `parec` when this
+/// FFmpeg has no PulseAudio: `record::devices::sound_reader`); silence while `mute` is set.
 pub fn start(ffmpeg: PathBuf, format: &str, name: &str, mute: Arc<AtomicBool>) -> Result<Board, String> {
     let port = crate::platform::ports::tcp().map_err(|e| e.to_string())?;
     let (stop, silent) = (Arc::new(AtomicBool::new(false)), Arc::new(AtomicBool::new(false)));
     let (s, q) = (stop.clone(), silent.clone());
     let level: Arc<super::level::Level> = Arc::default();
     let l = level.clone();
-    let args = input_args(format, name);
-    let thread = std::thread::Builder::new().name("stream-board".into()).spawn(move || run(ffmpeg, args, port, &s, &q, &mute, &l)).map_err(|e| e.to_string())?;
+    let (reader, args) = crate::record::devices::sound_reader(&ffmpeg, format, name);
+    let thread = std::thread::Builder::new().name("stream-board".into()).spawn(move || run(reader, args, port, &s, &q, &mute, &l)).map_err(|e| e.to_string())?;
     Ok(Board { feed: Feed { format: FORMAT, port }, silent, level, stop, thread: Some(thread) })
 }
 
