@@ -31,6 +31,12 @@ pub mod send;
 pub mod speed;
 pub mod tally;
 pub mod words_file;
+// The livestream's sound (November 17, 2026): setups, Listen, the phone as a microphone, the Mac's own sound.
+pub mod listen;
+#[cfg(target_os = "macos")]
+pub mod mac_tap;
+pub mod phone_mic;
+pub mod sound_setup;
 
 /// A place a stream can be sent.
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]

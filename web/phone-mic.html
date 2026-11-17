@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone microphone</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111111">
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; min-height: 100%; background: #111; color: #eceef3; font: 17px/1.35 -apple-system, "Segoe UI", Roboto, system-ui, sans-serif; }
+  main { max-width: 520px; margin: 0 auto; padding: 24px 18px; display: flex; flex-direction: column; gap: 18px; }
+  h1 { font-size: 22px; margin: 0; }
+  button { font: inherit; font-size: 20px; font-weight: 700; padding: 18px; border-radius: 14px; border: 0; background: #2f6fde; color: #fff; }
+  button.stop { background: #d6202a; }
+  button:disabled { opacity: .5; }
+  #meter { height: 14px; border-radius: 7px; background: #2a2d35; overflow: hidden; }
+  #bar { height: 100%; width: 0; background: #1d8f4e; transition: width .08s; }
+  #note { color: #c8ccd6; }
+  a { color: #8ab4ff; word-break: break-all; }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">Phone microphone</h1>
+  <div id="note"></div>
+  <a id="secure" hidden></a>
+  <button id="go" disabled>Start sending sound</button>
+  <div id="meter"><div id="bar"></div></div>
+</main>
+<script>
+  // The phone's microphone, sent to RustyPresenter a tenth of a second at a time as 16-bit mono numbers
+  // (POST /stage-view/mic/sound?rate=…). Same access as the stage view.
+  const $ = id => document.getElementById(id);
+  let words = {}, running = null, wake = null;
+  async function keepAwake() { try { if (!wake && navigator.wakeLock) { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => { wake = null; }); } } catch (e) {} }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && running) keepAwake(); });
+
+  async function load() {
+    try {
+      const j = await (await fetch('/stage-view/mic/status', { cache: 'no-store' })).json();
+      words = j.words || {};
+      $('title').textContent = words.title || $('title').textContent;
+      document.title = $('title').textContent;
+      $('go').textContent = words.start || $('go').textContent;
+      if (!window.isSecureContext || !navigator.mediaDevices) {
+        $('note').textContent = words.needs_secure || '';
+        if (j.secure_url) { $('secure').href = j.secure_url; $('secure').textContent = j.secure_url; $('secure').hidden = false; }
+        return;
+      }
+      if (!j.allowed) {
+        $('note').textContent = words.needs_stage_view || '';
+        $('secure').href = '/stage-view'; $('secure').textContent = location.origin + '/stage-view'; $('secure').hidden = false;
+        return;
+      }
+      $('go').disabled = false;
+    } catch (e) { $('note').textContent = '…'; setTimeout(load, 2000); }
+  }
+
+  async function start() {
+    let stream;
+    try {
+      // The sound as it is: the stream's own filters clean it up.
+      stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+    } catch (e) { $('note').textContent = words.no_microphone || String(e); return; }
+    let ctx;
+    try { ctx = new AudioContext({ sampleRate: 48000 }); } catch (e) { ctx = new AudioContext(); }
+    await ctx.resume();
+    const source = ctx.createMediaStreamSource(stream);
+    const proc = ctx.createScriptProcessor(2048, 1, 1);
+    // Heard by nobody here (no echo), but connected so the browser keeps it running.
+    const mute = ctx.createGain(); mute.gain.value = 0;
+    source.connect(proc); proc.connect(mute); mute.connect(ctx.destination);
+    let pending = [], pendingLen = 0, peak = 0;
+    proc.onaudioprocess = ev => {
+      const f = ev.inputBuffer.getChannelData(0);
+      const s = new Int16Array(f.length);
+      for (let i = 0; i < f.length; i++) { const v = Math.max(-1, Math.min(1, f[i])); s[i] = v * 32767; peak = Math.max(peak, Math.abs(v)); }
+      pending.push(s); pendingLen += s.length;
+    };
+    const send = async () => {
+      if (!running) return;
+      if (pendingLen > 0) {
+        const all = new Int16Array(pendingLen); let at = 0;
+        for (const p of pending) { all.set(p, at); at += p.length; }
+        pending = []; pendingLen = 0;
+        $('bar').style.width = Math.round(Math.min(1, peak) * 100) + '%'; peak = 0;
+        try {
+          const r = await fetch('/stage-view/mic/sound?rate=' + ctx.sampleRate, { method: 'POST', body: all.buffer, headers: { 'Content-Type': 'application/octet-stream' } });
+          const j = await r.json();
+          $('note').textContent = j.text || '';
+        } catch (e) { $('note').textContent = '…'; }
+      }
+      running.timer = setTimeout(send, 100);
+    };
+    running = { stream, ctx, proc, timer: null };
+    $('go').textContent = words.stop || 'Stop'; $('go').className = 'stop';
+    keepAwake();
+    send();
+  }
+
+  function stop() {
+    if (!running) return;
+    clearTimeout(running.timer);
+    running.proc.disconnect();
+    running.stream.getTracks().forEach(t => t.stop());
+    running.ctx.close();
+    running = null;
+    $('go').textContent = words.start || 'Start'; $('go').className = '';
+    $('bar').style.width = '0';
+    $('note').textContent = '';
+    if (wake) { wake.release(); wake = null; }
+  }
+
+  $('go').addEventListener('click', () => running ? stop() : start());
+  load();
+</script>
+</body>
+</html>

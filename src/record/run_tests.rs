@@ -31,7 +31,7 @@ fn probe(file: &Path) -> (Vec<(String, String, u64, u64)>, f64) {
 }
 
 fn plan(ffmpeg: PathBuf, dir: &Path, sound: Sound) -> Plan {
-    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![], kbps: 0, delay_secs: 0, lighter: false, ndi: Default::default(), words_file: false }
+    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![], kbps: 0, delay_secs: 0, lighter: false, ndi: Default::default(), words_file: false, more_inputs: vec![], listen: None }
 }
 
 /// Records for `secs`, handing in a new solid picture every 100 ms (red, then green), with `each` called as it goes.
@@ -117,6 +117,29 @@ fn a_sound_delay_keeps_the_stream_going() {
     let kinds: Vec<&str> = streams.iter().map(|s| s.0.as_str()).collect();
     assert_eq!(kinds, ["video", "audio"]);
     assert!((2.4..4.0).contains(&secs), "{secs} s");
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// Live with a second input (each on its own track) and Listen on: both inputs come through the app (silence by
+/// the clock: neither is plugged in here), the file has the mix and a track for each, and the headphones' copy
+/// never holds FFmpeg up (where this computer has no sound output, Listen does not start and nothing changes).
+#[test]
+fn a_second_input_is_mixed_and_listen_gets_a_copy() {
+    let Some(ff) = ffmpeg() else { return };
+    let dir = scratch("second-input");
+    let dead = format!("rtmp://127.0.0.1:{}/live/TEST-KEY", std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port());
+    let p = Plan {
+        stream: vec![dead], sound_fx: args::SoundFx { tracks: true, board_filters: args::Filters::SAFE, ..args::SoundFx::default() },
+        more_inputs: vec![("no-such-second-input".into(), 4, args::Filters { gate: args::Strength::Light, ..args::Filters::SAFE })],
+        listen: Some(crate::stream::listen::DEFAULT.into()),
+        ..plan(ff, &dir, Sound::Input("no-such-input-here".into()))
+    };
+    let ended = record_for(p, 3.0, |_, _| {});
+    assert_eq!(ended.problem, None, "{ended:?}");
+    let (streams, secs) = probe(ended.file.as_ref().unwrap());
+    let kinds: Vec<&str> = streams.iter().map(|s| s.0.as_str()).collect();
+    assert_eq!(kinds, ["video", "audio", "audio", "audio"]);
+    assert!((2.0..4.0).contains(&secs), "{secs} s");
     std::fs::remove_dir_all(&dir).unwrap();
 }
 

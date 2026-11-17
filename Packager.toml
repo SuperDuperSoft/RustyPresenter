@@ -49,3 +49,5 @@ libs = ["libmpv.so.2"]
 
 [deb]
 depends = ["libmpv2", "libfontconfig1", "libxkbcommon0"]
+# Recommends: pulseaudio-utils (parec/pactl/pacat for the livestream's sound). cargo-packager 0.11.8 has no field for
+# it; packaging/linux/deb-recommends.sh adds it to the built .deb (package.yml runs it).

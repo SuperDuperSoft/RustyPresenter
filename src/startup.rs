@@ -58,6 +58,8 @@ pub async fn watch_sound(app: Arc<App>) {
 pub async fn serve(app: Arc<App>, listener: TcpListener) {
     // N31: the TCP control, when it is turned on.
     if let Err(e) = crate::network::tcp::sync(&app) { eprintln!("{e}"); }
+    // The same pages over https on the next port, for the phone's microphone (`network::secure`).
+    tokio::spawn(crate::network::secure::serve(app.clone()));
     let svc = server::router(app).into_make_service_with_connect_info::<SocketAddr>();
     let listener = match tokio::net::TcpListener::from_std(listener) { Ok(l) => l, Err(e) => { eprintln!("Server could not start: {e}"); return; } };
     if let Err(e) = axum::serve(listener, svc).await { eprintln!("Server stopped: {e}"); }

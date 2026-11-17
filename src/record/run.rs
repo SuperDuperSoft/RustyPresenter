@@ -110,6 +110,10 @@ pub struct Plan {
     pub ndi: crate::stream::ndi::OutPrefs,
     /// Go Live: the words alone are recorded beside the recording too (`stream::words_file`).
     pub words_file: bool,
+    /// Go Live: a second and third microphone or line-in, `(name, dB, filters)` (`RecordPrefs::more_inputs`).
+    pub more_inputs: Vec<(String, i32, args::Filters)>,
+    /// Go Live: the output the stream's sound is played on to listen to it (`stream::listen`); `None`: nowhere.
+    pub listen: Option<String>,
 }
 
 /// The stream's panic buttons, shared with the feeds while the recording runs. The file and the stream are one
@@ -141,7 +145,8 @@ impl Plan {
             return Err(Some(tr::low_disk(&gb(free), &gb(prefs.size.bytes_per_hour()))));
         }
         let out = super::file_name(&folder, chrono::Local::now().naive_local());
-        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![], kbps: prefs.bitrate_kbps, delay_secs: 0, lighter: false, ndi: Default::default(), words_file: prefs.words_file })
+        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![], kbps: prefs.bitrate_kbps, delay_secs: 0, lighter: false, ndi: Default::default(), words_file: prefs.words_file,
+            more_inputs: prefs.more_inputs(), listen: Some(prefs.stream_listen.clone()).filter(|l| !l.is_empty()) })
     }
 }
 
@@ -364,8 +369,21 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     // start, FFmpeg reads the input itself.
     let mut board = input.and_then(|(format, name)| crate::stream::board_feed::start(plan.ffmpeg.clone(), format, name, plan.controls.mute.clone())
         .map_err(|e| eprintln!("recording: FFmpeg reads the sound input itself: {e}")).ok());
+    // The phone can only come through the app.
+    let input = input.filter(|(_, name)| board.is_some() || *name != crate::stream::phone_mic::INPUT);
     if let Some(b) = &board { *silent.lock().unwrap_or_else(|e| e.into_inner()) = Some(b.silent.clone()) }
-    *levels.lock().unwrap_or_else(|e| e.into_inner()) = board.iter().map(|b| b.level.clone()).chain(pc.iter().map(|c| c.level.clone())).collect();
+    // Go Live: the second and third microphone or line-in, each through the app like the first.
+    let mut more: Vec<(crate::stream::board_feed::Board, i32, args::Filters)> = if live && input.is_some() {
+        plan.more_inputs.iter().filter_map(|(name, db, filters)| crate::stream::board_feed::start(plan.ffmpeg.clone(), format, name, plan.controls.mute.clone())
+            .map_err(|e| eprintln!("recording: the stream goes out without {name}: {e}")).ok().map(|b| (b, *db, *filters))).collect()
+    } else { vec![] };
+    let extras: Vec<args::Extra> = more.iter().map(|(b, db, filters)| args::Extra { feed: b.feed, db: *db, filters: *filters }).collect();
+    *levels.lock().unwrap_or_else(|e| e.into_inner()) = board.iter().chain(more.iter().map(|(b, _, _)| b)).map(|b| b.level.clone()).chain(pc.iter().map(|c| c.level.clone())).collect();
+    // Listen: the stream's sound in headphones; it listens for its copy before FFmpeg starts.
+    let mut listen = match (&plan.listen, live) {
+        (Some(output), true) => crate::stream::listen::Listen::start(output, &plan.ffmpeg).map_err(|e| eprintln!("recording: {}", crate::stream::listen::tr::not_started(&e))).ok(),
+        _ => None,
+    };
     // Stream delay: a relay between each feed and its sender, listening before the recorder starts writing.
     let delay = Duration::from_secs(u64::from(crate::stream::delay::checked(plan.delay_secs)));
     let mut delayed: Vec<(u16, tokio::net::UdpSocket)> = vec![];
@@ -383,7 +401,8 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let mut ndi = if live && worker.is_some() && plan.ndi.any() {
         crate::stream::ndi::Out::start(plan.ndi, sink.size, FPS).map_err(|e| eprintln!("recording: nothing goes out over NDI: {e}")).ok()
     } else { None };
-    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, board: board.as_ref().map(|b| b.feed), out: &part, stream: &feeds, tall: &plan.tall, kbps: plan.kbps, pc: pc.as_ref().map(|c| c.feed), fx: if live { plan.sound_fx } else { args::SoundFx::default() }, ndi_sound: ndi.as_ref().and_then(|n| n.sound_port) });
+    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, board: board.as_ref().map(|b| b.feed), out: &part, stream: &feeds, tall: &plan.tall, kbps: plan.kbps, pc: pc.as_ref().map(|c| c.feed), fx: if live { plan.sound_fx } else { args::SoundFx::default() }, ndi_sound: ndi.as_ref().and_then(|n| n.sound_port),
+        more: &extras, listen: listen.as_ref().map(|l| l.port) });
     let mut cmd = tokio::process::Command::new(&plan.ffmpeg);
     cmd.args(a).stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::piped());
     let mut tree = match spawn_tree(cmd) {
@@ -513,12 +532,14 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     // The PC's sound has no end of its own: stopping it lets FFmpeg end its file.
     if let Some(c) = pc.as_mut() { c.stop() }
     if let Some(b) = board.as_mut() { b.stop() }
+    for (b, _, _) in more.iter_mut() { b.stop() }
     if let Some(w) = worker.as_mut() { w.stop() }
     for c in camera_feeds.iter_mut().flatten() { c.stop() }
     let end = t0.elapsed().as_secs_f64();
     let ended = tree.wait(END_LIMIT, &CancellationToken::new()).await;
     // After FFmpeg: it sends NDI its sound to the end.
     if let Some(n) = ndi.as_mut() { n.stop() }
+    if let Some(l) = listen.as_mut() { l.stop() }
     if let Some(f) = words_file.take() { let _ = tokio::task::spawn_blocking(move || f.finish()).await; }
     // The last of the stream has gone to the senders: a moment for them to pass it on, then they stop.
     // With a delay, what is still held goes out first (the stream ends as the service did); the file is finished

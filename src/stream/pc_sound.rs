@@ -9,9 +9,10 @@
 //! every second of picture.
 //!
 //! Linux: what an output plays is its "monitor" source in PulseAudio or PipeWire, read like a sound input
-//! (`board_feed`), which fills the gaps the same way. macOS cannot hear an output without native code it does not
-//! have yet: a loopback device (BlackHole, free) is read as a sound input instead (`record::devices::mac_loopback`).
-//! Without one, `start` says what to install, and the stream goes out without the PC's sound.
+//! (`board_feed`), which fills the gaps the same way. macOS 14.2 and later: a Core Audio process tap of everything
+//! the Mac plays (`mac_tap`). Older macOS, or a tap that does not start: a loopback device (BlackHole, free) is read
+//! as a sound input instead (`record::devices::mac_loopback`). Without one, `start` says what to install, and the
+//! stream goes out without the PC's sound.
 use std::path::Path;
 use std::time::Duration;
 
@@ -90,6 +91,9 @@ pub struct Capture {
     thread: Option<std::thread::JoinHandle<()>>,
     /// macOS and Linux: the sound is read as a sound input.
     board: Option<super::board_feed::Board>,
+    /// macOS 14.2 and later: stops the Mac's own capture (`mac_tap`).
+    #[allow(dead_code)]
+    other: Option<Box<dyn FnMut() + Send>>,
 }
 
 impl Capture {
@@ -97,7 +101,32 @@ impl Capture {
         self.stop.store(true, std::sync::atomic::Ordering::Relaxed);
         if let Some(t) = self.thread.take() { let _ = t.join(); }
         if let Some(mut b) = self.board.take() { b.stop() }
+        if let Some(mut s) = self.other.take() { s() }
     }
+}
+
+/// Whether a Mac with macOS `version` ("14.2.1") can hear what it plays without a loopback device: a Core Audio
+/// process tap, from macOS 14.2.
+pub fn mac_tap_works(version: &str) -> bool {
+    let mut n = version.trim().split('.').map(|p| p.parse::<u32>().unwrap_or(0));
+    let (major, minor) = (n.next().unwrap_or(0), n.next().unwrap_or(0));
+    (major, minor) >= (14, 2)
+}
+
+/// Sound handed over as float buffers (`(channels, samples)`: one interleaved buffer, or one buffer per channel)
+/// as interleaved stereo float bytes: mono is put on both sides, more than two channels keep the first two.
+pub fn to_stereo(buffers: &[(u32, &[f32])]) -> Vec<u8> {
+    let mut out: Vec<u8> = vec![];
+    let mut put = |l: f32, r: f32| { out.extend_from_slice(&l.to_le_bytes()); out.extend_from_slice(&r.to_le_bytes()) };
+    match buffers {
+        [] => {}
+        [(ch, s)] => {
+            let ch = (*ch).max(1) as usize;
+            for f in s.chunks_exact(ch) { put(f[0], if ch > 1 { f[1] } else { f[0] }) }
+        }
+        [(_, l), (_, r), ..] => for (a, b) in l.iter().zip(r.iter()) { put(*a, *b) },
+    }
+    out
 }
 
 impl Drop for Capture {
@@ -112,9 +141,17 @@ pub fn start(ffmpeg: &Path, device: &str, mute: std::sync::Arc<std::sync::atomic
     { let _ = ffmpeg; windows::start(device_id(device).to_string(), mute) }
     #[cfg(not(windows))]
     {
+        // macOS 14.2 and later: the Mac's own capture; a loopback device (BlackHole) if it cannot start.
+        #[cfg(target_os = "macos")]
+        if mac_tap_works(&super::mac_tap::version()) {
+            match super::mac_tap::start(device, mute.clone()) {
+                Ok((feed, level, stop)) => return Ok(Capture { feed, level, stop: Default::default(), thread: None, board: None, other: Some(stop) }),
+                Err(e) => eprintln!("pc sound: the Mac's own capture did not start ({e}); a loopback device is looked for"),
+            }
+        }
         let (format, name) = source(ffmpeg, device)?;
         let board = super::board_feed::start(ffmpeg.to_path_buf(), format, &name, mute)?;
-        Ok(Capture { feed: board.feed, level: board.level.clone(), stop: Default::default(), thread: None, board: Some(board) })
+        Ok(Capture { feed: board.feed, level: board.level.clone(), stop: Default::default(), thread: None, board: Some(board), other: None })
     }
 }
 
@@ -190,7 +227,7 @@ mod windows {
             run(opened, port, &s, &mute, &l);
         }).map_err(|e| e.to_string())?;
         match rx.recv() {
-            Ok(Ok(format)) => Ok(Capture { feed: Feed { format, port }, level, stop, thread: Some(thread), board: None }),
+            Ok(Ok(format)) => Ok(Capture { feed: Feed { format, port }, level, stop, thread: Some(thread), board: None, other: None }),
             Ok(Err(e)) => { let _ = thread.join(); Err(e) }
             Err(_) => { let _ = thread.join(); Err("the sound capture ended".into()) }
         }
@@ -284,6 +321,19 @@ mod tests {
         assert_eq!(Format { samples: "s16le", rate: 44_100, channels: 6 }.frame_bytes(), 12);
         assert_eq!(device_id("wasapi/{0.0.0.00000000}.{abc}"), "{0.0.0.00000000}.{abc}");
         assert_eq!((device_id(""), device_id("auto")), ("", ""));
+    }
+
+    #[test]
+    fn a_mac_hears_itself_from_macos_14_2_and_its_sound_is_made_stereo() {
+        for (v, ok) in [("14.2", true), ("14.2.1", true), ("15.0", true), ("26.1", true), ("14.1.2", false), ("13.6", false), ("", false), ("x", false)] {
+            assert_eq!(mac_tap_works(v), ok, "{v}");
+        }
+        let floats = |b: &[u8]| b.chunks_exact(4).map(|x| f32::from_le_bytes([x[0], x[1], x[2], x[3]])).collect::<Vec<_>>();
+        assert_eq!(floats(&to_stereo(&[(2, &[0.1, 0.2, 0.3, 0.4])])), [0.1, 0.2, 0.3, 0.4], "interleaved stereo as it is");
+        assert_eq!(floats(&to_stereo(&[(1, &[0.5, -0.5])])), [0.5, 0.5, -0.5, -0.5], "mono on both sides");
+        assert_eq!(floats(&to_stereo(&[(1, &[0.1, 0.3]), (1, &[0.2, 0.4])])), [0.1, 0.2, 0.3, 0.4], "a buffer per side");
+        assert_eq!(floats(&to_stereo(&[(4, &[0.1, 0.2, 0.9, 0.9])])), [0.1, 0.2], "the first two of more");
+        assert!(to_stereo(&[]).is_empty());
     }
 
     #[test]

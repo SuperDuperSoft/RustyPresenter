@@ -19,6 +19,9 @@ pub fn choices(inputs: &[Input], saved: &Sound) -> Choices {
         labels.push(record::tr::input(&i.label));
         keys.push(Sound::Input(i.name.clone()).key());
     }
+    // The phone as a microphone (its page on the phone, `network::phone_mic`).
+    labels.push(record::tr::input(&stream::phone_mic::tr::input_label()));
+    keys.push(super::settings_sound::phone_key());
     if let Sound::Input(name) = saved && !inputs.iter().any(|i| &i.name == name) {
         labels.push(record::tr::input(&format!("{name} ({})", not_connected())));
         keys.push(saved.key());
@@ -213,6 +216,7 @@ pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     g.set_record_size(Preset::ALL.iter().position(|s| *s == p.size).unwrap_or(1) as i32);
     g.set_record_folder(p.folder().display().to_string().into());
     fill_sound(g, &[], &p.sound());
+    super::settings_sound::fill_form(g, p);
 }
 
 fn fill_sound(g: &SettingsDlg, inputs: &[Input], saved: &Sound) {
@@ -292,6 +296,7 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
     p.stream_scheduled = g.get_stream_scheduled_id().to_string();
     p.stream_scheduled_link = g.get_stream_scheduled_link().to_string();
     p.stream_privacy = if g.get_stream_privacy() == 1 { stream::accounts::Privacy::Unlisted } else { stream::accounts::Privacy::Public };
+    super::settings_sound::read_form(g, p);
 }
 
 /// Which of YouTube and Facebook this copy can sign in to, and the account each is signed in to on this computer.
@@ -465,6 +470,7 @@ pub(super) fn load(op: &Rc<Operator>) {
         g.set_ndi_ready(ready);
         let chosen = read_sound(&g);
         fill_sound(&g, &inputs, &chosen);
+        super::settings_sound::fill_inputs_found(&g, &inputs);
         let chosen = read_cameras(&g);
         fill_camera(&g, &cameras, [&chosen[0], &chosen[1], &chosen[2], &chosen[3]]);
     };
@@ -522,17 +528,17 @@ mod tests {
     #[test]
     fn the_apps_sound_is_chosen_by_default_and_inputs_follow() {
         let c = choices(&[mic("USB Mic")], &Sound::App);
-        assert_eq!(c.keys, ["none", "app", "input:USB Mic"]);
-        assert_eq!(c.labels, ["No sound", "The sound the app plays (videos and songs)", "Microphone or line-in: USB Mic"]);
+        assert_eq!(c.keys, ["none", "app", "input:USB Mic", "input:RustyPresenter phone microphone"]);
+        assert_eq!(c.labels[..3], ["No sound", "The sound the app plays (videos and songs)", "Microphone or line-in: USB Mic"]);
         assert_eq!(c.index, 1);
     }
 
     #[test]
     fn a_saved_microphone_that_is_unplugged_stays_chosen() {
         let c = choices(&[], &Sound::Input("Line In".into()));
-        assert_eq!(c.keys, ["none", "app", "input:Line In"]);
-        assert_eq!(c.labels[2], "Microphone or line-in: Line In (not connected)");
-        assert_eq!(c.index, 2);
+        assert_eq!(c.keys, ["none", "app", "input:RustyPresenter phone microphone", "input:Line In"]);
+        assert_eq!(c.labels[3], "Microphone or line-in: Line In (not connected)");
+        assert_eq!(c.index, 3);
         assert_eq!(choices(&[], &Sound::None).index, 0);
     }
 }

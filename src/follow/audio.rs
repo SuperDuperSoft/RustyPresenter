@@ -77,6 +77,15 @@ pub fn device_args(os: Os, device: &str) -> Vec<OsString> {
     a
 }
 
+/// What listens to input `device`, and its arguments: FFmpeg (`device_args`), except on Linux when this FFmpeg
+/// has no PulseAudio and `parec` is there (as the stream's sound inputs: `record::devices::reader_as`).
+pub fn listen_with(ffmpeg: &Path, os: Os, device: &str) -> (PathBuf, Vec<OsString>) {
+    let format = args::input_format(os);
+    let ffmpeg_args = || device_args(os, device).into_iter().map(|a| a.to_string_lossy().into_owned()).collect();
+    let (program, a) = crate::record::devices::reader_as(ffmpeg, format, device, ffmpeg_args, RATE as u32, 1);
+    (program, a.into_iter().map(OsString::from).collect())
+}
+
 /// The same from a recording (Practice).
 pub fn file_args(file: &Path) -> Vec<OsString> {
     let mut a: Vec<OsString> = ["-hide_banner", "-loglevel", "error", "-nostdin", "-i"].map(OsString::from).into();
@@ -168,7 +177,8 @@ pub struct Capture {
 impl Capture {
     /// Starts listening to `device` (a name from `input_devices`) with `ear` (`ear::room_ear`).
     pub fn start(device: &str, ear: Box<dyn Ear>, tx: Sender<FollowEvent>) -> Result<Capture, String> {
-        Capture::run(ffmpeg()?, device_args(tools::OS, device), ear, tx)
+        let (program, args) = listen_with(&ffmpeg()?, tools::OS, device);
+        Capture::run(program, args, ear, tx)
     }
 
     /// Starts `program` with `args` (FFmpeg, or a stand-in in tests) and listens to its output with `ear`.

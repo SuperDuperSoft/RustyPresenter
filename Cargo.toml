@@ -42,6 +42,11 @@ reqwest = { version = "0.13", default-features = false, features = ["json", "que
 rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
 # Twitch's live chat is read over TLS (already in the build through reqwest).
 tokio-rustls = { version = "0.26", default-features = false }
+# The pages over https too (`network::secure`): a phone's microphone needs a secure page. The certificate's key is made
+# with ring (already rustls' provider); connections are served by hyper, as axum does. All already in the lock file.
+ring = "0.17"
+hyper = { version = "1", features = ["server", "http1"] }
+hyper-util = { version = "0.1", features = ["tokio", "server", "service", "http1"] }
 rustls-platform-verifier = "0.7"
 # Imported Bible files (Zefania, OSIS, USX, OpenSong).
 quick-xml = "0.38.4"
@@ -98,6 +103,10 @@ signal-hook-registry = "1.4"
 # macOS: stream keys in the Keychain (`stream::keys`). Already in the lock file (rustls's certificate check uses it).
 [target.'cfg(target_os = "macos")'.dependencies]
 security-framework = "3.7"
+# macOS 14.2+: what the Mac plays, for the livestream, without BlackHole (`stream::mac_tap`, a Core Audio process
+# tap). Both already in the lock file (Slint's macOS backend uses them).
+objc2 = "0.6"
+core-foundation = "0.10"
 
 # Linux: ask the desktop (KDE, XFCE, Cinnamon, MATE...) not to blank the screen, and keep stream keys in its
 # password store (`stream::keys`), over D-Bus.

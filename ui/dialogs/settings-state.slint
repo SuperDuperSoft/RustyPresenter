@@ -1,6 +1,7 @@
 // What the Settings dialog shows and edits (`operator.js:877-1007`), shared by its tab files and set from
 // `src/ui/dialogs/settings.rs`. The form fields are `in-out`: the Rust side reads them back on Save.
 import { BgChoice } from "background-picker.slint";
+import { SoundFilters } from "sound-filters.slint";
 
 /// A translation row of Settings → Bible: its status chip and the line under its name.
 /// A Bible that can be shown with the default one in every new passage: `on` when it is picked (at most two).
@@ -278,6 +279,34 @@ export global SettingsDlg {
     callback stream-schedule();
     callback stream-copy-link();
     in-out property <int> stream-privacy;
+    // ---- Media → Livestream: the sound (`src/ui/dialogs/settings_sound.rs`, `settings-sound.slint`) ----
+    /// "Sound setup": its choices (`stream::sound_setup::Mode`), the one chosen, and what it said when it found no
+    /// input that looks right (empty: nothing).
+    in property <[string]> stream-sound-mode-labels;
+    in-out property <int> stream-sound-mode;
+    in property <string> stream-sound-mode-note;
+    callback stream-sound-mode-chosen(int);
+    /// The second and third microphone or line-in: none, each input, the phone; and each one's level (dB).
+    in property <[string]> stream-input-labels;
+    in property <[string]> stream-input-names;
+    in-out property <int> stream-input2-index;
+    in-out property <int> stream-input3-index;
+    in-out property <int> stream-input2-level;
+    in-out property <int> stream-input3-level;
+    /// The phone's name among the inputs, and the addresses of its page (plain and secure).
+    in property <string> stream-phone-name;
+    in property <string> stream-phone-address;
+    in property <string> stream-phone-secure-address;
+    /// "More sound settings" open, and each sound's filters.
+    in-out property <bool> stream-sound-more;
+    in-out property <SoundFilters> stream-board-filters;
+    in-out property <SoundFilters> stream-input2-filters;
+    in-out property <SoundFilters> stream-input3-filters;
+    in-out property <SoundFilters> stream-pc-filters;
+    /// "Listen to the stream": off, the usual output, then each output.
+    in property <[string]> stream-listen-labels;
+    in property <[string]> stream-listen-names;
+    in-out property <int> stream-listen-index;
 
     // ---- Songs ----
     /// Lines per slide minus one (0–5).

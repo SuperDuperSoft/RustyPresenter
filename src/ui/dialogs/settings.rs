@@ -83,6 +83,7 @@ pub fn open(op: &Rc<Operator>, tab: SettingsTab) {
     settings_audio::load(op);
     super::settings_record::load(op);
     super::settings_record::wire_keys(op);
+    super::settings_sound::wire(op);
     settings_follow::load(op);
     super::settings_model::load(op);
     if tab == SettingsTab::Look { settings_look::render_now(op, &edit) }

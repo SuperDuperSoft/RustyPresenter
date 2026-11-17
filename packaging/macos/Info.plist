@@ -8,5 +8,8 @@
 	<string>RustyPresenter shows your cameras in the livestream and the recording.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>RustyPresenter records and streams the sound from your microphone or sound board, and listens to the room to follow songs.</string>
+	<!-- macOS 14.2 and later: hearing what this Mac plays (videos, songs) for the livestream (`stream::mac_tap`). -->
+	<key>NSAudioCaptureUsageDescription</key>
+	<string>RustyPresenter sends what this Mac plays (videos and songs) out with the livestream.</string>
 </dict>
 </plist>

@@ -18,6 +18,20 @@ fn ffmpeg_gives_16k_mono_samples() {
     assert!(file.windows(2).any(|w| w == ["-i", "Sunday.mp4"]) && file.ends_with(&["-".to_string()]));
 }
 
+#[test]
+fn listening_uses_ffmpeg_except_where_parec_reads_linux_sound() {
+    // Windows and macOS: FFmpeg, as always, without asking it anything.
+    let (program, a) = listen_with(Path::new("no-such-ffmpeg"), Os::Windows, "Microphone (USB Audio)");
+    assert_eq!((program, strs(&a)), (PathBuf::from("no-such-ffmpeg"), strs(&device_args(Os::Windows, "Microphone (USB Audio)"))));
+    // Linux with an FFmpeg that cannot say it has PulseAudio: `parec` at 16 kHz mono when it is there, else FFmpeg.
+    let (program, a) = listen_with(Path::new("no-such-ffmpeg"), Os::Linux, "alsa_input.usb");
+    if program.ends_with("parec") {
+        assert_eq!(strs(&a).join(" "), "--device=alsa_input.usb --format=s16le --rate=16000 --channels=1 --raw --latency-msec=20");
+    } else {
+        assert_eq!(strs(&a), strs(&device_args(Os::Linux, "alsa_input.usb")));
+    }
+}
+
 /// A stand-in FFmpeg: a shell line.
 #[cfg(unix)]
 fn fake(script: &str) -> (PathBuf, Vec<OsString>) { ("/bin/sh".into(), vec!["-c".into(), script.into()]) }

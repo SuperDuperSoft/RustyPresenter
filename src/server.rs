@@ -483,6 +483,8 @@ pub fn router(app: Arc<App>) -> Router {
         .route("/remote/live-anim/pic", get(remote_live_anim_pic))
         // N31: the stage screen on a phone or tablet.
         .merge(crate::network::stage_view::routes())
+        // The phone as a microphone for the livestream.
+        .merge(crate::network::phone_mic::routes())
         .with_state(app)
 }
 
