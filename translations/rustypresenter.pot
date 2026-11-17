@@ -44,6 +44,10 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
+#: ui/dialogs/add-list.slint ui/dialogs/quick-search.slint
+msgid "Look for it on SongSelect"
+msgstr ""
+
 #: ui/dialogs/add-media.slint
 msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
 msgstr ""
@@ -105,7 +109,15 @@ msgid "New song"
 msgstr ""
 
 #: ui/dialogs/add.slint
-msgid "Import SongSelect lyrics (.txt)"
+msgid "From SongSelect…"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "Import a song file"
+msgstr ""
+
+#: ui/dialogs/add.slint
+msgid "SongSelect lyrics (.txt), ChordPro or .usr"
 msgstr ""
 
 #: ui/dialogs/add.slint
@@ -1185,7 +1197,7 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr ""
 
@@ -3548,6 +3560,18 @@ msgstr ""
 msgid "Letters and numbers jump the live song to a section"
 msgstr ""
 
+#: ui/dialogs/settings.slint
+msgid "Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted."
+msgstr ""
+
+#: ui/dialogs/settings.slint
+msgid "Bring in SongSelect downloads whenever RustyPresenter is open"
+msgstr ""
+
+#: ui/dialogs/settings.slint ui/operator.slint
+msgid "Songs from SongSelect…"
+msgstr ""
+
 #: ui/dialogs/settings.slint ui/operator.slint
 msgid "Song use report…"
 msgstr ""
@@ -3872,6 +3896,50 @@ msgstr ""
 
 #: ui/dialogs/song-editor.slint
 msgid "Save song"
+msgstr ""
+
+#: ui/dialogs/songselect.slint
+msgid "Sign in to SongSelect in your web browser."
+msgstr ""
+
+#: ui/dialogs/songselect.slint
+msgid "Find the song and choose Download → Lyrics (or ChordPro)."
+msgstr ""
+
+#: ui/dialogs/songselect.slint
+msgid "It comes in here by itself."
+msgstr ""
+
+#: ui/dialogs/songselect.slint
+msgid "Open SongSelect"
+msgstr ""
+
+#: ui/dialogs/songselect.slint
+msgid "Choose a file…"
+msgstr ""
+
+#: ui/dialogs/songselect.slint
+msgid "For a song you downloaded before"
+msgstr ""
+
+#: ui/dialogs/songselect.slint
+msgid "Songs that came in"
+msgstr ""
+
+#: ui/dialogs/songselect.slint
+msgid "In the service"
+msgstr ""
+
+#: ui/dialogs/songselect.slint
+msgid "Add to the service"
+msgstr ""
+
+#: ui/dialogs/songselect.slint
+msgid "Nothing yet. Songs you download from SongSelect show up here."
+msgstr ""
+
+#: ui/dialogs/songselect.slint
+msgid "RustyPresenter never signs in to SongSelect and never downloads for you. It only reads the song files you download, and leaves your Downloads folder as it is."
 msgstr ""
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/stream/own_scenes.rs src/ui/dialogs/automation.rs
@@ -7467,8 +7535,28 @@ msgstr ""
 msgid "Missing slides"
 msgstr ""
 
-#: src/songselect.rs
+#: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
+msgid "No lyrics were found in this file."
+msgstr ""
+
+#: src/songselect/inbox.rs src/songselect.rs src/ui/dialogs/songselect.rs
 msgid "That file is too big to be a lyric file."
+msgstr ""
+
+#: src/songselect/inbox.rs
+msgid "it has no CCLI song number"
+msgstr ""
+
+#: src/songselect/inbox.rs
+msgid "{title} (from SongSelect)"
+msgstr ""
+
+#: src/songselect/usr.rs
+msgid "This is not a SongSelect song file."
+msgstr ""
+
+#: src/songselect/usr.rs
+msgid "The song file has no title."
 msgstr ""
 
 #: src/songselect.rs
@@ -7477,10 +7565,6 @@ msgstr ""
 
 #: src/songselect.rs
 msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
-msgstr ""
-
-#: src/songselect.rs
-msgid "No lyrics were found in this file."
 msgstr ""
 
 #: src/startup.rs
@@ -12208,6 +12292,58 @@ msgid ""
 "Pray every day\n"
 "Read the Bible\n"
 "Serve your neighbour"
+msgstr ""
+
+#: src/ui/dialogs/songselect.rs
+msgid "Songs from SongSelect"
+msgstr ""
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{words}” is copied: paste it into SongSelect's search box (Ctrl+V)."
+msgstr ""
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not open the web browser: {error}"
+msgstr ""
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” came in from SongSelect."
+msgstr ""
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect is already in your library."
+msgstr ""
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect has other words than your copy, so it was kept as “{new}”."
+msgstr ""
+
+#: src/ui/dialogs/songselect.rs
+msgid "{file} could not be read: {why}"
+msgstr ""
+
+#: src/ui/dialogs/songselect.rs
+msgid "Added to your song library"
+msgstr ""
+
+#: src/ui/dialogs/songselect.rs
+msgid "Already in your song library"
+msgstr ""
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your copy has other words, so this one is kept as “{new}”"
+msgstr ""
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not read it: {why}"
+msgstr ""
+
+#: src/ui/dialogs/songselect.rs
+msgid "Watching your Downloads folder ({folder}) for songs."
+msgstr ""
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your Downloads folder could not be found. Use “Choose a file…” for the songs you download."
 msgstr ""
 
 #: src/ui/dialogs/stream_more.rs

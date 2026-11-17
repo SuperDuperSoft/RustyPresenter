@@ -47,6 +47,10 @@ msgstr "Hariri"
 msgid "Add"
 msgstr "Ongeza"
 
+#: ui/dialogs/add-list.slint ui/dialogs/quick-search.slint
+msgid "Look for it on SongSelect"
+msgstr "Itafute kwenye SongSelect"
+
 #: ui/dialogs/add-media.slint
 msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
 msgstr "Pakua tu video ambazo kanisa lako lina haki ya kutumia (zako mwenyewe, zenye leseni, au za Creative Commons)."
@@ -108,8 +112,16 @@ msgid "New song"
 msgstr "Wimbo mpya"
 
 #: ui/dialogs/add.slint
-msgid "Import SongSelect lyrics (.txt)"
-msgstr "Leta maneno ya SongSelect (.txt)"
+msgid "From SongSelect…"
+msgstr "Kutoka SongSelect…"
+
+#: ui/dialogs/add.slint
+msgid "Import a song file"
+msgstr "Leta faili la wimbo"
+
+#: ui/dialogs/add.slint
+msgid "SongSelect lyrics (.txt), ChordPro or .usr"
+msgstr "Maneno ya SongSelect (.txt), ChordPro au .usr"
 
 #: ui/dialogs/add.slint
 msgid "Import from EasyWorship"
@@ -1188,7 +1200,7 @@ msgstr "Rudi"
 msgid "Next"
 msgstr "Ifuatayo"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "Funga"
 
@@ -3551,6 +3563,18 @@ msgstr "Zima kama herufi zinazoandikwa kwa makosa zinasogeza skrini."
 msgid "Letters and numbers jump the live song to a section"
 msgstr "Herufi na namba hupeleka wimbo ulio hewani kwenye sehemu fulani"
 
+#: ui/dialogs/settings.slint
+msgid "Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted."
+msgstr "Nyimbo unazopakua kutoka SongSelect kwenye kivinjari chako huingia zenyewe kwenye maktaba ya nyimbo. Ni faili za nyimbo za SongSelect pekee zinazosomwa; hakuna kitu kwenye Downloads kinachohamishwa wala kufutwa."
+
+#: ui/dialogs/settings.slint
+msgid "Bring in SongSelect downloads whenever RustyPresenter is open"
+msgstr "Leta nyimbo zilizopakuliwa kutoka SongSelect kila RustyPresenter ikiwa wazi"
+
+#: ui/dialogs/settings.slint ui/operator.slint
+msgid "Songs from SongSelect…"
+msgstr "Nyimbo kutoka SongSelect…"
+
 #: ui/dialogs/settings.slint ui/operator.slint
 msgid "Song use report…"
 msgstr "Ripoti ya matumizi ya nyimbo…"
@@ -3882,6 +3906,50 @@ msgstr "Hifadhi na uongeze kwenye ibada"
 #: ui/dialogs/song-editor.slint
 msgid "Save song"
 msgstr "Hifadhi wimbo"
+
+#: ui/dialogs/songselect.slint
+msgid "Sign in to SongSelect in your web browser."
+msgstr "Ingia kwenye SongSelect kwenye kivinjari chako."
+
+#: ui/dialogs/songselect.slint
+msgid "Find the song and choose Download → Lyrics (or ChordPro)."
+msgstr "Tafuta wimbo kisha uchague Download → Lyrics (au ChordPro)."
+
+#: ui/dialogs/songselect.slint
+msgid "It comes in here by itself."
+msgstr "Huingia hapa wenyewe."
+
+#: ui/dialogs/songselect.slint
+msgid "Open SongSelect"
+msgstr "Fungua SongSelect"
+
+#: ui/dialogs/songselect.slint
+msgid "Choose a file…"
+msgstr "Chagua faili…"
+
+#: ui/dialogs/songselect.slint
+msgid "For a song you downloaded before"
+msgstr "Kwa wimbo uliopakua awali"
+
+#: ui/dialogs/songselect.slint
+msgid "Songs that came in"
+msgstr "Nyimbo zilizoingia"
+
+#: ui/dialogs/songselect.slint
+msgid "In the service"
+msgstr "Kwenye ibada"
+
+#: ui/dialogs/songselect.slint
+msgid "Add to the service"
+msgstr "Ongeza kwenye ibada"
+
+#: ui/dialogs/songselect.slint
+msgid "Nothing yet. Songs you download from SongSelect show up here."
+msgstr "Bado hakuna. Nyimbo unazopakua kutoka SongSelect zitaonekana hapa."
+
+#: ui/dialogs/songselect.slint
+msgid "RustyPresenter never signs in to SongSelect and never downloads for you. It only reads the song files you download, and leaves your Downloads folder as it is."
+msgstr "RustyPresenter haiingii kamwe kwenye SongSelect wala haipakui kwa niaba yako. Inasoma tu faili za nyimbo unazopakua, na inaacha folda yako ya Downloads kama ilivyo."
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/stream/own_scenes.rs src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
@@ -7476,9 +7544,29 @@ msgstr "Midia haipo"
 msgid "Missing slides"
 msgstr "Slaidi hazipo"
 
-#: src/songselect.rs
+#: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
+msgid "No lyrics were found in this file."
+msgstr "Hakuna maneno yaliyopatikana kwenye faili hii."
+
+#: src/songselect/inbox.rs src/songselect.rs src/ui/dialogs/songselect.rs
 msgid "That file is too big to be a lyric file."
 msgstr "Faili hiyo ni kubwa mno kuwa faili ya maneno."
+
+#: src/songselect/inbox.rs
+msgid "it has no CCLI song number"
+msgstr "halina namba ya wimbo ya CCLI"
+
+#: src/songselect/inbox.rs
+msgid "{title} (from SongSelect)"
+msgstr "{title} (kutoka SongSelect)"
+
+#: src/songselect/usr.rs
+msgid "This is not a SongSelect song file."
+msgstr "Hili si faili la wimbo la SongSelect."
+
+#: src/songselect/usr.rs
+msgid "The song file has no title."
+msgstr "Faili la wimbo halina kichwa."
 
 #: src/songselect.rs
 msgid "The lyric file is empty."
@@ -7487,10 +7575,6 @@ msgstr "Faili ya maneno ni tupu."
 #: src/songselect.rs
 msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
 msgstr "Faili hii haina vichwa vya Verse/Chorus. Tumia upakuaji wa \"Lyrics (.txt)\" wa SongSelect."
-
-#: src/songselect.rs
-msgid "No lyrics were found in this file."
-msgstr "Hakuna maneno yaliyopatikana kwenye faili hii."
 
 #: src/startup.rs
 msgid "Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."
@@ -12228,6 +12312,58 @@ msgstr ""
 "Soma Biblia\n"
 "Mtumikie jirani yako"
 
+#: src/ui/dialogs/songselect.rs
+msgid "Songs from SongSelect"
+msgstr "Nyimbo kutoka SongSelect"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{words}” is copied: paste it into SongSelect's search box (Ctrl+V)."
+msgstr "“{words}” imenakiliwa: ibandike kwenye kisanduku cha kutafuta cha SongSelect (Ctrl+V)."
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not open the web browser: {error}"
+msgstr "Imeshindwa kufungua kivinjari: {error}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” came in from SongSelect."
+msgstr "“{title}” imeingia kutoka SongSelect."
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect is already in your library."
+msgstr "“{title}” kutoka SongSelect tayari iko kwenye maktaba yako."
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect has other words than your copy, so it was kept as “{new}”."
+msgstr "“{title}” kutoka SongSelect ina maneno tofauti na nakala yako, kwa hiyo imehifadhiwa kama “{new}”."
+
+#: src/ui/dialogs/songselect.rs
+msgid "{file} could not be read: {why}"
+msgstr "Imeshindwa kusoma {file}: {why}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Added to your song library"
+msgstr "Imeongezwa kwenye maktaba yako ya nyimbo"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Already in your song library"
+msgstr "Tayari iko kwenye maktaba yako ya nyimbo"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your copy has other words, so this one is kept as “{new}”"
+msgstr "Nakala yako ina maneno tofauti, kwa hiyo huu unahifadhiwa kama “{new}”"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not read it: {why}"
+msgstr "Imeshindwa kuusoma: {why}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Watching your Downloads folder ({folder}) for songs."
+msgstr "Inaangalia folda yako ya Downloads ({folder}) kwa nyimbo."
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your Downloads folder could not be found. Use “Choose a file…” for the songs you download."
+msgstr "Folda yako ya Downloads haikupatikana. Tumia “Chagua faili…” kwa nyimbo unazopakua."
+
 #: src/ui/dialogs/stream_more.rs
 msgid "More livestream settings"
 msgstr "Mipangilio zaidi ya matangazo ya moja kwa moja"
@@ -12956,6 +13092,9 @@ msgstr "yt-dlp haikuhifadhi video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "si faili ya midia"
+
+#~ msgid "Import SongSelect lyrics (.txt)"
+#~ msgstr "Leta maneno ya SongSelect (.txt)"
 
 #~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
 #~ msgstr "Jina ambalo YouTube na Facebook zinaipa kila matangazo. {{date}} inakuwa tarehe ya siku."

@@ -47,6 +47,10 @@ msgstr "編集"
 msgid "Add"
 msgstr "追加"
 
+#: ui/dialogs/add-list.slint ui/dialogs/quick-search.slint
+msgid "Look for it on SongSelect"
+msgstr "SongSelect で探す"
+
 #: ui/dialogs/add-media.slint
 msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
 msgstr "教会が使用権を持つ動画（自作、ライセンス取得済み、またはクリエイティブ・コモンズ）のみダウンロードしてください。"
@@ -108,8 +112,16 @@ msgid "New song"
 msgstr "新しい曲"
 
 #: ui/dialogs/add.slint
-msgid "Import SongSelect lyrics (.txt)"
-msgstr "SongSelect の歌詞を取り込む (.txt)"
+msgid "From SongSelect…"
+msgstr "SongSelect から…"
+
+#: ui/dialogs/add.slint
+msgid "Import a song file"
+msgstr "曲ファイルを取り込む"
+
+#: ui/dialogs/add.slint
+msgid "SongSelect lyrics (.txt), ChordPro or .usr"
+msgstr "SongSelect の歌詞 (.txt)、ChordPro、.usr"
 
 #: ui/dialogs/add.slint
 msgid "Import from EasyWorship"
@@ -1188,7 +1200,7 @@ msgstr "戻る"
 msgid "Next"
 msgstr "次へ"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "閉じる"
 
@@ -3551,6 +3563,18 @@ msgstr "誤って入力した文字で画面が変わる場合はオフにして
 msgid "Letters and numbers jump the live song to a section"
 msgstr "文字や数字でライブ中の曲のセクションへ移動"
 
+#: ui/dialogs/settings.slint
+msgid "Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted."
+msgstr "ウェブブラウザで SongSelect からダウンロードした曲は、自動で曲ライブラリに入ります。読むのは SongSelect の曲ファイルだけで、ダウンロード フォルダーの中は移動も削除もしません。"
+
+#: ui/dialogs/settings.slint
+msgid "Bring in SongSelect downloads whenever RustyPresenter is open"
+msgstr "RustyPresenter が開いている間はいつでも SongSelect のダウンロードを取り込む"
+
+#: ui/dialogs/settings.slint ui/operator.slint
+msgid "Songs from SongSelect…"
+msgstr "SongSelect の曲…"
+
 #: ui/dialogs/settings.slint ui/operator.slint
 msgid "Song use report…"
 msgstr "曲の使用レポート…"
@@ -3882,6 +3906,50 @@ msgstr "保存して礼拝に追加"
 #: ui/dialogs/song-editor.slint
 msgid "Save song"
 msgstr "曲を保存"
+
+#: ui/dialogs/songselect.slint
+msgid "Sign in to SongSelect in your web browser."
+msgstr "ウェブブラウザで SongSelect にサインインします。"
+
+#: ui/dialogs/songselect.slint
+msgid "Find the song and choose Download → Lyrics (or ChordPro)."
+msgstr "曲を探して Download → Lyrics (または ChordPro) を選びます。"
+
+#: ui/dialogs/songselect.slint
+msgid "It comes in here by itself."
+msgstr "自動でここに入ります。"
+
+#: ui/dialogs/songselect.slint
+msgid "Open SongSelect"
+msgstr "SongSelect を開く"
+
+#: ui/dialogs/songselect.slint
+msgid "Choose a file…"
+msgstr "ファイルを選ぶ…"
+
+#: ui/dialogs/songselect.slint
+msgid "For a song you downloaded before"
+msgstr "以前ダウンロードした曲に"
+
+#: ui/dialogs/songselect.slint
+msgid "Songs that came in"
+msgstr "入ってきた曲"
+
+#: ui/dialogs/songselect.slint
+msgid "In the service"
+msgstr "礼拝に追加済み"
+
+#: ui/dialogs/songselect.slint
+msgid "Add to the service"
+msgstr "礼拝に追加"
+
+#: ui/dialogs/songselect.slint
+msgid "Nothing yet. Songs you download from SongSelect show up here."
+msgstr "まだありません。SongSelect からダウンロードした曲がここに表示されます。"
+
+#: ui/dialogs/songselect.slint
+msgid "RustyPresenter never signs in to SongSelect and never downloads for you. It only reads the song files you download, and leaves your Downloads folder as it is."
+msgstr "RustyPresenter が SongSelect にサインインしたり、代わりにダウンロードしたりすることはありません。ダウンロードした曲ファイルを読むだけで、ダウンロード フォルダーはそのままにします。"
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/stream/own_scenes.rs src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
@@ -7471,9 +7539,29 @@ msgstr "メディアが見つかりません"
 msgid "Missing slides"
 msgstr "スライドが見つかりません"
 
-#: src/songselect.rs
+#: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
+msgid "No lyrics were found in this file."
+msgstr "このファイルに歌詞が見つかりませんでした。"
+
+#: src/songselect/inbox.rs src/songselect.rs src/ui/dialogs/songselect.rs
 msgid "That file is too big to be a lyric file."
 msgstr "ファイルが大きすぎて歌詞ファイルではありません。"
+
+#: src/songselect/inbox.rs
+msgid "it has no CCLI song number"
+msgstr "CCLI の曲番号がありません"
+
+#: src/songselect/inbox.rs
+msgid "{title} (from SongSelect)"
+msgstr "{title} (SongSelect から)"
+
+#: src/songselect/usr.rs
+msgid "This is not a SongSelect song file."
+msgstr "SongSelect の曲ファイルではありません。"
+
+#: src/songselect/usr.rs
+msgid "The song file has no title."
+msgstr "曲ファイルにタイトルがありません。"
 
 #: src/songselect.rs
 msgid "The lyric file is empty."
@@ -7482,10 +7570,6 @@ msgstr "歌詞ファイルが空です。"
 #: src/songselect.rs
 msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
 msgstr "このファイルには Verse/Chorus の見出しがありません。SongSelect の「Lyrics (.txt)」ダウンロードを使ってください。"
-
-#: src/songselect.rs
-msgid "No lyrics were found in this file."
-msgstr "このファイルに歌詞が見つかりませんでした。"
 
 #: src/startup.rs
 msgid "Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."
@@ -12185,6 +12269,58 @@ msgstr ""
 "聖書を読む\n"
 "隣人に仕える"
 
+#: src/ui/dialogs/songselect.rs
+msgid "Songs from SongSelect"
+msgstr "SongSelect の曲"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{words}” is copied: paste it into SongSelect's search box (Ctrl+V)."
+msgstr "「{words}」をコピーしました。SongSelect の検索欄に貼り付けてください (Ctrl+V)。"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not open the web browser: {error}"
+msgstr "ウェブブラウザを開けませんでした: {error}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” came in from SongSelect."
+msgstr "「{title}」が SongSelect から入りました。"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect is already in your library."
+msgstr "SongSelect の「{title}」はすでにライブラリにあります。"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect has other words than your copy, so it was kept as “{new}”."
+msgstr "SongSelect の「{title}」は手元の曲と歌詞が違うため、「{new}」として残しました。"
+
+#: src/ui/dialogs/songselect.rs
+msgid "{file} could not be read: {why}"
+msgstr "{file} を読めませんでした: {why}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Added to your song library"
+msgstr "曲ライブラリに追加しました"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Already in your song library"
+msgstr "すでに曲ライブラリにあります"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your copy has other words, so this one is kept as “{new}”"
+msgstr "手元の曲と歌詞が違うため、「{new}」として残します"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not read it: {why}"
+msgstr "読めませんでした: {why}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Watching your Downloads folder ({folder}) for songs."
+msgstr "ダウンロード フォルダー ({folder}) に曲が来るのを見ています。"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your Downloads folder could not be found. Use “Choose a file…” for the songs you download."
+msgstr "ダウンロード フォルダーが見つかりません。ダウンロードした曲は「ファイルを選ぶ…」で取り込んでください。"
+
 #: src/ui/dialogs/stream_more.rs
 msgid "More livestream settings"
 msgstr "ライブ配信のその他の設定"
@@ -12909,6 +13045,9 @@ msgstr "yt-dlp は動画を保存しませんでした"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "メディアファイルではありません"
+
+#~ msgid "Import SongSelect lyrics (.txt)"
+#~ msgstr "SongSelect の歌詞を取り込む (.txt)"
 
 #~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
 #~ msgstr "YouTube と Facebook での各配信の名前。{{date}} はその日の日付になります。"

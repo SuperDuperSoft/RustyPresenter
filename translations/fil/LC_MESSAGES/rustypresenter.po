@@ -47,6 +47,10 @@ msgstr "I-edit"
 msgid "Add"
 msgstr "Idagdag"
 
+#: ui/dialogs/add-list.slint ui/dialogs/quick-search.slint
+msgid "Look for it on SongSelect"
+msgstr "Hanapin ito sa SongSelect"
+
 #: ui/dialogs/add-media.slint
 msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
 msgstr "Mag-download lamang ng mga video na may karapatang gamitin ang inyong simbahan (sariling gawa, may lisensya, o Creative Commons)."
@@ -108,8 +112,16 @@ msgid "New song"
 msgstr "Bagong kanta"
 
 #: ui/dialogs/add.slint
-msgid "Import SongSelect lyrics (.txt)"
-msgstr "Mag-import ng SongSelect lyrics (.txt)"
+msgid "From SongSelect…"
+msgstr "Mula sa SongSelect…"
+
+#: ui/dialogs/add.slint
+msgid "Import a song file"
+msgstr "Mag-import ng file ng kanta"
+
+#: ui/dialogs/add.slint
+msgid "SongSelect lyrics (.txt), ChordPro or .usr"
+msgstr "Lyrics ng SongSelect (.txt), ChordPro o .usr"
 
 #: ui/dialogs/add.slint
 msgid "Import from EasyWorship"
@@ -1188,7 +1200,7 @@ msgstr "Bumalik"
 msgid "Next"
 msgstr "Susunod"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "Isara"
 
@@ -3551,6 +3563,18 @@ msgstr "I-off kung naigagalaw ang screen ng mga letrang napindot nang hindi sina
 msgid "Letters and numbers jump the live song to a section"
 msgstr "Tumatalon sa isang section ng live na kanta ang mga letra at numero"
 
+#: ui/dialogs/settings.slint
+msgid "Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted."
+msgstr "Ang mga kantang dina-download mo mula sa SongSelect sa web browser mo ay kusang papasok sa library ng mga kanta. Mga file ng kanta ng SongSelect lang ang binabasa; walang inililipat o binubura sa Downloads."
+
+#: ui/dialogs/settings.slint
+msgid "Bring in SongSelect downloads whenever RustyPresenter is open"
+msgstr "Kunin ang mga download mula sa SongSelect tuwing bukas ang RustyPresenter"
+
+#: ui/dialogs/settings.slint ui/operator.slint
+msgid "Songs from SongSelect…"
+msgstr "Mga kanta mula sa SongSelect…"
+
 #: ui/dialogs/settings.slint ui/operator.slint
 msgid "Song use report…"
 msgstr "Ulat ng paggamit ng kanta…"
@@ -3882,6 +3906,50 @@ msgstr "I-save at idagdag sa service"
 #: ui/dialogs/song-editor.slint
 msgid "Save song"
 msgstr "I-save ang kanta"
+
+#: ui/dialogs/songselect.slint
+msgid "Sign in to SongSelect in your web browser."
+msgstr "Mag-sign in sa SongSelect sa web browser mo."
+
+#: ui/dialogs/songselect.slint
+msgid "Find the song and choose Download → Lyrics (or ChordPro)."
+msgstr "Hanapin ang kanta at piliin ang Download → Lyrics (o ChordPro)."
+
+#: ui/dialogs/songselect.slint
+msgid "It comes in here by itself."
+msgstr "Kusa itong papasok dito."
+
+#: ui/dialogs/songselect.slint
+msgid "Open SongSelect"
+msgstr "Buksan ang SongSelect"
+
+#: ui/dialogs/songselect.slint
+msgid "Choose a file…"
+msgstr "Pumili ng file…"
+
+#: ui/dialogs/songselect.slint
+msgid "For a song you downloaded before"
+msgstr "Para sa kantang na-download mo dati"
+
+#: ui/dialogs/songselect.slint
+msgid "Songs that came in"
+msgstr "Mga kantang pumasok"
+
+#: ui/dialogs/songselect.slint
+msgid "In the service"
+msgstr "Nasa service na"
+
+#: ui/dialogs/songselect.slint
+msgid "Add to the service"
+msgstr "Idagdag sa service"
+
+#: ui/dialogs/songselect.slint
+msgid "Nothing yet. Songs you download from SongSelect show up here."
+msgstr "Wala pa. Dito lalabas ang mga kantang dina-download mo mula sa SongSelect."
+
+#: ui/dialogs/songselect.slint
+msgid "RustyPresenter never signs in to SongSelect and never downloads for you. It only reads the song files you download, and leaves your Downloads folder as it is."
+msgstr "Hindi kailanman nagsa-sign in ang RustyPresenter sa SongSelect at hindi ito nagda-download para sa iyo. Binabasa lang nito ang mga file ng kanta na dina-download mo, at hindi ginagalaw ang Downloads folder mo."
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/stream/own_scenes.rs src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
@@ -7476,9 +7544,29 @@ msgstr "Nawawalang media"
 msgid "Missing slides"
 msgstr "Nawawalang slides"
 
-#: src/songselect.rs
+#: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
+msgid "No lyrics were found in this file."
+msgstr "Walang nakitang lyrics sa file na ito."
+
+#: src/songselect/inbox.rs src/songselect.rs src/ui/dialogs/songselect.rs
 msgid "That file is too big to be a lyric file."
 msgstr "Masyadong malaki ang file na iyon para maging lyric file."
+
+#: src/songselect/inbox.rs
+msgid "it has no CCLI song number"
+msgstr "wala itong CCLI song number"
+
+#: src/songselect/inbox.rs
+msgid "{title} (from SongSelect)"
+msgstr "{title} (mula sa SongSelect)"
+
+#: src/songselect/usr.rs
+msgid "This is not a SongSelect song file."
+msgstr "Hindi ito file ng kanta ng SongSelect."
+
+#: src/songselect/usr.rs
+msgid "The song file has no title."
+msgstr "Walang pamagat ang file ng kanta."
 
 #: src/songselect.rs
 msgid "The lyric file is empty."
@@ -7487,10 +7575,6 @@ msgstr "Walang laman ang lyric file."
 #: src/songselect.rs
 msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
 msgstr "Walang Verse/Chorus na heading ang file na ito. Gamitin ang \"Lyrics (.txt)\" na download ng SongSelect."
-
-#: src/songselect.rs
-msgid "No lyrics were found in this file."
-msgstr "Walang nakitang lyrics sa file na ito."
 
 #: src/startup.rs
 msgid "Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."
@@ -12228,6 +12312,58 @@ msgstr ""
 "Basahin ang Bibliya\n"
 "Paglingkuran ang kapwa"
 
+#: src/ui/dialogs/songselect.rs
+msgid "Songs from SongSelect"
+msgstr "Mga kanta mula sa SongSelect"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{words}” is copied: paste it into SongSelect's search box (Ctrl+V)."
+msgstr "Nakopya na ang “{words}”: i-paste ito sa search box ng SongSelect (Ctrl+V)."
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not open the web browser: {error}"
+msgstr "Hindi mabuksan ang web browser: {error}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” came in from SongSelect."
+msgstr "Pumasok ang “{title}” mula sa SongSelect."
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect is already in your library."
+msgstr "Nasa library mo na ang “{title}” mula sa SongSelect."
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect has other words than your copy, so it was kept as “{new}”."
+msgstr "Iba ang mga salita ng “{title}” mula sa SongSelect kaysa sa kopya mo, kaya itinago ito bilang “{new}”."
+
+#: src/ui/dialogs/songselect.rs
+msgid "{file} could not be read: {why}"
+msgstr "Hindi mabasa ang {file}: {why}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Added to your song library"
+msgstr "Naidagdag sa library ng mga kanta mo"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Already in your song library"
+msgstr "Nasa library ng mga kanta mo na"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your copy has other words, so this one is kept as “{new}”"
+msgstr "Iba ang mga salita ng kopya mo, kaya itinatago ito bilang “{new}”"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not read it: {why}"
+msgstr "Hindi ito mabasa: {why}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Watching your Downloads folder ({folder}) for songs."
+msgstr "Binabantayan ang Downloads folder mo ({folder}) para sa mga kanta."
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your Downloads folder could not be found. Use “Choose a file…” for the songs you download."
+msgstr "Hindi makita ang Downloads folder mo. Gamitin ang “Pumili ng file…” para sa mga kantang dina-download mo."
+
 #: src/ui/dialogs/stream_more.rs
 msgid "More livestream settings"
 msgstr "Iba pang settings ng livestream"
@@ -12956,6 +13092,9 @@ msgstr "walang na-save na video ang yt-dlp"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "hindi media file"
+
+#~ msgid "Import SongSelect lyrics (.txt)"
+#~ msgstr "Mag-import ng SongSelect lyrics (.txt)"
 
 #~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
 #~ msgstr "Ang tawag ng YouTube at Facebook sa bawat broadcast. Ang {{date}} ay magiging petsa ng araw."

@@ -47,6 +47,10 @@ msgstr "Modifye"
 msgid "Add"
 msgstr "Ajoute"
 
+#: ui/dialogs/add-list.slint ui/dialogs/quick-search.slint
+msgid "Look for it on SongSelect"
+msgstr "Chèche l sou SongSelect"
+
 #: ui/dialogs/add-media.slint
 msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
 msgstr "Telechaje sèlman videyo legliz ou gen dwa itilize (pa w, ak lisans, oswa Creative Commons)."
@@ -108,8 +112,16 @@ msgid "New song"
 msgstr "Nouvo chante"
 
 #: ui/dialogs/add.slint
-msgid "Import SongSelect lyrics (.txt)"
-msgstr "Enpòte pawòl SongSelect (.txt)"
+msgid "From SongSelect…"
+msgstr "Soti nan SongSelect…"
+
+#: ui/dialogs/add.slint
+msgid "Import a song file"
+msgstr "Enpòte yon fichye chante"
+
+#: ui/dialogs/add.slint
+msgid "SongSelect lyrics (.txt), ChordPro or .usr"
+msgstr "Pawòl SongSelect (.txt), ChordPro oswa .usr"
 
 #: ui/dialogs/add.slint
 msgid "Import from EasyWorship"
@@ -1188,7 +1200,7 @@ msgstr "Retounen"
 msgid "Next"
 msgstr "Pwochen"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "Fèmen"
 
@@ -3551,6 +3563,18 @@ msgstr "Etenn sa si lèt ou tape pa erè fè ekran an bouje."
 msgid "Letters and numbers jump the live song to a section"
 msgstr "Lèt ak chif fè chante k ap pase a sote nan yon seksyon"
 
+#: ui/dialogs/settings.slint
+msgid "Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted."
+msgstr "Chante ou telechaje nan SongSelect nan navigatè entènèt ou a antre poukont yo nan bibliyotèk chante a. Se sèlman fichye chante SongSelect yo ki li; anyen nan Downloads pa deplase ni efase."
+
+#: ui/dialogs/settings.slint
+msgid "Bring in SongSelect downloads whenever RustyPresenter is open"
+msgstr "Pran telechajman SongSelect yo chak fwa RustyPresenter louvri"
+
+#: ui/dialogs/settings.slint ui/operator.slint
+msgid "Songs from SongSelect…"
+msgstr "Chante ki soti nan SongSelect…"
+
 #: ui/dialogs/settings.slint ui/operator.slint
 msgid "Song use report…"
 msgstr "Rapò itilizasyon chante…"
@@ -3882,6 +3906,50 @@ msgstr "Anrejistre epi ajoute nan sèvis"
 #: ui/dialogs/song-editor.slint
 msgid "Save song"
 msgstr "Anrejistre chante"
+
+#: ui/dialogs/songselect.slint
+msgid "Sign in to SongSelect in your web browser."
+msgstr "Konekte nan SongSelect nan navigatè entènèt ou a."
+
+#: ui/dialogs/songselect.slint
+msgid "Find the song and choose Download → Lyrics (or ChordPro)."
+msgstr "Jwenn chante a epi chwazi Download → Lyrics (oswa ChordPro)."
+
+#: ui/dialogs/songselect.slint
+msgid "It comes in here by itself."
+msgstr "Li antre isit la poukont li."
+
+#: ui/dialogs/songselect.slint
+msgid "Open SongSelect"
+msgstr "Louvri SongSelect"
+
+#: ui/dialogs/songselect.slint
+msgid "Choose a file…"
+msgstr "Chwazi yon fichye…"
+
+#: ui/dialogs/songselect.slint
+msgid "For a song you downloaded before"
+msgstr "Pou yon chante ou te telechaje avan"
+
+#: ui/dialogs/songselect.slint
+msgid "Songs that came in"
+msgstr "Chante ki antre"
+
+#: ui/dialogs/songselect.slint
+msgid "In the service"
+msgstr "Nan sèvis la"
+
+#: ui/dialogs/songselect.slint
+msgid "Add to the service"
+msgstr "Ajoute nan sèvis la"
+
+#: ui/dialogs/songselect.slint
+msgid "Nothing yet. Songs you download from SongSelect show up here."
+msgstr "Poko gen anyen. Chante ou telechaje nan SongSelect ap parèt isit la."
+
+#: ui/dialogs/songselect.slint
+msgid "RustyPresenter never signs in to SongSelect and never downloads for you. It only reads the song files you download, and leaves your Downloads folder as it is."
+msgstr "RustyPresenter pa janm konekte nan SongSelect e li pa janm telechaje pou ou. Li li sèlman fichye chante ou telechaje yo, epi li kite dosye Downloads ou a jan l ye a."
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/stream/own_scenes.rs src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
@@ -7476,9 +7544,29 @@ msgstr "Medya ki manke"
 msgid "Missing slides"
 msgstr "Diapo ki manke"
 
-#: src/songselect.rs
+#: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
+msgid "No lyrics were found in this file."
+msgstr "Pa jwenn okenn pawòl nan fichye sa a."
+
+#: src/songselect/inbox.rs src/songselect.rs src/ui/dialogs/songselect.rs
 msgid "That file is too big to be a lyric file."
 msgstr "Fichye sa a twò gwo pou se yon fichye pawòl."
+
+#: src/songselect/inbox.rs
+msgid "it has no CCLI song number"
+msgstr "li pa gen nimewo chante CCLI"
+
+#: src/songselect/inbox.rs
+msgid "{title} (from SongSelect)"
+msgstr "{title} (soti nan SongSelect)"
+
+#: src/songselect/usr.rs
+msgid "This is not a SongSelect song file."
+msgstr "Sa a se pa yon fichye chante SongSelect."
+
+#: src/songselect/usr.rs
+msgid "The song file has no title."
+msgstr "Fichye chante a pa gen tit."
 
 #: src/songselect.rs
 msgid "The lyric file is empty."
@@ -7487,10 +7575,6 @@ msgstr "Fichye pawòl la vid."
 #: src/songselect.rs
 msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
 msgstr "Fichye sa a pa gen tit Kouplè/Koral. Itilize telechajman \"Lyrics (.txt)\" SongSelect la."
-
-#: src/songselect.rs
-msgid "No lyrics were found in this file."
-msgstr "Pa jwenn okenn pawòl nan fichye sa a."
 
 #: src/startup.rs
 msgid "Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."
@@ -12228,6 +12312,58 @@ msgstr ""
 "Li Bib la\n"
 "Sèvi pwochen ou"
 
+#: src/ui/dialogs/songselect.rs
+msgid "Songs from SongSelect"
+msgstr "Chante ki soti nan SongSelect"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{words}” is copied: paste it into SongSelect's search box (Ctrl+V)."
+msgstr "“{words}” kopye: kole l nan bwat rechèch SongSelect la (Ctrl+V)."
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not open the web browser: {error}"
+msgstr "Pa t kapab louvri navigatè entènèt la: {error}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” came in from SongSelect."
+msgstr "“{title}” antre soti nan SongSelect."
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect is already in your library."
+msgstr "“{title}” ki soti nan SongSelect deja nan bibliyotèk ou a."
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect has other words than your copy, so it was kept as “{new}”."
+msgstr "“{title}” ki soti nan SongSelect gen lòt pawòl pase kopi pa w la, kidonk li kenbe l kòm “{new}”."
+
+#: src/ui/dialogs/songselect.rs
+msgid "{file} could not be read: {why}"
+msgstr "Pa t kapab li {file}: {why}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Added to your song library"
+msgstr "Ajoute nan bibliyotèk chante ou a"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Already in your song library"
+msgstr "Deja nan bibliyotèk chante ou a"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your copy has other words, so this one is kept as “{new}”"
+msgstr "Kopi pa w la gen lòt pawòl, kidonk sa a kenbe kòm “{new}”"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not read it: {why}"
+msgstr "Pa t kapab li l: {why}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Watching your Downloads folder ({folder}) for songs."
+msgstr "N ap veye dosye Downloads ou a ({folder}) pou chante."
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your Downloads folder could not be found. Use “Choose a file…” for the songs you download."
+msgstr "Nou pa jwenn dosye Downloads ou a. Sèvi ak “Chwazi yon fichye…” pou chante ou telechaje yo."
+
 #: src/ui/dialogs/stream_more.rs
 msgid "More livestream settings"
 msgstr "Plis paramèt emisyon an dirèk"
@@ -12956,6 +13092,9 @@ msgstr "yt-dlp pa anrejistre okenn videyo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "se pa yon fichye medya"
+
+#~ msgid "Import SongSelect lyrics (.txt)"
+#~ msgstr "Enpòte pawòl SongSelect (.txt)"
 
 #~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
 #~ msgstr "Non YouTube ak Facebook bay chak difizyon. {{date}} vin dat jou a."

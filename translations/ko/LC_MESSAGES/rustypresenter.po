@@ -47,6 +47,10 @@ msgstr "편집"
 msgid "Add"
 msgstr "추가"
 
+#: ui/dialogs/add-list.slint ui/dialogs/quick-search.slint
+msgid "Look for it on SongSelect"
+msgstr "SongSelect에서 찾기"
+
 #: ui/dialogs/add-media.slint
 msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
 msgstr "교회에 사용 권한이 있는 동영상만 다운로드하세요(직접 만든 것, 라이선스가 있는 것, 또는 크리에이티브 커먼즈)."
@@ -108,8 +112,16 @@ msgid "New song"
 msgstr "새 찬양"
 
 #: ui/dialogs/add.slint
-msgid "Import SongSelect lyrics (.txt)"
-msgstr "SongSelect 가사 가져오기(.txt)"
+msgid "From SongSelect…"
+msgstr "SongSelect에서…"
+
+#: ui/dialogs/add.slint
+msgid "Import a song file"
+msgstr "찬양 파일 가져오기"
+
+#: ui/dialogs/add.slint
+msgid "SongSelect lyrics (.txt), ChordPro or .usr"
+msgstr "SongSelect 가사(.txt), ChordPro 또는 .usr"
 
 #: ui/dialogs/add.slint
 msgid "Import from EasyWorship"
@@ -1188,7 +1200,7 @@ msgstr "뒤로"
 msgid "Next"
 msgstr "다음"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "닫기"
 
@@ -3551,6 +3563,18 @@ msgstr "실수로 입력한 글자 때문에 화면이 바뀐다면 끄세요."
 msgid "Letters and numbers jump the live song to a section"
 msgstr "글자와 숫자 키로 라이브 중인 찬양의 섹션으로 이동해요"
 
+#: ui/dialogs/settings.slint
+msgid "Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted."
+msgstr "웹 브라우저에서 SongSelect로 내려받은 찬양은 저절로 찬양 라이브러리에 들어와요. SongSelect 찬양 파일만 읽고, 다운로드 폴더의 파일은 옮기거나 지우지 않아요."
+
+#: ui/dialogs/settings.slint
+msgid "Bring in SongSelect downloads whenever RustyPresenter is open"
+msgstr "RustyPresenter가 열려 있으면 언제나 SongSelect에서 내려받은 찬양 가져오기"
+
+#: ui/dialogs/settings.slint ui/operator.slint
+msgid "Songs from SongSelect…"
+msgstr "SongSelect 찬양…"
+
 #: ui/dialogs/settings.slint ui/operator.slint
 msgid "Song use report…"
 msgstr "찬양 사용 보고서…"
@@ -3882,6 +3906,50 @@ msgstr "저장 후 예배에 추가"
 #: ui/dialogs/song-editor.slint
 msgid "Save song"
 msgstr "찬양 저장"
+
+#: ui/dialogs/songselect.slint
+msgid "Sign in to SongSelect in your web browser."
+msgstr "웹 브라우저에서 SongSelect에 로그인하세요."
+
+#: ui/dialogs/songselect.slint
+msgid "Find the song and choose Download → Lyrics (or ChordPro)."
+msgstr "찬양을 찾아 Download → Lyrics(또는 ChordPro)를 고르세요."
+
+#: ui/dialogs/songselect.slint
+msgid "It comes in here by itself."
+msgstr "저절로 여기에 들어와요."
+
+#: ui/dialogs/songselect.slint
+msgid "Open SongSelect"
+msgstr "SongSelect 열기"
+
+#: ui/dialogs/songselect.slint
+msgid "Choose a file…"
+msgstr "파일 고르기…"
+
+#: ui/dialogs/songselect.slint
+msgid "For a song you downloaded before"
+msgstr "전에 내려받은 찬양일 때"
+
+#: ui/dialogs/songselect.slint
+msgid "Songs that came in"
+msgstr "들어온 찬양"
+
+#: ui/dialogs/songselect.slint
+msgid "In the service"
+msgstr "예배에 있음"
+
+#: ui/dialogs/songselect.slint
+msgid "Add to the service"
+msgstr "예배에 추가"
+
+#: ui/dialogs/songselect.slint
+msgid "Nothing yet. Songs you download from SongSelect show up here."
+msgstr "아직 없어요. SongSelect에서 내려받은 찬양이 여기에 나타나요."
+
+#: ui/dialogs/songselect.slint
+msgid "RustyPresenter never signs in to SongSelect and never downloads for you. It only reads the song files you download, and leaves your Downloads folder as it is."
+msgstr "RustyPresenter는 SongSelect에 로그인하지 않고 대신 내려받지도 않아요. 내려받은 찬양 파일을 읽기만 하고 다운로드 폴더는 그대로 둬요."
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/stream/own_scenes.rs src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
@@ -7471,9 +7539,29 @@ msgstr "없는 미디어"
 msgid "Missing slides"
 msgstr "없는 슬라이드"
 
-#: src/songselect.rs
+#: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
+msgid "No lyrics were found in this file."
+msgstr "이 파일에서 가사를 찾지 못했어요."
+
+#: src/songselect/inbox.rs src/songselect.rs src/ui/dialogs/songselect.rs
 msgid "That file is too big to be a lyric file."
 msgstr "가사 파일이라기엔 너무 커요."
+
+#: src/songselect/inbox.rs
+msgid "it has no CCLI song number"
+msgstr "CCLI 곡 번호가 없어요"
+
+#: src/songselect/inbox.rs
+msgid "{title} (from SongSelect)"
+msgstr "{title} (SongSelect에서)"
+
+#: src/songselect/usr.rs
+msgid "This is not a SongSelect song file."
+msgstr "SongSelect 찬양 파일이 아니에요."
+
+#: src/songselect/usr.rs
+msgid "The song file has no title."
+msgstr "찬양 파일에 제목이 없어요."
 
 #: src/songselect.rs
 msgid "The lyric file is empty."
@@ -7482,10 +7570,6 @@ msgstr "가사 파일이 비어 있어요."
 #: src/songselect.rs
 msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
 msgstr "이 파일에는 Verse/Chorus 제목이 없어요. SongSelect의 \"Lyrics (.txt)\" 다운로드를 사용하세요."
-
-#: src/songselect.rs
-msgid "No lyrics were found in this file."
-msgstr "이 파일에서 가사를 찾지 못했어요."
 
 #: src/startup.rs
 msgid "Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."
@@ -12185,6 +12269,58 @@ msgstr ""
 "성경 읽기\n"
 "이웃 섬기기"
 
+#: src/ui/dialogs/songselect.rs
+msgid "Songs from SongSelect"
+msgstr "SongSelect 찬양"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{words}” is copied: paste it into SongSelect's search box (Ctrl+V)."
+msgstr "“{words}”을(를) 복사했어요. SongSelect 검색창에 붙여 넣으세요(Ctrl+V)."
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not open the web browser: {error}"
+msgstr "웹 브라우저를 열 수 없어요: {error}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” came in from SongSelect."
+msgstr "“{title}”이(가) SongSelect에서 들어왔어요."
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect is already in your library."
+msgstr "SongSelect의 “{title}”은(는) 이미 라이브러리에 있어요."
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect has other words than your copy, so it was kept as “{new}”."
+msgstr "SongSelect의 “{title}”은(는) 가지고 있는 찬양과 가사가 달라서 “{new}”(으)로 따로 두었어요."
+
+#: src/ui/dialogs/songselect.rs
+msgid "{file} could not be read: {why}"
+msgstr "{file}을(를) 읽을 수 없어요: {why}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Added to your song library"
+msgstr "찬양 라이브러리에 추가됨"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Already in your song library"
+msgstr "이미 찬양 라이브러리에 있음"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your copy has other words, so this one is kept as “{new}”"
+msgstr "가지고 있는 찬양과 가사가 달라서 이 찬양은 “{new}”(으)로 따로 둬요"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not read it: {why}"
+msgstr "읽을 수 없어요: {why}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Watching your Downloads folder ({folder}) for songs."
+msgstr "다운로드 폴더({folder})에 찬양이 들어오는지 보고 있어요."
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your Downloads folder could not be found. Use “Choose a file…” for the songs you download."
+msgstr "다운로드 폴더를 찾을 수 없어요. 내려받은 찬양은 “파일 고르기…”로 가져오세요."
+
 #: src/ui/dialogs/stream_more.rs
 msgid "More livestream settings"
 msgstr "라이브 방송 설정 더 보기"
@@ -12909,6 +13045,9 @@ msgstr "yt-dlp가 동영상을 저장하지 않았어요"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "미디어 파일 아님"
+
+#~ msgid "Import SongSelect lyrics (.txt)"
+#~ msgstr "SongSelect 가사 가져오기(.txt)"
 
 #~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
 #~ msgstr "YouTube와 Facebook에서 각 방송의 이름. {{date}}는 그날 날짜가 됩니다."

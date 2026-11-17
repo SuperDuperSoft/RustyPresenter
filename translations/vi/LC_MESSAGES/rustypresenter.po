@@ -47,6 +47,10 @@ msgstr "Sửa"
 msgid "Add"
 msgstr "Thêm"
 
+#: ui/dialogs/add-list.slint ui/dialogs/quick-search.slint
+msgid "Look for it on SongSelect"
+msgstr "Tìm trên SongSelect"
+
 #: ui/dialogs/add-media.slint
 msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
 msgstr "Chỉ tải video mà hội thánh có quyền sử dụng (của bạn, có giấy phép, hoặc Creative Commons)."
@@ -108,8 +112,16 @@ msgid "New song"
 msgstr "Bài hát mới"
 
 #: ui/dialogs/add.slint
-msgid "Import SongSelect lyrics (.txt)"
-msgstr "Nhập lời bài hát SongSelect (.txt)"
+msgid "From SongSelect…"
+msgstr "Từ SongSelect…"
+
+#: ui/dialogs/add.slint
+msgid "Import a song file"
+msgstr "Nhập một tệp bài hát"
+
+#: ui/dialogs/add.slint
+msgid "SongSelect lyrics (.txt), ChordPro or .usr"
+msgstr "Lời bài hát SongSelect (.txt), ChordPro hoặc .usr"
 
 #: ui/dialogs/add.slint
 msgid "Import from EasyWorship"
@@ -1188,7 +1200,7 @@ msgstr "Quay lại"
 msgid "Next"
 msgstr "Tiếp"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "Đóng"
 
@@ -3551,6 +3563,18 @@ msgstr "Tắt nếu gõ nhầm chữ làm màn hình bị chuyển."
 msgid "Letters and numbers jump the live song to a section"
 msgstr "Chữ cái và số đưa bài hát đang chiếu tới một đoạn"
 
+#: ui/dialogs/settings.slint
+msgid "Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted."
+msgstr "Bài hát bạn tải từ SongSelect trong trình duyệt sẽ tự vào thư viện bài hát. Chỉ đọc các tệp bài hát của SongSelect; không di chuyển hay xóa gì trong thư mục Tải xuống."
+
+#: ui/dialogs/settings.slint
+msgid "Bring in SongSelect downloads whenever RustyPresenter is open"
+msgstr "Lấy bài hát tải từ SongSelect mỗi khi RustyPresenter đang mở"
+
+#: ui/dialogs/settings.slint ui/operator.slint
+msgid "Songs from SongSelect…"
+msgstr "Bài hát từ SongSelect…"
+
 #: ui/dialogs/settings.slint ui/operator.slint
 msgid "Song use report…"
 msgstr "Báo cáo sử dụng bài hát…"
@@ -3882,6 +3906,50 @@ msgstr "Lưu và thêm vào buổi lễ"
 #: ui/dialogs/song-editor.slint
 msgid "Save song"
 msgstr "Lưu bài hát"
+
+#: ui/dialogs/songselect.slint
+msgid "Sign in to SongSelect in your web browser."
+msgstr "Đăng nhập SongSelect trong trình duyệt của bạn."
+
+#: ui/dialogs/songselect.slint
+msgid "Find the song and choose Download → Lyrics (or ChordPro)."
+msgstr "Tìm bài hát rồi chọn Download → Lyrics (hoặc ChordPro)."
+
+#: ui/dialogs/songselect.slint
+msgid "It comes in here by itself."
+msgstr "Bài hát tự vào đây."
+
+#: ui/dialogs/songselect.slint
+msgid "Open SongSelect"
+msgstr "Mở SongSelect"
+
+#: ui/dialogs/songselect.slint
+msgid "Choose a file…"
+msgstr "Chọn tệp…"
+
+#: ui/dialogs/songselect.slint
+msgid "For a song you downloaded before"
+msgstr "Cho bài hát bạn đã tải trước đó"
+
+#: ui/dialogs/songselect.slint
+msgid "Songs that came in"
+msgstr "Bài hát đã vào"
+
+#: ui/dialogs/songselect.slint
+msgid "In the service"
+msgstr "Đã có trong buổi lễ"
+
+#: ui/dialogs/songselect.slint
+msgid "Add to the service"
+msgstr "Thêm vào buổi lễ"
+
+#: ui/dialogs/songselect.slint
+msgid "Nothing yet. Songs you download from SongSelect show up here."
+msgstr "Chưa có gì. Bài hát bạn tải từ SongSelect sẽ hiện ở đây."
+
+#: ui/dialogs/songselect.slint
+msgid "RustyPresenter never signs in to SongSelect and never downloads for you. It only reads the song files you download, and leaves your Downloads folder as it is."
+msgstr "RustyPresenter không bao giờ đăng nhập SongSelect và không bao giờ tải thay bạn. Nó chỉ đọc các tệp bài hát bạn tải về và để nguyên thư mục Tải xuống của bạn."
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/stream/own_scenes.rs src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
@@ -7471,9 +7539,29 @@ msgstr "Thiếu tệp đa phương tiện"
 msgid "Missing slides"
 msgstr "Thiếu trang chiếu"
 
-#: src/songselect.rs
+#: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
+msgid "No lyrics were found in this file."
+msgstr "Không tìm thấy lời bài hát trong tệp này."
+
+#: src/songselect/inbox.rs src/songselect.rs src/ui/dialogs/songselect.rs
 msgid "That file is too big to be a lyric file."
 msgstr "Tệp đó quá lớn để là tệp lời bài hát."
+
+#: src/songselect/inbox.rs
+msgid "it has no CCLI song number"
+msgstr "tệp không có số bài hát CCLI"
+
+#: src/songselect/inbox.rs
+msgid "{title} (from SongSelect)"
+msgstr "{title} (từ SongSelect)"
+
+#: src/songselect/usr.rs
+msgid "This is not a SongSelect song file."
+msgstr "Đây không phải là tệp bài hát của SongSelect."
+
+#: src/songselect/usr.rs
+msgid "The song file has no title."
+msgstr "Tệp bài hát không có tên."
 
 #: src/songselect.rs
 msgid "The lyric file is empty."
@@ -7482,10 +7570,6 @@ msgstr "Tệp lời bài hát trống."
 #: src/songselect.rs
 msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
 msgstr "Tệp này không có tiêu đề Verse/Chorus. Hãy dùng bản tải \"Lyrics (.txt)\" của SongSelect."
-
-#: src/songselect.rs
-msgid "No lyrics were found in this file."
-msgstr "Không tìm thấy lời bài hát trong tệp này."
 
 #: src/startup.rs
 msgid "Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."
@@ -12185,6 +12269,58 @@ msgstr ""
 "Đọc Kinh Thánh\n"
 "Phục vụ người lân cận"
 
+#: src/ui/dialogs/songselect.rs
+msgid "Songs from SongSelect"
+msgstr "Bài hát từ SongSelect"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{words}” is copied: paste it into SongSelect's search box (Ctrl+V)."
+msgstr "Đã chép “{words}”: hãy dán vào ô tìm kiếm của SongSelect (Ctrl+V)."
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not open the web browser: {error}"
+msgstr "Không mở được trình duyệt: {error}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” came in from SongSelect."
+msgstr "“{title}” đã vào từ SongSelect."
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect is already in your library."
+msgstr "“{title}” từ SongSelect đã có trong thư viện của bạn."
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect has other words than your copy, so it was kept as “{new}”."
+msgstr "“{title}” từ SongSelect có lời khác với bản của bạn, nên đã được giữ với tên “{new}”."
+
+#: src/ui/dialogs/songselect.rs
+msgid "{file} could not be read: {why}"
+msgstr "Không đọc được {file}: {why}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Added to your song library"
+msgstr "Đã thêm vào thư viện bài hát"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Already in your song library"
+msgstr "Đã có trong thư viện bài hát"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your copy has other words, so this one is kept as “{new}”"
+msgstr "Bản của bạn có lời khác, nên bài này được giữ với tên “{new}”"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not read it: {why}"
+msgstr "Không đọc được: {why}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Watching your Downloads folder ({folder}) for songs."
+msgstr "Đang theo dõi thư mục Tải xuống ({folder}) để nhận bài hát."
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your Downloads folder could not be found. Use “Choose a file…” for the songs you download."
+msgstr "Không tìm thấy thư mục Tải xuống. Hãy dùng “Chọn tệp…” cho các bài hát bạn tải về."
+
 #: src/ui/dialogs/stream_more.rs
 msgid "More livestream settings"
 msgstr "Cài đặt phát trực tiếp khác"
@@ -12909,6 +13045,9 @@ msgstr "yt-dlp không lưu được video nào"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "không phải tệp đa phương tiện"
+
+#~ msgid "Import SongSelect lyrics (.txt)"
+#~ msgstr "Nhập lời bài hát SongSelect (.txt)"
 
 #~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
 #~ msgstr "Tên YouTube và Facebook đặt cho mỗi buổi phát. {{date}} sẽ thành ngày hôm đó."

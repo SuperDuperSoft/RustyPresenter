@@ -47,6 +47,10 @@ msgstr "Изменить"
 msgid "Add"
 msgstr "Добавить"
 
+#: ui/dialogs/add-list.slint ui/dialogs/quick-search.slint
+msgid "Look for it on SongSelect"
+msgstr "Поискать в SongSelect"
+
 #: ui/dialogs/add-media.slint
 msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
 msgstr "Скачивайте только те видео, на которые у вашей церкви есть права (свои, лицензированные или Creative Commons)."
@@ -108,8 +112,16 @@ msgid "New song"
 msgstr "Новая песня"
 
 #: ui/dialogs/add.slint
-msgid "Import SongSelect lyrics (.txt)"
-msgstr "Импорт текстов SongSelect (.txt)"
+msgid "From SongSelect…"
+msgstr "Из SongSelect…"
+
+#: ui/dialogs/add.slint
+msgid "Import a song file"
+msgstr "Импортировать файл песни"
+
+#: ui/dialogs/add.slint
+msgid "SongSelect lyrics (.txt), ChordPro or .usr"
+msgstr "Текст из SongSelect (.txt), ChordPro или .usr"
 
 #: ui/dialogs/add.slint
 msgid "Import from EasyWorship"
@@ -1188,7 +1200,7 @@ msgstr "Назад"
 msgid "Next"
 msgstr "Далее"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "Закрыть"
 
@@ -3551,6 +3563,18 @@ msgstr "Отключите, если случайно нажатые буквы 
 msgid "Letters and numbers jump the live song to a section"
 msgstr "Буквы и цифры переводят текущую песню к разделу"
 
+#: ui/dialogs/settings.slint
+msgid "Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted."
+msgstr "Песни, которые вы скачиваете из SongSelect в браузере, сами попадают в библиотеку песен. Читаются только файлы песен SongSelect; в папке «Загрузки» ничего не перемещается и не удаляется."
+
+#: ui/dialogs/settings.slint
+msgid "Bring in SongSelect downloads whenever RustyPresenter is open"
+msgstr "Забирать загрузки из SongSelect всегда, когда открыт RustyPresenter"
+
+#: ui/dialogs/settings.slint ui/operator.slint
+msgid "Songs from SongSelect…"
+msgstr "Песни из SongSelect…"
+
 #: ui/dialogs/settings.slint ui/operator.slint
 msgid "Song use report…"
 msgstr "Отчёт об исполнении песен…"
@@ -3882,6 +3906,50 @@ msgstr "Сохранить и добавить в служение"
 #: ui/dialogs/song-editor.slint
 msgid "Save song"
 msgstr "Сохранить песню"
+
+#: ui/dialogs/songselect.slint
+msgid "Sign in to SongSelect in your web browser."
+msgstr "Войдите в SongSelect в своём браузере."
+
+#: ui/dialogs/songselect.slint
+msgid "Find the song and choose Download → Lyrics (or ChordPro)."
+msgstr "Найдите песню и выберите Download → Lyrics (или ChordPro)."
+
+#: ui/dialogs/songselect.slint
+msgid "It comes in here by itself."
+msgstr "Она сама появится здесь."
+
+#: ui/dialogs/songselect.slint
+msgid "Open SongSelect"
+msgstr "Открыть SongSelect"
+
+#: ui/dialogs/songselect.slint
+msgid "Choose a file…"
+msgstr "Выбрать файл…"
+
+#: ui/dialogs/songselect.slint
+msgid "For a song you downloaded before"
+msgstr "Для песни, скачанной раньше"
+
+#: ui/dialogs/songselect.slint
+msgid "Songs that came in"
+msgstr "Пришедшие песни"
+
+#: ui/dialogs/songselect.slint
+msgid "In the service"
+msgstr "Уже в служении"
+
+#: ui/dialogs/songselect.slint
+msgid "Add to the service"
+msgstr "Добавить в служение"
+
+#: ui/dialogs/songselect.slint
+msgid "Nothing yet. Songs you download from SongSelect show up here."
+msgstr "Пока ничего. Песни, скачанные из SongSelect, появятся здесь."
+
+#: ui/dialogs/songselect.slint
+msgid "RustyPresenter never signs in to SongSelect and never downloads for you. It only reads the song files you download, and leaves your Downloads folder as it is."
+msgstr "RustyPresenter никогда не входит в SongSelect и ничего не скачивает за вас. Он только читает файлы песен, которые вы скачали, и ничего не меняет в папке «Загрузки»."
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/stream/own_scenes.rs src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
@@ -7481,9 +7549,29 @@ msgstr "Медиа не найдено"
 msgid "Missing slides"
 msgstr "Слайды не найдены"
 
-#: src/songselect.rs
+#: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
+msgid "No lyrics were found in this file."
+msgstr "В этом файле не найден текст песни."
+
+#: src/songselect/inbox.rs src/songselect.rs src/ui/dialogs/songselect.rs
 msgid "That file is too big to be a lyric file."
 msgstr "Файл слишком большой для файла текста песни."
+
+#: src/songselect/inbox.rs
+msgid "it has no CCLI song number"
+msgstr "в нём нет номера песни CCLI"
+
+#: src/songselect/inbox.rs
+msgid "{title} (from SongSelect)"
+msgstr "{title} (из SongSelect)"
+
+#: src/songselect/usr.rs
+msgid "This is not a SongSelect song file."
+msgstr "Это не файл песни SongSelect."
+
+#: src/songselect/usr.rs
+msgid "The song file has no title."
+msgstr "У файла песни нет названия."
 
 #: src/songselect.rs
 msgid "The lyric file is empty."
@@ -7492,10 +7580,6 @@ msgstr "Файл с текстом пустой."
 #: src/songselect.rs
 msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
 msgstr "В этом файле нет заголовков Verse/Chorus. Используйте загрузку «Lyrics (.txt)» в SongSelect."
-
-#: src/songselect.rs
-msgid "No lyrics were found in this file."
-msgstr "В этом файле не найден текст песни."
 
 #: src/startup.rs
 msgid "Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."
@@ -12271,6 +12355,58 @@ msgstr ""
 "Читайте Библию\n"
 "Служите ближнему"
 
+#: src/ui/dialogs/songselect.rs
+msgid "Songs from SongSelect"
+msgstr "Песни из SongSelect"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{words}” is copied: paste it into SongSelect's search box (Ctrl+V)."
+msgstr "«{words}» скопировано: вставьте это в поиск SongSelect (Ctrl+V)."
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not open the web browser: {error}"
+msgstr "Не удалось открыть браузер: {error}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” came in from SongSelect."
+msgstr "«{title}» пришла из SongSelect."
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect is already in your library."
+msgstr "«{title}» из SongSelect уже есть в вашей библиотеке."
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect has other words than your copy, so it was kept as “{new}”."
+msgstr "У «{title}» из SongSelect другой текст, чем у вашей копии, поэтому она сохранена как «{new}»."
+
+#: src/ui/dialogs/songselect.rs
+msgid "{file} could not be read: {why}"
+msgstr "Не удалось прочитать {file}: {why}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Added to your song library"
+msgstr "Добавлено в вашу библиотеку песен"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Already in your song library"
+msgstr "Уже есть в вашей библиотеке песен"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your copy has other words, so this one is kept as “{new}”"
+msgstr "У вашей копии другой текст, поэтому эта сохранена как «{new}»"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not read it: {why}"
+msgstr "Не удалось прочитать: {why}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Watching your Downloads folder ({folder}) for songs."
+msgstr "Слежу за папкой «Загрузки» ({folder}): ждём песни."
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your Downloads folder could not be found. Use “Choose a file…” for the songs you download."
+msgstr "Папка «Загрузки» не найдена. Для скачанных песен используйте «Выбрать файл…»."
+
 #: src/ui/dialogs/stream_more.rs
 msgid "More livestream settings"
 msgstr "Другие настройки трансляции"
@@ -13003,6 +13139,9 @@ msgstr "yt-dlp не сохранил видео"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "не медиафайл"
+
+#~ msgid "Import SongSelect lyrics (.txt)"
+#~ msgstr "Импорт текстов SongSelect (.txt)"
 
 #~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
 #~ msgstr "Как YouTube и Facebook называют каждую трансляцию. {{date}} заменяется датой дня."

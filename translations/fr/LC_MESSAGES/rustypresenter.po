@@ -47,6 +47,10 @@ msgstr "Modifier"
 msgid "Add"
 msgstr "Ajouter"
 
+#: ui/dialogs/add-list.slint ui/dialogs/quick-search.slint
+msgid "Look for it on SongSelect"
+msgstr "La chercher sur SongSelect"
+
 #: ui/dialogs/add-media.slint
 msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
 msgstr "Ne téléchargez que des vidéos que votre église a le droit d’utiliser (les vôtres, sous licence ou Creative Commons)."
@@ -108,8 +112,16 @@ msgid "New song"
 msgstr "Nouveau chant"
 
 #: ui/dialogs/add.slint
-msgid "Import SongSelect lyrics (.txt)"
-msgstr "Importer des paroles SongSelect (.txt)"
+msgid "From SongSelect…"
+msgstr "Depuis SongSelect…"
+
+#: ui/dialogs/add.slint
+msgid "Import a song file"
+msgstr "Importer un fichier de chant"
+
+#: ui/dialogs/add.slint
+msgid "SongSelect lyrics (.txt), ChordPro or .usr"
+msgstr "Paroles SongSelect (.txt), ChordPro ou .usr"
 
 #: ui/dialogs/add.slint
 msgid "Import from EasyWorship"
@@ -1188,7 +1200,7 @@ msgstr "Retour"
 msgid "Next"
 msgstr "Suivant"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "Fermer"
 
@@ -3551,6 +3563,18 @@ msgstr "Désactivez si des lettres tapées par erreur font bouger l’écran."
 msgid "Letters and numbers jump the live song to a section"
 msgstr "Les lettres et chiffres font passer le chant en direct à une section"
 
+#: ui/dialogs/settings.slint
+msgid "Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted."
+msgstr "Les chants que vous téléchargez depuis SongSelect dans votre navigateur arrivent tout seuls dans la bibliothèque de chants. Seuls les fichiers de chants SongSelect sont lus ; rien n'est déplacé ni supprimé dans Téléchargements."
+
+#: ui/dialogs/settings.slint
+msgid "Bring in SongSelect downloads whenever RustyPresenter is open"
+msgstr "Faire venir les téléchargements SongSelect dès que RustyPresenter est ouvert"
+
+#: ui/dialogs/settings.slint ui/operator.slint
+msgid "Songs from SongSelect…"
+msgstr "Chants de SongSelect…"
+
 #: ui/dialogs/settings.slint ui/operator.slint
 msgid "Song use report…"
 msgstr "Rapport d’utilisation des chants…"
@@ -3882,6 +3906,50 @@ msgstr "Enregistrer et ajouter au culte"
 #: ui/dialogs/song-editor.slint
 msgid "Save song"
 msgstr "Enregistrer le chant"
+
+#: ui/dialogs/songselect.slint
+msgid "Sign in to SongSelect in your web browser."
+msgstr "Connectez-vous à SongSelect dans votre navigateur."
+
+#: ui/dialogs/songselect.slint
+msgid "Find the song and choose Download → Lyrics (or ChordPro)."
+msgstr "Trouvez le chant et choisissez Download → Lyrics (ou ChordPro)."
+
+#: ui/dialogs/songselect.slint
+msgid "It comes in here by itself."
+msgstr "Il arrive ici tout seul."
+
+#: ui/dialogs/songselect.slint
+msgid "Open SongSelect"
+msgstr "Ouvrir SongSelect"
+
+#: ui/dialogs/songselect.slint
+msgid "Choose a file…"
+msgstr "Choisir un fichier…"
+
+#: ui/dialogs/songselect.slint
+msgid "For a song you downloaded before"
+msgstr "Pour un chant téléchargé avant"
+
+#: ui/dialogs/songselect.slint
+msgid "Songs that came in"
+msgstr "Chants arrivés"
+
+#: ui/dialogs/songselect.slint
+msgid "In the service"
+msgstr "Dans le culte"
+
+#: ui/dialogs/songselect.slint
+msgid "Add to the service"
+msgstr "Ajouter au culte"
+
+#: ui/dialogs/songselect.slint
+msgid "Nothing yet. Songs you download from SongSelect show up here."
+msgstr "Rien pour l'instant. Les chants que vous téléchargez depuis SongSelect apparaissent ici."
+
+#: ui/dialogs/songselect.slint
+msgid "RustyPresenter never signs in to SongSelect and never downloads for you. It only reads the song files you download, and leaves your Downloads folder as it is."
+msgstr "RustyPresenter ne se connecte jamais à SongSelect et ne télécharge jamais à votre place. Il lit seulement les fichiers de chants que vous téléchargez et laisse votre dossier Téléchargements tel quel."
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/stream/own_scenes.rs src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
@@ -7476,9 +7544,29 @@ msgstr "Média manquant"
 msgid "Missing slides"
 msgstr "Diapos manquantes"
 
-#: src/songselect.rs
+#: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
+msgid "No lyrics were found in this file."
+msgstr "Aucune parole trouvée dans ce fichier."
+
+#: src/songselect/inbox.rs src/songselect.rs src/ui/dialogs/songselect.rs
 msgid "That file is too big to be a lyric file."
 msgstr "Ce fichier est trop gros pour être un fichier de paroles."
+
+#: src/songselect/inbox.rs
+msgid "it has no CCLI song number"
+msgstr "il n'a pas de numéro de chant CCLI"
+
+#: src/songselect/inbox.rs
+msgid "{title} (from SongSelect)"
+msgstr "{title} (de SongSelect)"
+
+#: src/songselect/usr.rs
+msgid "This is not a SongSelect song file."
+msgstr "Ce n'est pas un fichier de chant SongSelect."
+
+#: src/songselect/usr.rs
+msgid "The song file has no title."
+msgstr "Le fichier de chant n'a pas de titre."
 
 #: src/songselect.rs
 msgid "The lyric file is empty."
@@ -7487,10 +7575,6 @@ msgstr "Le fichier de paroles est vide."
 #: src/songselect.rs
 msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
 msgstr "Ce fichier n’a pas de titres Verse/Chorus. Utilisez le téléchargement « Lyrics (.txt) » de SongSelect."
-
-#: src/songselect.rs
-msgid "No lyrics were found in this file."
-msgstr "Aucune parole trouvée dans ce fichier."
 
 #: src/startup.rs
 msgid "Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."
@@ -12228,6 +12312,58 @@ msgstr ""
 "Lisez la Bible\n"
 "Servez votre prochain"
 
+#: src/ui/dialogs/songselect.rs
+msgid "Songs from SongSelect"
+msgstr "Chants de SongSelect"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{words}” is copied: paste it into SongSelect's search box (Ctrl+V)."
+msgstr "« {words} » est copié : collez-le dans la recherche de SongSelect (Ctrl+V)."
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not open the web browser: {error}"
+msgstr "Impossible d'ouvrir le navigateur : {error}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” came in from SongSelect."
+msgstr "« {title} » est arrivé depuis SongSelect."
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect is already in your library."
+msgstr "« {title} » de SongSelect est déjà dans votre bibliothèque."
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect has other words than your copy, so it was kept as “{new}”."
+msgstr "« {title} » de SongSelect a d'autres paroles que votre version, il a donc été gardé sous le nom « {new} »."
+
+#: src/ui/dialogs/songselect.rs
+msgid "{file} could not be read: {why}"
+msgstr "Impossible de lire {file} : {why}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Added to your song library"
+msgstr "Ajouté à votre bibliothèque de chants"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Already in your song library"
+msgstr "Déjà dans votre bibliothèque de chants"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your copy has other words, so this one is kept as “{new}”"
+msgstr "Votre version a d'autres paroles, celle-ci est donc gardée sous le nom « {new} »"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not read it: {why}"
+msgstr "Impossible de le lire : {why}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Watching your Downloads folder ({folder}) for songs."
+msgstr "Surveillance de votre dossier Téléchargements ({folder}) pour les chants."
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your Downloads folder could not be found. Use “Choose a file…” for the songs you download."
+msgstr "Votre dossier Téléchargements est introuvable. Utilisez « Choisir un fichier… » pour les chants que vous téléchargez."
+
 #: src/ui/dialogs/stream_more.rs
 msgid "More livestream settings"
 msgstr "Plus de réglages du direct"
@@ -12956,6 +13092,9 @@ msgstr "yt-dlp n’a enregistré aucune vidéo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "pas un fichier média"
+
+#~ msgid "Import SongSelect lyrics (.txt)"
+#~ msgstr "Importer des paroles SongSelect (.txt)"
 
 #~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
 #~ msgstr "Le nom de chaque diffusion sur YouTube et Facebook. {{date}} devient la date du jour."

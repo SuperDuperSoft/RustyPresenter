@@ -47,6 +47,10 @@ msgstr "编辑"
 msgid "Add"
 msgstr "添加"
 
+#: ui/dialogs/add-list.slint ui/dialogs/quick-search.slint
+msgid "Look for it on SongSelect"
+msgstr "在 SongSelect 上查找"
+
 #: ui/dialogs/add-media.slint
 msgid "Only download videos your church has the right to use (your own, licensed, or Creative Commons)."
 msgstr "只下载你的教会有权使用的视频（自己拍摄的、已获授权的或知识共享许可的）。"
@@ -108,8 +112,16 @@ msgid "New song"
 msgstr "新建诗歌"
 
 #: ui/dialogs/add.slint
-msgid "Import SongSelect lyrics (.txt)"
-msgstr "导入 SongSelect 歌词 (.txt)"
+msgid "From SongSelect…"
+msgstr "从 SongSelect…"
+
+#: ui/dialogs/add.slint
+msgid "Import a song file"
+msgstr "导入诗歌文件"
+
+#: ui/dialogs/add.slint
+msgid "SongSelect lyrics (.txt), ChordPro or .usr"
+msgstr "SongSelect 歌词 (.txt)、ChordPro 或 .usr"
 
 #: ui/dialogs/add.slint
 msgid "Import from EasyWorship"
@@ -1188,7 +1200,7 @@ msgstr "返回"
 msgid "Next"
 msgstr "下一张"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "关闭"
 
@@ -3551,6 +3563,18 @@ msgstr "如果误按字母会切换屏幕，请关闭此项。"
 msgid "Letters and numbers jump the live song to a section"
 msgstr "字母和数字键可将正在显示的诗歌跳到某个段落"
 
+#: ui/dialogs/settings.slint
+msgid "Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted."
+msgstr "你在浏览器中从 SongSelect 下载的诗歌会自动进入诗歌库。只读取 SongSelect 的诗歌文件；“下载”文件夹里的东西不会被移动或删除。"
+
+#: ui/dialogs/settings.slint
+msgid "Bring in SongSelect downloads whenever RustyPresenter is open"
+msgstr "只要 RustyPresenter 开着，就自动收进 SongSelect 下载的诗歌"
+
+#: ui/dialogs/settings.slint ui/operator.slint
+msgid "Songs from SongSelect…"
+msgstr "来自 SongSelect 的诗歌…"
+
 #: ui/dialogs/settings.slint ui/operator.slint
 msgid "Song use report…"
 msgstr "诗歌使用报告…"
@@ -3882,6 +3906,50 @@ msgstr "保存并添加到聚会"
 #: ui/dialogs/song-editor.slint
 msgid "Save song"
 msgstr "保存诗歌"
+
+#: ui/dialogs/songselect.slint
+msgid "Sign in to SongSelect in your web browser."
+msgstr "在浏览器中登录 SongSelect。"
+
+#: ui/dialogs/songselect.slint
+msgid "Find the song and choose Download → Lyrics (or ChordPro)."
+msgstr "找到诗歌，选择 Download → Lyrics（或 ChordPro）。"
+
+#: ui/dialogs/songselect.slint
+msgid "It comes in here by itself."
+msgstr "它会自动进到这里。"
+
+#: ui/dialogs/songselect.slint
+msgid "Open SongSelect"
+msgstr "打开 SongSelect"
+
+#: ui/dialogs/songselect.slint
+msgid "Choose a file…"
+msgstr "选择文件…"
+
+#: ui/dialogs/songselect.slint
+msgid "For a song you downloaded before"
+msgstr "用于以前下载的诗歌"
+
+#: ui/dialogs/songselect.slint
+msgid "Songs that came in"
+msgstr "已收到的诗歌"
+
+#: ui/dialogs/songselect.slint
+msgid "In the service"
+msgstr "已在聚会中"
+
+#: ui/dialogs/songselect.slint
+msgid "Add to the service"
+msgstr "添加到聚会"
+
+#: ui/dialogs/songselect.slint
+msgid "Nothing yet. Songs you download from SongSelect show up here."
+msgstr "还没有。你从 SongSelect 下载的诗歌会显示在这里。"
+
+#: ui/dialogs/songselect.slint
+msgid "RustyPresenter never signs in to SongSelect and never downloads for you. It only reads the song files you download, and leaves your Downloads folder as it is."
+msgstr "RustyPresenter 从不登录 SongSelect，也从不替你下载。它只读取你下载的诗歌文件，“下载”文件夹保持原样。"
 
 #: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/stream/own_scenes.rs src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
@@ -7471,9 +7539,29 @@ msgstr "缺少媒体"
 msgid "Missing slides"
 msgstr "缺少幻灯片"
 
-#: src/songselect.rs
+#: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
+msgid "No lyrics were found in this file."
+msgstr "此文件中未找到歌词。"
+
+#: src/songselect/inbox.rs src/songselect.rs src/ui/dialogs/songselect.rs
 msgid "That file is too big to be a lyric file."
 msgstr "该文件太大，不可能是歌词文件。"
+
+#: src/songselect/inbox.rs
+msgid "it has no CCLI song number"
+msgstr "没有 CCLI 诗歌编号"
+
+#: src/songselect/inbox.rs
+msgid "{title} (from SongSelect)"
+msgstr "{title}（来自 SongSelect）"
+
+#: src/songselect/usr.rs
+msgid "This is not a SongSelect song file."
+msgstr "这不是 SongSelect 的诗歌文件。"
+
+#: src/songselect/usr.rs
+msgid "The song file has no title."
+msgstr "诗歌文件没有标题。"
 
 #: src/songselect.rs
 msgid "The lyric file is empty."
@@ -7482,10 +7570,6 @@ msgstr "歌词文件为空。"
 #: src/songselect.rs
 msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
 msgstr "此文件没有 Verse/Chorus 标题。请使用 SongSelect 的“Lyrics (.txt)”下载。"
-
-#: src/songselect.rs
-msgid "No lyrics were found in this file."
-msgstr "此文件中未找到歌词。"
 
 #: src/startup.rs
 msgid "Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."
@@ -12185,6 +12269,58 @@ msgstr ""
 "读圣经\n"
 "服事邻舍"
 
+#: src/ui/dialogs/songselect.rs
+msgid "Songs from SongSelect"
+msgstr "来自 SongSelect 的诗歌"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{words}” is copied: paste it into SongSelect's search box (Ctrl+V)."
+msgstr "已复制“{words}”：请粘贴到 SongSelect 的搜索框 (Ctrl+V)。"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not open the web browser: {error}"
+msgstr "无法打开浏览器：{error}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” came in from SongSelect."
+msgstr "“{title}”已从 SongSelect 收到。"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect is already in your library."
+msgstr "来自 SongSelect 的“{title}”已在你的诗歌库中。"
+
+#: src/ui/dialogs/songselect.rs
+msgid "“{title}” from SongSelect has other words than your copy, so it was kept as “{new}”."
+msgstr "来自 SongSelect 的“{title}”与你的版本歌词不同，所以另存为“{new}”。"
+
+#: src/ui/dialogs/songselect.rs
+msgid "{file} could not be read: {why}"
+msgstr "无法读取 {file}：{why}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Added to your song library"
+msgstr "已添加到诗歌库"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Already in your song library"
+msgstr "已在诗歌库中"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your copy has other words, so this one is kept as “{new}”"
+msgstr "你的版本歌词不同，所以这首另存为“{new}”"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Could not read it: {why}"
+msgstr "无法读取：{why}"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Watching your Downloads folder ({folder}) for songs."
+msgstr "正在留意“下载”文件夹（{folder}）中的诗歌。"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Your Downloads folder could not be found. Use “Choose a file…” for the songs you download."
+msgstr "找不到“下载”文件夹。请用“选择文件…”导入你下载的诗歌。"
+
 #: src/ui/dialogs/stream_more.rs
 msgid "More livestream settings"
 msgstr "更多直播设置"
@@ -12909,6 +13045,9 @@ msgstr "yt-dlp 没有保存视频"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "不是媒体文件"
+
+#~ msgid "Import SongSelect lyrics (.txt)"
+#~ msgstr "导入 SongSelect 歌词 (.txt)"
 
 #~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
 #~ msgstr "YouTube 和 Facebook 上每场直播的名称。{{date}} 会换成当天日期。"
