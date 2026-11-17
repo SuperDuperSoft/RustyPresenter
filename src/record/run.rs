@@ -66,16 +66,10 @@ pub fn ask_ffmpeg(ffmpeg: &Path, args: &[&str]) -> Option<String> {
 }
 
 /// The cameras and capture cards FFmpeg can take pictures from on this computer.
-pub fn list_cameras(ffmpeg: &Path) -> Vec<args::Input> {
-    let os = tools::OS;
-    ask_ffmpeg(ffmpeg, &args::list_inputs_args(os)).map(|out| args::parse_cameras(os, &out)).unwrap_or_default()
-}
+pub fn list_cameras(ffmpeg: &Path) -> Vec<args::Input> { super::devices::cameras(ffmpeg) }
 
 /// The microphones and line-ins FFmpeg can record from on this computer.
-pub fn list_inputs(ffmpeg: &Path) -> Vec<args::Input> {
-    let os = tools::OS;
-    ask_ffmpeg(ffmpeg, &args::list_inputs_args(os)).map(|out| args::parse_inputs(os, &out)).unwrap_or_default()
-}
+pub fn list_inputs(ffmpeg: &Path) -> Vec<args::Input> { super::devices::inputs(ffmpeg) }
 
 /// Everything a recording needs, found before it starts.
 #[derive(Clone, Debug)]
@@ -335,7 +329,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     if let Some(w) = &worker { *scenes.lock().unwrap_or_else(|e| e.into_inner()) = Some(w.slot.clone()) }
     // The PC's sound, when the stream has it. If it cannot be captured the stream goes out without it.
     let mut pc = match (&plan.pc_sound, !live) {
-        (Some(device), false) => crate::stream::pc_sound::start(device, plan.controls.mute.clone()).map_err(|e| eprintln!("recording: the stream goes out without the PC's sound: {e}")).ok(),
+        (Some(device), false) => crate::stream::pc_sound::start(&plan.ffmpeg, device, plan.controls.mute.clone()).map_err(|e| eprintln!("recording: the stream goes out without the PC's sound: {e}")).ok(),
         _ => None,
     };
     let format = args::input_format(tools::OS);

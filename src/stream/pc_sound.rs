@@ -8,7 +8,11 @@
 //! picture back. So the gaps are filled with silence, by the clock: the stream always has a second of sound for
 //! every second of picture.
 //!
-//! macOS and Linux: not built (`start` says so, and the stream goes out without the PC's sound).
+//! Linux: what an output plays is its "monitor" source in PulseAudio or PipeWire, read like a sound input
+//! (`board_feed`), which fills the gaps the same way. macOS cannot hear an output without native code it does not
+//! have yet: a loopback device (BlackHole, free) is read as a sound input instead (`record::devices::mac_loopback`).
+//! Without one, `start` says what to install, and the stream goes out without the PC's sound.
+use std::path::Path;
 use std::time::Duration;
 
 /// How the captured sound is written: as FFmpeg reads raw sound.
@@ -56,6 +60,17 @@ pub fn silence_needed(elapsed: Duration, written_frames: u64, rate: u32) -> u64 
 /// default output.
 pub fn device_id(name: &str) -> &str { name.strip_prefix("wasapi/").unwrap_or("") }
 
+/// Linux: the PulseAudio/PipeWire source that carries what output `name` plays. mpv calls an output
+/// `pipewire/<sink>` or `pulse/<sink>`, and its monitor is `<sink>.monitor`; the default output's is
+/// `@DEFAULT_MONITOR@` (also for an output named another way).
+pub fn monitor_of(name: &str) -> String {
+    match name.strip_prefix("pipewire/").or_else(|| name.strip_prefix("pulse/")).filter(|s| !s.is_empty()) {
+        Some(sink) if sink.ends_with(".monitor") => sink.to_string(),
+        Some(sink) => format!("{sink}.monitor"),
+        None => "@DEFAULT_MONITOR@".into(),
+    }
+}
+
 /// The loudest sample of `bytes` in `format`, on the 16-bit scale (0 to 32767), for the meter.
 pub fn peak(format: &Format, bytes: &[u8]) -> i32 {
     if format.samples == "f32le" {
@@ -73,12 +88,15 @@ pub struct Capture {
     pub level: std::sync::Arc<super::level::Level>,
     stop: std::sync::Arc<std::sync::atomic::AtomicBool>,
     thread: Option<std::thread::JoinHandle<()>>,
+    /// macOS and Linux: the sound is read as a sound input.
+    board: Option<super::board_feed::Board>,
 }
 
 impl Capture {
     pub fn stop(&mut self) {
         self.stop.store(true, std::sync::atomic::Ordering::Relaxed);
         if let Some(t) = self.thread.take() { let _ = t.join(); }
+        if let Some(mut b) = self.board.take() { b.stop() }
     }
 }
 
@@ -87,13 +105,27 @@ impl Drop for Capture {
 }
 
 /// Starts capturing output `device` (the app's name for it; empty: the default output). Returns once the format is
-/// known; the sound goes out when FFmpeg starts listening on `Capture::feed`.
+/// known; the sound goes out when FFmpeg starts listening on `Capture::feed`. `ffmpeg` reads it on macOS and Linux.
 /// Silence goes out in its place while `mute` is set (the stream's Mute button).
-pub fn start(device: &str, mute: std::sync::Arc<std::sync::atomic::AtomicBool>) -> Result<Capture, String> {
+pub fn start(ffmpeg: &Path, device: &str, mute: std::sync::Arc<std::sync::atomic::AtomicBool>) -> Result<Capture, String> {
     #[cfg(windows)]
-    return windows::start(device_id(device).to_string(), mute);
+    { let _ = ffmpeg; windows::start(device_id(device).to_string(), mute) }
     #[cfg(not(windows))]
-    { let _ = (device, mute); Err("capturing the computer's sound is only built for Windows".into()) }
+    {
+        let (format, name) = source(ffmpeg, device)?;
+        let board = super::board_feed::start(ffmpeg.to_path_buf(), format, &name, mute)?;
+        Ok(Capture { feed: board.feed, level: board.level.clone(), stop: Default::default(), thread: None, board: Some(board) })
+    }
+}
+
+/// macOS and Linux: the sound input that carries what output `device` plays, as `(FFmpeg input format, name)`.
+#[cfg(not(windows))]
+fn source(ffmpeg: &Path, device: &str) -> Result<(&'static str, String), String> {
+    use crate::platform::tools::{OS, Os};
+    use crate::record::{args, devices, run::ask_ffmpeg};
+    if OS == Os::Linux { return Ok(("pulse", monitor_of(device))) }
+    let inputs = ask_ffmpeg(ffmpeg, &args::list_inputs_args(OS)).map(|out| args::parse_inputs(OS, &out)).unwrap_or_default();
+    devices::mac_loopback(device, &inputs).map(|i| (args::input_format(OS), i.name.clone())).ok_or_else(super::tr::mac_needs_loopback)
 }
 
 #[cfg(windows)]
@@ -158,7 +190,7 @@ mod windows {
             run(opened, port, &s, &mute, &l);
         }).map_err(|e| e.to_string())?;
         match rx.recv() {
-            Ok(Ok(format)) => Ok(Capture { feed: Feed { format, port }, level, stop, thread: Some(thread) }),
+            Ok(Ok(format)) => Ok(Capture { feed: Feed { format, port }, level, stop, thread: Some(thread), board: None }),
             Ok(Err(e)) => { let _ = thread.join(); Err(e) }
             Err(_) => { let _ = thread.join(); Err("the sound capture ended".into()) }
         }
@@ -254,6 +286,15 @@ mod tests {
         assert_eq!((device_id(""), device_id("auto")), ("", ""));
     }
 
+    #[test]
+    fn linux_hears_an_output_through_its_monitor() {
+        assert_eq!(monitor_of("pipewire/alsa_output.pci-0000_00_1f.3.analog-stereo"), "alsa_output.pci-0000_00_1f.3.analog-stereo.monitor");
+        assert_eq!(monitor_of("pulse/alsa_output.usb-Behringer.analog-stereo"), "alsa_output.usb-Behringer.analog-stereo.monitor");
+        assert_eq!(monitor_of("pulse/x.monitor"), "x.monitor");
+        // The default output, or one named another way (ALSA, JACK): the default output's monitor.
+        for other in ["", "pulse/", "alsa/hw:CARD=PCH,DEV=0", "jack"] { assert_eq!(monitor_of(other), "@DEFAULT_MONITOR@", "{other}") }
+    }
+
     /// Diagnosis by hand: the loudest sample captured from output `RP_PC_SOUND` (empty: the default) while FFplay
     /// plays a tone. `cargo test captured_peak -- --ignored --nocapture`.
     #[cfg(windows)]
@@ -261,7 +302,7 @@ mod tests {
     #[ignore]
     fn captured_peak_while_a_tone_plays() {
         let device = std::env::var("RP_PC_SOUND").unwrap_or_default();
-        let mut c = start(&device, Default::default()).expect("capture starts");
+        let mut c = start(Path::new("ffmpeg"), &device, Default::default()).expect("capture starts");
         let f = c.feed.format;
         let listener = std::net::TcpListener::bind(("127.0.0.1", c.feed.port)).unwrap();
         let (mut conn, _) = listener.accept().unwrap();
@@ -291,7 +332,7 @@ mod tests {
     #[cfg(windows)]
     #[test]
     fn the_default_output_is_captured_at_the_clocks_pace() {
-        let Ok(mut c) = start("", Default::default()) else { return eprintln!("no sound output here: skipped") };
+        let Ok(mut c) = start(Path::new("ffmpeg"), "", Default::default()) else { return eprintln!("no sound output here: skipped") };
         let f = c.feed.format;
         assert!(f.rate >= 8000 && f.channels >= 1, "{f:?}");
         let listener = std::net::TcpListener::bind(("127.0.0.1", c.feed.port)).expect("the port is free for the test to listen on");

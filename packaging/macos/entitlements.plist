@@ -7,5 +7,11 @@
 <dict>
 	<key>com.apple.security.cs.disable-library-validation</key>
 	<true/>
+	<!-- The hardened runtime refuses cameras and sound inputs unless the app says it uses them (livestream,
+	     recording, auto-follow). -->
+	<key>com.apple.security.device.camera</key>
+	<true/>
+	<key>com.apple.security.device.audio-input</key>
+	<true/>
 </dict>
 </plist>

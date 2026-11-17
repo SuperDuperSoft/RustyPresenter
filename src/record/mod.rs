@@ -6,6 +6,7 @@
 pub mod args;
 pub mod chapters;
 pub mod clips;
+pub mod devices;
 pub mod gl;
 pub mod pump;
 pub mod run;

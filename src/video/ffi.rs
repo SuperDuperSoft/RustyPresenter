@@ -180,8 +180,12 @@ pub fn audio_devices_from(list: &Node) -> Vec<AudioDevice> {
         let label = d.get("description").and_then(Node::as_str).filter(|l| !l.is_empty()).unwrap_or(name);
         (name != "auto").then(|| AudioDevice { name: name.into(), label: label.into() })
     }).collect();
-    // Windows lists each output again under other drivers; WASAPI is the one that names real devices.
-    if all.iter().any(|d| d.name.starts_with("wasapi/")) { all.into_iter().filter(|d| d.name.starts_with("wasapi/")).collect() } else { all }
+    // Each output is listed again under other drivers; one names the real devices: WASAPI on Windows, Core Audio on
+    // a Mac, PipeWire (else PulseAudio) on Linux, whose names the PC's sound in a stream knows (`stream::pc_sound`).
+    match ["wasapi/", "coreaudio/", "pipewire/", "pulse/"].into_iter().find(|f| all.iter().any(|d| d.name.starts_with(f))) {
+        Some(f) => all.into_iter().filter(|d| d.name.starts_with(f)).collect(),
+        None => all,
+    }
 }
 
 impl Node {
@@ -648,6 +652,18 @@ mod audio_device_tests {
     fn on_windows_only_wasapi_shows_so_a_device_is_not_listed_twice() {
         let list = Node::Array(vec![device("wasapi/{a}", "Speakers"), device("openal", "Speakers"), device("sdl", "Default")]);
         assert_eq!(audio_devices_from(&list).len(), 1);
+    }
+
+    #[test]
+    fn linux_and_mac_list_each_output_once() {
+        let names = |l: Vec<Node>| audio_devices_from(&Node::Array(l)).into_iter().map(|d| d.name).collect::<Vec<_>>();
+        let linux = vec![device("auto", "Autoselect device"), device("pipewire", "Default (pipewire)"), device("pipewire/alsa_output.usb-board", "Sound board"),
+            device("pulse/alsa_output.usb-board", "Sound board"), device("alsa/hw:CARD=Board", "Sound board"), device("jack", "JACK")];
+        assert_eq!(names(linux), ["pipewire/alsa_output.usb-board"]);
+        let pulse = vec![device("pulse", "Default"), device("pulse/alsa_output.pci", "Built-in Audio"), device("alsa/default", "Default")];
+        assert_eq!(names(pulse), ["pulse/alsa_output.pci"]);
+        let mac = vec![device("coreaudio/BuiltInSpeakerDevice", "MacBook Pro Speakers"), device("coreaudio/BlackHole2ch_UID", "BlackHole 2ch"), device("sdl", "Default")];
+        assert_eq!(names(mac), ["coreaudio/BuiltInSpeakerDevice", "coreaudio/BlackHole2ch_UID"]);
     }
 
     #[test]

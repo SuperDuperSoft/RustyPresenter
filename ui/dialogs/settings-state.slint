@@ -192,6 +192,8 @@ export global SettingsDlg {
     in property <[string]> stream-sound-labels;
     in property <[string]> stream-sound-names;
     in-out property <int> stream-sound-index;
+    // What else this computer needs for its own sound in the stream (a Mac: a loopback device); empty: nothing.
+    in property <string> stream-sound-note;
     /// The camera in the stream: none, then each camera found; and which fills the picture (0 camera, 1 screen).
     in property <[string]> stream-camera-labels;
     in property <[string]> stream-camera-names;

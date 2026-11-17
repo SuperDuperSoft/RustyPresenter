@@ -228,6 +228,10 @@ pub mod tr {
         tr!("You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once.")
     }
     pub fn stop_recording_first() -> String { tr!("A recording is under way. Stop it, then press Go Live.") }
+    /// macOS: the computer's own sound needs a loopback device (`pc_sound`).
+    pub fn mac_needs_loopback() -> String {
+        tr!("A Mac cannot send its own sound by itself. Install the free BlackHole, make a Multi-Output Device of the speakers and BlackHole in Audio MIDI Setup, and choose it as the app's sound output.")
+    }
 }
 
 impl Problem {

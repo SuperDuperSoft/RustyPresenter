@@ -5,13 +5,13 @@ use crate::platform::tools::Os;
 use std::ffi::OsString;
 use std::path::Path;
 
-/// The H.264 encoders we can use, best first: x264 (in every full FFmpeg), then Windows' own (Media Foundation),
-/// then Cisco's.
-pub const ENCODERS: [&str; 3] = ["libx264", "h264_mf", "libopenh264"];
+/// The H.264 encoders we can use, best first: x264 (in every full FFmpeg), then the Mac's own (VideoToolbox),
+/// Windows' own (Media Foundation), then Cisco's.
+pub const ENCODERS: [&str; 4] = ["libx264", "h264_videotoolbox", "h264_mf", "libopenh264"];
 
 /// The encoders Settings offers by name (after Automatic): the processor (x264), NVIDIA, Intel and AMD graphics,
-/// Windows' own, Cisco's.
-pub const CHOOSABLE: [&str; 6] = ["libx264", "h264_nvenc", "h264_qsv", "h264_amf", "h264_mf", "libopenh264"];
+/// Windows' own, Cisco's, the Mac's own. New ones go at the end: Settings keeps the choice by its place here.
+pub const CHOOSABLE: [&str; 7] = ["libx264", "h264_nvenc", "h264_qsv", "h264_amf", "h264_mf", "libopenh264", "h264_videotoolbox"];
 
 /// The encoder to use: `wanted` (Settings; empty: automatic) when this FFmpeg has it and `works` says it runs on
 /// this computer (a graphics card's needs that card), else the best one (`pick_encoder`).
@@ -90,7 +90,8 @@ pub fn parse_inputs(os: Os, out: &str) -> Vec<Input> {
     found
 }
 
-/// The cameras (and capture cards) in what `list_inputs_args` printed. Windows and macOS; Linux has none yet.
+/// The cameras (and capture cards) in what `list_inputs_args` printed. Windows and macOS; Linux's are read from
+/// the system (`devices::cameras`).
 pub fn parse_cameras(os: Os, out: &str) -> Vec<Input> {
     let mut found: Vec<Input> = Vec::new();
     let mut push = |name: &str| {
@@ -156,6 +157,8 @@ pub fn is_network_camera(name: &str) -> bool {
 /// password its address may hold.
 pub fn camera_label(name: &str) -> String {
     if let Some(source) = crate::stream::ndi::source_name(name) { return crate::stream::ndi::label(source) }
+    // Linux: a camera is saved as its device (`devices::cameras`).
+    if name.starts_with("/dev/") { return super::devices::linux_camera_label(name) }
     if !is_network_camera(name) { return name.to_string() }
     let rest = name.trim().split_once("://").map_or("", |(_, r)| r);
     let place = &rest[..rest.find(['/', '?']).unwrap_or(rest.len())];
@@ -481,6 +484,9 @@ mod tests {
         assert_eq!(pick_encoder(ENCODERS_OUT), Some("libx264"));
         assert_eq!(pick_encoder(" V....D h264_mf  H264 via MediaFoundation\n V....D libx264rgb  x"), Some("h264_mf"));
         assert_eq!(pick_encoder(" V....D libx264rgb  x\n A....D libx264  not a video one"), None);
+        // A Mac's FFmpeg without x264: the Mac's own.
+        assert_eq!(pick_encoder(" V....D h264_videotoolbox  VideoToolbox H.264 Encoder\n V....D libopenh264  x"), Some("h264_videotoolbox"));
+        assert_eq!(choose_encoder(" V....D libx264  x\n V....D h264_videotoolbox  VT", "h264_videotoolbox", |_| true), Some("h264_videotoolbox"));
     }
 
     #[test]
@@ -667,6 +673,9 @@ mod tests {
         assert_eq!(camera_label("Integrated Camera"), "Integrated Camera");
         // An NDI source: by its name, and not read by FFmpeg.
         assert_eq!(camera_label("ndi://STUDIO (Cam 1)"), "NDI: STUDIO (Cam 1)");
+        // Linux: a camera by its device, named readably.
+        assert_eq!(camera_label("/dev/v4l/by-id/usb-046d_C920_AB-video-index0"), "046d C920 AB");
+        assert_eq!(camera_input(Os::Linux, "/dev/v4l/by-id/usb-046d_C920_AB-video-index0").join(" "), "-f v4l2 -thread_queue_size 64 -i /dev/v4l/by-id/usb-046d_C920_AB-video-index0");
         assert_eq!(camera_input(Os::Windows, "ndi://STUDIO (Cam 1)"), vec![crate::stream::ndi::INPUT.to_string(), "STUDIO (Cam 1)".to_string()]);
     }
 
