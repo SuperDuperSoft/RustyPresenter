@@ -95,7 +95,7 @@ msgstr "Google スライド: Google スライドで「ファイル → ダウン
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "発表者のメモを残すには、PowerPoint (.pptx) としてダウンロードしてください。"
 
-#: ui/dialogs/add-media.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "コピー"
 
@@ -219,7 +219,7 @@ msgstr "自由なテキスト"
 msgid "Not in the lyrics — it is skipped"
 msgstr "歌詞にありません — スキップされます"
 
-#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
+#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "削除"
 
@@ -343,7 +343,7 @@ msgstr "スマホリモコンに表示"
 msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
 msgstr "単語を {{波かっこ}} で囲むと、{{Number}} のように入力欄になります。"
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint ui/operator/cameras.slint
 msgid "Position"
 msgstr "位置"
 
@@ -359,7 +359,7 @@ msgstr "上"
 msgid "Hide after"
 msgstr "非表示までの時間"
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint src/ui/dialogs/stream_scenes.rs
 msgid "Never"
 msgstr "なし"
 
@@ -391,7 +391,7 @@ msgstr "スマホから表示できます"
 msgid "Change it in the Pre-service tab"
 msgstr "「礼拝前」タブで変更"
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/i18n/remote_strings.rs
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/i18n/remote_strings.rs
 msgid "Colour"
 msgstr "色"
 
@@ -435,7 +435,7 @@ msgstr "ステップ"
 msgid "Up"
 msgstr "上へ"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/dialogs/stream-scenes.slint ui/operator.slint
 msgid "Move up"
 msgstr "上へ移動"
 
@@ -443,7 +443,7 @@ msgstr "上へ移動"
 msgid "Down"
 msgstr "下へ"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/dialogs/stream-scenes.slint ui/operator.slint
 msgid "Move down"
 msgstr "下へ移動"
 
@@ -599,11 +599,11 @@ msgstr "一時停止"
 msgid "Start"
 msgstr "開始"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_scenes.rs
 msgid "Delete"
 msgstr "削除"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Save"
 msgstr "保存"
 
@@ -687,7 +687,7 @@ msgstr "ステージ画面とオペレーター用"
 msgid "{} objects chosen. Changes go on all of them."
 msgstr "{} 個のオブジェクトを選択中です。変更はすべてに適用されます。"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Words"
 msgstr "言葉"
 
@@ -1052,7 +1052,7 @@ msgstr "ドラッグで移動、角をドラッグでサイズ変更、矢印キ
 msgid "Video: {}"
 msgstr "動画: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "キャンセル"
 
@@ -2440,6 +2440,10 @@ msgid "OpenH264"
 msgstr "OpenH264"
 
 #: ui/dialogs/settings-media.slint
+msgid "The Mac's own"
+msgstr "Mac 標準"
+
+#: ui/dialogs/settings-media.slint
 msgid "Bitrate"
 msgstr "ビットレート"
 
@@ -2552,6 +2556,18 @@ msgid "Send the words alone over NDI, on a see-through background (for keying)"
 msgstr "歌詞だけを透明な背景でNDIに送る（キー合成用）"
 
 #: ui/dialogs/settings-media.slint
+msgid "Words alone"
+msgstr "歌詞のみ"
+
+#: ui/dialogs/settings-media.slint
+msgid "While you are live, a second video is saved next to the recording, its name ending in words.mov: only the words, with nothing behind them. When you edit the service video, put it on top to add the words. It stays small because the words seldom change."
+msgstr "配信中は、録画の横にもう1本の動画が保存されます。名前の末尾は words.mov で、歌詞だけが入り、後ろには何もありません。礼拝の動画を編集するときに一番上に重ねると、歌詞が入ります。歌詞はあまり変わらないので、ファイルは小さく済みます。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Also record the words alone, on a see-through background (for video editing)"
+msgstr "歌詞だけも透明な背景で録画する（動画編集用）"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "音量"
 
@@ -2620,8 +2636,20 @@ msgid "Second camera"
 msgstr "2台目のカメラ"
 
 #: ui/dialogs/settings-media.slint
-msgid "Another camera to switch to while live, from the scene button beside Live."
-msgstr "ライブ中に切り替えるもう1台のカメラ。ライブの横のシーンボタンから選びます。"
+msgid "Another camera to switch to while live, from the Cameras box beside the live screen."
+msgstr "配信中に切り替えられる別のカメラ。ライブ画面の横のカメラ欄から切り替えます。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Third camera"
+msgstr "3台目のカメラ"
+
+#: ui/dialogs/settings-media.slint
+msgid "Another camera to switch to while live."
+msgstr "配信中に切り替えられる別のカメラ。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Fourth camera"
+msgstr "4台目のカメラ"
 
 #: ui/dialogs/settings-media.slint
 msgid "Scenes"
@@ -2639,7 +2667,7 @@ msgstr "ライブの内容に合わせてシーンを自動で選ぶ"
 msgid "Presentations:"
 msgstr "プレゼンテーション:"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
 msgid "The room screen"
 msgstr "会堂の画面"
 
@@ -2678,6 +2706,30 @@ msgstr "下"
 #: ui/dialogs/settings-media.slint
 msgid "At the top"
 msgstr "上"
+
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
+msgid "Your scenes"
+msgstr "自分のシーン"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make scenes of your own from cameras, the room screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgstr "カメラ、会場画面、歌詞、画像、色、テキストを組み合わせて、自分のシーンを作れます。配信中は内蔵のシーンの後に並びます。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Your scenes…"
+msgstr "自分のシーン…"
+
+#: ui/dialogs/settings-media.slint
+msgid "None yet"
+msgstr "まだありません"
+
+#: ui/dialogs/settings-media.slint
+msgid "1 scene"
+msgstr "1 シーン"
+
+#: ui/dialogs/settings-media.slint
+msgid "{} scenes"
+msgstr "{} シーン"
 
 #: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
 msgid "Starting soon"
@@ -2847,11 +2899,11 @@ msgstr "YouTube のサムネイル: 配信の 1 コマ"
 msgid "YouTube thumbnail: {}"
 msgstr "YouTube のサムネイル: {}"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
 msgid "Choose a picture…"
 msgstr "画像を選ぶ…"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/operator/cameras.slint
 msgid "No picture"
 msgstr "画像なし"
 
@@ -3199,7 +3251,7 @@ msgstr "パフォーマンスを表示"
 msgid "Screens"
 msgstr "画面"
 
-#: ui/dialogs/settings.slint ui/operator/outputs.slint
+#: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs
 msgid "Room screen"
 msgstr "会場画面"
 
@@ -3471,7 +3523,7 @@ msgstr "保存して礼拝に追加"
 msgid "Save song"
 msgstr "曲を保存"
 
-#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/automation.rs
+#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/stream/own_scenes.rs src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
 msgstr "新しい RustyPresenter が必要です"
 
@@ -3511,11 +3563,11 @@ msgstr "新規"
 msgid "Duplicate to edit"
 msgstr "複製して編集"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Rename…"
 msgstr "名前を変更…"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Delete…"
 msgstr "削除…"
 
@@ -3547,7 +3599,7 @@ msgstr "ロック（誤って動かないようにする）"
 msgid "Hidden on the stage"
 msgstr "ステージでは非表示"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Shows"
 msgstr "表示内容"
 
@@ -3587,11 +3639,87 @@ msgstr "ステージレイアウトを選択"
 msgid "Edit stage layouts…"
 msgstr "ステージレイアウトを編集…"
 
+#: ui/dialogs/stream-scenes.slint
+msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
+msgstr "自分のシーンはまだありません。シーンを追加して、カメラ、会場画面、歌詞、画像、色、テキストを入れてください。"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Add a scene"
+msgstr "シーンを追加"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Layers (in front at the top)"
+msgstr "レイヤー（上ほど手前）"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No layers: the stream shows black. Add one."
+msgstr "レイヤーがありません。配信は黒い画面になります。追加してください。"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Add layer"
+msgstr "レイヤーを追加"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "In front"
+msgstr "手前へ"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Behind"
+msgstr "奥へ"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "A newer RustyPresenter made this layer. It can be removed but not changed here."
+msgstr "このレイヤーは新しいバージョンの RustyPresenter で作られました。削除はできますが、ここでは変更できません。"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No picture chosen yet."
+msgstr "まだ画像が選ばれていません。"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Place"
+msgstr "位置"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "From the left: {}%"
+msgstr "左から: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "From the top: {}%"
+msgstr "上から: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Width: {}%"
+msgstr "幅: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Height: {}%"
+msgstr "高さ: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "See-through: {}%"
+msgstr "透明度: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "How the scene looks"
+msgstr "シーンの見た目"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgstr "ここではカメラ、会場画面、歌詞は仮の表示です。配信中は本物が使われます。何も送ってこないカメラの場所には、会場画面が表示されます。"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Use it by itself in place of"
+msgstr "自動で選ばれたときに置き換えるシーン"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "When the scene is chosen by itself from what is live, this scene goes out instead of that one. For example, choose “Camera + words” to use it for songs and verses."
+msgstr "ライブの内容に合わせてシーンが自動で選ばれるとき、そのシーンの代わりにこのシーンが配信されます。たとえば「カメラ＋歌詞」を選ぶと、曲や聖書の箇所でこのシーンが使われます。"
+
 #: ui/dialogs/transition.slint src/theme/richtext.rs
 msgid "Normal"
 msgstr "標準"
 
-#: ui/dialogs/transition.slint
+#: ui/dialogs/transition.slint ui/operator/cameras.slint
 msgid "Fade"
 msgstr "フェード"
 
@@ -3911,6 +4039,42 @@ msgstr "入場時の音楽を停止"
 msgid "Walk-in music songs and volume"
 msgstr "入場時の音楽の曲と音量"
 
+#: ui/operator/cameras.slint
+msgid "Going out now"
+msgstr "配信中"
+
+#: ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "次へ"
+
+#: ui/operator/cameras.slint
+msgid "This camera is going out now"
+msgstr "このカメラが配信中です"
+
+#: ui/operator/cameras.slint
+msgid "Show this camera next"
+msgstr "このカメラを次に表示"
+
+#: ui/operator/cameras.slint ui/operator/record.slint
+msgid "Live"
+msgstr "配信中"
+
+#: ui/operator/cameras.slint
+msgid "Move the next camera to its saved position {}"
+msgstr "次のカメラを保存済みの位置 {} に動かす"
+
+#: ui/operator/cameras.slint
+msgid "Switch"
+msgstr "切り替え"
+
+#: ui/operator/cameras.slint
+msgid "Put the next camera on the stream now"
+msgstr "次のカメラを今すぐ配信に出す"
+
+#: ui/operator/cameras.slint
+msgid "Fade the stream over to the next camera"
+msgstr "次のカメラへフェードで切り替える"
+
 #: ui/operator/follow.slint
 msgid "Review log…"
 msgstr "記録…"
@@ -3998,10 +4162,6 @@ msgstr "次の項目"
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
 msgstr "戻る（← または Page Up）"
-
-#: ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Next"
-msgstr "次へ"
 
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
@@ -4166,10 +4326,6 @@ msgstr "配信中 {}/{}"
 #: ui/operator/record.slint
 msgid "Live · {} watching"
 msgstr "ライブ · {}人が視聴中"
-
-#: ui/operator/record.slint
-msgid "Live"
-msgstr "配信中"
 
 #: ui/operator/record.slint
 msgid "Stop the livestream and save the recording"
@@ -6643,6 +6799,118 @@ msgstr "ライブ配信中です。賛美の曲を配信するには、教会の
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "録画中です。録画を止めてから「ライブ配信」を押してください。"
 
+#: src/stream/mod.rs
+msgid "A Mac cannot send its own sound by itself. Install the free BlackHole, make a Multi-Output Device of the speakers and BlackHole in Audio MIDI Setup, and choose it as the app's sound output."
+msgstr "Mac はそのままでは自分の音声を送れません。無料の BlackHole を入れ、「Audio MIDI 設定」でスピーカーと BlackHole の「複数出力装置」を作り、それをこのアプリの音声出力に選んでください。"
+
+#: src/stream/own_scenes.rs
+msgid "small"
+msgstr "小"
+
+#: src/stream/own_scenes.rs
+msgid "medium"
+msgstr "中"
+
+#: src/stream/own_scenes.rs
+msgid "large"
+msgstr "大"
+
+#: src/stream/own_scenes.rs
+msgid "Fills the picture"
+msgstr "画面全体"
+
+#: src/stream/own_scenes.rs
+msgid "Top left, {size}"
+msgstr "左上・{size}"
+
+#: src/stream/own_scenes.rs
+msgid "Top right, {size}"
+msgstr "右上・{size}"
+
+#: src/stream/own_scenes.rs
+msgid "Bottom left, {size}"
+msgstr "左下・{size}"
+
+#: src/stream/own_scenes.rs
+msgid "Bottom right, {size}"
+msgstr "右下・{size}"
+
+#: src/stream/own_scenes.rs
+msgid "Left half"
+msgstr "左半分"
+
+#: src/stream/own_scenes.rs
+msgid "Right half"
+msgstr "右半分"
+
+#: src/stream/own_scenes.rs
+msgid "A box you set"
+msgstr "自分で決めた枠"
+
+#: src/stream/own_scenes.rs
+msgid "The camera on air"
+msgstr "配信中のカメラ"
+
+#: src/stream/own_scenes.rs
+msgid "Camera {n}"
+msgstr "カメラ {n}"
+
+#: src/stream/own_scenes.rs
+msgid "The words"
+msgstr "歌詞"
+
+#: src/stream/own_scenes.rs
+msgid "A picture"
+msgstr "画像"
+
+#: src/stream/own_scenes.rs
+msgid "A colour"
+msgstr "色"
+
+#: src/stream/own_scenes.rs
+msgid "Some words of your own"
+msgstr "自分で書いたテキスト"
+
+#: src/stream/own_scenes.rs
+msgid "A picture (none chosen yet)"
+msgstr "画像（未選択）"
+
+#: src/stream/own_scenes.rs
+msgid "Picture: {name}"
+msgstr "画像: {name}"
+
+#: src/stream/own_scenes.rs
+msgid "Colour {hex}"
+msgstr "色 {hex}"
+
+#: src/stream/own_scenes.rs
+msgid "Your words: {text}"
+msgstr "テキスト: {text}"
+
+#: src/stream/own_scenes.rs src/strings/operator.rs src/ui/dialogs/settings_themes.rs src/ui/dialogs/stream_scenes.rs
+msgid "Welcome"
+msgstr "ようこそ"
+
+#: src/stream/own_scenes.rs
+msgid "{what} · {place}"
+msgstr "{what} · {place}"
+
+#: src/stream/own_scenes.rs
+msgid "{layer} · {n}% see-through"
+msgstr "{layer} · 透明度 {n}%"
+
+#: src/stream/own_scenes.rs
+msgid "Untitled scene"
+msgstr "無題のシーン"
+
+#: src/stream/own_scenes.rs
+msgid "A scene that was deleted"
+msgstr "削除されたシーン"
+
+#: src/stream/own_scenes.rs
+msgid "The words of the song go here"
+msgstr "ここに曲の歌詞が入ります"
+
 #: src/stream/ptz.rs
 msgid "Camera {camera}: position {position}"
 msgstr "カメラ {camera}：位置 {position}"
@@ -6658,6 +6926,10 @@ msgstr "全画面"
 #: src/stream/scene.rs
 msgid "Screen + camera"
 msgstr "画面＋カメラ"
+
+#: src/stream/scene.rs
+msgid "Your scene"
+msgstr "自分のシーン"
 
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
@@ -7313,7 +7585,7 @@ msgstr "これらのスライドの変更を破棄しますか？"
 msgid "Throw away"
 msgstr "破棄"
 
-#: src/strings/design.rs src/strings/stage.rs
+#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_scenes.rs
 msgid "Keep editing"
 msgstr "編集を続ける"
 
@@ -7636,10 +7908,6 @@ msgstr "文字はすでに最大サイズです。大きくするには、スラ
 #: src/strings/operator.rs
 msgid "Pick an item on the left"
 msgstr "左から項目を選んでください"
-
-#: src/strings/operator.rs src/ui/dialogs/settings_themes.rs
-msgid "Welcome"
-msgstr "ようこそ"
 
 #: src/strings/operator.rs
 msgid "Something went wrong."
@@ -9401,7 +9669,7 @@ msgstr "マクロは編集するまで実行されません"
 msgid "New stage layout"
 msgstr "新しいステージレイアウト"
 
-#: src/strings/stage.rs src/theme/saved.rs
+#: src/strings/stage.rs src/theme/saved.rs src/ui/dialogs/stream_scenes.rs
 msgid "{name} copy"
 msgstr "{name} のコピー"
 
@@ -10342,6 +10610,14 @@ msgid "{time} UTC"
 msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
+msgid "Save your other changes first?"
+msgstr "先にほかの変更を保存しますか？"
+
+#: src/ui/dialogs/settings.rs
+msgid "Save and go on"
+msgstr "保存して続ける"
+
+#: src/ui/dialogs/settings.rs
 msgid "Save your other changes and restart?"
 msgstr "ほかの変更を保存して再起動しますか？"
 
@@ -10585,6 +10861,34 @@ msgstr ""
 "聖書を読む\n"
 "隣人に仕える"
 
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Your livestream scenes"
+msgstr "ライブ配信の自分のシーン"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scene {n}"
+msgstr "シーン {n}"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scene name"
+msgstr "シーン名"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the room screen instead."
+msgstr "シーン「{name}」を削除しますか？このシーンを選ぶスライドのアクションやマクロは、代わりに会場画面を表示します。"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave without saving your scene changes?"
+msgstr "シーンの変更を保存せずに閉じますか？"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave"
+msgstr "閉じる"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scenes saved."
+msgstr "シーンを保存しました。"
+
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
 msgstr "{total} 件中 {done} 件翻訳済み"
@@ -10821,6 +11125,10 @@ msgstr "FFmpeg の準備ができました。「録画」を押すと録画を�
 #: src/ui/operator/record.rs
 msgid "FFmpeg could not be downloaded. Check the internet connection, or install it yourself: {command}"
 msgstr "FFmpeg をダウンロードできませんでした。インターネット接続を確認するか、自分でインストールしてください: {command}"
+
+#: src/ui/operator/record.rs
+msgid "{camera} (not in this scene)"
+msgstr "{camera}（このシーンにはありません）"
 
 #: src/ui/operator/transfer.rs
 msgid "Saved to {path}"
@@ -11221,6 +11529,9 @@ msgstr "yt-dlp は動画を保存しませんでした"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "メディアファイルではありません"
+
+#~ msgid "Another camera to switch to while live, from the scene button beside Live."
+#~ msgstr "ライブ中に切り替えるもう1台のカメラ。ライブの横のシーンボタンから選びます。"
 
 #~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
 #~ msgstr "配信 (とその録画) で会場画面と組み合わせるカメラまたはキャプチャーカード。"

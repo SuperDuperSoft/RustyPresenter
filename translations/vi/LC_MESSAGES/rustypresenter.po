@@ -95,7 +95,7 @@ msgstr "Google Slides: trong Google Slides, chọn Tệp → Tải xuống → M
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "Hãy tải xuống dưới dạng PowerPoint (.pptx) để giữ ghi chú của người nói."
 
-#: ui/dialogs/add-media.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Sao chép"
 
@@ -219,7 +219,7 @@ msgstr "Văn bản của bạn"
 msgid "Not in the lyrics — it is skipped"
 msgstr "Không có trong lời — sẽ bị bỏ qua"
 
-#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
+#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "Gỡ bỏ"
 
@@ -343,7 +343,7 @@ msgstr "Hiện trên điện thoại điều khiển"
 msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
 msgstr "Đặt một từ trong {{dấu ngoặc nhọn}} để tạo ô cần điền, như {{Number}}."
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint ui/operator/cameras.slint
 msgid "Position"
 msgstr "Vị trí"
 
@@ -359,7 +359,7 @@ msgstr "Trên"
 msgid "Hide after"
 msgstr "Ẩn sau"
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint src/ui/dialogs/stream_scenes.rs
 msgid "Never"
 msgstr "Không bao giờ"
 
@@ -391,7 +391,7 @@ msgstr "Có thể hiện từ điện thoại"
 msgid "Change it in the Pre-service tab"
 msgstr "Thay đổi trong thẻ Trước lễ"
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/i18n/remote_strings.rs
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/i18n/remote_strings.rs
 msgid "Colour"
 msgstr "Màu"
 
@@ -435,7 +435,7 @@ msgstr "Các bước"
 msgid "Up"
 msgstr "Lên"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/dialogs/stream-scenes.slint ui/operator.slint
 msgid "Move up"
 msgstr "Chuyển lên"
 
@@ -443,7 +443,7 @@ msgstr "Chuyển lên"
 msgid "Down"
 msgstr "Xuống"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/dialogs/stream-scenes.slint ui/operator.slint
 msgid "Move down"
 msgstr "Chuyển xuống"
 
@@ -599,11 +599,11 @@ msgstr "Tạm dừng"
 msgid "Start"
 msgstr "Bắt đầu"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_scenes.rs
 msgid "Delete"
 msgstr "Xóa"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Save"
 msgstr "Lưu"
 
@@ -687,7 +687,7 @@ msgstr "Cho màn hình sân khấu và người điều khiển"
 msgid "{} objects chosen. Changes go on all of them."
 msgstr "Đã chọn {} đối tượng. Thay đổi áp dụng cho tất cả."
 
-#: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Words"
 msgstr "Chữ"
 
@@ -1052,7 +1052,7 @@ msgstr "Kéo để di chuyển, kéo góc để đổi cỡ, phím mũi tên đ�
 msgid "Video: {}"
 msgstr "Video: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Hủy"
 
@@ -2440,6 +2440,10 @@ msgid "OpenH264"
 msgstr "OpenH264"
 
 #: ui/dialogs/settings-media.slint
+msgid "The Mac's own"
+msgstr "Của Mac"
+
+#: ui/dialogs/settings-media.slint
 msgid "Bitrate"
 msgstr "Tốc độ bit"
 
@@ -2552,6 +2556,18 @@ msgid "Send the words alone over NDI, on a see-through background (for keying)"
 msgstr "Chỉ gửi lời qua NDI, trên nền trong suốt (để tách nền)"
 
 #: ui/dialogs/settings-media.slint
+msgid "Words alone"
+msgstr "Chỉ có lời"
+
+#: ui/dialogs/settings-media.slint
+msgid "While you are live, a second video is saved next to the recording, its name ending in words.mov: only the words, with nothing behind them. When you edit the service video, put it on top to add the words. It stays small because the words seldom change."
+msgstr "Khi đang phát trực tiếp, một video thứ hai được lưu cạnh bản ghi hình, tên kết thúc bằng words.mov: chỉ có lời, không có gì phía sau. Khi biên tập video buổi lễ, hãy đặt nó lên trên cùng để thêm lời. Tệp này nhỏ vì lời ít khi thay đổi."
+
+#: ui/dialogs/settings-media.slint
+msgid "Also record the words alone, on a see-through background (for video editing)"
+msgstr "Ghi thêm riêng phần lời, trên nền trong suốt (để biên tập video)"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "Mức âm thanh"
 
@@ -2620,8 +2636,20 @@ msgid "Second camera"
 msgstr "Camera thứ hai"
 
 #: ui/dialogs/settings-media.slint
-msgid "Another camera to switch to while live, from the scene button beside Live."
-msgstr "Một camera khác để chuyển sang khi đang phát, từ nút cảnh bên cạnh Trực tiếp."
+msgid "Another camera to switch to while live, from the Cameras box beside the live screen."
+msgstr "Một camera khác để chuyển sang khi đang phát, từ ô Camera bên cạnh màn hình đang phát."
+
+#: ui/dialogs/settings-media.slint
+msgid "Third camera"
+msgstr "Camera thứ ba"
+
+#: ui/dialogs/settings-media.slint
+msgid "Another camera to switch to while live."
+msgstr "Một camera khác để chuyển sang khi đang phát."
+
+#: ui/dialogs/settings-media.slint
+msgid "Fourth camera"
+msgstr "Camera thứ tư"
 
 #: ui/dialogs/settings-media.slint
 msgid "Scenes"
@@ -2639,7 +2667,7 @@ msgstr "Tự chọn cảnh theo những gì đang chiếu"
 msgid "Presentations:"
 msgstr "Bài trình chiếu:"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
 msgid "The room screen"
 msgstr "Màn hình hội trường"
 
@@ -2678,6 +2706,30 @@ msgstr "Ở dưới"
 #: ui/dialogs/settings-media.slint
 msgid "At the top"
 msgstr "Ở trên"
+
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
+msgid "Your scenes"
+msgstr "Cảnh của bạn"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make scenes of your own from cameras, the room screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgstr "Tự tạo cảnh từ camera, màn hình hội trường, lời, hình ảnh, màu và văn bản. Khi đang phát, chúng được liệt kê sau các cảnh có sẵn."
+
+#: ui/dialogs/settings-media.slint
+msgid "Your scenes…"
+msgstr "Cảnh của bạn…"
+
+#: ui/dialogs/settings-media.slint
+msgid "None yet"
+msgstr "Chưa có"
+
+#: ui/dialogs/settings-media.slint
+msgid "1 scene"
+msgstr "1 cảnh"
+
+#: ui/dialogs/settings-media.slint
+msgid "{} scenes"
+msgstr "{} cảnh"
 
 #: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
 msgid "Starting soon"
@@ -2847,11 +2899,11 @@ msgstr "Hình thu nhỏ YouTube: một khung hình của buổi phát"
 msgid "YouTube thumbnail: {}"
 msgstr "Hình thu nhỏ YouTube: {}"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
 msgid "Choose a picture…"
 msgstr "Chọn hình…"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/operator/cameras.slint
 msgid "No picture"
 msgstr "Không có hình"
 
@@ -3199,7 +3251,7 @@ msgstr "Hiện hiệu năng"
 msgid "Screens"
 msgstr "Màn hình"
 
-#: ui/dialogs/settings.slint ui/operator/outputs.slint
+#: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs
 msgid "Room screen"
 msgstr "Màn hình hội trường"
 
@@ -3471,7 +3523,7 @@ msgstr "Lưu và thêm vào buổi lễ"
 msgid "Save song"
 msgstr "Lưu bài hát"
 
-#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/automation.rs
+#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/stream/own_scenes.rs src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
 msgstr "Cần RustyPresenter mới hơn"
 
@@ -3511,11 +3563,11 @@ msgstr "Mới"
 msgid "Duplicate to edit"
 msgstr "Nhân bản để sửa"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Rename…"
 msgstr "Đổi tên…"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Delete…"
 msgstr "Xóa…"
 
@@ -3547,7 +3599,7 @@ msgstr "Khóa (không thể vô tình di chuyển)"
 msgid "Hidden on the stage"
 msgstr "Ẩn trên sân khấu"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Shows"
 msgstr "Hiển thị"
 
@@ -3587,11 +3639,87 @@ msgstr "Chọn bố cục sân khấu"
 msgid "Edit stage layouts…"
 msgstr "Sửa bố cục sân khấu…"
 
+#: ui/dialogs/stream-scenes.slint
+msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
+msgstr "Bạn chưa có cảnh riêng nào. Hãy thêm một cảnh, rồi đặt camera, màn hình hội trường, lời, hình ảnh, màu hoặc văn bản vào đó."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Add a scene"
+msgstr "Thêm cảnh"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Layers (in front at the top)"
+msgstr "Lớp (lớp trên cùng nằm phía trước)"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No layers: the stream shows black. Add one."
+msgstr "Không có lớp nào: luồng phát hiện màu đen. Hãy thêm một lớp."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Add layer"
+msgstr "Thêm lớp"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "In front"
+msgstr "Lên trước"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Behind"
+msgstr "Ra sau"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "A newer RustyPresenter made this layer. It can be removed but not changed here."
+msgstr "Lớp này do một phiên bản RustyPresenter mới hơn tạo ra. Có thể gỡ bỏ nhưng không thể sửa ở đây."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No picture chosen yet."
+msgstr "Chưa chọn hình ảnh."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Place"
+msgstr "Vị trí"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "From the left: {}%"
+msgstr "Từ bên trái: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "From the top: {}%"
+msgstr "Từ trên xuống: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Width: {}%"
+msgstr "Rộng: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Height: {}%"
+msgstr "Cao: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "See-through: {}%"
+msgstr "Trong suốt: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "How the scene looks"
+msgstr "Cảnh trông như thế nào"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgstr "Ở đây camera, màn hình hội trường và lời chỉ là hình tạm; khi đang phát sẽ là hình thật. Camera không gửi hình sẽ hiện màn hình hội trường thay vào chỗ đó."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Use it by itself in place of"
+msgstr "Tự dùng thay cho"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "When the scene is chosen by itself from what is live, this scene goes out instead of that one. For example, choose “Camera + words” to use it for songs and verses."
+msgstr "Khi cảnh được tự chọn theo những gì đang chiếu, cảnh này sẽ được phát thay cho cảnh kia. Ví dụ, chọn “Camera + lời” để dùng nó cho bài hát và câu Kinh Thánh."
+
 #: ui/dialogs/transition.slint src/theme/richtext.rs
 msgid "Normal"
 msgstr "Bình thường"
 
-#: ui/dialogs/transition.slint
+#: ui/dialogs/transition.slint ui/operator/cameras.slint
 msgid "Fade"
 msgstr "Mờ dần"
 
@@ -3911,6 +4039,42 @@ msgstr "Dừng nhạc chào đón"
 msgid "Walk-in music songs and volume"
 msgstr "Bài hát và âm lượng nhạc chào đón"
 
+#: ui/operator/cameras.slint
+msgid "Going out now"
+msgstr "Đang lên sóng"
+
+#: ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "Tiếp"
+
+#: ui/operator/cameras.slint
+msgid "This camera is going out now"
+msgstr "Camera này đang lên sóng"
+
+#: ui/operator/cameras.slint
+msgid "Show this camera next"
+msgstr "Chiếu camera này tiếp theo"
+
+#: ui/operator/cameras.slint ui/operator/record.slint
+msgid "Live"
+msgstr "Đang phát"
+
+#: ui/operator/cameras.slint
+msgid "Move the next camera to its saved position {}"
+msgstr "Đưa camera tiếp theo đến vị trí đã lưu {}"
+
+#: ui/operator/cameras.slint
+msgid "Switch"
+msgstr "Chuyển"
+
+#: ui/operator/cameras.slint
+msgid "Put the next camera on the stream now"
+msgstr "Đưa camera tiếp theo lên luồng phát ngay"
+
+#: ui/operator/cameras.slint
+msgid "Fade the stream over to the next camera"
+msgstr "Chuyển mờ dần luồng phát sang camera tiếp theo"
+
 #: ui/operator/follow.slint
 msgid "Review log…"
 msgstr "Nhật ký…"
@@ -3998,10 +4162,6 @@ msgstr "Kế tiếp"
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
 msgstr "Lùi (← hoặc Page Up)"
-
-#: ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Next"
-msgstr "Tiếp"
 
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
@@ -4166,10 +4326,6 @@ msgstr "Đang phát {}/{}"
 #: ui/operator/record.slint
 msgid "Live · {} watching"
 msgstr "Trực tiếp · {} người xem"
-
-#: ui/operator/record.slint
-msgid "Live"
-msgstr "Đang phát"
 
 #: ui/operator/record.slint
 msgid "Stop the livestream and save the recording"
@@ -6643,6 +6799,118 @@ msgstr "Bạn đang phát trực tiếp. Phát các bài thờ phượng cần g
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "Đang ghi. Hãy dừng ghi rồi bấm Phát trực tiếp."
 
+#: src/stream/mod.rs
+msgid "A Mac cannot send its own sound by itself. Install the free BlackHole, make a Multi-Output Device of the speakers and BlackHole in Audio MIDI Setup, and choose it as the app's sound output."
+msgstr "Máy Mac không tự gửi được âm thanh của chính nó. Hãy cài BlackHole miễn phí, tạo một Multi-Output Device gồm loa và BlackHole trong Audio MIDI Setup, rồi chọn nó làm đầu ra âm thanh của ứng dụng."
+
+#: src/stream/own_scenes.rs
+msgid "small"
+msgstr "nhỏ"
+
+#: src/stream/own_scenes.rs
+msgid "medium"
+msgstr "vừa"
+
+#: src/stream/own_scenes.rs
+msgid "large"
+msgstr "lớn"
+
+#: src/stream/own_scenes.rs
+msgid "Fills the picture"
+msgstr "Đầy cả hình"
+
+#: src/stream/own_scenes.rs
+msgid "Top left, {size}"
+msgstr "Trên bên trái, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Top right, {size}"
+msgstr "Trên bên phải, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Bottom left, {size}"
+msgstr "Dưới bên trái, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Bottom right, {size}"
+msgstr "Dưới bên phải, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Left half"
+msgstr "Nửa bên trái"
+
+#: src/stream/own_scenes.rs
+msgid "Right half"
+msgstr "Nửa bên phải"
+
+#: src/stream/own_scenes.rs
+msgid "A box you set"
+msgstr "Khung bạn tự đặt"
+
+#: src/stream/own_scenes.rs
+msgid "The camera on air"
+msgstr "Camera đang lên sóng"
+
+#: src/stream/own_scenes.rs
+msgid "Camera {n}"
+msgstr "Máy quay {n}"
+
+#: src/stream/own_scenes.rs
+msgid "The words"
+msgstr "Lời"
+
+#: src/stream/own_scenes.rs
+msgid "A picture"
+msgstr "Một hình ảnh"
+
+#: src/stream/own_scenes.rs
+msgid "A colour"
+msgstr "Một màu"
+
+#: src/stream/own_scenes.rs
+msgid "Some words of your own"
+msgstr "Lời của riêng bạn"
+
+#: src/stream/own_scenes.rs
+msgid "A picture (none chosen yet)"
+msgstr "Một hình ảnh (chưa chọn)"
+
+#: src/stream/own_scenes.rs
+msgid "Picture: {name}"
+msgstr "Hình ảnh: {name}"
+
+#: src/stream/own_scenes.rs
+msgid "Colour {hex}"
+msgstr "Màu {hex}"
+
+#: src/stream/own_scenes.rs
+msgid "Your words: {text}"
+msgstr "Lời của bạn: {text}"
+
+#: src/stream/own_scenes.rs src/strings/operator.rs src/ui/dialogs/settings_themes.rs src/ui/dialogs/stream_scenes.rs
+msgid "Welcome"
+msgstr "Chào mừng"
+
+#: src/stream/own_scenes.rs
+msgid "{what} · {place}"
+msgstr "{what} · {place}"
+
+#: src/stream/own_scenes.rs
+msgid "{layer} · {n}% see-through"
+msgstr "{layer} · trong suốt {n}%"
+
+#: src/stream/own_scenes.rs
+msgid "Untitled scene"
+msgstr "Cảnh chưa đặt tên"
+
+#: src/stream/own_scenes.rs
+msgid "A scene that was deleted"
+msgstr "Một cảnh đã bị xóa"
+
+#: src/stream/own_scenes.rs
+msgid "The words of the song go here"
+msgstr "Lời bài hát hiện ở đây"
+
 #: src/stream/ptz.rs
 msgid "Camera {camera}: position {position}"
 msgstr "Camera {camera}: vị trí {position}"
@@ -6658,6 +6926,10 @@ msgstr "Toàn màn hình"
 #: src/stream/scene.rs
 msgid "Screen + camera"
 msgstr "Màn hình + camera"
+
+#: src/stream/scene.rs
+msgid "Your scene"
+msgstr "Cảnh của bạn"
 
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
@@ -7313,7 +7585,7 @@ msgstr "Bỏ các thay đổi trên những trang chiếu này?"
 msgid "Throw away"
 msgstr "Bỏ thay đổi"
 
-#: src/strings/design.rs src/strings/stage.rs
+#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_scenes.rs
 msgid "Keep editing"
 msgstr "Tiếp tục sửa"
 
@@ -7636,10 +7908,6 @@ msgstr "Chữ đã lớn nhất có thể. Hãy chọn ít câu hơn mỗi trang
 #: src/strings/operator.rs
 msgid "Pick an item on the left"
 msgstr "Chọn một mục bên trái"
-
-#: src/strings/operator.rs src/ui/dialogs/settings_themes.rs
-msgid "Welcome"
-msgstr "Chào mừng"
 
 #: src/strings/operator.rs
 msgid "Something went wrong."
@@ -9401,7 +9669,7 @@ msgstr "Các macro sẽ không chạy cho đến khi được sửa"
 msgid "New stage layout"
 msgstr "Bố cục sân khấu mới"
 
-#: src/strings/stage.rs src/theme/saved.rs
+#: src/strings/stage.rs src/theme/saved.rs src/ui/dialogs/stream_scenes.rs
 msgid "{name} copy"
 msgstr "{name} - bản sao"
 
@@ -10342,6 +10610,14 @@ msgid "{time} UTC"
 msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
+msgid "Save your other changes first?"
+msgstr "Lưu các thay đổi khác của bạn trước?"
+
+#: src/ui/dialogs/settings.rs
+msgid "Save and go on"
+msgstr "Lưu và tiếp tục"
+
+#: src/ui/dialogs/settings.rs
 msgid "Save your other changes and restart?"
 msgstr "Lưu các thay đổi khác và khởi động lại?"
 
@@ -10585,6 +10861,34 @@ msgstr ""
 "Đọc Kinh Thánh\n"
 "Phục vụ người lân cận"
 
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Your livestream scenes"
+msgstr "Cảnh phát trực tiếp của bạn"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scene {n}"
+msgstr "Cảnh {n}"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scene name"
+msgstr "Tên cảnh"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the room screen instead."
+msgstr "Xóa cảnh “{name}”? Các hành động trang chiếu và macro chọn cảnh này sẽ hiện màn hình hội trường thay thế."
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave without saving your scene changes?"
+msgstr "Rời đi mà không lưu thay đổi về cảnh?"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave"
+msgstr "Rời đi"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scenes saved."
+msgstr "Đã lưu các cảnh."
+
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
 msgstr "Đã dịch {done}/{total}"
@@ -10821,6 +11125,10 @@ msgstr "FFmpeg đã sẵn sàng. Nhấn Ghi để bắt đầu ghi hình."
 #: src/ui/operator/record.rs
 msgid "FFmpeg could not be downloaded. Check the internet connection, or install it yourself: {command}"
 msgstr "Không tải được FFmpeg. Hãy kiểm tra kết nối internet, hoặc tự cài: {command}"
+
+#: src/ui/operator/record.rs
+msgid "{camera} (not in this scene)"
+msgstr "{camera} (không có trong cảnh này)"
 
 #: src/ui/operator/transfer.rs
 msgid "Saved to {path}"
@@ -11221,6 +11529,9 @@ msgstr "yt-dlp không lưu được video nào"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "không phải tệp đa phương tiện"
+
+#~ msgid "Another camera to switch to while live, from the scene button beside Live."
+#~ msgstr "Một camera khác để chuyển sang khi đang phát, từ nút cảnh bên cạnh Trực tiếp."
 
 #~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
 #~ msgstr "Máy quay hoặc thiết bị ghi hình được ghép với màn hình hội trường trong buổi phát (và bản ghi của nó)."

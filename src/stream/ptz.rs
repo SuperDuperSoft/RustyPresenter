@@ -77,9 +77,9 @@ pub fn moves(prefs: &crate::record::RecordPrefs) -> Vec<(u8, u8)> {
 
 /// A camera's control (1 to 4) from Settings.
 pub fn control_of(prefs: &crate::record::RecordPrefs, camera: u8) -> Option<Control> {
-    let cameras = prefs.cameras();
-    let (cam, _) = cameras.get(usize::from(camera).checked_sub(1)?)?;
-    Control::of(cam, prefs.camera_control_of(camera))
+    // A control address alone is enough (a camera moved by VISCA whose picture comes some other way).
+    let name = match camera { 1 => &prefs.camera, 2 => &prefs.camera2, 3 => &prefs.camera3, 4 => &prefs.camera4, _ => return None };
+    Control::of(name, prefs.camera_control_of(camera))
 }
 
 /// "Camera 2: position 3".

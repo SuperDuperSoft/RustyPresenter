@@ -95,7 +95,7 @@ msgstr "Google 프레젠테이션: Google 프레젠테이션에서 파일 → �
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "발표자 메모를 유지하려면 PowerPoint(.pptx)로 다운로드하세요."
 
-#: ui/dialogs/add-media.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "복사"
 
@@ -219,7 +219,7 @@ msgstr "직접 입력한 텍스트"
 msgid "Not in the lyrics — it is skipped"
 msgstr "가사에 없어서 건너뛰어요"
 
-#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
+#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "제거"
 
@@ -343,7 +343,7 @@ msgstr "휴대폰 리모컨에 표시"
 msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
 msgstr "단어를 {{중괄호}}로 감싸면 채워 넣을 칸이 생겨요. 예: {{Number}}"
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint ui/operator/cameras.slint
 msgid "Position"
 msgstr "위치"
 
@@ -359,7 +359,7 @@ msgstr "위"
 msgid "Hide after"
 msgstr "자동 숨김"
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint src/ui/dialogs/stream_scenes.rs
 msgid "Never"
 msgstr "안 함"
 
@@ -391,7 +391,7 @@ msgstr "휴대폰에서 표시 가능"
 msgid "Change it in the Pre-service tab"
 msgstr "예배 전 탭에서 바꾸세요"
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/i18n/remote_strings.rs
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/i18n/remote_strings.rs
 msgid "Colour"
 msgstr "색"
 
@@ -435,7 +435,7 @@ msgstr "단계"
 msgid "Up"
 msgstr "위로"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/dialogs/stream-scenes.slint ui/operator.slint
 msgid "Move up"
 msgstr "위로 이동"
 
@@ -443,7 +443,7 @@ msgstr "위로 이동"
 msgid "Down"
 msgstr "아래로"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/dialogs/stream-scenes.slint ui/operator.slint
 msgid "Move down"
 msgstr "아래로 이동"
 
@@ -599,11 +599,11 @@ msgstr "일시 정지"
 msgid "Start"
 msgstr "시작"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_scenes.rs
 msgid "Delete"
 msgstr "삭제"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Save"
 msgstr "저장"
 
@@ -687,7 +687,7 @@ msgstr "무대 화면과 운영자용"
 msgid "{} objects chosen. Changes go on all of them."
 msgstr "개체 {}개를 선택했어요. 변경 내용이 모두에 적용돼요."
 
-#: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Words"
 msgstr "글자"
 
@@ -1052,7 +1052,7 @@ msgstr "드래그하면 이동, 모서리를 드래그하면 크기 조절, 화�
 msgid "Video: {}"
 msgstr "동영상: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "취소"
 
@@ -2440,6 +2440,10 @@ msgid "OpenH264"
 msgstr "OpenH264"
 
 #: ui/dialogs/settings-media.slint
+msgid "The Mac's own"
+msgstr "Mac 기본"
+
+#: ui/dialogs/settings-media.slint
 msgid "Bitrate"
 msgstr "비트레이트"
 
@@ -2552,6 +2556,18 @@ msgid "Send the words alone over NDI, on a see-through background (for keying)"
 msgstr "가사만 투명한 배경으로 NDI에 보내기 (키잉용)"
 
 #: ui/dialogs/settings-media.slint
+msgid "Words alone"
+msgstr "가사만"
+
+#: ui/dialogs/settings-media.slint
+msgid "While you are live, a second video is saved next to the recording, its name ending in words.mov: only the words, with nothing behind them. When you edit the service video, put it on top to add the words. It stays small because the words seldom change."
+msgstr "방송 중에는 녹화 파일 옆에 동영상이 하나 더 저장돼요. 이름이 words.mov로 끝나고, 뒤에 아무것도 없이 가사만 들어 있어요. 예배 영상을 편집할 때 맨 위에 올리면 가사가 들어가요. 가사는 자주 바뀌지 않아서 파일이 작아요."
+
+#: ui/dialogs/settings-media.slint
+msgid "Also record the words alone, on a see-through background (for video editing)"
+msgstr "가사만 투명한 배경으로 따로 녹화하기 (영상 편집용)"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "소리 크기"
 
@@ -2620,8 +2636,20 @@ msgid "Second camera"
 msgstr "두 번째 카메라"
 
 #: ui/dialogs/settings-media.slint
-msgid "Another camera to switch to while live, from the scene button beside Live."
-msgstr "라이브 중에 바꿀 다른 카메라. 라이브 옆 장면 버튼에서 고릅니다."
+msgid "Another camera to switch to while live, from the Cameras box beside the live screen."
+msgstr "방송 중에 바꿀 수 있는 다른 카메라예요. 라이브 화면 옆의 카메라 상자에서 바꿔요."
+
+#: ui/dialogs/settings-media.slint
+msgid "Third camera"
+msgstr "세 번째 카메라"
+
+#: ui/dialogs/settings-media.slint
+msgid "Another camera to switch to while live."
+msgstr "방송 중에 바꿀 수 있는 다른 카메라예요."
+
+#: ui/dialogs/settings-media.slint
+msgid "Fourth camera"
+msgstr "네 번째 카메라"
 
 #: ui/dialogs/settings-media.slint
 msgid "Scenes"
@@ -2639,7 +2667,7 @@ msgstr "라이브 내용에 따라 장면을 자동으로 고르기"
 msgid "Presentations:"
 msgstr "프레젠테이션:"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
 msgid "The room screen"
 msgstr "예배당 화면"
 
@@ -2678,6 +2706,30 @@ msgstr "아래"
 #: ui/dialogs/settings-media.slint
 msgid "At the top"
 msgstr "위"
+
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
+msgid "Your scenes"
+msgstr "내 장면"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make scenes of your own from cameras, the room screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgstr "카메라, 예배당 화면, 가사, 사진, 색, 텍스트로 나만의 장면을 만들어요. 방송 중에는 기본 제공 장면 다음에 나와요."
+
+#: ui/dialogs/settings-media.slint
+msgid "Your scenes…"
+msgstr "내 장면…"
+
+#: ui/dialogs/settings-media.slint
+msgid "None yet"
+msgstr "아직 없음"
+
+#: ui/dialogs/settings-media.slint
+msgid "1 scene"
+msgstr "장면 1개"
+
+#: ui/dialogs/settings-media.slint
+msgid "{} scenes"
+msgstr "장면 {}개"
 
 #: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
 msgid "Starting soon"
@@ -2847,11 +2899,11 @@ msgstr "YouTube 썸네일: 방송의 한 장면"
 msgid "YouTube thumbnail: {}"
 msgstr "YouTube 썸네일: {}"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
 msgid "Choose a picture…"
 msgstr "그림 고르기…"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/operator/cameras.slint
 msgid "No picture"
 msgstr "그림 없음"
 
@@ -3199,7 +3251,7 @@ msgstr "성능 표시"
 msgid "Screens"
 msgstr "화면"
 
-#: ui/dialogs/settings.slint ui/operator/outputs.slint
+#: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs
 msgid "Room screen"
 msgstr "예배당 화면"
 
@@ -3471,7 +3523,7 @@ msgstr "저장 후 예배에 추가"
 msgid "Save song"
 msgstr "찬양 저장"
 
-#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/automation.rs
+#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/stream/own_scenes.rs src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
 msgstr "더 새로운 RustyPresenter 필요"
 
@@ -3511,11 +3563,11 @@ msgstr "새로 만들기"
 msgid "Duplicate to edit"
 msgstr "복제해서 편집"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Rename…"
 msgstr "이름 바꾸기…"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Delete…"
 msgstr "삭제…"
 
@@ -3547,7 +3599,7 @@ msgstr "잠금(실수로 움직이지 않게)"
 msgid "Hidden on the stage"
 msgstr "무대에서 숨기기"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Shows"
 msgstr "표시 내용"
 
@@ -3587,11 +3639,87 @@ msgstr "무대 레이아웃 선택"
 msgid "Edit stage layouts…"
 msgstr "무대 레이아웃 편집…"
 
+#: ui/dialogs/stream-scenes.slint
+msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
+msgstr "아직 내 장면이 없어요. 장면을 추가한 다음 카메라, 예배당 화면, 가사, 사진, 색, 텍스트를 넣으세요."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Add a scene"
+msgstr "장면 추가"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Layers (in front at the top)"
+msgstr "레이어 (위쪽이 앞)"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No layers: the stream shows black. Add one."
+msgstr "레이어가 없어요. 방송 화면이 검게 나와요. 하나 추가하세요."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Add layer"
+msgstr "레이어 추가"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "In front"
+msgstr "앞으로"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Behind"
+msgstr "뒤로"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "A newer RustyPresenter made this layer. It can be removed but not changed here."
+msgstr "이 레이어는 더 새로운 RustyPresenter에서 만들었어요. 제거할 수는 있지만 여기서 바꿀 수는 없어요."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No picture chosen yet."
+msgstr "아직 고른 사진이 없어요."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Place"
+msgstr "위치"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "From the left: {}%"
+msgstr "왼쪽에서: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "From the top: {}%"
+msgstr "위에서: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Width: {}%"
+msgstr "너비: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Height: {}%"
+msgstr "높이: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "See-through: {}%"
+msgstr "투명도: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "How the scene looks"
+msgstr "장면 모습"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgstr "여기서는 카메라, 예배당 화면, 가사가 임시 그림으로 보여요. 방송 중에는 실제 화면이 나와요. 아무것도 보내지 않는 카메라 자리에는 예배당 화면이 나와요."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Use it by itself in place of"
+msgstr "자동으로 골라질 때 대신할 장면"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "When the scene is chosen by itself from what is live, this scene goes out instead of that one. For example, choose “Camera + words” to use it for songs and verses."
+msgstr "라이브 내용에 따라 장면이 자동으로 골라질 때, 그 장면 대신 이 장면이 나가요. 예를 들어 “카메라 + 가사”를 고르면 찬양과 성경 구절에 이 장면을 써요."
+
 #: ui/dialogs/transition.slint src/theme/richtext.rs
 msgid "Normal"
 msgstr "보통"
 
-#: ui/dialogs/transition.slint
+#: ui/dialogs/transition.slint ui/operator/cameras.slint
 msgid "Fade"
 msgstr "페이드"
 
@@ -3911,6 +4039,42 @@ msgstr "입장 음악 정지"
 msgid "Walk-in music songs and volume"
 msgstr "입장 음악 곡 및 볼륨"
 
+#: ui/operator/cameras.slint
+msgid "Going out now"
+msgstr "송출 중"
+
+#: ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "다음"
+
+#: ui/operator/cameras.slint
+msgid "This camera is going out now"
+msgstr "이 카메라가 송출 중이에요"
+
+#: ui/operator/cameras.slint
+msgid "Show this camera next"
+msgstr "다음에 이 카메라 보이기"
+
+#: ui/operator/cameras.slint ui/operator/record.slint
+msgid "Live"
+msgstr "방송 중"
+
+#: ui/operator/cameras.slint
+msgid "Move the next camera to its saved position {}"
+msgstr "다음 카메라를 저장된 위치 {}(으)로 움직이기"
+
+#: ui/operator/cameras.slint
+msgid "Switch"
+msgstr "전환"
+
+#: ui/operator/cameras.slint
+msgid "Put the next camera on the stream now"
+msgstr "다음 카메라를 지금 방송에 내보내기"
+
+#: ui/operator/cameras.slint
+msgid "Fade the stream over to the next camera"
+msgstr "다음 카메라로 페이드 전환"
+
 #: ui/operator/follow.slint
 msgid "Review log…"
 msgstr "기록…"
@@ -3998,10 +4162,6 @@ msgstr "다음 순서"
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
 msgstr "이전(← 또는 Page Up)"
-
-#: ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Next"
-msgstr "다음"
 
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
@@ -4166,10 +4326,6 @@ msgstr "방송 중 {}/{}"
 #: ui/operator/record.slint
 msgid "Live · {} watching"
 msgstr "라이브 · {}명 시청 중"
-
-#: ui/operator/record.slint
-msgid "Live"
-msgstr "방송 중"
 
 #: ui/operator/record.slint
 msgid "Stop the livestream and save the recording"
@@ -6643,6 +6799,118 @@ msgstr "지금 라이브 중이에요. 찬양곡을 방송하려면 교회의 �
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "녹화 중이에요. 녹화를 멈춘 다음 라이브 시작을 누르세요."
 
+#: src/stream/mod.rs
+msgid "A Mac cannot send its own sound by itself. Install the free BlackHole, make a Multi-Output Device of the speakers and BlackHole in Audio MIDI Setup, and choose it as the app's sound output."
+msgstr "Mac은 자체 소리를 그대로 보낼 수 없어요. 무료 BlackHole을 설치하고, Audio MIDI 설정에서 스피커와 BlackHole로 다중 출력 기기를 만든 다음, 이 앱의 소리 출력 장치로 고르세요."
+
+#: src/stream/own_scenes.rs
+msgid "small"
+msgstr "작게"
+
+#: src/stream/own_scenes.rs
+msgid "medium"
+msgstr "보통"
+
+#: src/stream/own_scenes.rs
+msgid "large"
+msgstr "크게"
+
+#: src/stream/own_scenes.rs
+msgid "Fills the picture"
+msgstr "화면 전체"
+
+#: src/stream/own_scenes.rs
+msgid "Top left, {size}"
+msgstr "왼쪽 위, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Top right, {size}"
+msgstr "오른쪽 위, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Bottom left, {size}"
+msgstr "왼쪽 아래, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Bottom right, {size}"
+msgstr "오른쪽 아래, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Left half"
+msgstr "왼쪽 절반"
+
+#: src/stream/own_scenes.rs
+msgid "Right half"
+msgstr "오른쪽 절반"
+
+#: src/stream/own_scenes.rs
+msgid "A box you set"
+msgstr "직접 정한 영역"
+
+#: src/stream/own_scenes.rs
+msgid "The camera on air"
+msgstr "송출 중인 카메라"
+
+#: src/stream/own_scenes.rs
+msgid "Camera {n}"
+msgstr "카메라 {n}"
+
+#: src/stream/own_scenes.rs
+msgid "The words"
+msgstr "가사"
+
+#: src/stream/own_scenes.rs
+msgid "A picture"
+msgstr "사진"
+
+#: src/stream/own_scenes.rs
+msgid "A colour"
+msgstr "색"
+
+#: src/stream/own_scenes.rs
+msgid "Some words of your own"
+msgstr "직접 쓴 글"
+
+#: src/stream/own_scenes.rs
+msgid "A picture (none chosen yet)"
+msgstr "사진 (아직 안 고름)"
+
+#: src/stream/own_scenes.rs
+msgid "Picture: {name}"
+msgstr "사진: {name}"
+
+#: src/stream/own_scenes.rs
+msgid "Colour {hex}"
+msgstr "색 {hex}"
+
+#: src/stream/own_scenes.rs
+msgid "Your words: {text}"
+msgstr "글: {text}"
+
+#: src/stream/own_scenes.rs src/strings/operator.rs src/ui/dialogs/settings_themes.rs src/ui/dialogs/stream_scenes.rs
+msgid "Welcome"
+msgstr "환영합니다"
+
+#: src/stream/own_scenes.rs
+msgid "{what} · {place}"
+msgstr "{what} · {place}"
+
+#: src/stream/own_scenes.rs
+msgid "{layer} · {n}% see-through"
+msgstr "{layer} · 투명도 {n}%"
+
+#: src/stream/own_scenes.rs
+msgid "Untitled scene"
+msgstr "제목 없는 장면"
+
+#: src/stream/own_scenes.rs
+msgid "A scene that was deleted"
+msgstr "삭제된 장면"
+
+#: src/stream/own_scenes.rs
+msgid "The words of the song go here"
+msgstr "여기에 찬양 가사가 들어가요"
+
 #: src/stream/ptz.rs
 msgid "Camera {camera}: position {position}"
 msgstr "카메라 {camera}: 위치 {position}"
@@ -6658,6 +6926,10 @@ msgstr "전체 화면"
 #: src/stream/scene.rs
 msgid "Screen + camera"
 msgstr "화면 + 카메라"
+
+#: src/stream/scene.rs
+msgid "Your scene"
+msgstr "내 장면"
 
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
@@ -7313,7 +7585,7 @@ msgstr "이 슬라이드의 변경 내용을 버릴까요?"
 msgid "Throw away"
 msgstr "버리기"
 
-#: src/strings/design.rs src/strings/stage.rs
+#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_scenes.rs
 msgid "Keep editing"
 msgstr "계속 편집"
 
@@ -7636,10 +7908,6 @@ msgstr "글자가 이미 들어갈 수 있는 최대 크기예요. 더 크게 �
 #: src/strings/operator.rs
 msgid "Pick an item on the left"
 msgstr "왼쪽에서 항목을 선택하세요"
-
-#: src/strings/operator.rs src/ui/dialogs/settings_themes.rs
-msgid "Welcome"
-msgstr "환영합니다"
 
 #: src/strings/operator.rs
 msgid "Something went wrong."
@@ -9401,7 +9669,7 @@ msgstr "매크로들은 편집하기 전까지 실행되지 않아요"
 msgid "New stage layout"
 msgstr "새 무대 레이아웃"
 
-#: src/strings/stage.rs src/theme/saved.rs
+#: src/strings/stage.rs src/theme/saved.rs src/ui/dialogs/stream_scenes.rs
 msgid "{name} copy"
 msgstr "{name} 사본"
 
@@ -10342,6 +10610,14 @@ msgid "{time} UTC"
 msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
+msgid "Save your other changes first?"
+msgstr "다른 변경 내용을 먼저 저장할까요?"
+
+#: src/ui/dialogs/settings.rs
+msgid "Save and go on"
+msgstr "저장하고 계속"
+
+#: src/ui/dialogs/settings.rs
 msgid "Save your other changes and restart?"
 msgstr "다른 변경 사항을 저장하고 다시 시작할까요?"
 
@@ -10585,6 +10861,34 @@ msgstr ""
 "성경 읽기\n"
 "이웃 섬기기"
 
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Your livestream scenes"
+msgstr "내 라이브 방송 장면"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scene {n}"
+msgstr "장면 {n}"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scene name"
+msgstr "장면 이름"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the room screen instead."
+msgstr "“{name}” 장면을 삭제할까요? 이 장면을 고르는 슬라이드 동작과 매크로는 대신 예배당 화면을 보여 줘요."
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave without saving your scene changes?"
+msgstr "장면 변경 내용을 저장하지 않고 나갈까요?"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave"
+msgstr "나가기"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scenes saved."
+msgstr "장면을 저장했어요."
+
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
 msgstr "{total}개 중 {done}개 번역됨"
@@ -10821,6 +11125,10 @@ msgstr "FFmpeg가 준비됐어요. 녹화를 누르면 녹화가 시작돼요."
 #: src/ui/operator/record.rs
 msgid "FFmpeg could not be downloaded. Check the internet connection, or install it yourself: {command}"
 msgstr "FFmpeg를 다운로드하지 못했어요. 인터넷 연결을 확인하거나 직접 설치하세요: {command}"
+
+#: src/ui/operator/record.rs
+msgid "{camera} (not in this scene)"
+msgstr "{camera} (이 장면에 없음)"
 
 #: src/ui/operator/transfer.rs
 msgid "Saved to {path}"
@@ -11221,6 +11529,9 @@ msgstr "yt-dlp가 동영상을 저장하지 않았어요"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "미디어 파일 아님"
+
+#~ msgid "Another camera to switch to while live, from the scene button beside Live."
+#~ msgstr "라이브 중에 바꿀 다른 카메라. 라이브 옆 장면 버튼에서 고릅니다."
 
 #~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
 #~ msgstr "방송(과 그 녹화)에서 예배당 화면과 함께 보여 줄 카메라나 캡처 카드예요."

@@ -95,7 +95,7 @@ msgstr "Google Slides: sa Google Slides, piliin ang File → Download → Micros
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "I-download ito bilang PowerPoint (.pptx) para manatili ang iyong speaker notes."
 
-#: ui/dialogs/add-media.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Kopyahin"
 
@@ -219,7 +219,7 @@ msgstr "Sariling teksto"
 msgid "Not in the lyrics — it is skipped"
 msgstr "Wala sa lyrics — nilalaktawan ito"
 
-#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
+#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "Alisin"
 
@@ -343,7 +343,7 @@ msgstr "Ipakita sa phone remote"
 msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
 msgstr "Ilagay ang salita sa {{curly brackets}} para gumawa ng box na pupunan, tulad ng {{Number}}."
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint ui/operator/cameras.slint
 msgid "Position"
 msgstr "Posisyon"
 
@@ -359,7 +359,7 @@ msgstr "Itaas"
 msgid "Hide after"
 msgstr "Itago pagkatapos ng"
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint src/ui/dialogs/stream_scenes.rs
 msgid "Never"
 msgstr "Hindi kailanman"
 
@@ -391,7 +391,7 @@ msgstr "Maipapakita mula sa phone"
 msgid "Change it in the Pre-service tab"
 msgstr "Palitan ito sa tab na Bago ang service"
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/i18n/remote_strings.rs
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/i18n/remote_strings.rs
 msgid "Colour"
 msgstr "Kulay"
 
@@ -435,7 +435,7 @@ msgstr "Mga hakbang"
 msgid "Up"
 msgstr "Pataas"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/dialogs/stream-scenes.slint ui/operator.slint
 msgid "Move up"
 msgstr "Ilipat pataas"
 
@@ -443,7 +443,7 @@ msgstr "Ilipat pataas"
 msgid "Down"
 msgstr "Pababa"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/dialogs/stream-scenes.slint ui/operator.slint
 msgid "Move down"
 msgstr "Ilipat pababa"
 
@@ -599,11 +599,11 @@ msgstr "I-pause"
 msgid "Start"
 msgstr "Simulan"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_scenes.rs
 msgid "Delete"
 msgstr "Burahin"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Save"
 msgstr "I-save"
 
@@ -687,7 +687,7 @@ msgstr "Para sa stage screen at sa operator"
 msgid "{} objects chosen. Changes go on all of them."
 msgstr "{} object ang napili. Mailalapat ang mga pagbabago sa lahat ng ito."
 
-#: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Words"
 msgstr "Mga salita"
 
@@ -1052,7 +1052,7 @@ msgstr "I-drag para ilipat, i-drag ang sulok para baguhin ang laki, iusog nang k
 msgid "Video: {}"
 msgstr "Video: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Kanselahin"
 
@@ -2440,6 +2440,10 @@ msgid "OpenH264"
 msgstr "OpenH264"
 
 #: ui/dialogs/settings-media.slint
+msgid "The Mac's own"
+msgstr "Ang sa Mac"
+
+#: ui/dialogs/settings-media.slint
 msgid "Bitrate"
 msgstr "Bitrate"
 
@@ -2552,6 +2556,18 @@ msgid "Send the words alone over NDI, on a see-through background (for keying)"
 msgstr "Ipadala ang mga salita lamang sa NDI, sa background na see-through (para sa keying)"
 
 #: ui/dialogs/settings-media.slint
+msgid "Words alone"
+msgstr "Mga salita lamang"
+
+#: ui/dialogs/settings-media.slint
+msgid "While you are live, a second video is saved next to the recording, its name ending in words.mov: only the words, with nothing behind them. When you edit the service video, put it on top to add the words. It stays small because the words seldom change."
+msgstr "Habang naka-live, may ikalawang video na sine-save sa tabi ng recording, na ang pangalan ay nagtatapos sa words.mov: ang mga salita lamang, na walang anuman sa likod. Kapag ine-edit mo ang video ng service, ilagay ito sa ibabaw para maidagdag ang mga salita. Maliit lang ito dahil bihirang magbago ang mga salita."
+
+#: ui/dialogs/settings-media.slint
+msgid "Also record the words alone, on a see-through background (for video editing)"
+msgstr "I-record din ang mga salita lamang, sa background na see-through (para sa pag-edit ng video)"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "Lakas ng tunog"
 
@@ -2620,8 +2636,20 @@ msgid "Second camera"
 msgstr "Ikalawang camera"
 
 #: ui/dialogs/settings-media.slint
-msgid "Another camera to switch to while live, from the scene button beside Live."
-msgstr "Isa pang camera na mapapalitan habang live, mula sa scene button sa tabi ng Live."
+msgid "Another camera to switch to while live, from the Cameras box beside the live screen."
+msgstr "Isa pang camera na malilipatan habang naka-live, mula sa kahon ng mga camera sa tabi ng live na screen."
+
+#: ui/dialogs/settings-media.slint
+msgid "Third camera"
+msgstr "Ikatlong camera"
+
+#: ui/dialogs/settings-media.slint
+msgid "Another camera to switch to while live."
+msgstr "Isa pang camera na malilipatan habang naka-live."
+
+#: ui/dialogs/settings-media.slint
+msgid "Fourth camera"
+msgstr "Ikaapat na camera"
 
 #: ui/dialogs/settings-media.slint
 msgid "Scenes"
@@ -2639,7 +2667,7 @@ msgstr "Kusang piliin ang scene ayon sa naka-live"
 msgid "Presentations:"
 msgstr "Mga presentasyon:"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
 msgid "The room screen"
 msgstr "Ang screen ng sanktuwaryo"
 
@@ -2678,6 +2706,30 @@ msgstr "Sa ibaba"
 #: ui/dialogs/settings-media.slint
 msgid "At the top"
 msgstr "Sa itaas"
+
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
+msgid "Your scenes"
+msgstr "Iyong mga scene"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make scenes of your own from cameras, the room screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgstr "Gumawa ng sarili mong mga scene mula sa mga camera, sa screen sa silid, sa mga salita, mga larawan, mga kulay at teksto. Nakalista ang mga ito pagkatapos ng mga built-in na scene habang naka-live."
+
+#: ui/dialogs/settings-media.slint
+msgid "Your scenes…"
+msgstr "Iyong mga scene…"
+
+#: ui/dialogs/settings-media.slint
+msgid "None yet"
+msgstr "Wala pa"
+
+#: ui/dialogs/settings-media.slint
+msgid "1 scene"
+msgstr "1 scene"
+
+#: ui/dialogs/settings-media.slint
+msgid "{} scenes"
+msgstr "{} na scene"
 
 #: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
 msgid "Starting soon"
@@ -2847,11 +2899,11 @@ msgstr "YouTube thumbnail: isang larawan mula sa stream"
 msgid "YouTube thumbnail: {}"
 msgstr "YouTube thumbnail: {}"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
 msgid "Choose a picture…"
 msgstr "Pumili ng larawan…"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/operator/cameras.slint
 msgid "No picture"
 msgstr "Walang larawan"
 
@@ -3199,7 +3251,7 @@ msgstr "Ipakita ang performance"
 msgid "Screens"
 msgstr "Mga Screen"
 
-#: ui/dialogs/settings.slint ui/operator/outputs.slint
+#: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs
 msgid "Room screen"
 msgstr "Screen sa silid"
 
@@ -3471,7 +3523,7 @@ msgstr "I-save at idagdag sa service"
 msgid "Save song"
 msgstr "I-save ang kanta"
 
-#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/automation.rs
+#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/stream/own_scenes.rs src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
 msgstr "Kailangan ng mas bagong RustyPresenter"
 
@@ -3511,11 +3563,11 @@ msgstr "Bago"
 msgid "Duplicate to edit"
 msgstr "I-duplicate para i-edit"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Rename…"
 msgstr "Palitan ang pangalan…"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Delete…"
 msgstr "Burahin…"
 
@@ -3547,7 +3599,7 @@ msgstr "Naka-lock (hindi magagalaw nang di-sinasadya)"
 msgid "Hidden on the stage"
 msgstr "Nakatago sa stage"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Shows"
 msgstr "Ipinapakita"
 
@@ -3587,11 +3639,87 @@ msgstr "Piliin ang stage layout"
 msgid "Edit stage layouts…"
 msgstr "I-edit ang stage layouts…"
 
+#: ui/dialogs/stream-scenes.slint
+msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
+msgstr "Wala ka pang sariling scene. Magdagdag ng isa, saka ilagay rito ang mga camera, ang screen sa silid, ang mga salita, mga larawan, mga kulay o teksto."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Add a scene"
+msgstr "Magdagdag ng scene"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Layers (in front at the top)"
+msgstr "Mga layer (nasa harap ang nasa itaas)"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No layers: the stream shows black. Add one."
+msgstr "Walang layer: itim ang ipinapakita ng stream. Magdagdag ng isa."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Add layer"
+msgstr "Magdagdag ng layer"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "In front"
+msgstr "Sa harap"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Behind"
+msgstr "Sa likod"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "A newer RustyPresenter made this layer. It can be removed but not changed here."
+msgstr "Isang mas bagong RustyPresenter ang gumawa ng layer na ito. Maaari itong alisin pero hindi mababago rito."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No picture chosen yet."
+msgstr "Wala pang napiling larawan."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Place"
+msgstr "Puwesto"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "From the left: {}%"
+msgstr "Mula sa kaliwa: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "From the top: {}%"
+msgstr "Mula sa itaas: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Width: {}%"
+msgstr "Lapad: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Height: {}%"
+msgstr "Taas: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "See-through: {}%"
+msgstr "Transparent: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "How the scene looks"
+msgstr "Ang hitsura ng scene"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgstr "Pansamantalang pamalit lang dito ang mga camera, ang screen sa silid at ang mga salita; habang naka-live, ang mga totoo ang gagamitin. Ang camera na walang ipinapadala ay papalitan ng screen sa silid."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Use it by itself in place of"
+msgstr "Kusang gamitin kapalit ng"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "When the scene is chosen by itself from what is live, this scene goes out instead of that one. For example, choose “Camera + words” to use it for songs and verses."
+msgstr "Kapag kusang pinili ang scene ayon sa naka-live, ang scene na ito ang lalabas sa halip na iyon. Halimbawa, piliin ang “Camera + mga salita” para gamitin ito sa mga kanta at talata."
+
 #: ui/dialogs/transition.slint src/theme/richtext.rs
 msgid "Normal"
 msgstr "Normal"
 
-#: ui/dialogs/transition.slint
+#: ui/dialogs/transition.slint ui/operator/cameras.slint
 msgid "Fade"
 msgstr "Fade"
 
@@ -3911,6 +4039,42 @@ msgstr "Ihinto ang walk-in music"
 msgid "Walk-in music songs and volume"
 msgstr "Mga kanta at volume ng walk-in music"
 
+#: ui/operator/cameras.slint
+msgid "Going out now"
+msgstr "Lumalabas ngayon"
+
+#: ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "Susunod"
+
+#: ui/operator/cameras.slint
+msgid "This camera is going out now"
+msgstr "Lumalabas ngayon ang camera na ito"
+
+#: ui/operator/cameras.slint
+msgid "Show this camera next"
+msgstr "Ipakita ang camera na ito sa susunod"
+
+#: ui/operator/cameras.slint ui/operator/record.slint
+msgid "Live"
+msgstr "Live"
+
+#: ui/operator/cameras.slint
+msgid "Move the next camera to its saved position {}"
+msgstr "Igalaw ang susunod na camera sa naka-save na posisyon nito {}"
+
+#: ui/operator/cameras.slint
+msgid "Switch"
+msgstr "Lumipat"
+
+#: ui/operator/cameras.slint
+msgid "Put the next camera on the stream now"
+msgstr "Ilagay na ngayon sa stream ang susunod na camera"
+
+#: ui/operator/cameras.slint
+msgid "Fade the stream over to the next camera"
+msgstr "I-fade ang stream papunta sa susunod na camera"
+
 #: ui/operator/follow.slint
 msgid "Review log…"
 msgstr "Log…"
@@ -3998,10 +4162,6 @@ msgstr "Kasunod"
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
 msgstr "Bumalik (← o Page Up)"
-
-#: ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Next"
-msgstr "Susunod"
 
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
@@ -4166,10 +4326,6 @@ msgstr "Live {}/{}"
 #: ui/operator/record.slint
 msgid "Live · {} watching"
 msgstr "Live · {} nanonood"
-
-#: ui/operator/record.slint
-msgid "Live"
-msgstr "Live"
 
 #: ui/operator/record.slint
 msgid "Stop the livestream and save the recording"
@@ -6648,6 +6804,118 @@ msgstr "Live ka na. Ang pag-stream ng mga awit ng pagsamba ay nangangailangan ng
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "May recording na tumatakbo. Itigil muna ito, saka pindutin ang Mag-live."
 
+#: src/stream/mod.rs
+msgid "A Mac cannot send its own sound by itself. Install the free BlackHole, make a Multi-Output Device of the speakers and BlackHole in Audio MIDI Setup, and choose it as the app's sound output."
+msgstr "Hindi kayang ipadala ng Mac ang sarili nitong tunog nang mag-isa. I-install ang libreng BlackHole, gumawa ng Multi-Output Device mula sa mga speaker at BlackHole sa Audio MIDI Setup, at piliin ito bilang sound output ng app."
+
+#: src/stream/own_scenes.rs
+msgid "small"
+msgstr "maliit"
+
+#: src/stream/own_scenes.rs
+msgid "medium"
+msgstr "katamtaman"
+
+#: src/stream/own_scenes.rs
+msgid "large"
+msgstr "malaki"
+
+#: src/stream/own_scenes.rs
+msgid "Fills the picture"
+msgstr "Sakop ang buong larawan"
+
+#: src/stream/own_scenes.rs
+msgid "Top left, {size}"
+msgstr "Kaliwang itaas, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Top right, {size}"
+msgstr "Kanang itaas, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Bottom left, {size}"
+msgstr "Kaliwang ibaba, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Bottom right, {size}"
+msgstr "Kanang ibaba, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Left half"
+msgstr "Kaliwang kalahati"
+
+#: src/stream/own_scenes.rs
+msgid "Right half"
+msgstr "Kanang kalahati"
+
+#: src/stream/own_scenes.rs
+msgid "A box you set"
+msgstr "Kahong itinakda mo"
+
+#: src/stream/own_scenes.rs
+msgid "The camera on air"
+msgstr "Ang camera na on air"
+
+#: src/stream/own_scenes.rs
+msgid "Camera {n}"
+msgstr "Camera {n}"
+
+#: src/stream/own_scenes.rs
+msgid "The words"
+msgstr "Ang mga salita"
+
+#: src/stream/own_scenes.rs
+msgid "A picture"
+msgstr "Isang larawan"
+
+#: src/stream/own_scenes.rs
+msgid "A colour"
+msgstr "Isang kulay"
+
+#: src/stream/own_scenes.rs
+msgid "Some words of your own"
+msgstr "Sarili mong mga salita"
+
+#: src/stream/own_scenes.rs
+msgid "A picture (none chosen yet)"
+msgstr "Isang larawan (wala pang napili)"
+
+#: src/stream/own_scenes.rs
+msgid "Picture: {name}"
+msgstr "Larawan: {name}"
+
+#: src/stream/own_scenes.rs
+msgid "Colour {hex}"
+msgstr "Kulay {hex}"
+
+#: src/stream/own_scenes.rs
+msgid "Your words: {text}"
+msgstr "Iyong mga salita: {text}"
+
+#: src/stream/own_scenes.rs src/strings/operator.rs src/ui/dialogs/settings_themes.rs src/ui/dialogs/stream_scenes.rs
+msgid "Welcome"
+msgstr "Maligayang pagdating"
+
+#: src/stream/own_scenes.rs
+msgid "{what} · {place}"
+msgstr "{what} · {place}"
+
+#: src/stream/own_scenes.rs
+msgid "{layer} · {n}% see-through"
+msgstr "{layer} · {n}% transparent"
+
+#: src/stream/own_scenes.rs
+msgid "Untitled scene"
+msgstr "Scene na walang pamagat"
+
+#: src/stream/own_scenes.rs
+msgid "A scene that was deleted"
+msgstr "Isang scene na binura na"
+
+#: src/stream/own_scenes.rs
+msgid "The words of the song go here"
+msgstr "Dito ilalagay ang mga salita ng kanta"
+
 #: src/stream/ptz.rs
 msgid "Camera {camera}: position {position}"
 msgstr "Camera {camera}: posisyon {position}"
@@ -6663,6 +6931,10 @@ msgstr "Buong screen"
 #: src/stream/scene.rs
 msgid "Screen + camera"
 msgstr "Screen + camera"
+
+#: src/stream/scene.rs
+msgid "Your scene"
+msgstr "Iyong scene"
 
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
@@ -7328,7 +7600,7 @@ msgstr "Itapon ang mga pagbabago sa mga slide na ito?"
 msgid "Throw away"
 msgstr "Itapon"
 
-#: src/strings/design.rs src/strings/stage.rs
+#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_scenes.rs
 msgid "Keep editing"
 msgstr "Ituloy ang pag-edit"
 
@@ -7655,10 +7927,6 @@ msgstr "Pinakamalaki na ang teksto na kasya. Pumili ng mas kaunting talata bawat
 #: src/strings/operator.rs
 msgid "Pick an item on the left"
 msgstr "Pumili ng item sa kaliwa"
-
-#: src/strings/operator.rs src/ui/dialogs/settings_themes.rs
-msgid "Welcome"
-msgstr "Maligayang pagdating"
 
 #: src/strings/operator.rs
 msgid "Something went wrong."
@@ -9435,7 +9703,7 @@ msgstr "Hindi tatakbo ang mga macro hangga’t hindi na-e-edit"
 msgid "New stage layout"
 msgstr "Bagong stage layout"
 
-#: src/strings/stage.rs src/theme/saved.rs
+#: src/strings/stage.rs src/theme/saved.rs src/ui/dialogs/stream_scenes.rs
 msgid "{name} copy"
 msgstr "Kopya ng {name}"
 
@@ -10383,6 +10651,14 @@ msgid "{time} UTC"
 msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
+msgid "Save your other changes first?"
+msgstr "I-save muna ang iba mo pang pagbabago?"
+
+#: src/ui/dialogs/settings.rs
+msgid "Save and go on"
+msgstr "I-save at magpatuloy"
+
+#: src/ui/dialogs/settings.rs
 msgid "Save your other changes and restart?"
 msgstr "I-save ang iba mo pang pagbabago at i-restart?"
 
@@ -10628,6 +10904,34 @@ msgstr ""
 "Basahin ang Bibliya\n"
 "Paglingkuran ang kapwa"
 
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Your livestream scenes"
+msgstr "Iyong mga scene sa livestream"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scene {n}"
+msgstr "Scene {n}"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scene name"
+msgstr "Pangalan ng scene"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the room screen instead."
+msgstr "Burahin ang scene na “{name}”? Ang mga action ng slide at mga macro na pumipili nito ay magpapakita na lang ng screen sa silid."
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave without saving your scene changes?"
+msgstr "Umalis nang hindi sine-save ang mga pagbabago sa scene?"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave"
+msgstr "Umalis"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scenes saved."
+msgstr "Na-save ang mga scene."
+
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
 msgstr "{done} sa {total} ang naisalin"
@@ -10865,6 +11169,10 @@ msgstr "Handa na ang FFmpeg. Pindutin ang I-record para magsimulang mag-record."
 #: src/ui/operator/record.rs
 msgid "FFmpeg could not be downloaded. Check the internet connection, or install it yourself: {command}"
 msgstr "Hindi ma-download ang FFmpeg. Suriin ang koneksyon sa internet, o i-install ito mismo: {command}"
+
+#: src/ui/operator/record.rs
+msgid "{camera} (not in this scene)"
+msgstr "{camera} (wala sa scene na ito)"
 
 #: src/ui/operator/transfer.rs
 msgid "Saved to {path}"
@@ -11268,6 +11576,9 @@ msgstr "walang na-save na video ang yt-dlp"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "hindi media file"
+
+#~ msgid "Another camera to switch to while live, from the scene button beside Live."
+#~ msgstr "Isa pang camera na mapapalitan habang live, mula sa scene button sa tabi ng Live."
 
 #~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
 #~ msgstr "Isang camera o capture card na isinasama sa screen ng silid sa stream (at sa recording nito)."

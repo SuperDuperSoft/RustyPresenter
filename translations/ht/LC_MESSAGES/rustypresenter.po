@@ -95,7 +95,7 @@ msgstr "Google Slides: nan Google Slides, chwazi Fichye → Telechaje → Micros
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "Telechaje l kòm PowerPoint (.pptx) pou w kenbe nòt oratè yo."
 
-#: ui/dialogs/add-media.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Kopye"
 
@@ -219,7 +219,7 @@ msgstr "Pwòp tèks ou"
 msgid "Not in the lyrics — it is skipped"
 msgstr "Pa nan pawòl yo — y ap sote l"
 
-#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
+#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "Retire"
 
@@ -343,7 +343,7 @@ msgstr "Montre sou telefòn kontwòl la"
 msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
 msgstr "Mete yon mo nan {{akolad}} pou fè yon bwat pou ranpli, tankou {{Number}}."
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint ui/operator/cameras.slint
 msgid "Position"
 msgstr "Pozisyon"
 
@@ -359,7 +359,7 @@ msgstr "Anwo"
 msgid "Hide after"
 msgstr "Kache apre"
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint src/ui/dialogs/stream_scenes.rs
 msgid "Never"
 msgstr "Janmen"
 
@@ -391,7 +391,7 @@ msgstr "Ka montre l depi telefòn nan"
 msgid "Change it in the Pre-service tab"
 msgstr "Chanje l nan onglè Anvan sèvis la"
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/i18n/remote_strings.rs
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/i18n/remote_strings.rs
 msgid "Colour"
 msgstr "Koulè"
 
@@ -435,7 +435,7 @@ msgstr "Etap"
 msgid "Up"
 msgstr "Monte"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/dialogs/stream-scenes.slint ui/operator.slint
 msgid "Move up"
 msgstr "Monte"
 
@@ -443,7 +443,7 @@ msgstr "Monte"
 msgid "Down"
 msgstr "Desann"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/dialogs/stream-scenes.slint ui/operator.slint
 msgid "Move down"
 msgstr "Desann"
 
@@ -599,11 +599,11 @@ msgstr "Poz"
 msgid "Start"
 msgstr "Kòmanse"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_scenes.rs
 msgid "Delete"
 msgstr "Efase"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Save"
 msgstr "Anrejistre"
 
@@ -687,7 +687,7 @@ msgstr "Pou ekran sèn nan ak operatè a"
 msgid "{} objects chosen. Changes go on all of them."
 msgstr "{} objè chwazi. Chanjman yo ale sou yo tout."
 
-#: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Words"
 msgstr "Mo"
 
@@ -1052,7 +1052,7 @@ msgstr "Rale pou deplase, rale yon kwen pou chanje gwosè, flèch yo deplase ti 
 msgid "Video: {}"
 msgstr "Videyo: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Anile"
 
@@ -2440,6 +2440,10 @@ msgid "OpenH264"
 msgstr "OpenH264"
 
 #: ui/dialogs/settings-media.slint
+msgid "The Mac's own"
+msgstr "Pa Mac la"
+
+#: ui/dialogs/settings-media.slint
 msgid "Bitrate"
 msgstr "Debi"
 
@@ -2552,6 +2556,18 @@ msgid "Send the words alone over NDI, on a see-through background (for keying)"
 msgstr "Voye mo yo sèlman sou NDI, sou yon fon transparan (pou keying)"
 
 #: ui/dialogs/settings-media.slint
+msgid "Words alone"
+msgstr "Pawòl yo sèlman"
+
+#: ui/dialogs/settings-media.slint
+msgid "While you are live, a second video is saved next to the recording, its name ending in words.mov: only the words, with nothing behind them. When you edit the service video, put it on top to add the words. It stays small because the words seldom change."
+msgstr "Pandan w an dirèk, yon dezyèm videyo anrejistre bò kote anrejistreman an, non li fini ak words.mov: pawòl yo sèlman, san anyen dèyè yo. Lè w ap edite videyo sèvis la, mete l anlè pou ajoute pawòl yo. Li rete piti paske pawòl yo pa chanje souvan."
+
+#: ui/dialogs/settings-media.slint
+msgid "Also record the words alone, on a see-through background (for video editing)"
+msgstr "Anrejistre pawòl yo sèlman tou, sou yon fon transparan (pou edite videyo)"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "Nivo son yo"
 
@@ -2620,8 +2636,20 @@ msgid "Second camera"
 msgstr "Dezyèm kamera"
 
 #: ui/dialogs/settings-media.slint
-msgid "Another camera to switch to while live, from the scene button beside Live."
-msgstr "Yon lòt kamera pou chanje pandan w an dirèk, ak bouton sèn bò kote An dirèk."
+msgid "Another camera to switch to while live, from the Cameras box beside the live screen."
+msgstr "Yon lòt kamera pou w chanje ale sou li pandan w an dirèk, nan bwat Kamera yo bò kote ekran an dirèk la."
+
+#: ui/dialogs/settings-media.slint
+msgid "Third camera"
+msgstr "Twazyèm kamera"
+
+#: ui/dialogs/settings-media.slint
+msgid "Another camera to switch to while live."
+msgstr "Yon lòt kamera pou w chanje ale sou li pandan w an dirèk."
+
+#: ui/dialogs/settings-media.slint
+msgid "Fourth camera"
+msgstr "Katriyèm kamera"
 
 #: ui/dialogs/settings-media.slint
 msgid "Scenes"
@@ -2639,7 +2667,7 @@ msgstr "Chwazi sèn nan poukont li dapre sa k an dirèk"
 msgid "Presentations:"
 msgstr "Prezantasyon:"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
 msgid "The room screen"
 msgstr "Ekran sal la"
 
@@ -2678,6 +2706,30 @@ msgstr "Anba"
 #: ui/dialogs/settings-media.slint
 msgid "At the top"
 msgstr "Anlè"
+
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
+msgid "Your scenes"
+msgstr "Sèn pa w yo"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make scenes of your own from cameras, the room screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgstr "Fè pwòp sèn pa w ak kamera, ekran sal la, pawòl yo, foto, koulè ak tèks. Pandan w an dirèk, yo parèt nan lis la apre sèn entegre yo."
+
+#: ui/dialogs/settings-media.slint
+msgid "Your scenes…"
+msgstr "Sèn pa w yo…"
+
+#: ui/dialogs/settings-media.slint
+msgid "None yet"
+msgstr "Poko genyen"
+
+#: ui/dialogs/settings-media.slint
+msgid "1 scene"
+msgstr "1 sèn"
+
+#: ui/dialogs/settings-media.slint
+msgid "{} scenes"
+msgstr "{} sèn"
 
 #: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
 msgid "Starting soon"
@@ -2847,11 +2899,11 @@ msgstr "Ti imaj YouTube: yon imaj nan difizyon an"
 msgid "YouTube thumbnail: {}"
 msgstr "Ti imaj YouTube: {}"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
 msgid "Choose a picture…"
 msgstr "Chwazi yon imaj…"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/operator/cameras.slint
 msgid "No picture"
 msgstr "Pa gen imaj"
 
@@ -3199,7 +3251,7 @@ msgstr "Montre pèfòmans"
 msgid "Screens"
 msgstr "Ekran"
 
-#: ui/dialogs/settings.slint ui/operator/outputs.slint
+#: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs
 msgid "Room screen"
 msgstr "Ekran sal la"
 
@@ -3471,7 +3523,7 @@ msgstr "Anrejistre epi ajoute nan sèvis"
 msgid "Save song"
 msgstr "Anrejistre chante"
 
-#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/automation.rs
+#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/stream/own_scenes.rs src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
 msgstr "Bezwen yon RustyPresenter pi nouvo"
 
@@ -3511,11 +3563,11 @@ msgstr "Nouvo"
 msgid "Duplicate to edit"
 msgstr "Kopye pou modifye"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Rename…"
 msgstr "Chanje non…"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Delete…"
 msgstr "Efase…"
 
@@ -3547,7 +3599,7 @@ msgstr "Bloke (pa ka deplase pa erè)"
 msgid "Hidden on the stage"
 msgstr "Kache sou sèn nan"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Shows"
 msgstr "Montre"
 
@@ -3587,11 +3639,87 @@ msgstr "Chwazi aranjman sèn nan"
 msgid "Edit stage layouts…"
 msgstr "Modifye aranjman sèn…"
 
+#: ui/dialogs/stream-scenes.slint
+msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
+msgstr "Ou poko gen sèn pa w. Ajoute youn, epi mete kamera, ekran sal la, pawòl yo, foto, koulè oswa tèks ladan l."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Add a scene"
+msgstr "Ajoute yon sèn"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Layers (in front at the top)"
+msgstr "Kouch (sa ki devan an anlè)"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No layers: the stream shows black. Add one."
+msgstr "Pa gen kouch: emisyon an montre nwa. Ajoute youn."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Add layer"
+msgstr "Ajoute kouch"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "In front"
+msgstr "Devan"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Behind"
+msgstr "Dèyè"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "A newer RustyPresenter made this layer. It can be removed but not changed here."
+msgstr "Yon vèsyon RustyPresenter ki pi nouvo fè kouch sa a. Ou ka retire l, men ou pa ka chanje l isit la."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No picture chosen yet."
+msgstr "Poko gen foto ki chwazi."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Place"
+msgstr "Plas"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "From the left: {}%"
+msgstr "Depi agoch: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "From the top: {}%"
+msgstr "Depi anwo: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Width: {}%"
+msgstr "Lajè: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Height: {}%"
+msgstr "Wotè: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "See-through: {}%"
+msgstr "Transparan: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "How the scene looks"
+msgstr "Jan sèn nan parèt"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgstr "Isit la, kamera yo, ekran sal la ak pawòl yo se ranplasan sèlman; pandan w an dirèk se vrè yo. Yon kamera ki pa voye anyen montre ekran sal la nan plas li."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Use it by itself in place of"
+msgstr "Sèvi ak li poukont li nan plas"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "When the scene is chosen by itself from what is live, this scene goes out instead of that one. For example, choose “Camera + words” to use it for songs and verses."
+msgstr "Lè sèn nan chwazi poukont li dapre sa ki an dirèk, sèn sa a soti nan plas lòt la. Pa egzanp, chwazi “Kamera + pawòl” pou sèvi ak li pou chante ak vèsè."
+
 #: ui/dialogs/transition.slint src/theme/richtext.rs
 msgid "Normal"
 msgstr "Nòmal"
 
-#: ui/dialogs/transition.slint
+#: ui/dialogs/transition.slint ui/operator/cameras.slint
 msgid "Fade"
 msgstr "Fondi"
 
@@ -3911,6 +4039,42 @@ msgstr "Kanpe mizik akèy la"
 msgid "Walk-in music songs and volume"
 msgstr "Chante ak volim mizik akèy la"
 
+#: ui/operator/cameras.slint
+msgid "Going out now"
+msgstr "Ap soti kounye a"
+
+#: ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "Pwochen"
+
+#: ui/operator/cameras.slint
+msgid "This camera is going out now"
+msgstr "Kamera sa a ap soti kounye a"
+
+#: ui/operator/cameras.slint
+msgid "Show this camera next"
+msgstr "Montre kamera sa a apre"
+
+#: ui/operator/cameras.slint ui/operator/record.slint
+msgid "Live"
+msgstr "An dirèk"
+
+#: ui/operator/cameras.slint
+msgid "Move the next camera to its saved position {}"
+msgstr "Voye pwochen kamera a nan pozisyon li anrejistre {}"
+
+#: ui/operator/cameras.slint
+msgid "Switch"
+msgstr "Chanje"
+
+#: ui/operator/cameras.slint
+msgid "Put the next camera on the stream now"
+msgstr "Mete pwochen kamera a sou emisyon an kounye a"
+
+#: ui/operator/cameras.slint
+msgid "Fade the stream over to the next camera"
+msgstr "Fondi emisyon an tou dousman sou pwochen kamera a"
+
 #: ui/operator/follow.slint
 msgid "Review log…"
 msgstr "Jounal…"
@@ -3998,10 +4162,6 @@ msgstr "Apre sa"
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
 msgstr "Retounen (← oswa Page Up)"
-
-#: ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Next"
-msgstr "Pwochen"
 
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
@@ -4166,10 +4326,6 @@ msgstr "An dirèk {}/{}"
 #: ui/operator/record.slint
 msgid "Live · {} watching"
 msgstr "An dirèk · {} ap gade"
-
-#: ui/operator/record.slint
-msgid "Live"
-msgstr "An dirèk"
 
 #: ui/operator/record.slint
 msgid "Stop the livestream and save the recording"
@@ -6648,6 +6804,118 @@ msgstr "Ou an dirèk. Pou fè emisyon chante adorasyon, ou bezwen yon lisans emi
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "Gen yon anrejistreman k ap fèt. Kanpe l, apre sa peze Ale an dirèk."
 
+#: src/stream/mod.rs
+msgid "A Mac cannot send its own sound by itself. Install the free BlackHole, make a Multi-Output Device of the speakers and BlackHole in Audio MIDI Setup, and choose it as the app's sound output."
+msgstr "Yon Mac pa ka voye pwòp son li poukont li. Enstale BlackHole ki gratis, fè yon Multi-Output Device ak opalè yo ak BlackHole nan Audio MIDI Setup, epi chwazi l kòm sòti son aplikasyon an."
+
+#: src/stream/own_scenes.rs
+msgid "small"
+msgstr "piti"
+
+#: src/stream/own_scenes.rs
+msgid "medium"
+msgstr "mwayen"
+
+#: src/stream/own_scenes.rs
+msgid "large"
+msgstr "gwo"
+
+#: src/stream/own_scenes.rs
+msgid "Fills the picture"
+msgstr "Ranpli tout imaj la"
+
+#: src/stream/own_scenes.rs
+msgid "Top left, {size}"
+msgstr "Anwo agoch, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Top right, {size}"
+msgstr "Anwo adwat, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Bottom left, {size}"
+msgstr "Anba agoch, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Bottom right, {size}"
+msgstr "Anba adwat, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Left half"
+msgstr "Mwatye agoch"
+
+#: src/stream/own_scenes.rs
+msgid "Right half"
+msgstr "Mwatye adwat"
+
+#: src/stream/own_scenes.rs
+msgid "A box you set"
+msgstr "Yon bwat ou fikse"
+
+#: src/stream/own_scenes.rs
+msgid "The camera on air"
+msgstr "Kamera ki an dirèk la"
+
+#: src/stream/own_scenes.rs
+msgid "Camera {n}"
+msgstr "Kamera {n}"
+
+#: src/stream/own_scenes.rs
+msgid "The words"
+msgstr "Pawòl yo"
+
+#: src/stream/own_scenes.rs
+msgid "A picture"
+msgstr "Yon foto"
+
+#: src/stream/own_scenes.rs
+msgid "A colour"
+msgstr "Yon koulè"
+
+#: src/stream/own_scenes.rs
+msgid "Some words of your own"
+msgstr "Pwòp pawòl pa w"
+
+#: src/stream/own_scenes.rs
+msgid "A picture (none chosen yet)"
+msgstr "Yon foto (poko chwazi)"
+
+#: src/stream/own_scenes.rs
+msgid "Picture: {name}"
+msgstr "Foto: {name}"
+
+#: src/stream/own_scenes.rs
+msgid "Colour {hex}"
+msgstr "Koulè {hex}"
+
+#: src/stream/own_scenes.rs
+msgid "Your words: {text}"
+msgstr "Pawòl ou: {text}"
+
+#: src/stream/own_scenes.rs src/strings/operator.rs src/ui/dialogs/settings_themes.rs src/ui/dialogs/stream_scenes.rs
+msgid "Welcome"
+msgstr "Byenveni"
+
+#: src/stream/own_scenes.rs
+msgid "{what} · {place}"
+msgstr "{what} · {place}"
+
+#: src/stream/own_scenes.rs
+msgid "{layer} · {n}% see-through"
+msgstr "{layer} · {n}% transparan"
+
+#: src/stream/own_scenes.rs
+msgid "Untitled scene"
+msgstr "Sèn san tit"
+
+#: src/stream/own_scenes.rs
+msgid "A scene that was deleted"
+msgstr "Yon sèn ki te efase"
+
+#: src/stream/own_scenes.rs
+msgid "The words of the song go here"
+msgstr "Pawòl chante a ap parèt la a"
+
 #: src/stream/ptz.rs
 msgid "Camera {camera}: position {position}"
 msgstr "Kamera {camera}: pozisyon {position}"
@@ -6663,6 +6931,10 @@ msgstr "Tout ekran"
 #: src/stream/scene.rs
 msgid "Screen + camera"
 msgstr "Ekran + kamera"
+
+#: src/stream/scene.rs
+msgid "Your scene"
+msgstr "Sèn pa w"
 
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
@@ -7328,7 +7600,7 @@ msgstr "Jete chanjman ou fè nan diapo sa yo?"
 msgid "Throw away"
 msgstr "Jete"
 
-#: src/strings/design.rs src/strings/stage.rs
+#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_scenes.rs
 msgid "Keep editing"
 msgstr "Kontinye modifye"
 
@@ -7655,10 +7927,6 @@ msgstr "Tèks la deja gwo otan ke li ka antre. Chwazi mwens vèsè pou chak diap
 #: src/strings/operator.rs
 msgid "Pick an item on the left"
 msgstr "Chwazi yon eleman sou bò goch"
-
-#: src/strings/operator.rs src/ui/dialogs/settings_themes.rs
-msgid "Welcome"
-msgstr "Byenveni"
 
 #: src/strings/operator.rs
 msgid "Something went wrong."
@@ -9435,7 +9703,7 @@ msgstr "Makro yo p ap mache jiskaske yo modifye yo"
 msgid "New stage layout"
 msgstr "Nouvo aranjman sèn"
 
-#: src/strings/stage.rs src/theme/saved.rs
+#: src/strings/stage.rs src/theme/saved.rs src/ui/dialogs/stream_scenes.rs
 msgid "{name} copy"
 msgstr "Kopi {name}"
 
@@ -10383,6 +10651,14 @@ msgid "{time} UTC"
 msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
+msgid "Save your other changes first?"
+msgstr "Anrejistre lòt chanjman ou yo anvan?"
+
+#: src/ui/dialogs/settings.rs
+msgid "Save and go on"
+msgstr "Anrejistre epi kontinye"
+
+#: src/ui/dialogs/settings.rs
 msgid "Save your other changes and restart?"
 msgstr "Anrejistre lòt chanjman ou yo epi rekòmanse?"
 
@@ -10628,6 +10904,34 @@ msgstr ""
 "Li Bib la\n"
 "Sèvi pwochen ou"
 
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Your livestream scenes"
+msgstr "Sèn emisyon an dirèk ou yo"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scene {n}"
+msgstr "Sèn {n}"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scene name"
+msgstr "Non sèn nan"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the room screen instead."
+msgstr "Efase sèn “{name}” la? Aksyon diapo ak makro ki chwazi l ap montre ekran sal la nan plas li."
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave without saving your scene changes?"
+msgstr "Soti san w pa anrejistre chanjman sèn ou yo?"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave"
+msgstr "Soti"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scenes saved."
+msgstr "Sèn yo anrejistre."
+
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
 msgstr "{done} sou {total} tradui"
@@ -10865,6 +11169,10 @@ msgstr "FFmpeg pare. Peze Anrejistre pou kòmanse anrejistre."
 #: src/ui/operator/record.rs
 msgid "FFmpeg could not be downloaded. Check the internet connection, or install it yourself: {command}"
 msgstr "FFmpeg pa t ka telechaje. Tcheke koneksyon entènèt la, oswa enstale l ou menm: {command}"
+
+#: src/ui/operator/record.rs
+msgid "{camera} (not in this scene)"
+msgstr "{camera} (pa nan sèn sa a)"
 
 #: src/ui/operator/transfer.rs
 msgid "Saved to {path}"
@@ -11268,6 +11576,9 @@ msgstr "yt-dlp pa anrejistre okenn videyo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "se pa yon fichye medya"
+
+#~ msgid "Another camera to switch to while live, from the scene button beside Live."
+#~ msgstr "Yon lòt kamera pou chanje pandan w an dirèk, ak bouton sèn bò kote An dirèk."
 
 #~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
 #~ msgstr "Yon kamera oswa yon kat kaptire yo mete ansanm ak ekran sal la nan emisyon an (ak anrejistreman li)."

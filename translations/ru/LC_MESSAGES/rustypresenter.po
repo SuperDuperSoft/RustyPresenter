@@ -95,7 +95,7 @@ msgstr "Google Slides: в Google Slides выберите Файл → Скача
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "Скачайте его как PowerPoint (.pptx), чтобы сохранить заметки докладчика."
 
-#: ui/dialogs/add-media.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Копировать"
 
@@ -219,7 +219,7 @@ msgstr "Свой текст"
 msgid "Not in the lyrics — it is skipped"
 msgstr "Нет в тексте — пропускается"
 
-#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
+#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "Удалить"
 
@@ -343,7 +343,7 @@ msgstr "Показать на телефоне-пульте"
 msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
 msgstr "Возьмите слово в {{фигурные скобки}}, чтобы сделать поле для заполнения, например {{Number}}."
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint ui/operator/cameras.slint
 msgid "Position"
 msgstr "Положение"
 
@@ -359,7 +359,7 @@ msgstr "Вверху"
 msgid "Hide after"
 msgstr "Скрыть через"
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint src/ui/dialogs/stream_scenes.rs
 msgid "Never"
 msgstr "Никогда"
 
@@ -391,7 +391,7 @@ msgstr "Можно показать с телефона"
 msgid "Change it in the Pre-service tab"
 msgstr "Измените на вкладке «Перед служением»"
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/i18n/remote_strings.rs
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/i18n/remote_strings.rs
 msgid "Colour"
 msgstr "Цвет"
 
@@ -435,7 +435,7 @@ msgstr "Шаги"
 msgid "Up"
 msgstr "Вверх"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/dialogs/stream-scenes.slint ui/operator.slint
 msgid "Move up"
 msgstr "Переместить вверх"
 
@@ -443,7 +443,7 @@ msgstr "Переместить вверх"
 msgid "Down"
 msgstr "Вниз"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/dialogs/stream-scenes.slint ui/operator.slint
 msgid "Move down"
 msgstr "Переместить вниз"
 
@@ -599,11 +599,11 @@ msgstr "Пауза"
 msgid "Start"
 msgstr "Старт"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_scenes.rs
 msgid "Delete"
 msgstr "Удалить"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Save"
 msgstr "Сохранить"
 
@@ -687,7 +687,7 @@ msgstr "Для экрана сцены и оператора"
 msgid "{} objects chosen. Changes go on all of them."
 msgstr "Выбрано объектов: {}. Изменения применяются ко всем."
 
-#: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Words"
 msgstr "Слова"
 
@@ -1052,7 +1052,7 @@ msgstr "Перетащите, чтобы переместить; потянит�
 msgid "Video: {}"
 msgstr "Видео: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Отмена"
 
@@ -2440,6 +2440,10 @@ msgid "OpenH264"
 msgstr "OpenH264"
 
 #: ui/dialogs/settings-media.slint
+msgid "The Mac's own"
+msgstr "Встроенный в Mac"
+
+#: ui/dialogs/settings-media.slint
 msgid "Bitrate"
 msgstr "Битрейт"
 
@@ -2552,6 +2556,18 @@ msgid "Send the words alone over NDI, on a see-through background (for keying)"
 msgstr "Отправлять по NDI только текст, на прозрачном фоне (для кеинга)"
 
 #: ui/dialogs/settings-media.slint
+msgid "Words alone"
+msgstr "Только слова"
+
+#: ui/dialogs/settings-media.slint
+msgid "While you are live, a second video is saved next to the recording, its name ending in words.mov: only the words, with nothing behind them. When you edit the service video, put it on top to add the words. It stays small because the words seldom change."
+msgstr "Пока вы в эфире, рядом с записью сохраняется второе видео, имя которого заканчивается на words.mov: только слова, без ничего позади. При монтаже видео служения положите его сверху, чтобы добавить слова. Файл небольшой, потому что слова меняются редко."
+
+#: ui/dialogs/settings-media.slint
+msgid "Also record the words alone, on a see-through background (for video editing)"
+msgstr "Также записывать только слова, на прозрачном фоне (для монтажа видео)"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "Уровни звука"
 
@@ -2620,8 +2636,20 @@ msgid "Second camera"
 msgstr "Вторая камера"
 
 #: ui/dialogs/settings-media.slint
-msgid "Another camera to switch to while live, from the scene button beside Live."
-msgstr "Ещё одна камера, на которую можно переключиться в эфире, кнопкой сцены рядом с «В эфире»."
+msgid "Another camera to switch to while live, from the Cameras box beside the live screen."
+msgstr "Ещё одна камера, на которую можно переключиться в эфире, в окошке «Камеры» рядом с экраном эфира."
+
+#: ui/dialogs/settings-media.slint
+msgid "Third camera"
+msgstr "Третья камера"
+
+#: ui/dialogs/settings-media.slint
+msgid "Another camera to switch to while live."
+msgstr "Ещё одна камера, на которую можно переключиться в эфире."
+
+#: ui/dialogs/settings-media.slint
+msgid "Fourth camera"
+msgstr "Четвёртая камера"
 
 #: ui/dialogs/settings-media.slint
 msgid "Scenes"
@@ -2639,7 +2667,7 @@ msgstr "Выбирать сцену самой по тому, что в эфир
 msgid "Presentations:"
 msgstr "Презентации:"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
 msgid "The room screen"
 msgstr "Экран зала"
 
@@ -2678,6 +2706,30 @@ msgstr "Внизу"
 #: ui/dialogs/settings-media.slint
 msgid "At the top"
 msgstr "Вверху"
+
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
+msgid "Your scenes"
+msgstr "Ваши сцены"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make scenes of your own from cameras, the room screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgstr "Создавайте свои сцены из камер, экрана зала, слов, картинок, цветов и текста. В эфире они идут в списке после встроенных сцен."
+
+#: ui/dialogs/settings-media.slint
+msgid "Your scenes…"
+msgstr "Ваши сцены…"
+
+#: ui/dialogs/settings-media.slint
+msgid "None yet"
+msgstr "Пока нет"
+
+#: ui/dialogs/settings-media.slint
+msgid "1 scene"
+msgstr "1 сцена"
+
+#: ui/dialogs/settings-media.slint
+msgid "{} scenes"
+msgstr "Сцен: {}"
 
 #: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
 msgid "Starting soon"
@@ -2847,11 +2899,11 @@ msgstr "Обложка YouTube: кадр из трансляции"
 msgid "YouTube thumbnail: {}"
 msgstr "Обложка YouTube: {}"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
 msgid "Choose a picture…"
 msgstr "Выбрать картинку…"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/operator/cameras.slint
 msgid "No picture"
 msgstr "Без картинки"
 
@@ -3199,7 +3251,7 @@ msgstr "Показать производительность"
 msgid "Screens"
 msgstr "Экраны"
 
-#: ui/dialogs/settings.slint ui/operator/outputs.slint
+#: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs
 msgid "Room screen"
 msgstr "Экран зала"
 
@@ -3471,7 +3523,7 @@ msgstr "Сохранить и добавить в служение"
 msgid "Save song"
 msgstr "Сохранить песню"
 
-#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/automation.rs
+#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/stream/own_scenes.rs src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
 msgstr "Нужна более новая версия RustyPresenter"
 
@@ -3511,11 +3563,11 @@ msgstr "Новый"
 msgid "Duplicate to edit"
 msgstr "Дублировать для правки"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Rename…"
 msgstr "Переименовать…"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Delete…"
 msgstr "Удалить…"
 
@@ -3547,7 +3599,7 @@ msgstr "Закреплено (нельзя случайно сдвинуть)"
 msgid "Hidden on the stage"
 msgstr "Скрыто на сцене"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Shows"
 msgstr "Показывает"
 
@@ -3587,11 +3639,87 @@ msgstr "Выбрать макет сцены"
 msgid "Edit stage layouts…"
 msgstr "Изменить макеты сцены…"
 
+#: ui/dialogs/stream-scenes.slint
+msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
+msgstr "Своих сцен пока нет. Добавьте сцену, затем поместите в неё камеры, экран зала, слова, картинки, цвета или текст."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Add a scene"
+msgstr "Добавить сцену"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Layers (in front at the top)"
+msgstr "Слои (верхний в списке — впереди)"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No layers: the stream shows black. Add one."
+msgstr "Слоёв нет: трансляция показывает чёрный экран. Добавьте слой."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Add layer"
+msgstr "Добавить слой"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "In front"
+msgstr "Вперёд"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Behind"
+msgstr "Назад"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "A newer RustyPresenter made this layer. It can be removed but not changed here."
+msgstr "Этот слой создан более новой версией RustyPresenter. Его можно удалить, но не изменить здесь."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No picture chosen yet."
+msgstr "Картинка ещё не выбрана."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Place"
+msgstr "Место"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "From the left: {}%"
+msgstr "Слева: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "From the top: {}%"
+msgstr "Сверху: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Width: {}%"
+msgstr "Ширина: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Height: {}%"
+msgstr "Высота: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "See-through: {}%"
+msgstr "Прозрачность: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "How the scene looks"
+msgstr "Как выглядит сцена"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgstr "Здесь камеры, экран зала и слова — только заглушки; в эфире будут настоящие. Если камера ничего не передаёт, вместо неё показывается экран зала."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Use it by itself in place of"
+msgstr "Сама подставляется вместо"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "When the scene is chosen by itself from what is live, this scene goes out instead of that one. For example, choose “Camera + words” to use it for songs and verses."
+msgstr "Когда сцена выбирается сама по тому, что в эфире, вместо той сцены выйдет эта. Например, выберите «Камера + слова», чтобы использовать её для песен и стихов."
+
 #: ui/dialogs/transition.slint src/theme/richtext.rs
 msgid "Normal"
 msgstr "Обычный"
 
-#: ui/dialogs/transition.slint
+#: ui/dialogs/transition.slint ui/operator/cameras.slint
 msgid "Fade"
 msgstr "Растворение"
 
@@ -3911,6 +4039,42 @@ msgstr "Остановить музыку перед служением"
 msgid "Walk-in music songs and volume"
 msgstr "Песни и громкость музыки перед служением"
 
+#: ui/operator/cameras.slint
+msgid "Going out now"
+msgstr "Сейчас в эфире"
+
+#: ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "Далее"
+
+#: ui/operator/cameras.slint
+msgid "This camera is going out now"
+msgstr "Эта камера сейчас в эфире"
+
+#: ui/operator/cameras.slint
+msgid "Show this camera next"
+msgstr "Показать эту камеру следующей"
+
+#: ui/operator/cameras.slint ui/operator/record.slint
+msgid "Live"
+msgstr "В эфире"
+
+#: ui/operator/cameras.slint
+msgid "Move the next camera to its saved position {}"
+msgstr "Повернуть следующую камеру в сохранённое положение {}"
+
+#: ui/operator/cameras.slint
+msgid "Switch"
+msgstr "Переключить"
+
+#: ui/operator/cameras.slint
+msgid "Put the next camera on the stream now"
+msgstr "Сразу вывести следующую камеру в трансляцию"
+
+#: ui/operator/cameras.slint
+msgid "Fade the stream over to the next camera"
+msgstr "Плавно перевести трансляцию на следующую камеру"
+
 #: ui/operator/follow.slint
 msgid "Review log…"
 msgstr "Журнал…"
@@ -3998,10 +4162,6 @@ msgstr "Следующее"
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
 msgstr "Назад (← или Page Up)"
-
-#: ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Next"
-msgstr "Далее"
 
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
@@ -4166,10 +4326,6 @@ msgstr "В эфире {}/{}"
 #: ui/operator/record.slint
 msgid "Live · {} watching"
 msgstr "В эфире · смотрят: {}"
-
-#: ui/operator/record.slint
-msgid "Live"
-msgstr "В эфире"
 
 #: ui/operator/record.slint
 msgid "Stop the livestream and save the recording"
@@ -6653,6 +6809,118 @@ msgstr "Вы в эфире. Для трансляции песен поклон�
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "Идёт запись. Остановите её, затем нажмите «В эфир»."
 
+#: src/stream/mod.rs
+msgid "A Mac cannot send its own sound by itself. Install the free BlackHole, make a Multi-Output Device of the speakers and BlackHole in Audio MIDI Setup, and choose it as the app's sound output."
+msgstr "Mac не может сам передать собственный звук. Установите бесплатный BlackHole, в «Настройке Audio-MIDI» создайте «Устройство с несколькими выходами» из колонок и BlackHole и выберите его как вывод звука в приложении."
+
+#: src/stream/own_scenes.rs
+msgid "small"
+msgstr "малый"
+
+#: src/stream/own_scenes.rs
+msgid "medium"
+msgstr "средний"
+
+#: src/stream/own_scenes.rs
+msgid "large"
+msgstr "большой"
+
+#: src/stream/own_scenes.rs
+msgid "Fills the picture"
+msgstr "На весь кадр"
+
+#: src/stream/own_scenes.rs
+msgid "Top left, {size}"
+msgstr "Вверху слева, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Top right, {size}"
+msgstr "Вверху справа, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Bottom left, {size}"
+msgstr "Внизу слева, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Bottom right, {size}"
+msgstr "Внизу справа, {size}"
+
+#: src/stream/own_scenes.rs
+msgid "Left half"
+msgstr "Левая половина"
+
+#: src/stream/own_scenes.rs
+msgid "Right half"
+msgstr "Правая половина"
+
+#: src/stream/own_scenes.rs
+msgid "A box you set"
+msgstr "Своя рамка"
+
+#: src/stream/own_scenes.rs
+msgid "The camera on air"
+msgstr "Камера в эфире"
+
+#: src/stream/own_scenes.rs
+msgid "Camera {n}"
+msgstr "Камера {n}"
+
+#: src/stream/own_scenes.rs
+msgid "The words"
+msgstr "Слова"
+
+#: src/stream/own_scenes.rs
+msgid "A picture"
+msgstr "Картинка"
+
+#: src/stream/own_scenes.rs
+msgid "A colour"
+msgstr "Цвет"
+
+#: src/stream/own_scenes.rs
+msgid "Some words of your own"
+msgstr "Свой текст"
+
+#: src/stream/own_scenes.rs
+msgid "A picture (none chosen yet)"
+msgstr "Картинка (ещё не выбрана)"
+
+#: src/stream/own_scenes.rs
+msgid "Picture: {name}"
+msgstr "Картинка: {name}"
+
+#: src/stream/own_scenes.rs
+msgid "Colour {hex}"
+msgstr "Цвет {hex}"
+
+#: src/stream/own_scenes.rs
+msgid "Your words: {text}"
+msgstr "Ваш текст: {text}"
+
+#: src/stream/own_scenes.rs src/strings/operator.rs src/ui/dialogs/settings_themes.rs src/ui/dialogs/stream_scenes.rs
+msgid "Welcome"
+msgstr "Добро пожаловать"
+
+#: src/stream/own_scenes.rs
+msgid "{what} · {place}"
+msgstr "{what} · {place}"
+
+#: src/stream/own_scenes.rs
+msgid "{layer} · {n}% see-through"
+msgstr "{layer} · прозрачность {n}%"
+
+#: src/stream/own_scenes.rs
+msgid "Untitled scene"
+msgstr "Сцена без названия"
+
+#: src/stream/own_scenes.rs
+msgid "A scene that was deleted"
+msgstr "Удалённая сцена"
+
+#: src/stream/own_scenes.rs
+msgid "The words of the song go here"
+msgstr "Здесь будут слова песни"
+
 #: src/stream/ptz.rs
 msgid "Camera {camera}: position {position}"
 msgstr "Камера {camera}: положение {position}"
@@ -6668,6 +6936,10 @@ msgstr "Весь экран"
 #: src/stream/scene.rs
 msgid "Screen + camera"
 msgstr "Экран + камера"
+
+#: src/stream/scene.rs
+msgid "Your scene"
+msgstr "Ваша сцена"
 
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
@@ -7343,7 +7615,7 @@ msgstr "Отбросить изменения в этих слайдах?"
 msgid "Throw away"
 msgstr "Отбросить"
 
-#: src/strings/design.rs src/strings/stage.rs
+#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_scenes.rs
 msgid "Keep editing"
 msgstr "Продолжить правку"
 
@@ -7674,10 +7946,6 @@ msgstr "Текст уже максимального размера. Чтобы 
 #: src/strings/operator.rs
 msgid "Pick an item on the left"
 msgstr "Выберите пункт слева"
-
-#: src/strings/operator.rs src/ui/dialogs/settings_themes.rs
-msgid "Welcome"
-msgstr "Добро пожаловать"
 
 #: src/strings/operator.rs
 msgid "Something went wrong."
@@ -9469,7 +9737,7 @@ msgstr "Макросы не будут выполняться, пока их н�
 msgid "New stage layout"
 msgstr "Новый макет сцены"
 
-#: src/strings/stage.rs src/theme/saved.rs
+#: src/strings/stage.rs src/theme/saved.rs src/ui/dialogs/stream_scenes.rs
 msgid "{name} copy"
 msgstr "{name} (копия)"
 
@@ -10424,6 +10692,14 @@ msgid "{time} UTC"
 msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
+msgid "Save your other changes first?"
+msgstr "Сначала сохранить другие изменения?"
+
+#: src/ui/dialogs/settings.rs
+msgid "Save and go on"
+msgstr "Сохранить и продолжить"
+
+#: src/ui/dialogs/settings.rs
 msgid "Save your other changes and restart?"
 msgstr "Сохранить другие изменения и перезапустить?"
 
@@ -10671,6 +10947,34 @@ msgstr ""
 "Читайте Библию\n"
 "Служите ближнему"
 
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Your livestream scenes"
+msgstr "Ваши сцены трансляции"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scene {n}"
+msgstr "Сцена {n}"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scene name"
+msgstr "Название сцены"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the room screen instead."
+msgstr "Удалить сцену «{name}»? Действия слайдов и макросы, которые её выбирают, будут показывать вместо неё экран зала."
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave without saving your scene changes?"
+msgstr "Выйти, не сохранив изменения сцен?"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave"
+msgstr "Выйти"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scenes saved."
+msgstr "Сцены сохранены."
+
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
 msgstr "Переведено {done} из {total}"
@@ -10909,6 +11213,10 @@ msgstr "FFmpeg готова. Нажмите «Запись», чтобы нач�
 #: src/ui/operator/record.rs
 msgid "FFmpeg could not be downloaded. Check the internet connection, or install it yourself: {command}"
 msgstr "Не удалось скачать FFmpeg. Проверьте подключение к интернету или установите её сами: {command}"
+
+#: src/ui/operator/record.rs
+msgid "{camera} (not in this scene)"
+msgstr "{camera} (нет в этой сцене)"
 
 #: src/ui/operator/transfer.rs
 msgid "Saved to {path}"
@@ -11315,6 +11623,9 @@ msgstr "yt-dlp не сохранил видео"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "не медиафайл"
+
+#~ msgid "Another camera to switch to while live, from the scene button beside Live."
+#~ msgstr "Ещё одна камера, на которую можно переключиться в эфире, кнопкой сцены рядом с «В эфире»."
 
 #~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
 #~ msgstr "Камера или карта захвата, совмещённая с экраном зала в трансляции (и в её записи)."

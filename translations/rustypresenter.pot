@@ -92,7 +92,7 @@ msgstr ""
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr ""
 
-#: ui/dialogs/add-media.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr ""
 
@@ -216,7 +216,7 @@ msgstr ""
 msgid "Not in the lyrics — it is skipped"
 msgstr ""
 
-#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
+#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr ""
 
@@ -340,7 +340,7 @@ msgstr ""
 msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
 msgstr ""
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint ui/operator/cameras.slint
 msgid "Position"
 msgstr ""
 
@@ -356,7 +356,7 @@ msgstr ""
 msgid "Hide after"
 msgstr ""
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint src/ui/dialogs/stream_scenes.rs
 msgid "Never"
 msgstr ""
 
@@ -388,7 +388,7 @@ msgstr ""
 msgid "Change it in the Pre-service tab"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/i18n/remote_strings.rs
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/i18n/remote_strings.rs
 msgid "Colour"
 msgstr ""
 
@@ -432,7 +432,7 @@ msgstr ""
 msgid "Up"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/dialogs/stream-scenes.slint ui/operator.slint
 msgid "Move up"
 msgstr ""
 
@@ -440,7 +440,7 @@ msgstr ""
 msgid "Down"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/dialogs/stream-scenes.slint ui/operator.slint
 msgid "Move down"
 msgstr ""
 
@@ -596,11 +596,11 @@ msgstr ""
 msgid "Start"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_scenes.rs
 msgid "Delete"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Save"
 msgstr ""
 
@@ -684,7 +684,7 @@ msgstr ""
 msgid "{} objects chosen. Changes go on all of them."
 msgstr ""
 
-#: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Words"
 msgstr ""
 
@@ -1049,7 +1049,7 @@ msgstr ""
 msgid "Video: {}"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr ""
 
@@ -2437,6 +2437,10 @@ msgid "OpenH264"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
+msgid "The Mac's own"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
 msgid "Bitrate"
 msgstr ""
 
@@ -2549,6 +2553,18 @@ msgid "Send the words alone over NDI, on a see-through background (for keying)"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
+msgid "Words alone"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "While you are live, a second video is saved next to the recording, its name ending in words.mov: only the words, with nothing behind them. When you edit the service video, put it on top to add the words. It stays small because the words seldom change."
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Also record the words alone, on a see-through background (for video editing)"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr ""
 
@@ -2617,7 +2633,19 @@ msgid "Second camera"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
-msgid "Another camera to switch to while live, from the scene button beside Live."
+msgid "Another camera to switch to while live, from the Cameras box beside the live screen."
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Third camera"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Another camera to switch to while live."
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Fourth camera"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
@@ -2636,7 +2664,7 @@ msgstr ""
 msgid "Presentations:"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
 msgid "The room screen"
 msgstr ""
 
@@ -2674,6 +2702,30 @@ msgstr ""
 
 #: ui/dialogs/settings-media.slint
 msgid "At the top"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
+msgid "Your scenes"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Make scenes of your own from cameras, the room screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "Your scenes…"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "None yet"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "1 scene"
+msgstr ""
+
+#: ui/dialogs/settings-media.slint
+msgid "{} scenes"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
@@ -2844,11 +2896,11 @@ msgstr ""
 msgid "YouTube thumbnail: {}"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
 msgid "Choose a picture…"
 msgstr ""
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/operator/cameras.slint
 msgid "No picture"
 msgstr ""
 
@@ -3196,7 +3248,7 @@ msgstr ""
 msgid "Screens"
 msgstr ""
 
-#: ui/dialogs/settings.slint ui/operator/outputs.slint
+#: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs
 msgid "Room screen"
 msgstr ""
 
@@ -3462,7 +3514,7 @@ msgstr ""
 msgid "Save song"
 msgstr ""
 
-#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/automation.rs
+#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/stream/own_scenes.rs src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
 msgstr ""
 
@@ -3502,11 +3554,11 @@ msgstr ""
 msgid "Duplicate to edit"
 msgstr ""
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Rename…"
 msgstr ""
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Delete…"
 msgstr ""
 
@@ -3538,7 +3590,7 @@ msgstr ""
 msgid "Hidden on the stage"
 msgstr ""
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Shows"
 msgstr ""
 
@@ -3578,11 +3630,87 @@ msgstr ""
 msgid "Edit stage layouts…"
 msgstr ""
 
+#: ui/dialogs/stream-scenes.slint
+msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
+msgstr ""
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Add a scene"
+msgstr ""
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Layers (in front at the top)"
+msgstr ""
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No layers: the stream shows black. Add one."
+msgstr ""
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Add layer"
+msgstr ""
+
+#: ui/dialogs/stream-scenes.slint
+msgid "In front"
+msgstr ""
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Behind"
+msgstr ""
+
+#: ui/dialogs/stream-scenes.slint
+msgid "A newer RustyPresenter made this layer. It can be removed but not changed here."
+msgstr ""
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No picture chosen yet."
+msgstr ""
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Place"
+msgstr ""
+
+#: ui/dialogs/stream-scenes.slint
+msgid "From the left: {}%"
+msgstr ""
+
+#: ui/dialogs/stream-scenes.slint
+msgid "From the top: {}%"
+msgstr ""
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Width: {}%"
+msgstr ""
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Height: {}%"
+msgstr ""
+
+#: ui/dialogs/stream-scenes.slint
+msgid "See-through: {}%"
+msgstr ""
+
+#: ui/dialogs/stream-scenes.slint
+msgid "How the scene looks"
+msgstr ""
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgstr ""
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Use it by itself in place of"
+msgstr ""
+
+#: ui/dialogs/stream-scenes.slint
+msgid "When the scene is chosen by itself from what is live, this scene goes out instead of that one. For example, choose “Camera + words” to use it for songs and verses."
+msgstr ""
+
 #: ui/dialogs/transition.slint src/theme/richtext.rs
 msgid "Normal"
 msgstr ""
 
-#: ui/dialogs/transition.slint
+#: ui/dialogs/transition.slint ui/operator/cameras.slint
 msgid "Fade"
 msgstr ""
 
@@ -3902,6 +4030,42 @@ msgstr ""
 msgid "Walk-in music songs and volume"
 msgstr ""
 
+#: ui/operator/cameras.slint
+msgid "Going out now"
+msgstr ""
+
+#: ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr ""
+
+#: ui/operator/cameras.slint
+msgid "This camera is going out now"
+msgstr ""
+
+#: ui/operator/cameras.slint
+msgid "Show this camera next"
+msgstr ""
+
+#: ui/operator/cameras.slint ui/operator/record.slint
+msgid "Live"
+msgstr ""
+
+#: ui/operator/cameras.slint
+msgid "Move the next camera to its saved position {}"
+msgstr ""
+
+#: ui/operator/cameras.slint
+msgid "Switch"
+msgstr ""
+
+#: ui/operator/cameras.slint
+msgid "Put the next camera on the stream now"
+msgstr ""
+
+#: ui/operator/cameras.slint
+msgid "Fade the stream over to the next camera"
+msgstr ""
+
 #: ui/operator/follow.slint
 msgid "Review log…"
 msgstr ""
@@ -3988,10 +4152,6 @@ msgstr ""
 
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
-msgstr ""
-
-#: ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Next"
 msgstr ""
 
 #: ui/operator/live.slint
@@ -4156,10 +4316,6 @@ msgstr ""
 
 #: ui/operator/record.slint
 msgid "Live · {} watching"
-msgstr ""
-
-#: ui/operator/record.slint
-msgid "Live"
 msgstr ""
 
 #: ui/operator/record.slint
@@ -6639,6 +6795,118 @@ msgstr ""
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr ""
 
+#: src/stream/mod.rs
+msgid "A Mac cannot send its own sound by itself. Install the free BlackHole, make a Multi-Output Device of the speakers and BlackHole in Audio MIDI Setup, and choose it as the app's sound output."
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "small"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "medium"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "large"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "Fills the picture"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "Top left, {size}"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "Top right, {size}"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "Bottom left, {size}"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "Bottom right, {size}"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "Left half"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "Right half"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "A box you set"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "The camera on air"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "Camera {n}"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "The words"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "A picture"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "A colour"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "Some words of your own"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "A picture (none chosen yet)"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "Picture: {name}"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "Colour {hex}"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "Your words: {text}"
+msgstr ""
+
+#: src/stream/own_scenes.rs src/strings/operator.rs src/ui/dialogs/settings_themes.rs src/ui/dialogs/stream_scenes.rs
+msgid "Welcome"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "{what} · {place}"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "{layer} · {n}% see-through"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "Untitled scene"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "A scene that was deleted"
+msgstr ""
+
+#: src/stream/own_scenes.rs
+msgid "The words of the song go here"
+msgstr ""
+
 #: src/stream/ptz.rs
 msgid "Camera {camera}: position {position}"
 msgstr ""
@@ -6653,6 +6921,10 @@ msgstr ""
 
 #: src/stream/scene.rs
 msgid "Screen + camera"
+msgstr ""
+
+#: src/stream/scene.rs
+msgid "Your scene"
 msgstr ""
 
 #: src/stream/speed.rs
@@ -7319,7 +7591,7 @@ msgstr ""
 msgid "Throw away"
 msgstr ""
 
-#: src/strings/design.rs src/strings/stage.rs
+#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_scenes.rs
 msgid "Keep editing"
 msgstr ""
 
@@ -7645,10 +7917,6 @@ msgstr ""
 
 #: src/strings/operator.rs
 msgid "Pick an item on the left"
-msgstr ""
-
-#: src/strings/operator.rs src/ui/dialogs/settings_themes.rs
-msgid "Welcome"
 msgstr ""
 
 #: src/strings/operator.rs
@@ -9424,7 +9692,7 @@ msgstr ""
 msgid "New stage layout"
 msgstr ""
 
-#: src/strings/stage.rs src/theme/saved.rs
+#: src/strings/stage.rs src/theme/saved.rs src/ui/dialogs/stream_scenes.rs
 msgid "{name} copy"
 msgstr ""
 
@@ -10372,6 +10640,14 @@ msgid "{time} UTC"
 msgstr ""
 
 #: src/ui/dialogs/settings.rs
+msgid "Save your other changes first?"
+msgstr ""
+
+#: src/ui/dialogs/settings.rs
+msgid "Save and go on"
+msgstr ""
+
+#: src/ui/dialogs/settings.rs
 msgid "Save your other changes and restart?"
 msgstr ""
 
@@ -10610,6 +10886,34 @@ msgid ""
 "Serve your neighbour"
 msgstr ""
 
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Your livestream scenes"
+msgstr ""
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scene {n}"
+msgstr ""
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scene name"
+msgstr ""
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the room screen instead."
+msgstr ""
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave without saving your scene changes?"
+msgstr ""
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave"
+msgstr ""
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scenes saved."
+msgstr ""
+
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
 msgstr ""
@@ -10846,6 +11150,10 @@ msgstr ""
 
 #: src/ui/operator/record.rs
 msgid "FFmpeg could not be downloaded. Check the internet connection, or install it yourself: {command}"
+msgstr ""
+
+#: src/ui/operator/record.rs
+msgid "{camera} (not in this scene)"
 msgstr ""
 
 #: src/ui/operator/transfer.rs

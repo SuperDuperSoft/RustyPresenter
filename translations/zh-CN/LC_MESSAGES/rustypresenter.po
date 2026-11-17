@@ -95,7 +95,7 @@ msgstr "Google 幻灯片：在 Google 幻灯片中选择“文件 → 下载 →
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "请下载为 PowerPoint (.pptx) 以保留演讲者备注。"
 
-#: ui/dialogs/add-media.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "复制"
 
@@ -219,7 +219,7 @@ msgstr "你自己的文字"
 msgid "Not in the lyrics — it is skipped"
 msgstr "歌词中没有 — 将被跳过"
 
-#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
+#: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "移除"
 
@@ -343,7 +343,7 @@ msgstr "在手机遥控器上显示"
 msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
 msgstr "把词放在 {{双花括号}} 中即可生成一个填写框，例如 {{Number}}。"
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint ui/operator/cameras.slint
 msgid "Position"
 msgstr "位置"
 
@@ -359,7 +359,7 @@ msgstr "顶部"
 msgid "Hide after"
 msgstr "自动隐藏"
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint src/ui/dialogs/stream_scenes.rs
 msgid "Never"
 msgstr "从不"
 
@@ -391,7 +391,7 @@ msgstr "可从手机显示"
 msgid "Change it in the Pre-service tab"
 msgstr "在“聚会前”选项卡中更改"
 
-#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint src/i18n/remote_strings.rs
+#: ui/dialogs/automation.slint ui/dialogs/screens.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/i18n/remote_strings.rs
 msgid "Colour"
 msgstr "颜色"
 
@@ -435,7 +435,7 @@ msgstr "步骤"
 msgid "Up"
 msgstr "上移"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/dialogs/stream-scenes.slint ui/operator.slint
 msgid "Move up"
 msgstr "上移"
 
@@ -443,7 +443,7 @@ msgstr "上移"
 msgid "Down"
 msgstr "下移"
 
-#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/operator.slint
+#: ui/dialogs/automation.slint ui/dialogs/music.slint ui/dialogs/overlays.slint ui/dialogs/stream-scenes.slint ui/operator.slint
 msgid "Move down"
 msgstr "下移"
 
@@ -599,11 +599,11 @@ msgstr "暂停"
 msgid "Start"
 msgstr "开始"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_scenes.rs
 msgid "Delete"
 msgstr "删除"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Save"
 msgstr "保存"
 
@@ -687,7 +687,7 @@ msgstr "供舞台屏幕和操作员使用"
 msgid "{} objects chosen. Changes go on all of them."
 msgstr "已选择 {} 个对象。更改将应用于所有对象。"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Words"
 msgstr "文字"
 
@@ -1052,7 +1052,7 @@ msgstr "拖动可移动，拖动角可调整大小，方向键微调，按住 Al
 msgid "Video: {}"
 msgstr "视频：{}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "取消"
 
@@ -2440,6 +2440,10 @@ msgid "OpenH264"
 msgstr "OpenH264"
 
 #: ui/dialogs/settings-media.slint
+msgid "The Mac's own"
+msgstr "Mac 自带"
+
+#: ui/dialogs/settings-media.slint
 msgid "Bitrate"
 msgstr "码率"
 
@@ -2552,6 +2556,18 @@ msgid "Send the words alone over NDI, on a see-through background (for keying)"
 msgstr "单独通过 NDI 发送歌词，背景透明（用于抠像叠加）"
 
 #: ui/dialogs/settings-media.slint
+msgid "Words alone"
+msgstr "仅歌词"
+
+#: ui/dialogs/settings-media.slint
+msgid "While you are live, a second video is saved next to the recording, its name ending in words.mov: only the words, with nothing behind them. When you edit the service video, put it on top to add the words. It stays small because the words seldom change."
+msgstr "直播时，录制文件旁会另存一个视频，文件名以 words.mov 结尾：里面只有歌词，后面什么都没有。剪辑聚会视频时，把它放在最上层即可加上歌词。歌词很少变化，所以文件很小。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Also record the words alone, on a see-through background (for video editing)"
+msgstr "另外单独录制歌词，背景透明（用于视频剪辑）"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "音量"
 
@@ -2620,8 +2636,20 @@ msgid "Second camera"
 msgstr "第二台摄像头"
 
 #: ui/dialogs/settings-media.slint
-msgid "Another camera to switch to while live, from the scene button beside Live."
-msgstr "直播时可切换到的另一台摄像头，在“直播”旁的场景按钮中选择。"
+msgid "Another camera to switch to while live, from the Cameras box beside the live screen."
+msgstr "直播时可切换到的另一台摄像头，在直播画面旁的摄像头框中切换。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Third camera"
+msgstr "第三台摄像头"
+
+#: ui/dialogs/settings-media.slint
+msgid "Another camera to switch to while live."
+msgstr "直播时可切换到的另一台摄像头。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Fourth camera"
+msgstr "第四台摄像头"
 
 #: ui/dialogs/settings-media.slint
 msgid "Scenes"
@@ -2639,7 +2667,7 @@ msgstr "根据正在直播的内容自动选择场景"
 msgid "Presentations:"
 msgstr "演示文稿："
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
 msgid "The room screen"
 msgstr "会堂屏幕"
 
@@ -2678,6 +2706,30 @@ msgstr "下方"
 #: ui/dialogs/settings-media.slint
 msgid "At the top"
 msgstr "上方"
+
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
+msgid "Your scenes"
+msgstr "我的场景"
+
+#: ui/dialogs/settings-media.slint
+msgid "Make scenes of your own from cameras, the room screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgstr "用摄像头、会众屏幕、歌词、图片、颜色和文字制作自己的场景。直播时，它们排在内置场景之后。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Your scenes…"
+msgstr "我的场景…"
+
+#: ui/dialogs/settings-media.slint
+msgid "None yet"
+msgstr "还没有"
+
+#: ui/dialogs/settings-media.slint
+msgid "1 scene"
+msgstr "1 个场景"
+
+#: ui/dialogs/settings-media.slint
+msgid "{} scenes"
+msgstr "{} 个场景"
 
 #: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
 msgid "Starting soon"
@@ -2847,11 +2899,11 @@ msgstr "YouTube 缩略图：直播中的一帧"
 msgid "YouTube thumbnail: {}"
 msgstr "YouTube 缩略图：{}"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
 msgid "Choose a picture…"
 msgstr "选择图片…"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/operator/cameras.slint
 msgid "No picture"
 msgstr "不用图片"
 
@@ -3199,7 +3251,7 @@ msgstr "显示性能"
 msgid "Screens"
 msgstr "屏幕"
 
-#: ui/dialogs/settings.slint ui/operator/outputs.slint
+#: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs
 msgid "Room screen"
 msgstr "会众屏幕"
 
@@ -3471,7 +3523,7 @@ msgstr "保存并添加到聚会"
 msgid "Save song"
 msgstr "保存诗歌"
 
-#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/automation.rs
+#: ui/dialogs/stage-canvas.slint ui/dialogs/stage-layouts.slint src/stream/own_scenes.rs src/ui/dialogs/automation.rs
 msgid "Needs a newer RustyPresenter"
 msgstr "需要更新版本的 RustyPresenter"
 
@@ -3511,11 +3563,11 @@ msgstr "新建"
 msgid "Duplicate to edit"
 msgstr "复制后编辑"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Rename…"
 msgstr "重命名…"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Delete…"
 msgstr "删除…"
 
@@ -3547,7 +3599,7 @@ msgstr "已锁定（不会被误移动）"
 msgid "Hidden on the stage"
 msgstr "在舞台上隐藏"
 
-#: ui/dialogs/stage-layouts.slint
+#: ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
 msgid "Shows"
 msgstr "显示"
 
@@ -3587,11 +3639,87 @@ msgstr "选择舞台布局"
 msgid "Edit stage layouts…"
 msgstr "编辑舞台布局…"
 
+#: ui/dialogs/stream-scenes.slint
+msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
+msgstr "还没有自己的场景。先添加一个，再放入摄像头、会众屏幕、歌词、图片、颜色或文字。"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Add a scene"
+msgstr "添加场景"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Layers (in front at the top)"
+msgstr "图层（越靠上越在前）"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No layers: the stream shows black. Add one."
+msgstr "没有图层：直播画面是黑色的。请添加一个。"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Add layer"
+msgstr "添加图层"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "In front"
+msgstr "移到前面"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Behind"
+msgstr "移到后面"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "A newer RustyPresenter made this layer. It can be removed but not changed here."
+msgstr "此图层由较新版本的 RustyPresenter 制作。可以移除，但不能在这里修改。"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No picture chosen yet."
+msgstr "还没有选择图片。"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Place"
+msgstr "位置"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "From the left: {}%"
+msgstr "距左边：{}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "From the top: {}%"
+msgstr "距顶部：{}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Width: {}%"
+msgstr "宽度：{}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Height: {}%"
+msgstr "高度：{}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "See-through: {}%"
+msgstr "透明度：{}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "How the scene looks"
+msgstr "场景的样子"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgstr "这里的摄像头、会众屏幕和歌词只是示意画面；直播时会换成真实画面。没有画面的摄像头，其位置会显示会众屏幕。"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Use it by itself in place of"
+msgstr "自动选择时替换的场景"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "When the scene is chosen by itself from what is live, this scene goes out instead of that one. For example, choose “Camera + words” to use it for songs and verses."
+msgstr "根据正在直播的内容自动选择场景时，会用此场景代替那个场景播出。例如，选择“镜头 + 歌词”，诗歌和经文时就会用它。"
+
 #: ui/dialogs/transition.slint src/theme/richtext.rs
 msgid "Normal"
 msgstr "正常"
 
-#: ui/dialogs/transition.slint
+#: ui/dialogs/transition.slint ui/operator/cameras.slint
 msgid "Fade"
 msgstr "淡入淡出"
 
@@ -3911,6 +4039,42 @@ msgstr "停止入场音乐"
 msgid "Walk-in music songs and volume"
 msgstr "入场音乐的歌曲和音量"
 
+#: ui/operator/cameras.slint
+msgid "Going out now"
+msgstr "直播中"
+
+#: ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "下一张"
+
+#: ui/operator/cameras.slint
+msgid "This camera is going out now"
+msgstr "此摄像头正在直播"
+
+#: ui/operator/cameras.slint
+msgid "Show this camera next"
+msgstr "下一个显示此摄像头"
+
+#: ui/operator/cameras.slint ui/operator/record.slint
+msgid "Live"
+msgstr "直播中"
+
+#: ui/operator/cameras.slint
+msgid "Move the next camera to its saved position {}"
+msgstr "将下一个摄像头转到已保存的位置 {}"
+
+#: ui/operator/cameras.slint
+msgid "Switch"
+msgstr "切换"
+
+#: ui/operator/cameras.slint
+msgid "Put the next camera on the stream now"
+msgstr "立即把下一个摄像头切到直播"
+
+#: ui/operator/cameras.slint
+msgid "Fade the stream over to the next camera"
+msgstr "淡入淡出切到下一个摄像头"
+
 #: ui/operator/follow.slint
 msgid "Review log…"
 msgstr "记录…"
@@ -3998,10 +4162,6 @@ msgstr "接下来"
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
 msgstr "上一张（← 或 Page Up）"
-
-#: ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Next"
-msgstr "下一张"
 
 #: ui/operator/live.slint
 msgid "Next (→, Space or Page Down)"
@@ -4166,10 +4326,6 @@ msgstr "直播中 {}/{}"
 #: ui/operator/record.slint
 msgid "Live · {} watching"
 msgstr "直播中 · {} 人观看"
-
-#: ui/operator/record.slint
-msgid "Live"
-msgstr "直播中"
 
 #: ui/operator/record.slint
 msgid "Stop the livestream and save the recording"
@@ -6643,6 +6799,118 @@ msgstr "你正在直播。直播敬拜诗歌，除了教会平常的版权许可
 msgid "A recording is under way. Stop it, then press Go Live."
 msgstr "正在录制。请先停止录制，再按“开始直播”。"
 
+#: src/stream/mod.rs
+msgid "A Mac cannot send its own sound by itself. Install the free BlackHole, make a Multi-Output Device of the speakers and BlackHole in Audio MIDI Setup, and choose it as the app's sound output."
+msgstr "Mac 无法直接发送自己的声音。请安装免费的 BlackHole，在“音频 MIDI 设置”中用扬声器和 BlackHole 创建“多输出设备”，再把它选为本应用的声音输出。"
+
+#: src/stream/own_scenes.rs
+msgid "small"
+msgstr "小"
+
+#: src/stream/own_scenes.rs
+msgid "medium"
+msgstr "中"
+
+#: src/stream/own_scenes.rs
+msgid "large"
+msgstr "大"
+
+#: src/stream/own_scenes.rs
+msgid "Fills the picture"
+msgstr "铺满画面"
+
+#: src/stream/own_scenes.rs
+msgid "Top left, {size}"
+msgstr "左上，{size}"
+
+#: src/stream/own_scenes.rs
+msgid "Top right, {size}"
+msgstr "右上，{size}"
+
+#: src/stream/own_scenes.rs
+msgid "Bottom left, {size}"
+msgstr "左下，{size}"
+
+#: src/stream/own_scenes.rs
+msgid "Bottom right, {size}"
+msgstr "右下，{size}"
+
+#: src/stream/own_scenes.rs
+msgid "Left half"
+msgstr "左半边"
+
+#: src/stream/own_scenes.rs
+msgid "Right half"
+msgstr "右半边"
+
+#: src/stream/own_scenes.rs
+msgid "A box you set"
+msgstr "自定义区域"
+
+#: src/stream/own_scenes.rs
+msgid "The camera on air"
+msgstr "正在直播的摄像头"
+
+#: src/stream/own_scenes.rs
+msgid "Camera {n}"
+msgstr "摄像头 {n}"
+
+#: src/stream/own_scenes.rs
+msgid "The words"
+msgstr "歌词"
+
+#: src/stream/own_scenes.rs
+msgid "A picture"
+msgstr "图片"
+
+#: src/stream/own_scenes.rs
+msgid "A colour"
+msgstr "颜色"
+
+#: src/stream/own_scenes.rs
+msgid "Some words of your own"
+msgstr "自己写的文字"
+
+#: src/stream/own_scenes.rs
+msgid "A picture (none chosen yet)"
+msgstr "图片（尚未选择）"
+
+#: src/stream/own_scenes.rs
+msgid "Picture: {name}"
+msgstr "图片：{name}"
+
+#: src/stream/own_scenes.rs
+msgid "Colour {hex}"
+msgstr "颜色 {hex}"
+
+#: src/stream/own_scenes.rs
+msgid "Your words: {text}"
+msgstr "文字：{text}"
+
+#: src/stream/own_scenes.rs src/strings/operator.rs src/ui/dialogs/settings_themes.rs src/ui/dialogs/stream_scenes.rs
+msgid "Welcome"
+msgstr "欢迎"
+
+#: src/stream/own_scenes.rs
+msgid "{what} · {place}"
+msgstr "{what} · {place}"
+
+#: src/stream/own_scenes.rs
+msgid "{layer} · {n}% see-through"
+msgstr "{layer} · 透明度 {n}%"
+
+#: src/stream/own_scenes.rs
+msgid "Untitled scene"
+msgstr "未命名场景"
+
+#: src/stream/own_scenes.rs
+msgid "A scene that was deleted"
+msgstr "已删除的场景"
+
+#: src/stream/own_scenes.rs
+msgid "The words of the song go here"
+msgstr "诗歌的歌词显示在这里"
+
 #: src/stream/ptz.rs
 msgid "Camera {camera}: position {position}"
 msgstr "摄像机 {camera}：位置 {position}"
@@ -6658,6 +6926,10 @@ msgstr "全屏"
 #: src/stream/scene.rs
 msgid "Screen + camera"
 msgstr "屏幕 + 镜头"
+
+#: src/stream/scene.rs
+msgid "Your scene"
+msgstr "我的场景"
 
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
@@ -7313,7 +7585,7 @@ msgstr "要放弃对这些幻灯片的更改吗？"
 msgid "Throw away"
 msgstr "放弃"
 
-#: src/strings/design.rs src/strings/stage.rs
+#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_scenes.rs
 msgid "Keep editing"
 msgstr "继续编辑"
 
@@ -7636,10 +7908,6 @@ msgstr "文字已经是能放下的最大尺寸。要放大文字，请减少每
 #: src/strings/operator.rs
 msgid "Pick an item on the left"
 msgstr "在左侧选择一项"
-
-#: src/strings/operator.rs src/ui/dialogs/settings_themes.rs
-msgid "Welcome"
-msgstr "欢迎"
 
 #: src/strings/operator.rs
 msgid "Something went wrong."
@@ -9401,7 +9669,7 @@ msgstr "这些宏在编辑之前不会运行"
 msgid "New stage layout"
 msgstr "新建舞台布局"
 
-#: src/strings/stage.rs src/theme/saved.rs
+#: src/strings/stage.rs src/theme/saved.rs src/ui/dialogs/stream_scenes.rs
 msgid "{name} copy"
 msgstr "{name} 副本"
 
@@ -10342,6 +10610,14 @@ msgid "{time} UTC"
 msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
+msgid "Save your other changes first?"
+msgstr "先保存其他更改吗？"
+
+#: src/ui/dialogs/settings.rs
+msgid "Save and go on"
+msgstr "保存并继续"
+
+#: src/ui/dialogs/settings.rs
 msgid "Save your other changes and restart?"
 msgstr "保存其他更改并重启？"
 
@@ -10585,6 +10861,34 @@ msgstr ""
 "读圣经\n"
 "服事邻舍"
 
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Your livestream scenes"
+msgstr "我的直播场景"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scene {n}"
+msgstr "场景 {n}"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scene name"
+msgstr "场景名称"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the room screen instead."
+msgstr "要删除场景“{name}”吗？选择它的幻灯片动作和宏将改为显示会众屏幕。"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave without saving your scene changes?"
+msgstr "不保存场景更改就离开吗？"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave"
+msgstr "离开"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Scenes saved."
+msgstr "场景已保存。"
+
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
 msgstr "已翻译 {done}/{total}"
@@ -10821,6 +11125,10 @@ msgstr "FFmpeg 已就绪。按“录制”开始录制。"
 #: src/ui/operator/record.rs
 msgid "FFmpeg could not be downloaded. Check the internet connection, or install it yourself: {command}"
 msgstr "无法下载 FFmpeg。请检查网络连接，或自行安装：{command}"
+
+#: src/ui/operator/record.rs
+msgid "{camera} (not in this scene)"
+msgstr "{camera}（不在此场景中）"
 
 #: src/ui/operator/transfer.rs
 msgid "Saved to {path}"
@@ -11221,6 +11529,9 @@ msgstr "yt-dlp 没有保存视频"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "不是媒体文件"
+
+#~ msgid "Another camera to switch to while live, from the scene button beside Live."
+#~ msgstr "直播时可切换到的另一台摄像头，在“直播”旁的场景按钮中选择。"
 
 #~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
 #~ msgstr "在直播（及其录像）中与会众屏幕合在一起的摄像头或采集卡。"
