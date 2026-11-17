@@ -2,6 +2,7 @@
 //! pairs), the stage screen on a phone or tablet (`stage_view`, read only, password optional) and a plain-text
 //! TCP control for other gear (`tcp`, see `docs/tcp-control.md`). Passwords are kept only as hashes (`password`).
 pub mod actions;
+pub mod guest;
 pub mod password;
 pub mod stage_view;
 pub mod live_anim;

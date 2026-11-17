@@ -4,6 +4,7 @@ import { Theme } from "../theme.slint";
 import { Btn, Field, Segmented } from "../widgets.slint";
 import { TextField, Note, Select, Check, RangeSlider } from "form.slint";
 import { SettingsDlg } from "settings-state.slint";
+import { StreamExtrasRows } from "settings-stream-extras.slint";
 
 /// A group's title (also on Settings → Video).
 export component Heading inherits Text {
@@ -646,7 +647,7 @@ export component SettingsMedia inherits VerticalLayout {
     }
     if SettingsDlg.stream-account-0 != "" || SettingsDlg.stream-account-1 != "": Field {
         label: @tr("Broadcast title");
-        help: @tr("What YouTube and Facebook call each broadcast. {{date}} becomes the day's date.");
+        help: @tr("What YouTube and Facebook call each broadcast. {{date}} becomes the day's date, {{weekday}} the day's name and {{time}} the time; the description can have them too.");
         stream-title := TextField { label: @tr("Broadcast title"); placeholder: @tr("Sunday Service — {{date}}"); text <=> SettingsDlg.stream-title; }
     }
     if SettingsDlg.stream-account-0 != "" || SettingsDlg.stream-account-1 != "": Field {
@@ -697,6 +698,7 @@ export component SettingsMedia inherits VerticalLayout {
             index <=> SettingsDlg.stream-privacy;
         }
     }
+    StreamExtrasRows { }
     Rectangle { height: 14px; }
     Heading { text: @tr("Media library"); }
     Rectangle { height: 6px; }

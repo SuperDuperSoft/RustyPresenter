@@ -57,6 +57,7 @@ pub async fn serve(seen: Arc<Mutex<Seen>>) -> String {
                 ("POST", "/token") if form.get("refresh_token").map(String::as_str) == Some("rt") => { s.refreshes += 1; ok(json!({"access_token": "at2", "expires_in": 3599})) }
                 ("POST", "/token") => no(json!({"error": "invalid_grant", "error_description": "Token has been expired or revoked."})),
                 ("GET", "/youtube/v3/channels") if bearer == "Bearer at" => ok(json!({"items": [{"snippet": {"title": "Grace Church"}}]})),
+                ("GET", "/youtube/v3/channels") if bearer == "Bearer at2" => ok(json!({"items": [{"id": "UC_x5XG1OV2P6uZZ5FSM9Ttw"}]})),
                 (_, p) if (p.starts_with("/youtube/") || p.starts_with("/upload/")) && bearer != "Bearer at2" => (axum::http::StatusCode::UNAUTHORIZED, axum::Json(json!({"error": {"message": "Invalid Credentials"}}))),
                 ("GET", "/youtube/v3/liveStreams") => {
                     let items = if s.has_stream { json!([{"id": "old", "snippet": {"title": "Something else"}}, {"id": "s0", "snippet": {"title": "RustyPresenter"},
@@ -433,4 +434,12 @@ fn a_sign_in_is_kept_apart_from_the_stream_key() {
     assert!(ids().can_sign_in(Service::Facebook));
     assert!(ids().can_sign_in(Service::Twitch));
     assert!(!Ids::default().can_sign_in(Service::Twitch));
+}
+
+#[tokio::test]
+async fn the_signed_in_channels_id_is_found_for_the_website_player() {
+    let seen = Arc::new(Mutex::new(Seen::default()));
+    let ends = Ends::at(&serve(seen.clone()).await);
+    assert_eq!(google::channel_id(client(), &ends, &ids(), "rt").await.as_deref(), Ok("UC_x5XG1OV2P6uZZ5FSM9Ttw"));
+    assert!(google::channel_id(client(), &ends, &ids(), "revoked").await.is_err());
 }

@@ -188,6 +188,9 @@ pub struct RecordPrefs {
     /// The note about streaming licences was shown (once, the first time Go Live started).
     #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub licence_noted: bool,
+    /// Livestream: live captions and the website player (`stream::extras`).
+    #[serde(default, skip_serializing_if = "crate::stream::extras::Extras::is_default")]
+    pub extras: crate::stream::extras::Extras,
 }
 
 

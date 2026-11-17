@@ -14,9 +14,13 @@ use uuid::Uuid;
 pub mod accounts;
 pub mod board_feed;
 pub mod camera_feed;
+pub mod captions;
 pub mod chat;
 pub mod compose;
 pub mod delay;
+pub mod extras;
+pub mod health;
+pub mod helper;
 pub mod keys;
 pub mod level;
 pub mod live_info;
@@ -30,6 +34,7 @@ pub mod scene;
 pub mod send;
 pub mod speed;
 pub mod tally;
+pub mod website;
 pub mod words_file;
 
 /// A place a stream can be sent.

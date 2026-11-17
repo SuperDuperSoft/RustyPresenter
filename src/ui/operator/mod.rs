@@ -25,6 +25,7 @@ pub mod outputs;
 pub mod overlay_strip;
 pub mod overlays;
 pub mod record;
+pub mod stream_extras;
 pub mod service;
 pub mod service_theme;
 pub mod slides;
