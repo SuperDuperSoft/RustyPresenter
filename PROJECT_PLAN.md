@@ -1702,3 +1702,29 @@ stage screen?" Glossary and rules: `docs/superpowers/specs/2026-11-17-words-desi
   to use instead; other companies' names are allowed in one short list.
 - **Not verified by a person:** the changed texts on screen (they are text only; no layout changed, but a few are a
   little longer, like "Phone remote password" and "Clear media & background" in the macro list).
+
+### November 17, 2026 — Songs folder (branch `songs-folder`)
+
+Jake: "I need a toggleable folder where I can just store all of my songs…", then "Make the chords transposable as
+well." and "will it show [intro chords] before the song?". Design: `docs/superpowers/specs/2026-11-17-songs-folder-design.md`.
+
+- **Songs folder** (`src/songs_folder/`): Settings → Songs → "Keep my songs in a folder" (off by default; usual
+  folder Documents\RustyPresenter\Songs, or chosen; Open the folder; status line; "Tidy imported files into
+  ChordPro"). One `.chordpro` file per song (standard directives plus `{x_rustypresenter_…}` for order, lines per
+  slide, text size, id), written back identical (round-trip tests). Both ways: app changes write/rename files, removed
+  songs' files go to "Removed"; files dropped in (ChordPro, SongSelect .txt/.usr, OpenLyrics, OpenSong, plain text)
+  come in; Notepad edits change the song; a clash keeps both ("<title> (from the folder)"). Atomic writes, files read
+  only once settled, busy files retried, own writes ignored. A thread started in `main.rs` looks every 2 seconds.
+- **Chords in another key** (`src/transpose.rs`): `Song.key` and `Song.transpose`; the stage screen shows the chords
+  moved (sharps/flats from the key played in). Song editor Key row; `song/key` action; quick Key control
+  (`ui/song-key.slint`, `src/ui/song_key.rs`) for the Slides header. Live song: the stage changes at once.
+- **Intro chords**: chord-only lines/sections kept on ChordPro import; such a slide shows no words in the room, the
+  section name and chords on the stage, "♪ chords only" in the slide list/editor; credits go on sung slides;
+  auto-follow treats it as instrumental (test).
+- **For the lead to place:** `SongsFolderRows {}` (from `ui/dialogs/settings-songs-folder.slint`) on Settings → Songs,
+  with `ui::dialogs::songs_folder::connect(&op)` once at window start and `fill(&op)` when Settings opens;
+  `SongKeyControl {}` (from `ui/song-key.slint`) in the Slides header, with `ui::song_key::connect(&op)` once and
+  `ui::song_key::render(&op)` wherever `render_text_size` runs.
+- **Not verified by a person:** the two new components on screen (not placed yet), the Key row in the song editor by
+  eye, a real OneDrive/Dropbox/network folder, Explorer opening the folder, and real SongSelect/OpenSong files from
+  other programs dropped into the folder.

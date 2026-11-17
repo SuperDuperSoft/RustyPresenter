@@ -2366,8 +2366,7 @@ mod tests {
 
     #[test]
     fn songs_saved_before_keys_load_with_no_key_and_no_move() {
-        let s: Song = serde_json::from_str(r#"{"id":"00000000-0000-0000-0000-000000000001","title":"Old","lyrics":"Verse 1
-la"}"#).unwrap();
+        let s: Song = serde_json::from_str(r#"{"id":"00000000-0000-0000-0000-000000000001","title":"Old","lyrics":"Verse 1\nla"}"#).unwrap();
         assert_eq!((s.key.as_str(), s.transpose), ("", 0));
         let json = serde_json::to_string(&s).unwrap();
         assert!(!json.contains("key") && !json.contains("transpose"), "nothing new is written for a song without them: {json}");
