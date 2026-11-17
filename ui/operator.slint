@@ -30,6 +30,7 @@ import { MusicDialog } from "dialogs/music.slint";
 import { NetworkDialog } from "dialogs/network.slint";
 import { StreamScenesDialog } from "dialogs/stream-scenes.slint";
 import { AutomationStrip } from "operator/automation-strip.slint";
+import { CameraStrip } from "operator/cameras.slint";
 import { FindVerseDialog } from "dialogs/find-verse.slint";
 import { TranslationEditorDialog } from "dialogs/translation-editor.slint";
 import { SlideBreaksDialog } from "dialogs/slide-breaks.slint";
@@ -1154,6 +1155,8 @@ export component OperatorWindow inherits Window {
                         transport-seek(i, which) => { root.focus-keys(); root.transport-seek(i, which); }
                         monitor-resized(w) => { root.monitor-resized(w); }
                     }
+                    // Live with cameras: the Live and Next pictures, Switch and Fade (`src/ui/operator/record.rs`).
+                    camera-strip := CameraStrip { }
                     // FEAT-2: Message, the Auto chip, timers and macros (`src/ui/operator/automation.rs`).
                     auto-strip := AutomationStrip { }
                 }

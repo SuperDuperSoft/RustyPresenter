@@ -1,6 +1,6 @@
 //! Tally lights on phones: a camera operator opens `/stage-view/tally?camera=1` on a phone fixed to the camera, and
-//! it goes red while that camera is in the stream, green while it is the camera that the stream switches to when a
-//! camera scene comes (so the operator can get the shot ready), and dark otherwise. Served with the stage view, so
+//! it goes red while that camera is in the stream, green while it is the camera chosen to go out next (so the camera
+//! operator can get the shot ready), and dark otherwise. Served with the stage view, so
 //! it is on when the stage view is on and asks for the same password.
 //!
 //! The operator window keeps `App::tally` current while it streams (`Operator::show_scene`); the page asks twice a
@@ -13,7 +13,7 @@ pub struct Tally {
     pub live: bool,
     /// The camera in the stream's picture now (0 is the first), if any.
     pub on_air: Option<usize>,
-    /// The camera the stream switches to when a camera scene comes, while none is in the picture.
+    /// The camera chosen to go out next (with one camera: that camera, while the scene shows none).
     pub next: Option<usize>,
 }
 
@@ -26,11 +26,14 @@ impl Light {
 }
 
 impl Tally {
-    /// While streaming: `camera` (0 is the first) is in the picture when the scene going out shows a camera, and
-    /// is next otherwise. `None`: no camera chosen.
-    pub fn of(live: bool, camera: Option<usize>, shows_camera: bool) -> Tally {
-        if !live { return Tally::default() }
-        Tally { live, on_air: camera.filter(|_| shows_camera), next: camera.filter(|_| !shows_camera) }
+    /// While streaming: `camera` (0 is the first) is in the picture when the scene going out shows a camera;
+    /// `chosen_next` is the camera chosen to go out next (`None` with one camera, when `camera` is next while the
+    /// scene shows none). `None` camera: no camera.
+    pub fn of(live: bool, camera: Option<usize>, chosen_next: Option<usize>, shows_camera: bool) -> Tally {
+        if !live || camera.is_none() { return Tally::default() }
+        let on_air = camera.filter(|_| shows_camera);
+        let next = chosen_next.or(camera.filter(|_| !shows_camera)).filter(|n| Some(*n) != on_air);
+        Tally { live, on_air, next }
     }
 
     /// Camera `camera`'s light (0 is the first).
@@ -57,14 +60,24 @@ mod tests {
 
     #[test]
     fn the_camera_in_the_picture_is_red_and_the_chosen_one_waiting_is_green() {
-        let t = Tally::of(true, Some(1), true);
+        // One camera: red in the picture, green while the scene shows none.
+        let t = Tally::of(true, Some(1), None, true);
         assert_eq!([t.light(0), t.light(1)], [Light::Off, Light::OnAir]);
-        let t = Tally::of(true, Some(0), false);
+        let t = Tally::of(true, Some(0), None, false);
         assert_eq!([t.light(0), t.light(1)], [Light::Next, Light::Off]);
         // Not streaming, or no camera: every light is off.
-        for t in [Tally::of(false, Some(0), true), Tally::of(true, None, true), Tally::default()] {
+        for t in [Tally::of(false, Some(0), Some(1), true), Tally::of(true, None, Some(1), true), Tally::default()] {
             assert_eq!([t.light(0), t.light(1)], [Light::Off, Light::Off], "{t:?}");
         }
         assert_eq!([Light::OnAir.code(), Light::Next.code(), Light::Off.code()], ["on_air", "next", "off"]);
+    }
+
+    #[test]
+    fn green_is_the_camera_chosen_to_go_out_next() {
+        let t = Tally::of(true, Some(0), Some(2), true);
+        assert_eq!([t.light(0), t.light(1), t.light(2), t.light(3)], [Light::OnAir, Light::Off, Light::Next, Light::Off]);
+        // A scene without a camera: the camera out stays dark, the one chosen next green.
+        let t = Tally::of(true, Some(0), Some(1), false);
+        assert_eq!([t.light(0), t.light(1)], [Light::Off, Light::Next]);
     }
 }

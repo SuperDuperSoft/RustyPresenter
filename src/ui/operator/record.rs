@@ -9,7 +9,7 @@ use crate::{
     ui::dialogs::confirm,
     youtube::fetch::Tool,
 };
-use slint::{ComponentHandle, Timer, TimerMode};
+use slint::{ComponentHandle, Model, Timer, TimerMode};
 use std::{cell::{Cell, RefCell}, path::PathBuf, rc::Rc, sync::Arc, time::Duration};
 use tokio_util::sync::CancellationToken;
 
@@ -55,6 +55,10 @@ pub struct RecordUi {
     camera_controls: RefCell<Vec<Option<stream::ptz::Control>>>,
     /// While live: the scene button, four times a second.
     scene_ticker: Timer,
+    /// Go Live with two cameras or more: the camera chosen to go out next (`Plan::cameras` order).
+    next: Cell<Option<usize>>,
+    /// The small Live and Next pictures shown now, so the same ones are not made into images again.
+    peek_shown: RefCell<record::peek::Peek>,
     /// Go Live, signed in: the broadcasts made for it, with their destinations' names (ended, and their replay
     /// links said, when the stream stops).
     broadcasts: RefCell<Vec<(String, stream::accounts::Live)>>,
@@ -174,9 +178,9 @@ impl Operator {
         let delay_secs = stream::delay::checked(prefs.stream_delay_secs);
         let lighter = prefs.stream_lighter.unwrap_or(true);
         let ndi = prefs.ndi();
-        // The cameras, first and second, and their names for the scene button.
-        let chosen: Vec<(&String, &String)> = [(&prefs.camera, &prefs.camera_control), (&prefs.camera2, &prefs.camera2_control)].into_iter().filter(|(c, _)| !c.is_empty()).collect();
-        let camera_names: Vec<String> = chosen.iter().map(|(c, _)| (*c).clone()).collect();
+        // The cameras (up to four, in Settings' order) and their names for the Cameras box and the scene button.
+        let chosen = prefs.cameras();
+        let camera_names: Vec<String> = chosen.iter().map(|(c, _)| c.clone()).collect();
         let cameras: Vec<Vec<String>> = camera_names.iter().map(|c| record::args::camera_input(crate::platform::tools::OS, c)).collect();
         if live {
             *self.record.cameras.borrow_mut() = camera_names;
@@ -584,7 +588,6 @@ impl Operator {
         self.show_scene();
     }
 
-    /// The scene button's camera rows: camera `i` goes into the picture.
     /// While live: the scene button offers the positions of the camera in the picture, when it can be moved.
     pub fn show_positions(&self) {
         let n = if self.record.live.get() && self.active_control().is_some() { i32::from(stream::ptz::POSITIONS) } else { 0 };
@@ -607,10 +610,90 @@ impl Operator {
         let _ = std::thread::Builder::new().name("camera-control".into()).spawn(send);
     }
 
+    /// The scene button's camera rows: camera `i` goes into the picture at once (the one that was out becomes next
+    /// if `i` was next).
     pub fn pick_camera(&self, i: i32) {
+        if let Ok(i) = usize::try_from(i) { self.put_camera_out(i, false) }
+    }
+
+    /// The Cameras box: camera `i` is chosen to go out next. Not the one going out now.
+    pub fn choose_next(&self, i: i32) {
         let Ok(i) = usize::try_from(i) else { return };
-        if i < self.record.cameras.borrow().len() && self.while_live(|r| r.set_camera(i)) { self.ui.set_camera_active(i as i32) }
+        let out = usize::try_from(self.ui.get_camera_active()).unwrap_or(0);
+        if !self.record.live.get() || i >= self.record.cameras.borrow().len() || i == out { return }
+        self.record.next.set(Some(i));
+        if let Some(r) = self.record.rec.borrow().as_ref() { r.set_next(i) }
+        self.show_cameras();
+    }
+
+    /// Switch (`fade` false) or Fade: the next camera goes out, and the one that was out becomes next.
+    pub fn switch_to_next(&self, fade: bool) {
+        if let Some(n) = self.record.next.get() { self.put_camera_out(n, fade) }
+    }
+
+    /// Camera `i` goes out (with the short fade when `fade`). Chosen as next, the one that was out takes its place.
+    fn put_camera_out(&self, i: usize, fade: bool) {
+        let was = usize::try_from(self.ui.get_camera_active()).unwrap_or(0);
+        if !self.record.live.get() || i >= self.record.cameras.borrow().len() || i == was { return }
+        if self.record.next.get() == Some(i) { self.record.next.set(Some(was)) }
+        if let Some(r) = self.record.rec.borrow().as_ref() {
+            r.switch_camera(i, fade);
+            if let Some(n) = self.record.next.get() { r.set_next(n) }
+        }
+        self.ui.set_camera_active(i as i32);
         self.show_positions();
+        self.show_cameras();
+    }
+
+    /// Sends the next camera to position `i` (from 0), to get its shot ready before it goes out.
+    pub fn move_next(&self, i: i32) {
+        let control = self.record.next.get().and_then(|n| self.record.camera_controls.borrow().get(n).cloned().flatten());
+        let (Ok(i), Some(control)) = (u8::try_from(i), control) else { return };
+        if !self.record.live.get() || i >= stream::ptz::POSITIONS { return }
+        let send = move || if let Err(e) = stream::ptz::recall(&control, i + 1) { eprintln!("camera control: {e}") };
+        if self.ops().is_inline() { return send() }
+        let _ = std::thread::Builder::new().name("camera-control".into()).spawn(send);
+    }
+
+    /// The Cameras box: shown while live with a camera; which camera is out and which is next, and their names.
+    pub(crate) fn show_cameras(&self) {
+        let g = self.ui.global::<crate::ui::CameraSwitch>();
+        let names: Vec<String> = self.record.cameras.borrow().iter().map(|c| record::args::camera_label(c)).collect();
+        let shown = self.record.live.get() && !names.is_empty();
+        g.set_shown(shown);
+        if !shown { return }
+        let out = usize::try_from(self.ui.get_camera_active()).unwrap_or(0).min(names.len() - 1);
+        let next = self.record.next.get().filter(|n| *n < names.len() && *n != out);
+        let named = |i: usize| format!("{} {}", i + 1, names[i]);
+        let in_picture = self.record.rec.borrow().as_ref().and_then(Recording::scene).is_none_or(Scene::needs_camera);
+        g.set_live(out as i32);
+        g.set_next(next.map_or(-1, |n| n as i32));
+        g.set_live_caption(if in_picture { named(out) } else { tr::not_in_scene(&named(out)) }.into());
+        g.set_next_caption(next.map(named).unwrap_or_default().into());
+        let movable = next.is_some_and(|n| self.record.camera_controls.borrow().get(n).is_some_and(Option::is_some));
+        g.set_next_positions(if movable { i32::from(stream::ptz::POSITIONS) } else { 0 });
+        let listed: Vec<slint::SharedString> = names.into_iter().map(Into::into).collect();
+        if g.get_names().row_count() != listed.len() || g.get_names().iter().zip(&listed).any(|(a, b)| a != *b) {
+            g.set_names(slint::ModelRc::new(slint::VecModel::from(listed)));
+        }
+    }
+
+    /// The small Live and Next pictures the writer made last (`record::peek`), made into images when they changed.
+    pub(crate) fn show_peek(&self, peek: record::peek::Peek) {
+        use record::peek::Small;
+        let same = |a: &Option<Arc<Small>>, b: &Option<Arc<Small>>| match (a, b) { (Some(a), Some(b)) => Arc::ptr_eq(a, b), (None, None) => true, _ => false };
+        let image = |s: &Small| slint::Image::from_rgba8(slint::SharedPixelBuffer::<slint::Rgba8Pixel>::clone_from_slice(&s.rgba, s.width, s.height));
+        let g = self.ui.global::<crate::ui::CameraSwitch>();
+        let mut shown = self.record.peek_shown.borrow_mut();
+        if !same(&shown.live, &peek.live) {
+            g.set_live_has_picture(peek.live.is_some());
+            g.set_live_picture(peek.live.as_deref().map(image).unwrap_or_default());
+        }
+        if !same(&shown.next, &peek.next) {
+            g.set_next_has_picture(peek.next.is_some());
+            g.set_next_picture(peek.next.as_deref().map(image).unwrap_or_default());
+        }
+        *shown = peek;
     }
 
     /// The scene button: the scene going out, and the one chosen by hand while it holds.
@@ -621,9 +704,9 @@ impl Operator {
         self.ui.set_scene_chosen(stream::scene::lit(choice, &info).map_or(-1, index));
         let out = self.record.rec.borrow().as_ref().and_then(Recording::scene);
         if let Some(s) = out { self.ui.set_scene_out(index(s)) }
-        // The phones' tally lights.
+        // The phones' tally lights: red for the camera out, green for the one chosen as next.
         let camera = usize::try_from(self.ui.get_camera_active()).ok().filter(|_| !self.record.cameras.borrow().is_empty());
-        let tally = stream::tally::Tally::of(self.record.live.get() && self.is_recording(), camera, out.is_some_and(|s| stream::own_scenes::shows_camera(s, camera.unwrap_or(0), &self.record.own_scenes.borrow())));
+        let tally = stream::tally::Tally::of(self.record.live.get() && self.is_recording(), camera, self.record.next.get(), out.is_some_and(|s| stream::own_scenes::shows_camera(s, camera.unwrap_or(0), &self.record.own_scenes.borrow())));
         *self.app().tally.lock().unwrap() = tally;
         // NDI cameras: their own tally lights, and their positions once they say they can move.
         stream::ndi::show_tally(&self.record.cameras.borrow(), &tally);
@@ -650,6 +733,9 @@ impl Operator {
             self.record.live.set(false);
             self.ui.set_live(false);
             *self.app().tally.lock().unwrap() = Default::default();
+            self.record.next.set(None);
+            self.show_cameras();
+            self.show_peek(Default::default());
             self.stop_chat();
             self.ui.set_camera_positions(0);
             self.ui.set_live_held(false);
@@ -673,9 +759,20 @@ impl Operator {
             self.ui.set_camera_labels(slint::ModelRc::new(slint::VecModel::from(cams)));
             self.show_positions();
             self.ui.set_camera_active(0);
+            // Two cameras or more: the second is next at the start.
+            let next = (self.record.cameras.borrow().len() > 1).then_some(1);
+            self.record.next.set(next);
+            if let (Some(n), Some(r)) = (next, self.record.rec.borrow().as_ref()) { r.set_next(n) }
             self.show_scene();
+            self.show_cameras();
             let me = self.me.clone();
-            self.record.scene_ticker.start(TimerMode::Repeated, Duration::from_millis(250), move || if let Some(op) = me.upgrade() { op.show_scene() });
+            self.record.scene_ticker.start(TimerMode::Repeated, Duration::from_millis(250), move || {
+                let Some(op) = me.upgrade() else { return };
+                op.show_scene();
+                op.show_cameras();
+                let peek = op.record.rec.borrow().as_ref().map(Recording::peek).unwrap_or_default();
+                op.show_peek(peek);
+            });
         }
         let me = self.me.clone();
         self.record.ticker.start(TimerMode::Repeated, Duration::from_secs(1), move || {
@@ -746,6 +843,15 @@ pub(super) fn wire(op: &Rc<Operator>) {
     op.ui.on_chat_opened(move || if let Some(op) = me.upgrade() { op.chat_opened() });
     let me = Rc::downgrade(op);
     op.ui.on_pick_position(move |i| if let Some(op) = me.upgrade() { op.pick_position(i) });
+    let cams = op.ui.global::<crate::ui::CameraSwitch>();
+    let me = Rc::downgrade(op);
+    cams.on_choose_next(move |i| if let Some(op) = me.upgrade() { op.choose_next(i) });
+    let me = Rc::downgrade(op);
+    cams.on_switch(move || if let Some(op) = me.upgrade() { op.switch_to_next(false) });
+    let me = Rc::downgrade(op);
+    cams.on_fade(move || if let Some(op) = me.upgrade() { op.switch_to_next(true) });
+    let me = Rc::downgrade(op);
+    cams.on_move_next(move |i| if let Some(op) = me.upgrade() { op.move_next(i) });
 }
 
 mod tr {
@@ -755,6 +861,8 @@ mod tr {
     pub fn getting_ffmpeg() -> String { tr!("Getting FFmpeg for recording") }
     pub fn ffmpeg_ready() -> String { tr!("FFmpeg is ready. Press Record to start recording.") }
     pub fn ffmpeg_failed(command: &str) -> String { tr!("FFmpeg could not be downloaded. Check the internet connection, or install it yourself: {command}", command = command) }
+    /// Under the Live picture when the scene going out shows no camera: the camera that comes with a camera scene.
+    pub fn not_in_scene(camera: &str) -> String { tr!("{camera} (not in this scene)", camera = camera) }
 }
 
 #[cfg(test)]

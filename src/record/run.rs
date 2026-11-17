@@ -22,6 +22,8 @@ const CHECK_EVERY: Duration = Duration::from_secs(10);
 const END_LIMIT: Duration = Duration::from_secs(30);
 /// How long making the MP4 may take (a long service with its sound mixed in).
 const FINISH_LIMIT: Duration = Duration::from_secs(30 * 60);
+/// How often the small Live and Next pictures are made while live with cameras.
+const PEEK_EVERY: Duration = Duration::from_millis(250);
 
 /// `Recording 2026-11-07.mp4` → `Recording 2026-11-07.recording.mkv`: the file written while it records.
 pub fn partial_of(out: &Path) -> PathBuf { with_suffix(out, ".recording.mkv") }
@@ -120,6 +122,10 @@ pub struct Controls {
     pub mute: Arc<std::sync::atomic::AtomicBool>,
     /// Which of `Plan::cameras` is in the picture.
     pub camera: Arc<std::sync::atomic::AtomicUsize>,
+    /// Which of `Plan::cameras` is chosen to go out next (its small picture is made: `record::peek`).
+    pub next: Arc<std::sync::atomic::AtomicUsize>,
+    /// The next change of `camera` fades (set with it by `Recording::switch_camera`).
+    pub fade: Arc<std::sync::atomic::AtomicBool>,
 }
 
 impl Plan {
@@ -196,6 +202,8 @@ pub struct Recording {
     levels: Levels,
     /// The most the writer was behind (ms) since `lag` was last asked (`record::slow`).
     lag: Arc<std::sync::atomic::AtomicU64>,
+    /// Go Live with cameras: the small Live and Next pictures, a few times a second.
+    peek: Arc<Mutex<super::peek::Peek>>,
 }
 
 type Levels = Arc<Mutex<Vec<Arc<crate::stream::level::Level>>>>;
@@ -221,17 +229,19 @@ impl Recording {
         let lv = levels.clone();
         let lag: Arc<std::sync::atomic::AtomicU64> = Arc::default();
         let lg = lag.clone();
+        let peek: Arc<Mutex<super::peek::Peek>> = Arc::default();
+        let pk = peek.clone();
         std::thread::Builder::new().name("recorder".into()).spawn(move || {
             let rt = match tokio::runtime::Builder::new_current_thread().enable_all().build() {
                 Ok(rt) => rt,
                 Err(e) => { let _ = started_tx.send(Err(e.to_string())); return }
             };
-            let ended = rt.block_on(write(plan, s, c, started_tx, l, cs, si, sc, lv, lg));
+            let ended = rt.block_on(write(plan, s, c, started_tx, l, cs, si, sc, lv, lg, pk));
             if let Some(ended) = ended { done(ended) }
             let _ = finished_tx.send(());
         }).map_err(|e| tr::not_started(&e.to_string()))?;
         match started_rx.recv() {
-            Ok(Ok(())) => Ok(Recording { sink, cancel, finished, begun: Instant::now(), out, links, controls, camera_seen, silent, scenes, levels, lag }),
+            Ok(Ok(())) => Ok(Recording { sink, cancel, finished, begun: Instant::now(), out, links, controls, camera_seen, silent, scenes, levels, lag, peek }),
             Ok(Err(e)) => Err(tr::not_started(&e)),
             Err(_) => Err(tr::not_started(&tr::ffmpeg_ended())),
         }
@@ -271,8 +281,21 @@ impl Recording {
     /// Hold: the stream (and the recording) keeps showing what it shows now, until set off again.
     pub fn hold(&self, on: bool) { self.controls.hold.store(on, std::sync::atomic::Ordering::Relaxed) }
 
-    /// The camera in the picture: `Plan::cameras[i]`.
-    pub fn set_camera(&self, i: usize) { self.controls.camera.store(i, std::sync::atomic::Ordering::Relaxed) }
+    /// The camera in the picture: `Plan::cameras[i]`, at once.
+    pub fn set_camera(&self, i: usize) { self.switch_camera(i, false) }
+
+    /// The camera in the picture: `Plan::cameras[i]`, with the scenes' short fade from the one before when `fade`.
+    pub fn switch_camera(&self, i: usize, fade: bool) {
+        use std::sync::atomic::Ordering::Relaxed;
+        self.controls.fade.store(fade, Relaxed);
+        self.controls.camera.store(i, Relaxed);
+    }
+
+    /// The camera chosen to go out next: `Plan::cameras[i]` (its small picture is made).
+    pub fn set_next(&self, i: usize) { self.controls.next.store(i, std::sync::atomic::Ordering::Relaxed) }
+
+    /// Go Live with cameras: the small Live and Next pictures made last (`record::peek`).
+    pub fn peek(&self) -> super::peek::Peek { self.peek.lock().unwrap_or_else(|e| e.into_inner()).clone() }
 
     /// Mute: silence goes out in place of the sound, until set off again.
     pub fn mute(&self, on: bool) { self.controls.mute.store(on, std::sync::atomic::Ordering::Relaxed) }
@@ -303,7 +326,7 @@ impl Drop for Recording {
 /// `None` when FFmpeg never started (the starter heard why).
 async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, started: mpsc::Sender<Result<(), String>>, links: crate::stream::send::Links,
     camera_seen: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>, silent: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>,
-    scenes: Arc<Mutex<Option<crate::stream::pictures::Slot>>>, levels: Levels, lag: Arc<std::sync::atomic::AtomicU64>) -> Option<Ended> {
+    scenes: Arc<Mutex<Option<crate::stream::pictures::Slot>>>, levels: Levels, lag: Arc<std::sync::atomic::AtomicU64>, peek: Arc<Mutex<super::peek::Peek>>) -> Option<Ended> {
     let part = partial_of(&plan.out);
     // Go Live: the recorder sends to a local feed for each destination; a sender each passes it on and
     // reconnects (`stream::send`). With no free ports there is no stream, and the recording goes on.
@@ -314,8 +337,9 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     // worker that picks the scene and draws the words and cards. The writer puts the picture together.
     // NDI out alone makes it live too (no destinations: the scenes still go out over NDI).
     let live = !ports.is_empty() || plan.ndi.any() && plan.look.is_some();
-    let mut camera_feeds: Vec<crate::stream::camera_feed::Feed> = if live && plan.look.is_some() {
-        plan.cameras.iter().filter_map(|input| crate::stream::camera_feed::start(plan.ffmpeg.clone(), input.clone(), sink.size, FPS)
+    // Each camera keeps its place (camera 2 is Settings' second camera even if the first could not start).
+    let mut camera_feeds: Vec<Option<crate::stream::camera_feed::Feed>> = if live && plan.look.is_some() {
+        plan.cameras.iter().map(|input| crate::stream::camera_feed::start(plan.ffmpeg.clone(), input.clone(), sink.size, FPS)
             .map_err(|e| eprintln!("recording: the stream goes out without a camera: {e}")).ok()).collect()
     } else { vec![] };
     // Whether the camera in the picture is sending pictures (kept by the writer as the operator switches).
@@ -413,6 +437,10 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let mut words_file = if live && worker.is_some() && plan.words_file {
         crate::stream::words_file::WordsFile::start(&plan.ffmpeg, &plan.out, sink.size, FPS).map_err(|e| eprintln!("recording: no words file: {e}")).ok()
     } else { None };
+    // The camera in the picture at the last picture: a change to another may fade (`Controls::fade`).
+    let mut on_camera = plan.controls.camera.load(std::sync::atomic::Ordering::Relaxed).min(camera_feeds.len().saturating_sub(1));
+    // The small Live and Next pictures, every `PEEK_EVERY` while there are cameras.
+    let mut next_peek = Duration::ZERO;
     let mut next_check = Duration::ZERO;
     let mut problem: Option<String> = None;
     'pump: loop {
@@ -420,8 +448,14 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
         if let Some(new) = sink.take() {
             if plan.controls.hold.load(std::sync::atomic::Ordering::Relaxed) { sink.give_back(new) } else { sink.give_back(std::mem::replace(&mut current, new)); room_new = true }
         }
-        // The camera in the picture now.
-        let camera = camera_feeds.get(plan.controls.camera.load(std::sync::atomic::Ordering::Relaxed).min(camera_feeds.len().saturating_sub(1)));
+        // The camera in the picture now; a change asked to fade starts the fade from the picture going out.
+        let wanted = plan.controls.camera.load(std::sync::atomic::Ordering::Relaxed).min(camera_feeds.len().saturating_sub(1));
+        if wanted != on_camera {
+            on_camera = wanted;
+            let fade = plan.controls.fade.swap(false, std::sync::atomic::Ordering::Relaxed);
+            if fade && let Some(m) = mix.as_mut() && !plan.controls.hold.load(std::sync::atomic::Ordering::Relaxed) { m.fade_from_now(Instant::now()) }
+        }
+        let camera = camera_feeds.get(on_camera).and_then(Option::as_ref);
         seeing.store(camera.is_some_and(|f| f.seeing.load(std::sync::atomic::Ordering::Relaxed)), std::sync::atomic::Ordering::Relaxed);
         // Freeze keeps the picture going out as it is, mid-fade included.
         if let (Some(m), Some(w)) = (mix.as_mut(), worker.as_ref()) && !plan.controls.hold.load(std::sync::atomic::Ordering::Relaxed) {
@@ -438,6 +472,14 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
         lag.fetch_max(due.lag(FPS).as_millis() as u64, std::sync::atomic::Ordering::Relaxed);
         if due.dropped > 0 { eprintln!("recording: {} frames dropped (the writer fell behind)", due.dropped) }
         if due.write > 0 && let Some(n) = &ndi { n.picture(out) }
+        // The small pictures for the operator: shrunk here from the picture going out and the next camera's newest.
+        if !camera_feeds.is_empty() && t0.elapsed() >= next_peek {
+            next_peek = t0.elapsed() + PEEK_EVERY;
+            let next = camera_feeds.get(plan.controls.next.load(std::sync::atomic::Ordering::Relaxed)).and_then(Option::as_ref).and_then(|f| f.picture());
+            let small = |p: &[u8]| super::peek::shrink(p, sink.size, super::peek::WIDTH).map(Arc::new);
+            let made = super::peek::Peek { live: small(out), next: next.as_deref().and_then(|p| small(p)) };
+            *peek.lock().unwrap_or_else(|e| e.into_inner()) = made;
+        }
         for _ in 0..due.write {
             if stdin.write_all(out).await.is_err() {
                 let last = said.lock().unwrap_or_else(|e| e.into_inner()).back().cloned();
@@ -472,7 +514,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     if let Some(c) = pc.as_mut() { c.stop() }
     if let Some(b) = board.as_mut() { b.stop() }
     if let Some(w) = worker.as_mut() { w.stop() }
-    for c in camera_feeds.iter_mut() { c.stop() }
+    for c in camera_feeds.iter_mut().flatten() { c.stop() }
     let end = t0.elapsed().as_secs_f64();
     let ended = tree.wait(END_LIMIT, &CancellationToken::new()).await;
     // After FFmpeg: it sends NDI its sound to the end.
@@ -531,6 +573,9 @@ impl Mixer {
     }
 
     fn out(&self) -> &[u8] { &self.out }
+
+    /// A camera switched with a fade: the half-second fade runs from the picture going out now, as at a scene change.
+    fn fade_from_now(&mut self, now: Instant) { self.fade = Some((self.out.clone(), now)) }
 
     fn update(&mut self, shown: &crate::stream::pictures::Shown, room: &[u8], camera: Option<Arc<Vec<u8>>>, room_new: bool, now: Instant) {
         use crate::stream::compose::{FADE, Inputs, blend, compose};

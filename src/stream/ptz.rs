@@ -68,21 +68,18 @@ pub fn recall_packet(n: u8, seq: u32, sony: bool) -> Vec<u8> {
     p
 }
 
-/// The cameras that can be moved (1: the first camera, 2: the second), each with its saved positions. An NDI
-/// camera is listed: whether it can move is only known once it is connected.
+/// The cameras that can be moved (1: the first camera, up to 4), each with its saved positions. An NDI camera is
+/// listed: whether it can move is only known once it is connected.
 pub fn moves(prefs: &crate::record::RecordPrefs) -> Vec<(u8, u8)> {
-    [(1u8, &prefs.camera, &prefs.camera_control), (2, &prefs.camera2, &prefs.camera2_control)].into_iter()
-        .filter(|(_, cam, ctl)| !cam.is_empty() && Control::of(cam, ctl).is_some())
-        .flat_map(|(c, _, _)| (1..=POSITIONS).map(move |p| (c, p))).collect()
+    prefs.cameras().into_iter().enumerate().filter(|(_, (cam, ctl))| Control::of(cam, ctl).is_some())
+        .flat_map(|(i, _)| (1..=POSITIONS).map(move |p| (i as u8 + 1, p))).collect()
 }
 
-/// A camera's control (1 or 2) from Settings.
+/// A camera's control (1 to 4) from Settings.
 pub fn control_of(prefs: &crate::record::RecordPrefs, camera: u8) -> Option<Control> {
-    match camera {
-        1 => Control::of(&prefs.camera, &prefs.camera_control),
-        2 => Control::of(&prefs.camera2, &prefs.camera2_control),
-        _ => None,
-    }
+    let cameras = prefs.cameras();
+    let (cam, _) = cameras.get(usize::from(camera).checked_sub(1)?)?;
+    Control::of(cam, prefs.camera_control_of(camera))
 }
 
 /// "Camera 2: position 3".

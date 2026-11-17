@@ -8,6 +8,7 @@ pub mod chapters;
 pub mod clips;
 pub mod devices;
 pub mod gl;
+pub mod peek;
 pub mod pump;
 pub mod run;
 pub mod slow;
@@ -101,6 +102,15 @@ pub struct RecordPrefs {
     pub camera_control: String,
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub camera2_control: String,
+    /// A third and fourth camera, as the second, each with its PTZ control address.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub camera3: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub camera3_control: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub camera4: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub camera4_control: String,
     /// Livestream scenes chosen by themselves from what is live (`stream::scene::choose`); `None` is on.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub auto_scenes: Option<bool>,
@@ -229,7 +239,27 @@ impl RecordPrefs {
     }
 
     pub fn sound(&self) -> Sound { Sound::parse(&self.sound) }
+
+    /// The livestream's cameras in Settings' order, each with its PTZ control address: up to `MAX_CAMERAS`, ending
+    /// at the first row with none (a camera with none before it is not used), each camera once.
+    pub fn cameras(&self) -> Vec<(String, String)> {
+        let rows = [(&self.camera, &self.camera_control), (&self.camera2, &self.camera2_control), (&self.camera3, &self.camera3_control), (&self.camera4, &self.camera4_control)];
+        let mut out: Vec<(String, String)> = vec![];
+        for (c, ctl) in rows {
+            if c.is_empty() || out.iter().any(|(o, _)| o == c) { break }
+            out.push((c.clone(), ctl.clone()));
+        }
+        out
+    }
+
+    /// Camera `n`'s control address (1 is the first), as Settings has it.
+    pub fn camera_control_of(&self, n: u8) -> &str {
+        match n { 1 => &self.camera_control, 2 => &self.camera2_control, 3 => &self.camera3_control, 4 => &self.camera4_control, _ => "" }
+    }
 }
+
+/// The most cameras a livestream switches between.
+pub const MAX_CAMERAS: usize = 4;
 
 /// The computer's Videos folder (else the home folder), in a folder of its own.
 pub fn default_folder() -> PathBuf {
@@ -351,5 +381,22 @@ mod tests {
         assert_eq!(clock(0), "0:00");
         assert_eq!(clock(125), "2:05");
         assert_eq!(clock(3723), "1:02:03");
+    }
+
+    #[test]
+    fn the_cameras_are_taken_in_order_up_to_four_each_once() {
+        let p = RecordPrefs { camera: "A".into(), camera2: "B".into(), camera3: "C".into(), camera3_control: "192.168.1.63".into(), camera4: "D".into(), ..Default::default() };
+        let names: Vec<String> = p.cameras().into_iter().map(|(c, _)| c).collect();
+        assert_eq!(names, ["A", "B", "C", "D"]);
+        assert_eq!(p.cameras()[2].1, "192.168.1.63");
+        assert_eq!(p.camera_control_of(3), "192.168.1.63");
+        // None before it, or the same camera again: it and those after are not used.
+        let gap = RecordPrefs { camera: "A".into(), camera3: "C".into(), ..Default::default() };
+        assert_eq!(gap.cameras().len(), 1);
+        let twice = RecordPrefs { camera: "A".into(), camera2: "A".into(), camera3: "C".into(), ..Default::default() };
+        assert_eq!(twice.cameras().len(), 1);
+        assert!(RecordPrefs::default().cameras().is_empty());
+        let saved = serde_json::to_value(RecordPrefs::default()).unwrap();
+        assert!(saved.get("camera3").is_none() && saved.get("camera4_control").is_none(), "none: nothing saved");
     }
 }
