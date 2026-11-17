@@ -245,7 +245,7 @@ fn dragging_songselect_files_brings_them_in() {
     let lib = songs(&app);
     let cclis: Vec<&str> = lib.iter().map(|s| s.ccli.as_str()).collect();
     assert_eq!(cclis, ["7654321", "7000001"]);
-    assert_eq!(lib[1].lyrics, "Verse 1\nOver the hills the morning comes\nLight on the fields\n\nChorus\nSing, sing, sing\nAll the hills will ring");
+    assert_eq!(crate::slides::strip_chords(&lib[1].lyrics).unwrap(), "Verse 1\nOver the hills the morning comes\nLight on the fields\n\nChorus\nSing, sing, sing\nAll the hills will ring");
     assert_eq!(app.data.lock().unwrap().services[0].items.len(), 2, "both go into the service, as a dropped lyric file does");
     assert!(!toasts(&op).iter().any(|t| t.1), "{:?}", toasts(&op));
 }

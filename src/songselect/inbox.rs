@@ -129,8 +129,9 @@ pub enum Landed {
     KeptBoth(String),
 }
 
-/// The words without section names, case, spacing or punctuation, to tell whether two songs say the same.
+/// The words without chords, section names, case, spacing or punctuation, to tell whether two songs say the same.
 fn words_key(lyrics: &str) -> String {
+    let lyrics = crate::slides::strip_chords(lyrics).unwrap_or_else(|| lyrics.to_string());
     lyrics.lines()
         .filter(|l| crate::slides::section_label(l).is_none())
         .flat_map(|l| l.split(|c: char| !c.is_alphanumeric()))
@@ -180,14 +181,18 @@ pub(crate) mod tests {
     }
 
     #[test]
-    fn songselect_chordpro_is_taken_without_chords_or_credits_in_the_words() {
+    fn songselect_chordpro_is_taken_with_its_chords_and_without_credits_in_the_words() {
         for name in ["hills-of-test.chordpro", "hills.cho", "hills.pro", "hills.txt"] {
             let Some(Export::Song(s)) = read_export(name, CHORDPRO.as_bytes()) else { panic!("{name}: a song") };
             assert_eq!((s.title.as_str(), s.ccli.as_str()), ("Hills Of Test", "7000001"), "{name}");
             assert_eq!(s.writers, "Sample Writer");
             assert_eq!(s.copyright, "© 2025 Example Hymns");
-            assert_eq!(s.lyrics, "Verse 1\nOver the hills the morning comes\nLight on the fields\n\nChorus\nSing, sing, sing\nAll the hills will ring");
+            // The chords stay for the stage; the room's words are without them (`slides::strip_chords`).
+            assert_eq!(s.lyrics, "Verse 1\n[D]Over the hills the [G]morning comes\n[A]Light on the [D]fields\n\nChorus\n[G]Sing, sing, [D]sing\n[A]All the hills will [D]ring");
+            assert_eq!(crate::slides::strip_chords(&s.lyrics).unwrap(), "Verse 1\nOver the hills the morning comes\nLight on the fields\n\nChorus\nSing, sing, sing\nAll the hills will ring");
         }
+        // The same song as lyrics alone has the same words.
+        assert!(same_words("Verse 1\n[D]Over the hills", "Verse 1\nOver the hills"));
         // The credits in `{comment}` tags and the writers before the number, as some exports have them.
         let tagged = "{t: Tagged}\n{c: Verse}\nWords here\n\n{c: Writer One | Writer Two}\n{c: CCLI Song # 0042}\n{c: © 2020 Someone}\n";
         let s = read_chordpro(tagged).unwrap();

@@ -7,7 +7,9 @@
 //! `{chorus}` plays the last chorus again; a `{comment: Chorus}` (`{c:}`, `{ci:}`, `{cb:}`, `{highlight:}`) or a
 //! lyric line that names a section ("Verse 1", "[Chorus]") starts that section. Every other directive is ignored,
 //! as are `#` comment lines, tab/grid/abc/lilypond/svg blocks, and directives or sections meant for one instrument
-//! (`{start_of_verse-guitar}`). Chords (`[G]`) and formatting tags (`<b>`) inside lyric lines are removed. Text
+//! (`{start_of_verse-guitar}`). Chords (`[G]`) stay in the words, where they were: the room shows the words alone and
+//! a stage layout can show the chords (`slides::strip_chords`). Annotations (`[*Slowly]`), other brackets and
+//! formatting tags (`<b>`) inside lyric lines are removed, and so are lines with chords and no words. Text
 //! outside any section is split at blank lines into verses. Files are only read, never written.
 use super::common::{find_files, label_line, section_name, ImportReport};
 use super::easyworship::split_writers;
@@ -152,6 +154,27 @@ fn env_label(value: &str) -> String {
         }
         None => v.to_string(),
     }
+}
+
+/// Keeps a lyric line's chords (as `slides::is_chord` knows them) and removes every other `[…]` (annotations
+/// such as `[*Slowly]`) and formatting tags. An unclosed `[` is kept as text.
+fn keep_chords(line: &str) -> String {
+    let mut out = String::with_capacity(line.len());
+    let mut rest = line;
+    while let Some(i) = rest.find('[') {
+        out.push_str(&rest[..i]);
+        let tail = &rest[i + 1..];
+        match tail.char_indices().take(MAX_CHORD).find(|&(_, c)| c == ']' || c == '[') {
+            Some((e, ']')) => {
+                let inner = tail[..e].trim();
+                if crate::slides::is_chord(inner) { out.push('['); out.push_str(inner); out.push(']'); }
+                rest = &tail[e + 1..];
+            }
+            _ => { out.push('['); rest = tail; }
+        }
+    }
+    out.push_str(rest);
+    strip_tags(&out)
 }
 
 /// Removes `[chords]` (and `[*annotations]`) from a lyric line and tidies the spacing they leave.
@@ -325,7 +348,9 @@ impl Draft {
         if line.is_empty() { return; } // a chord-only line
         if self.first_line.is_none() { self.first_line = Some(line.clone()); }
         if self.open.is_none() { self.open = Some(Open { label: String::new(), kind: "verse".into(), mode: Mode::Paragraph, groups: vec![], group: vec![] }); }
-        if let Some(o) = &mut self.open { o.group.push(line); }
+        // The words with their chords: the band's stage screen can show them, the room never does.
+        let kept = if chord { keep_chords(raw) } else { line };
+        if let Some(o) = &mut self.open { o.group.push(kept); }
     }
 
     fn blank(&mut self) {
@@ -526,6 +551,9 @@ mod tests {
     use crate::import::common::TempDir;
     use crate::slides::{parse_sections, song_order};
 
+    /// What the room shows of imported words: without their chords (`slides::strip_chords`).
+    fn room(lyrics: &str) -> String { crate::slides::strip_chords(lyrics).unwrap_or_else(|| lyrics.to_string()) }
+
     // Amazing Grace (John Newton, 1779): public domain. Chords added for the test.
     const GRACE: &str = "{title: Amazing Grace}
 {artist: John Newton}
@@ -559,7 +587,8 @@ And grace my fears relieved;
         assert_eq!(s.writers, "John Newton");
         assert_eq!(s.copyright, "Public Domain");
         assert_eq!(s.ccli, "22025");
-        assert_eq!(s.lyrics, "Verse 1\nAmazing grace! how sweet the sound\nThat saved a wretch like me!\n\nVerse 2\n'Twas grace that taught my heart to fear,\nAnd grace my fears relieved;");
+        assert_eq!(room(&s.lyrics), "Verse 1\nAmazing grace! how sweet the sound\nThat saved a wretch like me!\n\nVerse 2\n'Twas grace that taught my heart to fear,\nAnd grace my fears relieved;");
+        assert!(s.lyrics.starts_with("Verse 1\nA[G]mazing [G7]grace! how [C]sweet the [G]sound"), "the chords stay for the stage: {}", s.lyrics);
         assert_eq!(labels(&s), ["Verse 1", "Verse 2"]);
         assert!(s.arrangement.is_empty());
     }
@@ -586,14 +615,14 @@ And grace my fears relieved;
     #[test]
     fn comments_as_section_hints() {
         let s = one("{title: Hinted}\n{c: Verse 1}\n[G]Line a\nLine b\n\nLine c\n{comment: Chorus}\nChorus line\n{c: Play softly}\n{c: Verse 2}\nLine d\n{c: Chorus}\n");
-        assert_eq!(s.lyrics, "Verse 1\nLine a\nLine b\n\nLine c\n\nChorus\nChorus line\n\nVerse 2\nLine d");
+        assert_eq!(room(&s.lyrics), "Verse 1\nLine a\nLine b\n\nLine c\n\nChorus\nChorus line\n\nVerse 2\nLine d");
         assert_eq!(s.arrangement, ["Verse 1", "Chorus", "Verse 2", "Chorus"]);
     }
 
     #[test]
     fn plain_paragraphs_are_verses_and_chord_lines_drop() {
         let s = one("{title: Plain}\n# a comment\n[G]  [C]  [D]\nFirst line\nSecond line\n\n\nThird [Em]line\n");
-        assert_eq!(s.lyrics, "Verse 1\nFirst line\nSecond line\n\nVerse 2\nThird line");
+        assert_eq!(room(&s.lyrics), "Verse 1\nFirst line\nSecond line\n\nVerse 2\nThird line");
     }
 
     #[test]
@@ -690,7 +719,7 @@ And grace my fears relieved;
     #[test]
     fn label_lines_in_lyrics() {
         let s = one("{t: X}\nVerse 1\nA\n\nB\n[Chorus]\n[G]C\nVerse 2\nD\nChorus\n");
-        assert_eq!(s.lyrics, "Verse 1\nA\n\nB\n\nChorus\nC\n\nVerse 2\nD");
+        assert_eq!(room(&s.lyrics), "Verse 1\nA\n\nB\n\nChorus\nC\n\nVerse 2\nD");
         assert_eq!(s.arrangement, ["Verse 1", "Chorus", "Verse 2", "Chorus"]);
         let s = one("{t: X}\n{sov}\nVerse 1\nA\n{eov}\n");
         assert_eq!(s.lyrics, "Verse 1\nA");
@@ -721,7 +750,7 @@ And grace my fears relieved;
     #[test]
     fn formatting_tags_removed() {
         let s = one("{t: F}\n<b>Bold</b> and <span foreground=\"red\">r[G]ed</span> &amp; more\nplain a < b\n");
-        assert_eq!(s.lyrics, "Verse 1\nBold and red & more\nplain a < b");
+        assert_eq!(room(&s.lyrics), "Verse 1\nBold and red & more\nplain a < b");
     }
 
     #[test]
