@@ -562,7 +562,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     if let (Some(m), Some(look)) = (mix.as_mut(), plan.look.as_ref()) {
         if tall_on { m.tall = Some(TallMix::new(tall_size)) }
         if !look.own.is_empty() || look.more.transition.stinger().is_some() {
-            m.media = Some(crate::stream::scene_media::Media::start(&plan.ffmpeg, &look.own, &look.more.transition, sink.size, tall_on.then_some(tall_size), FPS));
+            m.media = Some(crate::stream::scene_media::Media::start(&plan.ffmpeg, &look.own, &look.more.transition, sink.size, tall_on.then_some(tall_size), fps));
         }
     }
     let mut room_new = true;
