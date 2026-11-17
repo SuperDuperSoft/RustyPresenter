@@ -137,6 +137,8 @@ impl Operator {
         let mut talls: Vec<bool> = vec![];
         // Signed in: the broadcast is made, and its address got, as the recording is got ready.
         let mut signed: Vec<(stream::Destination, String)> = vec![];
+        // NDI out alone is enough to go live (a church streaming from OBS takes the app's picture over NDI).
+        let ndi_only = live && prefs.ndi().any() && stream::ndi::runtime().is_some();
         if live {
             let store = stream::keys::app_store();
             let mut all = prefs.stream.clone();
@@ -145,7 +147,7 @@ impl Operator {
             signed = with_sign_in.into_iter().filter_map(|d| stream::accounts::kept(store.as_ref(), d.id).map(|(_, token)| (d, token))).collect();
             let (good, bad) = stream::ready(&keyed);
             for (name, why) in &bad { self.toast(stream::tr::not_ready(name, &why.words()), true) }
-            if good.is_empty() && signed.is_empty() { return self.toast(stream::tr::nothing_ready(), true) }
+            if good.is_empty() && signed.is_empty() && !ndi_only { return self.toast(stream::tr::nothing_ready(), true) }
             titles = keyed.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.title().to_string()).collect();
             talls = keyed.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.tall).collect();
             self.record.slow_told.borrow_mut().clear();
@@ -217,7 +219,7 @@ impl Operator {
             let used_ahead = broadcasts.iter().any(|(_, b)| b.service == stream::Service::YouTube && !scheduled_id.is_empty() && b.id == scheduled_id);
             if used_ahead { let _ = op.app().edit(|d| { d.settings.record.stream_scheduled.clear(); d.settings.record.stream_scheduled_link.clear(); Ok(()) }); }
             *op.record.broadcasts.borrow_mut() = broadcasts;
-            if live && addresses.is_empty() && plan.is_ok() { return op.toast(stream::tr::nothing_ready(), true) }
+            if live && addresses.is_empty() && !ndi_only && plan.is_ok() { return op.toast(stream::tr::nothing_ready(), true) }
             if live {
                 *op.record.links.borrow_mut() = titles.iter().map(|t| (t.clone(), false)).collect();
                 op.record.history.borrow_mut().clear();
@@ -243,7 +245,7 @@ impl Operator {
                         op.record.viewers_age.set(0);
                         op.ui.set_live_watching(-1);
                         op.ui.set_live(true);
-                        op.toast(stream::tr::live_on(&names), false);
+                        op.toast(if names.is_empty() { stream::tr::live_ndi_only() } else { stream::tr::live_on(&names) }, false);
                         op.start_chat();
                         op.note_stream_licence();
                     }

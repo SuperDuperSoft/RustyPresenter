@@ -6578,6 +6578,10 @@ msgid "{name} · {service}: {text}"
 msgstr "{name} · {service}: {text}"
 
 #: src/stream/mod.rs
+msgid "Live over NDI only: no destinations are switched on. Recording too."
+msgstr "Эфир только по NDI: ни одно направление не включено. Запись тоже идёт."
+
+#: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."
 msgstr "Выход в эфир на {names}. Запись тоже идёт."
 

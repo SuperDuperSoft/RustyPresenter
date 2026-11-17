@@ -6573,6 +6573,10 @@ msgid "{name} · {service}: {text}"
 msgstr "{name} · {service}: {text}"
 
 #: src/stream/mod.rs
+msgid "Live over NDI only: no destinations are switched on. Recording too."
+msgstr "Mubashara kupitia NDI pekee: hakuna kituo kilichowashwa. Inarekodi pia."
+
+#: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."
 msgstr "Inaanza kurusha moja kwa moja kwenye {names}. Inarekodi pia."
 

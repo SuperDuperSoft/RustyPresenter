@@ -6573,6 +6573,10 @@ msgid "{name} · {service}: {text}"
 msgstr "{name} · {service}: {text}"
 
 #: src/stream/mod.rs
+msgid "Live over NDI only: no destinations are switched on. Recording too."
+msgstr "An dirèk sou NDI sèlman: pa gen okenn destinasyon ki limen. N ap anrejistre tou."
+
+#: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."
 msgstr "An dirèk sou {names}. Ap anrejistre tou."
 

@@ -6568,6 +6568,10 @@ msgid "{name} · {service}: {text}"
 msgstr "{name} · {service}：{text}"
 
 #: src/stream/mod.rs
+msgid "Live over NDI only: no destinations are switched on. Recording too."
+msgstr "仅通过 NDI 直播：没有开启任何直播目标。同时也在录制。"
+
+#: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."
 msgstr "正在 {names} 上开始直播，同时也在录制。"
 

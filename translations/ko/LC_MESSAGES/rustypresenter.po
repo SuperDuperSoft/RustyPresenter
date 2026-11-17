@@ -6568,6 +6568,10 @@ msgid "{name} · {service}: {text}"
 msgstr "{name} · {service}: {text}"
 
 #: src/stream/mod.rs
+msgid "Live over NDI only: no destinations are switched on. Recording too."
+msgstr "NDI로만 라이브 중입니다. 켜진 방송 대상이 없습니다. 녹화도 합니다."
+
+#: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."
 msgstr "{names}에서 라이브 방송을 시작해요. 녹화도 하고 있어요."
 

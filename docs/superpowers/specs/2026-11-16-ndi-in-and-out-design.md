@@ -34,10 +34,10 @@ Settings → Media → Livestream, two checks, both off to start with:
    `RustyPresenter Words`. It carries the words over the camera (the lower third) with an alpha channel, and is
    clear when there are none. It is sent when it changes and once a second otherwise.
 
-Both run while the livestream runs: they use the stream's picture and scenes.
+Both run while the livestream runs: they use the stream's picture and scenes. NDI out alone is enough to Go
+Live (Jake, November 16, 2026: "whatever is best long term"): with no destinations switched on, Go Live runs
+the scenes and NDI out and makes the recording, for a church that streams from OBS.
 
 ## Not now
 
-- NDI out without Go Live (for a church that streams from OBS). This is a UX question for Jake: whether Go Live
-  with no destinations should be allowed when NDI out is on.
 - NDI PTZ, NDI tally back to the camera, alpha recording.

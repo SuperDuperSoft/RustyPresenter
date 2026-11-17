@@ -6568,6 +6568,10 @@ msgid "{name} · {service}: {text}"
 msgstr "{name} · {service}: {text}"
 
 #: src/stream/mod.rs
+msgid "Live over NDI only: no destinations are switched on. Recording too."
+msgstr "Chỉ phát trực tiếp qua NDI: không có đích nào được bật. Đồng thời đang ghi hình."
+
+#: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."
 msgstr "Bắt đầu phát trực tiếp trên {names}. Cũng đang ghi."
 

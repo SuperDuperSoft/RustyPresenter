@@ -316,7 +316,8 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let feeds: Vec<String> = ports.iter().map(|p| crate::stream::send::feed(*p)).collect();
     // Go Live with scenes: the camera through a feed of its own, which keeps it going through unplugging, and the
     // worker that picks the scene and draws the words and cards. The writer puts the picture together.
-    let live = !ports.is_empty();
+    // NDI out alone makes it live too (no destinations: the scenes still go out over NDI).
+    let live = !ports.is_empty() || plan.ndi.any() && plan.look.is_some();
     let mut camera_feeds: Vec<crate::stream::camera_feed::Feed> = if live && plan.look.is_some() {
         plan.cameras.iter().filter_map(|input| crate::stream::camera_feed::start(plan.ffmpeg.clone(), input.clone(), sink.size, FPS)
             .map_err(|e| eprintln!("recording: the stream goes out without a camera: {e}")).ok()).collect()
@@ -333,7 +334,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     };
     if let Some(w) = &worker { *scenes.lock().unwrap_or_else(|e| e.into_inner()) = Some(w.slot.clone()) }
     // The PC's sound, when the stream has it. If it cannot be captured the stream goes out without it.
-    let mut pc = match (&plan.pc_sound, ports.is_empty()) {
+    let mut pc = match (&plan.pc_sound, !live) {
         (Some(device), false) => crate::stream::pc_sound::start(device, plan.controls.mute.clone()).map_err(|e| eprintln!("recording: the stream goes out without the PC's sound: {e}")).ok(),
         _ => None,
     };
