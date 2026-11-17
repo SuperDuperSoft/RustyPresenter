@@ -25,7 +25,7 @@ async function loadWords() {
   });
   const b = s => { const e = document.createElement('b'); e.textContent = s; return e; };
   $('pairHelp').replaceChildren(...t('On the presentation computer, click {phone} → {pair}, then type the 6-digit code here.')
-    .split(/(\{phone\}|\{pair\})/).map(p => p === '{phone}' ? b(t('Phone')) : p === '{pair}' ? b(t('Pair a phone')) : p));
+    .split(/(\{phone\}|\{pair\})/).map(p => p === '{phone}' ? b(t('Phone')) : p === '{pair}' ? b(t('Pair a phone or tablet')) : p));
   $('prev').textContent = '‹ ' + t('Back');
   $('next').textContent = t('Next') + ' ›';
   if (V) render();

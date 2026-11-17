@@ -1,9 +1,10 @@
-// Settings → Help: the keyboard table with its shortcut editor (N28) and the clear groups (N18). Rust fills it
+// Settings → Keys: the keyboard table with its shortcut editor (N28) and the clear groups (N18). Rust fills it
 // (`src/ui/dialogs/settings_keys.rs`); the rows are `SettingsDlg.help`.
 import { Theme } from "../theme.slint";
 import { Btn, Kbd } from "../widgets.slint";
 import { TextField, Note, Lbl, Check } from "form.slint";
 import { SettingsDlg } from "settings-state.slint";
+import { SetRow, Hint } from "settings-row.slint";
 
 /// A clear group being edited: its name and, per layer of `KeysDlg.layer-names`, whether it clears it.
 export struct ClearGroupRow { name: string, layers: [bool] }
@@ -26,19 +27,28 @@ export global KeysDlg {
     callback group-layer(int, int, bool);
     callback group-add();
     callback group-delete(int);
+    /// A key pressed in the Settings window while a row waits for its new key: the key's text and its modifiers.
+    callback key-captured(string, bool, bool, bool);
 }
 
-export component SettingsHelp inherits HorizontalLayout {
-    spacing: 18px;
-    VerticalLayout {
-        horizontal-stretch: 3;
-        alignment: start;
+/// Keys → Keyboard shortcuts: every key, each one changeable, and the letters that jump to a song's sections.
+export component KeysPage inherits VerticalLayout {
+    alignment: start;
+    section-keys-row := SetRow {
+        key: "section-keys";
+        label: @tr("Section keys (C, B, 1–9…)");
+        help: @tr("Turn off if letters typed by mistake move the screen.");
+        section-keys := Check {
+            text: @tr("Letters and numbers jump the live song to a section");
+            checked <=> SettingsDlg.section-keys;
+        }
+    }
+    keys-row := SetRow {
+        key: "keyboard";
+        label: @tr("Keyboard shortcuts");
+        help: @tr("Change any key that has a Change button. New keys work once you save the settings.");
         HorizontalLayout {
             spacing: 8px;
-            Lbl {
-                label: @tr("Keyboard");
-                vertical-alignment: center;
-            }
             Rectangle { horizontal-stretch: 1; }
             reset-all := Btn {
                 small: true;
@@ -108,14 +118,23 @@ export component SettingsHelp inherits HorizontalLayout {
             text: @tr("Change");
         }
     }
-    VerticalLayout {
-        horizontal-stretch: 2;
-        alignment: start;
-        spacing: 10px;
-        Lbl { label: @tr("Clear groups"); }
-        Note {
-            text: @tr("A clear group takes several layers off the screen with one key. The View menu lists them too.");
+    // N26, N27: the slide editor's own keys (they work only on its slide).
+    editor-keys-row := SetRow {
+        key: "slide-editor-keys";
+        label: @tr("In the slide editor");
+        slide-editor-keys := Hint {
+            text: @tr("Ctrl+Alt+C copies the chosen box's style and Ctrl+Alt+V pastes it (with nothing chosen: on every text box of the slide). Ctrl+Z undo, Ctrl+Y redo, Ctrl+D duplicate, Ctrl+A choose all, Delete removes, arrows nudge (Shift+arrows resize), Tab chooses the next object.");
         }
+    }
+}
+
+/// Keys → Clear groups.
+export component ClearGroupsPage inherits VerticalLayout {
+    alignment: start;
+    groups-row := SetRow {
+        key: "clear-groups";
+        label: @tr("Clear groups");
+        help: @tr("A clear group takes several layers off the screen with one key. The View menu lists them too.");
         for g[gi] in KeysDlg.groups: group := Rectangle {
             background: Theme.panel-2;
             border-radius: 10px;
@@ -165,14 +184,6 @@ export component SettingsHelp inherits HorizontalLayout {
                 text: @tr("Add a clear group");
                 clicked => { KeysDlg.group-add(); }
             }
-        }
-        Note {
-            text: @tr("Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees.");
-        }
-        // N26, N27: the slide editor's own keys (they work only on its slide).
-        Lbl { label: @tr("In the slide editor"); }
-        slide-editor-keys := Note {
-            text: @tr("Ctrl+Alt+C copies the chosen box's style and Ctrl+Alt+V pastes it (with nothing chosen: on every text box of the slide). Ctrl+Z undo, Ctrl+Y redo, Ctrl+D duplicate, Ctrl+A choose all, Delete removes, arrows nudge (Shift+arrows resize), Tab chooses the next object.");
         }
     }
 }

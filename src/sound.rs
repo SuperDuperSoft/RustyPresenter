@@ -1,5 +1,5 @@
 //! Spec §6.4: a chosen sound output that goes away pauses what can be heard and tells the operator, so a video
-//! never plays on in silence or falls back to the laptop's speakers. Settings → Video → Sound goes to is the way
+//! never plays on in silence or falls back to the laptop's speakers. Settings → General → Screens and graphics → Sound goes to is the way
 //! out: with the Windows default chosen there is nothing to watch.
 use crate::{live::{Command, Frame, MediaLayer}, video::ffi::AudioDevice};
 

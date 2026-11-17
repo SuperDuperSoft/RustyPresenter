@@ -143,7 +143,7 @@ msgstr "Ajoute vèsè"
 msgid "Paste the verses instead"
 msgstr "Kole vèsè yo pito"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/topbar.slint
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/slide-breaks.slint ui/operator/topbar.slint src/ui/dialogs/settings_find.rs
 msgid "Verses per slide"
 msgstr "Vèsè pou chak diapo"
 
@@ -187,7 +187,7 @@ msgstr "Tape tèks ou. Kite yon liy vid pou kòmanse yon nouvo diapo."
 msgid "Add announcement"
 msgstr "Ajoute anons"
 
-#: ui/dialogs/add.slint ui/dialogs/settings-follow.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
+#: ui/dialogs/add.slint ui/dialogs/settings-follow.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs src/ui/dialogs/settings_find.rs
 msgid "Song"
 msgstr "Chante"
 
@@ -195,7 +195,7 @@ msgstr "Chante"
 msgid "Words"
 msgstr "Pawòl"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings.slint
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint src/ui/dialogs/settings_find.rs
 msgid "Bible"
 msgstr "Bib"
 
@@ -315,19 +315,19 @@ msgstr "Lè li rive a zewo"
 msgid "Place on the screen"
 msgstr "Plas sou ekran an"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-stream.slint src/strings/screens.rs
 msgid "Top right"
 msgstr "Anwo adwat"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-stream.slint src/strings/screens.rs
 msgid "Top left"
 msgstr "Anwo agoch"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-stream.slint src/strings/screens.rs
 msgid "Bottom right"
 msgstr "Anba adwat"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-stream.slint src/strings/screens.rs
 msgid "Bottom left"
 msgstr "Anba agoch"
 
@@ -348,8 +348,8 @@ msgid "Show on stage"
 msgstr "Montre sou sèn"
 
 #: ui/dialogs/automation.slint
-msgid "Show on the phone remote"
-msgstr "Montre sou telefòn kontwòl la"
+msgid "Show on the remote"
+msgstr "Montre sou telekòmand lan"
 
 #: ui/dialogs/automation.slint
 msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
@@ -371,7 +371,7 @@ msgstr "Anwo"
 msgid "Hide after"
 msgstr "Kache apre"
 
-#: ui/dialogs/automation.slint ui/dialogs/stream-more.slint src/ui/dialogs/stream_scenes.rs
+#: ui/dialogs/automation.slint ui/dialogs/settings-stream.slint src/ui/dialogs/stream_scenes.rs
 msgid "Never"
 msgstr "Janmen"
 
@@ -495,7 +495,7 @@ msgstr "Repete diapo sa yo"
 msgid "Play music"
 msgstr "Jwe mizik"
 
-#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs src/ui/dialogs/settings_find.rs
 msgid "Stage screen"
 msgstr "Ekran sèn"
 
@@ -611,11 +611,11 @@ msgstr "Poz"
 msgid "Start"
 msgstr "Kòmanse"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/dialogs/stream-more.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/dialogs/settings-stream.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
 msgid "Delete"
 msgstr "Efase"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-more.slint ui/dialogs/stream-scenes.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings.rs
 msgid "Save"
 msgstr "Anrejistre"
 
@@ -739,7 +739,7 @@ msgstr "Yon tablo: yon ranje pou chak liy, selil yo separe ak tab."
 msgid "Shrink to fit the box"
 msgstr "Rapetise pou l antre nan bwat la"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/settings_find.rs
 msgid "Text colour"
 msgstr "Koulè tèks"
 
@@ -783,7 +783,7 @@ msgstr "Liy"
 msgid "Arrow"
 msgstr "Flèch"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/stream-more.slint src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
 msgid "Picture"
 msgstr "Foto"
 
@@ -795,7 +795,7 @@ msgstr "Ajiste"
 msgid "Fill"
 msgstr "Ranpli"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/settings-general.slint
 msgid "Stretch"
 msgstr "Etire"
 
@@ -1060,7 +1060,7 @@ msgstr "Rale pou deplase, rale yon kwen pou chanje gwosè, flèch yo deplase ti 
 msgid "Video: {}"
 msgstr "Videyo: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-more.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Anile"
 
@@ -1108,15 +1108,15 @@ msgstr "Etap {} sou 4"
 msgid "Where should the service go?"
 msgstr "Ki kote sèvis la dwe ale?"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "Another server"
 msgstr "Yon lòt sèvè"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "The server's address"
 msgstr "Adrès sèvè a"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "Its address: rtmp://, rtmps:// or srt://"
 msgstr "Adrès li: rtmp://, rtmps:// oswa srt://"
 
@@ -1124,11 +1124,11 @@ msgstr "Adrès li: rtmp://, rtmps:// oswa srt://"
 msgid "Stream key"
 msgstr "Kle emisyon"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "A key is saved. Type a new one to change it."
 msgstr "Gen yon kle ki sove. Tape yon lòt pou chanje l."
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "Paste the stream key"
 msgstr "Kole kle emisyon an"
 
@@ -1185,8 +1185,8 @@ msgid "Ready to go live"
 msgstr "Pare pou ale an dirèk"
 
 #: ui/dialogs/go-live-helper.slint
-msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Media → Livestream."
-msgstr "Peze Ale an dirèk anlè a lè sèvis la kòmanse, epi peze l ankò nan fen an. Tout sa ou chwazi la a ka chanje nan Paramèt → Medya → Emisyon an dirèk."
+msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Livestream."
+msgstr "Peze Ale an dirèk anwo a lè sèvis la kòmanse, epi peze l ankò nan fen an. Tout sa w chwazi la a ka chanje nan Paramèt → Emisyon an dirèk."
 
 #: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
 msgid "Back"
@@ -1252,7 +1252,7 @@ msgstr "Kòt a kòt"
 msgid "Top and bottom"
 msgstr "Anwo ak anba"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/settings-media.slint ui/dialogs/slide-breaks.slint ui/dialogs/stream-more.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-stream.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "Otomatik"
 
@@ -1289,8 +1289,8 @@ msgid "Choose"
 msgstr "Chwazi"
 
 #: ui/dialogs/item-edit.slint
-msgid "Same as Settings → Look"
-msgstr "Menm jan ak Paramèt → Aparans"
+msgid "Same as Settings → Look → Text and logo"
+msgstr "Menm jan ak Paramèt → Aparans → Tèks ak logo"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Layout"
@@ -1308,19 +1308,19 @@ msgstr "Kòmanse jwe depi li parèt"
 msgid "When the video ends"
 msgstr "Lè videyo a fini"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-media.slint src/ui/operator/help.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-general.slint src/ui/operator/help.rs
 msgid "Clear the screen"
 msgstr "Efase ekran an"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-general.slint
 msgid "Stay on last frame"
 msgstr "Rete sou dènye imaj la"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-general.slint
 msgid "Play again (loop)"
 msgstr "Jwe ankò (an bouk)"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-general.slint
 msgid "Go to the next slide"
 msgstr "Ale nan pwochen diapo a"
 
@@ -1443,7 +1443,7 @@ msgstr "Retire nan sèvis la"
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear all stop it."
 msgstr "Mizik akèy la kontinye jwe pandan diapo yo ap chanje. Efase odyo ak Efase tout kanpe l."
 
-#: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
+#: ui/dialogs/music.slint ui/operator/media.slint src/ui/dialogs/settings_find.rs src/ui/operator/help.rs
 msgid "Songs"
 msgstr "Chante"
 
@@ -1494,66 +1494,6 @@ msgstr "Jwe"
 #: ui/dialogs/music.slint ui/dialogs/translation-editor.slint src/i18n/remote_strings.rs
 msgid "Done"
 msgstr "Fini"
-
-#: ui/dialogs/network.slint src/i18n/remote_strings.rs src/strings/dialogs.rs
-msgid "Phone remote"
-msgstr "Telefòn kontwòl"
-
-#: ui/dialogs/network.slint
-msgid "Ask for a password when a phone pairs"
-msgstr "Mande yon modpas lè yon telefòn konekte"
-
-#: ui/dialogs/network.slint
-msgid "Phone remote password"
-msgstr "Modpas telefòn kontwòl"
-
-#: ui/dialogs/network.slint
-msgid "Saved — type to change it"
-msgstr "Anrejistre — tape pou chanje l"
-
-#: ui/dialogs/network.slint
-msgid "New password"
-msgstr "Nouvo modpas"
-
-#: ui/dialogs/network.slint
-msgid "Phones still pair with the code or the QR code; the password is asked too. Phones already paired stay paired."
-msgstr "Telefòn yo toujou konekte ak kòd la oswa kòd QR la; yo mande modpas la tou. Telefòn ki deja konekte rete konekte."
-
-#: ui/dialogs/network.slint
-msgid "Stage screen on a phone or tablet"
-msgstr "Ekran sèn sou yon telefòn oswa tablèt"
-
-#: ui/dialogs/network.slint
-msgid "Show the stage screen to phones and tablets (read only)"
-msgstr "Montre ekran sèn nan sou telefòn ak tablèt (lekti sèlman)"
-
-#: ui/dialogs/network.slint
-msgid "Ask for a password"
-msgstr "Mande yon modpas"
-
-#: ui/dialogs/network.slint
-msgid "Stage screen password"
-msgstr "Modpas ekran sèn"
-
-#: ui/dialogs/network.slint
-msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this computer)."
-msgstr "Louvri adrès sa a sou iPad oswa telefòn chantè a (menm Wi-Fi ak òdinatè sa a)."
-
-#: ui/dialogs/network.slint
-msgid "Control from other gear (TCP)"
-msgstr "Kontwòl pa lòt aparèy (TCP)"
-
-#: ui/dialogs/network.slint
-msgid "Let other gear send commands over the network"
-msgstr "Kite lòt aparèy voye kòmand sou rezo a"
-
-#: ui/dialogs/network.slint
-msgid "Port"
-msgstr "Pò"
-
-#: ui/dialogs/network.slint
-msgid "TCP password"
-msgstr "Modpas TCP"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the audience screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
@@ -1656,8 +1596,8 @@ msgid "Save overlay"
 msgstr "Anrejistre kouch"
 
 #: ui/dialogs/phone.slint
-msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
-msgstr "Kontwole diapo yo ak nenpòt telefòn ki sou Wi-Fi legliz la. Telefòn nan dwe sou menm rezo ak òdinatè sa a."
+msgid "Use your phone or tablet as a remote: it runs the slides from anywhere on the church Wi-Fi. It must be on the same network as this computer."
+msgstr "Sèvi ak telefòn oswa tablèt ou kòm telekòmand: li fè glisad yo pase depi nenpòt kote sou Wi-Fi legliz la. Li dwe sou menm rezo ak òdinatè sa a."
 
 #: ui/dialogs/phone.slint
 msgid " (No network found — connect this computer to Wi-Fi.)"
@@ -1668,8 +1608,8 @@ msgid "Address: "
 msgstr "Adrès: "
 
 #: ui/dialogs/phone.slint src/i18n/remote_strings.rs
-msgid "Pair a phone"
-msgstr "Konekte yon telefòn"
+msgid "Pair a phone or tablet"
+msgstr "Konekte yon telefòn oswa yon tablèt"
 
 #: ui/dialogs/phone.slint
 msgid "QR code"
@@ -1692,8 +1632,8 @@ msgid "2. Enter this code on the phone:"
 msgstr "2. Antre kòd sa a sou telefòn nan:"
 
 #: ui/dialogs/phone.slint
-msgid "Paired phones"
-msgstr "Telefòn ki konekte"
+msgid "Paired phones and tablets"
+msgstr "Telefòn ak tablèt ki konekte"
 
 #: ui/dialogs/phone.slint
 msgid "May draw on slides"
@@ -1827,11 +1767,11 @@ msgstr "Ekran"
 msgid "Output"
 msgstr "Sòti"
 
-#: ui/dialogs/screens.slint
+#: ui/dialogs/screens.slint ui/dialogs/settings-stream.slint
 msgid "Width"
 msgstr "Lajè"
 
-#: ui/dialogs/screens.slint
+#: ui/dialogs/screens.slint ui/dialogs/settings-stream.slint
 msgid "Height"
 msgstr "Wotè"
 
@@ -1959,21 +1899,29 @@ msgstr "Done ou yo:"
 msgid "Show licences"
 msgstr "Montre lisans yo"
 
-#: ui/dialogs/settings-bible.slint src/strings/catalog.rs
+#: ui/dialogs/settings-bible.slint src/strings/catalog.rs src/ui/dialogs/settings_find.rs
 msgid "Default Bible"
 msgstr "Bib pa defo"
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Also show with every new passage"
 msgstr "Montre tou ak chak nouvo pasaj"
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Pick up to two. Each slide then shows the same verses from every Bible."
 msgstr "Chwazi jiska de. Chak diapo ap montre menm vèsè yo nan chak Bib."
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
+msgid "For new passages. Text shrinks automatically when a slide holds more words."
+msgstr "Pou nouvo pasaj. Tèks la vin pi piti poukont li lè yon glisad gen plis mo."
+
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Add Bibles"
 msgstr "Ajoute Bib"
+
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
+msgid "KJV, WEB and BSB are built in and work offline. The others come from the internet or from their publisher's service."
+msgstr "KJV, WEB ak BSB deja ladan l epi yo mache san entènèt. Lòt yo soti sou entènèt oswa nan sèvis piblikatè yo."
 
 #: ui/dialogs/settings-bible.slint
 msgid "Search by name, short name or language"
@@ -1995,11 +1943,11 @@ msgstr "KJV, WEB ak BSB enstale ladan l epi yo mache san entènèt."
 msgid "The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops."
 msgstr "Lòt yo gen dwa otè: konekte sèvis gratis piblikatè a ak yon kle legliz ou fè yon sèl fwa. Pasaj ou ajoute nan yon sèvis anrejistre avè l, kidonk yo toujou parèt si entènèt la tonbe."
 
-#: ui/dialogs/settings-bible.slint src/ui/dialogs/translation_editor.rs
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/translation_editor.rs
 msgid "Translations"
 msgstr "Tradiksyon"
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Online services"
 msgstr "Sèvis sou entènèt"
 
@@ -2043,11 +1991,11 @@ msgstr "Anrejistre kle"
 msgid "Disconnect"
 msgstr "Dekonekte"
 
-#: ui/dialogs/settings-bible.slint src/strings/operator.rs
+#: ui/dialogs/settings-bible.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Bible files"
 msgstr "Fichye Bib"
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Import a Zefania, OSIS, USX or OpenSong file (.xml or .usx). Only import Bibles that are public domain or that your church is licensed to use. Give it the short name of a translation above (like HCSB) to use the file for that translation."
 msgstr "Enpòte yon fichye Zefania, OSIS, USX oswa OpenSong (.xml oswa .usx). Enpòte sèlman Bib ki nan domèn piblik oswa legliz ou gen lisans pou itilize. Ba li non kout yon tradiksyon anwo a (tankou HCSB) pou itilize fichye a pou tradiksyon sa a."
 
@@ -2059,7 +2007,7 @@ msgstr "Non kout, egz. HCSB (si ou vle)"
 msgid "Import a Bible file"
 msgstr "Enpòte yon fichye Bib"
 
-#: ui/dialogs/settings-bible.slint ui/dialogs/settings.slint src/strings/catalog.rs
+#: ui/dialogs/settings-bible.slint ui/dialogs/settings-general.slint src/strings/catalog.rs src/ui/dialogs/settings_find.rs
 msgid "Credits"
 msgstr "Kredi"
 
@@ -2067,15 +2015,11 @@ msgstr "Kredi"
 msgid "RustyPresenter listens to the band and moves the song's slides by itself. The sound never leaves this computer."
 msgstr "RustyPresenter koute mizisyen yo epi li fè diapo chante a pase pou kont li. Son an pa janm kite òdinatè sa a."
 
-#: ui/dialogs/settings-follow.slint
-msgid "Listening"
-msgstr "Koute"
-
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Sound input"
 msgstr "Antre son"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Best: the lead singer's microphone on its own, sent from the sound board. Next best: the main mix. A microphone in the room hears too much else."
 msgstr "Pi bon an: mikwo chantè prensipal la pou kont li, ki soti nan tab son an. Apre sa: mix prensipal la. Yon mikwo nan sal la tande twòp lòt bagay."
 
@@ -2091,23 +2035,19 @@ msgstr "Teste"
 msgid "Sing or say a line: the meter moves when it hears you."
 msgstr "Chante oswa di yon liy: mèt la ap bouje lè li tande w."
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Songs follow the singers"
 msgstr "Chante yo swiv chantè yo"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "A song can have its own in Edit item. Key A turns Auto on and off for the live song, H holds it."
 msgstr "Chak chante ka gen pa l nan Modifye eleman. Touch A limen ak etenn Oto pou chante ki an dirèk la, H kenbe l."
 
-#: ui/dialogs/settings-follow.slint
-msgid "Timing"
-msgstr "Distribisyon tan"
-
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Show the next slide before it is sung"
 msgstr "Montre pwochen diapo a anvan yo chante l"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Early enough to read, not so early that people sing ahead."
 msgstr "Bonè ase pou moun li, men pa twò bonè pou moun pa chante devan."
 
@@ -2115,7 +2055,7 @@ msgstr "Bonè ase pou moun li, men pa twò bonè pou moun pa chante devan."
 msgid "{} s"
 msgstr "{} s"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "When nobody sings"
 msgstr "Lè pèsonn pa chante"
 
@@ -2123,27 +2063,23 @@ msgstr "Lè pèsonn pa chante"
 msgid "Take the words off after (seconds)"
 msgstr "Retire pawòl yo apre (segonn)"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "When someone talks or prays"
 msgstr "Lè yon moun ap pale oswa ap priye"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Jump to another part of the song after (words heard there)"
 msgstr "Sote nan yon lòt pati chante a apre (mo yo tande la)"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "More words: fewer wrong jumps, but slower to follow a change in the order."
 msgstr "Plis mo: mwens move sote, men li pi lan pou swiv yon chanjman nan lòd la."
 
-#: ui/dialogs/settings-follow.slint
-msgid "Listening model"
-msgstr "Modèl pou koute"
-
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Speech model"
 msgstr "Modèl vwa"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Downloaded once, then it works without internet. Apache-2.0, by Facebook AI."
 msgstr "Telechaje yon sèl fwa, apre sa li mache san entènèt. Apache-2.0, pa Facebook AI."
 
@@ -2175,7 +2111,7 @@ msgstr "Eseye modèl ki telechaje yo sou òdinatè sa a epi di kiyès ki mache p
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
 msgstr "Jwe yon anrejistreman (pa egzanp sa dimanch pase a) nan swiv otomatik pou wè sa li ta fè. Anyen pa chanje sou ekran yo."
 
-#: ui/dialogs/settings-follow.slint ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Recording"
 msgstr "Anrejistreman"
 
@@ -2187,7 +2123,7 @@ msgstr "Pa gen anrejistreman chwazi"
 msgid "Choose recording…"
 msgstr "Chwazi anrejistreman…"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Practice"
 msgstr "Pratike"
 
@@ -2207,17 +2143,297 @@ msgstr "Anyen poko genyen: swiv otomatik poko pase ni sijere okenn diapo."
 msgid "Copy to clipboard"
 msgstr "Kopye nan klipbòd la"
 
-#: ui/dialogs/settings-follow.slint ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
-msgid "Settings"
-msgstr "Paramèt"
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Audience screen in front"
+msgstr "Ekran piblik la devan"
 
-#: ui/dialogs/settings-follow.slint
-msgid "Review log"
-msgstr "Jounal"
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Keeps the audience screen above other windows when it has its own monitor, so fades stay smooth."
+msgstr "Kenbe ekran piblik la anwo lòt fenèt yo lè li gen pwòp monitè pa l, pou tranzisyon yo rete dous."
+
+#: ui/dialogs/settings-general.slint
+msgid "Keep the audience screen in front"
+msgstr "Kenbe ekran piblik la devan"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "At start"
+msgstr "Lè l demare"
+
+#: ui/dialogs/settings-general.slint
+msgid "Turn the screens on when RustyPresenter starts"
+msgstr "Limen ekran yo lè RustyPresenter demare"
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Screens…"
+msgstr "Ekran…"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Graphics"
+msgstr "Grafik"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
+msgstr "Chanje sa sèlman si ekran yo ap tranble, rete nwa oswa RustyPresenter ap kraze. L ap sèvi apati pwochen fwa ou louvri l."
+
+#: ui/dialogs/settings-general.slint src/video/bench.rs
+msgid "Test which is fastest"
+msgstr "Teste kiyès ki pi rapid"
+
+#: ui/dialogs/settings-general.slint
+msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
+msgstr "Anviwon yon minit. Fenèt tès ap louvri epi fèmen pandan l ap mache, sou pwojektè a tou lè pa gen anyen k ap parèt la."
+
+#: ui/dialogs/settings-general.slint
+msgid "Use this"
+msgstr "Sèvi ak sa a"
+
+#: ui/dialogs/settings-general.slint
+msgid "Restart now"
+msgstr "Rekòmanse kounye a"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Performance"
+msgstr "Pèfòmans"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Shows under the live preview how many frames a second the screens draw, and the free video memory when the graphics card says. Low numbers mean the computer is struggling."
+msgstr "Montre anba apèsi dirèk la konbyen imaj pa segonn ekran yo desine, ak memwa videyo ki lib lè kat grafik la bay li. Ti chif vle di òdinatè a ap bat."
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Show performance"
+msgstr "Montre pèfòmans"
+
+#: ui/dialogs/settings-general.slint ui/dialogs/song-editor.slint ui/operator/slides.slint src/ui/dialogs/settings_find.rs
+msgid "Lines per slide"
+msgstr "Liy pou chak diapo"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage."
+msgstr "Chante ak pasaj Bib. Gen Bib ki mande pou yo montre kredi yo; li parèt yon fwa pou chak pasaj."
+
+#: ui/dialogs/settings-general.slint
+msgid "Show the copyright line"
+msgstr "Montre liy dwa otè a"
+
+#: ui/dialogs/settings-general.slint
+msgid "On first and last slide"
+msgstr "Sou premye ak dènye diapo"
+
+#: ui/dialogs/settings-general.slint
+msgid "On first slide"
+msgstr "Sou premye diapo"
+
+#: ui/dialogs/settings-general.slint
+msgid "On last slide"
+msgstr "Sou dènye diapo"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Copyright line"
+msgstr "Liy dwa otè"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Use {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}} and {{license}}. Parts between · with nothing in them are left out. Empty: the usual line."
+msgstr "Itilize {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}} ak {{license}}. Pati ant · ki vid yo pa parèt. Vid: liy abityèl la."
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Church CCLI licence #"
+msgstr "Nimewo lisans CCLI legliz la"
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Song use report…"
+msgstr "Rapò itilizasyon chante…"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted."
+msgstr "Chante ou telechaje nan SongSelect nan navigatè entènèt ou a antre poukont yo nan bibliyotèk chante a. Se sèlman fichye chante SongSelect yo ki li; anyen nan Downloads pa deplase ni efase."
+
+#: ui/dialogs/settings-general.slint
+msgid "Bring in SongSelect downloads whenever RustyPresenter is open"
+msgstr "Pran telechajman SongSelect yo chak fwa RustyPresenter louvri"
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Songs from SongSelect…"
+msgstr "Chante ki soti nan SongSelect…"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "When the shape doesn't match the screen"
+msgstr "Lè fòm nan pa matche ak ekran an"
+
+#: ui/dialogs/settings-general.slint
+msgid "Fit (black bars)"
+msgstr "Ajiste (ba nwa)"
+
+#: ui/dialogs/settings-general.slint
+msgid "Fill (cut the edges)"
+msgstr "Ranpli (koupe bò yo)"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "When a video ends"
+msgstr "Lè yon videyo fini"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "For videos added from now on. Change one video in its Edit window."
+msgstr "Pou videyo ou ajoute apati kounye a. Chanje yon sèl videyo nan fenèt Modifye li."
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Pictures added together as slides"
+msgstr "Foto ajoute ansanm kòm diapo"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Each picture stays this long, then the next one comes up."
+msgstr "Chak foto rete pandan tan sa a, epi pwochen an parèt."
+
+#: ui/dialogs/settings-general.slint
+msgid "Until Next is pressed"
+msgstr "Jiskaske yo peze Pwochen"
+
+#: ui/dialogs/settings-general.slint
+msgid "5 seconds"
+msgstr "5 segonn"
+
+#: ui/dialogs/settings-general.slint
+msgid "8 seconds"
+msgstr "8 segonn"
+
+#: ui/dialogs/settings-general.slint ui/dialogs/settings-stream.slint
+msgid "10 seconds"
+msgstr "10 segonn"
+
+#: ui/dialogs/settings-general.slint
+msgid "15 seconds"
+msgstr "15 segonn"
+
+#: ui/dialogs/settings-general.slint
+msgid "20 seconds"
+msgstr "20 segonn"
+
+#: ui/dialogs/settings-general.slint ui/dialogs/settings-stream.slint
+msgid "30 seconds"
+msgstr "30 segonn"
+
+#: ui/dialogs/settings-general.slint ui/dialogs/settings-stream.slint
+msgid "1 minute"
+msgstr "1 minit"
+
+#: ui/dialogs/settings-general.slint ui/operator/media.slint src/ui/dialogs/settings_find.rs
+msgid "Media library"
+msgstr "Bibliyotèk medya"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Every file you add is copied into RustyPresenter's own folder, so moving or deleting the original never breaks a slide."
+msgstr "Chak fichye ou ajoute kopye nan pwòp dosye RustyPresenter, kidonk si ou deplase oswa efase orijinal la, sa p ap janm kase yon diapo."
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Clean up unused media…"
+msgstr "Netwaye medya ki pa itilize…"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Sound goes to"
+msgstr "Son an ale nan"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Headphones (Listen)"
+msgstr "Kas (Koute)"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "View → Listen in headphones sends the sound here only, so you can check a video without the room hearing it."
+msgstr "Afichaj → Koute nan kas voye son an isit la sèlman, pou ou ka tcheke yon videyo san sal la pa tande l."
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Delay the room's sound (milliseconds)"
+msgstr "Retade son sal la (milisegonn)"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "If the sound comes before the picture on the projector, try 50 to 150. 0 is no delay."
+msgstr "Si son an vini anvan imaj la sou pwojektè a, eseye 50 a 150. 0 vle di pa gen reta."
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Speakers"
+msgstr "Opalè"
+
+#: ui/dialogs/settings-general.slint
+msgid "Stereo (as recorded)"
+msgstr "Estereyo (jan l anrejistre a)"
+
+#: ui/dialogs/settings-general.slint
+msgid "Mono (both speakers the same)"
+msgstr "Mono (de opalè yo menm bagay)"
+
+#: ui/dialogs/settings-general.slint
+msgid "Swap left and right"
+msgstr "Chanje gòch ak dwat"
+
+#: ui/dialogs/settings-general.slint
+msgid "Left speaker only"
+msgstr "Opalè gòch sèlman"
+
+#: ui/dialogs/settings-general.slint
+msgid "Right speaker only"
+msgstr "Opalè dwat sèlman"
+
+#: ui/dialogs/settings-general.slint
+msgid "The livestream's sound: Settings → Livestream → Sound"
+msgstr "Son emisyon an: Paramèt → Emisyon an dirèk → Son"
+
+#: ui/dialogs/settings-general.slint src/strings/stage.rs src/ui/dialogs/settings_find.rs
+msgid "Stage layout"
+msgstr "Aranjman sèn"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "What the stage screen shows. Window → Stage layouts… makes your own."
+msgstr "Sa ekran sèn nan montre. Fenèt → Aranjman sèn… pou fè pa w."
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Stage layouts…"
+msgstr "Aranjman sèn…"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Drawings"
+msgstr "Desen"
+
+#: ui/dialogs/settings-general.slint
+msgid "Show drawings on the stage screen"
+msgstr "Montre desen yo sou ekran sèn nan"
+
+#: ui/dialogs/settings-general.slint
+msgid "The stage screen on phones and tablets: Settings → Remote and network"
+msgstr "Ekran sèn nan sou telefòn ak tablèt: Paramèt → Telekòmand ak rezo"
+
+#: ui/dialogs/settings-general.slint
+msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
+msgstr "Yon sovgad konplè (chante, sèvis, paramèt ak chak videyo, foto ak diapo) fèt chak fwa RustyPresenter demare ak yon fwa pa jou. Dènye 10 yo kenbe nan"
+
+#: ui/dialogs/settings-general.slint
+msgid "Back up now"
+msgstr "Fè sovgad kounye a"
+
+#: ui/dialogs/settings-general.slint
+msgid "Restore"
+msgstr "Retabli"
+
+#: ui/dialogs/settings-general.slint
+msgid "No backups yet."
+msgstr "Poko gen sovgad."
+
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
+msgid "Section keys (C, B, 1–9…)"
+msgstr "Kle seksyon (C, B, 1–9…)"
+
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
+msgid "Turn off if letters typed by mistake move the screen."
+msgstr "Etenn sa si lèt ou tape pa erè fè ekran an bouje."
 
 #: ui/dialogs/settings-keys.slint
-msgid "Keyboard"
-msgstr "Klavye"
+msgid "Letters and numbers jump the live song to a section"
+msgstr "Lèt ak chif fè chante k ap pase a sote nan yon seksyon"
+
+#: ui/dialogs/settings-keys.slint ui/operator.slint src/ui/dialogs/settings_find.rs
+msgid "Keyboard shortcuts"
+msgstr "Rakousi klavye"
+
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
+msgid "Change any key that has a Change button. New keys work once you save the settings."
+msgstr "Ou ka chanje nenpòt touch ki gen bouton Chanje. Nouvo touch yo mache lè w anrejistre paramèt yo."
 
 #: ui/dialogs/settings-keys.slint
 msgid "Reset all keys"
@@ -2247,11 +2463,19 @@ msgstr "Peze yon kle…"
 msgid "Change"
 msgstr "Chanje"
 
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
+msgid "In the slide editor"
+msgstr "Nan editè diapo a"
+
 #: ui/dialogs/settings-keys.slint
+msgid "Ctrl+Alt+C copies the chosen box's style and Ctrl+Alt+V pastes it (with nothing chosen: on every text box of the slide). Ctrl+Z undo, Ctrl+Y redo, Ctrl+D duplicate, Ctrl+A choose all, Delete removes, arrows nudge (Shift+arrows resize), Tab chooses the next object."
+msgstr "Ctrl+Alt+C kopye stil bwat ou chwazi a epi Ctrl+Alt+V kole l (si anyen pa chwazi: sou chak bwat tèks nan diapo a). Ctrl+Z defèt, Ctrl+Y refè, Ctrl+D fè yon kopi, Ctrl+A chwazi tout, Delete efase, flèch yo deplase ti kras (Shift+flèch chanje gwosè), Tab chwazi pwochen objè a."
+
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
 msgid "Clear groups"
 msgstr "Gwoup efase"
 
-#: ui/dialogs/settings-keys.slint
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
 msgid "A clear group takes several layers off the screen with one key. The View menu lists them too."
 msgstr "Yon gwoup efase retire plizyè kouch sou ekran an ak yon sèl kle. Meni Afichaj la montre yo tou."
 
@@ -2267,17 +2491,9 @@ msgstr "Efase gwoup"
 msgid "Add a clear group"
 msgstr "Ajoute yon gwoup efase"
 
-#: ui/dialogs/settings-keys.slint
-msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
-msgstr "Konsèy: lè ou klike sou nenpòt diapo, li mete l sou ekran an touswit. Kad wouj la montre sa sal la wè."
-
-#: ui/dialogs/settings-keys.slint
-msgid "In the slide editor"
-msgstr "Nan editè diapo a"
-
-#: ui/dialogs/settings-keys.slint
-msgid "Ctrl+Alt+C copies the chosen box's style and Ctrl+Alt+V pastes it (with nothing chosen: on every text box of the slide). Ctrl+Z undo, Ctrl+Y redo, Ctrl+D duplicate, Ctrl+A choose all, Delete removes, arrows nudge (Shift+arrows resize), Tab chooses the next object."
-msgstr "Ctrl+Alt+C kopye stil bwat ou chwazi a epi Ctrl+Alt+V kole l (si anyen pa chwazi: sou chak bwat tèks nan diapo a). Ctrl+Z defèt, Ctrl+Y refè, Ctrl+D fè yon kopi, Ctrl+A chwazi tout, Delete efase, flèch yo deplase ti kras (Shift+flèch chanje gwosè), Tab chwazi pwochen objè a."
+#: ui/dialogs/settings-language.slint src/ui/dialogs/settings_find.rs
+msgid "Language"
+msgstr "Lang"
 
 #: ui/dialogs/settings-language.slint
 msgid "In use"
@@ -2303,39 +2519,27 @@ msgstr "Ajoute yon lang…"
 msgid "Help translate RustyPresenter"
 msgstr "Ede tradui RustyPresenter"
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "Font"
 msgstr "Polis"
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "Song text size"
 msgstr "Gwosè tèks chante"
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "(biggest; long lines shrink to fit)"
 msgstr "(pi gwo; liy ki long yo vin pi piti pou yo antre)"
 
-#: ui/dialogs/settings-look.slint
-msgid "Bible verses"
-msgstr "Vèsè Bib"
-
-#: ui/dialogs/settings-look.slint
-msgid "(for new passages)"
-msgstr "(pou nouvo pasaj)"
-
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "Bible text size"
 msgstr "Gwosè tèks Bib"
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
-msgid "(biggest)"
-msgstr "(pi gwo)"
-
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint src/ui/dialogs/settings_find.rs
 msgid "Text shrinks automatically when a slide holds more words."
 msgstr "Tèks la vin pi piti otomatikman lè yon diapo gen plis mo."
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "Text position"
 msgstr "Pozisyon tèks"
 
@@ -2343,11 +2547,15 @@ msgstr "Pozisyon tèks"
 msgid "Lower third"
 msgstr "Tyè anba"
 
+#: ui/dialogs/settings-look.slint src/ui/dialogs/settings_find.rs
+msgid "Text style"
+msgstr "Stil tèks la"
+
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "ALL CAPS song words"
 msgstr "Pawòl chante an MAJISKIL"
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint src/ui/dialogs/settings_find.rs
 msgid "Fade when the theme changes"
 msgstr "Tranzisyon lè tèm nan chanje"
 
@@ -2359,7 +2567,7 @@ msgstr "(san tranzisyon)"
 msgid "({} s)"
 msgstr "({} s)"
 
-#: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs
+#: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs src/ui/dialogs/settings_find.rs
 msgid "Logo"
 msgstr "Logo"
 
@@ -2371,723 +2579,179 @@ msgstr "Pa gen logo (bouton Logo montre nwa)"
 msgid "Choose logo"
 msgstr "Chwazi logo"
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint src/ui/dialogs/settings_find.rs
 msgid "Default background"
 msgstr "Fon pa defo"
 
-#: ui/dialogs/settings-media.slint
-msgid "New pictures and videos"
-msgstr "Nouvo foto ak videyo"
-
-#: ui/dialogs/settings-media.slint
-msgid "When the shape doesn't match the screen"
-msgstr "Lè fòm nan pa matche ak ekran an"
-
-#: ui/dialogs/settings-media.slint
-msgid "Fit (black bars)"
-msgstr "Ajiste (ba nwa)"
-
-#: ui/dialogs/settings-media.slint
-msgid "Fill (cut the edges)"
-msgstr "Ranpli (koupe bò yo)"
-
-#: ui/dialogs/settings-media.slint
-msgid "When a video ends"
-msgstr "Lè yon videyo fini"
-
-#: ui/dialogs/settings-media.slint
-msgid "For videos added from now on. Change one video in its Edit window."
-msgstr "Pou videyo ou ajoute apati kounye a. Chanje yon sèl videyo nan fenèt Modifye li."
-
-#: ui/dialogs/settings-media.slint
-msgid "Pictures added together as slides"
-msgstr "Foto ajoute ansanm kòm diapo"
-
-#: ui/dialogs/settings-media.slint
-msgid "Each picture stays this long, then the next one comes up."
-msgstr "Chak foto rete pandan tan sa a, epi pwochen an parèt."
-
-#: ui/dialogs/settings-media.slint
-msgid "Until Next is pressed"
-msgstr "Jiskaske yo peze Pwochen"
-
-#: ui/dialogs/settings-media.slint
-msgid "5 seconds"
-msgstr "5 segonn"
-
-#: ui/dialogs/settings-media.slint
-msgid "8 seconds"
-msgstr "8 segonn"
-
-#: ui/dialogs/settings-media.slint
-msgid "10 seconds"
-msgstr "10 segonn"
-
-#: ui/dialogs/settings-media.slint
-msgid "15 seconds"
-msgstr "15 segonn"
-
-#: ui/dialogs/settings-media.slint
-msgid "20 seconds"
-msgstr "20 segonn"
-
-#: ui/dialogs/settings-media.slint
-msgid "30 seconds"
-msgstr "30 segonn"
-
-#: ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
-msgid "1 minute"
-msgstr "1 minit"
-
-#: ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
-msgid "Sound"
-msgstr "Son"
-
-#: ui/dialogs/settings-media.slint
-msgid "Headphones (Listen)"
-msgstr "Kas (Koute)"
-
-#: ui/dialogs/settings-media.slint
-msgid "View → Listen in headphones sends the sound here only, so you can check a video without the room hearing it."
-msgstr "Afichaj → Koute nan kas voye son an isit la sèlman, pou ou ka tcheke yon videyo san sal la pa tande l."
-
-#: ui/dialogs/settings-media.slint
-msgid "Delay the room's sound (milliseconds)"
-msgstr "Retade son sal la (milisegonn)"
-
-#: ui/dialogs/settings-media.slint
-msgid "If the sound comes before the picture on the projector, try 50 to 150. 0 is no delay."
-msgstr "Si son an vini anvan imaj la sou pwojektè a, eseye 50 a 150. 0 vle di pa gen reta."
-
-#: ui/dialogs/settings-media.slint
-msgid "Speakers"
-msgstr "Opalè"
-
-#: ui/dialogs/settings-media.slint
-msgid "Stereo (as recorded)"
-msgstr "Estereyo (jan l anrejistre a)"
-
-#: ui/dialogs/settings-media.slint
-msgid "Mono (both speakers the same)"
-msgstr "Mono (de opalè yo menm bagay)"
-
-#: ui/dialogs/settings-media.slint
-msgid "Swap left and right"
-msgstr "Chanje gòch ak dwat"
-
-#: ui/dialogs/settings-media.slint
-msgid "Left speaker only"
-msgstr "Opalè gòch sèlman"
-
-#: ui/dialogs/settings-media.slint
-msgid "Right speaker only"
-msgstr "Opalè dwat sèlman"
-
-#: ui/dialogs/settings-media.slint
-msgid "File → Start recording (or the Record button at the top) saves what the audience screen shows as an MP4 video."
-msgstr "Fichye → Kòmanse anrejistreman (oswa bouton Anrejistre anwo a) anrejistre sa ekran sal la montre kòm yon videyo MP4."
-
-#: ui/dialogs/settings-media.slint ui/operator/media.slint ui/operator/slides.slint
-msgid "Picture size"
-msgstr "Gwosè imaj"
-
-#: ui/dialogs/settings-media.slint
-msgid "720p uses less of the computer and the disk (about 1.4 GB an hour at most); 1080p is sharper (about 2.8 GB)."
-msgstr "720p sèvi mwens ak òdinatè a ak disk la (anviwon 1.4 GB pa èdtan pou pi plis); 1080p pi klè (anviwon 2.8 GB)."
-
-#: ui/dialogs/settings-media.slint
-msgid "720p"
-msgstr "720p"
-
-#: ui/dialogs/settings-media.slint
-msgid "1080p"
-msgstr "1080p"
-
-#: ui/dialogs/settings-media.slint
-msgid "Video encoder"
-msgstr "Ankodè videyo"
-
-#: ui/dialogs/settings-media.slint
-msgid "Automatic suits most computers. A graphics card's encoder leaves the processor free; it is tried first, and Automatic is used if it does not work on this computer."
-msgstr "Otomatik bon pou pifò òdinatè. Ankodè yon kat grafik kite processeur a lib; y ap eseye l anvan, epi si li pa mache sou òdinatè sa a, y ap itilize Otomatik."
-
-#: ui/dialogs/settings-media.slint
-msgid "The processor (x264)"
-msgstr "Processeur a (x264)"
-
-#: ui/dialogs/settings-media.slint
-msgid "NVIDIA graphics card"
-msgstr "Kat grafik NVIDIA"
-
-#: ui/dialogs/settings-media.slint
-msgid "Intel graphics"
-msgstr "Grafik Intel"
-
-#: ui/dialogs/settings-media.slint
-msgid "AMD graphics card"
-msgstr "Kat grafik AMD"
-
-#: ui/dialogs/settings-media.slint
-msgid "Windows' own"
-msgstr "Pa Windows la"
-
-#: ui/dialogs/settings-media.slint
-msgid "OpenH264"
-msgstr "OpenH264"
-
-#: ui/dialogs/settings-media.slint
-msgid "The Mac's own"
-msgstr "Pa Mac la"
-
-#: ui/dialogs/settings-media.slint
-msgid "Bitrate"
-msgstr "Debi"
-
-#: ui/dialogs/settings-media.slint
-msgid "How much picture goes out each second. Automatic: 3000 kbit/s for 720p, 6000 for 1080p. More is sharper and needs a faster upload."
-msgstr "Konbyen imaj ki soti chak segonn. Otomatik: 3000 kbit/s pou 720p, 6000 pou 1080p. Plis la pi klè epi li bezwen yon upload pi rapid."
-
-#: ui/dialogs/settings-media.slint
-msgid "Save recordings in"
-msgstr "Anrejistre anrejistreman yo nan"
-
-#: ui/dialogs/settings-media.slint
-msgid "Choose folder…"
-msgstr "Chwazi dosye…"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound in the recording"
-msgstr "Son nan anrejistreman an"
-
-#: ui/dialogs/settings-media.slint
-msgid "The app's sound is taken from the video and song files when the recording stops, so nothing else on the computer is heard."
-msgstr "Son aplikasyon an pran nan fichye videyo ak chante yo lè anrejistreman an kanpe, kidonk yo pa tande okenn lòt son sou òdinatè a."
-
-#: ui/dialogs/settings-media.slint
-msgid "Livestream"
-msgstr "Emisyon an dirèk"
-
-#: ui/dialogs/settings-media.slint
-msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on."
-msgstr "Limen yon destinasyon epi yon bouton Ale an dirèk ap parèt bò kote Anrejistre. Ale an dirèk anrejistre tankou dabitid epi voye menm imaj ak menm son an bay chak destinasyon ki limen."
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound from this computer"
-msgstr "Son ki soti nan òdinatè sa a"
-
-#: ui/dialogs/settings-media.slint
-msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
-msgstr "Tout sa k ap jwe sou sòti sa a ale ak emisyon an (videyo, chante, ak nenpòt lòt son yo voye la), melanje ak mikwo oswa antre liy ou chwazi anlè a."
-
-#: ui/dialogs/settings-media.slint
-msgid "Upload speed"
-msgstr "Vitès voye"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits."
-msgstr "Voye kèk megaoktè zewo bay yon tès vitès piblik epi di si entènèt la ka pote emisyon an bay chak destinasyon ki limen. Li chwazi gwosè anrejistreman ki bon an."
-
-#: ui/dialogs/settings-media.slint
-msgid "Testing…"
-msgstr "N ap teste…"
-
-#: ui/dialogs/settings-media.slint
-msgid "Test the upload speed"
-msgstr "Teste vitès voye a"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound delay"
-msgstr "Reta son"
-
-#: ui/dialogs/settings-media.slint
-msgid "If the sound in the stream comes before people's lips move, the camera's picture is late: hold the sound back until they match."
-msgstr "Si nan emisyon an son an rive anvan bouch moun yo bouje, foto kamera a an reta: kenbe son an jiskaske yo mache ansanm."
-
-#: ui/dialogs/settings-media.slint
-msgid "{} ms"
-msgstr "{} ms"
-
-#: ui/dialogs/settings-media.slint
-msgid "Stream delay"
-msgstr "Reta emisyon an"
-
-#: ui/dialogs/settings-media.slint
-msgid "What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer."
-msgstr "Sa k ap soti nan emisyon an kenbe pou tan sa a, konsa Kenbe oswa Koupe son ka rete yon bagay anvan pèsonn k ap gade wè l. Anrejistreman an pa reta. Kòmantè moun k ap gade yo rive pita pase sa yo reponn lan."
-
-#: ui/dialogs/settings-media.slint src/stream/sound_setup.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
-msgid "None"
-msgstr "Okenn"
-
-#: ui/dialogs/settings-media.slint
-msgid "Slow internet"
-msgstr "Entènèt ki lan"
-
-#: ui/dialogs/settings-media.slint
-msgid "When a destination's internet cannot keep up, it gets a lighter stream until it can, instead of skipping. The recording and the other destinations keep the full picture. This uses more of the computer."
-msgstr "Lè entènèt yon destinasyon pa ka suiv, li resevwa yon emisyon pi lejè jiskaske li kapab, olye li sote. Anrejistreman an ak lòt destinasyon yo kenbe tout imaj la. Sa sèvi plis ak òdinatè a."
-
-#: ui/dialogs/settings-media.slint
-msgid "Send a lighter stream where the internet is slow"
-msgstr "Voye yon emisyon pi lejè kote entènèt la lan"
-
-#: ui/dialogs/settings-media.slint
-msgid "NDI"
-msgstr "NDI"
-
-#: ui/dialogs/settings-media.slint
-msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras above."
-msgstr "Lòt òdinatè ak pwogram sou rezo sa a (OBS, vMix, yon switcher videyo) ka pran yo pandan ou an dirèk. Kamera NDI yo nan lis kamera ki anwo a."
-
-#: ui/dialogs/settings-media.slint
-msgid "NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."
-msgstr "NDI bezwen NDI Tools gratis ki soti nan ndi.video sou òdinatè sa a. Enstale yo, epi louvri Paramèt yo ankò."
-
-#: ui/dialogs/settings-media.slint
-msgid "Send the stream over NDI too (picture and sound)"
-msgstr "Voye emisyon an sou NDI tou (imaj ak son)"
-
-#: ui/dialogs/settings-media.slint
-msgid "Send the words alone over NDI, on a see-through background (for keying)"
-msgstr "Voye pawòl yo sèlman sou NDI, sou yon fon transparan (pou keying)"
-
-#: ui/dialogs/settings-media.slint
-msgid "Words alone"
-msgstr "Pawòl yo sèlman"
-
-#: ui/dialogs/settings-media.slint
-msgid "While you are live, a second video is saved next to the recording, its name ending in words.mov: only the words, with nothing behind them. When you edit the service video, put it on top to add the words. It stays small because the words seldom change."
-msgstr "Pandan w an dirèk, yon dezyèm videyo anrejistre bò kote anrejistreman an, non li fini ak words.mov: pawòl yo sèlman, san anyen dèyè yo. Lè w ap edite videyo sèvis la, mete l anlè pou ajoute pawòl yo. Li rete piti paske pawòl yo pa chanje souvan."
-
-#: ui/dialogs/settings-media.slint
-msgid "Also record the words alone, on a see-through background (for video editing)"
-msgstr "Anrejistre pawòl yo sèlman tou, sou yon fon transparan (pou edite videyo)"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound levels"
-msgstr "Nivo son yo"
-
-#: ui/dialogs/settings-media.slint
-msgid "Turn each sound up or down in the stream only (not in the room)."
-msgstr "Monte oswa bese chak son nan emisyon an sèlman (pa nan sal la)."
-
-#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint src/record/mod.rs
-msgid "Microphone or line-in"
-msgstr "Mikwo oswa antre liy"
-
-#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint
-msgid "{} dB"
-msgstr "{} dB"
-
-#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint src/app.rs src/record/mod.rs
-msgid "This computer"
-msgstr "Òdinatè sa a"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound clean-up"
-msgstr "Netwaye son an"
-
-#: ui/dialogs/settings-media.slint
-msgid "For the stream only. Evening out keeps quiet speaking easy to hear at home and loud singing from crackling."
-msgstr "Pou emisyon an sèlman. Egalize fè moun ki pale ba yo tande byen lakay, epi chante ki fò pa kraze."
-
-#: ui/dialogs/settings-media.slint
-msgid "Even out loud and quiet moments"
-msgstr "Egalize moman ki fò ak moman ki dous"
-
-#: ui/dialogs/settings-media.slint
-msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
-msgstr "Retire bri ronfleman ak sifleman nan mikwo a oswa antre liy lan (ka fè mizik la mat)"
-
-#: ui/dialogs/settings-media.slint
-msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
-msgstr "Kenbe chak son sou pwòp pis li tou nan anrejistreman an, pou balanse yo ankò apre"
-
-#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
-msgid "Camera"
-msgstr "Kamera"
-
-#: ui/dialogs/settings-media.slint
-msgid "A camera or capture card for the stream's camera scenes (and its recording)."
-msgstr "Yon kamera oswa yon kat kaptire pou sèn kamera emisyon an (ak anrejistreman li)."
-
-#: ui/dialogs/settings-media.slint
-msgid "Camera control address"
-msgstr "Adrès kontwòl kamera a"
-
-#: ui/dialogs/settings-media.slint
-msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
-msgstr "Pou voye yon kamera PTZ nan pozisyon li anrejistre yo: adrès li, tankou 192.168.1.60"
-
-#: ui/dialogs/settings-media.slint
-msgid "Network camera address"
-msgstr "Adrès kamera rezo a"
-
-#: ui/dialogs/settings-media.slint
-msgid "The camera's address, like rtsp://192.168.1.50:554/stream1"
-msgstr "Adrès kamera a, tankou rtsp://192.168.1.50:554/stream1"
-
-#: ui/dialogs/settings-media.slint
-msgid "Second camera"
-msgstr "Dezyèm kamera"
-
-#: ui/dialogs/settings-media.slint
-msgid "Another camera to switch to while live, from the Cameras box beside the live screen."
-msgstr "Yon lòt kamera pou w chanje ale sou li pandan w an dirèk, nan bwat Kamera yo bò kote ekran an dirèk la."
-
-#: ui/dialogs/settings-media.slint
-msgid "Third camera"
-msgstr "Twazyèm kamera"
-
-#: ui/dialogs/settings-media.slint
-msgid "Another camera to switch to while live."
-msgstr "Yon lòt kamera pou w chanje ale sou li pandan w an dirèk."
-
-#: ui/dialogs/settings-media.slint
-msgid "Fourth camera"
-msgstr "Katriyèm kamera"
-
-#: ui/dialogs/settings-media.slint
-msgid "When a camera sends nothing"
-msgstr "Lè yon kamera pa voye anyen"
-
-#: ui/dialogs/settings-media.slint
-msgid "What the stream shows in a camera's place while it is unplugged or sends no picture. The camera comes back by itself as soon as it sends again."
-msgstr "Sa emisyon an montre nan plas yon kamera pandan li dekonekte oswa li pa voye imaj. Kamera a tounen poukont li depi li voye ankò."
-
-#: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
-msgid "The audience screen"
-msgstr "Ekran sal la"
-
-#: ui/dialogs/settings-media.slint
-msgid "The church logo"
-msgstr "Logo legliz la"
-
-#: ui/dialogs/settings-media.slint src/strings/screens.rs src/theme/backgrounds.rs
-msgid "Black"
-msgstr "Nwa"
-
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Use your phone or tablet as a remote"
+msgstr "Sèvi ak telefòn oswa tablèt ou kòm telekòmand"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Pair it once with the code or the QR code; it stays paired. It runs the slides from anywhere in the room on the same Wi-Fi."
+msgstr "Konekte l yon fwa ak kòd la oswa kòd QR la; li rete konekte. Li fè glisad yo pase depi nenpòt kote nan sal la sou menm Wi-Fi a."
+
+#: ui/dialogs/settings-remote.slint
+msgid "Pair a phone or tablet…"
+msgstr "Konekte yon telefòn oswa yon tablèt…"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Remote password"
+msgstr "Modpas telekòmand lan"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Phones and tablets still pair with the code or the QR code; the password is asked too. Ones already paired stay paired."
+msgstr "Telefòn ak tablèt yo toujou konekte ak kòd la oswa kòd QR la; yo mande modpas la tou. Sa ki deja konekte yo rete konekte."
+
+#: ui/dialogs/settings-remote.slint
+msgid "Ask for a password when a phone or tablet pairs"
+msgstr "Mande yon modpas lè yon telefòn oswa yon tablèt ap konekte"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Saved — type to change it"
+msgstr "Anrejistre — tape pou chanje l"
+
+#: ui/dialogs/settings-remote.slint
+msgid "New password"
+msgstr "Nouvo modpas"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Drawing from a phone"
+msgstr "Desen soti nan yon telefòn"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "On the phone, “Fades” ink works like a laser pointer: it goes away by itself."
+msgstr "Sou telefòn nan, lank “Disparèt” mache tankou yon pwentè lazè: li ale pou kont li."
+
+#: ui/dialogs/settings-remote.slint
+msgid "Keep drawings when the slide changes"
+msgstr "Kenbe desen yo lè diapo a chanje"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Fading ink disappears after (seconds, 1–30)"
+msgstr "Lank k ap disparèt efase apre (segonn, 1–30)"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Limits"
+msgstr "Limit"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Limit phone drawing"
+msgstr "Limite desen telefòn"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Most lines on the screen at once"
+msgstr "Plis liy sou ekran an an menm tan"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Most drawing updates a second from one phone"
+msgstr "Plis mizajou desen pa segonn soti nan yon telefòn"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Show drawings on the stage screen: Settings → Stage screen"
+msgstr "Montre desen sou ekran sèn nan: Paramèt → Ekran sèn"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Stage screen on phones and tablets"
+msgstr "Ekran sèn sou telefòn ak tablèt"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Singers and musicians see the stage screen on their own phone or tablet (read only), on the same Wi-Fi as this computer."
+msgstr "Chantè ak mizisyen yo wè ekran sèn nan sou pwòp telefòn oswa tablèt yo (li sèlman), sou menm Wi-Fi ak òdinatè sa a."
+
+#: ui/dialogs/settings-remote.slint
+msgid "Show the stage screen to phones and tablets (read only)"
+msgstr "Montre ekran sèn nan sou telefòn ak tablèt (lekti sèlman)"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Ask for a password"
+msgstr "Mande yon modpas"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Stage screen password"
+msgstr "Modpas ekran sèn"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this computer)."
+msgstr "Louvri adrès sa a sou iPad oswa telefòn chantè a (menm Wi-Fi ak òdinatè sa a)."
+
+#: ui/dialogs/settings-remote.slint
+msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+msgstr "Yon telefòn sou Wi-Fi legliz la ka sèvi kòm kamera oswa mikwo pou emisyon an. Premye fwa a, telefòn nan avèti paj la pa prive: se nòmal, paske paj la soti nan òdinatè sa a. Peze Avanse (sou iPhone, Montre detay), epi kontinye sou paj la. Kenbe telefòn nan limen epi branche."
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Phone as a camera"
 msgstr "Telefòn kòm kamera"
 
-#: ui/dialogs/settings-media.slint
-msgid "Scenes"
-msgstr "Sèn"
-
-#: ui/dialogs/settings-media.slint
-msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the audience screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
-msgstr "Chante ak vèsè Bib yo soti kòm kamera ak pawòl yo; videyo ak prezantasyon kòm ekran sal la; lè pa gen anyen sou ekran an, kamera a. Yon sèn ou chwazi ak bouton sèn bò kote An dirèk rete jiskaske pwochen eleman sèvis la."
-
-#: ui/dialogs/settings-media.slint
-msgid "Choose the scene by itself from what is live"
-msgstr "Chwazi sèn nan poukont li dapre sa k an dirèk"
-
-#: ui/dialogs/settings-media.slint
-msgid "Presentations:"
-msgstr "Prezantasyon:"
-
-#: ui/dialogs/settings-media.slint
-msgid "The audience screen with the camera in a corner"
-msgstr "Ekran sal la ak kamera a nan yon kwen"
-
-#: ui/dialogs/settings-media.slint
-msgid "Scene layout"
-msgstr "Aranjman sèn yo"
-
-#: ui/dialogs/settings-media.slint
-msgid "Where the camera goes when it is in a corner of the audience screen, and where the words go over the camera."
-msgstr "Ki kote kamera a ye lè li nan yon kwen ekran sal la, ak ki kote pawòl yo ye sou kamera a."
-
-#: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
-msgid "Small"
-msgstr "Piti"
-
-#: ui/dialogs/settings-media.slint
-msgid "Medium"
-msgstr "Mwayen"
-
-#: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
-msgid "Large"
-msgstr "Gwo"
-
-#: ui/dialogs/settings-media.slint
-msgid "Words over the camera:"
-msgstr "Pawòl sou kamera a:"
-
-#: ui/dialogs/settings-media.slint
-msgid "At the bottom"
-msgstr "Anba"
-
-#: ui/dialogs/settings-media.slint
-msgid "At the top"
-msgstr "Anlè"
-
-#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
-msgid "Your scenes"
-msgstr "Sèn pa w yo"
-
-#: ui/dialogs/settings-media.slint
-msgid "Make scenes of your own from cameras, the audience screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
-msgstr "Fè pwòp sèn pa w ak kamera, ekran sal la, pawòl yo, foto, koulè ak tèks. Pandan w an dirèk, yo parèt nan lis la apre sèn entegre yo."
-
-#: ui/dialogs/settings-media.slint
-msgid "Your scenes…"
-msgstr "Sèn pa w yo…"
-
-#: ui/dialogs/settings-media.slint
-msgid "None yet"
-msgstr "Poko genyen"
-
-#: ui/dialogs/settings-media.slint
-msgid "1 scene"
-msgstr "1 sèn"
-
-#: ui/dialogs/settings-media.slint
-msgid "{} scenes"
-msgstr "{} sèn"
-
-#: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
-msgid "Starting soon"
-msgstr "N ap kòmanse talè"
-
-#: ui/dialogs/settings-media.slint
-msgid "Before the service, with the pre-service countdown under the words while it runs."
-msgstr "Anvan sèvis la, ak kontaj anvan sèvis la anba pawòl yo pandan l ap mache."
-
-#: ui/dialogs/settings-media.slint
-msgid "Use a picture…"
-msgstr "Sèvi ak yon foto…"
-
-#: ui/dialogs/settings-media.slint
-msgid "Use words"
-msgstr "Sèvi ak pawòl yo"
-
-#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/song.rs
-msgid "Ending"
-msgstr "Final"
-
-#: ui/dialogs/settings-media.slint
-msgid "After the service's last item."
-msgstr "Apre dènye eleman sèvis la."
-
-#: ui/dialogs/settings-media.slint src/stream/pictures.rs
-msgid "Thanks for joining us"
-msgstr "Mèsi paske w te avèk nou"
-
-#: ui/dialogs/settings-media.slint ui/operator/follow.slint src/i18n/remote_strings.rs src/stream/scene.rs
-msgid "Hold"
-msgstr "Kenbe"
-
-#: ui/dialogs/settings-media.slint
-msgid "For a break, chosen with the scene button."
-msgstr "Pou yon poz, chwazi ak bouton sèn nan."
-
-#: ui/dialogs/settings-media.slint src/stream/pictures.rs
-msgid "We'll be right back"
-msgstr "N ap tounen touswit"
-
-#: ui/dialogs/settings-media.slint
-msgid "Stream to"
-msgstr "Voye emisyon an bay"
-
-#: ui/dialogs/settings-media.slint
-msgid "A stream key is a password: whoever has it can stream as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
-msgstr "Yon kle emisyon se yon modpas: nenpòt moun ki genyen l ka fè emisyon nan non w. Li kenbe nan depo modpas òdinatè sa a pandan w ap tape l, janm nan yon sovgad ni nan yon fichye sèvis."
-
-#: ui/dialogs/settings-media.slint
-msgid "YouTube stream key"
-msgstr "Kle emisyon YouTube"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sign in"
-msgstr "Konekte"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
-msgstr "Konekte olye w kole yon kle: Ale an dirèk ap fè difizyon an li menm, ak tit li"
-
-#: ui/dialogs/settings-media.slint
-msgid "Signed in as {}"
-msgstr "Konekte kòm {}"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sign out"
-msgstr "Dekonekte"
-
-#: ui/dialogs/settings-media.slint
-msgid "Facebook stream key"
-msgstr "Kle emisyon Facebook"
-
-#: ui/dialogs/settings-media.slint
-msgid "Twitch stream key"
-msgstr "Kle emisyon Twitch"
-
-#: ui/dialogs/settings-media.slint
-msgid "The server's stream key"
-msgstr "Kle emisyon sèvè a"
-
-#: ui/dialogs/settings-media.slint
-msgid "Its stream key, if it has one"
-msgstr "Kle emisyon li, si li genyen youn"
-
-#: ui/dialogs/settings-media.slint
-msgid "Instagram's server address"
-msgstr "Adrès sèvè Instagram"
-
-#: ui/dialogs/settings-media.slint
-msgid "Its server address, if Instagram shows one"
-msgstr "Adrès sèvè li, si Instagram montre youn"
-
-#: ui/dialogs/settings-media.slint
-msgid "Instagram stream key"
-msgstr "Kle emisyon Instagram"
-
-#: ui/dialogs/settings-media.slint
-msgid "X's server address"
-msgstr "Adrès sèvè X"
-
-#: ui/dialogs/settings-media.slint
-msgid "Its server address, if X shows one"
-msgstr "Adrès sèvè li, si X montre youn"
-
-#: ui/dialogs/settings-media.slint
-msgid "X stream key"
-msgstr "Kle emisyon X"
-
-#: ui/dialogs/settings-media.slint
-msgid "TikTok's server address"
-msgstr "Adrès sèvè TikTok"
-
-#: ui/dialogs/settings-media.slint
-msgid "The server address TikTok shows with the key"
-msgstr "Adrès sèvè TikTok montre ak kle a"
-
-#: ui/dialogs/settings-media.slint
-msgid "TikTok stream key"
-msgstr "Kle emisyon TikTok"
-
-#: ui/dialogs/settings-media.slint src/stream/mod.rs
-msgid "Instagram, X and TikTok give stream keys only to some accounts (TikTok asks for enough followers; Instagram's come from Live Producer on a computer). Each shows a server address with the key: paste both. Their keys often work for one broadcast only."
-msgstr "Instagram, X ak TikTok bay kle emisyon sèlman pou kèk kont (TikTok mande ase abonnen; kle Instagram yo soti nan Live Producer sou yon òdinatè). Chak montre yon adrès sèvè ak kle a: kole tou de. Kle yo souvan mache pou yon sèl difizyon sèlman."
-
-#: ui/dialogs/settings-media.slint
-msgid "Tall for phones"
-msgstr "Vètikal pou telefòn"
-
-#: ui/dialogs/settings-media.slint
-msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other phone apps): the wide picture across the middle, black above and below. The recording stays wide."
-msgstr "Sa yo resevwa yon imaj vètikal (pou YouTube Shorts, Reels, TikTok ak lòt aplikasyon telefòn): imaj laj la nan mitan, nwa anlè ak anba. Anrejistreman an rete laj."
-
-#: ui/dialogs/settings-media.slint
-msgid "More settings"
-msgstr "Plis paramèt"
-
-#: ui/dialogs/settings-media.slint
-msgid "Pictures a second, video format, sound quality, which network card sends, each destination's own quality, the recording's file type and name, and setups saved by name (Sunday, Wedding) to use again in one go."
-msgstr "Imaj pa segonn, fòma videyo, kalite son, ki kat rezo ki voye, kalite pa chak destinasyon, kalite fichye ak non anrejistreman an, ak konfigirasyon ou anrejistre ak yon non (Dimanch, Maryaj) pou itilize ankò yon sèl kou."
-
-#: ui/dialogs/settings-media.slint
-msgid "More settings and saved setups…"
-msgstr "Plis paramèt ak konfigirasyon anrejistre…"
-
-#: ui/dialogs/settings-media.slint
-msgid "Setup: {}"
-msgstr "Konfigirasyon: {}"
-
-#: ui/dialogs/settings-media.slint
-msgid "Broadcast title"
-msgstr "Tit difizyon an"
-
-#: ui/dialogs/settings-media.slint
-msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date, {{weekday}} the day's name and {{time}} the time; the description can have them too."
-msgstr "Kijan YouTube ak Facebook rele chak difizyon. {{date}} vin dat jou a, {{weekday}} non jou a epi {{time}} lè a; deskripsyon an ka genyen yo tou."
-
-#: ui/dialogs/settings-media.slint
-msgid "Sunday Service — {{date}}"
-msgstr "Sèvis dimanch — {{date}}"
-
-#: ui/dialogs/settings-media.slint
-msgid "Description"
-msgstr "Deskripsyon"
-
-#: ui/dialogs/settings-media.slint
-msgid "Broadcast description"
-msgstr "Deskripsyon difizyon an"
-
-#: ui/dialogs/settings-media.slint
-msgid "What viewers read under the video"
-msgstr "Sa moun k ap gade yo li anba videyo a"
-
-#: ui/dialogs/settings-media.slint
-msgid "Next YouTube broadcast: made when you go live"
-msgstr "Pwochen difizyon YouTube: y ap fè l lè w ale an dirèk"
-
-#: ui/dialogs/settings-media.slint
-msgid "Next YouTube broadcast: {}"
-msgstr "Pwochen difizyon YouTube: {}"
-
-#: ui/dialogs/settings-media.slint
-msgid "Copy the link"
-msgstr "Kopye lyen an"
-
-#: ui/dialogs/settings-media.slint
-msgid "Make it now, to share the link"
-msgstr "Fè l kounye a, pou pataje lyen an"
-
-#: ui/dialogs/settings-media.slint
-msgid "Make a new one"
-msgstr "Fè yon lòt"
-
-#: ui/dialogs/settings-media.slint
-msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
-msgstr "Fè difizyon YouTube pwochen sèvis la kounye a, pou jou ak lè li kòmanse, pou ka pataje lyen an anvan dimanch. Ale an dirèk ap itilize l."
-
-#: ui/dialogs/settings-media.slint
-msgid "YouTube thumbnail: a frame of the stream"
-msgstr "Ti imaj YouTube: yon imaj nan emisyon an"
-
-#: ui/dialogs/settings-media.slint
-msgid "YouTube thumbnail: {}"
-msgstr "Ti imaj YouTube: {}"
-
-#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
-msgid "Choose a picture…"
-msgstr "Chwazi yon imaj…"
-
-#: ui/dialogs/settings-media.slint ui/operator/cameras.slint
-msgid "No picture"
-msgstr "Pa gen imaj"
-
-#: ui/dialogs/settings-media.slint
-msgid "Who can watch on YouTube"
-msgstr "Ki moun ki ka gade sou YouTube"
-
-#: ui/dialogs/settings-media.slint
-msgid "Everyone"
-msgstr "Tout moun"
-
-#: ui/dialogs/settings-media.slint
-msgid "Only people with the link"
-msgstr "Sèlman moun ki gen lyen an"
-
-#: ui/dialogs/settings-media.slint ui/operator/media.slint
-msgid "Media library"
-msgstr "Bibliyotèk medya"
-
-#: ui/dialogs/settings-media.slint
-msgid "Every file you add is copied into RustyPresenter's own folder, so moving or deleting the original never breaks a slide."
-msgstr "Chak fichye ou ajoute kopye nan pwòp dosye RustyPresenter, kidonk si ou deplase oswa efase orijinal la, sa p ap janm kase yon diapo."
-
-#: ui/dialogs/settings-media.slint ui/operator.slint
-msgid "Clean up unused media…"
-msgstr "Netwaye medya ki pa itilize…"
-
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
+msgstr "Konekte telefòn nan anvan ak Konekte yon telefòn oswa yon tablèt. Depi li voye imaj li, lis kamera yo rele l Kamera telefòn."
+
+#: ui/dialogs/settings-remote.slint
+msgid "On the phone, open:"
+msgstr "Sou telefòn nan, louvri:"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Then choose it in Settings → Livestream → Cameras"
+msgstr "Apre sa chwazi l nan Paramèt → Emisyon an dirèk → Kamera"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Phone as a microphone"
+msgstr "Telefòn kòm mikwo"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
+msgstr "Pou mikwo kòl pastè a oswa yon mikwo sal san fil. Limen ekran sèn sou telefòn anvan: paj telefòn nan soti la."
+
+#: ui/dialogs/settings-remote.slint
+msgid "On the phone, open this page and press Start:"
+msgstr "Sou telefòn nan, louvri paj sa a epi peze Kòmanse:"
+
+#: ui/dialogs/settings-remote.slint
+msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
+msgstr "Ekran sèn sou telefòn fèmen, kidonk telefòn nan poko ka rive sou paj sa a."
+
+#: ui/dialogs/settings-remote.slint
+msgid "Then choose Phone in Settings → Livestream → Sound"
+msgstr "Apre sa chwazi Telefòn nan Paramèt → Emisyon an dirèk → Son"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Control from other gear (TCP)"
+msgstr "Kontwòl pa lòt aparèy (TCP)"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "For a stream deck, a lighting desk or a control system that sends text commands."
+msgstr "Pou yon Stream Deck, yon konsòl limyè oswa yon sistèm kontwòl ki voye kòmand an tèks."
+
+#: ui/dialogs/settings-remote.slint
+msgid "Let other gear send commands over the network"
+msgstr "Kite lòt aparèy voye kòmand sou rezo a"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Port"
+msgstr "Pò"
+
+#: ui/dialogs/settings-remote.slint
+msgid "TCP password"
+msgstr "Modpas TCP"
+
+#: ui/dialogs/settings-row.slint
+msgid "Advanced"
+msgstr "Avanse"
+
+#: ui/dialogs/settings-row.slint
+msgid "Hide help"
+msgstr "Kache èd la"
+
+#: ui/dialogs/settings-row.slint ui/operator.slint
+msgid "Help"
+msgstr "Èd"
+
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "Sections"
 msgstr "Seksyon"
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "Each kind of section has a colour and a key. Leave a box empty for the usual name or key."
 msgstr "Chak kalite seksyon gen yon koulè ak yon kle. Kite yon bwat vid pou non oswa kle abityèl la."
 
@@ -3103,11 +2767,11 @@ msgstr "Non {}"
 msgid "Key for {}"
 msgstr "Kle pou {}"
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "More section names"
 msgstr "Plis non seksyon"
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "A name your songs use, like “Spontaneous”. It gets the colour and key of the kind you choose."
 msgstr "Yon non chante ou yo itilize, tankou “Espontane”. Li pran koulè ak kle kalite ou chwazi a."
 
@@ -3115,11 +2779,11 @@ msgstr "Yon non chante ou yo itilize, tankou “Espontane”. Li pran koulè ak 
 msgid "New section name"
 msgstr "Nouvo non seksyon"
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "Slide labels"
 msgstr "Etikèt diapo"
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "In the song editor, “Label this slide” puts one on a slide. It shows on the slide’s thumbnail."
 msgstr "Nan editè chante a, “Mete etikèt sou diapo sa a” mete youn sou yon diapo. Li parèt sou ti imaj diapo a."
 
@@ -3138,6 +2802,10 @@ msgstr "Ajoute etikèt"
 #: ui/dialogs/settings-sections.slint
 msgid "Use the usual names, colours and labels"
 msgstr "Itilize non, koulè ak etikèt abityèl yo"
+
+#: ui/dialogs/settings-sound.slint
+msgid "{} dB"
+msgstr "{} dB"
 
 #: ui/dialogs/settings-sound.slint
 msgid "Gate (quiet between words)"
@@ -3171,55 +2839,91 @@ msgstr "Wo (klète, sifleman)"
 msgid "Never too loud (keeps the stream from crackling; best left on)"
 msgstr "Pa janm twò fò (anpeche emisyon an kraze; pi bon pou kite l limen)"
 
-#: ui/dialogs/settings-sound.slint
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "Sound setup"
 msgstr "Konfigirasyon son"
 
-#: ui/dialogs/settings-sound.slint
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "One choice sets the microphone and how each sound is cleaned up. Anything changed by hand below makes it Custom."
 msgstr "Yon sèl chwa mete mikwo a ak kijan chak son netwaye. Nenpòt sa ou chanje ak men anba a fè l vin Pèsonalize."
 
-#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
-msgid "Second microphone or line-in"
-msgstr "Dezyèm mikwo oswa antre liy"
+#: ui/dialogs/settings-sound.slint src/record/mod.rs src/ui/dialogs/settings_find.rs
+msgid "Microphone or line-in"
+msgstr "Mikwo oswa antre liy"
 
-#: ui/dialogs/settings-sound.slint
-msgid "While you are live, mixed with the one chosen under \"Sound in the recording\": for a second sound board, a pulpit microphone or the phone."
-msgstr "Pandan ou an dirèk, li melanje ak sa ki chwazi nan \"Son nan anrejistreman an\": pou yon dezyèm tab son, yon mikwo pou chè a oswa telefòn nan."
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "For the livestream and the recording: the sound board, a microphone, or a phone (choose Phone). Up to three are mixed while you are live."
+msgstr "Pou emisyon an ak anrejistreman an: tab son an, yon mikwo oswa yon telefòn (chwazi Telefòn). An dirèk, rive jiska twa melanje."
 
 #: ui/dialogs/settings-sound.slint
 msgid "Its level"
 msgstr "Nivo li"
 
-#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
-msgid "Third microphone or line-in"
-msgstr "Twazyèm mikwo oswa antre liy"
-
-#: ui/dialogs/settings-sound.slint src/stream/phone_mic.rs
-msgid "Phone microphone"
-msgstr "Mikwo telefòn"
-
 #: ui/dialogs/settings-sound.slint
-msgid "Turn on the stage screen for phones (Settings → Network…), then open this page on the phone and press Start: {}"
-msgstr "Limen ekran sèn pou telefòn nan (Paramèt → Rezo…), apre sa louvri paj sa a sou telefòn nan epi peze Kòmanse: {}"
+msgid "A phone as a microphone: Settings → Remote and network"
+msgstr "Yon telefòn kòm mikwo: Paramèt → Telekòmand ak rezo"
 
-#: ui/dialogs/settings-sound.slint
-msgid "The first time, the phone warns that the page is not private, because this computer made its own certificate: tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
-msgstr "Premye fwa a, telefòn nan avèti paj la pa prive, paske òdinatè sa a fè pwòp sètifika pa li: tape Avanse (sou yon iPhone, Montre detay), apre sa kontinye sou paj la. Kenbe telefòn nan reveye epi ploge."
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Sound from this computer"
+msgstr "Son ki soti nan òdinatè sa a"
 
-#: ui/dialogs/settings-sound.slint
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
+msgstr "Tout sa k ap jwe sou sòti sa a ale ak emisyon an (videyo, chante, ak nenpòt lòt son yo voye la), melanje ak mikwo oswa antre liy ou chwazi anlè a."
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "Listen to the stream"
 msgstr "Koute emisyon an"
 
-#: ui/dialogs/settings-sound.slint
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "While you are live, the stream's sound plays here as viewers hear it (cleaned up and with the sound delay), for headphones at the desk. The room does not hear it unless it is the room's output."
 msgstr "Pandan ou an dirèk, son emisyon an jwe la a jan moun k ap gade yo tande l (netwaye epi ak reta son an), pou kas nan biwo a. Sal la pa tande l sof si se sòti sal la."
 
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Sound delay"
+msgstr "Reta son"
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "If the sound in the stream comes before people's lips move, the camera's picture is late: hold the sound back until they match."
+msgstr "Si nan emisyon an son an rive anvan bouch moun yo bouje, foto kamera a an reta: kenbe son an jiskaske yo mache ansanm."
+
 #: ui/dialogs/settings-sound.slint
+msgid "{} ms"
+msgstr "{} ms"
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Sound levels"
+msgstr "Nivo son yo"
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Turn each sound up or down in the stream only (not in the room)."
+msgstr "Monte oswa bese chak son nan emisyon an sèlman (pa nan sal la)."
+
+#: ui/dialogs/settings-sound.slint src/app.rs src/record/mod.rs
+msgid "This computer"
+msgstr "Òdinatè sa a"
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Sound clean-up"
+msgstr "Netwaye son an"
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "For the stream only. Evening out keeps quiet speaking easy to hear at home and loud singing from crackling."
+msgstr "Pou emisyon an sèlman. Egalize fè moun ki pale ba yo tande byen lakay, epi chante ki fò pa kraze."
+
+#: ui/dialogs/settings-sound.slint
+msgid "Even out loud and quiet moments"
+msgstr "Egalize moman ki fò ak moman ki dous"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
+msgstr "Retire bri ronfleman ak sifleman nan mikwo a oswa antre liy lan (ka fè mizik la mat)"
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "More sound settings"
 msgstr "Plis paramèt son"
 
-#: ui/dialogs/settings-sound.slint
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "For the stream only. Each sound has its own: start with the Sound setup above and change little at a time."
 msgstr "Pou emisyon an sèlman. Chak son gen pa l: kòmanse ak Konfigirasyon son anwo a epi chanje ti kras alafwa."
 
@@ -3227,129 +2931,913 @@ msgstr "Pou emisyon an sèlman. Chak son gen pa l: kòmanse ak Konfigirasyon son
 msgid "Show each sound's gate, evener, low, middle and high"
 msgstr "Montre baryè, egalizè, ba, mitan ak wo pou chak son"
 
+#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
+msgid "Second microphone or line-in"
+msgstr "Dezyèm mikwo oswa antre liy"
+
+#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
+msgid "Third microphone or line-in"
+msgstr "Twazyèm mikwo oswa antre liy"
+
 #: ui/dialogs/settings-state.slint src/strings/catalog.rs
 msgid "All languages"
 msgstr "Tout lang"
 
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Live captions"
-msgstr "Soutit an dirèk"
+#: ui/dialogs/settings-stream.slint
+msgid "Sign in"
+msgstr "Konekte"
 
-#: ui/dialogs/settings-stream-extras.slint src/stream/captions.rs
-msgid "Captions are made on this computer from the microphone, in English only. They are often wrong: names, Bible places, quiet or echoing speech and songs come out badly, and there is no punctuation. They show about two seconds after the words are said."
-msgstr "Soutit yo fèt sou òdinatè sa a apati mikwo a, an anglè sèlman. Yo souvan fè erè: non moun, non kote nan Bib la, pawòl ki ba oswa ki fè eko ak chante yo pa soti byen, epi pa gen ponktiyasyon. Yo parèt apeprè de segonn apre pawòl yo di."
+#: ui/dialogs/settings-stream.slint
+msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
+msgstr "Konekte olye w kole yon kle: Ale an dirèk ap fè difizyon an li menm, ak tit li"
 
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Write out what is said while live"
-msgstr "Ekri sa yo di pandan an dirèk"
+#: ui/dialogs/settings-stream.slint
+msgid "Signed in as {}"
+msgstr "Konekte kòm {}"
 
-#: ui/dialogs/settings-stream-extras.slint src/stream/captions.rs
-msgid "Live captions need the English speech model. Download the fast model in Settings → Auto-follow."
-msgstr "Soutit an dirèk bezwen modèl vwa anglè a. Telechaje modèl rapid la nan Paramèt → Swiv oto."
+#: ui/dialogs/settings-stream.slint
+msgid "Sign out"
+msgstr "Dekonekte"
 
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Show them at the bottom of the stream (not over song words or verses)"
-msgstr "Montre yo anba emisyon an (pa sou pawòl chante oswa vèsè yo)"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Keep them in a captions file beside the recording (for YouTube's replay and video players)"
-msgstr "Kenbe yo nan yon fichye soutit bò kote anrejistreman an (pou rediffizyon YouTube ak lektè videyo)"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Listen to:"
-msgstr "Koute:"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "YouTube captions address"
-msgstr "Adrès soutit YouTube"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "YouTube's captions address (optional)"
-msgstr "Adrès soutit YouTube (si ou vle)"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "For captions viewers can turn on and off on YouTube: in YouTube Studio, open the stream's settings, turn on Closed captions, choose \"POST captions to URL\", and paste the address it gives here."
-msgstr "Pou soutit moun k ap gade yo ka limen ak etenn sou YouTube: nan YouTube Studio, louvri paramèt emisyon an, limen Closed captions, chwazi \"POST captions to URL\", epi kole adrès li bay la a."
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "On your website"
-msgstr "Sou sit entènèt ou"
-
-#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
-msgid "To play the livestream on your church's website: copy the code, then in your website's editor add an \"HTML\", \"Embed\" or \"Code\" block where the video should go and paste it there. You do this once: the same code plays every week's service."
-msgstr "Pou jwe emisyon an dirèk la sou sit entènèt legliz ou: kopye kòd la, apre sa nan editè sit ou a ajoute yon blòk \"HTML\", \"Embed\" oswa \"Code\" kote videyo a dwe ye epi kole l la. Ou fè sa yon sèl fwa: menm kòd la jwe sèvis chak semèn."
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "YouTube channel id"
-msgstr "ID chèn YouTube"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "YouTube channel id (starts with UC)"
-msgstr "ID chèn YouTube (kòmanse ak UC)"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Fill in"
-msgstr "Ranpli"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Fill in the channel of the YouTube account signed in above"
-msgstr "Ranpli chèn kont YouTube ki konekte anwo a"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Copy the code"
-msgstr "Kopye kòd la"
-
-#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
-msgid "YouTube plays whatever your channel has live; between services it shows the next scheduled stream or says nothing is live. YouTube Studio must allow embedding (it does unless it was turned off)."
-msgstr "YouTube jwe nenpòt sa chèn ou genyen an dirèk; ant sèvis yo li montre pwochen emisyon ki pwograme a oswa li di pa gen anyen an dirèk. YouTube Studio dwe pèmèt entegrasyon (li pèmèt sof si yo te etenn li)."
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Facebook Page"
-msgstr "Paj Facebook"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Facebook Page address"
-msgstr "Adrès Paj Facebook"
-
-#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
-msgid "Facebook shows your Page with its posts; while you are live the live video is at the top. The Page must be public."
-msgstr "Facebook montre Paj ou ak piblikasyon li yo; pandan ou an dirèk, videyo an dirèk la anlè. Paj la dwe piblik."
-
-#: ui/dialogs/settings-stream-extras.slint src/network/guest.rs
-msgid "Remote guest"
-msgstr "Envite a distans"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "A guest speaker or missionary joins from a browser at home: their picture comes in as a camera, their voice through this computer's sound. The connection goes directly between the two computers; some internets do not allow that, and the pages then say so."
-msgstr "Yon predikatè envite oswa yon misyonè patisipe apati yon navigatè lakay li: imaj li antre kòm yon kamera, vwa li pase nan son òdinatè sa a. Koneksyon an ale dirèkteman ant de òdinatè yo; gen kèk entènèt ki pa pèmèt sa, epi lè sa a paj yo di l."
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Invite a guest…"
-msgstr "Envite yon moun…"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Opens the invitation page in this computer's web browser"
-msgstr "Louvri paj envitasyon an nan navigatè entènèt òdinatè sa a"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Use the guest as a camera"
-msgstr "Sèvi ak envite a kòm kamera"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Puts the guest in the first free camera row above"
-msgstr "Mete envite a nan premye liy kamera ki lib anwo a"
-
-#: ui/dialogs/settings-stream-extras.slint
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
 msgid "Getting started"
 msgstr "Pou kòmanse"
 
-#: ui/dialogs/settings-stream-extras.slint
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
 msgid "A few steps: where to stream, which camera, which sound, and a check."
 msgstr "Kèk etap: ki kote pou difize, ki kamera, ki son, ak yon tès."
 
-#: ui/dialogs/settings-stream-extras.slint
+#: ui/dialogs/settings-stream.slint
 msgid "Set up step by step…"
 msgstr "Konfigire etap pa etap…"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Stream to"
+msgstr "Voye emisyon an bay"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Switch a destination on and a Go Live button appears beside Record. A stream key is a password: whoever has it can stream as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
+msgstr "Limen yon destinasyon epi yon bouton Ale an dirèk parèt bò Anrejistre. Yon kle emisyon se yon modpas: nenpòt moun ki genyen l ka voye emisyon kòm ou. Li sere nan depo modpas òdinatè sa a pandan w ap tape l, janm nan yon sovgad oswa yon dosye sèvis."
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube stream key"
+msgstr "Kle emisyon YouTube"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Facebook stream key"
+msgstr "Kle emisyon Facebook"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Twitch stream key"
+msgstr "Kle emisyon Twitch"
+
+#: ui/dialogs/settings-stream.slint
+msgid "The server's stream key"
+msgstr "Kle emisyon sèvè a"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Its stream key, if it has one"
+msgstr "Kle emisyon li, si li genyen youn"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Instagram's server address"
+msgstr "Adrès sèvè Instagram"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Its server address, if Instagram shows one"
+msgstr "Adrès sèvè li, si Instagram montre youn"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Instagram stream key"
+msgstr "Kle emisyon Instagram"
+
+#: ui/dialogs/settings-stream.slint
+msgid "X's server address"
+msgstr "Adrès sèvè X"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Its server address, if X shows one"
+msgstr "Adrès sèvè li, si X montre youn"
+
+#: ui/dialogs/settings-stream.slint
+msgid "X stream key"
+msgstr "Kle emisyon X"
+
+#: ui/dialogs/settings-stream.slint
+msgid "TikTok's server address"
+msgstr "Adrès sèvè TikTok"
+
+#: ui/dialogs/settings-stream.slint
+msgid "The server address TikTok shows with the key"
+msgstr "Adrès sèvè TikTok montre ak kle a"
+
+#: ui/dialogs/settings-stream.slint
+msgid "TikTok stream key"
+msgstr "Kle emisyon TikTok"
+
+#: ui/dialogs/settings-stream.slint src/stream/mod.rs
+msgid "Instagram, X and TikTok give stream keys only to some accounts (TikTok asks for enough followers; Instagram's come from Live Producer on a computer). Each shows a server address with the key: paste both. Their keys often work for one broadcast only."
+msgstr "Instagram, X ak TikTok bay kle emisyon sèlman pou kèk kont (TikTok mande ase abonnen; kle Instagram yo soti nan Live Producer sou yon òdinatè). Chak montre yon adrès sèvè ak kle a: kole tou de. Kle yo souvan mache pou yon sèl difizyon sèlman."
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Broadcast title"
+msgstr "Tit difizyon an"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date, {{weekday}} the day's name and {{time}} the time; the description can have them too."
+msgstr "Kijan YouTube ak Facebook rele chak difizyon. {{date}} vin dat jou a, {{weekday}} non jou a epi {{time}} lè a; deskripsyon an ka genyen yo tou."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sign in to YouTube or Facebook above to name each broadcast."
+msgstr "Konekte sou YouTube oswa Facebook anwo a pou bay chak emisyon yon non."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sunday Service — {{date}}"
+msgstr "Sèvis dimanch — {{date}}"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Broadcast description"
+msgstr "Deskripsyon difizyon an"
+
+#: ui/dialogs/settings-stream.slint
+msgid "What viewers read under the video"
+msgstr "Sa moun k ap gade yo li anba videyo a"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Next YouTube broadcast: made when you go live"
+msgstr "Pwochen difizyon YouTube: y ap fè l lè w ale an dirèk"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Next YouTube broadcast: {}"
+msgstr "Pwochen difizyon YouTube: {}"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Copy the link"
+msgstr "Kopye lyen an"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Make it now, to share the link"
+msgstr "Fè l kounye a, pou pataje lyen an"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Make a new one"
+msgstr "Fè yon lòt"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
+msgstr "Fè difizyon YouTube pwochen sèvis la kounye a, pou jou ak lè li kòmanse, pou ka pataje lyen an anvan dimanch. Ale an dirèk ap itilize l."
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube thumbnail: a frame of the stream"
+msgstr "Ti imaj YouTube: yon imaj nan emisyon an"
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube thumbnail: {}"
+msgstr "Ti imaj YouTube: {}"
+
+#: ui/dialogs/settings-stream.slint ui/dialogs/stream-scenes.slint
+msgid "Choose a picture…"
+msgstr "Chwazi yon imaj…"
+
+#: ui/dialogs/settings-stream.slint ui/operator/cameras.slint
+msgid "No picture"
+msgstr "Pa gen imaj"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Who can watch on YouTube"
+msgstr "Ki moun ki ka gade sou YouTube"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Everyone"
+msgstr "Tout moun"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Only people with the link"
+msgstr "Sèlman moun ki gen lyen an"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Upload speed"
+msgstr "Vitès voye"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits."
+msgstr "Voye kèk megaoktè zewo bay yon tès vitès piblik epi di si entènèt la ka pote emisyon an bay chak destinasyon ki limen. Li chwazi gwosè anrejistreman ki bon an."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Testing…"
+msgstr "N ap teste…"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Test the upload speed"
+msgstr "Teste vitès voye a"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Tall for phones"
+msgstr "Vètikal pou telefòn"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other phone apps): the wide picture across the middle, black above and below. The recording stays wide."
+msgstr "Sa yo resevwa yon imaj vètikal (pou YouTube Shorts, Reels, TikTok ak lòt aplikasyon telefòn): imaj laj la nan mitan, nwa anlè ak anba. Anrejistreman an rete laj."
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Stream delay"
+msgstr "Reta emisyon an"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer."
+msgstr "Sa k ap soti nan emisyon an kenbe pou tan sa a, konsa Kenbe oswa Koupe son ka rete yon bagay anvan pèsonn k ap gade wè l. Anrejistreman an pa reta. Kòmantè moun k ap gade yo rive pita pase sa yo reponn lan."
+
+#: ui/dialogs/settings-stream.slint src/stream/sound_setup.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
+msgid "None"
+msgstr "Okenn"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Slow internet"
+msgstr "Entènèt ki lan"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "When a destination's internet cannot keep up, it gets a lighter stream until it can, instead of skipping. The recording and the other destinations keep the full picture. This uses more of the computer."
+msgstr "Lè entènèt yon destinasyon pa ka suiv, li resevwa yon emisyon pi lejè jiskaske li kapab, olye li sote. Anrejistreman an ak lòt destinasyon yo kenbe tout imaj la. Sa sèvi plis ak òdinatè a."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Send a lighter stream where the internet is slow"
+msgstr "Voye yon emisyon pi lejè kote entènèt la lan"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Each destination's quality"
+msgstr "Kalite chak destinasyon"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "A destination can get a smaller picture or a lower bitrate than the main stream (a phone app, a slow server). Each one that differs costs the computer a second encode."
+msgstr "Yon destinasyon ka resevwa yon imaj pi piti oswa yon debi pi ba pase emisyon prensipal la (yon aplikasyon telefòn, yon sèvè ki lan). Chak youn ki diferan koute òdinatè a yon dezyèm ankodaj."
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/network.rs src/ui/dialogs/settings_find.rs
+msgid "Network"
+msgstr "Rezo"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Send from a wired network card to keep the stream off busy Wi-Fi (YouTube, Facebook, Twitch and other RTMP servers; an SRT server is reached however the computer chooses). Safer send gives an SRT server time to ask again for what got lost on a poor line; the picture arrives that much later."
+msgstr "Voye apati yon kat rezo ak fil pou kenbe emisyon an lwen Wi-Fi ki chaje (YouTube, Facebook, Twitch ak lòt sèvè RTMP; òdinatè a rive jwenn yon sèvè SRT jan li chwazi). Voye pi an sekirite bay yon sèvè SRT tan pou mande ankò sa ki pèdi sou yon move liy; imaj la rive menm kantite tan an pita."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Send the stream from"
+msgstr "Voye emisyon an apati"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Safer send (SRT servers)"
+msgstr "Voye pi an sekirite (sèvè SRT)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Off (SRT's own)"
+msgstr "Etenn (pa SRT a)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Half a second"
+msgstr "Mwatye segonn"
+
+#: ui/dialogs/settings-stream.slint
+msgid "1 second"
+msgstr "1 segonn"
+
+#: ui/dialogs/settings-stream.slint
+msgid "2 seconds"
+msgstr "2 segonn"
+
+#: ui/dialogs/settings-stream.slint
+msgid "4 seconds"
+msgstr "4 segonn"
+
+#: ui/dialogs/settings-stream.slint ui/operator/media.slint ui/operator/slides.slint src/ui/dialogs/settings_find.rs
+msgid "Picture size"
+msgstr "Gwosè imaj"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "For the livestream and the recording. Bigger is sharper and needs a faster computer, a faster upload and more disk space."
+msgstr "Pou emisyon an ak anrejistreman an. Pi gwo pi klè epi li bezwen yon òdinatè pi rapid, yon voye pi rapid ak plis plas sou disk."
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Custom size"
+msgstr "Gwosè pa w"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Any width and height from 320 × 180 to 7680 × 4320 (made even). Most services and screens expect 16:9."
+msgstr "Nenpòt lajè ak wotè depi 320 × 180 rive 7680 × 4320 (yo fè yo pè). Pifò sèvis ak ekran atann 16:9."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Use this size"
+msgstr "Sèvi ak gwosè sa a"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Pictures a second"
+msgstr "Imaj pa segonn"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "30 suits most churches. 50 or 60 makes movement smoother and needs a faster computer and upload."
+msgstr "30 bon pou pifò legliz. 50 oswa 60 fè mouvman yo pi dous epi li bezwen yon òdinatè ak yon voye pi rapid."
+
+#: ui/dialogs/settings-stream.slint
+msgid "30 (usual)"
+msgstr "30 (nòmal)"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Bitrate"
+msgstr "Debi"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "How much picture goes out each second. Automatic grows with the picture size and pictures a second. More is sharper and needs a faster upload."
+msgstr "Konbyen imaj ki soti chak segonn. Otomatik ogmante ak gwosè imaj la ak kantite imaj pa segonn. Plis pi klè epi li bezwen yon voye pi rapid."
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Video encoder"
+msgstr "Ankodè videyo"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Automatic suits most computers. A graphics card's encoder leaves the processor free; it is tried first, and Automatic is used if it does not work on this computer."
+msgstr "Otomatik bon pou pifò òdinatè. Ankodè yon kat grafik kite processeur a lib; y ap eseye l anvan, epi si li pa mache sou òdinatè sa a, y ap itilize Otomatik."
+
+#: ui/dialogs/settings-stream.slint
+msgid "The processor (x264)"
+msgstr "Processeur a (x264)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "NVIDIA graphics card"
+msgstr "Kat grafik NVIDIA"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Intel graphics"
+msgstr "Grafik Intel"
+
+#: ui/dialogs/settings-stream.slint
+msgid "AMD graphics card"
+msgstr "Kat grafik AMD"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Windows' own"
+msgstr "Pa Windows la"
+
+#: ui/dialogs/settings-stream.slint
+msgid "OpenH264"
+msgstr "OpenH264"
+
+#: ui/dialogs/settings-stream.slint
+msgid "The Mac's own"
+msgstr "Pa Mac la"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Video format"
+msgstr "Fòma videyo"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "HEVC and AV1 give a sharper picture for the same upload. HEVC is used when every destination that is on takes it (YouTube and your own server do); otherwise H.264. AV1 is for recordings only: while live, H.264 is used. Both need a newer computer or graphics card."
+msgstr "HEVC ak AV1 bay yon imaj pi klè pou menm vitès voye. Yo sèvi ak HEVC lè tout destinasyon ki limen aksepte l (YouTube ak pwòp sèvè ou aksepte l); sinon H.264. AV1 se pou anrejistreman sèlman: pandan an dirèk, se H.264 yo sèvi. Tou de bezwen yon òdinatè oswa yon kat grafik ki pi nouvo."
+
+#: ui/dialogs/settings-stream.slint
+msgid "H.264 (plays everywhere)"
+msgstr "H.264 (jwe toupatou)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Bitrate kept"
+msgstr "Kalite debi"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Always the same (CBR)"
+msgstr "Toujou menm (CBR)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Varies with the picture (VBR)"
+msgstr "Chanje ak imaj la (VBR)"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Encoder details"
+msgstr "Detay ankodè a"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Leave these on Automatic unless a service or a video editor asks for something else. Faster leaves more of the computer free; Baseline is only for very old players."
+msgstr "Kite sa yo sou Otomatik sof si yon sèvis oswa yon editè videyo mande yon lòt bagay. Pi rapid kite plis nan òdinatè a lib; Baseline se pou lektè ki trè ansyen sèlman."
+
+#: ui/dialogs/settings-stream.slint
+msgid "A whole picture every"
+msgstr "Yon imaj konplè chak"
+
+#: ui/dialogs/settings-stream.slint
+msgid "2 seconds (usual)"
+msgstr "2 segonn (nòmal)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "3 seconds"
+msgstr "3 segonn"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Encoder speed"
+msgstr "Vitès ankodè"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Fastest (least work)"
+msgstr "Pi rapid (mwens travay)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Fast"
+msgstr "Rapid"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Balanced"
+msgstr "Balanse"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Best picture (most work)"
+msgstr "Pi bon imaj (plis travay)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Profile"
+msgstr "Pwofil"
+
+#: ui/dialogs/settings-stream.slint
+msgid "B-frames"
+msgstr "B-frames"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Sound quality"
+msgstr "Kalite son"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sample rate"
+msgstr "To echantiyon"
+
+#: ui/dialogs/settings-stream.slint
+msgid "As it comes (usual)"
+msgstr "Jan li vini an (nòmal)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sound bitrate"
+msgstr "Debi son"
+
+#: ui/dialogs/settings-stream.slint
+msgid "160 kbit/s (usual)"
+msgstr "160 kbit/s (nòmal)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Channels"
+msgstr "Kanal"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Stereo"
+msgstr "Estereyo"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Mono"
+msgstr "Mono"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Network camera address"
+msgstr "Adrès kamera rezo a"
+
+#: ui/dialogs/settings-stream.slint
+msgid "The camera's address, like rtsp://192.168.1.50:554/stream1"
+msgstr "Adrès kamera a, tankou rtsp://192.168.1.50:554/stream1"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera control address"
+msgstr "Adrès kontwòl kamera a"
+
+#: ui/dialogs/settings-stream.slint
+msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
+msgstr "Pou voye yon kamera PTZ nan pozisyon li anrejistre yo: adrès li, tankou 192.168.1.60"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Cameras"
+msgstr "Kamera"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "A camera or capture card for the stream's camera scenes (and its recording). More cameras can be switched to while live, from the Cameras box beside the live screen."
+msgstr "Yon kamera oswa yon kat kaptire pou sèn kamera emisyon an (ak anrejistreman li). An dirèk, ou ka pase sou lòt kamera nan bwat Kamera bò ekran an dirèk la."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera 1"
+msgstr "Kamera 1"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera 2"
+msgstr "Kamera 2"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera 3"
+msgstr "Kamera 3"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera 4"
+msgstr "Kamera 4"
+
+#: ui/dialogs/settings-stream.slint
+msgid "A phone as a camera: Settings → Remote and network"
+msgstr "Yon telefòn kòm kamera: Paramèt → Telekòmand ak rezo"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "When a camera sends nothing"
+msgstr "Lè yon kamera pa voye anyen"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "What the stream shows in a camera's place while it is unplugged or sends no picture. The camera comes back by itself as soon as it sends again."
+msgstr "Sa emisyon an montre nan plas yon kamera pandan li dekonekte oswa li pa voye imaj. Kamera a tounen poukont li depi li voye ankò."
+
+#: ui/dialogs/settings-stream.slint src/stream/own_scenes.rs
+msgid "The audience screen"
+msgstr "Ekran sal la"
+
+#: ui/dialogs/settings-stream.slint
+msgid "The church logo"
+msgstr "Logo legliz la"
+
+#: ui/dialogs/settings-stream.slint src/strings/screens.rs src/theme/backgrounds.rs
+msgid "Black"
+msgstr "Nwa"
+
+#: ui/dialogs/settings-stream.slint src/network/guest.rs src/ui/dialogs/settings_find.rs
+msgid "Remote guest"
+msgstr "Envite a distans"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "A guest speaker or missionary joins from a browser at home: their picture comes in as a camera, their voice through this computer's sound. The connection goes directly between the two computers; some internets do not allow that, and the pages then say so."
+msgstr "Yon predikatè envite oswa yon misyonè patisipe apati yon navigatè lakay li: imaj li antre kòm yon kamera, vwa li pase nan son òdinatè sa a. Koneksyon an ale dirèkteman ant de òdinatè yo; gen kèk entènèt ki pa pèmèt sa, epi lè sa a paj yo di l."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Invite a guest…"
+msgstr "Envite yon moun…"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Opens the invitation page in this computer's web browser"
+msgstr "Louvri paj envitasyon an nan navigatè entènèt òdinatè sa a"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Use the guest as a camera"
+msgstr "Sèvi ak envite a kòm kamera"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Puts the guest in the first free camera row above"
+msgstr "Mete envite a nan premye liy kamera ki lib anwo a"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Use a picture…"
+msgstr "Sèvi ak yon foto…"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Use words"
+msgstr "Sèvi ak pawòl yo"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Scenes"
+msgstr "Sèn"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the audience screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgstr "Chante ak vèsè Bib yo soti kòm kamera ak pawòl yo; videyo ak prezantasyon kòm ekran sal la; lè pa gen anyen sou ekran an, kamera a. Yon sèn ou chwazi ak bouton sèn bò kote An dirèk rete jiskaske pwochen eleman sèvis la."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Choose the scene by itself from what is live"
+msgstr "Chwazi sèn nan poukont li dapre sa k an dirèk"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Presentations:"
+msgstr "Prezantasyon:"
+
+#: ui/dialogs/settings-stream.slint
+msgid "The audience screen with the camera in a corner"
+msgstr "Ekran sal la ak kamera a nan yon kwen"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Scene layout"
+msgstr "Aranjman sèn yo"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Where the camera goes when it is in a corner of the audience screen, and where the words go over the camera."
+msgstr "Ki kote kamera a ye lè li nan yon kwen ekran sal la, ak ki kote pawòl yo ye sou kamera a."
+
+#: ui/dialogs/settings-stream.slint src/strings/themes.rs src/theme/richtext.rs
+msgid "Small"
+msgstr "Piti"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Medium"
+msgstr "Mwayen"
+
+#: ui/dialogs/settings-stream.slint src/strings/themes.rs src/theme/richtext.rs
+msgid "Large"
+msgstr "Gwo"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Words over the camera:"
+msgstr "Pawòl sou kamera a:"
+
+#: ui/dialogs/settings-stream.slint
+msgid "At the bottom"
+msgstr "Anba"
+
+#: ui/dialogs/settings-stream.slint
+msgid "At the top"
+msgstr "Anlè"
+
+#: ui/dialogs/settings-stream.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings_find.rs
+msgid "Your scenes"
+msgstr "Sèn pa w yo"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Make scenes of your own from cameras, the audience screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgstr "Fè pwòp sèn pa w ak kamera, ekran sal la, pawòl yo, foto, koulè ak tèks. Pandan w an dirèk, yo parèt nan lis la apre sèn entegre yo."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Your scenes…"
+msgstr "Sèn pa w yo…"
+
+#: ui/dialogs/settings-stream.slint
+msgid "None yet"
+msgstr "Poko genyen"
+
+#: ui/dialogs/settings-stream.slint
+msgid "1 scene"
+msgstr "1 sèn"
+
+#: ui/dialogs/settings-stream.slint
+msgid "{} scenes"
+msgstr "{} sèn"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Cards"
+msgstr "Kat"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Starting soon shows before the service, with the countdown under the words while it runs; Ending after the last item; Hold for a break, chosen with the scene button."
+msgstr "N ap kòmanse talè parèt anvan sèvis la, ak kontrebous la anba mo yo pandan l ap mache; Fen apre dènye eleman an; Poz pou yon kanpe, ou chwazi l ak bouton sèn nan."
+
+#: ui/dialogs/settings-stream.slint src/stream/pictures.rs src/stream/scene.rs
+msgid "Starting soon"
+msgstr "N ap kòmanse talè"
+
+#: ui/dialogs/settings-stream.slint src/stream/scene.rs src/strings/song.rs
+msgid "Ending"
+msgstr "Final"
+
+#: ui/dialogs/settings-stream.slint src/stream/pictures.rs
+msgid "Thanks for joining us"
+msgstr "Mèsi paske w te avèk nou"
+
+#: ui/dialogs/settings-stream.slint ui/operator/follow.slint src/i18n/remote_strings.rs src/stream/scene.rs
+msgid "Hold"
+msgstr "Kenbe"
+
+#: ui/dialogs/settings-stream.slint src/stream/pictures.rs
+msgid "We'll be right back"
+msgstr "N ap tounen touswit"
+
+#: ui/dialogs/settings-stream.slint
+msgid "File → Start recording (or the Record button at the top) saves what the audience screen shows as an MP4 video."
+msgstr "Fichye → Kòmanse anrejistreman (oswa bouton Anrejistre anwo a) anrejistre sa ekran sal la montre kòm yon videyo MP4."
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Save recordings in"
+msgstr "Anrejistre anrejistreman yo nan"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Choose folder…"
+msgstr "Chwazi dosye…"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Picture size: Settings → Livestream → Picture and quality"
+msgstr "Gwosè imaj: Paramèt → Emisyon an dirèk → Imaj ak kalite"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sound: Settings → Livestream → Sound"
+msgstr "Son: Paramèt → Emisyon an dirèk → Son"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "File type and name"
+msgstr "Kalite ak non dosye a"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "{{date}} becomes the day, {{time}} the time it started, {{title}} the service's name."
+msgstr "{{date}} vin jou a, {{time}} lè li te kòmanse, {{title}} non sèvis la."
+
+#: ui/dialogs/settings-stream.slint
+msgid "File type"
+msgstr "Kalite fichye"
+
+#: ui/dialogs/settings-stream.slint
+msgid "MP4 (plays everywhere)"
+msgstr "MP4 (jwe toupatou)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "MKV (as written; nothing to wait for at the end)"
+msgstr "MKV (jan li ekri a; pa gen anyen pou tann nan fen an)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Recording file name"
+msgstr "Non fichye anrejistreman an"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Recording {{date}} {{time}}"
+msgstr "Anrejistreman {{date}} {{time}}"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Now: {}"
+msgstr "Kounye a: {}"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Long recordings"
+msgstr "Anrejistreman ki long"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Cut long recordings"
+msgstr "Koupe anrejistreman ki long"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Every 30 minutes"
+msgstr "Chak 30 minit"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Every hour"
+msgstr "Chak èdtan"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Every 2 hours"
+msgstr "Chak 2 èdtan"
+
+#: ui/dialogs/settings-stream.slint
+msgid "At 2 GB"
+msgstr "Rive 2 GB"
+
+#: ui/dialogs/settings-stream.slint
+msgid "At 4 GB (old USB sticks)"
+msgstr "Rive 4 GB (ansyen kle USB)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "At 8 GB"
+msgstr "Rive 8 GB"
+
+#: ui/dialogs/settings-stream.slint
+msgid "“Save last” button keeps"
+msgstr "Bouton “Anrejistre dènye” kenbe"
+
+#: ui/dialogs/settings-stream.slint
+msgid "No button"
+msgstr "Pa gen bouton"
+
+#: ui/dialogs/settings-stream.slint
+msgid "2 minutes"
+msgstr "2 minit"
+
+#: ui/dialogs/settings-stream.slint
+msgid "5 minutes"
+msgstr "5 minit"
+
+#: ui/dialogs/settings-stream.slint
+msgid "10 minutes"
+msgstr "10 minit"
+
+#: ui/dialogs/settings-stream.slint
+msgid "15 minutes"
+msgstr "15 minit"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Extra recordings"
+msgstr "Lòt anrejistreman anplis"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "While you are live, a second video is saved next to the recording, its name ending in words.mov: only the words, with nothing behind them. When you edit the service video, put it on top to add the words. It stays small because the words seldom change."
+msgstr "Pandan w an dirèk, yon dezyèm videyo anrejistre bò kote anrejistreman an, non li fini ak words.mov: pawòl yo sèlman, san anyen dèyè yo. Lè w ap edite videyo sèvis la, mete l anlè pou ajoute pawòl yo. Li rete piti paske pawòl yo pa chanje souvan."
+
+#: ui/dialogs/settings-stream.slint
+msgid "While live, also record the stream without the words (for editing)"
+msgstr "Pandan an dirèk, anrejistre emisyon an san pawòl yo tou (pou fè montaj)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Also record the words alone, on a see-through background (for video editing)"
+msgstr "Anrejistre pawòl yo sèlman tou, sou yon fon transparan (pou edite videyo)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
+msgstr "Kenbe chak son sou pwòp pis li tou nan anrejistreman an, pou balanse yo ankò apre"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Live captions"
+msgstr "Soutit an dirèk"
+
+#: ui/dialogs/settings-stream.slint src/stream/captions.rs src/ui/dialogs/settings_find.rs
+msgid "Captions are made on this computer from the microphone, in English only. They are often wrong: names, Bible places, quiet or echoing speech and songs come out badly, and there is no punctuation. They show about two seconds after the words are said."
+msgstr "Soutit yo fèt sou òdinatè sa a apati mikwo a, an anglè sèlman. Yo souvan fè erè: non moun, non kote nan Bib la, pawòl ki ba oswa ki fè eko ak chante yo pa soti byen, epi pa gen ponktiyasyon. Yo parèt apeprè de segonn apre pawòl yo di."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Write out what is said while live"
+msgstr "Ekri sa yo di pandan an dirèk"
+
+#: ui/dialogs/settings-stream.slint src/stream/captions.rs
+msgid "Live captions need the English speech model. Download the fast model in Settings → Auto-follow → Speech model."
+msgstr "Soutit an dirèk bezwen modèl vwa angle a. Telechaje modèl rapid la nan Paramèt → Swiv oto → Modèl vwa."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Settings → Auto-follow → Speech model"
+msgstr "Paramèt → Swiv oto → Modèl vwa"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Show them at the bottom of the stream (not over song words or verses)"
+msgstr "Montre yo anba emisyon an (pa sou pawòl chante oswa vèsè yo)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Keep them in a captions file beside the recording (for YouTube's replay and video players)"
+msgstr "Kenbe yo nan yon fichye soutit bò kote anrejistreman an (pou rediffizyon YouTube ak lektè videyo)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Listen to:"
+msgstr "Koute:"
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube captions address"
+msgstr "Adrès soutit YouTube"
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube's captions address (optional)"
+msgstr "Adrès soutit YouTube (si ou vle)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "For captions viewers can turn on and off on YouTube: in YouTube Studio, open the stream's settings, turn on Closed captions, choose \"POST captions to URL\", and paste the address it gives here."
+msgstr "Pou soutit moun k ap gade yo ka limen ak etenn sou YouTube: nan YouTube Studio, louvri paramèt emisyon an, limen Closed captions, chwazi \"POST captions to URL\", epi kole adrès li bay la a."
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "On your website"
+msgstr "Sou sit entènèt ou"
+
+#: ui/dialogs/settings-stream.slint src/stream/website.rs src/ui/dialogs/settings_find.rs
+msgid "To play the livestream on your church's website: copy the code, then in your website's editor add an \"HTML\", \"Embed\" or \"Code\" block where the video should go and paste it there. You do this once: the same code plays every week's service."
+msgstr "Pou jwe emisyon an dirèk la sou sit entènèt legliz ou: kopye kòd la, apre sa nan editè sit ou a ajoute yon blòk \"HTML\", \"Embed\" oswa \"Code\" kote videyo a dwe ye epi kole l la. Ou fè sa yon sèl fwa: menm kòd la jwe sèvis chak semèn."
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube channel id"
+msgstr "ID chèn YouTube"
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube channel id (starts with UC)"
+msgstr "ID chèn YouTube (kòmanse ak UC)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Fill in"
+msgstr "Ranpli"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Fill in the channel of the YouTube account signed in above"
+msgstr "Ranpli chèn kont YouTube ki konekte anwo a"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Copy the code"
+msgstr "Kopye kòd la"
+
+#: ui/dialogs/settings-stream.slint src/stream/website.rs
+msgid "YouTube plays whatever your channel has live; between services it shows the next scheduled stream or says nothing is live. YouTube Studio must allow embedding (it does unless it was turned off)."
+msgstr "YouTube jwe nenpòt sa chèn ou genyen an dirèk; ant sèvis yo li montre pwochen emisyon ki pwograme a oswa li di pa gen anyen an dirèk. YouTube Studio dwe pèmèt entegrasyon (li pèmèt sof si yo te etenn li)."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Facebook Page"
+msgstr "Paj Facebook"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Facebook Page address"
+msgstr "Adrès Paj Facebook"
+
+#: ui/dialogs/settings-stream.slint src/stream/website.rs
+msgid "Facebook shows your Page with its posts; while you are live the live video is at the top. The Page must be public."
+msgstr "Facebook montre Paj ou ak piblikasyon li yo; pandan ou an dirèk, videyo an dirèk la anlè. Paj la dwe piblik."
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "NDI"
+msgstr "NDI"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras."
+msgstr "Lòt òdinatè ak pwogram sou rezo sa a (OBS, vMix, yon switcher videyo) ka pran sa yo pandan w an dirèk. Kamera NDI yo nan lis kamera yo."
+
+#: ui/dialogs/settings-stream.slint
+msgid "NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."
+msgstr "NDI bezwen NDI Tools gratis ki soti nan ndi.video sou òdinatè sa a. Enstale yo, epi louvri Paramèt yo ankò."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Send the stream over NDI too (picture and sound)"
+msgstr "Voye emisyon an sou NDI tou (imaj ak son)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Send the words alone over NDI, on a see-through background (for keying)"
+msgstr "Voye pawòl yo sèlman sou NDI, sou yon fon transparan (pou keying)"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Saved setups"
+msgstr "Konfigirasyon anrejistre"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Keep everything set for the livestream (destinations, cameras, sound, scenes and these settings) under a name, and use it again in one go. Stream keys stay as they are."
+msgstr "Kenbe tout sa ki konfigire pou emisyon an dirèk la (destinasyon, kamera, son, sèn ak paramèt sa yo) anba yon non, epi itilize l ankò yon sèl kou. Kle emisyon yo rete jan yo ye."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Save as a setup…"
+msgstr "Anrejistre kòm konfigirasyon…"
+
+#: ui/dialogs/settings-stream.slint
+msgid "No setups saved yet."
+msgstr "Poko gen konfigirasyon anrejistre."
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Church default"
@@ -3436,6 +3924,10 @@ msgid "Semibold"
 msgstr "Mwatye gra"
 
 #: ui/dialogs/settings-themes.slint
+msgid "(biggest)"
+msgstr "(pi gwo)"
+
+#: ui/dialogs/settings-themes.slint
 msgid "Align"
 msgstr "Aliyman"
 
@@ -3491,241 +3983,21 @@ msgstr "Fè pi fonse"
 msgid "Makes text easier to read"
 msgstr "Fè tèks la pi fasil pou li"
 
-#: ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
-msgid "Lines per slide"
-msgstr "Liy pou chak diapo"
+#: ui/dialogs/settings.slint ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
+msgid "Settings"
+msgstr "Paramèt"
 
 #: ui/dialogs/settings.slint
-msgid "Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage."
-msgstr "Chante ak pasaj Bib. Gen Bib ki mande pou yo montre kredi yo; li parèt yon fwa pou chak pasaj."
+msgid "Find a setting"
+msgstr "Chèche yon paramèt"
 
 #: ui/dialogs/settings.slint
-msgid "Show the copyright line"
-msgstr "Montre liy dwa otè a"
+msgid "No setting has those words."
+msgstr "Pa gen paramèt ki gen mo sa yo."
 
 #: ui/dialogs/settings.slint
-msgid "On first and last slide"
-msgstr "Sou premye ak dènye diapo"
-
-#: ui/dialogs/settings.slint
-msgid "On first slide"
-msgstr "Sou premye diapo"
-
-#: ui/dialogs/settings.slint
-msgid "On last slide"
-msgstr "Sou dènye diapo"
-
-#: ui/dialogs/settings.slint
-msgid "Copyright line"
-msgstr "Liy dwa otè"
-
-#: ui/dialogs/settings.slint
-msgid "Use {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}} and {{license}}. Parts between · with nothing in them are left out. Empty: the usual line."
-msgstr "Itilize {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}} ak {{license}}. Pati ant · ki vid yo pa parèt. Vid: liy abityèl la."
-
-#: ui/dialogs/settings.slint
-msgid "Church CCLI licence #"
-msgstr "Nimewo lisans CCLI legliz la"
-
-#: ui/dialogs/settings.slint
-msgid "Section keys (C, B, 1–9…)"
-msgstr "Kle seksyon (C, B, 1–9…)"
-
-#: ui/dialogs/settings.slint
-msgid "Turn off if letters typed by mistake move the screen."
-msgstr "Etenn sa si lèt ou tape pa erè fè ekran an bouje."
-
-#: ui/dialogs/settings.slint
-msgid "Letters and numbers jump the live song to a section"
-msgstr "Lèt ak chif fè chante k ap pase a sote nan yon seksyon"
-
-#: ui/dialogs/settings.slint
-msgid "Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted."
-msgstr "Chante ou telechaje nan SongSelect nan navigatè entènèt ou a antre poukont yo nan bibliyotèk chante a. Se sèlman fichye chante SongSelect yo ki li; anyen nan Downloads pa deplase ni efase."
-
-#: ui/dialogs/settings.slint
-msgid "Bring in SongSelect downloads whenever RustyPresenter is open"
-msgstr "Pran telechajman SongSelect yo chak fwa RustyPresenter louvri"
-
-#: ui/dialogs/settings.slint ui/operator.slint
-msgid "Songs from SongSelect…"
-msgstr "Chante ki soti nan SongSelect…"
-
-#: ui/dialogs/settings.slint ui/operator.slint
-msgid "Song use report…"
-msgstr "Rapò itilizasyon chante…"
-
-#: ui/dialogs/settings.slint
-msgid "General"
-msgstr "Jeneral"
-
-#: ui/dialogs/settings.slint
-msgid "Sections and labels"
-msgstr "Seksyon ak etikèt"
-
-#: ui/dialogs/settings.slint
-msgid "Video and graphics"
-msgstr "Videyo ak grafik"
-
-#: ui/dialogs/settings.slint
-msgid "Sound goes to"
-msgstr "Son an ale nan"
-
-#: ui/dialogs/settings.slint
-msgid "Graphics"
-msgstr "Grafik"
-
-#: ui/dialogs/settings.slint
-msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
-msgstr "Chanje sa sèlman si ekran yo ap tranble, rete nwa oswa RustyPresenter ap kraze. L ap sèvi apati pwochen fwa ou louvri l."
-
-#: ui/dialogs/settings.slint src/video/bench.rs
-msgid "Test which is fastest"
-msgstr "Teste kiyès ki pi rapid"
-
-#: ui/dialogs/settings.slint
-msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
-msgstr "Anviwon yon minit. Fenèt tès ap louvri epi fèmen pandan l ap mache, sou pwojektè a tou lè pa gen anyen k ap parèt la."
-
-#: ui/dialogs/settings.slint
-msgid "Use this"
-msgstr "Sèvi ak sa a"
-
-#: ui/dialogs/settings.slint
-msgid "Restart now"
-msgstr "Rekòmanse kounye a"
-
-#: ui/dialogs/settings.slint
-msgid "Performance"
-msgstr "Pèfòmans"
-
-#: ui/dialogs/settings.slint
-msgid "Shows under the live preview how many frames a second the screens draw, and the free video memory when the graphics card says. Low numbers mean the computer is struggling."
-msgstr "Montre anba apèsi dirèk la konbyen imaj pa segonn ekran yo desine, ak memwa videyo ki lib lè kat grafik la bay li. Ti chif vle di òdinatè a ap bat."
-
-#: ui/dialogs/settings.slint ui/operator.slint
-msgid "Show performance"
-msgstr "Montre pèfòmans"
-
-#: ui/dialogs/settings.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
-msgid "Screens"
-msgstr "Ekran"
-
-#: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs src/strings/screens.rs
-msgid "Audience screen"
-msgstr "Ekran sal la"
-
-#: ui/dialogs/settings.slint
-msgid "Keep the audience screen in front when it has its own monitor (smoother fades)"
-msgstr "Kenbe ekran sal la devan lè li gen pwòp monitè pa l (tranzisyon pi dous)"
-
-#: ui/dialogs/settings.slint
-msgid "At start"
-msgstr "Lè l demare"
-
-#: ui/dialogs/settings.slint
-msgid "Turn the screens on when RustyPresenter starts"
-msgstr "Limen ekran yo lè RustyPresenter demare"
-
-#: ui/dialogs/settings.slint src/strings/stage.rs
-msgid "Stage layout"
-msgstr "Aranjman sèn"
-
-#: ui/dialogs/settings.slint
-msgid "What the stage screen shows. Window → Stage layouts… makes your own."
-msgstr "Sa ekran sèn nan montre. Fenèt → Aranjman sèn… pou fè pa w."
-
-#: ui/dialogs/settings.slint src/ui/dialogs/settings_keys.rs
-msgid "Phone drawing"
-msgstr "Desen telefòn"
-
-#: ui/dialogs/settings.slint
-msgid "Drawing from a phone"
-msgstr "Desen soti nan yon telefòn"
-
-#: ui/dialogs/settings.slint
-msgid "Keep drawings when the slide changes"
-msgstr "Kenbe desen yo lè diapo a chanje"
-
-#: ui/dialogs/settings.slint
-msgid "Show drawings on the stage screen"
-msgstr "Montre desen yo sou ekran sèn nan"
-
-#: ui/dialogs/settings.slint
-msgid "Fading ink disappears after (seconds, 1–30)"
-msgstr "Lank k ap disparèt efase apre (segonn, 1–30)"
-
-#: ui/dialogs/settings.slint
-msgid "On the phone, “Fades” ink works like a laser pointer: it goes away by itself."
-msgstr "Sou telefòn nan, lank “Disparèt” mache tankou yon pwentè lazè: li ale pou kont li."
-
-#: ui/dialogs/settings.slint
-msgid "Limits"
-msgstr "Limit"
-
-#: ui/dialogs/settings.slint
-msgid "Limit phone drawing"
-msgstr "Limite desen telefòn"
-
-#: ui/dialogs/settings.slint
-msgid "Most lines on the screen at once"
-msgstr "Plis liy sou ekran an an menm tan"
-
-#: ui/dialogs/settings.slint
-msgid "Most drawing updates a second from one phone"
-msgstr "Plis mizajou desen pa segonn soti nan yon telefòn"
-
-#: ui/dialogs/settings.slint
-msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
-msgstr "Yon sovgad konplè (chante, sèvis, paramèt ak chak videyo, foto ak diapo) fèt chak fwa RustyPresenter demare ak yon fwa pa jou. Dènye 10 yo kenbe nan"
-
-#: ui/dialogs/settings.slint
-msgid "Back up now"
-msgstr "Fè sovgad kounye a"
-
-#: ui/dialogs/settings.slint
-msgid "Restore"
-msgstr "Retabli"
-
-#: ui/dialogs/settings.slint
-msgid "No backups yet."
-msgstr "Poko gen sovgad."
-
-#: ui/dialogs/settings.slint
-msgid "Look"
-msgstr "Aparans"
-
-#: ui/dialogs/settings.slint src/automation/slide_actions.rs src/ui/operator/transfer.rs
-msgid "Themes"
-msgstr "Tèm"
-
-#: ui/dialogs/settings.slint
-msgid "Language"
-msgstr "Lang"
-
-#: ui/dialogs/settings.slint
-msgid "Auto-follow"
-msgstr "Swiv oto"
-
-#: ui/dialogs/settings.slint src/stream/own_scenes.rs src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/ui/operator/file_input.rs
-msgid "Video"
-msgstr "Videyo"
-
-#: ui/dialogs/settings.slint ui/operator/live.slint src/i18n/remote_strings.rs src/print/html.rs src/strings/planning.rs
-msgid "Media"
-msgstr "Medya"
-
-#: ui/dialogs/settings.slint
-msgid "Backups"
-msgstr "Sovgad"
-
-#: ui/dialogs/settings.slint ui/operator.slint
-msgid "Help"
-msgstr "Èd"
-
-#: ui/dialogs/settings.slint
-msgid "About"
-msgstr "Konsènan"
+msgid "Show advanced settings"
+msgstr "Montre paramèt avanse yo"
 
 #: ui/dialogs/settings.slint
 msgid "Save theme"
@@ -4042,262 +4314,6 @@ msgstr "Chwazi aranjman sèn nan"
 #: ui/dialogs/stage-layouts.slint
 msgid "Edit stage layouts…"
 msgstr "Modifye aranjman sèn…"
-
-#: ui/dialogs/stream-more.slint
-msgid "Saved setups"
-msgstr "Konfigirasyon anrejistre"
-
-#: ui/dialogs/stream-more.slint
-msgid "Keep everything set for the livestream (destinations, cameras, sound, scenes and these settings) under a name, and use it again in one go. Stream keys stay as they are."
-msgstr "Kenbe tout sa ki konfigire pou emisyon an dirèk la (destinasyon, kamera, son, sèn ak paramèt sa yo) anba yon non, epi itilize l ankò yon sèl kou. Kle emisyon yo rete jan yo ye."
-
-#: ui/dialogs/stream-more.slint
-msgid "Save as a setup…"
-msgstr "Anrejistre kòm konfigirasyon…"
-
-#: ui/dialogs/stream-more.slint
-msgid "No setups saved yet."
-msgstr "Poko gen konfigirasyon anrejistre."
-
-#: ui/dialogs/stream-more.slint
-msgid "Pictures a second"
-msgstr "Imaj pa segonn"
-
-#: ui/dialogs/stream-more.slint
-msgid "30 (usual)"
-msgstr "30 (nòmal)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Video format"
-msgstr "Fòma videyo"
-
-#: ui/dialogs/stream-more.slint
-msgid "H.264 (plays everywhere)"
-msgstr "H.264 (jwe toupatou)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Bitrate kept"
-msgstr "Kalite debi"
-
-#: ui/dialogs/stream-more.slint
-msgid "Always the same (CBR)"
-msgstr "Toujou menm (CBR)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Varies with the picture (VBR)"
-msgstr "Chanje ak imaj la (VBR)"
-
-#: ui/dialogs/stream-more.slint
-msgid "HEVC and AV1 give a sharper picture for the same upload. HEVC is used when every destination that is on takes it (YouTube and your own server do); otherwise H.264. AV1 is for recordings only: while live, H.264 is used. Both need a newer computer or graphics card."
-msgstr "HEVC ak AV1 bay yon imaj pi klè pou menm vitès voye. Yo sèvi ak HEVC lè tout destinasyon ki limen aksepte l (YouTube ak pwòp sèvè ou aksepte l); sinon H.264. AV1 se pou anrejistreman sèlman: pandan an dirèk, se H.264 yo sèvi. Tou de bezwen yon òdinatè oswa yon kat grafik ki pi nouvo."
-
-#: ui/dialogs/stream-more.slint
-msgid "A whole picture every"
-msgstr "Yon imaj konplè chak"
-
-#: ui/dialogs/stream-more.slint
-msgid "1 second"
-msgstr "1 segonn"
-
-#: ui/dialogs/stream-more.slint
-msgid "2 seconds (usual)"
-msgstr "2 segonn (nòmal)"
-
-#: ui/dialogs/stream-more.slint
-msgid "3 seconds"
-msgstr "3 segonn"
-
-#: ui/dialogs/stream-more.slint
-msgid "4 seconds"
-msgstr "4 segonn"
-
-#: ui/dialogs/stream-more.slint
-msgid "Encoder speed"
-msgstr "Vitès ankodè"
-
-#: ui/dialogs/stream-more.slint
-msgid "Fastest (least work)"
-msgstr "Pi rapid (mwens travay)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Fast"
-msgstr "Rapid"
-
-#: ui/dialogs/stream-more.slint
-msgid "Balanced"
-msgstr "Balanse"
-
-#: ui/dialogs/stream-more.slint
-msgid "Best picture (most work)"
-msgstr "Pi bon imaj (plis travay)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Profile"
-msgstr "Pwofil"
-
-#: ui/dialogs/stream-more.slint
-msgid "B-frames"
-msgstr "B-frames"
-
-#: ui/dialogs/stream-more.slint
-msgid "Leave these on Automatic unless a service or a video editor asks for something else. Faster leaves more of the computer free; Baseline is only for very old players."
-msgstr "Kite sa yo sou Otomatik sof si yon sèvis oswa yon editè videyo mande yon lòt bagay. Pi rapid kite plis nan òdinatè a lib; Baseline se pou lektè ki trè ansyen sèlman."
-
-#: ui/dialogs/stream-more.slint
-msgid "Sample rate"
-msgstr "To echantiyon"
-
-#: ui/dialogs/stream-more.slint
-msgid "As it comes (usual)"
-msgstr "Jan li vini an (nòmal)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Sound bitrate"
-msgstr "Debi son"
-
-#: ui/dialogs/stream-more.slint
-msgid "160 kbit/s (usual)"
-msgstr "160 kbit/s (nòmal)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Channels"
-msgstr "Kanal"
-
-#: ui/dialogs/stream-more.slint
-msgid "Stereo"
-msgstr "Estereyo"
-
-#: ui/dialogs/stream-more.slint
-msgid "Mono"
-msgstr "Mono"
-
-#: ui/dialogs/stream-more.slint src/ui/dialogs/network.rs
-msgid "Network"
-msgstr "Rezo"
-
-#: ui/dialogs/stream-more.slint
-msgid "Send the stream from"
-msgstr "Voye emisyon an apati"
-
-#: ui/dialogs/stream-more.slint
-msgid "Safer send (SRT servers)"
-msgstr "Voye pi an sekirite (sèvè SRT)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Off (SRT's own)"
-msgstr "Etenn (pa SRT a)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Half a second"
-msgstr "Mwatye segonn"
-
-#: ui/dialogs/stream-more.slint
-msgid "2 seconds"
-msgstr "2 segonn"
-
-#: ui/dialogs/stream-more.slint
-msgid "Send from a wired network card to keep the stream off busy Wi-Fi (YouTube, Facebook, Twitch and other RTMP servers; an SRT server is reached however the computer chooses). Safer send gives an SRT server time to ask again for what got lost on a poor line; the picture arrives that much later."
-msgstr "Voye apati yon kat rezo ak fil pou kenbe emisyon an lwen Wi-Fi ki chaje (YouTube, Facebook, Twitch ak lòt sèvè RTMP; òdinatè a rive jwenn yon sèvè SRT jan li chwazi). Voye pi an sekirite bay yon sèvè SRT tan pou mande ankò sa ki pèdi sou yon move liy; imaj la rive menm kantite tan an pita."
-
-#: ui/dialogs/stream-more.slint
-msgid "Each destination's quality"
-msgstr "Kalite chak destinasyon"
-
-#: ui/dialogs/stream-more.slint
-msgid "A destination can get a smaller picture or a lower bitrate than the main stream (a phone app, a slow server). Each one that differs costs the computer a second encode."
-msgstr "Yon destinasyon ka resevwa yon imaj pi piti oswa yon debi pi ba pase emisyon prensipal la (yon aplikasyon telefòn, yon sèvè ki lan). Chak youn ki diferan koute òdinatè a yon dezyèm ankodaj."
-
-#: ui/dialogs/stream-more.slint
-msgid "Size: the main stream's"
-msgstr "Gwosè: pa emisyon prensipal la"
-
-#: ui/dialogs/stream-more.slint
-msgid "Bitrate: the main stream's"
-msgstr "Debi: pa emisyon prensipal la"
-
-#: ui/dialogs/stream-more.slint
-msgid "File type"
-msgstr "Kalite fichye"
-
-#: ui/dialogs/stream-more.slint
-msgid "MP4 (plays everywhere)"
-msgstr "MP4 (jwe toupatou)"
-
-#: ui/dialogs/stream-more.slint
-msgid "MKV (as written; nothing to wait for at the end)"
-msgstr "MKV (jan li ekri a; pa gen anyen pou tann nan fen an)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Cut long recordings"
-msgstr "Koupe anrejistreman ki long"
-
-#: ui/dialogs/stream-more.slint
-msgid "Every 30 minutes"
-msgstr "Chak 30 minit"
-
-#: ui/dialogs/stream-more.slint
-msgid "Every hour"
-msgstr "Chak èdtan"
-
-#: ui/dialogs/stream-more.slint
-msgid "Every 2 hours"
-msgstr "Chak 2 èdtan"
-
-#: ui/dialogs/stream-more.slint
-msgid "At 2 GB"
-msgstr "Rive 2 GB"
-
-#: ui/dialogs/stream-more.slint
-msgid "At 4 GB (old USB sticks)"
-msgstr "Rive 4 GB (ansyen kle USB)"
-
-#: ui/dialogs/stream-more.slint
-msgid "At 8 GB"
-msgstr "Rive 8 GB"
-
-#: ui/dialogs/stream-more.slint
-msgid "“Save last” button keeps"
-msgstr "Bouton “Anrejistre dènye” kenbe"
-
-#: ui/dialogs/stream-more.slint
-msgid "No button"
-msgstr "Pa gen bouton"
-
-#: ui/dialogs/stream-more.slint
-msgid "2 minutes"
-msgstr "2 minit"
-
-#: ui/dialogs/stream-more.slint
-msgid "5 minutes"
-msgstr "5 minit"
-
-#: ui/dialogs/stream-more.slint
-msgid "10 minutes"
-msgstr "10 minit"
-
-#: ui/dialogs/stream-more.slint
-msgid "15 minutes"
-msgstr "15 minit"
-
-#: ui/dialogs/stream-more.slint
-msgid "File name"
-msgstr "Non fichye"
-
-#: ui/dialogs/stream-more.slint
-msgid "Recording file name"
-msgstr "Non fichye anrejistreman an"
-
-#: ui/dialogs/stream-more.slint
-msgid "Recording {{date}} {{time}}"
-msgstr "Anrejistreman {{date}} {{time}}"
-
-#: ui/dialogs/stream-more.slint
-msgid "{{date}} becomes the day, {{time}} the time it started, {{title}} the service's name. Now: {}"
-msgstr "{{date}} vin jou a, {{time}} lè li te kòmanse, {{title}} non sèvis la. Kounye a: {}"
-
-#: ui/dialogs/stream-more.slint
-msgid "While live, also record the stream without the words (for editing)"
-msgstr "Pandan an dirèk, anrejistre emisyon an san pawòl yo tou (pou fè montaj)"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, videos, colours, text or a clock in it."
@@ -5023,6 +5039,10 @@ msgstr "Retounen (← oswa Page Up)"
 msgid "Next (→, Space or Page Down)"
 msgstr "Pwochen (→, Espas oswa Page Down)"
 
+#: ui/operator/live.slint src/i18n/remote_strings.rs src/print/html.rs src/strings/planning.rs
+msgid "Media"
+msgstr "Medya"
+
 #: ui/operator/live.slint ui/operator/media.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/print.rs src/ui/dialogs/settings_keys.rs
 msgid "Audio"
 msgstr "Odyo"
@@ -5118,6 +5138,10 @@ msgstr "Ekran sal la etenn"
 #: ui/operator/monitor.slint
 msgid "Stage screen is off"
 msgstr "Ekran sèn nan etenn"
+
+#: ui/operator/outputs.slint src/stream/own_scenes.rs src/strings/screens.rs
+msgid "Audience screen"
+msgstr "Ekran sal la"
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "Changed — turn it off and on to update."
@@ -5359,6 +5383,10 @@ msgstr "Tape yon vèsè tankou “John 3:16” nan bwat Bib la epi peze Enter."
 msgid "Use the big Next button (or the → key) during the service."
 msgstr "Itilize gwo bouton Pwochen an (oswa kle →) pandan sèvis la."
 
+#: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
+msgid "Screens"
+msgstr "Ekran"
+
 #: ui/operator/slides.slint ui/operator.slint
 msgid "Nothing selected"
 msgstr "Anyen pa chwazi"
@@ -5496,8 +5524,8 @@ msgid "Stage"
 msgstr "Sèn"
 
 #: ui/operator/topbar.slint
-msgid "Phone remotes connected"
-msgstr "Telefòn kontwòl ki konekte"
+msgid "Remotes connected"
+msgstr "Telekòmand ki konekte"
 
 #: ui/operator/topbar.slint
 msgid "Show a message on the stage screen"
@@ -5772,10 +5800,6 @@ msgid "Window"
 msgstr "Fenèt"
 
 #: ui/operator.slint
-msgid "Screens…"
-msgstr "Ekran…"
-
-#: ui/operator.slint
 msgid "Close the room window"
 msgstr "Fèmen fenèt sal la"
 
@@ -5784,8 +5808,8 @@ msgid "Audience screen in a window"
 msgstr "Ekran sal la nan yon fenèt"
 
 #: ui/operator.slint
-msgid "Phone remote…"
-msgstr "Telefòn kontwòl…"
+msgid "Remote…"
+msgstr "Telekòmand…"
 
 #: ui/operator.slint
 msgid "Stage message…"
@@ -5802,10 +5826,6 @@ msgstr "Pwochen klik diapo: sèn sèlman"
 #: ui/operator.slint
 msgid "Take the stage-only slide down"
 msgstr "Retire diapo sèn-sèlman an"
-
-#: ui/operator.slint
-msgid "Stage layouts…"
-msgstr "Aranjman sèn…"
 
 #: ui/operator.slint
 msgid "Automation…"
@@ -5840,8 +5860,8 @@ msgid "Themes and backgrounds…"
 msgstr "Tèm ak fon…"
 
 #: ui/operator.slint
-msgid "Network…"
-msgstr "Rezo…"
+msgid "Remote and network…"
+msgstr "Telekòmand ak rezo…"
 
 #: ui/operator.slint
 msgid "Songs…"
@@ -5874,10 +5894,6 @@ msgstr "Kle ak gwoup efase…"
 #: ui/operator.slint
 msgid "Translations…"
 msgstr "Tradiksyon…"
-
-#: ui/operator.slint
-msgid "Keyboard shortcuts"
-msgstr "Rakousi klavye"
 
 #: ui/operator.slint
 msgid "Check the service"
@@ -6134,6 +6150,10 @@ msgstr "Diapo {n}"
 #: src/automation/slide_actions.rs src/strings/operator.rs
 msgid "Clear"
 msgstr "Efase"
+
+#: src/automation/slide_actions.rs src/ui/operator/transfer.rs
+msgid "Themes"
+msgstr "Tèm"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Hide the message"
@@ -6408,8 +6428,8 @@ msgid "Paste the verse text first."
 msgstr "Kole tèks vèsè a anvan."
 
 #: src/follow/audio.rs
-msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Media → Recording."
-msgstr "Swiv otomatik bezwen FFmpeg pou tande sal la. Telechaje l nan Paramèt → Medya → Anrejistreman."
+msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Livestream → Recording."
+msgstr "Swiv oto bezwen FFmpeg pou l tande sal la. Telechaje l nan Paramèt → Emisyon an dirèk → Anrejistreman."
 
 #: src/follow/audio.rs
 msgid "FFmpeg stopped"
@@ -6544,8 +6564,12 @@ msgid "The translation file {file} could not be read ({reason}), so it is not us
 msgstr "Nou pa t ka li fichye tradiksyon {file} la ({reason}), kidonk li pa itilize."
 
 #: src/i18n/remote_strings.rs
-msgid "Phone remote — RustyPresenter"
-msgstr "Telefòn kontwòl — RustyPresenter"
+msgid "Remote — RustyPresenter"
+msgstr "Telekòmand — RustyPresenter"
+
+#: src/i18n/remote_strings.rs src/strings/dialogs.rs src/ui/dialogs/settings_find.rs
+msgid "Remote"
+msgstr "Telekòmand"
 
 #: src/i18n/remote_strings.rs
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
@@ -6639,8 +6663,8 @@ msgid "The screen changed just now — tap the slide again."
 msgstr "Ekran an fèk chanje — tape sou diapo a ankò."
 
 #: src/i18n/remote_strings.rs src/server.rs
-msgid "That QR code has expired. On the computer, click Pair a phone again."
-msgstr "Kòd QR sa a ekspire. Sou òdinatè a, klike Konekte yon telefòn ankò."
+msgid "That QR code has expired. On the computer, click Pair a phone or tablet again."
+msgstr "Kòd QR sa a ekspire. Sou òdinatè a, klike ankò sou Konekte yon telefòn oswa yon tablèt."
 
 #: src/i18n/remote_strings.rs
 msgid "Could not connect."
@@ -6711,8 +6735,8 @@ msgid "Password"
 msgstr "Modpas"
 
 #: src/i18n/remote_strings.rs
-msgid "This phone remote needs a password too."
-msgstr "Telefòn kontwòl sa a bezwen yon modpas tou."
+msgid "This remote needs a password too."
+msgstr "Telekòmand sa a bezwen yon modpas tou."
 
 #: src/i18n/remote_strings.rs
 msgid "This stage screen needs a password."
@@ -7129,8 +7153,8 @@ msgid "{n} KB"
 msgstr "{n} KB"
 
 #: src/media_care.rs
-msgid "Choose your headphones in Settings → Media first."
-msgstr "Chwazi kas ou nan Paramèt → Medya anvan."
+msgid "Choose your headphones in Settings → Sound first."
+msgstr "Chwazi kas ou anvan nan Paramèt → Son."
 
 #: src/media_care.rs
 msgid "Took {n} file out of the media library and freed {size}."
@@ -7171,6 +7195,18 @@ msgid "Network camera {host}"
 msgstr "Kamera rezo {host}"
 
 #: src/record/mod.rs
+msgid "{size} at {fps} pictures a second may be more than this computer can make while live. If the stream stutters, choose a smaller size."
+msgstr "{size} a {fps} imaj pa segonn ka plis pase sa òdinatè sa a ka fè an dirèk. Si emisyon an ap bege, chwazi yon gwosè pi piti."
+
+#: src/record/mod.rs
+msgid "Graphics card encoders stop at 4096 wide for H.264, so the processor makes this size: it is slow."
+msgstr "Ankodè kat grafik yo kanpe nan 4096 lajè pou H.264, kidonk se processeur a ki fè gwosè sa a: li dousman."
+
+#: src/record/mod.rs
+msgid "This size needs about {mbps} Mbit/s of upload for each destination. Test the upload speed before Sunday."
+msgstr "Gwosè sa a bezwen anviwon {mbps} Mbit/s voye pou chak destinasyon. Teste vitès voye a anvan dimanch."
+
+#: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
 msgstr "Anrejistreman bezwen FFmpeg, yon pwogram gratis. {hint}"
 
@@ -7203,8 +7239,8 @@ msgid "RustyPresenter stopped in the middle of a livestream. The recording up to
 msgstr "RustyPresenter te kanpe nan mitan yon emisyon an dirèk. Anrejistreman an jiska lè sa a te kenbe. Ale an dirèk ankò?"
 
 #: src/record/mod.rs
-msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or the graphics card under Video encoder, and close other programs."
-msgstr "Òdinatè sa a pa ka suiv, kidonk anrejistreman an ak emisyon an ap sote. Chwazi 720p nan Gwosè imaj nan Paramèt → Medya, oswa kat grafik la nan Ankodè videyo, epi fèmen lòt pwogram."
+msgid "This computer is not keeping up, so the recording and stream are jerky. Choose a smaller picture size in Settings → Livestream → Picture and quality, or the graphics card under Video encoder, and close other programs."
+msgstr "Òdinatè sa a pa ka suiv, kidonk anrejistreman an ak emisyon an ap bege. Chwazi yon gwosè imaj pi piti nan Paramèt → Emisyon an dirèk → Imaj ak kalite, oswa kat grafik la anba Ankodè videyo, epi fèmen lòt pwogram."
 
 #: src/record/mod.rs
 msgid "The computer is keeping up again: the picture is smooth."
@@ -7219,8 +7255,8 @@ msgid "Could not use the recordings folder {path}: {why}"
 msgstr "Pa t ka sèvi ak dosye anrejistreman {path}: {why}"
 
 #: src/record/mod.rs
-msgid "The recordings folder's disk has only {free} free. An hour of recording needs about {need}. Choose another folder in Settings → Media."
-msgstr "Disk dosye anrejistreman yo gen sèlman {free} ki lib. Yon èdtan anrejistreman bezwen anviwon {need}. Chwazi yon lòt dosye nan Paramèt → Medya."
+msgid "The recordings folder's disk has only {free} free. An hour of recording needs about {need}. Choose another folder in Settings → Livestream → Recording."
+msgstr "Disk dosye anrejistreman yo gen sèlman {free} ki rete. Yon èdtan anrejistreman bezwen anviwon {need}. Chwazi yon lòt dosye nan Paramèt → Emisyon an dirèk → Anrejistreman."
 
 #: src/record/mod.rs
 msgid "The disk is almost full, so the recording stopped."
@@ -7363,8 +7399,8 @@ msgid "Too fast — wait a second and try again."
 msgstr "Twò vit — tann yon segonn epi eseye ankò."
 
 #: src/server.rs
-msgid "Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."
-msgstr "Koneksyon telefòn pa louvri. Sou òdinatè a, klike “Telefòn kontwòl” → “Konekte yon telefòn”."
+msgid "Pairing isn't open. On the computer, click “Phone” → “Pair a phone or tablet”."
+msgstr "Koneksyon an pa louvri. Sou òdinatè a, klike sou “Telefòn” → “Konekte yon telefòn oswa yon tablèt”."
 
 #: src/server.rs
 msgid "Too many wrong codes. Start pairing again on the computer."
@@ -7581,8 +7617,8 @@ msgid "This Facebook account manages no Page. A stream can only go to a Page."
 msgstr "Kont Facebook sa a pa jere okenn Paj. Yon emisyon ka ale sèlman sou yon Paj."
 
 #: src/stream/accounts/mod.rs
-msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Media → Livestream."
-msgstr "{name}: difizyon an pa t ka fèt ({why}). Konekte ankò nan Paramèt → Medya → Emisyon an dirèk."
+msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Livestream → Where to stream."
+msgstr "{name}: yo pa t ka fè emisyon an ({why}). Konekte ankò nan Paramèt → Emisyon an dirèk → Ki kote pou voye."
 
 #: src/stream/accounts/mod.rs
 msgid "Making the YouTube broadcast…"
@@ -7609,8 +7645,8 @@ msgid "Live captions could not start: {why}"
 msgstr "Soutit an dirèk pa t ka kòmanse: {why}"
 
 #: src/stream/captions.rs
-msgid "Live captions need a microphone or line-in: choose one under Sound in Settings → Media, or under Live captions."
-msgstr "Soutit an dirèk bezwen yon mikwo oswa yon antre liy: chwazi youn nan Son nan Paramèt → Medya, oswa nan Soutit an dirèk."
+msgid "Live captions need a microphone or line-in: choose one in Settings → Livestream → Sound, or under Live captions."
+msgstr "Soutit an dirèk bezwen yon mikwo oswa yon antre liy: chwazi youn nan Paramèt → Emisyon an dirèk → Son, oswa anba Soutit an dirèk."
 
 #: src/stream/captions.rs
 msgid "Live captions stopped hearing the microphone ({why}). Trying again…"
@@ -7773,6 +7809,10 @@ msgid "Listening to the stream could not start: {error}"
 msgstr "Koute emisyon an pa t ka kòmanse: {error}"
 
 #: src/stream/mod.rs
+msgid "{name} takes at most {most}: it gets a smaller copy, made by this computer while live."
+msgstr "{name} pran {most} pi plis: li resevwa yon kopi pi piti, òdinatè sa a fè l an dirèk."
+
+#: src/stream/mod.rs
 msgid "The stream ran {time}."
 msgstr "Emisyon an te dire {time}."
 
@@ -7809,8 +7849,8 @@ msgid "{name}: the stream is going out."
 msgstr "{name}: emisyon an ap soti."
 
 #: src/stream/mod.rs
-msgid "{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on."
-msgstr "{name} pa konekte apre plizyè esè. Tcheke kle emisyon an nan Paramèt → Medya → Emisyon an dirèk, ak entènèt la. Y ap kontinye eseye; anrejistreman an kontinye."
+msgid "{name} has not connected after several tries. Check the stream key in Settings → Livestream → Where to stream, and the internet. Still trying; the recording goes on."
+msgstr "{name} poko konekte apre plizyè eseye. Tcheke kle emisyon an nan Paramèt → Emisyon an dirèk → Ki kote pou voye, ak entènèt la. N ap eseye toujou; anrejistreman an kontinye."
 
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
@@ -7821,8 +7861,8 @@ msgid "Nothing goes out over NDI: it needs the free NDI Tools from ndi.video on 
 msgstr "Anyen pa soti sou NDI: li bezwen NDI Tools gratis ki soti nan ndi.video sou òdinatè sa a. Emisyon an dirèk la kontinye san li."
 
 #: src/stream/mod.rs
-msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
-msgstr "Ale an dirèk bezwen yon destinasyon ki limen e ki gen kle emisyon li. Mete youn nan Paramèt → Medya → Emisyon an dirèk."
+msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Livestream → Where to stream."
+msgstr "Ale an dirèk bezwen yon destinasyon ki limen e ki gen kle emisyon li. Mete youn nan Paramèt → Emisyon an dirèk → Ki kote pou voye."
 
 #: src/stream/mod.rs
 msgid "{name} is not streamed to: {why}"
@@ -7861,8 +7901,8 @@ msgid "The camera is back in the stream."
 msgstr "Kamera a tounen nan emisyon an."
 
 #: src/stream/mod.rs
-msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
-msgstr "{name}: entènèt la pa ase rapid, kidonk emisyon an sote. Chwazi 720p nan Paramèt → Medya → Anrejistreman, oswa etenn yon destinasyon."
+msgid "{name}: the internet is not fast enough, so the stream skips. Choose a smaller picture size in Settings → Livestream → Picture and quality, or switch a destination off."
+msgstr "{name}: entènèt la pa ase rapid, kidonk emisyon an ap sote. Chwazi yon gwosè imaj pi piti nan Paramèt → Emisyon an dirèk → Imaj ak kalite, oswa fèmen yon destinasyon."
 
 #: src/stream/mod.rs
 msgid "You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once."
@@ -8028,6 +8068,10 @@ msgstr "Sèn san tit"
 msgid "A scene that was deleted"
 msgstr "Yon sèn ki te efase"
 
+#: src/stream/own_scenes.rs src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/ui/operator/file_input.rs
+msgid "Video"
+msgstr "Videyo"
+
 #: src/stream/own_scenes.rs
 msgid "The words of the song go here"
 msgstr "Pawòl chante a ap parèt la a"
@@ -8065,8 +8109,8 @@ msgid "Connect this phone"
 msgstr "Konekte telefòn sa a"
 
 #: src/stream/phone_camera.rs
-msgid "On the presentation computer, click Phone remote, then Pair a phone, and type the 6-digit code here."
-msgstr "Sou òdinatè prezantasyon an, klike Telefòn kontwòl, apre sa Konekte yon telefòn, epi tape kòd 6 chif la la a."
+msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "Sou òdinatè prezantasyon an, klike sou Telefòn, apre sa sou Konekte yon telefòn oswa yon tablèt, epi tape kòd 6 chif la isit la."
 
 #: src/stream/phone_camera.rs
 msgid "6-digit code"
@@ -8121,12 +8165,8 @@ msgid "Not on the stream"
 msgstr "Pa sou emisyon an"
 
 #: src/stream/phone_camera.rs
-msgid "On the computer, choose this phone in Settings → Media → Livestream → Camera."
-msgstr "Sou òdinatè a, chwazi telefòn sa a nan Paramèt → Medya → Emisyon an dirèk → Kamera."
-
-#: src/stream/phone_camera.rs
-msgid "Any phone on the church's Wi-Fi can be a camera. On the phone, open {address} and follow the steps there. The first time, the phone warns that the connection is not private: that is expected, because the page comes from this computer. Tap Advanced (or Show Details), then Proceed (or Visit this website). Then pair it with the code from Phone remote, Pair a phone. Once it sends its picture, it is listed in the camera lists above as Phone camera and its name."
-msgstr "Nenpòt telefòn sou Wi-Fi legliz la ka yon kamera. Sou telefòn nan, louvri {address} epi suiv etap yo la. Premye fwa a, telefòn nan avèti koneksyon an pa prive: se nòmal, paske paj la soti nan òdinatè sa a. Tape Avanse (oswa Montre detay), apre sa Kontinye (oswa Vizite sit sa a). Apre sa konekte l ak kòd ki nan Telefòn kontwòl, Konekte yon telefòn. Depi li voye imaj li, li parèt nan lis kamera anwo yo kòm Kamera telefòn ak non li."
+msgid "On the computer, choose this phone in Settings → Livestream → Cameras."
+msgstr "Sou òdinatè a, chwazi telefòn sa a nan Paramèt → Emisyon an dirèk → Kamera."
 
 #: src/stream/phone_camera.rs
 msgid "This computer is not on a network, so no phone can reach it."
@@ -8137,6 +8177,10 @@ msgid "Phone microphone (open its page on the phone)"
 msgstr "Mikwo telefòn (louvri paj li sou telefòn nan)"
 
 #: src/stream/phone_mic.rs
+msgid "Phone microphone"
+msgstr "Mikwo telefòn"
+
+#: src/stream/phone_mic.rs
 msgid "Start sending sound"
 msgstr "Kòmanse voye son"
 
@@ -8145,8 +8189,8 @@ msgid "Sending to the stream. Keep this page open and the phone awake."
 msgstr "Ap voye bay emisyon an. Kite paj sa a louvri epi kenbe telefòn nan reveye."
 
 #: src/stream/phone_mic.rs
-msgid "Sending, but the stream is not using this phone yet. Choose \"Phone microphone\" in Settings → Media → Livestream, then go live."
-msgstr "Ap voye, men emisyon an poko sèvi ak telefòn sa a. Chwazi \"Mikwo telefòn\" nan Paramèt → Medya → Emisyon an dirèk, apre sa ale an dirèk."
+msgid "Sending, but the stream is not using this phone yet. Choose \"Phone microphone\" in Settings → Livestream → Sound, then go live."
+msgstr "L ap voye, men emisyon an poko sèvi ak telefòn sa a. Chwazi \"Mikwo telefòn\" nan Paramèt → Emisyon an dirèk → Son, epi ale an dirèk."
 
 #: src/stream/phone_mic.rs
 msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
@@ -8157,12 +8201,12 @@ msgid "The phone did not let the page use its microphone. Allow it in the browse
 msgstr "Telefòn nan pa t kite paj la sèvi ak mikwo li. Pèmèt li nan paramèt navigatè a pou paj sa a, apre sa eseye ankò."
 
 #: src/stream/phone_mic.rs
-msgid "Turn on the stage screen for phones in RustyPresenter (Settings → Network…), and sign in to it on this phone first."
-msgstr "Limen ekran sèn pou telefòn nan nan RustyPresenter (Paramèt → Rezo…), epi konekte sou li sou telefòn sa a anvan."
+msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
+msgstr "Limen ekran sèn sou telefòn nan RustyPresenter (Paramèt → Telekòmand ak rezo), epi konekte sou li anvan sou telefòn sa a."
 
 #: src/stream/preflight.rs
-msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Media → Livestream. The stream shows the slides in its place."
-msgstr "Kamera {n} ({camera}) pa konekte. Tcheke kab li, oswa chwazi l ankò nan Paramèt → Medya → Emisyon an dirèk. Emisyon an montre diapo yo nan plas li."
+msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Livestream → Cameras. The stream shows the slides in its place."
+msgstr "Kamera {n} ({camera}) pa konekte. Tcheke kab li, oswa chwazi l ankò nan Paramèt → Emisyon an dirèk → Kamera. Emisyon an montre glisad yo nan plas li."
 
 #: src/stream/preflight.rs
 msgid "Camera {n} ({camera}) is connected but sends no picture. Close any other program using it (Zoom, the Camera app, OBS), or switch it on. The stream shows the slides in its place until it comes."
@@ -8173,8 +8217,8 @@ msgid "Camera {n} ({camera}) comes over NDI, but NDI is not installed on this co
 msgstr "Kamera {n} ({camera}) vini sou NDI, men NDI pa enstale sou òdinatè sa a. Enstale NDI Tools ki gratis la."
 
 #: src/stream/preflight.rs
-msgid "The sound input {name} is not connected. Check its cable, or choose it again in Settings → Media. The stream goes out without it."
-msgstr "Antre son {name} pa konekte. Tcheke kab li, oswa chwazi l ankò nan Paramèt → Medya. Emisyon an ap soti san li."
+msgid "The sound input {name} is not connected. Check its cable, or choose it again in Settings → Livestream → Sound. The stream goes out without it."
+msgstr "Antre son {name} pa konekte. Tcheke kab li, oswa chwazi l ankò nan Paramèt → Emisyon an dirèk → Son. Emisyon an ale san li."
 
 #: src/stream/preflight.rs
 msgid "The sound input {name} is connected but could not be opened. Close any other program using it, then try again."
@@ -8185,8 +8229,8 @@ msgid "Camera {camera}: position {position}"
 msgstr "Kamera {camera}: pozisyon {position}"
 
 #: src/stream/report.rs
-msgid "The computer could not keep up for {secs} seconds and left out {frames} pictures: the stream was jerky then. Next time, try 720p or the graphics card's encoder (Settings → Media)."
-msgstr "Òdinatè a pa t ka suiv pandan {secs} segonn epi li kite {frames} imaj tonbe: emisyon an t ap sote lè sa a. Pwochen fwa, eseye 720p oswa ankodè kat grafik la (Paramèt → Medya)."
+msgid "The computer could not keep up for {secs} seconds and left out {frames} pictures: the stream was jerky then. Next time, try a smaller picture size or the graphics card's encoder (Settings → Livestream → Picture and quality)."
+msgstr "Òdinatè a pa t ka suiv pandan {secs} segonn epi li kite {frames} imaj tonbe: emisyon an te bege lè sa a. Pwochen fwa, eseye yon gwosè imaj pi piti oswa ankodè kat grafik la (Paramèt → Emisyon an dirèk → Imaj ak kalite)."
 
 #: src/stream/report.rs
 msgid "{name} got a lighter stream (down to {kbps} kbit/s) because the internet could not keep up."
@@ -8195,6 +8239,10 @@ msgstr "{name} te resevwa yon emisyon pi lejè (desann rive {kbps} kbit/s) paske
 #: src/stream/report.rs
 msgid "At most {viewers} watching at once."
 msgstr "Pi plis moun ki t ap gade an menm tan: {viewers}."
+
+#: src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
+msgid "Camera"
+msgstr "Kamera"
 
 #: src/stream/scene.rs
 msgid "Camera + words"
@@ -8237,12 +8285,12 @@ msgid "No sound input here looks like one. Choose it under \"Sound in the record
 msgstr "Pa gen okenn antre son la a ki sanble youn. Chwazi l nan \"Son nan anrejistreman an\" anwo a."
 
 #: src/stream/speed.rs
-msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
-msgstr "Voye: {speed} Mbit/s. Ase pou difize an 1080p."
+msgid "Upload: {speed} Mbit/s. Enough to stream in {size}."
+msgstr "Voye: {speed} Mbit/s. Ase pou voye an {size}."
 
 #: src/stream/speed.rs
-msgid "Upload: {speed} Mbit/s. Stream in 720p: 1080p needs {need} Mbit/s."
-msgstr "Voye: {speed} Mbit/s. Difize an 720p: 1080p bezwen {need} Mbit/s."
+msgid "Upload: {speed} Mbit/s. Stream in {size}: {chosen} needs {need} Mbit/s."
+msgstr "Voye: {speed} Mbit/s. Voye an {size}: {chosen} bezwen {need} Mbit/s."
 
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer destinations, or use a faster connection."
@@ -8265,8 +8313,8 @@ msgid "Not streaming"
 msgstr "Pa gen emisyon"
 
 #: src/stream/tally.rs
-msgid "Turn on the stage screen for phones (Settings → Network…). If it has a password, open the stage screen on this phone once and sign in."
-msgstr "Limen ekran sèn pou telefòn nan (Paramèt → Rezo…). Si li gen yon modpas, louvri ekran sèn nan yon fwa sou telefòn sa a epi konekte."
+msgid "Turn on the stage screen on phones (Settings → Remote and network). If it has a password, open the stage screen on this phone once and sign in."
+msgstr "Limen ekran sèn sou telefòn (Paramèt → Telekòmand ak rezo). Si li gen modpas, louvri ekran sèn nan yon fwa sou telefòn sa a epi konekte."
 
 #: src/stream/transition.rs
 msgid "Cut (at once)"
@@ -8920,7 +8968,7 @@ msgstr "Jete chanjman ou fè nan diapo sa yo?"
 msgid "Throw away"
 msgstr "Jete"
 
-#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
+#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_scenes.rs
 msgid "Keep editing"
 msgstr "Kontinye modifye"
 
@@ -9290,7 +9338,7 @@ msgstr "Prezantasyon"
 msgid "SongSelect song files"
 msgstr "Fichye chante SongSelect"
 
-#: src/strings/operator.rs
+#: src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Pictures and videos"
 msgstr "Foto ak videyo"
 
@@ -9453,8 +9501,8 @@ msgstr[0] "Kòd la mache pou {n} segonn ankò"
 msgstr[1] "Kòd la mache pou {n} segonn ankò"
 
 #: src/strings/phone.rs
-msgid "Code expired — click Pair a phone again."
-msgstr "Kòd la ekspire — klike Konekte yon telefòn ankò."
+msgid "Code expired — click Pair a phone or tablet again."
+msgstr "Kòd la ekspire — klike ankò sou Konekte yon telefòn oswa yon tablèt."
 
 #: src/strings/planning.rs
 msgid "No date"
@@ -9836,20 +9884,20 @@ msgid "The stage screen is not connected. The service can run without it."
 msgstr "Ekran sèn nan pa konekte. Sèvis la ka fèt san li."
 
 #: src/strings/preflight.rs
-msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video."
-msgstr "Sòti son ki chwazi nan Paramèt la pa konekte. Ploge l, oswa chwazi yon lòt nan Paramèt → Videyo."
+msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Sound."
+msgstr "Sòti son ou chwazi nan Paramèt yo pa konekte. Branche l, oswa chwazi yon lòt nan Paramèt → Son."
 
 #: src/strings/preflight.rs
-msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play."
-msgstr "Sòti son an pa konekte, kidonk videyo a oswa odyo a mete an poz. Ploge l, oswa chwazi yon lòt nan Paramèt → Videyo, epi peze jwe."
+msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Sound, then press play."
+msgstr "Sòti son an pa konekte, kidonk videyo a oswa odyo a kanpe. Branche l, oswa chwazi yon lòt nan Paramèt → Son, epi peze jwe."
 
 #: src/strings/preflight.rs
-msgid "The logo's file is missing. Choose it again in Settings → Look."
-msgstr "Fichye logo a manke. Chwazi l ankò nan Paramèt → Aparans."
+msgid "The logo's file is missing. Choose it again in Settings → Look → Text and logo."
+msgstr "Dosye logo a manke. Chwazi l ankò nan Paramèt → Aparans → Tèks ak logo."
 
 #: src/strings/preflight.rs
-msgid "The default background's file is missing. Choose it again in Settings → Look."
-msgstr "Fichye fon pa defo a manke. Chwazi l ankò nan Paramèt → Aparans."
+msgid "The default background's file is missing. Choose it again in Settings → Look → Text and logo."
+msgstr "Dosye fon default la manke. Chwazi l ankò nan Paramèt → Aparans → Tèks ak logo."
 
 #: src/strings/preflight.rs
 msgid "the song is no longer in the library"
@@ -10044,8 +10092,8 @@ msgid "about {ms} ms"
 msgstr "anviwon {ms} ms"
 
 #: src/strings/screens.rs
-msgid "Colour and corner changes show when the screens draw with OpenGL (Settings → Video → Graphics: Automatic or OpenGL). Test patterns and the delay work either way."
-msgstr "Chanjman koulè ak kwen parèt lè ekran yo desine ak OpenGL (Paramèt → Videyo → Grafik: Otomatik oswa OpenGL). Modèl tès ak reta a mache kèlkeswa."
+msgid "Colour and corner changes show when the screens draw with OpenGL (Settings → General → Screens and graphics → Graphics: Automatic or OpenGL). Test patterns and the delay work either way."
+msgstr "Chanjman koulè ak kwen yo parèt lè ekran yo desine ak OpenGL (Paramèt → Jeneral → Ekran ak grafik → Grafik: Otomatik oswa OpenGL). Modèl tès yo ak reta a mache kèlkeswa."
 
 #: src/strings/scripture.rs
 msgid "Type at least one word to search for."
@@ -11160,8 +11208,8 @@ msgid "Up to 8 overlays can be on at once. Turn one off first."
 msgstr "Jiska 8 kouch ka limen an menm tan. Etenn youn anvan."
 
 #: src/strings/themes.rs
-msgid "Choose a church logo first (Settings → Look)."
-msgstr "Chwazi yon logo legliz anvan (Paramèt → Aparans)."
+msgid "Choose a church logo first (Settings → Look → Text and logo)."
+msgstr "Chwazi yon logo legliz anvan (Paramèt → Aparans → Tèks ak logo)."
 
 #: src/strings/themes.rs
 msgid "That picture is gone."
@@ -11372,8 +11420,8 @@ msgid "CCLI licence #: {license}"
 msgstr "Nimewo lisans CCLI: {license}"
 
 #: src/strings/usage.rs
-msgid "Add your church's CCLI licence number in Settings → Songs."
-msgstr "Ajoute nimewo lisans CCLI legliz ou nan Paramèt → Chante."
+msgid "Add your church's CCLI licence number in Settings → Songs → Slides and credits."
+msgstr "Mete nimewo lisans CCLI legliz ou nan Paramèt → Chante → Glisad ak kredi."
 
 #: src/strings/usage.rs
 msgid "Mark as reported through {date}"
@@ -11761,8 +11809,8 @@ msgid "This service has no songs."
 msgstr "Sèvis sa a pa gen chante."
 
 #: src/transfer.rs
-msgid "There are no saved themes to export. Make one in Settings → Themes."
-msgstr "Pa gen tèm anrejistre pou ekspòte. Fè youn nan Paramèt → Tèm."
+msgid "There are no saved themes to export. Make one in Settings → Look → Themes and backgrounds."
+msgstr "Pa gen tèm anrejistre pou ekspòte. Fè youn nan Paramèt → Aparans → Tèm ak fon."
 
 #: src/transfer.rs
 msgid "This is not a RustyPresenter theme pack."
@@ -11971,12 +12019,12 @@ msgid "{time} UTC"
 msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
-msgid "Save your other changes first?"
-msgstr "Anrejistre lòt chanjman ou yo anvan?"
+msgid "Save your changes to the settings?"
+msgstr "Anrejistre chanjman ou fè nan paramèt yo?"
 
 #: src/ui/dialogs/settings.rs
-msgid "Save and go on"
-msgstr "Anrejistre epi kontinye"
+msgid "Don't save"
+msgstr "Pa anrejistre"
 
 #: src/ui/dialogs/settings.rs
 msgid "Save your other changes and restart?"
@@ -11985,6 +12033,118 @@ msgstr "Anrejistre lòt chanjman ou yo epi rekòmanse?"
 #: src/ui/dialogs/settings.rs
 msgid "Save and restart"
 msgstr "Anrejistre epi rekòmanse"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "General"
+msgstr "Jeneral"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Look"
+msgstr "Aparans"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Video and media"
+msgstr "Videyo ak medya"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Sound"
+msgstr "Son"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Remote and network"
+msgstr "Telekòmand ak rezo"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Keys"
+msgstr "Touch"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Auto-follow"
+msgstr "Swiv oto"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Livestream"
+msgstr "Emisyon an dirèk"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Backups"
+msgstr "Sovgad"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Help and about"
+msgstr "Èd ak konsènan"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Screens and graphics"
+msgstr "Ekran ak grafik"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Text and logo"
+msgstr "Tèks ak logo"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Themes and backgrounds"
+msgstr "Tèm ak fon"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Slides and credits"
+msgstr "Glisad ak kredi"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Sections and labels"
+msgstr "Seksyon ak etikèt"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Bibles"
+msgstr "Bib"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Online services and files"
+msgstr "Sèvis sou entènèt ak dosye"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Sound in the room"
+msgstr "Son nan sal la"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Stage screen on phones"
+msgstr "Ekran sèn sou telefòn"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Phone camera and microphone"
+msgstr "Kamera ak mikwo telefòn"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Other gear"
+msgstr "Lòt aparèy"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Listening"
+msgstr "Koute"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Review log"
+msgstr "Jounal"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Where to stream"
+msgstr "Ki kote pou voye"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Picture and quality"
+msgstr "Imaj ak kalite"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Captions and website"
+msgstr "Soutit ak sit entènèt"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "About"
+msgstr "Konsènan"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Page"
+msgstr "Paj"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "The first one found"
@@ -12041,6 +12201,10 @@ msgid "Overlays (pictures, clocks, signs)"
 msgstr "Kouch (foto, lè, pankat)"
 
 #: src/ui/dialogs/settings_keys.rs
+msgid "Phone drawing"
+msgstr "Desen telefòn"
+
+#: src/ui/dialogs/settings_keys.rs
 msgid "New clear group"
 msgstr "Nouvo gwoup efase"
 
@@ -12061,8 +12225,8 @@ msgid "{key} is already the key for “{what}”. It will move here."
 msgstr "{key} deja se kle pou “{what}”. L ap deplase vin isit la."
 
 #: src/ui/dialogs/settings_keys.rs
-msgid "{key} also jumps the live song to a section (Settings → Songs → Section keys)."
-msgstr "{key} fè chante k ap pase a sote nan yon seksyon tou (Paramèt → Chante → Kle seksyon)."
+msgid "{key} also jumps the live song to a section (Settings → Keys → Section keys)."
+msgstr "{key} fè chante an dirèk la sote sou yon seksyon tou (Paramèt → Touch → Touch seksyon)."
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "{key} also picks a Bible chip while you type in the Bible box."
@@ -12177,6 +12341,14 @@ msgid "Network camera"
 msgstr "Kamera rezo"
 
 #: src/ui/dialogs/settings_record.rs
+msgid "{size} (custom)"
+msgstr "{size} (pa w)"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "Type the width and the height as whole numbers, like 1600 and 900."
+msgstr "Tape lajè ak wotè a kòm nonm antye, tankou 1600 ak 900."
+
+#: src/ui/dialogs/settings_record.rs
 msgid "The speed test could not reach the internet. Check the connection and try again."
 msgstr "Tès vitès la pa t ka jwenn entènèt la. Tcheke koneksyon an epi eseye ankò."
 
@@ -12265,6 +12437,10 @@ msgid "“{title}” from SongSelect is already in your library."
 msgstr "“{title}” ki soti nan SongSelect deja nan bibliyotèk ou a."
 
 #: src/ui/dialogs/songselect.rs
+msgid "“{title}” was already in your library: its chords were added for the stage screen."
+msgstr "“{title}” te deja nan bibliyotèk ou: yo ajoute akò li yo pou ekran sèn nan."
+
+#: src/ui/dialogs/songselect.rs
 msgid "“{title}” from SongSelect has other words than your copy, so it was kept as “{new}”."
 msgstr "“{title}” ki soti nan SongSelect gen lòt pawòl pase kopi pa w la, kidonk li kenbe l kòm “{new}”."
 
@@ -12279,6 +12455,10 @@ msgstr "Ajoute nan bibliyotèk chante ou a"
 #: src/ui/dialogs/songselect.rs
 msgid "Already in your song library"
 msgstr "Deja nan bibliyotèk chante ou a"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Chords added to your copy"
+msgstr "Akò ajoute nan kopi ou"
 
 #: src/ui/dialogs/songselect.rs
 msgid "Your copy has other words, so this one is kept as “{new}”"
@@ -12297,8 +12477,16 @@ msgid "Your Downloads folder could not be found. Use “Choose a file…” for 
 msgstr "Nou pa jwenn dosye Downloads ou a. Sèvi ak “Chwazi yon fichye…” pou chante ou telechaje yo."
 
 #: src/ui/dialogs/stream_more.rs
-msgid "More livestream settings"
-msgstr "Plis paramèt emisyon an dirèk"
+msgid "Size: the main stream's"
+msgstr "Gwosè: pa emisyon prensipal la"
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Bitrate: the main stream's"
+msgstr "Debi: pa emisyon prensipal la"
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Automatic ({kbps} kbit/s)"
+msgstr "Otomatik ({kbps} kbit/s)"
 
 #: src/ui/dialogs/stream_more.rs
 msgid "The setup “{name}” is chosen. Save to use it."
@@ -12311,18 +12499,6 @@ msgstr "Non konfigirasyon an (pa egzanp Dimanch, oswa Maryaj)"
 #: src/ui/dialogs/stream_more.rs
 msgid "Delete the setup “{name}”? The settings in use now stay as they are."
 msgstr "Efase konfigirasyon “{name}”? Paramèt ki an sèvis kounye a yo rete jan yo ye."
-
-#: src/ui/dialogs/stream_more.rs
-msgid "Leave without saving these settings?"
-msgstr "Kite san anrejistre paramèt sa yo?"
-
-#: src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
-msgid "Leave"
-msgstr "Soti"
-
-#: src/ui/dialogs/stream_more.rs
-msgid "Livestream settings saved."
-msgstr "Paramèt emisyon an dirèk anrejistre."
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Your livestream scenes"
@@ -12363,6 +12539,10 @@ msgstr "Efase sèn “{name}” la? Aksyon diapo ak makro ki chwazi l ap montre 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Leave without saving your scene changes?"
 msgstr "Soti san w pa anrejistre chanjman sèn ou yo?"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave"
+msgstr "Soti"
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Scenes saved."
@@ -12531,8 +12711,8 @@ msgid "Window → Screens… picks which monitor is the audience screen and whic
 msgstr "Fenèt → Ekran… chwazi ki monitè ki ekran sal la ak ki youn ki ekran sèn nan."
 
 #: src/ui/operator/help.rs
-msgid "Settings → Keys and clear groups… changes these keys and makes your own clear groups."
-msgstr "Paramèt → Kle ak gwoup efase… chanje kle sa yo epi fè pwòp gwoup efase pa w."
+msgid "Settings → Keys changes these keys and makes your own clear groups."
+msgstr "Paramèt → Touch chanje touch sa yo epi fè pwòp gwoup efase pa w."
 
 #: src/ui/operator/help.rs
 msgid "Bible passages"
@@ -12950,8 +13130,8 @@ msgid "The {wanted} graphics mode could not be used on this computer, so RustyPr
 msgstr "Mòd grafik {wanted} la pa t ka mache sou òdinatè sa a, kidonk RustyPresenter ap sèvi ak {mode}."
 
 #: src/video/graphics.rs
-msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
-msgstr "RustyPresenter te gen pwoblèm ak kat grafik la, kidonk li te louvri an mòd sekirite. Ou ka chanje sa nan Paramèt → Videyo."
+msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → General → Screens and graphics."
+msgstr "RustyPresenter te gen pwoblèm ak kat grafik la, kidonk li te kòmanse nan mòd sekirite. Ou ka chanje sa nan Paramèt → Jeneral → Ekran ak grafik."
 
 #: src/video/player.rs
 msgid "The video player could not start."
@@ -13024,6 +13204,282 @@ msgstr "yt-dlp pa anrejistre okenn videyo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "se pa yon fichye medya"
+
+#~ msgid "Show on the phone remote"
+#~ msgstr "Montre sou telefòn kontwòl la"
+
+#~ msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Media → Livestream."
+#~ msgstr "Peze Ale an dirèk anlè a lè sèvis la kòmanse, epi peze l ankò nan fen an. Tout sa ou chwazi la a ka chanje nan Paramèt → Medya → Emisyon an dirèk."
+
+#~ msgid "Same as Settings → Look"
+#~ msgstr "Menm jan ak Paramèt → Aparans"
+
+#~ msgid "Phone remote"
+#~ msgstr "Telefòn kontwòl"
+
+#~ msgid "Ask for a password when a phone pairs"
+#~ msgstr "Mande yon modpas lè yon telefòn konekte"
+
+#~ msgid "Phone remote password"
+#~ msgstr "Modpas telefòn kontwòl"
+
+#~ msgid "Phones still pair with the code or the QR code; the password is asked too. Phones already paired stay paired."
+#~ msgstr "Telefòn yo toujou konekte ak kòd la oswa kòd QR la; yo mande modpas la tou. Telefòn ki deja konekte rete konekte."
+
+#~ msgid "Stage screen on a phone or tablet"
+#~ msgstr "Ekran sèn sou yon telefòn oswa tablèt"
+
+#~ msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
+#~ msgstr "Kontwole diapo yo ak nenpòt telefòn ki sou Wi-Fi legliz la. Telefòn nan dwe sou menm rezo ak òdinatè sa a."
+
+#~ msgid "Pair a phone"
+#~ msgstr "Konekte yon telefòn"
+
+#~ msgid "Paired phones"
+#~ msgstr "Telefòn ki konekte"
+
+#~ msgid "Timing"
+#~ msgstr "Distribisyon tan"
+
+#~ msgid "Listening model"
+#~ msgstr "Modèl pou koute"
+
+#~ msgid "Keyboard"
+#~ msgstr "Klavye"
+
+#~ msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
+#~ msgstr "Konsèy: lè ou klike sou nenpòt diapo, li mete l sou ekran an touswit. Kad wouj la montre sa sal la wè."
+
+#~ msgid "Bible verses"
+#~ msgstr "Vèsè Bib"
+
+#~ msgid "(for new passages)"
+#~ msgstr "(pou nouvo pasaj)"
+
+#~ msgid "New pictures and videos"
+#~ msgstr "Nouvo foto ak videyo"
+
+#~ msgid "720p uses less of the computer and the disk (about 1.4 GB an hour at most); 1080p is sharper (about 2.8 GB)."
+#~ msgstr "720p sèvi mwens ak òdinatè a ak disk la (anviwon 1.4 GB pa èdtan pou pi plis); 1080p pi klè (anviwon 2.8 GB)."
+
+#~ msgid "720p"
+#~ msgstr "720p"
+
+#~ msgid "1080p"
+#~ msgstr "1080p"
+
+#~ msgid "How much picture goes out each second. Automatic: 3000 kbit/s for 720p, 6000 for 1080p. More is sharper and needs a faster upload."
+#~ msgstr "Konbyen imaj ki soti chak segonn. Otomatik: 3000 kbit/s pou 720p, 6000 pou 1080p. Plis la pi klè epi li bezwen yon upload pi rapid."
+
+#~ msgid "Sound in the recording"
+#~ msgstr "Son nan anrejistreman an"
+
+#~ msgid "The app's sound is taken from the video and song files when the recording stops, so nothing else on the computer is heard."
+#~ msgstr "Son aplikasyon an pran nan fichye videyo ak chante yo lè anrejistreman an kanpe, kidonk yo pa tande okenn lòt son sou òdinatè a."
+
+#~ msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on."
+#~ msgstr "Limen yon destinasyon epi yon bouton Ale an dirèk ap parèt bò kote Anrejistre. Ale an dirèk anrejistre tankou dabitid epi voye menm imaj ak menm son an bay chak destinasyon ki limen."
+
+#~ msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras above."
+#~ msgstr "Lòt òdinatè ak pwogram sou rezo sa a (OBS, vMix, yon switcher videyo) ka pran yo pandan ou an dirèk. Kamera NDI yo nan lis kamera ki anwo a."
+
+#~ msgid "Words alone"
+#~ msgstr "Pawòl yo sèlman"
+
+#~ msgid "A camera or capture card for the stream's camera scenes (and its recording)."
+#~ msgstr "Yon kamera oswa yon kat kaptire pou sèn kamera emisyon an (ak anrejistreman li)."
+
+#~ msgid "Second camera"
+#~ msgstr "Dezyèm kamera"
+
+#~ msgid "Another camera to switch to while live, from the Cameras box beside the live screen."
+#~ msgstr "Yon lòt kamera pou w chanje ale sou li pandan w an dirèk, nan bwat Kamera yo bò kote ekran an dirèk la."
+
+#~ msgid "Third camera"
+#~ msgstr "Twazyèm kamera"
+
+#~ msgid "Another camera to switch to while live."
+#~ msgstr "Yon lòt kamera pou w chanje ale sou li pandan w an dirèk."
+
+#~ msgid "Fourth camera"
+#~ msgstr "Katriyèm kamera"
+
+#~ msgid "Before the service, with the pre-service countdown under the words while it runs."
+#~ msgstr "Anvan sèvis la, ak kontaj anvan sèvis la anba pawòl yo pandan l ap mache."
+
+#~ msgid "After the service's last item."
+#~ msgstr "Apre dènye eleman sèvis la."
+
+#~ msgid "For a break, chosen with the scene button."
+#~ msgstr "Pou yon poz, chwazi ak bouton sèn nan."
+
+#~ msgid "A stream key is a password: whoever has it can stream as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
+#~ msgstr "Yon kle emisyon se yon modpas: nenpòt moun ki genyen l ka fè emisyon nan non w. Li kenbe nan depo modpas òdinatè sa a pandan w ap tape l, janm nan yon sovgad ni nan yon fichye sèvis."
+
+#~ msgid "More settings"
+#~ msgstr "Plis paramèt"
+
+#~ msgid "Pictures a second, video format, sound quality, which network card sends, each destination's own quality, the recording's file type and name, and setups saved by name (Sunday, Wedding) to use again in one go."
+#~ msgstr "Imaj pa segonn, fòma videyo, kalite son, ki kat rezo ki voye, kalite pa chak destinasyon, kalite fichye ak non anrejistreman an, ak konfigirasyon ou anrejistre ak yon non (Dimanch, Maryaj) pou itilize ankò yon sèl kou."
+
+#~ msgid "More settings and saved setups…"
+#~ msgstr "Plis paramèt ak konfigirasyon anrejistre…"
+
+#~ msgid "Setup: {}"
+#~ msgstr "Konfigirasyon: {}"
+
+#~ msgid "Description"
+#~ msgstr "Deskripsyon"
+
+#~ msgid "While you are live, mixed with the one chosen under \"Sound in the recording\": for a second sound board, a pulpit microphone or the phone."
+#~ msgstr "Pandan ou an dirèk, li melanje ak sa ki chwazi nan \"Son nan anrejistreman an\": pou yon dezyèm tab son, yon mikwo pou chè a oswa telefòn nan."
+
+#~ msgid "Turn on the stage screen for phones (Settings → Network…), then open this page on the phone and press Start: {}"
+#~ msgstr "Limen ekran sèn pou telefòn nan (Paramèt → Rezo…), apre sa louvri paj sa a sou telefòn nan epi peze Kòmanse: {}"
+
+#~ msgid "The first time, the phone warns that the page is not private, because this computer made its own certificate: tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+#~ msgstr "Premye fwa a, telefòn nan avèti paj la pa prive, paske òdinatè sa a fè pwòp sètifika pa li: tape Avanse (sou yon iPhone, Montre detay), apre sa kontinye sou paj la. Kenbe telefòn nan reveye epi ploge."
+
+#~ msgid "Live captions need the English speech model. Download the fast model in Settings → Auto-follow."
+#~ msgstr "Soutit an dirèk bezwen modèl vwa anglè a. Telechaje modèl rapid la nan Paramèt → Swiv oto."
+
+#~ msgid "Video and graphics"
+#~ msgstr "Videyo ak grafik"
+
+#~ msgid "Keep the audience screen in front when it has its own monitor (smoother fades)"
+#~ msgstr "Kenbe ekran sal la devan lè li gen pwòp monitè pa l (tranzisyon pi dous)"
+
+#~ msgid "File name"
+#~ msgstr "Non fichye"
+
+#~ msgid "{{date}} becomes the day, {{time}} the time it started, {{title}} the service's name. Now: {}"
+#~ msgstr "{{date}} vin jou a, {{time}} lè li te kòmanse, {{title}} non sèvis la. Kounye a: {}"
+
+#~ msgid "Network…"
+#~ msgstr "Rezo…"
+
+#~ msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Media → Recording."
+#~ msgstr "Swiv otomatik bezwen FFmpeg pou tande sal la. Telechaje l nan Paramèt → Medya → Anrejistreman."
+
+#~ msgid "Phone remote — RustyPresenter"
+#~ msgstr "Telefòn kontwòl — RustyPresenter"
+
+#~ msgid "That QR code has expired. On the computer, click Pair a phone again."
+#~ msgstr "Kòd QR sa a ekspire. Sou òdinatè a, klike Konekte yon telefòn ankò."
+
+#~ msgid "This phone remote needs a password too."
+#~ msgstr "Telefòn kontwòl sa a bezwen yon modpas tou."
+
+#~ msgid "Choose your headphones in Settings → Media first."
+#~ msgstr "Chwazi kas ou nan Paramèt → Medya anvan."
+
+#~ msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or the graphics card under Video encoder, and close other programs."
+#~ msgstr "Òdinatè sa a pa ka suiv, kidonk anrejistreman an ak emisyon an ap sote. Chwazi 720p nan Gwosè imaj nan Paramèt → Medya, oswa kat grafik la nan Ankodè videyo, epi fèmen lòt pwogram."
+
+#~ msgid "The recordings folder's disk has only {free} free. An hour of recording needs about {need}. Choose another folder in Settings → Media."
+#~ msgstr "Disk dosye anrejistreman yo gen sèlman {free} ki lib. Yon èdtan anrejistreman bezwen anviwon {need}. Chwazi yon lòt dosye nan Paramèt → Medya."
+
+#~ msgid "Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."
+#~ msgstr "Koneksyon telefòn pa louvri. Sou òdinatè a, klike “Telefòn kontwòl” → “Konekte yon telefòn”."
+
+#~ msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Media → Livestream."
+#~ msgstr "{name}: difizyon an pa t ka fèt ({why}). Konekte ankò nan Paramèt → Medya → Emisyon an dirèk."
+
+#~ msgid "Live captions need a microphone or line-in: choose one under Sound in Settings → Media, or under Live captions."
+#~ msgstr "Soutit an dirèk bezwen yon mikwo oswa yon antre liy: chwazi youn nan Son nan Paramèt → Medya, oswa nan Soutit an dirèk."
+
+#~ msgid "{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on."
+#~ msgstr "{name} pa konekte apre plizyè esè. Tcheke kle emisyon an nan Paramèt → Medya → Emisyon an dirèk, ak entènèt la. Y ap kontinye eseye; anrejistreman an kontinye."
+
+#~ msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
+#~ msgstr "Ale an dirèk bezwen yon destinasyon ki limen e ki gen kle emisyon li. Mete youn nan Paramèt → Medya → Emisyon an dirèk."
+
+#~ msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
+#~ msgstr "{name}: entènèt la pa ase rapid, kidonk emisyon an sote. Chwazi 720p nan Paramèt → Medya → Anrejistreman, oswa etenn yon destinasyon."
+
+#~ msgid "On the presentation computer, click Phone remote, then Pair a phone, and type the 6-digit code here."
+#~ msgstr "Sou òdinatè prezantasyon an, klike Telefòn kontwòl, apre sa Konekte yon telefòn, epi tape kòd 6 chif la la a."
+
+#~ msgid "On the computer, choose this phone in Settings → Media → Livestream → Camera."
+#~ msgstr "Sou òdinatè a, chwazi telefòn sa a nan Paramèt → Medya → Emisyon an dirèk → Kamera."
+
+#~ msgid "Any phone on the church's Wi-Fi can be a camera. On the phone, open {address} and follow the steps there. The first time, the phone warns that the connection is not private: that is expected, because the page comes from this computer. Tap Advanced (or Show Details), then Proceed (or Visit this website). Then pair it with the code from Phone remote, Pair a phone. Once it sends its picture, it is listed in the camera lists above as Phone camera and its name."
+#~ msgstr "Nenpòt telefòn sou Wi-Fi legliz la ka yon kamera. Sou telefòn nan, louvri {address} epi suiv etap yo la. Premye fwa a, telefòn nan avèti koneksyon an pa prive: se nòmal, paske paj la soti nan òdinatè sa a. Tape Avanse (oswa Montre detay), apre sa Kontinye (oswa Vizite sit sa a). Apre sa konekte l ak kòd ki nan Telefòn kontwòl, Konekte yon telefòn. Depi li voye imaj li, li parèt nan lis kamera anwo yo kòm Kamera telefòn ak non li."
+
+#~ msgid "Sending, but the stream is not using this phone yet. Choose \"Phone microphone\" in Settings → Media → Livestream, then go live."
+#~ msgstr "Ap voye, men emisyon an poko sèvi ak telefòn sa a. Chwazi \"Mikwo telefòn\" nan Paramèt → Medya → Emisyon an dirèk, apre sa ale an dirèk."
+
+#~ msgid "Turn on the stage screen for phones in RustyPresenter (Settings → Network…), and sign in to it on this phone first."
+#~ msgstr "Limen ekran sèn pou telefòn nan nan RustyPresenter (Paramèt → Rezo…), epi konekte sou li sou telefòn sa a anvan."
+
+#~ msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Media → Livestream. The stream shows the slides in its place."
+#~ msgstr "Kamera {n} ({camera}) pa konekte. Tcheke kab li, oswa chwazi l ankò nan Paramèt → Medya → Emisyon an dirèk. Emisyon an montre diapo yo nan plas li."
+
+#~ msgid "The sound input {name} is not connected. Check its cable, or choose it again in Settings → Media. The stream goes out without it."
+#~ msgstr "Antre son {name} pa konekte. Tcheke kab li, oswa chwazi l ankò nan Paramèt → Medya. Emisyon an ap soti san li."
+
+#~ msgid "The computer could not keep up for {secs} seconds and left out {frames} pictures: the stream was jerky then. Next time, try 720p or the graphics card's encoder (Settings → Media)."
+#~ msgstr "Òdinatè a pa t ka suiv pandan {secs} segonn epi li kite {frames} imaj tonbe: emisyon an t ap sote lè sa a. Pwochen fwa, eseye 720p oswa ankodè kat grafik la (Paramèt → Medya)."
+
+#~ msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
+#~ msgstr "Voye: {speed} Mbit/s. Ase pou difize an 1080p."
+
+#~ msgid "Upload: {speed} Mbit/s. Stream in 720p: 1080p needs {need} Mbit/s."
+#~ msgstr "Voye: {speed} Mbit/s. Difize an 720p: 1080p bezwen {need} Mbit/s."
+
+#~ msgid "Turn on the stage screen for phones (Settings → Network…). If it has a password, open the stage screen on this phone once and sign in."
+#~ msgstr "Limen ekran sèn pou telefòn nan (Paramèt → Rezo…). Si li gen yon modpas, louvri ekran sèn nan yon fwa sou telefòn sa a epi konekte."
+
+#~ msgid "Code expired — click Pair a phone again."
+#~ msgstr "Kòd la ekspire — klike Konekte yon telefòn ankò."
+
+#~ msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video."
+#~ msgstr "Sòti son ki chwazi nan Paramèt la pa konekte. Ploge l, oswa chwazi yon lòt nan Paramèt → Videyo."
+
+#~ msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play."
+#~ msgstr "Sòti son an pa konekte, kidonk videyo a oswa odyo a mete an poz. Ploge l, oswa chwazi yon lòt nan Paramèt → Videyo, epi peze jwe."
+
+#~ msgid "The logo's file is missing. Choose it again in Settings → Look."
+#~ msgstr "Fichye logo a manke. Chwazi l ankò nan Paramèt → Aparans."
+
+#~ msgid "The default background's file is missing. Choose it again in Settings → Look."
+#~ msgstr "Fichye fon pa defo a manke. Chwazi l ankò nan Paramèt → Aparans."
+
+#~ msgid "Colour and corner changes show when the screens draw with OpenGL (Settings → Video → Graphics: Automatic or OpenGL). Test patterns and the delay work either way."
+#~ msgstr "Chanjman koulè ak kwen parèt lè ekran yo desine ak OpenGL (Paramèt → Videyo → Grafik: Otomatik oswa OpenGL). Modèl tès ak reta a mache kèlkeswa."
+
+#~ msgid "Choose a church logo first (Settings → Look)."
+#~ msgstr "Chwazi yon logo legliz anvan (Paramèt → Aparans)."
+
+#~ msgid "Add your church's CCLI licence number in Settings → Songs."
+#~ msgstr "Ajoute nimewo lisans CCLI legliz ou nan Paramèt → Chante."
+
+#~ msgid "There are no saved themes to export. Make one in Settings → Themes."
+#~ msgstr "Pa gen tèm anrejistre pou ekspòte. Fè youn nan Paramèt → Tèm."
+
+#~ msgid "Save your other changes first?"
+#~ msgstr "Anrejistre lòt chanjman ou yo anvan?"
+
+#~ msgid "Save and go on"
+#~ msgstr "Anrejistre epi kontinye"
+
+#~ msgid "{key} also jumps the live song to a section (Settings → Songs → Section keys)."
+#~ msgstr "{key} fè chante k ap pase a sote nan yon seksyon tou (Paramèt → Chante → Kle seksyon)."
+
+#~ msgid "More livestream settings"
+#~ msgstr "Plis paramèt emisyon an dirèk"
+
+#~ msgid "Leave without saving these settings?"
+#~ msgstr "Kite san anrejistre paramèt sa yo?"
+
+#~ msgid "Livestream settings saved."
+#~ msgstr "Paramèt emisyon an dirèk anrejistre."
+
+#~ msgid "Settings → Keys and clear groups… changes these keys and makes your own clear groups."
+#~ msgstr "Paramèt → Kle ak gwoup efase… chanje kle sa yo epi fè pwòp gwoup efase pa w."
+
+#~ msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
+#~ msgstr "RustyPresenter te gen pwoblèm ak kat grafik la, kidonk li te louvri an mòd sekirite. Ou ka chanje sa nan Paramèt → Videyo."
 
 #~ msgid "Import SongSelect lyrics (.txt)"
 #~ msgstr "Enpòte pawòl SongSelect (.txt)"

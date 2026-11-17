@@ -8,13 +8,13 @@ use crate::{tr, trc};
 pub fn remote_strings() -> Vec<(&'static str, String)> {
     vec![
         // remote.html
-        ("Phone remote — RustyPresenter", tr!("Phone remote — RustyPresenter")),
-        ("Phone remote", tr!("Phone remote")),
+        ("Remote — RustyPresenter", tr!("Remote — RustyPresenter")),
+        ("Remote", tr!("Remote")),
         // {phone} and {pair} are the names of the computer's buttons, shown in bold.
         ("On the presentation computer, click {phone} → {pair}, then type the 6-digit code here.",
             tr!("On the presentation computer, click {phone} → {pair}, then type the 6-digit code here.")),
         ("Phone", tr!("Phone")),
-        ("Pair a phone", tr!("Pair a phone")),
+        ("Pair a phone or tablet", tr!("Pair a phone or tablet")),
         ("Connect", tr!("Connect")),
         ("Connecting…", tr!("Connecting…")),
         ("On screen", tr!("On screen")),
@@ -60,8 +60,8 @@ pub fn remote_strings() -> Vec<(&'static str, String)> {
         ("The screen changed just now — tap the slide again.", tr!("The screen changed just now — tap the slide again.")),
         ("Not connected", tr!("Not connected")),
         ("Connected", tr!("Connected")),
-        ("That QR code has expired. On the computer, click Pair a phone again.",
-            tr!("That QR code has expired. On the computer, click Pair a phone again.")),
+        ("That QR code has expired. On the computer, click Pair a phone or tablet again.",
+            tr!("That QR code has expired. On the computer, click Pair a phone or tablet again.")),
         ("Could not connect.", tr!("Could not connect.")),
         ("(Logo)", tr!("(Logo)")),
         ("(Music playing)", tr!("(Music playing)")),
@@ -92,9 +92,9 @@ pub fn remote_strings() -> Vec<(&'static str, String)> {
         ("{time} left", tr!("{time} left")),
         ("Pause", tr!("Pause")),
         ("Play", tr!("Play")),
-        // N31: the remote's password (Settings → Network), and the stage screen on a phone or tablet (web/stage-view.*).
+        // N31: the remote's password (Settings → Remote and network), and the stage screen on a phone or tablet (web/stage-view.*).
         ("Password", tr!("Password")),
-        ("This phone remote needs a password too.", tr!("This phone remote needs a password too.")),
+        ("This remote needs a password too.", tr!("This remote needs a password too.")),
         ("Stage screen", tr!("Stage screen")),
         ("This stage screen needs a password.", tr!("This stage screen needs a password.")),
         ("Open", tr!("Open")),

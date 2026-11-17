@@ -2,20 +2,20 @@
 // usual mode, the lead time, when the words go off, and how sure a jump must be. Read and written by
 // `src/ui/dialogs/settings_follow.rs`.
 import { Theme } from "../theme.slint";
-import { Btn, Field, Segmented, ScrollBox } from "../widgets.slint";
+import { Btn, Segmented, ScrollBox } from "../widgets.slint";
 import { TextField, Note, Select, Check, RangeSlider } from "form.slint";
 import { SettingsDlg } from "settings-state.slint";
-import { Heading } from "settings-media.slint";
+import { SetRow, Heading, Hint } from "settings-row.slint";
 
-component SettingsFollowMain inherits VerticalLayout {
+/// Auto-follow → Listening: what it listens to, the songs' usual mode, and its timing.
+export component FollowListenPage inherits VerticalLayout {
+    alignment: start;
     spacing: 4px;
     Note {
         text: @tr("RustyPresenter listens to the band and moves the song's slides by itself. The sound never leaves this computer.");
     }
-    Rectangle { height: 10px; }
-    Heading { text: @tr("Listening"); }
-    Rectangle { height: 6px; }
-    Field {
+    input-row := SetRow {
+        key: "follow-input";
         label: @tr("Sound input");
         help: @tr("Best: the lead singer's microphone on its own, sent from the sound board. Next best: the main mix. A microphone in the room hears too much else.");
         follow-device := Select {
@@ -61,7 +61,8 @@ component SettingsFollowMain inherits VerticalLayout {
             accessible-label: self.text;
         }
     }
-    Field {
+    mode-row := SetRow {
+        key: "follow-mode";
         label: @tr("Songs follow the singers");
         help: @tr("A song can have its own in Edit item. Key A turns Auto on and off for the live song, H holds it.");
         HorizontalLayout {
@@ -72,10 +73,8 @@ component SettingsFollowMain inherits VerticalLayout {
             }
         }
     }
-    Rectangle { height: 10px; }
-    Heading { text: @tr("Timing"); }
-    Rectangle { height: 6px; }
-    Field {
+    lead-row := SetRow {
+        key: "follow-lead";
         label: @tr("Show the next slide before it is sung");
         help: @tr("Early enough to read, not so early that people sing ahead.");
         HorizontalLayout {
@@ -97,7 +96,8 @@ component SettingsFollowMain inherits VerticalLayout {
             }
         }
     }
-    Field {
+    blank-row := SetRow {
+        key: "follow-blank";
         label: @tr("When nobody sings");
         HorizontalLayout {
             spacing: 8px;
@@ -109,7 +109,8 @@ component SettingsFollowMain inherits VerticalLayout {
             if SettingsDlg.follow-blank-on: follow-blank-secs := TextField { width: 70px; text <=> SettingsDlg.follow-blank-secs; }
         }
     }
-    Field {
+    talk-row := SetRow {
+        key: "follow-talk";
         label: @tr("When someone talks or prays");
         HorizontalLayout {
             spacing: 8px;
@@ -121,15 +122,20 @@ component SettingsFollowMain inherits VerticalLayout {
             if SettingsDlg.follow-talk-on: follow-talk-secs := TextField { width: 70px; text <=> SettingsDlg.follow-talk-secs; }
         }
     }
-    Field {
+    if SettingsDlg.advanced: jump-row := SetRow {
+        key: "follow-jump";
         label: @tr("Jump to another part of the song after (words heard there)");
         help: @tr("More words: fewer wrong jumps, but slower to follow a change in the order.");
+        advanced: true;
         follow-jump := TextField { width: 70px; text <=> SettingsDlg.follow-jump; }
     }
-    Rectangle { height: 10px; }
-    Heading { text: @tr("Listening model"); }
-    Rectangle { height: 6px; }
-    Field {
+}
+
+/// Auto-follow → Speech model: downloaded once (also used by live captions).
+export component FollowModelPage inherits VerticalLayout {
+    alignment: start;
+    model-row := SetRow {
+        key: "follow-model";
         label: @tr("Speech model");
         help: @tr("Downloaded once, then it works without internet. Apache-2.0, by Facebook AI.");
         HorizontalLayout {
@@ -247,13 +253,16 @@ component LogLines inherits Rectangle {
     }
 }
 
-component SettingsFollowPractice inherits VerticalLayout {
+/// Auto-follow → Practice.
+export component FollowPracticePage inherits VerticalLayout {
+    alignment: start;
     spacing: 4px;
     Note {
         text: @tr("Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens.");
     }
     Rectangle { height: 10px; }
-    Field {
+    practice-row := SetRow {
+        key: "follow-practice";
         label: @tr("Recording");
         HorizontalLayout {
             spacing: 10px;
@@ -274,7 +283,8 @@ component SettingsFollowPractice inherits VerticalLayout {
             }
         }
     }
-    Field {
+    song-row := SetRow {
+        key: "follow-practice-song";
         label: @tr("Song");
         practice-song := Select {
             options: SettingsDlg.practice-songs;
@@ -307,7 +317,9 @@ component SettingsFollowPractice inherits VerticalLayout {
     }
 }
 
-component SettingsFollowReview inherits VerticalLayout {
+/// Auto-follow → Review log.
+export component FollowReviewPage inherits VerticalLayout {
+    alignment: start;
     spacing: 8px;
     Note {
         text: @tr("Every slide change auto-follow made or suggested since RustyPresenter started: when, what, why, and how sure it was.");
@@ -325,18 +337,4 @@ component SettingsFollowReview inherits VerticalLayout {
             clicked => { SettingsDlg.review-copy(); }
         }
     }
-}
-
-export component SettingsFollow inherits VerticalLayout {
-    HorizontalLayout {
-        alignment: start;
-        padding-bottom: 12px;
-        follow-page := Segmented {
-            labels: [@tr("Settings"), @tr("Practice"), @tr("Review log")];
-            index <=> SettingsDlg.follow-page;
-        }
-    }
-    if SettingsDlg.follow-page == 0: SettingsFollowMain {}
-    if SettingsDlg.follow-page == 1: SettingsFollowPractice {}
-    if SettingsDlg.follow-page == 2: SettingsFollowReview {}
 }

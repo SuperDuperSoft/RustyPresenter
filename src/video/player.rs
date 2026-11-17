@@ -33,7 +33,7 @@ pub struct Options {
     pub ao: &'static str,
     /// From settings; empty = automatic.
     pub audio_device: String,
-    /// More options from Settings → Media (`media_prefs::mpv_options`).
+    /// More options from Settings → General → Screens and graphics and media (`media_prefs::mpv_options`).
     pub extra: Vec<(&'static str, String)>,
 }
 

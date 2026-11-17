@@ -1,32 +1,43 @@
-//! Settings → Network… (N31, `ui/dialogs/network.slint`): the phone remote's password, the stage screen on phones
-//! and tablets, and the TCP control. Saved with `network/save`, which hashes the passwords.
-use super::DialogKind;
+//! Settings → Remote and network (N31; `ui/dialogs/settings-remote.slint`, was Settings → Network…): the remote's
+//! password, the stage screen on phones and tablets, and the TCP control. Loaded with `network/get` as Settings
+//! opens, and saved with `network/save` (which hashes the passwords) when Settings is saved and they changed.
+use super::settings_window::win;
 use crate::{network::strings as s, ui::{NetworkDlg, operator::window::Operator}};
 use serde_json::{Value, json};
 use slint::ComponentHandle;
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 
 pub fn title() -> String { crate::tr!("Network") }
 
-/// What the TCP control understands, for the dialog.
+/// What the TCP control understands, for the page.
 pub fn tcp_help() -> String {
     crate::tr!("Send one command a line: next, prev, clear, clear slide, logo, go 3 (item 3), go 3 2 (its slide 2), status. With a password, send “password …” first. Every line is answered with OK or ERR.")
 }
 
-/// Opens the dialog on what is saved now.
-pub fn open(op: &Rc<Operator>) {
+thread_local! {
+    /// What Save would send for the rows as they were loaded, so an untouched page saves nothing.
+    static LOADED: RefCell<Option<Value>> = const { RefCell::new(None) };
+}
+
+/// Fills the rows from what is saved now (Settings is opening).
+pub(crate) fn load(op: &Rc<Operator>) {
+    LOADED.with(|l| *l.borrow_mut() = None);
     let me = Rc::downgrade(op);
     op.ops().call::<Value>("network/get", json!({}), move |r| {
         let Some(op) = me.upgrade() else { return };
         match r {
-            Ok(v) => { op.open_dialog(DialogKind::Network); fill(&op, &v); connect(&op) }
+            Ok(v) => {
+                fill(&op, &v);
+                let loaded = body(&win(&op).global::<NetworkDlg>()).ok();
+                LOADED.with(|l| *l.borrow_mut() = loaded);
+            }
             Err(e) => op.toast(e, true),
         }
     });
 }
 
 pub(crate) fn fill(op: &Operator, v: &Value) {
-    let g = op.ui.global::<NetworkDlg>();
+    let g = win(op).global::<NetworkDlg>();
     let b = |k: &str| v[k].as_bool().unwrap_or(false);
     let st = |k: &str| slint::SharedString::from(v[k].as_str().unwrap_or(""));
     g.set_remote_pw_on(b("remote_password"));
@@ -56,7 +67,7 @@ fn change(on: bool, typed: &str) -> Value {
     }
 }
 
-/// What Save sends, from the dialog. A port that isn't a number is an error shown in the dialog.
+/// What Save sends, from the page. A port that isn't a number is an error shown on the page.
 pub(crate) fn body(g: &NetworkDlg) -> Result<Value, String> {
     let port: u16 = g.get_tcp_port().trim().parse().map_err(|_| s::port_range())?;
     Ok(json!({
@@ -69,23 +80,35 @@ pub(crate) fn body(g: &NetworkDlg) -> Result<Value, String> {
     }))
 }
 
-fn connect(op: &Rc<Operator>) {
-    let g = op.ui.global::<NetworkDlg>();
-    let me = Rc::downgrade(op);
-    g.on_cancel(move || if let Some(op) = me.upgrade() { op.close_dialog() });
-    let me = Rc::downgrade(op);
-    g.on_save(move || if let Some(op) = me.upgrade() { save(&op) });
+/// Whether the rows differ from how they were loaded (a port that is not a number counts as a change).
+pub(crate) fn changed(op: &Operator) -> bool {
+    let now = body(&win(op).global::<NetworkDlg>()).ok();
+    LOADED.with(|l| l.borrow().is_some() && *l.borrow() != now)
 }
 
-fn save(op: &Rc<Operator>) {
-    let g = op.ui.global::<NetworkDlg>();
-    let body = match body(&g) { Ok(b) => b, Err(e) => return g.set_error(e.into()) };
+/// What to send with Save: `None` when nothing changed; an error for a port that is not a number.
+pub(crate) fn body_if_changed(op: &Operator) -> Result<Option<Value>, String> {
+    if !changed(op) { return Ok(None) }
+    body(&win(op).global::<NetworkDlg>()).map(Some)
+}
+
+pub(crate) fn show_error(op: &Operator, e: &str) { win(op).global::<NetworkDlg>().set_error(e.into()) }
+
+/// Saves the rows, then `done`; a refusal (a password asked for but not typed) shows on the page instead.
+pub(crate) fn save(op: &Rc<Operator>, body: Value, done: impl FnOnce(&Rc<Operator>) + 'static) {
     let me = Rc::downgrade(op);
-    op.ops().call::<Value>("network/save", body, move |r| {
+    op.ops().call::<Value>("network/save", body.clone(), move |r| {
         let Some(op) = me.upgrade() else { return };
         match r {
-            Ok(_) => { op.close_dialog(); op.toast(s::saved(), false) }
-            Err(e) => op.ui.global::<NetworkDlg>().set_error(e.into()),
+            Ok(_) => {
+                LOADED.with(|l| *l.borrow_mut() = Some(body));
+                done(&op)
+            }
+            Err(e) => {
+                super::settings::go(&op, super::SettingsTab::Remote, "");
+                show_error(&op, &e);
+                op.toast(e, true);
+            }
         }
     });
 }
@@ -93,8 +116,7 @@ fn save(op: &Rc<Operator>) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{app::test_app, ui::operator::{menu::{MenuAction, action}, window::testing::{find, open as open_window, refresh}}};
-    use slint::platform::PointerEventButton;
+    use crate::{app::test_app, ui::{SettingsDlg, dialogs::{SettingsTab, settings}, operator::{menu::{MenuAction, action}, window::testing::{open as open_window, refresh}}}};
 
     fn settle() { for _ in 0..20 { slint::platform::update_timers_and_animations(); std::thread::sleep(std::time::Duration::from_millis(5)); } }
 
@@ -106,7 +128,7 @@ mod tests {
         (app, op)
     }
 
-    /// Runs the dialog's calls until `done` (they answer on the event loop).
+    /// Runs the page's calls until `done` (they answer on the event loop).
     fn wait(op: &Operator, done: impl Fn(&Operator) -> bool) {
         for _ in 0..400 { if done(op) { return } settle() }
         panic!("timed out");
@@ -117,43 +139,49 @@ mod tests {
         assert_eq!(action("network"), Some(MenuAction::Network));
         let (_app, op) = opened();
         op.ui.invoke_menu("network".into());
-        wait(&op, |op| op.dialog() == Some(DialogKind::Network));
-        assert_eq!(op.ui.get_dialog_title(), "Network");
-        let g = op.ui.global::<NetworkDlg>();
+        assert_eq!(settings::shown(&op), Some(SettingsTab::Remote));
+        assert_eq!(win(&op).global::<SettingsDlg>().get_page_title(), "Remote and network → Remote");
+        let g = win(&op).global::<NetworkDlg>();
+        wait(&op, |op| win(op).global::<NetworkDlg>().get_tcp_help() != "");
         assert!(!g.get_remote_pw_on() && !g.get_stage_on() && !g.get_tcp_on());
         assert_eq!(g.get_tcp_port(), "4319");
-        assert!(find(&op, "NetworkDialog::stage-check").is_some());
+        settings::go(&op, SettingsTab::PhoneStage, "");
+        assert!(settings::testing::find(&op, "PhoneStagePage::stage-check").is_some());
     }
 
     #[test]
-    fn save_turns_the_stage_view_on_with_a_hashed_password() {
+    fn save_turns_the_stage_screen_for_phones_on_with_a_hashed_password() {
         let (app, op) = opened();
-        open(&op);
-        wait(&op, |op| op.dialog() == Some(DialogKind::Network));
-        let g = op.ui.global::<NetworkDlg>();
+        settings::open(&op, SettingsTab::PhoneStage);
+        wait(&op, |op| win(op).global::<NetworkDlg>().get_tcp_help() != "");
+        let g = win(&op).global::<NetworkDlg>();
+        let sg = win(&op).global::<SettingsDlg>();
+        assert!(!settings::changed(&op, &settings::editing().unwrap()), "nothing changed yet");
         g.set_stage_on(true);
         g.set_stage_pw_on(true);
-        // Asked for but not typed: the dialog says so and nothing is saved.
-        find(&op, "NetworkDialog::net-save").unwrap().mock_single_click(PointerEventButton::Left);
-        wait(&op, |op| op.ui.global::<NetworkDlg>().get_error() != "");
+        // Asked for but not typed: the page says so and nothing is saved.
+        sg.invoke_save();
+        wait(&op, |op| win(op).global::<NetworkDlg>().get_error() != "");
         assert_eq!(g.get_error(), "Type a password, or turn the password off.");
         assert!(!app.data.lock().unwrap().settings.network.stage_view);
+        assert!(settings::is_open(&op), "Settings stays open to fix it");
         g.set_stage_pw("tenors".into());
         g.set_tcp_port("abc".into());
-        g.invoke_save();
+        sg.invoke_save();
         assert_eq!(g.get_error(), "Use a port from 1024 to 65535.");
+        assert_eq!(settings::shown(&op), Some(SettingsTab::OtherGear), "the page with the port");
         g.set_tcp_port("4319".into());
-        g.invoke_save();
-        wait(&op, |op| op.dialog().is_none());
+        sg.invoke_save();
+        wait(&op, |op| !settings::is_open(op));
         let n = app.data.lock().unwrap().settings.network.clone();
         assert!(n.stage_view && crate::network::password::verify("tenors", n.stage_password.as_deref().unwrap()));
         assert!(!n.tcp && n.remote_password.is_none());
         // Opened again: the password shows as saved, the field is empty, and Save keeps it.
-        open(&op);
-        wait(&op, |op| op.dialog() == Some(DialogKind::Network));
-        assert!(g.get_stage_pw_set() && g.get_stage_pw_on() && g.get_stage_pw() == "");
-        g.invoke_save();
-        wait(&op, |op| op.dialog().is_none());
+        settings::open(&op, SettingsTab::PhoneStage);
+        wait(&op, |op| win(op).global::<NetworkDlg>().get_stage_pw_set());
+        assert!(g.get_stage_pw_on() && g.get_stage_pw() == "");
+        sg.invoke_save();
+        wait(&op, |op| !settings::is_open(op));
         assert_eq!(app.data.lock().unwrap().settings.network.stage_password, n.stage_password);
     }
 }

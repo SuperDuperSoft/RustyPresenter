@@ -230,7 +230,7 @@ mod tr {
     pub fn t_show_2(next: &str, back: &str) -> String { tr!("Next slide: {next}. Back: {back}.", next = next, back = back) }
     pub fn t_show_3() -> String { tr!("Window → Screens… picks which monitor is the audience screen and which is the stage screen.") }
     pub fn t_clear() -> String { tr!("Clear the screen") }
-    pub fn t_clear_change() -> String { tr!("Settings → Keys and clear groups… changes these keys and makes your own clear groups.") }
+    pub fn t_clear_change() -> String { tr!("Settings → Keys changes these keys and makes your own clear groups.") }
     pub fn t_bible() -> String { tr!("Bible passages") }
     pub fn t_bible_1(key: &str) -> String { tr!("{key} puts the cursor in the Bible box. Type a reference such as John 3:16-18 and press Enter.", key = key) }
     pub fn t_bible_2() -> String { tr!("Edit → Find a verse… finds a passage by its words.") }

@@ -1,10 +1,10 @@
-//! Settings → Media → Livestream → Your scenes… (`ui/dialogs/stream-scenes.slint`, designs
+//! Settings → Livestream → Your scenes… (`ui/dialogs/stream-scenes.slint`, designs
 //! `docs/superpowers/specs/2026-11-17-own-scenes-design.md` and `2026-11-17-scene-extras-design.md`): the church's own
 //! livestream scenes, each a list of layers, with a picture of how the chosen one looks drawn by the stream's own
 //! code. A layer can be dragged on the picture, and resized by its corner. Each scene can have its own places in the
 //! tall (phone) picture, and its own way of changing to it. Save keeps them in Settings; closing goes back to
-//! Settings → Media.
-use super::{DialogKind, SettingsTab, confirm, prompt, strings as dlg};
+//! Settings → General → Screens and graphics and media.
+use super::{DialogKind, confirm, prompt, strings as dlg};
 use crate::{
     model::Theme,
     stream::{key_out::Key, own_scenes::{self, Crop, Layer, Now, OwnScene, Place, Shows, StandIns}, scene::Scene, transition::Transition},
@@ -348,7 +348,7 @@ fn transition_names(default: &Transition) -> Vec<String> {
     std::iter::once(tr!("Like the other scenes ({way})", way = default.label())).chain(Transition::choices().iter().map(Transition::label)).collect()
 }
 
-/// Opens the editor on the church's scenes as last saved. Closing it goes back to Settings → Media.
+/// Opens the editor on the church's scenes as last saved. Closing it goes back to Settings → General → Screens and graphics and media.
 pub fn open(op: &Rc<Operator>) {
     let Some(snap) = op.state.borrow().snap.clone() else { return };
     let starts_at = crate::automation::actions::starts_at(&op.app().data.lock().unwrap());
@@ -366,7 +366,7 @@ pub fn open(op: &Rc<Operator>) {
     g.set_default_transition_names(names(Transition::choices().iter().map(Transition::label).collect()));
     wire(op, &st);
     show(op, &st);
-    op.on_dialog_close(|op| super::settings::open(op, SettingsTab::Media));
+    op.on_dialog_close(|op| if super::settings::is_open(op) { super::settings_window::raise(op) });
 }
 
 fn file_name(path: &str) -> String {

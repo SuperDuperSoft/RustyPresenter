@@ -4,28 +4,27 @@ import { Theme } from "../theme.slint";
 import { Btn, Chip, CopyText, Segmented, Bar } from "../widgets.slint";
 import { TextField, Note, Lbl, ListRow, RowMain, Select } from "form.slint";
 import { SettingsDlg } from "settings-state.slint";
+import { SetRow, Hint } from "settings-row.slint";
 
-export component SettingsBible inherits VerticalLayout {
+/// Bible → Bibles: the one in use, the ones shown with it, verses per slide, and the library to add more.
+export component BiblePage inherits VerticalLayout {
+    alignment: start;
     // ---- Default Bible (§7.1): what the Bible box and new passages use ----
-    Lbl { label: @tr("Default Bible"); }
-    Rectangle { height: 8px; }
+    default-row := SetRow {
+        key: "default-bible";
+        label: @tr("Default Bible");
     default-bible := Select {
         options: SettingsDlg.default-bibles;
         index <=> SettingsDlg.default-bible;
         changed(i) => { SettingsDlg.default-bible-changed(i); }
     }
-    Rectangle { height: 16px; }
+    }
 
     // ---- Also show (Nov 5 spec §3): up to two more Bibles with every new passage ----
-    Lbl { label: @tr("Also show with every new passage"); }
-    Rectangle { height: 4px; }
-    also-help := Text {
-        text: @tr("Pick up to two. Each slide then shows the same verses from every Bible.");
-        color: Theme.muted;
-        font-size: 12.5px;
-        wrap: word-wrap;
-    }
-    Rectangle { height: 8px; }
+    also-row := SetRow {
+        key: "also-show";
+        label: @tr("Also show with every new passage");
+        help: @tr("Pick up to two. Each slide then shows the same verses from every Bible.");
     also-chips := Rectangle {
         property <length> chip-w: 120px;
         property <int> per-row: max(1, floor((self.width + 6px) / (self.chip-w + 6px)));
@@ -56,17 +55,33 @@ export component SettingsBible inherits VerticalLayout {
             }
         }
     }
-    Rectangle { height: 8px; }
+    HorizontalLayout {
+        alignment: start;
     also-layout := Segmented {
         labels: [@tr("Side by side"), @tr("Top and bottom")];
         index <=> SettingsDlg.also-layout;
         changed(i) => { SettingsDlg.also-layout-changed(i); }
     }
-    Rectangle { height: 16px; }
+    }
+    }
+    per-slide-row := SetRow {
+        key: "bible-per-slide";
+        label: @tr("Verses per slide");
+        help: @tr("For new passages. Text shrinks automatically when a slide holds more words.");
+        HorizontalLayout {
+            alignment: start;
+            bible-per-slide := Segmented {
+                labels: [@tr("Automatic"), "1", "2", "3", "4"];
+                index <=> SettingsDlg.bible-per-slide;
+            }
+        }
+    }
 
     // ---- Bible library (Bible library spec §7.1): search, Installed/All, language, one button per row ----
-    Lbl { label: @tr("Add Bibles"); }
-    Rectangle { height: 8px; }
+    library-row := SetRow {
+        key: "bible-library";
+        label: @tr("Add Bibles");
+        help: @tr("KJV, WEB and BSB are built in and work offline. The others come from the internet or from their publisher's service.");
     HorizontalLayout {
         spacing: 8px;
         catalog-search := TextField {
@@ -157,14 +172,20 @@ export component SettingsBible inherits VerticalLayout {
         }
     }
 
-    Rectangle { height: 16px; }
+    }
+}
+
+/// Bible → Online services and files: each Bible's status, the publishers' services, Bible files, and credits.
+export component BibleOnlinePage inherits VerticalLayout {
+    alignment: start;
+    spacing: 4px;
     Note {
         bold: @tr("KJV, WEB and BSB are built in and work offline.");
         text: @tr("The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops.");
     }
-    Rectangle { height: 16px; }
-    Lbl { label: @tr("Translations"); }
-    Rectangle { height: 8px; }
+    translations-row := SetRow {
+        key: "bible-translations";
+        label: @tr("Translations");
     VerticalLayout {
         spacing: 4px;
         for b[i] in SettingsDlg.bible-sources: source-row := ListRow {
@@ -191,9 +212,10 @@ export component SettingsBible inherits VerticalLayout {
         }
     }
 
-    Rectangle { height: 16px; }
-    Lbl { label: @tr("Online services"); }
-    Rectangle { height: 8px; }
+    }
+    online-row := SetRow {
+        key: "bible-online";
+        label: @tr("Online services");
     VerticalLayout {
         spacing: 4px;
         for p[i] in SettingsDlg.bible-providers: provider-row := Rectangle {
@@ -280,13 +302,11 @@ export component SettingsBible inherits VerticalLayout {
         }
     }
 
-    Rectangle { height: 16px; }
-    Lbl { label: @tr("Bible files"); }
-    Rectangle { height: 8px; }
-    Note {
-        text: @tr("Import a Zefania, OSIS, USX or OpenSong file (.xml or .usx). Only import Bibles that are public domain or that your church is licensed to use. Give it the short name of a translation above (like HCSB) to use the file for that translation.");
     }
-    Rectangle { height: 12px; }
+    files-row := SetRow {
+        key: "bible-files";
+        label: @tr("Bible files");
+        help: @tr("Import a Zefania, OSIS, USX or OpenSong file (.xml or .usx). Only import Bibles that are public domain or that your church is licensed to use. Give it the short name of a translation above (like HCSB) to use the file for that translation.");
     HorizontalLayout {
         spacing: 8px;
         alignment: start;
@@ -301,6 +321,7 @@ export component SettingsBible inherits VerticalLayout {
             text: @tr("Import a Bible file");
             clicked => { SettingsDlg.import-bible(); }
         }
+    }
     }
     if SettingsDlg.bible-credits.length > 0: VerticalLayout {
         padding-top: 16px;

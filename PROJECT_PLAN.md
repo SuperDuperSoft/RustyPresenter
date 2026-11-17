@@ -1702,3 +1702,33 @@ stage screen?" Glossary and rules: `docs/superpowers/specs/2026-11-17-words-desi
   to use instead; other companies' names are allowed in one short list.
 - **Not verified by a person:** the changed texts on screen (they are text only; no layout changed, but a few are a
   little longer, like "Phone remote password" and "Clear media & background" in the macro list).
+
+### November 17, 2026 — Settings reorganised (branch `settings-redo`)
+
+Jake: "I can't find it [the phone microphone setting]… Please reorganize and fix the whole thing", then "much simpler,
+cleaner… simple and advanced settings… why can I only record up to 1080p?", "settings open as a separate window",
+and "Phones should say remotes". Design and the full audit of every setting: `docs/superpowers/specs/2026-11-17-settings-design.md`.
+
+- **A window of its own:** Settings is `SettingsWindow` (`ui/dialogs/settings.slint`, `src/ui/dialogs/settings_window.rs`),
+  beside the operator and not modal, any size from 640 × 440 up; it remembers its size, place, monitor (back on the
+  main monitor when that one is gone), last page and Show advanced settings in `settings-window.json` in the data folder.
+  All Settings code reaches the window's own globals through `settings_window::win(op)`. Questions Settings asks show
+  over it (`ask::in_settings`). Cancel / Esc / the close button ask "Save your changes to the settings?" when something
+  changed.
+- **Sidebar of categories and short pages** (General, Look, Songs, Bible, Video and media, Sound, Stage screen, Remote
+  and network, Keys, Auto-follow, Livestream with 9 pages, Backups, Help and about); every setting is a `SetRow` with a
+  (?) for its help; advanced rows only with Show advanced settings. Network… and More settings and saved setups… are
+  gone as windows: their rows are on Remote and network and on the Livestream pages. The menu items keep working
+  ("Network…" is now "Remote and network…"; "Recording settings…" opens Livestream → Recording).
+- **Find a setting** (`settings_find.rs`): every row with its label, help and other words; jumps to the row and lights it.
+  The phone microphone is on Remote and network → Phone camera and microphone, linked from Livestream → Sound.
+- **Any picture size:** `record::Preset` has 480p, 720p, 1080p, 1440p, 4K and a typed size (320 × 180 to 7680 × 4320);
+  old "720p"/"1080p" still load, anything odd loads as 1080p. Bitrates scale with size and frame rate; warnings for
+  sizes the computer or internet may not manage; destinations capped at 1080p get a smaller copy while live.
+- **Remote:** "phone remote" is now "remote" (glossary, `tests/words.rs`, the remote's page, the Remote dialog).
+- **Settings paths** in every message point to the new pages; `tests/words.rs` retires the old ones.
+- **Not done:** Screens, Stage layouts, Your scenes and the song editor are still overlays in the operator window
+  (see the design's last section). The top bar's button is still called "Phone" (dock-panels' file; the Window menu
+  item is now "Remote…" and its tooltip "Remotes connected", two one-word edits in those files).
+- **Not verified by a person:** the window on a real desktop (placement on two monitors, resizing, focus), the look of
+  every page, the remote's page wording on a phone, and a 4K or typed-size recording and stream on real hardware.

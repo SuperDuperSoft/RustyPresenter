@@ -1,10 +1,11 @@
 use super::*;
+use crate::ui::dialogs::settings::testing::{find_any as find, find_all_any as find_all};
 use crate::{
     app::{App, test_app},
     model::{ItemKind, ServiceItem},
     ui::{
         dialogs::{SettingsTab, settings},
-        operator::window::testing::{find, find_all, open as open_window, refresh},
+        operator::window::testing::{open as open_window, refresh},
     },
 };
 use i_slint_backend_testing::mock_elapsed_time;
@@ -58,9 +59,10 @@ fn themes_tab_comes_after_look_and_lists_standard_first_with_star() {
     let op = opened(&app);
     settings::open(&op, SettingsTab::Themes);
     settle();
-    let labels: Vec<String> = find_all(&op, "Tabs::tab").iter().map(|t| t.accessible_label().unwrap_or_default().to_string()).collect();
-    assert_eq!(labels[..3], ["Look", "Themes", "Language"]);
-    assert_eq!(op.ui.global::<SettingsDlg>().get_tab(), 1);
+    let labels: Vec<String> = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().get_nav().iter().map(|t| t.title.to_string()).collect();
+    let look = labels.iter().position(|l| l == "Look").expect("the Look category");
+    assert_eq!(labels[look..look + 3], ["Look", "Text and logo", "Themes and backgrounds"]);
+    assert_eq!(settings::shown(&op), Some(SettingsTab::Themes));
     let mut expect = vec!["Standard".to_string()];
     expect.extend(theme::builtin().into_iter().map(|b| b.name));
     expect.push("Christmas".into());
@@ -90,7 +92,7 @@ fn new_theme_saves_and_appears() {
     click(&op, "ThemeList::new-theme");
     assert!(g(&op).get_editing());
     assert_eq!(g(&op).get_name(), "New theme");
-    assert!(find(&op, "SettingsDialog::save").is_none(), "the footer saves the theme while editing");
+    assert!(find(&op, "SettingsWindow::save").is_none(), "the footer saves the theme while editing");
     let f = g(&op);
     f.set_size(120);
     f.set_weight(2);
@@ -101,7 +103,7 @@ fn new_theme_saves_and_appears() {
     f.set_band_clear(30);
     f.invoke_changed();
     f.invoke_text_hex("#f5b94a".into());
-    click(&op, "SettingsDialog::theme-save");
+    click(&op, "SettingsWindow::theme-save");
     let t = app.data.lock().unwrap().themes.iter().find(|t| t.name == "New theme").cloned().expect("saved");
     assert_eq!((t.style.size, t.style.weight, t.style.align, t.style.position.as_str()), (120, 700, TextAlign::Left, "top"));
     assert_eq!((t.style.outline, t.style.band, t.style.band_opacity, t.style.color.as_str()), (6, true, 70, "#f5b94a"));
@@ -121,7 +123,7 @@ fn a_duplicate_name_is_refused_and_the_editor_stays() {
     settings::open(&op, SettingsTab::Themes);
     click(&op, "ThemeList::new-theme");
     g(&op).set_name("christmas".into());
-    click(&op, "SettingsDialog::theme-save");
+    click(&op, "SettingsWindow::theme-save");
     assert!(toasts(&op).contains(&"There's already a theme called “christmas”.".to_string()));
     assert!(g(&op).get_editing());
 }
@@ -181,7 +183,7 @@ fn edited_builtin_offers_reset() {
     settle();
     assert!(g(&op).get_editing());
     g(&op).set_size(70);
-    click(&op, "SettingsDialog::theme-save");
+    click(&op, "SettingsWindow::theme-save");
     let i = row_of(&op, "Lower third") as usize;
     assert_eq!(g(&op).get_rows().row_data(i).unwrap().delete_label, "Reset");
     g(&op).invoke_delete(i as i32);
@@ -200,12 +202,12 @@ fn standard_edit_opens_look_and_duplicate_copies_it() {
     g(&op).invoke_duplicate(0);
     settle();
     assert_eq!(g(&op).get_name(), "Standard copy");
-    click(&op, "SettingsDialog::theme-cancel");
+    click(&op, "SettingsWindow::theme-cancel");
     assert!(!g(&op).get_editing());
     assert!(app.data.lock().unwrap().themes.is_empty(), "Cancel saves nothing");
     g(&op).invoke_edit(0);
     settle();
-    assert_eq!(op.ui.global::<SettingsDlg>().get_tab(), 0, "Standard is the Look tab");
+    assert_eq!(settings::shown(&op), Some(SettingsTab::Look), "Standard is Look → Text and logo");
 }
 
 #[test]
@@ -267,7 +269,7 @@ fn theme_background_standard_gradient_and_darken() {
     assert!(g(&op).get_darken_shown(), "Darken for a gradient");
     g(&op).set_darken(30);
     g(&op).invoke_changed();
-    click(&op, "SettingsDialog::theme-save");
+    click(&op, "SettingsWindow::theme-save");
     let t = app.data.lock().unwrap().themes[0].clone();
     assert_eq!(t.background, Some(Background::Gradient { from: "#0b1a33".into(), to: "#000000".into(), angle: 180, dim: 30 }));
 }
@@ -336,7 +338,7 @@ fn filter_box_shows_for_a_long_list_and_keeps_each_rows_buttons() {
     let op = opened(&app);
     settings::open(&op, SettingsTab::Themes);
     settle();
-    op.close_dialog();
+    settings::close(&op);
     for n in ["Easter", "Youth", "Funeral", "Wedding", "Christmas Eve"] { saved(&app, n); }
     refresh(&op);
     settings::open(&op, SettingsTab::Themes);
@@ -401,7 +403,7 @@ fn dragging_the_box_snaps_to_guides_and_saves_with_the_theme() {
     assert_eq!((g(&op).get_frame_w(), g(&op).get_frame_h()), (797, 580));
     g(&op).set_layout_size(140);
     g(&op).invoke_layout_edited();
-    click(&op, "SettingsDialog::theme-save");
+    click(&op, "SettingsWindow::theme-save");
     let t = app.data.lock().unwrap().themes.iter().find(|t| t.name == "Sermon").cloned().expect("saved");
     let l = t.style.layouts.get(LayoutKind::MainPoint);
     assert_eq!(l.frame, Some(layouts::Frame { x: 57, y: 220, w: 797, h: 580 }));

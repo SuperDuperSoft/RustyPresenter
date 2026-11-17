@@ -143,7 +143,7 @@ msgstr "聖句を追加"
 msgid "Paste the verses instead"
 msgstr "聖句を貼り付ける"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/topbar.slint
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/slide-breaks.slint ui/operator/topbar.slint src/ui/dialogs/settings_find.rs
 msgid "Verses per slide"
 msgstr "スライドごとの節数"
 
@@ -187,7 +187,7 @@ msgstr "テキストを入力してください。空行を入れると新しい
 msgid "Add announcement"
 msgstr "お知らせを追加"
 
-#: ui/dialogs/add.slint ui/dialogs/settings-follow.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
+#: ui/dialogs/add.slint ui/dialogs/settings-follow.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs src/ui/dialogs/settings_find.rs
 msgid "Song"
 msgstr "曲"
 
@@ -195,7 +195,7 @@ msgstr "曲"
 msgid "Words"
 msgstr "歌詞"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings.slint
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint src/ui/dialogs/settings_find.rs
 msgid "Bible"
 msgstr "聖書"
 
@@ -315,19 +315,19 @@ msgstr "ゼロになったとき"
 msgid "Place on the screen"
 msgstr "画面上の位置"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-stream.slint src/strings/screens.rs
 msgid "Top right"
 msgstr "右上"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-stream.slint src/strings/screens.rs
 msgid "Top left"
 msgstr "左上"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-stream.slint src/strings/screens.rs
 msgid "Bottom right"
 msgstr "右下"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-stream.slint src/strings/screens.rs
 msgid "Bottom left"
 msgstr "左下"
 
@@ -348,8 +348,8 @@ msgid "Show on stage"
 msgstr "ステージに表示"
 
 #: ui/dialogs/automation.slint
-msgid "Show on the phone remote"
-msgstr "スマホリモコンに表示"
+msgid "Show on the remote"
+msgstr "リモコンに表示"
 
 #: ui/dialogs/automation.slint
 msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
@@ -371,7 +371,7 @@ msgstr "上"
 msgid "Hide after"
 msgstr "非表示までの時間"
 
-#: ui/dialogs/automation.slint ui/dialogs/stream-more.slint src/ui/dialogs/stream_scenes.rs
+#: ui/dialogs/automation.slint ui/dialogs/settings-stream.slint src/ui/dialogs/stream_scenes.rs
 msgid "Never"
 msgstr "なし"
 
@@ -495,7 +495,7 @@ msgstr "これらのスライドをループ"
 msgid "Play music"
 msgstr "音楽を再生"
 
-#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs src/ui/dialogs/settings_find.rs
 msgid "Stage screen"
 msgstr "ステージ画面"
 
@@ -611,11 +611,11 @@ msgstr "一時停止"
 msgid "Start"
 msgstr "開始"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/dialogs/stream-more.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/dialogs/settings-stream.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
 msgid "Delete"
 msgstr "削除"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-more.slint ui/dialogs/stream-scenes.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings.rs
 msgid "Save"
 msgstr "保存"
 
@@ -739,7 +739,7 @@ msgstr "表: 1 行に 1 段、セルはタブで区切ります。"
 msgid "Shrink to fit the box"
 msgstr "ボックスに合わせて縮小"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/settings_find.rs
 msgid "Text colour"
 msgstr "文字色"
 
@@ -783,7 +783,7 @@ msgstr "線"
 msgid "Arrow"
 msgstr "矢印"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/stream-more.slint src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
 msgid "Picture"
 msgstr "画像"
 
@@ -795,7 +795,7 @@ msgstr "全体を表示"
 msgid "Fill"
 msgstr "全面に表示"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/settings-general.slint
 msgid "Stretch"
 msgstr "引き伸ばす"
 
@@ -1060,7 +1060,7 @@ msgstr "ドラッグで移動、角をドラッグでサイズ変更、矢印キ
 msgid "Video: {}"
 msgstr "動画: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-more.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "キャンセル"
 
@@ -1108,15 +1108,15 @@ msgstr "ステップ {}/4"
 msgid "Where should the service go?"
 msgstr "礼拝をどこに配信しますか？"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "Another server"
 msgstr "その他のサーバー"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "The server's address"
 msgstr "サーバーのアドレス"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "Its address: rtmp://, rtmps:// or srt://"
 msgstr "アドレス: rtmp://、rtmps:// または srt://"
 
@@ -1124,11 +1124,11 @@ msgstr "アドレス: rtmp://、rtmps:// または srt://"
 msgid "Stream key"
 msgstr "ストリームキー"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "A key is saved. Type a new one to change it."
 msgstr "キーは保存済みです。変えるには新しいキーを入力してください。"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "Paste the stream key"
 msgstr "ストリームキーを貼り付けてください"
 
@@ -1185,8 +1185,8 @@ msgid "Ready to go live"
 msgstr "配信開始の準備ができました"
 
 #: ui/dialogs/go-live-helper.slint
-msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Media → Livestream."
-msgstr "礼拝が始まったら上部の「配信開始」を押し、終わったらもう一度押してください。ここで選んだ内容はすべて「設定 → メディア → ライブ配信」で変更できます。"
+msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Livestream."
+msgstr "礼拝が始まったら上の「配信開始」を押し、終わったらもう一度押します。ここで選んだことはすべて「設定 → ライブ配信」で変えられます。"
 
 #: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
 msgid "Back"
@@ -1252,7 +1252,7 @@ msgstr "左右に並べる"
 msgid "Top and bottom"
 msgstr "上下に並べる"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/settings-media.slint ui/dialogs/slide-breaks.slint ui/dialogs/stream-more.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-stream.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "自動"
 
@@ -1289,8 +1289,8 @@ msgid "Choose"
 msgstr "選択"
 
 #: ui/dialogs/item-edit.slint
-msgid "Same as Settings → Look"
-msgstr "「設定 → 外観」と同じ"
+msgid "Same as Settings → Look → Text and logo"
+msgstr "「設定 → 外観 → 文字とロゴ」と同じ"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Layout"
@@ -1308,19 +1308,19 @@ msgstr "表示と同時に再生を開始"
 msgid "When the video ends"
 msgstr "動画の終了時"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-media.slint src/ui/operator/help.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-general.slint src/ui/operator/help.rs
 msgid "Clear the screen"
 msgstr "画面をクリア"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-general.slint
 msgid "Stay on last frame"
 msgstr "最後のフレームで止める"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-general.slint
 msgid "Play again (loop)"
 msgstr "もう一度再生（ループ）"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-general.slint
 msgid "Go to the next slide"
 msgstr "次のスライドへ"
 
@@ -1443,7 +1443,7 @@ msgstr "礼拝から削除"
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear all stop it."
 msgstr "入場時の音楽はスライドが変わっても流れ続けます。「音声をクリア」と「すべてクリア」で停止します。"
 
-#: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
+#: ui/dialogs/music.slint ui/operator/media.slint src/ui/dialogs/settings_find.rs src/ui/operator/help.rs
 msgid "Songs"
 msgstr "曲"
 
@@ -1494,66 +1494,6 @@ msgstr "再生"
 #: ui/dialogs/music.slint ui/dialogs/translation-editor.slint src/i18n/remote_strings.rs
 msgid "Done"
 msgstr "完了"
-
-#: ui/dialogs/network.slint src/i18n/remote_strings.rs src/strings/dialogs.rs
-msgid "Phone remote"
-msgstr "スマホリモコン"
-
-#: ui/dialogs/network.slint
-msgid "Ask for a password when a phone pairs"
-msgstr "スマホのペアリング時にパスワードを要求"
-
-#: ui/dialogs/network.slint
-msgid "Phone remote password"
-msgstr "スマホリモコンのパスワード"
-
-#: ui/dialogs/network.slint
-msgid "Saved — type to change it"
-msgstr "保存済み — 入力すると変更できます"
-
-#: ui/dialogs/network.slint
-msgid "New password"
-msgstr "新しいパスワード"
-
-#: ui/dialogs/network.slint
-msgid "Phones still pair with the code or the QR code; the password is asked too. Phones already paired stay paired."
-msgstr "スマホは引き続きコードまたは QR コードでペアリングし、さらにパスワードも求められます。ペアリング済みのスマホはそのまま使えます。"
-
-#: ui/dialogs/network.slint
-msgid "Stage screen on a phone or tablet"
-msgstr "スマホやタブレットでステージ画面"
-
-#: ui/dialogs/network.slint
-msgid "Show the stage screen to phones and tablets (read only)"
-msgstr "スマホやタブレットにステージ画面を表示（閲覧のみ）"
-
-#: ui/dialogs/network.slint
-msgid "Ask for a password"
-msgstr "パスワードを要求"
-
-#: ui/dialogs/network.slint
-msgid "Stage screen password"
-msgstr "ステージ画面のパスワード"
-
-#: ui/dialogs/network.slint
-msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this computer)."
-msgstr "歌い手の iPad やスマホでこのアドレスを開いてください（このコンピューターと同じ Wi-Fi に接続）。"
-
-#: ui/dialogs/network.slint
-msgid "Control from other gear (TCP)"
-msgstr "他の機器から操作（TCP）"
-
-#: ui/dialogs/network.slint
-msgid "Let other gear send commands over the network"
-msgstr "他の機器からネットワーク経由のコマンドを受け付ける"
-
-#: ui/dialogs/network.slint
-msgid "Port"
-msgstr "ポート"
-
-#: ui/dialogs/network.slint
-msgid "TCP password"
-msgstr "TCP パスワード"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the audience screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
@@ -1656,8 +1596,8 @@ msgid "Save overlay"
 msgstr "オーバーレイを保存"
 
 #: ui/dialogs/phone.slint
-msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
-msgstr "教会の Wi-Fi に接続したスマホからスライドを操作できます。スマホはこのコンピューターと同じネットワークに接続している必要があります。"
+msgid "Use your phone or tablet as a remote: it runs the slides from anywhere on the church Wi-Fi. It must be on the same network as this computer."
+msgstr "スマホやタブレットをリモコンとして使えます。教会のWi-Fiのどこからでもスライドを進められます。このコンピューターと同じネットワークにつないでください。"
 
 #: ui/dialogs/phone.slint
 msgid " (No network found — connect this computer to Wi-Fi.)"
@@ -1668,8 +1608,8 @@ msgid "Address: "
 msgstr "アドレス: "
 
 #: ui/dialogs/phone.slint src/i18n/remote_strings.rs
-msgid "Pair a phone"
-msgstr "スマホをペアリング"
+msgid "Pair a phone or tablet"
+msgstr "スマホやタブレットをつなぐ"
 
 #: ui/dialogs/phone.slint
 msgid "QR code"
@@ -1692,8 +1632,8 @@ msgid "2. Enter this code on the phone:"
 msgstr "2. スマホでこのコードを入力します:"
 
 #: ui/dialogs/phone.slint
-msgid "Paired phones"
-msgstr "ペアリング済みのスマホ"
+msgid "Paired phones and tablets"
+msgstr "つないだスマホとタブレット"
 
 #: ui/dialogs/phone.slint
 msgid "May draw on slides"
@@ -1827,11 +1767,11 @@ msgstr "画面"
 msgid "Output"
 msgstr "出力"
 
-#: ui/dialogs/screens.slint
+#: ui/dialogs/screens.slint ui/dialogs/settings-stream.slint
 msgid "Width"
 msgstr "幅"
 
-#: ui/dialogs/screens.slint
+#: ui/dialogs/screens.slint ui/dialogs/settings-stream.slint
 msgid "Height"
 msgstr "高さ"
 
@@ -1959,21 +1899,29 @@ msgstr "データの場所:"
 msgid "Show licences"
 msgstr "ライセンスを表示"
 
-#: ui/dialogs/settings-bible.slint src/strings/catalog.rs
+#: ui/dialogs/settings-bible.slint src/strings/catalog.rs src/ui/dialogs/settings_find.rs
 msgid "Default Bible"
 msgstr "既定の聖書"
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Also show with every new passage"
 msgstr "新しい聖書箇所ごとに併記"
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Pick up to two. Each slide then shows the same verses from every Bible."
 msgstr "2つまで選べます。各スライドに、それぞれの聖書の同じ聖句が表示されます。"
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
+msgid "For new passages. Text shrinks automatically when a slide holds more words."
+msgstr "新しい聖句に使います。1枚のスライドに言葉が多いと、文字は自動で小さくなります。"
+
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Add Bibles"
 msgstr "聖書を追加"
+
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
+msgid "KJV, WEB and BSB are built in and work offline. The others come from the internet or from their publisher's service."
+msgstr "KJV、WEB、BSBは最初から入っていて、インターネットなしで使えます。ほかはインターネットや出版社のサービスから取得します。"
 
 #: ui/dialogs/settings-bible.slint
 msgid "Search by name, short name or language"
@@ -1995,11 +1943,11 @@ msgstr "KJV、WEB、BSB は内蔵されており、オフラインで使えま�
 msgid "The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops."
 msgstr "その他は著作権があります。教会で一度だけ取得するキーで、出版社の無料サービスに接続してください。礼拝に追加した聖書箇所は礼拝と一緒に保存されるので、インターネットが切れても表示されます。"
 
-#: ui/dialogs/settings-bible.slint src/ui/dialogs/translation_editor.rs
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/translation_editor.rs
 msgid "Translations"
 msgstr "翻訳"
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Online services"
 msgstr "オンラインサービス"
 
@@ -2043,11 +1991,11 @@ msgstr "キーを保存"
 msgid "Disconnect"
 msgstr "切断"
 
-#: ui/dialogs/settings-bible.slint src/strings/operator.rs
+#: ui/dialogs/settings-bible.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Bible files"
 msgstr "聖書ファイル"
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Import a Zefania, OSIS, USX or OpenSong file (.xml or .usx). Only import Bibles that are public domain or that your church is licensed to use. Give it the short name of a translation above (like HCSB) to use the file for that translation."
 msgstr "Zefania、OSIS、USX、OpenSong のファイル (.xml または .usx) を取り込みます。パブリックドメインの聖書、または教会が使用許諾を得ている聖書のみ取り込んでください。上の翻訳の略称（HCSB など）を付けると、その翻訳にこのファイルを使います。"
 
@@ -2059,7 +2007,7 @@ msgstr "略称（例: HCSB、省略可）"
 msgid "Import a Bible file"
 msgstr "聖書ファイルを取り込む"
 
-#: ui/dialogs/settings-bible.slint ui/dialogs/settings.slint src/strings/catalog.rs
+#: ui/dialogs/settings-bible.slint ui/dialogs/settings-general.slint src/strings/catalog.rs src/ui/dialogs/settings_find.rs
 msgid "Credits"
 msgstr "クレジット"
 
@@ -2067,15 +2015,11 @@ msgstr "クレジット"
 msgid "RustyPresenter listens to the band and moves the song's slides by itself. The sound never leaves this computer."
 msgstr "RustyPresenter がバンドの音を聞いて、曲のスライドを自動で進めます。音声がこのコンピューターの外に送られることはありません。"
 
-#: ui/dialogs/settings-follow.slint
-msgid "Listening"
-msgstr "聞き取り"
-
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Sound input"
 msgstr "音声入力"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Best: the lead singer's microphone on its own, sent from the sound board. Next best: the main mix. A microphone in the room hears too much else."
 msgstr "最適: リードボーカルのマイクだけを音響卓から送ったもの。次点: メインミックス。会場に置いたマイクは他の音を拾いすぎます。"
 
@@ -2091,23 +2035,19 @@ msgstr "テスト"
 msgid "Sing or say a line: the meter moves when it hears you."
 msgstr "1行歌うか話してください。聞こえるとメーターが動きます。"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Songs follow the singers"
 msgstr "曲が歌に合わせて進みます"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "A song can have its own in Edit item. Key A turns Auto on and off for the live song, H holds it."
 msgstr "曲ごとに「項目を編集」で個別に設定できます。A キーでライブ中の曲の自動をオン/オフ、H キーで一時停止します。"
 
-#: ui/dialogs/settings-follow.slint
-msgid "Timing"
-msgstr "タイミング"
-
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Show the next slide before it is sung"
 msgstr "歌う前に次のスライドを表示"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Early enough to read, not so early that people sing ahead."
 msgstr "読む時間はあるが、先に歌い出してしまわない程度に。"
 
@@ -2115,7 +2055,7 @@ msgstr "読む時間はあるが、先に歌い出してしまわない程度に
 msgid "{} s"
 msgstr "{} 秒"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "When nobody sings"
 msgstr "誰も歌っていないとき"
 
@@ -2123,27 +2063,23 @@ msgstr "誰も歌っていないとき"
 msgid "Take the words off after (seconds)"
 msgstr "歌詞を消すまで (秒)"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "When someone talks or prays"
 msgstr "誰かが話したり祈ったりしているとき"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Jump to another part of the song after (words heard there)"
 msgstr "曲の別の部分に移るまで (そこで聞こえた単語数)"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "More words: fewer wrong jumps, but slower to follow a change in the order."
 msgstr "単語数を増やすと誤った移動は減りますが、順番の変更に追いつくのが遅くなります。"
 
-#: ui/dialogs/settings-follow.slint
-msgid "Listening model"
-msgstr "聞き取りモデル"
-
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Speech model"
 msgstr "音声モデル"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Downloaded once, then it works without internet. Apache-2.0, by Facebook AI."
 msgstr "一度ダウンロードすれば、インターネットなしで動きます。Apache-2.0、Facebook AI 製。"
 
@@ -2175,7 +2111,7 @@ msgstr "ダウンロードしたモデルをこのコンピューターで試し
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
 msgstr "録音 (例: 先週の日曜日のもの) を自動追従で再生し、どう動くかを確認します。画面には何も変化しません。"
 
-#: ui/dialogs/settings-follow.slint ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Recording"
 msgstr "録画"
 
@@ -2187,7 +2123,7 @@ msgstr "録音が選ばれていません"
 msgid "Choose recording…"
 msgstr "録音を選択…"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Practice"
 msgstr "練習"
 
@@ -2207,17 +2143,297 @@ msgstr "まだありません: 自動追従はスライドを進めたり提案�
 msgid "Copy to clipboard"
 msgstr "クリップボードにコピー"
 
-#: ui/dialogs/settings-follow.slint ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
-msgid "Settings"
-msgstr "設定"
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Audience screen in front"
+msgstr "会衆画面を最前面に"
 
-#: ui/dialogs/settings-follow.slint
-msgid "Review log"
-msgstr "記録"
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Keeps the audience screen above other windows when it has its own monitor, so fades stay smooth."
+msgstr "会衆画面に専用のモニターがあるとき、ほかのウィンドウより前に保ち、フェードをなめらかにします。"
+
+#: ui/dialogs/settings-general.slint
+msgid "Keep the audience screen in front"
+msgstr "会衆画面を最前面に保つ"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "At start"
+msgstr "起動時"
+
+#: ui/dialogs/settings-general.slint
+msgid "Turn the screens on when RustyPresenter starts"
+msgstr "RustyPresenter の起動時に画面をオンにする"
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Screens…"
+msgstr "画面…"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Graphics"
+msgstr "グラフィックス"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
+msgstr "画面がちらつく、黒いままになる、または RustyPresenter がクラッシュする場合のみ変更してください。次回起動時から反映されます。"
+
+#: ui/dialogs/settings-general.slint src/video/bench.rs
+msgid "Test which is fastest"
+msgstr "最速をテスト"
+
+#: ui/dialogs/settings-general.slint
+msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
+msgstr "約1分。実行中はテスト用のウィンドウが開いたり閉じたりします。何も映していなければプロジェクターにも出ます。"
+
+#: ui/dialogs/settings-general.slint
+msgid "Use this"
+msgstr "これを使う"
+
+#: ui/dialogs/settings-general.slint
+msgid "Restart now"
+msgstr "今すぐ再起動"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Performance"
+msgstr "パフォーマンス"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Shows under the live preview how many frames a second the screens draw, and the free video memory when the graphics card says. Low numbers mean the computer is struggling."
+msgstr "ライブプレビューの下に、画面の 1 秒あたりの描画フレーム数と、グラフィックカードが報告する場合は空きビデオメモリを表示します。数値が低い場合はコンピューターの負荷が高いことを示します。"
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Show performance"
+msgstr "パフォーマンスを表示"
+
+#: ui/dialogs/settings-general.slint ui/dialogs/song-editor.slint ui/operator/slides.slint src/ui/dialogs/settings_find.rs
+msgid "Lines per slide"
+msgstr "スライドごとの行数"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage."
+msgstr "曲と聖書箇所。クレジット表示が必要な聖書もあります。聖書箇所ごとに1回表示されます。"
+
+#: ui/dialogs/settings-general.slint
+msgid "Show the copyright line"
+msgstr "著作権表示を表示"
+
+#: ui/dialogs/settings-general.slint
+msgid "On first and last slide"
+msgstr "最初と最後のスライド"
+
+#: ui/dialogs/settings-general.slint
+msgid "On first slide"
+msgstr "最初のスライド"
+
+#: ui/dialogs/settings-general.slint
+msgid "On last slide"
+msgstr "最後のスライド"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Copyright line"
+msgstr "著作権表示"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Use {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}} and {{license}}. Parts between · with nothing in them are left out. Empty: the usual line."
+msgstr "{{title}}、{{artist}}、{{author}}、{{publisher}}、{{year}}、{{copyright}}、{{ccli}}、{{license}} が使えます。· で区切られた部分のうち中身が空のものは省略されます。空欄の場合は通常の表示になります。"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Church CCLI licence #"
+msgstr "教会の CCLI ライセンス番号"
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Song use report…"
+msgstr "曲の使用レポート…"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted."
+msgstr "ウェブブラウザで SongSelect からダウンロードした曲は、自動で曲ライブラリに入ります。読むのは SongSelect の曲ファイルだけで、ダウンロード フォルダーの中は移動も削除もしません。"
+
+#: ui/dialogs/settings-general.slint
+msgid "Bring in SongSelect downloads whenever RustyPresenter is open"
+msgstr "RustyPresenter が開いている間はいつでも SongSelect のダウンロードを取り込む"
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Songs from SongSelect…"
+msgstr "SongSelect の曲…"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "When the shape doesn't match the screen"
+msgstr "縦横比が画面と合わないとき"
+
+#: ui/dialogs/settings-general.slint
+msgid "Fit (black bars)"
+msgstr "全体を表示（黒帯）"
+
+#: ui/dialogs/settings-general.slint
+msgid "Fill (cut the edges)"
+msgstr "全体を埋める（端を切る）"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "When a video ends"
+msgstr "動画の終了時"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "For videos added from now on. Change one video in its Edit window."
+msgstr "今後追加する動画に適用されます。個別の動画は各動画の編集ウィンドウで変更してください。"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Pictures added together as slides"
+msgstr "まとめて追加した画像のスライド"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Each picture stays this long, then the next one comes up."
+msgstr "各画像をこの時間表示してから、次の画像に切り替えます。"
+
+#: ui/dialogs/settings-general.slint
+msgid "Until Next is pressed"
+msgstr "「次へ」を押すまで"
+
+#: ui/dialogs/settings-general.slint
+msgid "5 seconds"
+msgstr "5 秒"
+
+#: ui/dialogs/settings-general.slint
+msgid "8 seconds"
+msgstr "8 秒"
+
+#: ui/dialogs/settings-general.slint ui/dialogs/settings-stream.slint
+msgid "10 seconds"
+msgstr "10 秒"
+
+#: ui/dialogs/settings-general.slint
+msgid "15 seconds"
+msgstr "15 秒"
+
+#: ui/dialogs/settings-general.slint
+msgid "20 seconds"
+msgstr "20 秒"
+
+#: ui/dialogs/settings-general.slint ui/dialogs/settings-stream.slint
+msgid "30 seconds"
+msgstr "30 秒"
+
+#: ui/dialogs/settings-general.slint ui/dialogs/settings-stream.slint
+msgid "1 minute"
+msgstr "1 分"
+
+#: ui/dialogs/settings-general.slint ui/operator/media.slint src/ui/dialogs/settings_find.rs
+msgid "Media library"
+msgstr "メディアライブラリ"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Every file you add is copied into RustyPresenter's own folder, so moving or deleting the original never breaks a slide."
+msgstr "追加したファイルはすべて RustyPresenter 専用のフォルダーにコピーされるので、元のファイルを移動・削除してもスライドが壊れることはありません。"
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Clean up unused media…"
+msgstr "未使用のメディアを整理…"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Sound goes to"
+msgstr "音声の出力先"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Headphones (Listen)"
+msgstr "ヘッドホン（モニター）"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "View → Listen in headphones sends the sound here only, so you can check a video without the room hearing it."
+msgstr "「表示 → ヘッドホンでモニター」を選ぶと音声がここだけに出力されるので、会場に聞かせずに動画を確認できます。"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Delay the room's sound (milliseconds)"
+msgstr "会場の音声の遅延（ミリ秒）"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "If the sound comes before the picture on the projector, try 50 to 150. 0 is no delay."
+msgstr "プロジェクターで音声が映像より先に出る場合は、50～150 を試してください。0 は遅延なしです。"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Speakers"
+msgstr "スピーカー"
+
+#: ui/dialogs/settings-general.slint
+msgid "Stereo (as recorded)"
+msgstr "ステレオ（録音どおり）"
+
+#: ui/dialogs/settings-general.slint
+msgid "Mono (both speakers the same)"
+msgstr "モノラル（両スピーカー同じ）"
+
+#: ui/dialogs/settings-general.slint
+msgid "Swap left and right"
+msgstr "左右を入れ替える"
+
+#: ui/dialogs/settings-general.slint
+msgid "Left speaker only"
+msgstr "左スピーカーのみ"
+
+#: ui/dialogs/settings-general.slint
+msgid "Right speaker only"
+msgstr "右スピーカーのみ"
+
+#: ui/dialogs/settings-general.slint
+msgid "The livestream's sound: Settings → Livestream → Sound"
+msgstr "配信の音: 設定 → ライブ配信 → サウンド"
+
+#: ui/dialogs/settings-general.slint src/strings/stage.rs src/ui/dialogs/settings_find.rs
+msgid "Stage layout"
+msgstr "ステージレイアウト"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "What the stage screen shows. Window → Stage layouts… makes your own."
+msgstr "ステージ画面に表示する内容。「ウィンドウ → ステージレイアウト…」で独自のものを作れます。"
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Stage layouts…"
+msgstr "ステージレイアウト…"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Drawings"
+msgstr "書き込み"
+
+#: ui/dialogs/settings-general.slint
+msgid "Show drawings on the stage screen"
+msgstr "書き込みをステージ画面に表示"
+
+#: ui/dialogs/settings-general.slint
+msgid "The stage screen on phones and tablets: Settings → Remote and network"
+msgstr "スマホやタブレットのステージ画面: 設定 → リモコンとネットワーク"
+
+#: ui/dialogs/settings-general.slint
+msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
+msgstr "RustyPresenter の起動時と1日1回、完全なバックアップ（曲、礼拝、設定、すべての動画・画像・スライド）が作成されます。最新の10件が保存される場所:"
+
+#: ui/dialogs/settings-general.slint
+msgid "Back up now"
+msgstr "今すぐバックアップ"
+
+#: ui/dialogs/settings-general.slint
+msgid "Restore"
+msgstr "復元"
+
+#: ui/dialogs/settings-general.slint
+msgid "No backups yet."
+msgstr "バックアップはまだありません。"
+
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
+msgid "Section keys (C, B, 1–9…)"
+msgstr "セクションキー (C、B、1–9…)"
+
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
+msgid "Turn off if letters typed by mistake move the screen."
+msgstr "誤って入力した文字で画面が変わる場合はオフにしてください。"
 
 #: ui/dialogs/settings-keys.slint
-msgid "Keyboard"
-msgstr "キーボード"
+msgid "Letters and numbers jump the live song to a section"
+msgstr "文字や数字でライブ中の曲のセクションへ移動"
+
+#: ui/dialogs/settings-keys.slint ui/operator.slint src/ui/dialogs/settings_find.rs
+msgid "Keyboard shortcuts"
+msgstr "キーボードショートカット"
+
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
+msgid "Change any key that has a Change button. New keys work once you save the settings."
+msgstr "「変更」ボタンのあるキーは変えられます。新しいキーは設定を保存すると使えます。"
 
 #: ui/dialogs/settings-keys.slint
 msgid "Reset all keys"
@@ -2247,11 +2463,19 @@ msgstr "キーを押してください…"
 msgid "Change"
 msgstr "変更"
 
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
+msgid "In the slide editor"
+msgstr "スライドエディターで"
+
 #: ui/dialogs/settings-keys.slint
+msgid "Ctrl+Alt+C copies the chosen box's style and Ctrl+Alt+V pastes it (with nothing chosen: on every text box of the slide). Ctrl+Z undo, Ctrl+Y redo, Ctrl+D duplicate, Ctrl+A choose all, Delete removes, arrows nudge (Shift+arrows resize), Tab chooses the next object."
+msgstr "Ctrl+Alt+C で選択したボックスのスタイルをコピーし、Ctrl+Alt+V で貼り付けます（何も選択していない場合はスライドのすべてのテキストボックスに適用）。Ctrl+Z で元に戻す、Ctrl+Y でやり直し、Ctrl+D で複製、Ctrl+A ですべて選択、Delete で削除、矢印キーで微調整（Shift+矢印キーでサイズ変更）、Tab で次のオブジェクトを選択します。"
+
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
 msgid "Clear groups"
 msgstr "クリアグループ"
 
-#: ui/dialogs/settings-keys.slint
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
 msgid "A clear group takes several layers off the screen with one key. The View menu lists them too."
 msgstr "クリアグループを使うと、1つのキーで複数のレイヤーを画面から消せます。「表示」メニューにも表示されます。"
 
@@ -2267,17 +2491,9 @@ msgstr "グループを削除"
 msgid "Add a clear group"
 msgstr "クリアグループを追加"
 
-#: ui/dialogs/settings-keys.slint
-msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
-msgstr "ヒント: スライドをクリックするとすぐに画面に表示されます。赤い枠が会場で見えている内容です。"
-
-#: ui/dialogs/settings-keys.slint
-msgid "In the slide editor"
-msgstr "スライドエディターで"
-
-#: ui/dialogs/settings-keys.slint
-msgid "Ctrl+Alt+C copies the chosen box's style and Ctrl+Alt+V pastes it (with nothing chosen: on every text box of the slide). Ctrl+Z undo, Ctrl+Y redo, Ctrl+D duplicate, Ctrl+A choose all, Delete removes, arrows nudge (Shift+arrows resize), Tab chooses the next object."
-msgstr "Ctrl+Alt+C で選択したボックスのスタイルをコピーし、Ctrl+Alt+V で貼り付けます（何も選択していない場合はスライドのすべてのテキストボックスに適用）。Ctrl+Z で元に戻す、Ctrl+Y でやり直し、Ctrl+D で複製、Ctrl+A ですべて選択、Delete で削除、矢印キーで微調整（Shift+矢印キーでサイズ変更）、Tab で次のオブジェクトを選択します。"
+#: ui/dialogs/settings-language.slint src/ui/dialogs/settings_find.rs
+msgid "Language"
+msgstr "言語"
 
 #: ui/dialogs/settings-language.slint
 msgid "In use"
@@ -2303,39 +2519,27 @@ msgstr "言語を追加…"
 msgid "Help translate RustyPresenter"
 msgstr "RustyPresenter の翻訳に協力"
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "Font"
 msgstr "フォント"
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "Song text size"
 msgstr "歌詞の文字サイズ"
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "(biggest; long lines shrink to fit)"
 msgstr "（最大。長い行は収まるよう縮小）"
 
-#: ui/dialogs/settings-look.slint
-msgid "Bible verses"
-msgstr "聖句"
-
-#: ui/dialogs/settings-look.slint
-msgid "(for new passages)"
-msgstr "（新しい聖書箇所用）"
-
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "Bible text size"
 msgstr "聖書の文字サイズ"
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
-msgid "(biggest)"
-msgstr "（最大）"
-
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint src/ui/dialogs/settings_find.rs
 msgid "Text shrinks automatically when a slide holds more words."
 msgstr "スライドの文字が多いと自動で縮小されます。"
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "Text position"
 msgstr "文字の位置"
 
@@ -2343,11 +2547,15 @@ msgstr "文字の位置"
 msgid "Lower third"
 msgstr "下部3分の1"
 
+#: ui/dialogs/settings-look.slint src/ui/dialogs/settings_find.rs
+msgid "Text style"
+msgstr "文字のスタイル"
+
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "ALL CAPS song words"
 msgstr "歌詞をすべて大文字に"
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint src/ui/dialogs/settings_find.rs
 msgid "Fade when the theme changes"
 msgstr "テーマ変更時にフェード"
 
@@ -2359,7 +2567,7 @@ msgstr "（フェードなし）"
 msgid "({} s)"
 msgstr "（{} 秒）"
 
-#: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs
+#: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs src/ui/dialogs/settings_find.rs
 msgid "Logo"
 msgstr "ロゴ"
 
@@ -2371,723 +2579,179 @@ msgstr "ロゴなし（ロゴボタンで黒画面）"
 msgid "Choose logo"
 msgstr "ロゴを選択"
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint src/ui/dialogs/settings_find.rs
 msgid "Default background"
 msgstr "既定の背景"
 
-#: ui/dialogs/settings-media.slint
-msgid "New pictures and videos"
-msgstr "新しい画像と動画"
-
-#: ui/dialogs/settings-media.slint
-msgid "When the shape doesn't match the screen"
-msgstr "縦横比が画面と合わないとき"
-
-#: ui/dialogs/settings-media.slint
-msgid "Fit (black bars)"
-msgstr "全体を表示（黒帯）"
-
-#: ui/dialogs/settings-media.slint
-msgid "Fill (cut the edges)"
-msgstr "全体を埋める（端を切る）"
-
-#: ui/dialogs/settings-media.slint
-msgid "When a video ends"
-msgstr "動画の終了時"
-
-#: ui/dialogs/settings-media.slint
-msgid "For videos added from now on. Change one video in its Edit window."
-msgstr "今後追加する動画に適用されます。個別の動画は各動画の編集ウィンドウで変更してください。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Pictures added together as slides"
-msgstr "まとめて追加した画像のスライド"
-
-#: ui/dialogs/settings-media.slint
-msgid "Each picture stays this long, then the next one comes up."
-msgstr "各画像をこの時間表示してから、次の画像に切り替えます。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Until Next is pressed"
-msgstr "「次へ」を押すまで"
-
-#: ui/dialogs/settings-media.slint
-msgid "5 seconds"
-msgstr "5 秒"
-
-#: ui/dialogs/settings-media.slint
-msgid "8 seconds"
-msgstr "8 秒"
-
-#: ui/dialogs/settings-media.slint
-msgid "10 seconds"
-msgstr "10 秒"
-
-#: ui/dialogs/settings-media.slint
-msgid "15 seconds"
-msgstr "15 秒"
-
-#: ui/dialogs/settings-media.slint
-msgid "20 seconds"
-msgstr "20 秒"
-
-#: ui/dialogs/settings-media.slint
-msgid "30 seconds"
-msgstr "30 秒"
-
-#: ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
-msgid "1 minute"
-msgstr "1 分"
-
-#: ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
-msgid "Sound"
-msgstr "サウンド"
-
-#: ui/dialogs/settings-media.slint
-msgid "Headphones (Listen)"
-msgstr "ヘッドホン（モニター）"
-
-#: ui/dialogs/settings-media.slint
-msgid "View → Listen in headphones sends the sound here only, so you can check a video without the room hearing it."
-msgstr "「表示 → ヘッドホンでモニター」を選ぶと音声がここだけに出力されるので、会場に聞かせずに動画を確認できます。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Delay the room's sound (milliseconds)"
-msgstr "会場の音声の遅延（ミリ秒）"
-
-#: ui/dialogs/settings-media.slint
-msgid "If the sound comes before the picture on the projector, try 50 to 150. 0 is no delay."
-msgstr "プロジェクターで音声が映像より先に出る場合は、50～150 を試してください。0 は遅延なしです。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Speakers"
-msgstr "スピーカー"
-
-#: ui/dialogs/settings-media.slint
-msgid "Stereo (as recorded)"
-msgstr "ステレオ（録音どおり）"
-
-#: ui/dialogs/settings-media.slint
-msgid "Mono (both speakers the same)"
-msgstr "モノラル（両スピーカー同じ）"
-
-#: ui/dialogs/settings-media.slint
-msgid "Swap left and right"
-msgstr "左右を入れ替える"
-
-#: ui/dialogs/settings-media.slint
-msgid "Left speaker only"
-msgstr "左スピーカーのみ"
-
-#: ui/dialogs/settings-media.slint
-msgid "Right speaker only"
-msgstr "右スピーカーのみ"
-
-#: ui/dialogs/settings-media.slint
-msgid "File → Start recording (or the Record button at the top) saves what the audience screen shows as an MP4 video."
-msgstr "「ファイル → 録画を開始」（または上部の「録画」ボタン）で、会場画面の表示内容を MP4 動画として保存します。"
-
-#: ui/dialogs/settings-media.slint ui/operator/media.slint ui/operator/slides.slint
-msgid "Picture size"
-msgstr "画像サイズ"
-
-#: ui/dialogs/settings-media.slint
-msgid "720p uses less of the computer and the disk (about 1.4 GB an hour at most); 1080p is sharper (about 2.8 GB)."
-msgstr "720p はコンピューターとディスクの負担が少なめです（1時間あたり最大約 1.4 GB）。1080p はより鮮明です（約 2.8 GB）。"
-
-#: ui/dialogs/settings-media.slint
-msgid "720p"
-msgstr "720p"
-
-#: ui/dialogs/settings-media.slint
-msgid "1080p"
-msgstr "1080p"
-
-#: ui/dialogs/settings-media.slint
-msgid "Video encoder"
-msgstr "映像エンコーダー"
-
-#: ui/dialogs/settings-media.slint
-msgid "Automatic suits most computers. A graphics card's encoder leaves the processor free; it is tried first, and Automatic is used if it does not work on this computer."
-msgstr "ほとんどのコンピューターは「自動」で十分です。グラフィックスのエンコーダーはプロセッサーの負担を減らします。まず試し、このコンピューターで使えなければ「自動」になります。"
-
-#: ui/dialogs/settings-media.slint
-msgid "The processor (x264)"
-msgstr "プロセッサー (x264)"
-
-#: ui/dialogs/settings-media.slint
-msgid "NVIDIA graphics card"
-msgstr "NVIDIA グラフィックス"
-
-#: ui/dialogs/settings-media.slint
-msgid "Intel graphics"
-msgstr "Intel グラフィックス"
-
-#: ui/dialogs/settings-media.slint
-msgid "AMD graphics card"
-msgstr "AMD グラフィックス"
-
-#: ui/dialogs/settings-media.slint
-msgid "Windows' own"
-msgstr "Windows 標準"
-
-#: ui/dialogs/settings-media.slint
-msgid "OpenH264"
-msgstr "OpenH264"
-
-#: ui/dialogs/settings-media.slint
-msgid "The Mac's own"
-msgstr "Mac 標準"
-
-#: ui/dialogs/settings-media.slint
-msgid "Bitrate"
-msgstr "ビットレート"
-
-#: ui/dialogs/settings-media.slint
-msgid "How much picture goes out each second. Automatic: 3000 kbit/s for 720p, 6000 for 1080p. More is sharper and needs a faster upload."
-msgstr "1 秒あたりに送る映像の量。自動: 720p で 3000 kbit/s、1080p で 6000。多いほど鮮明で、速いアップロードが必要です。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Save recordings in"
-msgstr "録画の保存先"
-
-#: ui/dialogs/settings-media.slint
-msgid "Choose folder…"
-msgstr "フォルダーを選択…"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound in the recording"
-msgstr "録画の音声"
-
-#: ui/dialogs/settings-media.slint
-msgid "The app's sound is taken from the video and song files when the recording stops, so nothing else on the computer is heard."
-msgstr "アプリの音声は録画停止時に動画や曲のファイルから取り込まれるため、コンピューターの他の音は入りません。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Livestream"
-msgstr "ライブ配信"
-
-#: ui/dialogs/settings-media.slint
-msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on."
-msgstr "配信先をオンにすると「録画」の横に「配信開始」ボタンが現れます。「配信開始」はいつもどおり録画し、同じ映像と音声をオンになっているすべての配信先に送ります。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound from this computer"
-msgstr "このコンピューターの音"
-
-#: ui/dialogs/settings-media.slint
-msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
-msgstr "この出力で鳴るものはすべて配信に入ります (動画、曲、そこに送られるほかの音も)。上で選んだマイクまたはライン入力と混ぜて送られます。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Upload speed"
-msgstr "アップロード速度"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits."
-msgstr "公開の速度テストに数メガバイトのゼロを送り、オンにしたすべての配信先へ送れるかを調べます。合う録画サイズを選びます。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Testing…"
-msgstr "テスト中…"
-
-#: ui/dialogs/settings-media.slint
-msgid "Test the upload speed"
-msgstr "アップロード速度をテスト"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound delay"
-msgstr "音の遅延"
-
-#: ui/dialogs/settings-media.slint
-msgid "If the sound in the stream comes before people's lips move, the camera's picture is late: hold the sound back until they match."
-msgstr "配信で口が動く前に音が聞こえるときは、カメラの映像が遅れています。合うまで音を遅らせてください。"
-
-#: ui/dialogs/settings-media.slint
-msgid "{} ms"
-msgstr "{} ms"
-
-#: ui/dialogs/settings-media.slint
-msgid "Stream delay"
-msgstr "配信の遅延"
-
-#: ui/dialogs/settings-media.slint
-msgid "What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer."
-msgstr "配信に出る映像をこの時間だけ遅らせるので、視聴者が見る前に「一時停止」や「ミュート」で止められます。録画は遅れません。視聴者のコメントは、それが答える内容より遅れて届きます。"
-
-#: ui/dialogs/settings-media.slint src/stream/sound_setup.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
-msgid "None"
-msgstr "なし"
-
-#: ui/dialogs/settings-media.slint
-msgid "Slow internet"
-msgstr "遅いインターネット"
-
-#: ui/dialogs/settings-media.slint
-msgid "When a destination's internet cannot keep up, it gets a lighter stream until it can, instead of skipping. The recording and the other destinations keep the full picture. This uses more of the computer."
-msgstr "配信先のインターネットが追いつかないとき、飛ばす代わりに、追いつくまで軽い配信を送ります。録画と他の配信先は元の画質のままです。コンピューターの負荷が増えます。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Send a lighter stream where the internet is slow"
-msgstr "インターネットが遅い配信先には軽い配信を送る"
-
-#: ui/dialogs/settings-media.slint
-msgid "NDI"
-msgstr "NDI"
-
-#: ui/dialogs/settings-media.slint
-msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras above."
-msgstr "ライブ中、このネットワーク上の他のコンピューターやソフト（OBS、vMix、ビデオスイッチャー）がこれらを受け取れます。NDIカメラは上のカメラの一覧に表示されます。"
-
-#: ui/dialogs/settings-media.slint
-msgid "NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."
-msgstr "NDIを使うには、このコンピューターにndi.videoの無料のNDI Toolsが必要です。インストールしてから、設定を開き直してください。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Send the stream over NDI too (picture and sound)"
-msgstr "配信をNDIでも送る（映像と音声）"
-
-#: ui/dialogs/settings-media.slint
-msgid "Send the words alone over NDI, on a see-through background (for keying)"
-msgstr "歌詞だけを透明な背景でNDIに送る（キー合成用）"
-
-#: ui/dialogs/settings-media.slint
-msgid "Words alone"
-msgstr "歌詞のみ"
-
-#: ui/dialogs/settings-media.slint
-msgid "While you are live, a second video is saved next to the recording, its name ending in words.mov: only the words, with nothing behind them. When you edit the service video, put it on top to add the words. It stays small because the words seldom change."
-msgstr "配信中は、録画の横にもう1本の動画が保存されます。名前の末尾は words.mov で、歌詞だけが入り、後ろには何もありません。礼拝の動画を編集するときに一番上に重ねると、歌詞が入ります。歌詞はあまり変わらないので、ファイルは小さく済みます。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Also record the words alone, on a see-through background (for video editing)"
-msgstr "歌詞だけも透明な背景で録画する（動画編集用）"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound levels"
-msgstr "音量"
-
-#: ui/dialogs/settings-media.slint
-msgid "Turn each sound up or down in the stream only (not in the room)."
-msgstr "配信の中だけで各音を上げ下げします（会場の音は変わりません）。"
-
-#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint src/record/mod.rs
-msgid "Microphone or line-in"
-msgstr "マイクまたはライン入力"
-
-#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint
-msgid "{} dB"
-msgstr "{} dB"
-
-#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint src/app.rs src/record/mod.rs
-msgid "This computer"
-msgstr "このコンピューター"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound clean-up"
-msgstr "音のクリーンアップ"
-
-#: ui/dialogs/settings-media.slint
-msgid "For the stream only. Evening out keeps quiet speaking easy to hear at home and loud singing from crackling."
-msgstr "配信のみ。ならすと、小さな話し声も家で聞きやすくなり、大きな歌声も音割れしません。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Even out loud and quiet moments"
-msgstr "大きい音と小さい音をならす"
-
-#: ui/dialogs/settings-media.slint
-msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
-msgstr "マイクやライン入力のハムノイズとヒスノイズを除く（音楽がこもることがあります）"
-
-#: ui/dialogs/settings-media.slint
-msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
-msgstr "録画では各音声を別トラックにも保存し、後でバランスを調整できるようにする"
-
-#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
-msgid "Camera"
-msgstr "カメラ"
-
-#: ui/dialogs/settings-media.slint
-msgid "A camera or capture card for the stream's camera scenes (and its recording)."
-msgstr "配信のカメラシーン（とその録画）に使うカメラまたはキャプチャカード。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Camera control address"
-msgstr "カメラ制御のアドレス"
-
-#: ui/dialogs/settings-media.slint
-msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
-msgstr "PTZ カメラを保存済みの位置に動かすには、そのアドレスを入力（例: 192.168.1.60）"
-
-#: ui/dialogs/settings-media.slint
-msgid "Network camera address"
-msgstr "ネットワークカメラのアドレス"
-
-#: ui/dialogs/settings-media.slint
-msgid "The camera's address, like rtsp://192.168.1.50:554/stream1"
-msgstr "カメラのアドレス（例: rtsp://192.168.1.50:554/stream1）"
-
-#: ui/dialogs/settings-media.slint
-msgid "Second camera"
-msgstr "2台目のカメラ"
-
-#: ui/dialogs/settings-media.slint
-msgid "Another camera to switch to while live, from the Cameras box beside the live screen."
-msgstr "配信中に切り替えられる別のカメラ。ライブ画面の横のカメラ欄から切り替えます。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Third camera"
-msgstr "3台目のカメラ"
-
-#: ui/dialogs/settings-media.slint
-msgid "Another camera to switch to while live."
-msgstr "配信中に切り替えられる別のカメラ。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Fourth camera"
-msgstr "4台目のカメラ"
-
-#: ui/dialogs/settings-media.slint
-msgid "When a camera sends nothing"
-msgstr "カメラから映像が来ないとき"
-
-#: ui/dialogs/settings-media.slint
-msgid "What the stream shows in a camera's place while it is unplugged or sends no picture. The camera comes back by itself as soon as it sends again."
-msgstr "カメラが外れているか映像を送っていない間、配信でそのカメラの代わりに表示するもの。カメラが再び映像を送ると自動で戻ります。"
-
-#: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
-msgid "The audience screen"
-msgstr "会場画面"
-
-#: ui/dialogs/settings-media.slint
-msgid "The church logo"
-msgstr "教会のロゴ"
-
-#: ui/dialogs/settings-media.slint src/strings/screens.rs src/theme/backgrounds.rs
-msgid "Black"
-msgstr "黒"
-
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Use your phone or tablet as a remote"
+msgstr "スマホやタブレットをリモコンとして使う"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Pair it once with the code or the QR code; it stays paired. It runs the slides from anywhere in the room on the same Wi-Fi."
+msgstr "コードかQRコードで一度つなげば、つながったままです。同じWi-Fiなら部屋のどこからでもスライドを進められます。"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Pair a phone or tablet…"
+msgstr "スマホやタブレットをつなぐ…"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Remote password"
+msgstr "リモコンのパスワード"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Phones and tablets still pair with the code or the QR code; the password is asked too. Ones already paired stay paired."
+msgstr "スマホやタブレットは今まで通りコードかQRコードでつなぎ、さらにパスワードを聞かれます。すでにつながっているものはそのままです。"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Ask for a password when a phone or tablet pairs"
+msgstr "スマホやタブレットをつなぐときにパスワードを聞く"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Saved — type to change it"
+msgstr "保存済み — 入力すると変更できます"
+
+#: ui/dialogs/settings-remote.slint
+msgid "New password"
+msgstr "新しいパスワード"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Drawing from a phone"
+msgstr "スマホからの書き込み"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "On the phone, “Fades” ink works like a laser pointer: it goes away by itself."
+msgstr "スマホの「消える」インクはレーザーポインターのように使えます。自動で消えます。"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Keep drawings when the slide changes"
+msgstr "スライドが変わっても書き込みを残す"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Fading ink disappears after (seconds, 1–30)"
+msgstr "消えるインクが消えるまでの時間（秒、1～30）"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Limits"
+msgstr "制限"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Limit phone drawing"
+msgstr "スマホからの書き込みを制限"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Most lines on the screen at once"
+msgstr "画面上の最大線数"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Most drawing updates a second from one phone"
+msgstr "1 台のスマホからの 1 秒あたりの最大描画更新数"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Show drawings on the stage screen: Settings → Stage screen"
+msgstr "ステージ画面に書き込みを表示: 設定 → ステージ画面"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Stage screen on phones and tablets"
+msgstr "スマホやタブレットのステージ画面"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Singers and musicians see the stage screen on their own phone or tablet (read only), on the same Wi-Fi as this computer."
+msgstr "歌い手や演奏者が自分のスマホやタブレットでステージ画面を見られます（見るだけ）。このコンピューターと同じWi-Fiにつないでください。"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Show the stage screen to phones and tablets (read only)"
+msgstr "スマホやタブレットにステージ画面を表示（閲覧のみ）"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Ask for a password"
+msgstr "パスワードを要求"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Stage screen password"
+msgstr "ステージ画面のパスワード"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this computer)."
+msgstr "歌い手の iPad やスマホでこのアドレスを開いてください（このコンピューターと同じ Wi-Fi に接続）。"
+
+#: ui/dialogs/settings-remote.slint
+msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+msgstr "教会のWi-Fiにつないだスマホを、配信のカメラやマイクにできます。初めてのとき、スマホに「このページは安全ではありません」と出ますが、ページがこのコンピューターから来ているためで、問題ありません。「詳細設定」（iPhoneでは「詳細を表示」）を押してページに進んでください。スマホは画面をつけたまま、充電しながら使ってください。"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Phone as a camera"
 msgstr "スマホをカメラに"
 
-#: ui/dialogs/settings-media.slint
-msgid "Scenes"
-msgstr "シーン"
-
-#: ui/dialogs/settings-media.slint
-msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the audience screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
-msgstr "曲と聖句はカメラに歌詞を重ねて、動画とプレゼンテーションは会場画面として、画面に何もないときはカメラで配信されます。ライブの横のシーンボタンで選んだシーンは、次の礼拝項目まで続きます。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Choose the scene by itself from what is live"
-msgstr "ライブの内容に合わせてシーンを自動で選ぶ"
-
-#: ui/dialogs/settings-media.slint
-msgid "Presentations:"
-msgstr "プレゼンテーション:"
-
-#: ui/dialogs/settings-media.slint
-msgid "The audience screen with the camera in a corner"
-msgstr "会場画面（隅にカメラ）"
-
-#: ui/dialogs/settings-media.slint
-msgid "Scene layout"
-msgstr "シーンの配置"
-
-#: ui/dialogs/settings-media.slint
-msgid "Where the camera goes when it is in a corner of the audience screen, and where the words go over the camera."
-msgstr "会場画面の隅にカメラを置くときの位置と、カメラに重ねる歌詞の位置です。"
-
-#: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
-msgid "Small"
-msgstr "小"
-
-#: ui/dialogs/settings-media.slint
-msgid "Medium"
-msgstr "中"
-
-#: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
-msgid "Large"
-msgstr "大"
-
-#: ui/dialogs/settings-media.slint
-msgid "Words over the camera:"
-msgstr "カメラに重ねる歌詞:"
-
-#: ui/dialogs/settings-media.slint
-msgid "At the bottom"
-msgstr "下"
-
-#: ui/dialogs/settings-media.slint
-msgid "At the top"
-msgstr "上"
-
-#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
-msgid "Your scenes"
-msgstr "自分のシーン"
-
-#: ui/dialogs/settings-media.slint
-msgid "Make scenes of your own from cameras, the audience screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
-msgstr "カメラ、会場画面、歌詞、画像、色、テキストを組み合わせて、自分のシーンを作れます。配信中は内蔵のシーンの後に並びます。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Your scenes…"
-msgstr "自分のシーン…"
-
-#: ui/dialogs/settings-media.slint
-msgid "None yet"
-msgstr "まだありません"
-
-#: ui/dialogs/settings-media.slint
-msgid "1 scene"
-msgstr "1 シーン"
-
-#: ui/dialogs/settings-media.slint
-msgid "{} scenes"
-msgstr "{} シーン"
-
-#: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
-msgid "Starting soon"
-msgstr "まもなく始まります"
-
-#: ui/dialogs/settings-media.slint
-msgid "Before the service, with the pre-service countdown under the words while it runs."
-msgstr "礼拝の前。カウントダウン中は文字の下に表示されます。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Use a picture…"
-msgstr "画像を使う…"
-
-#: ui/dialogs/settings-media.slint
-msgid "Use words"
-msgstr "文字を使う"
-
-#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/song.rs
-msgid "Ending"
-msgstr "エンディング"
-
-#: ui/dialogs/settings-media.slint
-msgid "After the service's last item."
-msgstr "礼拝の最後の項目のあと。"
-
-#: ui/dialogs/settings-media.slint src/stream/pictures.rs
-msgid "Thanks for joining us"
-msgstr "ご参加ありがとうございました"
-
-#: ui/dialogs/settings-media.slint ui/operator/follow.slint src/i18n/remote_strings.rs src/stream/scene.rs
-msgid "Hold"
-msgstr "一時停止"
-
-#: ui/dialogs/settings-media.slint
-msgid "For a break, chosen with the scene button."
-msgstr "休憩用。シーンボタンで選びます。"
-
-#: ui/dialogs/settings-media.slint src/stream/pictures.rs
-msgid "We'll be right back"
-msgstr "まもなく再開します"
-
-#: ui/dialogs/settings-media.slint
-msgid "Stream to"
-msgstr "配信先"
-
-#: ui/dialogs/settings-media.slint
-msgid "A stream key is a password: whoever has it can stream as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
-msgstr "ストリームキーはパスワードです。持っている人なら誰でもあなたとして配信できます。入力するとすぐにこのコンピューターのパスワード保管庫に保存され、バックアップや礼拝ファイルには決して入りません。"
-
-#: ui/dialogs/settings-media.slint
-msgid "YouTube stream key"
-msgstr "YouTube のストリームキー"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sign in"
-msgstr "サインイン"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
-msgstr "キーを貼り付ける代わりにサインイン: 「配信開始」がタイトル付きで配信を自動で作成します"
-
-#: ui/dialogs/settings-media.slint
-msgid "Signed in as {}"
-msgstr "{} としてサインイン中"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sign out"
-msgstr "サインアウト"
-
-#: ui/dialogs/settings-media.slint
-msgid "Facebook stream key"
-msgstr "Facebook のストリームキー"
-
-#: ui/dialogs/settings-media.slint
-msgid "Twitch stream key"
-msgstr "Twitch のストリームキー"
-
-#: ui/dialogs/settings-media.slint
-msgid "The server's stream key"
-msgstr "サーバーのストリームキー"
-
-#: ui/dialogs/settings-media.slint
-msgid "Its stream key, if it has one"
-msgstr "ストリームキー (ある場合)"
-
-#: ui/dialogs/settings-media.slint
-msgid "Instagram's server address"
-msgstr "Instagram のサーバーアドレス"
-
-#: ui/dialogs/settings-media.slint
-msgid "Its server address, if Instagram shows one"
-msgstr "サーバーアドレス（Instagram に表示される場合）"
-
-#: ui/dialogs/settings-media.slint
-msgid "Instagram stream key"
-msgstr "Instagram のストリームキー"
-
-#: ui/dialogs/settings-media.slint
-msgid "X's server address"
-msgstr "X のサーバーアドレス"
-
-#: ui/dialogs/settings-media.slint
-msgid "Its server address, if X shows one"
-msgstr "サーバーアドレス（X に表示される場合）"
-
-#: ui/dialogs/settings-media.slint
-msgid "X stream key"
-msgstr "X のストリームキー"
-
-#: ui/dialogs/settings-media.slint
-msgid "TikTok's server address"
-msgstr "TikTok のサーバーアドレス"
-
-#: ui/dialogs/settings-media.slint
-msgid "The server address TikTok shows with the key"
-msgstr "TikTok がキーと一緒に表示するサーバーアドレス"
-
-#: ui/dialogs/settings-media.slint
-msgid "TikTok stream key"
-msgstr "TikTok のストリームキー"
-
-#: ui/dialogs/settings-media.slint src/stream/mod.rs
-msgid "Instagram, X and TikTok give stream keys only to some accounts (TikTok asks for enough followers; Instagram's come from Live Producer on a computer). Each shows a server address with the key: paste both. Their keys often work for one broadcast only."
-msgstr "Instagram、X、TikTok は一部のアカウントにしかストリームキーを出しません（TikTok は一定数のフォロワーが必要です。Instagram はコンピューターの Live Producer で取得します）。どれもキーと一緒にサーバーアドレスを表示するので、両方を貼り付けてください。キーは1回の配信にしか使えないことがよくあります。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Tall for phones"
-msgstr "スマホ用の縦長"
-
-#: ui/dialogs/settings-media.slint
-msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other phone apps): the wide picture across the middle, black above and below. The recording stays wide."
-msgstr "これらには縦長の映像を送ります（YouTube ショート、リール、TikTok などのスマホアプリ用）。横長の映像を中央に置き、上下は黒です。録画は横長のままです。"
-
-#: ui/dialogs/settings-media.slint
-msgid "More settings"
-msgstr "その他の設定"
-
-#: ui/dialogs/settings-media.slint
-msgid "Pictures a second, video format, sound quality, which network card sends, each destination's own quality, the recording's file type and name, and setups saved by name (Sunday, Wedding) to use again in one go."
-msgstr "1秒あたりのコマ数、映像の形式、音質、送信に使うネットワークカード、配信先ごとの画質、録画のファイル形式と名前、そして名前を付けて保存し一度に呼び出せる設定セット（日曜礼拝、結婚式など）。"
-
-#: ui/dialogs/settings-media.slint
-msgid "More settings and saved setups…"
-msgstr "その他の設定と設定セット…"
-
-#: ui/dialogs/settings-media.slint
-msgid "Setup: {}"
-msgstr "設定セット: {}"
-
-#: ui/dialogs/settings-media.slint
-msgid "Broadcast title"
-msgstr "配信のタイトル"
-
-#: ui/dialogs/settings-media.slint
-msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date, {{weekday}} the day's name and {{time}} the time; the description can have them too."
-msgstr "YouTube と Facebook での各配信の名前。{{date}} はその日の日付、{{weekday}} は曜日、{{time}} は時刻になります。説明にも使えます。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sunday Service — {{date}}"
-msgstr "主日礼拝 — {{date}}"
-
-#: ui/dialogs/settings-media.slint
-msgid "Description"
-msgstr "説明"
-
-#: ui/dialogs/settings-media.slint
-msgid "Broadcast description"
-msgstr "配信の説明"
-
-#: ui/dialogs/settings-media.slint
-msgid "What viewers read under the video"
-msgstr "動画の下に表示される説明"
-
-#: ui/dialogs/settings-media.slint
-msgid "Next YouTube broadcast: made when you go live"
-msgstr "次の YouTube 配信: 配信開始時に作ります"
-
-#: ui/dialogs/settings-media.slint
-msgid "Next YouTube broadcast: {}"
-msgstr "次の YouTube 配信: {}"
-
-#: ui/dialogs/settings-media.slint
-msgid "Copy the link"
-msgstr "リンクをコピー"
-
-#: ui/dialogs/settings-media.slint
-msgid "Make it now, to share the link"
-msgstr "今作ってリンクを共有"
-
-#: ui/dialogs/settings-media.slint
-msgid "Make a new one"
-msgstr "作り直す"
-
-#: ui/dialogs/settings-media.slint
-msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
-msgstr "次の礼拝の YouTube 配信を、その日と開始時刻で今作ります。日曜より前にリンクを共有できます。「配信開始」はこれを使います。"
-
-#: ui/dialogs/settings-media.slint
-msgid "YouTube thumbnail: a frame of the stream"
-msgstr "YouTube のサムネイル: 配信の 1 コマ"
-
-#: ui/dialogs/settings-media.slint
-msgid "YouTube thumbnail: {}"
-msgstr "YouTube のサムネイル: {}"
-
-#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
-msgid "Choose a picture…"
-msgstr "画像を選ぶ…"
-
-#: ui/dialogs/settings-media.slint ui/operator/cameras.slint
-msgid "No picture"
-msgstr "画像なし"
-
-#: ui/dialogs/settings-media.slint
-msgid "Who can watch on YouTube"
-msgstr "YouTube で視聴できる人"
-
-#: ui/dialogs/settings-media.slint
-msgid "Everyone"
-msgstr "全員"
-
-#: ui/dialogs/settings-media.slint
-msgid "Only people with the link"
-msgstr "リンクを知っている人のみ"
-
-#: ui/dialogs/settings-media.slint ui/operator/media.slint
-msgid "Media library"
-msgstr "メディアライブラリ"
-
-#: ui/dialogs/settings-media.slint
-msgid "Every file you add is copied into RustyPresenter's own folder, so moving or deleting the original never breaks a slide."
-msgstr "追加したファイルはすべて RustyPresenter 専用のフォルダーにコピーされるので、元のファイルを移動・削除してもスライドが壊れることはありません。"
-
-#: ui/dialogs/settings-media.slint ui/operator.slint
-msgid "Clean up unused media…"
-msgstr "未使用のメディアを整理…"
-
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
+msgstr "先に「スマホやタブレットをつなぐ」でスマホをつないでください。映像を送り始めると、カメラの一覧に「スマホのカメラ」と出ます。"
+
+#: ui/dialogs/settings-remote.slint
+msgid "On the phone, open:"
+msgstr "スマホで次を開きます:"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Then choose it in Settings → Livestream → Cameras"
+msgstr "そのあと「設定 → ライブ配信 → カメラ」で選びます"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Phone as a microphone"
+msgstr "スマホをマイクに"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
+msgstr "牧師のピンマイクや、ケーブルなしの会場マイクに。先に「スマホのステージ画面」をオンにしてください。スマホのページはそこから来ます。"
+
+#: ui/dialogs/settings-remote.slint
+msgid "On the phone, open this page and press Start:"
+msgstr "スマホでこのページを開き、「開始」を押します:"
+
+#: ui/dialogs/settings-remote.slint
+msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
+msgstr "スマホのステージ画面がオフなので、スマホはまだこのページを開けません。"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Then choose Phone in Settings → Livestream → Sound"
+msgstr "そのあと「設定 → ライブ配信 → サウンド」で「スマホ」を選びます"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Control from other gear (TCP)"
+msgstr "他の機器から操作（TCP）"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "For a stream deck, a lighting desk or a control system that sends text commands."
+msgstr "Stream Deck、照明卓、文字でコマンドを送る制御システムなどに。"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Let other gear send commands over the network"
+msgstr "他の機器からネットワーク経由のコマンドを受け付ける"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Port"
+msgstr "ポート"
+
+#: ui/dialogs/settings-remote.slint
+msgid "TCP password"
+msgstr "TCP パスワード"
+
+#: ui/dialogs/settings-row.slint
+msgid "Advanced"
+msgstr "詳細"
+
+#: ui/dialogs/settings-row.slint
+msgid "Hide help"
+msgstr "ヘルプを隠す"
+
+#: ui/dialogs/settings-row.slint ui/operator.slint
+msgid "Help"
+msgstr "ヘルプ"
+
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "Sections"
 msgstr "セクション"
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "Each kind of section has a colour and a key. Leave a box empty for the usual name or key."
 msgstr "セクションの種類ごとに色とキーがあります。通常の名前やキーを使う場合は空欄のままにしてください。"
 
@@ -3103,11 +2767,11 @@ msgstr "{} の名前"
 msgid "Key for {}"
 msgstr "{} のキー"
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "More section names"
 msgstr "その他のセクション名"
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "A name your songs use, like “Spontaneous”. It gets the colour and key of the kind you choose."
 msgstr "曲で使われる名前（例:「Spontaneous」）。選んだ種類の色とキーが割り当てられます。"
 
@@ -3115,11 +2779,11 @@ msgstr "曲で使われる名前（例:「Spontaneous」）。選んだ種類の
 msgid "New section name"
 msgstr "新しいセクション名"
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "Slide labels"
 msgstr "スライドラベル"
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "In the song editor, “Label this slide” puts one on a slide. It shows on the slide’s thumbnail."
 msgstr "曲エディターで「このスライドにラベルを付ける」を使うとスライドにラベルを付けられます。ラベルはスライドのサムネイルに表示されます。"
 
@@ -3138,6 +2802,10 @@ msgstr "ラベルを追加"
 #: ui/dialogs/settings-sections.slint
 msgid "Use the usual names, colours and labels"
 msgstr "通常の名前、色、ラベルを使う"
+
+#: ui/dialogs/settings-sound.slint
+msgid "{} dB"
+msgstr "{} dB"
 
 #: ui/dialogs/settings-sound.slint
 msgid "Gate (quiet between words)"
@@ -3171,55 +2839,91 @@ msgstr "高音（明瞭さ、シャー音）"
 msgid "Never too loud (keeps the stream from crackling; best left on)"
 msgstr "大きくなりすぎない（配信の音割れを防ぎます。オンのままがおすすめ）"
 
-#: ui/dialogs/settings-sound.slint
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "Sound setup"
 msgstr "音声のかんたん設定"
 
-#: ui/dialogs/settings-sound.slint
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "One choice sets the microphone and how each sound is cleaned up. Anything changed by hand below makes it Custom."
 msgstr "1つ選ぶだけで、マイクと各音声の整え方が決まります。下で手動で変更すると「カスタム」になります。"
 
-#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
-msgid "Second microphone or line-in"
-msgstr "2つ目のマイクまたはライン入力"
+#: ui/dialogs/settings-sound.slint src/record/mod.rs src/ui/dialogs/settings_find.rs
+msgid "Microphone or line-in"
+msgstr "マイクまたはライン入力"
 
-#: ui/dialogs/settings-sound.slint
-msgid "While you are live, mixed with the one chosen under \"Sound in the recording\": for a second sound board, a pulpit microphone or the phone."
-msgstr "配信中、「録画の音声」で選んだものと混ぜて使います。2台目の音響卓、説教台のマイク、スマホなどに。"
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "For the livestream and the recording: the sound board, a microphone, or a phone (choose Phone). Up to three are mixed while you are live."
+msgstr "配信と録画に使います: ミキサー、マイク、またはスマホ（「スマホ」を選ぶ）。配信中は3つまで混ぜられます。"
 
 #: ui/dialogs/settings-sound.slint
 msgid "Its level"
 msgstr "音量"
 
-#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
-msgid "Third microphone or line-in"
-msgstr "3つ目のマイクまたはライン入力"
-
-#: ui/dialogs/settings-sound.slint src/stream/phone_mic.rs
-msgid "Phone microphone"
-msgstr "スマホのマイク"
-
 #: ui/dialogs/settings-sound.slint
-msgid "Turn on the stage screen for phones (Settings → Network…), then open this page on the phone and press Start: {}"
-msgstr "スマホ用のステージ画面（設定 → ネットワーク…）をオンにしてから、スマホでこのページを開いて「開始」を押してください: {}"
+msgid "A phone as a microphone: Settings → Remote and network"
+msgstr "スマホをマイクに: 設定 → リモコンとネットワーク"
 
-#: ui/dialogs/settings-sound.slint
-msgid "The first time, the phone warns that the page is not private, because this computer made its own certificate: tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
-msgstr "初回は、このコンピューターが自分で証明書を作ったため、スマホに「この接続ではプライバシーが保護されません」と警告が出ます。「詳細設定」（iPhone では「詳細を表示」）をタップしてページへ進んでください。スマホはスリープさせず、充電につないだままにしてください。"
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Sound from this computer"
+msgstr "このコンピューターの音"
 
-#: ui/dialogs/settings-sound.slint
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
+msgstr "この出力で鳴るものはすべて配信に入ります (動画、曲、そこに送られるほかの音も)。上で選んだマイクまたはライン入力と混ぜて送られます。"
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "Listen to the stream"
 msgstr "配信の音を聞く"
 
-#: ui/dialogs/settings-sound.slint
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "While you are live, the stream's sound plays here as viewers hear it (cleaned up and with the sound delay), for headphones at the desk. The room does not hear it unless it is the room's output."
 msgstr "配信中、視聴者が聞くとおりの配信の音（整えた後、音の遅延込み）をここで再生します。席でヘッドホンで聞くためのものです。会場の出力でない限り、会場には聞こえません。"
 
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Sound delay"
+msgstr "音の遅延"
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "If the sound in the stream comes before people's lips move, the camera's picture is late: hold the sound back until they match."
+msgstr "配信で口が動く前に音が聞こえるときは、カメラの映像が遅れています。合うまで音を遅らせてください。"
+
 #: ui/dialogs/settings-sound.slint
+msgid "{} ms"
+msgstr "{} ms"
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Sound levels"
+msgstr "音量"
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Turn each sound up or down in the stream only (not in the room)."
+msgstr "配信の中だけで各音を上げ下げします（会場の音は変わりません）。"
+
+#: ui/dialogs/settings-sound.slint src/app.rs src/record/mod.rs
+msgid "This computer"
+msgstr "このコンピューター"
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Sound clean-up"
+msgstr "音のクリーンアップ"
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "For the stream only. Evening out keeps quiet speaking easy to hear at home and loud singing from crackling."
+msgstr "配信のみ。ならすと、小さな話し声も家で聞きやすくなり、大きな歌声も音割れしません。"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Even out loud and quiet moments"
+msgstr "大きい音と小さい音をならす"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
+msgstr "マイクやライン入力のハムノイズとヒスノイズを除く（音楽がこもることがあります）"
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "More sound settings"
 msgstr "その他の音声設定"
 
-#: ui/dialogs/settings-sound.slint
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "For the stream only. Each sound has its own: start with the Sound setup above and change little at a time."
 msgstr "配信専用です。音声ごとに個別の設定があります。まず上の「音声のかんたん設定」から始めて、少しずつ変えてください。"
 
@@ -3227,129 +2931,913 @@ msgstr "配信専用です。音声ごとに個別の設定があります。ま
 msgid "Show each sound's gate, evener, low, middle and high"
 msgstr "各音声のゲート、音量そろえ、低音・中音・高音を表示"
 
+#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
+msgid "Second microphone or line-in"
+msgstr "2つ目のマイクまたはライン入力"
+
+#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
+msgid "Third microphone or line-in"
+msgstr "3つ目のマイクまたはライン入力"
+
 #: ui/dialogs/settings-state.slint src/strings/catalog.rs
 msgid "All languages"
 msgstr "すべての言語"
 
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Live captions"
-msgstr "ライブ字幕"
+#: ui/dialogs/settings-stream.slint
+msgid "Sign in"
+msgstr "サインイン"
 
-#: ui/dialogs/settings-stream-extras.slint src/stream/captions.rs
-msgid "Captions are made on this computer from the microphone, in English only. They are often wrong: names, Bible places, quiet or echoing speech and songs come out badly, and there is no punctuation. They show about two seconds after the words are said."
-msgstr "字幕はこのコンピューターでマイクの音から作られ、英語のみです。間違いが多く、人名、聖書の地名、小さい声や響く声、歌はうまく出ず、句読点もありません。話してから約2秒後に表示されます。"
+#: ui/dialogs/settings-stream.slint
+msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
+msgstr "キーを貼り付ける代わりにサインイン: 「配信開始」がタイトル付きで配信を自動で作成します"
 
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Write out what is said while live"
-msgstr "配信中に話した内容を文字にする"
+#: ui/dialogs/settings-stream.slint
+msgid "Signed in as {}"
+msgstr "{} としてサインイン中"
 
-#: ui/dialogs/settings-stream-extras.slint src/stream/captions.rs
-msgid "Live captions need the English speech model. Download the fast model in Settings → Auto-follow."
-msgstr "ライブ字幕には英語の音声モデルが必要です。「設定 → 自動追従」で高速モデルをダウンロードしてください。"
+#: ui/dialogs/settings-stream.slint
+msgid "Sign out"
+msgstr "サインアウト"
 
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Show them at the bottom of the stream (not over song words or verses)"
-msgstr "配信の下部に表示する（歌詞や聖句には重ねません）"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Keep them in a captions file beside the recording (for YouTube's replay and video players)"
-msgstr "録画の横に字幕ファイルとして保存する（YouTube のアーカイブや動画プレーヤー用）"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Listen to:"
-msgstr "聞き取る音声:"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "YouTube captions address"
-msgstr "YouTube 字幕のアドレス"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "YouTube's captions address (optional)"
-msgstr "YouTube の字幕アドレス（任意）"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "For captions viewers can turn on and off on YouTube: in YouTube Studio, open the stream's settings, turn on Closed captions, choose \"POST captions to URL\", and paste the address it gives here."
-msgstr "視聴者が YouTube でオン・オフできる字幕にするには、YouTube Studio で配信の設定を開き、字幕（Closed captions）をオンにして「POST captions to URL」を選び、表示されたアドレスをここに貼り付けてください。"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "On your website"
-msgstr "教会のウェブサイトで"
-
-#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
-msgid "To play the livestream on your church's website: copy the code, then in your website's editor add an \"HTML\", \"Embed\" or \"Code\" block where the video should go and paste it there. You do this once: the same code plays every week's service."
-msgstr "教会のウェブサイトでライブ配信を流すには、コードをコピーし、ウェブサイトの編集画面で動画を置きたい場所に「HTML」「埋め込み（Embed）」「コード（Code）」のブロックを追加して貼り付けてください。これは一度だけで済みます。同じコードで毎週の礼拝が流れます。"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "YouTube channel id"
-msgstr "YouTube チャンネル ID"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "YouTube channel id (starts with UC)"
-msgstr "YouTube チャンネル ID（UC で始まります）"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Fill in"
-msgstr "自動入力"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Fill in the channel of the YouTube account signed in above"
-msgstr "上でサインインした YouTube アカウントのチャンネルを入力"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Copy the code"
-msgstr "コードをコピー"
-
-#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
-msgid "YouTube plays whatever your channel has live; between services it shows the next scheduled stream or says nothing is live. YouTube Studio must allow embedding (it does unless it was turned off)."
-msgstr "YouTube はチャンネルでライブ中のものを流します。礼拝と礼拝の間は、次の予定された配信を表示するか、ライブ中のものがないと表示します。YouTube Studio で埋め込みが許可されている必要があります（オフにしていなければ許可されています）。"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Facebook Page"
-msgstr "Facebook ページ"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Facebook Page address"
-msgstr "Facebook ページのアドレス"
-
-#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
-msgid "Facebook shows your Page with its posts; while you are live the live video is at the top. The Page must be public."
-msgstr "Facebook はページを投稿と一緒に表示します。ライブ中はライブ動画が一番上に出ます。ページは公開されている必要があります。"
-
-#: ui/dialogs/settings-stream-extras.slint src/network/guest.rs
-msgid "Remote guest"
-msgstr "リモートのゲスト"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "A guest speaker or missionary joins from a browser at home: their picture comes in as a camera, their voice through this computer's sound. The connection goes directly between the two computers; some internets do not allow that, and the pages then say so."
-msgstr "ゲストの講師や宣教師が自宅のブラウザーから参加します。ゲストの映像はカメラとして入り、声はこのコンピューターの音声を通ります。接続は2台のコンピューターの間で直接行われます。直接つなげないインターネットもあり、その場合はページにそう表示されます。"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Invite a guest…"
-msgstr "ゲストを招待…"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Opens the invitation page in this computer's web browser"
-msgstr "このコンピューターのウェブブラウザーで招待ページを開きます"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Use the guest as a camera"
-msgstr "ゲストをカメラとして使う"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Puts the guest in the first free camera row above"
-msgstr "上の最初の空いているカメラ欄にゲストを入れます"
-
-#: ui/dialogs/settings-stream-extras.slint
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
 msgid "Getting started"
 msgstr "はじめに"
 
-#: ui/dialogs/settings-stream-extras.slint
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
 msgid "A few steps: where to stream, which camera, which sound, and a check."
 msgstr "いくつかの手順で設定します: 配信先、カメラ、音声、そして確認。"
 
-#: ui/dialogs/settings-stream-extras.slint
+#: ui/dialogs/settings-stream.slint
 msgid "Set up step by step…"
 msgstr "順番に設定…"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Stream to"
+msgstr "配信先"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Switch a destination on and a Go Live button appears beside Record. A stream key is a password: whoever has it can stream as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
+msgstr "配信先をオンにすると、「録画」の横に「配信開始」ボタンが出ます。ストリームキーはパスワードと同じで、持っている人は誰でもあなたとして配信できます。入力するとこのコンピューターのパスワード保管庫に保存され、バックアップや礼拝ファイルには入りません。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube stream key"
+msgstr "YouTube のストリームキー"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Facebook stream key"
+msgstr "Facebook のストリームキー"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Twitch stream key"
+msgstr "Twitch のストリームキー"
+
+#: ui/dialogs/settings-stream.slint
+msgid "The server's stream key"
+msgstr "サーバーのストリームキー"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Its stream key, if it has one"
+msgstr "ストリームキー (ある場合)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Instagram's server address"
+msgstr "Instagram のサーバーアドレス"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Its server address, if Instagram shows one"
+msgstr "サーバーアドレス（Instagram に表示される場合）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Instagram stream key"
+msgstr "Instagram のストリームキー"
+
+#: ui/dialogs/settings-stream.slint
+msgid "X's server address"
+msgstr "X のサーバーアドレス"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Its server address, if X shows one"
+msgstr "サーバーアドレス（X に表示される場合）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "X stream key"
+msgstr "X のストリームキー"
+
+#: ui/dialogs/settings-stream.slint
+msgid "TikTok's server address"
+msgstr "TikTok のサーバーアドレス"
+
+#: ui/dialogs/settings-stream.slint
+msgid "The server address TikTok shows with the key"
+msgstr "TikTok がキーと一緒に表示するサーバーアドレス"
+
+#: ui/dialogs/settings-stream.slint
+msgid "TikTok stream key"
+msgstr "TikTok のストリームキー"
+
+#: ui/dialogs/settings-stream.slint src/stream/mod.rs
+msgid "Instagram, X and TikTok give stream keys only to some accounts (TikTok asks for enough followers; Instagram's come from Live Producer on a computer). Each shows a server address with the key: paste both. Their keys often work for one broadcast only."
+msgstr "Instagram、X、TikTok は一部のアカウントにしかストリームキーを出しません（TikTok は一定数のフォロワーが必要です。Instagram はコンピューターの Live Producer で取得します）。どれもキーと一緒にサーバーアドレスを表示するので、両方を貼り付けてください。キーは1回の配信にしか使えないことがよくあります。"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Broadcast title"
+msgstr "配信のタイトル"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date, {{weekday}} the day's name and {{time}} the time; the description can have them too."
+msgstr "YouTube と Facebook での各配信の名前。{{date}} はその日の日付、{{weekday}} は曜日、{{time}} は時刻になります。説明にも使えます。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sign in to YouTube or Facebook above to name each broadcast."
+msgstr "上でYouTubeかFacebookにログインすると、配信ごとに名前を付けられます。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sunday Service — {{date}}"
+msgstr "主日礼拝 — {{date}}"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Broadcast description"
+msgstr "配信の説明"
+
+#: ui/dialogs/settings-stream.slint
+msgid "What viewers read under the video"
+msgstr "動画の下に表示される説明"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Next YouTube broadcast: made when you go live"
+msgstr "次の YouTube 配信: 配信開始時に作ります"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Next YouTube broadcast: {}"
+msgstr "次の YouTube 配信: {}"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Copy the link"
+msgstr "リンクをコピー"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Make it now, to share the link"
+msgstr "今作ってリンクを共有"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Make a new one"
+msgstr "作り直す"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
+msgstr "次の礼拝の YouTube 配信を、その日と開始時刻で今作ります。日曜より前にリンクを共有できます。「配信開始」はこれを使います。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube thumbnail: a frame of the stream"
+msgstr "YouTube のサムネイル: 配信の 1 コマ"
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube thumbnail: {}"
+msgstr "YouTube のサムネイル: {}"
+
+#: ui/dialogs/settings-stream.slint ui/dialogs/stream-scenes.slint
+msgid "Choose a picture…"
+msgstr "画像を選ぶ…"
+
+#: ui/dialogs/settings-stream.slint ui/operator/cameras.slint
+msgid "No picture"
+msgstr "画像なし"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Who can watch on YouTube"
+msgstr "YouTube で視聴できる人"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Everyone"
+msgstr "全員"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Only people with the link"
+msgstr "リンクを知っている人のみ"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Upload speed"
+msgstr "アップロード速度"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits."
+msgstr "公開の速度テストに数メガバイトのゼロを送り、オンにしたすべての配信先へ送れるかを調べます。合う録画サイズを選びます。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Testing…"
+msgstr "テスト中…"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Test the upload speed"
+msgstr "アップロード速度をテスト"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Tall for phones"
+msgstr "スマホ用の縦長"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other phone apps): the wide picture across the middle, black above and below. The recording stays wide."
+msgstr "これらには縦長の映像を送ります（YouTube ショート、リール、TikTok などのスマホアプリ用）。横長の映像を中央に置き、上下は黒です。録画は横長のままです。"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Stream delay"
+msgstr "配信の遅延"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer."
+msgstr "配信に出る映像をこの時間だけ遅らせるので、視聴者が見る前に「一時停止」や「ミュート」で止められます。録画は遅れません。視聴者のコメントは、それが答える内容より遅れて届きます。"
+
+#: ui/dialogs/settings-stream.slint src/stream/sound_setup.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
+msgid "None"
+msgstr "なし"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Slow internet"
+msgstr "遅いインターネット"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "When a destination's internet cannot keep up, it gets a lighter stream until it can, instead of skipping. The recording and the other destinations keep the full picture. This uses more of the computer."
+msgstr "配信先のインターネットが追いつかないとき、飛ばす代わりに、追いつくまで軽い配信を送ります。録画と他の配信先は元の画質のままです。コンピューターの負荷が増えます。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Send a lighter stream where the internet is slow"
+msgstr "インターネットが遅い配信先には軽い配信を送る"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Each destination's quality"
+msgstr "配信先ごとの画質"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "A destination can get a smaller picture or a lower bitrate than the main stream (a phone app, a slow server). Each one that differs costs the computer a second encode."
+msgstr "配信先によっては、メインの配信より小さい映像や低いビットレートにできます（スマホアプリ、遅いサーバーなど）。異なる設定の配信先が1つあるごとに、コンピューターはもう1回エンコードします。"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/network.rs src/ui/dialogs/settings_find.rs
+msgid "Network"
+msgstr "ネットワーク"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Send from a wired network card to keep the stream off busy Wi-Fi (YouTube, Facebook, Twitch and other RTMP servers; an SRT server is reached however the computer chooses). Safer send gives an SRT server time to ask again for what got lost on a poor line; the picture arrives that much later."
+msgstr "混雑した Wi-Fi を避けるため、有線のネットワークカードから配信を送ります（YouTube、Facebook、Twitch などの RTMP サーバー。SRT サーバーにはコンピューターが選んだ経路でつながります）。「安全な送信」では、回線が悪くて失われた分を SRT サーバーがもう一度要求する時間を取ります。その分だけ映像が遅れて届きます。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Send the stream from"
+msgstr "配信を送るネットワーク"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Safer send (SRT servers)"
+msgstr "安全な送信（SRT サーバー）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Off (SRT's own)"
+msgstr "オフ（SRT の標準）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Half a second"
+msgstr "0.5秒"
+
+#: ui/dialogs/settings-stream.slint
+msgid "1 second"
+msgstr "1秒"
+
+#: ui/dialogs/settings-stream.slint
+msgid "2 seconds"
+msgstr "2秒"
+
+#: ui/dialogs/settings-stream.slint
+msgid "4 seconds"
+msgstr "4秒"
+
+#: ui/dialogs/settings-stream.slint ui/operator/media.slint ui/operator/slides.slint src/ui/dialogs/settings_find.rs
+msgid "Picture size"
+msgstr "画像サイズ"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "For the livestream and the recording. Bigger is sharper and needs a faster computer, a faster upload and more disk space."
+msgstr "配信と録画に使います。大きいほど鮮明ですが、速いコンピューター、速いアップロード、多くのディスク容量が必要です。"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Custom size"
+msgstr "自由なサイズ"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Any width and height from 320 × 180 to 7680 × 4320 (made even). Most services and screens expect 16:9."
+msgstr "幅と高さは320 × 180から7680 × 4320まで自由です（偶数にそろえます）。ほとんどのサービスや画面は16:9を前提にしています。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Use this size"
+msgstr "このサイズを使う"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Pictures a second"
+msgstr "1秒あたりのコマ数"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "30 suits most churches. 50 or 60 makes movement smoother and needs a faster computer and upload."
+msgstr "ほとんどの教会は30で十分です。50や60は動きがなめらかになりますが、速いコンピューターとアップロードが必要です。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "30 (usual)"
+msgstr "30（標準）"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Bitrate"
+msgstr "ビットレート"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "How much picture goes out each second. Automatic grows with the picture size and pictures a second. More is sharper and needs a faster upload."
+msgstr "1秒間に送る映像の量です。「自動」は画像サイズと1秒あたりの枚数に合わせて増えます。多いほど鮮明ですが、速いアップロードが必要です。"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Video encoder"
+msgstr "映像エンコーダー"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Automatic suits most computers. A graphics card's encoder leaves the processor free; it is tried first, and Automatic is used if it does not work on this computer."
+msgstr "ほとんどのコンピューターは「自動」で十分です。グラフィックスのエンコーダーはプロセッサーの負担を減らします。まず試し、このコンピューターで使えなければ「自動」になります。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "The processor (x264)"
+msgstr "プロセッサー (x264)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "NVIDIA graphics card"
+msgstr "NVIDIA グラフィックス"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Intel graphics"
+msgstr "Intel グラフィックス"
+
+#: ui/dialogs/settings-stream.slint
+msgid "AMD graphics card"
+msgstr "AMD グラフィックス"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Windows' own"
+msgstr "Windows 標準"
+
+#: ui/dialogs/settings-stream.slint
+msgid "OpenH264"
+msgstr "OpenH264"
+
+#: ui/dialogs/settings-stream.slint
+msgid "The Mac's own"
+msgstr "Mac 標準"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Video format"
+msgstr "映像の形式"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "HEVC and AV1 give a sharper picture for the same upload. HEVC is used when every destination that is on takes it (YouTube and your own server do); otherwise H.264. AV1 is for recordings only: while live, H.264 is used. Both need a newer computer or graphics card."
+msgstr "HEVC と AV1 は同じアップロード量でより鮮明な映像になります。オンになっているすべての配信先が対応している場合は HEVC を使います（YouTube と独自のサーバーは対応しています）。それ以外は H.264 です。AV1 は録画専用で、配信中は H.264 を使います。どちらも新しめのコンピューターかグラフィックスカードが必要です。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "H.264 (plays everywhere)"
+msgstr "H.264（どこでも再生できます）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Bitrate kept"
+msgstr "ビットレートの方式"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Always the same (CBR)"
+msgstr "常に一定（CBR）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Varies with the picture (VBR)"
+msgstr "映像に合わせて変える（VBR）"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Encoder details"
+msgstr "エンコーダーの詳細"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Leave these on Automatic unless a service or a video editor asks for something else. Faster leaves more of the computer free; Baseline is only for very old players."
+msgstr "配信サービスや動画編集者から別の指定がない限り、これらは「自動」のままにしてください。速いほどコンピューターに余裕が残ります。Baseline はとても古いプレーヤー専用です。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "A whole picture every"
+msgstr "完全な1枚を送る間隔"
+
+#: ui/dialogs/settings-stream.slint
+msgid "2 seconds (usual)"
+msgstr "2秒（標準）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "3 seconds"
+msgstr "3秒"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Encoder speed"
+msgstr "エンコードの速さ"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Fastest (least work)"
+msgstr "最速（負担が最も少ない）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Fast"
+msgstr "速い"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Balanced"
+msgstr "バランス"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Best picture (most work)"
+msgstr "最高画質（負担が最も多い）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Profile"
+msgstr "プロファイル"
+
+#: ui/dialogs/settings-stream.slint
+msgid "B-frames"
+msgstr "B フレーム"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Sound quality"
+msgstr "音質"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sample rate"
+msgstr "サンプリングレート"
+
+#: ui/dialogs/settings-stream.slint
+msgid "As it comes (usual)"
+msgstr "入力のまま（標準）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sound bitrate"
+msgstr "音声のビットレート"
+
+#: ui/dialogs/settings-stream.slint
+msgid "160 kbit/s (usual)"
+msgstr "160 kbit/s（標準）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Channels"
+msgstr "チャンネル"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Stereo"
+msgstr "ステレオ"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Mono"
+msgstr "モノラル"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Network camera address"
+msgstr "ネットワークカメラのアドレス"
+
+#: ui/dialogs/settings-stream.slint
+msgid "The camera's address, like rtsp://192.168.1.50:554/stream1"
+msgstr "カメラのアドレス（例: rtsp://192.168.1.50:554/stream1）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera control address"
+msgstr "カメラ制御のアドレス"
+
+#: ui/dialogs/settings-stream.slint
+msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
+msgstr "PTZ カメラを保存済みの位置に動かすには、そのアドレスを入力（例: 192.168.1.60）"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Cameras"
+msgstr "カメラ"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "A camera or capture card for the stream's camera scenes (and its recording). More cameras can be switched to while live, from the Cameras box beside the live screen."
+msgstr "配信のカメラシーン（と録画）に使うカメラやキャプチャーカードです。配信中は、ライブ画面の横の「カメラ」から別のカメラに切り替えられます。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera 1"
+msgstr "カメラ1"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera 2"
+msgstr "カメラ2"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera 3"
+msgstr "カメラ3"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera 4"
+msgstr "カメラ4"
+
+#: ui/dialogs/settings-stream.slint
+msgid "A phone as a camera: Settings → Remote and network"
+msgstr "スマホをカメラに: 設定 → リモコンとネットワーク"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "When a camera sends nothing"
+msgstr "カメラから映像が来ないとき"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "What the stream shows in a camera's place while it is unplugged or sends no picture. The camera comes back by itself as soon as it sends again."
+msgstr "カメラが外れているか映像を送っていない間、配信でそのカメラの代わりに表示するもの。カメラが再び映像を送ると自動で戻ります。"
+
+#: ui/dialogs/settings-stream.slint src/stream/own_scenes.rs
+msgid "The audience screen"
+msgstr "会場画面"
+
+#: ui/dialogs/settings-stream.slint
+msgid "The church logo"
+msgstr "教会のロゴ"
+
+#: ui/dialogs/settings-stream.slint src/strings/screens.rs src/theme/backgrounds.rs
+msgid "Black"
+msgstr "黒"
+
+#: ui/dialogs/settings-stream.slint src/network/guest.rs src/ui/dialogs/settings_find.rs
+msgid "Remote guest"
+msgstr "リモートのゲスト"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "A guest speaker or missionary joins from a browser at home: their picture comes in as a camera, their voice through this computer's sound. The connection goes directly between the two computers; some internets do not allow that, and the pages then say so."
+msgstr "ゲストの講師や宣教師が自宅のブラウザーから参加します。ゲストの映像はカメラとして入り、声はこのコンピューターの音声を通ります。接続は2台のコンピューターの間で直接行われます。直接つなげないインターネットもあり、その場合はページにそう表示されます。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Invite a guest…"
+msgstr "ゲストを招待…"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Opens the invitation page in this computer's web browser"
+msgstr "このコンピューターのウェブブラウザーで招待ページを開きます"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Use the guest as a camera"
+msgstr "ゲストをカメラとして使う"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Puts the guest in the first free camera row above"
+msgstr "上の最初の空いているカメラ欄にゲストを入れます"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Use a picture…"
+msgstr "画像を使う…"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Use words"
+msgstr "文字を使う"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Scenes"
+msgstr "シーン"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the audience screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgstr "曲と聖句はカメラに歌詞を重ねて、動画とプレゼンテーションは会場画面として、画面に何もないときはカメラで配信されます。ライブの横のシーンボタンで選んだシーンは、次の礼拝項目まで続きます。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Choose the scene by itself from what is live"
+msgstr "ライブの内容に合わせてシーンを自動で選ぶ"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Presentations:"
+msgstr "プレゼンテーション:"
+
+#: ui/dialogs/settings-stream.slint
+msgid "The audience screen with the camera in a corner"
+msgstr "会場画面（隅にカメラ）"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Scene layout"
+msgstr "シーンの配置"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Where the camera goes when it is in a corner of the audience screen, and where the words go over the camera."
+msgstr "会場画面の隅にカメラを置くときの位置と、カメラに重ねる歌詞の位置です。"
+
+#: ui/dialogs/settings-stream.slint src/strings/themes.rs src/theme/richtext.rs
+msgid "Small"
+msgstr "小"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Medium"
+msgstr "中"
+
+#: ui/dialogs/settings-stream.slint src/strings/themes.rs src/theme/richtext.rs
+msgid "Large"
+msgstr "大"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Words over the camera:"
+msgstr "カメラに重ねる歌詞:"
+
+#: ui/dialogs/settings-stream.slint
+msgid "At the bottom"
+msgstr "下"
+
+#: ui/dialogs/settings-stream.slint
+msgid "At the top"
+msgstr "上"
+
+#: ui/dialogs/settings-stream.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings_find.rs
+msgid "Your scenes"
+msgstr "自分のシーン"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Make scenes of your own from cameras, the audience screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgstr "カメラ、会場画面、歌詞、画像、色、テキストを組み合わせて、自分のシーンを作れます。配信中は内蔵のシーンの後に並びます。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Your scenes…"
+msgstr "自分のシーン…"
+
+#: ui/dialogs/settings-stream.slint
+msgid "None yet"
+msgstr "まだありません"
+
+#: ui/dialogs/settings-stream.slint
+msgid "1 scene"
+msgstr "1 シーン"
+
+#: ui/dialogs/settings-stream.slint
+msgid "{} scenes"
+msgstr "{} シーン"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Cards"
+msgstr "カード"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Starting soon shows before the service, with the countdown under the words while it runs; Ending after the last item; Hold for a break, chosen with the scene button."
+msgstr "「まもなく始まります」は礼拝の前に出て、カウントダウン中はその下に残り時間が出ます。「終わり」は最後の項目のあと、「一時停止」は休憩用で、シーンボタンで選びます。"
+
+#: ui/dialogs/settings-stream.slint src/stream/pictures.rs src/stream/scene.rs
+msgid "Starting soon"
+msgstr "まもなく始まります"
+
+#: ui/dialogs/settings-stream.slint src/stream/scene.rs src/strings/song.rs
+msgid "Ending"
+msgstr "エンディング"
+
+#: ui/dialogs/settings-stream.slint src/stream/pictures.rs
+msgid "Thanks for joining us"
+msgstr "ご参加ありがとうございました"
+
+#: ui/dialogs/settings-stream.slint ui/operator/follow.slint src/i18n/remote_strings.rs src/stream/scene.rs
+msgid "Hold"
+msgstr "一時停止"
+
+#: ui/dialogs/settings-stream.slint src/stream/pictures.rs
+msgid "We'll be right back"
+msgstr "まもなく再開します"
+
+#: ui/dialogs/settings-stream.slint
+msgid "File → Start recording (or the Record button at the top) saves what the audience screen shows as an MP4 video."
+msgstr "「ファイル → 録画を開始」（または上部の「録画」ボタン）で、会場画面の表示内容を MP4 動画として保存します。"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Save recordings in"
+msgstr "録画の保存先"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Choose folder…"
+msgstr "フォルダーを選択…"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Picture size: Settings → Livestream → Picture and quality"
+msgstr "画像サイズ: 設定 → ライブ配信 → 画像と品質"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sound: Settings → Livestream → Sound"
+msgstr "サウンド: 設定 → ライブ配信 → サウンド"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "File type and name"
+msgstr "ファイルの種類と名前"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "{{date}} becomes the day, {{time}} the time it started, {{title}} the service's name."
+msgstr "{{date}}は日付、{{time}}は開始時刻、{{title}}は礼拝の名前になります。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "File type"
+msgstr "ファイル形式"
+
+#: ui/dialogs/settings-stream.slint
+msgid "MP4 (plays everywhere)"
+msgstr "MP4（どこでも再生できます）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "MKV (as written; nothing to wait for at the end)"
+msgstr "MKV（書き込みながら保存。終了時の待ち時間なし）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Recording file name"
+msgstr "録画のファイル名"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Recording {{date}} {{time}}"
+msgstr "録画 {{date}} {{time}}"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Now: {}"
+msgstr "今の名前: {}"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Long recordings"
+msgstr "長い録画"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Cut long recordings"
+msgstr "長い録画を分割"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Every 30 minutes"
+msgstr "30分ごと"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Every hour"
+msgstr "1時間ごと"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Every 2 hours"
+msgstr "2時間ごと"
+
+#: ui/dialogs/settings-stream.slint
+msgid "At 2 GB"
+msgstr "2 GB ごと"
+
+#: ui/dialogs/settings-stream.slint
+msgid "At 4 GB (old USB sticks)"
+msgstr "4 GB ごと（古い USB メモリー用）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "At 8 GB"
+msgstr "8 GB ごと"
+
+#: ui/dialogs/settings-stream.slint
+msgid "“Save last” button keeps"
+msgstr "「直前を保存」ボタンの長さ"
+
+#: ui/dialogs/settings-stream.slint
+msgid "No button"
+msgstr "ボタンなし"
+
+#: ui/dialogs/settings-stream.slint
+msgid "2 minutes"
+msgstr "2分"
+
+#: ui/dialogs/settings-stream.slint
+msgid "5 minutes"
+msgstr "5分"
+
+#: ui/dialogs/settings-stream.slint
+msgid "10 minutes"
+msgstr "10分"
+
+#: ui/dialogs/settings-stream.slint
+msgid "15 minutes"
+msgstr "15分"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Extra recordings"
+msgstr "追加の録画"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "While you are live, a second video is saved next to the recording, its name ending in words.mov: only the words, with nothing behind them. When you edit the service video, put it on top to add the words. It stays small because the words seldom change."
+msgstr "配信中は、録画の横にもう1本の動画が保存されます。名前の末尾は words.mov で、歌詞だけが入り、後ろには何もありません。礼拝の動画を編集するときに一番上に重ねると、歌詞が入ります。歌詞はあまり変わらないので、ファイルは小さく済みます。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "While live, also record the stream without the words (for editing)"
+msgstr "配信中、歌詞のない配信も録画する（編集用）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Also record the words alone, on a see-through background (for video editing)"
+msgstr "歌詞だけも透明な背景で録画する（動画編集用）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
+msgstr "録画では各音声を別トラックにも保存し、後でバランスを調整できるようにする"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Live captions"
+msgstr "ライブ字幕"
+
+#: ui/dialogs/settings-stream.slint src/stream/captions.rs src/ui/dialogs/settings_find.rs
+msgid "Captions are made on this computer from the microphone, in English only. They are often wrong: names, Bible places, quiet or echoing speech and songs come out badly, and there is no punctuation. They show about two seconds after the words are said."
+msgstr "字幕はこのコンピューターでマイクの音から作られ、英語のみです。間違いが多く、人名、聖書の地名、小さい声や響く声、歌はうまく出ず、句読点もありません。話してから約2秒後に表示されます。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Write out what is said while live"
+msgstr "配信中に話した内容を文字にする"
+
+#: ui/dialogs/settings-stream.slint src/stream/captions.rs
+msgid "Live captions need the English speech model. Download the fast model in Settings → Auto-follow → Speech model."
+msgstr "ライブ字幕には英語の音声モデルが必要です。「設定 → 自動追従 → 音声モデル」で高速モデルをダウンロードしてください。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Settings → Auto-follow → Speech model"
+msgstr "設定 → 自動追従 → 音声モデル"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Show them at the bottom of the stream (not over song words or verses)"
+msgstr "配信の下部に表示する（歌詞や聖句には重ねません）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Keep them in a captions file beside the recording (for YouTube's replay and video players)"
+msgstr "録画の横に字幕ファイルとして保存する（YouTube のアーカイブや動画プレーヤー用）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Listen to:"
+msgstr "聞き取る音声:"
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube captions address"
+msgstr "YouTube 字幕のアドレス"
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube's captions address (optional)"
+msgstr "YouTube の字幕アドレス（任意）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "For captions viewers can turn on and off on YouTube: in YouTube Studio, open the stream's settings, turn on Closed captions, choose \"POST captions to URL\", and paste the address it gives here."
+msgstr "視聴者が YouTube でオン・オフできる字幕にするには、YouTube Studio で配信の設定を開き、字幕（Closed captions）をオンにして「POST captions to URL」を選び、表示されたアドレスをここに貼り付けてください。"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "On your website"
+msgstr "教会のウェブサイトで"
+
+#: ui/dialogs/settings-stream.slint src/stream/website.rs src/ui/dialogs/settings_find.rs
+msgid "To play the livestream on your church's website: copy the code, then in your website's editor add an \"HTML\", \"Embed\" or \"Code\" block where the video should go and paste it there. You do this once: the same code plays every week's service."
+msgstr "教会のウェブサイトでライブ配信を流すには、コードをコピーし、ウェブサイトの編集画面で動画を置きたい場所に「HTML」「埋め込み（Embed）」「コード（Code）」のブロックを追加して貼り付けてください。これは一度だけで済みます。同じコードで毎週の礼拝が流れます。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube channel id"
+msgstr "YouTube チャンネル ID"
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube channel id (starts with UC)"
+msgstr "YouTube チャンネル ID（UC で始まります）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Fill in"
+msgstr "自動入力"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Fill in the channel of the YouTube account signed in above"
+msgstr "上でサインインした YouTube アカウントのチャンネルを入力"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Copy the code"
+msgstr "コードをコピー"
+
+#: ui/dialogs/settings-stream.slint src/stream/website.rs
+msgid "YouTube plays whatever your channel has live; between services it shows the next scheduled stream or says nothing is live. YouTube Studio must allow embedding (it does unless it was turned off)."
+msgstr "YouTube はチャンネルでライブ中のものを流します。礼拝と礼拝の間は、次の予定された配信を表示するか、ライブ中のものがないと表示します。YouTube Studio で埋め込みが許可されている必要があります（オフにしていなければ許可されています）。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Facebook Page"
+msgstr "Facebook ページ"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Facebook Page address"
+msgstr "Facebook ページのアドレス"
+
+#: ui/dialogs/settings-stream.slint src/stream/website.rs
+msgid "Facebook shows your Page with its posts; while you are live the live video is at the top. The Page must be public."
+msgstr "Facebook はページを投稿と一緒に表示します。ライブ中はライブ動画が一番上に出ます。ページは公開されている必要があります。"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "NDI"
+msgstr "NDI"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras."
+msgstr "配信中、このネットワーク上のほかのコンピューターやソフト（OBS、vMix、映像スイッチャー）がこれらを受け取れます。NDIカメラはカメラの一覧に出ます。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."
+msgstr "NDIを使うには、このコンピューターにndi.videoの無料のNDI Toolsが必要です。インストールしてから、設定を開き直してください。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Send the stream over NDI too (picture and sound)"
+msgstr "配信をNDIでも送る（映像と音声）"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Send the words alone over NDI, on a see-through background (for keying)"
+msgstr "歌詞だけを透明な背景でNDIに送る（キー合成用）"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Saved setups"
+msgstr "設定セット"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Keep everything set for the livestream (destinations, cameras, sound, scenes and these settings) under a name, and use it again in one go. Stream keys stay as they are."
+msgstr "ライブ配信の設定（配信先、カメラ、音声、シーン、ここの設定）をすべて名前を付けて保存し、一度に呼び出せます。ストリームキーはそのままです。"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Save as a setup…"
+msgstr "設定セットとして保存…"
+
+#: ui/dialogs/settings-stream.slint
+msgid "No setups saved yet."
+msgstr "保存した設定セットはまだありません。"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Church default"
@@ -3436,6 +3924,10 @@ msgid "Semibold"
 msgstr "やや太字"
 
 #: ui/dialogs/settings-themes.slint
+msgid "(biggest)"
+msgstr "（最大）"
+
+#: ui/dialogs/settings-themes.slint
 msgid "Align"
 msgstr "配置"
 
@@ -3491,241 +3983,21 @@ msgstr "暗くする"
 msgid "Makes text easier to read"
 msgstr "文字を読みやすくします"
 
-#: ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
-msgid "Lines per slide"
-msgstr "スライドごとの行数"
+#: ui/dialogs/settings.slint ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
+msgid "Settings"
+msgstr "設定"
 
 #: ui/dialogs/settings.slint
-msgid "Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage."
-msgstr "曲と聖書箇所。クレジット表示が必要な聖書もあります。聖書箇所ごとに1回表示されます。"
+msgid "Find a setting"
+msgstr "設定を探す"
 
 #: ui/dialogs/settings.slint
-msgid "Show the copyright line"
-msgstr "著作権表示を表示"
+msgid "No setting has those words."
+msgstr "その言葉を含む設定はありません。"
 
 #: ui/dialogs/settings.slint
-msgid "On first and last slide"
-msgstr "最初と最後のスライド"
-
-#: ui/dialogs/settings.slint
-msgid "On first slide"
-msgstr "最初のスライド"
-
-#: ui/dialogs/settings.slint
-msgid "On last slide"
-msgstr "最後のスライド"
-
-#: ui/dialogs/settings.slint
-msgid "Copyright line"
-msgstr "著作権表示"
-
-#: ui/dialogs/settings.slint
-msgid "Use {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}} and {{license}}. Parts between · with nothing in them are left out. Empty: the usual line."
-msgstr "{{title}}、{{artist}}、{{author}}、{{publisher}}、{{year}}、{{copyright}}、{{ccli}}、{{license}} が使えます。· で区切られた部分のうち中身が空のものは省略されます。空欄の場合は通常の表示になります。"
-
-#: ui/dialogs/settings.slint
-msgid "Church CCLI licence #"
-msgstr "教会の CCLI ライセンス番号"
-
-#: ui/dialogs/settings.slint
-msgid "Section keys (C, B, 1–9…)"
-msgstr "セクションキー (C、B、1–9…)"
-
-#: ui/dialogs/settings.slint
-msgid "Turn off if letters typed by mistake move the screen."
-msgstr "誤って入力した文字で画面が変わる場合はオフにしてください。"
-
-#: ui/dialogs/settings.slint
-msgid "Letters and numbers jump the live song to a section"
-msgstr "文字や数字でライブ中の曲のセクションへ移動"
-
-#: ui/dialogs/settings.slint
-msgid "Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted."
-msgstr "ウェブブラウザで SongSelect からダウンロードした曲は、自動で曲ライブラリに入ります。読むのは SongSelect の曲ファイルだけで、ダウンロード フォルダーの中は移動も削除もしません。"
-
-#: ui/dialogs/settings.slint
-msgid "Bring in SongSelect downloads whenever RustyPresenter is open"
-msgstr "RustyPresenter が開いている間はいつでも SongSelect のダウンロードを取り込む"
-
-#: ui/dialogs/settings.slint ui/operator.slint
-msgid "Songs from SongSelect…"
-msgstr "SongSelect の曲…"
-
-#: ui/dialogs/settings.slint ui/operator.slint
-msgid "Song use report…"
-msgstr "曲の使用レポート…"
-
-#: ui/dialogs/settings.slint
-msgid "General"
-msgstr "一般"
-
-#: ui/dialogs/settings.slint
-msgid "Sections and labels"
-msgstr "セクションとラベル"
-
-#: ui/dialogs/settings.slint
-msgid "Video and graphics"
-msgstr "動画とグラフィックス"
-
-#: ui/dialogs/settings.slint
-msgid "Sound goes to"
-msgstr "音声の出力先"
-
-#: ui/dialogs/settings.slint
-msgid "Graphics"
-msgstr "グラフィックス"
-
-#: ui/dialogs/settings.slint
-msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
-msgstr "画面がちらつく、黒いままになる、または RustyPresenter がクラッシュする場合のみ変更してください。次回起動時から反映されます。"
-
-#: ui/dialogs/settings.slint src/video/bench.rs
-msgid "Test which is fastest"
-msgstr "最速をテスト"
-
-#: ui/dialogs/settings.slint
-msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
-msgstr "約1分。実行中はテスト用のウィンドウが開いたり閉じたりします。何も映していなければプロジェクターにも出ます。"
-
-#: ui/dialogs/settings.slint
-msgid "Use this"
-msgstr "これを使う"
-
-#: ui/dialogs/settings.slint
-msgid "Restart now"
-msgstr "今すぐ再起動"
-
-#: ui/dialogs/settings.slint
-msgid "Performance"
-msgstr "パフォーマンス"
-
-#: ui/dialogs/settings.slint
-msgid "Shows under the live preview how many frames a second the screens draw, and the free video memory when the graphics card says. Low numbers mean the computer is struggling."
-msgstr "ライブプレビューの下に、画面の 1 秒あたりの描画フレーム数と、グラフィックカードが報告する場合は空きビデオメモリを表示します。数値が低い場合はコンピューターの負荷が高いことを示します。"
-
-#: ui/dialogs/settings.slint ui/operator.slint
-msgid "Show performance"
-msgstr "パフォーマンスを表示"
-
-#: ui/dialogs/settings.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
-msgid "Screens"
-msgstr "画面"
-
-#: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs src/strings/screens.rs
-msgid "Audience screen"
-msgstr "会場画面"
-
-#: ui/dialogs/settings.slint
-msgid "Keep the audience screen in front when it has its own monitor (smoother fades)"
-msgstr "会場画面に専用モニターがある場合は前面に保つ（フェードがなめらかに）"
-
-#: ui/dialogs/settings.slint
-msgid "At start"
-msgstr "起動時"
-
-#: ui/dialogs/settings.slint
-msgid "Turn the screens on when RustyPresenter starts"
-msgstr "RustyPresenter の起動時に画面をオンにする"
-
-#: ui/dialogs/settings.slint src/strings/stage.rs
-msgid "Stage layout"
-msgstr "ステージレイアウト"
-
-#: ui/dialogs/settings.slint
-msgid "What the stage screen shows. Window → Stage layouts… makes your own."
-msgstr "ステージ画面に表示する内容。「ウィンドウ → ステージレイアウト…」で独自のものを作れます。"
-
-#: ui/dialogs/settings.slint src/ui/dialogs/settings_keys.rs
-msgid "Phone drawing"
-msgstr "スマホからの書き込み"
-
-#: ui/dialogs/settings.slint
-msgid "Drawing from a phone"
-msgstr "スマホからの書き込み"
-
-#: ui/dialogs/settings.slint
-msgid "Keep drawings when the slide changes"
-msgstr "スライドが変わっても書き込みを残す"
-
-#: ui/dialogs/settings.slint
-msgid "Show drawings on the stage screen"
-msgstr "書き込みをステージ画面に表示"
-
-#: ui/dialogs/settings.slint
-msgid "Fading ink disappears after (seconds, 1–30)"
-msgstr "消えるインクが消えるまでの時間（秒、1～30）"
-
-#: ui/dialogs/settings.slint
-msgid "On the phone, “Fades” ink works like a laser pointer: it goes away by itself."
-msgstr "スマホの「消える」インクはレーザーポインターのように使えます。自動で消えます。"
-
-#: ui/dialogs/settings.slint
-msgid "Limits"
-msgstr "制限"
-
-#: ui/dialogs/settings.slint
-msgid "Limit phone drawing"
-msgstr "スマホからの書き込みを制限"
-
-#: ui/dialogs/settings.slint
-msgid "Most lines on the screen at once"
-msgstr "画面上の最大線数"
-
-#: ui/dialogs/settings.slint
-msgid "Most drawing updates a second from one phone"
-msgstr "1 台のスマホからの 1 秒あたりの最大描画更新数"
-
-#: ui/dialogs/settings.slint
-msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
-msgstr "RustyPresenter の起動時と1日1回、完全なバックアップ（曲、礼拝、設定、すべての動画・画像・スライド）が作成されます。最新の10件が保存される場所:"
-
-#: ui/dialogs/settings.slint
-msgid "Back up now"
-msgstr "今すぐバックアップ"
-
-#: ui/dialogs/settings.slint
-msgid "Restore"
-msgstr "復元"
-
-#: ui/dialogs/settings.slint
-msgid "No backups yet."
-msgstr "バックアップはまだありません。"
-
-#: ui/dialogs/settings.slint
-msgid "Look"
-msgstr "外観"
-
-#: ui/dialogs/settings.slint src/automation/slide_actions.rs src/ui/operator/transfer.rs
-msgid "Themes"
-msgstr "テーマ"
-
-#: ui/dialogs/settings.slint
-msgid "Language"
-msgstr "言語"
-
-#: ui/dialogs/settings.slint
-msgid "Auto-follow"
-msgstr "自動追従"
-
-#: ui/dialogs/settings.slint src/stream/own_scenes.rs src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/ui/operator/file_input.rs
-msgid "Video"
-msgstr "動画"
-
-#: ui/dialogs/settings.slint ui/operator/live.slint src/i18n/remote_strings.rs src/print/html.rs src/strings/planning.rs
-msgid "Media"
-msgstr "メディア"
-
-#: ui/dialogs/settings.slint
-msgid "Backups"
-msgstr "バックアップ"
-
-#: ui/dialogs/settings.slint ui/operator.slint
-msgid "Help"
-msgstr "ヘルプ"
-
-#: ui/dialogs/settings.slint
-msgid "About"
-msgstr "情報"
+msgid "Show advanced settings"
+msgstr "詳細設定を表示"
 
 #: ui/dialogs/settings.slint
 msgid "Save theme"
@@ -4042,262 +4314,6 @@ msgstr "ステージレイアウトを選択"
 #: ui/dialogs/stage-layouts.slint
 msgid "Edit stage layouts…"
 msgstr "ステージレイアウトを編集…"
-
-#: ui/dialogs/stream-more.slint
-msgid "Saved setups"
-msgstr "設定セット"
-
-#: ui/dialogs/stream-more.slint
-msgid "Keep everything set for the livestream (destinations, cameras, sound, scenes and these settings) under a name, and use it again in one go. Stream keys stay as they are."
-msgstr "ライブ配信の設定（配信先、カメラ、音声、シーン、ここの設定）をすべて名前を付けて保存し、一度に呼び出せます。ストリームキーはそのままです。"
-
-#: ui/dialogs/stream-more.slint
-msgid "Save as a setup…"
-msgstr "設定セットとして保存…"
-
-#: ui/dialogs/stream-more.slint
-msgid "No setups saved yet."
-msgstr "保存した設定セットはまだありません。"
-
-#: ui/dialogs/stream-more.slint
-msgid "Pictures a second"
-msgstr "1秒あたりのコマ数"
-
-#: ui/dialogs/stream-more.slint
-msgid "30 (usual)"
-msgstr "30（標準）"
-
-#: ui/dialogs/stream-more.slint
-msgid "Video format"
-msgstr "映像の形式"
-
-#: ui/dialogs/stream-more.slint
-msgid "H.264 (plays everywhere)"
-msgstr "H.264（どこでも再生できます）"
-
-#: ui/dialogs/stream-more.slint
-msgid "Bitrate kept"
-msgstr "ビットレートの方式"
-
-#: ui/dialogs/stream-more.slint
-msgid "Always the same (CBR)"
-msgstr "常に一定（CBR）"
-
-#: ui/dialogs/stream-more.slint
-msgid "Varies with the picture (VBR)"
-msgstr "映像に合わせて変える（VBR）"
-
-#: ui/dialogs/stream-more.slint
-msgid "HEVC and AV1 give a sharper picture for the same upload. HEVC is used when every destination that is on takes it (YouTube and your own server do); otherwise H.264. AV1 is for recordings only: while live, H.264 is used. Both need a newer computer or graphics card."
-msgstr "HEVC と AV1 は同じアップロード量でより鮮明な映像になります。オンになっているすべての配信先が対応している場合は HEVC を使います（YouTube と独自のサーバーは対応しています）。それ以外は H.264 です。AV1 は録画専用で、配信中は H.264 を使います。どちらも新しめのコンピューターかグラフィックスカードが必要です。"
-
-#: ui/dialogs/stream-more.slint
-msgid "A whole picture every"
-msgstr "完全な1枚を送る間隔"
-
-#: ui/dialogs/stream-more.slint
-msgid "1 second"
-msgstr "1秒"
-
-#: ui/dialogs/stream-more.slint
-msgid "2 seconds (usual)"
-msgstr "2秒（標準）"
-
-#: ui/dialogs/stream-more.slint
-msgid "3 seconds"
-msgstr "3秒"
-
-#: ui/dialogs/stream-more.slint
-msgid "4 seconds"
-msgstr "4秒"
-
-#: ui/dialogs/stream-more.slint
-msgid "Encoder speed"
-msgstr "エンコードの速さ"
-
-#: ui/dialogs/stream-more.slint
-msgid "Fastest (least work)"
-msgstr "最速（負担が最も少ない）"
-
-#: ui/dialogs/stream-more.slint
-msgid "Fast"
-msgstr "速い"
-
-#: ui/dialogs/stream-more.slint
-msgid "Balanced"
-msgstr "バランス"
-
-#: ui/dialogs/stream-more.slint
-msgid "Best picture (most work)"
-msgstr "最高画質（負担が最も多い）"
-
-#: ui/dialogs/stream-more.slint
-msgid "Profile"
-msgstr "プロファイル"
-
-#: ui/dialogs/stream-more.slint
-msgid "B-frames"
-msgstr "B フレーム"
-
-#: ui/dialogs/stream-more.slint
-msgid "Leave these on Automatic unless a service or a video editor asks for something else. Faster leaves more of the computer free; Baseline is only for very old players."
-msgstr "配信サービスや動画編集者から別の指定がない限り、これらは「自動」のままにしてください。速いほどコンピューターに余裕が残ります。Baseline はとても古いプレーヤー専用です。"
-
-#: ui/dialogs/stream-more.slint
-msgid "Sample rate"
-msgstr "サンプリングレート"
-
-#: ui/dialogs/stream-more.slint
-msgid "As it comes (usual)"
-msgstr "入力のまま（標準）"
-
-#: ui/dialogs/stream-more.slint
-msgid "Sound bitrate"
-msgstr "音声のビットレート"
-
-#: ui/dialogs/stream-more.slint
-msgid "160 kbit/s (usual)"
-msgstr "160 kbit/s（標準）"
-
-#: ui/dialogs/stream-more.slint
-msgid "Channels"
-msgstr "チャンネル"
-
-#: ui/dialogs/stream-more.slint
-msgid "Stereo"
-msgstr "ステレオ"
-
-#: ui/dialogs/stream-more.slint
-msgid "Mono"
-msgstr "モノラル"
-
-#: ui/dialogs/stream-more.slint src/ui/dialogs/network.rs
-msgid "Network"
-msgstr "ネットワーク"
-
-#: ui/dialogs/stream-more.slint
-msgid "Send the stream from"
-msgstr "配信を送るネットワーク"
-
-#: ui/dialogs/stream-more.slint
-msgid "Safer send (SRT servers)"
-msgstr "安全な送信（SRT サーバー）"
-
-#: ui/dialogs/stream-more.slint
-msgid "Off (SRT's own)"
-msgstr "オフ（SRT の標準）"
-
-#: ui/dialogs/stream-more.slint
-msgid "Half a second"
-msgstr "0.5秒"
-
-#: ui/dialogs/stream-more.slint
-msgid "2 seconds"
-msgstr "2秒"
-
-#: ui/dialogs/stream-more.slint
-msgid "Send from a wired network card to keep the stream off busy Wi-Fi (YouTube, Facebook, Twitch and other RTMP servers; an SRT server is reached however the computer chooses). Safer send gives an SRT server time to ask again for what got lost on a poor line; the picture arrives that much later."
-msgstr "混雑した Wi-Fi を避けるため、有線のネットワークカードから配信を送ります（YouTube、Facebook、Twitch などの RTMP サーバー。SRT サーバーにはコンピューターが選んだ経路でつながります）。「安全な送信」では、回線が悪くて失われた分を SRT サーバーがもう一度要求する時間を取ります。その分だけ映像が遅れて届きます。"
-
-#: ui/dialogs/stream-more.slint
-msgid "Each destination's quality"
-msgstr "配信先ごとの画質"
-
-#: ui/dialogs/stream-more.slint
-msgid "A destination can get a smaller picture or a lower bitrate than the main stream (a phone app, a slow server). Each one that differs costs the computer a second encode."
-msgstr "配信先によっては、メインの配信より小さい映像や低いビットレートにできます（スマホアプリ、遅いサーバーなど）。異なる設定の配信先が1つあるごとに、コンピューターはもう1回エンコードします。"
-
-#: ui/dialogs/stream-more.slint
-msgid "Size: the main stream's"
-msgstr "サイズ: メインの配信と同じ"
-
-#: ui/dialogs/stream-more.slint
-msgid "Bitrate: the main stream's"
-msgstr "ビットレート: メインの配信と同じ"
-
-#: ui/dialogs/stream-more.slint
-msgid "File type"
-msgstr "ファイル形式"
-
-#: ui/dialogs/stream-more.slint
-msgid "MP4 (plays everywhere)"
-msgstr "MP4（どこでも再生できます）"
-
-#: ui/dialogs/stream-more.slint
-msgid "MKV (as written; nothing to wait for at the end)"
-msgstr "MKV（書き込みながら保存。終了時の待ち時間なし）"
-
-#: ui/dialogs/stream-more.slint
-msgid "Cut long recordings"
-msgstr "長い録画を分割"
-
-#: ui/dialogs/stream-more.slint
-msgid "Every 30 minutes"
-msgstr "30分ごと"
-
-#: ui/dialogs/stream-more.slint
-msgid "Every hour"
-msgstr "1時間ごと"
-
-#: ui/dialogs/stream-more.slint
-msgid "Every 2 hours"
-msgstr "2時間ごと"
-
-#: ui/dialogs/stream-more.slint
-msgid "At 2 GB"
-msgstr "2 GB ごと"
-
-#: ui/dialogs/stream-more.slint
-msgid "At 4 GB (old USB sticks)"
-msgstr "4 GB ごと（古い USB メモリー用）"
-
-#: ui/dialogs/stream-more.slint
-msgid "At 8 GB"
-msgstr "8 GB ごと"
-
-#: ui/dialogs/stream-more.slint
-msgid "“Save last” button keeps"
-msgstr "「直前を保存」ボタンの長さ"
-
-#: ui/dialogs/stream-more.slint
-msgid "No button"
-msgstr "ボタンなし"
-
-#: ui/dialogs/stream-more.slint
-msgid "2 minutes"
-msgstr "2分"
-
-#: ui/dialogs/stream-more.slint
-msgid "5 minutes"
-msgstr "5分"
-
-#: ui/dialogs/stream-more.slint
-msgid "10 minutes"
-msgstr "10分"
-
-#: ui/dialogs/stream-more.slint
-msgid "15 minutes"
-msgstr "15分"
-
-#: ui/dialogs/stream-more.slint
-msgid "File name"
-msgstr "ファイル名"
-
-#: ui/dialogs/stream-more.slint
-msgid "Recording file name"
-msgstr "録画のファイル名"
-
-#: ui/dialogs/stream-more.slint
-msgid "Recording {{date}} {{time}}"
-msgstr "録画 {{date}} {{time}}"
-
-#: ui/dialogs/stream-more.slint
-msgid "{{date}} becomes the day, {{time}} the time it started, {{title}} the service's name. Now: {}"
-msgstr "{{date}} は日付、{{time}} は開始時刻、{{title}} は礼拝の名前になります。現在: {}"
-
-#: ui/dialogs/stream-more.slint
-msgid "While live, also record the stream without the words (for editing)"
-msgstr "配信中、歌詞のない配信も録画する（編集用）"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, videos, colours, text or a clock in it."
@@ -5023,6 +5039,10 @@ msgstr "戻る（← または Page Up）"
 msgid "Next (→, Space or Page Down)"
 msgstr "次へ（→、Space、または Page Down）"
 
+#: ui/operator/live.slint src/i18n/remote_strings.rs src/print/html.rs src/strings/planning.rs
+msgid "Media"
+msgstr "メディア"
+
 #: ui/operator/live.slint ui/operator/media.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/print.rs src/ui/dialogs/settings_keys.rs
 msgid "Audio"
 msgstr "音声"
@@ -5118,6 +5138,10 @@ msgstr "会場画面はオフです"
 #: ui/operator/monitor.slint
 msgid "Stage screen is off"
 msgstr "ステージ画面はオフです"
+
+#: ui/operator/outputs.slint src/stream/own_scenes.rs src/strings/screens.rs
+msgid "Audience screen"
+msgstr "会場画面"
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "Changed — turn it off and on to update."
@@ -5359,6 +5383,10 @@ msgstr "聖書ボックスに「John 3:16」のように聖句を入力して En
 msgid "Use the big Next button (or the → key) during the service."
 msgstr "礼拝中は大きな「次へ」ボタン（または → キー）を使います。"
 
+#: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
+msgid "Screens"
+msgstr "画面"
+
 #: ui/operator/slides.slint ui/operator.slint
 msgid "Nothing selected"
 msgstr "何も選択されていません"
@@ -5496,8 +5524,8 @@ msgid "Stage"
 msgstr "ステージ"
 
 #: ui/operator/topbar.slint
-msgid "Phone remotes connected"
-msgstr "接続中のスマホリモコン"
+msgid "Remotes connected"
+msgstr "つながっているリモコン"
 
 #: ui/operator/topbar.slint
 msgid "Show a message on the stage screen"
@@ -5772,10 +5800,6 @@ msgid "Window"
 msgstr "ウィンドウ"
 
 #: ui/operator.slint
-msgid "Screens…"
-msgstr "画面…"
-
-#: ui/operator.slint
 msgid "Close the room window"
 msgstr "会場ウィンドウを閉じる"
 
@@ -5784,8 +5808,8 @@ msgid "Audience screen in a window"
 msgstr "会場画面をウィンドウで表示"
 
 #: ui/operator.slint
-msgid "Phone remote…"
-msgstr "スマホリモコン…"
+msgid "Remote…"
+msgstr "リモコン…"
 
 #: ui/operator.slint
 msgid "Stage message…"
@@ -5802,10 +5826,6 @@ msgstr "次のスライドクリック: ステージのみ"
 #: ui/operator.slint
 msgid "Take the stage-only slide down"
 msgstr "ステージ専用スライドを取り下げる"
-
-#: ui/operator.slint
-msgid "Stage layouts…"
-msgstr "ステージレイアウト…"
 
 #: ui/operator.slint
 msgid "Automation…"
@@ -5840,8 +5860,8 @@ msgid "Themes and backgrounds…"
 msgstr "テーマと背景…"
 
 #: ui/operator.slint
-msgid "Network…"
-msgstr "ネットワーク…"
+msgid "Remote and network…"
+msgstr "リモコンとネットワーク…"
 
 #: ui/operator.slint
 msgid "Songs…"
@@ -5874,10 +5894,6 @@ msgstr "キーとクリアグループ…"
 #: ui/operator.slint
 msgid "Translations…"
 msgstr "翻訳…"
-
-#: ui/operator.slint
-msgid "Keyboard shortcuts"
-msgstr "キーボードショートカット"
 
 #: ui/operator.slint
 msgid "Check the service"
@@ -6134,6 +6150,10 @@ msgstr "スライド {n}"
 #: src/automation/slide_actions.rs src/strings/operator.rs
 msgid "Clear"
 msgstr "クリア"
+
+#: src/automation/slide_actions.rs src/ui/operator/transfer.rs
+msgid "Themes"
+msgstr "テーマ"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Hide the message"
@@ -6408,8 +6428,8 @@ msgid "Paste the verse text first."
 msgstr "先に聖句のテキストを貼り付けてください。"
 
 #: src/follow/audio.rs
-msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Media → Recording."
-msgstr "自動追従で会場の音を聞くには FFmpeg が必要です。「設定 → メディア → 録画」でダウンロードしてください。"
+msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Livestream → Recording."
+msgstr "自動追従で会場の音を聞くにはFFmpegが必要です。「設定 → ライブ配信 → 録画」でダウンロードしてください。"
 
 #: src/follow/audio.rs
 msgid "FFmpeg stopped"
@@ -6544,8 +6564,12 @@ msgid "The translation file {file} could not be read ({reason}), so it is not us
 msgstr "翻訳ファイル {file} を読み込めなかったため（{reason}）、使用されません。"
 
 #: src/i18n/remote_strings.rs
-msgid "Phone remote — RustyPresenter"
-msgstr "スマホリモコン — RustyPresenter"
+msgid "Remote — RustyPresenter"
+msgstr "リモコン — RustyPresenter"
+
+#: src/i18n/remote_strings.rs src/strings/dialogs.rs src/ui/dialogs/settings_find.rs
+msgid "Remote"
+msgstr "リモコン"
 
 #: src/i18n/remote_strings.rs
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
@@ -6639,8 +6663,8 @@ msgid "The screen changed just now — tap the slide again."
 msgstr "ちょうど画面が変わりました — もう一度スライドをタップしてください。"
 
 #: src/i18n/remote_strings.rs src/server.rs
-msgid "That QR code has expired. On the computer, click Pair a phone again."
-msgstr "その QR コードは期限切れです。コンピューターでもう一度「スマホをペアリング」をクリックしてください。"
+msgid "That QR code has expired. On the computer, click Pair a phone or tablet again."
+msgstr "そのQRコードは期限切れです。コンピューターで「スマホやタブレットをつなぐ」をもう一度押してください。"
 
 #: src/i18n/remote_strings.rs
 msgid "Could not connect."
@@ -6711,8 +6735,8 @@ msgid "Password"
 msgstr "パスワード"
 
 #: src/i18n/remote_strings.rs
-msgid "This phone remote needs a password too."
-msgstr "このスマホリモコンにもパスワードが必要です。"
+msgid "This remote needs a password too."
+msgstr "このリモコンにもパスワードが必要です。"
 
 #: src/i18n/remote_strings.rs
 msgid "This stage screen needs a password."
@@ -7126,8 +7150,8 @@ msgid "{n} KB"
 msgstr "{n} KB"
 
 #: src/media_care.rs
-msgid "Choose your headphones in Settings → Media first."
-msgstr "先に「設定 → メディア」でヘッドホンを選んでください。"
+msgid "Choose your headphones in Settings → Sound first."
+msgstr "先に「設定 → サウンド」でヘッドホンを選んでください。"
 
 #: src/media_care.rs
 msgid "Took {n} file out of the media library and freed {size}."
@@ -7167,6 +7191,18 @@ msgid "Network camera {host}"
 msgstr "ネットワークカメラ {host}"
 
 #: src/record/mod.rs
+msgid "{size} at {fps} pictures a second may be more than this computer can make while live. If the stream stutters, choose a smaller size."
+msgstr "{size}・毎秒{fps}枚は、このコンピューターには配信中の負担が大きすぎるかもしれません。配信がカクつく場合は小さいサイズを選んでください。"
+
+#: src/record/mod.rs
+msgid "Graphics card encoders stop at 4096 wide for H.264, so the processor makes this size: it is slow."
+msgstr "グラフィックカードのエンコーダーはH.264では幅4096までなので、このサイズはプロセッサーで作ります。遅くなります。"
+
+#: src/record/mod.rs
+msgid "This size needs about {mbps} Mbit/s of upload for each destination. Test the upload speed before Sunday."
+msgstr "このサイズには配信先ごとに約{mbps} Mbit/sのアップロードが必要です。日曜日の前にアップロード速度をテストしてください。"
+
+#: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
 msgstr "録画には無料のプログラム FFmpeg が必要です。{hint}"
 
@@ -7199,8 +7235,8 @@ msgid "RustyPresenter stopped in the middle of a livestream. The recording up to
 msgstr "ライブ配信の途中で RustyPresenter が止まりました。それまでの録画は保存されています。もう一度配信を始めますか？"
 
 #: src/record/mod.rs
-msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or the graphics card under Video encoder, and close other programs."
-msgstr "このコンピューターが追いつかず、録画と配信がカクカクしています。「設定 → メディア」の「画像サイズ」で 720p を選ぶか、「映像エンコーダー」でグラフィックスカードを選び、ほかのプログラムを閉じてください。"
+msgid "This computer is not keeping up, so the recording and stream are jerky. Choose a smaller picture size in Settings → Livestream → Picture and quality, or the graphics card under Video encoder, and close other programs."
+msgstr "このコンピューターが追いつかず、録画と配信がカクついています。「設定 → ライブ配信 → 画像と品質」で小さい画像サイズを選ぶか、「映像エンコーダー」でグラフィックカードを選び、ほかのソフトを閉じてください。"
 
 #: src/record/mod.rs
 msgid "The computer is keeping up again: the picture is smooth."
@@ -7215,8 +7251,8 @@ msgid "Could not use the recordings folder {path}: {why}"
 msgstr "録画フォルダー {path} を使用できませんでした: {why}"
 
 #: src/record/mod.rs
-msgid "The recordings folder's disk has only {free} free. An hour of recording needs about {need}. Choose another folder in Settings → Media."
-msgstr "録画フォルダーのディスクの空き容量は {free} しかありません。1時間の録画には約 {need} 必要です。「設定 → メディア」で別のフォルダーを選んでください。"
+msgid "The recordings folder's disk has only {free} free. An hour of recording needs about {need}. Choose another folder in Settings → Livestream → Recording."
+msgstr "録画フォルダーのディスクの空きが{free}しかありません。1時間の録画には約{need}必要です。「設定 → ライブ配信 → 録画」で別のフォルダーを選んでください。"
 
 #: src/record/mod.rs
 msgid "The disk is almost full, so the recording stopped."
@@ -7359,8 +7395,8 @@ msgid "Too fast — wait a second and try again."
 msgstr "操作が速すぎます — 少し待ってから再試行してください。"
 
 #: src/server.rs
-msgid "Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."
-msgstr "ペアリングが開始されていません。コンピューターで「スマホリモコン」→「スマホをペアリング」をクリックしてください。"
+msgid "Pairing isn't open. On the computer, click “Phone” → “Pair a phone or tablet”."
+msgstr "接続の受付が開いていません。コンピューターで「スマホ」→「スマホやタブレットをつなぐ」を押してください。"
 
 #: src/server.rs
 msgid "Too many wrong codes. Start pairing again on the computer."
@@ -7576,8 +7612,8 @@ msgid "This Facebook account manages no Page. A stream can only go to a Page."
 msgstr "この Facebook アカウントが管理するページがありません。配信はページにのみ送れます。"
 
 #: src/stream/accounts/mod.rs
-msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Media → Livestream."
-msgstr "{name}: 配信を作成できませんでした ({why})。「設定 → メディア → ライブ配信」 でもう一度サインインしてください。"
+msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Livestream → Where to stream."
+msgstr "{name}: 配信を作れませんでした（{why}）。「設定 → ライブ配信 → 配信先」でもう一度ログインしてください。"
 
 #: src/stream/accounts/mod.rs
 msgid "Making the YouTube broadcast…"
@@ -7604,8 +7640,8 @@ msgid "Live captions could not start: {why}"
 msgstr "ライブ字幕を開始できませんでした: {why}"
 
 #: src/stream/captions.rs
-msgid "Live captions need a microphone or line-in: choose one under Sound in Settings → Media, or under Live captions."
-msgstr "ライブ字幕にはマイクまたはライン入力が必要です。「設定 → メディア」の「サウンド」か、「ライブ字幕」で選んでください。"
+msgid "Live captions need a microphone or line-in: choose one in Settings → Livestream → Sound, or under Live captions."
+msgstr "ライブ字幕にはマイクかライン入力が必要です。「設定 → ライブ配信 → サウンド」か「ライブ字幕」で選んでください。"
 
 #: src/stream/captions.rs
 msgid "Live captions stopped hearing the microphone ({why}). Trying again…"
@@ -7768,6 +7804,10 @@ msgid "Listening to the stream could not start: {error}"
 msgstr "配信の音を聞く機能を開始できませんでした: {error}"
 
 #: src/stream/mod.rs
+msgid "{name} takes at most {most}: it gets a smaller copy, made by this computer while live."
+msgstr "{name}は最大{most}までです。配信中にこのコンピューターが作る小さいコピーを送ります。"
+
+#: src/stream/mod.rs
 msgid "The stream ran {time}."
 msgstr "配信時間は {time} でした。"
 
@@ -7804,8 +7844,8 @@ msgid "{name}: the stream is going out."
 msgstr "{name}: 配信が送られています。"
 
 #: src/stream/mod.rs
-msgid "{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on."
-msgstr "{name} は何度試しても接続できていません。設定 → メディア → ライブ配信 のストリームキーとインターネットを確認してください。試行は続き、録画も続いています。"
+msgid "{name} has not connected after several tries. Check the stream key in Settings → Livestream → Where to stream, and the internet. Still trying; the recording goes on."
+msgstr "{name}は何度試してもつながりません。「設定 → ライブ配信 → 配信先」のストリームキーとインターネットを確認してください。試し続けています。録画は続いています。"
 
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
@@ -7816,8 +7856,8 @@ msgid "Nothing goes out over NDI: it needs the free NDI Tools from ndi.video on 
 msgstr "NDIには何も送られていません。このコンピューターにndi.videoの無料のNDI Toolsが必要です。ライブ配信はNDIなしで続きます。"
 
 #: src/stream/mod.rs
-msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
-msgstr "「配信開始」には、オンになっていてストリームキーのある配信先が必要です。「設定 → メディア → ライブ配信」で設定してください。"
+msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Livestream → Where to stream."
+msgstr "配信開始には、オンになっていてストリームキーのある配信先が必要です。「設定 → ライブ配信 → 配信先」で設定してください。"
 
 #: src/stream/mod.rs
 msgid "{name} is not streamed to: {why}"
@@ -7856,8 +7896,8 @@ msgid "The camera is back in the stream."
 msgstr "カメラが配信に戻りました。"
 
 #: src/stream/mod.rs
-msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
-msgstr "{name}: インターネットの速度が足りず、配信が飛んでいます。「設定 → メディア → 録画」で 720p を選ぶか、配信先を一つオフにしてください。"
+msgid "{name}: the internet is not fast enough, so the stream skips. Choose a smaller picture size in Settings → Livestream → Picture and quality, or switch a destination off."
+msgstr "{name}: インターネットが遅く、配信が飛んでいます。「設定 → ライブ配信 → 画像と品質」で小さい画像サイズを選ぶか、配信先を1つオフにしてください。"
 
 #: src/stream/mod.rs
 msgid "You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once."
@@ -8023,6 +8063,10 @@ msgstr "無題のシーン"
 msgid "A scene that was deleted"
 msgstr "削除されたシーン"
 
+#: src/stream/own_scenes.rs src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/ui/operator/file_input.rs
+msgid "Video"
+msgstr "動画"
+
 #: src/stream/own_scenes.rs
 msgid "The words of the song go here"
 msgstr "ここに曲の歌詞が入ります"
@@ -8060,8 +8104,8 @@ msgid "Connect this phone"
 msgstr "このスマホを接続"
 
 #: src/stream/phone_camera.rs
-msgid "On the presentation computer, click Phone remote, then Pair a phone, and type the 6-digit code here."
-msgstr "プレゼン用コンピューターで「スマホリモコン」→「スマホをペアリング」をクリックし、6桁のコードをここに入力してください。"
+msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "発表用コンピューターで「スマホ」、次に「スマホやタブレットをつなぐ」を押し、ここに6桁のコードを入力してください。"
 
 #: src/stream/phone_camera.rs
 msgid "6-digit code"
@@ -8116,12 +8160,8 @@ msgid "Not on the stream"
 msgstr "配信されていません"
 
 #: src/stream/phone_camera.rs
-msgid "On the computer, choose this phone in Settings → Media → Livestream → Camera."
-msgstr "コンピューターで「設定 → メディア → ライブ配信 → カメラ」を開き、このスマホを選んでください。"
-
-#: src/stream/phone_camera.rs
-msgid "Any phone on the church's Wi-Fi can be a camera. On the phone, open {address} and follow the steps there. The first time, the phone warns that the connection is not private: that is expected, because the page comes from this computer. Tap Advanced (or Show Details), then Proceed (or Visit this website). Then pair it with the code from Phone remote, Pair a phone. Once it sends its picture, it is listed in the camera lists above as Phone camera and its name."
-msgstr "教会の Wi-Fi に接続したスマホなら、どれでもカメラになります。スマホで {address} を開き、表示される手順に従ってください。初回は、スマホに「この接続ではプライバシーが保護されません」と警告が出ますが、ページがこのコンピューターから来ているためで、問題ありません。「詳細設定」（または「詳細を表示」）をタップし、「アクセスする」（または「この Web サイトを閲覧」）をタップしてください。次に、「スマホリモコン」「スマホをペアリング」のコードでペアリングします。映像が届くと、上のカメラ一覧に「スマホのカメラ」と名前付きで表示されます。"
+msgid "On the computer, choose this phone in Settings → Livestream → Cameras."
+msgstr "コンピューターの「設定 → ライブ配信 → カメラ」でこのスマホを選んでください。"
 
 #: src/stream/phone_camera.rs
 msgid "This computer is not on a network, so no phone can reach it."
@@ -8132,6 +8172,10 @@ msgid "Phone microphone (open its page on the phone)"
 msgstr "スマホのマイク（スマホでそのページを開いてください）"
 
 #: src/stream/phone_mic.rs
+msgid "Phone microphone"
+msgstr "スマホのマイク"
+
+#: src/stream/phone_mic.rs
 msgid "Start sending sound"
 msgstr "音声の送信を開始"
 
@@ -8140,8 +8184,8 @@ msgid "Sending to the stream. Keep this page open and the phone awake."
 msgstr "配信に送信中です。このページを開いたまま、スマホをスリープさせないでください。"
 
 #: src/stream/phone_mic.rs
-msgid "Sending, but the stream is not using this phone yet. Choose \"Phone microphone\" in Settings → Media → Livestream, then go live."
-msgstr "送信中ですが、配信はまだこのスマホを使っていません。「設定 → メディア → ライブ配信」で「スマホのマイク」を選んでから、配信を始めてください。"
+msgid "Sending, but the stream is not using this phone yet. Choose \"Phone microphone\" in Settings → Livestream → Sound, then go live."
+msgstr "送信中ですが、配信はまだこのスマホを使っていません。「設定 → ライブ配信 → サウンド」で\"スマホのマイク\"を選んでから配信を始めてください。"
 
 #: src/stream/phone_mic.rs
 msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
@@ -8152,12 +8196,12 @@ msgid "The phone did not let the page use its microphone. Allow it in the browse
 msgstr "スマホがこのページにマイクの使用を許可しませんでした。ブラウザーの設定でこのページに許可してから、もう一度お試しください。"
 
 #: src/stream/phone_mic.rs
-msgid "Turn on the stage screen for phones in RustyPresenter (Settings → Network…), and sign in to it on this phone first."
-msgstr "RustyPresenter でスマホ用のステージ画面（設定 → ネットワーク…）をオンにし、先にこのスマホでサインインしてください。"
+msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
+msgstr "RustyPresenterでスマホのステージ画面をオンにして（設定 → リモコンとネットワーク）、先にこのスマホでそこにログインしてください。"
 
 #: src/stream/preflight.rs
-msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Media → Livestream. The stream shows the slides in its place."
-msgstr "カメラ {n}（{camera}）が接続されていません。ケーブルを確認するか、「設定 → メディア → ライブ配信」でもう一度選んでください。その間、配信ではスライドが代わりに表示されます。"
+msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Livestream → Cameras. The stream shows the slides in its place."
+msgstr "カメラ{n}（{camera}）がつながっていません。ケーブルを確認するか、「設定 → ライブ配信 → カメラ」で選び直してください。配信はその代わりにスライドを映します。"
 
 #: src/stream/preflight.rs
 msgid "Camera {n} ({camera}) is connected but sends no picture. Close any other program using it (Zoom, the Camera app, OBS), or switch it on. The stream shows the slides in its place until it comes."
@@ -8168,8 +8212,8 @@ msgid "Camera {n} ({camera}) comes over NDI, but NDI is not installed on this co
 msgstr "カメラ {n}（{camera}）は NDI 経由ですが、このコンピューターには NDI がインストールされていません。無料の NDI Tools をインストールしてください。"
 
 #: src/stream/preflight.rs
-msgid "The sound input {name} is not connected. Check its cable, or choose it again in Settings → Media. The stream goes out without it."
-msgstr "音声入力 {name} が接続されていません。ケーブルを確認するか、「設定 → メディア」でもう一度選んでください。配信はこの音声なしで続きます。"
+msgid "The sound input {name} is not connected. Check its cable, or choose it again in Settings → Livestream → Sound. The stream goes out without it."
+msgstr "音声入力{name}がつながっていません。ケーブルを確認するか、「設定 → ライブ配信 → サウンド」で選び直してください。配信はそれなしで続きます。"
 
 #: src/stream/preflight.rs
 msgid "The sound input {name} is connected but could not be opened. Close any other program using it, then try again."
@@ -8180,8 +8224,8 @@ msgid "Camera {camera}: position {position}"
 msgstr "カメラ {camera}：位置 {position}"
 
 #: src/stream/report.rs
-msgid "The computer could not keep up for {secs} seconds and left out {frames} pictures: the stream was jerky then. Next time, try 720p or the graphics card's encoder (Settings → Media)."
-msgstr "コンピューターが {secs} 秒間追いつかず、{frames} コマが抜けたため、その間の配信がカクカクしました。次回は 720p か、グラフィックスカードのエンコーダーを試してください（設定 → メディア）。"
+msgid "The computer could not keep up for {secs} seconds and left out {frames} pictures: the stream was jerky then. Next time, try a smaller picture size or the graphics card's encoder (Settings → Livestream → Picture and quality)."
+msgstr "コンピューターが{secs}秒間追いつかず、{frames}枚の映像が抜けました。その間、配信はカクついていました。次回は小さい画像サイズか、グラフィックカードのエンコーダーを試してください（設定 → ライブ配信 → 画像と品質）。"
 
 #: src/stream/report.rs
 msgid "{name} got a lighter stream (down to {kbps} kbit/s) because the internet could not keep up."
@@ -8190,6 +8234,10 @@ msgstr "{name} はインターネットが追いつかなかったため、軽�
 #: src/stream/report.rs
 msgid "At most {viewers} watching at once."
 msgstr "同時視聴者数は最大 {viewers} 人でした。"
+
+#: src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
+msgid "Camera"
+msgstr "カメラ"
 
 #: src/stream/scene.rs
 msgid "Camera + words"
@@ -8232,12 +8280,12 @@ msgid "No sound input here looks like one. Choose it under \"Sound in the record
 msgstr "それらしい音声入力が見つかりません。上の「録画の音声」で選んでください。"
 
 #: src/stream/speed.rs
-msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
-msgstr "アップロード: {speed} Mbit/s。1080pで配信できます。"
+msgid "Upload: {speed} Mbit/s. Enough to stream in {size}."
+msgstr "アップロード: {speed} Mbit/s。{size}で配信できます。"
 
 #: src/stream/speed.rs
-msgid "Upload: {speed} Mbit/s. Stream in 720p: 1080p needs {need} Mbit/s."
-msgstr "アップロード: {speed} Mbit/s。720pで配信してください。1080pには{need} Mbit/s必要です。"
+msgid "Upload: {speed} Mbit/s. Stream in {size}: {chosen} needs {need} Mbit/s."
+msgstr "アップロード: {speed} Mbit/s。{size}で配信してください。{chosen}には{need} Mbit/sが必要です。"
 
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer destinations, or use a faster connection."
@@ -8260,8 +8308,8 @@ msgid "Not streaming"
 msgstr "配信していません"
 
 #: src/stream/tally.rs
-msgid "Turn on the stage screen for phones (Settings → Network…). If it has a password, open the stage screen on this phone once and sign in."
-msgstr "スマホ用のステージ画面（設定 → ネットワーク…）をオンにしてください。パスワードがある場合は、このスマホでステージ画面を一度開いてサインインしてください。"
+msgid "Turn on the stage screen on phones (Settings → Remote and network). If it has a password, open the stage screen on this phone once and sign in."
+msgstr "スマホのステージ画面をオンにしてください（設定 → リモコンとネットワーク）。パスワードがある場合は、このスマホで一度ステージ画面を開いてログインしてください。"
 
 #: src/stream/transition.rs
 msgid "Cut (at once)"
@@ -8905,7 +8953,7 @@ msgstr "これらのスライドの変更を破棄しますか？"
 msgid "Throw away"
 msgstr "破棄"
 
-#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
+#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_scenes.rs
 msgid "Keep editing"
 msgstr "編集を続ける"
 
@@ -9270,7 +9318,7 @@ msgstr "プレゼンテーション"
 msgid "SongSelect song files"
 msgstr "SongSelect の曲ファイル"
 
-#: src/strings/operator.rs
+#: src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Pictures and videos"
 msgstr "画像と動画"
 
@@ -9430,8 +9478,8 @@ msgid_plural "Code works for {n} more seconds"
 msgstr[0] "コードの有効期限: あと {n} 秒"
 
 #: src/strings/phone.rs
-msgid "Code expired — click Pair a phone again."
-msgstr "コードの有効期限が切れました — もう一度「スマホをペアリング」をクリックしてください。"
+msgid "Code expired — click Pair a phone or tablet again."
+msgstr "コードの期限切れです — 「スマホやタブレットをつなぐ」をもう一度押してください。"
 
 #: src/strings/planning.rs
 msgid "No date"
@@ -9810,20 +9858,20 @@ msgid "The stage screen is not connected. The service can run without it."
 msgstr "ステージ画面が接続されていません。なくても礼拝は進行できます。"
 
 #: src/strings/preflight.rs
-msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video."
-msgstr "設定で選んだ音声出力が接続されていません。接続するか、「設定 → 動画」で別の出力を選んでください。"
+msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Sound."
+msgstr "設定で選んだ音声出力がつながっていません。つなぐか、「設定 → サウンド」で別のものを選んでください。"
 
 #: src/strings/preflight.rs
-msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play."
-msgstr "音声出力が接続されていないため、動画または音声を一時停止しました。接続するか、「設定 → 動画」で別の出力を選んでから再生を押してください。"
+msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Sound, then press play."
+msgstr "音声出力がつながっていないため、動画や音声を一時停止しました。つなぐか、「設定 → サウンド」で別のものを選んでから再生してください。"
 
 #: src/strings/preflight.rs
-msgid "The logo's file is missing. Choose it again in Settings → Look."
-msgstr "ロゴのファイルがありません。「設定 → 外観」でもう一度選んでください。"
+msgid "The logo's file is missing. Choose it again in Settings → Look → Text and logo."
+msgstr "ロゴのファイルが見つかりません。「設定 → 外観 → 文字とロゴ」で選び直してください。"
 
 #: src/strings/preflight.rs
-msgid "The default background's file is missing. Choose it again in Settings → Look."
-msgstr "既定の背景のファイルがありません。「設定 → 外観」でもう一度選んでください。"
+msgid "The default background's file is missing. Choose it again in Settings → Look → Text and logo."
+msgstr "既定の背景のファイルが見つかりません。「設定 → 外観 → 文字とロゴ」で選び直してください。"
 
 #: src/strings/preflight.rs
 msgid "the song is no longer in the library"
@@ -10016,8 +10064,8 @@ msgid "about {ms} ms"
 msgstr "約 {ms} ミリ秒"
 
 #: src/strings/screens.rs
-msgid "Colour and corner changes show when the screens draw with OpenGL (Settings → Video → Graphics: Automatic or OpenGL). Test patterns and the delay work either way."
-msgstr "色と四隅の調整は、画面を OpenGL で描画しているときに反映されます（「設定 → 動画 → グラフィックス」: 自動または OpenGL）。テストパターンと遅延はどちらでも使えます。"
+msgid "Colour and corner changes show when the screens draw with OpenGL (Settings → General → Screens and graphics → Graphics: Automatic or OpenGL). Test patterns and the delay work either way."
+msgstr "色と角の変更は、画面をOpenGLで描くときに表示されます（設定 → 一般 → 画面とグラフィックス → グラフィックス: 自動またはOpenGL）。テストパターンと遅延はどちらでも使えます。"
 
 #: src/strings/scripture.rs
 msgid "Type at least one word to search for."
@@ -11126,8 +11174,8 @@ msgid "Up to 8 overlays can be on at once. Turn one off first."
 msgstr "同時にオンにできるオーバーレイは8つまでです。先に1つをオフにしてください。"
 
 #: src/strings/themes.rs
-msgid "Choose a church logo first (Settings → Look)."
-msgstr "先に教会のロゴを選んでください（設定 → 外観）。"
+msgid "Choose a church logo first (Settings → Look → Text and logo)."
+msgstr "先に教会のロゴを選んでください（設定 → 外観 → 文字とロゴ）。"
 
 #: src/strings/themes.rs
 msgid "That picture is gone."
@@ -11334,8 +11382,8 @@ msgid "CCLI licence #: {license}"
 msgstr "CCLI ライセンス番号: {license}"
 
 #: src/strings/usage.rs
-msgid "Add your church's CCLI licence number in Settings → Songs."
-msgstr "「設定 → 曲」で教会の CCLI ライセンス番号を追加してください。"
+msgid "Add your church's CCLI licence number in Settings → Songs → Slides and credits."
+msgstr "「設定 → 曲 → スライドとクレジット」で教会のCCLIライセンス番号を入れてください。"
 
 #: src/strings/usage.rs
 msgid "Mark as reported through {date}"
@@ -11721,8 +11769,8 @@ msgid "This service has no songs."
 msgstr "この礼拝には曲がありません。"
 
 #: src/transfer.rs
-msgid "There are no saved themes to export. Make one in Settings → Themes."
-msgstr "エクスポートできる保存済みテーマがありません。「設定 → テーマ」で作成してください。"
+msgid "There are no saved themes to export. Make one in Settings → Look → Themes and backgrounds."
+msgstr "書き出せる保存済みテーマがありません。「設定 → 外観 → テーマと背景」で作ってください。"
 
 #: src/transfer.rs
 msgid "This is not a RustyPresenter theme pack."
@@ -11930,12 +11978,12 @@ msgid "{time} UTC"
 msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
-msgid "Save your other changes first?"
-msgstr "先にほかの変更を保存しますか？"
+msgid "Save your changes to the settings?"
+msgstr "設定の変更を保存しますか？"
 
 #: src/ui/dialogs/settings.rs
-msgid "Save and go on"
-msgstr "保存して続ける"
+msgid "Don't save"
+msgstr "保存しない"
 
 #: src/ui/dialogs/settings.rs
 msgid "Save your other changes and restart?"
@@ -11944,6 +11992,118 @@ msgstr "ほかの変更を保存して再起動しますか？"
 #: src/ui/dialogs/settings.rs
 msgid "Save and restart"
 msgstr "保存して再起動"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "General"
+msgstr "一般"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Look"
+msgstr "外観"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Video and media"
+msgstr "動画とメディア"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Sound"
+msgstr "サウンド"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Remote and network"
+msgstr "リモコンとネットワーク"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Keys"
+msgstr "キー"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Auto-follow"
+msgstr "自動追従"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Livestream"
+msgstr "ライブ配信"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Backups"
+msgstr "バックアップ"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Help and about"
+msgstr "ヘルプと情報"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Screens and graphics"
+msgstr "画面とグラフィックス"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Text and logo"
+msgstr "文字とロゴ"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Themes and backgrounds"
+msgstr "テーマと背景"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Slides and credits"
+msgstr "スライドとクレジット"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Sections and labels"
+msgstr "セクションとラベル"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Bibles"
+msgstr "聖書"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Online services and files"
+msgstr "オンラインサービスとファイル"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Sound in the room"
+msgstr "会場の音"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Stage screen on phones"
+msgstr "スマホのステージ画面"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Phone camera and microphone"
+msgstr "スマホのカメラとマイク"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Other gear"
+msgstr "ほかの機器"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Listening"
+msgstr "聞き取り"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Review log"
+msgstr "記録"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Where to stream"
+msgstr "配信先"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Picture and quality"
+msgstr "画像と品質"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Captions and website"
+msgstr "字幕とウェブサイト"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "About"
+msgstr "情報"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Page"
+msgstr "ページ"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "The first one found"
@@ -11999,6 +12159,10 @@ msgid "Overlays (pictures, clocks, signs)"
 msgstr "オーバーレイ（画像、時計、案内）"
 
 #: src/ui/dialogs/settings_keys.rs
+msgid "Phone drawing"
+msgstr "スマホからの書き込み"
+
+#: src/ui/dialogs/settings_keys.rs
 msgid "New clear group"
 msgstr "新しいクリアグループ"
 
@@ -12019,8 +12183,8 @@ msgid "{key} is already the key for “{what}”. It will move here."
 msgstr "{key} はすでに「{what}」のキーです。こちらに移動します。"
 
 #: src/ui/dialogs/settings_keys.rs
-msgid "{key} also jumps the live song to a section (Settings → Songs → Section keys)."
-msgstr "{key} は表示中の曲のセクションへのジャンプにも使われます（設定 → 曲 → セクションキー）。"
+msgid "{key} also jumps the live song to a section (Settings → Keys → Section keys)."
+msgstr "{key}でもライブ中の曲のセクションに移動します（設定 → キー → セクションキー）。"
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "{key} also picks a Bible chip while you type in the Bible box."
@@ -12135,6 +12299,14 @@ msgid "Network camera"
 msgstr "ネットワークカメラ"
 
 #: src/ui/dialogs/settings_record.rs
+msgid "{size} (custom)"
+msgstr "{size}（自由なサイズ）"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "Type the width and the height as whole numbers, like 1600 and 900."
+msgstr "幅と高さを整数で入力してください（例: 1600と900）。"
+
+#: src/ui/dialogs/settings_record.rs
 msgid "The speed test could not reach the internet. Check the connection and try again."
 msgstr "速度テストがインターネットにつながりませんでした。接続を確認してもう一度お試しください。"
 
@@ -12222,6 +12394,10 @@ msgid "“{title}” from SongSelect is already in your library."
 msgstr "SongSelect の「{title}」はすでにライブラリにあります。"
 
 #: src/ui/dialogs/songselect.rs
+msgid "“{title}” was already in your library: its chords were added for the stage screen."
+msgstr "「{title}」はすでにライブラリにありました。ステージ画面用にコードを追加しました。"
+
+#: src/ui/dialogs/songselect.rs
 msgid "“{title}” from SongSelect has other words than your copy, so it was kept as “{new}”."
 msgstr "SongSelect の「{title}」は手元の曲と歌詞が違うため、「{new}」として残しました。"
 
@@ -12236,6 +12412,10 @@ msgstr "曲ライブラリに追加しました"
 #: src/ui/dialogs/songselect.rs
 msgid "Already in your song library"
 msgstr "すでに曲ライブラリにあります"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Chords added to your copy"
+msgstr "あなたのコピーにコードを追加しました"
 
 #: src/ui/dialogs/songselect.rs
 msgid "Your copy has other words, so this one is kept as “{new}”"
@@ -12254,8 +12434,16 @@ msgid "Your Downloads folder could not be found. Use “Choose a file…” for 
 msgstr "ダウンロード フォルダーが見つかりません。ダウンロードした曲は「ファイルを選ぶ…」で取り込んでください。"
 
 #: src/ui/dialogs/stream_more.rs
-msgid "More livestream settings"
-msgstr "ライブ配信のその他の設定"
+msgid "Size: the main stream's"
+msgstr "サイズ: メインの配信と同じ"
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Bitrate: the main stream's"
+msgstr "ビットレート: メインの配信と同じ"
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Automatic ({kbps} kbit/s)"
+msgstr "自動（{kbps} kbit/s）"
 
 #: src/ui/dialogs/stream_more.rs
 msgid "The setup “{name}” is chosen. Save to use it."
@@ -12268,18 +12456,6 @@ msgstr "設定セットの名前（例: 日曜礼拝、結婚式）"
 #: src/ui/dialogs/stream_more.rs
 msgid "Delete the setup “{name}”? The settings in use now stay as they are."
 msgstr "設定セット「{name}」を削除しますか？今使っている設定はそのままです。"
-
-#: src/ui/dialogs/stream_more.rs
-msgid "Leave without saving these settings?"
-msgstr "これらの設定を保存せずに閉じますか？"
-
-#: src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
-msgid "Leave"
-msgstr "閉じる"
-
-#: src/ui/dialogs/stream_more.rs
-msgid "Livestream settings saved."
-msgstr "ライブ配信の設定を保存しました。"
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Your livestream scenes"
@@ -12320,6 +12496,10 @@ msgstr "シーン「{name}」を削除しますか？このシーンを選ぶス
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Leave without saving your scene changes?"
 msgstr "シーンの変更を保存せずに閉じますか？"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave"
+msgstr "閉じる"
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Scenes saved."
@@ -12487,8 +12667,8 @@ msgid "Window → Screens… picks which monitor is the audience screen and whic
 msgstr "「ウィンドウ → 画面…」で、どのモニターを会場画面とステージ画面にするか選びます。"
 
 #: src/ui/operator/help.rs
-msgid "Settings → Keys and clear groups… changes these keys and makes your own clear groups."
-msgstr "「設定 → キーとクリアグループ…」でこれらのキーを変更したり、独自のクリアグループを作成したりできます。"
+msgid "Settings → Keys changes these keys and makes your own clear groups."
+msgstr "「設定 → キー」でこれらのキーを変えたり、自分のクリアグループを作ったりできます。"
 
 #: src/ui/operator/help.rs
 msgid "Bible passages"
@@ -12903,8 +13083,8 @@ msgid "The {wanted} graphics mode could not be used on this computer, so RustyPr
 msgstr "このコンピューターでは {wanted} グラフィックスモードを使用できなかったため、RustyPresenter は {mode} を使用しています。"
 
 #: src/video/graphics.rs
-msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
-msgstr "グラフィックスカードに問題があったため、RustyPresenter はセーフモードで起動しました。「設定 → 動画」で変更できます。"
+msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → General → Screens and graphics."
+msgstr "グラフィックカードに問題があったため、RustyPresenterはセーフモードで起動しました。「設定 → 一般 → 画面とグラフィックス」で変更できます。"
 
 #: src/video/player.rs
 msgid "The video player could not start."
@@ -12977,6 +13157,282 @@ msgstr "yt-dlp は動画を保存しませんでした"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "メディアファイルではありません"
+
+#~ msgid "Show on the phone remote"
+#~ msgstr "スマホリモコンに表示"
+
+#~ msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Media → Livestream."
+#~ msgstr "礼拝が始まったら上部の「配信開始」を押し、終わったらもう一度押してください。ここで選んだ内容はすべて「設定 → メディア → ライブ配信」で変更できます。"
+
+#~ msgid "Same as Settings → Look"
+#~ msgstr "「設定 → 外観」と同じ"
+
+#~ msgid "Phone remote"
+#~ msgstr "スマホリモコン"
+
+#~ msgid "Ask for a password when a phone pairs"
+#~ msgstr "スマホのペアリング時にパスワードを要求"
+
+#~ msgid "Phone remote password"
+#~ msgstr "スマホリモコンのパスワード"
+
+#~ msgid "Phones still pair with the code or the QR code; the password is asked too. Phones already paired stay paired."
+#~ msgstr "スマホは引き続きコードまたは QR コードでペアリングし、さらにパスワードも求められます。ペアリング済みのスマホはそのまま使えます。"
+
+#~ msgid "Stage screen on a phone or tablet"
+#~ msgstr "スマホやタブレットでステージ画面"
+
+#~ msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
+#~ msgstr "教会の Wi-Fi に接続したスマホからスライドを操作できます。スマホはこのコンピューターと同じネットワークに接続している必要があります。"
+
+#~ msgid "Pair a phone"
+#~ msgstr "スマホをペアリング"
+
+#~ msgid "Paired phones"
+#~ msgstr "ペアリング済みのスマホ"
+
+#~ msgid "Timing"
+#~ msgstr "タイミング"
+
+#~ msgid "Listening model"
+#~ msgstr "聞き取りモデル"
+
+#~ msgid "Keyboard"
+#~ msgstr "キーボード"
+
+#~ msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
+#~ msgstr "ヒント: スライドをクリックするとすぐに画面に表示されます。赤い枠が会場で見えている内容です。"
+
+#~ msgid "Bible verses"
+#~ msgstr "聖句"
+
+#~ msgid "(for new passages)"
+#~ msgstr "（新しい聖書箇所用）"
+
+#~ msgid "New pictures and videos"
+#~ msgstr "新しい画像と動画"
+
+#~ msgid "720p uses less of the computer and the disk (about 1.4 GB an hour at most); 1080p is sharper (about 2.8 GB)."
+#~ msgstr "720p はコンピューターとディスクの負担が少なめです（1時間あたり最大約 1.4 GB）。1080p はより鮮明です（約 2.8 GB）。"
+
+#~ msgid "720p"
+#~ msgstr "720p"
+
+#~ msgid "1080p"
+#~ msgstr "1080p"
+
+#~ msgid "How much picture goes out each second. Automatic: 3000 kbit/s for 720p, 6000 for 1080p. More is sharper and needs a faster upload."
+#~ msgstr "1 秒あたりに送る映像の量。自動: 720p で 3000 kbit/s、1080p で 6000。多いほど鮮明で、速いアップロードが必要です。"
+
+#~ msgid "Sound in the recording"
+#~ msgstr "録画の音声"
+
+#~ msgid "The app's sound is taken from the video and song files when the recording stops, so nothing else on the computer is heard."
+#~ msgstr "アプリの音声は録画停止時に動画や曲のファイルから取り込まれるため、コンピューターの他の音は入りません。"
+
+#~ msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on."
+#~ msgstr "配信先をオンにすると「録画」の横に「配信開始」ボタンが現れます。「配信開始」はいつもどおり録画し、同じ映像と音声をオンになっているすべての配信先に送ります。"
+
+#~ msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras above."
+#~ msgstr "ライブ中、このネットワーク上の他のコンピューターやソフト（OBS、vMix、ビデオスイッチャー）がこれらを受け取れます。NDIカメラは上のカメラの一覧に表示されます。"
+
+#~ msgid "Words alone"
+#~ msgstr "歌詞のみ"
+
+#~ msgid "A camera or capture card for the stream's camera scenes (and its recording)."
+#~ msgstr "配信のカメラシーン（とその録画）に使うカメラまたはキャプチャカード。"
+
+#~ msgid "Second camera"
+#~ msgstr "2台目のカメラ"
+
+#~ msgid "Another camera to switch to while live, from the Cameras box beside the live screen."
+#~ msgstr "配信中に切り替えられる別のカメラ。ライブ画面の横のカメラ欄から切り替えます。"
+
+#~ msgid "Third camera"
+#~ msgstr "3台目のカメラ"
+
+#~ msgid "Another camera to switch to while live."
+#~ msgstr "配信中に切り替えられる別のカメラ。"
+
+#~ msgid "Fourth camera"
+#~ msgstr "4台目のカメラ"
+
+#~ msgid "Before the service, with the pre-service countdown under the words while it runs."
+#~ msgstr "礼拝の前。カウントダウン中は文字の下に表示されます。"
+
+#~ msgid "After the service's last item."
+#~ msgstr "礼拝の最後の項目のあと。"
+
+#~ msgid "For a break, chosen with the scene button."
+#~ msgstr "休憩用。シーンボタンで選びます。"
+
+#~ msgid "A stream key is a password: whoever has it can stream as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
+#~ msgstr "ストリームキーはパスワードです。持っている人なら誰でもあなたとして配信できます。入力するとすぐにこのコンピューターのパスワード保管庫に保存され、バックアップや礼拝ファイルには決して入りません。"
+
+#~ msgid "More settings"
+#~ msgstr "その他の設定"
+
+#~ msgid "Pictures a second, video format, sound quality, which network card sends, each destination's own quality, the recording's file type and name, and setups saved by name (Sunday, Wedding) to use again in one go."
+#~ msgstr "1秒あたりのコマ数、映像の形式、音質、送信に使うネットワークカード、配信先ごとの画質、録画のファイル形式と名前、そして名前を付けて保存し一度に呼び出せる設定セット（日曜礼拝、結婚式など）。"
+
+#~ msgid "More settings and saved setups…"
+#~ msgstr "その他の設定と設定セット…"
+
+#~ msgid "Setup: {}"
+#~ msgstr "設定セット: {}"
+
+#~ msgid "Description"
+#~ msgstr "説明"
+
+#~ msgid "While you are live, mixed with the one chosen under \"Sound in the recording\": for a second sound board, a pulpit microphone or the phone."
+#~ msgstr "配信中、「録画の音声」で選んだものと混ぜて使います。2台目の音響卓、説教台のマイク、スマホなどに。"
+
+#~ msgid "Turn on the stage screen for phones (Settings → Network…), then open this page on the phone and press Start: {}"
+#~ msgstr "スマホ用のステージ画面（設定 → ネットワーク…）をオンにしてから、スマホでこのページを開いて「開始」を押してください: {}"
+
+#~ msgid "The first time, the phone warns that the page is not private, because this computer made its own certificate: tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+#~ msgstr "初回は、このコンピューターが自分で証明書を作ったため、スマホに「この接続ではプライバシーが保護されません」と警告が出ます。「詳細設定」（iPhone では「詳細を表示」）をタップしてページへ進んでください。スマホはスリープさせず、充電につないだままにしてください。"
+
+#~ msgid "Live captions need the English speech model. Download the fast model in Settings → Auto-follow."
+#~ msgstr "ライブ字幕には英語の音声モデルが必要です。「設定 → 自動追従」で高速モデルをダウンロードしてください。"
+
+#~ msgid "Video and graphics"
+#~ msgstr "動画とグラフィックス"
+
+#~ msgid "Keep the audience screen in front when it has its own monitor (smoother fades)"
+#~ msgstr "会場画面に専用モニターがある場合は前面に保つ（フェードがなめらかに）"
+
+#~ msgid "File name"
+#~ msgstr "ファイル名"
+
+#~ msgid "{{date}} becomes the day, {{time}} the time it started, {{title}} the service's name. Now: {}"
+#~ msgstr "{{date}} は日付、{{time}} は開始時刻、{{title}} は礼拝の名前になります。現在: {}"
+
+#~ msgid "Network…"
+#~ msgstr "ネットワーク…"
+
+#~ msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Media → Recording."
+#~ msgstr "自動追従で会場の音を聞くには FFmpeg が必要です。「設定 → メディア → 録画」でダウンロードしてください。"
+
+#~ msgid "Phone remote — RustyPresenter"
+#~ msgstr "スマホリモコン — RustyPresenter"
+
+#~ msgid "That QR code has expired. On the computer, click Pair a phone again."
+#~ msgstr "その QR コードは期限切れです。コンピューターでもう一度「スマホをペアリング」をクリックしてください。"
+
+#~ msgid "This phone remote needs a password too."
+#~ msgstr "このスマホリモコンにもパスワードが必要です。"
+
+#~ msgid "Choose your headphones in Settings → Media first."
+#~ msgstr "先に「設定 → メディア」でヘッドホンを選んでください。"
+
+#~ msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or the graphics card under Video encoder, and close other programs."
+#~ msgstr "このコンピューターが追いつかず、録画と配信がカクカクしています。「設定 → メディア」の「画像サイズ」で 720p を選ぶか、「映像エンコーダー」でグラフィックスカードを選び、ほかのプログラムを閉じてください。"
+
+#~ msgid "The recordings folder's disk has only {free} free. An hour of recording needs about {need}. Choose another folder in Settings → Media."
+#~ msgstr "録画フォルダーのディスクの空き容量は {free} しかありません。1時間の録画には約 {need} 必要です。「設定 → メディア」で別のフォルダーを選んでください。"
+
+#~ msgid "Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."
+#~ msgstr "ペアリングが開始されていません。コンピューターで「スマホリモコン」→「スマホをペアリング」をクリックしてください。"
+
+#~ msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Media → Livestream."
+#~ msgstr "{name}: 配信を作成できませんでした ({why})。「設定 → メディア → ライブ配信」 でもう一度サインインしてください。"
+
+#~ msgid "Live captions need a microphone or line-in: choose one under Sound in Settings → Media, or under Live captions."
+#~ msgstr "ライブ字幕にはマイクまたはライン入力が必要です。「設定 → メディア」の「サウンド」か、「ライブ字幕」で選んでください。"
+
+#~ msgid "{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on."
+#~ msgstr "{name} は何度試しても接続できていません。設定 → メディア → ライブ配信 のストリームキーとインターネットを確認してください。試行は続き、録画も続いています。"
+
+#~ msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
+#~ msgstr "「配信開始」には、オンになっていてストリームキーのある配信先が必要です。「設定 → メディア → ライブ配信」で設定してください。"
+
+#~ msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
+#~ msgstr "{name}: インターネットの速度が足りず、配信が飛んでいます。「設定 → メディア → 録画」で 720p を選ぶか、配信先を一つオフにしてください。"
+
+#~ msgid "On the presentation computer, click Phone remote, then Pair a phone, and type the 6-digit code here."
+#~ msgstr "プレゼン用コンピューターで「スマホリモコン」→「スマホをペアリング」をクリックし、6桁のコードをここに入力してください。"
+
+#~ msgid "On the computer, choose this phone in Settings → Media → Livestream → Camera."
+#~ msgstr "コンピューターで「設定 → メディア → ライブ配信 → カメラ」を開き、このスマホを選んでください。"
+
+#~ msgid "Any phone on the church's Wi-Fi can be a camera. On the phone, open {address} and follow the steps there. The first time, the phone warns that the connection is not private: that is expected, because the page comes from this computer. Tap Advanced (or Show Details), then Proceed (or Visit this website). Then pair it with the code from Phone remote, Pair a phone. Once it sends its picture, it is listed in the camera lists above as Phone camera and its name."
+#~ msgstr "教会の Wi-Fi に接続したスマホなら、どれでもカメラになります。スマホで {address} を開き、表示される手順に従ってください。初回は、スマホに「この接続ではプライバシーが保護されません」と警告が出ますが、ページがこのコンピューターから来ているためで、問題ありません。「詳細設定」（または「詳細を表示」）をタップし、「アクセスする」（または「この Web サイトを閲覧」）をタップしてください。次に、「スマホリモコン」「スマホをペアリング」のコードでペアリングします。映像が届くと、上のカメラ一覧に「スマホのカメラ」と名前付きで表示されます。"
+
+#~ msgid "Sending, but the stream is not using this phone yet. Choose \"Phone microphone\" in Settings → Media → Livestream, then go live."
+#~ msgstr "送信中ですが、配信はまだこのスマホを使っていません。「設定 → メディア → ライブ配信」で「スマホのマイク」を選んでから、配信を始めてください。"
+
+#~ msgid "Turn on the stage screen for phones in RustyPresenter (Settings → Network…), and sign in to it on this phone first."
+#~ msgstr "RustyPresenter でスマホ用のステージ画面（設定 → ネットワーク…）をオンにし、先にこのスマホでサインインしてください。"
+
+#~ msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Media → Livestream. The stream shows the slides in its place."
+#~ msgstr "カメラ {n}（{camera}）が接続されていません。ケーブルを確認するか、「設定 → メディア → ライブ配信」でもう一度選んでください。その間、配信ではスライドが代わりに表示されます。"
+
+#~ msgid "The sound input {name} is not connected. Check its cable, or choose it again in Settings → Media. The stream goes out without it."
+#~ msgstr "音声入力 {name} が接続されていません。ケーブルを確認するか、「設定 → メディア」でもう一度選んでください。配信はこの音声なしで続きます。"
+
+#~ msgid "The computer could not keep up for {secs} seconds and left out {frames} pictures: the stream was jerky then. Next time, try 720p or the graphics card's encoder (Settings → Media)."
+#~ msgstr "コンピューターが {secs} 秒間追いつかず、{frames} コマが抜けたため、その間の配信がカクカクしました。次回は 720p か、グラフィックスカードのエンコーダーを試してください（設定 → メディア）。"
+
+#~ msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
+#~ msgstr "アップロード: {speed} Mbit/s。1080pで配信できます。"
+
+#~ msgid "Upload: {speed} Mbit/s. Stream in 720p: 1080p needs {need} Mbit/s."
+#~ msgstr "アップロード: {speed} Mbit/s。720pで配信してください。1080pには{need} Mbit/s必要です。"
+
+#~ msgid "Turn on the stage screen for phones (Settings → Network…). If it has a password, open the stage screen on this phone once and sign in."
+#~ msgstr "スマホ用のステージ画面（設定 → ネットワーク…）をオンにしてください。パスワードがある場合は、このスマホでステージ画面を一度開いてサインインしてください。"
+
+#~ msgid "Code expired — click Pair a phone again."
+#~ msgstr "コードの有効期限が切れました — もう一度「スマホをペアリング」をクリックしてください。"
+
+#~ msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video."
+#~ msgstr "設定で選んだ音声出力が接続されていません。接続するか、「設定 → 動画」で別の出力を選んでください。"
+
+#~ msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play."
+#~ msgstr "音声出力が接続されていないため、動画または音声を一時停止しました。接続するか、「設定 → 動画」で別の出力を選んでから再生を押してください。"
+
+#~ msgid "The logo's file is missing. Choose it again in Settings → Look."
+#~ msgstr "ロゴのファイルがありません。「設定 → 外観」でもう一度選んでください。"
+
+#~ msgid "The default background's file is missing. Choose it again in Settings → Look."
+#~ msgstr "既定の背景のファイルがありません。「設定 → 外観」でもう一度選んでください。"
+
+#~ msgid "Colour and corner changes show when the screens draw with OpenGL (Settings → Video → Graphics: Automatic or OpenGL). Test patterns and the delay work either way."
+#~ msgstr "色と四隅の調整は、画面を OpenGL で描画しているときに反映されます（「設定 → 動画 → グラフィックス」: 自動または OpenGL）。テストパターンと遅延はどちらでも使えます。"
+
+#~ msgid "Choose a church logo first (Settings → Look)."
+#~ msgstr "先に教会のロゴを選んでください（設定 → 外観）。"
+
+#~ msgid "Add your church's CCLI licence number in Settings → Songs."
+#~ msgstr "「設定 → 曲」で教会の CCLI ライセンス番号を追加してください。"
+
+#~ msgid "There are no saved themes to export. Make one in Settings → Themes."
+#~ msgstr "エクスポートできる保存済みテーマがありません。「設定 → テーマ」で作成してください。"
+
+#~ msgid "Save your other changes first?"
+#~ msgstr "先にほかの変更を保存しますか？"
+
+#~ msgid "Save and go on"
+#~ msgstr "保存して続ける"
+
+#~ msgid "{key} also jumps the live song to a section (Settings → Songs → Section keys)."
+#~ msgstr "{key} は表示中の曲のセクションへのジャンプにも使われます（設定 → 曲 → セクションキー）。"
+
+#~ msgid "More livestream settings"
+#~ msgstr "ライブ配信のその他の設定"
+
+#~ msgid "Leave without saving these settings?"
+#~ msgstr "これらの設定を保存せずに閉じますか？"
+
+#~ msgid "Livestream settings saved."
+#~ msgstr "ライブ配信の設定を保存しました。"
+
+#~ msgid "Settings → Keys and clear groups… changes these keys and makes your own clear groups."
+#~ msgstr "「設定 → キーとクリアグループ…」でこれらのキーを変更したり、独自のクリアグループを作成したりできます。"
+
+#~ msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
+#~ msgstr "グラフィックスカードに問題があったため、RustyPresenter はセーフモードで起動しました。「設定 → 動画」で変更できます。"
 
 #~ msgid "Import SongSelect lyrics (.txt)"
 #~ msgstr "SongSelect の歌詞を取り込む (.txt)"

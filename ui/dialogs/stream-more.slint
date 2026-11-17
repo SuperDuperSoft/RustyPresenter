@@ -1,13 +1,10 @@
-// Livestream → More settings (Settings → Media → Livestream → "More settings and saved setups…"): saved setups at
-// the top, then the picture, the sound, the network, each destination's own quality, and the recording. Every
-// choice's first option is what the app does by itself. Set and answered by `src/ui/dialogs/stream_more.rs`.
-import { Theme } from "../theme.slint";
-import { Btn } from "../widgets.slint";
-import { DialogBody, DialogFoot } from "shell.slint";
-import { TextField, Lbl, Select, Check } from "form.slint";
+// What was Livestream → More settings (November 17, 2026: now the advanced rows of Settings → Livestream's pages,
+// `settings-stream.slint`): saved setups, the picture, the sound, the network, each destination's own quality and
+// the recording. Every choice's first option is what the app does by itself. Set and answered by
+// `src/ui/dialogs/stream_more.rs`.
 
-/// One destination's own quality: its name, size (0 the main stream's, 1 720p, 2 1080p) and bitrate (0 the main
-/// stream's, then `record::BITRATES`).
+/// One destination's own quality: its name, size (0 the main stream's, then `record::Preset::ALL`) and bitrate (0
+/// the main stream's, then `record::BITRATES`).
 export struct MoreDestination {
     name: string,
     size: int,
@@ -19,23 +16,27 @@ export global StreamMoreDlg {
     in property <[string]> setups;
     in-out property <int> setup-index: -1;
     /// The picture.
-    in-out property <int> fps-index;
+    in-out property <int> fps-index: 2;
     in-out property <int> codec-index;
     in-out property <int> rate-index;
-    in-out property <int> keyframe-index;
+    in-out property <int> keyframe-index: 1;
     in-out property <int> speed-index;
     in-out property <int> profile-index;
     in-out property <int> b-frames-index;
     /// The sound.
     in-out property <int> sound-rate-index;
-    in-out property <int> sound-kbps-index;
+    in-out property <int> sound-kbps-index: 2;
     in-out property <int> channels-index;
     /// The network: the card to send from (labels from `stream::network_card`), and SRT's safer send.
     in property <[string]> bind-labels;
     in-out property <int> bind-index;
     in-out property <int> srt-index;
-    /// Each destination's own quality.
+    /// Each destination's own quality, and the choices of its lists.
     in-out property <[MoreDestination]> destinations;
+    in property <[string]> size-labels;
+    in property <[string]> dest-kbps-labels;
+    /// The main bitrate's list: "Automatic (6000 kbit/s)", then `record::BITRATES`.
+    in property <[string]> kbps-labels;
     /// The recording.
     in-out property <int> format-index;
     in-out property <string> name;
@@ -50,145 +51,4 @@ export global StreamMoreDlg {
     callback destination-size(int, int);
     callback destination-kbps(int, int);
     callback name-edited();
-    callback cancel();
-    callback save();
-}
-
-component Heading inherits Text {
-    color: Theme.text;
-    font-family: Theme.font;
-    font-size: Theme.base-size * 1.15;
-    font-weight: 600;
-}
-
-component SmallText inherits Text {
-    color: Theme.muted;
-    font-family: Theme.font;
-    font-size: 12px;
-    wrap: word-wrap;
-}
-
-/// A label above its choice, side by side with others.
-component Pick inherits VerticalLayout {
-    in property <string> label;
-    in property <[string]> options;
-    in-out property <int> index;
-    callback changed(int);
-    spacing: 4px;
-    horizontal-stretch: 1;
-    Lbl { label: root.label; }
-    sel := Select {
-        options: root.options;
-        index <=> root.index;
-        changed(i) => { root.changed(i); }
-    }
-}
-
-export component StreamMoreDialog inherits VerticalLayout {
-    DialogBody {
-        VerticalLayout {
-            spacing: 10px;
-            Heading { text: @tr("Saved setups"); }
-            SmallText { text: @tr("Keep everything set for the livestream (destinations, cameras, sound, scenes and these settings) under a name, and use it again in one go. Stream keys stay as they are."); }
-            HorizontalLayout {
-                spacing: 8px;
-                setup := Select {
-                    horizontal-stretch: 1;
-                    options: StreamMoreDlg.setups;
-                    index <=> StreamMoreDlg.setup-index;
-                    changed(i) => { StreamMoreDlg.setup-use(i); }
-                }
-                setup-save := Btn { text: @tr("Save as a setup…"); clicked => { StreamMoreDlg.setup-save(); } }
-                setup-delete := Btn { text: @tr("Delete"); enabled: StreamMoreDlg.setup-index >= 0; clicked => { StreamMoreDlg.setup-delete(); } }
-            }
-            if StreamMoreDlg.setups.length == 0: SmallText { text: @tr("No setups saved yet."); }
-
-            Heading { text: @tr("Picture"); }
-            HorizontalLayout {
-                spacing: 12px;
-                fps := Pick { label: @tr("Pictures a second"); options: ["24", "25", @tr("30 (usual)"), "50", "60"]; index <=> StreamMoreDlg.fps-index; }
-                codec := Pick { label: @tr("Video format"); options: [@tr("H.264 (plays everywhere)"), "HEVC (H.265)", "AV1"]; index <=> StreamMoreDlg.codec-index; }
-                rate := Pick { label: @tr("Bitrate kept"); options: [@tr("Automatic"), @tr("Always the same (CBR)"), @tr("Varies with the picture (VBR)")]; index <=> StreamMoreDlg.rate-index; }
-            }
-            SmallText { text: @tr("HEVC and AV1 give a sharper picture for the same upload. HEVC is used when every destination that is on takes it (YouTube and your own server do); otherwise H.264. AV1 is for recordings only: while live, H.264 is used. Both need a newer computer or graphics card."); }
-            HorizontalLayout {
-                spacing: 12px;
-                keyframe := Pick { label: @tr("A whole picture every"); options: [@tr("1 second"), @tr("2 seconds (usual)"), @tr("3 seconds"), @tr("4 seconds")]; index <=> StreamMoreDlg.keyframe-index; }
-                speed := Pick { label: @tr("Encoder speed"); options: [@tr("Automatic"), @tr("Fastest (least work)"), @tr("Fast"), @tr("Balanced"), @tr("Best picture (most work)")]; index <=> StreamMoreDlg.speed-index; }
-                profile := Pick { label: @tr("Profile"); options: [@tr("Automatic"), "Baseline", "Main", "High"]; index <=> StreamMoreDlg.profile-index; }
-                b-frames := Pick { label: @tr("B-frames"); options: [@tr("Automatic"), "0", "1", "2", "3"]; index <=> StreamMoreDlg.b-frames-index; }
-            }
-            SmallText { text: @tr("Leave these on Automatic unless a service or a video editor asks for something else. Faster leaves more of the computer free; Baseline is only for very old players."); }
-
-            Heading { text: @tr("Sound"); }
-            HorizontalLayout {
-                spacing: 12px;
-                sound-rate := Pick { label: @tr("Sample rate"); options: [@tr("As it comes (usual)"), "44.1 kHz", "48 kHz"]; index <=> StreamMoreDlg.sound-rate-index; }
-                sound-kbps := Pick { label: @tr("Sound bitrate"); options: ["96 kbit/s", "128 kbit/s", @tr("160 kbit/s (usual)"), "192 kbit/s", "256 kbit/s", "320 kbit/s"]; index <=> StreamMoreDlg.sound-kbps-index; }
-                channels := Pick { label: @tr("Channels"); options: [@tr("Stereo"), @tr("Mono")]; index <=> StreamMoreDlg.channels-index; }
-            }
-
-            Heading { text: @tr("Network"); }
-            HorizontalLayout {
-                spacing: 12px;
-                bind := Pick { label: @tr("Send the stream from"); options: StreamMoreDlg.bind-labels; index <=> StreamMoreDlg.bind-index; }
-                srt := Pick { label: @tr("Safer send (SRT servers)"); options: [@tr("Off (SRT's own)"), @tr("Half a second"), @tr("1 second"), @tr("2 seconds"), @tr("4 seconds")]; index <=> StreamMoreDlg.srt-index; }
-            }
-            SmallText { text: @tr("Send from a wired network card to keep the stream off busy Wi-Fi (YouTube, Facebook, Twitch and other RTMP servers; an SRT server is reached however the computer chooses). Safer send gives an SRT server time to ask again for what got lost on a poor line; the picture arrives that much later."); }
-
-            Heading { text: @tr("Each destination's quality"); }
-            SmallText { text: @tr("A destination can get a smaller picture or a lower bitrate than the main stream (a phone app, a slow server). Each one that differs costs the computer a second encode."); }
-            for d[i] in StreamMoreDlg.destinations: HorizontalLayout {
-                spacing: 12px;
-                Text {
-                    width: 120px;
-                    text: d.name;
-                    color: Theme.text;
-                    font-family: Theme.font;
-                    font-size: Theme.base-size;
-                    vertical-alignment: center;
-                }
-                Select {
-                    horizontal-stretch: 1;
-                    options: [@tr("Size: the main stream's"), "720p", "1080p"];
-                    index: d.size;
-                    changed(v) => { StreamMoreDlg.destination-size(i, v); }
-                }
-                Select {
-                    horizontal-stretch: 1;
-                    options: [@tr("Bitrate: the main stream's"), "2500 kbit/s", "4500 kbit/s", "6000 kbit/s", "8000 kbit/s", "12000 kbit/s"];
-                    index: d.kbps;
-                    changed(v) => { StreamMoreDlg.destination-kbps(i, v); }
-                }
-            }
-
-            Heading { text: @tr("Recording"); }
-            HorizontalLayout {
-                spacing: 12px;
-                format := Pick { label: @tr("File type"); options: [@tr("MP4 (plays everywhere)"), @tr("MKV (as written; nothing to wait for at the end)")]; index <=> StreamMoreDlg.format-index; }
-                split := Pick { label: @tr("Cut long recordings"); options: [@tr("Never"), @tr("Every 30 minutes"), @tr("Every hour"), @tr("Every 2 hours"), @tr("At 2 GB"), @tr("At 4 GB (old USB sticks)"), @tr("At 8 GB")]; index <=> StreamMoreDlg.split-index; }
-                replay := Pick { label: @tr("“Save last” button keeps"); options: [@tr("No button"), @tr("1 minute"), @tr("2 minutes"), @tr("5 minutes"), @tr("10 minutes"), @tr("15 minutes")]; index <=> StreamMoreDlg.replay-index; }
-            }
-            Lbl { label: @tr("File name"); }
-            name := TextField {
-                label: @tr("Recording file name");
-                placeholder: @tr("Recording {{date}} {{time}}");
-                text <=> StreamMoreDlg.name;
-                edited(t) => { StreamMoreDlg.name-edited(); }
-            }
-            SmallText { text: @tr("{{date}} becomes the day, {{time}} the time it started, {{title}} the service's name. Now: {}", StreamMoreDlg.name-example); }
-            clean := Check { text: @tr("While live, also record the stream without the words (for editing)"); checked <=> StreamMoreDlg.clean; }
-        }
-    }
-    DialogFoot {
-        cancel := Btn {
-            text: @tr("Cancel");
-            clicked => { StreamMoreDlg.cancel(); }
-        }
-        save := Btn {
-            primary: true;
-            text: @tr("Save");
-            clicked => { StreamMoreDlg.save(); }
-        }
-    }
 }

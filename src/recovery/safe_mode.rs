@@ -1,5 +1,5 @@
 //! Safe mode: when two starts in a row fail or crash within their first 20 seconds while drawing with the graphics
-//! card, the next one draws in software, sets Settings → Video → Graphics to Software and says why.
+//! card, the next one draws in software, sets Settings → General → Screens and graphics → Graphics to Software and says why.
 //!
 //! The supervisor's crash count lives only as long as the supervisor, and a start that fails (exit code 2) stops it,
 //! so the count is kept on disk: `<data>/graphics-start.json` is written as each start begins and removed once the

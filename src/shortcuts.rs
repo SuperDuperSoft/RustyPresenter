@@ -327,7 +327,7 @@ impl Keymap {
     /// that have a key.
     pub fn new(s: &KeySettings) -> Keymap { Keymap::with_scenes(s, &[]) }
 
-    /// `new`, with every one of the church's own scenes (`own`, by id) listed, key or not (Settings → Help).
+    /// `new`, with every one of the church's own scenes (`own`, by id) listed, key or not (Settings → Keys).
     pub fn with_scenes(s: &KeySettings, own: &[Uuid]) -> Keymap {
         use crate::stream::scene::Scene;
         let mut actions: Vec<Action> = FIXED[..12].to_vec();
@@ -414,7 +414,7 @@ impl EditKey {
 pub enum Clash {
     /// Another action has it; using it here takes it off that one.
     Action(Action),
-    /// A plain letter or digit that jumps the live song to a section (Settings → Songs → Section keys).
+    /// A plain letter or digit that jumps the live song to a section (Settings → Keys → Section keys).
     SectionKey,
     /// Alt + 1–5 picks a Bible chip in the Bible box.
     BibleChip,

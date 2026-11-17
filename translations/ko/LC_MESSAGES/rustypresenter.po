@@ -143,7 +143,7 @@ msgstr "구절 추가"
 msgid "Paste the verses instead"
 msgstr "대신 구절 붙여 넣기"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/slide-breaks.slint ui/operator/topbar.slint
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/slide-breaks.slint ui/operator/topbar.slint src/ui/dialogs/settings_find.rs
 msgid "Verses per slide"
 msgstr "슬라이드당 구절 수"
 
@@ -187,7 +187,7 @@ msgstr "텍스트를 입력하세요. 빈 줄을 넣으면 새 슬라이드가 �
 msgid "Add announcement"
 msgstr "광고 추가"
 
-#: ui/dialogs/add.slint ui/dialogs/settings-follow.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
+#: ui/dialogs/add.slint ui/dialogs/settings-follow.slint ui/dialogs/usage.slint src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs src/ui/dialogs/settings_find.rs
 msgid "Song"
 msgstr "찬양"
 
@@ -195,7 +195,7 @@ msgstr "찬양"
 msgid "Words"
 msgstr "가사"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings.slint
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint src/ui/dialogs/settings_find.rs
 msgid "Bible"
 msgstr "성경"
 
@@ -315,19 +315,19 @@ msgstr "0이 되면"
 msgid "Place on the screen"
 msgstr "화면 위치"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-stream.slint src/strings/screens.rs
 msgid "Top right"
 msgstr "오른쪽 위"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-stream.slint src/strings/screens.rs
 msgid "Top left"
 msgstr "왼쪽 위"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-stream.slint src/strings/screens.rs
 msgid "Bottom right"
 msgstr "오른쪽 아래"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-media.slint src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/settings-stream.slint src/strings/screens.rs
 msgid "Bottom left"
 msgstr "왼쪽 아래"
 
@@ -348,8 +348,8 @@ msgid "Show on stage"
 msgstr "무대에 표시"
 
 #: ui/dialogs/automation.slint
-msgid "Show on the phone remote"
-msgstr "휴대폰 리모컨에 표시"
+msgid "Show on the remote"
+msgstr "리모컨에 표시"
 
 #: ui/dialogs/automation.slint
 msgid "Put a word in {{curly brackets}} to make a box to fill in, like {{Number}}."
@@ -371,7 +371,7 @@ msgstr "위"
 msgid "Hide after"
 msgstr "자동 숨김"
 
-#: ui/dialogs/automation.slint ui/dialogs/stream-more.slint src/ui/dialogs/stream_scenes.rs
+#: ui/dialogs/automation.slint ui/dialogs/settings-stream.slint src/ui/dialogs/stream_scenes.rs
 msgid "Never"
 msgstr "안 함"
 
@@ -495,7 +495,7 @@ msgstr "이 슬라이드 반복"
 msgid "Play music"
 msgstr "음악 재생"
 
-#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs
+#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs src/ui/dialogs/settings_find.rs
 msgid "Stage screen"
 msgstr "무대 화면"
 
@@ -611,11 +611,11 @@ msgstr "일시 정지"
 msgid "Start"
 msgstr "시작"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/dialogs/stream-more.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/dialogs/settings-stream.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
 msgid "Delete"
 msgstr "삭제"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-more.slint ui/dialogs/stream-scenes.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings.rs
 msgid "Save"
 msgstr "저장"
 
@@ -739,7 +739,7 @@ msgstr "표: 한 줄에 한 행, 셀은 탭으로 구분해요."
 msgid "Shrink to fit the box"
 msgstr "상자에 맞게 줄이기"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint src/ui/dialogs/settings_find.rs
 msgid "Text colour"
 msgstr "글자 색"
 
@@ -783,7 +783,7 @@ msgstr "선"
 msgid "Arrow"
 msgstr "화살표"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/stream-more.slint src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
 msgid "Picture"
 msgstr "사진"
 
@@ -795,7 +795,7 @@ msgstr "맞춤"
 msgid "Fill"
 msgstr "채우기"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/settings-general.slint
 msgid "Stretch"
 msgstr "늘이기"
 
@@ -1060,7 +1060,7 @@ msgstr "드래그하면 이동, 모서리를 드래그하면 크기 조절, 화�
 msgid "Video: {}"
 msgstr "동영상: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-more.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "취소"
 
@@ -1108,15 +1108,15 @@ msgstr "4단계 중 {}단계"
 msgid "Where should the service go?"
 msgstr "예배를 어디로 방송할까요?"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "Another server"
 msgstr "다른 서버"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "The server's address"
 msgstr "서버 주소"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "Its address: rtmp://, rtmps:// or srt://"
 msgstr "주소: rtmp://, rtmps:// 또는 srt://"
 
@@ -1124,11 +1124,11 @@ msgstr "주소: rtmp://, rtmps:// 또는 srt://"
 msgid "Stream key"
 msgstr "스트림 키"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "A key is saved. Type a new one to change it."
 msgstr "키가 저장되어 있어요. 바꾸려면 새 키를 입력하세요."
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-stream.slint
 msgid "Paste the stream key"
 msgstr "스트림 키를 붙여 넣으세요"
 
@@ -1185,8 +1185,8 @@ msgid "Ready to go live"
 msgstr "라이브 방송 준비 완료"
 
 #: ui/dialogs/go-live-helper.slint
-msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Media → Livestream."
-msgstr "예배가 시작되면 맨 위의 라이브 시작을 누르고, 끝나면 다시 누르세요. 여기서 고른 것은 모두 설정 → 미디어 → 라이브 방송에서 바꿀 수 있어요."
+msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Livestream."
+msgstr "예배가 시작되면 위의 라이브 시작을 누르고, 끝나면 다시 누르세요. 여기서 고른 것은 모두 설정 → 라이브 방송에서 바꿀 수 있습니다."
 
 #: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
 msgid "Back"
@@ -1252,7 +1252,7 @@ msgstr "좌우로"
 msgid "Top and bottom"
 msgstr "위아래로"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/settings-media.slint ui/dialogs/slide-breaks.slint ui/dialogs/stream-more.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-stream.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "자동"
 
@@ -1289,8 +1289,8 @@ msgid "Choose"
 msgstr "선택"
 
 #: ui/dialogs/item-edit.slint
-msgid "Same as Settings → Look"
-msgstr "설정 → 모양과 동일"
+msgid "Same as Settings → Look → Text and logo"
+msgstr "설정 → 모양 → 글자와 로고와 같음"
 
 #: ui/dialogs/item-edit.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint
 msgid "Layout"
@@ -1308,19 +1308,19 @@ msgstr "표시되면 바로 재생 시작"
 msgid "When the video ends"
 msgstr "동영상이 끝나면"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-media.slint src/ui/operator/help.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-general.slint src/ui/operator/help.rs
 msgid "Clear the screen"
 msgstr "화면 지우기"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-general.slint
 msgid "Stay on last frame"
 msgstr "마지막 장면에서 멈춤"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-general.slint
 msgid "Play again (loop)"
 msgstr "다시 재생(반복)"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-general.slint
 msgid "Go to the next slide"
 msgstr "다음 슬라이드로 이동"
 
@@ -1443,7 +1443,7 @@ msgstr "예배에서 제거"
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear all stop it."
 msgstr "슬라이드가 바뀌어도 입장 음악은 계속 재생돼요. 오디오 지우기와 모두 지우기로 멈춰요."
 
-#: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
+#: ui/dialogs/music.slint ui/operator/media.slint src/ui/dialogs/settings_find.rs src/ui/operator/help.rs
 msgid "Songs"
 msgstr "찬양"
 
@@ -1494,66 +1494,6 @@ msgstr "재생"
 #: ui/dialogs/music.slint ui/dialogs/translation-editor.slint src/i18n/remote_strings.rs
 msgid "Done"
 msgstr "완료"
-
-#: ui/dialogs/network.slint src/i18n/remote_strings.rs src/strings/dialogs.rs
-msgid "Phone remote"
-msgstr "휴대폰 리모컨"
-
-#: ui/dialogs/network.slint
-msgid "Ask for a password when a phone pairs"
-msgstr "휴대폰을 연결할 때 비밀번호 묻기"
-
-#: ui/dialogs/network.slint
-msgid "Phone remote password"
-msgstr "휴대폰 리모컨 비밀번호"
-
-#: ui/dialogs/network.slint
-msgid "Saved — type to change it"
-msgstr "저장됨 — 바꾸려면 입력하세요"
-
-#: ui/dialogs/network.slint
-msgid "New password"
-msgstr "새 비밀번호"
-
-#: ui/dialogs/network.slint
-msgid "Phones still pair with the code or the QR code; the password is asked too. Phones already paired stay paired."
-msgstr "휴대폰은 여전히 코드나 QR 코드로 연결하고, 비밀번호도 함께 물어봐요. 이미 연결된 휴대폰은 그대로 연결돼 있어요."
-
-#: ui/dialogs/network.slint
-msgid "Stage screen on a phone or tablet"
-msgstr "휴대폰이나 태블릿의 무대 화면"
-
-#: ui/dialogs/network.slint
-msgid "Show the stage screen to phones and tablets (read only)"
-msgstr "휴대폰과 태블릿에 무대 화면 표시(보기 전용)"
-
-#: ui/dialogs/network.slint
-msgid "Ask for a password"
-msgstr "비밀번호 묻기"
-
-#: ui/dialogs/network.slint
-msgid "Stage screen password"
-msgstr "무대 화면 비밀번호"
-
-#: ui/dialogs/network.slint
-msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this computer)."
-msgstr "찬양팀의 iPad나 휴대폰에서 이 주소를 여세요(이 컴퓨터와 같은 Wi-Fi)."
-
-#: ui/dialogs/network.slint
-msgid "Control from other gear (TCP)"
-msgstr "다른 장비에서 제어(TCP)"
-
-#: ui/dialogs/network.slint
-msgid "Let other gear send commands over the network"
-msgstr "다른 장비가 네트워크로 명령을 보낼 수 있게 허용"
-
-#: ui/dialogs/network.slint
-msgid "Port"
-msgstr "포트"
-
-#: ui/dialogs/network.slint
-msgid "TCP password"
-msgstr "TCP 비밀번호"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the audience screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
@@ -1656,8 +1596,8 @@ msgid "Save overlay"
 msgstr "오버레이 저장"
 
 #: ui/dialogs/phone.slint
-msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
-msgstr "교회 Wi-Fi에 연결된 휴대폰으로 슬라이드를 조작할 수 있어요. 휴대폰이 이 컴퓨터와 같은 네트워크에 있어야 해요."
+msgid "Use your phone or tablet as a remote: it runs the slides from anywhere on the church Wi-Fi. It must be on the same network as this computer."
+msgstr "휴대폰이나 태블릿을 리모컨으로 쓰세요. 교회 Wi-Fi 어디서든 슬라이드를 넘길 수 있습니다. 이 컴퓨터와 같은 네트워크에 있어야 합니다."
 
 #: ui/dialogs/phone.slint
 msgid " (No network found — connect this computer to Wi-Fi.)"
@@ -1668,8 +1608,8 @@ msgid "Address: "
 msgstr "주소: "
 
 #: ui/dialogs/phone.slint src/i18n/remote_strings.rs
-msgid "Pair a phone"
-msgstr "휴대폰 연결"
+msgid "Pair a phone or tablet"
+msgstr "휴대폰이나 태블릿 연결"
 
 #: ui/dialogs/phone.slint
 msgid "QR code"
@@ -1692,8 +1632,8 @@ msgid "2. Enter this code on the phone:"
 msgstr "2. 휴대폰에 이 코드를 입력하세요:"
 
 #: ui/dialogs/phone.slint
-msgid "Paired phones"
-msgstr "연결된 휴대폰"
+msgid "Paired phones and tablets"
+msgstr "연결된 휴대폰과 태블릿"
 
 #: ui/dialogs/phone.slint
 msgid "May draw on slides"
@@ -1827,11 +1767,11 @@ msgstr "화면"
 msgid "Output"
 msgstr "출력"
 
-#: ui/dialogs/screens.slint
+#: ui/dialogs/screens.slint ui/dialogs/settings-stream.slint
 msgid "Width"
 msgstr "너비"
 
-#: ui/dialogs/screens.slint
+#: ui/dialogs/screens.slint ui/dialogs/settings-stream.slint
 msgid "Height"
 msgstr "높이"
 
@@ -1959,21 +1899,29 @@ msgstr "내 데이터:"
 msgid "Show licences"
 msgstr "라이선스 보기"
 
-#: ui/dialogs/settings-bible.slint src/strings/catalog.rs
+#: ui/dialogs/settings-bible.slint src/strings/catalog.rs src/ui/dialogs/settings_find.rs
 msgid "Default Bible"
 msgstr "기본 성경"
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Also show with every new passage"
 msgstr "새 본문마다 함께 표시"
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Pick up to two. Each slide then shows the same verses from every Bible."
 msgstr "최대 두 개까지 고르세요. 그러면 슬라이드마다 각 성경의 같은 구절이 표시돼요."
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
+msgid "For new passages. Text shrinks automatically when a slide holds more words."
+msgstr "새 본문에 적용됩니다. 슬라이드에 글이 많으면 글자가 저절로 작아집니다."
+
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Add Bibles"
 msgstr "성경 추가"
+
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
+msgid "KJV, WEB and BSB are built in and work offline. The others come from the internet or from their publisher's service."
+msgstr "KJV, WEB, BSB는 기본으로 들어 있고 인터넷 없이 됩니다. 다른 성경은 인터넷이나 출판사 서비스에서 가져옵니다."
 
 #: ui/dialogs/settings-bible.slint
 msgid "Search by name, short name or language"
@@ -1995,11 +1943,11 @@ msgstr "KJV, WEB, BSB는 기본 제공되며 오프라인에서도 작동해요.
 msgid "The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops."
 msgstr "나머지는 저작권이 있어요. 교회에서 한 번 발급받은 키로 출판사의 무료 서비스에 연결하세요. 예배에 추가한 본문은 예배와 함께 저장되므로 인터넷이 끊겨도 계속 표시돼요."
 
-#: ui/dialogs/settings-bible.slint src/ui/dialogs/translation_editor.rs
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/translation_editor.rs
 msgid "Translations"
 msgstr "번역본"
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Online services"
 msgstr "온라인 서비스"
 
@@ -2043,11 +1991,11 @@ msgstr "키 저장"
 msgid "Disconnect"
 msgstr "연결 해제"
 
-#: ui/dialogs/settings-bible.slint src/strings/operator.rs
+#: ui/dialogs/settings-bible.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Bible files"
 msgstr "성경 파일"
 
-#: ui/dialogs/settings-bible.slint
+#: ui/dialogs/settings-bible.slint src/ui/dialogs/settings_find.rs
 msgid "Import a Zefania, OSIS, USX or OpenSong file (.xml or .usx). Only import Bibles that are public domain or that your church is licensed to use. Give it the short name of a translation above (like HCSB) to use the file for that translation."
 msgstr "Zefania, OSIS, USX 또는 OpenSong 파일(.xml 또는 .usx)을 가져오세요. 퍼블릭 도메인이거나 교회에 사용 라이선스가 있는 성경만 가져오세요. 위에 있는 번역본의 약칭(예: HCSB)을 지정하면 그 번역본에 이 파일을 사용해요."
 
@@ -2059,7 +2007,7 @@ msgstr "약칭, 예: HCSB(선택 사항)"
 msgid "Import a Bible file"
 msgstr "성경 파일 가져오기"
 
-#: ui/dialogs/settings-bible.slint ui/dialogs/settings.slint src/strings/catalog.rs
+#: ui/dialogs/settings-bible.slint ui/dialogs/settings-general.slint src/strings/catalog.rs src/ui/dialogs/settings_find.rs
 msgid "Credits"
 msgstr "저작권 표시"
 
@@ -2067,15 +2015,11 @@ msgstr "저작권 표시"
 msgid "RustyPresenter listens to the band and moves the song's slides by itself. The sound never leaves this computer."
 msgstr "RustyPresenter가 찬양팀 소리를 듣고 찬양 슬라이드를 알아서 넘겨요. 소리는 이 컴퓨터 밖으로 나가지 않아요."
 
-#: ui/dialogs/settings-follow.slint
-msgid "Listening"
-msgstr "듣기"
-
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Sound input"
 msgstr "소리 입력"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Best: the lead singer's microphone on its own, sent from the sound board. Next best: the main mix. A microphone in the room hears too much else."
 msgstr "가장 좋은 것: 음향 콘솔에서 따로 보내는 리드 싱어의 마이크. 그다음: 메인 믹스. 실내에 둔 마이크는 다른 소리를 너무 많이 들어요."
 
@@ -2091,23 +2035,19 @@ msgstr "테스트"
 msgid "Sing or say a line: the meter moves when it hears you."
 msgstr "한 줄을 부르거나 말해 보세요. 소리가 들리면 미터가 움직여요."
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Songs follow the singers"
 msgstr "찬양이 싱어를 따라가요"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "A song can have its own in Edit item. Key A turns Auto on and off for the live song, H holds it."
 msgstr "찬양마다 항목 편집에서 따로 정할 수 있어요. A 키는 라이브 찬양의 자동을 켜고 끄고, H 키는 멈춰 둬요."
 
-#: ui/dialogs/settings-follow.slint
-msgid "Timing"
-msgstr "타이밍"
-
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Show the next slide before it is sung"
 msgstr "부르기 전에 다음 슬라이드 보여 주기"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Early enough to read, not so early that people sing ahead."
 msgstr "읽을 시간은 있되, 사람들이 앞서 부르지 않을 만큼만 일찍."
 
@@ -2115,7 +2055,7 @@ msgstr "읽을 시간은 있되, 사람들이 앞서 부르지 않을 만큼만 
 msgid "{} s"
 msgstr "{}초"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "When nobody sings"
 msgstr "아무도 부르지 않을 때"
 
@@ -2123,27 +2063,23 @@ msgstr "아무도 부르지 않을 때"
 msgid "Take the words off after (seconds)"
 msgstr "가사 내리기까지 (초)"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "When someone talks or prays"
 msgstr "누군가 말하거나 기도할 때"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Jump to another part of the song after (words heard there)"
 msgstr "다른 부분으로 건너뛰기까지 (그 부분에서 들린 단어 수)"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "More words: fewer wrong jumps, but slower to follow a change in the order."
 msgstr "단어가 많을수록 잘못 건너뛰는 일은 줄지만, 순서가 바뀌면 늦게 따라가요."
 
-#: ui/dialogs/settings-follow.slint
-msgid "Listening model"
-msgstr "듣기 모델"
-
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Speech model"
 msgstr "음성 모델"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Downloaded once, then it works without internet. Apache-2.0, by Facebook AI."
 msgstr "한 번만 다운로드하면 인터넷 없이 작동해요. Apache-2.0, Facebook AI 제작."
 
@@ -2175,7 +2111,7 @@ msgstr "다운로드한 모델을 이 컴퓨터에서 돌려 보고 어떤 모�
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
 msgstr "녹음을 (예: 지난 주일 것) 자동 따라가기로 재생해서 어떻게 할지 확인해요. 화면에는 아무 변화가 없어요."
 
-#: ui/dialogs/settings-follow.slint ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Recording"
 msgstr "녹화"
 
@@ -2187,7 +2123,7 @@ msgstr "선택한 녹음 없음"
 msgid "Choose recording…"
 msgstr "녹음 선택…"
 
-#: ui/dialogs/settings-follow.slint
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
 msgid "Practice"
 msgstr "연습"
 
@@ -2207,17 +2143,297 @@ msgstr "아직 없어요. 자동 따라가기가 슬라이드를 넘기거나 �
 msgid "Copy to clipboard"
 msgstr "클립보드에 복사"
 
-#: ui/dialogs/settings-follow.slint ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
-msgid "Settings"
-msgstr "설정"
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Audience screen in front"
+msgstr "회중 화면을 맨 앞에"
 
-#: ui/dialogs/settings-follow.slint
-msgid "Review log"
-msgstr "기록"
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Keeps the audience screen above other windows when it has its own monitor, so fades stay smooth."
+msgstr "회중 화면에 전용 모니터가 있을 때 다른 창 위에 두어 전환이 부드럽게 보이도록 합니다."
+
+#: ui/dialogs/settings-general.slint
+msgid "Keep the audience screen in front"
+msgstr "회중 화면을 맨 앞에 두기"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "At start"
+msgstr "시작할 때"
+
+#: ui/dialogs/settings-general.slint
+msgid "Turn the screens on when RustyPresenter starts"
+msgstr "RustyPresenter가 시작되면 화면 켜기"
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Screens…"
+msgstr "화면…"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Graphics"
+msgstr "그래픽"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
+msgstr "화면이 깜빡이거나, 검게 나오거나, RustyPresenter가 종료될 때만 바꾸세요. 다음 실행부터 적용돼요."
+
+#: ui/dialogs/settings-general.slint src/video/bench.rs
+msgid "Test which is fastest"
+msgstr "가장 빠른 것 테스트"
+
+#: ui/dialogs/settings-general.slint
+msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
+msgstr "약 1분. 실행하는 동안 테스트 창이 열리고 닫히며, 프로젝터에 아무것도 없으면 거기에도 나타납니다."
+
+#: ui/dialogs/settings-general.slint
+msgid "Use this"
+msgstr "이것 사용"
+
+#: ui/dialogs/settings-general.slint
+msgid "Restart now"
+msgstr "지금 다시 시작"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Performance"
+msgstr "성능"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Shows under the live preview how many frames a second the screens draw, and the free video memory when the graphics card says. Low numbers mean the computer is struggling."
+msgstr "라이브 미리 보기 아래에 화면이 초당 몇 프레임을 그리는지, 그래픽 카드가 알려 주면 남은 비디오 메모리도 표시해요. 숫자가 낮으면 컴퓨터에 부담이 크다는 뜻이에요."
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Show performance"
+msgstr "성능 표시"
+
+#: ui/dialogs/settings-general.slint ui/dialogs/song-editor.slint ui/operator/slides.slint src/ui/dialogs/settings_find.rs
+msgid "Lines per slide"
+msgstr "슬라이드당 줄 수"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage."
+msgstr "찬양과 성경 본문에 적용돼요. 일부 성경은 저작권 표시가 필요하며, 본문마다 한 번 표시돼요."
+
+#: ui/dialogs/settings-general.slint
+msgid "Show the copyright line"
+msgstr "저작권 줄 표시"
+
+#: ui/dialogs/settings-general.slint
+msgid "On first and last slide"
+msgstr "첫 슬라이드와 마지막 슬라이드에"
+
+#: ui/dialogs/settings-general.slint
+msgid "On first slide"
+msgstr "첫 슬라이드에"
+
+#: ui/dialogs/settings-general.slint
+msgid "On last slide"
+msgstr "마지막 슬라이드에"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Copyright line"
+msgstr "저작권 줄"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Use {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}} and {{license}}. Parts between · with nothing in them are left out. Empty: the usual line."
+msgstr "{{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}}, {{license}}를 사용할 수 있어요. · 사이에 내용이 없는 부분은 빠져요. 비워 두면 기본 줄을 사용해요."
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Church CCLI licence #"
+msgstr "교회 CCLI 라이선스 번호"
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Song use report…"
+msgstr "찬양 사용 보고서…"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted."
+msgstr "웹 브라우저에서 SongSelect로 내려받은 찬양은 저절로 찬양 라이브러리에 들어와요. SongSelect 찬양 파일만 읽고, 다운로드 폴더의 파일은 옮기거나 지우지 않아요."
+
+#: ui/dialogs/settings-general.slint
+msgid "Bring in SongSelect downloads whenever RustyPresenter is open"
+msgstr "RustyPresenter가 열려 있으면 언제나 SongSelect에서 내려받은 찬양 가져오기"
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Songs from SongSelect…"
+msgstr "SongSelect 찬양…"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "When the shape doesn't match the screen"
+msgstr "화면 비율이 맞지 않을 때"
+
+#: ui/dialogs/settings-general.slint
+msgid "Fit (black bars)"
+msgstr "맞춤(검은 여백)"
+
+#: ui/dialogs/settings-general.slint
+msgid "Fill (cut the edges)"
+msgstr "채우기(가장자리 잘림)"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "When a video ends"
+msgstr "동영상이 끝나면"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "For videos added from now on. Change one video in its Edit window."
+msgstr "지금부터 추가하는 동영상에 적용돼요. 동영상 하나만 바꾸려면 그 동영상의 편집 창에서 바꾸세요."
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Pictures added together as slides"
+msgstr "슬라이드로 함께 추가한 사진"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Each picture stays this long, then the next one comes up."
+msgstr "사진마다 이 시간 동안 표시된 다음, 다음 사진으로 넘어가요."
+
+#: ui/dialogs/settings-general.slint
+msgid "Until Next is pressed"
+msgstr "다음을 누를 때까지"
+
+#: ui/dialogs/settings-general.slint
+msgid "5 seconds"
+msgstr "5초"
+
+#: ui/dialogs/settings-general.slint
+msgid "8 seconds"
+msgstr "8초"
+
+#: ui/dialogs/settings-general.slint ui/dialogs/settings-stream.slint
+msgid "10 seconds"
+msgstr "10초"
+
+#: ui/dialogs/settings-general.slint
+msgid "15 seconds"
+msgstr "15초"
+
+#: ui/dialogs/settings-general.slint
+msgid "20 seconds"
+msgstr "20초"
+
+#: ui/dialogs/settings-general.slint ui/dialogs/settings-stream.slint
+msgid "30 seconds"
+msgstr "30초"
+
+#: ui/dialogs/settings-general.slint ui/dialogs/settings-stream.slint
+msgid "1 minute"
+msgstr "1분"
+
+#: ui/dialogs/settings-general.slint ui/operator/media.slint src/ui/dialogs/settings_find.rs
+msgid "Media library"
+msgstr "미디어 라이브러리"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Every file you add is copied into RustyPresenter's own folder, so moving or deleting the original never breaks a slide."
+msgstr "추가한 파일은 모두 RustyPresenter 전용 폴더로 복사되므로, 원본을 옮기거나 삭제해도 슬라이드가 깨지지 않아요."
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Clean up unused media…"
+msgstr "사용하지 않는 미디어 정리…"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Sound goes to"
+msgstr "소리 출력 장치"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Headphones (Listen)"
+msgstr "헤드폰(미리 듣기)"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "View → Listen in headphones sends the sound here only, so you can check a video without the room hearing it."
+msgstr "보기 → 헤드폰으로 듣기를 선택하면 소리가 여기로만 나가서, 예배당에 들리지 않게 동영상을 확인할 수 있어요."
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Delay the room's sound (milliseconds)"
+msgstr "예배당 소리 지연(밀리초)"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "If the sound comes before the picture on the projector, try 50 to 150. 0 is no delay."
+msgstr "프로젝터 화면보다 소리가 먼저 나오면 50~150으로 해 보세요. 0은 지연 없음이에요."
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Speakers"
+msgstr "스피커"
+
+#: ui/dialogs/settings-general.slint
+msgid "Stereo (as recorded)"
+msgstr "스테레오(녹음 그대로)"
+
+#: ui/dialogs/settings-general.slint
+msgid "Mono (both speakers the same)"
+msgstr "모노(양쪽 스피커 동일)"
+
+#: ui/dialogs/settings-general.slint
+msgid "Swap left and right"
+msgstr "좌우 바꾸기"
+
+#: ui/dialogs/settings-general.slint
+msgid "Left speaker only"
+msgstr "왼쪽 스피커만"
+
+#: ui/dialogs/settings-general.slint
+msgid "Right speaker only"
+msgstr "오른쪽 스피커만"
+
+#: ui/dialogs/settings-general.slint
+msgid "The livestream's sound: Settings → Livestream → Sound"
+msgstr "방송 소리: 설정 → 라이브 방송 → 소리"
+
+#: ui/dialogs/settings-general.slint src/strings/stage.rs src/ui/dialogs/settings_find.rs
+msgid "Stage layout"
+msgstr "무대 레이아웃"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "What the stage screen shows. Window → Stage layouts… makes your own."
+msgstr "무대 화면에 표시할 내용이에요. 창 → 무대 레이아웃…에서 직접 만들 수 있어요."
+
+#: ui/dialogs/settings-general.slint ui/operator.slint
+msgid "Stage layouts…"
+msgstr "무대 레이아웃…"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Drawings"
+msgstr "그림"
+
+#: ui/dialogs/settings-general.slint
+msgid "Show drawings on the stage screen"
+msgstr "무대 화면에 그림 표시"
+
+#: ui/dialogs/settings-general.slint
+msgid "The stage screen on phones and tablets: Settings → Remote and network"
+msgstr "휴대폰과 태블릿의 무대 화면: 설정 → 리모컨과 네트워크"
+
+#: ui/dialogs/settings-general.slint
+msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
+msgstr "RustyPresenter가 시작될 때마다, 그리고 하루에 한 번 전체 백업(찬양, 예배, 설정, 모든 동영상·사진·슬라이드)이 만들어져요. 최근 10개는 다음 위치에 보관돼요:"
+
+#: ui/dialogs/settings-general.slint
+msgid "Back up now"
+msgstr "지금 백업"
+
+#: ui/dialogs/settings-general.slint
+msgid "Restore"
+msgstr "복원"
+
+#: ui/dialogs/settings-general.slint
+msgid "No backups yet."
+msgstr "아직 백업이 없어요."
+
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
+msgid "Section keys (C, B, 1–9…)"
+msgstr "섹션 키(C, B, 1–9…)"
+
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
+msgid "Turn off if letters typed by mistake move the screen."
+msgstr "실수로 입력한 글자 때문에 화면이 바뀐다면 끄세요."
 
 #: ui/dialogs/settings-keys.slint
-msgid "Keyboard"
-msgstr "키보드"
+msgid "Letters and numbers jump the live song to a section"
+msgstr "글자와 숫자 키로 라이브 중인 찬양의 섹션으로 이동해요"
+
+#: ui/dialogs/settings-keys.slint ui/operator.slint src/ui/dialogs/settings_find.rs
+msgid "Keyboard shortcuts"
+msgstr "바로 가기 키"
+
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
+msgid "Change any key that has a Change button. New keys work once you save the settings."
+msgstr "바꾸기 버튼이 있는 키는 바꿀 수 있습니다. 새 키는 설정을 저장하면 적용됩니다."
 
 #: ui/dialogs/settings-keys.slint
 msgid "Reset all keys"
@@ -2247,11 +2463,19 @@ msgstr "키를 누르세요…"
 msgid "Change"
 msgstr "변경"
 
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
+msgid "In the slide editor"
+msgstr "슬라이드 편집기에서"
+
 #: ui/dialogs/settings-keys.slint
+msgid "Ctrl+Alt+C copies the chosen box's style and Ctrl+Alt+V pastes it (with nothing chosen: on every text box of the slide). Ctrl+Z undo, Ctrl+Y redo, Ctrl+D duplicate, Ctrl+A choose all, Delete removes, arrows nudge (Shift+arrows resize), Tab chooses the next object."
+msgstr "Ctrl+Alt+C는 선택한 상자의 스타일을 복사하고 Ctrl+Alt+V는 붙여 넣어요(아무것도 선택하지 않으면 슬라이드의 모든 텍스트 상자에 적용). Ctrl+Z 실행 취소, Ctrl+Y 다시 실행, Ctrl+D 복제, Ctrl+A 모두 선택, Delete 삭제, 화살표 키로 조금씩 이동(Shift+화살표 키로 크기 조절), Tab으로 다음 개체를 선택해요."
+
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
 msgid "Clear groups"
 msgstr "지우기 그룹"
 
-#: ui/dialogs/settings-keys.slint
+#: ui/dialogs/settings-keys.slint src/ui/dialogs/settings_find.rs
 msgid "A clear group takes several layers off the screen with one key. The View menu lists them too."
 msgstr "지우기 그룹은 키 하나로 여러 레이어를 화면에서 내려요. 보기 메뉴에도 표시돼요."
 
@@ -2267,17 +2491,9 @@ msgstr "그룹 삭제"
 msgid "Add a clear group"
 msgstr "지우기 그룹 추가"
 
-#: ui/dialogs/settings-keys.slint
-msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
-msgstr "팁: 슬라이드를 클릭하면 바로 화면에 표시돼요. 빨간 테두리는 예배당에 보이는 화면이에요."
-
-#: ui/dialogs/settings-keys.slint
-msgid "In the slide editor"
-msgstr "슬라이드 편집기에서"
-
-#: ui/dialogs/settings-keys.slint
-msgid "Ctrl+Alt+C copies the chosen box's style and Ctrl+Alt+V pastes it (with nothing chosen: on every text box of the slide). Ctrl+Z undo, Ctrl+Y redo, Ctrl+D duplicate, Ctrl+A choose all, Delete removes, arrows nudge (Shift+arrows resize), Tab chooses the next object."
-msgstr "Ctrl+Alt+C는 선택한 상자의 스타일을 복사하고 Ctrl+Alt+V는 붙여 넣어요(아무것도 선택하지 않으면 슬라이드의 모든 텍스트 상자에 적용). Ctrl+Z 실행 취소, Ctrl+Y 다시 실행, Ctrl+D 복제, Ctrl+A 모두 선택, Delete 삭제, 화살표 키로 조금씩 이동(Shift+화살표 키로 크기 조절), Tab으로 다음 개체를 선택해요."
+#: ui/dialogs/settings-language.slint src/ui/dialogs/settings_find.rs
+msgid "Language"
+msgstr "언어"
 
 #: ui/dialogs/settings-language.slint
 msgid "In use"
@@ -2303,39 +2519,27 @@ msgstr "언어 추가…"
 msgid "Help translate RustyPresenter"
 msgstr "RustyPresenter 번역 돕기"
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "Font"
 msgstr "글꼴"
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "Song text size"
 msgstr "가사 글자 크기"
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "(biggest; long lines shrink to fit)"
 msgstr "(최대 크기이며, 긴 줄은 맞게 줄어들어요)"
 
-#: ui/dialogs/settings-look.slint
-msgid "Bible verses"
-msgstr "성경 구절"
-
-#: ui/dialogs/settings-look.slint
-msgid "(for new passages)"
-msgstr "(새 본문에 적용)"
-
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "Bible text size"
 msgstr "성경 글자 크기"
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
-msgid "(biggest)"
-msgstr "(최대 크기)"
-
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint src/ui/dialogs/settings_find.rs
 msgid "Text shrinks automatically when a slide holds more words."
 msgstr "슬라이드에 글이 많으면 글자가 자동으로 작아져요."
 
-#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
+#: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint src/ui/dialogs/settings_find.rs
 msgid "Text position"
 msgstr "글자 위치"
 
@@ -2343,11 +2547,15 @@ msgstr "글자 위치"
 msgid "Lower third"
 msgstr "하단 자막"
 
+#: ui/dialogs/settings-look.slint src/ui/dialogs/settings_find.rs
+msgid "Text style"
+msgstr "글자 스타일"
+
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "ALL CAPS song words"
 msgstr "가사 모두 대문자"
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint src/ui/dialogs/settings_find.rs
 msgid "Fade when the theme changes"
 msgstr "테마가 바뀔 때 페이드"
 
@@ -2359,7 +2567,7 @@ msgstr "(페이드 없음)"
 msgid "({} s)"
 msgstr "({}초)"
 
-#: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs
+#: ui/dialogs/settings-look.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/settings.rs src/ui/dialogs/settings_find.rs
 msgid "Logo"
 msgstr "로고"
 
@@ -2371,723 +2579,179 @@ msgstr "로고 없음(로고 버튼은 검은 화면 표시)"
 msgid "Choose logo"
 msgstr "로고 선택"
 
-#: ui/dialogs/settings-look.slint
+#: ui/dialogs/settings-look.slint src/ui/dialogs/settings_find.rs
 msgid "Default background"
 msgstr "기본 배경"
 
-#: ui/dialogs/settings-media.slint
-msgid "New pictures and videos"
-msgstr "새 사진 및 동영상"
-
-#: ui/dialogs/settings-media.slint
-msgid "When the shape doesn't match the screen"
-msgstr "화면 비율이 맞지 않을 때"
-
-#: ui/dialogs/settings-media.slint
-msgid "Fit (black bars)"
-msgstr "맞춤(검은 여백)"
-
-#: ui/dialogs/settings-media.slint
-msgid "Fill (cut the edges)"
-msgstr "채우기(가장자리 잘림)"
-
-#: ui/dialogs/settings-media.slint
-msgid "When a video ends"
-msgstr "동영상이 끝나면"
-
-#: ui/dialogs/settings-media.slint
-msgid "For videos added from now on. Change one video in its Edit window."
-msgstr "지금부터 추가하는 동영상에 적용돼요. 동영상 하나만 바꾸려면 그 동영상의 편집 창에서 바꾸세요."
-
-#: ui/dialogs/settings-media.slint
-msgid "Pictures added together as slides"
-msgstr "슬라이드로 함께 추가한 사진"
-
-#: ui/dialogs/settings-media.slint
-msgid "Each picture stays this long, then the next one comes up."
-msgstr "사진마다 이 시간 동안 표시된 다음, 다음 사진으로 넘어가요."
-
-#: ui/dialogs/settings-media.slint
-msgid "Until Next is pressed"
-msgstr "다음을 누를 때까지"
-
-#: ui/dialogs/settings-media.slint
-msgid "5 seconds"
-msgstr "5초"
-
-#: ui/dialogs/settings-media.slint
-msgid "8 seconds"
-msgstr "8초"
-
-#: ui/dialogs/settings-media.slint
-msgid "10 seconds"
-msgstr "10초"
-
-#: ui/dialogs/settings-media.slint
-msgid "15 seconds"
-msgstr "15초"
-
-#: ui/dialogs/settings-media.slint
-msgid "20 seconds"
-msgstr "20초"
-
-#: ui/dialogs/settings-media.slint
-msgid "30 seconds"
-msgstr "30초"
-
-#: ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
-msgid "1 minute"
-msgstr "1분"
-
-#: ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
-msgid "Sound"
-msgstr "소리"
-
-#: ui/dialogs/settings-media.slint
-msgid "Headphones (Listen)"
-msgstr "헤드폰(미리 듣기)"
-
-#: ui/dialogs/settings-media.slint
-msgid "View → Listen in headphones sends the sound here only, so you can check a video without the room hearing it."
-msgstr "보기 → 헤드폰으로 듣기를 선택하면 소리가 여기로만 나가서, 예배당에 들리지 않게 동영상을 확인할 수 있어요."
-
-#: ui/dialogs/settings-media.slint
-msgid "Delay the room's sound (milliseconds)"
-msgstr "예배당 소리 지연(밀리초)"
-
-#: ui/dialogs/settings-media.slint
-msgid "If the sound comes before the picture on the projector, try 50 to 150. 0 is no delay."
-msgstr "프로젝터 화면보다 소리가 먼저 나오면 50~150으로 해 보세요. 0은 지연 없음이에요."
-
-#: ui/dialogs/settings-media.slint
-msgid "Speakers"
-msgstr "스피커"
-
-#: ui/dialogs/settings-media.slint
-msgid "Stereo (as recorded)"
-msgstr "스테레오(녹음 그대로)"
-
-#: ui/dialogs/settings-media.slint
-msgid "Mono (both speakers the same)"
-msgstr "모노(양쪽 스피커 동일)"
-
-#: ui/dialogs/settings-media.slint
-msgid "Swap left and right"
-msgstr "좌우 바꾸기"
-
-#: ui/dialogs/settings-media.slint
-msgid "Left speaker only"
-msgstr "왼쪽 스피커만"
-
-#: ui/dialogs/settings-media.slint
-msgid "Right speaker only"
-msgstr "오른쪽 스피커만"
-
-#: ui/dialogs/settings-media.slint
-msgid "File → Start recording (or the Record button at the top) saves what the audience screen shows as an MP4 video."
-msgstr "파일 → 녹화 시작(또는 맨 위의 녹화 버튼)을 누르면 예배당 화면에 나오는 내용을 MP4 동영상으로 저장해요."
-
-#: ui/dialogs/settings-media.slint ui/operator/media.slint ui/operator/slides.slint
-msgid "Picture size"
-msgstr "사진 크기"
-
-#: ui/dialogs/settings-media.slint
-msgid "720p uses less of the computer and the disk (about 1.4 GB an hour at most); 1080p is sharper (about 2.8 GB)."
-msgstr "720p는 컴퓨터와 디스크를 덜 사용해요(시간당 최대 약 1.4GB). 1080p는 더 선명해요(약 2.8GB)."
-
-#: ui/dialogs/settings-media.slint
-msgid "720p"
-msgstr "720p"
-
-#: ui/dialogs/settings-media.slint
-msgid "1080p"
-msgstr "1080p"
-
-#: ui/dialogs/settings-media.slint
-msgid "Video encoder"
-msgstr "비디오 인코더"
-
-#: ui/dialogs/settings-media.slint
-msgid "Automatic suits most computers. A graphics card's encoder leaves the processor free; it is tried first, and Automatic is used if it does not work on this computer."
-msgstr "대부분의 컴퓨터는 자동이 알맞습니다. 그래픽카드 인코더는 프로세서 부담을 덜어 줍니다. 먼저 시험해 보고, 이 컴퓨터에서 안 되면 자동을 씁니다."
-
-#: ui/dialogs/settings-media.slint
-msgid "The processor (x264)"
-msgstr "프로세서 (x264)"
-
-#: ui/dialogs/settings-media.slint
-msgid "NVIDIA graphics card"
-msgstr "NVIDIA 그래픽카드"
-
-#: ui/dialogs/settings-media.slint
-msgid "Intel graphics"
-msgstr "Intel 그래픽"
-
-#: ui/dialogs/settings-media.slint
-msgid "AMD graphics card"
-msgstr "AMD 그래픽카드"
-
-#: ui/dialogs/settings-media.slint
-msgid "Windows' own"
-msgstr "Windows 기본"
-
-#: ui/dialogs/settings-media.slint
-msgid "OpenH264"
-msgstr "OpenH264"
-
-#: ui/dialogs/settings-media.slint
-msgid "The Mac's own"
-msgstr "Mac 기본"
-
-#: ui/dialogs/settings-media.slint
-msgid "Bitrate"
-msgstr "비트레이트"
-
-#: ui/dialogs/settings-media.slint
-msgid "How much picture goes out each second. Automatic: 3000 kbit/s for 720p, 6000 for 1080p. More is sharper and needs a faster upload."
-msgstr "초당 보내는 화면의 양. 자동: 720p는 3000 kbit/s, 1080p는 6000. 높을수록 선명하고 더 빠른 업로드가 필요합니다."
-
-#: ui/dialogs/settings-media.slint
-msgid "Save recordings in"
-msgstr "녹화 저장 위치"
-
-#: ui/dialogs/settings-media.slint
-msgid "Choose folder…"
-msgstr "폴더 선택…"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound in the recording"
-msgstr "녹화에 들어갈 소리"
-
-#: ui/dialogs/settings-media.slint
-msgid "The app's sound is taken from the video and song files when the recording stops, so nothing else on the computer is heard."
-msgstr "녹화를 멈출 때 동영상과 곡 파일에서 앱의 소리를 가져오므로, 컴퓨터의 다른 소리는 들어가지 않아요."
-
-#: ui/dialogs/settings-media.slint
-msgid "Livestream"
-msgstr "라이브 방송"
-
-#: ui/dialogs/settings-media.slint
-msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on."
-msgstr "송출 대상을 켜면 녹화 옆에 '라이브 시작' 버튼이 나타나요. 라이브 시작은 평소처럼 녹화하면서 같은 화면과 소리를 켜진 모든 송출 대상으로 보내요."
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound from this computer"
-msgstr "이 컴퓨터의 소리"
-
-#: ui/dialogs/settings-media.slint
-msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
-msgstr "이 출력에서 나는 모든 소리가 방송에 함께 나가요 (영상, 노래, 그리고 그쪽으로 보내지는 다른 소리도요). 위에서 고른 마이크 또는 라인 입력과 섞여요."
-
-#: ui/dialogs/settings-media.slint
-msgid "Upload speed"
-msgstr "업로드 속도"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits."
-msgstr "공개 속도 테스트에 몇 메가바이트의 0을 보내고, 켜 둔 모든 송출 대상으로 방송을 보낼 수 있는지 알려줍니다. 맞는 녹화 크기를 고릅니다."
-
-#: ui/dialogs/settings-media.slint
-msgid "Testing…"
-msgstr "테스트 중…"
-
-#: ui/dialogs/settings-media.slint
-msgid "Test the upload speed"
-msgstr "업로드 속도 테스트"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound delay"
-msgstr "소리 지연"
-
-#: ui/dialogs/settings-media.slint
-msgid "If the sound in the stream comes before people's lips move, the camera's picture is late: hold the sound back until they match."
-msgstr "방송에서 입이 움직이기 전에 소리가 먼저 들리면 카메라 화면이 늦게 오는 것입니다. 맞을 때까지 소리를 늦추세요."
-
-#: ui/dialogs/settings-media.slint
-msgid "{} ms"
-msgstr "{} ms"
-
-#: ui/dialogs/settings-media.slint
-msgid "Stream delay"
-msgstr "방송 지연"
-
-#: ui/dialogs/settings-media.slint
-msgid "What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer."
-msgstr "방송으로 나가는 것을 이만큼 늦춰서, 시청자가 보기 전에 멈춤이나 음소거로 막을 수 있습니다. 녹화는 늦춰지지 않습니다. 시청자 댓글은 그 댓글이 답하는 장면보다 늦게 들어옵니다."
-
-#: ui/dialogs/settings-media.slint src/stream/sound_setup.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
-msgid "None"
-msgstr "없음"
-
-#: ui/dialogs/settings-media.slint
-msgid "Slow internet"
-msgstr "느린 인터넷"
-
-#: ui/dialogs/settings-media.slint
-msgid "When a destination's internet cannot keep up, it gets a lighter stream until it can, instead of skipping. The recording and the other destinations keep the full picture. This uses more of the computer."
-msgstr "송출 대상의 인터넷이 따라가지 못하면, 끊기는 대신 따라갈 수 있을 때까지 더 가벼운 방송을 보냅니다. 녹화와 다른 송출 대상은 원래 화질을 유지합니다. 컴퓨터를 더 많이 사용합니다."
-
-#: ui/dialogs/settings-media.slint
-msgid "Send a lighter stream where the internet is slow"
-msgstr "인터넷이 느린 곳에는 더 가벼운 방송 보내기"
-
-#: ui/dialogs/settings-media.slint
-msgid "NDI"
-msgstr "NDI"
-
-#: ui/dialogs/settings-media.slint
-msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras above."
-msgstr "라이브 중에 이 네트워크의 다른 컴퓨터와 프로그램(OBS, vMix, 비디오 스위처)이 이것을 받을 수 있습니다. NDI 카메라는 위의 카메라 목록에 있습니다."
-
-#: ui/dialogs/settings-media.slint
-msgid "NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."
-msgstr "NDI를 쓰려면 이 컴퓨터에 ndi.video의 무료 NDI Tools가 있어야 합니다. 설치한 다음 설정을 다시 여세요."
-
-#: ui/dialogs/settings-media.slint
-msgid "Send the stream over NDI too (picture and sound)"
-msgstr "방송을 NDI로도 보내기 (화면과 소리)"
-
-#: ui/dialogs/settings-media.slint
-msgid "Send the words alone over NDI, on a see-through background (for keying)"
-msgstr "가사만 투명한 배경으로 NDI에 보내기 (키잉용)"
-
-#: ui/dialogs/settings-media.slint
-msgid "Words alone"
-msgstr "가사만"
-
-#: ui/dialogs/settings-media.slint
-msgid "While you are live, a second video is saved next to the recording, its name ending in words.mov: only the words, with nothing behind them. When you edit the service video, put it on top to add the words. It stays small because the words seldom change."
-msgstr "방송 중에는 녹화 파일 옆에 동영상이 하나 더 저장돼요. 이름이 words.mov로 끝나고, 뒤에 아무것도 없이 가사만 들어 있어요. 예배 영상을 편집할 때 맨 위에 올리면 가사가 들어가요. 가사는 자주 바뀌지 않아서 파일이 작아요."
-
-#: ui/dialogs/settings-media.slint
-msgid "Also record the words alone, on a see-through background (for video editing)"
-msgstr "가사만 투명한 배경으로 따로 녹화하기 (영상 편집용)"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound levels"
-msgstr "소리 크기"
-
-#: ui/dialogs/settings-media.slint
-msgid "Turn each sound up or down in the stream only (not in the room)."
-msgstr "방송에서만 각 소리를 키우거나 줄입니다 (예배당 소리는 그대로)."
-
-#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint src/record/mod.rs
-msgid "Microphone or line-in"
-msgstr "마이크 또는 라인 입력"
-
-#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint
-msgid "{} dB"
-msgstr "{} dB"
-
-#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint src/app.rs src/record/mod.rs
-msgid "This computer"
-msgstr "이 컴퓨터"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sound clean-up"
-msgstr "소리 정리"
-
-#: ui/dialogs/settings-media.slint
-msgid "For the stream only. Evening out keeps quiet speaking easy to hear at home and loud singing from crackling."
-msgstr "방송에만 적용됩니다. 고르게 하면 작은 말소리도 집에서 잘 들리고 큰 찬양 소리도 찢어지지 않습니다."
-
-#: ui/dialogs/settings-media.slint
-msgid "Even out loud and quiet moments"
-msgstr "큰 소리와 작은 소리를 고르게"
-
-#: ui/dialogs/settings-media.slint
-msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
-msgstr "마이크나 라인 입력의 웅웅거림과 쉿 소리 없애기 (음악이 둔해질 수 있음)"
-
-#: ui/dialogs/settings-media.slint
-msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
-msgstr "녹화에 각 소리를 별도 트랙으로도 남겨서 나중에 다시 균형을 맞출 수 있게 하기"
-
-#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
-msgid "Camera"
-msgstr "카메라"
-
-#: ui/dialogs/settings-media.slint
-msgid "A camera or capture card for the stream's camera scenes (and its recording)."
-msgstr "방송의 카메라 장면(과 녹화)에 쓸 카메라 또는 캡처 카드."
-
-#: ui/dialogs/settings-media.slint
-msgid "Camera control address"
-msgstr "카메라 제어 주소"
-
-#: ui/dialogs/settings-media.slint
-msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
-msgstr "PTZ 카메라를 저장된 위치로 움직이려면 카메라 주소를 입력하세요 (예: 192.168.1.60)"
-
-#: ui/dialogs/settings-media.slint
-msgid "Network camera address"
-msgstr "네트워크 카메라 주소"
-
-#: ui/dialogs/settings-media.slint
-msgid "The camera's address, like rtsp://192.168.1.50:554/stream1"
-msgstr "카메라 주소 (예: rtsp://192.168.1.50:554/stream1)"
-
-#: ui/dialogs/settings-media.slint
-msgid "Second camera"
-msgstr "두 번째 카메라"
-
-#: ui/dialogs/settings-media.slint
-msgid "Another camera to switch to while live, from the Cameras box beside the live screen."
-msgstr "방송 중에 바꿀 수 있는 다른 카메라예요. 라이브 화면 옆의 카메라 상자에서 바꿔요."
-
-#: ui/dialogs/settings-media.slint
-msgid "Third camera"
-msgstr "세 번째 카메라"
-
-#: ui/dialogs/settings-media.slint
-msgid "Another camera to switch to while live."
-msgstr "방송 중에 바꿀 수 있는 다른 카메라예요."
-
-#: ui/dialogs/settings-media.slint
-msgid "Fourth camera"
-msgstr "네 번째 카메라"
-
-#: ui/dialogs/settings-media.slint
-msgid "When a camera sends nothing"
-msgstr "카메라에서 아무것도 오지 않을 때"
-
-#: ui/dialogs/settings-media.slint
-msgid "What the stream shows in a camera's place while it is unplugged or sends no picture. The camera comes back by itself as soon as it sends again."
-msgstr "카메라가 빠져 있거나 화면을 보내지 않는 동안 방송에서 그 자리에 보여 줄 것. 카메라가 다시 보내면 저절로 돌아와요."
-
-#: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
-msgid "The audience screen"
-msgstr "예배당 화면"
-
-#: ui/dialogs/settings-media.slint
-msgid "The church logo"
-msgstr "교회 로고"
-
-#: ui/dialogs/settings-media.slint src/strings/screens.rs src/theme/backgrounds.rs
-msgid "Black"
-msgstr "검은색"
-
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Use your phone or tablet as a remote"
+msgstr "휴대폰이나 태블릿을 리모컨으로 쓰기"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Pair it once with the code or the QR code; it stays paired. It runs the slides from anywhere in the room on the same Wi-Fi."
+msgstr "코드나 QR 코드로 한 번 연결하면 계속 연결되어 있습니다. 같은 Wi-Fi라면 방 어디서든 슬라이드를 넘길 수 있습니다."
+
+#: ui/dialogs/settings-remote.slint
+msgid "Pair a phone or tablet…"
+msgstr "휴대폰이나 태블릿 연결…"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Remote password"
+msgstr "리모컨 비밀번호"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Phones and tablets still pair with the code or the QR code; the password is asked too. Ones already paired stay paired."
+msgstr "휴대폰과 태블릿은 여전히 코드나 QR 코드로 연결하고, 비밀번호도 묻습니다. 이미 연결된 기기는 그대로입니다."
+
+#: ui/dialogs/settings-remote.slint
+msgid "Ask for a password when a phone or tablet pairs"
+msgstr "휴대폰이나 태블릿을 연결할 때 비밀번호 묻기"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Saved — type to change it"
+msgstr "저장됨 — 바꾸려면 입력하세요"
+
+#: ui/dialogs/settings-remote.slint
+msgid "New password"
+msgstr "새 비밀번호"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Drawing from a phone"
+msgstr "휴대폰에서 그리기"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "On the phone, “Fades” ink works like a laser pointer: it goes away by itself."
+msgstr "휴대폰에서 “사라짐” 잉크는 레이저 포인터처럼 작동해서 저절로 없어져요."
+
+#: ui/dialogs/settings-remote.slint
+msgid "Keep drawings when the slide changes"
+msgstr "슬라이드가 바뀌어도 그림 유지"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Fading ink disappears after (seconds, 1–30)"
+msgstr "사라지는 잉크 표시 시간(초, 1–30)"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Limits"
+msgstr "제한"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Limit phone drawing"
+msgstr "휴대폰 그리기 제한"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Most lines on the screen at once"
+msgstr "한 화면의 최대 선 수"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Most drawing updates a second from one phone"
+msgstr "휴대폰 한 대의 초당 최대 그리기 업데이트 수"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Show drawings on the stage screen: Settings → Stage screen"
+msgstr "무대 화면에 그림 표시: 설정 → 무대 화면"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Stage screen on phones and tablets"
+msgstr "휴대폰과 태블릿의 무대 화면"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Singers and musicians see the stage screen on their own phone or tablet (read only), on the same Wi-Fi as this computer."
+msgstr "찬양팀과 연주자가 자기 휴대폰이나 태블릿으로 무대 화면을 봅니다(보기만 가능). 이 컴퓨터와 같은 Wi-Fi를 써야 합니다."
+
+#: ui/dialogs/settings-remote.slint
+msgid "Show the stage screen to phones and tablets (read only)"
+msgstr "휴대폰과 태블릿에 무대 화면 표시(보기 전용)"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Ask for a password"
+msgstr "비밀번호 묻기"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Stage screen password"
+msgstr "무대 화면 비밀번호"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this computer)."
+msgstr "찬양팀의 iPad나 휴대폰에서 이 주소를 여세요(이 컴퓨터와 같은 Wi-Fi)."
+
+#: ui/dialogs/settings-remote.slint
+msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+msgstr "교회 Wi-Fi에 연결된 휴대폰은 방송용 카메라나 마이크가 될 수 있습니다. 처음에는 휴대폰이 이 페이지가 비공개가 아니라고 경고하는데, 페이지가 이 컴퓨터에서 오기 때문이며 정상입니다. 고급(iPhone은 세부사항 보기)을 누르고 페이지로 이동하세요. 휴대폰은 화면을 켜 두고 충전기에 꽂아 두세요."
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Phone as a camera"
 msgstr "휴대폰을 카메라로"
 
-#: ui/dialogs/settings-media.slint
-msgid "Scenes"
-msgstr "장면"
-
-#: ui/dialogs/settings-media.slint
-msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the audience screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
-msgstr "찬양과 성경 구절은 카메라에 가사를 얹어, 영상과 프레젠테이션은 예배당 화면으로, 화면에 아무것도 없으면 카메라로 나갑니다. 라이브 옆 장면 버튼으로 고른 장면은 다음 예배 항목까지 유지됩니다."
-
-#: ui/dialogs/settings-media.slint
-msgid "Choose the scene by itself from what is live"
-msgstr "라이브 내용에 따라 장면을 자동으로 고르기"
-
-#: ui/dialogs/settings-media.slint
-msgid "Presentations:"
-msgstr "프레젠테이션:"
-
-#: ui/dialogs/settings-media.slint
-msgid "The audience screen with the camera in a corner"
-msgstr "모서리에 카메라가 있는 예배당 화면"
-
-#: ui/dialogs/settings-media.slint
-msgid "Scene layout"
-msgstr "장면 배치"
-
-#: ui/dialogs/settings-media.slint
-msgid "Where the camera goes when it is in a corner of the audience screen, and where the words go over the camera."
-msgstr "예배당 화면 모서리에 카메라를 둘 때의 위치와, 카메라 위 가사의 위치입니다."
-
-#: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
-msgid "Small"
-msgstr "작게"
-
-#: ui/dialogs/settings-media.slint
-msgid "Medium"
-msgstr "보통"
-
-#: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
-msgid "Large"
-msgstr "크게"
-
-#: ui/dialogs/settings-media.slint
-msgid "Words over the camera:"
-msgstr "카메라 위 가사:"
-
-#: ui/dialogs/settings-media.slint
-msgid "At the bottom"
-msgstr "아래"
-
-#: ui/dialogs/settings-media.slint
-msgid "At the top"
-msgstr "위"
-
-#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
-msgid "Your scenes"
-msgstr "내 장면"
-
-#: ui/dialogs/settings-media.slint
-msgid "Make scenes of your own from cameras, the audience screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
-msgstr "카메라, 예배당 화면, 가사, 사진, 색, 텍스트로 나만의 장면을 만들어요. 방송 중에는 기본 제공 장면 다음에 나와요."
-
-#: ui/dialogs/settings-media.slint
-msgid "Your scenes…"
-msgstr "내 장면…"
-
-#: ui/dialogs/settings-media.slint
-msgid "None yet"
-msgstr "아직 없음"
-
-#: ui/dialogs/settings-media.slint
-msgid "1 scene"
-msgstr "장면 1개"
-
-#: ui/dialogs/settings-media.slint
-msgid "{} scenes"
-msgstr "장면 {}개"
-
-#: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
-msgid "Starting soon"
-msgstr "곧 시작합니다"
-
-#: ui/dialogs/settings-media.slint
-msgid "Before the service, with the pre-service countdown under the words while it runs."
-msgstr "예배 전. 카운트다운이 진행되는 동안 글자 아래에 표시됩니다."
-
-#: ui/dialogs/settings-media.slint
-msgid "Use a picture…"
-msgstr "그림 사용…"
-
-#: ui/dialogs/settings-media.slint
-msgid "Use words"
-msgstr "글자 사용"
-
-#: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/song.rs
-msgid "Ending"
-msgstr "엔딩"
-
-#: ui/dialogs/settings-media.slint
-msgid "After the service's last item."
-msgstr "예배의 마지막 항목 뒤."
-
-#: ui/dialogs/settings-media.slint src/stream/pictures.rs
-msgid "Thanks for joining us"
-msgstr "함께해 주셔서 감사합니다"
-
-#: ui/dialogs/settings-media.slint ui/operator/follow.slint src/i18n/remote_strings.rs src/stream/scene.rs
-msgid "Hold"
-msgstr "멈춤"
-
-#: ui/dialogs/settings-media.slint
-msgid "For a break, chosen with the scene button."
-msgstr "쉬는 시간용. 장면 버튼으로 고릅니다."
-
-#: ui/dialogs/settings-media.slint src/stream/pictures.rs
-msgid "We'll be right back"
-msgstr "잠시 후 돌아오겠습니다"
-
-#: ui/dialogs/settings-media.slint
-msgid "Stream to"
-msgstr "방송 대상"
-
-#: ui/dialogs/settings-media.slint
-msgid "A stream key is a password: whoever has it can stream as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
-msgstr "스트림 키는 비밀번호예요. 이 키가 있으면 누구나 당신 이름으로 방송할 수 있어요. 입력하는 대로 이 컴퓨터의 비밀번호 저장소에 보관되고, 백업이나 예배 파일에는 절대 들어가지 않아요."
-
-#: ui/dialogs/settings-media.slint
-msgid "YouTube stream key"
-msgstr "YouTube 스트림 키"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sign in"
-msgstr "로그인"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
-msgstr "키를 붙여 넣는 대신 로그인: 라이브 시작이 제목과 함께 방송을 직접 만듭니다"
-
-#: ui/dialogs/settings-media.slint
-msgid "Signed in as {}"
-msgstr "{}(으)로 로그인됨"
-
-#: ui/dialogs/settings-media.slint
-msgid "Sign out"
-msgstr "로그아웃"
-
-#: ui/dialogs/settings-media.slint
-msgid "Facebook stream key"
-msgstr "Facebook 스트림 키"
-
-#: ui/dialogs/settings-media.slint
-msgid "Twitch stream key"
-msgstr "Twitch 스트림 키"
-
-#: ui/dialogs/settings-media.slint
-msgid "The server's stream key"
-msgstr "서버의 스트림 키"
-
-#: ui/dialogs/settings-media.slint
-msgid "Its stream key, if it has one"
-msgstr "스트림 키 (있는 경우)"
-
-#: ui/dialogs/settings-media.slint
-msgid "Instagram's server address"
-msgstr "Instagram 서버 주소"
-
-#: ui/dialogs/settings-media.slint
-msgid "Its server address, if Instagram shows one"
-msgstr "서버 주소(Instagram에 나오는 경우)"
-
-#: ui/dialogs/settings-media.slint
-msgid "Instagram stream key"
-msgstr "Instagram 스트림 키"
-
-#: ui/dialogs/settings-media.slint
-msgid "X's server address"
-msgstr "X 서버 주소"
-
-#: ui/dialogs/settings-media.slint
-msgid "Its server address, if X shows one"
-msgstr "서버 주소(X에 나오는 경우)"
-
-#: ui/dialogs/settings-media.slint
-msgid "X stream key"
-msgstr "X 스트림 키"
-
-#: ui/dialogs/settings-media.slint
-msgid "TikTok's server address"
-msgstr "TikTok 서버 주소"
-
-#: ui/dialogs/settings-media.slint
-msgid "The server address TikTok shows with the key"
-msgstr "TikTok이 키와 함께 보여 주는 서버 주소"
-
-#: ui/dialogs/settings-media.slint
-msgid "TikTok stream key"
-msgstr "TikTok 스트림 키"
-
-#: ui/dialogs/settings-media.slint src/stream/mod.rs
-msgid "Instagram, X and TikTok give stream keys only to some accounts (TikTok asks for enough followers; Instagram's come from Live Producer on a computer). Each shows a server address with the key: paste both. Their keys often work for one broadcast only."
-msgstr "Instagram, X, TikTok은 일부 계정에만 스트림 키를 줘요(TikTok은 팔로워 수가 충분해야 하고, Instagram은 컴퓨터의 Live Producer에서 받아요). 모두 키와 함께 서버 주소를 보여 주니 둘 다 붙여 넣으세요. 키는 방송 한 번에만 쓸 수 있는 경우가 많아요."
-
-#: ui/dialogs/settings-media.slint
-msgid "Tall for phones"
-msgstr "휴대폰용 세로 화면"
-
-#: ui/dialogs/settings-media.slint
-msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other phone apps): the wide picture across the middle, black above and below. The recording stays wide."
-msgstr "이 대상에는 세로 화면을 보냅니다(YouTube Shorts, 릴스, TikTok 등 휴대폰 앱용). 가로 화면을 가운데에 두고 위아래는 검게 채웁니다. 녹화는 가로 그대로입니다."
-
-#: ui/dialogs/settings-media.slint
-msgid "More settings"
-msgstr "설정 더 보기"
-
-#: ui/dialogs/settings-media.slint
-msgid "Pictures a second, video format, sound quality, which network card sends, each destination's own quality, the recording's file type and name, and setups saved by name (Sunday, Wedding) to use again in one go."
-msgstr "초당 화면 수, 영상 형식, 음질, 보낼 네트워크 카드, 송출 대상별 화질, 녹화 파일 형식과 이름, 그리고 이름을 붙여 저장해 두고 한 번에 다시 쓰는 구성(주일, 결혼식)."
-
-#: ui/dialogs/settings-media.slint
-msgid "More settings and saved setups…"
-msgstr "설정 더 보기 및 저장한 구성…"
-
-#: ui/dialogs/settings-media.slint
-msgid "Setup: {}"
-msgstr "구성: {}"
-
-#: ui/dialogs/settings-media.slint
-msgid "Broadcast title"
-msgstr "방송 제목"
-
-#: ui/dialogs/settings-media.slint
-msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date, {{weekday}} the day's name and {{time}} the time; the description can have them too."
-msgstr "YouTube와 Facebook에서 각 방송의 이름. {{date}}는 그날 날짜, {{weekday}}는 요일, {{time}}은 시각이 돼요. 설명에도 넣을 수 있어요."
-
-#: ui/dialogs/settings-media.slint
-msgid "Sunday Service — {{date}}"
-msgstr "주일 예배 — {{date}}"
-
-#: ui/dialogs/settings-media.slint
-msgid "Description"
-msgstr "설명"
-
-#: ui/dialogs/settings-media.slint
-msgid "Broadcast description"
-msgstr "방송 설명"
-
-#: ui/dialogs/settings-media.slint
-msgid "What viewers read under the video"
-msgstr "시청자가 동영상 아래에서 읽는 내용"
-
-#: ui/dialogs/settings-media.slint
-msgid "Next YouTube broadcast: made when you go live"
-msgstr "다음 YouTube 방송: 라이브 시작 때 만들어짐"
-
-#: ui/dialogs/settings-media.slint
-msgid "Next YouTube broadcast: {}"
-msgstr "다음 YouTube 방송: {}"
-
-#: ui/dialogs/settings-media.slint
-msgid "Copy the link"
-msgstr "링크 복사"
-
-#: ui/dialogs/settings-media.slint
-msgid "Make it now, to share the link"
-msgstr "지금 만들어 링크 공유"
-
-#: ui/dialogs/settings-media.slint
-msgid "Make a new one"
-msgstr "새로 만들기"
-
-#: ui/dialogs/settings-media.slint
-msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
-msgstr "다음 예배의 YouTube 방송을 그날과 시작 시간으로 지금 만듭니다. 일요일 전에 링크를 공유할 수 있고, 라이브 시작 때 이것을 씁니다."
-
-#: ui/dialogs/settings-media.slint
-msgid "YouTube thumbnail: a frame of the stream"
-msgstr "YouTube 썸네일: 방송의 한 장면"
-
-#: ui/dialogs/settings-media.slint
-msgid "YouTube thumbnail: {}"
-msgstr "YouTube 썸네일: {}"
-
-#: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
-msgid "Choose a picture…"
-msgstr "그림 고르기…"
-
-#: ui/dialogs/settings-media.slint ui/operator/cameras.slint
-msgid "No picture"
-msgstr "그림 없음"
-
-#: ui/dialogs/settings-media.slint
-msgid "Who can watch on YouTube"
-msgstr "YouTube에서 볼 수 있는 사람"
-
-#: ui/dialogs/settings-media.slint
-msgid "Everyone"
-msgstr "모두"
-
-#: ui/dialogs/settings-media.slint
-msgid "Only people with the link"
-msgstr "링크가 있는 사람만"
-
-#: ui/dialogs/settings-media.slint ui/operator/media.slint
-msgid "Media library"
-msgstr "미디어 라이브러리"
-
-#: ui/dialogs/settings-media.slint
-msgid "Every file you add is copied into RustyPresenter's own folder, so moving or deleting the original never breaks a slide."
-msgstr "추가한 파일은 모두 RustyPresenter 전용 폴더로 복사되므로, 원본을 옮기거나 삭제해도 슬라이드가 깨지지 않아요."
-
-#: ui/dialogs/settings-media.slint ui/operator.slint
-msgid "Clean up unused media…"
-msgstr "사용하지 않는 미디어 정리…"
-
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
+msgstr "먼저 휴대폰이나 태블릿 연결로 휴대폰을 연결하세요. 영상을 보내기 시작하면 카메라 목록에 휴대폰 카메라로 나옵니다."
+
+#: ui/dialogs/settings-remote.slint
+msgid "On the phone, open:"
+msgstr "휴대폰에서 여세요:"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Then choose it in Settings → Livestream → Cameras"
+msgstr "그다음 설정 → 라이브 방송 → 카메라에서 고르세요"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Phone as a microphone"
+msgstr "휴대폰을 마이크로"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
+msgstr "목사님 핀마이크나 선 없는 실내 마이크로 쓸 수 있습니다. 먼저 휴대폰 무대 화면을 켜세요. 휴대폰 페이지가 거기서 옵니다."
+
+#: ui/dialogs/settings-remote.slint
+msgid "On the phone, open this page and press Start:"
+msgstr "휴대폰에서 이 페이지를 열고 시작을 누르세요:"
+
+#: ui/dialogs/settings-remote.slint
+msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
+msgstr "휴대폰 무대 화면이 꺼져 있어서 휴대폰이 아직 이 페이지에 들어올 수 없습니다."
+
+#: ui/dialogs/settings-remote.slint
+msgid "Then choose Phone in Settings → Livestream → Sound"
+msgstr "그다음 설정 → 라이브 방송 → 소리에서 휴대폰을 고르세요"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "Control from other gear (TCP)"
+msgstr "다른 장비에서 제어(TCP)"
+
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+msgid "For a stream deck, a lighting desk or a control system that sends text commands."
+msgstr "Stream Deck, 조명 콘솔, 글자 명령을 보내는 제어 장치용입니다."
+
+#: ui/dialogs/settings-remote.slint
+msgid "Let other gear send commands over the network"
+msgstr "다른 장비가 네트워크로 명령을 보낼 수 있게 허용"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Port"
+msgstr "포트"
+
+#: ui/dialogs/settings-remote.slint
+msgid "TCP password"
+msgstr "TCP 비밀번호"
+
+#: ui/dialogs/settings-row.slint
+msgid "Advanced"
+msgstr "고급"
+
+#: ui/dialogs/settings-row.slint
+msgid "Hide help"
+msgstr "도움말 숨기기"
+
+#: ui/dialogs/settings-row.slint ui/operator.slint
+msgid "Help"
+msgstr "도움말"
+
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "Sections"
 msgstr "섹션"
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "Each kind of section has a colour and a key. Leave a box empty for the usual name or key."
 msgstr "섹션 종류마다 색과 키가 있어요. 기본 이름이나 키를 쓰려면 칸을 비워 두세요."
 
@@ -3103,11 +2767,11 @@ msgstr "{} 이름"
 msgid "Key for {}"
 msgstr "{} 키"
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "More section names"
 msgstr "추가 섹션 이름"
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "A name your songs use, like “Spontaneous”. It gets the colour and key of the kind you choose."
 msgstr "“즉흥”처럼 찬양에서 쓰는 이름이에요. 선택한 종류의 색과 키를 사용해요."
 
@@ -3115,11 +2779,11 @@ msgstr "“즉흥”처럼 찬양에서 쓰는 이름이에요. 선택한 종류
 msgid "New section name"
 msgstr "새 섹션 이름"
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "Slide labels"
 msgstr "슬라이드 라벨"
 
-#: ui/dialogs/settings-sections.slint
+#: ui/dialogs/settings-sections.slint src/ui/dialogs/settings_find.rs
 msgid "In the song editor, “Label this slide” puts one on a slide. It shows on the slide’s thumbnail."
 msgstr "찬양 편집기에서 “이 슬라이드에 라벨 달기”로 슬라이드에 라벨을 붙여요. 라벨은 슬라이드 미리 보기 이미지에 표시돼요."
 
@@ -3138,6 +2802,10 @@ msgstr "라벨 추가"
 #: ui/dialogs/settings-sections.slint
 msgid "Use the usual names, colours and labels"
 msgstr "기본 이름, 색, 라벨 사용"
+
+#: ui/dialogs/settings-sound.slint
+msgid "{} dB"
+msgstr "{} dB"
 
 #: ui/dialogs/settings-sound.slint
 msgid "Gate (quiet between words)"
@@ -3171,55 +2839,91 @@ msgstr "고음(선명함, 쉿 소리)"
 msgid "Never too loud (keeps the stream from crackling; best left on)"
 msgstr "너무 크지 않게(방송 소리가 찢어지지 않게 해요. 켜 두는 게 좋아요)"
 
-#: ui/dialogs/settings-sound.slint
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "Sound setup"
 msgstr "소리 간편 설정"
 
-#: ui/dialogs/settings-sound.slint
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "One choice sets the microphone and how each sound is cleaned up. Anything changed by hand below makes it Custom."
 msgstr "하나만 고르면 마이크와 각 소리를 다듬는 방법이 정해져요. 아래에서 직접 바꾸면 사용자 지정이 돼요."
 
-#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
-msgid "Second microphone or line-in"
-msgstr "두 번째 마이크 또는 라인 입력"
+#: ui/dialogs/settings-sound.slint src/record/mod.rs src/ui/dialogs/settings_find.rs
+msgid "Microphone or line-in"
+msgstr "마이크 또는 라인 입력"
 
-#: ui/dialogs/settings-sound.slint
-msgid "While you are live, mixed with the one chosen under \"Sound in the recording\": for a second sound board, a pulpit microphone or the phone."
-msgstr "방송 중에 “녹화에 들어갈 소리”에서 고른 것과 섞여요. 두 번째 음향 콘솔, 강대상 마이크, 휴대폰 등에 쓰세요."
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "For the livestream and the recording: the sound board, a microphone, or a phone (choose Phone). Up to three are mixed while you are live."
+msgstr "방송과 녹화에 씁니다: 음향 콘솔, 마이크, 또는 휴대폰(휴대폰 선택). 방송 중에는 최대 3개를 섞습니다."
 
 #: ui/dialogs/settings-sound.slint
 msgid "Its level"
 msgstr "음량"
 
-#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
-msgid "Third microphone or line-in"
-msgstr "세 번째 마이크 또는 라인 입력"
-
-#: ui/dialogs/settings-sound.slint src/stream/phone_mic.rs
-msgid "Phone microphone"
-msgstr "휴대폰 마이크"
-
 #: ui/dialogs/settings-sound.slint
-msgid "Turn on the stage screen for phones (Settings → Network…), then open this page on the phone and press Start: {}"
-msgstr "휴대폰용 무대 화면(설정 → 네트워크…)을 켠 다음, 휴대폰에서 이 페이지를 열고 시작을 누르세요: {}"
+msgid "A phone as a microphone: Settings → Remote and network"
+msgstr "휴대폰을 마이크로: 설정 → 리모컨과 네트워크"
 
-#: ui/dialogs/settings-sound.slint
-msgid "The first time, the phone warns that the page is not private, because this computer made its own certificate: tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
-msgstr "처음에는 이 컴퓨터가 직접 인증서를 만들었기 때문에 휴대폰에서 이 페이지가 비공개 연결이 아니라는 경고가 나와요. 고급(iPhone에서는 세부사항 보기)을 누른 다음 페이지로 이동하세요. 휴대폰은 화면이 꺼지지 않게 하고 충전기에 꽂아 두세요."
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Sound from this computer"
+msgstr "이 컴퓨터의 소리"
 
-#: ui/dialogs/settings-sound.slint
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above."
+msgstr "이 출력에서 나는 모든 소리가 방송에 함께 나가요 (영상, 노래, 그리고 그쪽으로 보내지는 다른 소리도요). 위에서 고른 마이크 또는 라인 입력과 섞여요."
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "Listen to the stream"
 msgstr "방송 소리 듣기"
 
-#: ui/dialogs/settings-sound.slint
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "While you are live, the stream's sound plays here as viewers hear it (cleaned up and with the sound delay), for headphones at the desk. The room does not hear it unless it is the room's output."
 msgstr "방송 중에 시청자가 듣는 그대로의 방송 소리(다듬고 소리 지연을 적용한 소리)가 여기서 나와요. 데스크에서 헤드폰으로 듣기 위한 거예요. 예배당 출력이 아니면 예배당에는 들리지 않아요."
 
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Sound delay"
+msgstr "소리 지연"
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "If the sound in the stream comes before people's lips move, the camera's picture is late: hold the sound back until they match."
+msgstr "방송에서 입이 움직이기 전에 소리가 먼저 들리면 카메라 화면이 늦게 오는 것입니다. 맞을 때까지 소리를 늦추세요."
+
 #: ui/dialogs/settings-sound.slint
+msgid "{} ms"
+msgstr "{} ms"
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Sound levels"
+msgstr "소리 크기"
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Turn each sound up or down in the stream only (not in the room)."
+msgstr "방송에서만 각 소리를 키우거나 줄입니다 (예배당 소리는 그대로)."
+
+#: ui/dialogs/settings-sound.slint src/app.rs src/record/mod.rs
+msgid "This computer"
+msgstr "이 컴퓨터"
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "Sound clean-up"
+msgstr "소리 정리"
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
+msgid "For the stream only. Evening out keeps quiet speaking easy to hear at home and loud singing from crackling."
+msgstr "방송에만 적용됩니다. 고르게 하면 작은 말소리도 집에서 잘 들리고 큰 찬양 소리도 찢어지지 않습니다."
+
+#: ui/dialogs/settings-sound.slint
+msgid "Even out loud and quiet moments"
+msgstr "큰 소리와 작은 소리를 고르게"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Take out hum and hiss from the microphone or line-in (can dull music)"
+msgstr "마이크나 라인 입력의 웅웅거림과 쉿 소리 없애기 (음악이 둔해질 수 있음)"
+
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "More sound settings"
 msgstr "소리 설정 더 보기"
 
-#: ui/dialogs/settings-sound.slint
+#: ui/dialogs/settings-sound.slint src/ui/dialogs/settings_find.rs
 msgid "For the stream only. Each sound has its own: start with the Sound setup above and change little at a time."
 msgstr "방송에만 적용돼요. 소리마다 따로 설정이 있어요. 위의 소리 간편 설정으로 시작해서 조금씩 바꾸세요."
 
@@ -3227,129 +2931,913 @@ msgstr "방송에만 적용돼요. 소리마다 따로 설정이 있어요. 위�
 msgid "Show each sound's gate, evener, low, middle and high"
 msgstr "소리마다 게이트, 고르게, 저음·중음·고음 표시"
 
+#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
+msgid "Second microphone or line-in"
+msgstr "두 번째 마이크 또는 라인 입력"
+
+#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
+msgid "Third microphone or line-in"
+msgstr "세 번째 마이크 또는 라인 입력"
+
 #: ui/dialogs/settings-state.slint src/strings/catalog.rs
 msgid "All languages"
 msgstr "모든 언어"
 
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Live captions"
-msgstr "실시간 자막"
+#: ui/dialogs/settings-stream.slint
+msgid "Sign in"
+msgstr "로그인"
 
-#: ui/dialogs/settings-stream-extras.slint src/stream/captions.rs
-msgid "Captions are made on this computer from the microphone, in English only. They are often wrong: names, Bible places, quiet or echoing speech and songs come out badly, and there is no punctuation. They show about two seconds after the words are said."
-msgstr "자막은 이 컴퓨터에서 마이크 소리로 만들며, 영어만 돼요. 자주 틀려요. 이름, 성경 지명, 작거나 울리는 말소리, 노래는 잘 안 나오고 문장 부호도 없어요. 말한 뒤 약 2초 후에 나타나요."
+#: ui/dialogs/settings-stream.slint
+msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
+msgstr "키를 붙여 넣는 대신 로그인: 라이브 시작이 제목과 함께 방송을 직접 만듭니다"
 
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Write out what is said while live"
-msgstr "방송 중에 하는 말을 글자로 적기"
+#: ui/dialogs/settings-stream.slint
+msgid "Signed in as {}"
+msgstr "{}(으)로 로그인됨"
 
-#: ui/dialogs/settings-stream-extras.slint src/stream/captions.rs
-msgid "Live captions need the English speech model. Download the fast model in Settings → Auto-follow."
-msgstr "실시간 자막에는 영어 음성 모델이 필요해요. 설정 → 자동 따라가기에서 빠른 모델을 다운로드하세요."
+#: ui/dialogs/settings-stream.slint
+msgid "Sign out"
+msgstr "로그아웃"
 
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Show them at the bottom of the stream (not over song words or verses)"
-msgstr "방송 화면 아래쪽에 표시(가사나 성경 구절 위에는 안 나옴)"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Keep them in a captions file beside the recording (for YouTube's replay and video players)"
-msgstr "녹화 파일 옆에 자막 파일로 저장(YouTube 다시 보기와 동영상 플레이어용)"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Listen to:"
-msgstr "들을 소리:"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "YouTube captions address"
-msgstr "YouTube 자막 주소"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "YouTube's captions address (optional)"
-msgstr "YouTube 자막 주소(선택)"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "For captions viewers can turn on and off on YouTube: in YouTube Studio, open the stream's settings, turn on Closed captions, choose \"POST captions to URL\", and paste the address it gives here."
-msgstr "시청자가 YouTube에서 켜고 끌 수 있는 자막을 쓰려면, YouTube Studio에서 방송 설정을 열고 자막(Closed captions)을 켠 다음 “POST captions to URL”을 고르고, 나오는 주소를 여기에 붙여 넣으세요."
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "On your website"
-msgstr "교회 웹사이트에"
-
-#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
-msgid "To play the livestream on your church's website: copy the code, then in your website's editor add an \"HTML\", \"Embed\" or \"Code\" block where the video should go and paste it there. You do this once: the same code plays every week's service."
-msgstr "교회 웹사이트에서 라이브 방송을 보여 주려면 코드를 복사한 다음, 웹사이트 편집기에서 영상이 들어갈 자리에 “HTML”, “임베드(Embed)” 또는 “코드(Code)” 블록을 추가하고 거기에 붙여 넣으세요. 한 번만 하면 돼요. 같은 코드로 매주 예배가 나와요."
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "YouTube channel id"
-msgstr "YouTube 채널 ID"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "YouTube channel id (starts with UC)"
-msgstr "YouTube 채널 ID(UC로 시작)"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Fill in"
-msgstr "채우기"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Fill in the channel of the YouTube account signed in above"
-msgstr "위에서 로그인한 YouTube 계정의 채널로 채우기"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Copy the code"
-msgstr "코드 복사"
-
-#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
-msgid "YouTube plays whatever your channel has live; between services it shows the next scheduled stream or says nothing is live. YouTube Studio must allow embedding (it does unless it was turned off)."
-msgstr "YouTube는 채널에서 지금 라이브 중인 것을 보여 줘요. 예배가 없을 때는 다음 예약된 방송을 보여 주거나 라이브 중인 게 없다고 표시해요. YouTube Studio에서 퍼가기가 허용되어 있어야 해요(끄지 않았다면 허용되어 있어요)."
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Facebook Page"
-msgstr "Facebook 페이지"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Facebook Page address"
-msgstr "Facebook 페이지 주소"
-
-#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
-msgid "Facebook shows your Page with its posts; while you are live the live video is at the top. The Page must be public."
-msgstr "Facebook은 페이지를 게시물과 함께 보여 줘요. 라이브 중에는 라이브 영상이 맨 위에 나와요. 페이지는 공개 상태여야 해요."
-
-#: ui/dialogs/settings-stream-extras.slint src/network/guest.rs
-msgid "Remote guest"
-msgstr "원격 게스트"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "A guest speaker or missionary joins from a browser at home: their picture comes in as a camera, their voice through this computer's sound. The connection goes directly between the two computers; some internets do not allow that, and the pages then say so."
-msgstr "초청 강사나 선교사가 집에서 브라우저로 참여해요. 그 사람의 화면은 카메라로 들어오고, 목소리는 이 컴퓨터의 소리로 들어와요. 연결은 두 컴퓨터 사이에 직접 이루어져요. 일부 인터넷은 이를 허용하지 않으며, 그러면 페이지에 그렇게 표시돼요."
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Invite a guest…"
-msgstr "게스트 초대…"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Opens the invitation page in this computer's web browser"
-msgstr "이 컴퓨터의 웹 브라우저에서 초대 페이지를 열어요"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Use the guest as a camera"
-msgstr "게스트를 카메라로 쓰기"
-
-#: ui/dialogs/settings-stream-extras.slint
-msgid "Puts the guest in the first free camera row above"
-msgstr "위에서 처음 비어 있는 카메라 줄에 게스트를 넣어요"
-
-#: ui/dialogs/settings-stream-extras.slint
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
 msgid "Getting started"
 msgstr "시작하기"
 
-#: ui/dialogs/settings-stream-extras.slint
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
 msgid "A few steps: where to stream, which camera, which sound, and a check."
 msgstr "몇 단계만 거치면 돼요: 방송할 곳, 카메라, 소리, 그리고 확인."
 
-#: ui/dialogs/settings-stream-extras.slint
+#: ui/dialogs/settings-stream.slint
 msgid "Set up step by step…"
 msgstr "단계별로 설정…"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Stream to"
+msgstr "방송 대상"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Switch a destination on and a Go Live button appears beside Record. A stream key is a password: whoever has it can stream as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
+msgstr "방송 대상을 켜면 녹화 옆에 라이브 시작 버튼이 나옵니다. 스트림 키는 비밀번호와 같아서 가진 사람은 누구든 당신 이름으로 방송할 수 있습니다. 입력하는 즉시 이 컴퓨터의 비밀번호 저장소에 보관되며, 백업이나 예배 파일에는 절대 들어가지 않습니다."
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube stream key"
+msgstr "YouTube 스트림 키"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Facebook stream key"
+msgstr "Facebook 스트림 키"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Twitch stream key"
+msgstr "Twitch 스트림 키"
+
+#: ui/dialogs/settings-stream.slint
+msgid "The server's stream key"
+msgstr "서버의 스트림 키"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Its stream key, if it has one"
+msgstr "스트림 키 (있는 경우)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Instagram's server address"
+msgstr "Instagram 서버 주소"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Its server address, if Instagram shows one"
+msgstr "서버 주소(Instagram에 나오는 경우)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Instagram stream key"
+msgstr "Instagram 스트림 키"
+
+#: ui/dialogs/settings-stream.slint
+msgid "X's server address"
+msgstr "X 서버 주소"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Its server address, if X shows one"
+msgstr "서버 주소(X에 나오는 경우)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "X stream key"
+msgstr "X 스트림 키"
+
+#: ui/dialogs/settings-stream.slint
+msgid "TikTok's server address"
+msgstr "TikTok 서버 주소"
+
+#: ui/dialogs/settings-stream.slint
+msgid "The server address TikTok shows with the key"
+msgstr "TikTok이 키와 함께 보여 주는 서버 주소"
+
+#: ui/dialogs/settings-stream.slint
+msgid "TikTok stream key"
+msgstr "TikTok 스트림 키"
+
+#: ui/dialogs/settings-stream.slint src/stream/mod.rs
+msgid "Instagram, X and TikTok give stream keys only to some accounts (TikTok asks for enough followers; Instagram's come from Live Producer on a computer). Each shows a server address with the key: paste both. Their keys often work for one broadcast only."
+msgstr "Instagram, X, TikTok은 일부 계정에만 스트림 키를 줘요(TikTok은 팔로워 수가 충분해야 하고, Instagram은 컴퓨터의 Live Producer에서 받아요). 모두 키와 함께 서버 주소를 보여 주니 둘 다 붙여 넣으세요. 키는 방송 한 번에만 쓸 수 있는 경우가 많아요."
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Broadcast title"
+msgstr "방송 제목"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date, {{weekday}} the day's name and {{time}} the time; the description can have them too."
+msgstr "YouTube와 Facebook에서 각 방송의 이름. {{date}}는 그날 날짜, {{weekday}}는 요일, {{time}}은 시각이 돼요. 설명에도 넣을 수 있어요."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sign in to YouTube or Facebook above to name each broadcast."
+msgstr "위에서 YouTube나 Facebook에 로그인하면 방송마다 이름을 붙일 수 있습니다."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sunday Service — {{date}}"
+msgstr "주일 예배 — {{date}}"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Broadcast description"
+msgstr "방송 설명"
+
+#: ui/dialogs/settings-stream.slint
+msgid "What viewers read under the video"
+msgstr "시청자가 동영상 아래에서 읽는 내용"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Next YouTube broadcast: made when you go live"
+msgstr "다음 YouTube 방송: 라이브 시작 때 만들어짐"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Next YouTube broadcast: {}"
+msgstr "다음 YouTube 방송: {}"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Copy the link"
+msgstr "링크 복사"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Make it now, to share the link"
+msgstr "지금 만들어 링크 공유"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Make a new one"
+msgstr "새로 만들기"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
+msgstr "다음 예배의 YouTube 방송을 그날과 시작 시간으로 지금 만듭니다. 일요일 전에 링크를 공유할 수 있고, 라이브 시작 때 이것을 씁니다."
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube thumbnail: a frame of the stream"
+msgstr "YouTube 썸네일: 방송의 한 장면"
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube thumbnail: {}"
+msgstr "YouTube 썸네일: {}"
+
+#: ui/dialogs/settings-stream.slint ui/dialogs/stream-scenes.slint
+msgid "Choose a picture…"
+msgstr "그림 고르기…"
+
+#: ui/dialogs/settings-stream.slint ui/operator/cameras.slint
+msgid "No picture"
+msgstr "그림 없음"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Who can watch on YouTube"
+msgstr "YouTube에서 볼 수 있는 사람"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Everyone"
+msgstr "모두"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Only people with the link"
+msgstr "링크가 있는 사람만"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Upload speed"
+msgstr "업로드 속도"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits."
+msgstr "공개 속도 테스트에 몇 메가바이트의 0을 보내고, 켜 둔 모든 송출 대상으로 방송을 보낼 수 있는지 알려줍니다. 맞는 녹화 크기를 고릅니다."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Testing…"
+msgstr "테스트 중…"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Test the upload speed"
+msgstr "업로드 속도 테스트"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Tall for phones"
+msgstr "휴대폰용 세로 화면"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other phone apps): the wide picture across the middle, black above and below. The recording stays wide."
+msgstr "이 대상에는 세로 화면을 보냅니다(YouTube Shorts, 릴스, TikTok 등 휴대폰 앱용). 가로 화면을 가운데에 두고 위아래는 검게 채웁니다. 녹화는 가로 그대로입니다."
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Stream delay"
+msgstr "방송 지연"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer."
+msgstr "방송으로 나가는 것을 이만큼 늦춰서, 시청자가 보기 전에 멈춤이나 음소거로 막을 수 있습니다. 녹화는 늦춰지지 않습니다. 시청자 댓글은 그 댓글이 답하는 장면보다 늦게 들어옵니다."
+
+#: ui/dialogs/settings-stream.slint src/stream/sound_setup.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
+msgid "None"
+msgstr "없음"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Slow internet"
+msgstr "느린 인터넷"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "When a destination's internet cannot keep up, it gets a lighter stream until it can, instead of skipping. The recording and the other destinations keep the full picture. This uses more of the computer."
+msgstr "송출 대상의 인터넷이 따라가지 못하면, 끊기는 대신 따라갈 수 있을 때까지 더 가벼운 방송을 보냅니다. 녹화와 다른 송출 대상은 원래 화질을 유지합니다. 컴퓨터를 더 많이 사용합니다."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Send a lighter stream where the internet is slow"
+msgstr "인터넷이 느린 곳에는 더 가벼운 방송 보내기"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Each destination's quality"
+msgstr "송출 대상별 화질"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "A destination can get a smaller picture or a lower bitrate than the main stream (a phone app, a slow server). Each one that differs costs the computer a second encode."
+msgstr "송출 대상마다 기본 방송보다 작은 화면이나 낮은 비트레이트를 줄 수 있어요(휴대폰 앱, 느린 서버). 다르게 설정한 송출 대상이 하나 생길 때마다 컴퓨터가 인코딩을 한 번 더 해요."
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/network.rs src/ui/dialogs/settings_find.rs
+msgid "Network"
+msgstr "네트워크"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Send from a wired network card to keep the stream off busy Wi-Fi (YouTube, Facebook, Twitch and other RTMP servers; an SRT server is reached however the computer chooses). Safer send gives an SRT server time to ask again for what got lost on a poor line; the picture arrives that much later."
+msgstr "붐비는 Wi-Fi를 피하려면 유선 네트워크 카드로 방송을 보내세요(YouTube, Facebook, Twitch 등 RTMP 서버. SRT 서버는 컴퓨터가 고른 방식으로 연결돼요). 안전하게 보내기는 연결이 나쁠 때 잃어버린 부분을 SRT 서버가 다시 요청할 시간을 줘요. 그만큼 화면이 늦게 도착해요."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Send the stream from"
+msgstr "방송을 보낼 네트워크"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Safer send (SRT servers)"
+msgstr "안전하게 보내기(SRT 서버)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Off (SRT's own)"
+msgstr "끔(SRT 기본값)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Half a second"
+msgstr "0.5초"
+
+#: ui/dialogs/settings-stream.slint
+msgid "1 second"
+msgstr "1초"
+
+#: ui/dialogs/settings-stream.slint
+msgid "2 seconds"
+msgstr "2초"
+
+#: ui/dialogs/settings-stream.slint
+msgid "4 seconds"
+msgstr "4초"
+
+#: ui/dialogs/settings-stream.slint ui/operator/media.slint ui/operator/slides.slint src/ui/dialogs/settings_find.rs
+msgid "Picture size"
+msgstr "사진 크기"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "For the livestream and the recording. Bigger is sharper and needs a faster computer, a faster upload and more disk space."
+msgstr "방송과 녹화에 씁니다. 클수록 선명하지만 더 빠른 컴퓨터, 더 빠른 업로드, 더 많은 디스크 공간이 필요합니다."
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Custom size"
+msgstr "직접 정한 크기"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Any width and height from 320 × 180 to 7680 × 4320 (made even). Most services and screens expect 16:9."
+msgstr "너비와 높이를 320 × 180부터 7680 × 4320까지 자유롭게 정합니다(짝수로 맞춤). 대부분의 서비스와 화면은 16:9를 씁니다."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Use this size"
+msgstr "이 크기 쓰기"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Pictures a second"
+msgstr "초당 화면 수"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "30 suits most churches. 50 or 60 makes movement smoother and needs a faster computer and upload."
+msgstr "대부분의 교회는 30이면 충분합니다. 50이나 60은 움직임이 더 부드럽지만 더 빠른 컴퓨터와 업로드가 필요합니다."
+
+#: ui/dialogs/settings-stream.slint
+msgid "30 (usual)"
+msgstr "30(보통)"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Bitrate"
+msgstr "비트레이트"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "How much picture goes out each second. Automatic grows with the picture size and pictures a second. More is sharper and needs a faster upload."
+msgstr "1초에 보내는 영상의 양입니다. 자동은 사진 크기와 초당 장면 수에 맞춰 커집니다. 많을수록 선명하지만 더 빠른 업로드가 필요합니다."
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Video encoder"
+msgstr "비디오 인코더"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Automatic suits most computers. A graphics card's encoder leaves the processor free; it is tried first, and Automatic is used if it does not work on this computer."
+msgstr "대부분의 컴퓨터는 자동이 알맞습니다. 그래픽카드 인코더는 프로세서 부담을 덜어 줍니다. 먼저 시험해 보고, 이 컴퓨터에서 안 되면 자동을 씁니다."
+
+#: ui/dialogs/settings-stream.slint
+msgid "The processor (x264)"
+msgstr "프로세서 (x264)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "NVIDIA graphics card"
+msgstr "NVIDIA 그래픽카드"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Intel graphics"
+msgstr "Intel 그래픽"
+
+#: ui/dialogs/settings-stream.slint
+msgid "AMD graphics card"
+msgstr "AMD 그래픽카드"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Windows' own"
+msgstr "Windows 기본"
+
+#: ui/dialogs/settings-stream.slint
+msgid "OpenH264"
+msgstr "OpenH264"
+
+#: ui/dialogs/settings-stream.slint
+msgid "The Mac's own"
+msgstr "Mac 기본"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Video format"
+msgstr "영상 형식"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "HEVC and AV1 give a sharper picture for the same upload. HEVC is used when every destination that is on takes it (YouTube and your own server do); otherwise H.264. AV1 is for recordings only: while live, H.264 is used. Both need a newer computer or graphics card."
+msgstr "HEVC와 AV1은 같은 업로드로 더 선명한 화면을 줘요. 켜진 모든 송출 대상이 받아 주면 HEVC를 쓰고(YouTube와 자체 서버는 받아요), 아니면 H.264를 써요. AV1은 녹화 전용이에요. 방송 중에는 H.264를 써요. 둘 다 최신 컴퓨터나 그래픽카드가 필요해요."
+
+#: ui/dialogs/settings-stream.slint
+msgid "H.264 (plays everywhere)"
+msgstr "H.264(어디서나 재생)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Bitrate kept"
+msgstr "비트레이트 방식"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Always the same (CBR)"
+msgstr "항상 같게(CBR)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Varies with the picture (VBR)"
+msgstr "화면에 따라 달라짐(VBR)"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Encoder details"
+msgstr "인코더 세부 설정"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Leave these on Automatic unless a service or a video editor asks for something else. Faster leaves more of the computer free; Baseline is only for very old players."
+msgstr "방송 서비스나 영상 편집자가 다른 것을 요구하지 않는 한 자동으로 두세요. 빠를수록 컴퓨터 여유가 더 남아요. Baseline은 아주 오래된 플레이어용이에요."
+
+#: ui/dialogs/settings-stream.slint
+msgid "A whole picture every"
+msgstr "전체 화면을 보내는 간격"
+
+#: ui/dialogs/settings-stream.slint
+msgid "2 seconds (usual)"
+msgstr "2초(보통)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "3 seconds"
+msgstr "3초"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Encoder speed"
+msgstr "인코더 속도"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Fastest (least work)"
+msgstr "가장 빠르게(부담 가장 적음)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Fast"
+msgstr "빠르게"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Balanced"
+msgstr "균형"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Best picture (most work)"
+msgstr "최고 화질(부담 가장 많음)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Profile"
+msgstr "프로필"
+
+#: ui/dialogs/settings-stream.slint
+msgid "B-frames"
+msgstr "B 프레임"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Sound quality"
+msgstr "음질"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sample rate"
+msgstr "샘플링 레이트"
+
+#: ui/dialogs/settings-stream.slint
+msgid "As it comes (usual)"
+msgstr "들어온 그대로(보통)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sound bitrate"
+msgstr "소리 비트레이트"
+
+#: ui/dialogs/settings-stream.slint
+msgid "160 kbit/s (usual)"
+msgstr "160 kbit/s(보통)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Channels"
+msgstr "채널"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Stereo"
+msgstr "스테레오"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Mono"
+msgstr "모노"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Network camera address"
+msgstr "네트워크 카메라 주소"
+
+#: ui/dialogs/settings-stream.slint
+msgid "The camera's address, like rtsp://192.168.1.50:554/stream1"
+msgstr "카메라 주소 (예: rtsp://192.168.1.50:554/stream1)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera control address"
+msgstr "카메라 제어 주소"
+
+#: ui/dialogs/settings-stream.slint
+msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
+msgstr "PTZ 카메라를 저장된 위치로 움직이려면 카메라 주소를 입력하세요 (예: 192.168.1.60)"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Cameras"
+msgstr "카메라"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "A camera or capture card for the stream's camera scenes (and its recording). More cameras can be switched to while live, from the Cameras box beside the live screen."
+msgstr "방송의 카메라 장면(과 녹화)에 쓰는 카메라나 캡처 카드입니다. 방송 중에는 라이브 화면 옆 카메라 상자에서 다른 카메라로 바꿀 수 있습니다."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera 1"
+msgstr "카메라 1"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera 2"
+msgstr "카메라 2"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera 3"
+msgstr "카메라 3"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Camera 4"
+msgstr "카메라 4"
+
+#: ui/dialogs/settings-stream.slint
+msgid "A phone as a camera: Settings → Remote and network"
+msgstr "휴대폰을 카메라로: 설정 → 리모컨과 네트워크"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "When a camera sends nothing"
+msgstr "카메라에서 아무것도 오지 않을 때"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "What the stream shows in a camera's place while it is unplugged or sends no picture. The camera comes back by itself as soon as it sends again."
+msgstr "카메라가 빠져 있거나 화면을 보내지 않는 동안 방송에서 그 자리에 보여 줄 것. 카메라가 다시 보내면 저절로 돌아와요."
+
+#: ui/dialogs/settings-stream.slint src/stream/own_scenes.rs
+msgid "The audience screen"
+msgstr "예배당 화면"
+
+#: ui/dialogs/settings-stream.slint
+msgid "The church logo"
+msgstr "교회 로고"
+
+#: ui/dialogs/settings-stream.slint src/strings/screens.rs src/theme/backgrounds.rs
+msgid "Black"
+msgstr "검은색"
+
+#: ui/dialogs/settings-stream.slint src/network/guest.rs src/ui/dialogs/settings_find.rs
+msgid "Remote guest"
+msgstr "원격 게스트"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "A guest speaker or missionary joins from a browser at home: their picture comes in as a camera, their voice through this computer's sound. The connection goes directly between the two computers; some internets do not allow that, and the pages then say so."
+msgstr "초청 강사나 선교사가 집에서 브라우저로 참여해요. 그 사람의 화면은 카메라로 들어오고, 목소리는 이 컴퓨터의 소리로 들어와요. 연결은 두 컴퓨터 사이에 직접 이루어져요. 일부 인터넷은 이를 허용하지 않으며, 그러면 페이지에 그렇게 표시돼요."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Invite a guest…"
+msgstr "게스트 초대…"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Opens the invitation page in this computer's web browser"
+msgstr "이 컴퓨터의 웹 브라우저에서 초대 페이지를 열어요"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Use the guest as a camera"
+msgstr "게스트를 카메라로 쓰기"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Puts the guest in the first free camera row above"
+msgstr "위에서 처음 비어 있는 카메라 줄에 게스트를 넣어요"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Use a picture…"
+msgstr "그림 사용…"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Use words"
+msgstr "글자 사용"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Scenes"
+msgstr "장면"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the audience screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgstr "찬양과 성경 구절은 카메라에 가사를 얹어, 영상과 프레젠테이션은 예배당 화면으로, 화면에 아무것도 없으면 카메라로 나갑니다. 라이브 옆 장면 버튼으로 고른 장면은 다음 예배 항목까지 유지됩니다."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Choose the scene by itself from what is live"
+msgstr "라이브 내용에 따라 장면을 자동으로 고르기"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Presentations:"
+msgstr "프레젠테이션:"
+
+#: ui/dialogs/settings-stream.slint
+msgid "The audience screen with the camera in a corner"
+msgstr "모서리에 카메라가 있는 예배당 화면"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Scene layout"
+msgstr "장면 배치"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Where the camera goes when it is in a corner of the audience screen, and where the words go over the camera."
+msgstr "예배당 화면 모서리에 카메라를 둘 때의 위치와, 카메라 위 가사의 위치입니다."
+
+#: ui/dialogs/settings-stream.slint src/strings/themes.rs src/theme/richtext.rs
+msgid "Small"
+msgstr "작게"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Medium"
+msgstr "보통"
+
+#: ui/dialogs/settings-stream.slint src/strings/themes.rs src/theme/richtext.rs
+msgid "Large"
+msgstr "크게"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Words over the camera:"
+msgstr "카메라 위 가사:"
+
+#: ui/dialogs/settings-stream.slint
+msgid "At the bottom"
+msgstr "아래"
+
+#: ui/dialogs/settings-stream.slint
+msgid "At the top"
+msgstr "위"
+
+#: ui/dialogs/settings-stream.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings_find.rs
+msgid "Your scenes"
+msgstr "내 장면"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Make scenes of your own from cameras, the audience screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgstr "카메라, 예배당 화면, 가사, 사진, 색, 텍스트로 나만의 장면을 만들어요. 방송 중에는 기본 제공 장면 다음에 나와요."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Your scenes…"
+msgstr "내 장면…"
+
+#: ui/dialogs/settings-stream.slint
+msgid "None yet"
+msgstr "아직 없음"
+
+#: ui/dialogs/settings-stream.slint
+msgid "1 scene"
+msgstr "장면 1개"
+
+#: ui/dialogs/settings-stream.slint
+msgid "{} scenes"
+msgstr "장면 {}개"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Cards"
+msgstr "카드"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Starting soon shows before the service, with the countdown under the words while it runs; Ending after the last item; Hold for a break, chosen with the scene button."
+msgstr "곧 시작합니다는 예배 전에 나오고, 카운트다운이 진행되는 동안 글 아래에 남은 시간이 나옵니다. 마침은 마지막 항목 뒤에, 잠시 멈춤은 쉬는 시간용으로 장면 버튼으로 고릅니다."
+
+#: ui/dialogs/settings-stream.slint src/stream/pictures.rs src/stream/scene.rs
+msgid "Starting soon"
+msgstr "곧 시작합니다"
+
+#: ui/dialogs/settings-stream.slint src/stream/scene.rs src/strings/song.rs
+msgid "Ending"
+msgstr "엔딩"
+
+#: ui/dialogs/settings-stream.slint src/stream/pictures.rs
+msgid "Thanks for joining us"
+msgstr "함께해 주셔서 감사합니다"
+
+#: ui/dialogs/settings-stream.slint ui/operator/follow.slint src/i18n/remote_strings.rs src/stream/scene.rs
+msgid "Hold"
+msgstr "멈춤"
+
+#: ui/dialogs/settings-stream.slint src/stream/pictures.rs
+msgid "We'll be right back"
+msgstr "잠시 후 돌아오겠습니다"
+
+#: ui/dialogs/settings-stream.slint
+msgid "File → Start recording (or the Record button at the top) saves what the audience screen shows as an MP4 video."
+msgstr "파일 → 녹화 시작(또는 맨 위의 녹화 버튼)을 누르면 예배당 화면에 나오는 내용을 MP4 동영상으로 저장해요."
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Save recordings in"
+msgstr "녹화 저장 위치"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Choose folder…"
+msgstr "폴더 선택…"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Picture size: Settings → Livestream → Picture and quality"
+msgstr "사진 크기: 설정 → 라이브 방송 → 사진과 품질"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Sound: Settings → Livestream → Sound"
+msgstr "소리: 설정 → 라이브 방송 → 소리"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "File type and name"
+msgstr "파일 형식과 이름"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "{{date}} becomes the day, {{time}} the time it started, {{title}} the service's name."
+msgstr "{{date}}는 날짜, {{time}}은 시작 시각, {{title}}은 예배 이름이 됩니다."
+
+#: ui/dialogs/settings-stream.slint
+msgid "File type"
+msgstr "파일 형식"
+
+#: ui/dialogs/settings-stream.slint
+msgid "MP4 (plays everywhere)"
+msgstr "MP4(어디서나 재생)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "MKV (as written; nothing to wait for at the end)"
+msgstr "MKV(쓰는 대로 저장, 끝날 때 기다릴 필요 없음)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Recording file name"
+msgstr "녹화 파일 이름"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Recording {{date}} {{time}}"
+msgstr "녹화 {{date}} {{time}}"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Now: {}"
+msgstr "지금: {}"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Long recordings"
+msgstr "긴 녹화"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Cut long recordings"
+msgstr "긴 녹화 나누기"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Every 30 minutes"
+msgstr "30분마다"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Every hour"
+msgstr "1시간마다"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Every 2 hours"
+msgstr "2시간마다"
+
+#: ui/dialogs/settings-stream.slint
+msgid "At 2 GB"
+msgstr "2GB마다"
+
+#: ui/dialogs/settings-stream.slint
+msgid "At 4 GB (old USB sticks)"
+msgstr "4GB마다(오래된 USB 메모리용)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "At 8 GB"
+msgstr "8GB마다"
+
+#: ui/dialogs/settings-stream.slint
+msgid "“Save last” button keeps"
+msgstr "“마지막 저장” 버튼 길이"
+
+#: ui/dialogs/settings-stream.slint
+msgid "No button"
+msgstr "버튼 없음"
+
+#: ui/dialogs/settings-stream.slint
+msgid "2 minutes"
+msgstr "2분"
+
+#: ui/dialogs/settings-stream.slint
+msgid "5 minutes"
+msgstr "5분"
+
+#: ui/dialogs/settings-stream.slint
+msgid "10 minutes"
+msgstr "10분"
+
+#: ui/dialogs/settings-stream.slint
+msgid "15 minutes"
+msgstr "15분"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Extra recordings"
+msgstr "추가 녹화"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "While you are live, a second video is saved next to the recording, its name ending in words.mov: only the words, with nothing behind them. When you edit the service video, put it on top to add the words. It stays small because the words seldom change."
+msgstr "방송 중에는 녹화 파일 옆에 동영상이 하나 더 저장돼요. 이름이 words.mov로 끝나고, 뒤에 아무것도 없이 가사만 들어 있어요. 예배 영상을 편집할 때 맨 위에 올리면 가사가 들어가요. 가사는 자주 바뀌지 않아서 파일이 작아요."
+
+#: ui/dialogs/settings-stream.slint
+msgid "While live, also record the stream without the words (for editing)"
+msgstr "방송 중에 가사 없는 방송도 녹화하기(편집용)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Also record the words alone, on a see-through background (for video editing)"
+msgstr "가사만 투명한 배경으로 따로 녹화하기 (영상 편집용)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
+msgstr "녹화에 각 소리를 별도 트랙으로도 남겨서 나중에 다시 균형을 맞출 수 있게 하기"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Live captions"
+msgstr "실시간 자막"
+
+#: ui/dialogs/settings-stream.slint src/stream/captions.rs src/ui/dialogs/settings_find.rs
+msgid "Captions are made on this computer from the microphone, in English only. They are often wrong: names, Bible places, quiet or echoing speech and songs come out badly, and there is no punctuation. They show about two seconds after the words are said."
+msgstr "자막은 이 컴퓨터에서 마이크 소리로 만들며, 영어만 돼요. 자주 틀려요. 이름, 성경 지명, 작거나 울리는 말소리, 노래는 잘 안 나오고 문장 부호도 없어요. 말한 뒤 약 2초 후에 나타나요."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Write out what is said while live"
+msgstr "방송 중에 하는 말을 글자로 적기"
+
+#: ui/dialogs/settings-stream.slint src/stream/captions.rs
+msgid "Live captions need the English speech model. Download the fast model in Settings → Auto-follow → Speech model."
+msgstr "실시간 자막에는 영어 음성 모델이 필요합니다. 설정 → 자동 따라가기 → 음성 모델에서 빠른 모델을 내려받으세요."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Settings → Auto-follow → Speech model"
+msgstr "설정 → 자동 따라가기 → 음성 모델"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Show them at the bottom of the stream (not over song words or verses)"
+msgstr "방송 화면 아래쪽에 표시(가사나 성경 구절 위에는 안 나옴)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Keep them in a captions file beside the recording (for YouTube's replay and video players)"
+msgstr "녹화 파일 옆에 자막 파일로 저장(YouTube 다시 보기와 동영상 플레이어용)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Listen to:"
+msgstr "들을 소리:"
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube captions address"
+msgstr "YouTube 자막 주소"
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube's captions address (optional)"
+msgstr "YouTube 자막 주소(선택)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "For captions viewers can turn on and off on YouTube: in YouTube Studio, open the stream's settings, turn on Closed captions, choose \"POST captions to URL\", and paste the address it gives here."
+msgstr "시청자가 YouTube에서 켜고 끌 수 있는 자막을 쓰려면, YouTube Studio에서 방송 설정을 열고 자막(Closed captions)을 켠 다음 “POST captions to URL”을 고르고, 나오는 주소를 여기에 붙여 넣으세요."
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "On your website"
+msgstr "교회 웹사이트에"
+
+#: ui/dialogs/settings-stream.slint src/stream/website.rs src/ui/dialogs/settings_find.rs
+msgid "To play the livestream on your church's website: copy the code, then in your website's editor add an \"HTML\", \"Embed\" or \"Code\" block where the video should go and paste it there. You do this once: the same code plays every week's service."
+msgstr "교회 웹사이트에서 라이브 방송을 보여 주려면 코드를 복사한 다음, 웹사이트 편집기에서 영상이 들어갈 자리에 “HTML”, “임베드(Embed)” 또는 “코드(Code)” 블록을 추가하고 거기에 붙여 넣으세요. 한 번만 하면 돼요. 같은 코드로 매주 예배가 나와요."
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube channel id"
+msgstr "YouTube 채널 ID"
+
+#: ui/dialogs/settings-stream.slint
+msgid "YouTube channel id (starts with UC)"
+msgstr "YouTube 채널 ID(UC로 시작)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Fill in"
+msgstr "채우기"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Fill in the channel of the YouTube account signed in above"
+msgstr "위에서 로그인한 YouTube 계정의 채널로 채우기"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Copy the code"
+msgstr "코드 복사"
+
+#: ui/dialogs/settings-stream.slint src/stream/website.rs
+msgid "YouTube plays whatever your channel has live; between services it shows the next scheduled stream or says nothing is live. YouTube Studio must allow embedding (it does unless it was turned off)."
+msgstr "YouTube는 채널에서 지금 라이브 중인 것을 보여 줘요. 예배가 없을 때는 다음 예약된 방송을 보여 주거나 라이브 중인 게 없다고 표시해요. YouTube Studio에서 퍼가기가 허용되어 있어야 해요(끄지 않았다면 허용되어 있어요)."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Facebook Page"
+msgstr "Facebook 페이지"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Facebook Page address"
+msgstr "Facebook 페이지 주소"
+
+#: ui/dialogs/settings-stream.slint src/stream/website.rs
+msgid "Facebook shows your Page with its posts; while you are live the live video is at the top. The Page must be public."
+msgstr "Facebook은 페이지를 게시물과 함께 보여 줘요. 라이브 중에는 라이브 영상이 맨 위에 나와요. 페이지는 공개 상태여야 해요."
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "NDI"
+msgstr "NDI"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras."
+msgstr "방송 중에는 이 네트워크의 다른 컴퓨터와 프로그램(OBS, vMix, 영상 스위처)이 이것을 받을 수 있습니다. NDI 카메라는 카메라 목록에 나옵니다."
+
+#: ui/dialogs/settings-stream.slint
+msgid "NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."
+msgstr "NDI를 쓰려면 이 컴퓨터에 ndi.video의 무료 NDI Tools가 있어야 합니다. 설치한 다음 설정을 다시 여세요."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Send the stream over NDI too (picture and sound)"
+msgstr "방송을 NDI로도 보내기 (화면과 소리)"
+
+#: ui/dialogs/settings-stream.slint
+msgid "Send the words alone over NDI, on a see-through background (for keying)"
+msgstr "가사만 투명한 배경으로 NDI에 보내기 (키잉용)"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Saved setups"
+msgstr "저장한 구성"
+
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+msgid "Keep everything set for the livestream (destinations, cameras, sound, scenes and these settings) under a name, and use it again in one go. Stream keys stay as they are."
+msgstr "라이브 방송에 맞춘 모든 설정(송출 대상, 카메라, 소리, 장면, 그리고 이 설정)을 이름을 붙여 저장하고 한 번에 다시 써요. 스트림 키는 그대로 있어요."
+
+#: ui/dialogs/settings-stream.slint
+msgid "Save as a setup…"
+msgstr "구성으로 저장…"
+
+#: ui/dialogs/settings-stream.slint
+msgid "No setups saved yet."
+msgstr "아직 저장한 구성이 없어요."
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Church default"
@@ -3436,6 +3924,10 @@ msgid "Semibold"
 msgstr "약간 굵게"
 
 #: ui/dialogs/settings-themes.slint
+msgid "(biggest)"
+msgstr "(최대 크기)"
+
+#: ui/dialogs/settings-themes.slint
 msgid "Align"
 msgstr "정렬"
 
@@ -3491,241 +3983,21 @@ msgstr "어둡게"
 msgid "Makes text easier to read"
 msgstr "글자를 더 읽기 쉽게 해요"
 
-#: ui/dialogs/settings.slint ui/dialogs/song-editor.slint ui/operator/slides.slint
-msgid "Lines per slide"
-msgstr "슬라이드당 줄 수"
+#: ui/dialogs/settings.slint ui/operator/topbar.slint ui/operator.slint src/strings/dialogs.rs src/strings/settings.rs
+msgid "Settings"
+msgstr "설정"
 
 #: ui/dialogs/settings.slint
-msgid "Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage."
-msgstr "찬양과 성경 본문에 적용돼요. 일부 성경은 저작권 표시가 필요하며, 본문마다 한 번 표시돼요."
+msgid "Find a setting"
+msgstr "설정 찾기"
 
 #: ui/dialogs/settings.slint
-msgid "Show the copyright line"
-msgstr "저작권 줄 표시"
+msgid "No setting has those words."
+msgstr "그 단어가 들어간 설정이 없습니다."
 
 #: ui/dialogs/settings.slint
-msgid "On first and last slide"
-msgstr "첫 슬라이드와 마지막 슬라이드에"
-
-#: ui/dialogs/settings.slint
-msgid "On first slide"
-msgstr "첫 슬라이드에"
-
-#: ui/dialogs/settings.slint
-msgid "On last slide"
-msgstr "마지막 슬라이드에"
-
-#: ui/dialogs/settings.slint
-msgid "Copyright line"
-msgstr "저작권 줄"
-
-#: ui/dialogs/settings.slint
-msgid "Use {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}} and {{license}}. Parts between · with nothing in them are left out. Empty: the usual line."
-msgstr "{{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}}, {{license}}를 사용할 수 있어요. · 사이에 내용이 없는 부분은 빠져요. 비워 두면 기본 줄을 사용해요."
-
-#: ui/dialogs/settings.slint
-msgid "Church CCLI licence #"
-msgstr "교회 CCLI 라이선스 번호"
-
-#: ui/dialogs/settings.slint
-msgid "Section keys (C, B, 1–9…)"
-msgstr "섹션 키(C, B, 1–9…)"
-
-#: ui/dialogs/settings.slint
-msgid "Turn off if letters typed by mistake move the screen."
-msgstr "실수로 입력한 글자 때문에 화면이 바뀐다면 끄세요."
-
-#: ui/dialogs/settings.slint
-msgid "Letters and numbers jump the live song to a section"
-msgstr "글자와 숫자 키로 라이브 중인 찬양의 섹션으로 이동해요"
-
-#: ui/dialogs/settings.slint
-msgid "Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted."
-msgstr "웹 브라우저에서 SongSelect로 내려받은 찬양은 저절로 찬양 라이브러리에 들어와요. SongSelect 찬양 파일만 읽고, 다운로드 폴더의 파일은 옮기거나 지우지 않아요."
-
-#: ui/dialogs/settings.slint
-msgid "Bring in SongSelect downloads whenever RustyPresenter is open"
-msgstr "RustyPresenter가 열려 있으면 언제나 SongSelect에서 내려받은 찬양 가져오기"
-
-#: ui/dialogs/settings.slint ui/operator.slint
-msgid "Songs from SongSelect…"
-msgstr "SongSelect 찬양…"
-
-#: ui/dialogs/settings.slint ui/operator.slint
-msgid "Song use report…"
-msgstr "찬양 사용 보고서…"
-
-#: ui/dialogs/settings.slint
-msgid "General"
-msgstr "일반"
-
-#: ui/dialogs/settings.slint
-msgid "Sections and labels"
-msgstr "섹션 및 라벨"
-
-#: ui/dialogs/settings.slint
-msgid "Video and graphics"
-msgstr "동영상 및 그래픽"
-
-#: ui/dialogs/settings.slint
-msgid "Sound goes to"
-msgstr "소리 출력 장치"
-
-#: ui/dialogs/settings.slint
-msgid "Graphics"
-msgstr "그래픽"
-
-#: ui/dialogs/settings.slint
-msgid "Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start."
-msgstr "화면이 깜빡이거나, 검게 나오거나, RustyPresenter가 종료될 때만 바꾸세요. 다음 실행부터 적용돼요."
-
-#: ui/dialogs/settings.slint src/video/bench.rs
-msgid "Test which is fastest"
-msgstr "가장 빠른 것 테스트"
-
-#: ui/dialogs/settings.slint
-msgid "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there."
-msgstr "약 1분. 실행하는 동안 테스트 창이 열리고 닫히며, 프로젝터에 아무것도 없으면 거기에도 나타납니다."
-
-#: ui/dialogs/settings.slint
-msgid "Use this"
-msgstr "이것 사용"
-
-#: ui/dialogs/settings.slint
-msgid "Restart now"
-msgstr "지금 다시 시작"
-
-#: ui/dialogs/settings.slint
-msgid "Performance"
-msgstr "성능"
-
-#: ui/dialogs/settings.slint
-msgid "Shows under the live preview how many frames a second the screens draw, and the free video memory when the graphics card says. Low numbers mean the computer is struggling."
-msgstr "라이브 미리 보기 아래에 화면이 초당 몇 프레임을 그리는지, 그래픽 카드가 알려 주면 남은 비디오 메모리도 표시해요. 숫자가 낮으면 컴퓨터에 부담이 크다는 뜻이에요."
-
-#: ui/dialogs/settings.slint ui/operator.slint
-msgid "Show performance"
-msgstr "성능 표시"
-
-#: ui/dialogs/settings.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
-msgid "Screens"
-msgstr "화면"
-
-#: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs src/strings/screens.rs
-msgid "Audience screen"
-msgstr "예배당 화면"
-
-#: ui/dialogs/settings.slint
-msgid "Keep the audience screen in front when it has its own monitor (smoother fades)"
-msgstr "예배당 화면에 전용 모니터가 있으면 맨 앞에 유지(전환이 더 부드러워요)"
-
-#: ui/dialogs/settings.slint
-msgid "At start"
-msgstr "시작할 때"
-
-#: ui/dialogs/settings.slint
-msgid "Turn the screens on when RustyPresenter starts"
-msgstr "RustyPresenter가 시작되면 화면 켜기"
-
-#: ui/dialogs/settings.slint src/strings/stage.rs
-msgid "Stage layout"
-msgstr "무대 레이아웃"
-
-#: ui/dialogs/settings.slint
-msgid "What the stage screen shows. Window → Stage layouts… makes your own."
-msgstr "무대 화면에 표시할 내용이에요. 창 → 무대 레이아웃…에서 직접 만들 수 있어요."
-
-#: ui/dialogs/settings.slint src/ui/dialogs/settings_keys.rs
-msgid "Phone drawing"
-msgstr "휴대폰 그리기"
-
-#: ui/dialogs/settings.slint
-msgid "Drawing from a phone"
-msgstr "휴대폰에서 그리기"
-
-#: ui/dialogs/settings.slint
-msgid "Keep drawings when the slide changes"
-msgstr "슬라이드가 바뀌어도 그림 유지"
-
-#: ui/dialogs/settings.slint
-msgid "Show drawings on the stage screen"
-msgstr "무대 화면에 그림 표시"
-
-#: ui/dialogs/settings.slint
-msgid "Fading ink disappears after (seconds, 1–30)"
-msgstr "사라지는 잉크 표시 시간(초, 1–30)"
-
-#: ui/dialogs/settings.slint
-msgid "On the phone, “Fades” ink works like a laser pointer: it goes away by itself."
-msgstr "휴대폰에서 “사라짐” 잉크는 레이저 포인터처럼 작동해서 저절로 없어져요."
-
-#: ui/dialogs/settings.slint
-msgid "Limits"
-msgstr "제한"
-
-#: ui/dialogs/settings.slint
-msgid "Limit phone drawing"
-msgstr "휴대폰 그리기 제한"
-
-#: ui/dialogs/settings.slint
-msgid "Most lines on the screen at once"
-msgstr "한 화면의 최대 선 수"
-
-#: ui/dialogs/settings.slint
-msgid "Most drawing updates a second from one phone"
-msgstr "휴대폰 한 대의 초당 최대 그리기 업데이트 수"
-
-#: ui/dialogs/settings.slint
-msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
-msgstr "RustyPresenter가 시작될 때마다, 그리고 하루에 한 번 전체 백업(찬양, 예배, 설정, 모든 동영상·사진·슬라이드)이 만들어져요. 최근 10개는 다음 위치에 보관돼요:"
-
-#: ui/dialogs/settings.slint
-msgid "Back up now"
-msgstr "지금 백업"
-
-#: ui/dialogs/settings.slint
-msgid "Restore"
-msgstr "복원"
-
-#: ui/dialogs/settings.slint
-msgid "No backups yet."
-msgstr "아직 백업이 없어요."
-
-#: ui/dialogs/settings.slint
-msgid "Look"
-msgstr "모양"
-
-#: ui/dialogs/settings.slint src/automation/slide_actions.rs src/ui/operator/transfer.rs
-msgid "Themes"
-msgstr "테마"
-
-#: ui/dialogs/settings.slint
-msgid "Language"
-msgstr "언어"
-
-#: ui/dialogs/settings.slint
-msgid "Auto-follow"
-msgstr "자동 따라가기"
-
-#: ui/dialogs/settings.slint src/stream/own_scenes.rs src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/ui/operator/file_input.rs
-msgid "Video"
-msgstr "동영상"
-
-#: ui/dialogs/settings.slint ui/operator/live.slint src/i18n/remote_strings.rs src/print/html.rs src/strings/planning.rs
-msgid "Media"
-msgstr "미디어"
-
-#: ui/dialogs/settings.slint
-msgid "Backups"
-msgstr "백업"
-
-#: ui/dialogs/settings.slint ui/operator.slint
-msgid "Help"
-msgstr "도움말"
-
-#: ui/dialogs/settings.slint
-msgid "About"
-msgstr "정보"
+msgid "Show advanced settings"
+msgstr "고급 설정 보기"
 
 #: ui/dialogs/settings.slint
 msgid "Save theme"
@@ -4042,262 +4314,6 @@ msgstr "무대 레이아웃 선택"
 #: ui/dialogs/stage-layouts.slint
 msgid "Edit stage layouts…"
 msgstr "무대 레이아웃 편집…"
-
-#: ui/dialogs/stream-more.slint
-msgid "Saved setups"
-msgstr "저장한 구성"
-
-#: ui/dialogs/stream-more.slint
-msgid "Keep everything set for the livestream (destinations, cameras, sound, scenes and these settings) under a name, and use it again in one go. Stream keys stay as they are."
-msgstr "라이브 방송에 맞춘 모든 설정(송출 대상, 카메라, 소리, 장면, 그리고 이 설정)을 이름을 붙여 저장하고 한 번에 다시 써요. 스트림 키는 그대로 있어요."
-
-#: ui/dialogs/stream-more.slint
-msgid "Save as a setup…"
-msgstr "구성으로 저장…"
-
-#: ui/dialogs/stream-more.slint
-msgid "No setups saved yet."
-msgstr "아직 저장한 구성이 없어요."
-
-#: ui/dialogs/stream-more.slint
-msgid "Pictures a second"
-msgstr "초당 화면 수"
-
-#: ui/dialogs/stream-more.slint
-msgid "30 (usual)"
-msgstr "30(보통)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Video format"
-msgstr "영상 형식"
-
-#: ui/dialogs/stream-more.slint
-msgid "H.264 (plays everywhere)"
-msgstr "H.264(어디서나 재생)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Bitrate kept"
-msgstr "비트레이트 방식"
-
-#: ui/dialogs/stream-more.slint
-msgid "Always the same (CBR)"
-msgstr "항상 같게(CBR)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Varies with the picture (VBR)"
-msgstr "화면에 따라 달라짐(VBR)"
-
-#: ui/dialogs/stream-more.slint
-msgid "HEVC and AV1 give a sharper picture for the same upload. HEVC is used when every destination that is on takes it (YouTube and your own server do); otherwise H.264. AV1 is for recordings only: while live, H.264 is used. Both need a newer computer or graphics card."
-msgstr "HEVC와 AV1은 같은 업로드로 더 선명한 화면을 줘요. 켜진 모든 송출 대상이 받아 주면 HEVC를 쓰고(YouTube와 자체 서버는 받아요), 아니면 H.264를 써요. AV1은 녹화 전용이에요. 방송 중에는 H.264를 써요. 둘 다 최신 컴퓨터나 그래픽카드가 필요해요."
-
-#: ui/dialogs/stream-more.slint
-msgid "A whole picture every"
-msgstr "전체 화면을 보내는 간격"
-
-#: ui/dialogs/stream-more.slint
-msgid "1 second"
-msgstr "1초"
-
-#: ui/dialogs/stream-more.slint
-msgid "2 seconds (usual)"
-msgstr "2초(보통)"
-
-#: ui/dialogs/stream-more.slint
-msgid "3 seconds"
-msgstr "3초"
-
-#: ui/dialogs/stream-more.slint
-msgid "4 seconds"
-msgstr "4초"
-
-#: ui/dialogs/stream-more.slint
-msgid "Encoder speed"
-msgstr "인코더 속도"
-
-#: ui/dialogs/stream-more.slint
-msgid "Fastest (least work)"
-msgstr "가장 빠르게(부담 가장 적음)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Fast"
-msgstr "빠르게"
-
-#: ui/dialogs/stream-more.slint
-msgid "Balanced"
-msgstr "균형"
-
-#: ui/dialogs/stream-more.slint
-msgid "Best picture (most work)"
-msgstr "최고 화질(부담 가장 많음)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Profile"
-msgstr "프로필"
-
-#: ui/dialogs/stream-more.slint
-msgid "B-frames"
-msgstr "B 프레임"
-
-#: ui/dialogs/stream-more.slint
-msgid "Leave these on Automatic unless a service or a video editor asks for something else. Faster leaves more of the computer free; Baseline is only for very old players."
-msgstr "방송 서비스나 영상 편집자가 다른 것을 요구하지 않는 한 자동으로 두세요. 빠를수록 컴퓨터 여유가 더 남아요. Baseline은 아주 오래된 플레이어용이에요."
-
-#: ui/dialogs/stream-more.slint
-msgid "Sample rate"
-msgstr "샘플링 레이트"
-
-#: ui/dialogs/stream-more.slint
-msgid "As it comes (usual)"
-msgstr "들어온 그대로(보통)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Sound bitrate"
-msgstr "소리 비트레이트"
-
-#: ui/dialogs/stream-more.slint
-msgid "160 kbit/s (usual)"
-msgstr "160 kbit/s(보통)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Channels"
-msgstr "채널"
-
-#: ui/dialogs/stream-more.slint
-msgid "Stereo"
-msgstr "스테레오"
-
-#: ui/dialogs/stream-more.slint
-msgid "Mono"
-msgstr "모노"
-
-#: ui/dialogs/stream-more.slint src/ui/dialogs/network.rs
-msgid "Network"
-msgstr "네트워크"
-
-#: ui/dialogs/stream-more.slint
-msgid "Send the stream from"
-msgstr "방송을 보낼 네트워크"
-
-#: ui/dialogs/stream-more.slint
-msgid "Safer send (SRT servers)"
-msgstr "안전하게 보내기(SRT 서버)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Off (SRT's own)"
-msgstr "끔(SRT 기본값)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Half a second"
-msgstr "0.5초"
-
-#: ui/dialogs/stream-more.slint
-msgid "2 seconds"
-msgstr "2초"
-
-#: ui/dialogs/stream-more.slint
-msgid "Send from a wired network card to keep the stream off busy Wi-Fi (YouTube, Facebook, Twitch and other RTMP servers; an SRT server is reached however the computer chooses). Safer send gives an SRT server time to ask again for what got lost on a poor line; the picture arrives that much later."
-msgstr "붐비는 Wi-Fi를 피하려면 유선 네트워크 카드로 방송을 보내세요(YouTube, Facebook, Twitch 등 RTMP 서버. SRT 서버는 컴퓨터가 고른 방식으로 연결돼요). 안전하게 보내기는 연결이 나쁠 때 잃어버린 부분을 SRT 서버가 다시 요청할 시간을 줘요. 그만큼 화면이 늦게 도착해요."
-
-#: ui/dialogs/stream-more.slint
-msgid "Each destination's quality"
-msgstr "송출 대상별 화질"
-
-#: ui/dialogs/stream-more.slint
-msgid "A destination can get a smaller picture or a lower bitrate than the main stream (a phone app, a slow server). Each one that differs costs the computer a second encode."
-msgstr "송출 대상마다 기본 방송보다 작은 화면이나 낮은 비트레이트를 줄 수 있어요(휴대폰 앱, 느린 서버). 다르게 설정한 송출 대상이 하나 생길 때마다 컴퓨터가 인코딩을 한 번 더 해요."
-
-#: ui/dialogs/stream-more.slint
-msgid "Size: the main stream's"
-msgstr "크기: 기본 방송과 같게"
-
-#: ui/dialogs/stream-more.slint
-msgid "Bitrate: the main stream's"
-msgstr "비트레이트: 기본 방송과 같게"
-
-#: ui/dialogs/stream-more.slint
-msgid "File type"
-msgstr "파일 형식"
-
-#: ui/dialogs/stream-more.slint
-msgid "MP4 (plays everywhere)"
-msgstr "MP4(어디서나 재생)"
-
-#: ui/dialogs/stream-more.slint
-msgid "MKV (as written; nothing to wait for at the end)"
-msgstr "MKV(쓰는 대로 저장, 끝날 때 기다릴 필요 없음)"
-
-#: ui/dialogs/stream-more.slint
-msgid "Cut long recordings"
-msgstr "긴 녹화 나누기"
-
-#: ui/dialogs/stream-more.slint
-msgid "Every 30 minutes"
-msgstr "30분마다"
-
-#: ui/dialogs/stream-more.slint
-msgid "Every hour"
-msgstr "1시간마다"
-
-#: ui/dialogs/stream-more.slint
-msgid "Every 2 hours"
-msgstr "2시간마다"
-
-#: ui/dialogs/stream-more.slint
-msgid "At 2 GB"
-msgstr "2GB마다"
-
-#: ui/dialogs/stream-more.slint
-msgid "At 4 GB (old USB sticks)"
-msgstr "4GB마다(오래된 USB 메모리용)"
-
-#: ui/dialogs/stream-more.slint
-msgid "At 8 GB"
-msgstr "8GB마다"
-
-#: ui/dialogs/stream-more.slint
-msgid "“Save last” button keeps"
-msgstr "“마지막 저장” 버튼 길이"
-
-#: ui/dialogs/stream-more.slint
-msgid "No button"
-msgstr "버튼 없음"
-
-#: ui/dialogs/stream-more.slint
-msgid "2 minutes"
-msgstr "2분"
-
-#: ui/dialogs/stream-more.slint
-msgid "5 minutes"
-msgstr "5분"
-
-#: ui/dialogs/stream-more.slint
-msgid "10 minutes"
-msgstr "10분"
-
-#: ui/dialogs/stream-more.slint
-msgid "15 minutes"
-msgstr "15분"
-
-#: ui/dialogs/stream-more.slint
-msgid "File name"
-msgstr "파일 이름"
-
-#: ui/dialogs/stream-more.slint
-msgid "Recording file name"
-msgstr "녹화 파일 이름"
-
-#: ui/dialogs/stream-more.slint
-msgid "Recording {{date}} {{time}}"
-msgstr "녹화 {{date}} {{time}}"
-
-#: ui/dialogs/stream-more.slint
-msgid "{{date}} becomes the day, {{time}} the time it started, {{title}} the service's name. Now: {}"
-msgstr "{{date}}는 날짜, {{time}}은 시작한 시각, {{title}}은 예배 이름이 돼요. 지금: {}"
-
-#: ui/dialogs/stream-more.slint
-msgid "While live, also record the stream without the words (for editing)"
-msgstr "방송 중에 가사 없는 방송도 녹화하기(편집용)"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, videos, colours, text or a clock in it."
@@ -5023,6 +5039,10 @@ msgstr "이전(← 또는 Page Up)"
 msgid "Next (→, Space or Page Down)"
 msgstr "다음(→, Space 또는 Page Down)"
 
+#: ui/operator/live.slint src/i18n/remote_strings.rs src/print/html.rs src/strings/planning.rs
+msgid "Media"
+msgstr "미디어"
+
 #: ui/operator/live.slint ui/operator/media.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/print.rs src/ui/dialogs/settings_keys.rs
 msgid "Audio"
 msgstr "오디오"
@@ -5118,6 +5138,10 @@ msgstr "예배당 화면 꺼짐"
 #: ui/operator/monitor.slint
 msgid "Stage screen is off"
 msgstr "무대 화면 꺼짐"
+
+#: ui/operator/outputs.slint src/stream/own_scenes.rs src/strings/screens.rs
+msgid "Audience screen"
+msgstr "예배당 화면"
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "Changed — turn it off and on to update."
@@ -5359,6 +5383,10 @@ msgstr "성경 상자에 “John 3:16” 같은 구절을 입력하고 Enter를 
 msgid "Use the big Next button (or the → key) during the service."
 msgstr "예배 중에는 큰 다음 버튼(또는 → 키)을 사용하세요."
 
+#: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
+msgid "Screens"
+msgstr "화면"
+
 #: ui/operator/slides.slint ui/operator.slint
 msgid "Nothing selected"
 msgstr "선택된 항목 없음"
@@ -5496,8 +5524,8 @@ msgid "Stage"
 msgstr "무대"
 
 #: ui/operator/topbar.slint
-msgid "Phone remotes connected"
-msgstr "연결된 휴대폰 리모컨"
+msgid "Remotes connected"
+msgstr "연결된 리모컨"
 
 #: ui/operator/topbar.slint
 msgid "Show a message on the stage screen"
@@ -5772,10 +5800,6 @@ msgid "Window"
 msgstr "창"
 
 #: ui/operator.slint
-msgid "Screens…"
-msgstr "화면…"
-
-#: ui/operator.slint
 msgid "Close the room window"
 msgstr "예배당 창 닫기"
 
@@ -5784,8 +5808,8 @@ msgid "Audience screen in a window"
 msgstr "예배당 화면을 창으로"
 
 #: ui/operator.slint
-msgid "Phone remote…"
-msgstr "휴대폰 리모컨…"
+msgid "Remote…"
+msgstr "리모컨…"
 
 #: ui/operator.slint
 msgid "Stage message…"
@@ -5802,10 +5826,6 @@ msgstr "다음 슬라이드 클릭: 무대만"
 #: ui/operator.slint
 msgid "Take the stage-only slide down"
 msgstr "무대 전용 슬라이드 내리기"
-
-#: ui/operator.slint
-msgid "Stage layouts…"
-msgstr "무대 레이아웃…"
 
 #: ui/operator.slint
 msgid "Automation…"
@@ -5840,8 +5860,8 @@ msgid "Themes and backgrounds…"
 msgstr "테마 및 배경…"
 
 #: ui/operator.slint
-msgid "Network…"
-msgstr "네트워크…"
+msgid "Remote and network…"
+msgstr "리모컨과 네트워크…"
 
 #: ui/operator.slint
 msgid "Songs…"
@@ -5874,10 +5894,6 @@ msgstr "키 및 지우기 그룹…"
 #: ui/operator.slint
 msgid "Translations…"
 msgstr "번역…"
-
-#: ui/operator.slint
-msgid "Keyboard shortcuts"
-msgstr "바로 가기 키"
 
 #: ui/operator.slint
 msgid "Check the service"
@@ -6134,6 +6150,10 @@ msgstr "슬라이드 {n}"
 #: src/automation/slide_actions.rs src/strings/operator.rs
 msgid "Clear"
 msgstr "지우기"
+
+#: src/automation/slide_actions.rs src/ui/operator/transfer.rs
+msgid "Themes"
+msgstr "테마"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Hide the message"
@@ -6408,8 +6428,8 @@ msgid "Paste the verse text first."
 msgstr "먼저 구절 텍스트를 붙여 넣으세요."
 
 #: src/follow/audio.rs
-msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Media → Recording."
-msgstr "자동 따라가기는 예배당 소리를 들으려면 FFmpeg가 필요해요. 설정 → 미디어 → 녹화에서 다운로드하세요."
+msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Livestream → Recording."
+msgstr "자동 따라가기가 실내 소리를 들으려면 FFmpeg가 필요합니다. 설정 → 라이브 방송 → 녹화에서 내려받으세요."
 
 #: src/follow/audio.rs
 msgid "FFmpeg stopped"
@@ -6544,8 +6564,12 @@ msgid "The translation file {file} could not be read ({reason}), so it is not us
 msgstr "번역 파일 {file}을(를) 읽을 수 없어서({reason}) 사용하지 않아요."
 
 #: src/i18n/remote_strings.rs
-msgid "Phone remote — RustyPresenter"
-msgstr "휴대폰 리모컨 — RustyPresenter"
+msgid "Remote — RustyPresenter"
+msgstr "리모컨 — RustyPresenter"
+
+#: src/i18n/remote_strings.rs src/strings/dialogs.rs src/ui/dialogs/settings_find.rs
+msgid "Remote"
+msgstr "리모컨"
 
 #: src/i18n/remote_strings.rs
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
@@ -6639,8 +6663,8 @@ msgid "The screen changed just now — tap the slide again."
 msgstr "방금 화면이 바뀌었어요 — 슬라이드를 다시 탭하세요."
 
 #: src/i18n/remote_strings.rs src/server.rs
-msgid "That QR code has expired. On the computer, click Pair a phone again."
-msgstr "QR 코드가 만료되었어요. 컴퓨터에서 휴대폰 연결을 다시 클릭하세요."
+msgid "That QR code has expired. On the computer, click Pair a phone or tablet again."
+msgstr "그 QR 코드는 만료되었습니다. 컴퓨터에서 휴대폰이나 태블릿 연결을 다시 누르세요."
 
 #: src/i18n/remote_strings.rs
 msgid "Could not connect."
@@ -6711,8 +6735,8 @@ msgid "Password"
 msgstr "비밀번호"
 
 #: src/i18n/remote_strings.rs
-msgid "This phone remote needs a password too."
-msgstr "이 휴대폰 리모컨도 비밀번호가 필요해요."
+msgid "This remote needs a password too."
+msgstr "이 리모컨에도 비밀번호가 필요합니다."
 
 #: src/i18n/remote_strings.rs
 msgid "This stage screen needs a password."
@@ -7126,8 +7150,8 @@ msgid "{n} KB"
 msgstr "{n}KB"
 
 #: src/media_care.rs
-msgid "Choose your headphones in Settings → Media first."
-msgstr "먼저 설정 → 미디어에서 헤드폰을 선택하세요."
+msgid "Choose your headphones in Settings → Sound first."
+msgstr "먼저 설정 → 소리에서 헤드폰을 고르세요."
 
 #: src/media_care.rs
 msgid "Took {n} file out of the media library and freed {size}."
@@ -7167,6 +7191,18 @@ msgid "Network camera {host}"
 msgstr "네트워크 카메라 {host}"
 
 #: src/record/mod.rs
+msgid "{size} at {fps} pictures a second may be more than this computer can make while live. If the stream stutters, choose a smaller size."
+msgstr "{size}, 초당 {fps}장은 방송 중 이 컴퓨터가 감당하기 어려울 수 있습니다. 방송이 끊기면 더 작은 크기를 고르세요."
+
+#: src/record/mod.rs
+msgid "Graphics card encoders stop at 4096 wide for H.264, so the processor makes this size: it is slow."
+msgstr "그래픽 카드 인코더는 H.264에서 너비 4096까지만 되므로 이 크기는 프로세서가 만듭니다. 느립니다."
+
+#: src/record/mod.rs
+msgid "This size needs about {mbps} Mbit/s of upload for each destination. Test the upload speed before Sunday."
+msgstr "이 크기는 방송 대상마다 약 {mbps} Mbit/s의 업로드가 필요합니다. 주일 전에 업로드 속도를 시험해 보세요."
+
+#: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
 msgstr "녹화하려면 무료 프로그램인 FFmpeg가 필요해요. {hint}"
 
@@ -7199,8 +7235,8 @@ msgid "RustyPresenter stopped in the middle of a livestream. The recording up to
 msgstr "라이브 방송 도중에 RustyPresenter가 멈췄습니다. 그때까지의 녹화는 보관되었습니다. 다시 라이브를 시작할까요?"
 
 #: src/record/mod.rs
-msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or the graphics card under Video encoder, and close other programs."
-msgstr "이 컴퓨터가 따라가지 못해 녹화와 방송이 끊겨요. 설정 → 미디어의 ‘사진 크기’에서 720p를 고르거나 ‘비디오 인코더’에서 그래픽카드를 고르고, 다른 프로그램을 닫으세요."
+msgid "This computer is not keeping up, so the recording and stream are jerky. Choose a smaller picture size in Settings → Livestream → Picture and quality, or the graphics card under Video encoder, and close other programs."
+msgstr "이 컴퓨터가 따라가지 못해 녹화와 방송이 끊깁니다. 설정 → 라이브 방송 → 사진과 품질에서 더 작은 사진 크기를 고르거나, 비디오 인코더에서 그래픽 카드를 고르고 다른 프로그램을 닫으세요."
 
 #: src/record/mod.rs
 msgid "The computer is keeping up again: the picture is smooth."
@@ -7215,8 +7251,8 @@ msgid "Could not use the recordings folder {path}: {why}"
 msgstr "녹화 폴더 {path}을(를) 사용할 수 없어요: {why}"
 
 #: src/record/mod.rs
-msgid "The recordings folder's disk has only {free} free. An hour of recording needs about {need}. Choose another folder in Settings → Media."
-msgstr "녹화 폴더가 있는 디스크에 남은 공간이 {free}뿐이에요. 1시간 녹화에는 약 {need}가 필요해요. 설정 → 미디어에서 다른 폴더를 선택하세요."
+msgid "The recordings folder's disk has only {free} free. An hour of recording needs about {need}. Choose another folder in Settings → Livestream → Recording."
+msgstr "녹화 폴더가 있는 디스크에 {free}만 남았습니다. 1시간 녹화에는 약 {need}가 필요합니다. 설정 → 라이브 방송 → 녹화에서 다른 폴더를 고르세요."
 
 #: src/record/mod.rs
 msgid "The disk is almost full, so the recording stopped."
@@ -7359,8 +7395,8 @@ msgid "Too fast — wait a second and try again."
 msgstr "너무 빨라요 — 잠시 후 다시 시도하세요."
 
 #: src/server.rs
-msgid "Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."
-msgstr "연결 대기 중이 아니에요. 컴퓨터에서 “휴대폰 리모컨” → “휴대폰 연결”을 클릭하세요."
+msgid "Pairing isn't open. On the computer, click “Phone” → “Pair a phone or tablet”."
+msgstr "연결이 열려 있지 않습니다. 컴퓨터에서 “휴대폰” → “휴대폰이나 태블릿 연결”을 누르세요."
 
 #: src/server.rs
 msgid "Too many wrong codes. Start pairing again on the computer."
@@ -7576,8 +7612,8 @@ msgid "This Facebook account manages no Page. A stream can only go to a Page."
 msgstr "이 Facebook 계정이 관리하는 페이지가 없습니다. 방송은 페이지로만 보낼 수 있습니다."
 
 #: src/stream/accounts/mod.rs
-msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Media → Livestream."
-msgstr "{name}: 방송을 만들지 못했습니다({why}). 설정 → 미디어 → 라이브 방송에서 다시 로그인하세요."
+msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Livestream → Where to stream."
+msgstr "{name}: 방송을 만들지 못했습니다({why}). 설정 → 라이브 방송 → 방송할 곳에서 다시 로그인하세요."
 
 #: src/stream/accounts/mod.rs
 msgid "Making the YouTube broadcast…"
@@ -7604,8 +7640,8 @@ msgid "Live captions could not start: {why}"
 msgstr "실시간 자막을 시작하지 못했어요: {why}"
 
 #: src/stream/captions.rs
-msgid "Live captions need a microphone or line-in: choose one under Sound in Settings → Media, or under Live captions."
-msgstr "실시간 자막에는 마이크나 라인 입력이 필요해요. 설정 → 미디어의 소리나 실시간 자막에서 고르세요."
+msgid "Live captions need a microphone or line-in: choose one in Settings → Livestream → Sound, or under Live captions."
+msgstr "실시간 자막에는 마이크나 라인 입력이 필요합니다. 설정 → 라이브 방송 → 소리나 실시간 자막에서 고르세요."
 
 #: src/stream/captions.rs
 msgid "Live captions stopped hearing the microphone ({why}). Trying again…"
@@ -7768,6 +7804,10 @@ msgid "Listening to the stream could not start: {error}"
 msgstr "방송 소리 듣기를 시작하지 못했어요: {error}"
 
 #: src/stream/mod.rs
+msgid "{name} takes at most {most}: it gets a smaller copy, made by this computer while live."
+msgstr "{name}은(는) 최대 {most}까지 받습니다. 방송 중 이 컴퓨터가 만든 더 작은 사본을 보냅니다."
+
+#: src/stream/mod.rs
 msgid "The stream ran {time}."
 msgstr "방송 시간: {time}."
 
@@ -7804,8 +7844,8 @@ msgid "{name}: the stream is going out."
 msgstr "{name}: 방송이 나가고 있어요."
 
 #: src/stream/mod.rs
-msgid "{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on."
-msgstr "{name}이(가) 여러 번 시도해도 연결되지 않았습니다. 설정 → 미디어 → 라이브 방송의 스트림 키와 인터넷을 확인하세요. 계속 시도 중이며 녹화는 계속됩니다."
+msgid "{name} has not connected after several tries. Check the stream key in Settings → Livestream → Where to stream, and the internet. Still trying; the recording goes on."
+msgstr "{name}이(가) 여러 번 시도해도 연결되지 않았습니다. 설정 → 라이브 방송 → 방송할 곳의 스트림 키와 인터넷을 확인하세요. 계속 시도 중이며 녹화는 계속됩니다."
 
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
@@ -7816,8 +7856,8 @@ msgid "Nothing goes out over NDI: it needs the free NDI Tools from ndi.video on 
 msgstr "NDI로 아무것도 나가지 않습니다. 이 컴퓨터에 ndi.video의 무료 NDI Tools가 필요합니다. 라이브 방송은 NDI 없이 계속됩니다."
 
 #: src/stream/mod.rs
-msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
-msgstr "라이브 시작에는 켜져 있고 스트림 키가 있는 송출 대상이 필요해요. 설정 → 미디어 → 라이브 방송에서 하나 설정하세요."
+msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Livestream → Where to stream."
+msgstr "라이브 시작에는 켜져 있고 스트림 키가 있는 방송 대상이 필요합니다. 설정 → 라이브 방송 → 방송할 곳에서 설정하세요."
 
 #: src/stream/mod.rs
 msgid "{name} is not streamed to: {why}"
@@ -7856,8 +7896,8 @@ msgid "The camera is back in the stream."
 msgstr "카메라가 방송에 돌아왔어요."
 
 #: src/stream/mod.rs
-msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
-msgstr "{name}: 인터넷 속도가 부족해서 방송이 끊겨요. 설정 → 미디어 → 녹화에서 720p를 고르거나 송출 대상 하나를 끄세요."
+msgid "{name}: the internet is not fast enough, so the stream skips. Choose a smaller picture size in Settings → Livestream → Picture and quality, or switch a destination off."
+msgstr "{name}: 인터넷이 충분히 빠르지 않아 방송이 건너뜁니다. 설정 → 라이브 방송 → 사진과 품질에서 더 작은 사진 크기를 고르거나 방송 대상 하나를 끄세요."
 
 #: src/stream/mod.rs
 msgid "You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once."
@@ -8023,6 +8063,10 @@ msgstr "제목 없는 장면"
 msgid "A scene that was deleted"
 msgstr "삭제된 장면"
 
+#: src/stream/own_scenes.rs src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/ui/operator/file_input.rs
+msgid "Video"
+msgstr "동영상"
+
 #: src/stream/own_scenes.rs
 msgid "The words of the song go here"
 msgstr "여기에 찬양 가사가 들어가요"
@@ -8060,8 +8104,8 @@ msgid "Connect this phone"
 msgstr "이 휴대폰 연결"
 
 #: src/stream/phone_camera.rs
-msgid "On the presentation computer, click Phone remote, then Pair a phone, and type the 6-digit code here."
-msgstr "프레젠테이션 컴퓨터에서 휴대폰 리모컨 → 휴대폰 연결을 클릭하고, 여기에 6자리 코드를 입력하세요."
+msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "발표용 컴퓨터에서 휴대폰, 그다음 휴대폰이나 태블릿 연결을 누르고 여기에 6자리 코드를 입력하세요."
 
 #: src/stream/phone_camera.rs
 msgid "6-digit code"
@@ -8116,12 +8160,8 @@ msgid "Not on the stream"
 msgstr "방송에 나가지 않음"
 
 #: src/stream/phone_camera.rs
-msgid "On the computer, choose this phone in Settings → Media → Livestream → Camera."
-msgstr "컴퓨터의 설정 → 미디어 → 라이브 방송 → 카메라에서 이 휴대폰을 고르세요."
-
-#: src/stream/phone_camera.rs
-msgid "Any phone on the church's Wi-Fi can be a camera. On the phone, open {address} and follow the steps there. The first time, the phone warns that the connection is not private: that is expected, because the page comes from this computer. Tap Advanced (or Show Details), then Proceed (or Visit this website). Then pair it with the code from Phone remote, Pair a phone. Once it sends its picture, it is listed in the camera lists above as Phone camera and its name."
-msgstr "교회 Wi-Fi에 연결된 휴대폰은 무엇이든 카메라가 될 수 있어요. 휴대폰에서 {address}을(를) 열고 안내를 따르세요. 처음에는 휴대폰에서 비공개 연결이 아니라는 경고가 나오는데, 페이지가 이 컴퓨터에서 오기 때문이니 정상이에요. 고급(또는 세부사항 보기)을 누른 다음 계속(또는 이 웹사이트 방문)을 누르세요. 그런 다음 휴대폰 리모컨, 휴대폰 연결에서 나오는 코드로 연결하세요. 화면을 보내기 시작하면 위의 카메라 목록에 휴대폰 카메라와 그 이름으로 나와요."
+msgid "On the computer, choose this phone in Settings → Livestream → Cameras."
+msgstr "컴퓨터의 설정 → 라이브 방송 → 카메라에서 이 휴대폰을 고르세요."
 
 #: src/stream/phone_camera.rs
 msgid "This computer is not on a network, so no phone can reach it."
@@ -8132,6 +8172,10 @@ msgid "Phone microphone (open its page on the phone)"
 msgstr "휴대폰 마이크(휴대폰에서 해당 페이지를 여세요)"
 
 #: src/stream/phone_mic.rs
+msgid "Phone microphone"
+msgstr "휴대폰 마이크"
+
+#: src/stream/phone_mic.rs
 msgid "Start sending sound"
 msgstr "소리 보내기 시작"
 
@@ -8140,8 +8184,8 @@ msgid "Sending to the stream. Keep this page open and the phone awake."
 msgstr "방송으로 보내는 중이에요. 이 페이지를 열어 두고 휴대폰 화면이 꺼지지 않게 하세요."
 
 #: src/stream/phone_mic.rs
-msgid "Sending, but the stream is not using this phone yet. Choose \"Phone microphone\" in Settings → Media → Livestream, then go live."
-msgstr "보내는 중이지만 방송이 아직 이 휴대폰을 쓰지 않고 있어요. 설정 → 미디어 → 라이브 방송에서 “휴대폰 마이크”를 고른 다음 라이브를 시작하세요."
+msgid "Sending, but the stream is not using this phone yet. Choose \"Phone microphone\" in Settings → Livestream → Sound, then go live."
+msgstr "보내는 중이지만 방송이 아직 이 휴대폰을 쓰지 않습니다. 설정 → 라이브 방송 → 소리에서 \"휴대폰 마이크\"를 고른 뒤 방송을 시작하세요."
 
 #: src/stream/phone_mic.rs
 msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
@@ -8152,12 +8196,12 @@ msgid "The phone did not let the page use its microphone. Allow it in the browse
 msgstr "휴대폰이 이 페이지의 마이크 사용을 허용하지 않았어요. 브라우저 설정에서 이 페이지를 허용한 다음 다시 시도하세요."
 
 #: src/stream/phone_mic.rs
-msgid "Turn on the stage screen for phones in RustyPresenter (Settings → Network…), and sign in to it on this phone first."
-msgstr "RustyPresenter에서 휴대폰용 무대 화면(설정 → 네트워크…)을 켜고, 먼저 이 휴대폰에서 로그인하세요."
+msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
+msgstr "RustyPresenter에서 휴대폰 무대 화면을 켜고(설정 → 리모컨과 네트워크), 먼저 이 휴대폰으로 거기에 로그인하세요."
 
 #: src/stream/preflight.rs
-msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Media → Livestream. The stream shows the slides in its place."
-msgstr "카메라 {n}({camera})이(가) 연결되어 있지 않아요. 케이블을 확인하거나 설정 → 미디어 → 라이브 방송에서 다시 고르세요. 방송에는 그 자리에 슬라이드가 나와요."
+msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Livestream → Cameras. The stream shows the slides in its place."
+msgstr "카메라 {n}({camera})이(가) 연결되어 있지 않습니다. 케이블을 확인하거나 설정 → 라이브 방송 → 카메라에서 다시 고르세요. 방송은 그 자리에 슬라이드를 보여 줍니다."
 
 #: src/stream/preflight.rs
 msgid "Camera {n} ({camera}) is connected but sends no picture. Close any other program using it (Zoom, the Camera app, OBS), or switch it on. The stream shows the slides in its place until it comes."
@@ -8168,8 +8212,8 @@ msgid "Camera {n} ({camera}) comes over NDI, but NDI is not installed on this co
 msgstr "카메라 {n}({camera})은(는) NDI로 들어오는데, 이 컴퓨터에 NDI가 설치되어 있지 않아요. 무료 NDI Tools를 설치하세요."
 
 #: src/stream/preflight.rs
-msgid "The sound input {name} is not connected. Check its cable, or choose it again in Settings → Media. The stream goes out without it."
-msgstr "소리 입력 {name}이(가) 연결되어 있지 않아요. 케이블을 확인하거나 설정 → 미디어에서 다시 고르세요. 방송은 이 소리 없이 나가요."
+msgid "The sound input {name} is not connected. Check its cable, or choose it again in Settings → Livestream → Sound. The stream goes out without it."
+msgstr "소리 입력 {name}이(가) 연결되어 있지 않습니다. 케이블을 확인하거나 설정 → 라이브 방송 → 소리에서 다시 고르세요. 방송은 그것 없이 나갑니다."
 
 #: src/stream/preflight.rs
 msgid "The sound input {name} is connected but could not be opened. Close any other program using it, then try again."
@@ -8180,8 +8224,8 @@ msgid "Camera {camera}: position {position}"
 msgstr "카메라 {camera}: 위치 {position}"
 
 #: src/stream/report.rs
-msgid "The computer could not keep up for {secs} seconds and left out {frames} pictures: the stream was jerky then. Next time, try 720p or the graphics card's encoder (Settings → Media)."
-msgstr "컴퓨터가 {secs}초 동안 따라가지 못해 화면 {frames}장을 빠뜨려서 그동안 방송이 끊겼어요. 다음에는 720p나 그래픽카드 인코더를 써 보세요(설정 → 미디어)."
+msgid "The computer could not keep up for {secs} seconds and left out {frames} pictures: the stream was jerky then. Next time, try a smaller picture size or the graphics card's encoder (Settings → Livestream → Picture and quality)."
+msgstr "컴퓨터가 {secs}초 동안 따라가지 못해 {frames}장의 영상을 빠뜨렸습니다. 그동안 방송이 끊겼습니다. 다음에는 더 작은 사진 크기나 그래픽 카드 인코더를 써 보세요(설정 → 라이브 방송 → 사진과 품질)."
 
 #: src/stream/report.rs
 msgid "{name} got a lighter stream (down to {kbps} kbit/s) because the internet could not keep up."
@@ -8190,6 +8234,10 @@ msgstr "{name}은(는) 인터넷이 따라가지 못해서 더 가벼운 방송�
 #: src/stream/report.rs
 msgid "At most {viewers} watching at once."
 msgstr "동시에 최대 {viewers}명이 시청했어요."
+
+#: src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
+msgid "Camera"
+msgstr "카메라"
 
 #: src/stream/scene.rs
 msgid "Camera + words"
@@ -8232,12 +8280,12 @@ msgid "No sound input here looks like one. Choose it under \"Sound in the record
 msgstr "그런 소리 입력이 보이지 않아요. 위의 “녹화에 들어갈 소리”에서 고르세요."
 
 #: src/stream/speed.rs
-msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
-msgstr "업로드: {speed} Mbit/s. 1080p로 방송하기에 충분합니다."
+msgid "Upload: {speed} Mbit/s. Enough to stream in {size}."
+msgstr "업로드: {speed} Mbit/s. {size}(으)로 방송하기에 충분합니다."
 
 #: src/stream/speed.rs
-msgid "Upload: {speed} Mbit/s. Stream in 720p: 1080p needs {need} Mbit/s."
-msgstr "업로드: {speed} Mbit/s. 720p로 방송하세요. 1080p에는 {need} Mbit/s가 필요합니다."
+msgid "Upload: {speed} Mbit/s. Stream in {size}: {chosen} needs {need} Mbit/s."
+msgstr "업로드: {speed} Mbit/s. {size}(으)로 방송하세요. {chosen}에는 {need} Mbit/s가 필요합니다."
 
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer destinations, or use a faster connection."
@@ -8260,8 +8308,8 @@ msgid "Not streaming"
 msgstr "방송 중 아님"
 
 #: src/stream/tally.rs
-msgid "Turn on the stage screen for phones (Settings → Network…). If it has a password, open the stage screen on this phone once and sign in."
-msgstr "휴대폰용 무대 화면(설정 → 네트워크…)을 켜세요. 비밀번호가 있으면 이 휴대폰에서 무대 화면을 한 번 열고 로그인하세요."
+msgid "Turn on the stage screen on phones (Settings → Remote and network). If it has a password, open the stage screen on this phone once and sign in."
+msgstr "휴대폰 무대 화면을 켜세요(설정 → 리모컨과 네트워크). 비밀번호가 있으면 이 휴대폰에서 무대 화면을 한 번 열고 로그인하세요."
 
 #: src/stream/transition.rs
 msgid "Cut (at once)"
@@ -8905,7 +8953,7 @@ msgstr "이 슬라이드의 변경 내용을 버릴까요?"
 msgid "Throw away"
 msgstr "버리기"
 
-#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
+#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_scenes.rs
 msgid "Keep editing"
 msgstr "계속 편집"
 
@@ -9270,7 +9318,7 @@ msgstr "프레젠테이션"
 msgid "SongSelect song files"
 msgstr "SongSelect 찬양 파일"
 
-#: src/strings/operator.rs
+#: src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Pictures and videos"
 msgstr "사진 및 동영상"
 
@@ -9430,8 +9478,8 @@ msgid_plural "Code works for {n} more seconds"
 msgstr[0] "코드 유효 시간: {n}초 남음"
 
 #: src/strings/phone.rs
-msgid "Code expired — click Pair a phone again."
-msgstr "코드가 만료되었어요 — 휴대폰 연결을 다시 클릭하세요."
+msgid "Code expired — click Pair a phone or tablet again."
+msgstr "코드가 만료되었습니다 — 휴대폰이나 태블릿 연결을 다시 누르세요."
 
 #: src/strings/planning.rs
 msgid "No date"
@@ -9810,20 +9858,20 @@ msgid "The stage screen is not connected. The service can run without it."
 msgstr "무대 화면이 연결되어 있지 않아요. 무대 화면 없이도 예배를 진행할 수 있어요."
 
 #: src/strings/preflight.rs
-msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video."
-msgstr "설정에서 선택한 소리 출력 장치가 연결되어 있지 않아요. 연결하거나 설정 → 동영상에서 다른 장치를 선택하세요."
+msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Sound."
+msgstr "설정에서 고른 소리 출력이 연결되어 있지 않습니다. 연결하거나 설정 → 소리에서 다른 것을 고르세요."
 
 #: src/strings/preflight.rs
-msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play."
-msgstr "소리 출력 장치가 연결되어 있지 않아서 동영상이나 오디오를 일시 정지했어요. 연결하거나 설정 → 동영상에서 다른 장치를 선택한 다음 재생을 누르세요."
+msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Sound, then press play."
+msgstr "소리 출력이 연결되어 있지 않아 동영상이나 오디오를 멈췄습니다. 연결하거나 설정 → 소리에서 다른 것을 고른 뒤 재생을 누르세요."
 
 #: src/strings/preflight.rs
-msgid "The logo's file is missing. Choose it again in Settings → Look."
-msgstr "로고 파일이 없어요. 설정 → 모양에서 다시 선택하세요."
+msgid "The logo's file is missing. Choose it again in Settings → Look → Text and logo."
+msgstr "로고 파일이 없습니다. 설정 → 모양 → 글자와 로고에서 다시 고르세요."
 
 #: src/strings/preflight.rs
-msgid "The default background's file is missing. Choose it again in Settings → Look."
-msgstr "기본 배경 파일이 없어요. 설정 → 모양에서 다시 선택하세요."
+msgid "The default background's file is missing. Choose it again in Settings → Look → Text and logo."
+msgstr "기본 배경 파일이 없습니다. 설정 → 모양 → 글자와 로고에서 다시 고르세요."
 
 #: src/strings/preflight.rs
 msgid "the song is no longer in the library"
@@ -10016,8 +10064,8 @@ msgid "about {ms} ms"
 msgstr "약 {ms} ms"
 
 #: src/strings/screens.rs
-msgid "Colour and corner changes show when the screens draw with OpenGL (Settings → Video → Graphics: Automatic or OpenGL). Test patterns and the delay work either way."
-msgstr "색과 모서리 변경은 화면을 OpenGL로 그릴 때 표시돼요(설정 → 동영상 → 그래픽: 자동 또는 OpenGL). 테스트 패턴과 지연은 어느 쪽이든 작동해요."
+msgid "Colour and corner changes show when the screens draw with OpenGL (Settings → General → Screens and graphics → Graphics: Automatic or OpenGL). Test patterns and the delay work either way."
+msgstr "색과 모서리 변경은 화면을 OpenGL로 그릴 때 보입니다(설정 → 일반 → 화면과 그래픽 → 그래픽: 자동 또는 OpenGL). 테스트 패턴과 지연은 어느 쪽이든 됩니다."
 
 #: src/strings/scripture.rs
 msgid "Type at least one word to search for."
@@ -11126,8 +11174,8 @@ msgid "Up to 8 overlays can be on at once. Turn one off first."
 msgstr "오버레이는 한 번에 최대 8개까지 켤 수 있어요. 먼저 하나를 끄세요."
 
 #: src/strings/themes.rs
-msgid "Choose a church logo first (Settings → Look)."
-msgstr "먼저 교회 로고를 선택하세요(설정 → 모양)."
+msgid "Choose a church logo first (Settings → Look → Text and logo)."
+msgstr "먼저 교회 로고를 고르세요(설정 → 모양 → 글자와 로고)."
 
 #: src/strings/themes.rs
 msgid "That picture is gone."
@@ -11334,8 +11382,8 @@ msgid "CCLI licence #: {license}"
 msgstr "CCLI 라이선스 번호: {license}"
 
 #: src/strings/usage.rs
-msgid "Add your church's CCLI licence number in Settings → Songs."
-msgstr "설정 → 찬양에서 교회의 CCLI 라이선스 번호를 추가하세요."
+msgid "Add your church's CCLI licence number in Settings → Songs → Slides and credits."
+msgstr "설정 → 찬양 → 슬라이드와 저작권 표시에 교회의 CCLI 라이선스 번호를 넣으세요."
 
 #: src/strings/usage.rs
 msgid "Mark as reported through {date}"
@@ -11721,8 +11769,8 @@ msgid "This service has no songs."
 msgstr "이 예배에는 찬양이 없어요."
 
 #: src/transfer.rs
-msgid "There are no saved themes to export. Make one in Settings → Themes."
-msgstr "내보낼 저장된 테마가 없어요. 설정 → 테마에서 만드세요."
+msgid "There are no saved themes to export. Make one in Settings → Look → Themes and backgrounds."
+msgstr "내보낼 저장된 테마가 없습니다. 설정 → 모양 → 테마와 배경에서 만드세요."
 
 #: src/transfer.rs
 msgid "This is not a RustyPresenter theme pack."
@@ -11930,12 +11978,12 @@ msgid "{time} UTC"
 msgstr "{time} UTC"
 
 #: src/ui/dialogs/settings.rs
-msgid "Save your other changes first?"
-msgstr "다른 변경 내용을 먼저 저장할까요?"
+msgid "Save your changes to the settings?"
+msgstr "설정에서 바꾼 내용을 저장할까요?"
 
 #: src/ui/dialogs/settings.rs
-msgid "Save and go on"
-msgstr "저장하고 계속"
+msgid "Don't save"
+msgstr "저장 안 함"
 
 #: src/ui/dialogs/settings.rs
 msgid "Save your other changes and restart?"
@@ -11944,6 +11992,118 @@ msgstr "다른 변경 사항을 저장하고 다시 시작할까요?"
 #: src/ui/dialogs/settings.rs
 msgid "Save and restart"
 msgstr "저장하고 다시 시작"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "General"
+msgstr "일반"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Look"
+msgstr "모양"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Video and media"
+msgstr "동영상과 미디어"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Sound"
+msgstr "소리"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Remote and network"
+msgstr "리모컨과 네트워크"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Keys"
+msgstr "키"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Auto-follow"
+msgstr "자동 따라가기"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Livestream"
+msgstr "라이브 방송"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Backups"
+msgstr "백업"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Help and about"
+msgstr "도움말과 정보"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Screens and graphics"
+msgstr "화면과 그래픽"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Text and logo"
+msgstr "글자와 로고"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Themes and backgrounds"
+msgstr "테마와 배경"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Slides and credits"
+msgstr "슬라이드와 저작권 표시"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Sections and labels"
+msgstr "섹션 및 라벨"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Bibles"
+msgstr "성경"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Online services and files"
+msgstr "온라인 서비스와 파일"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Sound in the room"
+msgstr "실내 소리"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Stage screen on phones"
+msgstr "휴대폰 무대 화면"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Phone camera and microphone"
+msgstr "휴대폰 카메라와 마이크"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Other gear"
+msgstr "기타 장비"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Listening"
+msgstr "듣기"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Review log"
+msgstr "기록"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Where to stream"
+msgstr "방송할 곳"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Picture and quality"
+msgstr "사진과 품질"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Captions and website"
+msgstr "자막과 웹사이트"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "About"
+msgstr "정보"
+
+#: src/ui/dialogs/settings_find.rs
+msgid "Page"
+msgstr "페이지"
 
 #: src/ui/dialogs/settings_follow.rs
 msgid "The first one found"
@@ -11999,6 +12159,10 @@ msgid "Overlays (pictures, clocks, signs)"
 msgstr "오버레이(사진, 시계, 안내 문구)"
 
 #: src/ui/dialogs/settings_keys.rs
+msgid "Phone drawing"
+msgstr "휴대폰 그리기"
+
+#: src/ui/dialogs/settings_keys.rs
 msgid "New clear group"
 msgstr "새 지우기 그룹"
 
@@ -12019,8 +12183,8 @@ msgid "{key} is already the key for “{what}”. It will move here."
 msgstr "{key}은(는) 이미 “{what}”의 키예요. 이쪽으로 옮겨져요."
 
 #: src/ui/dialogs/settings_keys.rs
-msgid "{key} also jumps the live song to a section (Settings → Songs → Section keys)."
-msgstr "{key}은(는) 라이브 중인 찬양의 섹션으로 이동하는 키이기도 해요(설정 → 찬양 → 섹션 키)."
+msgid "{key} also jumps the live song to a section (Settings → Keys → Section keys)."
+msgstr "{key}로도 라이브 중인 찬양의 섹션으로 이동합니다(설정 → 키 → 섹션 키)."
 
 #: src/ui/dialogs/settings_keys.rs
 msgid "{key} also picks a Bible chip while you type in the Bible box."
@@ -12135,6 +12299,14 @@ msgid "Network camera"
 msgstr "네트워크 카메라"
 
 #: src/ui/dialogs/settings_record.rs
+msgid "{size} (custom)"
+msgstr "{size}(직접 정함)"
+
+#: src/ui/dialogs/settings_record.rs
+msgid "Type the width and the height as whole numbers, like 1600 and 900."
+msgstr "너비와 높이를 정수로 입력하세요. 예: 1600과 900."
+
+#: src/ui/dialogs/settings_record.rs
 msgid "The speed test could not reach the internet. Check the connection and try again."
 msgstr "속도 테스트가 인터넷에 연결하지 못했습니다. 연결을 확인하고 다시 시도하세요."
 
@@ -12222,6 +12394,10 @@ msgid "“{title}” from SongSelect is already in your library."
 msgstr "SongSelect의 “{title}”은(는) 이미 라이브러리에 있어요."
 
 #: src/ui/dialogs/songselect.rs
+msgid "“{title}” was already in your library: its chords were added for the stage screen."
+msgstr "“{title}”은(는) 이미 라이브러리에 있었습니다. 무대 화면용 코드를 추가했습니다."
+
+#: src/ui/dialogs/songselect.rs
 msgid "“{title}” from SongSelect has other words than your copy, so it was kept as “{new}”."
 msgstr "SongSelect의 “{title}”은(는) 가지고 있는 찬양과 가사가 달라서 “{new}”(으)로 따로 두었어요."
 
@@ -12236,6 +12412,10 @@ msgstr "찬양 라이브러리에 추가됨"
 #: src/ui/dialogs/songselect.rs
 msgid "Already in your song library"
 msgstr "이미 찬양 라이브러리에 있음"
+
+#: src/ui/dialogs/songselect.rs
+msgid "Chords added to your copy"
+msgstr "내 사본에 코드를 추가했습니다"
 
 #: src/ui/dialogs/songselect.rs
 msgid "Your copy has other words, so this one is kept as “{new}”"
@@ -12254,8 +12434,16 @@ msgid "Your Downloads folder could not be found. Use “Choose a file…” for 
 msgstr "다운로드 폴더를 찾을 수 없어요. 내려받은 찬양은 “파일 고르기…”로 가져오세요."
 
 #: src/ui/dialogs/stream_more.rs
-msgid "More livestream settings"
-msgstr "라이브 방송 설정 더 보기"
+msgid "Size: the main stream's"
+msgstr "크기: 기본 방송과 같게"
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Bitrate: the main stream's"
+msgstr "비트레이트: 기본 방송과 같게"
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Automatic ({kbps} kbit/s)"
+msgstr "자동({kbps} kbit/s)"
 
 #: src/ui/dialogs/stream_more.rs
 msgid "The setup “{name}” is chosen. Save to use it."
@@ -12268,18 +12456,6 @@ msgstr "구성 이름(예: 주일, 결혼식)"
 #: src/ui/dialogs/stream_more.rs
 msgid "Delete the setup “{name}”? The settings in use now stay as they are."
 msgstr "구성 “{name}”을(를) 삭제할까요? 지금 쓰는 설정은 그대로 남아요."
-
-#: src/ui/dialogs/stream_more.rs
-msgid "Leave without saving these settings?"
-msgstr "이 설정을 저장하지 않고 나갈까요?"
-
-#: src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
-msgid "Leave"
-msgstr "나가기"
-
-#: src/ui/dialogs/stream_more.rs
-msgid "Livestream settings saved."
-msgstr "라이브 방송 설정을 저장했어요."
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Your livestream scenes"
@@ -12320,6 +12496,10 @@ msgstr "“{name}” 장면을 삭제할까요? 이 장면을 고르는 슬라�
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Leave without saving your scene changes?"
 msgstr "장면 변경 내용을 저장하지 않고 나갈까요?"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Leave"
+msgstr "나가기"
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Scenes saved."
@@ -12487,8 +12667,8 @@ msgid "Window → Screens… picks which monitor is the audience screen and whic
 msgstr "창 → 화면…에서 어느 모니터를 예배당 화면과 무대 화면으로 쓸지 정해요."
 
 #: src/ui/operator/help.rs
-msgid "Settings → Keys and clear groups… changes these keys and makes your own clear groups."
-msgstr "설정 → 키 및 지우기 그룹…에서 이 키를 바꾸고 나만의 지우기 그룹을 만들어요."
+msgid "Settings → Keys changes these keys and makes your own clear groups."
+msgstr "설정 → 키에서 이 키들을 바꾸고 나만의 지우기 그룹을 만들 수 있습니다."
 
 #: src/ui/operator/help.rs
 msgid "Bible passages"
@@ -12903,8 +13083,8 @@ msgid "The {wanted} graphics mode could not be used on this computer, so RustyPr
 msgstr "이 컴퓨터에서는 {wanted} 그래픽 모드를 사용할 수 없어서 RustyPresenter가 {mode}을(를) 사용하고 있어요."
 
 #: src/video/graphics.rs
-msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
-msgstr "그래픽 카드에 문제가 있어서 RustyPresenter가 안전 모드로 시작했어요. 설정 → 동영상에서 바꿀 수 있어요."
+msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → General → Screens and graphics."
+msgstr "그래픽 카드에 문제가 있어 RustyPresenter가 안전 모드로 시작했습니다. 설정 → 일반 → 화면과 그래픽에서 바꿀 수 있습니다."
 
 #: src/video/player.rs
 msgid "The video player could not start."
@@ -12977,6 +13157,282 @@ msgstr "yt-dlp가 동영상을 저장하지 않았어요"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "미디어 파일 아님"
+
+#~ msgid "Show on the phone remote"
+#~ msgstr "휴대폰 리모컨에 표시"
+
+#~ msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Media → Livestream."
+#~ msgstr "예배가 시작되면 맨 위의 라이브 시작을 누르고, 끝나면 다시 누르세요. 여기서 고른 것은 모두 설정 → 미디어 → 라이브 방송에서 바꿀 수 있어요."
+
+#~ msgid "Same as Settings → Look"
+#~ msgstr "설정 → 모양과 동일"
+
+#~ msgid "Phone remote"
+#~ msgstr "휴대폰 리모컨"
+
+#~ msgid "Ask for a password when a phone pairs"
+#~ msgstr "휴대폰을 연결할 때 비밀번호 묻기"
+
+#~ msgid "Phone remote password"
+#~ msgstr "휴대폰 리모컨 비밀번호"
+
+#~ msgid "Phones still pair with the code or the QR code; the password is asked too. Phones already paired stay paired."
+#~ msgstr "휴대폰은 여전히 코드나 QR 코드로 연결하고, 비밀번호도 함께 물어봐요. 이미 연결된 휴대폰은 그대로 연결돼 있어요."
+
+#~ msgid "Stage screen on a phone or tablet"
+#~ msgstr "휴대폰이나 태블릿의 무대 화면"
+
+#~ msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
+#~ msgstr "교회 Wi-Fi에 연결된 휴대폰으로 슬라이드를 조작할 수 있어요. 휴대폰이 이 컴퓨터와 같은 네트워크에 있어야 해요."
+
+#~ msgid "Pair a phone"
+#~ msgstr "휴대폰 연결"
+
+#~ msgid "Paired phones"
+#~ msgstr "연결된 휴대폰"
+
+#~ msgid "Timing"
+#~ msgstr "타이밍"
+
+#~ msgid "Listening model"
+#~ msgstr "듣기 모델"
+
+#~ msgid "Keyboard"
+#~ msgstr "키보드"
+
+#~ msgid "Tip: clicking any slide puts it on the screen right away. The red outline shows what the room sees."
+#~ msgstr "팁: 슬라이드를 클릭하면 바로 화면에 표시돼요. 빨간 테두리는 예배당에 보이는 화면이에요."
+
+#~ msgid "Bible verses"
+#~ msgstr "성경 구절"
+
+#~ msgid "(for new passages)"
+#~ msgstr "(새 본문에 적용)"
+
+#~ msgid "New pictures and videos"
+#~ msgstr "새 사진 및 동영상"
+
+#~ msgid "720p uses less of the computer and the disk (about 1.4 GB an hour at most); 1080p is sharper (about 2.8 GB)."
+#~ msgstr "720p는 컴퓨터와 디스크를 덜 사용해요(시간당 최대 약 1.4GB). 1080p는 더 선명해요(약 2.8GB)."
+
+#~ msgid "720p"
+#~ msgstr "720p"
+
+#~ msgid "1080p"
+#~ msgstr "1080p"
+
+#~ msgid "How much picture goes out each second. Automatic: 3000 kbit/s for 720p, 6000 for 1080p. More is sharper and needs a faster upload."
+#~ msgstr "초당 보내는 화면의 양. 자동: 720p는 3000 kbit/s, 1080p는 6000. 높을수록 선명하고 더 빠른 업로드가 필요합니다."
+
+#~ msgid "Sound in the recording"
+#~ msgstr "녹화에 들어갈 소리"
+
+#~ msgid "The app's sound is taken from the video and song files when the recording stops, so nothing else on the computer is heard."
+#~ msgstr "녹화를 멈출 때 동영상과 곡 파일에서 앱의 소리를 가져오므로, 컴퓨터의 다른 소리는 들어가지 않아요."
+
+#~ msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on."
+#~ msgstr "송출 대상을 켜면 녹화 옆에 '라이브 시작' 버튼이 나타나요. 라이브 시작은 평소처럼 녹화하면서 같은 화면과 소리를 켜진 모든 송출 대상으로 보내요."
+
+#~ msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras above."
+#~ msgstr "라이브 중에 이 네트워크의 다른 컴퓨터와 프로그램(OBS, vMix, 비디오 스위처)이 이것을 받을 수 있습니다. NDI 카메라는 위의 카메라 목록에 있습니다."
+
+#~ msgid "Words alone"
+#~ msgstr "가사만"
+
+#~ msgid "A camera or capture card for the stream's camera scenes (and its recording)."
+#~ msgstr "방송의 카메라 장면(과 녹화)에 쓸 카메라 또는 캡처 카드."
+
+#~ msgid "Second camera"
+#~ msgstr "두 번째 카메라"
+
+#~ msgid "Another camera to switch to while live, from the Cameras box beside the live screen."
+#~ msgstr "방송 중에 바꿀 수 있는 다른 카메라예요. 라이브 화면 옆의 카메라 상자에서 바꿔요."
+
+#~ msgid "Third camera"
+#~ msgstr "세 번째 카메라"
+
+#~ msgid "Another camera to switch to while live."
+#~ msgstr "방송 중에 바꿀 수 있는 다른 카메라예요."
+
+#~ msgid "Fourth camera"
+#~ msgstr "네 번째 카메라"
+
+#~ msgid "Before the service, with the pre-service countdown under the words while it runs."
+#~ msgstr "예배 전. 카운트다운이 진행되는 동안 글자 아래에 표시됩니다."
+
+#~ msgid "After the service's last item."
+#~ msgstr "예배의 마지막 항목 뒤."
+
+#~ msgid "For a break, chosen with the scene button."
+#~ msgstr "쉬는 시간용. 장면 버튼으로 고릅니다."
+
+#~ msgid "A stream key is a password: whoever has it can stream as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
+#~ msgstr "스트림 키는 비밀번호예요. 이 키가 있으면 누구나 당신 이름으로 방송할 수 있어요. 입력하는 대로 이 컴퓨터의 비밀번호 저장소에 보관되고, 백업이나 예배 파일에는 절대 들어가지 않아요."
+
+#~ msgid "More settings"
+#~ msgstr "설정 더 보기"
+
+#~ msgid "Pictures a second, video format, sound quality, which network card sends, each destination's own quality, the recording's file type and name, and setups saved by name (Sunday, Wedding) to use again in one go."
+#~ msgstr "초당 화면 수, 영상 형식, 음질, 보낼 네트워크 카드, 송출 대상별 화질, 녹화 파일 형식과 이름, 그리고 이름을 붙여 저장해 두고 한 번에 다시 쓰는 구성(주일, 결혼식)."
+
+#~ msgid "More settings and saved setups…"
+#~ msgstr "설정 더 보기 및 저장한 구성…"
+
+#~ msgid "Setup: {}"
+#~ msgstr "구성: {}"
+
+#~ msgid "Description"
+#~ msgstr "설명"
+
+#~ msgid "While you are live, mixed with the one chosen under \"Sound in the recording\": for a second sound board, a pulpit microphone or the phone."
+#~ msgstr "방송 중에 “녹화에 들어갈 소리”에서 고른 것과 섞여요. 두 번째 음향 콘솔, 강대상 마이크, 휴대폰 등에 쓰세요."
+
+#~ msgid "Turn on the stage screen for phones (Settings → Network…), then open this page on the phone and press Start: {}"
+#~ msgstr "휴대폰용 무대 화면(설정 → 네트워크…)을 켠 다음, 휴대폰에서 이 페이지를 열고 시작을 누르세요: {}"
+
+#~ msgid "The first time, the phone warns that the page is not private, because this computer made its own certificate: tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+#~ msgstr "처음에는 이 컴퓨터가 직접 인증서를 만들었기 때문에 휴대폰에서 이 페이지가 비공개 연결이 아니라는 경고가 나와요. 고급(iPhone에서는 세부사항 보기)을 누른 다음 페이지로 이동하세요. 휴대폰은 화면이 꺼지지 않게 하고 충전기에 꽂아 두세요."
+
+#~ msgid "Live captions need the English speech model. Download the fast model in Settings → Auto-follow."
+#~ msgstr "실시간 자막에는 영어 음성 모델이 필요해요. 설정 → 자동 따라가기에서 빠른 모델을 다운로드하세요."
+
+#~ msgid "Video and graphics"
+#~ msgstr "동영상 및 그래픽"
+
+#~ msgid "Keep the audience screen in front when it has its own monitor (smoother fades)"
+#~ msgstr "예배당 화면에 전용 모니터가 있으면 맨 앞에 유지(전환이 더 부드러워요)"
+
+#~ msgid "File name"
+#~ msgstr "파일 이름"
+
+#~ msgid "{{date}} becomes the day, {{time}} the time it started, {{title}} the service's name. Now: {}"
+#~ msgstr "{{date}}는 날짜, {{time}}은 시작한 시각, {{title}}은 예배 이름이 돼요. 지금: {}"
+
+#~ msgid "Network…"
+#~ msgstr "네트워크…"
+
+#~ msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Media → Recording."
+#~ msgstr "자동 따라가기는 예배당 소리를 들으려면 FFmpeg가 필요해요. 설정 → 미디어 → 녹화에서 다운로드하세요."
+
+#~ msgid "Phone remote — RustyPresenter"
+#~ msgstr "휴대폰 리모컨 — RustyPresenter"
+
+#~ msgid "That QR code has expired. On the computer, click Pair a phone again."
+#~ msgstr "QR 코드가 만료되었어요. 컴퓨터에서 휴대폰 연결을 다시 클릭하세요."
+
+#~ msgid "This phone remote needs a password too."
+#~ msgstr "이 휴대폰 리모컨도 비밀번호가 필요해요."
+
+#~ msgid "Choose your headphones in Settings → Media first."
+#~ msgstr "먼저 설정 → 미디어에서 헤드폰을 선택하세요."
+
+#~ msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or the graphics card under Video encoder, and close other programs."
+#~ msgstr "이 컴퓨터가 따라가지 못해 녹화와 방송이 끊겨요. 설정 → 미디어의 ‘사진 크기’에서 720p를 고르거나 ‘비디오 인코더’에서 그래픽카드를 고르고, 다른 프로그램을 닫으세요."
+
+#~ msgid "The recordings folder's disk has only {free} free. An hour of recording needs about {need}. Choose another folder in Settings → Media."
+#~ msgstr "녹화 폴더가 있는 디스크에 남은 공간이 {free}뿐이에요. 1시간 녹화에는 약 {need}가 필요해요. 설정 → 미디어에서 다른 폴더를 선택하세요."
+
+#~ msgid "Pairing isn't open. On the computer, click “Phone remote” → “Pair a phone”."
+#~ msgstr "연결 대기 중이 아니에요. 컴퓨터에서 “휴대폰 리모컨” → “휴대폰 연결”을 클릭하세요."
+
+#~ msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Media → Livestream."
+#~ msgstr "{name}: 방송을 만들지 못했습니다({why}). 설정 → 미디어 → 라이브 방송에서 다시 로그인하세요."
+
+#~ msgid "Live captions need a microphone or line-in: choose one under Sound in Settings → Media, or under Live captions."
+#~ msgstr "실시간 자막에는 마이크나 라인 입력이 필요해요. 설정 → 미디어의 소리나 실시간 자막에서 고르세요."
+
+#~ msgid "{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on."
+#~ msgstr "{name}이(가) 여러 번 시도해도 연결되지 않았습니다. 설정 → 미디어 → 라이브 방송의 스트림 키와 인터넷을 확인하세요. 계속 시도 중이며 녹화는 계속됩니다."
+
+#~ msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
+#~ msgstr "라이브 시작에는 켜져 있고 스트림 키가 있는 송출 대상이 필요해요. 설정 → 미디어 → 라이브 방송에서 하나 설정하세요."
+
+#~ msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
+#~ msgstr "{name}: 인터넷 속도가 부족해서 방송이 끊겨요. 설정 → 미디어 → 녹화에서 720p를 고르거나 송출 대상 하나를 끄세요."
+
+#~ msgid "On the presentation computer, click Phone remote, then Pair a phone, and type the 6-digit code here."
+#~ msgstr "프레젠테이션 컴퓨터에서 휴대폰 리모컨 → 휴대폰 연결을 클릭하고, 여기에 6자리 코드를 입력하세요."
+
+#~ msgid "On the computer, choose this phone in Settings → Media → Livestream → Camera."
+#~ msgstr "컴퓨터의 설정 → 미디어 → 라이브 방송 → 카메라에서 이 휴대폰을 고르세요."
+
+#~ msgid "Any phone on the church's Wi-Fi can be a camera. On the phone, open {address} and follow the steps there. The first time, the phone warns that the connection is not private: that is expected, because the page comes from this computer. Tap Advanced (or Show Details), then Proceed (or Visit this website). Then pair it with the code from Phone remote, Pair a phone. Once it sends its picture, it is listed in the camera lists above as Phone camera and its name."
+#~ msgstr "교회 Wi-Fi에 연결된 휴대폰은 무엇이든 카메라가 될 수 있어요. 휴대폰에서 {address}을(를) 열고 안내를 따르세요. 처음에는 휴대폰에서 비공개 연결이 아니라는 경고가 나오는데, 페이지가 이 컴퓨터에서 오기 때문이니 정상이에요. 고급(또는 세부사항 보기)을 누른 다음 계속(또는 이 웹사이트 방문)을 누르세요. 그런 다음 휴대폰 리모컨, 휴대폰 연결에서 나오는 코드로 연결하세요. 화면을 보내기 시작하면 위의 카메라 목록에 휴대폰 카메라와 그 이름으로 나와요."
+
+#~ msgid "Sending, but the stream is not using this phone yet. Choose \"Phone microphone\" in Settings → Media → Livestream, then go live."
+#~ msgstr "보내는 중이지만 방송이 아직 이 휴대폰을 쓰지 않고 있어요. 설정 → 미디어 → 라이브 방송에서 “휴대폰 마이크”를 고른 다음 라이브를 시작하세요."
+
+#~ msgid "Turn on the stage screen for phones in RustyPresenter (Settings → Network…), and sign in to it on this phone first."
+#~ msgstr "RustyPresenter에서 휴대폰용 무대 화면(설정 → 네트워크…)을 켜고, 먼저 이 휴대폰에서 로그인하세요."
+
+#~ msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Media → Livestream. The stream shows the slides in its place."
+#~ msgstr "카메라 {n}({camera})이(가) 연결되어 있지 않아요. 케이블을 확인하거나 설정 → 미디어 → 라이브 방송에서 다시 고르세요. 방송에는 그 자리에 슬라이드가 나와요."
+
+#~ msgid "The sound input {name} is not connected. Check its cable, or choose it again in Settings → Media. The stream goes out without it."
+#~ msgstr "소리 입력 {name}이(가) 연결되어 있지 않아요. 케이블을 확인하거나 설정 → 미디어에서 다시 고르세요. 방송은 이 소리 없이 나가요."
+
+#~ msgid "The computer could not keep up for {secs} seconds and left out {frames} pictures: the stream was jerky then. Next time, try 720p or the graphics card's encoder (Settings → Media)."
+#~ msgstr "컴퓨터가 {secs}초 동안 따라가지 못해 화면 {frames}장을 빠뜨려서 그동안 방송이 끊겼어요. 다음에는 720p나 그래픽카드 인코더를 써 보세요(설정 → 미디어)."
+
+#~ msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
+#~ msgstr "업로드: {speed} Mbit/s. 1080p로 방송하기에 충분합니다."
+
+#~ msgid "Upload: {speed} Mbit/s. Stream in 720p: 1080p needs {need} Mbit/s."
+#~ msgstr "업로드: {speed} Mbit/s. 720p로 방송하세요. 1080p에는 {need} Mbit/s가 필요합니다."
+
+#~ msgid "Turn on the stage screen for phones (Settings → Network…). If it has a password, open the stage screen on this phone once and sign in."
+#~ msgstr "휴대폰용 무대 화면(설정 → 네트워크…)을 켜세요. 비밀번호가 있으면 이 휴대폰에서 무대 화면을 한 번 열고 로그인하세요."
+
+#~ msgid "Code expired — click Pair a phone again."
+#~ msgstr "코드가 만료되었어요 — 휴대폰 연결을 다시 클릭하세요."
+
+#~ msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video."
+#~ msgstr "설정에서 선택한 소리 출력 장치가 연결되어 있지 않아요. 연결하거나 설정 → 동영상에서 다른 장치를 선택하세요."
+
+#~ msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play."
+#~ msgstr "소리 출력 장치가 연결되어 있지 않아서 동영상이나 오디오를 일시 정지했어요. 연결하거나 설정 → 동영상에서 다른 장치를 선택한 다음 재생을 누르세요."
+
+#~ msgid "The logo's file is missing. Choose it again in Settings → Look."
+#~ msgstr "로고 파일이 없어요. 설정 → 모양에서 다시 선택하세요."
+
+#~ msgid "The default background's file is missing. Choose it again in Settings → Look."
+#~ msgstr "기본 배경 파일이 없어요. 설정 → 모양에서 다시 선택하세요."
+
+#~ msgid "Colour and corner changes show when the screens draw with OpenGL (Settings → Video → Graphics: Automatic or OpenGL). Test patterns and the delay work either way."
+#~ msgstr "색과 모서리 변경은 화면을 OpenGL로 그릴 때 표시돼요(설정 → 동영상 → 그래픽: 자동 또는 OpenGL). 테스트 패턴과 지연은 어느 쪽이든 작동해요."
+
+#~ msgid "Choose a church logo first (Settings → Look)."
+#~ msgstr "먼저 교회 로고를 선택하세요(설정 → 모양)."
+
+#~ msgid "Add your church's CCLI licence number in Settings → Songs."
+#~ msgstr "설정 → 찬양에서 교회의 CCLI 라이선스 번호를 추가하세요."
+
+#~ msgid "There are no saved themes to export. Make one in Settings → Themes."
+#~ msgstr "내보낼 저장된 테마가 없어요. 설정 → 테마에서 만드세요."
+
+#~ msgid "Save your other changes first?"
+#~ msgstr "다른 변경 내용을 먼저 저장할까요?"
+
+#~ msgid "Save and go on"
+#~ msgstr "저장하고 계속"
+
+#~ msgid "{key} also jumps the live song to a section (Settings → Songs → Section keys)."
+#~ msgstr "{key}은(는) 라이브 중인 찬양의 섹션으로 이동하는 키이기도 해요(설정 → 찬양 → 섹션 키)."
+
+#~ msgid "More livestream settings"
+#~ msgstr "라이브 방송 설정 더 보기"
+
+#~ msgid "Leave without saving these settings?"
+#~ msgstr "이 설정을 저장하지 않고 나갈까요?"
+
+#~ msgid "Livestream settings saved."
+#~ msgstr "라이브 방송 설정을 저장했어요."
+
+#~ msgid "Settings → Keys and clear groups… changes these keys and makes your own clear groups."
+#~ msgstr "설정 → 키 및 지우기 그룹…에서 이 키를 바꾸고 나만의 지우기 그룹을 만들어요."
+
+#~ msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
+#~ msgstr "그래픽 카드에 문제가 있어서 RustyPresenter가 안전 모드로 시작했어요. 설정 → 동영상에서 바꿀 수 있어요."
 
 #~ msgid "Import SongSelect lyrics (.txt)"
 #~ msgstr "SongSelect 가사 가져오기(.txt)"

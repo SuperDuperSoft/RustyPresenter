@@ -40,10 +40,10 @@ impl Missing {
     pub fn words(&self) -> String {
         use crate::tr;
         match self {
-            Missing::CameraGone { n, label } => tr!("Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Media → Livestream. The stream shows the slides in its place.", n = n, camera = label),
+            Missing::CameraGone { n, label } => tr!("Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Livestream → Cameras. The stream shows the slides in its place.", n = n, camera = label),
             Missing::CameraSilent { n, label } => tr!("Camera {n} ({camera}) is connected but sends no picture. Close any other program using it (Zoom, the Camera app, OBS), or switch it on. The stream shows the slides in its place until it comes.", n = n, camera = label),
             Missing::NoNdi { n, label } => tr!("Camera {n} ({camera}) comes over NDI, but NDI is not installed on this computer. Install the free NDI Tools.", n = n, camera = label),
-            Missing::SoundGone { name } => tr!("The sound input {name} is not connected. Check its cable, or choose it again in Settings → Media. The stream goes out without it.", name = name),
+            Missing::SoundGone { name } => tr!("The sound input {name} is not connected. Check its cable, or choose it again in Settings → Livestream → Sound. The stream goes out without it.", name = name),
             Missing::SoundSilent { name } => tr!("The sound input {name} is connected but could not be opened. Close any other program using it, then try again.", name = name),
         }
     }

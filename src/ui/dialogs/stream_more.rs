@@ -1,17 +1,15 @@
-//! Settings → Media → Livestream → More settings (`ui/dialogs/stream-more.slint`, design
-//! `docs/superpowers/specs/2026-11-17-livestream-output-design.md`): saved setups, then everything the easy page
-//! leaves to the app (`record::advanced`), and each destination's own quality. It edits a copy of the livestream
-//! settings; Save keeps them, closing goes back to Settings → Media.
-use super::{DialogKind, SettingsTab, confirm, prompt, strings as dlg};
+//! What was Livestream → More settings (design `docs/superpowers/specs/2026-11-17-livestream-output-design.md`):
+//! saved setups, everything the easy rows leave to the app (`record::advanced`), and each destination's own quality.
+//! Since the November 17, 2026 reorganisation these are the advanced rows of Settings → Livestream's pages
+//! (`ui/dialogs/settings-stream.slint`, the Settings window's `StreamMoreDlg`), saved with the other settings.
+use super::{settings::{self, Edit}, settings_window::win, strings as dlg};
 use crate::{
     record::{self, Preset, RecordPrefs, advanced::{self, Codec, Format, Keep, More, Profile, Rate, Speed}, setups},
     stream, tr,
     ui::{MoreDestination, StreamMoreDlg, operator::window::Operator},
 };
 use slint::{ComponentHandle, Model, ModelRc, SharedString, VecModel};
-use std::{cell::RefCell, rc::{Rc, Weak}};
-
-pub fn title() -> String { tr!("More livestream settings") }
+use std::{cell::RefCell, rc::Rc};
 
 /// The dialog's choices, each as its place in its list (the first is what the app does by itself).
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
@@ -104,7 +102,7 @@ impl Form {
         };
         // Each destination's own quality; a destination with one and no row yet gets a row (off).
         for (i, (size, kbps)) in self.destinations.iter().enumerate().take(stream::ROWS) {
-            let q = stream::Quality { size: size.checked_sub(1).and_then(|s| Preset::ALL.get(s)).copied(), kbps: after(&record::BITRATES, *kbps) };
+            let q = stream::Quality { size: size.checked_sub(1).and_then(|s| Preset::ALL.get(s)).copied(), kbps: after(&record::BITRATES, *kbps), cap: None };
             let id = stream::built_in_id(i);
             match p.stream.iter_mut().find(|d| d.id == id) {
                 Some(d) => d.quality = q,
@@ -115,52 +113,58 @@ impl Form {
     }
 }
 
-struct State {
-    /// The livestream settings being edited, and as saved.
-    prefs: RecordPrefs,
-    saved: RecordPrefs,
-    /// The network cards' addresses, in the list's order.
-    binds: Vec<String>,
+thread_local! {
+    /// The network cards' addresses, in the list's order ("Send the stream from").
+    static BINDS: RefCell<Vec<String>> = const { RefCell::new(Vec::new()) };
 }
 
-type St = Rc<RefCell<State>>;
+fn g(op: &Operator) -> StreamMoreDlg<'static> { win(op).global::<StreamMoreDlg>() }
 
-fn g(op: &Operator) -> StreamMoreDlg<'_> { op.ui.global::<StreamMoreDlg>() }
-
-pub fn open(op: &Rc<Operator>) {
-    let Some(snap) = op.state.borrow().snap.clone() else { return };
-    let prefs = snap.settings.record.clone();
-    let st: St = Rc::new(RefCell::new(State { saved: prefs.clone(), prefs, binds: vec![] }));
-    op.open_dialog(DialogKind::StreamMore);
-    wire(op, &st);
-    show(op, &st);
-    op.on_dialog_close(|op| super::settings::open(op, SettingsTab::Media));
+/// The lists' words: each destination's size (the main stream's, then each named size) and bitrate (the main
+/// stream's, then `record::BITRATES`), and the main bitrate's (Automatic with what it is now, then the same).
+pub fn fill_labels(op: &Operator, automatic_kbps: u32) {
+    let g = g(op);
+    let kbps: Vec<String> = record::BITRATES.iter().map(|b| format!("{b} kbit/s")).collect();
+    let mut sizes = vec![tr!("Size: the main stream's")];
+    sizes.extend(Preset::ALL.iter().map(|p| p.label()));
+    g.set_size_labels(strings(sizes));
+    let mut dest = vec![tr!("Bitrate: the main stream's")];
+    dest.extend(kbps.iter().cloned());
+    g.set_dest_kbps_labels(strings(dest));
+    let mut main = vec![tr!("Automatic ({kbps} kbit/s)", kbps = automatic_kbps)];
+    main.extend(kbps);
+    g.set_kbps_labels(strings(main));
 }
 
-/// The form's choices as the dialog has them now.
-fn read(op: &Operator, st: &St) -> Form {
+/// Fills the rows from the settings being edited, and connects them (Settings is opening).
+pub(crate) fn load(op: &Rc<Operator>, edit: &Rc<Edit>) {
+    let p = edit.settings.borrow().record.clone();
+    show(op, &p);
+    wire(op, edit);
+}
+
+/// The rows' choices as the page has them now.
+fn read(op: &Operator) -> Form {
     let g = g(op);
     let i = |v: i32| v.max(0) as usize;
     Form {
         fps: i(g.get_fps_index()), codec: i(g.get_codec_index()), rate: i(g.get_rate_index()), keyframe: i(g.get_keyframe_index()), speed: i(g.get_speed_index()),
         profile: i(g.get_profile_index()), b_frames: i(g.get_b_frames_index()), sound_rate: i(g.get_sound_rate_index()), sound_kbps: i(g.get_sound_kbps_index()),
-        channels: i(g.get_channels_index()), bind: st.borrow().binds.get(i(g.get_bind_index())).cloned().unwrap_or_default(), srt: i(g.get_srt_index()),
+        channels: i(g.get_channels_index()), bind: BINDS.with(|b| b.borrow().get(i(g.get_bind_index())).cloned()).unwrap_or_default(), srt: i(g.get_srt_index()),
         destinations: g.get_destinations().iter().map(|d| (i(d.size), i(d.kbps))).collect(),
         format: i(g.get_format_index()), name: g.get_name().to_string(), split: i(g.get_split_index()), clean: g.get_clean(), replay: i(g.get_replay_index()),
     }
 }
 
-/// The settings with the dialog's choices in them.
-fn current(op: &Operator, st: &St) -> RecordPrefs {
-    let mut p = st.borrow().prefs.clone();
-    read(op, st).apply(&mut p);
-    p
-}
+/// Puts the rows' choices into `p` (Save, and seeing whether anything changed).
+pub(crate) fn read_into(op: &Operator, p: &mut RecordPrefs) { read(op).apply(p) }
 
-fn show(op: &Operator, st: &St) {
+/// The pictures a second chosen now.
+pub(crate) fn fps(op: &Operator) -> u32 { advanced::FRAME_RATES.get(g(op).get_fps_index().max(0) as usize).copied().unwrap_or(record::FPS) }
+
+pub(crate) fn show(op: &Operator, p: &RecordPrefs) {
     let g = g(op);
-    let p = st.borrow().prefs.clone();
-    let f = Form::from(&p);
+    let f = Form::from(p);
     let n = |v: usize| v as i32;
     g.set_fps_index(n(f.fps));
     g.set_codec_index(n(f.codec));
@@ -173,7 +177,7 @@ fn show(op: &Operator, st: &St) {
     g.set_sound_kbps_index(n(f.sound_kbps));
     g.set_channels_index(n(f.channels));
     let (labels, keys, index) = stream::network_card::choices(&stream::network_card::list(), &f.bind);
-    st.borrow_mut().binds = keys;
+    BINDS.with(|b| *b.borrow_mut() = keys);
     g.set_bind_labels(strings(labels));
     g.set_bind_index(n(index));
     g.set_srt_index(n(f.srt));
@@ -186,7 +190,8 @@ fn show(op: &Operator, st: &St) {
     g.set_split_index(n(f.split));
     g.set_clean(f.clean);
     g.set_replay_index(n(f.replay));
-    show_setups(op, &p);
+    fill_labels(op, p.size.kbps_at(p.more.fps()));
+    show_setups(op, p);
     show_example(op);
 }
 
@@ -209,14 +214,14 @@ fn show_example(op: &Operator) {
 
 fn strings(v: Vec<String>) -> ModelRc<SharedString> { ModelRc::new(VecModel::from(v.into_iter().map(SharedString::from).collect::<Vec<_>>())) }
 
-fn wire(op: &Rc<Operator>, st: &St) {
+fn wire(op: &Rc<Operator>, edit: &Rc<Edit>) {
     let g = g(op);
-    let on = |f: fn(&Rc<Operator>, &St)| {
-        let (me, st): (Weak<Operator>, St) = (Rc::downgrade(op), st.clone());
-        move || if let Some(op) = me.upgrade() { f(&op, &st) }
+    let on = |f: fn(&Rc<Operator>, &Rc<Edit>)| {
+        let (me, edit) = (Rc::downgrade(op), edit.clone());
+        move || if let Some(op) = me.upgrade() { f(&op, &edit) }
     };
-    let (me, s) = (Rc::downgrade(op), st.clone());
-    g.on_setup_use(move |i| if let Some(op) = me.upgrade() { use_setup(&op, &s, i) });
+    let (me, e) = (Rc::downgrade(op), edit.clone());
+    g.on_setup_use(move |i| if let Some(op) = me.upgrade() { use_setup(&op, &e, i) });
     g.on_setup_save(on(save_setup));
     g.on_setup_delete(on(delete_setup));
     let me = Rc::downgrade(op);
@@ -225,8 +230,6 @@ fn wire(op: &Rc<Operator>, st: &St) {
     g.on_destination_kbps(move |i, v| if let Some(op) = me.upgrade() { set_row(&op, i, |d| d.kbps = v) });
     let me = Rc::downgrade(op);
     g.on_name_edited(move || if let Some(op) = me.upgrade() { show_example(&op) });
-    g.on_cancel(on(cancel));
-    g.on_save(on(save));
 }
 
 fn set_row(op: &Operator, i: i32, f: impl FnOnce(&mut MoreDestination)) {
@@ -237,72 +240,43 @@ fn set_row(op: &Operator, i: i32, f: impl FnOnce(&mut MoreDestination)) {
     rows.set_row_data(i, d);
 }
 
-/// Uses setup `i`: its settings (all of them, the easy page's too) replace the ones being edited.
-fn use_setup(op: &Rc<Operator>, st: &St, i: i32) {
-    let mut p = current(op, st);
-    let Some(name) = usize::try_from(i).ok().and_then(|i| setups::names(&p).get(i).cloned()) else { return };
-    if setups::apply(&mut p, &name) {
-        st.borrow_mut().prefs = p;
-        show(op, st);
+/// Uses setup `i`: its settings (all of the livestream's, the easy rows' too) replace the ones being edited.
+fn use_setup(op: &Rc<Operator>, edit: &Rc<Edit>, i: i32) {
+    let mut s = settings::current(op, edit);
+    let Some(name) = usize::try_from(i).ok().and_then(|i| setups::names(&s.record).get(i).cloned()) else { return };
+    if setups::apply(&mut s.record, &name) {
+        super::settings_record::refill(op, &s.record);
+        show(op, &s.record);
         op.toast(tr!("The setup “{name}” is chosen. Save to use it.", name = name), false);
     }
 }
 
-fn save_setup(op: &Rc<Operator>, st: &St) {
-    let p = current(op, st);
-    let suggested = setups::current(&p).unwrap_or_default();
-    let (me, st) = (Rc::downgrade(op), st.clone());
-    prompt(op, &tr!("Name of the setup (for example Sunday, or Wedding)"), &suggested, move |typed| {
+fn save_setup(op: &Rc<Operator>, edit: &Rc<Edit>) {
+    let suggested = setups::current(&settings::current(op, edit).record).unwrap_or_default();
+    let (me, edit) = (Rc::downgrade(op), edit.clone());
+    super::ask::in_settings(op, || super::prompt(op, &tr!("Name of the setup (for example Sunday, or Wedding)"), &suggested, move |typed| {
         let (Some(op), Some(typed)) = (me.upgrade(), typed) else { return };
-        if op.dialog() != Some(DialogKind::StreamMore) { return }
-        let mut p = current(&op, &st);
+        if !settings::is_open(&op) { return }
+        let mut p = settings::current(&op, &edit).record;
         if setups::save(&mut p, &typed) {
-            st.borrow_mut().prefs = p.clone();
+            edit.settings.borrow_mut().record.setups = p.setups.clone();
             show_setups(&op, &p);
         }
-    });
+    }));
 }
 
-fn delete_setup(op: &Rc<Operator>, st: &St) {
-    let p = current(op, st);
+fn delete_setup(op: &Rc<Operator>, edit: &Rc<Edit>) {
+    let p = settings::current(op, edit).record;
     let Some(name) = usize::try_from(g(op).get_setup_index()).ok().and_then(|i| setups::names(&p).get(i).cloned()) else { return };
-    let (me, st) = (Rc::downgrade(op), st.clone());
-    confirm(op, &tr!("Delete the setup “{name}”? The settings in use now stay as they are.", name = name), &tr!("Delete"), &dlg::cancel(), true, move |ok| {
+    let (me, edit) = (Rc::downgrade(op), edit.clone());
+    super::ask::in_settings(op, || super::confirm(op, &tr!("Delete the setup “{name}”? The settings in use now stay as they are.", name = name), &tr!("Delete"), &dlg::cancel(), true, move |ok| {
         let Some(op) = me.upgrade().filter(|_| ok) else { return };
-        if op.dialog() != Some(DialogKind::StreamMore) { return }
-        let mut p = current(&op, &st);
+        if !settings::is_open(&op) { return }
+        let mut p = settings::current(&op, &edit).record;
         setups::remove(&mut p, &name);
-        st.borrow_mut().prefs = p.clone();
+        edit.settings.borrow_mut().record.setups = p.setups.clone();
         show_setups(&op, &p);
-    });
-}
-
-fn cancel(op: &Rc<Operator>, st: &St) {
-    if current(op, st) == st.borrow().saved { return op.close_dialog() }
-    let me = Rc::downgrade(op);
-    confirm(op, &tr!("Leave without saving these settings?"), &tr!("Leave"), &tr!("Keep editing"), true, move |ok| {
-        if let Some(op) = me.upgrade().filter(|_| ok) { op.close_dialog() }
-    });
-}
-
-fn save(op: &Rc<Operator>, st: &St) {
-    let Some(snap) = op.state.borrow().snap.clone() else { return };
-    let mut s = snap.settings.clone();
-    s.record = current(op, st);
-    let body = serde_json::to_value(&s).unwrap_or_default();
-    let (me, st) = (Rc::downgrade(op), st.clone());
-    op.ops().call::<serde_json::Value>("settings", body, move |r| {
-        let Some(op) = me.upgrade() else { return };
-        match r {
-            Ok(_) => {
-                let now = current(&op, &st);
-                st.borrow_mut().saved = now;
-                op.toast(tr!("Livestream settings saved."), false);
-                if op.dialog() == Some(DialogKind::StreamMore) { op.close_dialog() }
-            }
-            Err(e) => op.toast(e, true),
-        }
-    });
+    }));
 }
 
 #[cfg(test)]
@@ -310,7 +284,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn an_untouched_dialog_changes_nothing() {
+    fn untouched_rows_change_nothing() {
         let p = RecordPrefs::default();
         let f = Form::from(&p);
         assert_eq!((f.fps, f.keyframe, f.sound_kbps, f.destinations.len()), (2, 1, 2, stream::ROWS));
@@ -324,7 +298,7 @@ mod tests {
     fn every_choice_is_kept_and_read_back() {
         let f = Form {
             fps: 4, codec: 1, rate: 1, keyframe: 0, speed: 2, profile: 3, b_frames: 1, sound_rate: 1, sound_kbps: 4, channels: 1, bind: " 192.168.1.20 ".into(), srt: 3,
-            destinations: vec![(0, 0), (1, 1), (0, 0), (0, 0), (0, 0), (0, 0), (1, 0)], format: 1, name: "{date} {title}".into(), split: 5, clean: true, replay: 3,
+            destinations: vec![(0, 0), (2, 2), (0, 0), (0, 0), (0, 0), (0, 0), (2, 0)], format: 1, name: "{date} {title}".into(), split: 5, clean: true, replay: 3,
         };
         let mut p = RecordPrefs::default();
         f.apply(&mut p);

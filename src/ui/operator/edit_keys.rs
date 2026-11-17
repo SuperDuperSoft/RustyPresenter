@@ -344,7 +344,7 @@ mod tests {
         add_texts(&app, &["A"]);
         let op = opened(&app);
         chord(&op, Key::Control, ",");
-        assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Look)));
+        assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Look));
         key(&op, Key::Escape);
         assert_eq!(op.dialog(), None, "Esc closes it");
         chord(&op, Key::Control, "p");

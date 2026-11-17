@@ -26,30 +26,136 @@ use std::path::{Path, PathBuf};
 /// Frames a second in every recording.
 pub const FPS: u32 = 30;
 
-/// The picture size of a recording.
-#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
+/// The picture size of a recording and of the livestream (November 17, 2026: any size, not only 720p and 1080p).
+/// Saved as "480p", "720p", "1080p", "1440p" or "2160p", or "1600x900" for a size typed by hand. Anything else
+/// (a newer or broken file) reads as 1080p, so a settings file never fails to load because of it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default, Hash)]
 pub enum Preset {
-    #[serde(rename = "720p")]
+    P480,
     P720,
     #[default]
-    #[serde(rename = "1080p")]
     P1080,
+    P1440,
+    /// 4K (3840 × 2160).
+    P2160,
+    /// A size typed by hand: always even and within `Preset::MIN`–`Preset::MAX` (`Preset::custom` keeps it so).
+    Custom(u32, u32),
 }
 
 impl Preset {
-    pub const ALL: [Preset; 2] = [Preset::P720, Preset::P1080];
+    /// The sizes offered by name, smallest first ("Custom" comes after them in Settings).
+    pub const ALL: [Preset; 5] = [Preset::P480, Preset::P720, Preset::P1080, Preset::P1440, Preset::P2160];
+    /// The smallest and largest size that can be typed: smaller is unreadable, larger is past what encoders take.
+    pub const MIN: (u32, u32) = (320, 180);
+    pub const MAX: (u32, u32) = (7680, 4320);
+
+    /// A size typed by hand, kept within `MIN`–`MAX` and made even (encoders need even sides). A typed size that is
+    /// one of the named ones is that one.
+    pub fn custom(w: u32, h: u32) -> Preset {
+        let even = |v: u32, lo: u32, hi: u32| v.clamp(lo, hi) & !1;
+        let size = (even(w, Self::MIN.0, Self::MAX.0), even(h, Self::MIN.1, Self::MAX.1));
+        Self::ALL.into_iter().find(|p| p.size() == size).unwrap_or(Preset::Custom(size.0, size.1))
+    }
 
     pub fn size(self) -> (u32, u32) {
-        match self { Preset::P720 => (1280, 720), Preset::P1080 => (1920, 1080) }
+        match self {
+            Preset::P480 => (854, 480),
+            Preset::P720 => (1280, 720),
+            Preset::P1080 => (1920, 1080),
+            Preset::P1440 => (2560, 1440),
+            Preset::P2160 => (3840, 2160),
+            Preset::Custom(w, h) => (w, h),
+        }
     }
 
-    /// The highest video rate, kbit/s. Slides need far less; a busy video gets this much.
+    /// The highest video rate at 30 pictures a second, kbit/s. Slides need far less; a busy video gets this much.
+    /// The named sizes have the rates streaming services ask for; a typed size gets one from its number of pixels.
     pub fn max_kbps(self) -> u32 {
-        match self { Preset::P720 => 3000, Preset::P1080 => 6000 }
+        match self {
+            Preset::P480 => 1500,
+            Preset::P720 => 3000,
+            Preset::P1080 => 6000,
+            Preset::P1440 => 9000,
+            Preset::P2160 => 20000,
+            Preset::Custom(w, h) => {
+                let share = f64::from(w) * f64::from(h) / (1920.0 * 1080.0);
+                ((6000.0 * share.powf(0.8) / 100.0).round() as u32 * 100).max(500)
+            }
+        }
     }
+
+    /// The highest video rate at `fps` pictures a second: half again over 30 (more pictures need more bits, but
+    /// each changes less from the one before).
+    pub fn kbps_at(self, fps: u32) -> u32 { if fps > 30 { self.max_kbps() * 3 / 2 } else { self.max_kbps() } }
 
     /// The most one hour can take on disk (video at its highest rate, plus sound).
     pub fn bytes_per_hour(self) -> u64 { (u64::from(self.max_kbps()) + 192) * 1000 / 8 * 3600 }
+
+    /// How it is saved: "720p", or "1600x900" for a typed size.
+    pub fn key(self) -> String {
+        match self {
+            Preset::P480 => "480p".into(),
+            Preset::P720 => "720p".into(),
+            Preset::P1080 => "1080p".into(),
+            Preset::P1440 => "1440p".into(),
+            Preset::P2160 => "2160p".into(),
+            Preset::Custom(w, h) => format!("{w}x{h}"),
+        }
+    }
+
+    /// A saved size; `None` for anything it cannot be.
+    pub fn parse(s: &str) -> Option<Preset> {
+        let s = s.trim().to_ascii_lowercase();
+        Some(match s.as_str() {
+            "480p" => Preset::P480,
+            "720p" => Preset::P720,
+            "1080p" => Preset::P1080,
+            "1440p" => Preset::P1440,
+            "2160p" | "4k" => Preset::P2160,
+            _ => {
+                let (w, h) = s.split_once(['x', '×'])?;
+                Preset::custom(w.trim().parse().ok()?, h.trim().parse().ok()?)
+            }
+        })
+    }
+
+    /// What Settings shows: "1080p", "4K", or "1600 × 900".
+    pub fn label(self) -> String {
+        match self { Preset::P2160 => "4K".into(), Preset::Custom(w, h) => format!("{w} × {h}"), p => p.key() }
+    }
+}
+
+impl Serialize for Preset {
+    fn serialize<S: serde::Serializer>(&self, s: S) -> Result<S::Ok, S::Error> { s.serialize_str(&self.key()) }
+}
+
+impl<'de> Deserialize<'de> for Preset {
+    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        // Lenient: whatever is saved, the settings still load (an unknown size is 1080p).
+        let v = serde_json::Value::deserialize(d)?;
+        Ok(v.as_str().and_then(Preset::parse).unwrap_or_default())
+    }
+}
+
+/// Words for a size this computer or the internet may not keep up with (`None`: nothing to say). `cores` is the
+/// computer's processor count; `fps` the pictures a second.
+pub fn size_warning(size: Preset, fps: u32, cores: usize) -> Option<String> {
+    let (w, h) = size.size();
+    // How much work it is, next to 1080p at 30 pictures a second.
+    let load = f64::from(w) * f64::from(h) * f64::from(fps.max(1)) / (1920.0 * 1080.0 * 30.0);
+    let heavy = (load > 1.01 && cores < 4) || (load > 2.01 && cores < 8) || (load > 4.01 && cores < 12) || load > 8.01;
+    let mut words = vec![];
+    if heavy {
+        words.push(crate::tr!("{size} at {fps} pictures a second may be more than this computer can make while live. If the stream stutters, choose a smaller size.", size = size.label(), fps = fps));
+    }
+    if w > 4096 || h > 4096 {
+        words.push(crate::tr!("Graphics card encoders stop at 4096 wide for H.264, so the processor makes this size: it is slow."));
+    }
+    if size.kbps_at(fps) > 12000 {
+        let mbps = format!("{:.0}", f64::from(size.kbps_at(fps) + 192) * 1.5 / 1000.0);
+        words.push(crate::tr!("This size needs about {mbps} Mbit/s of upload for each destination. Test the upload speed before Sunday.", mbps = mbps));
+    }
+    (!words.is_empty()).then(|| words.join(" "))
 }
 
 /// Where the recording's sound comes from.
@@ -77,7 +183,7 @@ impl Sound {
     }
 }
 
-/// Settings → Media → Recording (N22).
+/// Settings → Livestream → Recording (N22).
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 #[serde(default)]
 pub struct RecordPrefs {
@@ -238,7 +344,7 @@ fn is_zero_i32(v: &i32) -> bool { *v == 0 }
 /// The longest sound delay Settings offers (a camera more than a second late is broken, not slow).
 pub const MAX_SOUND_DELAY: u32 = 1000;
 /// The bitrates Settings offers (kbit/s), after Automatic.
-pub const BITRATES: [u32; 5] = [2500, 4500, 6000, 8000, 12000];
+pub const BITRATES: [u32; 9] = [1500, 2500, 4500, 6000, 8000, 12000, 20000, 35000, 50000];
 
 /// The most a sound is turned up or down in Settings, in dB.
 pub const MAX_LEVEL_DB: i32 = 20;
@@ -357,11 +463,11 @@ pub mod tr {
     pub fn clip_failed(path: &str) -> String { tr!("The clip could not be saved: {path}", path = path) }
     pub fn was_live() -> String { tr!("RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?") }
     pub fn go_live_again() -> String { tr!("Go Live") }
-    pub fn too_slow() -> String { tr!("This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or the graphics card under Video encoder, and close other programs.") }
+    pub fn too_slow() -> String { tr!("This computer is not keeping up, so the recording and stream are jerky. Choose a smaller picture size in Settings → Livestream → Picture and quality, or the graphics card under Video encoder, and close other programs.") }
     pub fn smooth_again() -> String { tr!("The computer is keeping up again: the picture is smooth.") }
     pub fn no_room() -> String { tr!("Turn the audience screen on first: the recording is what the room shows.") }
     pub fn no_folder(path: &str, why: &str) -> String { tr!("Could not use the recordings folder {path}: {why}", path = path, why = why) }
-    pub fn low_disk(free: &str, need: &str) -> String { tr!("The recordings folder's disk has only {free} free. An hour of recording needs about {need}. Choose another folder in Settings → Media.", free = free, need = need) }
+    pub fn low_disk(free: &str, need: &str) -> String { tr!("The recordings folder's disk has only {free} free. An hour of recording needs about {need}. Choose another folder in Settings → Livestream → Recording.", free = free, need = need) }
     pub fn disk_full() -> String { tr!("The disk is almost full, so the recording stopped.") }
     pub fn not_started(why: &str) -> String { tr!("The recording could not start: {why}", why = why) }
     pub fn failed(why: &str) -> String { tr!("The recording stopped: {why}", why = why) }
@@ -398,6 +504,43 @@ mod tests {
         let p: RecordPrefs = serde_json::from_str(r#"{"size":"720p"}"#).unwrap();
         assert_eq!((p.size, p.sound()), (Preset::P720, Sound::App));
         assert_eq!(RecordPrefs::default().size, Preset::P1080);
+    }
+
+    #[test]
+    fn any_size_can_be_saved_and_old_settings_still_load() {
+        // Old files: "720p" and "1080p" as before; the new names; a typed size; anything else is 1080p.
+        for (saved, size) in [("720p", (1280, 720)), ("1080p", (1920, 1080)), ("480p", (854, 480)), ("1440p", (2560, 1440)), ("2160p", (3840, 2160)), ("4K", (3840, 2160)), ("1600x900", (1600, 900)), ("1601×901", (1600, 900))] {
+            let p: RecordPrefs = serde_json::from_value(serde_json::json!({ "size": saved })).unwrap();
+            assert_eq!(p.size.size(), size, "{saved}");
+        }
+        for odd in [serde_json::json!("8K please"), serde_json::json!(1080), serde_json::json!(null), serde_json::json!({"w": 1})] {
+            let p: RecordPrefs = serde_json::from_value(serde_json::json!({ "size": odd, "folder": "x" })).unwrap();
+            assert_eq!((p.size, p.folder.as_str()), (Preset::P1080, "x"), "{odd}");
+        }
+        // Kept within the limits, even, and a typed named size is that name.
+        assert_eq!(Preset::custom(10, 10).size(), Preset::MIN);
+        assert_eq!(Preset::custom(99999, 99999).size(), Preset::MAX);
+        assert_eq!(Preset::custom(1280, 720), Preset::P720);
+        let c = Preset::custom(1001, 563);
+        assert_eq!((c.size(), c.key().as_str()), ((1000, 562), "1000x562"));
+        assert_eq!(serde_json::from_str::<Preset>(&serde_json::to_string(&c).unwrap()).unwrap(), c);
+        assert_eq!(Preset::P2160.label(), "4K");
+        // The bitrate grows with the size and with the frame rate.
+        let rates: Vec<u32> = Preset::ALL.iter().map(|p| p.max_kbps()).collect();
+        assert!(rates.windows(2).all(|w| w[0] < w[1]), "{rates:?}");
+        let between = Preset::custom(1600, 900).max_kbps();
+        assert!(between > 3000 && between < 6000, "{between}");
+        assert_eq!(Preset::P1080.kbps_at(60), 9000);
+        assert_eq!(Preset::P1080.kbps_at(30), 6000);
+    }
+
+    #[test]
+    fn big_sizes_are_warned_about_but_allowed() {
+        assert_eq!(size_warning(Preset::P1080, 30, 4), None);
+        assert_eq!(size_warning(Preset::P720, 60, 2), None);
+        let w = size_warning(Preset::P2160, 30, 4).expect("4K on a 4-core computer");
+        assert!(w.contains("4K at 30") && w.contains("Mbit/s"), "{w}");
+        assert!(size_warning(Preset::custom(7680, 4320), 30, 32).unwrap().contains("4096"));
     }
 
     #[test]

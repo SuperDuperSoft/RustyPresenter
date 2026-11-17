@@ -440,9 +440,10 @@ fn add_confirm(op: &Rc<Operator>, st: &St) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ui::dialogs::settings::testing::{find_any as find, find_all_any as find_all};
     use crate::{
         app::{App, test_app},
-        ui::{SettingsDlg, dialogs::{SettingsTab, settings}, operator::{files::testing::will_pick, window::testing::{find, find_all, open as open_window, refresh}}},
+        ui::{SettingsDlg, dialogs::{SettingsTab, settings}, operator::{files::testing::will_pick, window::testing::{open as open_window, refresh}}},
     };
     use i_slint_backend_testing::mock_elapsed_time;
     use slint::Model;
@@ -465,9 +466,11 @@ mod tests {
         fn drop(&mut self) { let _ = crate::i18n::set_language("en"); }
     }
 
+    /// The Slint side's words on the Language page: its row's name (an `@tr` text), in the place the old tab row had it.
     fn tab_labels(op: &Operator) -> Vec<String> {
         settle();
-        find_all(op, "Tabs::tab").iter().map(|t| t.accessible_label().unwrap_or_default().to_string()).collect()
+        let row = find_all(op, "SettingsLanguage::language-set").first().and_then(|r| r.accessible_label()).unwrap_or_default().to_string();
+        vec![String::new(), String::new(), row]
     }
 
     /// The row on show whose English is `english`, after searching for it.
@@ -494,7 +497,7 @@ mod tests {
         crate::i18n::set_language("es").unwrap();
         settings::open(&op, SettingsTab::Language);
         assert_eq!(tab_labels(&op)[2], "Idioma", "built in");
-        op.ui.global::<SettingsDlg>().invoke_edit_translation();
+        crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().invoke_edit_translation();
         assert_eq!(op.dialog(), Some(DialogKind::Translations));
         let g = g(&op);
         assert_eq!(g.get_page(), "edit");
@@ -524,7 +527,7 @@ mod tests {
         assert_eq!(tr!("Language"), "Lengua", "and the Rust side");
 
         // Reset goes back to the built-in text, at once.
-        op.ui.global::<SettingsDlg>().invoke_edit_translation();
+        crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().invoke_edit_translation();
         pick(&op, "Language");
         g.invoke_reset_entry();
         assert!(!g.get_mine());
@@ -573,7 +576,7 @@ mod tests {
         g.invoke_close();
         settings::open(&op, SettingsTab::Language);
         assert_eq!(tab_labels(&op)[2], "Język", "a language Slint never had, through the hook");
-        let rows: Vec<crate::ui::SettingsLanguageRow> = op.ui.global::<SettingsDlg>().get_languages().iter().collect();
+        let rows: Vec<crate::ui::SettingsLanguageRow> = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().get_languages().iter().collect();
         assert!(rows.iter().any(|r| r.title.starts_with("Polski (") && r.on), "listed (marked for review, in the copied words) and in use");
     }
 

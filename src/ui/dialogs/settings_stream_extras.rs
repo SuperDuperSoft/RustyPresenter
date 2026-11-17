@@ -1,4 +1,4 @@
-//! Settings → Media → Livestream's last rows (`ui/dialogs/settings-stream-extras.slint`): live captions
+//! Settings → Livestream's last rows (`ui/dialogs/settings-stream-extras.slint`): live captions
 //! (`stream::captions`), the website player (`stream::website`) and the first-time Go Live helper.
 use crate::{
     record::{RecordPrefs, run},
@@ -70,7 +70,7 @@ fn model_ready() -> bool {
 pub(crate) fn load(op: &Rc<Operator>) {
     if op.ops().is_inline() { return }
     let data = op.app().store.root.clone();
-    let ui = op.ui.as_weak();
+    let ui = crate::ui::dialogs::settings_window::win(&op).as_weak();
     let _ = std::thread::Builder::new().name("settings-captions".into()).spawn(move || {
         let inputs = run::find_ffmpeg(&data).map(|f| run::list_inputs(&f)).unwrap_or_default();
         let _ = ui.upgrade_in_event_loop(move |ui| {
@@ -83,7 +83,7 @@ pub(crate) fn load(op: &Rc<Operator>) {
 
 /// "Copy the code": the website code for YouTube (0) or Facebook (1), or what to type first.
 fn copy(op: &Rc<Operator>, which: i32) {
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let code = if which == 0 {
         website::channel_id(&g.get_website_youtube()).map(|id| website::youtube_code(&id)).ok_or_else(website::tr::no_channel)
     } else {
@@ -103,7 +103,7 @@ fn fill_channel(op: &Rc<Operator>) {
     let store = stream::keys::app_store();
     let Some((_, token)) = stream::accounts::kept(store.as_ref(), stream::built_in_id(0)) else { return };
     let (ids, ends) = (stream::accounts::app_ids(), stream::accounts::app_ends());
-    let ui = op.ui.as_weak();
+    let ui = crate::ui::dialogs::settings_window::win(&op).as_weak();
     let _ = std::thread::Builder::new().name("settings-channel".into()).spawn(move || {
         let found = (|| {
             let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().map_err(|e| e.to_string())?;
@@ -123,7 +123,7 @@ fn fill_channel(op: &Rc<Operator>) {
 /// "Use the guest as a camera": the guest's address in the first camera row that has none (camera 1 to 4), as a
 /// network camera. Saved with the other settings.
 fn guest_camera(op: &Rc<Operator>) {
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let address: SharedString = crate::network::guest::camera_address(crate::startup::port()).into();
     use slint::Model;
     let rows: [(i32, usize, SharedString, &dyn Fn(i32), &dyn Fn(SharedString)); 4] = [
@@ -145,13 +145,13 @@ fn guest_camera(op: &Rc<Operator>) {
 }
 
 pub(crate) fn wire(op: &Rc<Operator>) {
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let me = Rc::downgrade(op);
     g.on_guest_camera(move || if let Some(op) = me.upgrade() { guest_camera(&op) });
     let me = Rc::downgrade(op);
     g.on_guest_invite(move || if let Some(op) = me.upgrade() {
         let url = crate::network::guest::host_address(crate::startup::port());
-        op.ui.global::<SettingsDlg>().set_guest_note(tr::guest_invite(&url).into());
+        crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().set_guest_note(tr::guest_invite(&url).into());
         if !op.ops().is_inline() { let _ = crate::usage::open::open_file(std::path::Path::new(&url)); }
     });
     let me = Rc::downgrade(op);
@@ -160,9 +160,9 @@ pub(crate) fn wire(op: &Rc<Operator>) {
     g.on_website_fill(move || if let Some(op) = me.upgrade() { fill_channel(&op) });
     let me = Rc::downgrade(op);
     g.on_go_live_helper(move || if let Some(op) = me.upgrade() {
-        // What was changed in Settings is kept first only when Save is pressed: the helper saves its own choices.
-        op.close_dialog();
+        // The helper opens in the operator window and saves its own choices; Settings stays open beside it.
         super::go_live_helper::open(&op);
+        super::settings_window::raise_operator(&op);
     });
 }
 

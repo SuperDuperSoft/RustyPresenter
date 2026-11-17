@@ -46,7 +46,7 @@ pub fn overlay_gone() -> String { tr!("That overlay is gone.") }
 /// The spec gives no wording for this one; it is the plan's.
 pub fn overlay_kind() -> String { tr!("Only text, picture and clock overlays can be saved.") }
 pub fn overlay_cap() -> String { tr!("Up to 8 overlays can be on at once. Turn one off first.") }
-pub fn logo_first() -> String { tr!("Choose a church logo first (Settings → Look).") }
+pub fn logo_first() -> String { tr!("Choose a church logo first (Settings → Look → Text and logo).") }
 pub fn picture_gone() -> String { tr!("That picture is gone.") }
 /// The reason part of `overlay_failed` when an overlay's picture can't be read.
 pub fn picture_unreadable() -> String { tr!("the picture could not be loaded.") }
@@ -58,7 +58,7 @@ pub fn text_overlay_help() -> String { tr!("For a sign that stays up.") }
 /// Shown instead of `text_overlay_help` once FEAT-2 (Message) has merged.
 pub fn text_overlay_help_feat2() -> String { tr!("For a sign that stays up. For a notice like a parent's name, use Message (once available).") }
 
-// Settings → Themes, the background library and the overlays strip
+// Settings → Look → Themes and backgrounds, the background library and the overlays strip
 pub fn reset() -> String { tr!("Reset") }
 pub fn delete() -> String { tr!("Delete") }
 pub fn remove() -> String { tr!("Remove") }

@@ -1,4 +1,4 @@
-//! Settings → Help: the keyboard table, where any shortcut can be changed (N28), and the clear groups (N18). Both
+//! Settings → Keys: the keyboard table, where any shortcut can be changed (N28), and the clear groups (N18). Both
 //! edit `Edit.settings.keys` and are saved with the rest of the settings (Save settings).
 use super::{confirm, settings::{Edit, strings as st}, strings as dlg};
 use crate::{
@@ -19,7 +19,7 @@ thread_local! {
     static CAPTURE: RefCell<Option<(Rc<Edit>, Action)>> = const { RefCell::new(None) };
 }
 
-/// Settings → Help is waiting for a new key: the window hands it every key (`keys::Operator::key`).
+/// Settings → Keys is waiting for a new key: the window hands it every key (`keys::Operator::key`).
 pub fn capturing() -> bool { CAPTURE.with(|c| c.borrow().is_some()) }
 
 /// One row of the Help table. `action`: the shortcut it shows; `None` for a fixed key (Alt + 1–5, the section
@@ -122,8 +122,8 @@ pub(crate) fn fill(op: &Operator, edit: &Edit) {
     let rows: Vec<SettingsHelpRow> = help_rows_with(&keys, &sections, &own).into_iter().map(|r| SettingsHelpRow {
         keys: r.keys.into(), what: r.what.into(), id: r.action.map(|a| a.id()).unwrap_or_default().into(), changed: r.changed,
     }).collect();
-    op.ui.global::<SettingsDlg>().set_help(ModelRc::new(VecModel::from(rows)));
-    let k = op.ui.global::<KeysDlg>();
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().set_help(ModelRc::new(VecModel::from(rows)));
+    let k = crate::ui::dialogs::settings_window::win(&op).global::<KeysDlg>();
     k.set_any_changed(!keys.changed.is_empty());
     k.set_layer_names(ModelRc::new(VecModel::from(LAYERS.iter().map(|l| layer_name(*l).into()).collect::<Vec<slint::SharedString>>())));
     let groups: Vec<ClearGroupRow> = keys.clear_groups.iter().map(|g| ClearGroupRow {
@@ -156,7 +156,7 @@ fn row_action(edit: &Edit, i: i32) -> Option<Action> {
 fn start(op: &Rc<Operator>, edit: &Rc<Edit>, i: i32) {
     let Some(action) = row_action(edit, i) else { return };
     CAPTURE.with(|c| *c.borrow_mut() = Some((edit.clone(), action)));
-    let k = op.ui.global::<KeysDlg>();
+    let k = crate::ui::dialogs::settings_window::win(&op).global::<KeysDlg>();
     k.set_capturing(i);
     k.set_capture_text(tr::press_for(&{ let s = edit.settings.borrow(); what_named(action, &s.keys.clear_groups, &s.record.own_scenes) }).into());
     crate::ui::operator::help::rerender_keys(op);
@@ -165,7 +165,7 @@ fn start(op: &Rc<Operator>, edit: &Rc<Edit>, i: i32) {
 /// Stops waiting for a key (Esc, Cancel, a key taken, or the dialog closing).
 pub(crate) fn stop(op: &Operator) {
     CAPTURE.with(|c| *c.borrow_mut() = None);
-    op.ui.global::<KeysDlg>().set_capturing(-1);
+    crate::ui::dialogs::settings_window::win(&op).global::<KeysDlg>().set_capturing(-1);
     crate::ui::operator::help::rerender_keys(op);
 }
 
@@ -175,7 +175,7 @@ pub fn captured(op: &Rc<Operator>, chord: Chord) {
     if chord.key == "Escape" { return stop(op) }
     if reserved(&chord) { return op.toast(tr::not_tab(), false) }
     stop(op);
-    let section_keys = op.ui.global::<SettingsDlg>().get_section_keys();
+    let section_keys = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().get_section_keys();
     let (found, groups) = {
         let s = edit.settings.borrow();
         (clashes(&Keymap::new(&s.keys), action, &chord, section_keys.then_some(&s.sections)), s.keys.clear_groups.clone())
@@ -188,7 +188,7 @@ pub fn captured(op: &Rc<Operator>, chord: Chord) {
         fill(&op, &edit);
     };
     if found.is_empty() { return apply() }
-    confirm(op, &text, &tr::use_it(), &dlg::cancel(), false, move |ok| if ok { apply() });
+    super::ask::in_settings(op, || confirm(op, &text, &tr::use_it(), &dlg::cancel(), false, move |ok| if ok { apply() }));
 }
 
 /// The question a clash asks: what the key does now, then whether to use it anyway.
@@ -206,7 +206,7 @@ pub fn clash_text(chord: &Chord, action: Action, found: &[Clash], groups: &[Clea
 
 /// Connects the table's buttons and the group editor.
 pub(crate) fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
-    let k = op.ui.global::<KeysDlg>();
+    let k = crate::ui::dialogs::settings_window::win(&op).global::<KeysDlg>();
     let with = |f: fn(&Rc<Operator>, &Rc<Edit>, i32)| {
         let (me, e) = (Rc::downgrade(op), edit.clone());
         move |i: i32| if let Some(op) = me.upgrade() { f(&op, &e, i) }
@@ -222,6 +222,14 @@ pub(crate) fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     k.on_reset_all(unit(|op, edit| { edit.settings.borrow_mut().keys.changed.clear(); fill(op, edit) }));
     let me = Rc::downgrade(op);
     k.on_cancel_capture(move || if let Some(op) = me.upgrade() { stop(&op) });
+    // A key pressed in the Settings window while a row waits for its new one (its own key scope sends them all).
+    let me = Rc::downgrade(op);
+    k.on_key_captured(move |text, ctrl, alt, shift| {
+        let Some(op) = me.upgrade() else { return };
+        if !capturing() || crate::ui::operator::keys::is_modifier(&text) { return }
+        let key = crate::ui::operator::keys::key_name(&text).unwrap_or(&text);
+        captured(&op, crate::shortcuts::Chord::new(key, ctrl, alt, shift));
+    });
     let (me, e) = (Rc::downgrade(op), edit.clone());
     k.on_group_renamed(move |i, name| {
         if me.upgrade().is_none() { return }
@@ -250,10 +258,10 @@ pub(crate) fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
 }
 
 /// The Change button of Help row `row` (for the screenshot example).
-pub fn press_change(op: &Operator, row: usize) { op.ui.global::<KeysDlg>().invoke_change(row as i32) }
+pub fn press_change(op: &Operator, row: usize) { crate::ui::dialogs::settings_window::win(&op).global::<KeysDlg>().invoke_change(row as i32) }
 
 /// Add a clear group (for the screenshot example).
-pub fn press_add_group(op: &Operator) { op.ui.global::<KeysDlg>().invoke_group_add() }
+pub fn press_add_group(op: &Operator) { crate::ui::dialogs::settings_window::win(&op).global::<KeysDlg>().invoke_group_add() }
 
 /// A new group: just the text, to change from there.
 fn new_group() -> ClearGroup { ClearGroup { id: uuid::Uuid::new_v4(), name: tr::new_group(), layers: vec![ClearLayer::Slide] } }
@@ -272,7 +280,7 @@ mod tr {
     pub fn not_tab() -> String { tr!("Tab moves between buttons, so it cannot be a shortcut. Press another key.") }
     pub fn use_it() -> String { tr!("Use it") }
     pub fn taken(key: &str, what: &str) -> String { tr!("{key} is already the key for “{what}”. It will move here.", key = key, what = what) }
-    pub fn section_key(key: &str) -> String { tr!("{key} also jumps the live song to a section (Settings → Songs → Section keys).", key = key) }
+    pub fn section_key(key: &str) -> String { tr!("{key} also jumps the live song to a section (Settings → Keys → Section keys).", key = key) }
     pub fn bible_chip(key: &str) -> String { tr!("{key} also picks a Bible chip while you type in the Bible box.", key = key) }
     pub fn text_editing(key: &str) -> String { tr!("Text boxes use {key} for editing. It will do this instead, even while you type.", key = key) }
     pub fn use_for(key: &str, what: &str) -> String { tr!("Use {key} for “{what}”?", key = key, what = what) }

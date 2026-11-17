@@ -1,8 +1,9 @@
 use super::*;
+use crate::ui::dialogs::settings::testing::{find_any as find};
 use crate::{
     app::{App, test_app},
     stage::{StageElement, presets::{BAND, CLASSIC, SPEAKER}},
-    ui::{dialogs::ask, operator::{menu::{MenuAction, action}, window::testing::{find, open as open_window, refresh}}},
+    ui::{dialogs::ask, operator::{menu::{MenuAction, action}, window::testing::{open as open_window, refresh}}},
 };
 use slint::{Model, platform::PointerEventButton};
 use std::sync::Arc;
@@ -425,7 +426,7 @@ fn settings_video_tab_picks_the_stage_layout() {
     let app = test_app();
     let op = opened(&app);
     crate::ui::dialogs::settings::open(&op, crate::ui::dialogs::SettingsTab::Video);
-    let s = op.ui.global::<SettingsDlg>();
+    let s = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     assert_eq!(s.get_stage_layout_names().row_count(), 6);
     assert_eq!(s.get_stage_layout(), 0);
     s.set_stage_layout(2);
