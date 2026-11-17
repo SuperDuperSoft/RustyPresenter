@@ -141,7 +141,11 @@ fn pick_bible(op: &Operator, ctx: &AddCtx, id: String) {
 /// "Nothing matches." while searching, "Nothing here yet." otherwise, when no row is shown.
 fn show_empty(op: &Operator, ctx: &AddCtx) {
     let empty = if ctx.shown.row_count() > 0 { String::new() } else if ctx.term.borrow().is_empty() { tr::nothing_yet() } else { tr::nothing_matches() };
-    op.ui.global::<AddState>().set_empty(empty.into());
+    let st = op.ui.global::<AddState>();
+    st.set_empty(empty.into());
+    // A song search that finds nothing offers SongSelect.
+    let song_tab = op.dialog() == Some(DialogKind::Add(AddTab::Song));
+    st.set_offer_songselect(song_tab && ctx.shown.row_count() == 0 && !ctx.term.borrow().is_empty());
 }
 
 /// The search field changed: `q.value.trim().toLowerCase()`.
@@ -255,6 +259,11 @@ fn wire(op: &Rc<Operator>, ctx: &Rc<AddCtx>) {
         files::pick(op, Filter::Lyrics, true, move |paths| if let Some(op) = me.upgrade() { files::add_files(&op, paths) });
     }));
     st.on_import_easyworship(with(|op, _| import_easyworship(op)));
+    st.on_from_songselect(with(|op, _| super::songselect::open(op)));
+    st.on_look_on_songselect(with(|op, _| {
+        let words = op.ui.global::<AddState>().get_search().to_string();
+        super::songselect::look_for(op, &words)
+    }));
     st.on_edit_song(with_id(|op, _, id| open_song_editor(op, Some(id), false)));
     st.on_add_row(with_id(|op, _, id| add_row(op, id)));
     st.on_bible_add(with(|op, ctx| add_verses(op, ctx, false)));

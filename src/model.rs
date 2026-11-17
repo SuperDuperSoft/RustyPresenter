@@ -656,6 +656,9 @@ pub struct Settings {
     /// 1.3 Settings → Auto-follow: songs follow the singers. A value this version can't read loads as the defaults.
     #[serde(deserialize_with = "crate::lenient::or_default")]
     pub follow: crate::follow::Settings,
+    /// Settings → Songs: songs downloaded from SongSelect come into the library whenever the app is open
+    /// (`ui::dialogs::songselect`). Off: only while the "Songs from SongSelect" window is open.
+    pub songselect_inbox: bool,
 }
 
 /// The longest look fade Settings offers (N9).
@@ -772,6 +775,7 @@ impl Default for Settings {
             look_fade_ms: 1000,
             bible_history: Vec::new(),
             follow: Default::default(),
+            songselect_inbox: false,
         }
     }
 }

@@ -1185,9 +1185,9 @@ impl App {
             Ok(json!({}))
         }
         "song/import" => {
-            #[derive(Deserialize)] struct Import { text: String, mode: SongImportMode }
-            let Import { text, mode } = parse(body)?;
-            let (id, title, duplicate_of) = tryr!(app.import_song(&text, mode));
+            #[derive(Deserialize)] struct Import { text: String, mode: SongImportMode, #[serde(default)] name: String }
+            let Import { text, mode, name } = parse(body)?;
+            let (id, title, duplicate_of) = tryr!(app.import_song(&name, text.as_bytes(), mode));
             Ok(json!({ "id": id, "title": title, "duplicate_of": duplicate_of }))
         }
         // ---- service ----
@@ -1901,13 +1901,14 @@ impl App {
         let display = base_name.rsplit_once('.').map(|(a, _)| a).unwrap_or(base_name).to_string();
 
         // Anything else dropped on the Media tab goes to the probe, which decides what it is.
-        let purpose = if purpose == ImportPurpose::Media && ext == "txt" { ImportPurpose::Lyrics } else { purpose };
+        let song_file = ext == "txt" || ["usr", "chordpro", "cho", "chopro"].contains(&ext.as_str());
+        let purpose = if purpose == ImportPurpose::Media && song_file { ImportPurpose::Lyrics } else { purpose };
         match purpose {
             ImportPurpose::Lyrics => {
                 let bytes = tokio::fs::read(&tmp).await;
                 let _ = tokio::fs::remove_file(&tmp).await;
                 let bytes = bytes.map_err(|e| ActionError::bad(e.to_string()))?;
-                let (id, title, duplicate_of) = app.import_song(&String::from_utf8_lossy(&bytes), SongImportMode::Ask).map_err(ActionError::bad)?;
+                let (id, title, duplicate_of) = app.import_song(base_name, &bytes, SongImportMode::Ask).map_err(ActionError::bad)?;
                 return Ok(Imported::Song { id, title, duplicate_of });
             }
             ImportPurpose::PowerPoint => return Ok(Imported::Job(import::deck::start(app.clone(), tmp, display))),
@@ -2040,11 +2041,12 @@ impl App {
         })
     }
 
-    /// Import a SongSelect lyric file. Returns the saved song's id (`None` if `Ask` found a match), its title,
+    /// Import a SongSelect song file (lyrics `.txt`, ChordPro or `.usr`; `name` is the file's name, which tells them
+    /// apart). Returns the saved song's id (`None` if `Ask` found a match), its title,
     /// and the library song with the same CCLI #. `Update` with no match adds the song: the old one may have
     /// been deleted while the question was open.
-    fn import_song(&self, text: &str, mode: SongImportMode) -> Result<(Option<Uuid>, String, Option<Uuid>), String> {
-        let song = songselect::import_txt(text)?;
+    fn import_song(&self, name: &str, bytes: &[u8], mode: SongImportMode) -> Result<(Option<Uuid>, String, Option<Uuid>), String> {
+        let song = songselect::inbox::read_song_file(name, bytes)?;
         let title = song.title.clone();
         // A question saves nothing, so it neither writes data.json nor tells the screens.
         if mode == SongImportMode::Ask {
@@ -2068,6 +2070,12 @@ impl App {
             Ok((id, duplicate_of))
         })?;
         Ok((id, title, duplicate_of))
+    }
+
+    /// A song the person downloaded from SongSelect, into the library without touching the church's own songs
+    /// (`songselect::inbox::place`). Gives the id to add to a service and what happened.
+    pub fn bring_in_songselect(&self, song: Song) -> Result<(Uuid, songselect::inbox::Landed), String> {
+        self.edit(|d| Ok(songselect::inbox::place(&mut d.songs, song)))
     }
 }
 
@@ -2127,7 +2135,7 @@ fn parse<T: serde::de::DeserializeOwned>(body: &[u8]) -> Result<T, ActionError> 
 #[cfg(test)]
 const TEST_SCRAPS: &[&str] = &["rp-test-", "rp-bench-", "rp-deck-", "rp-ew-", "rp-fetch-", "rp-files-", "rp-follow-", "rp-headless-", "rp-lo-",
     "rp lo ", "rp-model-", "rp-olp-", "rp-panic-", "rp-pdf-", "rp-pplive-", "rp-ppt-", "rp ppt ", "rp-preflight-", "rp-probe-", "rp-record-",
-    "rp-report-", "rp-safe-mode-", "rp-settings-", "rp-show-", "rp-state-", "rp-supervisor-", "rp-themes-", "rp-thumbs-", "rp-tools-",
+    "rp-report-", "rp-safe-mode-", "rp-settings-", "rp-show-", "rp-songselect-", "rp-state-", "rp-supervisor-", "rp-themes-", "rp-thumbs-", "rp-tools-",
     "rp-upload-", "rp-v", "rp-yt-", "rp-ytui-", "v1-screens-"];
 #[cfg(test)]
 const SCRAPS_AGE: std::time::Duration = std::time::Duration::from_secs(2 * 3600);

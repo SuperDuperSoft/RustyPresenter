@@ -36,6 +36,7 @@ pub mod settings_sections;
 pub mod settings_themes;
 pub mod show_message;
 pub mod song_editor;
+pub mod songselect;
 pub mod stage_layouts;
 pub mod stream_more;
 pub mod stream_scenes;
@@ -105,6 +106,8 @@ pub enum DialogKind {
     GoLiveHelper,
     /// Settings → Media → Livestream → More settings (`stream_more`).
     StreamMore,
+    /// Songs from SongSelect: the songs the church downloads in its own browser come in (`songselect`).
+    SongSelect,
 }
 
 impl DialogKind {
@@ -145,6 +148,7 @@ impl DialogKind {
             DialogKind::StreamScenes => "stream-scenes",
             DialogKind::GoLiveHelper => "go-live-helper",
             DialogKind::StreamMore => "stream-more",
+            DialogKind::SongSelect => "songselect",
         }
     }
 }
@@ -272,6 +276,7 @@ impl Operator {
             DialogKind::StreamScenes => stream_scenes::title(),
             DialogKind::GoLiveHelper => go_live_helper::title(),
             DialogKind::StreamMore => stream_more::title(),
+            DialogKind::SongSelect => songselect::title(),
         }
     }
 }

@@ -15,6 +15,9 @@ export global QuickSearchDlg {
     in-out property <int> current;
     /// "Type a song title, a few words of the lyrics, a file or a service.", "Nothing matches.", or empty.
     in property <string> note;
+    /// Nothing matches: offer to look for the song on SongSelect.
+    in property <bool> offer-songselect;
+    callback look-on-songselect();
     callback edited(string);
     /// Enter, a double-click or the Open button: the result at that row.
     callback open(int);
@@ -78,6 +81,16 @@ export component QuickSearchDialog inherits VerticalLayout {
                 wrap: word-wrap;
                 accessible-role: text;
                 accessible-label: self.text;
+            }
+            // Nothing found: the song may be on SongSelect.
+            if QuickSearchDlg.offer-songselect: HorizontalLayout {
+                alignment: start;
+                look-songselect := Btn {
+                    small: true;
+                    icon: "download";
+                    text: @tr("Look for it on SongSelect");
+                    clicked => { QuickSearchDlg.look-on-songselect(); }
+                }
             }
             list := ScrollBox {
                 height: QuickSearchDlg.hits.length == 0 ? 0px : root.list-height;

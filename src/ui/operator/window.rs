@@ -116,6 +116,8 @@ pub struct Operator {
     pub(super) outputs_ui: RefCell<super::outputs::OutputsUi>,
     /// N22: the recording under way and the Record button (see `record`).
     pub(super) record: super::record::RecordUi,
+    /// Songs downloaded from SongSelect coming in from the Downloads folder (see `dialogs::songselect`).
+    pub(crate) songselect: crate::ui::dialogs::songselect::Inbox,
     /// This window, for callbacks that outlive a call (thumbnails arrive later).
     pub(crate) me: Weak<Operator>,
     /// The follower's mailbox; `None` on the testing backend, which has no event loop to deliver into.
@@ -146,7 +148,7 @@ impl Operator {
             Operator {
                 ui, app, ops, screens, state: RefCell::default(), service_rows: Rc::default(), slide_rows: Rc::default(),
                 bin: RefCell::default(), bin_rows: Rc::default(), bin_folders: Rc::default(), bin_thumbs,
-                slides: RefCell::default(), thumbs, live: RefCell::default(), preview, overlays: Overlays::default(), files: FilesState::default(), check_timer: slint::Timer::default(), outputs_ui: RefCell::default(), record: Default::default(), me: me.clone(), feed: listening.then(|| feed.clone()),
+                slides: RefCell::default(), thumbs, live: RefCell::default(), preview, overlays: Overlays::default(), files: FilesState::default(), check_timer: slint::Timer::default(), outputs_ui: RefCell::default(), record: Default::default(), songselect: Default::default(), me: me.clone(), feed: listening.then(|| feed.clone()),
                 #[cfg(test)]
                 raises: Default::default(),
             }
@@ -255,6 +257,8 @@ impl Operator {
         if lang_changed && self.state.borrow().live.is_some() { self.render_live(); }
         super::automation::render(self);
         self.watch_decks();
+        // Settings → Songs may have turned bringing in SongSelect downloads on or off.
+        if data_changed && let Some(op) = self.me.upgrade() { crate::ui::dialogs::songselect::follow_setting(&op) }
     }
 
     /// A new live view. An older one (a full read that raced a newer `Live`) is ignored.

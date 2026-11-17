@@ -27,6 +27,7 @@ import { OverlaysDialog } from "dialogs/overlays.slint";
 import { AutomationDialog } from "dialogs/automation.slint";
 import { ShowMessageDialog } from "dialogs/show-message.slint";
 import { MusicDialog } from "dialogs/music.slint";
+import { SongSelectDialog } from "dialogs/songselect.slint";
 import { NetworkDialog } from "dialogs/network.slint";
 import { StreamScenesDialog } from "dialogs/stream-scenes.slint";
 import { GoLiveHelperDialog } from "dialogs/go-live-helper.slint";
@@ -460,6 +461,11 @@ export component OperatorWindow inherits Window {
                 MenuItem {
                     title: @tr("Song…");
                     activated => { root.focus-keys(); root.menu("add-song"); }
+                }
+                // Songs the church downloads from SongSelect in its own web browser.
+                MenuItem {
+                    title: @tr("Songs from SongSelect…");
+                    activated => { root.focus-keys(); root.menu("songselect"); }
                 }
                 MenuItem {
                     title: @tr("Bible passage…");
@@ -1204,6 +1210,7 @@ export component OperatorWindow inherits Window {
             if root.dialog-kind == "quick-search": QuickSearchDialog { window-height: root.height; }
             if root.dialog-kind == "translations": TranslationEditorDialog { window-height: root.height; }
             if root.dialog-kind == "music": MusicDialog {}
+            if root.dialog-kind == "songselect": SongSelectDialog {}
             if root.dialog-kind == "network": NetworkDialog {}
             if root.dialog-kind == "stream-scenes": StreamScenesDialog {}
             if root.dialog-kind == "go-live-helper": GoLiveHelperDialog {}

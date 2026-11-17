@@ -1,8 +1,35 @@
 //! SongSelect lyric `.txt` export → Song. (Not a SongSelect login.)
 //! Observed layout: title, blank, section blocks, then credits:
 //! writers line, `CCLI Song # N`, `© …`, terms line, `CCLI License # N`.
+//!
+//! The app never signs in to SongSelect, never reads or fetches its pages and never downloads for the church: it
+//! opens SongSelect in the person's own web browser and reads the song files they download themselves (`inbox`,
+//! `watch`; see docs/superpowers/specs/2026-11-17-songselect-inbox-design.md).
 use crate::{model::Song, slides::section_label};
 use uuid::Uuid;
+
+pub mod inbox;
+pub mod usr;
+pub mod watch;
+
+/// SongSelect's home page, opened in the person's own web browser.
+pub const HOME: &str = "https://songselect.ccli.com/";
+
+/// Opens SongSelect in the computer's web browser. Tests open nothing and note it instead.
+pub fn open_in_browser() -> Result<(), String> {
+    #[cfg(test)]
+    { testing::OPENED.with(|o| o.set(o.get() + 1)); Ok(()) }
+    #[cfg(not(test))]
+    { crate::usage::open::open_file(std::path::Path::new(HOME)) }
+}
+
+#[cfg(test)]
+pub(crate) mod testing {
+    thread_local! {
+        /// How many times SongSelect was opened in the browser on this thread.
+        pub(crate) static OPENED: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+    }
+}
 
 pub fn import_txt(text: &str) -> Result<Song, String> {
     if text.len() > 256_000 { return Err(crate::tr!("That file is too big to be a lyric file.")); }

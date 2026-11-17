@@ -90,7 +90,7 @@ impl Filter {
         match self {
             Filter::Media => [media::VIDEO, media::AUDIO, media::IMAGE].concat(),
             Filter::PowerPoint => crate::import::deck::DECK_EXT.to_vec(),
-            Filter::Lyrics => vec!["txt"],
+            Filter::Lyrics => crate::songselect::inbox::EXTENSIONS.to_vec(),
             Filter::Pictures => media::IMAGE.to_vec(),
             Filter::PicturesAndVideos => [media::IMAGE, media::VIDEO].concat(),
             Filter::Bibles => vec!["xml", "usx", "osis", "zef"],

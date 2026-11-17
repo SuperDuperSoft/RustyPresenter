@@ -72,6 +72,22 @@ component SettingsSongsGeneral inherits VerticalLayout {
             checked <=> SettingsDlg.section-keys;
         }
     }
+    Field {
+        label: "SongSelect";
+        help: @tr("Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted.");
+        songselect-inbox := Check {
+            text: @tr("Bring in SongSelect downloads whenever RustyPresenter is open");
+            checked <=> SettingsDlg.songselect-inbox;
+        }
+        HorizontalLayout {
+            alignment: start;
+            songselect-open := Btn {
+                small: true;
+                text: @tr("Songs from SongSelect…");
+                clicked => { SettingsDlg.open-songselect(); }
+            }
+        }
+    }
     HorizontalLayout {
         alignment: start;
         usage-report := Btn {

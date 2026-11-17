@@ -47,7 +47,8 @@ fn ext(path: &Path) -> String {
 
 pub fn route(path: &Path) -> Route {
     let e = ext(path);
-    if e == "txt" { Route::Song } else if DECK_EXT.contains(&e.as_str()) { Route::Deck } else { Route::Media }
+    // SongSelect's song downloads: lyrics, ChordPro and `.usr`.
+    if crate::songselect::inbox::EXTENSIONS.contains(&e.as_str()) { Route::Song } else if DECK_EXT.contains(&e.as_str()) { Route::Deck } else { Route::Media }
 }
 
 /// True when there is at least one file and every file is a picture, by extension.

@@ -1642,3 +1642,36 @@ Design: `docs/superpowers/specs/2026-11-17-livestream-output-design.md`. Every n
 - **What cannot be done here, and why:** CEA-608/708 captions inside the stream (FFmpeg has no encoder for them; captions go on the picture, in a .vtt file and to YouTube's captions address instead); remote guests inside the app (no WebRTC library is available offline; the computer's browser makes the connection instead, guests reach the app directly or not at all, no relay server); SRT from a chosen network card (FFmpeg 9 has no option for it); the Mac's own sound tap and all Mac/Linux code are unchecked until a real Mac and Linux PC build them.
 - **Not verified by a person:** everything in the five handoffs above — in short, every new window and Settings row by eye, a real phone as camera and microphone (certificate step), real PTZ cameras by hand, green screen, stingers, tall scenes, web page layers, the sound filters by ear, Listen in headphones, Instagram/X/TikTok/HEVC streams, the before-live checks, the report, captions on a real sermon, a guest at home, the Go Live helper.
 - **Next:** `try-latest.cmd follow-sunday` (rebuilds the release first).
+
+### November 17, 2026 — SongSelect downloads come in by themselves (branch `songselect-inbox`)
+
+Jake: "how can we use SongSelect as an easy way to grab songs from our account without API access and without
+breaking any terms with them". Design: `docs/superpowers/specs/2026-11-17-songselect-inbox-design.md`.
+
+- **Terms kept:** the app never signs in to SongSelect, never asks for or keeps a password, never reads browser
+  cookies, never fetches or reads SongSelect's pages, never downloads for the church and never sends a song off this
+  computer. It only opens SongSelect's home page in the church's own browser and reads files the person downloaded
+  themselves. SongSelect's search address could not be checked (its site refuses automated reading), so "Look for it
+  on SongSelect" opens the home page and copies the words to paste into its search box.
+- **Built:** "Songs from SongSelect" window (Add → Song → "From SongSelect…", File → Add to service, Settings →
+  Songs): three steps, Open SongSelect, Choose a file…, and the songs that came in with CCLI number, what happened and
+  "Add to the service". While it is open, the real Downloads folder (`dirs::download_dir`, the Windows Known Folder)
+  is looked at once a second off the window's thread; only new, finished files (size steady over two looks, no
+  `.crdownload`/`.part`/`.partial`/`.download`/`.tmp` twin) that are SongSelect song files are read: the Lyrics
+  `.txt`, ChordPro (`.chordpro`/`.cho`/`.chopro`/`.pro`, or `.txt` with ChordPro tags) with a CCLI number, and the
+  `.usr` file (new reader, `src/songselect/usr.rs`). Nothing in Downloads is moved or deleted. Settings → Songs →
+  "Bring in SongSelect downloads whenever RustyPresenter is open" (off by default) keeps watching with the window
+  closed and says each song in a short message. A song search with no results (Add → Song and Quick search) offers
+  "Look for it on SongSelect".
+- **Duplicates:** same CCLI number and the same words (case, spacing, punctuation and section names aside): "already
+  in your song library", nothing changes; other words: the church's copy stays untouched and the new one is added
+  as "<title> (from SongSelect)". Writers, copyright and CCLI number are kept for the credit line and the usage report.
+- **Dragging / Import:** `.usr` and ChordPro files now go the song way when dropped or picked ("Import a song file",
+  which used to take `.txt` only; ChordPro and `.usr` went to the media importer and failed).
+- **Tests:** `songselect::{usr,inbox,watch}` (each format with made-up samples in SongSelect's style, everything else
+  left alone, duplicates, the watcher with a temp folder: unfinished downloads, growing files, each file once), and
+  the window driven inline (`src/ui/dialogs/songselect_tests.rs`).
+- **Not verified by a person:** a real SongSelect download in a real browser (the samples are made up in SongSelect's
+  style; the real ChordPro and `.usr` files may differ in small ways), the window and the Settings row by eye, the
+  Downloads folder moved to another drive, the browser opening on Windows, and the copied words pasted into
+  SongSelect's search.

@@ -115,11 +115,19 @@ impl Ops {
         let app = self.app.clone();
         let work = async move {
             let bytes = tokio::fs::read(&path).await.map_err(|e| e.to_string())?;
-            let body = serde_json::json!({ "text": String::from_utf8_lossy(&bytes), "mode": mode });
+            // The core reads the words in whatever encoding they were saved; JSON carries UTF-8.
+            let name = path.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
+            let body = serde_json::json!({ "text": crate::import::chordpro::decode(&bytes), "mode": mode, "name": name });
             let v = app.do_action("song/import", body.to_string().as_bytes()).await.map_err(|e| e.message)?;
             serde_json::from_value::<T>(v).map_err(|e| e.to_string())
         };
         self.run(work, |r| done(r.and_then(|r| r)));
+    }
+
+    /// Runs `work` on a thread that may wait on the disk; `done` gets its answer, or `None` if it stopped.
+    pub fn blocking<R: Send + 'static>(&self, work: impl FnOnce() -> R + Send + 'static, done: impl FnOnce(Option<R>) + 'static) {
+        let work = async move { tokio::task::spawn_blocking(work).await.ok() };
+        self.run(work, |r| done(r.ok().flatten()));
     }
 
     /// `App::import_easyworship`, off the UI thread.

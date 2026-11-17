@@ -112,6 +112,8 @@ export global SettingsDlg {
     in-out property <int> look-fade: 10;
     /// C, B, 1–9… jump the live song (`Settings::section_keys`).
     in-out property <bool> section-keys: true;
+    /// Songs: songs downloaded from SongSelect come in whenever the app is open.
+    in-out property <bool> songselect-inbox;
     // ---- Video ----
     /// Keep the room screen on top while it has a monitor of its own (`Settings::room_on_top`).
     in-out property <bool> room-on-top: true;
@@ -439,6 +441,7 @@ export global SettingsDlg {
     callback credit-template-edited();
     /// Settings → Songs' "Song use report…" (FEAT-7 §3.3).
     callback usage-report();
+    callback open-songselect();
     /// Media → Livestream → Live captions (`stream::captions`): on, on the picture, in a file, YouTube's captions
     /// address, and what they listen to (0: the stream's own sound input, then each input). `captions-model` says
     /// whether the English speech model is downloaded.

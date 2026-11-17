@@ -30,6 +30,8 @@ pub enum MenuAction {
     Automation,
     /// Window → Walk-in music… (N13).
     Music,
+    /// File → Add to service → Songs from SongSelect… (also Add → Song → From SongSelect…).
+    SongSelect,
     /// Window → Calendar… (N17): the Automation dialog's Calendar tab.
     Calendar,
     /// Edit → Find a verse… (FEAT-5).
@@ -104,6 +106,7 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "stage-layouts" => MenuAction::StageLayouts,
         "automation" => MenuAction::Automation,
         "music" => MenuAction::Music,
+        "songselect" => MenuAction::SongSelect,
         "calendar" => MenuAction::Calendar,
         "find-verse" => MenuAction::FindVerse,
         "find-mouse" => MenuAction::FindMouse,
@@ -153,6 +156,7 @@ impl Operator {
             Some(MenuAction::StageLayouts) => crate::ui::dialogs::stage_layouts::open(self),
             Some(MenuAction::Automation) => crate::ui::dialogs::automation::open(self),
             Some(MenuAction::Music) => crate::ui::dialogs::music::open(self),
+            Some(MenuAction::SongSelect) => crate::ui::dialogs::songselect::open(self),
             Some(MenuAction::Calendar) => {
                 crate::ui::dialogs::automation::open(self);
                 crate::ui::dialogs::automation::goto(self, crate::ui::dialogs::automation::CALENDAR_TAB, -1);

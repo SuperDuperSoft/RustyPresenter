@@ -104,6 +104,11 @@ pub fn open(op: &Rc<Operator>) {
     g.on_open(move |i| if let Some(op) = me.upgrade() { pick(&op, i, false) });
     let me = Rc::downgrade(op);
     g.on_add(move |i| if let Some(op) = me.upgrade() { pick(&op, i, true) });
+    let me = Rc::downgrade(op);
+    g.on_look_on_songselect(move || if let Some(op) = me.upgrade() {
+        let words = op.ui.global::<QuickSearchDlg>().get_query().to_string();
+        super::songselect::look_for(&op, &words)
+    });
     op.on_dialog_close(|_| HITS.with(|h| h.borrow_mut().clear()));
 }
 
@@ -119,6 +124,7 @@ fn show(op: &Operator, query: &str) {
         icon: h.icon.into(), title: h.title.as_str().into(), sub: h.sub.as_str().into(), tag: h.tag.as_str().into(), can_add: h.can_add(),
     }).collect();
     g.set_note(if query.trim().is_empty() { type_hint() } else if hits.is_empty() { nothing_matches() } else { String::new() }.into());
+    g.set_offer_songselect(!query.trim().is_empty() && hits.is_empty());
     g.set_current(if hits.is_empty() { -1 } else { 0 });
     g.set_hits(ModelRc::new(VecModel::from(rows)));
     HITS.with(|h| *h.borrow_mut() = hits);

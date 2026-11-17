@@ -37,6 +37,8 @@ export global AddState {
     in property <string> placeholder;
     /// "Nothing matches." / "Nothing here yet.", or empty when there are rows.
     in property <string> empty;
+    /// A song search found nothing: offer to look for it on SongSelect.
+    in property <bool> offer-songselect;
     /// The Bible this passage comes from, as its chip says it ("KJV", "RV1909 · spa"). It starts as the Bible box's
     /// and the picker next to the reference changes it for this dialog only.
     in property <string> translation;
@@ -81,6 +83,8 @@ export global AddState {
     callback new-song();
     callback import-lyrics();
     callback import-easyworship();
+    callback from-songselect();
+    callback look-on-songselect();
     callback edit-song(string);
     callback add-row(string);
     callback try-again(string);
@@ -232,7 +236,17 @@ export component AddList inherits VerticalLayout {
         horizontal-alignment: center;
         accessible-label: self.text;
         // `.empty`: 28 px 18 px padding.
-        height: self.preferred-height + 56px;
+        height: self.preferred-height + (AddState.offer-songselect ? 28px : 56px);
         vertical-alignment: center;
+    }
+    if AddState.rows.length == 0 && AddState.offer-songselect: HorizontalLayout {
+        alignment: center;
+        padding-bottom: 18px;
+        look-songselect := Btn {
+            small: true;
+            icon: "download";
+            text: @tr("Look for it on SongSelect");
+            clicked => { AddState.look-on-songselect(); }
+        }
     }
 }

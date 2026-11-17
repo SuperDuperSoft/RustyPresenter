@@ -120,6 +120,7 @@ fn fill_form(g: &SettingsDlg, s: &Settings) {
     g.set_drawing_max_per_second(s.drawing_max_per_second.to_string().into());
     g.set_fade_secs(s.fade_secs.to_string().into());
     g.set_section_keys(s.section_keys);
+    g.set_songselect_inbox(s.songselect_inbox);
     settings_audio::fill(g, &[], &s.audio_device);
     settings_graphics::fill(g, s.graphics);
     settings_media::fill_form(g, &s.media, &[]);
@@ -148,6 +149,7 @@ pub(crate) fn read_form(g: &SettingsDlg, s: &mut Settings) {
     s.drawing_max_per_second = num(g.get_drawing_max_per_second(), MAX_PER_SECOND_RANGE, s.drawing_max_per_second);
     s.fade_secs = num(g.get_fade_secs(), FADE_SECS_RANGE, s.fade_secs);
     s.section_keys = g.get_section_keys();
+    s.songselect_inbox = g.get_songselect_inbox();
     s.audio_device = settings_audio::read(g);
     settings_media::read_form(g, &mut s.media);
     super::settings_record::read_form(g, &mut s.record);
@@ -284,6 +286,7 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_cancel(with(|op, _| op.close_dialog()));
     g.on_save(with(save));
     g.on_usage_report(with(usage_report));
+    g.on_open_songselect(with(songselect));
     g.on_edit_own_scenes(with(own_scenes));
     g.on_edit_stream_more(with(stream_more));
     g.on_credit_template_edited(with(|op, edit| {
@@ -372,6 +375,21 @@ fn own_scenes(op: &Rc<Operator>, edit: &Rc<Edit>) {
     confirm(op, &crate::tr!("Save your other changes first?"), &crate::tr!("Save and go on"), &dlg::cancel(), false, move |ok| {
         let Some(op) = me.upgrade().filter(|_| ok) else { return };
         save_then(&op, &edit, super::stream_scenes::open);
+    });
+}
+
+/// "Songs from SongSelect…" in Songs: as "Your scenes…", it takes the dialog's place, after any changes are saved.
+fn songselect(op: &Rc<Operator>, edit: &Rc<Edit>) {
+    let mut s = edit.settings.borrow().clone();
+    read_form(&op.ui.global::<SettingsDlg>(), &mut s);
+    if s == *edit.settings.borrow() {
+        op.close_dialog();
+        return super::songselect::open(op);
+    }
+    let (me, edit) = (Rc::downgrade(op), edit.clone());
+    confirm(op, &crate::tr!("Save your other changes first?"), &crate::tr!("Save and go on"), &dlg::cancel(), false, move |ok| {
+        let Some(op) = me.upgrade().filter(|_| ok) else { return };
+        save_then(&op, &edit, super::songselect::open);
     });
 }
 

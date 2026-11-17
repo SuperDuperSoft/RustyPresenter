@@ -21,3 +21,6 @@ Twitch
 Instagram
 X
 TikTok
+
+# CCLI's song service, by its own name (Settings → Songs).
+SongSelect

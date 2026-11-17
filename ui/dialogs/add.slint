@@ -78,8 +78,15 @@ component AddSongTab inherits VerticalLayout {
             primary: true;
             clicked => { AddState.new-song(); }
         }
+        // Songs the church downloads from SongSelect in its own web browser come in by themselves.
+        from-songselect := Btn {
+            text: @tr("From SongSelect…");
+            icon: "download";
+            clicked => { AddState.from-songselect(); }
+        }
         import := Btn {
-            text: @tr("Import SongSelect lyrics (.txt)");
+            text: @tr("Import a song file");
+            tooltip: @tr("SongSelect lyrics (.txt), ChordPro or .usr");
             icon: "upload";
             clicked => { AddState.import-lyrics(); }
         }
