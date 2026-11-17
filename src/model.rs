@@ -680,6 +680,10 @@ pub struct Settings {
     /// Settings → Songs: songs downloaded from SongSelect come into the library whenever the app is open
     /// (`ui::dialogs::songselect`). Off: only while the "Songs from SongSelect" window is open.
     pub songselect_inbox: bool,
+    /// The operator window's panels: the arrangement in use and the church's saved layouts (dock panels design).
+    /// Saved only by `settings/dock`. A value this version can't read loads as Standard.
+    #[serde(deserialize_with = "crate::lenient::or_default")]
+    pub dock: crate::ui::dock::DockPrefs,
 }
 
 /// The longest look fade Settings offers (N9).
@@ -797,6 +801,7 @@ impl Default for Settings {
             bible_history: Vec::new(),
             follow: Default::default(),
             songselect_inbox: false,
+            dock: Default::default(),
         }
     }
 }

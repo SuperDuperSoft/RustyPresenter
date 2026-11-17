@@ -5,6 +5,7 @@ pub mod stage;
 pub mod room;
 pub mod screens;
 pub mod operator;
+pub mod dock;
 pub mod dialogs;
 pub mod ops;
 pub mod thumbs;

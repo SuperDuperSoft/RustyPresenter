@@ -1525,6 +1525,8 @@ impl App {
                 s.print = std::mem::take(&mut d.settings.print);
                 s.recent_files = std::mem::take(&mut d.settings.recent_files);
                 s.bible_history = std::mem::take(&mut d.settings.bible_history);
+                // The panels are saved by `settings/dock` as they change.
+                s.dock = std::mem::take(&mut d.settings.dock);
                 s.look_fade_ms = s.look_fade_ms.min(crate::model::LOOK_FADE_MAX_MS);
                 // N31: only `network/save` changes these (it hashes the passwords).
                 s.network = std::mem::take(&mut d.settings.network);
@@ -1592,6 +1594,13 @@ impl App {
             #[derive(Deserialize)] struct H { reference: String }
             let H { reference } = parse(body)?;
             tryr!(app.edit_untracked(|d| { d.settings.used_reference(&reference); Ok(()) }));
+            Ok(json!({}))
+        }
+        // The operator window's panels (dock panels design): saved as they change. Not a step for Undo.
+        "settings/dock" => {
+            let mut dock: crate::ui::dock::DockPrefs = parse(body)?;
+            dock.current.repair();
+            tryr!(app.edit_untracked(|d| { d.settings.dock = dock; Ok(()) }));
             Ok(json!({}))
         }
         "settings/favourite" => {
