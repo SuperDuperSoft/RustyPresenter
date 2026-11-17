@@ -621,6 +621,33 @@ export component SettingsMedia inherits VerticalLayout {
                 stream-custom-url := TextField { horizontal-stretch: 1; label: @tr("The server's address"); placeholder: @tr("Its address: rtmp://, rtmps:// or srt://"); text <=> SettingsDlg.stream-url; }
                 stream-custom-key := TextField { horizontal-stretch: 1; password: true; label: @tr("The server's stream key"); placeholder: SettingsDlg.stream-saved-3 ? @tr("A key is saved. Type a new one to change it.") : @tr("Its stream key, if it has one"); edited(t) => { SettingsDlg.stream-key-edited(3, t); } }
             }
+            HorizontalLayout {
+                spacing: 8px;
+                stream-ig := Check { text: "Instagram"; checked <=> SettingsDlg.stream-on-4; }
+                stream-ig-url := TextField { horizontal-stretch: 1; label: @tr("Instagram's server address"); placeholder: @tr("Its server address, if Instagram shows one"); text <=> SettingsDlg.stream-url-4; }
+                stream-ig-key := TextField { horizontal-stretch: 1; password: true; label: @tr("Instagram stream key"); placeholder: SettingsDlg.stream-saved-4 ? @tr("A key is saved. Type a new one to change it.") : @tr("Paste the stream key"); edited(t) => { SettingsDlg.stream-key-edited(4, t); } }
+            }
+            HorizontalLayout {
+                spacing: 8px;
+                stream-x := Check { text: "X"; checked <=> SettingsDlg.stream-on-5; }
+                stream-x-url := TextField { horizontal-stretch: 1; label: @tr("X's server address"); placeholder: @tr("Its server address, if X shows one"); text <=> SettingsDlg.stream-url-5; }
+                stream-x-key := TextField { horizontal-stretch: 1; password: true; label: @tr("X stream key"); placeholder: SettingsDlg.stream-saved-5 ? @tr("A key is saved. Type a new one to change it.") : @tr("Paste the stream key"); edited(t) => { SettingsDlg.stream-key-edited(5, t); } }
+            }
+            HorizontalLayout {
+                spacing: 8px;
+                stream-tt := Check { text: "TikTok"; checked <=> SettingsDlg.stream-on-6; }
+                stream-tt-url := TextField { horizontal-stretch: 1; label: @tr("TikTok's server address"); placeholder: @tr("The server address TikTok shows with the key"); text <=> SettingsDlg.stream-url-6; }
+                stream-tt-key := TextField { horizontal-stretch: 1; password: true; label: @tr("TikTok stream key"); placeholder: SettingsDlg.stream-saved-6 ? @tr("A key is saved. Type a new one to change it.") : @tr("Paste the stream key"); edited(t) => { SettingsDlg.stream-key-edited(6, t); } }
+            }
+            Text {
+                text: @tr("Instagram, X and TikTok give stream keys only to some accounts (TikTok asks for enough followers; Instagram's come from Live Producer on a computer). Each shows a server address with the key: paste both. Their keys often work for one broadcast only.");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                wrap: word-wrap;
+                accessible-role: text;
+                accessible-label: self.text;
+            }
             if SettingsDlg.stream-sign-in-text != "": Text {
                 text: SettingsDlg.stream-sign-in-text;
                 color: Theme.text;
@@ -642,6 +669,28 @@ export component SettingsMedia inherits VerticalLayout {
             stream-tall-fb := Check { text: "Facebook"; checked <=> SettingsDlg.stream-tall-1; }
             stream-tall-tw := Check { text: "Twitch"; checked <=> SettingsDlg.stream-tall-2; }
             stream-tall-custom := Check { text: @tr("Another server"); checked <=> SettingsDlg.stream-tall-3; }
+            stream-tall-ig := Check { text: "Instagram"; checked <=> SettingsDlg.stream-tall-4; }
+            stream-tall-x := Check { text: "X"; checked <=> SettingsDlg.stream-tall-5; }
+            stream-tall-tt := Check { text: "TikTok"; checked <=> SettingsDlg.stream-tall-6; }
+        }
+    }
+    Field {
+        label: @tr("More settings");
+        help: @tr("Pictures a second, video format, sound quality, which network card sends, each destination's own quality, the recording's file type and name, and setups saved by name (Sunday, Wedding) to use again in one go.");
+        HorizontalLayout {
+            alignment: start;
+            spacing: 8px;
+            stream-more-btn := Btn {
+                text: @tr("More settings and saved setups…");
+                clicked => { SettingsDlg.edit-stream-more(); }
+            }
+            if SettingsDlg.stream-setup != "": Text {
+                text: @tr("Setup: {}", SettingsDlg.stream-setup);
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                vertical-alignment: center;
+            }
         }
     }
     if SettingsDlg.stream-account-0 != "" || SettingsDlg.stream-account-1 != "": Field {

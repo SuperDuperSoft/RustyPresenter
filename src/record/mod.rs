@@ -3,6 +3,7 @@
 //! `FrameSink`; a writer thread feeds it to an `ffmpeg` child at a fixed 30 frames a second (`pump`), which writes
 //! H.264 into a Matroska file that survives a crash. Stopping turns it into the MP4 (`args::finish`), adding the
 //! app's own sound from the files that played (`sound`), or a microphone recorded alongside.
+pub mod advanced;
 pub mod args;
 pub mod chapters;
 pub mod clips;
@@ -13,6 +14,7 @@ pub mod pump;
 pub mod run;
 pub mod slow;
 pub mod sound;
+pub mod setups;
 pub mod unfinished;
 
 pub use pump::FrameSink;
@@ -188,6 +190,16 @@ pub struct RecordPrefs {
     /// The note about streaming licences was shown (once, the first time Go Live started).
     #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub licence_noted: bool,
+    /// Livestream → More settings (`advanced`): pictures a second, video format, sound, network, recording.
+    #[serde(default, skip_serializing_if = "advanced::More::is_default")]
+    pub more: advanced::More,
+    /// Whole livestream setups saved by name ("Sunday", "Wedding"), to use again (`setups`).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub setups: Vec<setups::Setup>,
+    /// The processor's encoder (x264) could not keep up on this computer while live: Automatic now uses the
+    /// graphics card's encoder when there is one that works (`run::Plan::make`).
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub x264_too_slow: bool,
 }
 
 
@@ -267,10 +279,13 @@ pub fn default_folder() -> PathBuf {
 }
 
 /// The finished file's name, from the time it started: `Recording 2026-11-07 10-30-05.mp4`. Never one that exists.
-pub fn file_name(folder: &Path, at: chrono::NaiveDateTime) -> PathBuf {
-    let stem = format!("Recording {}", at.format("%Y-%m-%d %H-%M-%S"));
-    (1..).map(|i| if i == 1 { stem.clone() } else { format!("{stem} ({i})") })
-        .map(|s| folder.join(format!("{s}.mp4")))
+pub fn file_name(folder: &Path, at: chrono::NaiveDateTime) -> PathBuf { named(folder, &advanced::file_stem("", at, ""), "mp4") }
+
+/// `<stem>.<ext>` in `folder` (More settings name it: `advanced::file_stem`), `<stem> (2).<ext>` and on when that
+/// is taken. Never one that exists, nor one being recorded to.
+pub fn named(folder: &Path, stem: &str, ext: &str) -> PathBuf {
+    (1..).map(|i| if i == 1 { stem.to_string() } else { format!("{stem} ({i})") })
+        .map(|s| folder.join(format!("{s}.{ext}")))
         .find(|p| !p.exists() && !run::partial_of(p).exists())
         .expect("some name is free")
 }
@@ -295,7 +310,7 @@ pub mod tr {
     pub fn clip_failed(path: &str) -> String { tr!("The clip could not be saved: {path}", path = path) }
     pub fn was_live() -> String { tr!("RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?") }
     pub fn go_live_again() -> String { tr!("Go Live") }
-    pub fn too_slow() -> String { tr!("This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or close other programs.") }
+    pub fn too_slow() -> String { tr!("This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or the graphics card under Video encoder, and close other programs.") }
     pub fn smooth_again() -> String { tr!("The computer is keeping up again: the picture is smooth.") }
     pub fn no_room() -> String { tr!("Turn the room screen on first: the recording is what the room shows.") }
     pub fn no_folder(path: &str, why: &str) -> String { tr!("Could not use the recordings folder {path}: {why}", path = path, why = why) }
@@ -307,6 +322,14 @@ pub mod tr {
     pub fn finishing() -> String { tr!("Saving the recording…") }
     pub fn saved(path: &str) -> String { tr!("Recording saved: {path}", path = path) }
     pub fn saved_mkv(path: &str) -> String { tr!("Recording saved as {path} (it could not be turned into MP4).", path = path) }
+    /// Cut into pieces (More settings): the first, and how many there are.
+    pub fn saved_pieces(path: &str, n: usize) -> String { tr!("Recording saved in {n} pieces, the first: {path}", n = n, path = path) }
+    /// "Save the last minutes" (More settings).
+    pub fn saving_last(minutes: u32) -> String { tr!("Saving the last {minutes} minutes…", minutes = minutes) }
+    pub fn saved_last(path: &str) -> String { tr!("The last minutes are saved: {path}", path = path) }
+    pub fn save_last_failed(path: &str) -> String { tr!("The last minutes could not be saved: {path}", path = path) }
+    /// The processor's encoder could not keep up, and the encoder is left to the app.
+    pub fn too_slow_next_time() -> String { tr!("Next time, the graphics card's encoder is used by itself, if this computer has one that works.") }
     pub fn no_app_sound() -> String { tr!("The recording was saved without the app's sound, which could not be added.") }
     pub fn ffmpeg_ended() -> String { tr!("FFmpeg stopped unexpectedly") }
     pub fn no_sound(name: &str) -> String { tr!("No sound has come from {name} for 10 seconds. Check the cable, and that the sound board is sending to this computer.", name = name) }

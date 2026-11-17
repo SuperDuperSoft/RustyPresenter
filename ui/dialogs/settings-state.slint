@@ -406,4 +406,22 @@ export global SettingsDlg {
     callback credit-template-edited();
     /// Settings → Songs' "Song use report…" (FEAT-7 §3.3).
     callback usage-report();
+    // ---- Media → Livestream: Instagram (4), X (5) and TikTok (6), after the first four ----
+    in-out property <bool> stream-on-4;
+    in-out property <bool> stream-on-5;
+    in-out property <bool> stream-on-6;
+    in-out property <bool> stream-tall-4;
+    in-out property <bool> stream-tall-5;
+    in-out property <bool> stream-tall-6;
+    in property <bool> stream-saved-4;
+    in property <bool> stream-saved-5;
+    in property <bool> stream-saved-6;
+    /// The server address each shows beside its key (TikTok's is needed; the others have a usual one).
+    in-out property <string> stream-url-4;
+    in-out property <string> stream-url-5;
+    in-out property <string> stream-url-6;
+    /// Opens More settings (`src/ui/dialogs/stream_more.rs`), saving the other changes first.
+    callback edit-stream-more();
+    /// The saved setup whose settings these are (empty: none), shown beside the button.
+    in property <string> stream-setup;
 }

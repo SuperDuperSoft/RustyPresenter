@@ -36,6 +36,7 @@ pub mod settings_themes;
 pub mod show_message;
 pub mod song_editor;
 pub mod stage_layouts;
+pub mod stream_more;
 pub mod stream_scenes;
 pub mod translation_editor;
 pub mod usage;
@@ -97,6 +98,8 @@ pub enum DialogKind {
     Design(Option<Uuid>),
     /// Settings → Media → Livestream → Your scenes… (the church's own livestream scenes).
     StreamScenes,
+    /// Settings → Media → Livestream → More settings (`stream_more`).
+    StreamMore,
 }
 
 impl DialogKind {
@@ -105,7 +108,7 @@ impl DialogKind {
     pub fn refreshes(&self) -> bool { matches!(self, DialogKind::Add(_) | DialogKind::Screens | DialogKind::Phone) }
 
     /// `dialog(…, { wide: true })`: the song editor and Settings.
-    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::StageLayouts | DialogKind::Overlays | DialogKind::Automation | DialogKind::FindVerse | DialogKind::SlideBreaks(_) | DialogKind::Translations | DialogKind::Design(_) | DialogKind::StreamScenes) }
+    pub fn wide(&self) -> bool { matches!(self, DialogKind::SongEditor { .. } | DialogKind::Settings(_) | DialogKind::Usage | DialogKind::StageLayouts | DialogKind::Overlays | DialogKind::Automation | DialogKind::FindVerse | DialogKind::SlideBreaks(_) | DialogKind::Translations | DialogKind::Design(_) | DialogKind::StreamScenes | DialogKind::StreamMore) }
 
     /// A fixed height whatever is in it: the wide ones and Add, which switch tabs or views (switching must never
     /// resize or move the dialog).
@@ -135,6 +138,7 @@ impl DialogKind {
             DialogKind::Network => "network",
             DialogKind::Design(_) => "design",
             DialogKind::StreamScenes => "stream-scenes",
+            DialogKind::StreamMore => "stream-more",
         }
     }
 }
@@ -260,6 +264,7 @@ impl Operator {
             DialogKind::Network => network::title(),
             DialogKind::Design(_) => crate::design::strings::editor_title(),
             DialogKind::StreamScenes => stream_scenes::title(),
+            DialogKind::StreamMore => stream_more::title(),
         }
     }
 }

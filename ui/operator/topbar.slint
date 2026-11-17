@@ -7,6 +7,7 @@ import { BiblePickerList, TranslationChip } from "../bible-picker.slint";
 import { StageLayoutButton } from "../dialogs/stage-layouts.slint";
 import { PanelExtras } from "extras.slint";
 import { RecordBtn, ClipBtn, ChatBtn, LiveBtn, PanicBtn, SceneBtn, SoundMeter } from "record.slint";
+import { SaveLastBtn } from "save-last.slint";
 
 export { TranslationChip }
 
@@ -50,6 +51,9 @@ export component TopBar inherits Rectangle {
     /// Recording with a clip open (Clip pressed once).
     in property <bool> clipping;
     callback toggle-clip();
+    /// Recording, with More settings keeping the last minutes: how many (0: no button).
+    in property <int> replay-minutes;
+    callback save-last();
     in property <string> record-time;
 
     callback record();
@@ -631,6 +635,14 @@ export component TopBar inherits Rectangle {
             clip-btn := ClipBtn {
                 clipping: root.clipping;
                 clicked => { root.toggle-clip(); }
+            }
+        }
+        if root.recording && root.replay-minutes > 0: VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            save-last-btn := SaveLastBtn {
+                minutes: root.replay-minutes;
+                clicked => { root.save-last(); }
             }
         }
         if root.can-stream || root.live: VerticalLayout {
