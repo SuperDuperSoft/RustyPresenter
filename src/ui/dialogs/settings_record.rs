@@ -34,20 +34,21 @@ fn not_connected() -> String { crate::tr!("not connected") }
 
 fn strings(v: Vec<String>) -> ModelRc<SharedString> { ModelRc::new(VecModel::from(v.into_iter().map(Into::into).collect::<Vec<SharedString>>())) }
 
-/// Settings' four destinations as saved: whether each is on, and the custom server's address.
-fn stream_rows(p: &RecordPrefs) -> ([bool; 4], [bool; 4], String) {
-    let (mut on, mut tall) = ([false; 4], [false; 4]);
-    let mut url = String::new();
+/// Settings' destinations as saved (`stream::BUILT_IN`'s order): whether each is on and tall, and the server
+/// address typed for it (the custom server's; Instagram's, X's and TikTok's).
+fn stream_rows(p: &RecordPrefs) -> ([bool; stream::ROWS], [bool; stream::ROWS], [String; stream::ROWS]) {
+    let (mut on, mut tall) = ([false; stream::ROWS], [false; stream::ROWS]);
+    let mut url: [String; stream::ROWS] = Default::default();
     for d in &p.stream {
-        let Some(i) = (0..4).find(|&i| stream::built_in_id(i) == d.id) else { continue };
+        let Some(i) = (0..stream::ROWS).find(|&i| stream::built_in_id(i) == d.id) else { continue };
         on[i] = d.on;
         tall[i] = d.tall;
-        if i == 3 { url = d.url.clone() }
+        if stream::BUILT_IN[i].0.own_server() { url[i] = d.url.clone() }
     }
     (on, tall, url)
 }
 
-/// Which of the four have a key in this computer's store.
+/// Which destinations have a key in this computer's store.
 fn fill_saved(g: &SettingsDlg) {
     let store = stream::keys::app_store();
     let has = |i: usize| store.get(stream::built_in_id(i)).is_some();
@@ -55,6 +56,9 @@ fn fill_saved(g: &SettingsDlg) {
     g.set_stream_saved_1(has(1));
     g.set_stream_saved_2(has(2));
     g.set_stream_saved_3(has(3));
+    g.set_stream_saved_4(has(4));
+    g.set_stream_saved_5(has(5));
+    g.set_stream_saved_6(has(6));
 }
 
 /// The list "Sound from this computer": off, the output the app plays to, then each output; a saved one that is
@@ -195,6 +199,16 @@ pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     g.set_stream_card_picture_1(c.ending.picture.as_str().into());
     g.set_stream_card_picture_2(c.hold.picture.as_str().into());
     let (on, tall, url) = stream_rows(p);
+    g.set_stream_on_4(on[4]);
+    g.set_stream_on_5(on[5]);
+    g.set_stream_on_6(on[6]);
+    g.set_stream_tall_4(tall[4]);
+    g.set_stream_tall_5(tall[5]);
+    g.set_stream_tall_6(tall[6]);
+    g.set_stream_url_4(url[4].as_str().into());
+    g.set_stream_url_5(url[5].as_str().into());
+    g.set_stream_url_6(url[6].as_str().into());
+    g.set_stream_setup(record::setups::current(p).unwrap_or_default().into());
     g.set_stream_tall_0(tall[0]);
     g.set_stream_tall_1(tall[1]);
     g.set_stream_tall_2(tall[2]);
@@ -203,7 +217,7 @@ pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     g.set_stream_on_1(on[1]);
     g.set_stream_on_2(on[2]);
     g.set_stream_on_3(on[3]);
-    g.set_stream_url(url.into());
+    g.set_stream_url(url[3].as_str().into());
     fill_saved(g);
     fill_accounts(g);
     g.set_stream_sign_in_text("".into());
@@ -238,13 +252,16 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
     // Unchanged keeps the saved spelling (empty is the app's sound too), so an untouched form has no changes.
     let sound = read_sound(g);
     if sound != p.sound() { p.sound = sound.key() }
-    // The destinations: a row is kept while it is on, or (the custom one) has an address. Keys are not here.
-    let on = [g.get_stream_on_0(), g.get_stream_on_1(), g.get_stream_on_2(), g.get_stream_on_3()];
-    let tall = [g.get_stream_tall_0(), g.get_stream_tall_1(), g.get_stream_tall_2(), g.get_stream_tall_3()];
-    let url = g.get_stream_url().trim().to_string();
-    let rows: Vec<stream::Destination> = (0..4).filter(|&i| on[i] || (i == 3 && !url.is_empty())).map(|i| stream::Destination {
-        id: stream::built_in_id(i), name: String::new(), service: stream::BUILT_IN[i].0, url: if i == 3 { url.clone() } else { String::new() }, key: String::new(), on: on[i],
-        tall: tall[i],
+    // The destinations: a row is kept while it is on, has a server address typed, or a quality of its own (More
+    // settings, which keeps it). Keys are not here.
+    let on = [g.get_stream_on_0(), g.get_stream_on_1(), g.get_stream_on_2(), g.get_stream_on_3(), g.get_stream_on_4(), g.get_stream_on_5(), g.get_stream_on_6()];
+    let tall = [g.get_stream_tall_0(), g.get_stream_tall_1(), g.get_stream_tall_2(), g.get_stream_tall_3(), g.get_stream_tall_4(), g.get_stream_tall_5(), g.get_stream_tall_6()];
+    let url = [String::new(), String::new(), String::new(), g.get_stream_url().trim().to_string(), g.get_stream_url_4().trim().to_string(), g.get_stream_url_5().trim().to_string(),
+        g.get_stream_url_6().trim().to_string()];
+    let quality = |i: usize| p.stream.iter().find(|d| d.id == stream::built_in_id(i)).map(|d| d.quality).unwrap_or_default();
+    let rows: Vec<stream::Destination> = (0..stream::ROWS).filter(|&i| on[i] || !url[i].is_empty() || !quality(i).is_same()).map(|i| stream::Destination {
+        id: stream::built_in_id(i), name: String::new(), service: stream::BUILT_IN[i].0, url: url[i].clone(), key: String::new(), on: on[i],
+        tall: tall[i], quality: quality(i),
     }).collect();
     if rows != p.stream { p.stream = rows }
     let pc = read_stream_sound(g);
@@ -355,7 +372,7 @@ pub(crate) fn wire_keys(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
     op.ui.global::<SettingsDlg>().on_stream_key_edited(move |i, key| {
         let Some(op) = me.upgrade() else { return };
-        let id = stream::built_in_id(i.clamp(0, 3) as usize);
+        let id = stream::built_in_id(i.clamp(0, stream::ROWS as i32 - 1) as usize);
         if let Err(e) = stream::keys::app_store().set(id, key.as_str()) { op.toast(crate::tr!("The stream key could not be kept: {error}", error = e), true) }
         fill_saved(&op.ui.global::<SettingsDlg>());
     });

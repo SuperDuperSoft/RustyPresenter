@@ -285,6 +285,7 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_save(with(save));
     g.on_usage_report(with(usage_report));
     g.on_edit_own_scenes(with(own_scenes));
+    g.on_edit_stream_more(with(stream_more));
     g.on_credit_template_edited(with(|op, edit| {
         let g = op.ui.global::<SettingsDlg>();
         let mut s = edit.settings.borrow().clone();
@@ -371,6 +372,22 @@ fn own_scenes(op: &Rc<Operator>, edit: &Rc<Edit>) {
     confirm(op, &crate::tr!("Save your other changes first?"), &crate::tr!("Save and go on"), &dlg::cancel(), false, move |ok| {
         let Some(op) = me.upgrade().filter(|_| ok) else { return };
         save_then(&op, &edit, super::stream_scenes::open);
+    });
+}
+
+/// "More settings and saved setups…" in Media → Livestream: as "Your scenes…", it takes the dialog's place, after
+/// any changes are saved.
+fn stream_more(op: &Rc<Operator>, edit: &Rc<Edit>) {
+    let mut s = edit.settings.borrow().clone();
+    read_form(&op.ui.global::<SettingsDlg>(), &mut s);
+    if s == *edit.settings.borrow() {
+        op.close_dialog();
+        return super::stream_more::open(op);
+    }
+    let (me, edit) = (Rc::downgrade(op), edit.clone());
+    confirm(op, &crate::tr!("Save your other changes first?"), &crate::tr!("Save and go on"), &dlg::cancel(), false, move |ok| {
+        let Some(op) = me.upgrade().filter(|_| ok) else { return };
+        save_then(&op, &edit, super::stream_more::open);
     });
 }
 

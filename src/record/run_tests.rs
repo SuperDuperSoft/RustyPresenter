@@ -31,7 +31,7 @@ fn probe(file: &Path) -> (Vec<(String, String, u64, u64)>, f64) {
 }
 
 fn plan(ffmpeg: PathBuf, dir: &Path, sound: Sound) -> Plan {
-    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![], kbps: 0, delay_secs: 0, lighter: false, ndi: Default::default(), words_file: false, more_inputs: vec![], listen: None }
+    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![], kbps: 0, delay_secs: 0, lighter: false, ndi: Default::default(), words_file: false, more_inputs: vec![], listen: None, more: Default::default(), ways: vec![] }
 }
 
 /// Records for `secs`, handing in a new solid picture every 100 ms (red, then green), with `each` called as it goes.
@@ -54,12 +54,38 @@ fn record_for(plan: Plan, secs: f64, each: impl Fn(&FrameSink, f64)) -> Ended {
     ended
 }
 
+/// Records, handing in a red picture every 100 ms, for as long as `step` says to go on (it is given the recording
+/// and the seconds into the file so far), at most `limit` seconds. For tests that wait for something to happen
+/// (a camera's first picture, while the whole suite runs) rather than a fixed second: a real failure still fails,
+/// after `limit`.
+fn record_while(plan: Plan, limit: f64, mut step: impl FnMut(&Recording, f64) -> bool) -> Ended {
+    let (tx, rx) = mpsc::channel();
+    let rec = Recording::start(plan, move |e| { let _ = tx.send(e); }).expect("starts");
+    let sink = rec.sink().clone();
+    let t = Instant::now();
+    while t.elapsed().as_secs_f64() < limit {
+        let mut b = sink.buffer();
+        for px in b.chunks_exact_mut(4) { px.copy_from_slice(&[255, 0, 0, 255]) }
+        sink.put(b);
+        if !step(&rec, sink.elapsed().unwrap_or(0.0)) { break }
+        std::thread::sleep(Duration::from_millis(100));
+    }
+    rec.stop();
+    let ended = rx.recv_timeout(Duration::from_secs(60)).expect("finished");
+    assert!(rec.wait(Duration::from_secs(5)));
+    ended
+}
+
+/// When things happen in `record_while`: each the seconds into the file at which it did.
+#[derive(Default, Debug)]
+struct Marks { seen: Option<f64>, changed: Option<f64>, seen_again: Option<f64>, end: Option<f64> }
+
 #[test]
 fn a_short_recording_makes_an_h264_mp4_of_the_preset_size_and_cleans_up() {
     let Some(ff) = ffmpeg() else { return };
     let dir = scratch("short");
     let ended = record_for(plan(ff, &dir, Sound::None), 2.0, |_, _| {});
-    assert_eq!(ended, Ended { file: Some(dir.join("Recording test.mp4")), problem: None });
+    assert_eq!(ended, Ended { file: Some(dir.join("Recording test.mp4")), problem: None, ..Ended::default() });
     let (streams, secs) = probe(&dir.join("Recording test.mp4"));
     assert_eq!(streams, [("video".into(), "h264".into(), 1280, 720)]);
     assert!((1.6..3.0).contains(&secs), "{secs} s");
@@ -189,8 +215,8 @@ fn a_part_left_by_a_crash_is_finished_next_time_and_a_broken_one_is_kept_as_mkv(
     std::fs::write(&current, b"being written").unwrap();
     let ended = finish_leftovers(&ff, &dir, &current);
     assert_eq!(ended, [
-        Ended { file: Some(dir.join("Recording broken.mkv")), problem: None },
-        Ended { file: Some(out.clone()), problem: None },
+        Ended { file: Some(dir.join("Recording broken.mkv")), problem: None, kept_mkv: true, ..Ended::default() },
+        Ended { file: Some(out.clone()), problem: None, ..Ended::default() },
     ]);
     assert!(ended[0].toast().1, "an MKV is not what was asked for");
     assert_eq!(probe(&out).0[0].1, "h264");
@@ -201,11 +227,15 @@ fn a_part_left_by_a_crash_is_finished_next_time_and_a_broken_one_is_kept_as_mkv(
 
 #[test]
 fn toasts_say_where_the_file_is_and_what_went_wrong() {
-    let mp4 = Ended { file: Some("/r/a.mp4".into()), problem: None };
+    let mp4 = Ended { file: Some("/r/a.mp4".into()), problem: None, ..Ended::default() };
     assert_eq!(mp4.toast(), ("Recording saved: /r/a.mp4".into(), false));
-    let full = Ended { file: Some("/r/a.mp4".into()), problem: Some(tr::disk_full()) };
+    let full = Ended { file: Some("/r/a.mp4".into()), problem: Some(tr::disk_full()), ..Ended::default() };
+    // An MKV asked for in More settings is no trouble; cut into pieces, the first is named and the rest counted.
+    assert_eq!(Ended { file: Some("/r/a.mkv".into()), ..Ended::default() }.toast().1, false);
+    let pieces = Ended { file: Some("/r/a part 1.mp4".into()), pieces: vec!["/r/a part 1.mp4".into(), "/r/a part 2.mp4".into()], ..Ended::default() };
+    assert_eq!(pieces.toast(), (tr::saved_pieces("/r/a part 1.mp4", 2), false));
     assert_eq!(full.toast(), ("The disk is almost full, so the recording stopped. Recording saved: /r/a.mp4".into(), true));
-    let none = Ended { file: None, problem: Some("x".into()) };
+    let none = Ended { file: None, problem: Some("x".into()), ..Ended::default() };
     assert_eq!(none.toast(), ("x".into(), true));
 }
 
@@ -591,17 +621,27 @@ fn go_live_switches_scene_while_live() {
     let live = Arc::new(Mutex::new((LiveInfo { cursor_item: item, slide: SlideKind::Words, ..LiveInfo::default() }, Choice::default())));
     let l = live.clone();
     let corner = AutoPrefs { on: true, presentation_camera: true };
-    // The room screen: red for the first half (4 s), then green.
-    let ended = record_for(Plan { stream: vec![dead], cameras: lavfi_camera("color=c=blue:size=1280x720:rate=30"), look: Some(look(live, "Grace", corner)),
-        ..plan(ff.clone(), &dir, Sound::None) }, 8.0, move |_, t| if t > 3.0 { l.lock().unwrap().0.slide = SlideKind::Picture });
+    // Waited for, not timed: the camera's first picture (late while the whole suite runs), a second and a half of
+    // the song with it, then the picture slide; then two seconds more. The room screen is red.
+    let mut m = Marks::default();
+    let ended = record_while(Plan { stream: vec![dead], cameras: lavfi_camera("color=c=blue:size=1280x720:rate=30"), look: Some(look(live, "Grace", corner)),
+        ..plan(ff.clone(), &dir, Sound::None) }, 40.0, |rec, t| {
+        if m.seen.is_none() && rec.camera_seen() == Some(true) { m.seen = Some(t) }
+        if m.changed.is_none() && m.seen.is_some_and(|s| t > s + 1.5) { l.lock().unwrap().0.slide = SlideKind::Picture; m.changed = Some(t) }
+        m.changed.is_none_or(|c| t < c + 2.0)
+    });
     assert_eq!(ended.problem, None, "{ended:?}");
+    assert!(m.changed.is_some(), "the camera never sent a picture: {m:?}");
+    // In order, every quarter second (a busy computer's file can run behind the clock, so no fixed second is
+    // looked at): the camera filling the picture (C) while the song is live, then the room screen filling it with
+    // the camera in the corner (P), and not the camera alone again.
     let rec = dir.join("Recording test.mp4");
-    let before = frame_at(&ff, &dir, &rec, "2");
-    assert!(is_blue(before.get_pixel(640, 100).0), "the camera while the song is live: {:?}", before.get_pixel(640, 100).0);
-    let after = frame_at(&ff, &dir, &rec, "6");
-    let (room, cam) = (after.get_pixel(300, 200).0, after.get_pixel(1088, 598).0);
-    assert!(room[1] > 180 && room[0] < 60, "the room screen (green by then) fills it: {room:?}");
-    assert!(is_blue(cam), "the camera in the corner: {cam:?}");
+    let seen: String = quarter_seconds(&ff, &dir, &rec).iter().map(|f| {
+        if is_blue(f.get_pixel(640, 100).0) { 'C' } else if is_red(f.get_pixel(300, 200).0) && is_blue(f.get_pixel(1088, 598).0) { 'P' } else { '.' }
+    }).collect();
+    let first_p = seen.find('P').unwrap_or_else(|| panic!("the room screen with the camera in the corner never came: {seen} ({m:?})"));
+    assert!(seen[..first_p].contains('C'), "the camera while the song is live, first: {seen}");
+    assert!(!seen[first_p..].contains('C'), "the picture slide holds: {seen}");
     std::fs::remove_dir_all(&dir).unwrap();
 }
 
@@ -614,12 +654,27 @@ fn go_live_switches_between_two_cameras() {
     let cameras = [lavfi_camera("color=c=blue:size=1280x720:rate=30"), lavfi_camera("color=c=green:size=1280x720:rate=30")].concat();
     let p = Plan { stream: vec![dead], cameras, look: Some(only(Scene::Camera, "x")), ..plan(ff.clone(), &dir, Sound::None) };
     let active = p.controls.camera.clone();
-    let ended = record_for(p, 7.0, move |_, t| if t > 3.5 { active.store(1, std::sync::atomic::Ordering::Relaxed) });
+    // Waited for: the first camera's picture, a second and a half of it, the switch; the second camera's picture,
+    // a second and a half of it.
+    let mut m = Marks::default();
+    let ended = record_while(p, 40.0, |rec, t| {
+        if m.seen.is_none() && rec.camera_seen() == Some(true) { m.seen = Some(t) }
+        if m.changed.is_none() && m.seen.is_some_and(|s| t > s + 1.5) { active.store(1, std::sync::atomic::Ordering::Relaxed); m.changed = Some(t) }
+        // The writer looks at the switch within a picture; the second camera's state is seen after that.
+        if m.changed.is_some_and(|c| t > c + 0.3) && m.seen_again.is_none() && rec.camera_seen() == Some(true) { m.seen_again = Some(t) }
+        if m.end.is_none() && let Some(a) = m.seen_again && t > a + 1.5 { m.end = Some(t) }
+        m.end.is_none()
+    });
     assert_eq!(ended.problem, None, "{ended:?}");
+    assert!(m.end.is_some(), "a camera never sent a picture: {m:?}");
+    // In order, every quarter second (no fixed second: a busy computer's file can run behind the clock): the first
+    // camera (B), then the second (G), and not the first again.
     let rec = dir.join("Recording test.mp4");
-    let (first, second) = (frame_at(&ff, &dir, &rec, "2").get_pixel(640, 360).0, frame_at(&ff, &dir, &rec, "5.5").get_pixel(640, 360).0);
-    assert!(is_blue(first), "the first camera: {first:?}");
-    assert!(second[1] > 100 && second[2] < 60 && second[0] < 60, "the second camera: {second:?}");
+    let seen: String = quarter_seconds(&ff, &dir, &rec).iter().map(|f| f.get_pixel(640, 360).0)
+        .map(|p| if is_blue(p) { 'B' } else if p[1] > 100 && p[2] < 60 && p[0] < 60 { 'G' } else { '.' }).collect();
+    let first_g = seen.find('G').unwrap_or_else(|| panic!("the second camera never came: {seen} ({m:?})"));
+    assert!(seen[..first_g].contains('B'), "the first camera, first: {seen}");
+    assert!(!seen[first_g..].contains('B'), "the second camera holds: {seen}");
     std::fs::remove_dir_all(&dir).unwrap();
 }
 
@@ -731,6 +786,76 @@ fn a_camera_that_stops_drops_out_and_comes_back() {
         assert!(seen[gap..].contains('C'), "{scene:?}: the camera back: {seen}");
         std::fs::remove_dir_all(&dir).unwrap();
     }
+}
+
+/// More settings, for real: 60 pictures a second, an MKV, cut into pieces; and "Save the last minutes" while it
+/// records. The pieces play one after the other, the last minutes are a file of their own.
+#[test]
+fn more_settings_make_an_mkv_in_pieces_and_save_the_last_minutes() {
+    use super::super::advanced::{Format, Keep, More};
+    let Some(ff) = ffmpeg() else { return };
+    let dir = scratch("more");
+    let more = More { fps: 60, keep: Keep { format: Format::Mkv, split_minutes: 30, ..Keep::default() }, ..More::default() };
+    // Pieces of half an hour are too long for a test: one of 2 s is asked of `split` itself below.
+    let p = Plan { out: dir.join("Recording test.mkv"), more, ..plan(ff.clone(), &dir, Sound::None) };
+    let mut saved: Option<Result<PathBuf, String>> = None;
+    let ended = record_while(p, 20.0, |rec, t| {
+        // Once the recording has some seconds on disk (its FFmpeg can be slow to start while the suite runs).
+        if t > 6.0 && saved.is_none() { saved = Some(rec.save_last(1)()) }
+        t < 7.0
+    });
+    assert_eq!(ended.problem, None, "{ended:?}");
+    let file = dir.join("Recording test.mkv");
+    assert_eq!((ended.file.as_deref(), ended.pieces.len(), ended.kept_mkv), (Some(file.as_path()), 0, false), "shorter than a piece: whole");
+    assert!(!ended.toast().1, "an MKV asked for is no trouble");
+    let (streams, secs) = probe(&file);
+    assert_eq!(streams[0].1, "h264");
+    let rate = std::process::Command::new("ffprobe").args(["-v", "error", "-select_streams", "v:0", "-show_entries", "stream=r_frame_rate", "-of", "csv=p=0"]).arg(&file).output().unwrap();
+    assert_eq!(String::from_utf8_lossy(&rate.stdout).trim(), "60/1");
+    // The last minute, saved while it recorded (all of the 6 s so far).
+    let last = saved.expect("asked").expect("saved");
+    assert_eq!(last, dir.join("Recording test last 1 minutes.mkv"));
+    let (_, last_secs) = probe(&last);
+    assert!(last_secs > 2.0 && last_secs < secs, "{last_secs} of {secs}");
+    // Cut into pieces of 2 s: three or so, the whole gone, each playable.
+    let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap();
+    let pieces = rt.block_on(split(&ff, &file, 2, Format::Mkv));
+    assert!(pieces.len() >= 2, "{pieces:?}");
+    assert!(!file.exists() && pieces[0] == dir.join("Recording test part 1.mkv"));
+    let total: f64 = pieces.iter().map(|p| probe(p).1).sum();
+    assert!((total - secs).abs() < 0.5, "{total} of {secs}");
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// Live with "record without the words" on (More settings): a second recording beside the first, the camera alone
+/// where the stream has the words over it, with the recording's sound.
+#[test]
+fn go_live_records_the_stream_without_the_words_too() {
+    use super::super::advanced::{Keep, More};
+    let Some(ff) = ffmpeg() else { return };
+    let dir = scratch("clean");
+    let dead = format!("rtmp://127.0.0.1:{}/live/TEST-KEY", std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port());
+    let more = More { keep: Keep { clean: true, ..Keep::default() }, ..More::default() };
+    let mut m = Marks::default();
+    let ended = record_while(Plan { stream: vec![dead], cameras: lavfi_camera("color=c=blue:size=1280x720:rate=30"), more,
+        look: Some(only(Scene::CameraWords, "Amazing grace how sweet the sound")), ..plan(ff.clone(), &dir, Sound::None) }, 40.0, |rec, t| {
+        if m.seen.is_none() && rec.camera_seen() == Some(true) { m.seen = Some(t) }
+        m.seen.is_none_or(|s| t < s + 3.0)
+    });
+    assert_eq!(ended.problem, None, "{ended:?}");
+    let seen = m.seen.unwrap_or_else(|| panic!("the camera never sent a picture"));
+    let (rec, clean) = (dir.join("Recording test.mp4"), dir.join("Recording test clean.mp4"));
+    assert!(clean.is_file() && !dir.join("Recording test clean.recording.mkv").exists(), "the clean recording, finished");
+    let (streams, secs) = probe(&clean);
+    assert!(streams.iter().any(|s| s.0 == "video" && s.2 == 1280) && streams.iter().any(|s| s.0 == "audio"), "picture and sound: {streams:?}");
+    assert!(secs > 2.0, "{secs}");
+    let at = format!("{:.2}", seen + 1.5);
+    let (with, without) = (frame_at(&ff, &dir, &rec, &at), frame_at(&ff, &dir, &clean, &at));
+    let white = |img: &image::RgbImage| (0..1280).step_by(4).flat_map(|x| (520..700).step_by(4).map(move |y| (x, y))).filter(|(x, y)| img.get_pixel(*x, *y).0.iter().all(|c| *c > 200)).count();
+    assert!(white(&with) > 50, "the words in the stream: {}", white(&with));
+    assert_eq!(white(&without), 0, "none in the clean recording");
+    assert!(is_blue(without.get_pixel(640, 600).0), "the camera where the words were: {:?}", without.get_pixel(640, 600).0);
+    std::fs::remove_dir_all(&dir).unwrap();
 }
 
 /// Live with the words file on: the words alone are recorded beside the recording, see-through around them, with

@@ -66,6 +66,14 @@ pub struct RecordUi {
     viewers_age: Cell<u32>,
     /// Go Live: the church's own scenes, listed after the built-in ones on the scene button.
     own_scenes: RefCell<Vec<stream::own_scenes::OwnScene>>,
+    /// The video encoder of the recording under way, and whether Settings left the choice to the app.
+    encoder: RefCell<String>,
+    encoder_auto: Cell<bool>,
+    /// Seconds the computer was behind while live, and the most viewers at once (the report after a stream).
+    slow_secs: Cell<u32>,
+    viewers_most: Cell<i32>,
+    /// More settings: the minutes "Save last" keeps (0: no button).
+    replay_minutes: Cell<u32>,
     /// Tests: how the recording ended, waited for by `testing::wait_ended` (no event loop to deliver it).
     #[cfg(test)]
     ended: RefCell<Option<tokio::sync::oneshot::Receiver<Ended>>>,
@@ -140,8 +148,11 @@ impl Operator {
         // recording starts either (the operator asked for a stream).
         let mut titles = vec![];
         let mut addresses = vec![];
-        // Which of `addresses` get the tall picture, in the same order.
+        // Which of `addresses` get the tall picture, and each one's own quality, in the same order.
         let mut talls: Vec<bool> = vec![];
+        let mut qualities: Vec<stream::Quality> = vec![];
+        // The services the stream goes to (HEVC only when all of them take it).
+        let mut services: Vec<stream::Service> = vec![];
         // Signed in: the broadcast is made, and its address got, as the recording is got ready.
         let mut signed: Vec<(stream::Destination, String)> = vec![];
         // NDI out alone is enough to go live (a church streaming from OBS takes the app's picture over NDI).
@@ -157,6 +168,8 @@ impl Operator {
             if good.is_empty() && signed.is_empty() && !ndi_only { return self.toast(stream::tr::nothing_ready(), true) }
             titles = keyed.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.title().to_string()).collect();
             talls = keyed.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.tall).collect();
+            qualities = keyed.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.quality).collect();
+            services = keyed.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.service).chain(signed.iter().map(|(d, _)| d.service)).collect();
             self.record.slow_told.borrow_mut().clear();
             self.record.never_told.borrow_mut().clear();
             self.record.camera_was.set(None);
@@ -173,7 +186,7 @@ impl Operator {
             thumbnail: prefs.stream_thumbnail.clone(),
             scheduled: if service == stream::Service::YouTube { prefs.stream_scheduled.clone() } else { String::new() },
         };
-        let signed_tall: Vec<(String, bool)> = signed.iter().map(|(d, _)| (d.title().to_string(), d.tall)).collect();
+        let signed_tall: Vec<(String, bool, stream::Quality)> = signed.iter().map(|(d, _)| (d.title().to_string(), d.tall, d.quality)).collect();
         let signed: Vec<(stream::Destination, String, stream::accounts::Details)> = signed.into_iter().map(|(d, t)| { let x = details(d.service); (d, t, x) }).collect();
         self.record.starting.set(true);
         let prefs_pc = prefs.pc_sound(&app_output);
@@ -213,7 +226,24 @@ impl Operator {
         let live_prefs = prefs.clone();
         let (ids, ends) = (stream::accounts::app_ids(), stream::accounts::app_ends());
         let scheduled_id = prefs.stream_scheduled.clone();
-        off_ui(self, move || (Plan::make(&data, &prefs), make_broadcasts(&ids, &ends, signed)), move |(plan, made)| {
+        // The file's `{title}`: the service's name.
+        let title = self.app().data.lock().unwrap().service().map(|s| s.name.clone()).unwrap_or_default();
+        let making = record::run::Making { title, services, live };
+        // Go Live: are the cameras and the sound input there and sending? Looked at while the rest is got ready.
+        let wanted = live.then(|| stream::preflight::Wanted {
+            cameras: prefs.cameras().into_iter().map(|(c, _)| c).collect(),
+            sound: match prefs.sound() { record::Sound::Input(name) => Some(name), _ => None },
+        });
+        let auto_encoder = prefs.encoder.is_empty();
+        let replay = prefs.more.keep.replay_minutes;
+        off_ui(self, move || {
+            let missing = std::thread::scope(|s| {
+                let check = wanted.as_ref().map(|w| s.spawn(|| run::find_ffmpeg(&data).map(|ff| stream::preflight::check(&ff, w)).unwrap_or_default()));
+                let made = (Plan::make_with(&data, &prefs, &making), make_broadcasts(&ids, &ends, signed));
+                (made, check.map(|c| c.join().unwrap_or_default()).unwrap_or_default())
+            });
+            (missing.0.0, missing.0.1, missing.1)
+        }, move |(plan, made, missing)| {
             let Some(op) = me.upgrade() else { return };
             op.record.starting.set(false);
             let mut broadcasts = vec![];
@@ -221,7 +251,8 @@ impl Operator {
                 match r {
                     Ok(b) => {
                         addresses.push(b.address.clone());
-                        talls.push(signed_tall.iter().any(|(t, tall)| *t == title && *tall));
+                        talls.push(signed_tall.iter().any(|(t, tall, _)| *t == title && *tall));
+                        qualities.push(signed_tall.iter().find(|(t, _, _)| *t == title).map(|(_, _, q)| *q).unwrap_or_default());
                         titles.push(title.clone());
                         broadcasts.push((title, b))
                     }
@@ -237,8 +268,17 @@ impl Operator {
                 op.record.history.borrow_mut().clear();
             }
             let names = titles.join(", ");
+            // What is not there or not sending, said once each (the stream still goes out).
+            if plan.is_ok() { for m in &missing { op.toast(m.words(), true) } }
             match plan {
                 Ok(mut plan) => {
+                    // Each destination that differs from the main stream gets its own picture from its sender.
+                    let full = if plan.kbps > 0 { plan.kbps } else { plan.preset.max_kbps() };
+                    plan.ways = qualities.iter().zip(talls.iter().chain(std::iter::repeat(&false)))
+                        .map(|(q, tall)| stream::send::Way { own: q.own(*tall, plan.preset, full, plan.encoder, plan.more.fps()), ..Default::default() }).collect();
+                    *op.record.encoder.borrow_mut() = plan.encoder.to_string();
+                    op.record.encoder_auto.set(auto_encoder);
+                    op.record.replay_minutes.set(replay);
                     if live {
                         plan.pc_sound = prefs_pc;
                         plan.cameras = cameras;
@@ -279,6 +319,8 @@ impl Operator {
         *self.record.input.borrow_mut() = match &plan.sound { record::Sound::Input(name) => name.clone(), _ => String::new() };
         self.record.silent_was.set(false);
         *self.record.slow.borrow_mut() = Default::default();
+        self.record.slow_secs.set(0);
+        self.record.viewers_most.set(-1);
         *self.record.marks.borrow_mut() = Default::default();
         self.ui.set_clipping(false);
         let (tx, rx) = tokio::sync::oneshot::channel::<Ended>();
@@ -414,14 +456,32 @@ impl Operator {
         self.ui.set_chat_on(false);
     }
 
-    /// After a stream: how long it ran and how each destination did.
+    /// After a stream: how long it ran and how each destination did, then (when there is more to say) what the
+    /// computer left out, which destinations got a lighter stream, and the most viewers. All of it is kept in the
+    /// logs (`stream::report`).
     pub(crate) fn say_stream_summary(&self, secs: u64) {
+        let report = self.stream_report(secs);
+        if report.rows.is_empty() { return }
+        let trouble = report.rows.iter().any(|r| r.drops > 0 || !r.ever);
+        self.toast(report.summary(), trouble);
+        if let Some(more) = report.more() { self.toast(more, report.trouble()) }
+        stream::report::keep(&self.app().store.root.join("logs"), &report, chrono::Local::now().naive_local());
+    }
+
+    /// The report of the stream under way (`secs` long).
+    fn stream_report(&self, secs: u64) -> stream::report::Report {
         let history = self.record.history.borrow();
-        let rows: Vec<(String, u32, bool)> = self.record.links.borrow().iter().enumerate()
-            .map(|(i, (name, _))| { let (drops, ever, _) = history.get(i).copied().unwrap_or_default(); (name.clone(), drops, ever) }).collect();
-        if rows.is_empty() { return }
-        let trouble = rows.iter().any(|(_, drops, ever)| *drops > 0 || !ever);
-        self.toast(stream::tr::summary(secs, &rows), trouble);
+        let (links, dropped) = self.record.rec.borrow().as_ref().map(|r| (r.links(), r.dropped())).unwrap_or_default();
+        let rows = self.record.links.borrow().iter().enumerate().map(|(i, (name, _))| {
+            let (drops, ever, _) = history.get(i).copied().unwrap_or_default();
+            let link = links.get(i).copied().unwrap_or_default();
+            stream::report::Row { name: name.clone(), drops, ever, lowest_kbps: link.lowest_kbps, skips: link.skips }
+        }).collect();
+        stream::report::Report {
+            secs, rows, dropped, slow_secs: self.record.slow_secs.get(),
+            viewers: u64::try_from(self.record.viewers_most.get()).ok().filter(|_| !self.record.broadcasts.borrow().is_empty()),
+            encoder: self.record.encoder.borrow().clone(),
+        }
     }
 
     fn recording_ended(&self, ended: Ended) {
@@ -455,6 +515,21 @@ impl Operator {
         let open = self.record.marks.borrow_mut().toggle(at);
         self.ui.set_clipping(open);
         self.toast(if open { record::tr::clip_started() } else { record::tr::clip_marked() }, false);
+    }
+
+    /// "Save last N min": the last minutes of the recording so far, as a video of its own (More settings).
+    pub fn save_last_minutes(&self) {
+        let minutes = self.record.replay_minutes.get();
+        let Some(job) = self.record.rec.borrow().as_ref().filter(|_| minutes > 0).map(|r| r.save_last(minutes)) else { return };
+        self.toast(record::tr::saving_last(minutes), false);
+        let me = self.me.clone();
+        off_ui(self, job, move |r| {
+            let Some(op) = me.upgrade() else { return };
+            match r {
+                Ok(file) => op.toast(record::tr::saved_last(&file.display().to_string()), false),
+                Err(file) => op.toast(record::tr::save_last_failed(&file), true),
+            }
+        });
     }
 
     /// A slide action or macro asked for a clip to start or end (`App::clip_request`).
@@ -554,8 +629,14 @@ impl Operator {
     /// far behind the writer was in the last second (`None`: not recording, and the next recording starts afresh).
     pub(crate) fn say_slow(&self, lag: Option<Duration>) {
         let Some(lag) = lag else { *self.record.slow.borrow_mut() = Default::default(); return };
+        if lag > record::slow::BEHIND { self.record.slow_secs.set(self.record.slow_secs.get() + 1) }
         let said = self.record.slow.borrow_mut().note(lag);
         match said {
+            // The processor's encoder, chosen by the app: next time the graphics card's encoder is tried first.
+            Some(record::slow::Say::TooSlow) if self.record.encoder_auto.get() && *self.record.encoder.borrow() == "libx264" => {
+                self.toast(format!("{} {}", record::tr::too_slow(), record::tr::too_slow_next_time()), true);
+                if let Err(e) = self.app().edit_untracked(|d| { d.settings.record.x264_too_slow = true; Ok(()) }) { eprintln!("recording: could not keep that x264 is too slow here: {e}") }
+            }
             Some(record::slow::Say::TooSlow) => self.toast(record::tr::too_slow(), true),
             Some(record::slow::Say::Smooth) => self.toast(record::tr::smooth_again(), false),
             None => {}
@@ -734,6 +815,7 @@ impl Operator {
 
     fn show_recording(&self, on: bool) {
         self.ui.set_recording(on);
+        self.ui.set_replay_minutes(if on { self.record.replay_minutes.get().min(i32::MAX as u32) as i32 } else { 0 });
         if !on {
             self.record.live.set(false);
             self.ui.set_live(false);
@@ -795,6 +877,7 @@ impl Operator {
             let lag = op.record.rec.borrow().as_ref().map(Recording::lag);
             op.say_slow(lag);
             op.ask_viewers();
+            op.record.viewers_most.set(op.record.viewers_most.get().max(op.ui.get_live_watching()));
             if op.ui.get_chat_on() { op.show_chat() }
             op.show_health();
         });
@@ -839,6 +922,8 @@ pub(super) fn wire(op: &Rc<Operator>) {
     op.ui.on_toggle_clip(move || if let Some(op) = me.upgrade() { op.toggle_clip() });
     let me = Rc::downgrade(op);
     op.ui.on_go_live(move || if let Some(op) = me.upgrade() { op.go_live() });
+    let me = Rc::downgrade(op);
+    op.ui.on_save_last(move || if let Some(op) = me.upgrade() { op.save_last_minutes() });
     let me = Rc::downgrade(op);
     op.ui.on_hold_stream(move || if let Some(op) = me.upgrade() { op.hold_stream() });
     let me = Rc::downgrade(op);

@@ -1098,3 +1098,90 @@ fn settings_keep_the_streams_sound_setup_other_inputs_filters_and_listen() {
     crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
     assert_eq!((prefs.stream_sound_mode, prefs.filters().board.high_db), (Mode::Custom, 9));
 }
+
+#[test]
+fn settings_keep_instagram_x_and_tiktok_with_their_servers_and_each_ones_own_quality() {
+    use crate::ui::SettingsDlg;
+    use slint::ComponentHandle;
+    let app = test_app();
+    let room = Arc::new(Room::default());
+    let op = open(&app, &room);
+    let g = op.ui.global::<SettingsDlg>();
+    // Facebook has a quality of its own (More settings) while it is off.
+    let own = stream::Quality { size: Some(Preset::P720), kbps: 2500 };
+    let mut prefs = RecordPrefs { stream: vec![stream::Destination { id: stream::built_in_id(1), service: stream::Service::Facebook, quality: own, ..Default::default() }], ..RecordPrefs::default() };
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    g.set_stream_on_4(true);
+    g.set_stream_url_4(" rtmps://edgetee-upload.example:443/rtmp/ ".into());
+    g.set_stream_on_6(true);
+    g.set_stream_tall_6(true);
+    g.set_stream_url_6("rtmp://push.example/game/".into());
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    let rows: Vec<(stream::Service, bool, bool, String)> = prefs.stream.iter().map(|d| (d.service, d.on, d.tall, d.url.clone())).collect();
+    assert_eq!(rows, [
+        (stream::Service::Facebook, false, false, String::new()),
+        (stream::Service::Instagram, true, false, "rtmps://edgetee-upload.example:443/rtmp/".into()),
+        (stream::Service::TikTok, true, true, "rtmp://push.example/game/".into()),
+    ]);
+    assert_eq!(prefs.stream[0].quality, own, "kept though the easy page does not show it");
+    crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
+    assert!(g.get_stream_on_4() && g.get_stream_on_6() && g.get_stream_tall_6() && !g.get_stream_on_5());
+    assert_eq!(g.get_stream_url_6(), "rtmp://push.example/game/");
+}
+
+#[test]
+fn after_a_stream_the_report_says_more_when_something_went_wrong_and_is_kept_in_the_logs() {
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    op.record.live.set(true);
+    *op.record.links.borrow_mut() = vec![("YouTube".into(), false)];
+    op.say_links(&[stream::send::Link { up: true, ..Default::default() }]);
+    // Twelve seconds in which the computer was behind.
+    for _ in 0..12 { op.say_slow(Some(Duration::from_millis(900))) }
+    op.say_stream_summary(600);
+    let t = toasts(&op);
+    assert_eq!(t[t.len() - 2], (stream::tr::summary(600, &[("YouTube".into(), 0, true)]), false));
+    assert!(t[t.len() - 1].0.contains("12 seconds") && t[t.len() - 1].1, "{:?}", t.last());
+    let log = std::fs::read_to_string(stream::report::log_file(&app.store.root.join("logs"))).unwrap();
+    assert!(log.contains("stream of 10:00 (600 s)") && log.contains("  YouTube: connected, lost 0 times"), "{log}");
+}
+
+#[test]
+fn x264_too_slow_with_the_encoder_left_to_the_app_tries_the_graphics_card_next_time() {
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    *op.record.encoder.borrow_mut() = "libx264".into();
+    op.record.encoder_auto.set(true);
+    for _ in 0..30 { op.say_slow(Some(Duration::from_millis(1200))) }
+    assert_eq!(toasts(&op).last(), Some(&(format!("{} {}", record::tr::too_slow(), record::tr::too_slow_next_time()), true)));
+    assert!(app.data.lock().unwrap().settings.record.x264_too_slow, "kept for next time");
+    // Chosen by hand: left as it is.
+    let app2 = test_app();
+    let op2 = open(&app2, &room);
+    *op2.record.encoder.borrow_mut() = "libx264".into();
+    op2.record.encoder_auto.set(false);
+    for _ in 0..30 { op2.say_slow(Some(Duration::from_millis(1200))) }
+    assert_eq!(toasts(&op2).last(), Some(&(record::tr::too_slow(), true)));
+    assert!(!app2.data.lock().unwrap().settings.record.x264_too_slow);
+}
+
+#[test]
+fn the_save_last_button_shows_only_while_recording_with_minutes_to_keep() {
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    op.record.replay_minutes.set(5);
+    op.show_recording(true);
+    assert_eq!(op.ui.get_replay_minutes(), 5);
+    op.show_recording(false);
+    assert_eq!(op.ui.get_replay_minutes(), 0);
+    // Not recording: pressing it does nothing.
+    let before = toasts(&op).len();
+    op.save_last_minutes();
+    assert_eq!(toasts(&op).len(), before);
+}

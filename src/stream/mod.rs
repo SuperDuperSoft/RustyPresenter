@@ -16,6 +16,7 @@ pub mod board_feed;
 pub mod camera_feed;
 pub mod captions;
 pub mod chat;
+pub mod clean_file;
 pub mod compose;
 pub mod delay;
 pub mod extras;
@@ -26,10 +27,13 @@ pub mod level;
 pub mod live_info;
 pub mod lyrics;
 pub mod ndi;
+pub mod network_card;
 pub mod own_scenes;
 pub mod pc_sound;
 pub mod pictures;
+pub mod preflight;
 pub mod ptz;
+pub mod report;
 pub mod scene;
 pub mod send;
 pub mod speed;
@@ -53,6 +57,12 @@ pub enum Service {
     Twitch,
     /// Any other server: its own address (RTMP, RTMPS or SRT) and, where it has one, a key.
     Custom,
+    /// Instagram Live (keys from Live Producer, for some accounts only), X (Media Studio Producer) and TikTok
+    /// LIVE (keys for some accounts only). Each shows its server address with the key; it can differ from one
+    /// account or broadcast to the next, so it can be typed (`Destination::url`).
+    Instagram,
+    X,
+    TikTok,
 }
 
 impl Service {
@@ -62,12 +72,29 @@ impl Service {
             Service::YouTube => Some("rtmp://a.rtmp.youtube.com/live2"),
             Service::Facebook => Some("rtmps://live-api-s.facebook.com:443/rtmp"),
             Service::Twitch => Some("rtmp://live.twitch.tv/app"),
-            Service::Custom => None,
+            Service::Instagram => Some("rtmps://live-upload.instagram.com:443/rtmp"),
+            Service::X => Some("rtmps://va.pscp.tv:443/x"),
+            // TikTok gives each account a server of its own with the key: there is no address for everyone.
+            Service::TikTok | Service::Custom => None,
         }
     }
 
     pub fn name(self) -> &'static str {
-        match self { Service::YouTube => "YouTube", Service::Facebook => "Facebook", Service::Twitch => "Twitch", Service::Custom => "Custom" }
+        match self {
+            Service::YouTube => "YouTube", Service::Facebook => "Facebook", Service::Twitch => "Twitch", Service::Custom => "Custom",
+            Service::Instagram => "Instagram", Service::X => "X", Service::TikTok => "TikTok",
+        }
+    }
+
+    /// Whether the service shows its own server address beside the key, which can be typed in place of `ingest`.
+    pub fn own_server(self) -> bool { matches!(self, Service::Custom | Service::Instagram | Service::X | Service::TikTok) }
+
+    /// Whether the service takes a picture made with `codec`. Every service takes H.264; YouTube also takes HEVC
+    /// and AV1 (over enhanced RTMP); a custom server is taken at its word. With one that does not take it, the
+    /// stream is H.264 for all (`record::advanced::codec_for`).
+    pub fn accepts(self, codec: crate::record::advanced::Codec) -> bool {
+        use crate::record::advanced::Codec;
+        codec == Codec::H264 || matches!(self, Service::YouTube | Service::Custom)
     }
 }
 
@@ -89,6 +116,39 @@ pub struct Destination {
     /// Gets the tall picture (9:16, for phones: Shorts, Reels, TikTok) instead of the wide one.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub tall: bool,
+    /// Its own picture size and bitrate, when it should differ from the main stream (its sender encodes the
+    /// picture again for it: `send::Way`); the default is the main stream's.
+    #[serde(default, skip_serializing_if = "Quality::is_same")]
+    pub quality: Quality,
+}
+
+/// A destination's own picture size and bitrate.
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[serde(default)]
+pub struct Quality {
+    /// `None`: the main stream's size.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub size: Option<crate::record::Preset>,
+    /// kbit/s; 0: the main stream's (or, with a size of its own, that size's own).
+    #[serde(skip_serializing_if = "is_zero")]
+    pub kbps: u32,
+}
+
+fn is_zero(v: &u32) -> bool { *v == 0 }
+
+impl Quality {
+    pub fn is_same(&self) -> bool { self.size.is_none() && self.kbps == 0 }
+
+    /// How its sender encodes the picture again (`send::Own`), for a main stream of `main` at `main_kbps`, made by
+    /// `encoder` at `fps`; `None` when it is the main stream's (copied, no second encode). A tall destination gets
+    /// the size turned on its side.
+    pub fn own(&self, tall: bool, main: crate::record::Preset, main_kbps: u32, encoder: &'static str, fps: u32) -> Option<send::Own> {
+        let size = self.size.filter(|s| *s != main);
+        let kbps = if self.kbps > 0 { self.kbps } else { size.map_or(main_kbps, |s| s.max_kbps()) };
+        if size.is_none() && kbps == main_kbps { return None }
+        let size = size.map(|s| if tall { crate::record::args::tall_size(s.size()) } else { s.size() });
+        Some(send::Own { size, kbps, encoder, fps })
+    }
 }
 
 /// Why a destination cannot be streamed to.
@@ -102,11 +162,14 @@ impl Destination {
     /// "streamid" is part of the address).
     pub fn address(&self) -> Result<String, Problem> {
         let key = self.key.trim();
-        let base = match self.service.ingest() {
+        // Instagram, X and TikTok: the server they showed with the key, when it was typed.
+        let typed = self.service != Service::Custom && self.service.own_server() && !self.url.trim().is_empty();
+        let base = match self.service.ingest().filter(|_| !typed) {
             Some(b) => {
                 if key.is_empty() { return Err(Problem::NoKey) }
                 b.to_string()
             }
+            None if self.service != Service::Custom && key.is_empty() && !self.url.trim().is_empty() => return Err(Problem::NoKey),
             None => {
                 let url = self.url.trim();
                 if url.is_empty() { return Err(Problem::NoAddress) }
@@ -122,7 +185,8 @@ impl Destination {
 
     /// The address as it may be shown or logged: the key is left out.
     pub fn shown(&self) -> String {
-        let base = self.service.ingest().map(str::to_string).unwrap_or_else(|| {
+        let typed = self.service.own_server() && !self.url.trim().is_empty();
+        let base = self.service.ingest().filter(|_| !typed).map(str::to_string).unwrap_or_else(|| {
             // A custom address may carry its key itself (SRT's streamid, a query): only the server is shown.
             let url = self.url.trim();
             let end = url.find(['?', '#']).unwrap_or(url.len());
@@ -161,7 +225,7 @@ fn tee_escape(s: &str) -> String {
 /// With `mix_only` (the file has more sound tracks than the mix), each address gets the picture and the first
 /// sound only.
 pub fn tee(file: &Path, addresses: &[String], mix_only: bool) -> String {
-    let mut parts = vec![format!("[f=matroska]{}", tee_escape(&file.to_string_lossy().replace('\\', "/")))];
+    let mut parts = vec![format!("[f=matroska:flush_packets=1:cluster_time_limit=2000]{}", tee_escape(&file.to_string_lossy().replace('\\', "/")))];
     parts.extend(addresses.iter().map(|a| tee_part(a, mix_only)));
     parts.join("|")
 }
@@ -227,6 +291,10 @@ pub mod tr {
     pub fn no_key() -> String { tr!("it has no stream key") }
     pub fn no_address() -> String { tr!("it has no address") }
     pub fn bad_address() -> String { tr!("its address or key is not one a stream can be sent to") }
+    /// Settings: beside Instagram, X and TikTok.
+    pub fn some_accounts_only() -> String {
+        tr!("Instagram, X and TikTok give stream keys only to some accounts (TikTok asks for enough followers; Instagram's come from Live Producer on a computer). Each shows a server address with the key: paste both. Their keys often work for one broadcast only.")
+    }
     pub fn lighter(name: &str, kbps: u32) -> String {
         tr!("{name}: the internet there is slow, so it gets a lighter stream ({kbps} kbit/s). The recording and the other destinations keep the full picture.", name = name, kbps = kbps)
     }
@@ -255,11 +323,17 @@ impl Problem {
 
 /// The four destinations Settings offers, each with an id of its own that never changes (its key is kept under
 /// it): YouTube, Facebook, Twitch and one custom server.
-pub const BUILT_IN: [(Service, u128); 4] = [(Service::YouTube, 0x5254_5354_5245_414d_0000_0000_0000_0001), (Service::Facebook, 0x5254_5354_5245_414d_0000_0000_0000_0002),
-    (Service::Twitch, 0x5254_5354_5245_414d_0000_0000_0000_0003), (Service::Custom, 0x5254_5354_5245_414d_0000_0000_0000_0004)];
+/// Instagram, X and TikTok came later, at the end, so the first four keep their rows.
+pub const BUILT_IN: [(Service, u128); 7] = [(Service::YouTube, 0x5254_5354_5245_414d_0000_0000_0000_0001), (Service::Facebook, 0x5254_5354_5245_414d_0000_0000_0000_0002),
+    (Service::Twitch, 0x5254_5354_5245_414d_0000_0000_0000_0003), (Service::Custom, 0x5254_5354_5245_414d_0000_0000_0000_0004),
+    (Service::Instagram, 0x5254_5354_5245_414d_0000_0000_0000_0005), (Service::X, 0x5254_5354_5245_414d_0000_0000_0000_0006),
+    (Service::TikTok, 0x5254_5354_5245_414d_0000_0000_0000_0007)];
+
+/// How many destinations Settings offers.
+pub const ROWS: usize = BUILT_IN.len();
 
 /// The id of Settings' row `i`.
-pub fn built_in_id(i: usize) -> Uuid { Uuid::from_u128(BUILT_IN[i.min(3)].1) }
+pub fn built_in_id(i: usize) -> Uuid { Uuid::from_u128(BUILT_IN[i.min(ROWS - 1)].1) }
 
 /// A stream's title from a pattern: `{date}` is the day ("November 15, 2026"), `{service}` the service's name.
 pub fn title(pattern: &str, date: chrono::NaiveDate, service: &str) -> String {
@@ -271,7 +345,7 @@ mod tests {
     use super::*;
 
     fn dest(service: Service, url: &str, key: &str) -> Destination {
-        Destination { id: Uuid::new_v4(), name: String::new(), service, url: url.into(), key: key.into(), on: true, tall: false }
+        Destination { id: Uuid::new_v4(), name: String::new(), service, url: url.into(), key: key.into(), on: true, tall: false, quality: Quality::default() }
     }
 
     #[test]
@@ -281,6 +355,55 @@ mod tests {
         assert_eq!(dest(Service::Twitch, "", "live_1").address().as_deref(), Ok("rtmp://live.twitch.tv/app/live_1"));
         assert_eq!(dest(Service::YouTube, "", "  ").address(), Err(Problem::NoKey));
         assert_eq!(dest(Service::YouTube, "", "two words").address(), Err(Problem::BadAddress));
+    }
+
+    #[test]
+    fn instagram_x_and_tiktok_use_the_server_they_show_with_the_key() {
+        assert_eq!(dest(Service::Instagram, "", "IG-1").address().as_deref(), Ok("rtmps://live-upload.instagram.com:443/rtmp/IG-1"));
+        assert_eq!(dest(Service::X, "", "x1").address().as_deref(), Ok("rtmps://va.pscp.tv:443/x/x1"));
+        // The server they show with the key wins over the usual one.
+        assert_eq!(dest(Service::Instagram, "rtmps://edgetee-upload-x.fbcdn.net:443/rtmp/", "IG-2").address().as_deref(), Ok("rtmps://edgetee-upload-x.fbcdn.net:443/rtmp/IG-2"));
+        assert_eq!(dest(Service::TikTok, "rtmp://push-rtmp-l1.tiktokcdn.com/game/", "tt").address().as_deref(), Ok("rtmp://push-rtmp-l1.tiktokcdn.com/game/tt"));
+        // TikTok has no server for everyone; each needs its key.
+        assert_eq!(dest(Service::TikTok, "", "tt").address(), Err(Problem::NoAddress));
+        assert_eq!(dest(Service::TikTok, "rtmp://push.example/game", "").address(), Err(Problem::NoKey));
+        assert_eq!(dest(Service::X, "", "").address(), Err(Problem::NoKey));
+        assert_eq!(dest(Service::TikTok, "ftp://x", "k").address(), Err(Problem::BadAddress));
+        let shown = dest(Service::TikTok, "rtmp://push.example/game?sig=SECRET", "KEY").shown();
+        assert!(!shown.contains("SECRET") && !shown.contains("KEY"), "{shown}");
+        // Rows keep their places: the first four as before, the new ones after.
+        assert_eq!(BUILT_IN.map(|b| b.0), [Service::YouTube, Service::Facebook, Service::Twitch, Service::Custom, Service::Instagram, Service::X, Service::TikTok]);
+        assert_eq!(built_in_id(3), Uuid::from_u128(0x5254_5354_5245_414d_0000_0000_0000_0004));
+        assert_eq!(built_in_id(99), built_in_id(6));
+    }
+
+    #[test]
+    fn only_youtube_and_custom_servers_take_hevc_and_av1() {
+        use crate::record::advanced::Codec;
+        for s in BUILT_IN.map(|b| b.0) { assert!(s.accepts(Codec::H264), "{s:?}") }
+        let takes: Vec<Service> = BUILT_IN.map(|b| b.0).into_iter().filter(|s| s.accepts(Codec::Hevc) && s.accepts(Codec::Av1)).collect();
+        assert_eq!(takes, [Service::YouTube, Service::Custom]);
+    }
+
+    #[test]
+    fn a_second_encode_only_when_a_destination_differs_from_the_main_stream() {
+        use crate::record::Preset;
+        let q = |size, kbps| Quality { size, kbps };
+        assert_eq!(q(None, 0).own(false, Preset::P1080, 6000, "libx264", 30), None);
+        assert_eq!(q(Some(Preset::P1080), 0).own(false, Preset::P1080, 6000, "libx264", 30), None, "the same size: copied");
+        assert_eq!(q(None, 6000).own(false, Preset::P1080, 6000, "libx264", 30), None, "the same bitrate: copied");
+        assert_eq!(q(Some(Preset::P720), 0).own(false, Preset::P1080, 6000, "libx264", 30), Some(send::Own { size: Some((1280, 720)), kbps: 3000, encoder: "libx264", fps: 30 }));
+        assert_eq!(q(Some(Preset::P720), 2000).own(true, Preset::P1080, 6000, "h264_nvenc", 60), Some(send::Own { size: Some((720, 1280)), kbps: 2000, encoder: "h264_nvenc", fps: 60 }));
+        assert_eq!(q(None, 2500).own(false, Preset::P1080, 6000, "libx264", 30), Some(send::Own { size: None, kbps: 2500, encoder: "libx264", fps: 30 }));
+    }
+
+    #[test]
+    fn a_destination_keeps_its_own_quality() {
+        let d = Destination { quality: Quality { size: Some(crate::record::Preset::P720), kbps: 2500 }, ..dest(Service::Twitch, "", "k") };
+        let json = serde_json::to_string(&d).unwrap();
+        assert_eq!(serde_json::from_str::<Destination>(&json).unwrap().quality, d.quality);
+        let same = serde_json::to_string(&dest(Service::Twitch, "", "k")).unwrap();
+        assert!(!same.contains("quality"), "{same}");
     }
 
     #[test]
@@ -318,12 +441,12 @@ mod tests {
     fn the_tee_output_keeps_the_recording_and_lets_a_destination_fail() {
         let t = tee(Path::new(r"C:\Users\A B\Videos\RustyPresenter\2026-11-15 10.30.part.mkv"),
             &["rtmp://a.rtmp.youtube.com/live2/y|1".to_string(), "srt://h.example.org:9000?streamid=abc".to_string()], false);
-        assert_eq!(t, "[f=matroska]C:/Users/A B/Videos/RustyPresenter/2026-11-15 10.30.part.mkv\
+        assert_eq!(t, "[f=matroska:flush_packets=1:cluster_time_limit=2000]C:/Users/A B/Videos/RustyPresenter/2026-11-15 10.30.part.mkv\
             |[f=flv:onfail=ignore]rtmp://a.rtmp.youtube.com/live2/y\\|1|[f=mpegts:bsfs/v=dump_extra:onfail=ignore]srt://h.example.org:9000?streamid=abc");
-        assert_eq!(tee(Path::new("it's [1].mkv"), &[], false), "[f=matroska]it\\'s \\[1\\].mkv");
+        assert_eq!(tee(Path::new("it's [1].mkv"), &[], false), "[f=matroska:flush_packets=1:cluster_time_limit=2000]it\\'s \\[1\\].mkv");
         // A file with sound tracks of its own: the destinations get the picture and the mix.
         assert_eq!(tee(Path::new("r.mkv"), &["rtmp://x.example/live/k".to_string(), "udp://127.0.0.1:20001?pkt_size=1316".to_string()], true),
-            "[f=matroska]r.mkv|[f=flv:select=\\'v,a:0\\':onfail=ignore]rtmp://x.example/live/k|[f=mpegts:bsfs/v=dump_extra:select=\\'v,a:0\\':onfail=ignore]udp://127.0.0.1:20001?pkt_size=1316");
+            "[f=matroska:flush_packets=1:cluster_time_limit=2000]r.mkv|[f=flv:select=\\'v,a:0\\':onfail=ignore]rtmp://x.example/live/k|[f=mpegts:bsfs/v=dump_extra:select=\\'v,a:0\\':onfail=ignore]udp://127.0.0.1:20001?pkt_size=1316");
     }
 
     #[test]

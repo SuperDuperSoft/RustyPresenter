@@ -30,6 +30,7 @@ import { MusicDialog } from "dialogs/music.slint";
 import { NetworkDialog } from "dialogs/network.slint";
 import { StreamScenesDialog } from "dialogs/stream-scenes.slint";
 import { GoLiveHelperDialog } from "dialogs/go-live-helper.slint";
+import { StreamMoreDialog } from "dialogs/stream-more.slint";
 import { AutomationStrip } from "operator/automation-strip.slint";
 import { CameraStrip } from "operator/cameras.slint";
 import { FindVerseDialog } from "dialogs/find-verse.slint";
@@ -280,6 +281,9 @@ export component OperatorWindow inherits Window {
     /// Recording with a clip open (Clip pressed once).
     in property <bool> clipping;
     callback toggle-clip();
+    /// Recording, with More settings keeping the last minutes: how many (0: no "Save last" button).
+    in property <int> replay-minutes;
+    callback save-last();
     in property <string> record-time;
     callback record();
     in property <bool> can-stream;
@@ -965,6 +969,8 @@ export component OperatorWindow inherits Window {
                 recording: root.recording;
                 clipping: root.clipping;
                 toggle-clip => { root.focus-keys(); root.toggle-clip(); }
+                replay-minutes: root.replay-minutes;
+                save-last => { root.focus-keys(); root.save-last(); }
                 record-time: root.record-time;
                 record => { root.focus-keys(); root.record(); }
                 can-stream: root.can-stream;
@@ -1201,6 +1207,7 @@ export component OperatorWindow inherits Window {
             if root.dialog-kind == "network": NetworkDialog {}
             if root.dialog-kind == "stream-scenes": StreamScenesDialog {}
             if root.dialog-kind == "go-live-helper": GoLiveHelperDialog {}
+            if root.dialog-kind == "stream-more": StreamMoreDialog {}
         }
 
         for a in root.ask: AskOverlay {

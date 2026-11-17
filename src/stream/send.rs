@@ -34,6 +34,8 @@ pub struct Link {
     /// Already as light as it goes (`Ladder`), or never made lighter (`Lighter` off): skipping now is an internet
     /// too slow for this stream.
     pub lightest: bool,
+    /// The lightest stream it got (kbit/s; 0: always the full one), for the report after the stream.
+    pub lowest_kbps: u32,
 }
 
 /// Each destination's connection, in the order they were given.
@@ -127,6 +129,27 @@ pub struct Lighter {
     pub fps: u32,
 }
 
+/// How one destination's sender sends, beyond copying its feed (More settings).
+#[derive(Clone, Debug, PartialEq, Eq, Default)]
+pub struct Way {
+    /// Its own picture size and bitrate (`Destination::quality`): its sender encodes the picture again for it.
+    pub own: Option<Own>,
+    /// The network card to send from, by its address (`record::advanced::bind_args`); empty: the computer chooses.
+    pub bind: String,
+    /// SRT's safer send (`record::advanced::srt_latency`); 0: SRT's own.
+    pub srt_latency_ms: u32,
+}
+
+/// A destination's own picture: encoded again by `encoder` at `kbps`, `fps` pictures a second, made `size` when
+/// there is one.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Own {
+    pub size: Option<(u32, u32)>,
+    pub kbps: u32,
+    pub encoder: &'static str,
+    pub fps: u32,
+}
+
 /// The address of the local feed on `port`, as the recorder writes to it.
 pub fn feed(port: u16) -> String { format!("udp://127.0.0.1:{port}?pkt_size=1316") }
 
@@ -136,7 +159,7 @@ pub fn free_ports(n: usize) -> Option<Vec<u16>> { crate::platform::ports::udp(n)
 /// A sender's FFmpeg: the local feed in, the destination out, nothing encoded again; or, for a lighter stream
 /// (`light` with a bitrate above 0: encoder, kbit/s, pictures a second), the picture encoded again at that
 /// bitrate (the sound is still copied).
-pub fn sender_args(port: u16, address: &str, light: Option<(&str, u32, u32)>) -> Vec<OsString> {
+pub fn sender_args(port: u16, address: &str, light: Option<(&str, u32, u32)>, way: &Way) -> Vec<OsString> {
     // A feed that is read too slowly drops what is oldest and goes on (the recorder must never wait).
     let input = format!("udp://127.0.0.1:{port}?overrun_nonfatal=1&fifo_size=100000");
     // Three seconds of looking at the feed before sending, not FFmpeg's five: a stream that comes back is back
@@ -144,15 +167,26 @@ pub fn sender_args(port: u16, address: &str, light: Option<(&str, u32, u32)>) ->
     // picture's header, without which nothing can be sent (tried with one second: it never connected again).
     let mut a: Vec<OsString> = ["-hide_banner", "-loglevel", "warning", "-fflags", "+genpts+discardcorrupt", "-analyzeduration", "3000000", "-probesize", "5000000",
         "-i", &input].map(OsString::from).into();
-    match light {
-        Some((encoder, kbps, fps)) if kbps > 0 => {
+    // Encoded again: lighter (its internet cannot keep up), or a picture of its own.
+    let again = match (light, way.own) {
+        (Some((encoder, kbps, fps)), own) if kbps > 0 => Some((encoder, kbps, fps, own.and_then(|o| o.size))),
+        (_, Some(o)) => Some((o.encoder, o.kbps, o.fps, o.size)),
+        _ => None,
+    };
+    match again {
+        Some((encoder, kbps, fps, size)) => {
             let (rate, buf, gop) = (format!("{kbps}k"), format!("{}k", kbps * 2), (fps.max(1) * 2).to_string());
-            a.extend(["-c:a", "copy", "-c:v", encoder].map(OsString::from));
-            if encoder == "libx264" { a.extend(["-preset", "veryfast"].map(OsString::from)) }
+            a.extend(["-c:a", "copy"].map(OsString::from));
+            if let Some((w, h)) = size { a.extend(["-vf".into(), OsString::from(format!("scale={w}:{h}:flags=bicubic,setsar=1"))]) }
+            a.extend(["-c:v", encoder].map(OsString::from));
+            if encoder == "libx264" || encoder == "libx265" { a.extend(["-preset", "veryfast"].map(OsString::from)) }
             a.extend(["-b:v", &rate, "-maxrate", &rate, "-bufsize", &buf, "-g", &gop, "-pix_fmt", "yuv420p"].map(OsString::from));
         }
-        _ => a.extend(["-c", "copy"].map(OsString::from)),
+        None => a.extend(["-c", "copy"].map(OsString::from)),
     }
+    a.extend(crate::record::advanced::bind_args(address, &way.bind).into_iter().map(OsString::from));
+    let address = crate::record::advanced::srt_latency(address, way.srt_latency_ms);
+    let address = address.as_str();
     if address.to_ascii_lowercase().starts_with("srt://") {
         a.extend(["-f", "mpegts"].map(OsString::from));
     } else {
@@ -170,7 +204,7 @@ pub fn retry_after(tries: u32) -> Duration { Duration::from_secs(match tries { 0
 /// `all` are every destination's address, so nothing that is logged holds a key. With `lighter`, a destination
 /// whose internet cannot keep up gets a lighter stream (`Ladder`).
 #[allow(clippy::too_many_arguments)]
-pub async fn keep_sending(ffmpeg: PathBuf, port: u16, address: String, all: Vec<String>, index: usize, links: Links, lighter: Option<Lighter>, cancel: CancellationToken) {
+pub async fn keep_sending(ffmpeg: PathBuf, port: u16, address: String, all: Vec<String>, index: usize, links: Links, lighter: Option<Lighter>, way: Way, cancel: CancellationToken) {
     let set = |up: bool| if let Some(l) = links.lock().unwrap_or_else(|e| e.into_inner()).get_mut(index) { l.up = up };
     let ladder = lighter.as_ref().map(|l| Arc::new(Mutex::new(Ladder::new(l.full_kbps, Instant::now()))));
     let lightest = ladder.as_ref().is_none_or(|l| l.lock().unwrap_or_else(|e| e.into_inner()).lightest());
@@ -184,7 +218,7 @@ pub async fn keep_sending(ffmpeg: PathBuf, port: u16, address: String, all: Vec<
         let kbps = ladder.as_ref().map_or(0, |l| l.lock().unwrap_or_else(|e| e.into_inner()).kbps());
         let light = lighter.as_ref().map(|l| (l.encoder, kbps, l.fps));
         let mut cmd = tokio::process::Command::new(&ffmpeg);
-        cmd.args(sender_args(port, &address, light)).stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::piped());
+        cmd.args(sender_args(port, &address, light, &way)).stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::piped());
         match spawn_tree(cmd) {
             Ok(mut tree) => {
                 if let Some(err) = tree.stderr() {
@@ -228,7 +262,11 @@ pub async fn keep_sending(ffmpeg: PathBuf, port: u16, address: String, all: Vec<
         // still shown as connected: if the new one does not connect, it says so when it ends).
         if run.is_cancelled() && !cancel.is_cancelled() && let Some(ladder) = &ladder {
             let (kbps, lightest) = { let l = ladder.lock().unwrap_or_else(|e| e.into_inner()); (l.kbps(), l.lightest()) };
-            if let Some(link) = links.lock().unwrap_or_else(|e| e.into_inner()).get_mut(index) { link.kbps = kbps; link.lightest = lightest }
+            if let Some(link) = links.lock().unwrap_or_else(|e| e.into_inner()).get_mut(index) {
+                link.kbps = kbps;
+                link.lightest = lightest;
+                if kbps > 0 && (link.lowest_kbps == 0 || kbps < link.lowest_kbps) { link.lowest_kbps = kbps }
+            }
             if kbps == 0 { eprintln!("stream {}: the full stream again", index + 1) } else { eprintln!("stream {}: a lighter stream, {kbps} kbit/s", index + 1) }
             tries = 0;
             continue;
@@ -254,12 +292,12 @@ mod tests {
 
     #[test]
     fn a_sender_copies_its_local_feed_to_the_destination() {
-        let a = s(sender_args(40123, "rtmp://a.rtmp.youtube.com/live2/key", None));
+        let a = s(sender_args(40123, "rtmp://a.rtmp.youtube.com/live2/key", None, &Way::default()));
         assert!(a.windows(2).any(|w| w == ["-i", "udp://127.0.0.1:40123?overrun_nonfatal=1&fifo_size=100000"]), "{a:?}");
         assert!(a.windows(2).any(|w| w == ["-c", "copy"]) && a.windows(2).any(|w| w == ["-f", "flv"]) && a.windows(2).any(|w| w == ["-bsf:a", "aac_adtstoasc"]));
         assert_eq!(a.last().unwrap(), "rtmp://a.rtmp.youtube.com/live2/key");
         // A ladder at the full stream copies too.
-        let a = s(sender_args(40123, "srt://h.example.org:9000?streamid=x", Some(("libx264", 0, 30))));
+        let a = s(sender_args(40123, "srt://h.example.org:9000?streamid=x", Some(("libx264", 0, 30)), &Way::default()));
         assert!(a.windows(2).any(|w| w == ["-f", "mpegts"]) && !a.contains(&"aac_adtstoasc".to_string()));
         assert!(a.windows(2).any(|w| w == ["-c", "copy"]), "{a:?}");
         assert_eq!(feed(40123), "udp://127.0.0.1:40123?pkt_size=1316");
@@ -267,13 +305,29 @@ mod tests {
 
     #[test]
     fn a_lighter_stream_encodes_the_picture_again_and_copies_the_sound() {
-        let a = s(sender_args(40123, "rtmp://live.twitch.tv/app/k", Some(("libx264", 2100, 30))));
+        let a = s(sender_args(40123, "rtmp://live.twitch.tv/app/k", Some(("libx264", 2100, 30)), &Way::default()));
         assert!(!a.windows(2).any(|w| w == ["-c", "copy"]), "{a:?}");
         for pair in [["-c:a", "copy"], ["-c:v", "libx264"], ["-b:v", "2100k"], ["-maxrate", "2100k"], ["-bufsize", "4200k"], ["-g", "60"], ["-f", "flv"]] {
             assert!(a.windows(2).any(|w| w == pair), "{pair:?} in {a:?}");
         }
-        let a = s(sender_args(40123, "rtmp://live.twitch.tv/app/k", Some(("h264_nvenc", 1500, 30))));
+        let a = s(sender_args(40123, "rtmp://live.twitch.tv/app/k", Some(("h264_nvenc", 1500, 30)), &Way::default()));
         assert!(a.windows(2).any(|w| w == ["-c:v", "h264_nvenc"]) && !a.contains(&"veryfast".to_string()));
+    }
+
+    #[test]
+    fn a_destination_can_have_its_own_picture_its_own_network_card_and_safer_srt() {
+        let own = Own { size: Some((1280, 720)), kbps: 2500, encoder: "libx264", fps: 30 };
+        let a = s(sender_args(40123, "rtmp://live.twitch.tv/app/k", None, &Way { own: Some(own), bind: "192.168.1.20".into(), srt_latency_ms: 0 }));
+        for pair in [["-vf", "scale=1280:720:flags=bicubic,setsar=1"], ["-c:v", "libx264"], ["-b:v", "2500k"], ["-c:a", "copy"], ["-local_addr", "192.168.1.20"]] {
+            assert!(a.windows(2).any(|w| w == pair), "{pair:?} in {a:?}");
+        }
+        // Lighter still: the ladder's bitrate, at its own size.
+        let a = s(sender_args(40123, "rtmp://live.twitch.tv/app/k", Some(("libx264", 1750, 30)), &Way { own: Some(own), ..Way::default() }));
+        assert!(a.windows(2).any(|w| w == ["-b:v", "1750k"]) && a.windows(2).any(|w| w == ["-vf", "scale=1280:720:flags=bicubic,setsar=1"]), "{a:?}");
+        // SRT: the safer send is part of its address; it cannot choose a network card.
+        let a = s(sender_args(40123, "srt://h.example.org:9000?streamid=x", None, &Way { srt_latency_ms: 2000, bind: "192.168.1.20".into(), ..Way::default() }));
+        assert_eq!(a.last().unwrap(), "srt://h.example.org:9000?streamid=x&latency=2000000");
+        assert!(!a.contains(&"-local_addr".to_string()) && a.windows(2).any(|w| w == ["-c", "copy"]), "{a:?}");
     }
 
     #[test]
@@ -310,11 +364,11 @@ mod tests {
     async fn a_sender_that_cannot_connect_counts_its_tries() {
         let links: Links = Arc::new(Mutex::new(vec![Link::default()]));
         let cancel = CancellationToken::new();
-        let run = tokio::spawn(keep_sending(PathBuf::from("no-such-ffmpeg-here"), 40999, "rtmp://127.0.0.1:1/live/k".into(), vec![], 0, links.clone(), None, cancel.clone()));
+        let run = tokio::spawn(keep_sending(PathBuf::from("no-such-ffmpeg-here"), 40999, "rtmp://127.0.0.1:1/live/k".into(), vec![], 0, links.clone(), None, Way::default(), cancel.clone()));
         tokio::time::sleep(Duration::from_millis(500)).await;
         cancel.cancel();
         let _ = run.await;
-        assert_eq!(links.lock().unwrap()[0], Link { up: false, skips: 0, failed: 1, kbps: 0, lightest: true });
+        assert_eq!(links.lock().unwrap()[0], Link { up: false, skips: 0, failed: 1, kbps: 0, lightest: true, lowest_kbps: 0 });
     }
 
     #[test]
