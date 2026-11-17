@@ -74,10 +74,12 @@ pub fn start(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32) ->
     Ok(Feed { latest, seeing, stop, thread: Some(thread) })
 }
 
-/// An NDI camera: its receiver on a thread of its own (it connects again by itself), `seeing` kept here.
+/// An NDI camera: its receiver on a thread of its own (it connects again by itself), `seeing` kept here. While it
+/// runs, the camera can be moved and told its tally (`super::ndi::Remote`).
 fn run_ndi(name: &str, size: (u32, u32), stop: &Arc<AtomicBool>, seeing: &AtomicBool, latest: &Latest) {
     let (n, s, l) = (name.to_string(), stop.clone(), latest.clone());
-    let receiver = std::thread::Builder::new().name("stream-camera-ndi-read".into()).spawn(move || super::ndi::receive(&n, size, &l, &s, RETRY)).ok();
+    let remote = super::ndi::remote_of(name);
+    let receiver = std::thread::Builder::new().name("stream-camera-ndi-read".into()).spawn(move || super::ndi::receive(&n, size, &l, &s, RETRY, &remote)).ok();
     while !stop.load(Ordering::Relaxed) {
         seeing.store(fresh(latest, Instant::now()).is_some(), Ordering::Relaxed);
         std::thread::sleep(Duration::from_millis(50));

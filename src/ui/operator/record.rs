@@ -178,7 +178,7 @@ impl Operator {
         let cameras: Vec<Vec<String>> = camera_names.iter().map(|c| record::args::camera_input(crate::platform::tools::OS, c)).collect();
         if live {
             *self.record.cameras.borrow_mut() = camera_names;
-            *self.record.camera_controls.borrow_mut() = chosen.iter().map(|(_, ctl)| stream::ptz::Control::parse(ctl)).collect();
+            *self.record.camera_controls.borrow_mut() = chosen.iter().map(|(cam, ctl)| stream::ptz::Control::of(cam, ctl)).collect();
         }
         // The scenes: what is live now (read ten times a second by `stream::pictures`), the words over the camera,
         // and the church's cards and choices. A new stream starts on Automatic.
@@ -584,10 +584,10 @@ impl Operator {
         self.ui.set_camera_positions(n);
     }
 
-    /// The PTZ control of the camera in the picture, if it has one.
+    /// The PTZ control of the camera in the picture, if it has one and it can move now.
     fn active_control(&self) -> Option<stream::ptz::Control> {
         let i = usize::try_from(self.ui.get_camera_active()).unwrap_or(0);
-        self.record.camera_controls.borrow().get(i).cloned().flatten()
+        self.record.camera_controls.borrow().get(i).cloned().flatten().filter(stream::ptz::Control::ready)
     }
 
     /// Sends the camera in the picture to position `i` (from 0). The packet is sent off the UI thread (a camera
@@ -617,6 +617,9 @@ impl Operator {
         let camera = usize::try_from(self.ui.get_camera_active()).ok().filter(|_| !self.record.cameras.borrow().is_empty());
         let tally = stream::tally::Tally::of(self.record.live.get() && self.is_recording(), camera, out.is_some_and(Scene::needs_camera));
         *self.app().tally.lock().unwrap() = tally;
+        // NDI cameras: their own tally lights, and their positions once they say they can move.
+        stream::ndi::show_tally(&self.record.cameras.borrow(), &tally);
+        self.show_positions();
         // The sound meter: the loudest since the last look (-1 hides it: no sound going out to measure).
         let level = self.record.rec.borrow().as_ref().and_then(Recording::level);
         self.ui.set_live_level(level.map_or(-1, stream::level::bars));

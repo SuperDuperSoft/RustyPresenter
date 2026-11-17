@@ -31,7 +31,7 @@ fn probe(file: &Path) -> (Vec<(String, String, u64, u64)>, f64) {
 }
 
 fn plan(ffmpeg: PathBuf, dir: &Path, sound: Sound) -> Plan {
-    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![], kbps: 0, delay_secs: 0, lighter: false, ndi: Default::default() }
+    Plan { ffmpeg, encoder: "libx264", preset: Preset::P720, sound, out: dir.join("Recording test.mp4"), stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![], kbps: 0, delay_secs: 0, lighter: false, ndi: Default::default(), words_file: false }
 }
 
 /// Records for `secs`, handing in a new solid picture every 100 ms (red, then green), with `each` called as it goes.
@@ -615,4 +615,30 @@ fn a_camera_that_stops_drops_out_and_comes_back() {
         assert!(seen[gap..].contains('C'), "{scene:?}: the camera back: {seen}");
         std::fs::remove_dir_all(&dir).unwrap();
     }
+}
+
+/// Live with the words file on: the words alone are recorded beside the recording, see-through around them, with
+/// the words at the bottom (the lower third).
+#[test]
+fn go_live_records_the_words_alone_beside_the_recording() {
+    let Some(ff) = ffmpeg() else { return };
+    let dir = scratch("wordsfile");
+    let dead = format!("rtmp://127.0.0.1:{}/live/TEST-KEY", std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port());
+    let ended = record_for(Plan { stream: vec![dead], cameras: lavfi_camera("color=c=blue:size=1280x720:rate=30"),
+        look: Some(only(Scene::CameraWords, "Amazing grace how sweet the sound")), words_file: true, ..plan(ff.clone(), &dir, Sound::None) }, 6.0, |_, _| {});
+    assert_eq!(ended.problem, None, "{ended:?}");
+    let words = dir.join("Recording test words.mov");
+    assert!(words.is_file() && dir.join("Recording test.mp4").is_file(), "both files");
+    let (streams, secs) = probe(&words);
+    assert_eq!(streams, vec![("video".to_string(), "qtrle".to_string(), 1280, 720)]);
+    assert!(secs > 3.0, "{secs} s");
+    let out = std::process::Command::new(&ff).args(["-hide_banner", "-loglevel", "error", "-ss", "4", "-i"]).arg(&words)
+        .args(["-frames:v", "1", "-f", "rawvideo", "-pix_fmt", "rgba", "-"]).output().unwrap();
+    let rgba = out.stdout;
+    assert_eq!(rgba.len(), 1280 * 720 * 4);
+    let alpha = |x: usize, y: usize| rgba[(y * 1280 + x) * 4 + 3];
+    assert_eq!(alpha(640, 100), 0, "nothing at the top: see-through");
+    let shown = (520..700).step_by(4).flat_map(|y| (0..1280).step_by(4).map(move |x| (x, y))).filter(|(x, y)| alpha(*x, *y) > 0).count();
+    assert!(shown > 200, "the words' band in the lower third: {shown}");
+    std::fs::remove_dir_all(&dir).unwrap();
 }
