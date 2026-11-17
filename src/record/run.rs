@@ -463,7 +463,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
             if let Some(n) = ndi.as_mut() { n.words(&shown.words) }
             if let Some(f) = words_file.as_mut() { f.words(&shown.words) }
             // The church's own scenes can show any camera, not only the one on air.
-            if matches!(shown.scene, crate::stream::scene::Scene::Own(_)) { m.cameras = camera_feeds.iter().map(|f| f.picture()).collect() }
+            if matches!(shown.scene, crate::stream::scene::Scene::Own(_)) { m.cameras = camera_feeds.iter().map(|f| f.as_ref().and_then(|f| f.picture())).collect() }
             m.update(&shown, &current, camera.and_then(|f| f.picture()), room_new, Instant::now());
             room_new = false;
         }

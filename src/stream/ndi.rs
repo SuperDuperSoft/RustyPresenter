@@ -832,13 +832,13 @@ mod tests {
 
         // Its tally light: on air, then next, then off.
         let cameras = vec!["USB Cam".to_string(), saved.clone()];
-        show_tally(&cameras, &super::super::tally::Tally::of(true, Some(1), true));
+        show_tally(&cameras, &super::super::tally::Tally::of(true, Some(1), None, true));
         let on_air = TallyC { on_program: true, on_preview: false };
         assert_eq!(cam.tally_becomes(&sender, on_air, Duration::from_secs(5)), on_air);
-        show_tally(&cameras, &super::super::tally::Tally::of(true, Some(1), false));
+        show_tally(&cameras, &super::super::tally::Tally::of(true, Some(1), None, false));
         let next = TallyC { on_program: false, on_preview: true };
         assert_eq!(cam.tally_becomes(&sender, next, Duration::from_secs(5)), next);
-        show_tally(&cameras, &super::super::tally::Tally::of(true, Some(0), true));
+        show_tally(&cameras, &super::super::tally::Tally::of(true, Some(0), None, true));
         assert_eq!(cam.tally_becomes(&sender, TallyC::default(), Duration::from_secs(5)), TallyC::default(), "the other camera is on air");
 
         // Not received (a macro before the service): a connection of its own.
