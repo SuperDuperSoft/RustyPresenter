@@ -64,6 +64,9 @@ pub fn key_help(service: usize) -> String {
         Service::Facebook => tr!("On Facebook: open your Page, choose Live video → Streaming software, and copy the Stream key (turn on \"Use a persistent stream key\" so it stays the same every week)."),
         Service::Twitch => tr!("On Twitch: open the Creator Dashboard, choose Settings → Stream, and copy the Primary stream key."),
         Service::Custom => tr!("Your streaming service gives you a server address (starting with rtmp://, rtmps:// or srt://) and usually a stream key."),
+        Service::Instagram => tr!("On Instagram: in Live Producer (on a computer, Create → Live video → Streaming software), copy the Stream URL and Stream key. Only some accounts are given a stream key."),
+        Service::X => tr!("On X: in Media Studio, choose Producer → Sources, and copy the RTMP URL and Stream key. Only some accounts can stream from software."),
+        Service::TikTok => tr!("On TikTok: in LIVE Studio or the LIVE Center, copy the Server URL and Stream key. Only some accounts are given a stream key."),
     }
 }
 

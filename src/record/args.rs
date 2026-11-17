@@ -752,7 +752,7 @@ mod tests {
         let pc = Some(Feed { format: Format { samples: "f32le", rate: 48000, channels: 2 }, port: 40500 });
         let line = Some(("dshow", "Line In"));
         let safe = SoundFx { board_filters: Filters::SAFE, pc_filters: Filters::SAFE, ..SoundFx::default() };
-        let rec = |pc, fx, more: &[Extra], listen| strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: line, board: Some(f(40600)), out: &out, stream: &to, tall: &[], kbps: 0, pc, fx, ndi_sound: None, more, listen }));
+        let rec = |pc, fx, more: &[Extra], listen| strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: line, board: Some(f(40600)), out: &out, stream: &to, tall: &[], kbps: 0, pc, fx, ndi_sound: None, more, listen, video: Default::default(), sound: Default::default() }));
         // Two sounds, each limited, then the sum.
         assert_eq!(after(&rec(pc, safe, &[], None), "-filter_complex"), format!("[1:a]{LIMIT}[b];[2:a]{LIMIT}[p];[b][p]amix=inputs=2:duration=shortest:normalize=0,{LIMIT}[a]"));
         // Evened out already ends with a limiter: not twice.
