@@ -229,7 +229,7 @@ msgstr "Sariling teksto"
 
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Not in the words — it is skipped"
-msgstr "Wala sa lyrics — nilalaktawan ito"
+msgstr "Wala sa mga salita — nilalaktawan ito"
 
 #: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
@@ -1134,7 +1134,7 @@ msgstr "I-paste ang stream key"
 
 #: ui/dialogs/go-live-helper.slint
 msgid "A stream key is a password: whoever has it can stream as you. It is kept in this computer's own password store."
-msgstr "Parang password ang stream key: sinumang may hawak nito ay makakapag-broadcast bilang ikaw. Nakatago ito sa sariling password store ng computer na ito."
+msgstr "Parang password ang stream key: sinumang may hawak nito ay makakapag-stream bilang ikaw. Nakatago ito sa sariling password store ng computer na ito."
 
 #: ui/dialogs/go-live-helper.slint
 msgid "Sign in instead…"
@@ -1206,11 +1206,11 @@ msgstr "Mag-live na ngayon"
 
 #: ui/dialogs/item-edit.slint
 msgid "Words, order and credits belong to the song in your library."
-msgstr "Ang lyrics, ayos at credits ay nasa kanta sa iyong library."
+msgstr "Ang mga salita, ayos at credits ay nasa kanta sa iyong library."
 
 #: ui/dialogs/item-edit.slint
 msgid "Words, order and credits belong to the song in your library. This song was deleted from the library."
-msgstr "Ang lyrics, ayos at credits ay nasa kanta sa iyong library. Binura na ang kantang ito sa library."
+msgstr "Ang mga salita, ayos at credits ay nasa kanta sa iyong library. Binura na ang kantang ito sa library."
 
 #: ui/dialogs/item-edit.slint src/strings/dialogs.rs
 msgid "Edit song"
@@ -1330,7 +1330,7 @@ msgstr "Ulitin hanggang ihinto"
 
 #: ui/dialogs/item-edit.slint
 msgid "Audio keeps playing while you change slides. Stop it with Clear audio (F4) or Clear all."
-msgstr "Patuloy na tumutugtog ang audio habang nagpapalit ka ng slide. Ihinto ito gamit ang I-clear ang Audio (F4) o I-clear Lahat."
+msgstr "Patuloy na tumutugtog ang audio habang nagpapalit ka ng slide. Ihinto ito gamit ang I-clear ang audio (F4) o I-clear lahat."
 
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
@@ -1433,7 +1433,7 @@ msgstr "Stage notes"
 
 #: ui/dialogs/item-edit.slint
 msgid "Shown on the stage screen only"
-msgstr "Sa stage display lang ipinapakita"
+msgstr "Sa stage screen lang ipinapakita"
 
 #: ui/dialogs/item-edit.slint
 msgid "Remove from service"
@@ -1441,7 +1441,7 @@ msgstr "Alisin sa service"
 
 #: ui/dialogs/music.slint
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear all stop it."
-msgstr "Patuloy na tumutugtog ang walk-in music habang nagpapalit ng slides. Ihihinto ito ng I-clear ang audio at I-clear Lahat."
+msgstr "Patuloy na tumutugtog ang walk-in music habang nagpapalit ng slides. Ihihinto ito ng I-clear ang audio at I-clear lahat."
 
 #: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
 msgid "Songs"
@@ -1505,7 +1505,7 @@ msgstr "Humingi ng password kapag nag-pair ang phone"
 
 #: ui/dialogs/network.slint
 msgid "Phone remote password"
-msgstr "Password ng remote"
+msgstr "Password ng phone remote"
 
 #: ui/dialogs/network.slint
 msgid "Saved — type to change it"
@@ -1557,7 +1557,7 @@ msgstr "Password ng TCP"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
-msgstr "Nananatili ang overlays sa screen sa silid habang nagpapalit ng slides: logo sa sulok, orasan o maikling karatula. I-on at i-off ang mga ito gamit ang chips sa ilalim ng Susunod sa Live column. Ang huli sa listahan ang nasa pinakaibabaw."
+msgstr "Nananatili ang overlays sa screen sa silid habang nagpapalit ng slides: logo sa sulok, orasan o maikling karatula. I-on at i-off ang mga ito gamit ang chips sa ilalim ng Kasunod sa Live column. Ang huli sa listahan ang nasa pinakaibabaw."
 
 #: ui/dialogs/overlays.slint
 msgid "Filter overlays"
@@ -1725,7 +1725,7 @@ msgstr "Isama ang notes ng bawat item"
 
 #: ui/dialogs/print.slint
 msgid "Include Bible passages with the song words"
-msgstr "Isama ang mga pagbasa sa Bibliya kasama ng lyrics"
+msgstr "Isama ang mga passage sa Bibliya kasama ng mga salita ng kanta"
 
 #: ui/dialogs/print.slint
 msgid "Start each song on a new page"
@@ -1841,7 +1841,7 @@ msgstr "Aspect ratio: {}"
 
 #: ui/dialogs/screens.slint
 msgid "Show what the room screen shows"
-msgstr "Ipakita ang nakikita ng mga tao"
+msgstr "Ipakita ang ipinapakita ng screen sa silid"
 
 #: ui/dialogs/screens.slint
 msgid "Whole screen"
@@ -1933,7 +1933,7 @@ msgstr "Petsa…"
 
 #: ui/dialogs/services.slint
 msgid "Print the service order and the song words, or save them as a web page"
-msgstr "I-print ang ayos ng service at ang lyrics, o i-save bilang web page"
+msgstr "I-print ang ayos ng service at ang mga salita ng kanta, o i-save bilang web page"
 
 #: ui/dialogs/services.slint
 msgid "Save as template"
@@ -2077,7 +2077,7 @@ msgstr "Input ng tunog"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Best: the lead singer's microphone on its own, sent from the sound board. Next best: the main mix. A microphone in the room hears too much else."
-msgstr "Pinakamainam: ang mikropono ng lead singer nang mag-isa, na ipinapadala mula sa sound desk. Sunod na pinakamainam: ang main mix. Masyadong maraming ibang naririnig ang mikropono sa loob ng silid."
+msgstr "Pinakamainam: ang mikropono ng lead singer nang mag-isa, na ipinapadala mula sa sound board. Sunod na pinakamainam: ang main mix. Masyadong maraming ibang naririnig ang mikropono sa loob ng silid."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sound level"
@@ -2169,7 +2169,7 @@ msgstr "Subukan ang bilis"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Tries the downloaded models on this computer and says which one suits it."
-msgstr "Sinusubukan ang mga na-download na modelo sa PC na ito at sinasabi kung alin ang bagay dito."
+msgstr "Sinusubukan ang mga na-download na modelo sa computer na ito at sinasabi kung alin ang bagay dito."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
@@ -2309,7 +2309,7 @@ msgstr "Font"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Song text size"
-msgstr "Laki ng lyrics"
+msgstr "Laki ng teksto ng kanta"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "(biggest; long lines shrink to fit)"
@@ -2325,7 +2325,7 @@ msgstr "(para sa mga bagong passage)"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Bible text size"
-msgstr "Laki ng teksto ng Kasulatan"
+msgstr "Laki ng teksto ng Bibliya"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "(biggest)"
@@ -2345,7 +2345,7 @@ msgstr "Lower third"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "ALL CAPS song words"
-msgstr "Lyrics na ALL CAPS"
+msgstr "Mga salita ng kanta na ALL CAPS"
 
 #: ui/dialogs/settings-look.slint
 msgid "Fade when the theme changes"
@@ -2649,7 +2649,7 @@ msgstr "Ipadala rin ang stream sa NDI (larawan at tunog)"
 
 #: ui/dialogs/settings-media.slint
 msgid "Send the words alone over NDI, on a see-through background (for keying)"
-msgstr "Ipadala ang mga salita lamang sa NDI, sa background na see-through (para sa keying)"
+msgstr "Ipadala ang mga salita lamang sa NDI, sa transparent na background (para sa keying)"
 
 #: ui/dialogs/settings-media.slint
 msgid "Words alone"
@@ -2661,7 +2661,7 @@ msgstr "Habang naka-live, may ikalawang video na sine-save sa tabi ng recording,
 
 #: ui/dialogs/settings-media.slint
 msgid "Also record the words alone, on a see-through background (for video editing)"
-msgstr "I-record din ang mga salita lamang, sa background na see-through (para sa pag-edit ng video)"
+msgstr "I-record din ang mga salita lamang, sa transparent na background (para sa pag-edit ng video)"
 
 #: ui/dialogs/settings-media.slint
 msgid "Sound levels"
@@ -2669,7 +2669,7 @@ msgstr "Lakas ng tunog"
 
 #: ui/dialogs/settings-media.slint
 msgid "Turn each sound up or down in the stream only (not in the room)."
-msgstr "Lakasan o hinaan ang bawat tunog sa stream lang (hindi sa loob ng simbahan)."
+msgstr "Lakasan o hinaan ang bawat tunog sa stream lang (hindi sa silid)."
 
 #: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint src/record/mod.rs
 msgid "Microphone or line-in"
@@ -2757,7 +2757,7 @@ msgstr "Ang ipinapakita ng stream kapalit ng camera habang naka-unplug ito o wal
 
 #: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
 msgid "The room screen"
-msgstr "Ang screen ng sanktuwaryo"
+msgstr "Ang screen sa silid"
 
 #: ui/dialogs/settings-media.slint
 msgid "The church logo"
@@ -2777,7 +2777,7 @@ msgstr "Mga scene"
 
 #: ui/dialogs/settings-media.slint
 msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
-msgstr "Ang mga awit at talata ng Biblia ay lumalabas bilang camera na may mga salita; ang mga video at presentasyon bilang screen ng sanktuwaryo; kapag walang nasa screen, ang camera. Ang scene na pinili gamit ang scene button sa tabi ng Live ay mananatili hanggang sa susunod na bahagi ng pagsamba."
+msgstr "Ang mga kanta at talata ng Bibliya ay lumalabas bilang camera na may mga salita; ang mga video at presentation bilang screen sa silid; kapag walang nasa screen, ang camera. Ang scene na pinili gamit ang scene button sa tabi ng Live ay mananatili hanggang sa susunod na item sa service."
 
 #: ui/dialogs/settings-media.slint
 msgid "Choose the scene by itself from what is live"
@@ -2789,15 +2789,15 @@ msgstr "Mga presentasyon:"
 
 #: ui/dialogs/settings-media.slint
 msgid "The room screen with the camera in a corner"
-msgstr "Ang screen ng sanktuwaryo na may camera sa isang sulok"
+msgstr "Ang screen sa silid na may camera sa isang sulok"
 
 #: ui/dialogs/settings-media.slint
 msgid "Scene layout"
-msgstr "Ayos ng mga eksena"
+msgstr "Ayos ng scene"
 
 #: ui/dialogs/settings-media.slint
 msgid "Where the camera goes when it is in a corner of the room screen, and where the words go over the camera."
-msgstr "Kung saan ang camera kapag nasa sulok ng screen ng simbahan, at kung saan ang mga salita sa ibabaw ng camera."
+msgstr "Kung saan ang camera kapag nasa sulok ng screen sa silid, at kung saan ang mga salita sa ibabaw ng camera."
 
 #: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
 msgid "Small"
@@ -2853,7 +2853,7 @@ msgstr "Magsisimula na"
 
 #: ui/dialogs/settings-media.slint
 msgid "Before the service, with the pre-service countdown under the words while it runs."
-msgstr "Bago ang pagsamba, kasama ang countdown sa ilalim ng mga salita habang tumatakbo ito."
+msgstr "Bago ang service, kasama ang countdown sa ilalim ng mga salita habang tumatakbo ito."
 
 #: ui/dialogs/settings-media.slint
 msgid "Use a picture…"
@@ -2869,7 +2869,7 @@ msgstr "Ending"
 
 #: ui/dialogs/settings-media.slint
 msgid "After the service's last item."
-msgstr "Pagkatapos ng huling bahagi ng pagsamba."
+msgstr "Pagkatapos ng huling item ng service."
 
 #: ui/dialogs/settings-media.slint src/stream/pictures.rs
 msgid "Thanks for joining us"
@@ -2893,7 +2893,7 @@ msgstr "I-stream sa"
 
 #: ui/dialogs/settings-media.slint
 msgid "A stream key is a password: whoever has it can stream as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
-msgstr "Ang stream key ay isang password: sinumang may hawak nito ay makakapag-broadcast bilang ikaw. Itinatago ito sa sariling taguan ng password ng computer na ito habang tina-type mo, hindi kailanman sa backup o sa file ng serbisyo."
+msgstr "Ang stream key ay isang password: sinumang may hawak nito ay makakapag-stream bilang ikaw. Itinatago ito sa sariling taguan ng password ng computer na ito habang tina-type mo, hindi kailanman sa backup o sa file ng service."
 
 #: ui/dialogs/settings-media.slint
 msgid "YouTube stream key"
@@ -2905,7 +2905,7 @@ msgstr "Mag-sign in"
 
 #: ui/dialogs/settings-media.slint
 msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
-msgstr "Mag-sign in sa halip na mag-paste ng key: ang Live na ang gagawa ng broadcast, kasama ang pamagat"
+msgstr "Mag-sign in sa halip na mag-paste ng key: ang Mag-live na ang gagawa ng broadcast, kasama ang pamagat"
 
 #: ui/dialogs/settings-media.slint
 msgid "Signed in as {}"
@@ -3041,7 +3041,7 @@ msgstr "Gumawa ng bago"
 
 #: ui/dialogs/settings-media.slint
 msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
-msgstr "Ginagawa na ngayon ang YouTube broadcast ng susunod na pagsamba, para sa araw at oras nito, para maibahagi ang link bago ang Linggo. Ito ang gagamitin ng Go Live."
+msgstr "Ginagawa na ngayon ang YouTube broadcast ng susunod na service, para sa araw at oras nito, para maibahagi ang link bago ang Linggo. Ito ang gagamitin ng Mag-live."
 
 #: ui/dialogs/settings-media.slint
 msgid "YouTube thumbnail: a frame of the stream"
@@ -3201,7 +3201,7 @@ msgstr "Mikropono ng phone"
 
 #: ui/dialogs/settings-sound.slint
 msgid "Turn on the stage screen for phones (Settings → Network…), then open this page on the phone and press Start: {}"
-msgstr "I-on ang stage view (Network), saka buksan ang pahinang ito sa phone at pindutin ang Start: {}"
+msgstr "I-on ang stage screen para sa phone (Settings → Network…), saka buksan ang pahinang ito sa phone at pindutin ang Start: {}"
 
 #: ui/dialogs/settings-sound.slint
 msgid "The first time, the phone warns that the page is not private, because this computer made its own certificate: tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
@@ -3609,7 +3609,7 @@ msgstr "Ipakita ang performance"
 
 #: ui/dialogs/settings.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
-msgstr "Mga Screen"
+msgstr "Mga screen"
 
 #: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs src/strings/screens.rs
 msgid "Room screen"
@@ -4009,7 +4009,7 @@ msgstr "Ipinapakita"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Show chords (typed in the words like [G])"
-msgstr "Ipakita ang chords (naka-type sa lyrics gaya ng [G])"
+msgstr "Ipakita ang chords (naka-type sa mga salita gaya ng [G])"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Biggest text ({}%)"
@@ -4377,7 +4377,7 @@ msgstr "Iwanang blangko para mag-countdown hanggang sa oras ng simula ng service
 
 #: ui/dialogs/stream-scenes.slint
 msgid "While live, the page is opened in this computer's Microsoft Edge or Google Chrome, without a window, the size of the stream. A page with a see-through background shows what is behind it."
-msgstr "Habang naka-live, binubuksan ang pahina sa Microsoft Edge o Google Chrome ng computer na ito, nang walang window, kasinlaki ng stream. Ang pahinang may see-through na background ay nagpapakita ng nasa likod nito."
+msgstr "Habang naka-live, binubuksan ang pahina sa Microsoft Edge o Google Chrome ng computer na ito, nang walang window, kasinlaki ng stream. Ang pahinang may transparent na background ay nagpapakita ng nasa likod nito."
 
 #: ui/dialogs/stream-scenes.slint
 msgid "Size: like your other words"
@@ -5153,7 +5153,7 @@ msgstr "Bitawan para idagdag sa service"
 
 #: ui/operator/overlays.slint
 msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect song files"
-msgstr "Video, larawan, musika, presentation (PowerPoint, Keynote, PDF), SongSelect lyric file"
+msgstr "Video, larawan, musika, presentation (PowerPoint, Keynote, PDF), mga song file ng SongSelect"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop the livestream"
@@ -5345,7 +5345,7 @@ msgstr "Lumalabas sa kaliwa ang lahat ng idaragdag mo. I-click ang isang slide p
 
 #: ui/operator/slides.slint
 msgid "Click “Screens” and choose the projector or TV."
-msgstr "I-click ang “Mga Screen” at piliin ang projector o TV."
+msgstr "I-click ang “Mga screen” at piliin ang projector o TV."
 
 #: ui/operator/slides.slint
 msgid "Click “Add to service” for songs, videos and slides — or drag files in."
@@ -6069,11 +6069,11 @@ msgstr "Magdagdag muna ng screen."
 
 #: src/app.rs
 msgid "Room screen {number}"
-msgstr "Audience {number}"
+msgstr "Screen sa silid {number}"
 
 #: src/app.rs
 msgid "Stage screen {number}"
-msgstr "Stage Display {number}"
+msgstr "Stage screen {number}"
 
 #: src/app.rs
 msgid "That screen is gone."
@@ -6409,7 +6409,7 @@ msgstr "I-paste muna ang teksto ng talata."
 
 #: src/follow/audio.rs
 msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Media → Recording."
-msgstr "Kailangan ng auto-sunod ang FFmpeg para marinig ang silid. I-download ito sa Settings → Pagre-record."
+msgstr "Kailangan ng auto-sunod ang FFmpeg para marinig ang silid. I-download ito sa Settings → Media → Pagre-record."
 
 #: src/follow/audio.rs
 msgid "FFmpeg stopped"
@@ -6545,7 +6545,7 @@ msgstr "Hindi mabasa ang translation file na {file} ({reason}), kaya hindi ito g
 
 #: src/i18n/remote_strings.rs
 msgid "Phone remote — RustyPresenter"
-msgstr "RustyPresenter Remote"
+msgstr "Phone remote — RustyPresenter"
 
 #: src/i18n/remote_strings.rs
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
@@ -6712,7 +6712,7 @@ msgstr "Password"
 
 #: src/i18n/remote_strings.rs
 msgid "This phone remote needs a password too."
-msgstr "Kailangan din ng password ng remote na ito."
+msgstr "Kailangan din ng password ng phone remote na ito."
 
 #: src/i18n/remote_strings.rs
 msgid "This stage screen needs a password."
@@ -6764,7 +6764,7 @@ msgstr "higit sa {max} section, kaya hindi ito kanta"
 
 #: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
 msgid "no words"
-msgstr "walang lyrics"
+msgstr "walang mga salita"
 
 #: src/import/chordpro.rs
 msgid "a {block} block never ends, so everything after it was left out"
@@ -6832,11 +6832,11 @@ msgstr "Walang laman o sira ang {path}, kaya walang maii-import."
 
 #: src/import/easyworship.rs
 msgid "no words (probably a video or announcement item)"
-msgstr "walang lyrics (malamang video o anunsyo ang item)"
+msgstr "walang mga salita (malamang video o anunsyo ang item)"
 
 #: src/import/easyworship.rs src/import/openlp.rs
 msgid "the words are empty"
-msgstr "walang laman ang lyrics"
+msgstr "walang laman ang mga salita"
 
 #: src/import/easyworship.rs
 msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
@@ -6864,19 +6864,19 @@ msgstr "Walang word table ang SongWords.db. EasyWorship library ba ito?"
 
 #: src/import/openlp.rs
 msgid "the words are not valid XML ({error})"
-msgstr "hindi valid na XML ang lyrics ({error})"
+msgstr "hindi valid na XML ang mga salita ({error})"
 
 #: src/import/openlp.rs
 msgid "the words have too many verses (more than {max})"
-msgstr "masyadong maraming verse ang lyrics (higit sa {max})"
+msgstr "masyadong maraming verse ang mga salita (higit sa {max})"
 
 #: src/import/openlp.rs src/import/propresenter.rs
 msgid "the words are too long to be a song"
-msgstr "masyadong mahaba ang lyrics para maging kanta"
+msgstr "masyadong mahaba ang mga salita para maging kanta"
 
 #: src/import/openlp.rs
 msgid "the words have no verses"
-msgstr "walang verse ang lyrics"
+msgstr "walang verse ang mga salita"
 
 #: src/import/openlp.rs
 msgid "a temporary copy OpenLP keeps for a service file"
@@ -6940,7 +6940,7 @@ msgstr "Walang nakitang OpenLyrics o OpenSong na kanta sa {path}."
 
 #: src/import/opensong.rs
 msgid "the words have too many sections to be a song"
-msgstr "masyadong maraming section ang lyrics para maging kanta"
+msgstr "masyadong maraming section ang mga salita para maging kanta"
 
 #: src/import/opensong.rs
 msgid "it is an OpenLyrics song, not OpenSong"
@@ -7160,7 +7160,7 @@ msgstr "Hindi nakakonekta ang screen na iyon sa ngayon."
 
 #: src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/theme/layouts.rs
 msgid "Bible passage"
-msgstr "Kasulatan"
+msgstr "Passage sa Bibliya"
 
 #: src/record/advanced.rs
 msgid "{name} last {minutes} minutes"
@@ -7498,11 +7498,11 @@ msgstr "Nawawalang slides"
 
 #: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
 msgid "No song words were found in this file."
-msgstr "Walang nakitang lyrics sa file na ito."
+msgstr "Walang nakitang mga salita ng kanta sa file na ito."
 
 #: src/songselect/inbox.rs src/songselect.rs src/ui/dialogs/songselect.rs
 msgid "That file is too big to be a song file."
-msgstr "Masyadong malaki ang file na iyon para maging lyric file."
+msgstr "Masyadong malaki ang file na iyon para maging song file."
 
 #: src/songselect/inbox.rs
 msgid "it has no CCLI song number"
@@ -7522,7 +7522,7 @@ msgstr "Walang pamagat ang file ng kanta."
 
 #: src/songselect.rs
 msgid "The song file is empty."
-msgstr "Walang laman ang lyric file."
+msgstr "Walang laman ang song file."
 
 #: src/songselect.rs
 msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
@@ -7862,7 +7862,7 @@ msgstr "Bumalik na ang camera sa stream."
 
 #: src/stream/mod.rs
 msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
-msgstr "{name}: hindi sapat ang bilis ng internet, kaya lumalaktaw ang stream. Piliin ang 720p sa Settings → Media → Recording, o i-off ang isang destinasyon."
+msgstr "{name}: hindi sapat ang bilis ng internet, kaya lumalaktaw ang stream. Piliin ang 720p sa Settings → Media → Pagre-record, o i-off ang isang destinasyon."
 
 #: src/stream/mod.rs
 msgid "You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once."
@@ -8122,7 +8122,7 @@ msgstr "Wala sa stream"
 
 #: src/stream/phone_camera.rs
 msgid "On the computer, choose this phone in Settings → Media → Livestream → Camera."
-msgstr "Sa computer, piliin ang phone na ito sa Settings, Media, Livestream, Camera."
+msgstr "Sa computer, piliin ang phone na ito sa Settings → Media → Livestream → Camera."
 
 #: src/stream/phone_camera.rs
 msgid "Any phone on the church's Wi-Fi can be a camera. On the phone, open {address} and follow the steps there. The first time, the phone warns that the connection is not private: that is expected, because the page comes from this computer. Tap Advanced (or Show Details), then Proceed (or Visit this website). Then pair it with the code from Phone remote, Pair a phone. Once it sends its picture, it is listed in the camera lists above as Phone camera and its name."
@@ -8158,7 +8158,7 @@ msgstr "Hindi pinayagan ng phone ang pahina na gamitin ang mikropono nito. Payag
 
 #: src/stream/phone_mic.rs
 msgid "Turn on the stage screen for phones in RustyPresenter (Settings → Network…), and sign in to it on this phone first."
-msgstr "I-on muna ang stage view sa RustyPresenter (Network), at mag-sign in dito sa phone na ito."
+msgstr "I-on muna ang stage screen para sa phone sa RustyPresenter (Settings → Network…), at mag-sign in dito sa phone na ito."
 
 #: src/stream/preflight.rs
 msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Media → Livestream. The stream shows the slides in its place."
@@ -8246,7 +8246,7 @@ msgstr "Upload: {speed} Mbit/s. Mag-stream sa 720p: kailangan ng 1080p ang {need
 
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer destinations, or use a faster connection."
-msgstr "Upload: {speed} Mbit/s. Masyadong mabagal: kailangan ng 720p sa bawat destinasyong naka-on ang {need} Mbit/s. Mag-stream sa mas kaunting lugar, o gumamit ng mas mabilis na koneksyon."
+msgstr "Upload: {speed} Mbit/s. Masyadong mabagal: kailangan ng 720p sa bawat destinasyong naka-on ang {need} Mbit/s. Mag-stream sa mas kaunting destinasyon, o gumamit ng mas mabilis na koneksyon."
 
 #: src/stream/tally.rs
 msgid "Camera {camera}: on air"
@@ -8266,7 +8266,7 @@ msgstr "Hindi nagsi-stream"
 
 #: src/stream/tally.rs
 msgid "Turn on the stage screen for phones (Settings → Network…). If it has a password, open the stage screen on this phone once and sign in."
-msgstr "I-on ang stage view sa Settings → Network. Kung may password ito, buksan nang isang beses ang stage view sa teleponong ito at mag-sign in."
+msgstr "I-on ang stage screen para sa phone (Settings → Network…). Kung may password ito, buksan nang isang beses ang stage screen sa phone na ito at mag-sign in."
 
 #: src/stream/transition.rs
 msgid "Cut (at once)"
@@ -8398,7 +8398,7 @@ msgstr "Na-save ang kanta"
 
 #: src/strings/add.rs
 msgid "Not in the words: {sections}"
-msgstr "Wala sa lyrics: {sections}"
+msgstr "Wala sa mga salita: {sections}"
 
 #: src/strings/automation.rs src/strings/themes.rs
 msgid "The screen was cleared — try again."
@@ -8810,7 +8810,7 @@ msgstr "Hindi magamit ang {name}, kaya hindi ito idinagdag."
 
 #: src/strings/catalog.rs
 msgid "That Bible is no longer in the list. Open Settings → Bible again to see the current list."
-msgstr "Wala na sa listahan ang Bibliyang iyon. Buksan muli ang Settings → Mga Bibliya para makita ang kasalukuyang listahan."
+msgstr "Wala na sa listahan ang Bibliyang iyon. Buksan muli ang Settings → Bibliya para makita ang kasalukuyang listahan."
 
 #: src/strings/catalog.rs
 msgid "You're offline, so Bibles can't be added right now."
@@ -9196,7 +9196,7 @@ msgstr "Mali ang password na iyon."
 
 #: src/strings/network.rs
 msgid "The stage screen for phones is turned off on the presentation computer."
-msgstr "Naka-off ang stage view sa presentation computer."
+msgstr "Naka-off ang stage screen para sa phone sa presentation computer."
 
 #: src/strings/network.rs
 msgid "Network settings saved."
@@ -9258,7 +9258,7 @@ msgstr "Nagsisimula ang screen sa silid…"
 
 #: src/strings/operator.rs
 msgid "Room screen is not open — click Screens"
-msgstr "Hindi bukas ang screen sa silid — i-click ang Mga Screen"
+msgstr "Hindi bukas ang screen sa silid — i-click ang Mga screen"
 
 #: src/strings/operator.rs
 msgid "Could not open the operator window: {error}"
@@ -9288,7 +9288,7 @@ msgstr "Mga presentation"
 
 #: src/strings/operator.rs
 msgid "SongSelect song files"
-msgstr "Mga SongSelect lyric file"
+msgstr "Mga song file ng SongSelect"
 
 #: src/strings/operator.rs
 msgid "Pictures and videos"
@@ -9689,7 +9689,7 @@ msgstr "Gumawa ng service para sa {date} mula sa “{service}”?"
 
 #: src/strings/planning.rs
 msgid "Copy, with blanks for songs and Bible passages"
-msgstr "Kopya, na may blangko para sa mga kanta at pagbasa sa Bibliya"
+msgstr "Kopya, na may blangko para sa mga kanta at passage sa Bibliya"
 
 #: src/strings/planning.rs
 msgid "There is already a service for {date} (“{name}”)."
@@ -9801,7 +9801,7 @@ msgstr "Ipinapakita na bilang mga larawan ang “{title}”."
 
 #: src/strings/pplive.rs
 msgid "Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures."
-msgstr "Kailangan ng “Patakbuhin sa PowerPoint” na nasa isang monitor ang screen sa silid. I-on ang screen sa silid sa Mga Screen; hanggang doon, mga larawan ng slide ang ipinapakita sa silid."
+msgstr "Kailangan ng “Patakbuhin sa PowerPoint” na nasa isang monitor ang screen sa silid. I-on ang screen sa silid sa Mga screen; hanggang doon, mga larawan ng slide ang ipinapakita sa silid."
 
 #: src/strings/pplive.rs
 msgid "PowerPoint could not run “{title}”: {error} The room shows the slide pictures instead."
@@ -9825,11 +9825,11 @@ msgstr "Wala pang item ang service na ito."
 
 #: src/strings/preflight.rs
 msgid "No room screen is chosen. Choose one in Screens."
-msgstr "Walang napiling screen sa silid. Pumili ng isa sa Mga Screen."
+msgstr "Walang napiling screen sa silid. Pumili ng isa sa Mga screen."
 
 #: src/strings/preflight.rs
 msgid "The room screen is not connected. Check its cable, or choose another in Screens."
-msgstr "Hindi nakakonekta ang screen sa silid. Suriin ang cable nito, o pumili ng iba sa Mga Screen."
+msgstr "Hindi nakakonekta ang screen sa silid. Suriin ang cable nito, o pumili ng iba sa Mga screen."
 
 #: src/strings/preflight.rs
 msgid "The stage screen is not connected. The service can run without it."
@@ -9845,11 +9845,11 @@ msgstr "Hindi nakakonekta ang sound output, kaya na-pause ang video o audio. Isa
 
 #: src/strings/preflight.rs
 msgid "The logo's file is missing. Choose it again in Settings → Look."
-msgstr "Nawawala ang file ng logo. Piliin itong muli sa Settings."
+msgstr "Nawawala ang file ng logo. Piliin itong muli sa Settings → Itsura."
 
 #: src/strings/preflight.rs
 msgid "The default background's file is missing. Choose it again in Settings → Look."
-msgstr "Nawawala ang file ng default na background. Piliin itong muli sa Settings."
+msgstr "Nawawala ang file ng default na background. Piliin itong muli sa Settings → Itsura."
 
 #: src/strings/preflight.rs
 msgid "the song is no longer in the library"
@@ -9917,7 +9917,7 @@ msgstr "(hindi pa napipili)"
 
 #: src/strings/print.rs
 msgid "(no words)"
-msgstr "(walang lyrics)"
+msgstr "(walang mga salita)"
 
 #: src/strings/print.rs
 msgid "(the verse text isn't saved with this service)"
@@ -9929,7 +9929,7 @@ msgstr " (naka-loop)"
 
 #: src/strings/print.rs
 msgid "No songs or Bible passages in this service."
-msgstr "Walang kanta o pagbasa sa Bibliya sa service na ito."
+msgstr "Walang kanta o passage sa Bibliya sa service na ito."
 
 #: src/strings/print.rs
 msgid "This service is empty."
@@ -10009,7 +10009,7 @@ msgstr "Walang lumalabas sa placeholder. I-set up ito ngayon, saka piliin dito a
 
 #: src/strings/screens.rs
 msgid "Shows the room screen's picture instead of a stage layout. It has no sound."
-msgstr "Ipinapakita ang nakikita ng mga tao sa halip na stage layout. Walang tunog ito."
+msgstr "Ipinapakita ang larawan ng screen sa silid sa halip na stage layout. Walang tunog ito."
 
 #: src/strings/screens.rs
 msgid "Colour bars"
@@ -10277,7 +10277,7 @@ msgstr "Kailangan ng internet ng {bible} para sa passage na ito."
 
 #: src/strings/scripture.rs
 msgid "That Bible was removed. Add it again in Settings → Bible."
-msgstr "Inalis na ang Bibliyang iyon. Idagdag itong muli sa Settings → Mga Bibliya."
+msgstr "Inalis na ang Bibliyang iyon. Idagdag itong muli sa Settings → Bibliya."
 
 #: src/strings/scripture.rs
 msgid "Select a Bible passage first."
@@ -10767,7 +10767,7 @@ msgstr "Classic"
 
 #: src/strings/stage.rs
 msgid "Words only"
-msgstr "Lyrics lang"
+msgstr "Mga salita lang"
 
 #: src/strings/stage.rs
 msgid "Band"
@@ -11161,7 +11161,7 @@ msgstr "Hanggang 8 overlay ang maaaring naka-on nang sabay. Mag-off muna ng isa.
 
 #: src/strings/themes.rs
 msgid "Choose a church logo first (Settings → Look)."
-msgstr "Pumili muna ng logo ng simbahan (Settings → Mga theme)."
+msgstr "Pumili muna ng logo ng simbahan (Settings → Itsura)."
 
 #: src/strings/themes.rs
 msgid "That picture is gone."
@@ -11553,15 +11553,15 @@ msgstr "Gusto ng YouTube ng sign-in para matiyak na hindi ito robot. Maghintay n
 
 #: src/strings/youtube.rs
 msgid "This livestream hasn't finished yet. Try again after it ends."
-msgstr "Hindi pa tapos ang live stream na ito. Subukang muli pagkatapos nito."
+msgstr "Hindi pa tapos ang livestream na ito. Subukang muli pagkatapos nito."
 
 #: src/strings/youtube.rs
 msgid "This livestream or premiere hasn't started yet."
-msgstr "Hindi pa nagsisimula ang live stream o premiere na ito."
+msgstr "Hindi pa nagsisimula ang livestream o premiere na ito."
 
 #: src/strings/youtube.rs
 msgid "This livestream just ended and YouTube is still preparing it. Try again in a while."
-msgstr "Kakatapos lang ng live stream na ito at inihahanda pa ito ng YouTube. Subukang muli maya-maya."
+msgstr "Kakatapos lang ng livestream na ito at inihahanda pa ito ng YouTube. Subukang muli maya-maya."
 
 #: src/strings/youtube.rs
 msgid "That link isn't a YouTube video. Copy the link from the video's page and try again."
@@ -11710,7 +11710,7 @@ msgstr "Teksto"
 
 #: src/theme/layouts.rs
 msgid "Lower-third words"
-msgstr "Lower-third na lyrics"
+msgstr "Lower-third na mga salita"
 
 #: src/theme/layouts.rs
 msgid "One big line in the middle."
@@ -11730,7 +11730,7 @@ msgstr "Isang maikling pangungusap, malaki at makapal."
 
 #: src/theme/layouts.rs
 msgid "Laid out like a Bible passage."
-msgstr "Nakaayos gaya ng isang talata sa Bibliya."
+msgstr "Nakaayos gaya ng isang passage sa Bibliya."
 
 #: src/theme/layouts.rs
 msgid "A small caption at the bottom, so the background picture shows."
@@ -11746,7 +11746,7 @@ msgstr "Simpleng teksto, gaya ng anunsyo."
 
 #: src/theme/layouts.rs
 msgid "Laid out like song words."
-msgstr "Nakaayos gaya ng lyrics ng kanta."
+msgstr "Nakaayos gaya ng mga salita ng kanta."
 
 #: src/theme/layouts.rs
 msgid "Small text at the bottom of the screen."
@@ -11952,7 +11952,7 @@ msgstr "Magpadala ng isang command bawat linya: next, prev, clear, clear slide, 
 
 #: src/ui/dialogs/quick_search.rs
 msgid "Type a song title, some of its words, a file name or a service."
-msgstr "Mag-type ng pamagat ng kanta, mga salita mula sa lyrics, pangalan ng file o service."
+msgstr "Mag-type ng pamagat ng kanta, ilan sa mga salita nito, pangalan ng file o service."
 
 #: src/ui/dialogs/quick_search.rs
 msgid "In this service"
@@ -12098,7 +12098,7 @@ msgstr "Maayos tumakbo rito ang Pinakamahusay."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Use Fast on this computer: Best is too slow here."
-msgstr "Gamitin ang Mabilis sa PC na ito: masyadong mabagal dito ang Pinakamahusay."
+msgstr "Gamitin ang Mabilis sa computer na ito: masyadong mabagal dito ang Pinakamahusay."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Fast runs fine here. Download Best to check it too."
@@ -12110,7 +12110,7 @@ msgstr "Mag-download muna ng modelo, saka subukan ang bilis nito."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "This computer is too slow for the speech models: auto-follow can't hear the words here, so it can't follow the songs."
-msgstr "Masyadong mabagal ang PC na ito para sa mga speech model: hindi marinig ng auto-sunod ang mga salita rito, kaya hindi nito masusundan ang mga kanta."
+msgstr "Masyadong mabagal ang computer na ito para sa mga speech model: hindi marinig ng auto-sunod ang mga salita rito, kaya hindi nito masusundan ang mga kanta."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Couldn't reach the download site. Check the internet and try again: it goes on where it stopped."
@@ -12488,7 +12488,7 @@ msgstr "Nasa folder na ito ang mga log file ng app (Tulong → Buksan ang logs f
 
 #: src/ui/operator/help.rs
 msgid "Save this file, then send it with the newest log files to the person who looks after RustyPresenter for your church, on a USB stick or by email from another computer."
-msgstr "I-save ang file na ito, saka ipadala ito kasama ang pinakabagong log files sa taong nag-aasikaso ng RustyPresenter para sa inyong simbahan, gamit ang USB stick o e-mail mula sa ibang computer."
+msgstr "I-save ang file na ito, saka ipadala ito kasama ang pinakabagong log files sa taong nag-aasikaso ng RustyPresenter para sa inyong simbahan, gamit ang USB stick o email mula sa ibang computer."
 
 #: src/ui/operator/help.rs
 msgid "What happened:"
@@ -12504,7 +12504,7 @@ msgstr "Maghanda para sa Linggo"
 
 #: src/ui/operator/help.rs
 msgid "File → New service… makes this week's service. File → Services… opens an older one or copies last week."
-msgstr "Ang File → Bagong service ay gumagawa ng service para sa linggong ito. Ang File → Mga service… ay nagbubukas ng mas luma o kumokopya ng nakaraang linggo."
+msgstr "Ang File → Bagong service… ay gumagawa ng service para sa linggong ito. Ang File → Mga service… ay nagbubukas ng mas luma o kumokopya ng nakaraang linggo."
 
 #: src/ui/operator/help.rs
 msgid "File → Add to service adds songs, Bible passages, videos, slides and announcements. Drag items to change their order."
@@ -12738,11 +12738,11 @@ msgstr "Nahugot ang screen sa silid. Kusa itong babalik kapag naisaksak muli ang
 
 #: src/ui/screens.rs
 msgid "The extra room screen was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr "Nahugot ang karagdagang screen ng audience. Kusa itong babalik kapag naisaksak muli ang screen na iyon."
+msgstr "Nahugot ang karagdagang screen sa silid. Kusa itong babalik kapag naisaksak muli ang screen na iyon."
 
 #: src/ui/screens.rs
 msgid "The stage screen was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr "Nahugot ang stage display. Kusa itong babalik kapag naisaksak muli ang screen na iyon."
+msgstr "Nahugot ang stage screen. Kusa itong babalik kapag naisaksak muli ang screen na iyon."
 
 #: src/ui/screens.rs
 msgid "The extra stage screen was unplugged. It comes back by itself when that screen is plugged in again."
@@ -12754,11 +12754,11 @@ msgstr "Naisaksak muli ang screen sa silid, pero hindi ito mabuksan: {error}"
 
 #: src/ui/screens.rs
 msgid "The extra room screen is plugged in again, but it could not open: {error}"
-msgstr "Naisaksak muli ang karagdagang screen ng audience, pero hindi ito mabuksan: {error}"
+msgstr "Naisaksak muli ang karagdagang screen sa silid, pero hindi ito mabuksan: {error}"
 
 #: src/ui/screens.rs
 msgid "The stage screen is plugged in again, but it could not open: {error}"
-msgstr "Naisaksak muli ang stage display, pero hindi ito mabuksan: {error}"
+msgstr "Naisaksak muli ang stage screen, pero hindi ito mabuksan: {error}"
 
 #: src/ui/screens.rs
 msgid "The extra stage screen is plugged in again, but it could not open: {error}"
@@ -12871,7 +12871,7 @@ msgstr "Nagsara ito bago matapos. Baka nag-crash ito."
 
 #: src/video/bench.rs
 msgid "Slides never reached the room screen."
-msgstr "Hindi umabot ang mga slide sa screen ng sanktuwaryo."
+msgstr "Hindi umabot ang mga slide sa screen sa silid."
 
 #: src/video/bench.rs
 msgid "This graphics card or its driver can't draw with it."
@@ -12899,11 +12899,11 @@ msgstr "Sinusubukan ang {mode}… ({at} sa {count})"
 
 #: src/video/bench.rs
 msgid "The graphics card or its driver changed. Want me to find the best graphics for this computer again? About a minute"
-msgstr "Nagbago ang graphics card o ang driver nito. Gusto mo bang hanapin kong muli ang pinakamahusay na graphics para sa PC na ito? Mga isang minuto"
+msgstr "Nagbago ang graphics card o ang driver nito. Gusto mo bang hanapin kong muli ang pinakamahusay na graphics para sa computer na ito? Mga isang minuto"
 
 #: src/video/bench.rs
 msgid "Want me to find the best graphics for this computer? About a minute"
-msgstr "Gusto mo bang hanapin ko ang pinakamahusay na graphics para sa PC na ito? Mga isang minuto"
+msgstr "Gusto mo bang hanapin ko ang pinakamahusay na graphics para sa computer na ito? Mga isang minuto"
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
@@ -12911,7 +12911,7 @@ msgstr "Walang gumana sa mga pagpipilian sa graphics sa test. Pananatilihin ng R
 
 #: src/video/bench.rs
 msgid "{mode} is the best for this computer. Automatic will use it from the next start."
-msgstr "{mode} ang pinakamahusay para sa PC na ito. Gagamitin ito ng Awtomatiko mula sa susunod na pagbukas."
+msgstr "{mode} ang pinakamahusay para sa computer na ito. Gagamitin ito ng Awtomatiko mula sa susunod na pagbukas."
 
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."

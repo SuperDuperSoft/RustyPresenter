@@ -193,7 +193,7 @@ msgstr "Chant"
 
 #: ui/dialogs/add.slint ui/dialogs/design-editor.slint ui/dialogs/print.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/strings/print.rs src/theme/layouts.rs
 msgid "Words"
-msgstr "Mots"
+msgstr "Paroles"
 
 #: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings.slint
 msgid "Bible"
@@ -725,7 +725,7 @@ msgstr "La taille, la couleur, le gras, l’italique, le souligné et le barré 
 
 #: ui/dialogs/design-editor.slint
 msgid "To change some words only, mark them in the Words box first."
-msgstr "Pour ne changer que certains mots, sélectionnez-les d’abord dans la zone Mots."
+msgstr "Pour ne changer que certains mots, sélectionnez-les d’abord dans la zone Paroles."
 
 #: ui/dialogs/design-editor.slint
 msgid "Some words here have their own look. These settings change the whole box."
@@ -1182,7 +1182,7 @@ msgstr "Envoyer un test de 20 secondes"
 
 #: ui/dialogs/go-live-helper.slint
 msgid "Ready to go live"
-msgstr "Prêt pour le direct"
+msgstr "Prêt à passer en direct"
 
 #: ui/dialogs/go-live-helper.slint
 msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Media → Livestream."
@@ -1505,7 +1505,7 @@ msgstr "Demander un mot de passe à l’association d’un téléphone"
 
 #: ui/dialogs/network.slint
 msgid "Phone remote password"
-msgstr "Mot de passe de la télécommande"
+msgstr "Mot de passe de la télécommande téléphone"
 
 #: ui/dialogs/network.slint
 msgid "Saved — type to change it"
@@ -1557,7 +1557,7 @@ msgstr "Mot de passe TCP"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
-msgstr "Les superpositions restent sur l’écran de la salle pendant que les diapos changent : un logo dans un coin, une horloge ou un court panneau. Activez-les et désactivez-les avec les pastilles sous Suivant dans la colonne En direct. La dernière de la liste est dessinée au-dessus."
+msgstr "Les superpositions restent sur l’écran de la salle pendant que les diapos changent : un logo dans un coin, une horloge ou un court panneau. Activez-les et désactivez-les avec les pastilles sous À suivre dans la colonne En direct. La dernière de la liste est dessinée au-dessus."
 
 #: ui/dialogs/overlays.slint
 msgid "Filter overlays"
@@ -1725,7 +1725,7 @@ msgstr "Inclure les notes des éléments"
 
 #: ui/dialogs/print.slint
 msgid "Include Bible passages with the song words"
-msgstr "Inclure les lectures bibliques avec les paroles"
+msgstr "Inclure les passages bibliques avec les paroles"
 
 #: ui/dialogs/print.slint
 msgid "Start each song on a new page"
@@ -1841,7 +1841,7 @@ msgstr "Format d’image : {}"
 
 #: ui/dialogs/screens.slint
 msgid "Show what the room screen shows"
-msgstr "Afficher ce que voit l’assemblée"
+msgstr "Afficher ce que montre l’écran de la salle"
 
 #: ui/dialogs/screens.slint
 msgid "Whole screen"
@@ -2077,7 +2077,7 @@ msgstr "Entrée son"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Best: the lead singer's microphone on its own, sent from the sound board. Next best: the main mix. A microphone in the room hears too much else."
-msgstr "Le mieux : le micro du chanteur principal seul, envoyé depuis la console de sonorisation. Ensuite : le mix principal. Un micro dans la salle capte trop d'autres sons."
+msgstr "Le mieux : le micro du chanteur principal seul, envoyé depuis la console de son. Ensuite : le mix principal. Un micro dans la salle capte trop d'autres sons."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sound level"
@@ -2169,7 +2169,7 @@ msgstr "Tester la vitesse"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Tries the downloaded models on this computer and says which one suits it."
-msgstr "Essaie les modèles téléchargés sur ce PC et indique lequel lui convient."
+msgstr "Essaie les modèles téléchargés sur cet ordinateur et indique lequel lui convient."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
@@ -2253,7 +2253,7 @@ msgstr "Groupes d’effacement"
 
 #: ui/dialogs/settings-keys.slint
 msgid "A clear group takes several layers off the screen with one key. The View menu lists them too."
-msgstr "Un groupe d’effacement retire plusieurs couches de l’écran avec une seule touche. Le menu Affichage les liste aussi."
+msgstr "Un groupe d’effacement retire plusieurs calques de l’écran avec une seule touche. Le menu Affichage les liste aussi."
 
 #: ui/dialogs/settings-keys.slint
 msgid "Group name"
@@ -2585,7 +2585,7 @@ msgstr "Débit montant"
 
 #: ui/dialogs/settings-media.slint
 msgid "Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits."
-msgstr "Envoie quelques mégaoctets de zéros à un test de débit public et dit si Internet peut porter le direct vers chaque destination activée. Choisit la taille d'enregistrement qui convient."
+msgstr "Envoie quelques mégaoctets de zéros à un test de débit public et dit si Internet peut porter la diffusion vers chaque destination activée. Choisit la taille d'enregistrement qui convient."
 
 #: ui/dialogs/settings-media.slint
 msgid "Testing…"
@@ -2601,7 +2601,7 @@ msgstr "Retard du son"
 
 #: ui/dialogs/settings-media.slint
 msgid "If the sound in the stream comes before people's lips move, the camera's picture is late: hold the sound back until they match."
-msgstr "Si dans le direct le son arrive avant que les lèvres bougent, l'image de la caméra est en retard : retardez le son jusqu'à ce qu'ils coïncident."
+msgstr "Si dans la diffusion le son arrive avant que les lèvres bougent, l'image de la caméra est en retard : retardez le son jusqu'à ce qu'ils coïncident."
 
 #: ui/dialogs/settings-media.slint
 msgid "{} ms"
@@ -2645,7 +2645,7 @@ msgstr "NDI nécessite les NDI Tools gratuits de ndi.video sur cet ordinateur. I
 
 #: ui/dialogs/settings-media.slint
 msgid "Send the stream over NDI too (picture and sound)"
-msgstr "Envoyer aussi le flux par NDI (image et son)"
+msgstr "Envoyer aussi la diffusion par NDI (image et son)"
 
 #: ui/dialogs/settings-media.slint
 msgid "Send the words alone over NDI, on a see-through background (for keying)"
@@ -2709,7 +2709,7 @@ msgstr "Caméra"
 
 #: ui/dialogs/settings-media.slint
 msgid "A camera or capture card for the stream's camera scenes (and its recording)."
-msgstr "Une caméra ou une carte d'acquisition pour les scènes caméra du direct (et son enregistrement)."
+msgstr "Une caméra ou une carte d'acquisition pour les scènes caméra de la diffusion (et son enregistrement)."
 
 #: ui/dialogs/settings-media.slint
 msgid "Camera control address"
@@ -2853,7 +2853,7 @@ msgstr "Ça commence bientôt"
 
 #: ui/dialogs/settings-media.slint
 msgid "Before the service, with the pre-service countdown under the words while it runs."
-msgstr "Avant le culte, avec le compte à rebours sous les mots tant qu'il tourne."
+msgstr "Avant le culte, avec le compte à rebours sous les paroles tant qu'il tourne."
 
 #: ui/dialogs/settings-media.slint
 msgid "Use a picture…"
@@ -3201,7 +3201,7 @@ msgstr "Micro du téléphone"
 
 #: ui/dialogs/settings-sound.slint
 msgid "Turn on the stage screen for phones (Settings → Network…), then open this page on the phone and press Start: {}"
-msgstr "Activez l’affichage de scène (Réseau), puis ouvrez cette page sur le téléphone et appuyez sur Démarrer : {}"
+msgstr "Activez l’écran de scène pour téléphones (Paramètres → Réseau…), puis ouvrez cette page sur le téléphone et appuyez sur Démarrer : {}"
 
 #: ui/dialogs/settings-sound.slint
 msgid "The first time, the phone warns that the page is not private, because this computer made its own certificate: tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
@@ -3277,7 +3277,7 @@ msgstr "Sur votre site web"
 
 #: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
 msgid "To play the livestream on your church's website: copy the code, then in your website's editor add an \"HTML\", \"Embed\" or \"Code\" block where the video should go and paste it there. You do this once: the same code plays every week's service."
-msgstr "Pour lire le direct sur le site web de votre église : copiez le code, puis dans l’éditeur de votre site ajoutez un bloc « HTML », « Intégrer » ou « Code » là où la vidéo doit aller, et collez-le dedans. Vous le faites une seule fois : le même code lit le culte de chaque semaine."
+msgstr "Pour lire la diffusion en direct sur le site web de votre église : copiez le code, puis dans l’éditeur de votre site ajoutez un bloc « HTML », « Intégrer » ou « Code » là où la vidéo doit aller, et collez-le dedans. Vous le faites une seule fois : le même code lit le culte de chaque semaine."
 
 #: ui/dialogs/settings-stream-extras.slint
 msgid "YouTube channel id"
@@ -3449,7 +3449,7 @@ msgstr "Épais"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Text band (a see-through strip behind the words)"
-msgstr "Bande de texte (une bande transparente derrière les mots)"
+msgstr "Bande de texte (une bande transparente derrière les paroles)"
 
 #: ui/dialogs/settings-themes.slint
 msgid "Band colour"
@@ -4049,7 +4049,7 @@ msgstr "Configurations enregistrées"
 
 #: ui/dialogs/stream-more.slint
 msgid "Keep everything set for the livestream (destinations, cameras, sound, scenes and these settings) under a name, and use it again in one go. Stream keys stay as they are."
-msgstr "Garder tout ce qui est réglé pour le direct (destinations, caméras, son, scènes et ces réglages) sous un nom, et le réutiliser en une fois. Les clés de diffusion restent telles quelles."
+msgstr "Garder tout ce qui est réglé pour la diffusion en direct (destinations, caméras, son, scènes et ces réglages) sous un nom, et le réutiliser en une fois. Les clés de diffusion restent telles quelles."
 
 #: ui/dialogs/stream-more.slint
 msgid "Save as a setup…"
@@ -4333,7 +4333,7 @@ msgstr "Calques (celui du haut est devant)"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "No layers: the stream shows black. Add one."
-msgstr "Aucun calque : le direct affiche du noir. Ajoutez-en un."
+msgstr "Aucun calque : la diffusion affiche du noir. Ajoutez-en un."
 
 #: ui/dialogs/stream-scenes.slint
 msgid "Add layer"
@@ -4361,7 +4361,7 @@ msgstr "Aucune vidéo choisie."
 
 #: ui/dialogs/stream-scenes.slint
 msgid "It plays again and again, without its sound, while the stream is live."
-msgstr "Elle tourne en boucle, sans son, pendant le direct."
+msgstr "Elle tourne en boucle, sans son, pendant la diffusion."
 
 #: ui/dialogs/stream-scenes.slint
 msgid "Show the seconds"
@@ -4905,11 +4905,11 @@ msgstr "Basculer"
 
 #: ui/operator/cameras.slint
 msgid "Put the next camera on the stream now"
-msgstr "Passer tout de suite à la caméra suivante dans le direct"
+msgstr "Passer tout de suite à la caméra suivante dans la diffusion"
 
 #: ui/operator/cameras.slint
 msgid "Fade the stream over to the next camera"
-msgstr "Passer en fondu à la caméra suivante dans le direct"
+msgstr "Passer en fondu à la caméra suivante dans la diffusion"
 
 #: ui/operator/follow.slint
 msgid "Review log…"
@@ -5153,7 +5153,7 @@ msgstr "Déposez pour ajouter au culte"
 
 #: ui/operator/overlays.slint
 msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect song files"
-msgstr "Vidéos, images, musique, présentations (PowerPoint, Keynote, PDF), fichiers de paroles SongSelect"
+msgstr "Vidéos, images, musique, présentations (PowerPoint, Keynote, PDF), fichiers de chants SongSelect"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop the livestream"
@@ -5185,11 +5185,11 @@ msgstr "Arrêter la diffusion et enregistrer le fichier"
 
 #: ui/operator/record.slint
 msgid "Send the room screen to the livestream, and record it"
-msgstr "Envoyer l’écran de la salle en direct, et l’enregistrer"
+msgstr "Envoyer l’écran de la salle à la diffusion en direct, et l’enregistrer"
 
 #: ui/operator/record.slint
 msgid "Stream scene"
-msgstr "Scène du direct"
+msgstr "Scène de la diffusion"
 
 #: ui/operator/record.slint
 msgid "{} (automatic)"
@@ -5197,7 +5197,7 @@ msgstr "{} (automatique)"
 
 #: ui/operator/record.slint
 msgid "What the livestream shows. It changes by itself with what is live; click to choose"
-msgstr "Ce que montre le direct. Il change tout seul selon ce qui est à l'écran ; cliquez pour choisir"
+msgstr "Ce que montre la diffusion. Elle change toute seule selon ce qui est à l'écran ; cliquez pour choisir"
 
 #: ui/operator/record.slint
 msgid "Camera: {}"
@@ -5209,7 +5209,7 @@ msgstr "Position de caméra {}"
 
 #: ui/operator/record.slint
 msgid "Stream sound"
-msgstr "Son du direct"
+msgstr "Son de la diffusion"
 
 #: ui/operator/record.slint
 msgid "Silent"
@@ -5221,7 +5221,7 @@ msgstr "{} sur 5"
 
 #: ui/operator/record.slint
 msgid "How loud the stream's sound is. No bars: nothing is going out"
-msgstr "Le niveau du son du direct. Aucune barre : rien ne sort"
+msgstr "Le niveau du son de la diffusion. Aucune barre : rien ne sort"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop recording"
@@ -6069,7 +6069,7 @@ msgstr "Ajoutez d’abord un écran."
 
 #: src/app.rs
 msgid "Room screen {number}"
-msgstr "Public {number}"
+msgstr "Écran de la salle {number}"
 
 #: src/app.rs
 msgid "Stage screen {number}"
@@ -6197,11 +6197,11 @@ msgstr "Masquer le message de scène"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Livestream: {name}"
-msgstr "Direct : {name}"
+msgstr "Diffusion : {name}"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Livestream: automatic"
-msgstr "Direct : automatique"
+msgstr "Diffusion : automatique"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Start a clip of the recording"
@@ -6409,7 +6409,7 @@ msgstr "Collez d’abord le texte du verset."
 
 #: src/follow/audio.rs
 msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Media → Recording."
-msgstr "Le suivi automatique a besoin de FFmpeg pour entendre la salle. Téléchargez-le dans Paramètres → Enregistrement."
+msgstr "Le suivi automatique a besoin de FFmpeg pour entendre la salle. Téléchargez-le dans Paramètres → Médias → Enregistrement."
 
 #: src/follow/audio.rs
 msgid "FFmpeg stopped"
@@ -6449,11 +6449,11 @@ msgstr "Diapo suggérée {number}"
 
 #: src/follow/log.rs
 msgid "Words off"
-msgstr "Texte retiré"
+msgstr "Paroles retirées"
 
 #: src/follow/log.rs
 msgid "Words back on slide {number}"
-msgstr "Texte de retour sur la diapo {number}"
+msgstr "Paroles de retour sur la diapo {number}"
 
 #: src/follow/strings.rs
 msgid "Songs follow the singers. Click: Manual → Suggest (the next slide glows) → Auto (the slides move by themselves). Key: A turns Auto on and off. ⋯ beside it: the review log, Practice and the settings."
@@ -6481,7 +6481,7 @@ msgstr "En pause — les diapos ne bougent pas"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Nobody singing — words off"
-msgstr "Personne ne chante — texte retiré"
+msgstr "Personne ne chante — paroles retirées"
 
 #: src/follow/strings.rs
 msgid "off"
@@ -6505,7 +6505,7 @@ msgstr "en pause"
 
 #: src/follow/strings.rs
 msgid "words off"
-msgstr "texte retiré"
+msgstr "paroles retirées"
 
 #: src/follow/strings.rs
 msgid "Hold: auto-follow doesn't move the slides until you click again. Key: H"
@@ -6545,7 +6545,7 @@ msgstr "Le fichier de traduction {file} n’a pas pu être lu ({reason}) ; il n�
 
 #: src/i18n/remote_strings.rs
 msgid "Phone remote — RustyPresenter"
-msgstr "Télécommande RustyPresenter"
+msgstr "Télécommande téléphone — RustyPresenter"
 
 #: src/i18n/remote_strings.rs
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
@@ -6712,7 +6712,7 @@ msgstr "Mot de passe"
 
 #: src/i18n/remote_strings.rs
 msgid "This phone remote needs a password too."
-msgstr "Cette télécommande demande aussi un mot de passe."
+msgstr "Cette télécommande téléphone demande aussi un mot de passe."
 
 #: src/i18n/remote_strings.rs
 msgid "This stage screen needs a password."
@@ -7160,7 +7160,7 @@ msgstr "Cet écran n’est pas connecté pour le moment."
 
 #: src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/theme/layouts.rs
 msgid "Bible passage"
-msgstr "Écritures"
+msgstr "Passage biblique"
 
 #: src/record/advanced.rs
 msgid "{name} last {minutes} minutes"
@@ -7462,15 +7462,15 @@ msgstr "Mettre en pause le suivi automatique (les diapos ne bougent pas)"
 
 #: src/shortcuts.rs
 msgid "Livestream: camera {n} next"
-msgstr "Direct : caméra {n} ensuite"
+msgstr "Diffusion : caméra {n} ensuite"
 
 #: src/shortcuts.rs
 msgid "Livestream: switch to the next camera"
-msgstr "Direct : passer à la caméra suivante"
+msgstr "Diffusion : passer à la caméra suivante"
 
 #: src/shortcuts.rs
 msgid "Livestream: fade to the next camera"
-msgstr "Direct : fondu vers la caméra suivante"
+msgstr "Diffusion : fondu vers la caméra suivante"
 
 #: src/shortcuts.rs
 msgid "Everything but the background"
@@ -7478,11 +7478,11 @@ msgstr "Tout sauf l’arrière-plan"
 
 #: src/shortcuts.rs
 msgid "Livestream scene: {name}"
-msgstr "Scène du direct : {name}"
+msgstr "Scène de la diffusion : {name}"
 
 #: src/shortcuts.rs
 msgid "Scene keys work while the stream is live."
-msgstr "Les touches de scène marchent pendant le direct."
+msgstr "Les touches de scène marchent pendant la diffusion."
 
 #: src/slides.rs src/strings/print.rs
 msgid "Missing song"
@@ -7502,7 +7502,7 @@ msgstr "Aucune parole trouvée dans ce fichier."
 
 #: src/songselect/inbox.rs src/songselect.rs src/ui/dialogs/songselect.rs
 msgid "That file is too big to be a song file."
-msgstr "Ce fichier est trop gros pour être un fichier de paroles."
+msgstr "Ce fichier est trop gros pour être un fichier de chant."
 
 #: src/songselect/inbox.rs
 msgid "it has no CCLI song number"
@@ -7522,7 +7522,7 @@ msgstr "Le fichier de chant n'a pas de titre."
 
 #: src/songselect.rs
 msgid "The song file is empty."
-msgstr "Le fichier de paroles est vide."
+msgstr "Le fichier de chant est vide."
 
 #: src/songselect.rs
 msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
@@ -7578,7 +7578,7 @@ msgstr "La connexion n'a pas fonctionné : {why}"
 
 #: src/stream/accounts/mod.rs
 msgid "This Facebook account manages no Page. A stream can only go to a Page."
-msgstr "Ce compte Facebook ne gère aucune Page. Un direct ne peut aller que sur une Page."
+msgstr "Ce compte Facebook ne gère aucune Page. Une diffusion ne peut aller que sur une Page."
 
 #: src/stream/accounts/mod.rs
 msgid "{name}: the broadcast could not be made ({why}). Sign in again in Settings → Media → Livestream."
@@ -7818,7 +7818,7 @@ msgstr "{name} a perdu la connexion. Nouvel essai automatique ; l’enregistreme
 
 #: src/stream/mod.rs
 msgid "Nothing goes out over NDI: it needs the free NDI Tools from ndi.video on this computer. The livestream goes on without it."
-msgstr "Rien ne sort par NDI : il faut les NDI Tools gratuits de ndi.video sur cet ordinateur. Le direct continue sans NDI."
+msgstr "Rien ne sort par NDI : il faut les NDI Tools gratuits de ndi.video sur cet ordinateur. La diffusion continue sans NDI."
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
@@ -8122,7 +8122,7 @@ msgstr "Pas dans la diffusion"
 
 #: src/stream/phone_camera.rs
 msgid "On the computer, choose this phone in Settings → Media → Livestream → Camera."
-msgstr "Sur l’ordinateur, choisissez ce téléphone dans Paramètres, Médias, Diffusion en direct, Caméra."
+msgstr "Sur l’ordinateur, choisissez ce téléphone dans Paramètres → Médias → Diffusion en direct → Caméra."
 
 #: src/stream/phone_camera.rs
 msgid "Any phone on the church's Wi-Fi can be a camera. On the phone, open {address} and follow the steps there. The first time, the phone warns that the connection is not private: that is expected, because the page comes from this computer. Tap Advanced (or Show Details), then Proceed (or Visit this website). Then pair it with the code from Phone remote, Pair a phone. Once it sends its picture, it is listed in the camera lists above as Phone camera and its name."
@@ -8158,7 +8158,7 @@ msgstr "Le téléphone n’a pas laissé la page utiliser son micro. Autorisez-l
 
 #: src/stream/phone_mic.rs
 msgid "Turn on the stage screen for phones in RustyPresenter (Settings → Network…), and sign in to it on this phone first."
-msgstr "Activez d’abord l’affichage de scène dans RustyPresenter (Réseau), et connectez-vous-y sur ce téléphone."
+msgstr "Activez d’abord l’écran de scène pour téléphones dans RustyPresenter (Paramètres → Réseau…), et connectez-vous-y sur ce téléphone."
 
 #: src/stream/preflight.rs
 msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Media → Livestream. The stream shows the slides in its place."
@@ -8218,7 +8218,7 @@ msgstr "Personnalisé (comme réglé ci-dessous)"
 
 #: src/stream/sound_setup.rs
 msgid "Sound board or mixer"
-msgstr "Console de son"
+msgstr "Console de son ou table de mixage"
 
 #: src/stream/sound_setup.rs
 msgid "USB microphone"
@@ -8246,7 +8246,7 @@ msgstr "Envoi : {speed} Mbit/s. Diffusez en 720p : le 1080p demande {need} Mbit/
 
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer destinations, or use a faster connection."
-msgstr "Envoi : {speed} Mbit/s. C'est trop lent : le 720p vers chaque destination activée demande {need} Mbit/s. Diffusez vers moins d'endroits ou utilisez une connexion plus rapide."
+msgstr "Envoi : {speed} Mbit/s. C'est trop lent : le 720p vers chaque destination activée demande {need} Mbit/s. Diffusez vers moins de destinations ou utilisez une connexion plus rapide."
 
 #: src/stream/tally.rs
 msgid "Camera {camera}: on air"
@@ -8266,7 +8266,7 @@ msgstr "Pas de diffusion"
 
 #: src/stream/tally.rs
 msgid "Turn on the stage screen for phones (Settings → Network…). If it has a password, open the stage screen on this phone once and sign in."
-msgstr "Activez l’affichage de scène dans Paramètres → Réseau. Si elle a un mot de passe, ouvrez une fois l’affichage de scène sur ce téléphone et connectez-vous."
+msgstr "Activez l’écran de scène pour téléphones (Paramètres → Réseau…). S’il a un mot de passe, ouvrez une fois l’écran de scène sur ce téléphone et connectez-vous."
 
 #: src/stream/transition.rs
 msgid "Cut (at once)"
@@ -8810,7 +8810,7 @@ msgstr "{name} n’a pas pu être utilisée, elle n’a donc pas été ajoutée.
 
 #: src/strings/catalog.rs
 msgid "That Bible is no longer in the list. Open Settings → Bible again to see the current list."
-msgstr "Cette Bible n’est plus dans la liste. Rouvrez Paramètres → Bibles pour voir la liste actuelle."
+msgstr "Cette Bible n’est plus dans la liste. Rouvrez Paramètres → Bible pour voir la liste actuelle."
 
 #: src/strings/catalog.rs
 msgid "You're offline, so Bibles can't be added right now."
@@ -9196,7 +9196,7 @@ msgstr "Ce mot de passe est incorrect."
 
 #: src/strings/network.rs
 msgid "The stage screen for phones is turned off on the presentation computer."
-msgstr "L’affichage de scène est désactivé sur l’ordinateur de présentation."
+msgstr "L’écran de scène pour téléphones est désactivé sur l’ordinateur de présentation."
 
 #: src/strings/network.rs
 msgid "Network settings saved."
@@ -9288,7 +9288,7 @@ msgstr "Présentations"
 
 #: src/strings/operator.rs
 msgid "SongSelect song files"
-msgstr "Fichiers de paroles SongSelect"
+msgstr "Fichiers de chants SongSelect"
 
 #: src/strings/operator.rs
 msgid "Pictures and videos"
@@ -9689,7 +9689,7 @@ msgstr "Créer un culte pour le {date} à partir de « {service} » ?"
 
 #: src/strings/planning.rs
 msgid "Copy, with blanks for songs and Bible passages"
-msgstr "Copier, avec des emplacements vides pour les chants et les lectures bibliques"
+msgstr "Copier, avec des emplacements vides pour les chants et les passages bibliques"
 
 #: src/strings/planning.rs
 msgid "There is already a service for {date} (“{name}”)."
@@ -9845,11 +9845,11 @@ msgstr "La sortie son n’est pas connectée, la vidéo ou l’audio a donc ét�
 
 #: src/strings/preflight.rs
 msgid "The logo's file is missing. Choose it again in Settings → Look."
-msgstr "Le fichier du logo est manquant. Choisissez-le à nouveau dans les paramètres."
+msgstr "Le fichier du logo est manquant. Choisissez-le à nouveau dans Paramètres → Apparence."
 
 #: src/strings/preflight.rs
 msgid "The default background's file is missing. Choose it again in Settings → Look."
-msgstr "Le fichier de l’arrière-plan par défaut est manquant. Choisissez-le à nouveau dans les paramètres."
+msgstr "Le fichier de l’arrière-plan par défaut est manquant. Choisissez-le à nouveau dans Paramètres → Apparence."
 
 #: src/strings/preflight.rs
 msgid "the song is no longer in the library"
@@ -9929,7 +9929,7 @@ msgstr " (en boucle)"
 
 #: src/strings/print.rs
 msgid "No songs or Bible passages in this service."
-msgstr "Aucun chant ni lecture biblique dans ce culte."
+msgstr "Aucun chant ni passage biblique dans ce culte."
 
 #: src/strings/print.rs
 msgid "This service is empty."
@@ -10009,7 +10009,7 @@ msgstr "Rien ne s’affiche sur un emplacement réservé. Configurez-le maintena
 
 #: src/strings/screens.rs
 msgid "Shows the room screen's picture instead of a stage layout. It has no sound."
-msgstr "Affiche l’image de l’assemblée au lieu d’une disposition de scène. Sans son."
+msgstr "Affiche l’image de l’écran de la salle au lieu d’une disposition de scène. Sans son."
 
 #: src/strings/screens.rs
 msgid "Colour bars"
@@ -10277,7 +10277,7 @@ msgstr "{bible} nécessite Internet pour ce passage."
 
 #: src/strings/scripture.rs
 msgid "That Bible was removed. Add it again in Settings → Bible."
-msgstr "Cette Bible a été retirée. Ajoutez-la à nouveau dans Paramètres → Bibles."
+msgstr "Cette Bible a été retirée. Ajoutez-la à nouveau dans Paramètres → Bible."
 
 #: src/strings/scripture.rs
 msgid "Select a Bible passage first."
@@ -11161,7 +11161,7 @@ msgstr "Jusqu’à 8 superpositions peuvent être actives à la fois. Désactive
 
 #: src/strings/themes.rs
 msgid "Choose a church logo first (Settings → Look)."
-msgstr "Choisissez d’abord un logo d’église (Paramètres → Thèmes)."
+msgstr "Choisissez d’abord un logo d’église (Paramètres → Apparence)."
 
 #: src/strings/themes.rs
 msgid "That picture is gone."
@@ -11553,15 +11553,15 @@ msgstr "YouTube demande une connexion pour vérifier que vous n’êtes pas un r
 
 #: src/strings/youtube.rs
 msgid "This livestream hasn't finished yet. Try again after it ends."
-msgstr "Ce direct n’est pas encore terminé. Réessayez après sa fin."
+msgstr "Cette diffusion en direct n’est pas encore terminée. Réessayez après sa fin."
 
 #: src/strings/youtube.rs
 msgid "This livestream or premiere hasn't started yet."
-msgstr "Ce direct ou cette première n’a pas encore commencé."
+msgstr "Cette diffusion en direct ou cette première n’a pas encore commencé."
 
 #: src/strings/youtube.rs
 msgid "This livestream just ended and YouTube is still preparing it. Try again in a while."
-msgstr "Ce direct vient de se terminer et YouTube le prépare encore. Réessayez dans un moment."
+msgstr "Cette diffusion en direct vient de se terminer et YouTube la prépare encore. Réessayez dans un moment."
 
 #: src/strings/youtube.rs
 msgid "That link isn't a YouTube video. Copy the link from the video's page and try again."
@@ -11685,7 +11685,7 @@ msgstr "Lever du soleil"
 
 #: src/theme/builtins.rs
 msgid "Words over video"
-msgstr "Texte sur vidéo"
+msgstr "Paroles sur vidéo"
 
 #: src/theme/layouts.rs
 msgid "Title + subtitle"
@@ -11830,7 +11830,7 @@ msgstr "Afficher un message sur la scène"
 
 #: src/ui/dialogs/automation.rs
 msgid "Change the livestream's scene"
-msgstr "Changer la scène du direct"
+msgstr "Changer la scène de la diffusion"
 
 #: src/ui/dialogs/automation.rs
 msgid "Move a PTZ camera"
@@ -11952,7 +11952,7 @@ msgstr "Envoyez une commande par ligne : next, prev, clear, clear slide, logo, g
 
 #: src/ui/dialogs/quick_search.rs
 msgid "Type a song title, some of its words, a file name or a service."
-msgstr "Tapez un titre de chant, des mots des paroles, un nom de fichier ou un culte."
+msgstr "Tapez un titre de chant, quelques mots de ses paroles, un nom de fichier ou un culte."
 
 #: src/ui/dialogs/quick_search.rs
 msgid "In this service"
@@ -12098,7 +12098,7 @@ msgstr "Meilleur fonctionne bien ici."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Use Fast on this computer: Best is too slow here."
-msgstr "Utilisez Rapide sur ce PC : Meilleur est trop lent ici."
+msgstr "Utilisez Rapide sur cet ordinateur : Meilleur est trop lent ici."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Fast runs fine here. Download Best to check it too."
@@ -12110,7 +12110,7 @@ msgstr "Téléchargez d’abord un modèle, puis testez sa vitesse."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "This computer is too slow for the speech models: auto-follow can't hear the words here, so it can't follow the songs."
-msgstr "Ce PC est trop lent pour les modèles vocaux : le suivi automatique ne peut pas entendre le texte ici, il ne peut donc pas suivre les chants."
+msgstr "Cet ordinateur est trop lent pour les modèles vocaux : le suivi automatique ne peut pas entendre les paroles ici, il ne peut donc pas suivre les chants."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Couldn't reach the download site. Check the internet and try again: it goes on where it stopped."
@@ -12298,7 +12298,7 @@ msgstr "Votre dossier Téléchargements est introuvable. Utilisez « Choisir un 
 
 #: src/ui/dialogs/stream_more.rs
 msgid "More livestream settings"
-msgstr "Plus de réglages du direct"
+msgstr "Plus de réglages de la diffusion"
 
 #: src/ui/dialogs/stream_more.rs
 msgid "The setup “{name}” is chosen. Save to use it."
@@ -12322,11 +12322,11 @@ msgstr "Quitter"
 
 #: src/ui/dialogs/stream_more.rs
 msgid "Livestream settings saved."
-msgstr "Réglages du direct enregistrés."
+msgstr "Réglages de la diffusion enregistrés."
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Your livestream scenes"
-msgstr "Vos scènes du direct"
+msgstr "Vos scènes de diffusion"
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Scene {n}"
@@ -12504,7 +12504,7 @@ msgstr "Se préparer pour dimanche"
 
 #: src/ui/operator/help.rs
 msgid "File → New service… makes this week's service. File → Services… opens an older one or copies last week."
-msgstr "Fichier → Nouveau culte crée le culte de la semaine. Fichier → Cultes… en ouvre un plus ancien ou copie celui de la semaine dernière."
+msgstr "Fichier → Nouveau culte… crée le culte de la semaine. Fichier → Cultes… en ouvre un plus ancien ou copie celui de la semaine dernière."
 
 #: src/ui/operator/help.rs
 msgid "File → Add to service adds songs, Bible passages, videos, slides and announcements. Drag items to change their order."
@@ -12738,7 +12738,7 @@ msgstr "L’écran de la salle a été débranché. Il reviendra tout seul quand
 
 #: src/ui/screens.rs
 msgid "The extra room screen was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr "L’écran du public supplémentaire a été débranché. Il reviendra tout seul quand cet écran sera rebranché."
+msgstr "L’écran de la salle supplémentaire a été débranché. Il reviendra tout seul quand cet écran sera rebranché."
 
 #: src/ui/screens.rs
 msgid "The stage screen was unplugged. It comes back by itself when that screen is plugged in again."
@@ -12754,7 +12754,7 @@ msgstr "L’écran de la salle est rebranché, mais il n’a pas pu s’ouvrir 
 
 #: src/ui/screens.rs
 msgid "The extra room screen is plugged in again, but it could not open: {error}"
-msgstr "L’écran du public supplémentaire est rebranché, mais il n’a pas pu s’ouvrir : {error}"
+msgstr "L’écran de la salle supplémentaire est rebranché, mais il n’a pas pu s’ouvrir : {error}"
 
 #: src/ui/screens.rs
 msgid "The stage screen is plugged in again, but it could not open: {error}"
@@ -12899,11 +12899,11 @@ msgstr "Test de {mode}… ({at} sur {count})"
 
 #: src/video/bench.rs
 msgid "The graphics card or its driver changed. Want me to find the best graphics for this computer again? About a minute"
-msgstr "La carte graphique ou son pilote a changé. Voulez-vous que je cherche de nouveau le meilleur affichage pour ce PC ? Environ une minute"
+msgstr "La carte graphique ou son pilote a changé. Voulez-vous que je cherche de nouveau le meilleur affichage pour cet ordinateur ? Environ une minute"
 
 #: src/video/bench.rs
 msgid "Want me to find the best graphics for this computer? About a minute"
-msgstr "Voulez-vous que je cherche le meilleur affichage pour ce PC ? Environ une minute"
+msgstr "Voulez-vous que je cherche le meilleur affichage pour cet ordinateur ? Environ une minute"
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
@@ -12911,7 +12911,7 @@ msgstr "Aucune option graphique n’a fonctionné pendant le test. RustyPresente
 
 #: src/video/bench.rs
 msgid "{mode} is the best for this computer. Automatic will use it from the next start."
-msgstr "{mode} est le meilleur choix pour ce PC. Automatique l’utilisera dès le prochain démarrage."
+msgstr "{mode} est le meilleur choix pour cet ordinateur. Automatique l’utilisera dès le prochain démarrage."
 
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."

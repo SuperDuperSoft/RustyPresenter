@@ -229,7 +229,7 @@ msgstr "Свой текст"
 
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Not in the words — it is skipped"
-msgstr "Нет в тексте — пропускается"
+msgstr "Нет в словах — пропускается"
 
 #: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
@@ -301,7 +301,7 @@ msgstr "Показывает, сколько осталось видео на э
 
 #: ui/dialogs/automation.slint
 msgid "Shows how long the audio playing has left (an audio item, or else the walk-in music)."
-msgstr "Показывает, сколько осталось играющего звука (аудиопункта или музыки перед служением)."
+msgstr "Показывает, сколько осталось играющему аудио (аудиопункту или музыке перед служением)."
 
 #: ui/dialogs/automation.slint
 msgid "Keep counting after zero (+m:ss)"
@@ -1206,11 +1206,11 @@ msgstr "В эфир сейчас"
 
 #: ui/dialogs/item-edit.slint
 msgid "Words, order and credits belong to the song in your library."
-msgstr "Текст, порядок и авторы хранятся в песне в вашей библиотеке."
+msgstr "Слова, порядок и авторы хранятся в песне в вашей библиотеке."
 
 #: ui/dialogs/item-edit.slint
 msgid "Words, order and credits belong to the song in your library. This song was deleted from the library."
-msgstr "Текст, порядок и авторы хранятся в песне в вашей библиотеке. Эта песня удалена из библиотеки."
+msgstr "Слова, порядок и авторы хранятся в песне в вашей библиотеке. Эта песня удалена из библиотеки."
 
 #: ui/dialogs/item-edit.slint src/strings/dialogs.rs
 msgid "Edit song"
@@ -1330,7 +1330,7 @@ msgstr "Повторять до остановки"
 
 #: ui/dialogs/item-edit.slint
 msgid "Audio keeps playing while you change slides. Stop it with Clear audio (F4) or Clear all."
-msgstr "Звук продолжает играть при смене слайдов. Остановите его кнопкой «Убрать звук» (F4) или «Очистить всё»."
+msgstr "Аудио продолжает играть при смене слайдов. Остановите его кнопкой «Очистить аудио» (F4) или «Очистить всё»."
 
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
@@ -1441,7 +1441,7 @@ msgstr "Убрать из служения"
 
 #: ui/dialogs/music.slint
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear all stop it."
-msgstr "Музыка перед служением продолжает играть при смене слайдов. «Убрать звук» и «Очистить всё» останавливают её."
+msgstr "Музыка перед служением продолжает играть при смене слайдов. «Очистить аудио» и «Очистить всё» останавливают её."
 
 #: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
 msgid "Songs"
@@ -1505,7 +1505,7 @@ msgstr "Запрашивать пароль при подключении тел
 
 #: ui/dialogs/network.slint
 msgid "Phone remote password"
-msgstr "Пароль пульта"
+msgstr "Пароль телефона-пульта"
 
 #: ui/dialogs/network.slint
 msgid "Saved — type to change it"
@@ -1557,7 +1557,7 @@ msgstr "Пароль TCP"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
-msgstr "Наложения остаются на экране зала при смене слайдов: логотип в углу, часы или короткая надпись. Включайте и выключайте их кнопками под «Далее» в колонке эфира. Последнее в списке рисуется поверх остальных."
+msgstr "Наложения остаются на экране зала при смене слайдов: логотип в углу, часы или короткая надпись. Включайте и выключайте их кнопками под «Следующее» в колонке эфира. Последнее в списке рисуется поверх остальных."
 
 #: ui/dialogs/overlays.slint
 msgid "Filter overlays"
@@ -1725,7 +1725,7 @@ msgstr "Включить заметки к пунктам"
 
 #: ui/dialogs/print.slint
 msgid "Include Bible passages with the song words"
-msgstr "Включить чтения из Библии вместе с текстами песен"
+msgstr "Включить отрывки из Библии вместе со словами песен"
 
 #: ui/dialogs/print.slint
 msgid "Start each song on a new page"
@@ -1841,7 +1841,7 @@ msgstr "Соотношение сторон: {}"
 
 #: ui/dialogs/screens.slint
 msgid "Show what the room screen shows"
-msgstr "Показывать то, что видит зал"
+msgstr "Показывать то, что показывает экран зала"
 
 #: ui/dialogs/screens.slint
 msgid "Whole screen"
@@ -1933,7 +1933,7 @@ msgstr "Дата…"
 
 #: ui/dialogs/services.slint
 msgid "Print the service order and the song words, or save them as a web page"
-msgstr "Напечатать порядок служения и тексты песен или сохранить их как веб-страницу"
+msgstr "Напечатать порядок служения и слова песен или сохранить их как веб-страницу"
 
 #: ui/dialogs/services.slint
 msgid "Save as template"
@@ -2077,7 +2077,7 @@ msgstr "Звуковой вход"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Best: the lead singer's microphone on its own, sent from the sound board. Next best: the main mix. A microphone in the room hears too much else."
-msgstr "Лучше всего: отдельный сигнал микрофона ведущего вокалиста с пульта. На втором месте: основной микс. Микрофон в зале слышит слишком много лишнего."
+msgstr "Лучше всего: отдельный сигнал микрофона ведущего вокалиста со звукового пульта. На втором месте: основной микс. Микрофон в зале слышит слишком много лишнего."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sound level"
@@ -2097,7 +2097,7 @@ msgstr "Песни следуют за певцами"
 
 #: ui/dialogs/settings-follow.slint
 msgid "A song can have its own in Edit item. Key A turns Auto on and off for the live song, H holds it."
-msgstr "У каждой песни может быть своя настройка в «Изменить элемент». Клавиша A включает и выключает Авто для текущей песни, H — пауза."
+msgstr "У каждой песни может быть своя настройка в «Изменить пункт». Клавиша A включает и выключает Авто для текущей песни, H — пауза."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Timing"
@@ -2121,7 +2121,7 @@ msgstr "Когда никто не поёт"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Take the words off after (seconds)"
-msgstr "Убрать текст через (секунд)"
+msgstr "Убрать слова через (секунд)"
 
 #: ui/dialogs/settings-follow.slint
 msgid "When someone talks or prays"
@@ -2169,7 +2169,7 @@ msgstr "Проверить скорость"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Tries the downloaded models on this computer and says which one suits it."
-msgstr "Пробует скачанные модели на этом ПК и говорит, какая ему подходит."
+msgstr "Пробует скачанные модели на этом компьютере и говорит, какая ему подходит."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
@@ -2325,7 +2325,7 @@ msgstr "(для новых отрывков)"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Bible text size"
-msgstr "Размер текста Писания"
+msgstr "Размер текста Библии"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "(biggest)"
@@ -2345,7 +2345,7 @@ msgstr "Нижняя треть"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "ALL CAPS song words"
-msgstr "Текст песен ЗАГЛАВНЫМИ"
+msgstr "Слова песен ЗАГЛАВНЫМИ"
 
 #: ui/dialogs/settings-look.slint
 msgid "Fade when the theme changes"
@@ -2569,7 +2569,7 @@ msgstr "Трансляция"
 
 #: ui/dialogs/settings-media.slint
 msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on."
-msgstr "Включите место назначения — рядом с кнопкой «Запись» появится кнопка «В эфир». «В эфир» записывает как обычно и отправляет то же изображение и звук во все включённые места."
+msgstr "Включите направление — рядом с кнопкой «Запись» появится кнопка «В эфир». «В эфир» записывает как обычно и отправляет то же изображение и звук во все включённые направления."
 
 #: ui/dialogs/settings-media.slint
 msgid "Sound from this computer"
@@ -2585,7 +2585,7 @@ msgstr "Скорость отдачи"
 
 #: ui/dialogs/settings-media.slint
 msgid "Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits."
-msgstr "Отправляет несколько мегабайт нулей на общедоступный тест скорости и говорит, хватит ли интернета для трансляции во все включённые места. Выбирает подходящий размер записи."
+msgstr "Отправляет несколько мегабайт нулей на общедоступный тест скорости и говорит, хватит ли интернета для трансляции во все включённые направления. Выбирает подходящий размер записи."
 
 #: ui/dialogs/settings-media.slint
 msgid "Testing…"
@@ -2625,7 +2625,7 @@ msgstr "Медленный интернет"
 
 #: ui/dialogs/settings-media.slint
 msgid "When a destination's internet cannot keep up, it gets a lighter stream until it can, instead of skipping. The recording and the other destinations keep the full picture. This uses more of the computer."
-msgstr "Когда интернет до какого-то адресата не успевает, он получает облегчённую трансляцию, пока не начнёт успевать, вместо пропусков. Запись и остальные адресаты получают полное изображение. Это сильнее нагружает компьютер."
+msgstr "Когда интернет до какого-то направления не успевает, оно получает облегчённую трансляцию, пока не начнёт успевать, вместо пропусков. Запись и остальные направления получают полное изображение. Это сильнее нагружает компьютер."
 
 #: ui/dialogs/settings-media.slint
 msgid "Send a lighter stream where the internet is slow"
@@ -2649,7 +2649,7 @@ msgstr "Также отправлять трансляцию по NDI (изоб�
 
 #: ui/dialogs/settings-media.slint
 msgid "Send the words alone over NDI, on a see-through background (for keying)"
-msgstr "Отправлять по NDI только текст, на прозрачном фоне (для кеинга)"
+msgstr "Отправлять по NDI только слова, на прозрачном фоне (для кеинга)"
 
 #: ui/dialogs/settings-media.slint
 msgid "Words alone"
@@ -3201,7 +3201,7 @@ msgstr "Микрофон телефона"
 
 #: ui/dialogs/settings-sound.slint
 msgid "Turn on the stage screen for phones (Settings → Network…), then open this page on the phone and press Start: {}"
-msgstr "Включите вид сцены (Сеть), затем откройте эту страницу на телефоне и нажмите «Начать»: {}"
+msgstr "Включите экран сцены для телефонов («Настройки → Сеть…»), затем откройте эту страницу на телефоне и нажмите «Начать»: {}"
 
 #: ui/dialogs/settings-sound.slint
 msgid "The first time, the phone warns that the page is not private, because this computer made its own certificate: tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
@@ -4009,7 +4009,7 @@ msgstr "Показывает"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Show chords (typed in the words like [G])"
-msgstr "Показывать аккорды (в тексте, например [G])"
+msgstr "Показывать аккорды (вписанные в слова, например [G])"
 
 #: ui/dialogs/stage-layouts.slint
 msgid "Biggest text ({}%)"
@@ -5001,11 +5001,11 @@ msgstr "Перейти за 10 секунд до конца, чтобы пров
 
 #: ui/operator/live.slint
 msgid "Edit words"
-msgstr "Править текст"
+msgstr "Изменить слова"
 
 #: ui/operator/live.slint
 msgid "Fix the words of the live song. The screen changes only when you say so."
-msgstr "Исправьте текст текущей песни. Экран изменится, только когда вы скажете."
+msgstr "Исправьте слова текущей песни. Экран изменится, только когда вы скажете."
 
 #: ui/operator/live.slint
 msgid "Update screen"
@@ -5025,7 +5025,7 @@ msgstr "Далее (→, Пробел или Page Down)"
 
 #: ui/operator/live.slint ui/operator/media.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/print.rs src/ui/dialogs/settings_keys.rs
 msgid "Audio"
-msgstr "Звук"
+msgstr "Аудио"
 
 #: ui/operator/media.slint
 msgid "ON SCREEN"
@@ -5141,7 +5141,7 @@ msgstr "F6 Очистить"
 
 #: ui/operator/overlay-strip.slint
 msgid "Clear overlays (F6)"
-msgstr "Убрать наложения (F6)"
+msgstr "Очистить наложения (F6)"
 
 #: ui/operator/overlay-strip.slint ui/operator.slint
 msgid "Overlays…"
@@ -5153,7 +5153,7 @@ msgstr "Отпустите, чтобы добавить в служение"
 
 #: ui/operator/overlays.slint
 msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect song files"
-msgstr "Видео, картинки, музыка, презентации (PowerPoint, Keynote, PDF), файлы текстов SongSelect"
+msgstr "Видео, картинки, музыка, презентации (PowerPoint, Keynote, PDF), файлы песен SongSelect"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop the livestream"
@@ -5589,7 +5589,7 @@ msgstr "Пакет служения…"
 
 #: ui/operator.slint
 msgid "Song words as text…"
-msgstr "Тексты песен как текст…"
+msgstr "Слова песен как текст…"
 
 #: ui/operator.slint
 msgid "Slides as pictures…"
@@ -5693,15 +5693,15 @@ msgstr "Вид"
 
 #: ui/operator.slint src/automation/slide_actions.rs src/strings/settings.rs src/ui/dialogs/automation.rs
 msgid "Clear text"
-msgstr "Убрать текст"
+msgstr "Очистить текст"
 
 #: ui/operator.slint src/automation/slide_actions.rs src/strings/settings.rs src/ui/dialogs/automation.rs
 msgid "Clear media & background"
-msgstr "Убрать медиа и фон"
+msgstr "Очистить медиа и фон"
 
 #: ui/operator.slint src/automation/slide_actions.rs src/strings/settings.rs src/ui/dialogs/automation.rs
 msgid "Clear audio"
-msgstr "Убрать звук"
+msgstr "Очистить аудио"
 
 #: ui/operator.slint
 msgid "Stop listening in headphones"
@@ -5713,7 +5713,7 @@ msgstr "Слушать в наушниках"
 
 #: ui/operator.slint src/automation/slide_actions.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Clear overlays"
-msgstr "Убрать наложения"
+msgstr "Очистить наложения"
 
 #: ui/operator.slint src/shortcuts.rs
 msgid "Clear the message"
@@ -5953,7 +5953,7 @@ msgstr "Этого слайда больше нет."
 
 #: src/app.rs
 msgid "The room screen restarted. Video/audio stopped — click it again to replay."
-msgstr "Экран зала перезапустился. Видео/звук остановлены — щёлкните ещё раз, чтобы воспроизвести снова."
+msgstr "Экран зала перезапустился. Видео/аудио остановлены — щёлкните ещё раз, чтобы воспроизвести снова."
 
 #: src/app.rs
 msgid "The room screen restarted."
@@ -6069,7 +6069,7 @@ msgstr "Сначала добавьте экран."
 
 #: src/app.rs
 msgid "Room screen {number}"
-msgstr "Зал {number}"
+msgstr "Экран зала {number}"
 
 #: src/app.rs
 msgid "Stage screen {number}"
@@ -6409,7 +6409,7 @@ msgstr "Сначала вставьте текст стихов."
 
 #: src/follow/audio.rs
 msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Media → Recording."
-msgstr "Автоследованию нужен FFmpeg, чтобы слышать зал. Скачайте его в «Настройки → Запись»."
+msgstr "Автоследованию нужен FFmpeg, чтобы слышать зал. Скачайте его в разделе «Настройки → Медиа → Запись»."
 
 #: src/follow/audio.rs
 msgid "FFmpeg stopped"
@@ -6449,11 +6449,11 @@ msgstr "Подсказанный слайд {number}"
 
 #: src/follow/log.rs
 msgid "Words off"
-msgstr "Текст убран"
+msgstr "Слова убраны"
 
 #: src/follow/log.rs
 msgid "Words back on slide {number}"
-msgstr "Текст снова на слайде {number}"
+msgstr "Слова снова на слайде {number}"
 
 #: src/follow/strings.rs
 msgid "Songs follow the singers. Click: Manual → Suggest (the next slide glows) → Auto (the slides move by themselves). Key: A turns Auto on and off. ⋯ beside it: the review log, Practice and the settings."
@@ -6481,7 +6481,7 @@ msgstr "На паузе — слайды стоят на месте"
 
 #: src/follow/strings.rs src/i18n/remote_strings.rs
 msgid "Nobody singing — words off"
-msgstr "Никто не поёт — текст убран"
+msgstr "Никто не поёт — слова убраны"
 
 #: src/follow/strings.rs
 msgid "off"
@@ -6505,7 +6505,7 @@ msgstr "на паузе"
 
 #: src/follow/strings.rs
 msgid "words off"
-msgstr "текст убран"
+msgstr "слова убраны"
 
 #: src/follow/strings.rs
 msgid "Hold: auto-follow doesn't move the slides until you click again. Key: H"
@@ -6545,7 +6545,7 @@ msgstr "Не удалось прочитать файл перевода {file} 
 
 #: src/i18n/remote_strings.rs
 msgid "Phone remote — RustyPresenter"
-msgstr "RustyPresenter Пульт"
+msgstr "Телефон-пульт — RustyPresenter"
 
 #: src/i18n/remote_strings.rs
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
@@ -6712,7 +6712,7 @@ msgstr "Пароль"
 
 #: src/i18n/remote_strings.rs
 msgid "This phone remote needs a password too."
-msgstr "Для этого пульта тоже нужен пароль."
+msgstr "Для этого телефона-пульта тоже нужен пароль."
 
 #: src/i18n/remote_strings.rs
 msgid "This stage screen needs a password."
@@ -6764,7 +6764,7 @@ msgstr "больше {max} разделов, поэтому это не песн
 
 #: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
 msgid "no words"
-msgstr "нет текста"
+msgstr "нет слов"
 
 #: src/import/chordpro.rs
 msgid "a {block} block never ends, so everything after it was left out"
@@ -6832,11 +6832,11 @@ msgstr "{path} пуст или повреждён, импортировать н
 
 #: src/import/easyworship.rs
 msgid "no words (probably a video or announcement item)"
-msgstr "нет текста (вероятно, это видео или объявление)"
+msgstr "нет слов (вероятно, это видео или объявление)"
 
 #: src/import/easyworship.rs src/import/openlp.rs
 msgid "the words are empty"
-msgstr "текст пустой"
+msgstr "слов нет"
 
 #: src/import/easyworship.rs
 msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
@@ -6860,23 +6860,23 @@ msgstr "В Songs.db нет таблицы песен. Это точно библ
 
 #: src/import/easyworship.rs
 msgid "SongWords.db has no word table. Is this an EasyWorship library?"
-msgstr "В SongWords.db нет таблицы текстов. Это точно библиотека EasyWorship?"
+msgstr "В SongWords.db нет таблицы слов. Это точно библиотека EasyWorship?"
 
 #: src/import/openlp.rs
 msgid "the words are not valid XML ({error})"
-msgstr "текст не является корректным XML ({error})"
+msgstr "слова — некорректный XML ({error})"
 
 #: src/import/openlp.rs
 msgid "the words have too many verses (more than {max})"
-msgstr "в тексте слишком много куплетов (больше {max})"
+msgstr "в словах слишком много куплетов (больше {max})"
 
 #: src/import/openlp.rs src/import/propresenter.rs
 msgid "the words are too long to be a song"
-msgstr "текст слишком длинный для песни"
+msgstr "слова слишком длинные для песни"
 
 #: src/import/openlp.rs
 msgid "the words have no verses"
-msgstr "в тексте нет куплетов"
+msgstr "в словах нет куплетов"
 
 #: src/import/openlp.rs
 msgid "a temporary copy OpenLP keeps for a service file"
@@ -6940,7 +6940,7 @@ msgstr "В {path} не найдено песен OpenLyrics или OpenSong."
 
 #: src/import/opensong.rs
 msgid "the words have too many sections to be a song"
-msgstr "в тексте слишком много разделов для песни"
+msgstr "в словах слишком много разделов для песни"
 
 #: src/import/opensong.rs
 msgid "it is an OpenLyrics song, not OpenSong"
@@ -7055,7 +7055,7 @@ msgstr "Это видео больше не воспроизводится."
 
 #: src/live.rs
 msgid "That audio is no longer playing."
-msgstr "Этот звук больше не воспроизводится."
+msgstr "Это аудио больше не воспроизводится."
 
 #: src/live.rs
 msgid "That video or audio is no longer playing."
@@ -7164,7 +7164,7 @@ msgstr "Этот экран сейчас не подключён."
 
 #: src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/theme/layouts.rs
 msgid "Bible passage"
-msgstr "Писание"
+msgstr "Отрывок из Библии"
 
 #: src/record/advanced.rs
 msgid "{name} last {minutes} minutes"
@@ -7284,7 +7284,7 @@ msgstr "FFmpeg неожиданно остановилась"
 
 #: src/record/mod.rs
 msgid "No sound has come from {name} for 10 seconds. Check the cable, and that the sound board is sending to this computer."
-msgstr "От {name} нет звука уже 10 секунд. Проверьте кабель и то, что микшерный пульт отправляет звук на этот компьютер."
+msgstr "От {name} нет звука уже 10 секунд. Проверьте кабель и то, что звуковой пульт отправляет звук на этот компьютер."
 
 #: src/record/mod.rs
 msgid "Sound from {name} is coming in again."
@@ -7308,7 +7308,7 @@ msgstr "RustyPresenter перезапустился после сбоя."
 
 #: src/recovery/restore.rs
 msgid "RustyPresenter restarted after a problem. Video/audio stopped — click it again to replay."
-msgstr "RustyPresenter перезапустился после сбоя. Видео/звук остановлены — щёлкните ещё раз, чтобы воспроизвести снова."
+msgstr "RustyPresenter перезапустился после сбоя. Видео/аудио остановлены — щёлкните ещё раз, чтобы воспроизвести снова."
 
 #: src/recovery/supervisor.rs
 msgid "RustyPresenter stopped after crashing 3 times in a minute. The log is at {path}."
@@ -7415,7 +7415,7 @@ msgstr "(картинка)"
 
 #: src/server.rs src/strings/stage.rs
 msgid "(audio)"
-msgstr "(звук)"
+msgstr "(аудио)"
 
 #: src/shortcuts.rs
 msgid "Ctrl + {key}"
@@ -7503,11 +7503,11 @@ msgstr "Слайды не найдены"
 
 #: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
 msgid "No song words were found in this file."
-msgstr "В этом файле не найден текст песни."
+msgstr "В этом файле не найдены слова песни."
 
 #: src/songselect/inbox.rs src/songselect.rs src/ui/dialogs/songselect.rs
 msgid "That file is too big to be a song file."
-msgstr "Файл слишком большой для файла текста песни."
+msgstr "Файл слишком большой для файла песни."
 
 #: src/songselect/inbox.rs
 msgid "it has no CCLI song number"
@@ -7527,7 +7527,7 @@ msgstr "У файла песни нет названия."
 
 #: src/songselect.rs
 msgid "The song file is empty."
-msgstr "Файл с текстом пустой."
+msgstr "Файл песни пустой."
 
 #: src/songselect.rs
 msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
@@ -7827,7 +7827,7 @@ msgstr "По NDI ничего не отправляется: на этом ко�
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
-msgstr "Для кнопки «В эфир» нужно включённое место назначения с ключом трансляции. Настройте его в разделе «Настройки → Медиа → Трансляция»."
+msgstr "Для кнопки «В эфир» нужно включённое направление с ключом трансляции. Настройте его в разделе «Настройки → Медиа → Трансляция»."
 
 #: src/stream/mod.rs
 msgid "{name} is not streamed to: {why}"
@@ -7847,7 +7847,7 @@ msgstr "на этот адрес или с этим ключом трансля�
 
 #: src/stream/mod.rs
 msgid "{name}: the internet there is slow, so it gets a lighter stream ({kbps} kbit/s). The recording and the other destinations keep the full picture."
-msgstr "{name}: интернет там медленный, поэтому идёт облегчённая трансляция ({kbps} кбит/с). Запись и остальные адресаты получают полное изображение."
+msgstr "{name}: интернет там медленный, поэтому идёт облегчённая трансляция ({kbps} кбит/с). Запись и остальные направления получают полное изображение."
 
 #: src/stream/mod.rs
 msgid "{name} gets the full stream again."
@@ -7867,7 +7867,7 @@ msgstr "Камера снова в трансляции."
 
 #: src/stream/mod.rs
 msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
-msgstr "{name}: интернет недостаточно быстрый, и трансляция пропускает кадры. Выберите 720p в разделе «Настройки → Медиа → Запись» или отключите одно место назначения."
+msgstr "{name}: интернет недостаточно быстрый, и трансляция пропускает кадры. Выберите 720p в разделе «Настройки → Медиа → Запись» или отключите одно из направлений."
 
 #: src/stream/mod.rs
 msgid "You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once."
@@ -8127,7 +8127,7 @@ msgstr "Не в трансляции"
 
 #: src/stream/phone_camera.rs
 msgid "On the computer, choose this phone in Settings → Media → Livestream → Camera."
-msgstr "На компьютере выберите этот телефон в «Настройки», «Медиа», «Трансляция», «Камера»."
+msgstr "На компьютере выберите этот телефон в разделе «Настройки → Медиа → Трансляция → Камера»."
 
 #: src/stream/phone_camera.rs
 msgid "Any phone on the church's Wi-Fi can be a camera. On the phone, open {address} and follow the steps there. The first time, the phone warns that the connection is not private: that is expected, because the page comes from this computer. Tap Advanced (or Show Details), then Proceed (or Visit this website). Then pair it with the code from Phone remote, Pair a phone. Once it sends its picture, it is listed in the camera lists above as Phone camera and its name."
@@ -8163,7 +8163,7 @@ msgstr "Телефон не разрешил странице пользоват
 
 #: src/stream/phone_mic.rs
 msgid "Turn on the stage screen for phones in RustyPresenter (Settings → Network…), and sign in to it on this phone first."
-msgstr "Включите вид сцены в RustyPresenter (Сеть) и сначала войдите в него на этом телефоне."
+msgstr "Включите экран сцены для телефонов в RustyPresenter («Настройки → Сеть…») и сначала войдите в него на этом телефоне."
 
 #: src/stream/preflight.rs
 msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Media → Livestream. The stream shows the slides in its place."
@@ -8251,7 +8251,7 @@ msgstr "Отдача: {speed} Мбит/с. Транслируйте в 720p: д�
 
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer destinations, or use a faster connection."
-msgstr "Отдача: {speed} Мбит/с. Слишком медленно: для 720p во все включённые места нужно {need} Мбит/с. Транслируйте в меньшее число мест или используйте более быстрое подключение."
+msgstr "Отдача: {speed} Мбит/с. Слишком медленно: для 720p во все включённые направления нужно {need} Мбит/с. Транслируйте в меньшее число направлений или используйте более быстрое подключение."
 
 #: src/stream/tally.rs
 msgid "Camera {camera}: on air"
@@ -8271,7 +8271,7 @@ msgstr "Трансляция не идёт"
 
 #: src/stream/tally.rs
 msgid "Turn on the stage screen for phones (Settings → Network…). If it has a password, open the stage screen on this phone once and sign in."
-msgstr "Включите вид сцены в Настройки → Сеть. Если у него есть пароль, один раз откройте вид сцены на этом телефоне и войдите."
+msgstr "Включите экран сцены для телефонов («Настройки → Сеть…»). Если у него есть пароль, один раз откройте экран сцены на этом телефоне и войдите."
 
 #: src/stream/transition.rs
 msgid "Cut (at once)"
@@ -8407,7 +8407,7 @@ msgstr "Песня сохранена"
 
 #: src/strings/add.rs
 msgid "Not in the words: {sections}"
-msgstr "Нет в тексте: {sections}"
+msgstr "Нет в словах: {sections}"
 
 #: src/strings/automation.rs src/strings/themes.rs
 msgid "The screen was cleared — try again."
@@ -8825,7 +8825,7 @@ msgstr "Не удалось использовать {name}, поэтому он
 
 #: src/strings/catalog.rs
 msgid "That Bible is no longer in the list. Open Settings → Bible again to see the current list."
-msgstr "Этой Библии больше нет в списке. Снова откройте «Настройки → Библии», чтобы увидеть текущий список."
+msgstr "Этой Библии больше нет в списке. Снова откройте «Настройки → Библия», чтобы увидеть текущий список."
 
 #: src/strings/catalog.rs
 msgid "You're offline, so Bibles can't be added right now."
@@ -9212,7 +9212,7 @@ msgstr "Неверный пароль."
 
 #: src/strings/network.rs
 msgid "The stage screen for phones is turned off on the presentation computer."
-msgstr "Вид сцены отключён на компьютере с презентацией."
+msgstr "Экран сцены для телефонов отключён на компьютере с презентацией."
 
 #: src/strings/network.rs
 msgid "Network settings saved."
@@ -9308,7 +9308,7 @@ msgstr "Презентации"
 
 #: src/strings/operator.rs
 msgid "SongSelect song files"
-msgstr "Файлы текстов SongSelect"
+msgstr "Файлы песен SongSelect"
 
 #: src/strings/operator.rs
 msgid "Pictures and videos"
@@ -9715,7 +9715,7 @@ msgstr "Создать служение на {date} из «{service}»?"
 
 #: src/strings/planning.rs
 msgid "Copy, with blanks for songs and Bible passages"
-msgstr "Копировать, с пропусками для песен и чтений из Библии"
+msgstr "Копировать, с пропусками для песен и отрывков из Библии"
 
 #: src/strings/planning.rs
 msgid "There is already a service for {date} (“{name}”)."
@@ -9867,15 +9867,15 @@ msgstr "Выбранный в настройках вывод звука не п
 
 #: src/strings/preflight.rs
 msgid "The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play."
-msgstr "Вывод звука не подключён, поэтому видео или звук поставлены на паузу. Подключите его или выберите другой в разделе «Настройки → Видео», затем нажмите «Пуск»."
+msgstr "Вывод звука не подключён, поэтому видео или аудио поставлены на паузу. Подключите его или выберите другой в разделе «Настройки → Видео», затем нажмите «Пуск»."
 
 #: src/strings/preflight.rs
 msgid "The logo's file is missing. Choose it again in Settings → Look."
-msgstr "Нет файла логотипа. Выберите его снова в настройках."
+msgstr "Нет файла логотипа. Выберите его снова в разделе «Настройки → Вид»."
 
 #: src/strings/preflight.rs
 msgid "The default background's file is missing. Choose it again in Settings → Look."
-msgstr "Нет файла фона по умолчанию. Выберите его снова в настройках."
+msgstr "Нет файла фона по умолчанию. Выберите его снова в разделе «Настройки → Вид»."
 
 #: src/strings/preflight.rs
 msgid "the song is no longer in the library"
@@ -9945,7 +9945,7 @@ msgstr "(ещё не выбрано)"
 
 #: src/strings/print.rs
 msgid "(no words)"
-msgstr "(нет текста)"
+msgstr "(нет слов)"
 
 #: src/strings/print.rs
 msgid "(the verse text isn't saved with this service)"
@@ -9957,7 +9957,7 @@ msgstr " (по кругу)"
 
 #: src/strings/print.rs
 msgid "No songs or Bible passages in this service."
-msgstr "В этом служении нет песен и чтений из Библии."
+msgstr "В этом служении нет песен и отрывков из Библии."
 
 #: src/strings/print.rs
 msgid "This service is empty."
@@ -10037,7 +10037,7 @@ msgstr "На заглушке ничего не показывается. Нас
 
 #: src/strings/screens.rs
 msgid "Shows the room screen's picture instead of a stage layout. It has no sound."
-msgstr "Показывает картинку для зала вместо макета сцены. Без звука."
+msgstr "Показывает картинку экрана зала вместо макета сцены. Без звука."
 
 #: src/strings/screens.rs
 msgid "Colour bars"
@@ -10307,7 +10307,7 @@ msgstr "Для этого отрывка {bible} нужен интернет."
 
 #: src/strings/scripture.rs
 msgid "That Bible was removed. Add it again in Settings → Bible."
-msgstr "Эта Библия удалена. Добавьте её снова в разделе «Настройки → Библии»."
+msgstr "Эта Библия удалена. Добавьте её снова в разделе «Настройки → Библия»."
 
 #: src/strings/scripture.rs
 msgid "Select a Bible passage first."
@@ -10742,15 +10742,15 @@ msgstr "Эта песня больше не в эфире."
 
 #: src/strings/song.rs
 msgid "That song has no slides now. The screen keeps the old words."
-msgstr "В этой песне теперь нет слайдов. На экране остаётся старый текст."
+msgstr "В этой песне теперь нет слайдов. На экране остаются старые слова."
 
 #: src/strings/song.rs
 msgid "Saved. The new words show when you bring the text back."
-msgstr "Сохранено. Новый текст появится, когда вы снова выведете текст."
+msgstr "Сохранено. Новые слова появятся, когда вы снова выведете текст."
 
 #: src/strings/song.rs
 msgid "You changed the words that are on screen. Update screen shows them now. Clicking a slide also shows the new version."
-msgstr "Вы изменили текст, который сейчас на экране. «Обновить экран» покажет его сразу. Щелчок по слайду тоже покажет новую версию."
+msgstr "Вы изменили слова, которые сейчас на экране. «Обновить экран» покажет их сразу. Щелчок по слайду тоже покажет новую версию."
 
 #: src/strings/song.rs
 msgid "The live song looks different now. Update screen to show it."
@@ -10762,7 +10762,7 @@ msgstr "Часть песни, которая была на экране, уда
 
 #: src/strings/song.rs
 msgid "This song has no words now. The screen keeps the old words."
-msgstr "В этой песне теперь нет слов. На экране остаётся старый текст."
+msgstr "В этой песне теперь нет слов. На экране остаются старые слова."
 
 #: src/strings/song.rs
 msgid "Click to show this part"
@@ -10798,7 +10798,7 @@ msgstr "Классический"
 
 #: src/strings/stage.rs
 msgid "Words only"
-msgstr "Только текст"
+msgstr "Только слова"
 
 #: src/strings/stage.rs
 msgid "Band"
@@ -10850,11 +10850,11 @@ msgstr "Картинка следующего слайда"
 
 #: src/strings/stage.rs
 msgid "the words on screen now"
-msgstr "текст, который сейчас на экране"
+msgstr "слова, которые сейчас на экране"
 
 #: src/strings/stage.rs
 msgid "the words coming next"
-msgstr "следующий текст"
+msgstr "следующие слова"
 
 #: src/strings/stage.rs
 msgid "Verse, Chorus, Bridge…"
@@ -10886,7 +10886,7 @@ msgstr "обратный или прямой отсчёт"
 
 #: src/strings/stage.rs
 msgid "time left on the video or audio"
-msgstr "сколько осталось видео или звука"
+msgstr "сколько осталось видео или аудио"
 
 #: src/strings/stage.rs
 msgid "messages sent from the back"
@@ -10894,7 +10894,7 @@ msgstr "сообщения из конца зала"
 
 #: src/strings/stage.rs
 msgid "words you type once"
-msgstr "текст, который вы вводите один раз"
+msgstr "слова, которые вы вводите один раз"
 
 #: src/strings/stage.rs
 msgid "the next slide as the room will see it"
@@ -11195,7 +11195,7 @@ msgstr "Одновременно можно включить не больше 8
 
 #: src/strings/themes.rs
 msgid "Choose a church logo first (Settings → Look)."
-msgstr "Сначала выберите логотип церкви (Настройки → Темы)."
+msgstr "Сначала выберите логотип церкви (Настройки → Вид)."
 
 #: src/strings/themes.rs
 msgid "That picture is gone."
@@ -11725,7 +11725,7 @@ msgstr "Рассвет"
 
 #: src/theme/builtins.rs
 msgid "Words over video"
-msgstr "Текст поверх видео"
+msgstr "Слова поверх видео"
 
 #: src/theme/layouts.rs
 msgid "Title + subtitle"
@@ -11750,7 +11750,7 @@ msgstr "Текст"
 
 #: src/theme/layouts.rs
 msgid "Lower-third words"
-msgstr "Текст песни внизу экрана"
+msgstr "Слова внизу экрана"
 
 #: src/theme/layouts.rs
 msgid "One big line in the middle."
@@ -11770,7 +11770,7 @@ msgstr "Одно короткое предложение, крупно и жир
 
 #: src/theme/layouts.rs
 msgid "Laid out like a Bible passage."
-msgstr "Оформлено как библейский отрывок."
+msgstr "Оформлено как отрывок из Библии."
 
 #: src/theme/layouts.rs
 msgid "A small caption at the bottom, so the background picture shows."
@@ -11786,7 +11786,7 @@ msgstr "Обычный текст, как в объявлении."
 
 #: src/theme/layouts.rs
 msgid "Laid out like song words."
-msgstr "Оформлено как текст песни."
+msgstr "Оформлено как слова песни."
 
 #: src/theme/layouts.rs
 msgid "Small text at the bottom of the screen."
@@ -11814,7 +11814,7 @@ msgstr "Этот набор тем создан более новой верси
 
 #: src/transfer.rs
 msgid "The clipboard has no text. Copy the words first."
-msgstr "В буфере обмена нет текста. Сначала скопируйте текст."
+msgstr "В буфере обмена нет текста. Сначала скопируйте слова."
 
 #: src/transfer.rs
 msgid "{name} (imported)"
@@ -11993,7 +11993,7 @@ msgstr "Отправляйте по одной команде в строке: n
 
 #: src/ui/dialogs/quick_search.rs
 msgid "Type a song title, some of its words, a file name or a service."
-msgstr "Введите название песни, слова из текста, имя файла или служение."
+msgstr "Введите название песни, несколько её слов, имя файла или служение."
 
 #: src/ui/dialogs/quick_search.rs
 msgid "In this service"
@@ -12140,7 +12140,7 @@ msgstr "«Лучшая» работает здесь хорошо."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Use Fast on this computer: Best is too slow here."
-msgstr "Используйте на этом ПК «Быструю»: «Лучшая» здесь слишком медленная."
+msgstr "Используйте на этом компьютере «Быструю»: «Лучшая» здесь слишком медленная."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Fast runs fine here. Download Best to check it too."
@@ -12152,7 +12152,7 @@ msgstr "Сначала скачайте модель, затем проверь�
 
 #: src/ui/dialogs/settings_model.rs
 msgid "This computer is too slow for the speech models: auto-follow can't hear the words here, so it can't follow the songs."
-msgstr "Этот ПК слишком медленный для моделей речи: автоследование не слышит здесь слова и поэтому не может следовать за песнями."
+msgstr "Этот компьютер слишком медленный для моделей речи: автоследование не слышит здесь слова и поэтому не может следовать за песнями."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Couldn't reach the download site. Check the internet and try again: it goes on where it stopped."
@@ -12309,7 +12309,7 @@ msgstr "«{title}» из SongSelect уже есть в вашей библиот
 
 #: src/ui/dialogs/songselect.rs
 msgid "“{title}” from SongSelect has other words than your copy, so it was kept as “{new}”."
-msgstr "У «{title}» из SongSelect другой текст, чем у вашей копии, поэтому она сохранена как «{new}»."
+msgstr "У «{title}» из SongSelect другие слова, чем у вашей копии, поэтому она сохранена как «{new}»."
 
 #: src/ui/dialogs/songselect.rs
 msgid "{file} could not be read: {why}"
@@ -12325,7 +12325,7 @@ msgstr "Уже есть в вашей библиотеке песен"
 
 #: src/ui/dialogs/songselect.rs
 msgid "Your copy has other words, so this one is kept as “{new}”"
-msgstr "У вашей копии другой текст, поэтому эта сохранена как «{new}»"
+msgstr "У вашей копии другие слова, поэтому эта сохранена как «{new}»"
 
 #: src/ui/dialogs/songselect.rs
 msgid "Could not read it: {why}"
@@ -12548,7 +12548,7 @@ msgstr "Подготовка к воскресенью"
 
 #: src/ui/operator/help.rs
 msgid "File → New service… makes this week's service. File → Services… opens an older one or copies last week."
-msgstr "«Файл → Новое служение» создаёт служение на эту неделю. «Файл → Служения…» открывает прежнее или копирует прошлую неделю."
+msgstr "«Файл → Новое служение…» создаёт служение на эту неделю. «Файл → Служения…» открывает прежнее или копирует прошлую неделю."
 
 #: src/ui/operator/help.rs
 msgid "File → Add to service adds songs, Bible passages, videos, slides and announcements. Drag items to change their order."
@@ -12592,7 +12592,7 @@ msgstr "«Изменить → Найти стих…» ищет отрывок 
 
 #: src/ui/operator/help.rs
 msgid "Edit → Quick search… finds a song in the library. Double-click a song to edit its words."
-msgstr "«Изменить → Быстрый поиск…» ищет песню в библиотеке. Дважды щёлкните песню, чтобы изменить её текст."
+msgstr "«Изменить → Быстрый поиск…» ищет песню в библиотеке. Дважды щёлкните песню, чтобы изменить её слова."
 
 #: src/ui/operator/help.rs
 msgid "While a song is on the screen, C jumps to the chorus, B to the bridge and 1–9 to that verse."
@@ -12693,7 +12693,7 @@ msgstr[2] "Добавлено {n} тем."
 
 #: src/ui/operator/transfer.rs
 msgid "{service} words"
-msgstr "Тексты: {service}"
+msgstr "Слова: {service}"
 
 #: src/ui/operator/video_inputs.rs
 msgid "Pick a camera or type its name first."
@@ -12765,7 +12765,7 @@ msgstr "наложение загружалось слишком долго"
 
 #: src/ui/room.rs
 msgid "audio took too long to load"
-msgstr "звук загружался слишком долго"
+msgstr "аудио загружалось слишком долго"
 
 #: src/ui/room.rs
 msgid "the room could not prepare it"
@@ -12946,11 +12946,11 @@ msgstr "Проверка {mode}… ({at} из {count})"
 
 #: src/video/bench.rs
 msgid "The graphics card or its driver changed. Want me to find the best graphics for this computer again? About a minute"
-msgstr "Видеокарта или её драйвер изменились. Найти снова лучший способ отрисовки для этого ПК? Около минуты"
+msgstr "Видеокарта или её драйвер изменились. Найти снова лучший способ отрисовки для этого компьютера? Около минуты"
 
 #: src/video/bench.rs
 msgid "Want me to find the best graphics for this computer? About a minute"
-msgstr "Найти лучший способ отрисовки для этого ПК? Около минуты"
+msgstr "Найти лучший способ отрисовки для этого компьютера? Около минуты"
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
@@ -12958,7 +12958,7 @@ msgstr "Ни один вариант графики не сработал в п�
 
 #: src/video/bench.rs
 msgid "{mode} is the best for this computer. Automatic will use it from the next start."
-msgstr "{mode} — лучший вариант для этого ПК. «Автоматически» будет использовать его со следующего запуска."
+msgstr "{mode} — лучший вариант для этого компьютера. «Автоматически» будет использовать его со следующего запуска."
 
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."

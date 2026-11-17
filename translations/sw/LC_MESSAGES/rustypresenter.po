@@ -849,7 +849,7 @@ msgstr "Pembe za mviringo ({} px)"
 
 #: ui/dialogs/design-editor.slint
 msgid "See-through ({}% shown)"
-msgstr "Uwazi ({}% inaonekana)"
+msgstr "Angavu ({}% inaonekana)"
 
 #: ui/dialogs/design-editor.slint
 msgid "Turn ({}°)"
@@ -1330,7 +1330,7 @@ msgstr "Rudia hadi isimamishwe"
 
 #: ui/dialogs/item-edit.slint
 msgid "Audio keeps playing while you change slides. Stop it with Clear audio (F4) or Clear all."
-msgstr "Sauti inaendelea kucheza unapobadilisha slaidi. Isimamishe kwa Safisha Sauti (F4) au Safisha Zote."
+msgstr "Sauti inaendelea kucheza unapobadilisha slaidi. Isimamishe kwa Safisha sauti (F4) au Safisha zote."
 
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
@@ -1441,7 +1441,7 @@ msgstr "Ondoa kwenye ibada"
 
 #: ui/dialogs/music.slint
 msgid "The walk-in music plays on while the slides change. Clear audio and Clear all stop it."
-msgstr "Muziki wa kuingia unaendelea kucheza slaidi zinapobadilika. Safisha sauti na Safisha Zote huusimamisha."
+msgstr "Muziki wa kuingia unaendelea kucheza slaidi zinapobadilika. Safisha sauti na Safisha zote huusimamisha."
 
 #: ui/dialogs/music.slint ui/dialogs/settings.slint ui/operator/media.slint src/ui/operator/help.rs
 msgid "Songs"
@@ -1505,7 +1505,7 @@ msgstr "Uliza nenosiri simu inapounganishwa"
 
 #: ui/dialogs/network.slint
 msgid "Phone remote password"
-msgstr "Nenosiri la kidhibiti"
+msgstr "Nenosiri la simu ya kudhibiti"
 
 #: ui/dialogs/network.slint
 msgid "Saved — type to change it"
@@ -1557,7 +1557,7 @@ msgstr "Nenosiri la TCP"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
-msgstr "Viwekelezo hubaki kwenye skrini ya ukumbi slaidi zinapobadilika: nembo pembeni, saa au tangazo fupi. Viwashe na kuvizima kwa vibonye vilivyo chini ya Ifuatayo kwenye safu ya Hewani. Cha mwisho kwenye orodha huchorwa juu."
+msgstr "Viwekelezo hubaki kwenye skrini ya ukumbi slaidi zinapobadilika: nembo pembeni, saa au tangazo fupi. Viwashe na kuvizima kwa vibonye vilivyo chini ya Kinachofuata kwenye safu ya Moja kwa moja. Cha mwisho kwenye orodha huchorwa juu."
 
 #: ui/dialogs/overlays.slint
 msgid "Filter overlays"
@@ -1725,7 +1725,7 @@ msgstr "Jumuisha maelezo ya vipengele"
 
 #: ui/dialogs/print.slint
 msgid "Include Bible passages with the song words"
-msgstr "Jumuisha masomo ya Biblia pamoja na maneno ya nyimbo"
+msgstr "Jumuisha vifungu vya Biblia pamoja na maneno ya nyimbo"
 
 #: ui/dialogs/print.slint
 msgid "Start each song on a new page"
@@ -1841,7 +1841,7 @@ msgstr "Uwiano wa vipimo: {}"
 
 #: ui/dialogs/screens.slint
 msgid "Show what the room screen shows"
-msgstr "Onyesha kile hadhira inachoona"
+msgstr "Onyesha kile skrini ya ukumbi inachoonyesha"
 
 #: ui/dialogs/screens.slint
 msgid "Whole screen"
@@ -2097,7 +2097,7 @@ msgstr "Nyimbo zinafuata waimbaji"
 
 #: ui/dialogs/settings-follow.slint
 msgid "A song can have its own in Edit item. Key A turns Auto on and off for the live song, H holds it."
-msgstr "Kila wimbo unaweza kuwa na wake kwenye Hariri kipengee. Kitufe A huwasha na kuzima Otomatiki kwa wimbo ulio hewani, H huusimamisha."
+msgstr "Kila wimbo unaweza kuwa na wake kwenye Hariri kipengele. Kitufe A huwasha na kuzima Otomatiki kwa wimbo ulio hewani, H huusimamisha."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Timing"
@@ -2169,7 +2169,7 @@ msgstr "Jaribu kasi"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Tries the downloaded models on this computer and says which one suits it."
-msgstr "Inajaribu modeli zilizopakuliwa kwenye PC hii na kusema ipi inaifaa."
+msgstr "Inajaribu modeli zilizopakuliwa kwenye kompyuta hii na kusema ipi inaifaa."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
@@ -2309,7 +2309,7 @@ msgstr "Fonti"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Song text size"
-msgstr "Ukubwa wa maneno"
+msgstr "Ukubwa wa maneno ya nyimbo"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "(biggest; long lines shrink to fit)"
@@ -2325,7 +2325,7 @@ msgstr "(kwa vifungu vipya)"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Bible text size"
-msgstr "Ukubwa wa maandiko"
+msgstr "Ukubwa wa maandishi ya Biblia"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "(biggest)"
@@ -2345,7 +2345,7 @@ msgstr "Theluthi ya chini"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "ALL CAPS song words"
-msgstr "Maneno kwa HERUFI KUBWA"
+msgstr "Maneno ya nyimbo kwa HERUFI KUBWA"
 
 #: ui/dialogs/settings-look.slint
 msgid "Fade when the theme changes"
@@ -2569,7 +2569,7 @@ msgstr "Matangazo ya moja kwa moja"
 
 #: ui/dialogs/settings-media.slint
 msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on."
-msgstr "Washa mahali pa kutuma na kitufe cha Rusha moja kwa moja kitaonekana karibu na Rekodi. Rusha moja kwa moja hurekodi kama kawaida na kutuma picha na sauti ile ile kwa kila mahali palipowashwa."
+msgstr "Washa kituo kimoja na kitufe cha Rusha moja kwa moja kitaonekana karibu na Rekodi. Rusha moja kwa moja hurekodi kama kawaida na kutuma picha na sauti ile ile kwa kila kituo kilichowashwa."
 
 #: ui/dialogs/settings-media.slint
 msgid "Sound from this computer"
@@ -2637,7 +2637,7 @@ msgstr "NDI"
 
 #: ui/dialogs/settings-media.slint
 msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras above."
-msgstr "Kompyuta na programu nyingine kwenye mtandao huu (OBS, vMix, swichi ya video) zinaweza kupokea hivi ukiwa mubashara. Kamera za NDI zimeorodheshwa pamoja na kamera hapo juu."
+msgstr "Kompyuta na programu nyingine kwenye mtandao huu (OBS, vMix, swichi ya video) zinaweza kupokea hivi ukiwa moja kwa moja. Kamera za NDI zimeorodheshwa pamoja na kamera hapo juu."
 
 #: ui/dialogs/settings-media.slint
 msgid "NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."
@@ -2645,7 +2645,7 @@ msgstr "NDI inahitaji NDI Tools za bure kutoka ndi.video kwenye kompyuta hii. Zi
 
 #: ui/dialogs/settings-media.slint
 msgid "Send the stream over NDI too (picture and sound)"
-msgstr "Tuma mtiririko kupitia NDI pia (picha na sauti)"
+msgstr "Tuma matangazo kupitia NDI pia (picha na sauti)"
 
 #: ui/dialogs/settings-media.slint
 msgid "Send the words alone over NDI, on a see-through background (for keying)"
@@ -2709,7 +2709,7 @@ msgstr "Kamera"
 
 #: ui/dialogs/settings-media.slint
 msgid "A camera or capture card for the stream's camera scenes (and its recording)."
-msgstr "Kamera au kadi ya kunasa kwa mandhari za kamera za matangazo (na rekodi yake)."
+msgstr "Kamera au kadi ya kunasa kwa matukio ya kamera ya matangazo (na rekodi yake)."
 
 #: ui/dialogs/settings-media.slint
 msgid "Camera control address"
@@ -2773,15 +2773,15 @@ msgstr "Simu kama kamera"
 
 #: ui/dialogs/settings-media.slint
 msgid "Scenes"
-msgstr "Mandhari"
+msgstr "Matukio"
 
 #: ui/dialogs/settings-media.slint
 msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
-msgstr "Nyimbo na mistari ya Biblia hutoka kama kamera pamoja na maneno; video na mawasilisho kama skrini ya ukumbi; kukiwa hakuna kitu skrinini, kamera. Mandhari iliyochaguliwa kwa kitufe cha mandhari kando ya Hewani hubaki hadi kipengele kijacho cha ibada."
+msgstr "Nyimbo na mistari ya Biblia hutoka kama kamera pamoja na maneno; video na mawasilisho kama skrini ya ukumbi; kukiwa hakuna kitu skrinini, kamera. Tukio lililochaguliwa kwa kitufe cha tukio kando ya Moja kwa moja hubaki hadi kipengele kijacho cha ibada."
 
 #: ui/dialogs/settings-media.slint
 msgid "Choose the scene by itself from what is live"
-msgstr "Chagua mandhari yenyewe kulingana na kilicho hewani"
+msgstr "Chagua tukio lenyewe kulingana na kilicho hewani"
 
 #: ui/dialogs/settings-media.slint
 msgid "Presentations:"
@@ -2793,7 +2793,7 @@ msgstr "Skrini ya ukumbi yenye kamera pembeni"
 
 #: ui/dialogs/settings-media.slint
 msgid "Scene layout"
-msgstr "Mpangilio wa matukio"
+msgstr "Mpangilio wa tukio"
 
 #: ui/dialogs/settings-media.slint
 msgid "Where the camera goes when it is in a corner of the room screen, and where the words go over the camera."
@@ -2825,15 +2825,15 @@ msgstr "Juu"
 
 #: ui/dialogs/settings-media.slint ui/dialogs/stream-scenes.slint
 msgid "Your scenes"
-msgstr "Mandhari yako"
+msgstr "Matukio yako"
 
 #: ui/dialogs/settings-media.slint
 msgid "Make scenes of your own from cameras, the room screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
-msgstr "Tengeneza mandhari yako mwenyewe kutoka kwa kamera, skrini ya ukumbi, maneno, picha, rangi na maandishi. Huorodheshwa baada ya mandhari yaliyojengwa ndani wakati wa kurusha moja kwa moja."
+msgstr "Tengeneza matukio yako mwenyewe kutoka kwa kamera, skrini ya ukumbi, maneno, picha, rangi na maandishi. Huorodheshwa baada ya matukio yaliyojengwa ndani wakati wa kurusha moja kwa moja."
 
 #: ui/dialogs/settings-media.slint
 msgid "Your scenes…"
-msgstr "Mandhari yako…"
+msgstr "Matukio yako…"
 
 #: ui/dialogs/settings-media.slint
 msgid "None yet"
@@ -2841,11 +2841,11 @@ msgstr "Bado hakuna"
 
 #: ui/dialogs/settings-media.slint
 msgid "1 scene"
-msgstr "Mandhari 1"
+msgstr "Tukio 1"
 
 #: ui/dialogs/settings-media.slint
 msgid "{} scenes"
-msgstr "Mandhari {}"
+msgstr "Matukio {}"
 
 #: ui/dialogs/settings-media.slint src/stream/pictures.rs src/stream/scene.rs
 msgid "Starting soon"
@@ -2881,7 +2881,7 @@ msgstr "Simamisha"
 
 #: ui/dialogs/settings-media.slint
 msgid "For a break, chosen with the scene button."
-msgstr "Kwa mapumziko, huchaguliwa kwa kitufe cha mandhari."
+msgstr "Kwa mapumziko, huchaguliwa kwa kitufe cha tukio."
 
 #: ui/dialogs/settings-media.slint src/stream/pictures.rs
 msgid "We'll be right back"
@@ -2905,7 +2905,7 @@ msgstr "Ingia"
 
 #: ui/dialogs/settings-media.slint
 msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
-msgstr "Ingia badala ya kubandika ufunguo: Hewani itaunda matangazo yenyewe, pamoja na kichwa"
+msgstr "Ingia badala ya kubandika ufunguo: Rusha moja kwa moja itaunda matangazo yenyewe, pamoja na kichwa"
 
 #: ui/dialogs/settings-media.slint
 msgid "Signed in as {}"
@@ -3041,7 +3041,7 @@ msgstr "Tengeneza jipya"
 
 #: ui/dialogs/settings-media.slint
 msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
-msgstr "Hutengeneza sasa matangazo ya YouTube ya ibada ijayo, kwa siku na saa yake ya kuanza, ili kiungo kishirikiwe kabla ya Jumapili. Moja kwa moja hutumia hayo."
+msgstr "Hutengeneza sasa matangazo ya YouTube ya ibada ijayo, kwa siku na saa yake ya kuanza, ili kiungo kishirikiwe kabla ya Jumapili. Rusha moja kwa moja hutumia hayo."
 
 #: ui/dialogs/settings-media.slint
 msgid "YouTube thumbnail: a frame of the stream"
@@ -3201,7 +3201,7 @@ msgstr "Maikrofoni ya simu"
 
 #: ui/dialogs/settings-sound.slint
 msgid "Turn on the stage screen for phones (Settings → Network…), then open this page on the phone and press Start: {}"
-msgstr "Washa mwonekano wa jukwaa (Mtandao), kisha fungua ukurasa huu kwenye simu na ubonyeze Anza: {}"
+msgstr "Washa skrini ya jukwaa kwa simu (Mipangilio → Mtandao…), kisha fungua ukurasa huu kwenye simu na ubonyeze Anza: {}"
 
 #: ui/dialogs/settings-sound.slint
 msgid "The first time, the phone warns that the page is not private, because this computer made its own certificate: tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
@@ -4049,7 +4049,7 @@ msgstr "Mipangilio iliyohifadhiwa"
 
 #: ui/dialogs/stream-more.slint
 msgid "Keep everything set for the livestream (destinations, cameras, sound, scenes and these settings) under a name, and use it again in one go. Stream keys stay as they are."
-msgstr "Hifadhi kila kitu kilichowekwa kwa matangazo ya moja kwa moja (vituo, kamera, sauti, mandhari na mipangilio hii) kwa jina, na uitumie tena kwa mara moja. Funguo za matangazo hubaki kama zilivyo."
+msgstr "Hifadhi kila kitu kilichowekwa kwa matangazo ya moja kwa moja (vituo, kamera, sauti, matukio na mipangilio hii) kwa jina, na uitumie tena kwa mara moja. Funguo za matangazo hubaki kama zilivyo."
 
 #: ui/dialogs/stream-more.slint
 msgid "Save as a setup…"
@@ -4301,19 +4301,19 @@ msgstr "Ukiwa moja kwa moja, rekodi pia matangazo bila maneno (kwa kuhariri)"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, videos, colours, text or a clock in it."
-msgstr "Bado huna mandhari yako mwenyewe. Ongeza moja, kisha weka ndani yake kamera, skrini ya ukumbi, maneno, picha, video, rangi, maandishi au saa."
+msgstr "Bado huna matukio yako mwenyewe. Ongeza moja, kisha weka ndani yake kamera, skrini ya ukumbi, maneno, picha, video, rangi, maandishi au saa."
 
 #: ui/dialogs/stream-scenes.slint
 msgid "Add a scene"
-msgstr "Ongeza mandhari"
+msgstr "Ongeza tukio"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "Changing scenes"
-msgstr "Kubadilisha mandhari"
+msgstr "Kubadilisha matukio"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "No video chosen yet: scenes fade."
-msgstr "Hakuna video iliyochaguliwa bado: mandhari hufifia."
+msgstr "Hakuna video iliyochaguliwa bado: matukio hufifia."
 
 #: ui/dialogs/stream-scenes.slint
 msgid "Choose a video…"
@@ -4321,11 +4321,11 @@ msgstr "Chagua video…"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "How the stream changes from one scene to the next, built-in scenes too. A scene of yours can have its own way. A stinger is a short video played over the change; the scene changes half way through it."
-msgstr "Jinsi matangazo yanavyobadilika kutoka mandhari moja hadi inayofuata, pamoja na mandhari zilizojengewa ndani. Mandhari yako inaweza kuwa na njia yake. Stinger ni video fupi inayochezwa juu ya mabadiliko; mandhari hubadilika katikati yake."
+msgstr "Jinsi matangazo yanavyobadilika kutoka tukio moja hadi linalofuata, pamoja na matukio yaliyojengwa ndani. Tukio lako linaweza kuwa na njia yake. Stinger ni video fupi inayochezwa juu ya mabadiliko; tukio hubadilika katikati yake."
 
 #: ui/dialogs/stream-scenes.slint
 msgid "How the scene looks"
-msgstr "Jinsi mandhari yanavyoonekana"
+msgstr "Jinsi tukio linavyoonekana"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "Layers (in front at the top)"
@@ -4481,7 +4481,7 @@ msgstr "Picha ndefu (simu)"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "Destinations set to tall get the wide picture fitted across, as here. You can place this scene's layers in the tall picture yourself."
-msgstr "Vituo vilivyowekwa kuwa virefu hupata picha pana iliyowekwa kwa upana, kama hapa. Unaweza kuweka tabaka za mandhari hii katika picha ndefu wewe mwenyewe."
+msgstr "Vituo vilivyowekwa kuwa virefu hupata picha pana iliyowekwa kwa upana, kama hapa. Unaweza kuweka tabaka za tukio hili katika picha ndefu wewe mwenyewe."
 
 #: ui/dialogs/stream-scenes.slint
 msgid "Place the layers for phones"
@@ -4501,15 +4501,15 @@ msgstr "Yatumie yenyewe badala ya"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "When the scene is chosen by itself from what is live, this scene goes out instead of that one. For example, choose “Camera + words” to use it for songs and verses."
-msgstr "Mandhari yanapochaguliwa yenyewe kulingana na kilicho hewani, mandhari haya hutoka badala ya yale. Kwa mfano, chagua “Kamera + maneno” ili kuyatumia kwa nyimbo na mistari."
+msgstr "Tukio linapochaguliwa lenyewe kulingana na kilicho hewani, tukio hili hutoka badala ya lile. Kwa mfano, chagua “Kamera + maneno” ili kulitumia kwa nyimbo na mistari."
 
 #: ui/dialogs/stream-scenes.slint
 msgid "When this scene comes in"
-msgstr "Mandhari haya yanapoingia"
+msgstr "Tukio hili linapoingia"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "No video chosen yet: the scene fades in."
-msgstr "Hakuna video iliyochaguliwa bado: mandhari hufifia kuingia."
+msgstr "Hakuna video iliyochaguliwa bado: tukio hufifia kuingia."
 
 #: ui/dialogs/transition.slint src/theme/richtext.rs
 msgid "Normal"
@@ -4741,7 +4741,7 @@ msgstr "imetiririshwa"
 
 #: ui/dialogs/usage.slint src/strings/usage.rs
 msgid "Enter these numbers at CCLI's reporting site: projected uses go under “Digital”, streamed uses under your Streaming License. “Streamed” means a livestream page or window was open, not that you were on air."
-msgstr "Weka namba hizi kwenye tovuti ya ripoti ya CCLI: matumizi ya kuonyeshwa huenda chini ya “Digital”, matumizi ya kutiririshwa chini ya Leseni yako ya Kutiririsha. “Imetiririshwa” maana yake ukurasa au dirisha la mtiririko lilikuwa wazi, si kwamba mlikuwa hewani."
+msgstr "Weka namba hizi kwenye tovuti ya ripoti ya CCLI: matumizi ya kuonyeshwa huenda chini ya “Digital”, matumizi ya kutiririshwa chini ya Leseni yako ya Kutiririsha. “Imetiririshwa” maana yake ukurasa au dirisha la matangazo ya moja kwa moja lilikuwa wazi, si kwamba mlikuwa hewani."
 
 #: ui/dialogs/usage.slint
 msgid "Open printable page"
@@ -4881,11 +4881,11 @@ msgstr "Hifadhi picha hii kama"
 
 #: ui/operator/cameras.slint
 msgid "Save this shot as position {}"
-msgstr "Hifadhi picha hii kama mahali {}"
+msgstr "Hifadhi picha hii kama nafasi {}"
 
 #: ui/operator/cameras.slint
 msgid "Move the camera to its saved position {}"
-msgstr "Peleka kamera mahali pake palipohifadhiwa {}"
+msgstr "Peleka kamera kwenye nafasi yake iliyohifadhiwa {}"
 
 #: ui/operator/cameras.slint
 msgid "Save…"
@@ -4893,11 +4893,11 @@ msgstr "Hifadhi…"
 
 #: ui/operator/cameras.slint
 msgid "Keep the saved positions as they are"
-msgstr "Acha mahali palipohifadhiwa kama palivyo"
+msgstr "Acha nafasi zilizohifadhiwa kama zilivyo"
 
 #: ui/operator/cameras.slint
 msgid "Save the camera's shot now as one of its positions"
-msgstr "Hifadhi picha ya kamera sasa kama mojawapo ya mahali pake"
+msgstr "Hifadhi picha ya kamera sasa kama mojawapo ya nafasi zake"
 
 #: ui/operator/cameras.slint
 msgid "Switch"
@@ -5153,7 +5153,7 @@ msgstr "Achilia hapa ili kuongeza kwenye ibada"
 
 #: ui/operator/overlays.slint
 msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect song files"
-msgstr "Video, picha, muziki, mawasilisho (PowerPoint, Keynote, PDF), faili za maneno za SongSelect"
+msgstr "Video, picha, muziki, mawasilisho (PowerPoint, Keynote, PDF), faili za nyimbo za SongSelect"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop the livestream"
@@ -5189,7 +5189,7 @@ msgstr "Tuma skrini ya ukumbi kwenye matangazo ya moja kwa moja, na uirekodi"
 
 #: ui/operator/record.slint
 msgid "Stream scene"
-msgstr "Mandhari ya matangazo"
+msgstr "Tukio la matangazo"
 
 #: ui/operator/record.slint
 msgid "{} (automatic)"
@@ -6069,11 +6069,11 @@ msgstr "Ongeza skrini kwanza."
 
 #: src/app.rs
 msgid "Room screen {number}"
-msgstr "Hadhira {number}"
+msgstr "Skrini ya ukumbi {number}"
 
 #: src/app.rs
 msgid "Stage screen {number}"
-msgstr "Skrini ya Jukwaa {number}"
+msgstr "Skrini ya jukwaa {number}"
 
 #: src/app.rs
 msgid "That screen is gone."
@@ -6409,7 +6409,7 @@ msgstr "Bandika maandishi ya mistari kwanza."
 
 #: src/follow/audio.rs
 msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Media → Recording."
-msgstr "Kufuata kiotomatiki kunahitaji FFmpeg ili kusikia ukumbi. Ipakue kwenye Mipangilio → Kurekodi."
+msgstr "Kufuata kiotomatiki kunahitaji FFmpeg ili kusikia ukumbi. Ipakue kwenye Mipangilio → Midia → Kurekodi."
 
 #: src/follow/audio.rs
 msgid "FFmpeg stopped"
@@ -6545,7 +6545,7 @@ msgstr "Faili ya tafsiri {file} haikuweza kusomwa ({reason}), kwa hiyo haitumiki
 
 #: src/i18n/remote_strings.rs
 msgid "Phone remote — RustyPresenter"
-msgstr "Kidhibiti cha RustyPresenter"
+msgstr "Simu ya kudhibiti — RustyPresenter"
 
 #: src/i18n/remote_strings.rs
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
@@ -6712,7 +6712,7 @@ msgstr "Nenosiri"
 
 #: src/i18n/remote_strings.rs
 msgid "This phone remote needs a password too."
-msgstr "Kidhibiti hiki kinahitaji nenosiri pia."
+msgstr "Simu hii ya kudhibiti inahitaji nenosiri pia."
 
 #: src/i18n/remote_strings.rs
 msgid "This stage screen needs a password."
@@ -7160,7 +7160,7 @@ msgstr "Skrini hiyo haijaunganishwa kwa sasa."
 
 #: src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/theme/layouts.rs
 msgid "Bible passage"
-msgstr "Maandiko"
+msgstr "Kifungu cha Biblia"
 
 #: src/record/advanced.rs
 msgid "{name} last {minutes} minutes"
@@ -7200,7 +7200,7 @@ msgstr "Kipande hakikuweza kuhifadhiwa: {path}"
 
 #: src/record/mod.rs
 msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
-msgstr "RustyPresenter ilisimama katikati ya matangazo ya moja kwa moja. Rekodi hadi wakati huo imehifadhiwa. Kuwa mubashara tena?"
+msgstr "RustyPresenter ilisimama katikati ya matangazo ya moja kwa moja. Rekodi hadi wakati huo imehifadhiwa. Rusha moja kwa moja tena?"
 
 #: src/record/mod.rs
 msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or the graphics card under Video encoder, and close other programs."
@@ -7478,11 +7478,11 @@ msgstr "Kila kitu isipokuwa mandharinyuma"
 
 #: src/shortcuts.rs
 msgid "Livestream scene: {name}"
-msgstr "Mandhari ya matangazo: {name}"
+msgstr "Tukio la matangazo: {name}"
 
 #: src/shortcuts.rs
 msgid "Scene keys work while the stream is live."
-msgstr "Vitufe vya mandhari hufanya kazi wakati matangazo yako moja kwa moja."
+msgstr "Vitufe vya matukio hufanya kazi wakati matangazo yako moja kwa moja."
 
 #: src/slides.rs src/strings/print.rs
 msgid "Missing song"
@@ -7502,7 +7502,7 @@ msgstr "Hakuna maneno yaliyopatikana kwenye faili hii."
 
 #: src/songselect/inbox.rs src/songselect.rs src/ui/dialogs/songselect.rs
 msgid "That file is too big to be a song file."
-msgstr "Faili hiyo ni kubwa mno kuwa faili ya maneno."
+msgstr "Faili hiyo ni kubwa mno kuwa faili ya wimbo."
 
 #: src/songselect/inbox.rs
 msgid "it has no CCLI song number"
@@ -7522,7 +7522,7 @@ msgstr "Faili la wimbo halina kichwa."
 
 #: src/songselect.rs
 msgid "The song file is empty."
-msgstr "Faili ya maneno ni tupu."
+msgstr "Faili ya wimbo ni tupu."
 
 #: src/songselect.rs
 msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
@@ -7798,7 +7798,7 @@ msgstr "{name} · {service}: {text}"
 
 #: src/stream/mod.rs
 msgid "Live over NDI only: no destinations are switched on. Recording too."
-msgstr "Mubashara kupitia NDI pekee: hakuna kituo kilichowashwa. Inarekodi pia."
+msgstr "Moja kwa moja kupitia NDI pekee: hakuna kituo kilichowashwa. Inarekodi pia."
 
 #: src/stream/mod.rs
 msgid "Going live on {names}. Recording too."
@@ -7818,11 +7818,11 @@ msgstr "{name} imepoteza muunganisho. Inajaribu tena yenyewe; rekodi inaendelea.
 
 #: src/stream/mod.rs
 msgid "Nothing goes out over NDI: it needs the free NDI Tools from ndi.video on this computer. The livestream goes on without it."
-msgstr "Hakuna kinachotoka kupitia NDI: inahitaji NDI Tools za bure kutoka ndi.video kwenye kompyuta hii. Matangazo mubashara yanaendelea bila hiyo."
+msgstr "Hakuna kinachotoka kupitia NDI: inahitaji NDI Tools za bure kutoka ndi.video kwenye kompyuta hii. Matangazo ya moja kwa moja yanaendelea bila hiyo."
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
-msgstr "Rusha moja kwa moja inahitaji mahali palipowashwa penye ufunguo wa matangazo. Weka pamoja katika Mipangilio → Midia → Matangazo ya moja kwa moja."
+msgstr "Rusha moja kwa moja inahitaji kituo kilichowashwa chenye ufunguo wa matangazo. Weka kimoja katika Mipangilio → Midia → Matangazo ya moja kwa moja."
 
 #: src/stream/mod.rs
 msgid "{name} is not streamed to: {why}"
@@ -7862,7 +7862,7 @@ msgstr "Kamera imerudi kwenye matangazo."
 
 #: src/stream/mod.rs
 msgid "{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off."
-msgstr "{name}: intaneti si ya kasi ya kutosha, kwa hiyo matangazo yanaruka. Chagua 720p katika Mipangilio → Midia → Kurekodi, au zima mahali pamoja."
+msgstr "{name}: intaneti si ya kasi ya kutosha, kwa hiyo matangazo yanaruka. Chagua 720p katika Mipangilio → Midia → Kurekodi, au zima kituo kimoja."
 
 #: src/stream/mod.rs
 msgid "You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once."
@@ -8022,11 +8022,11 @@ msgstr "{layer} · {n}% angavu"
 
 #: src/stream/own_scenes.rs
 msgid "Untitled scene"
-msgstr "Mandhari yasiyo na jina"
+msgstr "Tukio lisilo na jina"
 
 #: src/stream/own_scenes.rs
 msgid "A scene that was deleted"
-msgstr "Mandhari yaliyofutwa"
+msgstr "Tukio lililofutwa"
 
 #: src/stream/own_scenes.rs
 msgid "The words of the song go here"
@@ -8122,7 +8122,7 @@ msgstr "Haiko kwenye matangazo"
 
 #: src/stream/phone_camera.rs
 msgid "On the computer, choose this phone in Settings → Media → Livestream → Camera."
-msgstr "Kwenye kompyuta, chagua simu hii katika Mipangilio, Midia, Matangazo ya moja kwa moja, Kamera."
+msgstr "Kwenye kompyuta, chagua simu hii katika Mipangilio → Midia → Matangazo ya moja kwa moja → Kamera."
 
 #: src/stream/phone_camera.rs
 msgid "Any phone on the church's Wi-Fi can be a camera. On the phone, open {address} and follow the steps there. The first time, the phone warns that the connection is not private: that is expected, because the page comes from this computer. Tap Advanced (or Show Details), then Proceed (or Visit this website). Then pair it with the code from Phone remote, Pair a phone. Once it sends its picture, it is listed in the camera lists above as Phone camera and its name."
@@ -8158,7 +8158,7 @@ msgstr "Simu haikuruhusu ukurasa kutumia maikrofoni yake. Iruhusu katika mipangi
 
 #: src/stream/phone_mic.rs
 msgid "Turn on the stage screen for phones in RustyPresenter (Settings → Network…), and sign in to it on this phone first."
-msgstr "Washa mwonekano wa jukwaa katika RustyPresenter (Mtandao), na uingie humo kwenye simu hii kwanza."
+msgstr "Washa skrini ya jukwaa kwa simu katika RustyPresenter (Mipangilio → Mtandao…), na uingie humo kwenye simu hii kwanza."
 
 #: src/stream/preflight.rs
 msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Media → Livestream. The stream shows the slides in its place."
@@ -8210,7 +8210,7 @@ msgstr "Skrini + kamera"
 
 #: src/stream/scene.rs
 msgid "Your scene"
-msgstr "Mandhari yako"
+msgstr "Tukio lako"
 
 #: src/stream/sound_setup.rs
 msgid "Custom (as set below)"
@@ -8246,7 +8246,7 @@ msgstr "Kupakia: {speed} Mbit/s. Tangaza kwa 720p: 1080p inahitaji {need} Mbit/s
 
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer destinations, or use a faster connection."
-msgstr "Kupakia: {speed} Mbit/s. Ni polepole mno: 720p kwa kila kituo kilichowashwa inahitaji {need} Mbit/s. Tangaza kwa sehemu chache, au tumia muunganisho wa haraka zaidi."
+msgstr "Kupakia: {speed} Mbit/s. Ni polepole mno: 720p kwa kila kituo kilichowashwa inahitaji {need} Mbit/s. Tangaza kwa vituo vichache, au tumia muunganisho wa haraka zaidi."
 
 #: src/stream/tally.rs
 msgid "Camera {camera}: on air"
@@ -8266,7 +8266,7 @@ msgstr "Hakuna matangazo"
 
 #: src/stream/tally.rs
 msgid "Turn on the stage screen for phones (Settings → Network…). If it has a password, open the stage screen on this phone once and sign in."
-msgstr "Washa mwonekano wa jukwaa katika Mipangilio → Mtandao. Kama una nenosiri, fungua mwonekano wa jukwaa mara moja kwenye simu hii na uingie."
+msgstr "Washa skrini ya jukwaa kwa simu (Mipangilio → Mtandao…). Kama ina nenosiri, fungua skrini ya jukwaa mara moja kwenye simu hii na uingie."
 
 #: src/stream/transition.rs
 msgid "Cut (at once)"
@@ -9196,7 +9196,7 @@ msgstr "Nenosiri hilo si sahihi."
 
 #: src/strings/network.rs
 msgid "The stage screen for phones is turned off on the presentation computer."
-msgstr "Mwonekano wa jukwaa umezimwa kwenye kompyuta ya uwasilishaji."
+msgstr "Skrini ya jukwaa kwa simu imezimwa kwenye kompyuta ya uwasilishaji."
 
 #: src/strings/network.rs
 msgid "Network settings saved."
@@ -9288,7 +9288,7 @@ msgstr "Mawasilisho"
 
 #: src/strings/operator.rs
 msgid "SongSelect song files"
-msgstr "Faili za maneno za SongSelect"
+msgstr "Faili za nyimbo za SongSelect"
 
 #: src/strings/operator.rs
 msgid "Pictures and videos"
@@ -9689,7 +9689,7 @@ msgstr "Tengeneza ibada ya {date} kutoka “{service}”?"
 
 #: src/strings/planning.rs
 msgid "Copy, with blanks for songs and Bible passages"
-msgstr "Nakili, pamoja na nafasi tupu kwa nyimbo na masomo ya Biblia"
+msgstr "Nakili, pamoja na nafasi tupu kwa nyimbo na vifungu vya Biblia"
 
 #: src/strings/planning.rs
 msgid "There is already a service for {date} (“{name}”)."
@@ -9845,11 +9845,11 @@ msgstr "Kifaa cha sauti hakijaunganishwa, kwa hiyo video au sauti imesitishwa. K
 
 #: src/strings/preflight.rs
 msgid "The logo's file is missing. Choose it again in Settings → Look."
-msgstr "Faili ya nembo haipo. Ichague tena katika Mipangilio."
+msgstr "Faili ya nembo haipo. Ichague tena katika Mipangilio → Mwonekano."
 
 #: src/strings/preflight.rs
 msgid "The default background's file is missing. Choose it again in Settings → Look."
-msgstr "Faili ya mandharinyuma chaguo-msingi haipo. Ichague tena katika Mipangilio."
+msgstr "Faili ya mandharinyuma chaguo-msingi haipo. Ichague tena katika Mipangilio → Mwonekano."
 
 #: src/strings/preflight.rs
 msgid "the song is no longer in the library"
@@ -9929,7 +9929,7 @@ msgstr " (inajirudia)"
 
 #: src/strings/print.rs
 msgid "No songs or Bible passages in this service."
-msgstr "Hakuna nyimbo wala masomo ya Biblia katika ibada hii."
+msgstr "Hakuna nyimbo wala vifungu vya Biblia katika ibada hii."
 
 #: src/strings/print.rs
 msgid "This service is empty."
@@ -10009,7 +10009,7 @@ msgstr "Hakuna kinachoonyeshwa kwenye kishika nafasi. Kiweke sasa, kisha chagua 
 
 #: src/strings/screens.rs
 msgid "Shows the room screen's picture instead of a stage layout. It has no sound."
-msgstr "Huonyesha picha ya hadhira badala ya mpangilio wa jukwaa. Haina sauti."
+msgstr "Huonyesha picha ya skrini ya ukumbi badala ya mpangilio wa jukwaa. Haina sauti."
 
 #: src/strings/screens.rs
 msgid "Colour bars"
@@ -11161,7 +11161,7 @@ msgstr "Hadi viwekelezo 8 vinaweza kuwashwa kwa wakati mmoja. Zima kimoja kwanza
 
 #: src/strings/themes.rs
 msgid "Choose a church logo first (Settings → Look)."
-msgstr "Chagua nembo ya kanisa kwanza (Mipangilio → Mandhari)."
+msgstr "Chagua nembo ya kanisa kwanza (Mipangilio → Mwonekano)."
 
 #: src/strings/themes.rs
 msgid "That picture is gone."
@@ -11553,15 +11553,15 @@ msgstr "YouTube inataka uingie ili kuhakikisha kuwa wewe si roboti. Subiri kwa m
 
 #: src/strings/youtube.rs
 msgid "This livestream hasn't finished yet. Try again after it ends."
-msgstr "Mtiririko huu wa moja kwa moja bado haujaisha. Jaribu tena baada ya kuisha."
+msgstr "Matangazo haya ya moja kwa moja bado hayajaisha. Jaribu tena baada ya kuisha."
 
 #: src/strings/youtube.rs
 msgid "This livestream or premiere hasn't started yet."
-msgstr "Mtiririko huu wa moja kwa moja au onyesho la kwanza bado halijaanza."
+msgstr "Matangazo haya ya moja kwa moja au uzinduzi huu bado haujaanza."
 
 #: src/strings/youtube.rs
 msgid "This livestream just ended and YouTube is still preparing it. Try again in a while."
-msgstr "Mtiririko huu wa moja kwa moja umeisha sasa hivi na YouTube bado inauandaa. Jaribu tena baada ya muda."
+msgstr "Matangazo haya ya moja kwa moja yameisha sasa hivi na YouTube bado inayaandaa. Jaribu tena baada ya muda."
 
 #: src/strings/youtube.rs
 msgid "That link isn't a YouTube video. Copy the link from the video's page and try again."
@@ -11830,7 +11830,7 @@ msgstr "Onyesha ujumbe jukwaani"
 
 #: src/ui/dialogs/automation.rs
 msgid "Change the livestream's scene"
-msgstr "Badilisha mandhari ya matangazo"
+msgstr "Badilisha tukio la matangazo"
 
 #: src/ui/dialogs/automation.rs
 msgid "Move a PTZ camera"
@@ -12098,7 +12098,7 @@ msgstr "Bora inafanya kazi vizuri hapa."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Use Fast on this computer: Best is too slow here."
-msgstr "Tumia Haraka kwenye PC hii: Bora ni ya polepole mno hapa."
+msgstr "Tumia Haraka kwenye kompyuta hii: Bora ni ya polepole mno hapa."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Fast runs fine here. Download Best to check it too."
@@ -12110,7 +12110,7 @@ msgstr "Pakua modeli kwanza, kisha jaribu kasi yake."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "This computer is too slow for the speech models: auto-follow can't hear the words here, so it can't follow the songs."
-msgstr "PC hii ni ya polepole mno kwa modeli za sauti: kufuata kiotomatiki hakuwezi kusikia maneno hapa, kwa hiyo hakuwezi kufuata nyimbo."
+msgstr "kompyuta hii ni ya polepole mno kwa modeli za sauti: kufuata kiotomatiki hakuwezi kusikia maneno hapa, kwa hiyo hakuwezi kufuata nyimbo."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Couldn't reach the download site. Check the internet and try again: it goes on where it stopped."
@@ -12326,15 +12326,15 @@ msgstr "Mipangilio ya matangazo ya moja kwa moja imehifadhiwa."
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Your livestream scenes"
-msgstr "Mandhari yako ya matangazo"
+msgstr "Matukio yako ya matangazo"
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Scene {n}"
-msgstr "Mandhari {n}"
+msgstr "Tukio {n}"
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Like the other scenes ({way})"
-msgstr "Kama mandhari nyingine ({way})"
+msgstr "Kama matukio mengine ({way})"
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Nothing"
@@ -12354,19 +12354,19 @@ msgstr "Sehemu angavu"
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Scene name"
-msgstr "Jina la mandhari"
+msgstr "Jina la tukio"
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the room screen instead."
-msgstr "Futa mandhari “{name}”? Vitendo vya slaidi na makro zinazoyachagua zitaonyesha skrini ya ukumbi badala yake."
+msgstr "Futa tukio “{name}”? Vitendo vya slaidi na makro zinazolichagua zitaonyesha skrini ya ukumbi badala yake."
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Leave without saving your scene changes?"
-msgstr "Ondoka bila kuhifadhi mabadiliko ya mandhari?"
+msgstr "Ondoka bila kuhifadhi mabadiliko ya matukio?"
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Scenes saved."
-msgstr "Mandhari yamehifadhiwa."
+msgstr "Matukio yamehifadhiwa."
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{done} of {total} translated"
@@ -12504,7 +12504,7 @@ msgstr "Jiandae kwa Jumapili"
 
 #: src/ui/operator/help.rs
 msgid "File → New service… makes this week's service. File → Services… opens an older one or copies last week."
-msgstr "Faili → Ibada mpya hutengeneza ibada ya wiki hii. Faili → Ibada… hufungua ya zamani au hunakili ya wiki iliyopita."
+msgstr "Faili → Ibada mpya… hutengeneza ibada ya wiki hii. Faili → Ibada… hufungua ya zamani au hunakili ya wiki iliyopita."
 
 #: src/ui/operator/help.rs
 msgid "File → Add to service adds songs, Bible passages, videos, slides and announcements. Drag items to change their order."
@@ -12608,7 +12608,7 @@ msgstr "FFmpeg haikuweza kupakuliwa. Angalia muunganisho wa intaneti, au isakini
 
 #: src/ui/operator/record.rs
 msgid "{camera} (not in this scene)"
-msgstr "{camera} (haimo kwenye mandhari haya)"
+msgstr "{camera} (haimo kwenye tukio hili)"
 
 #: src/ui/operator/record.rs
 msgid "Move {camera}"
@@ -12616,7 +12616,7 @@ msgstr "Sogeza {camera}"
 
 #: src/ui/operator/record.rs
 msgid "The camera's shot is saved as position {n}."
-msgstr "Picha ya kamera imehifadhiwa kama mahali {n}."
+msgstr "Picha ya kamera imehifadhiwa kama nafasi {n}."
 
 #: src/ui/operator/stream_extras.rs
 msgid "Copied. Paste it into the service's own page for this stream."
@@ -12738,7 +12738,7 @@ msgstr "Skrini ya ukumbi ilichomolewa. Itarudi yenyewe skrini hiyo ikichomekwa t
 
 #: src/ui/screens.rs
 msgid "The extra room screen was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr "Skrini ya ziada ya hadhira ilichomolewa. Itarudi yenyewe skrini hiyo ikichomekwa tena."
+msgstr "Skrini ya ziada ya ukumbi ilichomolewa. Itarudi yenyewe skrini hiyo ikichomekwa tena."
 
 #: src/ui/screens.rs
 msgid "The stage screen was unplugged. It comes back by itself when that screen is plugged in again."
@@ -12754,7 +12754,7 @@ msgstr "Skrini ya ukumbi imechomekwa tena, lakini haikuweza kufunguka: {error}"
 
 #: src/ui/screens.rs
 msgid "The extra room screen is plugged in again, but it could not open: {error}"
-msgstr "Skrini ya ziada ya hadhira imechomekwa tena, lakini haikuweza kufunguka: {error}"
+msgstr "Skrini ya ziada ya ukumbi imechomekwa tena, lakini haikuweza kufunguka: {error}"
 
 #: src/ui/screens.rs
 msgid "The stage screen is plugged in again, but it could not open: {error}"
@@ -12911,7 +12911,7 @@ msgstr "Hakuna chaguo la michoro lililofanya kazi kwenye jaribio. RustyPresenter
 
 #: src/video/bench.rs
 msgid "{mode} is the best for this computer. Automatic will use it from the next start."
-msgstr "{mode} ni bora kwa PC hii. Otomatiki itaitumia kuanzia itakapoanza tena."
+msgstr "{mode} ni bora kwa kompyuta hii. Otomatiki itaitumia kuanzia itakapoanza tena."
 
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."

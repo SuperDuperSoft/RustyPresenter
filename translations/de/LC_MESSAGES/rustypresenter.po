@@ -165,7 +165,7 @@ msgstr "Eingefügte Verse hinzufügen"
 
 #: ui/dialogs/add.slint
 msgid "Tip: you don’t need this window. Type a verse in the Bible box at the top (or press Ctrl+B), then Enter adds it, and Enter again shows it."
-msgstr "Tipp: Dieses Fenster brauchen Sie nicht. Tippen Sie eine Bibelstelle oben ins Bibelfeld (oder drücken Sie Strg+B). Eingabe fügt sie hinzu, nochmals Eingabe zeigt sie an."
+msgstr "Tipp: Dieses Fenster brauchen Sie nicht. Tippen Sie einen Vers oben ins Bibelfeld (oder drücken Sie Strg+B). Eingabe fügt ihn hinzu, nochmals Eingabe zeigt ihn an."
 
 #: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/song-editor.slint src/strings/usage.rs src/theme/layouts.rs
 msgid "Title"
@@ -193,7 +193,7 @@ msgstr "Lied"
 
 #: ui/dialogs/add.slint ui/dialogs/design-editor.slint ui/dialogs/print.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/strings/print.rs src/theme/layouts.rs
 msgid "Words"
-msgstr "Text"
+msgstr "Liedtext"
 
 #: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings.slint
 msgid "Bible"
@@ -497,7 +497,7 @@ msgstr "Musik abspielen"
 
 #: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs
 msgid "Stage screen"
-msgstr "Bühnenmonitor"
+msgstr "Bühnenbildschirm"
 
 #: ui/dialogs/automation.slint
 msgid "Countdown position"
@@ -693,7 +693,7 @@ msgstr "Notizen"
 
 #: ui/dialogs/design-editor.slint
 msgid "For the stage screen and the operator"
-msgstr "Für Bühnenmonitor und Bedienung"
+msgstr "Für Bühnenbildschirm und Bedienung"
 
 #: ui/dialogs/design-editor.slint
 msgid "{} objects chosen. Changes go on all of them."
@@ -725,7 +725,7 @@ msgstr "Größe, Farbe, Fett, Kursiv, Unterstrichen und Durchgestrichen ändern 
 
 #: ui/dialogs/design-editor.slint
 msgid "To change some words only, mark them in the Words box first."
-msgstr "Um nur einige Wörter zu ändern, markieren Sie sie zuerst im Feld „Wörter“."
+msgstr "Um nur einige Wörter zu ändern, markieren Sie sie zuerst im Feld „Liedtext“."
 
 #: ui/dialogs/design-editor.slint
 msgid "Some words here have their own look. These settings change the whole box."
@@ -849,7 +849,7 @@ msgstr "Runde Ecken ({} px)"
 
 #: ui/dialogs/design-editor.slint
 msgid "See-through ({}% shown)"
-msgstr "Transparenz ({} % sichtbar)"
+msgstr "Durchsichtig ({} % sichtbar)"
 
 #: ui/dialogs/design-editor.slint
 msgid "Turn ({}°)"
@@ -1134,7 +1134,7 @@ msgstr "Streamschlüssel einfügen"
 
 #: ui/dialogs/go-live-helper.slint
 msgid "A stream key is a password: whoever has it can stream as you. It is kept in this computer's own password store."
-msgstr "Ein Streamschlüssel ist ein Passwort: Wer ihn hat, kann in Ihrem Namen übertragen. Er wird im eigenen Passwortspeicher dieses Computers aufbewahrt."
+msgstr "Ein Streamschlüssel ist ein Passwort: Wer ihn hat, kann in Ihrem Namen streamen. Er wird im eigenen Passwortspeicher dieses Computers aufbewahrt."
 
 #: ui/dialogs/go-live-helper.slint
 msgid "Sign in instead…"
@@ -1342,7 +1342,7 @@ msgstr "Rednernotizen"
 
 #: ui/dialogs/item-edit.slint
 msgid "Shown on the stage screen with each slide"
-msgstr "Werden mit jeder Folie auf dem Bühnenmonitor angezeigt"
+msgstr "Werden mit jeder Folie auf dem Bühnenbildschirm angezeigt"
 
 #: ui/dialogs/item-edit.slint
 msgid "Slide transitions"
@@ -1433,7 +1433,7 @@ msgstr "Bühnennotizen"
 
 #: ui/dialogs/item-edit.slint
 msgid "Shown on the stage screen only"
-msgstr "Nur auf dem Bühnenmonitor sichtbar"
+msgstr "Nur auf dem Bühnenbildschirm sichtbar"
 
 #: ui/dialogs/item-edit.slint
 msgid "Remove from service"
@@ -1505,7 +1505,7 @@ msgstr "Beim Koppeln eines Handys nach einem Passwort fragen"
 
 #: ui/dialogs/network.slint
 msgid "Phone remote password"
-msgstr "Passwort der Fernbedienung"
+msgstr "Passwort der Handy-Fernbedienung"
 
 #: ui/dialogs/network.slint
 msgid "Saved — type to change it"
@@ -1521,11 +1521,11 @@ msgstr "Handys werden weiter per Code oder QR-Code gekoppelt; zusätzlich wird d
 
 #: ui/dialogs/network.slint
 msgid "Stage screen on a phone or tablet"
-msgstr "Bühnenmonitor auf Handy oder Tablet"
+msgstr "Bühnenbildschirm auf Handy oder Tablet"
 
 #: ui/dialogs/network.slint
 msgid "Show the stage screen to phones and tablets (read only)"
-msgstr "Bühnenmonitor auf Handys und Tablets zeigen (nur ansehen)"
+msgstr "Bühnenbildschirm auf Handys und Tablets zeigen (nur ansehen)"
 
 #: ui/dialogs/network.slint
 msgid "Ask for a password"
@@ -1533,7 +1533,7 @@ msgstr "Nach Passwort fragen"
 
 #: ui/dialogs/network.slint
 msgid "Stage screen password"
-msgstr "Passwort des Bühnenmonitors"
+msgstr "Passwort des Bühnenbildschirms"
 
 #: ui/dialogs/network.slint
 msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this computer)."
@@ -1557,7 +1557,7 @@ msgstr "TCP-Passwort"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
-msgstr "Einblendungen bleiben auf dem Saalbildschirm, während die Folien wechseln: ein Logo in der Ecke, eine Uhr oder ein kurzer Hinweis. Schalten Sie sie mit den Schaltflächen unter „Weiter“ in der Live-Spalte ein und aus. Die letzte in der Liste liegt ganz oben."
+msgstr "Einblendungen bleiben auf dem Saalbildschirm, während die Folien wechseln: ein Logo in der Ecke, eine Uhr oder ein kurzer Hinweis. Schalten Sie sie mit den Schaltflächen unter „Als Nächstes“ in der Live-Spalte ein und aus. Die letzte in der Liste liegt ganz oben."
 
 #: ui/dialogs/overlays.slint
 msgid "Filter overlays"
@@ -1725,7 +1725,7 @@ msgstr "Notizen mitdrucken"
 
 #: ui/dialogs/print.slint
 msgid "Include Bible passages with the song words"
-msgstr "Bibellesungen bei den Liedtexten mitdrucken"
+msgstr "Bibelstellen bei den Liedtexten mitdrucken"
 
 #: ui/dialogs/print.slint
 msgid "Start each song on a new page"
@@ -1841,7 +1841,7 @@ msgstr "Seitenverhältnis: {}"
 
 #: ui/dialogs/screens.slint
 msgid "Show what the room screen shows"
-msgstr "Zeigen, was der Saal sieht"
+msgstr "Zeigen, was der Saalbildschirm zeigt"
 
 #: ui/dialogs/screens.slint
 msgid "Whole screen"
@@ -2169,7 +2169,7 @@ msgstr "Tempo testen"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Tries the downloaded models on this computer and says which one suits it."
-msgstr "Probiert die heruntergeladenen Modelle auf diesem PC aus und sagt, welches passt."
+msgstr "Probiert die heruntergeladenen Modelle auf diesem Computer aus und sagt, welches passt."
 
 #: ui/dialogs/settings-follow.slint
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
@@ -2609,11 +2609,11 @@ msgstr "{} ms"
 
 #: ui/dialogs/settings-media.slint
 msgid "Stream delay"
-msgstr "Verzögerung der Übertragung"
+msgstr "Stream-Verzögerung"
 
 #: ui/dialogs/settings-media.slint
 msgid "What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer."
-msgstr "Was in die Übertragung geht, wird so lange zurückgehalten, damit Anhalten oder Stumm etwas stoppen kann, bevor es jemand sieht. Die Aufnahme wird nicht verzögert. Kommentare der Zuschauer kommen später als das, worauf sie antworten."
+msgstr "Was in den Stream geht, wird so lange zurückgehalten, damit Anhalten oder Stumm etwas stoppen kann, bevor es jemand sieht. Die Aufnahme wird nicht verzögert. Kommentare der Zuschauer kommen später als das, worauf sie antworten."
 
 #: ui/dialogs/settings-media.slint src/stream/sound_setup.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
 msgid "None"
@@ -2625,11 +2625,11 @@ msgstr "Langsames Internet"
 
 #: ui/dialogs/settings-media.slint
 msgid "When a destination's internet cannot keep up, it gets a lighter stream until it can, instead of skipping. The recording and the other destinations keep the full picture. This uses more of the computer."
-msgstr "Wenn das Internet zu einem Ziel nicht mithält, bekommt es eine leichtere Übertragung, bis es wieder geht, statt zu ruckeln. Die Aufnahme und die anderen Ziele behalten das volle Bild. Das braucht mehr vom Computer."
+msgstr "Wenn das Internet zu einem Ziel nicht mithält, bekommt es einen leichteren Stream, bis es wieder geht, statt zu ruckeln. Die Aufnahme und die anderen Ziele behalten das volle Bild. Das braucht mehr vom Computer."
 
 #: ui/dialogs/settings-media.slint
 msgid "Send a lighter stream where the internet is slow"
-msgstr "Eine leichtere Übertragung senden, wo das Internet langsam ist"
+msgstr "Einen leichteren Stream senden, wo das Internet langsam ist"
 
 #: ui/dialogs/settings-media.slint
 msgid "NDI"
@@ -2669,7 +2669,7 @@ msgstr "Lautstärken"
 
 #: ui/dialogs/settings-media.slint
 msgid "Turn each sound up or down in the stream only (not in the room)."
-msgstr "Jeden Ton nur in der Übertragung lauter oder leiser stellen (nicht im Saal)."
+msgstr "Jeden Ton nur im Stream lauter oder leiser stellen (nicht im Saal)."
 
 #: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint src/record/mod.rs
 msgid "Microphone or line-in"
@@ -2689,7 +2689,7 @@ msgstr "Klangbereinigung"
 
 #: ui/dialogs/settings-media.slint
 msgid "For the stream only. Evening out keeps quiet speaking easy to hear at home and loud singing from crackling."
-msgstr "Nur für die Übertragung. Ausgleichen macht leises Sprechen zu Hause gut hörbar und verhindert, dass lauter Gesang verzerrt."
+msgstr "Nur für den Stream. Ausgleichen macht leises Sprechen zu Hause gut hörbar und verhindert, dass lauter Gesang verzerrt."
 
 #: ui/dialogs/settings-media.slint
 msgid "Even out loud and quiet moments"
@@ -2757,7 +2757,7 @@ msgstr "Was der Stream an Stelle einer Kamera zeigt, solange sie ausgesteckt ist
 
 #: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
 msgid "The room screen"
-msgstr "Der Saal-Bildschirm"
+msgstr "Der Saalbildschirm"
 
 #: ui/dialogs/settings-media.slint
 msgid "The church logo"
@@ -2777,7 +2777,7 @@ msgstr "Szenen"
 
 #: ui/dialogs/settings-media.slint
 msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
-msgstr "Lieder und Bibelverse gehen als Kamera mit dem Text hinaus; Videos und Präsentationen als Saal-Bildschirm; nichts auf dem Bildschirm, die Kamera. Eine mit dem Szenen-Knopf neben Live gewählte Szene bleibt bis zum nächsten Punkt des Gottesdienstes."
+msgstr "Lieder und Bibelverse gehen als Kamera mit dem Text hinaus; Videos und Präsentationen als Saalbildschirm; nichts auf dem Bildschirm, die Kamera. Eine mit dem Szenen-Knopf neben Live gewählte Szene bleibt bis zum nächsten Element des Gottesdienstes."
 
 #: ui/dialogs/settings-media.slint
 msgid "Choose the scene by itself from what is live"
@@ -2789,7 +2789,7 @@ msgstr "Präsentationen:"
 
 #: ui/dialogs/settings-media.slint
 msgid "The room screen with the camera in a corner"
-msgstr "Der Saal-Bildschirm mit der Kamera in einer Ecke"
+msgstr "Der Saalbildschirm mit der Kamera in einer Ecke"
 
 #: ui/dialogs/settings-media.slint
 msgid "Scene layout"
@@ -2853,7 +2853,7 @@ msgstr "Es geht gleich los"
 
 #: ui/dialogs/settings-media.slint
 msgid "Before the service, with the pre-service countdown under the words while it runs."
-msgstr "Vor dem Gottesdienst, mit dem Countdown unter den Worten, solange er läuft."
+msgstr "Vor dem Gottesdienst, mit dem Countdown unter dem Text, solange er läuft."
 
 #: ui/dialogs/settings-media.slint
 msgid "Use a picture…"
@@ -2869,7 +2869,7 @@ msgstr "Schluss"
 
 #: ui/dialogs/settings-media.slint
 msgid "After the service's last item."
-msgstr "Nach dem letzten Punkt des Gottesdienstes."
+msgstr "Nach dem letzten Element des Gottesdienstes."
 
 #: ui/dialogs/settings-media.slint src/stream/pictures.rs
 msgid "Thanks for joining us"
@@ -2893,7 +2893,7 @@ msgstr "Streamen an"
 
 #: ui/dialogs/settings-media.slint
 msgid "A stream key is a password: whoever has it can stream as you. It is kept in this computer's own password store as you type it, never in a backup or a service file."
-msgstr "Ein Streamschlüssel ist ein Passwort: Wer ihn hat, kann in Ihrem Namen senden. Er wird beim Eingeben im Passwortspeicher dieses Computers abgelegt, nie in einer Sicherung oder einer Gottesdienstdatei."
+msgstr "Ein Streamschlüssel ist ein Passwort: Wer ihn hat, kann in Ihrem Namen streamen. Er wird beim Eingeben im Passwortspeicher dieses Computers abgelegt, nie in einer Sicherung oder einer Gottesdienstdatei."
 
 #: ui/dialogs/settings-media.slint
 msgid "YouTube stream key"
@@ -2905,7 +2905,7 @@ msgstr "Anmelden"
 
 #: ui/dialogs/settings-media.slint
 msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
-msgstr "Anmelden statt einen Schlüssel einzufügen: Live erstellt die Übertragung dann selbst, mit Titel"
+msgstr "Anmelden statt einen Schlüssel einzufügen: „Live gehen“ erstellt die Übertragung dann selbst, mit Titel"
 
 #: ui/dialogs/settings-media.slint
 msgid "Signed in as {}"
@@ -3041,11 +3041,11 @@ msgstr "Neue anlegen"
 
 #: ui/dialogs/settings-media.slint
 msgid "Makes the next service's YouTube broadcast now, for its day and start time, so its link can be shared before Sunday. Go Live uses it."
-msgstr "Legt die YouTube-Übertragung des nächsten Gottesdienstes jetzt an, für dessen Tag und Beginn, damit der Link vor Sonntag geteilt werden kann. Live verwendet sie."
+msgstr "Legt die YouTube-Übertragung des nächsten Gottesdienstes jetzt an, für dessen Tag und Beginn, damit der Link vor Sonntag geteilt werden kann. „Live gehen“ verwendet sie."
 
 #: ui/dialogs/settings-media.slint
 msgid "YouTube thumbnail: a frame of the stream"
-msgstr "YouTube-Vorschaubild: ein Bild aus der Übertragung"
+msgstr "YouTube-Vorschaubild: ein Bild aus dem Stream"
 
 #: ui/dialogs/settings-media.slint
 msgid "YouTube thumbnail: {}"
@@ -3201,7 +3201,7 @@ msgstr "Handy-Mikrofon"
 
 #: ui/dialogs/settings-sound.slint
 msgid "Turn on the stage screen for phones (Settings → Network…), then open this page on the phone and press Start: {}"
-msgstr "Schalten Sie die Bühnenansicht ein (Netzwerk), öffnen Sie dann diese Seite auf dem Handy und drücken Sie Start: {}"
+msgstr "Schalten Sie den Bühnenbildschirm für Handys ein (Einstellungen → Netzwerk…), öffnen Sie dann diese Seite auf dem Handy und drücken Sie Start: {}"
 
 #: ui/dialogs/settings-sound.slint
 msgid "The first time, the phone warns that the page is not private, because this computer made its own certificate: tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
@@ -3633,7 +3633,7 @@ msgstr "Bühnenlayout"
 
 #: ui/dialogs/settings.slint
 msgid "What the stage screen shows. Window → Stage layouts… makes your own."
-msgstr "Was der Bühnenmonitor zeigt. Unter Fenster → Bühnenlayouts… erstellen Sie eigene."
+msgstr "Was der Bühnenbildschirm zeigt. Unter Fenster → Bühnenlayouts… erstellen Sie eigene."
 
 #: ui/dialogs/settings.slint src/ui/dialogs/settings_keys.rs
 msgid "Phone drawing"
@@ -3649,7 +3649,7 @@ msgstr "Zeichnungen beim Folienwechsel behalten"
 
 #: ui/dialogs/settings.slint
 msgid "Show drawings on the stage screen"
-msgstr "Zeichnungen auf dem Bühnenmonitor zeigen"
+msgstr "Zeichnungen auf dem Bühnenbildschirm zeigen"
 
 #: ui/dialogs/settings.slint
 msgid "Fading ink disappears after (seconds, 1–30)"
@@ -5117,7 +5117,7 @@ msgstr "Saalbildschirm ist aus"
 
 #: ui/operator/monitor.slint
 msgid "Stage screen is off"
-msgstr "Bühnenmonitor ist aus"
+msgstr "Bühnenbildschirm ist aus"
 
 #: ui/operator/overlay-strip.slint src/strings/themes.rs
 msgid "Changed — turn it off and on to update."
@@ -5153,7 +5153,7 @@ msgstr "Ablegen, um zum Gottesdienst hinzuzufügen"
 
 #: ui/operator/overlays.slint
 msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect song files"
-msgstr "Videos, Bilder, Musik, Präsentationen (PowerPoint, Keynote, PDF), SongSelect-Liedtextdateien"
+msgstr "Videos, Bilder, Musik, Präsentationen (PowerPoint, Keynote, PDF), SongSelect-Lieddateien"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop the livestream"
@@ -5329,7 +5329,7 @@ msgstr "Ihr Gottesdienst ist leer"
 
 #: ui/operator/service.slint
 msgid "Add songs, videos and slides, type a Bible verse up top, or drag files onto this window."
-msgstr "Fügen Sie Lieder, Videos und Folien hinzu, tippen Sie oben eine Bibelstelle ein oder ziehen Sie Dateien in dieses Fenster."
+msgstr "Fügen Sie Lieder, Videos und Folien hinzu, tippen Sie oben einen Bibelvers ein oder ziehen Sie Dateien in dieses Fenster."
 
 #: ui/operator/service.slint
 msgid "Filter the service"
@@ -5353,7 +5353,7 @@ msgstr "Klicken Sie auf „Zum Gottesdienst hinzufügen“ für Lieder, Videos u
 
 #: ui/operator/slides.slint
 msgid "Type a verse like “John 3:16” in the Bible box and press Enter."
-msgstr "Tippen Sie eine Stelle wie „John 3:16“ ins Bibelfeld und drücken Sie die Eingabetaste."
+msgstr "Tippen Sie einen Vers wie „John 3:16“ ins Bibelfeld und drücken Sie die Eingabetaste."
 
 #: ui/operator/slides.slint
 msgid "Use the big Next button (or the → key) during the service."
@@ -5417,19 +5417,19 @@ msgstr "Nur Bühne"
 
 #: ui/operator/slides.slint
 msgid "The next slide you click goes to the stage screen only. Click again to cancel."
-msgstr "Die nächste angeklickte Folie geht nur auf den Bühnenmonitor. Erneut klicken zum Abbrechen."
+msgstr "Die nächste angeklickte Folie geht nur auf den Bühnenbildschirm. Erneut klicken zum Abbrechen."
 
 #: ui/operator/slides.slint
 msgid "Send the next slide you click to the stage screen only, as a note for the band"
-msgstr "Nächste angeklickte Folie nur auf den Bühnenmonitor senden, als Hinweis für die Band"
+msgstr "Nächste angeklickte Folie nur auf den Bühnenbildschirm senden, als Hinweis für die Band"
 
 #: ui/operator/slides.slint
 msgid "On the stage screen only: {}"
-msgstr "Nur auf dem Bühnenmonitor: {}"
+msgstr "Nur auf dem Bühnenbildschirm: {}"
 
 #: ui/operator/slides.slint
 msgid "Click a slide to show it on the stage screen only. The room won't see it."
-msgstr "Klicken Sie auf eine Folie, um sie nur auf dem Bühnenmonitor zu zeigen. Der Saal sieht sie nicht."
+msgstr "Klicken Sie auf eine Folie, um sie nur auf dem Bühnenbildschirm zu zeigen. Der Saal sieht sie nicht."
 
 #: ui/operator/slides.slint
 msgid "Take it down"
@@ -5469,7 +5469,7 @@ msgstr "Letzte Verse"
 
 #: ui/operator/topbar.slint
 msgid "Bible verse — type John 3:16 and press Enter"
-msgstr "Bibelstelle – John 3:16 tippen, Eingabe drücken"
+msgstr "Bibelvers – John 3:16 tippen, Eingabe drücken"
 
 #: ui/operator/topbar.slint
 msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
@@ -5501,7 +5501,7 @@ msgstr "Verbundene Handy-Fernbedienungen"
 
 #: ui/operator/topbar.slint
 msgid "Show a message on the stage screen"
-msgstr "Nachricht auf dem Bühnenmonitor zeigen"
+msgstr "Nachricht auf dem Bühnenbildschirm zeigen"
 
 #: ui/operator/topbar.slint
 msgid "Freeze"
@@ -5749,7 +5749,7 @@ msgstr "Vorschau Saalbildschirm"
 
 #: ui/operator.slint
 msgid "Preview the stage screen"
-msgstr "Vorschau Bühnenmonitor"
+msgstr "Vorschau Bühnenbildschirm"
 
 #: ui/operator.slint
 msgid "Hide performance"
@@ -6069,11 +6069,11 @@ msgstr "Fügen Sie zuerst einen Bildschirm hinzu."
 
 #: src/app.rs
 msgid "Room screen {number}"
-msgstr "Saal {number}"
+msgstr "Saalbildschirm {number}"
 
 #: src/app.rs
 msgid "Stage screen {number}"
-msgstr "Bühnenmonitor {number}"
+msgstr "Bühnenbildschirm {number}"
 
 #: src/app.rs
 msgid "That screen is gone."
@@ -6409,7 +6409,7 @@ msgstr "Fügen Sie zuerst den Verstext ein."
 
 #: src/follow/audio.rs
 msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Media → Recording."
-msgstr "Auto-Folgen braucht FFmpeg, um den Raum zu hören. Laden Sie es unter Einstellungen → Aufnahme herunter."
+msgstr "Auto-Folgen braucht FFmpeg, um den Raum zu hören. Laden Sie es unter Einstellungen → Medien → Aufnahme herunter."
 
 #: src/follow/audio.rs
 msgid "FFmpeg stopped"
@@ -6545,7 +6545,7 @@ msgstr "Die Übersetzungsdatei {file} konnte nicht gelesen werden ({reason}) und
 
 #: src/i18n/remote_strings.rs
 msgid "Phone remote — RustyPresenter"
-msgstr "RustyPresenter-Fernbedienung"
+msgstr "Handy-Fernbedienung – RustyPresenter"
 
 #: src/i18n/remote_strings.rs
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
@@ -6616,7 +6616,7 @@ msgstr "Groß"
 
 #: src/i18n/remote_strings.rs
 msgid "Stage screen only (the room won't see it)"
-msgstr "Nur Bühnenmonitor (der Saal sieht es nicht)"
+msgstr "Nur Bühnenbildschirm (der Saal sieht es nicht)"
 
 #: src/i18n/remote_strings.rs
 msgid "Hide message"
@@ -6712,11 +6712,11 @@ msgstr "Passwort"
 
 #: src/i18n/remote_strings.rs
 msgid "This phone remote needs a password too."
-msgstr "Diese Fernbedienung braucht auch ein Passwort."
+msgstr "Diese Handy-Fernbedienung braucht auch ein Passwort."
 
 #: src/i18n/remote_strings.rs
 msgid "This stage screen needs a password."
-msgstr "Dieser Bühnenmonitor braucht ein Passwort."
+msgstr "Dieser Bühnenbildschirm braucht ein Passwort."
 
 #: src/i18n/remote_strings.rs
 msgid "Android phone"
@@ -7160,7 +7160,7 @@ msgstr "Dieser Bildschirm ist gerade nicht verbunden."
 
 #: src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/theme/layouts.rs
 msgid "Bible passage"
-msgstr "Bibeltext"
+msgstr "Bibelstelle"
 
 #: src/record/advanced.rs
 msgid "{name} last {minutes} minutes"
@@ -7200,7 +7200,7 @@ msgstr "Der Clip konnte nicht gespeichert werden: {path}"
 
 #: src/record/mod.rs
 msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
-msgstr "RustyPresenter wurde mitten in einer Live-Übertragung beendet. Die Aufnahme bis dahin wurde behalten. Wieder live gehen?"
+msgstr "RustyPresenter wurde mitten in einem Livestream beendet. Die Aufnahme bis dahin wurde behalten. Wieder live gehen?"
 
 #: src/record/mod.rs
 msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or the graphics card under Video encoder, and close other programs."
@@ -7502,7 +7502,7 @@ msgstr "In dieser Datei wurde kein Liedtext gefunden."
 
 #: src/songselect/inbox.rs src/songselect.rs src/ui/dialogs/songselect.rs
 msgid "That file is too big to be a song file."
-msgstr "Diese Datei ist zu groß für eine Liedtextdatei."
+msgstr "Diese Datei ist zu groß für eine Lieddatei."
 
 #: src/songselect/inbox.rs
 msgid "it has no CCLI song number"
@@ -7522,7 +7522,7 @@ msgstr "Die Lieddatei hat keinen Titel."
 
 #: src/songselect.rs
 msgid "The song file is empty."
-msgstr "Die Liedtextdatei ist leer."
+msgstr "Die Lieddatei ist leer."
 
 #: src/songselect.rs
 msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
@@ -7774,7 +7774,7 @@ msgstr "Das Anhören des Streams konnte nicht starten: {error}"
 
 #: src/stream/mod.rs
 msgid "The stream ran {time}."
-msgstr "Die Übertragung lief {time}."
+msgstr "Der Stream lief {time}."
 
 #: src/stream/mod.rs
 msgid "{name}: never connected."
@@ -7842,11 +7842,11 @@ msgstr "an seine Adresse oder mit seinem Schlüssel kann kein Stream gesendet we
 
 #: src/stream/mod.rs
 msgid "{name}: the internet there is slow, so it gets a lighter stream ({kbps} kbit/s). The recording and the other destinations keep the full picture."
-msgstr "{name}: Das Internet dort ist langsam, darum bekommt es eine leichtere Übertragung ({kbps} kbit/s). Die Aufnahme und die anderen Ziele behalten das volle Bild."
+msgstr "{name}: Das Internet dort ist langsam, darum bekommt es einen leichteren Stream ({kbps} kbit/s). Die Aufnahme und die anderen Ziele behalten das volle Bild."
 
 #: src/stream/mod.rs
 msgid "{name} gets the full stream again."
-msgstr "{name} bekommt wieder die volle Übertragung."
+msgstr "{name} bekommt wieder den vollen Stream."
 
 #: src/stream/mod.rs
 msgid "The camera stopped. The stream shows the slides until it is back; it is tried again by itself."
@@ -7854,7 +7854,7 @@ msgstr "Die Kamera ist ausgefallen. Der Stream zeigt die Folien, bis sie wieder 
 
 #: src/stream/mod.rs
 msgid "The camera is not sending pictures, so the stream shows the slides. Check that it is plugged in and that no other program is using it; it is tried again by itself."
-msgstr "Die Kamera sendet kein Bild, deshalb zeigt die Übertragung die Folien. Prüfen Sie, ob sie angeschlossen ist und kein anderes Programm sie benutzt; sie wird von selbst neu versucht."
+msgstr "Die Kamera sendet kein Bild, deshalb zeigt der Stream die Folien. Prüfen Sie, ob sie angeschlossen ist und kein anderes Programm sie benutzt; sie wird von selbst neu versucht."
 
 #: src/stream/mod.rs
 msgid "The camera is back in the stream."
@@ -8122,7 +8122,7 @@ msgstr "Nicht im Stream"
 
 #: src/stream/phone_camera.rs
 msgid "On the computer, choose this phone in Settings → Media → Livestream → Camera."
-msgstr "Wählen Sie am Computer dieses Handy unter Einstellungen, Medien, Livestream, Kamera."
+msgstr "Wählen Sie am Computer dieses Handy unter Einstellungen → Medien → Livestream → Kamera."
 
 #: src/stream/phone_camera.rs
 msgid "Any phone on the church's Wi-Fi can be a camera. On the phone, open {address} and follow the steps there. The first time, the phone warns that the connection is not private: that is expected, because the page comes from this computer. Tap Advanced (or Show Details), then Proceed (or Visit this website). Then pair it with the code from Phone remote, Pair a phone. Once it sends its picture, it is listed in the camera lists above as Phone camera and its name."
@@ -8158,7 +8158,7 @@ msgstr "Das Handy hat der Seite das Mikrofon nicht erlaubt. Erlauben Sie es in d
 
 #: src/stream/phone_mic.rs
 msgid "Turn on the stage screen for phones in RustyPresenter (Settings → Network…), and sign in to it on this phone first."
-msgstr "Schalten Sie zuerst die Bühnenansicht in RustyPresenter ein (Netzwerk) und melden Sie sich auf diesem Handy dort an."
+msgstr "Schalten Sie zuerst den Bühnenbildschirm für Handys in RustyPresenter ein (Einstellungen → Netzwerk…) und melden Sie sich auf diesem Handy dort an."
 
 #: src/stream/preflight.rs
 msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Media → Livestream. The stream shows the slides in its place."
@@ -8262,11 +8262,11 @@ msgstr "Kamera {camera}"
 
 #: src/stream/tally.rs
 msgid "Not streaming"
-msgstr "Keine Übertragung"
+msgstr "Kein Stream"
 
 #: src/stream/tally.rs
 msgid "Turn on the stage screen for phones (Settings → Network…). If it has a password, open the stage screen on this phone once and sign in."
-msgstr "Schalten Sie die Bühnenansicht ein unter Einstellungen → Netzwerk. Hat sie ein Passwort, öffnen Sie die Bühnenansicht einmal auf diesem Telefon und melden Sie sich an."
+msgstr "Schalten Sie den Bühnenbildschirm für Handys ein (Einstellungen → Netzwerk…). Hat er ein Passwort, öffnen Sie den Bühnenbildschirm einmal auf diesem Handy und melden Sie sich an."
 
 #: src/stream/transition.rs
 msgid "Cut (at once)"
@@ -8810,7 +8810,7 @@ msgstr "{name} war nicht verwendbar und wurde nicht hinzugefügt."
 
 #: src/strings/catalog.rs
 msgid "That Bible is no longer in the list. Open Settings → Bible again to see the current list."
-msgstr "Diese Bibel ist nicht mehr in der Liste. Öffnen Sie Einstellungen → Bibeln erneut, um die aktuelle Liste zu sehen."
+msgstr "Diese Bibel ist nicht mehr in der Liste. Öffnen Sie Einstellungen → Bibel erneut, um die aktuelle Liste zu sehen."
 
 #: src/strings/catalog.rs
 msgid "You're offline, so Bibles can't be added right now."
@@ -9196,7 +9196,7 @@ msgstr "Dieses Passwort ist falsch."
 
 #: src/strings/network.rs
 msgid "The stage screen for phones is turned off on the presentation computer."
-msgstr "Die Bühnenansicht ist am Präsentationscomputer ausgeschaltet."
+msgstr "Der Bühnenbildschirm für Handys ist am Präsentationscomputer ausgeschaltet."
 
 #: src/strings/network.rs
 msgid "Network settings saved."
@@ -9288,7 +9288,7 @@ msgstr "Präsentationen"
 
 #: src/strings/operator.rs
 msgid "SongSelect song files"
-msgstr "SongSelect-Liedtextdateien"
+msgstr "SongSelect-Lieddateien"
 
 #: src/strings/operator.rs
 msgid "Pictures and videos"
@@ -9364,7 +9364,7 @@ msgstr "Folien benennen"
 
 #: src/strings/operator.rs
 msgid "Message for the stage screen. Leave it empty to take it down."
-msgstr "Nachricht für den Bühnenmonitor. Leer lassen, um sie zu entfernen."
+msgstr "Nachricht für den Bühnenbildschirm. Leer lassen, um sie zu entfernen."
 
 #: src/strings/operator.rs
 msgid "Favourites"
@@ -9444,7 +9444,7 @@ msgstr "Folie {n}"
 
 #: src/strings/operator.rs
 msgid "On the stage screen only. The room didn't change."
-msgstr "Nur auf dem Bühnenmonitor. Der Saal hat sich nicht geändert."
+msgstr "Nur auf dem Bühnenbildschirm. Der Saal hat sich nicht geändert."
 
 #: src/strings/phone.rs
 msgid "Code works for {n} more seconds"
@@ -9689,7 +9689,7 @@ msgstr "Gottesdienst für {date} aus „{service}“ erstellen?"
 
 #: src/strings/planning.rs
 msgid "Copy, with blanks for songs and Bible passages"
-msgstr "Kopieren, mit Platzhaltern für Lieder und Lesungen"
+msgstr "Kopieren, mit Platzhaltern für Lieder und Bibelstellen"
 
 #: src/strings/planning.rs
 msgid "There is already a service for {date} (“{name}”)."
@@ -9833,7 +9833,7 @@ msgstr "Der Saalbildschirm ist nicht verbunden. Prüfen Sie das Kabel oder wähl
 
 #: src/strings/preflight.rs
 msgid "The stage screen is not connected. The service can run without it."
-msgstr "Der Bühnenmonitor ist nicht verbunden. Der Gottesdienst kann ohne ihn laufen."
+msgstr "Der Bühnenbildschirm ist nicht verbunden. Der Gottesdienst kann ohne ihn laufen."
 
 #: src/strings/preflight.rs
 msgid "The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video."
@@ -9845,11 +9845,11 @@ msgstr "Die Tonausgabe ist nicht verbunden, daher wurde Video oder Audio pausier
 
 #: src/strings/preflight.rs
 msgid "The logo's file is missing. Choose it again in Settings → Look."
-msgstr "Die Logodatei fehlt. Wählen Sie sie in den Einstellungen erneut."
+msgstr "Die Logodatei fehlt. Wählen Sie sie unter Einstellungen → Aussehen erneut."
 
 #: src/strings/preflight.rs
 msgid "The default background's file is missing. Choose it again in Settings → Look."
-msgstr "Die Datei des Standardhintergrunds fehlt. Wählen Sie sie in den Einstellungen erneut."
+msgstr "Die Datei des Standardhintergrunds fehlt. Wählen Sie sie unter Einstellungen → Aussehen erneut."
 
 #: src/strings/preflight.rs
 msgid "the song is no longer in the library"
@@ -9929,7 +9929,7 @@ msgstr " (Schleife)"
 
 #: src/strings/print.rs
 msgid "No songs or Bible passages in this service."
-msgstr "Keine Lieder oder Bibellesungen in diesem Gottesdienst."
+msgstr "Keine Lieder oder Bibelstellen in diesem Gottesdienst."
 
 #: src/strings/print.rs
 msgid "This service is empty."
@@ -10009,7 +10009,7 @@ msgstr "Ein Platzhalter zeigt nichts an. Richten Sie ihn jetzt ein und wählen S
 
 #: src/strings/screens.rs
 msgid "Shows the room screen's picture instead of a stage layout. It has no sound."
-msgstr "Zeigt das Saalbild statt eines Bühnenlayouts. Ohne Ton."
+msgstr "Zeigt das Bild des Saalbildschirms statt eines Bühnenlayouts. Ohne Ton."
 
 #: src/strings/screens.rs
 msgid "Colour bars"
@@ -10277,7 +10277,7 @@ msgstr "{bible} braucht für diese Stelle Internet."
 
 #: src/strings/scripture.rs
 msgid "That Bible was removed. Add it again in Settings → Bible."
-msgstr "Diese Bibel wurde entfernt. Fügen Sie sie unter Einstellungen → Bibeln erneut hinzu."
+msgstr "Diese Bibel wurde entfernt. Fügen Sie sie unter Einstellungen → Bibel erneut hinzu."
 
 #: src/strings/scripture.rs
 msgid "Select a Bible passage first."
@@ -11161,7 +11161,7 @@ msgstr "Höchstens 8 Einblendungen gleichzeitig. Schalten Sie zuerst eine aus."
 
 #: src/strings/themes.rs
 msgid "Choose a church logo first (Settings → Look)."
-msgstr "Wählen Sie zuerst ein Gemeindelogo (Einstellungen → Designs)."
+msgstr "Wählen Sie zuerst ein Gemeindelogo (Einstellungen → Aussehen)."
 
 #: src/strings/themes.rs
 msgid "That picture is gone."
@@ -11685,7 +11685,7 @@ msgstr "Sonnenaufgang"
 
 #: src/theme/builtins.rs
 msgid "Words over video"
-msgstr "Text über Video"
+msgstr "Liedtext über Video"
 
 #: src/theme/layouts.rs
 msgid "Title + subtitle"
@@ -11952,7 +11952,7 @@ msgstr "Senden Sie einen Befehl pro Zeile: next, prev, clear, clear slide, logo,
 
 #: src/ui/dialogs/quick_search.rs
 msgid "Type a song title, some of its words, a file name or a service."
-msgstr "Liedtitel, Wörter aus dem Liedtext, einen Dateinamen oder einen Gottesdienst eingeben."
+msgstr "Liedtitel, einige Wörter daraus, einen Dateinamen oder einen Gottesdienst eingeben."
 
 #: src/ui/dialogs/quick_search.rs
 msgid "In this service"
@@ -12098,7 +12098,7 @@ msgstr "„Beste“ läuft hier gut."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Use Fast on this computer: Best is too slow here."
-msgstr "Verwenden Sie auf diesem PC „Schnell“: „Beste“ ist hier zu langsam."
+msgstr "Verwenden Sie auf diesem Computer „Schnell“: „Beste“ ist hier zu langsam."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Fast runs fine here. Download Best to check it too."
@@ -12110,7 +12110,7 @@ msgstr "Laden Sie zuerst ein Modell herunter und testen Sie dann sein Tempo."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "This computer is too slow for the speech models: auto-follow can't hear the words here, so it can't follow the songs."
-msgstr "Dieser PC ist zu langsam für die Sprachmodelle: Auto-Folgen kann den Text hier nicht hören und den Liedern deshalb nicht folgen."
+msgstr "Dieser Computer ist zu langsam für die Sprachmodelle: Auto-Folgen kann den Text hier nicht hören und den Liedern deshalb nicht folgen."
 
 #: src/ui/dialogs/settings_model.rs
 msgid "Couldn't reach the download site. Check the internet and try again: it goes on where it stopped."
@@ -12504,7 +12504,7 @@ msgstr "Für Sonntag vorbereiten"
 
 #: src/ui/operator/help.rs
 msgid "File → New service… makes this week's service. File → Services… opens an older one or copies last week."
-msgstr "Datei → Neuer Gottesdienst erstellt den Gottesdienst dieser Woche. Datei → Gottesdienste… öffnet einen älteren oder kopiert den der letzten Woche."
+msgstr "Datei → Neuer Gottesdienst… erstellt den Gottesdienst dieser Woche. Datei → Gottesdienste… öffnet einen älteren oder kopiert den der letzten Woche."
 
 #: src/ui/operator/help.rs
 msgid "File → Add to service adds songs, Bible passages, videos, slides and announcements. Drag items to change their order."
@@ -12528,7 +12528,7 @@ msgstr "Nächste Folie: {next}. Zurück: {back}."
 
 #: src/ui/operator/help.rs
 msgid "Window → Screens… picks which monitor is the room screen and which is the stage screen."
-msgstr "Fenster → Bildschirme… legt fest, welcher Monitor der Saalbildschirm und welcher der Bühnenmonitor ist."
+msgstr "Fenster → Bildschirme… legt fest, welcher Monitor der Saalbildschirm und welcher der Bühnenbildschirm ist."
 
 #: src/ui/operator/help.rs
 msgid "Settings → Keys and clear groups… changes these keys and makes your own clear groups."
@@ -12646,7 +12646,7 @@ msgstr[1] "{n} Designs hinzugefügt."
 
 #: src/ui/operator/transfer.rs
 msgid "{service} words"
-msgstr "{service} – Texte"
+msgstr "{service} – Liedtexte"
 
 #: src/ui/operator/video_inputs.rs
 msgid "Pick a camera or type its name first."
@@ -12742,11 +12742,11 @@ msgstr "Der zusätzliche Saalbildschirm wurde getrennt. Er kommt von selbst zur�
 
 #: src/ui/screens.rs
 msgid "The stage screen was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr "Der Bühnenmonitor wurde getrennt. Er kommt von selbst zurück, wenn er wieder angeschlossen wird."
+msgstr "Der Bühnenbildschirm wurde getrennt. Er kommt von selbst zurück, wenn er wieder angeschlossen wird."
 
 #: src/ui/screens.rs
 msgid "The extra stage screen was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr "Der zusätzliche Bühnenmonitor wurde getrennt. Er kommt von selbst zurück, wenn er wieder angeschlossen wird."
+msgstr "Der zusätzliche Bühnenbildschirm wurde getrennt. Er kommt von selbst zurück, wenn er wieder angeschlossen wird."
 
 #: src/ui/screens.rs
 msgid "The room screen is plugged in again, but it could not open: {error}"
@@ -12758,11 +12758,11 @@ msgstr "Der zusätzliche Saalbildschirm ist wieder angeschlossen, konnte aber ni
 
 #: src/ui/screens.rs
 msgid "The stage screen is plugged in again, but it could not open: {error}"
-msgstr "Der Bühnenmonitor ist wieder angeschlossen, konnte aber nicht öffnen: {error}"
+msgstr "Der Bühnenbildschirm ist wieder angeschlossen, konnte aber nicht öffnen: {error}"
 
 #: src/ui/screens.rs
 msgid "The extra stage screen is plugged in again, but it could not open: {error}"
-msgstr "Der zusätzliche Bühnenmonitor ist wieder angeschlossen, konnte aber nicht öffnen: {error}"
+msgstr "Der zusätzliche Bühnenbildschirm ist wieder angeschlossen, konnte aber nicht öffnen: {error}"
 
 #: src/ui/screens.rs
 msgid "Could not show the screen numbers: {error}"
@@ -12774,7 +12774,7 @@ msgstr "RustyPresenter wird beendet."
 
 #: src/ui/stage.rs
 msgid "Could not open the stage screen: {error}"
-msgstr "Bühnenmonitor konnte nicht geöffnet werden: {error}"
+msgstr "Bühnenbildschirm konnte nicht geöffnet werden: {error}"
 
 #: src/undo.rs
 msgid "Undone: {what}"
@@ -12871,7 +12871,7 @@ msgstr "Es wurde vor dem Ende geschlossen. Es ist vielleicht abgestürzt."
 
 #: src/video/bench.rs
 msgid "Slides never reached the room screen."
-msgstr "Die Folien kamen nie auf dem Saal-Bildschirm an."
+msgstr "Die Folien kamen nie auf dem Saalbildschirm an."
 
 #: src/video/bench.rs
 msgid "This graphics card or its driver can't draw with it."
@@ -12899,11 +12899,11 @@ msgstr "{mode} wird getestet… ({at} von {count})"
 
 #: src/video/bench.rs
 msgid "The graphics card or its driver changed. Want me to find the best graphics for this computer again? About a minute"
-msgstr "Die Grafikkarte oder ihr Treiber hat sich geändert. Soll ich wieder die beste Grafik für diesen PC suchen? Etwa eine Minute"
+msgstr "Die Grafikkarte oder ihr Treiber hat sich geändert. Soll ich wieder die beste Grafik für diesen Computer suchen? Etwa eine Minute"
 
 #: src/video/bench.rs
 msgid "Want me to find the best graphics for this computer? About a minute"
-msgstr "Soll ich die beste Grafik für diesen PC suchen? Etwa eine Minute"
+msgstr "Soll ich die beste Grafik für diesen Computer suchen? Etwa eine Minute"
 
 #: src/video/bench.rs
 msgid "None of the graphics choices worked in the test. RustyPresenter keeps the current setting."
@@ -12911,7 +12911,7 @@ msgstr "Keine der Grafikoptionen hat im Test funktioniert. RustyPresenter behäl
 
 #: src/video/bench.rs
 msgid "{mode} is the best for this computer. Automatic will use it from the next start."
-msgstr "{mode} ist für diesen PC am besten. „Automatisch“ verwendet es ab dem nächsten Start."
+msgstr "{mode} ist für diesen Computer am besten. „Automatisch“ verwendet es ab dem nächsten Start."
 
 #: src/video/ffi.rs
 msgid "The video player is missing. Reinstall RustyPresenter."

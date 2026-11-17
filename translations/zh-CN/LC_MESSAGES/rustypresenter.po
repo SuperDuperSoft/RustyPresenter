@@ -193,7 +193,7 @@ msgstr "诗歌"
 
 #: ui/dialogs/add.slint ui/dialogs/design-editor.slint ui/dialogs/print.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/strings/print.rs src/theme/layouts.rs
 msgid "Words"
-msgstr "文字"
+msgstr "歌词"
 
 #: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings.slint
 msgid "Bible"
@@ -725,7 +725,7 @@ msgstr "字号、颜色、粗体、斜体、下划线和删除线只改变选中
 
 #: ui/dialogs/design-editor.slint
 msgid "To change some words only, mark them in the Words box first."
-msgstr "要只改变部分词，请先在“文字”框中选中它们。"
+msgstr "要只改变部分词，请先在“歌词”框中选中它们。"
 
 #: ui/dialogs/design-editor.slint
 msgid "Some words here have their own look. These settings change the whole box."
@@ -1150,7 +1150,7 @@ msgstr "用哪台摄像头？"
 
 #: ui/dialogs/go-live-helper.slint
 msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the room screen."
-msgstr "诗歌和经文会把文字叠在摄像头画面上播出。没有摄像头时，观众看到的是会众屏幕。"
+msgstr "诗歌和经文会把歌词叠在摄像头画面上播出。没有摄像头时，观众看到的是会众屏幕。"
 
 #: ui/dialogs/go-live-helper.slint
 msgid "Which sound?"
@@ -1330,7 +1330,7 @@ msgstr "重复直到停止"
 
 #: ui/dialogs/item-edit.slint
 msgid "Audio keeps playing while you change slides. Stop it with Clear audio (F4) or Clear all."
-msgstr "切换幻灯片时音频会继续播放。使用“停止音频”(F4) 或“全部清空”来停止。"
+msgstr "切换幻灯片时音频会继续播放。使用“清除音频”(F4) 或“全部清空”来停止。"
 
 #: ui/dialogs/item-edit.slint
 msgid "Name in library"
@@ -1433,7 +1433,7 @@ msgstr "舞台备注"
 
 #: ui/dialogs/item-edit.slint
 msgid "Shown on the stage screen only"
-msgstr "仅在舞台显示屏上显示"
+msgstr "仅在舞台屏幕上显示"
 
 #: ui/dialogs/item-edit.slint
 msgid "Remove from service"
@@ -1505,7 +1505,7 @@ msgstr "手机配对时要求输入密码"
 
 #: ui/dialogs/network.slint
 msgid "Phone remote password"
-msgstr "遥控器密码"
+msgstr "手机遥控器密码"
 
 #: ui/dialogs/network.slint
 msgid "Saved — type to change it"
@@ -1557,7 +1557,7 @@ msgstr "TCP 密码"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
-msgstr "叠加层在切换幻灯片时会一直留在会众屏幕上：角落里的标志、时钟或简短标语。用“显示中”栏中“下一张”下方的按钮开关它们。列表中最后一个显示在最上层。"
+msgstr "叠加层在切换幻灯片时会一直留在会众屏幕上：角落里的标志、时钟或简短标语。用“显示中”栏中“接下来”下方的按钮开关它们。列表中最后一个显示在最上层。"
 
 #: ui/dialogs/overlays.slint
 msgid "Filter overlays"
@@ -1601,7 +1601,7 @@ msgstr "选择图片…"
 
 #: ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint
 msgid "See-through"
-msgstr "半透明"
+msgstr "透明度"
 
 #: ui/dialogs/overlays.slint
 msgid "Show seconds"
@@ -1725,7 +1725,7 @@ msgstr "包括项目备注"
 
 #: ui/dialogs/print.slint
 msgid "Include Bible passages with the song words"
-msgstr "在歌词中包括读经"
+msgstr "在歌词中一并包括经文"
 
 #: ui/dialogs/print.slint
 msgid "Start each song on a new page"
@@ -1841,7 +1841,7 @@ msgstr "宽高比：{}"
 
 #: ui/dialogs/screens.slint
 msgid "Show what the room screen shows"
-msgstr "显示会众看到的画面"
+msgstr "显示会众屏幕的画面"
 
 #: ui/dialogs/screens.slint
 msgid "Whole screen"
@@ -2077,7 +2077,7 @@ msgstr "声音输入"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Best: the lead singer's microphone on its own, sent from the sound board. Next best: the main mix. A microphone in the room hears too much else."
-msgstr "最佳：从调音台单独送出的主唱话筒。其次：主混音。现场的话筒会收进太多其他声音。"
+msgstr "最佳：从调音台单独送出的主唱麦克风。其次：主混音。现场的麦克风会收进太多其他声音。"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Sound level"
@@ -2309,7 +2309,7 @@ msgstr "字体"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Song text size"
-msgstr "歌词大小"
+msgstr "歌词文字大小"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "(biggest; long lines shrink to fit)"
@@ -2325,7 +2325,7 @@ msgstr "（用于新经文）"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "Bible text size"
-msgstr "经文文字大小"
+msgstr "圣经文字大小"
 
 #: ui/dialogs/settings-look.slint ui/dialogs/settings-themes.slint
 msgid "(biggest)"
@@ -2569,7 +2569,7 @@ msgstr "直播"
 
 #: ui/dialogs/settings-media.slint
 msgid "Switch a destination on and a Go Live button appears beside Record. Go Live records as usual and sends the same picture and sound to every destination that is on."
-msgstr "打开一个直播目标后，“录制”旁会出现“开始直播”按钮。“开始直播”照常录制，并把同样的画面和声音发送到每个已打开的目标。"
+msgstr "打开一个直播目标后，“录制”旁会出现“开始直播”按钮。“开始直播”照常录制，并把同样的画面和声音发送到每个已打开的直播目标。"
 
 #: ui/dialogs/settings-media.slint
 msgid "Sound from this computer"
@@ -2585,7 +2585,7 @@ msgstr "上传速度"
 
 #: ui/dialogs/settings-media.slint
 msgid "Sends a few megabytes of zeros to a public speed test and says whether the internet can carry the stream to every destination that is on. It picks the recording size that fits."
-msgstr "向公共测速服务发送几兆字节的零，并说明网络能否把直播送到每个已开启的目的地。它会选择合适的录制尺寸。"
+msgstr "向公共测速服务发送几兆字节的零，并说明网络能否把直播送到每个已开启的直播目标。它会选择合适的录制尺寸。"
 
 #: ui/dialogs/settings-media.slint
 msgid "Testing…"
@@ -2601,7 +2601,7 @@ msgstr "声音延迟"
 
 #: ui/dialogs/settings-media.slint
 msgid "If the sound in the stream comes before people's lips move, the camera's picture is late: hold the sound back until they match."
-msgstr "如果直播中声音先到、嘴唇后动，说明镜头画面来得晚：把声音延后，直到对上为止。"
+msgstr "如果直播中声音先到、嘴唇后动，说明摄像头画面来得晚：把声音延后，直到对上为止。"
 
 #: ui/dialogs/settings-media.slint
 msgid "{} ms"
@@ -2613,7 +2613,7 @@ msgstr "直播延迟"
 
 #: ui/dialogs/settings-media.slint
 msgid "What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer."
-msgstr "直播输出的内容会延迟这么久，这样在观众看到之前，可以用“暂停”或“静音”拦下。录像不延迟。观众的评论会比他们回应的内容来得晚。"
+msgstr "直播输出的内容会延迟这么久，这样在观众看到之前，可以用“暂停”或“静音”拦下。录制不延迟。观众的评论会比他们回应的内容来得晚。"
 
 #: ui/dialogs/settings-media.slint src/stream/sound_setup.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
 msgid "None"
@@ -2625,7 +2625,7 @@ msgstr "网速慢"
 
 #: ui/dialogs/settings-media.slint
 msgid "When a destination's internet cannot keep up, it gets a lighter stream until it can, instead of skipping. The recording and the other destinations keep the full picture. This uses more of the computer."
-msgstr "当某个推流目标的网络跟不上时，它会收到更轻的直播流，直到跟得上为止，而不是跳帧。录像和其他推流目标保持完整画面。这会更多占用电脑。"
+msgstr "当某个直播目标的网络跟不上时，它会收到更轻的直播流，直到跟得上为止，而不是跳帧。录制和其他直播目标保持完整画面。这会更多占用电脑。"
 
 #: ui/dialogs/settings-media.slint
 msgid "Send a lighter stream where the internet is slow"
@@ -2637,7 +2637,7 @@ msgstr "NDI"
 
 #: ui/dialogs/settings-media.slint
 msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras above."
-msgstr "直播时，此网络上的其他电脑和程序（OBS、vMix、视频切换台）可以接收这些内容。NDI 摄像机列在上方的摄像机中。"
+msgstr "直播时，此网络上的其他电脑和程序（OBS、vMix、视频切换台）可以接收这些内容。NDI 摄像头列在上方的摄像头中。"
 
 #: ui/dialogs/settings-media.slint
 msgid "NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."
@@ -2701,7 +2701,7 @@ msgstr "去除麦克风或线路输入中的嗡嗡声和嘶嘶声（可能使音
 
 #: ui/dialogs/settings-media.slint
 msgid "Also keep each sound on a track of its own in the recording, to balance them again afterwards"
-msgstr "在录像中另外把每路声音单独存为一条音轨，以便之后重新调整平衡"
+msgstr "在录制中另外把每路声音单独存为一条音轨，以便之后重新调整平衡"
 
 #: ui/dialogs/settings-media.slint src/stream/scene.rs src/strings/themes.rs src/ui/operator/video_inputs.rs
 msgid "Camera"
@@ -2709,23 +2709,23 @@ msgstr "摄像头"
 
 #: ui/dialogs/settings-media.slint
 msgid "A camera or capture card for the stream's camera scenes (and its recording)."
-msgstr "用于直播镜头场景（及其录制）的摄像头或采集卡。"
+msgstr "用于直播摄像头场景（及其录制）的摄像头或采集卡。"
 
 #: ui/dialogs/settings-media.slint
 msgid "Camera control address"
-msgstr "摄像机控制地址"
+msgstr "摄像头控制地址"
 
 #: ui/dialogs/settings-media.slint
 msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
-msgstr "要让 PTZ 摄像机转到已保存的位置：填写它的地址，例如 192.168.1.60"
+msgstr "要让 PTZ 摄像头转到已保存的位置：填写它的地址，例如 192.168.1.60"
 
 #: ui/dialogs/settings-media.slint
 msgid "Network camera address"
-msgstr "网络摄像机地址"
+msgstr "网络摄像头地址"
 
 #: ui/dialogs/settings-media.slint
 msgid "The camera's address, like rtsp://192.168.1.50:554/stream1"
-msgstr "摄像机的地址，例如 rtsp://192.168.1.50:554/stream1"
+msgstr "摄像头的地址，例如 rtsp://192.168.1.50:554/stream1"
 
 #: ui/dialogs/settings-media.slint
 msgid "Second camera"
@@ -2757,7 +2757,7 @@ msgstr "摄像头被拔出或没有画面时，直播在它的位置显示的内
 
 #: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
 msgid "The room screen"
-msgstr "会堂屏幕"
+msgstr "会众屏幕"
 
 #: ui/dialogs/settings-media.slint
 msgid "The church logo"
@@ -2777,7 +2777,7 @@ msgstr "场景"
 
 #: ui/dialogs/settings-media.slint
 msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
-msgstr "诗歌和经文以镜头加歌词播出；视频和演示文稿以会堂屏幕播出；屏幕上没有内容时播出镜头。用“直播”旁的场景按钮选择的场景会保持到下一个聚会项目。"
+msgstr "诗歌和经文以摄像头加歌词播出；视频和演示文稿以会众屏幕播出；屏幕上没有内容时播出摄像头。用“直播”旁的场景按钮选择的场景会保持到下一个聚会项目。"
 
 #: ui/dialogs/settings-media.slint
 msgid "Choose the scene by itself from what is live"
@@ -2789,7 +2789,7 @@ msgstr "演示文稿："
 
 #: ui/dialogs/settings-media.slint
 msgid "The room screen with the camera in a corner"
-msgstr "会堂屏幕，镜头在角落"
+msgstr "会众屏幕，摄像头在角落"
 
 #: ui/dialogs/settings-media.slint
 msgid "Scene layout"
@@ -2797,7 +2797,7 @@ msgstr "场景布局"
 
 #: ui/dialogs/settings-media.slint
 msgid "Where the camera goes when it is in a corner of the room screen, and where the words go over the camera."
-msgstr "摄像机放在会场屏幕角落时的位置，以及摄像机上文字的位置。"
+msgstr "摄像头放在会众屏幕角落时的位置，以及摄像头上歌词的位置。"
 
 #: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
 msgid "Small"
@@ -2813,7 +2813,7 @@ msgstr "大"
 
 #: ui/dialogs/settings-media.slint
 msgid "Words over the camera:"
-msgstr "摄像机上的文字："
+msgstr "摄像头上的歌词："
 
 #: ui/dialogs/settings-media.slint
 msgid "At the bottom"
@@ -2905,7 +2905,7 @@ msgstr "登录"
 
 #: ui/dialogs/settings-media.slint
 msgid "Sign in instead of pasting a key: Go Live then makes the broadcast itself, with its title"
-msgstr "登录而不粘贴密钥：“直播”会自动创建带标题的直播"
+msgstr "登录而不粘贴密钥：“开始直播”会自动创建带标题的直播"
 
 #: ui/dialogs/settings-media.slint
 msgid "Signed in as {}"
@@ -2977,7 +2977,7 @@ msgstr "手机竖屏"
 
 #: ui/dialogs/settings-media.slint
 msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other phone apps): the wide picture across the middle, black above and below. The recording stays wide."
-msgstr "这些会收到竖屏画面（用于 YouTube Shorts、Reels、TikTok 等手机应用）：横屏画面放在中间，上下为黑色。录像仍是横屏。"
+msgstr "这些会收到竖屏画面（用于 YouTube Shorts、Reels、TikTok 等手机应用）：横屏画面放在中间，上下为黑色。录制仍是横屏。"
 
 #: ui/dialogs/settings-media.slint
 msgid "More settings"
@@ -3201,7 +3201,7 @@ msgstr "手机麦克风"
 
 #: ui/dialogs/settings-sound.slint
 msgid "Turn on the stage screen for phones (Settings → Network…), then open this page on the phone and press Start: {}"
-msgstr "打开舞台视图（网络），然后在手机上打开此页面并按“开始”：{}"
+msgstr "打开手机版舞台屏幕（设置 → 网络…），然后在手机上打开此页面并按“开始”：{}"
 
 #: ui/dialogs/settings-sound.slint
 msgid "The first time, the phone warns that the page is not private, because this computer made its own certificate: tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
@@ -3497,7 +3497,7 @@ msgstr "每张幻灯片行数"
 
 #: ui/dialogs/settings.slint
 msgid "Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage."
-msgstr "诗歌和圣经经文。有些圣经要求显示其版权信息；每段经文显示一次。"
+msgstr "诗歌和经文。有些圣经要求显示其版权信息；每段经文显示一次。"
 
 #: ui/dialogs/settings.slint
 msgid "Show the copyright line"
@@ -4205,7 +4205,7 @@ msgstr "每个直播目标的画质"
 
 #: ui/dialogs/stream-more.slint
 msgid "A destination can get a smaller picture or a lower bitrate than the main stream (a phone app, a slow server). Each one that differs costs the computer a second encode."
-msgstr "某个直播目标可以使用比主直播更小的画面或更低的码率（手机应用、较慢的服务器）。每有一个不同的目标，电脑就要多做一次编码。"
+msgstr "某个直播目标可以使用比主直播更小的画面或更低的码率（手机应用、较慢的服务器）。每有一个不同的直播目标，电脑就要多做一次编码。"
 
 #: ui/dialogs/stream-more.slint
 msgid "Size: the main stream's"
@@ -4297,7 +4297,7 @@ msgstr "{{date}} 换成日期，{{time}} 换成开始时间，{{title}} 换成�
 
 #: ui/dialogs/stream-more.slint
 msgid "While live, also record the stream without the words (for editing)"
-msgstr "直播时另外录制不带文字的直播画面（用于剪辑）"
+msgstr "直播时另外录制不带歌词的直播画面（用于剪辑）"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, videos, colours, text or a clock in it."
@@ -4501,7 +4501,7 @@ msgstr "自动选择时替换的场景"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "When the scene is chosen by itself from what is live, this scene goes out instead of that one. For example, choose “Camera + words” to use it for songs and verses."
-msgstr "根据正在直播的内容自动选择场景时，会用此场景代替那个场景播出。例如，选择“镜头 + 歌词”，诗歌和经文时就会用它。"
+msgstr "根据正在直播的内容自动选择场景时，会用此场景代替那个场景播出。例如，选择“摄像头 + 歌词”，诗歌和经文时就会用它。"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "When this scene comes in"
@@ -5061,7 +5061,7 @@ msgstr "删除文件夹"
 
 #: ui/operator/media.slint
 msgid "No video inputs yet. Plug in a camera or capture card, then add it on the right."
-msgstr "还没有视频输入。请接上摄像机或采集卡，然后在右侧添加。"
+msgstr "还没有视频输入。请接上摄像头或采集卡，然后在右侧添加。"
 
 #: ui/operator/media.slint
 msgid "Nothing here yet. Import pictures, videos or music, or try another folder or word."
@@ -5077,11 +5077,11 @@ msgstr "添加视频输入"
 
 #: ui/operator/media.slint
 msgid "Looking for cameras…"
-msgstr "正在查找摄像机…"
+msgstr "正在查找摄像头…"
 
 #: ui/operator/media.slint
 msgid "None found. Type the camera's name:"
-msgstr "未找到。请输入摄像机名称："
+msgstr "未找到。请输入摄像头名称："
 
 #: ui/operator/media.slint
 msgid "Or type its name"
@@ -5089,11 +5089,11 @@ msgstr "或输入其名称"
 
 #: ui/operator/media.slint src/stream/phone_camera.rs
 msgid "Camera name"
-msgstr "摄像机名称"
+msgstr "摄像头名称"
 
 #: ui/operator/media.slint
 msgid "Look for cameras again"
-msgstr "重新查找摄像机"
+msgstr "重新查找摄像头"
 
 #: ui/operator/media.slint
 msgid "Pick a file"
@@ -5153,7 +5153,7 @@ msgstr "拖放到此处以添加到聚会"
 
 #: ui/operator/overlays.slint
 msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect song files"
-msgstr "视频、图片、音乐、演示文稿（PowerPoint、Keynote、PDF）、SongSelect 歌词文件"
+msgstr "视频、图片、音乐、演示文稿（PowerPoint、Keynote、PDF）、SongSelect 诗歌文件"
 
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop the livestream"
@@ -5181,7 +5181,7 @@ msgstr "直播中 · {} 人观看"
 
 #: ui/operator/record.slint
 msgid "Stop the livestream and save the recording"
-msgstr "停止直播并保存录像"
+msgstr "停止直播并保存录制内容"
 
 #: ui/operator/record.slint
 msgid "Send the room screen to the livestream, and record it"
@@ -5201,11 +5201,11 @@ msgstr "直播显示的内容。会随正在直播的内容自动变化；点击
 
 #: ui/operator/record.slint
 msgid "Camera: {}"
-msgstr "镜头：{}"
+msgstr "摄像头：{}"
 
 #: ui/operator/record.slint
 msgid "Camera position {}"
-msgstr "摄像机位置 {}"
+msgstr "摄像头位置 {}"
 
 #: ui/operator/record.slint
 msgid "Stream sound"
@@ -5257,7 +5257,7 @@ msgstr "片段"
 
 #: ui/operator/record.slint
 msgid "Mark a part of the recording (the sermon, say) to save as its own video"
-msgstr "标记录像的一部分（例如讲道），另存为一个视频"
+msgstr "标记录制内容的一部分（例如讲道），另存为一个视频"
 
 #: ui/operator/record.slint
 msgid "Chat"
@@ -5693,7 +5693,7 @@ msgstr "视图"
 
 #: ui/operator.slint src/automation/slide_actions.rs src/strings/settings.rs src/ui/dialogs/automation.rs
 msgid "Clear text"
-msgstr "清除文字"
+msgstr "清除文本"
 
 #: ui/operator.slint src/automation/slide_actions.rs src/strings/settings.rs src/ui/dialogs/automation.rs
 msgid "Clear media & background"
@@ -6069,11 +6069,11 @@ msgstr "请先添加屏幕。"
 
 #: src/app.rs
 msgid "Room screen {number}"
-msgstr "会众 {number}"
+msgstr "会众屏幕 {number}"
 
 #: src/app.rs
 msgid "Stage screen {number}"
-msgstr "舞台显示屏 {number}"
+msgstr "舞台屏幕 {number}"
 
 #: src/app.rs
 msgid "That screen is gone."
@@ -6205,7 +6205,7 @@ msgstr "直播：自动"
 
 #: src/automation/slide_actions.rs src/ui/dialogs/automation.rs
 msgid "Start a clip of the recording"
-msgstr "开始录像片段"
+msgstr "开始录制片段"
 
 #: src/automation/slide_actions.rs src/strings/themes.rs src/ui/dialogs/automation.rs
 msgid "Theme: {name}"
@@ -6233,7 +6233,7 @@ msgstr "恢复自动切换幻灯片"
 
 #: src/bible/api_bible.rs
 msgid "API.Bible sends at most 200 verses at a time; choose a shorter passage"
-msgstr "API.Bible 一次最多返回 200 节经文；请选择较短的经文段落"
+msgstr "API.Bible 一次最多返回 200 节经文；请选择较短的经文"
 
 #: src/bible/api_bible.rs
 msgid "{translation} isn't on this key's API.Bible plan; add it under Plan in the API.Bible dashboard"
@@ -6409,7 +6409,7 @@ msgstr "请先粘贴经文。"
 
 #: src/follow/audio.rs
 msgid "Auto-follow needs FFmpeg to hear the room. Download it in Settings → Media → Recording."
-msgstr "自动跟随需要 FFmpeg 才能听到现场声音。请在“设置 → 录制”中下载。"
+msgstr "自动跟随需要 FFmpeg 才能听到现场声音。请在“设置 → 媒体 → 录制”中下载。"
 
 #: src/follow/audio.rs
 msgid "FFmpeg stopped"
@@ -6545,7 +6545,7 @@ msgstr "无法读取翻译文件 {file}（{reason}），因此未使用。"
 
 #: src/i18n/remote_strings.rs
 msgid "Phone remote — RustyPresenter"
-msgstr "RustyPresenter 遥控器"
+msgstr "手机遥控器 — RustyPresenter"
 
 #: src/i18n/remote_strings.rs
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
@@ -6712,7 +6712,7 @@ msgstr "密码"
 
 #: src/i18n/remote_strings.rs
 msgid "This phone remote needs a password too."
-msgstr "此遥控器也需要密码。"
+msgstr "此手机遥控器也需要密码。"
 
 #: src/i18n/remote_strings.rs
 msgid "This stage screen needs a password."
@@ -6981,7 +6981,7 @@ msgstr "诗歌的幻灯片太多（超过 {max} 张）"
 
 #: src/import/propresenter.rs
 msgid "the song has no words on its slides"
-msgstr "诗歌的幻灯片上没有文字"
+msgstr "诗歌的幻灯片上没有歌词"
 
 #: src/import/propresenter.rs
 msgid "it is a ProPresenter playlist, not a song"
@@ -7111,7 +7111,7 @@ msgstr[0] "…还有 {n} 个"
 
 #: src/media_care.rs
 msgid "This frees {size} on this computer. Backups keep their own copies, but this can't be undone."
-msgstr "这将在此电脑上释放 {size}。备份中保留着各自的副本，但此操作无法撤销。"
+msgstr "这将在这台电脑上释放 {size}。备份中保留着各自的副本，但此操作无法撤销。"
 
 #: src/media_care.rs
 msgid "{n} GB"
@@ -7164,7 +7164,7 @@ msgstr "{name} 最后 {minutes} 分钟"
 
 #: src/record/args.rs
 msgid "Network camera {host}"
-msgstr "网络摄像机 {host}"
+msgstr "网络摄像头 {host}"
 
 #: src/record/mod.rs
 msgid "Recording needs FFmpeg, a free program. {hint}"
@@ -7196,11 +7196,11 @@ msgstr "无法保存片段：{path}"
 
 #: src/record/mod.rs
 msgid "RustyPresenter stopped in the middle of a livestream. The recording up to then has been kept. Go live again?"
-msgstr "RustyPresenter 在直播中途停止了。到那时为止的录像已保留。要重新开始直播吗？"
+msgstr "RustyPresenter 在直播中途停止了。到那时为止的录制内容已保留。要重新开始直播吗？"
 
 #: src/record/mod.rs
 msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or the graphics card under Video encoder, and close other programs."
-msgstr "这台电脑跟不上，录像和直播会卡顿。请在“设置 → 媒体”的“图片大小”中选择 720p，或在“视频编码器”中选择显卡，并关闭其他程序。"
+msgstr "这台电脑跟不上，录制和直播会卡顿。请在“设置 → 媒体”的“图片大小”中选择 720p，或在“视频编码器”中选择显卡，并关闭其他程序。"
 
 #: src/record/mod.rs
 msgid "The computer is keeping up again: the picture is smooth."
@@ -7497,7 +7497,7 @@ msgstr "此文件中未找到歌词。"
 
 #: src/songselect/inbox.rs src/songselect.rs src/ui/dialogs/songselect.rs
 msgid "That file is too big to be a song file."
-msgstr "该文件太大，不可能是歌词文件。"
+msgstr "该文件太大，不可能是诗歌文件。"
 
 #: src/songselect/inbox.rs
 msgid "it has no CCLI song number"
@@ -7517,7 +7517,7 @@ msgstr "诗歌文件没有标题。"
 
 #: src/songselect.rs
 msgid "The song file is empty."
-msgstr "歌词文件为空。"
+msgstr "诗歌文件为空。"
 
 #: src/songselect.rs
 msgid "This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."
@@ -7805,7 +7805,7 @@ msgstr "{name}：直播正在发送。"
 
 #: src/stream/mod.rs
 msgid "{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on."
-msgstr "{name} 尝试多次仍未连接。请检查设置 → 媒体 → 直播中的推流密钥和网络。仍在重试；录像继续。"
+msgstr "{name} 尝试多次仍未连接。请检查设置 → 媒体 → 直播中的推流密钥和网络。仍在重试；录制继续。"
 
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
@@ -7817,7 +7817,7 @@ msgstr "没有通过 NDI 发送任何内容：这台电脑需要 ndi.video 提�
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
-msgstr "“开始直播”需要一个已打开并有推流密钥的目标。请在“设置 → 媒体 → 直播”中设置。"
+msgstr "“开始直播”需要一个已打开并有推流密钥的直播目标。请在“设置 → 媒体 → 直播”中设置。"
 
 #: src/stream/mod.rs
 msgid "{name} is not streamed to: {why}"
@@ -7837,7 +7837,7 @@ msgstr "无法向这个地址或用这个密钥发送直播"
 
 #: src/stream/mod.rs
 msgid "{name}: the internet there is slow, so it gets a lighter stream ({kbps} kbit/s). The recording and the other destinations keep the full picture."
-msgstr "{name}：那里网速慢，因此改为发送更轻的直播流（{kbps} kbit/s）。录像和其他推流目标保持完整画面。"
+msgstr "{name}：那里网速慢，因此改为发送更轻的直播流（{kbps} kbit/s）。录制和其他直播目标保持完整画面。"
 
 #: src/stream/mod.rs
 msgid "{name} gets the full stream again."
@@ -7849,7 +7849,7 @@ msgstr "摄像头停止了。在它恢复前，直播显示幻灯片；正在自
 
 #: src/stream/mod.rs
 msgid "The camera is not sending pictures, so the stream shows the slides. Check that it is plugged in and that no other program is using it; it is tried again by itself."
-msgstr "摄像机没有画面，所以直播显示幻灯片。请检查它是否已连接，以及是否有其他程序在使用它；会自动重试。"
+msgstr "摄像头没有画面，所以直播显示幻灯片。请检查它是否已连接，以及是否有其他程序在使用它；会自动重试。"
 
 #: src/stream/mod.rs
 msgid "The camera is back in the stream."
@@ -8117,7 +8117,7 @@ msgstr "未在直播中"
 
 #: src/stream/phone_camera.rs
 msgid "On the computer, choose this phone in Settings → Media → Livestream → Camera."
-msgstr "在电脑上，到“设置”“媒体”“直播”“摄像头”中选择这部手机。"
+msgstr "在电脑上，到“设置 → 媒体 → 直播 → 摄像头”中选择这部手机。"
 
 #: src/stream/phone_camera.rs
 msgid "Any phone on the church's Wi-Fi can be a camera. On the phone, open {address} and follow the steps there. The first time, the phone warns that the connection is not private: that is expected, because the page comes from this computer. Tap Advanced (or Show Details), then Proceed (or Visit this website). Then pair it with the code from Phone remote, Pair a phone. Once it sends its picture, it is listed in the camera lists above as Phone camera and its name."
@@ -8153,7 +8153,7 @@ msgstr "手机没有允许此页面使用麦克风。请在浏览器设置中允
 
 #: src/stream/phone_mic.rs
 msgid "Turn on the stage screen for phones in RustyPresenter (Settings → Network…), and sign in to it on this phone first."
-msgstr "请在 RustyPresenter 中打开舞台视图（网络），并先在这部手机上登录。"
+msgstr "请在 RustyPresenter 中打开手机版舞台屏幕（设置 → 网络…），并先在这部手机上登录。"
 
 #: src/stream/preflight.rs
 msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Media → Livestream. The stream shows the slides in its place."
@@ -8177,7 +8177,7 @@ msgstr "声音输入 {name} 已连接，但无法打开。请关闭正在使用�
 
 #: src/stream/ptz.rs
 msgid "Camera {camera}: position {position}"
-msgstr "摄像机 {camera}：位置 {position}"
+msgstr "摄像头 {camera}：位置 {position}"
 
 #: src/stream/report.rs
 msgid "The computer could not keep up for {secs} seconds and left out {frames} pictures: the stream was jerky then. Next time, try 720p or the graphics card's encoder (Settings → Media)."
@@ -8193,7 +8193,7 @@ msgstr "同时观看人数最多 {viewers} 人。"
 
 #: src/stream/scene.rs
 msgid "Camera + words"
-msgstr "镜头 + 歌词"
+msgstr "摄像头 + 歌词"
 
 #: src/stream/scene.rs
 msgid "Full screen"
@@ -8201,7 +8201,7 @@ msgstr "全屏"
 
 #: src/stream/scene.rs
 msgid "Screen + camera"
-msgstr "屏幕 + 镜头"
+msgstr "屏幕 + 摄像头"
 
 #: src/stream/scene.rs
 msgid "Your scene"
@@ -8241,19 +8241,19 @@ msgstr "上传：{speed} Mbit/s。请以 720p 直播：1080p 需要 {need} Mbit/
 
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. That is too slow: 720p to every destination that is on needs {need} Mbit/s. Stream to fewer destinations, or use a faster connection."
-msgstr "上传：{speed} Mbit/s。太慢了：以 720p 送到每个已开启的目的地需要 {need} Mbit/s。请减少直播目的地，或使用更快的网络。"
+msgstr "上传：{speed} Mbit/s。太慢了：以 720p 送到每个已开启的直播目标需要 {need} Mbit/s。请减少直播目标，或使用更快的网络。"
 
 #: src/stream/tally.rs
 msgid "Camera {camera}: on air"
-msgstr "摄像机 {camera}：直播中"
+msgstr "摄像头 {camera}：直播中"
 
 #: src/stream/tally.rs
 msgid "Camera {camera}: next"
-msgstr "摄像机 {camera}：下一个"
+msgstr "摄像头 {camera}：下一个"
 
 #: src/stream/tally.rs
 msgid "Camera {camera}"
-msgstr "摄像机 {camera}"
+msgstr "摄像头 {camera}"
 
 #: src/stream/tally.rs
 msgid "Not streaming"
@@ -8261,7 +8261,7 @@ msgstr "未在直播"
 
 #: src/stream/tally.rs
 msgid "Turn on the stage screen for phones (Settings → Network…). If it has a password, open the stage screen on this phone once and sign in."
-msgstr "请在“设置”→“网络”中打开舞台视图。如果设有密码，请在这部手机上打开舞台视图一次并登录。"
+msgstr "请打开手机版舞台屏幕（设置 → 网络…）。如果设有密码，请在这部手机上打开舞台屏幕一次并登录。"
 
 #: src/stream/transition.rs
 msgid "Cut (at once)"
@@ -9180,7 +9180,7 @@ msgstr "密码不正确。"
 
 #: src/strings/network.rs
 msgid "The stage screen for phones is turned off on the presentation computer."
-msgstr "演示电脑上已关闭舞台视图。"
+msgstr "演示电脑上已关闭手机版舞台屏幕。"
 
 #: src/strings/network.rs
 msgid "Network settings saved."
@@ -9268,7 +9268,7 @@ msgstr "演示文稿"
 
 #: src/strings/operator.rs
 msgid "SongSelect song files"
-msgstr "SongSelect 歌词文件"
+msgstr "SongSelect 诗歌文件"
 
 #: src/strings/operator.rs
 msgid "Pictures and videos"
@@ -9663,7 +9663,7 @@ msgstr "根据“{service}”创建 {date} 的聚会？"
 
 #: src/strings/planning.rs
 msgid "Copy, with blanks for songs and Bible passages"
-msgstr "复制，并为诗歌和读经留空"
+msgstr "复制，并为诗歌和经文留空"
 
 #: src/strings/planning.rs
 msgid "There is already a service for {date} (“{name}”)."
@@ -9819,11 +9819,11 @@ msgstr "声音输出未连接，因此视频或音频已暂停。请插上，或
 
 #: src/strings/preflight.rs
 msgid "The logo's file is missing. Choose it again in Settings → Look."
-msgstr "标志文件丢失。请在设置中重新选择。"
+msgstr "标志文件丢失。请在“设置 → 外观”中重新选择。"
 
 #: src/strings/preflight.rs
 msgid "The default background's file is missing. Choose it again in Settings → Look."
-msgstr "默认背景文件丢失。请在设置中重新选择。"
+msgstr "默认背景文件丢失。请在“设置 → 外观”中重新选择。"
 
 #: src/strings/preflight.rs
 msgid "the song is no longer in the library"
@@ -9901,7 +9901,7 @@ msgstr "（循环）"
 
 #: src/strings/print.rs
 msgid "No songs or Bible passages in this service."
-msgstr "此聚会中没有诗歌或读经。"
+msgstr "此聚会中没有诗歌或经文。"
 
 #: src/strings/print.rs
 msgid "This service is empty."
@@ -9981,7 +9981,7 @@ msgstr "占位屏幕上不显示任何内容。现在先设置好，插上投影
 
 #: src/strings/screens.rs
 msgid "Shows the room screen's picture instead of a stage layout. It has no sound."
-msgstr "显示会众画面，而不是舞台布局。没有声音。"
+msgstr "显示会众屏幕的画面，而不是舞台布局。没有声音。"
 
 #: src/strings/screens.rs
 msgid "Colour bars"
@@ -10045,7 +10045,7 @@ msgstr "放在一起会使幻灯片太长，因此将在经节中间分页。"
 
 #: src/strings/scripture.rs
 msgid "Bible slides are now fitted to the screen, so some passages may break in different places."
-msgstr "圣经幻灯片现在会适应屏幕，因此有些经文段落的分页位置可能不同。"
+msgstr "圣经幻灯片现在会适应屏幕，因此有些经文的分页位置可能不同。"
 
 #: src/strings/scripture.rs
 msgid "Fitting slides…"
@@ -10057,7 +10057,7 @@ msgstr "此译本无法在 RustyPresenter 中使用。请选择其他圣经。"
 
 #: src/strings/scripture.rs
 msgid "This verse came from an older version; look the passage up again to choose breaks here."
-msgstr "此经文来自旧版本；请重新查找该经文段落以在此选择分页位置。"
+msgstr "此经文来自旧版本；请重新查找该经文以在此选择分页位置。"
 
 #: src/strings/scripture.rs
 msgid "One passage used a translation that can't be used in RustyPresenter and was removed."
@@ -10291,7 +10291,7 @@ msgstr "尚未连接。请在“设置 → 圣经”中添加其密钥。"
 
 #: src/strings/scripture.rs
 msgid "This Bible isn't on this computer and no online service has it."
-msgstr "此电脑上没有这本圣经，在线服务也没有提供。"
+msgstr "这台电脑上没有这本圣经，在线服务也没有提供。"
 
 #: src/strings/scripture.rs
 msgid "No copyright notice is known. Check the licence before showing it in public."
@@ -10788,11 +10788,11 @@ msgstr "下一张幻灯片画面"
 
 #: src/strings/stage.rs
 msgid "the words on screen now"
-msgstr "当前屏幕上的文字"
+msgstr "当前屏幕上的歌词"
 
 #: src/strings/stage.rs
 msgid "the words coming next"
-msgstr "接下来的文字"
+msgstr "接下来的歌词"
 
 #: src/strings/stage.rs
 msgid "Verse, Chorus, Bridge…"
@@ -11127,7 +11127,7 @@ msgstr "最多可同时开启 8 个叠加层。请先关闭一个。"
 
 #: src/strings/themes.rs
 msgid "Choose a church logo first (Settings → Look)."
-msgstr "请先选择教会标志（设置 → 主题）。"
+msgstr "请先选择教会标志（设置 → 外观）。"
 
 #: src/strings/themes.rs
 msgid "That picture is gone."
@@ -11690,7 +11690,7 @@ msgstr "一句简短的话，大而醒目。"
 
 #: src/theme/layouts.rs
 msgid "Laid out like a Bible passage."
-msgstr "按圣经经文排版。"
+msgstr "按经文排版。"
 
 #: src/theme/layouts.rs
 msgid "A small caption at the bottom, so the background picture shows."
@@ -11794,7 +11794,7 @@ msgstr "更改直播场景"
 
 #: src/ui/dialogs/automation.rs
 msgid "Move a PTZ camera"
-msgstr "移动 PTZ 摄像机"
+msgstr "移动 PTZ 摄像头"
 
 #: src/ui/dialogs/automation.rs
 msgid "item {n}"
@@ -12132,7 +12132,7 @@ msgstr "无摄像头"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "Network camera"
-msgstr "网络摄像机"
+msgstr "网络摄像头"
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The speed test could not reach the internet. Check the connection and try again."
@@ -12420,7 +12420,7 @@ msgstr "录音（视频或声音）"
 
 #: src/ui/operator/help.rs
 msgid "This computer does not let RustyPresenter move the mouse pointer. Look for it on each screen."
-msgstr "此电脑不允许 RustyPresenter 移动鼠标指针。请在每个屏幕上找找。"
+msgstr "这台电脑不允许 RustyPresenter 移动鼠标指针。请在每个屏幕上找找。"
 
 #: src/ui/operator/help.rs
 msgid "Could not open the page. It is at {path}"
@@ -12460,7 +12460,7 @@ msgstr "为主日做准备"
 
 #: src/ui/operator/help.rs
 msgid "File → New service… makes this week's service. File → Services… opens an older one or copies last week."
-msgstr "“文件 → 新建聚会”创建本周的聚会。“文件 → 聚会…”可打开以前的聚会或复制上周的。"
+msgstr "“文件 → 新建聚会…”创建本周的聚会。“文件 → 聚会…”可打开以前的聚会或复制上周的。"
 
 #: src/ui/operator/help.rs
 msgid "File → Add to service adds songs, Bible passages, videos, slides and announcements. Drag items to change their order."
@@ -12603,7 +12603,7 @@ msgstr "{service} 歌词"
 
 #: src/ui/operator/video_inputs.rs
 msgid "Pick a camera or type its name first."
-msgstr "请先选择摄像机或输入其名称。"
+msgstr "请先选择摄像头或输入其名称。"
 
 #: src/ui/operator/video_inputs.rs
 msgid "Added “{name}”."
@@ -12695,7 +12695,7 @@ msgstr "额外的会众屏幕已拔出。重新插上该屏幕后会自动恢复
 
 #: src/ui/screens.rs
 msgid "The stage screen was unplugged. It comes back by itself when that screen is plugged in again."
-msgstr "舞台显示屏已拔出。重新插上该屏幕后会自动恢复。"
+msgstr "舞台屏幕已拔出。重新插上该屏幕后会自动恢复。"
 
 #: src/ui/screens.rs
 msgid "The extra stage screen was unplugged. It comes back by itself when that screen is plugged in again."
@@ -12711,7 +12711,7 @@ msgstr "额外的会众屏幕已重新插上，但无法打开：{error}"
 
 #: src/ui/screens.rs
 msgid "The stage screen is plugged in again, but it could not open: {error}"
-msgstr "舞台显示屏已重新插上，但无法打开：{error}"
+msgstr "舞台屏幕已重新插上，但无法打开：{error}"
 
 #: src/ui/screens.rs
 msgid "The extra stage screen is plugged in again, but it could not open: {error}"
@@ -12824,7 +12824,7 @@ msgstr "它在完成前关闭了，可能已崩溃。"
 
 #: src/video/bench.rs
 msgid "Slides never reached the room screen."
-msgstr "幻灯片从未到达会堂屏幕。"
+msgstr "幻灯片从未到达会众屏幕。"
 
 #: src/video/bench.rs
 msgid "This graphics card or its driver can't draw with it."
@@ -12900,7 +12900,7 @@ msgstr "重新启动 RustyPresenter 以使用新的图形设置。"
 
 #: src/video/graphics.rs
 msgid "The {wanted} graphics mode could not be used on this computer, so RustyPresenter is using {mode}."
-msgstr "此电脑无法使用 {wanted} 图形模式，因此 RustyPresenter 正在使用 {mode}。"
+msgstr "这台电脑无法使用 {wanted} 图形模式，因此 RustyPresenter 正在使用 {mode}。"
 
 #: src/video/graphics.rs
 msgid "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video."
