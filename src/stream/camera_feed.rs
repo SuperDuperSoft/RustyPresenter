@@ -62,12 +62,28 @@ impl Drop for Feed {
 }
 
 /// Starts the feed of camera `input` at `size` and `fps`, its FFmpeg being `ffmpeg`.
+/// An NDI source (`super::ndi::input_source`) is received over NDI instead.
 pub fn start(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32) -> Result<Feed, String> {
     let (stop, seeing) = (Arc::new(AtomicBool::new(false)), Arc::new(AtomicBool::new(false)));
     let latest: Latest = Arc::default();
     let (s, v, l) = (stop.clone(), seeing.clone(), latest.clone());
-    let thread = std::thread::Builder::new().name("stream-camera".into()).spawn(move || run(ffmpeg, input, size, fps, &s, &v, &l)).map_err(|e| e.to_string())?;
+    let thread = match super::ndi::input_source(&input).map(str::to_string) {
+        Some(name) => std::thread::Builder::new().name("stream-camera-ndi".into()).spawn(move || run_ndi(&name, size, &s, &v, &l)),
+        None => std::thread::Builder::new().name("stream-camera".into()).spawn(move || run(ffmpeg, input, size, fps, &s, &v, &l)),
+    }.map_err(|e| e.to_string())?;
     Ok(Feed { latest, seeing, stop, thread: Some(thread) })
+}
+
+/// An NDI camera: its receiver on a thread of its own (it connects again by itself), `seeing` kept here.
+fn run_ndi(name: &str, size: (u32, u32), stop: &Arc<AtomicBool>, seeing: &AtomicBool, latest: &Latest) {
+    let (n, s, l) = (name.to_string(), stop.clone(), latest.clone());
+    let receiver = std::thread::Builder::new().name("stream-camera-ndi-read".into()).spawn(move || super::ndi::receive(&n, size, &l, &s, RETRY)).ok();
+    while !stop.load(Ordering::Relaxed) {
+        seeing.store(fresh(latest, Instant::now()).is_some(), Ordering::Relaxed);
+        std::thread::sleep(Duration::from_millis(50));
+    }
+    seeing.store(false, Ordering::Relaxed);
+    if let Some(t) = receiver { let _ = t.join(); }
 }
 
 fn run(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32, stop: &AtomicBool, seeing: &AtomicBool, latest: &Latest) {

@@ -2532,6 +2532,26 @@ msgid "Send a lighter stream where the internet is slow"
 msgstr "인터넷이 느린 곳에는 더 가벼운 방송 보내기"
 
 #: ui/dialogs/settings-media.slint
+msgid "NDI"
+msgstr "NDI"
+
+#: ui/dialogs/settings-media.slint
+msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras above."
+msgstr "라이브 중에 이 네트워크의 다른 컴퓨터와 프로그램(OBS, vMix, 비디오 스위처)이 이것을 받을 수 있습니다. NDI 카메라는 위의 카메라 목록에 있습니다."
+
+#: ui/dialogs/settings-media.slint
+msgid "NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."
+msgstr "NDI를 쓰려면 이 컴퓨터에 ndi.video의 무료 NDI Tools가 있어야 합니다. 설치한 다음 설정을 다시 여세요."
+
+#: ui/dialogs/settings-media.slint
+msgid "Send the stream over NDI too (picture and sound)"
+msgstr "방송을 NDI로도 보내기 (화면과 소리)"
+
+#: ui/dialogs/settings-media.slint
+msgid "Send the words alone over NDI, on a see-through background (for keying)"
+msgstr "가사만 투명한 배경으로 NDI에 보내기 (키잉용)"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "소리 크기"
 
@@ -6562,6 +6582,10 @@ msgstr "{name}이(가) 여러 번 시도해도 연결되지 않았습니다. 설
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr "{name} 연결이 끊겼어요. 알아서 다시 연결해요. 녹화는 계속돼요."
+
+#: src/stream/mod.rs
+msgid "Nothing goes out over NDI: it needs the free NDI Tools from ndi.video on this computer. The livestream goes on without it."
+msgstr "NDI로 아무것도 나가지 않습니다. 이 컴퓨터에 ndi.video의 무료 NDI Tools가 필요합니다. 라이브 방송은 NDI 없이 계속됩니다."
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."

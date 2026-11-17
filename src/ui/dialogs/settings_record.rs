@@ -92,7 +92,7 @@ pub fn camera_choices(cameras: &[Input], saved: &str) -> Choices {
     keys.extend(cameras.iter().map(|c| c.name.clone()));
     let network = record::args::is_network_camera(saved);
     if !saved.is_empty() && !network && !keys.iter().any(|k| k == saved) {
-        labels.push(format!("{saved} ({})", not_connected()));
+        labels.push(format!("{} ({})", record::args::camera_label(saved), not_connected()));
         keys.push(saved.to_string());
     }
     labels.push(crate::tr!("Network camera"));
@@ -156,6 +156,8 @@ pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     g.set_stream_lighter(p.stream_lighter.unwrap_or(true));
     g.set_stream_quiet_noise(fx.quiet_noise);
     g.set_stream_tracks(fx.tracks);
+    g.set_stream_ndi(p.ndi_stream);
+    g.set_stream_ndi_words(p.ndi_words);
     g.set_stream_presentation_camera(i32::from(p.presentation_camera));
     let c = &p.cards;
     g.set_stream_card_words_0(c.starting.words.as_str().into());
@@ -247,6 +249,8 @@ pub(crate) fn read_form(g: &SettingsDlg, p: &mut RecordPrefs) {
     p.stream_lighter = if g.get_stream_lighter() { None } else { Some(false) };
     p.stream_quiet_noise = g.get_stream_quiet_noise();
     p.stream_tracks = g.get_stream_tracks();
+    p.ndi_stream = g.get_stream_ndi();
+    p.ndi_words = g.get_stream_ndi_words();
     let card = |w: slint::SharedString, pic: slint::SharedString| stream::pictures::Card { words: w.trim().to_string(), picture: pic.trim().to_string() };
     p.cards = stream::pictures::Cards {
         starting: card(g.get_stream_card_words_0(), g.get_stream_card_picture_0()),
@@ -418,10 +422,18 @@ pub(crate) fn show_speed(g: &SettingsDlg, measured: Result<f64, String>, destina
 pub(super) fn load(op: &Rc<Operator>) {
     let data = op.app().store.root.clone();
     let me = Rc::downgrade(op);
-    let work = move || record::run::find_ffmpeg(&data).map(|f| (record::run::list_inputs(&f), record::run::list_cameras(&f))).unwrap_or_default();
-    let done = move |(inputs, cameras): (Vec<Input>, Vec<Input>)| {
+    let work = move || {
+        let (inputs, mut cameras) = record::run::find_ffmpeg(&data).map(|f| (record::run::list_inputs(&f), record::run::list_cameras(&f))).unwrap_or_default();
+        // The NDI sources on the network, when NDI is installed.
+        let ready = stream::ndi::runtime().is_some();
+        cameras.extend(stream::ndi::sources(std::time::Duration::from_millis(1500)).into_iter()
+            .map(|n| Input { label: stream::ndi::label(&n), name: format!("{}{n}", stream::ndi::SCHEME) }));
+        (inputs, cameras, ready)
+    };
+    let done = move |(inputs, cameras, ready): (Vec<Input>, Vec<Input>, bool)| {
         let Some(op) = me.upgrade() else { return };
         let g = op.ui.global::<SettingsDlg>();
+        g.set_ndi_ready(ready);
         let chosen = read_sound(&g);
         fill_sound(&g, &inputs, &chosen);
         let (camera, camera2) = (read_camera(&g), read_camera2(&g));

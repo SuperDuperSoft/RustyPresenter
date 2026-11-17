@@ -2532,6 +2532,26 @@ msgid "Send a lighter stream where the internet is slow"
 msgstr "Надсилати полегшену трансляцію туди, де інтернет повільний"
 
 #: ui/dialogs/settings-media.slint
+msgid "NDI"
+msgstr "NDI"
+
+#: ui/dialogs/settings-media.slint
+msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras above."
+msgstr "Інші комп'ютери та програми в цій мережі (OBS, vMix, відеомікшер) можуть приймати це під час ефіру. NDI-камери є у списку камер вище."
+
+#: ui/dialogs/settings-media.slint
+msgid "NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."
+msgstr "Для NDI на цьому комп'ютері потрібні безкоштовні NDI Tools із сайту ndi.video. Установіть їх і знову відкрийте налаштування."
+
+#: ui/dialogs/settings-media.slint
+msgid "Send the stream over NDI too (picture and sound)"
+msgstr "Також надсилати трансляцію через NDI (зображення і звук)"
+
+#: ui/dialogs/settings-media.slint
+msgid "Send the words alone over NDI, on a see-through background (for keying)"
+msgstr "Надсилати через NDI лише текст, на прозорому тлі (для кеїнгу)"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "Рівні звуку"
 
@@ -6572,6 +6592,10 @@ msgstr "{name} не підключився після кількох спроб.
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr "{name}: з’єднання втрачено. Повторна спроба відбувається сама; запис триває."
+
+#: src/stream/mod.rs
+msgid "Nothing goes out over NDI: it needs the free NDI Tools from ndi.video on this computer. The livestream goes on without it."
+msgstr "Через NDI нічого не надсилається: на цьому комп'ютері потрібні безкоштовні NDI Tools із сайту ndi.video. Трансляція триває без NDI."
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."

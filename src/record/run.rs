@@ -110,6 +110,8 @@ pub struct Plan {
     pub delay_secs: u32,
     /// Go Live: a destination whose internet cannot keep up gets a lighter stream (`stream::send::Ladder`).
     pub lighter: bool,
+    /// Go Live: what goes out over NDI too (`stream::ndi::Out`).
+    pub ndi: crate::stream::ndi::OutPrefs,
 }
 
 /// The stream's panic buttons, shared with the feeds while the recording runs. The file and the stream are one
@@ -137,7 +139,7 @@ impl Plan {
             return Err(Some(tr::low_disk(&gb(free), &gb(prefs.size.bytes_per_hour()))));
         }
         let out = super::file_name(&folder, chrono::Local::now().naive_local());
-        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![], kbps: prefs.bitrate_kbps, delay_secs: 0, lighter: false })
+        Ok(Plan { ffmpeg, encoder, preset: prefs.size, sound: prefs.sound(), out, stream: vec![], pc_sound: None, cameras: vec![], look: None, controls: Controls::default(), sound_fx: args::SoundFx::default(), chapters: None, tall: vec![], kbps: prefs.bitrate_kbps, delay_secs: 0, lighter: false, ndi: Default::default() })
     }
 }
 
@@ -356,7 +358,11 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
         }
         if outs.len() != ports.len() { eprintln!("recording: no local ports for the stream delay; it goes out at once") }
     }
-    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, board: board.as_ref().map(|b| b.feed), out: &part, stream: &feeds, tall: &plan.tall, kbps: plan.kbps, pc: pc.as_ref().map(|c| c.feed), fx: if live { plan.sound_fx } else { args::SoundFx::default() } });
+    // NDI out, with the scenes: it listens for its sound before FFmpeg starts.
+    let mut ndi = if live && worker.is_some() && plan.ndi.any() {
+        crate::stream::ndi::Out::start(plan.ndi, sink.size, FPS).map_err(|e| eprintln!("recording: nothing goes out over NDI: {e}")).ok()
+    } else { None };
+    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, board: board.as_ref().map(|b| b.feed), out: &part, stream: &feeds, tall: &plan.tall, kbps: plan.kbps, pc: pc.as_ref().map(|c| c.feed), fx: if live { plan.sound_fx } else { args::SoundFx::default() }, ndi_sound: ndi.as_ref().and_then(|n| n.sound_port) });
     let mut cmd = tokio::process::Command::new(&plan.ffmpeg);
     cmd.args(a).stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::piped());
     let mut tree = match spawn_tree(cmd) {
@@ -419,6 +425,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
         // Freeze keeps the picture going out as it is, mid-fade included.
         if let (Some(m), Some(w)) = (mix.as_mut(), worker.as_ref()) && !plan.controls.hold.load(std::sync::atomic::Ordering::Relaxed) {
             let shown = w.slot.lock().unwrap_or_else(|e| e.into_inner()).clone();
+            if let Some(n) = ndi.as_mut() { n.words(&shown.words) }
             m.update(&shown, &current, camera.and_then(|f| f.picture()), room_new, Instant::now());
             room_new = false;
         }
@@ -426,6 +433,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
         let due = pump.due(t0.elapsed());
         lag.fetch_max(due.lag(FPS).as_millis() as u64, std::sync::atomic::Ordering::Relaxed);
         if due.dropped > 0 { eprintln!("recording: {} frames dropped (the writer fell behind)", due.dropped) }
+        if due.write > 0 && let Some(n) = &ndi { n.picture(out) }
         for _ in 0..due.write {
             if stdin.write_all(out).await.is_err() {
                 let last = said.lock().unwrap_or_else(|e| e.into_inner()).back().cloned();
@@ -461,6 +469,8 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     for c in camera_feeds.iter_mut() { c.stop() }
     let end = t0.elapsed().as_secs_f64();
     let ended = tree.wait(END_LIMIT, &CancellationToken::new()).await;
+    // After FFmpeg: it sends NDI its sound to the end.
+    if let Some(n) = ndi.as_mut() { n.stop() }
     // The last of the stream has gone to the senders: a moment for them to pass it on, then they stop.
     // With a delay, what is still held goes out first (the stream ends as the service did); the file is finished
     // meanwhile.

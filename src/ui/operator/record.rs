@@ -169,6 +169,7 @@ impl Operator {
         let sound_fx = prefs.sound_fx();
         let delay_secs = stream::delay::checked(prefs.stream_delay_secs);
         let lighter = prefs.stream_lighter.unwrap_or(true);
+        let ndi = prefs.ndi();
         // The cameras, first and second, and their names for the scene button.
         let chosen: Vec<(&String, &String)> = [(&prefs.camera, &prefs.camera_control), (&prefs.camera2, &prefs.camera2_control)].into_iter().filter(|(c, _)| !c.is_empty()).collect();
         let camera_names: Vec<String> = chosen.iter().map(|(c, _)| (*c).clone()).collect();
@@ -231,6 +232,8 @@ impl Operator {
                         plan.sound_fx = sound_fx;
                         plan.delay_secs = delay_secs;
                         plan.lighter = lighter;
+                        plan.ndi = ndi;
+                        if ndi.any() && stream::ndi::runtime().is_none() { op.toast(stream::tr::ndi_missing(), true) }
                     }
                     plan.stream = addresses;
                     plan.tall = talls;

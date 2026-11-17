@@ -125,6 +125,8 @@ pub fn parse_cameras(os: Os, out: &str) -> Vec<Input> {
 /// FFmpeg's input arguments for camera `name` on `os`.
 pub fn camera_input(os: Os, name: &str) -> Vec<String> {
     let v = |a: &[&str]| a.iter().map(|s| s.to_string()).collect::<Vec<_>>();
+    // An NDI source is not read by FFmpeg (`stream::camera_feed` receives it).
+    if let Some(source) = crate::stream::ndi::source_name(name) { return vec![crate::stream::ndi::INPUT.into(), source.to_string()] }
     if is_network_camera(name) {
         let address = name.trim();
         // RTSP over TCP: over UDP a busy network loses pieces of pictures. A camera that does not answer in 5 s
@@ -153,6 +155,7 @@ pub fn is_network_camera(name: &str) -> bool {
 /// What camera `name` is called on the scene button: a camera on the network by where it is, never with the
 /// password its address may hold.
 pub fn camera_label(name: &str) -> String {
+    if let Some(source) = crate::stream::ndi::source_name(name) { return crate::stream::ndi::label(source) }
     if !is_network_camera(name) { return name.to_string() }
     let rest = name.trim().split_once("://").map_or("", |(_, r)| r);
     let place = &rest[..rest.find(['/', '?']).unwrap_or(rest.len())];
@@ -194,6 +197,9 @@ pub struct Record<'a> {
     pub pc: Option<crate::stream::pc_sound::Feed>,
     /// What is done to the stream's sound (Settings): held back, turned up or down, cleaned, evened out.
     pub fx: SoundFx,
+    /// NDI out (`stream::ndi::Out`): the local port a copy of the stream's sound goes to, raw 48 kHz stereo float.
+    /// Only a sound passed through the app has an end FFmpeg waits for; without one, none is sent.
+    pub ndi_sound: Option<u16>,
 }
 
 /// What is done to a livestream's sound, from Settings (`RecordPrefs::sound_fx`).
@@ -282,6 +288,9 @@ pub fn record(r: &Record) -> Vec<OsString> {
     let mut tall_sound: Vec<String> = vec![];
     // The file has the sounds on tracks of their own after the mix: the destinations get the mix only.
     let mut tracks = false;
+    // NDI out: what its copy of the sound maps, empty: none.
+    let ndi = r.ndi_sound.filter(|_| r.board.is_some() || r.pc.is_some());
+    let mut ndi_sound: Vec<String> = vec![];
     let v = |x: &[&str]| x.iter().map(|s| s.to_string()).collect::<Vec<String>>();
     if let Some((format, name)) = r.input {
         match r.board {
@@ -300,7 +309,11 @@ pub fn record(r: &Record) -> Vec<OsString> {
                 // The sound board and the PC's sound together, neither turned down. The output ends with the
                 // picture: the PC's sound goes on until it is stopped. Split in two for a tall output.
                 let mix = r.fx.mix();
-                graph = Some(if talls.is_empty() { mix } else { format!("{},asplit=2[a][a2]", mix.trim_end_matches("[a]")) });
+                // The mix once for each output that has it: the wide one, the tall one, NDI.
+                let mut outs = vec!["[a]"];
+                if !talls.is_empty() { outs.push("[a2]") }
+                if ndi.is_some() { outs.push("[a3]"); ndi_sound = v(&["-map", "[a3]"]) }
+                graph = Some(if outs.len() == 1 { mix } else { format!("{},asplit={}{}", mix.trim_end_matches("[a]"), outs.len(), outs.concat()) });
                 sound = v(&["-map", "[a]", "-shortest", "-shortest_buf_duration", "0.5"]);
                 tall_sound = v(&["-map", "[a2]", "-shortest", "-shortest_buf_duration", "0.5"]);
                 if r.fx.tracks {
@@ -315,6 +328,7 @@ pub fn record(r: &Record) -> Vec<OsString> {
             None => {
                 sound = [v(&["-map", "1:a"]), r.fx.one(r.fx.board())].concat();
                 tall_sound = sound.clone();
+                if ndi.is_some() { ndi_sound = sound.clone() }
             }
         }
     } else if let Some(pc) = r.pc {
@@ -324,6 +338,7 @@ pub fn record(r: &Record) -> Vec<OsString> {
         // sound after 0.7 s, its capture blocked, and what played then was lost (tried November 14, 2026).
         sound = [v(&["-map", "1:a", "-shortest", "-shortest_buf_duration", "0.5"]), r.fx.one(r.fx.pc())].concat();
         tall_sound = sound.clone();
+        if ndi.is_some() { ndi_sound = sound.clone() }
     } else if !r.stream.is_empty() {
         // Streaming services refuse a stream with no sound: silence stands in. It has no end of its own, so
         // the output ends with the picture (`-shortest`), and it may run only half a second ahead of the
@@ -374,6 +389,13 @@ pub fn record(r: &Record) -> Vec<OsString> {
         encode(&mut a);
         a.extend(["-flags", "+global_header", "-f", "tee"].map(OsString::from));
         a.push(crate::stream::tee_only(&talls).into());
+    }
+    // NDI out: the sound, raw, to the app (`stream::ndi::Out`), which listens before FFmpeg starts.
+    if let Some(port) = ndi.filter(|_| !ndi_sound.is_empty()) {
+        a.extend(ndi_sound.iter().map(OsString::from));
+        let (rate, channels) = (crate::stream::ndi::SOUND_RATE.to_string(), crate::stream::ndi::SOUND_CHANNELS.to_string());
+        a.extend(["-c:a", "pcm_f32le", "-ar", &rate, "-ac", &channels, "-f", "f32le"].map(OsString::from));
+        a.push(format!("tcp://127.0.0.1:{port}").into());
     }
     a
 }
@@ -448,9 +470,9 @@ mod tests {
     #[test]
     fn a_bitrate_set_by_hand_replaces_the_presets() {
         let out = PathBuf::from("/r/Recording.recording.mkv");
-        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, board: None, out: &out, stream: &[], tall: &[], kbps: 4500, pc: None, fx: SoundFx::default() }));
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, board: None, out: &out, stream: &[], tall: &[], kbps: 4500, pc: None, fx: SoundFx::default(), ndi_sound: None }));
         assert_eq!((after(&a, "-maxrate"), after(&a, "-bufsize")), ("4500k", "9000k"));
-        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "h264_nvenc", input: None, board: None, out: &out, stream: &[], tall: &[], kbps: 0, pc: None, fx: SoundFx::default() }));
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "h264_nvenc", input: None, board: None, out: &out, stream: &[], tall: &[], kbps: 0, pc: None, fx: SoundFx::default(), ndi_sound: None }));
         assert_eq!(after(&a, "-b:v"), "3000k", "0: the preset's");
     }
 
@@ -466,13 +488,13 @@ mod tests {
         let out = PathBuf::from("/r/Recording.recording.mkv");
         let to = ["rtmp://a.rtmp.youtube.com/live2/key".to_string(), "rtmps://live-api-s.facebook.com:443/rtmp/key2".to_string()];
         // With a sound input: one encode, the file and both destinations.
-        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: Some(("dshow", "Line In")), board: None, out: &out, stream: &to, tall: &[], kbps: 0, pc: None, fx: SoundFx::default() }));
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: Some(("dshow", "Line In")), board: None, out: &out, stream: &to, tall: &[], kbps: 0, pc: None, fx: SoundFx::default(), ndi_sound: None }));
         assert_eq!(a[a.len() - 5..a.len() - 1], ["-flags", "+global_header", "-f", "tee"].map(String::from));
         assert_eq!(a.last().unwrap(), "[f=matroska]/r/Recording.recording.mkv|[f=flv:onfail=ignore]rtmp://a.rtmp.youtube.com/live2/key|[f=flv:onfail=ignore]rtmps://live-api-s.facebook.com:443/rtmp/key2");
         assert_eq!(after(&a, "-c:a"), "aac");
         assert!(!a.contains(&"anullsrc=channel_layout=stereo:sample_rate=48000".to_string()));
         // Without one: silence stands in (a service refuses a stream with no sound), and it ends with the picture.
-        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, board: None, out: &out, stream: &to[..1], tall: &[], kbps: 0, pc: None, fx: SoundFx::default() }));
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, board: None, out: &out, stream: &to[..1], tall: &[], kbps: 0, pc: None, fx: SoundFx::default(), ndi_sound: None }));
         assert!(a.windows(4).any(|w| w == ["-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=48000"]), "{a:?}");
         assert_eq!(after(&a, "-shortest_buf_duration"), "0.5");
         assert!(a.contains(&"-shortest".to_string()) && after(&a, "-c:a") == "aac");
@@ -486,12 +508,12 @@ mod tests {
         let to = ["rtmp://a.rtmp.youtube.com/live2/key".to_string()];
         let pc = Some(Feed { format: Format { samples: "f32le", rate: 48000, channels: 2 }, port: 40500 });
         // Alone: it is the sound, and there is no stand-in silence.
-        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, board: None, out: &out, stream: &to, tall: &[], kbps: 0, pc, fx: SoundFx::default() }));
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, board: None, out: &out, stream: &to, tall: &[], kbps: 0, pc, fx: SoundFx::default(), ndi_sound: None }));
         assert!(a.windows(2).any(|w| w == ["-i", "tcp://127.0.0.1:40500?listen=1"]) && after(&a, "-ar") == "48000", "{a:?}");
         assert!(a.windows(4).any(|w| w == ["-map", "0:v", "-map", "1:a"]) && after(&a, "-shortest_buf_duration") == "0.5");
         assert!(!a.iter().any(|x| x.starts_with("anullsrc")), "{a:?}");
         // With the sound board: both, mixed.
-        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: Some(("dshow", "Line In")), board: None, out: &out, stream: &to, tall: &[], kbps: 0, pc, fx: SoundFx::default() }));
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: Some(("dshow", "Line In")), board: None, out: &out, stream: &to, tall: &[], kbps: 0, pc, fx: SoundFx::default(), ndi_sound: None }));
         assert_eq!(after(&a, "-filter_complex"), "[1:a][2:a]amix=inputs=2:duration=shortest:normalize=0[a]");
         assert!(a.windows(2).any(|w| w == ["-map", "[a]"]) && after(&a, "-c:a") == "aac");
     }
@@ -501,7 +523,7 @@ mod tests {
         use crate::stream::pc_sound::{Feed, Format};
         let out = PathBuf::from("/r/Recording.recording.mkv");
         let to = ["rtmp://a.rtmp.youtube.com/live2/key".to_string()];
-        let rec = |input, pc, delay_ms| strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input, board: None, out: &out, stream: &to, tall: &[], kbps: 0, pc, fx: SoundFx { delay_ms, ..SoundFx::default() } }));
+        let rec = |input, pc, delay_ms| strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input, board: None, out: &out, stream: &to, tall: &[], kbps: 0, pc, fx: SoundFx { delay_ms, ..SoundFx::default() }, ndi_sound: None }));
         let pc = Some(Feed { format: Format { samples: "f32le", rate: 48000, channels: 2 }, port: 40500 });
         // One sound: a filter on it.
         assert_eq!(after(&rec(Some(("dshow", "Line In")), None, 300), "-af"), "adelay=300:all=1");
@@ -518,7 +540,7 @@ mod tests {
         use crate::stream::pc_sound::{Feed, Format};
         let out = PathBuf::from("/r/Recording.recording.mkv");
         let to = ["rtmp://a.rtmp.youtube.com/live2/key".to_string()];
-        let rec = |input, pc, fx| strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input, board: None, out: &out, stream: &to, tall: &[], kbps: 0, pc, fx }));
+        let rec = |input, pc, fx| strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input, board: None, out: &out, stream: &to, tall: &[], kbps: 0, pc, fx, ndi_sound: None }));
         let pc = Some(Feed { format: Format { samples: "f32le", rate: 48000, channels: 2 }, port: 40500 });
         let line = Some(("dshow", "Line In"));
         let fx = SoundFx { delay_ms: 0, board_db: 6, pc_db: -4, even: true, quiet_noise: true, tracks: false };
@@ -543,7 +565,7 @@ mod tests {
         let to = ["udp://127.0.0.1:20001?pkt_size=1316".to_string()];
         let pc = Some(Feed { format: Format { samples: "f32le", rate: 48000, channels: 2 }, port: 40500 });
         let line = Some(("dshow", "Line In"));
-        let rec = |input, pc, fx| strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input, board: None, out: &out, stream: &to, tall: &[], kbps: 0, pc, fx }));
+        let rec = |input, pc, fx| strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input, board: None, out: &out, stream: &to, tall: &[], kbps: 0, pc, fx, ndi_sound: None }));
         let fx = SoundFx { tracks: true, board_db: 6, delay_ms: 300, ..SoundFx::default() };
         let a = rec(line, pc, fx);
         // Each sound split after its own filters; the copies held back as the mix is.
@@ -565,12 +587,35 @@ mod tests {
     }
 
     #[test]
+    fn ndi_out_gets_a_copy_of_the_streams_sound() {
+        use crate::stream::pc_sound::{Feed, Format};
+        let out = PathBuf::from("/r/Recording.recording.mkv");
+        let to = ["udp://127.0.0.1:20001?pkt_size=1316".to_string(), "udp://127.0.0.1:20002?pkt_size=1316".to_string()];
+        let pc = Some(Feed { format: Format { samples: "f32le", rate: 48000, channels: 2 }, port: 40500 });
+        let board = Some(Feed { format: Format { samples: "s16le", rate: 48000, channels: 2 }, port: 40600 });
+        let rec = |board: Option<Feed>, pc, tall: &[bool], ndi| strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: board.map(|_| ("dshow", "Line In")), board, out: &out, stream: &to, tall, kbps: 0, pc, fx: SoundFx { board_db: 6, ..SoundFx::default() }, ndi_sound: ndi }));
+        let ndi_out = "-c:a pcm_f32le -ar 48000 -ac 2 -f f32le tcp://127.0.0.1:41000";
+        // Both sounds: the mix split for it (and for a tall output too).
+        let a = rec(board, pc, &[], Some(41000));
+        assert!(after(&a, "-filter_complex").ends_with(",asplit=2[a][a3]"), "{a:?}");
+        assert!(a.join(" ").ends_with(&format!("-map [a3] {ndi_out}")), "{a:?}");
+        let t = rec(board, pc, &[false, true], Some(41000));
+        assert!(after(&t, "-filter_complex").ends_with(",asplit=3[a][a2][a3]"), "{t:?}");
+        // One sound: the same input again, with its own filters.
+        let one = rec(board, None, &[], Some(41000)).join(" ");
+        assert!(one.ends_with(&format!("-map 1:a -af volume=6dB {ndi_out}")), "{one}");
+        // No sound through the app, or NDI off: nothing extra.
+        assert!(!rec(None, None, &[], Some(41000)).join(" ").contains("f32le"));
+        assert!(!rec(board, pc, &[], None).join(" ").contains("[a3]"));
+    }
+
+    #[test]
     fn a_tall_stream_goes_out_beside_the_wide_one() {
         use crate::stream::pc_sound::{Feed, Format};
         let out = PathBuf::from("/r/Recording.recording.mkv");
         let to = ["udp://127.0.0.1:20001?pkt_size=1316".to_string(), "udp://127.0.0.1:20002?pkt_size=1316".to_string()];
         let pc = Some(Feed { format: Format { samples: "f32le", rate: 48000, channels: 2 }, port: 40500 });
-        let rec = |input, pc, fx| strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input, board: None, out: &out, stream: &to, tall: &[false, true], kbps: 0, pc, fx }));
+        let rec = |input, pc, fx| strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input, board: None, out: &out, stream: &to, tall: &[false, true], kbps: 0, pc, fx, ndi_sound: None }));
         // The PC's sound alone: the picture made tall in a graph of its own, and a second output with it.
         let a = rec(None, pc, SoundFx::default());
         let j = a.join(" ");
@@ -590,7 +635,7 @@ mod tests {
         let a = rec(Some(("dshow", "Line In")), None, SoundFx { even: true, ..SoundFx::default() });
         assert_eq!(a.iter().filter(|x| *x == "-af").count(), 2, "{a:?}");
         // No tall destination: no tall output.
-        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, board: None, out: &out, stream: &to, tall: &[false, false], kbps: 0, pc: None, fx: SoundFx::default() }));
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, board: None, out: &out, stream: &to, tall: &[false, false], kbps: 0, pc: None, fx: SoundFx::default(), ndi_sound: None }));
         assert!(!a.join(" ").contains("[tall]"));
     }
 
@@ -599,7 +644,7 @@ mod tests {
         use crate::stream::pc_sound::{Feed, Format};
         let out = PathBuf::from("/r/Recording.recording.mkv");
         let board = Some(Feed { format: Format { samples: "s16le", rate: 48000, channels: 2 }, port: 40700 });
-        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: Some(("dshow", "Line In")), board, out: &out, stream: &[], tall: &[], kbps: 0, pc: None, fx: SoundFx::default() }));
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: Some(("dshow", "Line In")), board, out: &out, stream: &[], tall: &[], kbps: 0, pc: None, fx: SoundFx::default(), ndi_sound: None }));
         assert!(a.join(" ").contains("-f s16le -ar 48000 -ac 2 -thread_queue_size 1024 -i tcp://127.0.0.1:40700?listen=1 -map 0:v -map 1:a"), "{a:?}");
         assert!(!a.iter().any(|x| x.starts_with("audio=")), "not the device itself");
     }
@@ -620,6 +665,9 @@ mod tests {
         assert_eq!(camera_label(address), "Network camera 192.168.1.50");
         assert_eq!(camera_label("srt://cam.local:9000?streamid=x"), "Network camera cam.local");
         assert_eq!(camera_label("Integrated Camera"), "Integrated Camera");
+        // An NDI source: by its name, and not read by FFmpeg.
+        assert_eq!(camera_label("ndi://STUDIO (Cam 1)"), "NDI: STUDIO (Cam 1)");
+        assert_eq!(camera_input(Os::Windows, "ndi://STUDIO (Cam 1)"), vec![crate::stream::ndi::INPUT.to_string(), "STUDIO (Cam 1)".to_string()]);
     }
 
     #[test]
@@ -634,7 +682,7 @@ mod tests {
     #[test]
     fn recording_reads_raw_frames_and_writes_h264_into_matroska() {
         let out = PathBuf::from("/r/Recording.recording.mkv");
-        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, board: None, out: &out, stream: &[], tall: &[], kbps: 0, pc: None, fx: SoundFx::default() }));
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "libx264", input: None, board: None, out: &out, stream: &[], tall: &[], kbps: 0, pc: None, fx: SoundFx::default(), ndi_sound: None }));
         assert_eq!(after(&a, "-f"), "rawvideo");
         assert_eq!(after(&a, "-pix_fmt"), "rgba");
         assert_eq!(after(&a, "-video_size"), "1280x720");
@@ -653,7 +701,7 @@ mod tests {
     #[test]
     fn a_microphone_is_a_second_input_per_system() {
         let out = PathBuf::from("o.mkv");
-        let with = |format, name| strs(&record(&Record { size: (1920, 1080), fps: 30, preset: Preset::P1080, encoder: "libx264", input: Some((format, name)), board: None, out: &out, stream: &[], tall: &[], kbps: 0, pc: None, fx: SoundFx::default() }));
+        let with = |format, name| strs(&record(&Record { size: (1920, 1080), fps: 30, preset: Preset::P1080, encoder: "libx264", input: Some((format, name)), board: None, out: &out, stream: &[], tall: &[], kbps: 0, pc: None, fx: SoundFx::default(), ndi_sound: None }));
         let win = with("dshow", "Microphone (USB Audio)");
         assert!(win.windows(4).any(|w| w == ["-f", "dshow", "-i", "audio=Microphone (USB Audio)"]), "{win:?}");
         assert!(win.windows(4).any(|w| w == ["-map", "0:v", "-map", "1:a"]), "{win:?}");
@@ -666,7 +714,7 @@ mod tests {
     #[test]
     fn other_encoders_get_a_plain_rate() {
         let out = PathBuf::from("o.mkv");
-        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "h264_mf", input: None, board: None, out: &out, stream: &[], tall: &[], kbps: 0, pc: None, fx: SoundFx::default() }));
+        let a = strs(&record(&Record { size: (1280, 720), fps: 30, preset: Preset::P720, encoder: "h264_mf", input: None, board: None, out: &out, stream: &[], tall: &[], kbps: 0, pc: None, fx: SoundFx::default(), ndi_sound: None }));
         assert_eq!(after(&a, "-c:v"), "h264_mf");
         assert_eq!(after(&a, "-b:v"), "3000k");
         assert!(!a.contains(&"-crf".to_string()));

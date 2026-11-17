@@ -121,6 +121,12 @@ pub struct RecordPrefs {
     /// Livestream with both sounds: the recording also keeps each on a track of its own (`args::SoundFx::tracks`).
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub stream_tracks: bool,
+    /// Livestream: the stream's picture and sound go out over NDI too (`stream::ndi::Out`).
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub ndi_stream: bool,
+    /// Livestream: the words over the camera go out over NDI alone, see-through around them, for keying.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub ndi_words: bool,
     /// The video encoder chosen by hand (one of `args::CHOOSABLE`); empty: automatic.
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub encoder: String,
@@ -180,6 +186,9 @@ pub const MAX_LEVEL_DB: i32 = 20;
 
 impl RecordPrefs {
     /// What a livestream does to its sound.
+    /// What goes out over NDI while live.
+    pub fn ndi(&self) -> crate::stream::ndi::OutPrefs { crate::stream::ndi::OutPrefs { stream: self.ndi_stream, words: self.ndi_words } }
+
     pub fn sound_fx(&self) -> args::SoundFx {
         args::SoundFx {
             delay_ms: self.sound_delay_ms.min(MAX_SOUND_DELAY),

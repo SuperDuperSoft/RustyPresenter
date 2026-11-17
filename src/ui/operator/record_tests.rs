@@ -260,6 +260,10 @@ fn livestream_scene_settings_save() {
     g.set_stream_lighter(false);
     crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
     assert_eq!(prefs.stream_lighter, Some(false));
+    assert!(!g.get_stream_ndi() && !g.get_stream_ndi_words(), "nothing over NDI to start with");
+    g.set_stream_ndi_words(true);
+    crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
+    assert_eq!(prefs.ndi(), crate::stream::ndi::OutPrefs { stream: false, words: true });
     assert_eq!((prefs.camera.as_str(), prefs.camera2.as_str()), ("Cam A", ""));
     g.set_stream_camera2_index(2);
     crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);
@@ -271,7 +275,7 @@ fn livestream_scene_settings_save() {
     assert_eq!(old, RecordPrefs::default(), "the old camera layout is left behind");
     // The stream delay and the lighter stream show again as saved.
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
-    assert_eq!((g.get_stream_delay(), g.get_stream_lighter()), (2, false));
+    assert_eq!((g.get_stream_delay(), g.get_stream_lighter(), g.get_stream_ndi_words()), (2, false, true));
 }
 
 #[test]

@@ -214,6 +214,17 @@ export component SettingsMedia inherits VerticalLayout {
         stream-lighter := Check { text: @tr("Send a lighter stream where the internet is slow"); checked <=> SettingsDlg.stream-lighter; }
     }
     Field {
+        label: @tr("NDI");
+        help: SettingsDlg.ndi-ready
+            ? @tr("Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras above.")
+            : @tr("NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again.");
+        VerticalLayout {
+            spacing: 6px;
+            stream-ndi := Check { text: @tr("Send the stream over NDI too (picture and sound)"); checked <=> SettingsDlg.stream-ndi; }
+            stream-ndi-words := Check { text: @tr("Send the words alone over NDI, on a see-through background (for keying)"); checked <=> SettingsDlg.stream-ndi-words; }
+        }
+    }
+    Field {
         label: @tr("Sound levels");
         help: @tr("Turn each sound up or down in the stream only (not in the room).");
         VerticalLayout {

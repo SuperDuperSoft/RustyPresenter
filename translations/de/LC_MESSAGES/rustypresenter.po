@@ -2532,6 +2532,26 @@ msgid "Send a lighter stream where the internet is slow"
 msgstr "Eine leichtere Übertragung senden, wo das Internet langsam ist"
 
 #: ui/dialogs/settings-media.slint
+msgid "NDI"
+msgstr "NDI"
+
+#: ui/dialogs/settings-media.slint
+msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras above."
+msgstr "Andere Computer und Programme in diesem Netzwerk (OBS, vMix, ein Bildmischer) können diese übernehmen, während Sie live sind. NDI-Kameras stehen oben bei den Kameras."
+
+#: ui/dialogs/settings-media.slint
+msgid "NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."
+msgstr "NDI braucht die kostenlosen NDI Tools von ndi.video auf diesem Computer. Installieren Sie sie und öffnen Sie dann die Einstellungen erneut."
+
+#: ui/dialogs/settings-media.slint
+msgid "Send the stream over NDI too (picture and sound)"
+msgstr "Den Stream auch über NDI senden (Bild und Ton)"
+
+#: ui/dialogs/settings-media.slint
+msgid "Send the words alone over NDI, on a see-through background (for keying)"
+msgstr "Den Text allein über NDI senden, auf durchsichtigem Hintergrund (zum Keyen)"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "Lautstärken"
 
@@ -6567,6 +6587,10 @@ msgstr "{name} hat sich nach mehreren Versuchen nicht verbunden. Prüfen Sie den
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr "{name} hat die Verbindung verloren. Es wird von selbst erneut versucht; die Aufnahme läuft weiter."
+
+#: src/stream/mod.rs
+msgid "Nothing goes out over NDI: it needs the free NDI Tools from ndi.video on this computer. The livestream goes on without it."
+msgstr "Über NDI geht nichts hinaus: Dafür werden die kostenlosen NDI Tools von ndi.video auf diesem Computer gebraucht. Der Livestream läuft ohne NDI weiter."
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."

@@ -1484,4 +1484,16 @@ Jake: "merge all first", then on auto-follow: "3 seconds is terrible some songs 
 - **Not verified by a person:** all of the above against real services (delay and lighter stream with a real YouTube/Twitch, CPU cost of the lighter stream on an old PC), the tally page on a real phone, the new Settings rows by eye.
 - Full quick-check at the end of this batch: 3309 app tests passed, 0 failed; every test in `tests/` passes (the web-folder list in `tests/cleanup.rs` now includes `tally.html`).
 - **Disk:** the C: drive ran out of space during a build (`build-check` is about 58 GB). The quick build's `incremental` cache was deleted (it rebuilds itself). Worth clearing old build folders now and then.
-- **Still to do (design §8):** Program/Preview camera switching (needs camera pictures in the operator window; a UX design to agree with Jake first), a full scene editor (own scenes from layers; also UX design first), NDI in and out (needs the NDI runtime installed: ask Jake first). Then Mac/Linux.
+- **Still to do (design §8):** see the next handoff (NDI is done there).
+
+### November 16, 2026 (night) — Claude (NDI in and out; branch `follow-sunday`)
+
+- **NDI runtime:** Jake approved installing it, and NDI Tools 6.3.2 (winget `NDI.NDITools`) is installed on the development PC. The app never ships or links NDI: `stream::ndi` loads `Processing.NDI.Lib.x64.dll` at run time from `NDI_RUNTIME_DIR_V6` (or V5), as libmpv is loaded. Design: `docs/superpowers/specs/2026-11-16-ndi-in-and-out-design.md`.
+- **Built (with tests; texts drafted in 13 languages, not reviewed):**
+  - **NDI cameras:** Settings → Media → Livestream → Camera lists the NDI sources on the network ("NDI: PC (OBS)"), saved as `ndi://<name>`. The camera feed receives them over NDI instead of FFmpeg, so the lost-camera light, switching and tally work as for any camera.
+  - **NDI out** (two new checks under "NDI", off by default; they work while live): "RustyPresenter Stream" carries the stream's picture (before encoding) and its sound mix. The recorder's FFmpeg sends a raw copy of the mix to the app. "RustyPresenter Words" carries the words over the camera on a see-through background, for keying in OBS/vMix/ATEM.
+  - Without NDI Tools: Settings says to install them, and Go Live with NDI on says nothing goes out over NDI.
+- **Checked on this PC:** a picture sent as an NDI source is found on the network and comes back through the NDI camera receiver (test `stream::ndi::tests::a_picture_sent_over_ndi_comes_back`, which is skipped where NDI is not installed). FFmpeg's raw sound output to the app was checked by hand.
+- **Not verified by a person:** NDI out viewed in Studio Monitor or OBS, including sound/picture sync and the see-through words; a real NDI camera; the CPU cost of NDI out at 1080p on an old PC; the new Settings rows by eye.
+- **Question for Jake (UX):** NDI out works only while live (it uses the stream's scenes). A church that streams from OBS might want NDI out without going live from this app. Should Go Live be allowed with NDI on and no destinations?
+- **Still to do (design §8):** Program/Preview camera switching and a full scene editor (both need a UX design agreed with Jake first), NDI PTZ and alpha recording. Then Mac/Linux.

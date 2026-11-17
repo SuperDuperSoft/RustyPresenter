@@ -2532,6 +2532,26 @@ msgid "Send a lighter stream where the internet is slow"
 msgstr "Gửi luồng nhẹ hơn tới nơi có internet chậm"
 
 #: ui/dialogs/settings-media.slint
+msgid "NDI"
+msgstr "NDI"
+
+#: ui/dialogs/settings-media.slint
+msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras above."
+msgstr "Các máy tính và chương trình khác trong mạng này (OBS, vMix, bàn trộn hình) có thể nhận những thứ này khi bạn đang phát trực tiếp. Camera NDI có trong danh sách camera ở trên."
+
+#: ui/dialogs/settings-media.slint
+msgid "NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."
+msgstr "NDI cần bộ NDI Tools miễn phí từ ndi.video trên máy tính này. Hãy cài đặt, rồi mở lại Cài đặt."
+
+#: ui/dialogs/settings-media.slint
+msgid "Send the stream over NDI too (picture and sound)"
+msgstr "Gửi cả buổi phát qua NDI (hình và tiếng)"
+
+#: ui/dialogs/settings-media.slint
+msgid "Send the words alone over NDI, on a see-through background (for keying)"
+msgstr "Chỉ gửi lời qua NDI, trên nền trong suốt (để tách nền)"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "Mức âm thanh"
 
@@ -6562,6 +6582,10 @@ msgstr "{name} chưa kết nối được sau nhiều lần thử. Hãy kiểm t
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr "{name} mất kết nối. Đang tự thử lại; việc ghi vẫn tiếp tục."
+
+#: src/stream/mod.rs
+msgid "Nothing goes out over NDI: it needs the free NDI Tools from ndi.video on this computer. The livestream goes on without it."
+msgstr "Không có gì được gửi qua NDI: cần bộ NDI Tools miễn phí từ ndi.video trên máy tính này. Buổi phát trực tiếp vẫn tiếp tục mà không có NDI."
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."

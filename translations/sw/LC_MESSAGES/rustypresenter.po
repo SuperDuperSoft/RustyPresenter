@@ -2532,6 +2532,26 @@ msgid "Send a lighter stream where the internet is slow"
 msgstr "Tuma matangazo mepesi zaidi pale intaneti ilipo polepole"
 
 #: ui/dialogs/settings-media.slint
+msgid "NDI"
+msgstr "NDI"
+
+#: ui/dialogs/settings-media.slint
+msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras above."
+msgstr "Kompyuta na programu nyingine kwenye mtandao huu (OBS, vMix, swichi ya video) zinaweza kupokea hivi ukiwa mubashara. Kamera za NDI zimeorodheshwa pamoja na kamera hapo juu."
+
+#: ui/dialogs/settings-media.slint
+msgid "NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."
+msgstr "NDI inahitaji NDI Tools za bure kutoka ndi.video kwenye kompyuta hii. Zisakinishe, kisha ufungue Mipangilio tena."
+
+#: ui/dialogs/settings-media.slint
+msgid "Send the stream over NDI too (picture and sound)"
+msgstr "Tuma mtiririko kupitia NDI pia (picha na sauti)"
+
+#: ui/dialogs/settings-media.slint
+msgid "Send the words alone over NDI, on a see-through background (for keying)"
+msgstr "Tuma maneno peke yake kupitia NDI, kwenye mandharinyuma inayoonyesha kupitia (kwa keying)"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "Viwango vya sauti"
 
@@ -6567,6 +6587,10 @@ msgstr "{name} haijaunganishwa baada ya majaribio kadhaa. Angalia ufunguo wa mat
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr "{name} imepoteza muunganisho. Inajaribu tena yenyewe; rekodi inaendelea."
+
+#: src/stream/mod.rs
+msgid "Nothing goes out over NDI: it needs the free NDI Tools from ndi.video on this computer. The livestream goes on without it."
+msgstr "Hakuna kinachotoka kupitia NDI: inahitaji NDI Tools za bure kutoka ndi.video kwenye kompyuta hii. Matangazo mubashara yanaendelea bila hiyo."
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."

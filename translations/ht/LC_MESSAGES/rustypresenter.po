@@ -2532,6 +2532,26 @@ msgid "Send a lighter stream where the internet is slow"
 msgstr "Voye yon difizyon pi lejè kote entènèt la lan"
 
 #: ui/dialogs/settings-media.slint
+msgid "NDI"
+msgstr "NDI"
+
+#: ui/dialogs/settings-media.slint
+msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras above."
+msgstr "Lòt òdinatè ak pwogram sou rezo sa a (OBS, vMix, yon switcher videyo) ka pran yo pandan ou an dirèk. Kamera NDI yo nan lis kamera ki anwo a."
+
+#: ui/dialogs/settings-media.slint
+msgid "NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."
+msgstr "NDI bezwen NDI Tools gratis ki soti nan ndi.video sou òdinatè sa a. Enstale yo, epi louvri Paramèt yo ankò."
+
+#: ui/dialogs/settings-media.slint
+msgid "Send the stream over NDI too (picture and sound)"
+msgstr "Voye stream nan sou NDI tou (imaj ak son)"
+
+#: ui/dialogs/settings-media.slint
+msgid "Send the words alone over NDI, on a see-through background (for keying)"
+msgstr "Voye mo yo sèlman sou NDI, sou yon fon transparan (pou keying)"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "Nivo son yo"
 
@@ -6567,6 +6587,10 @@ msgstr "{name} pa konekte apre plizyè esè. Tcheke kle difizyon an nan Paramèt
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr "{name} pèdi koneksyon an. L ap eseye ankò poukont li; anrejistreman an kontinye."
+
+#: src/stream/mod.rs
+msgid "Nothing goes out over NDI: it needs the free NDI Tools from ndi.video on this computer. The livestream goes on without it."
+msgstr "Anyen pa soti sou NDI: li bezwen NDI Tools gratis ki soti nan ndi.video sou òdinatè sa a. Livestream nan kontinye san li."
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."

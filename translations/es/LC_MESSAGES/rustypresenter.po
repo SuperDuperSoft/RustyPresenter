@@ -2532,6 +2532,26 @@ msgid "Send a lighter stream where the internet is slow"
 msgstr "Enviar una transmisión más ligera donde el internet es lento"
 
 #: ui/dialogs/settings-media.slint
+msgid "NDI"
+msgstr "NDI"
+
+#: ui/dialogs/settings-media.slint
+msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras above."
+msgstr "Otros equipos y programas de esta red (OBS, vMix, un mezclador de vídeo) pueden tomarlos mientras está en directo. Las cámaras NDI aparecen arriba con las cámaras."
+
+#: ui/dialogs/settings-media.slint
+msgid "NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."
+msgstr "NDI necesita las NDI Tools gratuitas de ndi.video en este equipo. Instálelas y vuelva a abrir Configuración."
+
+#: ui/dialogs/settings-media.slint
+msgid "Send the stream over NDI too (picture and sound)"
+msgstr "Enviar también la transmisión por NDI (imagen y sonido)"
+
+#: ui/dialogs/settings-media.slint
+msgid "Send the words alone over NDI, on a see-through background (for keying)"
+msgstr "Enviar solo la letra por NDI, sobre un fondo transparente (para keying)"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "Niveles de sonido"
 
@@ -6567,6 +6587,10 @@ msgstr "{name} no se ha conectado tras varios intentos. Revisa la clave de trans
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr "{name} perdió la conexión. Se vuelve a intentar sola; la grabación sigue."
+
+#: src/stream/mod.rs
+msgid "Nothing goes out over NDI: it needs the free NDI Tools from ndi.video on this computer. The livestream goes on without it."
+msgstr "No sale nada por NDI: necesita las NDI Tools gratuitas de ndi.video en este equipo. La transmisión en directo sigue sin NDI."
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."

@@ -21,6 +21,7 @@ pub mod keys;
 pub mod level;
 pub mod live_info;
 pub mod lyrics;
+pub mod ndi;
 pub mod pc_sound;
 pub mod pictures;
 pub mod ptz;
@@ -206,6 +207,7 @@ pub mod tr {
     pub fn connected(name: &str) -> String { tr!("{name}: the stream is going out.", name = name) }
     pub fn never_connected(name: &str) -> String { tr!("{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on.", name = name) }
     pub fn lost(name: &str) -> String { tr!("{name} lost its connection. Trying again by itself; the recording goes on.", name = name) }
+    pub fn ndi_missing() -> String { tr!("Nothing goes out over NDI: it needs the free NDI Tools from ndi.video on this computer. The livestream goes on without it.") }
     pub fn nothing_ready() -> String { tr!("Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream.") }
     pub fn not_ready(name: &str, why: &str) -> String { tr!("{name} is not streamed to: {why}", name = name, why = why) }
     pub fn no_key() -> String { tr!("it has no stream key") }

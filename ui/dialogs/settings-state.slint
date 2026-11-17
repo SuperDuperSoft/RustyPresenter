@@ -222,6 +222,10 @@ export global SettingsDlg {
     in-out property <bool> stream-even: true;
     in-out property <bool> stream-quiet-noise;
     in-out property <bool> stream-tracks;
+    in-out property <bool> stream-ndi;
+    in-out property <bool> stream-ndi-words;
+    // Whether the NDI runtime is on this computer (looked for as Settings opens).
+    in-out property <bool> ndi-ready: true;
     in-out property <int> stream-presentation-camera;
     in-out property <string> stream-card-words-0;
     in-out property <string> stream-card-words-1;

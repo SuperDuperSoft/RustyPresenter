@@ -2532,6 +2532,26 @@ msgid "Send a lighter stream where the internet is slow"
 msgstr "インターネットが遅い配信先には軽い配信を送る"
 
 #: ui/dialogs/settings-media.slint
+msgid "NDI"
+msgstr "NDI"
+
+#: ui/dialogs/settings-media.slint
+msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras above."
+msgstr "ライブ中、このネットワーク上の他のコンピューターやソフト（OBS、vMix、ビデオスイッチャー）がこれらを受け取れます。NDIカメラは上のカメラの一覧に表示されます。"
+
+#: ui/dialogs/settings-media.slint
+msgid "NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."
+msgstr "NDIを使うには、このコンピューターにndi.videoの無料のNDI Toolsが必要です。インストールしてから、設定を開き直してください。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Send the stream over NDI too (picture and sound)"
+msgstr "配信をNDIでも送る（映像と音声）"
+
+#: ui/dialogs/settings-media.slint
+msgid "Send the words alone over NDI, on a see-through background (for keying)"
+msgstr "歌詞だけを透明な背景でNDIに送る（キー合成用）"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "音量"
 
@@ -6562,6 +6582,10 @@ msgstr "{name} は何度試しても接続できていません。設定 → メ
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr "{name} の接続が切れました。自動で再接続します。録画は続いています。"
+
+#: src/stream/mod.rs
+msgid "Nothing goes out over NDI: it needs the free NDI Tools from ndi.video on this computer. The livestream goes on without it."
+msgstr "NDIには何も送られていません。このコンピューターにndi.videoの無料のNDI Toolsが必要です。ライブ配信はNDIなしで続きます。"
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."

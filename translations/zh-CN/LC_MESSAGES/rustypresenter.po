@@ -2532,6 +2532,26 @@ msgid "Send a lighter stream where the internet is slow"
 msgstr "向网速慢的目标发送更轻的直播流"
 
 #: ui/dialogs/settings-media.slint
+msgid "NDI"
+msgstr "NDI"
+
+#: ui/dialogs/settings-media.slint
+msgid "Other computers and programs on this network (OBS, vMix, a video switcher) can take these while you are live. NDI cameras are listed with the cameras above."
+msgstr "直播时，此网络上的其他电脑和程序（OBS、vMix、视频切换台）可以接收这些内容。NDI 摄像机列在上方的摄像机中。"
+
+#: ui/dialogs/settings-media.slint
+msgid "NDI needs the free NDI Tools from ndi.video on this computer. Install them, then open Settings again."
+msgstr "NDI 需要在这台电脑上安装 ndi.video 提供的免费 NDI Tools。安装后请重新打开设置。"
+
+#: ui/dialogs/settings-media.slint
+msgid "Send the stream over NDI too (picture and sound)"
+msgstr "同时通过 NDI 发送直播（画面和声音）"
+
+#: ui/dialogs/settings-media.slint
+msgid "Send the words alone over NDI, on a see-through background (for keying)"
+msgstr "单独通过 NDI 发送歌词，背景透明（用于抠像叠加）"
+
+#: ui/dialogs/settings-media.slint
 msgid "Sound levels"
 msgstr "音量"
 
@@ -6562,6 +6582,10 @@ msgstr "{name} 尝试多次仍未连接。请检查设置 → 媒体 → 直播�
 #: src/stream/mod.rs
 msgid "{name} lost its connection. Trying again by itself; the recording goes on."
 msgstr "{name} 连接中断，正在自动重试；录制仍在继续。"
+
+#: src/stream/mod.rs
+msgid "Nothing goes out over NDI: it needs the free NDI Tools from ndi.video on this computer. The livestream goes on without it."
+msgstr "没有通过 NDI 发送任何内容：这台电脑需要 ndi.video 提供的免费 NDI Tools。直播会在没有 NDI 的情况下继续。"
 
 #: src/stream/mod.rs
 msgid "Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream."
