@@ -15,7 +15,7 @@ msgstr ""
 msgid "Search your Bibles"
 msgstr "Tìm trong Kinh Thánh"
 
-#: ui/bible-picker.slint src/ui/dialogs/settings_record.rs
+#: ui/bible-picker.slint src/ui/dialogs/settings_record.rs src/ui/dialogs/settings_sound.rs
 msgid "not connected"
 msgstr "chưa kết nối"
 
@@ -359,7 +359,7 @@ msgstr "Trên"
 msgid "Hide after"
 msgstr "Ẩn sau"
 
-#: ui/dialogs/automation.slint src/ui/dialogs/stream_scenes.rs
+#: ui/dialogs/automation.slint ui/dialogs/stream-more.slint src/ui/dialogs/stream_scenes.rs
 msgid "Never"
 msgstr "Không bao giờ"
 
@@ -599,11 +599,11 @@ msgstr "Tạm dừng"
 msgid "Start"
 msgstr "Bắt đầu"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_scenes.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/dialogs/stream-more.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
 msgid "Delete"
 msgstr "Xóa"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-more.slint ui/dialogs/stream-scenes.slint
 msgid "Save"
 msgstr "Lưu"
 
@@ -615,7 +615,7 @@ msgstr "Hex"
 msgid "Pick any color"
 msgstr "Chọn màu bất kỳ"
 
-#: ui/dialogs/design-canvas.slint
+#: ui/dialogs/design-canvas.slint src/stream/transition.rs
 msgid "Slide"
 msgstr "Trang chiếu"
 
@@ -667,7 +667,7 @@ msgstr "Chuyển cảnh"
 msgid "Use on every slide"
 msgstr "Dùng cho mọi trang"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/music.slint src/i18n/remote_strings.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/music.slint src/i18n/remote_strings.rs src/stream/phone_camera.rs src/stream/phone_mic.rs
 msgid "Stop"
 msgstr "Dừng"
 
@@ -775,7 +775,7 @@ msgstr "Đường thẳng"
 msgid "Arrow"
 msgstr "Mũi tên"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/stream-more.slint src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
 msgid "Picture"
 msgstr "Hình ảnh"
 
@@ -791,7 +791,7 @@ msgstr "Lấp đầy"
 msgid "Stretch"
 msgstr "Kéo giãn"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/stream-scenes.slint
 msgid "Web address"
 msgstr "Địa chỉ web"
 
@@ -964,7 +964,7 @@ msgstr "Hình ảnh hoặc video"
 msgid "Import pictures into the media library first"
 msgstr "Hãy nhập hình ảnh vào thư viện đa phương tiện trước"
 
-#: ui/dialogs/design-editor.slint src/strings/design.rs src/strings/print.rs
+#: ui/dialogs/design-editor.slint src/stream/own_scenes.rs src/strings/design.rs src/strings/print.rs
 msgid "Web page"
 msgstr "Trang web"
 
@@ -1052,7 +1052,7 @@ msgstr "Kéo để di chuyển, kéo góc để đổi cỡ, phím mũi tên đ�
 msgid "Video: {}"
 msgstr "Video: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-more.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Hủy"
 
@@ -1091,6 +1091,110 @@ msgstr "Thứ tự Kinh Thánh"
 #: ui/dialogs/find-verse.slint
 msgid "Pick a result to see its chapter. Click a verse, or Shift+click to add a range."
 msgstr "Chọn một kết quả để xem cả chương. Bấm vào một câu, hoặc Shift+bấm để thêm một đoạn."
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Step {} of 4"
+msgstr "Bước {} / 4"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Where should the service go?"
+msgstr "Phát buổi lễ đến đâu?"
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+msgid "Another server"
+msgstr "Máy chủ khác"
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+msgid "The server's address"
+msgstr "Địa chỉ của máy chủ"
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+msgid "Its address: rtmp://, rtmps:// or srt://"
+msgstr "Địa chỉ của nó: rtmp://, rtmps:// hoặc srt://"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Stream key"
+msgstr "Khóa phát trực tiếp"
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+msgid "A key is saved. Type a new one to change it."
+msgstr "Đã lưu một khóa. Gõ khóa mới để thay."
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+msgid "Paste the stream key"
+msgstr "Dán khóa phát"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "A stream key is a password: whoever has it can broadcast as you. It is kept in this computer's own password store."
+msgstr "Khóa phát trực tiếp giống như mật khẩu: ai có nó đều có thể phát dưới tên bạn. Khóa được lưu trong kho mật khẩu riêng của máy tính này."
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Sign in instead…"
+msgstr "Đăng nhập thay thế…"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Opens Settings, where you can sign in: Go Live then makes each broadcast itself, with its title"
+msgstr "Mở Cài đặt, nơi bạn có thể đăng nhập: khi đó Phát trực tiếp sẽ tự tạo từng buổi phát, kèm tiêu đề"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Which camera?"
+msgstr "Máy quay nào?"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the room screen."
+msgstr "Bài hát và câu Kinh Thánh được phát với lời hiện trên hình máy quay. Không có máy quay thì người xem thấy màn hình hội trường."
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Which sound?"
+msgstr "Âm thanh nào?"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Choose the sound board's input (a USB sound interface or the line-in) if it sends the service to this computer. The sound of videos and songs the app plays goes out too."
+msgstr "Chọn ngõ vào của bàn trộn âm (thiết bị âm thanh USB hoặc ngõ vào line) nếu bàn gửi buổi lễ đến máy tính này. Âm thanh của video và bài hát do ứng dụng phát cũng được gửi đi."
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Check it"
+msgstr "Kiểm tra"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "The check measures the internet, takes a picture from the camera and listens to the sound for a moment. Nothing is sent to viewers."
+msgstr "Bước kiểm tra đo tốc độ internet, chụp một hình từ máy quay và nghe âm thanh trong giây lát. Không có gì được gửi tới người xem."
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Checking…"
+msgstr "Đang kiểm tra…"
+
+#: ui/dialogs/go-live-helper.slint ui/operator/service.slint
+msgid "Check"
+msgstr "Kiểm tra"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Send a 20-second test"
+msgstr "Gửi thử 20 giây"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Ready to go live"
+msgstr "Sẵn sàng phát trực tiếp"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Media → Livestream."
+msgstr "Bấm Phát trực tiếp ở phía trên khi buổi lễ bắt đầu, và bấm lại khi kết thúc. Mọi thứ chọn ở đây đều có thể đổi trong Cài đặt → Đa phương tiện → Phát trực tiếp."
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Back"
+msgstr "Quay lại"
+
+#: ui/dialogs/go-live-helper.slint ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "Tiếp"
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
+msgid "Close"
+msgstr "Đóng"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Go Live now"
+msgstr "Phát trực tiếp ngay"
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library."
@@ -1140,7 +1244,7 @@ msgstr "Cạnh nhau"
 msgid "Top and bottom"
 msgstr "Trên và dưới"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/settings-media.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/settings-media.slint ui/dialogs/slide-breaks.slint ui/dialogs/stream-more.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "Tự động"
 
@@ -1248,7 +1352,7 @@ msgstr "Dùng cho mọi trang"
 msgid "Auto-advance after (s)"
 msgstr "Tự chuyển sau (giây)"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr "Tắt"
 
@@ -1467,7 +1571,7 @@ msgstr "Một bảng luôn hiện, như “Chào mừng!” hoặc mật khẩu 
 msgid "A logo in the corner"
 msgstr "Logo ở góc"
 
-#: ui/dialogs/overlays.slint src/strings/stage.rs src/strings/themes.rs
+#: ui/dialogs/overlays.slint src/stream/own_scenes.rs src/strings/stage.rs src/strings/themes.rs
 msgid "Clock"
 msgstr "Đồng hồ"
 
@@ -1495,7 +1599,7 @@ msgstr "Độ mờ đục"
 msgid "Show seconds"
 msgstr "Hiện giây"
 
-#: ui/dialogs/overlays.slint
+#: ui/dialogs/overlays.slint ui/dialogs/stream-scenes.slint
 msgid "24-hour clock"
 msgstr "Đồng hồ 24 giờ"
 
@@ -1547,17 +1651,9 @@ msgstr "Xem trước"
 msgid "Editing an overlay that is on the screen does not change the screen: turn it off and on to show the new one."
 msgstr "Sửa lớp phủ đang hiện trên màn hình không làm thay đổi màn hình: hãy tắt rồi bật lại để hiện bản mới."
 
-#: ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Back"
-msgstr "Quay lại"
-
 #: ui/dialogs/overlays.slint
 msgid "Save overlay"
 msgstr "Lưu lớp phủ"
-
-#: ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
-msgid "Close"
-msgstr "Đóng"
 
 #: ui/dialogs/phone.slint
 msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
@@ -2079,7 +2175,7 @@ msgstr "Chạy thử các mô hình đã tải trên máy này và cho biết m�
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
 msgstr "Phát một bản ghi (ví dụ của Chúa nhật tuần trước) qua tự động theo để xem nó sẽ làm gì. Không có gì thay đổi trên màn hình."
 
-#: ui/dialogs/settings-follow.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-follow.slint ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
 msgid "Recording"
 msgstr "Ghi hình"
 
@@ -2339,11 +2435,11 @@ msgstr "20 giây"
 msgid "30 seconds"
 msgstr "30 giây"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
 msgid "1 minute"
 msgstr "1 phút"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
 msgid "Sound"
 msgstr "Âm thanh"
 
@@ -2519,7 +2615,7 @@ msgstr "Độ trễ phát trực tiếp"
 msgid "What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer."
 msgstr "Những gì phát ra được giữ lại trong khoảng này, để Giữ hoặc Tắt tiếng có thể chặn điều gì đó trước khi người xem thấy. Bản ghi không bị trễ. Bình luận của người xem đến muộn hơn điều họ trả lời."
 
-#: ui/dialogs/settings-media.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
+#: ui/dialogs/settings-media.slint src/stream/sound_setup.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
 msgid "None"
 msgstr "Không"
 
@@ -2575,15 +2671,15 @@ msgstr "Mức âm thanh"
 msgid "Turn each sound up or down in the stream only (not in the room)."
 msgstr "Tăng hoặc giảm từng âm thanh chỉ trong buổi phát (không phải trong phòng)."
 
-#: ui/dialogs/settings-media.slint src/record/mod.rs
+#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint src/record/mod.rs
 msgid "Microphone or line-in"
 msgstr "Micrô hoặc ngõ vào line"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint
 msgid "{} dB"
 msgstr "{} dB"
 
-#: ui/dialogs/settings-media.slint src/app.rs src/record/mod.rs
+#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint src/app.rs src/record/mod.rs
 msgid "This computer"
 msgstr "Máy tính này"
 
@@ -2652,6 +2748,30 @@ msgid "Fourth camera"
 msgstr "Camera thứ tư"
 
 #: ui/dialogs/settings-media.slint
+msgid "When a camera sends nothing"
+msgstr "Khi máy quay không gửi gì"
+
+#: ui/dialogs/settings-media.slint
+msgid "What the stream shows in a camera's place while it is unplugged or sends no picture. The camera comes back by itself as soon as it sends again."
+msgstr "Thứ hiện trên luồng phát thay cho máy quay khi máy quay bị rút dây hoặc không gửi hình. Máy quay tự quay lại ngay khi gửi hình trở lại."
+
+#: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
+msgid "The room screen"
+msgstr "Màn hình hội trường"
+
+#: ui/dialogs/settings-media.slint
+msgid "The church logo"
+msgstr "Logo của hội thánh"
+
+#: ui/dialogs/settings-media.slint src/strings/screens.rs src/theme/backgrounds.rs
+msgid "Black"
+msgstr "Đen"
+
+#: ui/dialogs/settings-media.slint
+msgid "Phone as a camera"
+msgstr "Điện thoại làm máy quay"
+
+#: ui/dialogs/settings-media.slint
 msgid "Scenes"
 msgstr "Cảnh"
 
@@ -2666,10 +2786,6 @@ msgstr "Tự chọn cảnh theo những gì đang chiếu"
 #: ui/dialogs/settings-media.slint
 msgid "Presentations:"
 msgstr "Bài trình chiếu:"
-
-#: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
-msgid "The room screen"
-msgstr "Màn hình hội trường"
 
 #: ui/dialogs/settings-media.slint
 msgid "The room screen with the camera in a corner"
@@ -2784,14 +2900,6 @@ msgid "YouTube stream key"
 msgstr "Khóa phát YouTube"
 
 #: ui/dialogs/settings-media.slint
-msgid "A key is saved. Type a new one to change it."
-msgstr "Đã lưu một khóa. Gõ khóa mới để thay."
-
-#: ui/dialogs/settings-media.slint
-msgid "Paste the stream key"
-msgstr "Dán khóa phát"
-
-#: ui/dialogs/settings-media.slint
 msgid "Sign in"
 msgstr "Đăng nhập"
 
@@ -2816,24 +2924,52 @@ msgid "Twitch stream key"
 msgstr "Khóa phát Twitch"
 
 #: ui/dialogs/settings-media.slint
-msgid "Another server"
-msgstr "Máy chủ khác"
-
-#: ui/dialogs/settings-media.slint
-msgid "The server's address"
-msgstr "Địa chỉ của máy chủ"
-
-#: ui/dialogs/settings-media.slint
-msgid "Its address: rtmp://, rtmps:// or srt://"
-msgstr "Địa chỉ của nó: rtmp://, rtmps:// hoặc srt://"
-
-#: ui/dialogs/settings-media.slint
 msgid "The server's stream key"
 msgstr "Khóa phát của máy chủ"
 
 #: ui/dialogs/settings-media.slint
 msgid "Its stream key, if it has one"
 msgstr "Khóa phát của nó, nếu có"
+
+#: ui/dialogs/settings-media.slint
+msgid "Instagram's server address"
+msgstr "Địa chỉ máy chủ của Instagram"
+
+#: ui/dialogs/settings-media.slint
+msgid "Its server address, if Instagram shows one"
+msgstr "Địa chỉ máy chủ, nếu Instagram có hiện"
+
+#: ui/dialogs/settings-media.slint
+msgid "Instagram stream key"
+msgstr "Khóa phát trực tiếp Instagram"
+
+#: ui/dialogs/settings-media.slint
+msgid "X's server address"
+msgstr "Địa chỉ máy chủ của X"
+
+#: ui/dialogs/settings-media.slint
+msgid "Its server address, if X shows one"
+msgstr "Địa chỉ máy chủ, nếu X có hiện"
+
+#: ui/dialogs/settings-media.slint
+msgid "X stream key"
+msgstr "Khóa phát trực tiếp X"
+
+#: ui/dialogs/settings-media.slint
+msgid "TikTok's server address"
+msgstr "Địa chỉ máy chủ của TikTok"
+
+#: ui/dialogs/settings-media.slint
+msgid "The server address TikTok shows with the key"
+msgstr "Địa chỉ máy chủ TikTok hiện cùng với khóa"
+
+#: ui/dialogs/settings-media.slint
+msgid "TikTok stream key"
+msgstr "Khóa phát trực tiếp TikTok"
+
+#: ui/dialogs/settings-media.slint src/stream/mod.rs
+msgid "Instagram, X and TikTok give stream keys only to some accounts (TikTok asks for enough followers; Instagram's come from Live Producer on a computer). Each shows a server address with the key: paste both. Their keys often work for one broadcast only."
+msgstr "Instagram, X và TikTok chỉ cấp khóa phát trực tiếp cho một số tài khoản (TikTok yêu cầu đủ người theo dõi; khóa của Instagram lấy từ Live Producer trên máy tính). Mỗi nơi đều hiện một địa chỉ máy chủ cùng với khóa: hãy dán cả hai. Khóa của họ thường chỉ dùng được cho một buổi phát."
 
 #: ui/dialogs/settings-media.slint
 msgid "Tall for phones"
@@ -2844,12 +2980,28 @@ msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other pho
 msgstr "Những nơi này nhận hình dọc (cho YouTube Shorts, Reels, TikTok và các ứng dụng điện thoại khác): hình ngang ở giữa, màu đen ở trên và dưới. Bản ghi vẫn là hình ngang."
 
 #: ui/dialogs/settings-media.slint
+msgid "More settings"
+msgstr "Cài đặt khác"
+
+#: ui/dialogs/settings-media.slint
+msgid "Pictures a second, video format, sound quality, which network card sends, each destination's own quality, the recording's file type and name, and setups saved by name (Sunday, Wedding) to use again in one go."
+msgstr "Số hình mỗi giây, định dạng video, chất lượng âm thanh, card mạng nào gửi, chất lượng riêng của từng nơi phát, loại tệp và tên tệp bản ghi, và các thiết lập lưu theo tên (Chủ nhật, Đám cưới) để dùng lại ngay một lần."
+
+#: ui/dialogs/settings-media.slint
+msgid "More settings and saved setups…"
+msgstr "Cài đặt khác và thiết lập đã lưu…"
+
+#: ui/dialogs/settings-media.slint
+msgid "Setup: {}"
+msgstr "Thiết lập: {}"
+
+#: ui/dialogs/settings-media.slint
 msgid "Broadcast title"
 msgstr "Tiêu đề buổi phát"
 
 #: ui/dialogs/settings-media.slint
-msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
-msgstr "Tên YouTube và Facebook đặt cho mỗi buổi phát. {{date}} sẽ thành ngày hôm đó."
+msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date, {{weekday}} the day's name and {{time}} the time; the description can have them too."
+msgstr "Tên mà YouTube và Facebook đặt cho mỗi buổi phát. {{date}} sẽ thành ngày tháng, {{weekday}} thành thứ trong tuần và {{time}} thành giờ; phần mô tả cũng có thể dùng chúng."
 
 #: ui/dialogs/settings-media.slint
 msgid "Sunday Service — {{date}}"
@@ -2987,9 +3139,217 @@ msgstr "Thêm nhãn"
 msgid "Use the usual names, colours and labels"
 msgstr "Dùng tên, màu và nhãn mặc định"
 
+#: ui/dialogs/settings-sound.slint
+msgid "Gate (quiet between words)"
+msgstr "Cổng (im lặng giữa các lời nói)"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Light"
+msgstr "Nhẹ"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Strong"
+msgstr "Mạnh"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Evener (loud down, quiet up)"
+msgstr "Cân bằng (giảm tiếng lớn, tăng tiếng nhỏ)"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Low (boom)"
+msgstr "Trầm (tiếng ù)"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Middle (voices)"
+msgstr "Trung (giọng nói)"
+
+#: ui/dialogs/settings-sound.slint
+msgid "High (clarity, hiss)"
+msgstr "Cao (độ trong, tiếng xì)"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Never too loud (keeps the stream from crackling; best left on)"
+msgstr "Không bao giờ quá to (giữ cho luồng phát không bị rè; nên để bật)"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Sound setup"
+msgstr "Thiết lập âm thanh"
+
+#: ui/dialogs/settings-sound.slint
+msgid "One choice sets the microphone and how each sound is cleaned up. Anything changed by hand below makes it Custom."
+msgstr "Một lựa chọn sẽ đặt micrô và cách làm sạch từng âm thanh. Thay đổi bằng tay bất cứ gì bên dưới sẽ chuyển thành Tùy chỉnh."
+
+#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
+msgid "Second microphone or line-in"
+msgstr "Micrô thứ hai hoặc ngõ vào line"
+
+#: ui/dialogs/settings-sound.slint
+msgid "While you are live, mixed with the one chosen under \"Sound in the recording\": for a second sound board, a pulpit microphone or the phone."
+msgstr "Khi đang phát trực tiếp, được trộn với nguồn đã chọn ở “Âm thanh trong bản ghi”: dùng cho bàn trộn âm thứ hai, micrô bục giảng hoặc điện thoại."
+
+#: ui/dialogs/settings-sound.slint
+msgid "Its level"
+msgstr "Mức âm lượng"
+
+#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
+msgid "Third microphone or line-in"
+msgstr "Micrô thứ ba hoặc ngõ vào line"
+
+#: ui/dialogs/settings-sound.slint src/stream/phone_mic.rs
+msgid "Phone microphone"
+msgstr "Micrô điện thoại"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Turn on the stage view (Network), then open this page on the phone and press Start: {}"
+msgstr "Bật chế độ xem sân khấu (Mạng), rồi mở trang này trên điện thoại và bấm Bắt đầu: {}"
+
+#: ui/dialogs/settings-sound.slint
+msgid "The first time, the phone warns that the page is not private, because this computer made its own certificate: tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+msgstr "Lần đầu, điện thoại sẽ cảnh báo trang này không riêng tư, vì máy tính này tự tạo chứng chỉ của nó: chạm Nâng cao (trên iPhone là Hiện chi tiết), rồi tiếp tục vào trang. Giữ điện thoại luôn sáng màn hình và cắm sạc."
+
+#: ui/dialogs/settings-sound.slint
+msgid "Listen to the stream"
+msgstr "Nghe luồng phát"
+
+#: ui/dialogs/settings-sound.slint
+msgid "While you are live, the stream's sound plays here as viewers hear it (cleaned up and with the sound delay), for headphones at the desk. The room does not hear it unless it is the room's output."
+msgstr "Khi đang phát trực tiếp, âm thanh của luồng phát được phát ở đây đúng như người xem nghe (đã làm sạch và có độ trễ âm thanh), để nghe bằng tai nghe tại bàn. Hội trường không nghe thấy trừ khi đây là ngõ ra của hội trường."
+
+#: ui/dialogs/settings-sound.slint
+msgid "More sound settings"
+msgstr "Cài đặt âm thanh khác"
+
+#: ui/dialogs/settings-sound.slint
+msgid "For the stream only. Each sound has its own: start with the Sound setup above and change little at a time."
+msgstr "Chỉ cho luồng phát. Mỗi âm thanh có cài đặt riêng: hãy bắt đầu từ Thiết lập âm thanh ở trên và thay đổi từng chút một."
+
+#: ui/dialogs/settings-sound.slint
+msgid "Show each sound's gate, evener, low, middle and high"
+msgstr "Hiện cổng, cân bằng, trầm, trung và cao của từng âm thanh"
+
 #: ui/dialogs/settings-state.slint src/strings/catalog.rs
 msgid "All languages"
 msgstr "Mọi ngôn ngữ"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Live captions"
+msgstr "Phụ đề trực tiếp"
+
+#: ui/dialogs/settings-stream-extras.slint src/stream/captions.rs
+msgid "Captions are made on this computer from the microphone, in English only. They are often wrong: names, Bible places, quiet or echoing speech and songs come out badly, and there is no punctuation. They show about two seconds after the words are said."
+msgstr "Phụ đề được tạo trên máy tính này từ micrô, chỉ bằng tiếng Anh. Phụ đề thường sai: tên người, địa danh trong Kinh Thánh, giọng nói nhỏ hoặc vang và bài hát ra kết quả kém, và không có dấu câu. Phụ đề hiện khoảng hai giây sau khi lời được nói ra."
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Write out what is said while live"
+msgstr "Ghi ra lời được nói khi đang phát trực tiếp"
+
+#: ui/dialogs/settings-stream-extras.slint src/stream/captions.rs
+msgid "Live captions need the English speech model. Download the fast model in Settings → Auto-follow."
+msgstr "Phụ đề trực tiếp cần mô hình giọng nói tiếng Anh. Hãy tải mô hình nhanh trong Cài đặt → Tự động theo."
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Show them at the bottom of the stream (not over song words or verses)"
+msgstr "Hiện ở cuối luồng phát (không đè lên lời bài hát hay câu Kinh Thánh)"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Keep them in a captions file beside the recording (for YouTube's replay and video players)"
+msgstr "Lưu vào tệp phụ đề cạnh bản ghi (cho phần phát lại trên YouTube và trình phát video)"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Listen to:"
+msgstr "Nghe:"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "YouTube captions address"
+msgstr "Địa chỉ phụ đề YouTube"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "YouTube's captions address (optional)"
+msgstr "Địa chỉ phụ đề của YouTube (không bắt buộc)"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "For captions viewers can turn on and off on YouTube: in YouTube Studio, open the stream's settings, turn on Closed captions, choose \"POST captions to URL\", and paste the address it gives here."
+msgstr "Cho phụ đề mà người xem có thể bật và tắt trên YouTube: trong YouTube Studio, mở cài đặt của luồng phát, bật Closed captions, chọn “POST captions to URL” và dán địa chỉ được cung cấp vào đây."
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "On your website"
+msgstr "Trên trang web của bạn"
+
+#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
+msgid "To play the livestream on your church's website: copy the code, then in your website's editor add an \"HTML\", \"Embed\" or \"Code\" block where the video should go and paste it there. You do this once: the same code plays every week's service."
+msgstr "Để phát trực tiếp trên trang web của hội thánh: sao chép mã, rồi trong trình chỉnh sửa trang web, thêm một khối “HTML”, “Embed” hoặc “Code” ở chỗ muốn đặt video và dán mã vào đó. Chỉ cần làm một lần: cùng một mã sẽ phát buổi lễ mỗi tuần."
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "YouTube channel id"
+msgstr "ID kênh YouTube"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "YouTube channel id (starts with UC)"
+msgstr "ID kênh YouTube (bắt đầu bằng UC)"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Fill in"
+msgstr "Điền"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Fill in the channel of the YouTube account signed in above"
+msgstr "Điền kênh của tài khoản YouTube đã đăng nhập ở trên"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Copy the code"
+msgstr "Sao chép mã"
+
+#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
+msgid "YouTube plays whatever your channel has live; between services it shows the next scheduled stream or says nothing is live. YouTube Studio must allow embedding (it does unless it was turned off)."
+msgstr "YouTube phát bất cứ gì kênh của bạn đang phát trực tiếp; giữa các buổi lễ, nó hiện buổi phát đã lên lịch tiếp theo hoặc báo không có gì đang phát. YouTube Studio phải cho phép nhúng (mặc định là cho phép trừ khi đã bị tắt)."
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Facebook Page"
+msgstr "Trang Facebook"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Facebook Page address"
+msgstr "Địa chỉ Trang Facebook"
+
+#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
+msgid "Facebook shows your Page with its posts; while you are live the live video is at the top. The Page must be public."
+msgstr "Facebook hiện Trang của bạn cùng các bài đăng; khi đang phát trực tiếp, video trực tiếp nằm ở trên cùng. Trang phải ở chế độ công khai."
+
+#: ui/dialogs/settings-stream-extras.slint src/network/guest.rs
+msgid "Remote guest"
+msgstr "Khách từ xa"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "A guest speaker or missionary joins from a browser at home: their picture comes in as a camera, their voice through this computer's sound. The connection goes directly between the two computers; some internets do not allow that, and the pages then say so."
+msgstr "Một diễn giả khách mời hoặc giáo sĩ tham gia từ trình duyệt ở nhà: hình của họ vào như một máy quay, giọng nói qua âm thanh của máy tính này. Kết nối đi thẳng giữa hai máy tính; một số mạng internet không cho phép điều đó, và các trang sẽ báo như vậy."
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Invite a guest…"
+msgstr "Mời khách…"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Opens the invitation page in this computer's web browser"
+msgstr "Mở trang lời mời trong trình duyệt web của máy tính này"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Use the guest as a camera"
+msgstr "Dùng khách làm máy quay"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Puts the guest in the first free camera row above"
+msgstr "Đặt khách vào hàng máy quay trống đầu tiên ở trên"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Getting started"
+msgstr "Bắt đầu"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "A few steps: where to stream, which camera, which sound, and a check."
+msgstr "Vài bước: phát đến đâu, máy quay nào, âm thanh nào, và kiểm tra."
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Set up step by step…"
+msgstr "Thiết lập từng bước…"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Church default"
@@ -3347,7 +3707,7 @@ msgstr "Ngôn ngữ"
 msgid "Auto-follow"
 msgstr "Tự động theo"
 
-#: ui/dialogs/settings.slint src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
+#: ui/dialogs/settings.slint src/stream/own_scenes.rs src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/ui/operator/file_input.rs
 msgid "Video"
 msgstr "Video"
 
@@ -3639,13 +3999,289 @@ msgstr "Chọn bố cục sân khấu"
 msgid "Edit stage layouts…"
 msgstr "Sửa bố cục sân khấu…"
 
+#: ui/dialogs/stream-more.slint
+msgid "Saved setups"
+msgstr "Thiết lập đã lưu"
+
+#: ui/dialogs/stream-more.slint
+msgid "Keep everything set for the livestream (destinations, cameras, sound, scenes and these settings) under a name, and use it again in one go. Stream keys stay as they are."
+msgstr "Lưu mọi thứ đã đặt cho phát trực tiếp (nơi phát, máy quay, âm thanh, cảnh và các cài đặt này) dưới một cái tên, và dùng lại ngay một lần. Khóa phát trực tiếp vẫn giữ nguyên."
+
+#: ui/dialogs/stream-more.slint
+msgid "Save as a setup…"
+msgstr "Lưu thành thiết lập…"
+
+#: ui/dialogs/stream-more.slint
+msgid "No setups saved yet."
+msgstr "Chưa lưu thiết lập nào."
+
+#: ui/dialogs/stream-more.slint
+msgid "Pictures a second"
+msgstr "Số hình mỗi giây"
+
+#: ui/dialogs/stream-more.slint
+msgid "30 (usual)"
+msgstr "30 (thông thường)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Video format"
+msgstr "Định dạng video"
+
+#: ui/dialogs/stream-more.slint
+msgid "H.264 (plays everywhere)"
+msgstr "H.264 (phát được ở mọi nơi)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Bitrate kept"
+msgstr "Kiểu tốc độ bit"
+
+#: ui/dialogs/stream-more.slint
+msgid "Always the same (CBR)"
+msgstr "Luôn như nhau (CBR)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Varies with the picture (VBR)"
+msgstr "Thay đổi theo hình (VBR)"
+
+#: ui/dialogs/stream-more.slint
+msgid "HEVC and AV1 give a sharper picture for the same upload. HEVC is used when every destination that is on takes it (YouTube and your own server do); otherwise H.264. AV1 is for recordings only: while live, H.264 is used. Both need a newer computer or graphics card."
+msgstr "HEVC và AV1 cho hình nét hơn với cùng tốc độ tải lên. HEVC được dùng khi mọi nơi phát đang bật đều nhận được (YouTube và máy chủ riêng của bạn đều nhận); nếu không thì dùng H.264. AV1 chỉ dành cho bản ghi: khi đang phát trực tiếp sẽ dùng H.264. Cả hai cần máy tính hoặc card đồ họa đời mới hơn."
+
+#: ui/dialogs/stream-more.slint
+msgid "A whole picture every"
+msgstr "Một hình đầy đủ mỗi"
+
+#: ui/dialogs/stream-more.slint
+msgid "1 second"
+msgstr "1 giây"
+
+#: ui/dialogs/stream-more.slint
+msgid "2 seconds (usual)"
+msgstr "2 giây (thông thường)"
+
+#: ui/dialogs/stream-more.slint
+msgid "3 seconds"
+msgstr "3 giây"
+
+#: ui/dialogs/stream-more.slint
+msgid "4 seconds"
+msgstr "4 giây"
+
+#: ui/dialogs/stream-more.slint
+msgid "Encoder speed"
+msgstr "Tốc độ mã hóa"
+
+#: ui/dialogs/stream-more.slint
+msgid "Fastest (least work)"
+msgstr "Nhanh nhất (ít việc nhất)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Fast"
+msgstr "Nhanh"
+
+#: ui/dialogs/stream-more.slint
+msgid "Balanced"
+msgstr "Cân đối"
+
+#: ui/dialogs/stream-more.slint
+msgid "Best picture (most work)"
+msgstr "Hình đẹp nhất (nhiều việc nhất)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Profile"
+msgstr "Hồ sơ"
+
+#: ui/dialogs/stream-more.slint
+msgid "B-frames"
+msgstr "B-frames"
+
+#: ui/dialogs/stream-more.slint
+msgid "Leave these on Automatic unless a service or a video editor asks for something else. Faster leaves more of the computer free; Baseline is only for very old players."
+msgstr "Hãy để các mục này ở Tự động trừ khi một dịch vụ hoặc phần mềm dựng video yêu cầu khác. Nhanh hơn thì máy tính còn rảnh nhiều hơn; Baseline chỉ dành cho trình phát rất cũ."
+
+#: ui/dialogs/stream-more.slint
+msgid "Sample rate"
+msgstr "Tần số lấy mẫu"
+
+#: ui/dialogs/stream-more.slint
+msgid "As it comes (usual)"
+msgstr "Giữ nguyên như nguồn (thông thường)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Sound bitrate"
+msgstr "Tốc độ bit âm thanh"
+
+#: ui/dialogs/stream-more.slint
+msgid "160 kbit/s (usual)"
+msgstr "160 kbit/s (thông thường)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Channels"
+msgstr "Kênh"
+
+#: ui/dialogs/stream-more.slint
+msgid "Stereo"
+msgstr "Stereo"
+
+#: ui/dialogs/stream-more.slint
+msgid "Mono"
+msgstr "Mono"
+
+#: ui/dialogs/stream-more.slint src/ui/dialogs/network.rs
+msgid "Network"
+msgstr "Mạng"
+
+#: ui/dialogs/stream-more.slint
+msgid "Send the stream from"
+msgstr "Gửi luồng phát từ"
+
+#: ui/dialogs/stream-more.slint
+msgid "Safer send (SRT servers)"
+msgstr "Gửi an toàn hơn (máy chủ SRT)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Off (SRT's own)"
+msgstr "Tắt (mặc định của SRT)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Half a second"
+msgstr "Nửa giây"
+
+#: ui/dialogs/stream-more.slint
+msgid "2 seconds"
+msgstr "2 giây"
+
+#: ui/dialogs/stream-more.slint
+msgid "Send from a wired network card to keep the stream off busy Wi-Fi (YouTube, Facebook, Twitch and other RTMP servers; an SRT server is reached however the computer chooses). Safer send gives an SRT server time to ask again for what got lost on a poor line; the picture arrives that much later."
+msgstr "Gửi từ card mạng có dây để luồng phát không đi qua Wi-Fi đang bận (YouTube, Facebook, Twitch và các máy chủ RTMP khác; máy chủ SRT được kết nối theo cách máy tính tự chọn). Gửi an toàn hơn cho máy chủ SRT thời gian để xin lại phần bị mất trên đường truyền kém; hình sẽ đến trễ hơn đúng chừng ấy."
+
+#: ui/dialogs/stream-more.slint
+msgid "Each destination's quality"
+msgstr "Chất lượng của từng nơi phát"
+
+#: ui/dialogs/stream-more.slint
+msgid "A destination can get a smaller picture or a lower bitrate than the main stream (a phone app, a slow server). Each one that differs costs the computer a second encode."
+msgstr "Một nơi phát có thể nhận hình nhỏ hơn hoặc tốc độ bit thấp hơn luồng chính (ứng dụng điện thoại, máy chủ chậm). Mỗi nơi khác biệt sẽ bắt máy tính mã hóa thêm một lần."
+
+#: ui/dialogs/stream-more.slint
+msgid "Size: the main stream's"
+msgstr "Cỡ: như luồng chính"
+
+#: ui/dialogs/stream-more.slint
+msgid "Bitrate: the main stream's"
+msgstr "Tốc độ bit: như luồng chính"
+
+#: ui/dialogs/stream-more.slint
+msgid "File type"
+msgstr "Loại tệp"
+
+#: ui/dialogs/stream-more.slint
+msgid "MP4 (plays everywhere)"
+msgstr "MP4 (phát được ở mọi nơi)"
+
+#: ui/dialogs/stream-more.slint
+msgid "MKV (as written; nothing to wait for at the end)"
+msgstr "MKV (ghi thẳng; không phải chờ khi kết thúc)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Cut long recordings"
+msgstr "Cắt bản ghi dài"
+
+#: ui/dialogs/stream-more.slint
+msgid "Every 30 minutes"
+msgstr "Mỗi 30 phút"
+
+#: ui/dialogs/stream-more.slint
+msgid "Every hour"
+msgstr "Mỗi giờ"
+
+#: ui/dialogs/stream-more.slint
+msgid "Every 2 hours"
+msgstr "Mỗi 2 giờ"
+
+#: ui/dialogs/stream-more.slint
+msgid "At 2 GB"
+msgstr "Khi tới 2 GB"
+
+#: ui/dialogs/stream-more.slint
+msgid "At 4 GB (old USB sticks)"
+msgstr "Khi tới 4 GB (USB cũ)"
+
+#: ui/dialogs/stream-more.slint
+msgid "At 8 GB"
+msgstr "Khi tới 8 GB"
+
+#: ui/dialogs/stream-more.slint
+msgid "“Save last” button keeps"
+msgstr "Nút “Lưu đoạn cuối” giữ lại"
+
+#: ui/dialogs/stream-more.slint
+msgid "No button"
+msgstr "Không có nút"
+
+#: ui/dialogs/stream-more.slint
+msgid "2 minutes"
+msgstr "2 phút"
+
+#: ui/dialogs/stream-more.slint
+msgid "5 minutes"
+msgstr "5 phút"
+
+#: ui/dialogs/stream-more.slint
+msgid "10 minutes"
+msgstr "10 phút"
+
+#: ui/dialogs/stream-more.slint
+msgid "15 minutes"
+msgstr "15 phút"
+
+#: ui/dialogs/stream-more.slint
+msgid "File name"
+msgstr "Tên tệp"
+
+#: ui/dialogs/stream-more.slint
+msgid "Recording file name"
+msgstr "Tên tệp bản ghi"
+
+#: ui/dialogs/stream-more.slint
+msgid "Recording {{date}} {{time}}"
+msgstr "Ghi hình {{date}} {{time}}"
+
+#: ui/dialogs/stream-more.slint
+msgid "{{date}} becomes the day, {{time}} the time it started, {{title}} the service's name. Now: {}"
+msgstr "{{date}} thành ngày, {{time}} thành giờ bắt đầu, {{title}} thành tên buổi lễ. Hiện tại: {}"
+
+#: ui/dialogs/stream-more.slint
+msgid "While live, also record the stream without the words (for editing)"
+msgstr "Khi đang phát trực tiếp, ghi thêm luồng phát không có lời (để dựng video)"
+
 #: ui/dialogs/stream-scenes.slint
-msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
-msgstr "Bạn chưa có cảnh riêng nào. Hãy thêm một cảnh, rồi đặt camera, màn hình hội trường, lời, hình ảnh, màu hoặc văn bản vào đó."
+msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, videos, colours, text or a clock in it."
+msgstr "Bạn chưa có cảnh riêng nào. Hãy thêm một cảnh, rồi đặt vào đó máy quay, màn hình hội trường, lời, hình ảnh, video, màu, chữ hoặc đồng hồ."
 
 #: ui/dialogs/stream-scenes.slint
 msgid "Add a scene"
 msgstr "Thêm cảnh"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Changing scenes"
+msgstr "Chuyển cảnh"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No video chosen yet: scenes fade."
+msgstr "Chưa chọn video: các cảnh sẽ mờ dần."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Choose a video…"
+msgstr "Chọn video…"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "How the stream changes from one scene to the next, built-in scenes too. A scene of yours can have its own way. A stinger is a short video played over the change; the scene changes half way through it."
+msgstr "Cách luồng phát chuyển từ cảnh này sang cảnh kế tiếp, kể cả các cảnh có sẵn. Cảnh của bạn có thể có cách riêng. Stinger là một video ngắn phát đè lên lúc chuyển; cảnh đổi ở giữa video đó."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "How the scene looks"
+msgstr "Cảnh trông như thế nào"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "Layers (in front at the top)"
@@ -3676,8 +4312,52 @@ msgid "No picture chosen yet."
 msgstr "Chưa chọn hình ảnh."
 
 #: ui/dialogs/stream-scenes.slint
+msgid "No video chosen yet."
+msgstr "Chưa chọn video."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "It plays again and again, without its sound, while the stream is live."
+msgstr "Video phát lặp lại liên tục, không có tiếng, khi luồng phát đang trực tiếp."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Show the seconds"
+msgstr "Hiện giây"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Count down to (for example 10:30)"
+msgstr "Đếm ngược tới (ví dụ 10:30)"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Leave it empty to count down to the service's start time (Services → Starts at)."
+msgstr "Để trống để đếm ngược tới giờ bắt đầu của buổi lễ (Các buổi lễ → Bắt đầu lúc)."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "While live, the page is opened in this computer's Microsoft Edge or Google Chrome, without a window, the size of the stream. A page with a see-through background shows what is behind it."
+msgstr "Khi đang phát trực tiếp, trang được mở trong Microsoft Edge hoặc Google Chrome của máy tính này, không có cửa sổ, bằng kích thước luồng phát. Trang có nền trong suốt sẽ hiện những gì nằm phía sau."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Size: like your other words"
+msgstr "Cỡ: như các lời khác của bạn"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Size: {}"
+msgstr "Cỡ: {}"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Colour (empty: like your other words)"
+msgstr "Màu (để trống: như các lời khác của bạn)"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Place in the tall picture"
+msgstr "Vị trí trong hình dọc"
+
+#: ui/dialogs/stream-scenes.slint
 msgid "Place"
 msgstr "Vị trí"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Or drag it on the picture; drag its corner square to make it bigger or smaller."
+msgstr "Hoặc kéo nó trên hình; kéo ô vuông ở góc để phóng to hoặc thu nhỏ."
 
 #: ui/dialogs/stream-scenes.slint
 msgid "From the left: {}%"
@@ -3700,12 +4380,76 @@ msgid "See-through: {}%"
 msgstr "Trong suốt: {}%"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "How the scene looks"
-msgstr "Cảnh trông như thế nào"
+msgid "Cut off the edges"
+msgstr "Cắt bớt mép"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
-msgstr "Ở đây camera, màn hình hội trường và lời chỉ là hình tạm; khi đang phát sẽ là hình thật. Camera không gửi hình sẽ hiện màn hình hội trường thay vào chỗ đó."
+msgid "Left: {}%"
+msgstr "Trái: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Top: {}%"
+msgstr "Trên: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Right: {}%"
+msgstr "Phải: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Bottom: {}%"
+msgstr "Dưới: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Take out"
+msgstr "Xóa bỏ"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "The colour to take out"
+msgstr "Màu cần xóa bỏ"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "How close a colour must be: {}%"
+msgstr "Độ gần của màu: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Darker than: {}%"
+msgstr "Tối hơn: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Lighter than: {}%"
+msgstr "Sáng hơn: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Soft edge: {}%"
+msgstr "Mép mềm: {}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "For a green screen: light it evenly, then raise “How close” until the screen is gone and lower it if the person starts to go."
+msgstr "Với phông xanh: chiếu sáng đều, rồi tăng “Độ gần” cho tới khi phông biến mất và giảm xuống nếu người bắt đầu bị mất theo."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Wide picture"
+msgstr "Hình ngang"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Tall picture (phones)"
+msgstr "Hình dọc (điện thoại)"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Destinations set to tall get the wide picture fitted across, as here. You can place this scene's layers in the tall picture yourself."
+msgstr "Các nơi phát đặt là dọc sẽ nhận hình ngang được đặt vừa theo chiều ngang, như ở đây. Bạn có thể tự đặt vị trí các lớp của cảnh này trong hình dọc."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Place the layers for phones"
+msgstr "Đặt các lớp cho điện thoại"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Use the wide picture fitted across again"
+msgstr "Dùng lại hình ngang đặt vừa theo chiều ngang"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Cameras, the room screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgstr "Máy quay, màn hình hội trường, lời, video và trang web ở đây chỉ là hình tạm; khi phát trực tiếp sẽ là thật. Máy quay không gửi gì sẽ hiện màn hình hội trường thay thế."
 
 #: ui/dialogs/stream-scenes.slint
 msgid "Use it by itself in place of"
@@ -3715,11 +4459,19 @@ msgstr "Tự dùng thay cho"
 msgid "When the scene is chosen by itself from what is live, this scene goes out instead of that one. For example, choose “Camera + words” to use it for songs and verses."
 msgstr "Khi cảnh được tự chọn theo những gì đang chiếu, cảnh này sẽ được phát thay cho cảnh kia. Ví dụ, chọn “Camera + lời” để dùng nó cho bài hát và câu Kinh Thánh."
 
+#: ui/dialogs/stream-scenes.slint
+msgid "When this scene comes in"
+msgstr "Khi cảnh này xuất hiện"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No video chosen yet: the scene fades in."
+msgstr "Chưa chọn video: cảnh sẽ hiện dần."
+
 #: ui/dialogs/transition.slint src/theme/richtext.rs
 msgid "Normal"
 msgstr "Bình thường"
 
-#: ui/dialogs/transition.slint ui/operator/cameras.slint
+#: ui/dialogs/transition.slint ui/operator/cameras.slint src/stream/transition.rs
 msgid "Fade"
 msgstr "Mờ dần"
 
@@ -4043,10 +4795,6 @@ msgstr "Bài hát và âm lượng nhạc chào đón"
 msgid "Going out now"
 msgstr "Đang lên sóng"
 
-#: ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Next"
-msgstr "Tiếp"
-
 #: ui/operator/cameras.slint
 msgid "This camera is going out now"
 msgstr "Camera này đang lên sóng"
@@ -4060,8 +4808,52 @@ msgid "Live"
 msgstr "Đang phát"
 
 #: ui/operator/cameras.slint
-msgid "Move the next camera to its saved position {}"
-msgstr "Đưa camera tiếp theo đến vị trí đã lưu {}"
+msgid "Turn left while held"
+msgstr "Quay sang trái khi giữ"
+
+#: ui/operator/cameras.slint
+msgid "Tilt up while held"
+msgstr "Ngước lên khi giữ"
+
+#: ui/operator/cameras.slint
+msgid "Tilt down while held"
+msgstr "Cúi xuống khi giữ"
+
+#: ui/operator/cameras.slint
+msgid "Turn right while held"
+msgstr "Quay sang phải khi giữ"
+
+#: ui/operator/cameras.slint
+msgid "Zoom out while held"
+msgstr "Thu nhỏ khi giữ"
+
+#: ui/operator/cameras.slint
+msgid "Zoom in while held"
+msgstr "Phóng to khi giữ"
+
+#: ui/operator/cameras.slint
+msgid "Save this shot as"
+msgstr "Lưu khung hình này thành"
+
+#: ui/operator/cameras.slint
+msgid "Save this shot as position {}"
+msgstr "Lưu khung hình này thành vị trí {}"
+
+#: ui/operator/cameras.slint
+msgid "Move the camera to its saved position {}"
+msgstr "Đưa máy quay về vị trí đã lưu {}"
+
+#: ui/operator/cameras.slint
+msgid "Save…"
+msgstr "Lưu…"
+
+#: ui/operator/cameras.slint
+msgid "Keep the saved positions as they are"
+msgstr "Giữ nguyên các vị trí đã lưu"
+
+#: ui/operator/cameras.slint
+msgid "Save the camera's shot now as one of its positions"
+msgstr "Lưu khung hình hiện tại của máy quay thành một vị trí"
 
 #: ui/operator/cameras.slint
 msgid "Switch"
@@ -4094,6 +4886,26 @@ msgstr "Tùy chọn tự động theo"
 #: ui/operator/follow.slint src/i18n/remote_strings.rs
 msgid "Holding"
 msgstr "Đang giữ"
+
+#: ui/operator/live-status.slint
+msgid "Stream status"
+msgstr "Tình trạng luồng phát"
+
+#: ui/operator/live-status.slint
+msgid "How the stream is doing"
+msgstr "Luồng phát đang thế nào"
+
+#: ui/operator/live-status.slint
+msgid "Live captions: {}"
+msgstr "Phụ đề trực tiếp: {}"
+
+#: ui/operator/live-status.slint
+msgid "Copy the title"
+msgstr "Sao chép tiêu đề"
+
+#: ui/operator/live-status.slint
+msgid "Copy the description"
+msgstr "Sao chép mô tả"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
@@ -4235,7 +5047,7 @@ msgstr "Không tìm thấy. Hãy nhập tên camera:"
 msgid "Or type its name"
 msgstr "Hoặc nhập tên"
 
-#: ui/operator/media.slint
+#: ui/operator/media.slint src/stream/phone_camera.rs
 msgid "Camera name"
 msgstr "Tên camera"
 
@@ -4303,11 +5115,11 @@ msgstr "Thả để thêm vào buổi lễ"
 msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect lyric files"
 msgstr "Video, hình ảnh, nhạc, bài trình chiếu (PowerPoint, Keynote, PDF), tệp lời hát SongSelect"
 
-#: ui/operator/record.slint
+#: ui/operator/record.slint ui/operator.slint
 msgid "Stop the livestream"
 msgstr "Dừng phát trực tiếp"
 
-#: ui/operator/record.slint src/record/mod.rs
+#: ui/operator/record.slint ui/operator.slint src/record/mod.rs
 msgid "Go Live"
 msgstr "Phát trực tiếp"
 
@@ -4419,6 +5231,18 @@ msgstr "{} mới"
 msgid "Nothing written yet."
 msgstr "Chưa có ai viết."
 
+#: ui/operator/save-last.slint
+msgid "Save the last {} minutes"
+msgstr "Lưu {} phút cuối"
+
+#: ui/operator/save-last.slint
+msgid "Save last {} min"
+msgstr "Lưu {} phút cuối"
+
+#: ui/operator/save-last.slint
+msgid "Save the last {} minutes of the recording as a video of its own, now"
+msgstr "Lưu ngay {} phút cuối của bản ghi thành một video riêng"
+
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
 msgstr "Buổi lễ"
@@ -4430,10 +5254,6 @@ msgstr "Thêm tiêu đề mục"
 #: ui/operator/service.slint
 msgid "Add a coloured heading to the service list, like “Worship” or “Message”"
 msgstr "Thêm tiêu đề có màu vào danh sách buổi lễ, như “Thờ phượng” hoặc “Sứ điệp”"
-
-#: ui/operator/service.slint
-msgid "Check"
-msgstr "Kiểm tra"
 
 #: ui/operator/service.slint
 msgid "Before the service: are all the songs, files and screens there?"
@@ -5711,7 +6531,7 @@ msgstr "RustyPresenter Remote"
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
 msgstr "Trên máy tính trình chiếu, bấm {phone} → {pair}, rồi nhập mã 6 chữ số vào đây."
 
-#: src/i18n/remote_strings.rs
+#: src/i18n/remote_strings.rs src/stream/phone_camera.rs
 msgid "Connect"
 msgstr "Kết nối"
 
@@ -5866,7 +6686,7 @@ msgstr "Không phát"
 msgid "{time} left"
 msgstr "Còn {time}"
 
-#: src/i18n/remote_strings.rs
+#: src/i18n/remote_strings.rs src/stream/phone_camera.rs
 msgid "Password"
 msgstr "Mật khẩu"
 
@@ -6318,6 +7138,10 @@ msgstr "Màn hình đó hiện chưa được kết nối."
 msgid "Scripture"
 msgstr "Kinh Thánh"
 
+#: src/record/advanced.rs
+msgid "{name} last {minutes} minutes"
+msgstr "{name} {minutes} phút cuối"
+
 #: src/record/args.rs
 msgid "Network camera {host}"
 msgstr "Camera mạng {host}"
@@ -6355,8 +7179,8 @@ msgid "RustyPresenter stopped in the middle of a livestream. The recording up to
 msgstr "RustyPresenter đã dừng giữa lúc phát trực tiếp. Bản ghi đến lúc đó đã được giữ lại. Phát trực tiếp lại?"
 
 #: src/record/mod.rs
-msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or close other programs."
-msgstr "Máy tính này không theo kịp nên bản ghi và buổi phát bị giật. Chọn 720p ở “Cỡ hình” trong Cài đặt → Đa phương tiện, hoặc đóng các chương trình khác."
+msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or the graphics card under Video encoder, and close other programs."
+msgstr "Máy tính này xử lý không kịp nên bản ghi và luồng phát bị giật. Hãy chọn 720p ở Cỡ hình trong Cài đặt → Đa phương tiện, hoặc chọn card đồ họa ở Bộ mã hóa video, và đóng các chương trình khác."
 
 #: src/record/mod.rs
 msgid "The computer is keeping up again: the picture is smooth."
@@ -6401,6 +7225,26 @@ msgstr "Đã lưu bản ghi: {path}"
 #: src/record/mod.rs
 msgid "Recording saved as {path} (it could not be turned into MP4)."
 msgstr "Đã lưu bản ghi thành {path} (không chuyển được sang MP4)."
+
+#: src/record/mod.rs
+msgid "Recording saved in {n} pieces, the first: {path}"
+msgstr "Đã lưu bản ghi thành {n} phần, phần đầu: {path}"
+
+#: src/record/mod.rs
+msgid "Saving the last {minutes} minutes…"
+msgstr "Đang lưu {minutes} phút cuối…"
+
+#: src/record/mod.rs
+msgid "The last minutes are saved: {path}"
+msgstr "Đã lưu những phút cuối: {path}"
+
+#: src/record/mod.rs
+msgid "The last minutes could not be saved: {path}"
+msgstr "Không lưu được những phút cuối: {path}"
+
+#: src/record/mod.rs
+msgid "Next time, the graphics card's encoder is used by itself, if this computer has one that works."
+msgstr "Lần sau, bộ mã hóa của card đồ họa sẽ được tự động dùng, nếu máy tính này có một bộ hoạt động được."
 
 #: src/record/mod.rs
 msgid "The recording was saved without the app's sound, which could not be added."
@@ -6592,8 +7436,28 @@ msgid "Hold auto-follow (the slides stay put)"
 msgstr "Giữ tự động theo (trang chiếu đứng yên)"
 
 #: src/shortcuts.rs
+msgid "Livestream: camera {n} next"
+msgstr "Phát trực tiếp: máy quay {n} kế tiếp"
+
+#: src/shortcuts.rs
+msgid "Livestream: switch to the next camera"
+msgstr "Phát trực tiếp: chuyển sang máy quay kế tiếp"
+
+#: src/shortcuts.rs
+msgid "Livestream: fade to the next camera"
+msgstr "Phát trực tiếp: chuyển mờ sang máy quay kế tiếp"
+
+#: src/shortcuts.rs
 msgid "Everything but the background"
 msgstr "Mọi thứ trừ nền"
+
+#: src/shortcuts.rs
+msgid "Livestream scene: {name}"
+msgstr "Cảnh phát trực tiếp: {name}"
+
+#: src/shortcuts.rs
+msgid "Scene keys work while the stream is live."
+msgstr "Phím cảnh hoạt động khi luồng phát đang trực tiếp."
 
 #: src/slides.rs src/strings/print.rs
 msgid "Missing song"
@@ -6699,6 +7563,174 @@ msgstr "Đã chép liên kết."
 msgid "{name}: the replay is at {link}"
 msgstr "{name}: bản phát lại ở {link}"
 
+#: src/stream/captions.rs
+msgid "Live captions could not start: {why}"
+msgstr "Không bật được phụ đề trực tiếp: {why}"
+
+#: src/stream/captions.rs
+msgid "Live captions need a microphone or line-in: choose one under Sound in Settings → Media, or under Live captions."
+msgstr "Phụ đề trực tiếp cần micrô hoặc ngõ vào line: hãy chọn ở mục Âm thanh trong Cài đặt → Đa phương tiện, hoặc ở mục Phụ đề trực tiếp."
+
+#: src/stream/captions.rs
+msgid "Live captions stopped hearing the microphone ({why}). Trying again…"
+msgstr "Phụ đề trực tiếp không còn nghe thấy micrô ({why}). Đang thử lại…"
+
+#: src/stream/captions.rs
+msgid "The captions file {path} could not be made: {why}"
+msgstr "Không tạo được tệp phụ đề {path}: {why}"
+
+#: src/stream/captions.rs
+msgid "Live captions are on."
+msgstr "Đã bật phụ đề trực tiếp."
+
+#: src/stream/captions.rs
+msgid "Captions saved: {path}"
+msgstr "Đã lưu phụ đề: {path}"
+
+#: src/stream/health.rs
+msgid "{name}: going out, but the internet is too slow for it"
+msgstr "{name}: đang phát, nhưng internet quá chậm"
+
+#: src/stream/health.rs
+msgid "{name}: going out, lighter ({kbps} kbit/s) for a slow internet"
+msgstr "{name}: đang phát, nhẹ hơn ({kbps} kbit/s) vì internet chậm"
+
+#: src/stream/health.rs
+msgid "{name}: going out"
+msgstr "{name}: đang phát"
+
+#: src/stream/health.rs
+msgid "{name}: not connecting. Check its stream key and the internet; still trying"
+msgstr "{name}: không kết nối được. Hãy kiểm tra khóa phát trực tiếp và internet; vẫn đang thử"
+
+#: src/stream/health.rs
+msgid "{name}: connecting…"
+msgstr "{name}: đang kết nối…"
+
+#: src/stream/health.rs
+msgid "NDI: going out"
+msgstr "NDI: đang phát"
+
+#: src/stream/health.rs
+msgid "Camera: picture coming in"
+msgstr "Máy quay: đang có hình"
+
+#: src/stream/health.rs
+msgid "Camera: no picture (the room screen is shown instead)"
+msgstr "Máy quay: không có hình (đang hiện màn hình hội trường thay thế)"
+
+#: src/stream/health.rs
+msgid "Sound: {name}"
+msgstr "Âm thanh: {name}"
+
+#: src/stream/health.rs
+msgid "Sound: nothing from {name} for 10 seconds"
+msgstr "Âm thanh: không có gì từ {name} trong 10 giây"
+
+#: src/stream/health.rs
+msgid "This computer is not keeping up: the picture is jerky"
+msgstr "Máy tính này xử lý không kịp: hình bị giật"
+
+#: src/stream/health.rs
+msgid "Frozen: viewers see a still picture"
+msgstr "Bị đứng hình: người xem thấy hình tĩnh"
+
+#: src/stream/health.rs
+msgid "Muted: viewers hear nothing"
+msgstr "Tắt tiếng: người xem không nghe thấy gì"
+
+#: src/stream/health.rs
+msgid "Live captions: on"
+msgstr "Phụ đề trực tiếp: bật"
+
+#: src/stream/health.rs
+msgid "All good"
+msgstr "Mọi thứ ổn"
+
+#: src/stream/health.rs
+msgid "Check the stream"
+msgstr "Kiểm tra luồng phát"
+
+#: src/stream/health.rs
+msgid "Not going out"
+msgstr "Không phát ra"
+
+#: src/stream/helper.rs
+msgid "Paste the stream key first."
+msgstr "Hãy dán khóa phát trực tiếp trước."
+
+#: src/stream/helper.rs
+msgid "Type the server's address first."
+msgstr "Hãy nhập địa chỉ máy chủ trước."
+
+#: src/stream/helper.rs
+msgid "On YouTube: open YouTube Studio, choose Create → Go live → Stream, and copy the Stream key."
+msgstr "Trên YouTube: mở YouTube Studio, chọn Create → Go live → Stream, rồi sao chép Stream key."
+
+#: src/stream/helper.rs
+msgid "On Facebook: open your Page, choose Live video → Streaming software, and copy the Stream key (turn on \"Use a persistent stream key\" so it stays the same every week)."
+msgstr "Trên Facebook: mở Trang của bạn, chọn Live video → Streaming software, rồi sao chép Stream key (bật “Use a persistent stream key” để khóa giữ nguyên mỗi tuần)."
+
+#: src/stream/helper.rs
+msgid "On Twitch: open the Creator Dashboard, choose Settings → Stream, and copy the Primary stream key."
+msgstr "Trên Twitch: mở Creator Dashboard, chọn Settings → Stream, rồi sao chép Primary stream key."
+
+#: src/stream/helper.rs
+msgid "Your streaming service gives you a server address (starting with rtmp://, rtmps:// or srt://) and usually a stream key."
+msgstr "Dịch vụ phát trực tiếp của bạn sẽ cho một địa chỉ máy chủ (bắt đầu bằng rtmp://, rtmps:// hoặc srt://) và thường kèm khóa phát trực tiếp."
+
+#: src/stream/helper.rs
+msgid "On Instagram: in Live Producer (on a computer, Create → Live video → Streaming software), copy the Stream URL and Stream key. Only some accounts are given a stream key."
+msgstr "Trên Instagram: trong Live Producer (trên máy tính, Create → Live video → Streaming software), sao chép Stream URL và Stream key. Chỉ một số tài khoản được cấp khóa phát trực tiếp."
+
+#: src/stream/helper.rs
+msgid "On X: in Media Studio, choose Producer → Sources, and copy the RTMP URL and Stream key. Only some accounts can stream from software."
+msgstr "Trên X: trong Media Studio, chọn Producer → Sources, rồi sao chép RTMP URL và Stream key. Chỉ một số tài khoản có thể phát từ phần mềm."
+
+#: src/stream/helper.rs
+msgid "On TikTok: in LIVE Studio or the LIVE Center, copy the Server URL and Stream key. Only some accounts are given a stream key."
+msgstr "Trên TikTok: trong LIVE Studio hoặc LIVE Center, sao chép Server URL và Stream key. Chỉ một số tài khoản được cấp khóa phát trực tiếp."
+
+#: src/stream/helper.rs
+msgid "The test sends 20 seconds to YouTube. Anyone who can see your stream sees it: in YouTube Studio, set the stream to Private or Unlisted first if nobody should."
+msgstr "Bản thử gửi 20 giây lên YouTube. Ai xem được luồng phát của bạn cũng sẽ thấy: trong YouTube Studio, hãy đặt luồng phát thành Private hoặc Unlisted trước nếu không muốn ai thấy."
+
+#: src/stream/helper.rs
+msgid "The test sends 20 seconds to Facebook. With a persistent key Facebook waits for you to press Go live there, so nobody sees it."
+msgstr "Bản thử gửi 20 giây lên Facebook. Với khóa cố định, Facebook chờ bạn bấm Go live ở đó, nên không ai thấy."
+
+#: src/stream/helper.rs
+msgid "The test sends 20 seconds to the service, then stops by itself."
+msgstr "Bản thử gửi 20 giây lên dịch vụ, rồi tự dừng."
+
+#: src/stream/helper.rs
+msgid "Sound: {name} could not be opened. Is it plugged in?"
+msgstr "Âm thanh: không mở được {name}. Thiết bị đã được cắm chưa?"
+
+#: src/stream/helper.rs
+msgid "Sound: almost nothing from {name}. Is the sound board sending to this computer, and is someone talking?"
+msgstr "Âm thanh: gần như không có gì từ {name}. Bàn trộn âm có đang gửi tới máy tính này không, và có ai đang nói không?"
+
+#: src/stream/helper.rs
+msgid "Sound: {name} is coming in."
+msgstr "Âm thanh: {name} đang vào."
+
+#: src/stream/helper.rs
+msgid "Camera: {name} gives a picture."
+msgstr "Máy quay: {name} có hình."
+
+#: src/stream/helper.rs
+msgid "Camera: no picture from {name}. Is it plugged in, and closed in other programs (Zoom, Teams, OBS)?"
+msgstr "Máy quay: không có hình từ {name}. Máy quay đã được cắm chưa, và đã đóng trong các chương trình khác (Zoom, Teams, OBS) chưa?"
+
+#: src/stream/listen.rs
+msgid "This computer's usual output"
+msgstr "Ngõ ra thông thường của máy tính này"
+
+#: src/stream/listen.rs
+msgid "Listening to the stream could not start: {error}"
+msgstr "Không bắt đầu nghe luồng phát được: {error}"
+
 #: src/stream/mod.rs
 msgid "The stream ran {time}."
 msgstr "Buổi phát kéo dài {time}."
@@ -6803,6 +7835,14 @@ msgstr "Đang ghi. Hãy dừng ghi rồi bấm Phát trực tiếp."
 msgid "A Mac cannot send its own sound by itself. Install the free BlackHole, make a Multi-Output Device of the speakers and BlackHole in Audio MIDI Setup, and choose it as the app's sound output."
 msgstr "Máy Mac không tự gửi được âm thanh của chính nó. Hãy cài BlackHole miễn phí, tạo một Multi-Output Device gồm loa và BlackHole trong Audio MIDI Setup, rồi chọn nó làm đầu ra âm thanh của ứng dụng."
 
+#: src/stream/network_card.rs
+msgid "Let the computer choose"
+msgstr "Để máy tính tự chọn"
+
+#: src/stream/network_card.rs
+msgid "{address} (not on this computer now)"
+msgstr "{address} (hiện không có trên máy tính này)"
+
 #: src/stream/own_scenes.rs
 msgid "small"
 msgstr "nhỏ"
@@ -6872,6 +7912,22 @@ msgid "Some words of your own"
 msgstr "Lời của riêng bạn"
 
 #: src/stream/own_scenes.rs
+msgid "A video"
+msgstr "Một video"
+
+#: src/stream/own_scenes.rs
+msgid "A clock (the time now)"
+msgstr "Đồng hồ (giờ hiện tại)"
+
+#: src/stream/own_scenes.rs
+msgid "A countdown"
+msgstr "Đếm ngược"
+
+#: src/stream/own_scenes.rs
+msgid "A web page"
+msgstr "Một trang web"
+
+#: src/stream/own_scenes.rs
 msgid "A picture (none chosen yet)"
 msgstr "Một hình ảnh (chưa chọn)"
 
@@ -6880,12 +7936,36 @@ msgid "Picture: {name}"
 msgstr "Hình ảnh: {name}"
 
 #: src/stream/own_scenes.rs
+msgid "A video (none chosen yet)"
+msgstr "Một video (chưa chọn)"
+
+#: src/stream/own_scenes.rs
+msgid "Video: {name}"
+msgstr "Video: {name}"
+
+#: src/stream/own_scenes.rs
 msgid "Colour {hex}"
 msgstr "Màu {hex}"
 
 #: src/stream/own_scenes.rs
 msgid "Your words: {text}"
 msgstr "Lời của bạn: {text}"
+
+#: src/stream/own_scenes.rs
+msgid "Countdown to the service's start"
+msgstr "Đếm ngược tới giờ bắt đầu buổi lễ"
+
+#: src/stream/own_scenes.rs
+msgid "Countdown to {time}"
+msgstr "Đếm ngược tới {time}"
+
+#: src/stream/own_scenes.rs
+msgid "A web page (no address yet)"
+msgstr "Một trang web (chưa có địa chỉ)"
+
+#: src/stream/own_scenes.rs
+msgid "Web page: {address}"
+msgstr "Trang web: {address}"
 
 #: src/stream/own_scenes.rs src/strings/operator.rs src/ui/dialogs/settings_themes.rs src/ui/dialogs/stream_scenes.rs
 msgid "Welcome"
@@ -6911,9 +7991,169 @@ msgstr "Một cảnh đã bị xóa"
 msgid "The words of the song go here"
 msgstr "Lời bài hát hiện ở đây"
 
+#: src/stream/phone_camera.rs
+msgid "Phone camera: {name}"
+msgstr "Máy quay điện thoại: {name}"
+
+#: src/stream/phone_camera.rs
+msgid "Phone camera"
+msgstr "Máy quay điện thoại"
+
+#: src/stream/phone_camera.rs
+msgid "One step the first time"
+msgstr "Một bước cho lần đầu"
+
+#: src/stream/phone_camera.rs
+msgid "A phone only lets a page use its camera when the page is private. Tap the button below. The phone then warns that the connection is not private: that is expected, because the page comes from your church's own computer, not from the internet."
+msgstr "Điện thoại chỉ cho một trang dùng máy ảnh khi trang đó là riêng tư. Hãy chạm vào nút bên dưới. Sau đó điện thoại sẽ cảnh báo kết nối không riêng tư: điều này là bình thường, vì trang đến từ máy tính của chính hội thánh bạn, không phải từ internet."
+
+#: src/stream/phone_camera.rs
+msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
+msgstr "Chạm Nâng cao (hoặc Hiện chi tiết), rồi Tiếp tục (hoặc Truy cập trang web này). Điện thoại sẽ ghi nhớ, nên chỉ cần làm một lần."
+
+#: src/stream/phone_camera.rs
+msgid "Open the camera page"
+msgstr "Mở trang máy quay"
+
+#: src/stream/phone_camera.rs
+msgid "The private camera page is not running on the computer. Close the app and open it again; if it still does not start, another program is using its port."
+msgstr "Trang máy quay riêng tư không chạy trên máy tính. Hãy đóng ứng dụng rồi mở lại; nếu vẫn không chạy, một chương trình khác đang dùng cổng của nó."
+
+#: src/stream/phone_camera.rs
+msgid "Connect this phone"
+msgstr "Kết nối điện thoại này"
+
+#: src/stream/phone_camera.rs
+msgid "On the presentation computer, click Phone remote, then Pair a phone, and type the 6-digit code here."
+msgstr "Trên máy tính trình chiếu, bấm Điều khiển bằng điện thoại, rồi Ghép nối điện thoại, và nhập mã 6 chữ số vào đây."
+
+#: src/stream/phone_camera.rs
+msgid "6-digit code"
+msgstr "Mã 6 chữ số"
+
+#: src/stream/phone_camera.rs
+msgid "Like Balcony or Side. The computer lists this phone by this name."
+msgstr "Ví dụ Ban công hoặc Bên hông. Máy tính sẽ liệt kê điện thoại này bằng tên đó."
+
+#: src/stream/phone_camera.rs
+msgid "Start the camera"
+msgstr "Bật máy quay"
+
+#: src/stream/phone_camera.rs
+msgid "Front camera"
+msgstr "Máy ảnh trước"
+
+#: src/stream/phone_camera.rs
+msgid "Back camera"
+msgstr "Máy ảnh sau"
+
+#: src/stream/phone_camera.rs
+msgid "Turn the phone sideways for a full picture."
+msgstr "Xoay ngang điện thoại để có hình đầy đủ."
+
+#: src/stream/phone_camera.rs
+msgid "Sending to the computer"
+msgstr "Đang gửi tới máy tính"
+
+#: src/stream/phone_camera.rs
+msgid "Connecting to the computer…"
+msgstr "Đang kết nối với máy tính…"
+
+#: src/stream/phone_camera.rs
+msgid "The computer cannot be reached. Trying again…"
+msgstr "Không kết nối được với máy tính. Đang thử lại…"
+
+#: src/stream/phone_camera.rs
+msgid "The camera could not be opened. Allow the camera for this page in the phone's settings, and close other apps using it."
+msgstr "Không mở được máy ảnh. Hãy cho phép máy ảnh cho trang này trong cài đặt của điện thoại, và đóng các ứng dụng khác đang dùng nó."
+
+#: src/stream/phone_camera.rs
+msgid "On the stream now"
+msgstr "Đang lên luồng phát"
+
+#: src/stream/phone_camera.rs
+msgid "Next on the stream"
+msgstr "Kế tiếp trên luồng phát"
+
+#: src/stream/phone_camera.rs
+msgid "Not on the stream"
+msgstr "Không ở trên luồng phát"
+
+#: src/stream/phone_camera.rs
+msgid "On the computer, choose this phone in Settings, Media, Livestream, Camera."
+msgstr "Trên máy tính, chọn điện thoại này trong Cài đặt, Đa phương tiện, Phát trực tiếp, Máy quay."
+
+#: src/stream/phone_camera.rs
+msgid "Any phone on the church's Wi-Fi can be a camera. On the phone, open {address} and follow the steps there. The first time, the phone warns that the connection is not private: that is expected, because the page comes from this computer. Tap Advanced (or Show Details), then Proceed (or Visit this website). Then pair it with the code from Phone remote, Pair a phone. Once it sends its picture, it is listed in the camera lists above as Phone camera and its name."
+msgstr "Bất kỳ điện thoại nào dùng Wi-Fi của hội thánh đều có thể làm máy quay. Trên điện thoại, mở {address} và làm theo các bước ở đó. Lần đầu, điện thoại sẽ cảnh báo kết nối không riêng tư: điều này là bình thường, vì trang đến từ máy tính này. Chạm Nâng cao (hoặc Hiện chi tiết), rồi Tiếp tục (hoặc Truy cập trang web này). Sau đó ghép nối bằng mã từ Điều khiển bằng điện thoại, Ghép nối điện thoại. Khi đã gửi hình, điện thoại sẽ có trong danh sách máy quay ở trên với tên Máy quay điện thoại kèm tên của nó."
+
+#: src/stream/phone_camera.rs
+msgid "This computer is not on a network, so no phone can reach it."
+msgstr "Máy tính này không kết nối mạng nên không điện thoại nào kết nối tới được."
+
+#: src/stream/phone_mic.rs
+msgid "Phone microphone (open its page on the phone)"
+msgstr "Micrô điện thoại (mở trang của nó trên điện thoại)"
+
+#: src/stream/phone_mic.rs
+msgid "Start sending sound"
+msgstr "Bắt đầu gửi âm thanh"
+
+#: src/stream/phone_mic.rs
+msgid "Sending to the stream. Keep this page open and the phone awake."
+msgstr "Đang gửi lên luồng phát. Hãy để trang này mở và giữ điện thoại sáng màn hình."
+
+#: src/stream/phone_mic.rs
+msgid "Sending, but the stream is not using this phone yet. Choose \"Phone microphone\" in Settings → Media → Livestream, then go live."
+msgstr "Đang gửi, nhưng luồng phát chưa dùng điện thoại này. Hãy chọn “Micrô điện thoại” trong Cài đặt → Đa phương tiện → Phát trực tiếp, rồi phát trực tiếp."
+
+#: src/stream/phone_mic.rs
+msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
+msgstr "Điện thoại chỉ cho trang bảo mật dùng micrô. Hãy mở trang bảo mật bên dưới; lần đầu, điện thoại sẽ cảnh báo trang không riêng tư: chạm Nâng cao (hoặc Hiện chi tiết) và tiếp tục vào trang."
+
+#: src/stream/phone_mic.rs
+msgid "The phone did not let the page use its microphone. Allow it in the browser's settings for this page, then try again."
+msgstr "Điện thoại không cho trang dùng micrô. Hãy cho phép trong cài đặt trình duyệt cho trang này, rồi thử lại."
+
+#: src/stream/phone_mic.rs
+msgid "Turn on the stage view in RustyPresenter (Network), and sign in to it on this phone first."
+msgstr "Hãy bật chế độ xem sân khấu trong RustyPresenter (Mạng), và đăng nhập vào đó trên điện thoại này trước."
+
+#: src/stream/preflight.rs
+msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Media → Livestream. The stream shows the slides in its place."
+msgstr "Máy quay {n} ({camera}) chưa được kết nối. Hãy kiểm tra dây cáp, hoặc chọn lại trong Cài đặt → Đa phương tiện → Phát trực tiếp. Luồng phát sẽ hiện trang chiếu thay thế."
+
+#: src/stream/preflight.rs
+msgid "Camera {n} ({camera}) is connected but sends no picture. Close any other program using it (Zoom, the Camera app, OBS), or switch it on. The stream shows the slides in its place until it comes."
+msgstr "Máy quay {n} ({camera}) đã kết nối nhưng không gửi hình. Hãy đóng chương trình khác đang dùng nó (Zoom, ứng dụng Camera, OBS), hoặc bật máy quay lên. Luồng phát sẽ hiện trang chiếu thay thế cho tới khi có hình."
+
+#: src/stream/preflight.rs
+msgid "Camera {n} ({camera}) comes over NDI, but NDI is not installed on this computer. Install the free NDI Tools."
+msgstr "Máy quay {n} ({camera}) đến qua NDI, nhưng máy tính này chưa cài NDI. Hãy cài bộ NDI Tools miễn phí."
+
+#: src/stream/preflight.rs
+msgid "The sound input {name} is not connected. Check its cable, or choose it again in Settings → Media. The stream goes out without it."
+msgstr "Ngõ vào âm thanh {name} chưa được kết nối. Hãy kiểm tra dây cáp, hoặc chọn lại trong Cài đặt → Đa phương tiện. Luồng phát sẽ đi mà không có nó."
+
+#: src/stream/preflight.rs
+msgid "The sound input {name} is connected but could not be opened. Close any other program using it, then try again."
+msgstr "Ngõ vào âm thanh {name} đã kết nối nhưng không mở được. Hãy đóng chương trình khác đang dùng nó, rồi thử lại."
+
 #: src/stream/ptz.rs
 msgid "Camera {camera}: position {position}"
 msgstr "Camera {camera}: vị trí {position}"
+
+#: src/stream/report.rs
+msgid "The computer could not keep up for {secs} seconds and left out {frames} pictures: the stream was jerky then. Next time, try 720p or the graphics card's encoder (Settings → Media)."
+msgstr "Máy tính không xử lý kịp trong {secs} giây và đã bỏ {frames} hình: lúc đó luồng phát bị giật. Lần sau, hãy thử 720p hoặc bộ mã hóa của card đồ họa (Cài đặt → Đa phương tiện)."
+
+#: src/stream/report.rs
+msgid "{name} got a lighter stream (down to {kbps} kbit/s) because the internet could not keep up."
+msgstr "{name} nhận luồng nhẹ hơn (xuống còn {kbps} kbit/s) vì internet không theo kịp."
+
+#: src/stream/report.rs
+msgid "At most {viewers} watching at once."
+msgstr "Nhiều nhất {viewers} người xem cùng lúc."
 
 #: src/stream/scene.rs
 msgid "Camera + words"
@@ -6930,6 +8170,30 @@ msgstr "Màn hình + camera"
 #: src/stream/scene.rs
 msgid "Your scene"
 msgstr "Cảnh của bạn"
+
+#: src/stream/sound_setup.rs
+msgid "Custom (as set below)"
+msgstr "Tùy chỉnh (như cài đặt bên dưới)"
+
+#: src/stream/sound_setup.rs
+msgid "Sound board or mixer"
+msgstr "Bàn trộn âm hoặc mixer"
+
+#: src/stream/sound_setup.rs
+msgid "USB microphone"
+msgstr "Micrô USB"
+
+#: src/stream/sound_setup.rs
+msgid "Computer's microphone"
+msgstr "Micrô của máy tính"
+
+#: src/stream/sound_setup.rs
+msgid "The app's sound only"
+msgstr "Chỉ âm thanh của ứng dụng"
+
+#: src/stream/sound_setup.rs
+msgid "No sound input here looks like one. Choose it under \"Sound in the recording\" above."
+msgstr "Không có ngõ vào âm thanh nào ở đây giống loại đó. Hãy chọn ở mục “Âm thanh trong bản ghi” phía trên."
 
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
@@ -6962,6 +8226,26 @@ msgstr "Không phát trực tiếp"
 #: src/stream/tally.rs
 msgid "Turn on the stage view in Settings → Network. If it has a password, open the stage view on this phone once and sign in."
 msgstr "Bật chế độ xem sân khấu trong Cài đặt → Mạng. Nếu có mật khẩu, hãy mở chế độ xem sân khấu một lần trên điện thoại này và đăng nhập."
+
+#: src/stream/transition.rs
+msgid "Cut (at once)"
+msgstr "Cắt (ngay lập tức)"
+
+#: src/stream/transition.rs
+msgid "Stinger video"
+msgstr "Video stinger"
+
+#: src/stream/website.rs
+msgid "Type the channel's id: it starts with UC. In YouTube Studio, choose Customisation → Basic info and copy it from the channel address."
+msgstr "Nhập ID kênh: bắt đầu bằng UC. Trong YouTube Studio, chọn Customisation → Basic info và sao chép từ địa chỉ kênh."
+
+#: src/stream/website.rs
+msgid "Type the Facebook Page's address, like https://www.facebook.com/yourchurch"
+msgstr "Nhập địa chỉ Trang Facebook, ví dụ https://www.facebook.com/yourchurch"
+
+#: src/stream/website.rs
+msgid "Website code copied. Paste it into your website's editor."
+msgstr "Đã sao chép mã trang web. Hãy dán vào trình chỉnh sửa trang web của bạn."
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -7585,7 +8869,7 @@ msgstr "Bỏ các thay đổi trên những trang chiếu này?"
 msgid "Throw away"
 msgstr "Bỏ thay đổi"
 
-#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_scenes.rs
+#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
 msgid "Keep editing"
 msgstr "Tiếp tục sửa"
 
@@ -8686,10 +9970,6 @@ msgstr "Sọc màu"
 #: src/strings/screens.rs src/theme/backgrounds.rs
 msgid "White"
 msgstr "Trắng"
-
-#: src/strings/screens.rs src/theme/backgrounds.rs
-msgid "Black"
-msgstr "Đen"
 
 #: src/strings/screens.rs
 msgid "left"
@@ -10565,6 +11845,34 @@ msgstr "Giữ nguyên"
 msgid "Saved."
 msgstr "Đã lưu."
 
+#: src/ui/dialogs/go_live_helper.rs
+msgid "Go Live: getting started"
+msgstr "Phát trực tiếp: bắt đầu"
+
+#: src/ui/dialogs/go_live_helper.rs src/ui/dialogs/settings_record.rs
+msgid "The stream key could not be kept: {error}"
+msgstr "Không giữ được khóa phát: {error}"
+
+#: src/ui/dialogs/go_live_helper.rs
+msgid "No camera: viewers see the room screen"
+msgstr "Không có máy quay: người xem thấy màn hình hội trường"
+
+#: src/ui/dialogs/go_live_helper.rs
+msgid "Checking… (about 10 seconds)"
+msgstr "Đang kiểm tra… (khoảng 10 giây)"
+
+#: src/ui/dialogs/go_live_helper.rs
+msgid "Internet: the speed test could not reach the internet. Check this computer's connection."
+msgstr "Internet: bài đo tốc độ không kết nối được internet. Hãy kiểm tra kết nối của máy tính này."
+
+#: src/ui/dialogs/go_live_helper.rs
+msgid "Camera: an NDI camera is looked for when you go live."
+msgstr "Máy quay: máy quay NDI sẽ được tìm khi bạn phát trực tiếp."
+
+#: src/ui/dialogs/go_live_helper.rs
+msgid "Test stream: it stops by itself in {secs} seconds."
+msgstr "Luồng thử: sẽ tự dừng sau {secs} giây."
+
 #: src/ui/dialogs/item_edit.rs
 msgid "Auto-advance after: type a number of seconds, or leave it empty."
 msgstr "Tự chuyển sau: nhập số giây hoặc để trống."
@@ -10580,10 +11888,6 @@ msgstr "Hiện tin nhắn"
 #: src/ui/dialogs/music.rs
 msgid "Now: {title} · {time} left"
 msgstr "Đang phát: {title} · còn {time}"
-
-#: src/ui/dialogs/network.rs
-msgid "Network"
-msgstr "Mạng"
 
 #: src/ui/dialogs/network.rs
 msgid "Send one command a line: next, prev, clear, clear slide, logo, go 3 (item 3), go 3 2 (its slide 2), status. With a password, send “password …” first. Every line is answered with OK or ERR."
@@ -10815,12 +12119,32 @@ msgid "Network camera"
 msgstr "Camera mạng"
 
 #: src/ui/dialogs/settings_record.rs
-msgid "The stream key could not be kept: {error}"
-msgstr "Không giữ được khóa phát: {error}"
-
-#: src/ui/dialogs/settings_record.rs
 msgid "The speed test could not reach the internet. Check the connection and try again."
 msgstr "Bài kiểm tra tốc độ không kết nối được Internet. Hãy kiểm tra kết nối và thử lại."
+
+#: src/ui/dialogs/settings_stream_extras.rs
+msgid "The stream's own microphone or line-in"
+msgstr "Micrô hoặc ngõ vào line riêng của luồng phát"
+
+#: src/ui/dialogs/settings_stream_extras.rs
+msgid "YouTube did not say the channel's id: {why}"
+msgstr "YouTube không cho biết ID kênh: {why}"
+
+#: src/ui/dialogs/settings_stream_extras.rs
+msgid "The invitation page opened in this computer's web browser. If it did not, open {url} there."
+msgstr "Trang lời mời đã mở trong trình duyệt web của máy tính này. Nếu chưa mở, hãy mở {url} ở đó."
+
+#: src/ui/dialogs/settings_stream_extras.rs
+msgid "The guest is camera {n}. Save, then switch to that camera while live once the guest is connected."
+msgstr "Khách là máy quay {n}. Hãy lưu, rồi chuyển sang máy quay đó khi đang phát trực tiếp lúc khách đã kết nối."
+
+#: src/ui/dialogs/settings_stream_extras.rs
+msgid "The guest is already one of the cameras above."
+msgstr "Khách đã là một trong các máy quay ở trên."
+
+#: src/ui/dialogs/settings_stream_extras.rs
+msgid "All four camera rows are in use. Set one to No camera first."
+msgstr "Cả bốn hàng máy quay đều đang dùng. Hãy đặt một hàng thành Không có máy quay trước."
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"
@@ -10861,6 +12185,34 @@ msgstr ""
 "Đọc Kinh Thánh\n"
 "Phục vụ người lân cận"
 
+#: src/ui/dialogs/stream_more.rs
+msgid "More livestream settings"
+msgstr "Cài đặt phát trực tiếp khác"
+
+#: src/ui/dialogs/stream_more.rs
+msgid "The setup “{name}” is chosen. Save to use it."
+msgstr "Đã chọn thiết lập “{name}”. Hãy lưu để dùng."
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Name of the setup (for example Sunday, or Wedding)"
+msgstr "Tên thiết lập (ví dụ Chủ nhật, hoặc Đám cưới)"
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Delete the setup “{name}”? The settings in use now stay as they are."
+msgstr "Xóa thiết lập “{name}”? Các cài đặt đang dùng vẫn giữ nguyên."
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Leave without saving these settings?"
+msgstr "Rời đi mà không lưu các cài đặt này?"
+
+#: src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
+msgid "Leave"
+msgstr "Rời đi"
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Livestream settings saved."
+msgstr "Đã lưu cài đặt phát trực tiếp."
+
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Your livestream scenes"
 msgstr "Cảnh phát trực tiếp của bạn"
@@ -10868,6 +12220,26 @@ msgstr "Cảnh phát trực tiếp của bạn"
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Scene {n}"
 msgstr "Cảnh {n}"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Like the other scenes ({way})"
+msgstr "Như các cảnh khác ({way})"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Nothing"
+msgstr "Không có gì"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "A colour (green screen)"
+msgstr "Một màu (phông xanh)"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "The dark parts"
+msgstr "Phần tối"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "The light parts"
+msgstr "Phần sáng"
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Scene name"
@@ -10880,10 +12252,6 @@ msgstr "Xóa cảnh “{name}”? Các hành động trang chiếu và macro ch�
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Leave without saving your scene changes?"
 msgstr "Rời đi mà không lưu thay đổi về cảnh?"
-
-#: src/ui/dialogs/stream_scenes.rs
-msgid "Leave"
-msgstr "Rời đi"
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Scenes saved."
@@ -11129,6 +12497,18 @@ msgstr "Không tải được FFmpeg. Hãy kiểm tra kết nối internet, ho�
 #: src/ui/operator/record.rs
 msgid "{camera} (not in this scene)"
 msgstr "{camera} (không có trong cảnh này)"
+
+#: src/ui/operator/record.rs
+msgid "Move {camera}"
+msgstr "Di chuyển {camera}"
+
+#: src/ui/operator/record.rs
+msgid "The camera's shot is saved as position {n}."
+msgstr "Đã lưu khung hình của máy quay thành vị trí {n}."
+
+#: src/ui/operator/stream_extras.rs
+msgid "Copied. Paste it into the service's own page for this stream."
+msgstr "Đã sao chép. Hãy dán vào trang riêng của dịch vụ cho luồng phát này."
 
 #: src/ui/operator/transfer.rs
 msgid "Saved to {path}"
@@ -11529,6 +12909,21 @@ msgstr "yt-dlp không lưu được video nào"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "không phải tệp đa phương tiện"
+
+#~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
+#~ msgstr "Tên YouTube và Facebook đặt cho mỗi buổi phát. {{date}} sẽ thành ngày hôm đó."
+
+#~ msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
+#~ msgstr "Bạn chưa có cảnh riêng nào. Hãy thêm một cảnh, rồi đặt camera, màn hình hội trường, lời, hình ảnh, màu hoặc văn bản vào đó."
+
+#~ msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+#~ msgstr "Ở đây camera, màn hình hội trường và lời chỉ là hình tạm; khi đang phát sẽ là hình thật. Camera không gửi hình sẽ hiện màn hình hội trường thay vào chỗ đó."
+
+#~ msgid "Move the next camera to its saved position {}"
+#~ msgstr "Đưa camera tiếp theo đến vị trí đã lưu {}"
+
+#~ msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or close other programs."
+#~ msgstr "Máy tính này không theo kịp nên bản ghi và buổi phát bị giật. Chọn 720p ở “Cỡ hình” trong Cài đặt → Đa phương tiện, hoặc đóng các chương trình khác."
 
 #~ msgid "Another camera to switch to while live, from the scene button beside Live."
 #~ msgstr "Một camera khác để chuyển sang khi đang phát, từ nút cảnh bên cạnh Trực tiếp."

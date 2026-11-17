@@ -172,7 +172,7 @@ export component StreamMoreDialog inherits VerticalLayout {
             Lbl { label: @tr("File name"); }
             name := TextField {
                 label: @tr("Recording file name");
-                placeholder: "Recording {date} {time}";
+                placeholder: @tr("Recording {{date}} {{time}}");
                 text <=> StreamMoreDlg.name;
                 edited(t) => { StreamMoreDlg.name-edited(); }
             }

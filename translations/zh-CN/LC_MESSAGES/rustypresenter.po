@@ -15,7 +15,7 @@ msgstr ""
 msgid "Search your Bibles"
 msgstr "搜索你的圣经"
 
-#: ui/bible-picker.slint src/ui/dialogs/settings_record.rs
+#: ui/bible-picker.slint src/ui/dialogs/settings_record.rs src/ui/dialogs/settings_sound.rs
 msgid "not connected"
 msgstr "未连接"
 
@@ -359,7 +359,7 @@ msgstr "顶部"
 msgid "Hide after"
 msgstr "自动隐藏"
 
-#: ui/dialogs/automation.slint src/ui/dialogs/stream_scenes.rs
+#: ui/dialogs/automation.slint ui/dialogs/stream-more.slint src/ui/dialogs/stream_scenes.rs
 msgid "Never"
 msgstr "从不"
 
@@ -599,11 +599,11 @@ msgstr "暂停"
 msgid "Start"
 msgstr "开始"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_scenes.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/dialogs/stream-more.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
 msgid "Delete"
 msgstr "删除"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-more.slint ui/dialogs/stream-scenes.slint
 msgid "Save"
 msgstr "保存"
 
@@ -615,7 +615,7 @@ msgstr "十六进制"
 msgid "Pick any color"
 msgstr "任选颜色"
 
-#: ui/dialogs/design-canvas.slint
+#: ui/dialogs/design-canvas.slint src/stream/transition.rs
 msgid "Slide"
 msgstr "幻灯片"
 
@@ -667,7 +667,7 @@ msgstr "切换效果"
 msgid "Use on every slide"
 msgstr "用于所有幻灯片"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/music.slint src/i18n/remote_strings.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/music.slint src/i18n/remote_strings.rs src/stream/phone_camera.rs src/stream/phone_mic.rs
 msgid "Stop"
 msgstr "停止"
 
@@ -775,7 +775,7 @@ msgstr "线条"
 msgid "Arrow"
 msgstr "箭头"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/stream-more.slint src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
 msgid "Picture"
 msgstr "图片"
 
@@ -791,7 +791,7 @@ msgstr "填充"
 msgid "Stretch"
 msgstr "拉伸"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/stream-scenes.slint
 msgid "Web address"
 msgstr "网址"
 
@@ -964,7 +964,7 @@ msgstr "图片或视频"
 msgid "Import pictures into the media library first"
 msgstr "请先将图片导入媒体库"
 
-#: ui/dialogs/design-editor.slint src/strings/design.rs src/strings/print.rs
+#: ui/dialogs/design-editor.slint src/stream/own_scenes.rs src/strings/design.rs src/strings/print.rs
 msgid "Web page"
 msgstr "网页"
 
@@ -1052,7 +1052,7 @@ msgstr "拖动可移动，拖动角可调整大小，方向键微调，按住 Al
 msgid "Video: {}"
 msgstr "视频：{}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-more.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "取消"
 
@@ -1091,6 +1091,110 @@ msgstr "圣经顺序"
 #: ui/dialogs/find-verse.slint
 msgid "Pick a result to see its chapter. Click a verse, or Shift+click to add a range."
 msgstr "选择一个结果查看该章。点击一节经文，或按住 Shift 点击添加一段范围。"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Step {} of 4"
+msgstr "第 {} 步，共 4 步"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Where should the service go?"
+msgstr "要把聚会直播到哪里？"
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+msgid "Another server"
+msgstr "其他服务器"
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+msgid "The server's address"
+msgstr "服务器地址"
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+msgid "Its address: rtmp://, rtmps:// or srt://"
+msgstr "地址：rtmp://、rtmps:// 或 srt://"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Stream key"
+msgstr "推流密钥"
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+msgid "A key is saved. Type a new one to change it."
+msgstr "已保存一个密钥。输入新的密钥即可更换。"
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+msgid "Paste the stream key"
+msgstr "粘贴推流密钥"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "A stream key is a password: whoever has it can broadcast as you. It is kept in this computer's own password store."
+msgstr "推流密钥就是密码：谁拿到它，谁就能以你的名义直播。它保存在这台电脑自己的密码库中。"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Sign in instead…"
+msgstr "改为登录…"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Opens Settings, where you can sign in: Go Live then makes each broadcast itself, with its title"
+msgstr "打开设置以登录：之后“开始直播”会自动创建每场直播，并带上标题"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Which camera?"
+msgstr "用哪台摄像头？"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the room screen."
+msgstr "诗歌和经文会把文字叠在摄像头画面上播出。没有摄像头时，观众看到的是会众屏幕。"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Which sound?"
+msgstr "用哪个声音？"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Choose the sound board's input (a USB sound interface or the line-in) if it sends the service to this computer. The sound of videos and songs the app plays goes out too."
+msgstr "如果调音台把聚会的声音送到这台电脑，请选择它的输入（USB 声卡或线路输入）。软件播放的视频和歌曲声音也会一起播出。"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Check it"
+msgstr "检查"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "The check measures the internet, takes a picture from the camera and listens to the sound for a moment. Nothing is sent to viewers."
+msgstr "检查会测量网速、从摄像头拍一张画面，并短暂收听声音。不会向观众发送任何内容。"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Checking…"
+msgstr "正在检查…"
+
+#: ui/dialogs/go-live-helper.slint ui/operator/service.slint
+msgid "Check"
+msgstr "检查"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Send a 20-second test"
+msgstr "发送 20 秒测试"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Ready to go live"
+msgstr "可以开始直播了"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Media → Livestream."
+msgstr "聚会开始时按顶部的“开始直播”，结束时再按一次。这里选的一切都可以在“设置 → 媒体 → 直播”中更改。"
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Back"
+msgstr "返回"
+
+#: ui/dialogs/go-live-helper.slint ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "下一张"
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
+msgid "Close"
+msgstr "关闭"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Go Live now"
+msgstr "立即开始直播"
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library."
@@ -1140,7 +1244,7 @@ msgstr "左右并排"
 msgid "Top and bottom"
 msgstr "上下排列"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/settings-media.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/settings-media.slint ui/dialogs/slide-breaks.slint ui/dialogs/stream-more.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "自动"
 
@@ -1248,7 +1352,7 @@ msgstr "用于所有幻灯片"
 msgid "Auto-advance after (s)"
 msgstr "自动翻页间隔（秒）"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr "关"
 
@@ -1467,7 +1571,7 @@ msgstr "一直显示的标语，例如“欢迎！”或 Wi-Fi 密码"
 msgid "A logo in the corner"
 msgstr "角落里的标志"
 
-#: ui/dialogs/overlays.slint src/strings/stage.rs src/strings/themes.rs
+#: ui/dialogs/overlays.slint src/stream/own_scenes.rs src/strings/stage.rs src/strings/themes.rs
 msgid "Clock"
 msgstr "时钟"
 
@@ -1495,7 +1599,7 @@ msgstr "不透明度"
 msgid "Show seconds"
 msgstr "显示秒"
 
-#: ui/dialogs/overlays.slint
+#: ui/dialogs/overlays.slint ui/dialogs/stream-scenes.slint
 msgid "24-hour clock"
 msgstr "24 小时制"
 
@@ -1547,17 +1651,9 @@ msgstr "预览"
 msgid "Editing an overlay that is on the screen does not change the screen: turn it off and on to show the new one."
 msgstr "编辑正在屏幕上显示的叠加层不会改变屏幕：关掉再打开即可显示新版本。"
 
-#: ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Back"
-msgstr "返回"
-
 #: ui/dialogs/overlays.slint
 msgid "Save overlay"
 msgstr "保存叠加层"
-
-#: ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
-msgid "Close"
-msgstr "关闭"
 
 #: ui/dialogs/phone.slint
 msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
@@ -2079,7 +2175,7 @@ msgstr "在这台电脑上试用已下载的模型，并告诉你哪个合适。
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
 msgstr "用自动跟随播放一段录音（例如上主日的），看看它会怎么做。屏幕上不会有任何变化。"
 
-#: ui/dialogs/settings-follow.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-follow.slint ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
 msgid "Recording"
 msgstr "录制"
 
@@ -2339,11 +2435,11 @@ msgstr "20 秒"
 msgid "30 seconds"
 msgstr "30 秒"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
 msgid "1 minute"
 msgstr "1 分钟"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
 msgid "Sound"
 msgstr "声音"
 
@@ -2519,7 +2615,7 @@ msgstr "直播延迟"
 msgid "What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer."
 msgstr "直播输出的内容会延迟这么久，这样在观众看到之前，可以用“暂停”或“静音”拦下。录像不延迟。观众的评论会比他们回应的内容来得晚。"
 
-#: ui/dialogs/settings-media.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
+#: ui/dialogs/settings-media.slint src/stream/sound_setup.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
 msgid "None"
 msgstr "无"
 
@@ -2575,15 +2671,15 @@ msgstr "音量"
 msgid "Turn each sound up or down in the stream only (not in the room)."
 msgstr "只在直播中调高或调低每个声音（不影响会场）。"
 
-#: ui/dialogs/settings-media.slint src/record/mod.rs
+#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint src/record/mod.rs
 msgid "Microphone or line-in"
 msgstr "麦克风或线路输入"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint
 msgid "{} dB"
 msgstr "{} dB"
 
-#: ui/dialogs/settings-media.slint src/app.rs src/record/mod.rs
+#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint src/app.rs src/record/mod.rs
 msgid "This computer"
 msgstr "这台电脑"
 
@@ -2652,6 +2748,30 @@ msgid "Fourth camera"
 msgstr "第四台摄像头"
 
 #: ui/dialogs/settings-media.slint
+msgid "When a camera sends nothing"
+msgstr "摄像头没有画面时"
+
+#: ui/dialogs/settings-media.slint
+msgid "What the stream shows in a camera's place while it is unplugged or sends no picture. The camera comes back by itself as soon as it sends again."
+msgstr "摄像头被拔出或没有画面时，直播在它的位置显示的内容。摄像头一恢复发送，就会自动切回。"
+
+#: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
+msgid "The room screen"
+msgstr "会堂屏幕"
+
+#: ui/dialogs/settings-media.slint
+msgid "The church logo"
+msgstr "教会标志"
+
+#: ui/dialogs/settings-media.slint src/strings/screens.rs src/theme/backgrounds.rs
+msgid "Black"
+msgstr "黑色"
+
+#: ui/dialogs/settings-media.slint
+msgid "Phone as a camera"
+msgstr "用手机当摄像头"
+
+#: ui/dialogs/settings-media.slint
 msgid "Scenes"
 msgstr "场景"
 
@@ -2666,10 +2786,6 @@ msgstr "根据正在直播的内容自动选择场景"
 #: ui/dialogs/settings-media.slint
 msgid "Presentations:"
 msgstr "演示文稿："
-
-#: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
-msgid "The room screen"
-msgstr "会堂屏幕"
 
 #: ui/dialogs/settings-media.slint
 msgid "The room screen with the camera in a corner"
@@ -2784,14 +2900,6 @@ msgid "YouTube stream key"
 msgstr "YouTube 推流密钥"
 
 #: ui/dialogs/settings-media.slint
-msgid "A key is saved. Type a new one to change it."
-msgstr "已保存一个密钥。输入新的密钥即可更换。"
-
-#: ui/dialogs/settings-media.slint
-msgid "Paste the stream key"
-msgstr "粘贴推流密钥"
-
-#: ui/dialogs/settings-media.slint
 msgid "Sign in"
 msgstr "登录"
 
@@ -2816,24 +2924,52 @@ msgid "Twitch stream key"
 msgstr "Twitch 推流密钥"
 
 #: ui/dialogs/settings-media.slint
-msgid "Another server"
-msgstr "其他服务器"
-
-#: ui/dialogs/settings-media.slint
-msgid "The server's address"
-msgstr "服务器地址"
-
-#: ui/dialogs/settings-media.slint
-msgid "Its address: rtmp://, rtmps:// or srt://"
-msgstr "地址：rtmp://、rtmps:// 或 srt://"
-
-#: ui/dialogs/settings-media.slint
 msgid "The server's stream key"
 msgstr "服务器的推流密钥"
 
 #: ui/dialogs/settings-media.slint
 msgid "Its stream key, if it has one"
 msgstr "推流密钥（如果有）"
+
+#: ui/dialogs/settings-media.slint
+msgid "Instagram's server address"
+msgstr "Instagram 的服务器地址"
+
+#: ui/dialogs/settings-media.slint
+msgid "Its server address, if Instagram shows one"
+msgstr "服务器地址（如果 Instagram 显示了）"
+
+#: ui/dialogs/settings-media.slint
+msgid "Instagram stream key"
+msgstr "Instagram 推流密钥"
+
+#: ui/dialogs/settings-media.slint
+msgid "X's server address"
+msgstr "X 的服务器地址"
+
+#: ui/dialogs/settings-media.slint
+msgid "Its server address, if X shows one"
+msgstr "服务器地址（如果 X 显示了）"
+
+#: ui/dialogs/settings-media.slint
+msgid "X stream key"
+msgstr "X 推流密钥"
+
+#: ui/dialogs/settings-media.slint
+msgid "TikTok's server address"
+msgstr "TikTok 的服务器地址"
+
+#: ui/dialogs/settings-media.slint
+msgid "The server address TikTok shows with the key"
+msgstr "TikTok 与密钥一起显示的服务器地址"
+
+#: ui/dialogs/settings-media.slint
+msgid "TikTok stream key"
+msgstr "TikTok 推流密钥"
+
+#: ui/dialogs/settings-media.slint src/stream/mod.rs
+msgid "Instagram, X and TikTok give stream keys only to some accounts (TikTok asks for enough followers; Instagram's come from Live Producer on a computer). Each shows a server address with the key: paste both. Their keys often work for one broadcast only."
+msgstr "Instagram、X 和 TikTok 只向部分账号提供推流密钥（TikTok 要求足够多的粉丝；Instagram 的密钥来自电脑上的 Live Producer）。它们都会在密钥旁显示服务器地址：两个都要粘贴。这些密钥往往只能用于一场直播。"
 
 #: ui/dialogs/settings-media.slint
 msgid "Tall for phones"
@@ -2844,12 +2980,28 @@ msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other pho
 msgstr "这些会收到竖屏画面（用于 YouTube Shorts、Reels、TikTok 等手机应用）：横屏画面放在中间，上下为黑色。录像仍是横屏。"
 
 #: ui/dialogs/settings-media.slint
+msgid "More settings"
+msgstr "更多设置"
+
+#: ui/dialogs/settings-media.slint
+msgid "Pictures a second, video format, sound quality, which network card sends, each destination's own quality, the recording's file type and name, and setups saved by name (Sunday, Wedding) to use again in one go."
+msgstr "每秒画面数、视频格式、音质、用哪块网卡发送、每个直播目标各自的画质、录制的文件类型和名称，以及按名称保存、可一键再次使用的方案（主日、婚礼）。"
+
+#: ui/dialogs/settings-media.slint
+msgid "More settings and saved setups…"
+msgstr "更多设置和已保存的方案…"
+
+#: ui/dialogs/settings-media.slint
+msgid "Setup: {}"
+msgstr "方案：{}"
+
+#: ui/dialogs/settings-media.slint
 msgid "Broadcast title"
 msgstr "直播标题"
 
 #: ui/dialogs/settings-media.slint
-msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
-msgstr "YouTube 和 Facebook 上每场直播的名称。{{date}} 会换成当天日期。"
+msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date, {{weekday}} the day's name and {{time}} the time; the description can have them too."
+msgstr "YouTube 和 Facebook 上每场直播的名称。{{date}} 会换成当天日期，{{weekday}} 换成星期几，{{time}} 换成时间；简介中也可以使用。"
 
 #: ui/dialogs/settings-media.slint
 msgid "Sunday Service — {{date}}"
@@ -2987,9 +3139,217 @@ msgstr "添加标签"
 msgid "Use the usual names, colours and labels"
 msgstr "使用默认名称、颜色和标签"
 
+#: ui/dialogs/settings-sound.slint
+msgid "Gate (quiet between words)"
+msgstr "噪声门（说话间隙静音）"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Light"
+msgstr "轻"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Strong"
+msgstr "强"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Evener (loud down, quiet up)"
+msgstr "平衡（压低大声、提高小声）"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Low (boom)"
+msgstr "低音（轰鸣）"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Middle (voices)"
+msgstr "中音（人声）"
+
+#: ui/dialogs/settings-sound.slint
+msgid "High (clarity, hiss)"
+msgstr "高音（清晰度、嘶嘶声）"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Never too loud (keeps the stream from crackling; best left on)"
+msgstr "永不过响（防止直播声音破音；最好保持开启）"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Sound setup"
+msgstr "声音一键设置"
+
+#: ui/dialogs/settings-sound.slint
+msgid "One choice sets the microphone and how each sound is cleaned up. Anything changed by hand below makes it Custom."
+msgstr "选一项即可设定麦克风和每个声音的处理方式。在下面手动更改任何一项，就会变为“自定义”。"
+
+#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
+msgid "Second microphone or line-in"
+msgstr "第二个麦克风或线路输入"
+
+#: ui/dialogs/settings-sound.slint
+msgid "While you are live, mixed with the one chosen under \"Sound in the recording\": for a second sound board, a pulpit microphone or the phone."
+msgstr "直播时，与“录制中的声音”中所选的声音混合：用于第二个调音台、讲台麦克风或手机。"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Its level"
+msgstr "音量"
+
+#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
+msgid "Third microphone or line-in"
+msgstr "第三个麦克风或线路输入"
+
+#: ui/dialogs/settings-sound.slint src/stream/phone_mic.rs
+msgid "Phone microphone"
+msgstr "手机麦克风"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Turn on the stage view (Network), then open this page on the phone and press Start: {}"
+msgstr "打开舞台视图（网络），然后在手机上打开此页面并按“开始”：{}"
+
+#: ui/dialogs/settings-sound.slint
+msgid "The first time, the phone warns that the page is not private, because this computer made its own certificate: tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+msgstr "第一次时，手机会警告此页面不是私密连接，因为证书是这台电脑自己生成的：点“高级”（iPhone 上点“显示详细信息”），然后继续前往该页面。让手机保持唤醒并接上电源。"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Listen to the stream"
+msgstr "收听直播"
+
+#: ui/dialogs/settings-sound.slint
+msgid "While you are live, the stream's sound plays here as viewers hear it (cleaned up and with the sound delay), for headphones at the desk. The room does not hear it unless it is the room's output."
+msgstr "直播时，直播的声音会按观众听到的样子（经过处理并带声音延迟）在这里播放，供操作台戴耳机监听。除非这就是会众的输出，否则会众听不到。"
+
+#: ui/dialogs/settings-sound.slint
+msgid "More sound settings"
+msgstr "更多声音设置"
+
+#: ui/dialogs/settings-sound.slint
+msgid "For the stream only. Each sound has its own: start with the Sound setup above and change little at a time."
+msgstr "仅用于直播。每个声音都有自己的设置：先用上面的“声音一键设置”，再一点一点调整。"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Show each sound's gate, evener, low, middle and high"
+msgstr "显示每个声音的噪声门、平衡、低音、中音和高音"
+
 #: ui/dialogs/settings-state.slint src/strings/catalog.rs
 msgid "All languages"
 msgstr "所有语言"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Live captions"
+msgstr "实时字幕"
+
+#: ui/dialogs/settings-stream-extras.slint src/stream/captions.rs
+msgid "Captions are made on this computer from the microphone, in English only. They are often wrong: names, Bible places, quiet or echoing speech and songs come out badly, and there is no punctuation. They show about two seconds after the words are said."
+msgstr "字幕由这台电脑根据麦克风生成，仅支持英语。经常出错：人名、圣经地名、小声或有回声的讲话以及歌曲都识别不好，也没有标点。字幕会在话说出约两秒后显示。"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Write out what is said while live"
+msgstr "直播时把所说的话写成文字"
+
+#: ui/dialogs/settings-stream-extras.slint src/stream/captions.rs
+msgid "Live captions need the English speech model. Download the fast model in Settings → Auto-follow."
+msgstr "实时字幕需要英语语音模型。请在“设置 → 自动跟随”中下载快速模型。"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Show them at the bottom of the stream (not over song words or verses)"
+msgstr "显示在直播画面底部（不会盖住歌词或经文）"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Keep them in a captions file beside the recording (for YouTube's replay and video players)"
+msgstr "在录制文件旁保存字幕文件（用于 YouTube 回放和视频播放器）"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Listen to:"
+msgstr "收听："
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "YouTube captions address"
+msgstr "YouTube 字幕地址"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "YouTube's captions address (optional)"
+msgstr "YouTube 的字幕地址（可选）"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "For captions viewers can turn on and off on YouTube: in YouTube Studio, open the stream's settings, turn on Closed captions, choose \"POST captions to URL\", and paste the address it gives here."
+msgstr "要让观众在 YouTube 上自行开关字幕：在 YouTube Studio 中打开直播设置，开启字幕（Closed captions），选择“POST captions to URL”，然后把它给出的地址粘贴到这里。"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "On your website"
+msgstr "在你的网站上"
+
+#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
+msgid "To play the livestream on your church's website: copy the code, then in your website's editor add an \"HTML\", \"Embed\" or \"Code\" block where the video should go and paste it there. You do this once: the same code plays every week's service."
+msgstr "要在教会网站上播放直播：复制代码，然后在网站编辑器中视频要放的位置添加“HTML”“嵌入（Embed）”或“代码（Code）”区块，并粘贴进去。只需做一次：同一段代码每周都会播放当周的聚会。"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "YouTube channel id"
+msgstr "YouTube 频道 ID"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "YouTube channel id (starts with UC)"
+msgstr "YouTube 频道 ID（以 UC 开头）"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Fill in"
+msgstr "填入"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Fill in the channel of the YouTube account signed in above"
+msgstr "填入上面已登录的 YouTube 账号的频道"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Copy the code"
+msgstr "复制代码"
+
+#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
+msgid "YouTube plays whatever your channel has live; between services it shows the next scheduled stream or says nothing is live. YouTube Studio must allow embedding (it does unless it was turned off)."
+msgstr "YouTube 会播放你的频道正在直播的内容；两次聚会之间，会显示下一场预定的直播，或提示目前没有直播。YouTube Studio 必须允许嵌入（除非被关掉，否则默认允许）。"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Facebook Page"
+msgstr "Facebook 公共主页"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Facebook Page address"
+msgstr "Facebook 公共主页地址"
+
+#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
+msgid "Facebook shows your Page with its posts; while you are live the live video is at the top. The Page must be public."
+msgstr "Facebook 会显示你的公共主页及其帖子；直播时，直播视频在最上方。公共主页必须是公开的。"
+
+#: ui/dialogs/settings-stream-extras.slint src/network/guest.rs
+msgid "Remote guest"
+msgstr "远程嘉宾"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "A guest speaker or missionary joins from a browser at home: their picture comes in as a camera, their voice through this computer's sound. The connection goes directly between the two computers; some internets do not allow that, and the pages then say so."
+msgstr "嘉宾讲员或宣教士在家里用浏览器加入：他们的画面作为一台摄像头进来，声音通过这台电脑的声音进来。连接直接在两台电脑之间进行；有些网络不允许这样，届时页面上会说明。"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Invite a guest…"
+msgstr "邀请嘉宾…"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Opens the invitation page in this computer's web browser"
+msgstr "在这台电脑的浏览器中打开邀请页面"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Use the guest as a camera"
+msgstr "把嘉宾用作摄像头"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Puts the guest in the first free camera row above"
+msgstr "把嘉宾放进上面第一个空的摄像头行"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Getting started"
+msgstr "入门"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "A few steps: where to stream, which camera, which sound, and a check."
+msgstr "只需几步：直播到哪里、用哪台摄像头、用哪个声音，最后检查一下。"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Set up step by step…"
+msgstr "逐步设置…"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Church default"
@@ -3347,7 +3707,7 @@ msgstr "语言"
 msgid "Auto-follow"
 msgstr "自动跟随"
 
-#: ui/dialogs/settings.slint src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
+#: ui/dialogs/settings.slint src/stream/own_scenes.rs src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/ui/operator/file_input.rs
 msgid "Video"
 msgstr "视频"
 
@@ -3639,13 +3999,289 @@ msgstr "选择舞台布局"
 msgid "Edit stage layouts…"
 msgstr "编辑舞台布局…"
 
+#: ui/dialogs/stream-more.slint
+msgid "Saved setups"
+msgstr "已保存的方案"
+
+#: ui/dialogs/stream-more.slint
+msgid "Keep everything set for the livestream (destinations, cameras, sound, scenes and these settings) under a name, and use it again in one go. Stream keys stay as they are."
+msgstr "把直播的所有设置（直播目标、摄像头、声音、场景和这些设置）以一个名称保存，以后一键再次使用。推流密钥保持不变。"
+
+#: ui/dialogs/stream-more.slint
+msgid "Save as a setup…"
+msgstr "另存为方案…"
+
+#: ui/dialogs/stream-more.slint
+msgid "No setups saved yet."
+msgstr "还没有保存任何方案。"
+
+#: ui/dialogs/stream-more.slint
+msgid "Pictures a second"
+msgstr "每秒画面数"
+
+#: ui/dialogs/stream-more.slint
+msgid "30 (usual)"
+msgstr "30（常用）"
+
+#: ui/dialogs/stream-more.slint
+msgid "Video format"
+msgstr "视频格式"
+
+#: ui/dialogs/stream-more.slint
+msgid "H.264 (plays everywhere)"
+msgstr "H.264（到处都能播放）"
+
+#: ui/dialogs/stream-more.slint
+msgid "Bitrate kept"
+msgstr "码率方式"
+
+#: ui/dialogs/stream-more.slint
+msgid "Always the same (CBR)"
+msgstr "始终不变（CBR）"
+
+#: ui/dialogs/stream-more.slint
+msgid "Varies with the picture (VBR)"
+msgstr "随画面变化（VBR）"
+
+#: ui/dialogs/stream-more.slint
+msgid "HEVC and AV1 give a sharper picture for the same upload. HEVC is used when every destination that is on takes it (YouTube and your own server do); otherwise H.264. AV1 is for recordings only: while live, H.264 is used. Both need a newer computer or graphics card."
+msgstr "同样的上传量下，HEVC 和 AV1 的画面更清晰。如果每个已开启的直播目标都支持 HEVC（YouTube 和你自己的服务器都支持），就用 HEVC；否则用 H.264。AV1 仅用于录制：直播时用 H.264。两者都需要较新的电脑或显卡。"
+
+#: ui/dialogs/stream-more.slint
+msgid "A whole picture every"
+msgstr "完整画面间隔"
+
+#: ui/dialogs/stream-more.slint
+msgid "1 second"
+msgstr "1 秒"
+
+#: ui/dialogs/stream-more.slint
+msgid "2 seconds (usual)"
+msgstr "2 秒（常用）"
+
+#: ui/dialogs/stream-more.slint
+msgid "3 seconds"
+msgstr "3 秒"
+
+#: ui/dialogs/stream-more.slint
+msgid "4 seconds"
+msgstr "4 秒"
+
+#: ui/dialogs/stream-more.slint
+msgid "Encoder speed"
+msgstr "编码速度"
+
+#: ui/dialogs/stream-more.slint
+msgid "Fastest (least work)"
+msgstr "最快（工作量最少）"
+
+#: ui/dialogs/stream-more.slint
+msgid "Fast"
+msgstr "快"
+
+#: ui/dialogs/stream-more.slint
+msgid "Balanced"
+msgstr "均衡"
+
+#: ui/dialogs/stream-more.slint
+msgid "Best picture (most work)"
+msgstr "最佳画面（工作量最多）"
+
+#: ui/dialogs/stream-more.slint
+msgid "Profile"
+msgstr "配置"
+
+#: ui/dialogs/stream-more.slint
+msgid "B-frames"
+msgstr "B 帧"
+
+#: ui/dialogs/stream-more.slint
+msgid "Leave these on Automatic unless a service or a video editor asks for something else. Faster leaves more of the computer free; Baseline is only for very old players."
+msgstr "除非直播服务或视频剪辑人员另有要求，这些请保持“自动”。越快，电脑留出的余力越多；Baseline 仅用于非常旧的播放器。"
+
+#: ui/dialogs/stream-more.slint
+msgid "Sample rate"
+msgstr "采样率"
+
+#: ui/dialogs/stream-more.slint
+msgid "As it comes (usual)"
+msgstr "保持原样（常用）"
+
+#: ui/dialogs/stream-more.slint
+msgid "Sound bitrate"
+msgstr "声音码率"
+
+#: ui/dialogs/stream-more.slint
+msgid "160 kbit/s (usual)"
+msgstr "160 kbit/s（常用）"
+
+#: ui/dialogs/stream-more.slint
+msgid "Channels"
+msgstr "声道"
+
+#: ui/dialogs/stream-more.slint
+msgid "Stereo"
+msgstr "立体声"
+
+#: ui/dialogs/stream-more.slint
+msgid "Mono"
+msgstr "单声道"
+
+#: ui/dialogs/stream-more.slint src/ui/dialogs/network.rs
+msgid "Network"
+msgstr "网络"
+
+#: ui/dialogs/stream-more.slint
+msgid "Send the stream from"
+msgstr "发送直播所用的网卡"
+
+#: ui/dialogs/stream-more.slint
+msgid "Safer send (SRT servers)"
+msgstr "更稳妥的发送（SRT 服务器）"
+
+#: ui/dialogs/stream-more.slint
+msgid "Off (SRT's own)"
+msgstr "关（使用 SRT 自身的设置）"
+
+#: ui/dialogs/stream-more.slint
+msgid "Half a second"
+msgstr "半秒"
+
+#: ui/dialogs/stream-more.slint
+msgid "2 seconds"
+msgstr "2 秒"
+
+#: ui/dialogs/stream-more.slint
+msgid "Send from a wired network card to keep the stream off busy Wi-Fi (YouTube, Facebook, Twitch and other RTMP servers; an SRT server is reached however the computer chooses). Safer send gives an SRT server time to ask again for what got lost on a poor line; the picture arrives that much later."
+msgstr "从有线网卡发送直播，避开繁忙的 Wi-Fi（适用于 YouTube、Facebook、Twitch 和其他 RTMP 服务器；SRT 服务器则由电脑自己选择线路连接）。“更稳妥的发送”让 SRT 服务器有时间在线路差时重新索取丢失的部分；画面也会相应晚到。"
+
+#: ui/dialogs/stream-more.slint
+msgid "Each destination's quality"
+msgstr "每个直播目标的画质"
+
+#: ui/dialogs/stream-more.slint
+msgid "A destination can get a smaller picture or a lower bitrate than the main stream (a phone app, a slow server). Each one that differs costs the computer a second encode."
+msgstr "某个直播目标可以使用比主直播更小的画面或更低的码率（手机应用、较慢的服务器）。每有一个不同的目标，电脑就要多做一次编码。"
+
+#: ui/dialogs/stream-more.slint
+msgid "Size: the main stream's"
+msgstr "尺寸：与主直播相同"
+
+#: ui/dialogs/stream-more.slint
+msgid "Bitrate: the main stream's"
+msgstr "码率：与主直播相同"
+
+#: ui/dialogs/stream-more.slint
+msgid "File type"
+msgstr "文件类型"
+
+#: ui/dialogs/stream-more.slint
+msgid "MP4 (plays everywhere)"
+msgstr "MP4（到处都能播放）"
+
+#: ui/dialogs/stream-more.slint
+msgid "MKV (as written; nothing to wait for at the end)"
+msgstr "MKV（边录边存；结束时无需等待）"
+
+#: ui/dialogs/stream-more.slint
+msgid "Cut long recordings"
+msgstr "分割长录制"
+
+#: ui/dialogs/stream-more.slint
+msgid "Every 30 minutes"
+msgstr "每 30 分钟"
+
+#: ui/dialogs/stream-more.slint
+msgid "Every hour"
+msgstr "每小时"
+
+#: ui/dialogs/stream-more.slint
+msgid "Every 2 hours"
+msgstr "每 2 小时"
+
+#: ui/dialogs/stream-more.slint
+msgid "At 2 GB"
+msgstr "每 2 GB"
+
+#: ui/dialogs/stream-more.slint
+msgid "At 4 GB (old USB sticks)"
+msgstr "每 4 GB（适合旧 U 盘）"
+
+#: ui/dialogs/stream-more.slint
+msgid "At 8 GB"
+msgstr "每 8 GB"
+
+#: ui/dialogs/stream-more.slint
+msgid "“Save last” button keeps"
+msgstr "“保存最后”按钮保留时长"
+
+#: ui/dialogs/stream-more.slint
+msgid "No button"
+msgstr "不显示按钮"
+
+#: ui/dialogs/stream-more.slint
+msgid "2 minutes"
+msgstr "2 分钟"
+
+#: ui/dialogs/stream-more.slint
+msgid "5 minutes"
+msgstr "5 分钟"
+
+#: ui/dialogs/stream-more.slint
+msgid "10 minutes"
+msgstr "10 分钟"
+
+#: ui/dialogs/stream-more.slint
+msgid "15 minutes"
+msgstr "15 分钟"
+
+#: ui/dialogs/stream-more.slint
+msgid "File name"
+msgstr "文件名"
+
+#: ui/dialogs/stream-more.slint
+msgid "Recording file name"
+msgstr "录制文件名"
+
+#: ui/dialogs/stream-more.slint
+msgid "Recording {{date}} {{time}}"
+msgstr "录制 {{date}} {{time}}"
+
+#: ui/dialogs/stream-more.slint
+msgid "{{date}} becomes the day, {{time}} the time it started, {{title}} the service's name. Now: {}"
+msgstr "{{date}} 换成日期，{{time}} 换成开始时间，{{title}} 换成聚会名称。现在：{}"
+
+#: ui/dialogs/stream-more.slint
+msgid "While live, also record the stream without the words (for editing)"
+msgstr "直播时另外录制不带文字的直播画面（用于剪辑）"
+
 #: ui/dialogs/stream-scenes.slint
-msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
-msgstr "还没有自己的场景。先添加一个，再放入摄像头、会众屏幕、歌词、图片、颜色或文字。"
+msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, videos, colours, text or a clock in it."
+msgstr "还没有自己的场景。先添加一个，再放入摄像头、会众屏幕、歌词、图片、视频、颜色、文字或时钟。"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "Add a scene"
 msgstr "添加场景"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Changing scenes"
+msgstr "切换场景"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No video chosen yet: scenes fade."
+msgstr "尚未选择视频：场景会淡入淡出。"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Choose a video…"
+msgstr "选择视频…"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "How the stream changes from one scene to the next, built-in scenes too. A scene of yours can have its own way. A stinger is a short video played over the change; the scene changes half way through it."
+msgstr "直播从一个场景换到下一个场景的方式，内置场景也一样。你自己的场景可以有自己的方式。转场视频（Stinger）是在切换时叠加播放的短视频；场景在它播放到一半时切换。"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "How the scene looks"
+msgstr "场景的样子"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "Layers (in front at the top)"
@@ -3676,8 +4312,52 @@ msgid "No picture chosen yet."
 msgstr "还没有选择图片。"
 
 #: ui/dialogs/stream-scenes.slint
+msgid "No video chosen yet."
+msgstr "尚未选择视频。"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "It plays again and again, without its sound, while the stream is live."
+msgstr "直播时会不带声音地反复播放。"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Show the seconds"
+msgstr "显示秒"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Count down to (for example 10:30)"
+msgstr "倒计时到（例如 10:30）"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Leave it empty to count down to the service's start time (Services → Starts at)."
+msgstr "留空则倒计时到聚会的开始时间（聚会 → 开始于）。"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "While live, the page is opened in this computer's Microsoft Edge or Google Chrome, without a window, the size of the stream. A page with a see-through background shows what is behind it."
+msgstr "直播时，此页面会在这台电脑的 Microsoft Edge 或 Google Chrome 中以直播画面大小、无窗口地打开。背景透明的页面会显示其后面的内容。"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Size: like your other words"
+msgstr "大小：与其他文字相同"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Size: {}"
+msgstr "大小：{}"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Colour (empty: like your other words)"
+msgstr "颜色（留空：与其他文字相同）"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Place in the tall picture"
+msgstr "在竖屏画面中的位置"
+
+#: ui/dialogs/stream-scenes.slint
 msgid "Place"
 msgstr "位置"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Or drag it on the picture; drag its corner square to make it bigger or smaller."
+msgstr "也可以在画面上拖动它；拖动角上的小方块可放大或缩小。"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "From the left: {}%"
@@ -3700,12 +4380,76 @@ msgid "See-through: {}%"
 msgstr "透明度：{}%"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "How the scene looks"
-msgstr "场景的样子"
+msgid "Cut off the edges"
+msgstr "裁掉边缘"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
-msgstr "这里的摄像头、会众屏幕和歌词只是示意画面；直播时会换成真实画面。没有画面的摄像头，其位置会显示会众屏幕。"
+msgid "Left: {}%"
+msgstr "左：{}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Top: {}%"
+msgstr "上：{}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Right: {}%"
+msgstr "右：{}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Bottom: {}%"
+msgstr "下：{}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Take out"
+msgstr "抠除"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "The colour to take out"
+msgstr "要抠除的颜色"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "How close a colour must be: {}%"
+msgstr "颜色的接近程度：{}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Darker than: {}%"
+msgstr "暗于：{}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Lighter than: {}%"
+msgstr "亮于：{}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Soft edge: {}%"
+msgstr "柔和边缘：{}%"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "For a green screen: light it evenly, then raise “How close” until the screen is gone and lower it if the person starts to go."
+msgstr "使用绿幕时：把它均匀打光，然后调高“颜色的接近程度”直到绿幕消失；如果人也开始消失，就调低一些。"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Wide picture"
+msgstr "横屏画面"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Tall picture (phones)"
+msgstr "竖屏画面（手机）"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Destinations set to tall get the wide picture fitted across, as here. You can place this scene's layers in the tall picture yourself."
+msgstr "设为竖屏的直播目标会收到按宽度放入的横屏画面，就像这里显示的。你也可以自己在竖屏画面中摆放此场景的图层。"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Place the layers for phones"
+msgstr "为手机摆放图层"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Use the wide picture fitted across again"
+msgstr "恢复为按宽度放入横屏画面"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Cameras, the room screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgstr "这里的摄像头、会众屏幕、歌词、视频和网页只是示意画面；直播时会换成真实画面。没有画面的摄像头，其位置会显示会众屏幕。"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "Use it by itself in place of"
@@ -3715,11 +4459,19 @@ msgstr "自动选择时替换的场景"
 msgid "When the scene is chosen by itself from what is live, this scene goes out instead of that one. For example, choose “Camera + words” to use it for songs and verses."
 msgstr "根据正在直播的内容自动选择场景时，会用此场景代替那个场景播出。例如，选择“镜头 + 歌词”，诗歌和经文时就会用它。"
 
+#: ui/dialogs/stream-scenes.slint
+msgid "When this scene comes in"
+msgstr "切换到此场景时"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No video chosen yet: the scene fades in."
+msgstr "尚未选择视频：场景会淡入。"
+
 #: ui/dialogs/transition.slint src/theme/richtext.rs
 msgid "Normal"
 msgstr "正常"
 
-#: ui/dialogs/transition.slint ui/operator/cameras.slint
+#: ui/dialogs/transition.slint ui/operator/cameras.slint src/stream/transition.rs
 msgid "Fade"
 msgstr "淡入淡出"
 
@@ -4043,10 +4795,6 @@ msgstr "入场音乐的歌曲和音量"
 msgid "Going out now"
 msgstr "直播中"
 
-#: ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Next"
-msgstr "下一张"
-
 #: ui/operator/cameras.slint
 msgid "This camera is going out now"
 msgstr "此摄像头正在直播"
@@ -4060,8 +4808,52 @@ msgid "Live"
 msgstr "直播中"
 
 #: ui/operator/cameras.slint
-msgid "Move the next camera to its saved position {}"
-msgstr "将下一个摄像头转到已保存的位置 {}"
+msgid "Turn left while held"
+msgstr "按住时向左转"
+
+#: ui/operator/cameras.slint
+msgid "Tilt up while held"
+msgstr "按住时向上仰"
+
+#: ui/operator/cameras.slint
+msgid "Tilt down while held"
+msgstr "按住时向下俯"
+
+#: ui/operator/cameras.slint
+msgid "Turn right while held"
+msgstr "按住时向右转"
+
+#: ui/operator/cameras.slint
+msgid "Zoom out while held"
+msgstr "按住时缩小"
+
+#: ui/operator/cameras.slint
+msgid "Zoom in while held"
+msgstr "按住时放大"
+
+#: ui/operator/cameras.slint
+msgid "Save this shot as"
+msgstr "将此画面保存为"
+
+#: ui/operator/cameras.slint
+msgid "Save this shot as position {}"
+msgstr "将此画面保存为位置 {}"
+
+#: ui/operator/cameras.slint
+msgid "Move the camera to its saved position {}"
+msgstr "将摄像头移到已保存的位置 {}"
+
+#: ui/operator/cameras.slint
+msgid "Save…"
+msgstr "保存…"
+
+#: ui/operator/cameras.slint
+msgid "Keep the saved positions as they are"
+msgstr "保持已保存的位置不变"
+
+#: ui/operator/cameras.slint
+msgid "Save the camera's shot now as one of its positions"
+msgstr "把摄像头当前画面保存为它的一个位置"
 
 #: ui/operator/cameras.slint
 msgid "Switch"
@@ -4094,6 +4886,26 @@ msgstr "自动跟随选项"
 #: ui/operator/follow.slint src/i18n/remote_strings.rs
 msgid "Holding"
 msgstr "已暂停"
+
+#: ui/operator/live-status.slint
+msgid "Stream status"
+msgstr "直播状态"
+
+#: ui/operator/live-status.slint
+msgid "How the stream is doing"
+msgstr "直播情况"
+
+#: ui/operator/live-status.slint
+msgid "Live captions: {}"
+msgstr "实时字幕：{}"
+
+#: ui/operator/live-status.slint
+msgid "Copy the title"
+msgstr "复制标题"
+
+#: ui/operator/live-status.slint
+msgid "Copy the description"
+msgstr "复制简介"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
@@ -4235,7 +5047,7 @@ msgstr "未找到。请输入摄像机名称："
 msgid "Or type its name"
 msgstr "或输入其名称"
 
-#: ui/operator/media.slint
+#: ui/operator/media.slint src/stream/phone_camera.rs
 msgid "Camera name"
 msgstr "摄像机名称"
 
@@ -4303,11 +5115,11 @@ msgstr "拖放到此处以添加到聚会"
 msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect lyric files"
 msgstr "视频、图片、音乐、演示文稿（PowerPoint、Keynote、PDF）、SongSelect 歌词文件"
 
-#: ui/operator/record.slint
+#: ui/operator/record.slint ui/operator.slint
 msgid "Stop the livestream"
 msgstr "停止直播"
 
-#: ui/operator/record.slint src/record/mod.rs
+#: ui/operator/record.slint ui/operator.slint src/record/mod.rs
 msgid "Go Live"
 msgstr "开始直播"
 
@@ -4419,6 +5231,18 @@ msgstr "{} 条新消息"
 msgid "Nothing written yet."
 msgstr "还没有人留言。"
 
+#: ui/operator/save-last.slint
+msgid "Save the last {} minutes"
+msgstr "保存最后 {} 分钟"
+
+#: ui/operator/save-last.slint
+msgid "Save last {} min"
+msgstr "保存最后 {} 分钟"
+
+#: ui/operator/save-last.slint
+msgid "Save the last {} minutes of the recording as a video of its own, now"
+msgstr "立即把录制的最后 {} 分钟另存为单独的视频"
+
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
 msgstr "聚会"
@@ -4430,10 +5254,6 @@ msgstr "添加标题"
 #: ui/operator/service.slint
 msgid "Add a coloured heading to the service list, like “Worship” or “Message”"
 msgstr "在聚会列表中添加彩色标题，如“敬拜”或“信息”"
-
-#: ui/operator/service.slint
-msgid "Check"
-msgstr "检查"
 
 #: ui/operator/service.slint
 msgid "Before the service: are all the songs, files and screens there?"
@@ -5711,7 +6531,7 @@ msgstr "RustyPresenter 遥控器"
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
 msgstr "在演示电脑上点击 {phone} → {pair}，然后在这里输入 6 位数代码。"
 
-#: src/i18n/remote_strings.rs
+#: src/i18n/remote_strings.rs src/stream/phone_camera.rs
 msgid "Connect"
 msgstr "连接"
 
@@ -5866,7 +6686,7 @@ msgstr "未播放"
 msgid "{time} left"
 msgstr "剩余 {time}"
 
-#: src/i18n/remote_strings.rs
+#: src/i18n/remote_strings.rs src/stream/phone_camera.rs
 msgid "Password"
 msgstr "密码"
 
@@ -6318,6 +7138,10 @@ msgstr "该屏幕当前未连接。"
 msgid "Scripture"
 msgstr "经文"
 
+#: src/record/advanced.rs
+msgid "{name} last {minutes} minutes"
+msgstr "{name} 最后 {minutes} 分钟"
+
 #: src/record/args.rs
 msgid "Network camera {host}"
 msgstr "网络摄像机 {host}"
@@ -6355,8 +7179,8 @@ msgid "RustyPresenter stopped in the middle of a livestream. The recording up to
 msgstr "RustyPresenter 在直播中途停止了。到那时为止的录像已保留。要重新开始直播吗？"
 
 #: src/record/mod.rs
-msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or close other programs."
-msgstr "这台电脑跟不上，录像和直播会卡顿。请在设置 → 媒体的“图片大小”中选择 720p，或关闭其他程序。"
+msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or the graphics card under Video encoder, and close other programs."
+msgstr "这台电脑跟不上，录像和直播会卡顿。请在“设置 → 媒体”的“图片大小”中选择 720p，或在“视频编码器”中选择显卡，并关闭其他程序。"
 
 #: src/record/mod.rs
 msgid "The computer is keeping up again: the picture is smooth."
@@ -6401,6 +7225,26 @@ msgstr "录制文件已保存：{path}"
 #: src/record/mod.rs
 msgid "Recording saved as {path} (it could not be turned into MP4)."
 msgstr "录制文件已保存为 {path}（无法转换为 MP4）。"
+
+#: src/record/mod.rs
+msgid "Recording saved in {n} pieces, the first: {path}"
+msgstr "录制已分成 {n} 段保存，第一段：{path}"
+
+#: src/record/mod.rs
+msgid "Saving the last {minutes} minutes…"
+msgstr "正在保存最后 {minutes} 分钟…"
+
+#: src/record/mod.rs
+msgid "The last minutes are saved: {path}"
+msgstr "最后几分钟已保存：{path}"
+
+#: src/record/mod.rs
+msgid "The last minutes could not be saved: {path}"
+msgstr "无法保存最后几分钟：{path}"
+
+#: src/record/mod.rs
+msgid "Next time, the graphics card's encoder is used by itself, if this computer has one that works."
+msgstr "下次起，如果这台电脑有可用的显卡编码器，会自动使用它。"
 
 #: src/record/mod.rs
 msgid "The recording was saved without the app's sound, which could not be added."
@@ -6592,8 +7436,28 @@ msgid "Hold auto-follow (the slides stay put)"
 msgstr "暂停自动跟随（幻灯片保持不动）"
 
 #: src/shortcuts.rs
+msgid "Livestream: camera {n} next"
+msgstr "直播：下一个是摄像头 {n}"
+
+#: src/shortcuts.rs
+msgid "Livestream: switch to the next camera"
+msgstr "直播：切换到下一个摄像头"
+
+#: src/shortcuts.rs
+msgid "Livestream: fade to the next camera"
+msgstr "直播：淡入淡出到下一个摄像头"
+
+#: src/shortcuts.rs
 msgid "Everything but the background"
 msgstr "除背景外的全部"
+
+#: src/shortcuts.rs
+msgid "Livestream scene: {name}"
+msgstr "直播场景：{name}"
+
+#: src/shortcuts.rs
+msgid "Scene keys work while the stream is live."
+msgstr "场景快捷键在直播时有效。"
 
 #: src/slides.rs src/strings/print.rs
 msgid "Missing song"
@@ -6699,6 +7563,174 @@ msgstr "已复制链接。"
 msgid "{name}: the replay is at {link}"
 msgstr "{name}：回放在 {link}"
 
+#: src/stream/captions.rs
+msgid "Live captions could not start: {why}"
+msgstr "无法启动实时字幕：{why}"
+
+#: src/stream/captions.rs
+msgid "Live captions need a microphone or line-in: choose one under Sound in Settings → Media, or under Live captions."
+msgstr "实时字幕需要麦克风或线路输入：请在“设置 → 媒体”的“声音”中或“实时字幕”中选择。"
+
+#: src/stream/captions.rs
+msgid "Live captions stopped hearing the microphone ({why}). Trying again…"
+msgstr "实时字幕听不到麦克风了（{why}）。正在重试…"
+
+#: src/stream/captions.rs
+msgid "The captions file {path} could not be made: {why}"
+msgstr "无法创建字幕文件 {path}：{why}"
+
+#: src/stream/captions.rs
+msgid "Live captions are on."
+msgstr "实时字幕已开启。"
+
+#: src/stream/captions.rs
+msgid "Captions saved: {path}"
+msgstr "字幕已保存：{path}"
+
+#: src/stream/health.rs
+msgid "{name}: going out, but the internet is too slow for it"
+msgstr "{name}：正在发送，但网速太慢"
+
+#: src/stream/health.rs
+msgid "{name}: going out, lighter ({kbps} kbit/s) for a slow internet"
+msgstr "{name}：正在发送，因网速慢已减轻（{kbps} kbit/s）"
+
+#: src/stream/health.rs
+msgid "{name}: going out"
+msgstr "{name}：正在发送"
+
+#: src/stream/health.rs
+msgid "{name}: not connecting. Check its stream key and the internet; still trying"
+msgstr "{name}：无法连接。请检查其推流密钥和网络；仍在重试"
+
+#: src/stream/health.rs
+msgid "{name}: connecting…"
+msgstr "{name}：正在连接…"
+
+#: src/stream/health.rs
+msgid "NDI: going out"
+msgstr "NDI：正在发送"
+
+#: src/stream/health.rs
+msgid "Camera: picture coming in"
+msgstr "摄像头：画面正常"
+
+#: src/stream/health.rs
+msgid "Camera: no picture (the room screen is shown instead)"
+msgstr "摄像头：无画面（改为显示会众屏幕）"
+
+#: src/stream/health.rs
+msgid "Sound: {name}"
+msgstr "声音：{name}"
+
+#: src/stream/health.rs
+msgid "Sound: nothing from {name} for 10 seconds"
+msgstr "声音：{name} 已 10 秒没有声音"
+
+#: src/stream/health.rs
+msgid "This computer is not keeping up: the picture is jerky"
+msgstr "这台电脑跟不上：画面卡顿"
+
+#: src/stream/health.rs
+msgid "Frozen: viewers see a still picture"
+msgstr "已定格：观众看到的是静止画面"
+
+#: src/stream/health.rs
+msgid "Muted: viewers hear nothing"
+msgstr "已静音：观众什么也听不到"
+
+#: src/stream/health.rs
+msgid "Live captions: on"
+msgstr "实时字幕：开"
+
+#: src/stream/health.rs
+msgid "All good"
+msgstr "一切正常"
+
+#: src/stream/health.rs
+msgid "Check the stream"
+msgstr "请检查直播"
+
+#: src/stream/health.rs
+msgid "Not going out"
+msgstr "未在发送"
+
+#: src/stream/helper.rs
+msgid "Paste the stream key first."
+msgstr "请先粘贴推流密钥。"
+
+#: src/stream/helper.rs
+msgid "Type the server's address first."
+msgstr "请先输入服务器地址。"
+
+#: src/stream/helper.rs
+msgid "On YouTube: open YouTube Studio, choose Create → Go live → Stream, and copy the Stream key."
+msgstr "YouTube：打开 YouTube Studio，选择“Create → Go live → Stream”，然后复制推流密钥（Stream key）。"
+
+#: src/stream/helper.rs
+msgid "On Facebook: open your Page, choose Live video → Streaming software, and copy the Stream key (turn on \"Use a persistent stream key\" so it stays the same every week)."
+msgstr "Facebook：打开你的公共主页，选择“Live video → Streaming software”，然后复制推流密钥（Stream key）（打开“Use a persistent stream key”，让它每周保持不变）。"
+
+#: src/stream/helper.rs
+msgid "On Twitch: open the Creator Dashboard, choose Settings → Stream, and copy the Primary stream key."
+msgstr "Twitch：打开创作者仪表板（Creator Dashboard），选择“Settings → Stream”，然后复制主推流密钥（Primary stream key）。"
+
+#: src/stream/helper.rs
+msgid "Your streaming service gives you a server address (starting with rtmp://, rtmps:// or srt://) and usually a stream key."
+msgstr "你的直播服务会给你一个服务器地址（以 rtmp://、rtmps:// 或 srt:// 开头），通常还有推流密钥。"
+
+#: src/stream/helper.rs
+msgid "On Instagram: in Live Producer (on a computer, Create → Live video → Streaming software), copy the Stream URL and Stream key. Only some accounts are given a stream key."
+msgstr "Instagram：在 Live Producer 中（在电脑上，“Create → Live video → Streaming software”），复制 Stream URL 和推流密钥（Stream key）。只有部分账号会获得推流密钥。"
+
+#: src/stream/helper.rs
+msgid "On X: in Media Studio, choose Producer → Sources, and copy the RTMP URL and Stream key. Only some accounts can stream from software."
+msgstr "X：在 Media Studio 中选择“Producer → Sources”，然后复制 RTMP URL 和推流密钥（Stream key）。只有部分账号可以用软件直播。"
+
+#: src/stream/helper.rs
+msgid "On TikTok: in LIVE Studio or the LIVE Center, copy the Server URL and Stream key. Only some accounts are given a stream key."
+msgstr "TikTok：在 LIVE Studio 或 LIVE Center 中复制 Server URL 和推流密钥（Stream key）。只有部分账号会获得推流密钥。"
+
+#: src/stream/helper.rs
+msgid "The test sends 20 seconds to YouTube. Anyone who can see your stream sees it: in YouTube Studio, set the stream to Private or Unlisted first if nobody should."
+msgstr "测试会向 YouTube 发送 20 秒。能看到你直播的人都会看到：如果不希望任何人看到，请先在 YouTube Studio 中把直播设为“私享”或“不公开列出”。"
+
+#: src/stream/helper.rs
+msgid "The test sends 20 seconds to Facebook. With a persistent key Facebook waits for you to press Go live there, so nobody sees it."
+msgstr "测试会向 Facebook 发送 20 秒。使用固定密钥时，Facebook 会等你在那边按“开始直播”，所以没人会看到。"
+
+#: src/stream/helper.rs
+msgid "The test sends 20 seconds to the service, then stops by itself."
+msgstr "测试会向该服务发送 20 秒，然后自动停止。"
+
+#: src/stream/helper.rs
+msgid "Sound: {name} could not be opened. Is it plugged in?"
+msgstr "声音：无法打开 {name}。它插好了吗？"
+
+#: src/stream/helper.rs
+msgid "Sound: almost nothing from {name}. Is the sound board sending to this computer, and is someone talking?"
+msgstr "声音：{name} 几乎没有声音。调音台正在向这台电脑发送吗？有人在说话吗？"
+
+#: src/stream/helper.rs
+msgid "Sound: {name} is coming in."
+msgstr "声音：{name} 有声音进来。"
+
+#: src/stream/helper.rs
+msgid "Camera: {name} gives a picture."
+msgstr "摄像头：{name} 有画面。"
+
+#: src/stream/helper.rs
+msgid "Camera: no picture from {name}. Is it plugged in, and closed in other programs (Zoom, Teams, OBS)?"
+msgstr "摄像头：{name} 没有画面。它插好了吗？其他程序（Zoom、Teams、OBS）里已经关闭它了吗？"
+
+#: src/stream/listen.rs
+msgid "This computer's usual output"
+msgstr "这台电脑的默认输出"
+
+#: src/stream/listen.rs
+msgid "Listening to the stream could not start: {error}"
+msgstr "无法开始收听直播：{error}"
+
 #: src/stream/mod.rs
 msgid "The stream ran {time}."
 msgstr "直播时长 {time}。"
@@ -6803,6 +7835,14 @@ msgstr "正在录制。请先停止录制，再按“开始直播”。"
 msgid "A Mac cannot send its own sound by itself. Install the free BlackHole, make a Multi-Output Device of the speakers and BlackHole in Audio MIDI Setup, and choose it as the app's sound output."
 msgstr "Mac 无法直接发送自己的声音。请安装免费的 BlackHole，在“音频 MIDI 设置”中用扬声器和 BlackHole 创建“多输出设备”，再把它选为本应用的声音输出。"
 
+#: src/stream/network_card.rs
+msgid "Let the computer choose"
+msgstr "让电脑选择"
+
+#: src/stream/network_card.rs
+msgid "{address} (not on this computer now)"
+msgstr "{address}（目前不在这台电脑上）"
+
 #: src/stream/own_scenes.rs
 msgid "small"
 msgstr "小"
@@ -6872,6 +7912,22 @@ msgid "Some words of your own"
 msgstr "自己写的文字"
 
 #: src/stream/own_scenes.rs
+msgid "A video"
+msgstr "视频"
+
+#: src/stream/own_scenes.rs
+msgid "A clock (the time now)"
+msgstr "时钟（当前时间）"
+
+#: src/stream/own_scenes.rs
+msgid "A countdown"
+msgstr "倒计时"
+
+#: src/stream/own_scenes.rs
+msgid "A web page"
+msgstr "网页"
+
+#: src/stream/own_scenes.rs
 msgid "A picture (none chosen yet)"
 msgstr "图片（尚未选择）"
 
@@ -6880,12 +7936,36 @@ msgid "Picture: {name}"
 msgstr "图片：{name}"
 
 #: src/stream/own_scenes.rs
+msgid "A video (none chosen yet)"
+msgstr "视频（尚未选择）"
+
+#: src/stream/own_scenes.rs
+msgid "Video: {name}"
+msgstr "视频：{name}"
+
+#: src/stream/own_scenes.rs
 msgid "Colour {hex}"
 msgstr "颜色 {hex}"
 
 #: src/stream/own_scenes.rs
 msgid "Your words: {text}"
 msgstr "文字：{text}"
+
+#: src/stream/own_scenes.rs
+msgid "Countdown to the service's start"
+msgstr "倒计时到聚会开始"
+
+#: src/stream/own_scenes.rs
+msgid "Countdown to {time}"
+msgstr "倒计时到 {time}"
+
+#: src/stream/own_scenes.rs
+msgid "A web page (no address yet)"
+msgstr "网页（尚无地址）"
+
+#: src/stream/own_scenes.rs
+msgid "Web page: {address}"
+msgstr "网页：{address}"
 
 #: src/stream/own_scenes.rs src/strings/operator.rs src/ui/dialogs/settings_themes.rs src/ui/dialogs/stream_scenes.rs
 msgid "Welcome"
@@ -6911,9 +7991,169 @@ msgstr "已删除的场景"
 msgid "The words of the song go here"
 msgstr "诗歌的歌词显示在这里"
 
+#: src/stream/phone_camera.rs
+msgid "Phone camera: {name}"
+msgstr "手机摄像头：{name}"
+
+#: src/stream/phone_camera.rs
+msgid "Phone camera"
+msgstr "手机摄像头"
+
+#: src/stream/phone_camera.rs
+msgid "One step the first time"
+msgstr "首次需要的一步"
+
+#: src/stream/phone_camera.rs
+msgid "A phone only lets a page use its camera when the page is private. Tap the button below. The phone then warns that the connection is not private: that is expected, because the page comes from your church's own computer, not from the internet."
+msgstr "手机只允许私密（安全）页面使用摄像头。请点下面的按钮。手机随后会警告连接不是私密连接：这是正常的，因为页面来自教会自己的电脑，而不是来自互联网。"
+
+#: src/stream/phone_camera.rs
+msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
+msgstr "点“高级”（或“显示详细信息”），然后点“继续前往”（或“访问此网站”）。手机会记住，所以只需做一次。"
+
+#: src/stream/phone_camera.rs
+msgid "Open the camera page"
+msgstr "打开摄像头页面"
+
+#: src/stream/phone_camera.rs
+msgid "The private camera page is not running on the computer. Close the app and open it again; if it still does not start, another program is using its port."
+msgstr "电脑上没有运行私密摄像头页面。请关闭本软件再重新打开；如果仍无法启动，说明另一个程序正在使用它的端口。"
+
+#: src/stream/phone_camera.rs
+msgid "Connect this phone"
+msgstr "连接这部手机"
+
+#: src/stream/phone_camera.rs
+msgid "On the presentation computer, click Phone remote, then Pair a phone, and type the 6-digit code here."
+msgstr "在演示电脑上点击“手机遥控器”，再点“配对手机”，然后在这里输入 6 位数代码。"
+
+#: src/stream/phone_camera.rs
+msgid "6-digit code"
+msgstr "6 位数代码"
+
+#: src/stream/phone_camera.rs
+msgid "Like Balcony or Side. The computer lists this phone by this name."
+msgstr "例如“楼座”或“侧面”。电脑会用这个名称列出这部手机。"
+
+#: src/stream/phone_camera.rs
+msgid "Start the camera"
+msgstr "启动摄像头"
+
+#: src/stream/phone_camera.rs
+msgid "Front camera"
+msgstr "前置摄像头"
+
+#: src/stream/phone_camera.rs
+msgid "Back camera"
+msgstr "后置摄像头"
+
+#: src/stream/phone_camera.rs
+msgid "Turn the phone sideways for a full picture."
+msgstr "横置手机即可得到完整画面。"
+
+#: src/stream/phone_camera.rs
+msgid "Sending to the computer"
+msgstr "正在发送到电脑"
+
+#: src/stream/phone_camera.rs
+msgid "Connecting to the computer…"
+msgstr "正在连接电脑…"
+
+#: src/stream/phone_camera.rs
+msgid "The computer cannot be reached. Trying again…"
+msgstr "无法连接到电脑。正在重试…"
+
+#: src/stream/phone_camera.rs
+msgid "The camera could not be opened. Allow the camera for this page in the phone's settings, and close other apps using it."
+msgstr "无法打开摄像头。请在手机设置中允许此页面使用摄像头，并关闭正在使用它的其他应用。"
+
+#: src/stream/phone_camera.rs
+msgid "On the stream now"
+msgstr "正在直播中"
+
+#: src/stream/phone_camera.rs
+msgid "Next on the stream"
+msgstr "下一个上直播"
+
+#: src/stream/phone_camera.rs
+msgid "Not on the stream"
+msgstr "未在直播中"
+
+#: src/stream/phone_camera.rs
+msgid "On the computer, choose this phone in Settings, Media, Livestream, Camera."
+msgstr "在电脑上，到“设置”“媒体”“直播”“摄像头”中选择这部手机。"
+
+#: src/stream/phone_camera.rs
+msgid "Any phone on the church's Wi-Fi can be a camera. On the phone, open {address} and follow the steps there. The first time, the phone warns that the connection is not private: that is expected, because the page comes from this computer. Tap Advanced (or Show Details), then Proceed (or Visit this website). Then pair it with the code from Phone remote, Pair a phone. Once it sends its picture, it is listed in the camera lists above as Phone camera and its name."
+msgstr "连上教会 Wi-Fi 的任何手机都可以当摄像头。在手机上打开 {address}，按那里的步骤操作。第一次时，手机会警告连接不是私密连接：这是正常的，因为页面来自这台电脑。点“高级”（或“显示详细信息”），然后点“继续前往”（或“访问此网站”）。然后用“手机遥控器”“配对手机”中的代码配对。手机开始发送画面后，就会以“手机摄像头”加上它的名称出现在上面的摄像头列表中。"
+
+#: src/stream/phone_camera.rs
+msgid "This computer is not on a network, so no phone can reach it."
+msgstr "这台电脑没有连接网络，所以手机无法连接它。"
+
+#: src/stream/phone_mic.rs
+msgid "Phone microphone (open its page on the phone)"
+msgstr "手机麦克风（在手机上打开其页面）"
+
+#: src/stream/phone_mic.rs
+msgid "Start sending sound"
+msgstr "开始发送声音"
+
+#: src/stream/phone_mic.rs
+msgid "Sending to the stream. Keep this page open and the phone awake."
+msgstr "正在发送到直播。请保持此页面打开，并让手机保持唤醒。"
+
+#: src/stream/phone_mic.rs
+msgid "Sending, but the stream is not using this phone yet. Choose \"Phone microphone\" in Settings → Media → Livestream, then go live."
+msgstr "正在发送，但直播尚未使用这部手机。请在“设置 → 媒体 → 直播”中选择“手机麦克风”，然后开始直播。"
+
+#: src/stream/phone_mic.rs
+msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
+msgstr "手机只允许安全页面使用麦克风。请打开下面的安全页面；第一次时，手机会警告连接不是私密连接：点“高级”（或“显示详细信息”），然后继续前往。"
+
+#: src/stream/phone_mic.rs
+msgid "The phone did not let the page use its microphone. Allow it in the browser's settings for this page, then try again."
+msgstr "手机没有允许此页面使用麦克风。请在浏览器设置中允许此页面，然后再试一次。"
+
+#: src/stream/phone_mic.rs
+msgid "Turn on the stage view in RustyPresenter (Network), and sign in to it on this phone first."
+msgstr "请在 RustyPresenter 中打开舞台视图（网络），并先在这部手机上登录。"
+
+#: src/stream/preflight.rs
+msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Media → Livestream. The stream shows the slides in its place."
+msgstr "摄像头 {n}（{camera}）未连接。请检查连接线，或在“设置 → 媒体 → 直播”中重新选择。直播会在它的位置显示幻灯片。"
+
+#: src/stream/preflight.rs
+msgid "Camera {n} ({camera}) is connected but sends no picture. Close any other program using it (Zoom, the Camera app, OBS), or switch it on. The stream shows the slides in its place until it comes."
+msgstr "摄像头 {n}（{camera}）已连接，但没有画面。请关闭正在使用它的其他程序（Zoom、相机应用、OBS），或打开摄像头电源。在画面到来之前，直播会在它的位置显示幻灯片。"
+
+#: src/stream/preflight.rs
+msgid "Camera {n} ({camera}) comes over NDI, but NDI is not installed on this computer. Install the free NDI Tools."
+msgstr "摄像头 {n}（{camera}）通过 NDI 传入，但这台电脑没有安装 NDI。请安装免费的 NDI Tools。"
+
+#: src/stream/preflight.rs
+msgid "The sound input {name} is not connected. Check its cable, or choose it again in Settings → Media. The stream goes out without it."
+msgstr "声音输入 {name} 未连接。请检查连接线，或在“设置 → 媒体”中重新选择。直播将不带它继续。"
+
+#: src/stream/preflight.rs
+msgid "The sound input {name} is connected but could not be opened. Close any other program using it, then try again."
+msgstr "声音输入 {name} 已连接，但无法打开。请关闭正在使用它的其他程序，然后再试一次。"
+
 #: src/stream/ptz.rs
 msgid "Camera {camera}: position {position}"
 msgstr "摄像机 {camera}：位置 {position}"
+
+#: src/stream/report.rs
+msgid "The computer could not keep up for {secs} seconds and left out {frames} pictures: the stream was jerky then. Next time, try 720p or the graphics card's encoder (Settings → Media)."
+msgstr "电脑有 {secs} 秒跟不上，漏掉了 {frames} 个画面：那段时间直播卡顿。下次请试试 720p 或显卡编码器（设置 → 媒体）。"
+
+#: src/stream/report.rs
+msgid "{name} got a lighter stream (down to {kbps} kbit/s) because the internet could not keep up."
+msgstr "由于网络跟不上，{name} 收到的是较轻的直播流（最低 {kbps} kbit/s）。"
+
+#: src/stream/report.rs
+msgid "At most {viewers} watching at once."
+msgstr "同时观看人数最多 {viewers} 人。"
 
 #: src/stream/scene.rs
 msgid "Camera + words"
@@ -6930,6 +8170,30 @@ msgstr "屏幕 + 镜头"
 #: src/stream/scene.rs
 msgid "Your scene"
 msgstr "我的场景"
+
+#: src/stream/sound_setup.rs
+msgid "Custom (as set below)"
+msgstr "自定义（按下方设置）"
+
+#: src/stream/sound_setup.rs
+msgid "Sound board or mixer"
+msgstr "调音台或混音器"
+
+#: src/stream/sound_setup.rs
+msgid "USB microphone"
+msgstr "USB 麦克风"
+
+#: src/stream/sound_setup.rs
+msgid "Computer's microphone"
+msgstr "电脑麦克风"
+
+#: src/stream/sound_setup.rs
+msgid "The app's sound only"
+msgstr "仅软件的声音"
+
+#: src/stream/sound_setup.rs
+msgid "No sound input here looks like one. Choose it under \"Sound in the recording\" above."
+msgstr "这里没有看起来像它的声音输入。请在上方“录制中的声音”中选择。"
 
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
@@ -6962,6 +8226,26 @@ msgstr "未在直播"
 #: src/stream/tally.rs
 msgid "Turn on the stage view in Settings → Network. If it has a password, open the stage view on this phone once and sign in."
 msgstr "请在“设置”→“网络”中打开舞台视图。如果设有密码，请在这部手机上打开舞台视图一次并登录。"
+
+#: src/stream/transition.rs
+msgid "Cut (at once)"
+msgstr "直切（立即）"
+
+#: src/stream/transition.rs
+msgid "Stinger video"
+msgstr "转场视频（Stinger）"
+
+#: src/stream/website.rs
+msgid "Type the channel's id: it starts with UC. In YouTube Studio, choose Customisation → Basic info and copy it from the channel address."
+msgstr "输入频道 ID：它以 UC 开头。在 YouTube Studio 中选择“Customisation → Basic info”，从频道地址中复制。"
+
+#: src/stream/website.rs
+msgid "Type the Facebook Page's address, like https://www.facebook.com/yourchurch"
+msgstr "输入 Facebook 公共主页的地址，例如 https://www.facebook.com/yourchurch"
+
+#: src/stream/website.rs
+msgid "Website code copied. Paste it into your website's editor."
+msgstr "网站代码已复制。请粘贴到你的网站编辑器中。"
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -7585,7 +8869,7 @@ msgstr "要放弃对这些幻灯片的更改吗？"
 msgid "Throw away"
 msgstr "放弃"
 
-#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_scenes.rs
+#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
 msgid "Keep editing"
 msgstr "继续编辑"
 
@@ -8686,10 +9970,6 @@ msgstr "彩条"
 #: src/strings/screens.rs src/theme/backgrounds.rs
 msgid "White"
 msgstr "白色"
-
-#: src/strings/screens.rs src/theme/backgrounds.rs
-msgid "Black"
-msgstr "黑色"
 
 #: src/strings/screens.rs
 msgid "left"
@@ -10565,6 +11845,34 @@ msgstr "保持原样"
 msgid "Saved."
 msgstr "已保存。"
 
+#: src/ui/dialogs/go_live_helper.rs
+msgid "Go Live: getting started"
+msgstr "开始直播：入门"
+
+#: src/ui/dialogs/go_live_helper.rs src/ui/dialogs/settings_record.rs
+msgid "The stream key could not be kept: {error}"
+msgstr "无法保存推流密钥：{error}"
+
+#: src/ui/dialogs/go_live_helper.rs
+msgid "No camera: viewers see the room screen"
+msgstr "无摄像头：观众看到会众屏幕"
+
+#: src/ui/dialogs/go_live_helper.rs
+msgid "Checking… (about 10 seconds)"
+msgstr "正在检查…（约 10 秒）"
+
+#: src/ui/dialogs/go_live_helper.rs
+msgid "Internet: the speed test could not reach the internet. Check this computer's connection."
+msgstr "网络：测速无法连接到互联网。请检查这台电脑的网络连接。"
+
+#: src/ui/dialogs/go_live_helper.rs
+msgid "Camera: an NDI camera is looked for when you go live."
+msgstr "摄像头：开始直播时才会查找 NDI 摄像头。"
+
+#: src/ui/dialogs/go_live_helper.rs
+msgid "Test stream: it stops by itself in {secs} seconds."
+msgstr "测试直播：将在 {secs} 秒后自动停止。"
+
 #: src/ui/dialogs/item_edit.rs
 msgid "Auto-advance after: type a number of seconds, or leave it empty."
 msgstr "自动翻页间隔：请输入秒数，或留空。"
@@ -10580,10 +11888,6 @@ msgstr "显示消息"
 #: src/ui/dialogs/music.rs
 msgid "Now: {title} · {time} left"
 msgstr "正在播放：{title} · 剩余 {time}"
-
-#: src/ui/dialogs/network.rs
-msgid "Network"
-msgstr "网络"
 
 #: src/ui/dialogs/network.rs
 msgid "Send one command a line: next, prev, clear, clear slide, logo, go 3 (item 3), go 3 2 (its slide 2), status. With a password, send “password …” first. Every line is answered with OK or ERR."
@@ -10815,12 +12119,32 @@ msgid "Network camera"
 msgstr "网络摄像机"
 
 #: src/ui/dialogs/settings_record.rs
-msgid "The stream key could not be kept: {error}"
-msgstr "无法保存推流密钥：{error}"
-
-#: src/ui/dialogs/settings_record.rs
 msgid "The speed test could not reach the internet. Check the connection and try again."
 msgstr "测速无法连接互联网。请检查网络后重试。"
+
+#: src/ui/dialogs/settings_stream_extras.rs
+msgid "The stream's own microphone or line-in"
+msgstr "直播专用的麦克风或线路输入"
+
+#: src/ui/dialogs/settings_stream_extras.rs
+msgid "YouTube did not say the channel's id: {why}"
+msgstr "YouTube 没有提供频道 ID：{why}"
+
+#: src/ui/dialogs/settings_stream_extras.rs
+msgid "The invitation page opened in this computer's web browser. If it did not, open {url} there."
+msgstr "邀请页面已在这台电脑的浏览器中打开。如果没有打开，请在浏览器中打开 {url}。"
+
+#: src/ui/dialogs/settings_stream_extras.rs
+msgid "The guest is camera {n}. Save, then switch to that camera while live once the guest is connected."
+msgstr "嘉宾是摄像头 {n}。请先保存，嘉宾连上后，在直播时切换到该摄像头。"
+
+#: src/ui/dialogs/settings_stream_extras.rs
+msgid "The guest is already one of the cameras above."
+msgstr "嘉宾已经是上面的摄像头之一。"
+
+#: src/ui/dialogs/settings_stream_extras.rs
+msgid "All four camera rows are in use. Set one to No camera first."
+msgstr "四个摄像头行都已在使用。请先把其中一个设为“无摄像头”。"
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"
@@ -10861,6 +12185,34 @@ msgstr ""
 "读圣经\n"
 "服事邻舍"
 
+#: src/ui/dialogs/stream_more.rs
+msgid "More livestream settings"
+msgstr "更多直播设置"
+
+#: src/ui/dialogs/stream_more.rs
+msgid "The setup “{name}” is chosen. Save to use it."
+msgstr "已选择方案“{name}”。保存后即可使用。"
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Name of the setup (for example Sunday, or Wedding)"
+msgstr "方案名称（例如“主日”或“婚礼”）"
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Delete the setup “{name}”? The settings in use now stay as they are."
+msgstr "要删除方案“{name}”吗？当前使用的设置保持不变。"
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Leave without saving these settings?"
+msgstr "不保存这些设置就离开吗？"
+
+#: src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
+msgid "Leave"
+msgstr "离开"
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Livestream settings saved."
+msgstr "直播设置已保存。"
+
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Your livestream scenes"
 msgstr "我的直播场景"
@@ -10868,6 +12220,26 @@ msgstr "我的直播场景"
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Scene {n}"
 msgstr "场景 {n}"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Like the other scenes ({way})"
+msgstr "与其他场景相同（{way}）"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Nothing"
+msgstr "无"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "A colour (green screen)"
+msgstr "一种颜色（绿幕）"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "The dark parts"
+msgstr "暗的部分"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "The light parts"
+msgstr "亮的部分"
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Scene name"
@@ -10880,10 +12252,6 @@ msgstr "要删除场景“{name}”吗？选择它的幻灯片动作和宏将改
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Leave without saving your scene changes?"
 msgstr "不保存场景更改就离开吗？"
-
-#: src/ui/dialogs/stream_scenes.rs
-msgid "Leave"
-msgstr "离开"
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Scenes saved."
@@ -11129,6 +12497,18 @@ msgstr "无法下载 FFmpeg。请检查网络连接，或自行安装：{command
 #: src/ui/operator/record.rs
 msgid "{camera} (not in this scene)"
 msgstr "{camera}（不在此场景中）"
+
+#: src/ui/operator/record.rs
+msgid "Move {camera}"
+msgstr "移动 {camera}"
+
+#: src/ui/operator/record.rs
+msgid "The camera's shot is saved as position {n}."
+msgstr "摄像头画面已保存为位置 {n}。"
+
+#: src/ui/operator/stream_extras.rs
+msgid "Copied. Paste it into the service's own page for this stream."
+msgstr "已复制。请粘贴到该直播服务上此次直播的页面中。"
 
 #: src/ui/operator/transfer.rs
 msgid "Saved to {path}"
@@ -11529,6 +12909,21 @@ msgstr "yt-dlp 没有保存视频"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "不是媒体文件"
+
+#~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
+#~ msgstr "YouTube 和 Facebook 上每场直播的名称。{{date}} 会换成当天日期。"
+
+#~ msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
+#~ msgstr "还没有自己的场景。先添加一个，再放入摄像头、会众屏幕、歌词、图片、颜色或文字。"
+
+#~ msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+#~ msgstr "这里的摄像头、会众屏幕和歌词只是示意画面；直播时会换成真实画面。没有画面的摄像头，其位置会显示会众屏幕。"
+
+#~ msgid "Move the next camera to its saved position {}"
+#~ msgstr "将下一个摄像头转到已保存的位置 {}"
+
+#~ msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or close other programs."
+#~ msgstr "这台电脑跟不上，录像和直播会卡顿。请在设置 → 媒体的“图片大小”中选择 720p，或关闭其他程序。"
 
 #~ msgid "Another camera to switch to while live, from the scene button beside Live."
 #~ msgstr "直播时可切换到的另一台摄像头，在“直播”旁的场景按钮中选择。"

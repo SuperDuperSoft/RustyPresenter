@@ -53,6 +53,8 @@ fn no_ffmpeg_left() {
         ("Command::new(\"ffprobe\"", "src/record/run_tests.rs"),
         // The clip tests check a clip's length.
         ("Command::new(\"ffprobe\"", "src/record/clips.rs"),
+        // The Listen test plays a tone through a real FFmpeg.
+        ("Command::new(\"ffmpeg\"", "src/stream/listen.rs"),
     ];
     let allowed = |u: &str, file: &Path| recording.iter().any(|(a, f)| *a == u && file == root().join(f));
     let found: Vec<String> = text_of(&["src", "ui"]).iter()
@@ -66,6 +68,6 @@ fn web_folder_has_only_remote() {
     let mut names: Vec<String> = fs::read_dir(root().join("web")).unwrap().map(|e| e.unwrap().file_name().to_string_lossy().into_owned()).collect();
     names.sort();
     // The phone remote and its drawing view, the stage screen for phones and tablets (N31), the camera tally, the
-    // phone as a microphone, and the remote guest's two pages.
-    assert_eq!(names, ["draw.js", "guest-host.html", "guest.html", "phone-mic.html", "remote.html", "remote.js", "stage-view.html", "stage-view.js", "tally.html"]);
+    // phone as a camera and as a microphone, and the remote guest's two pages.
+    assert_eq!(names, ["camera.html", "draw.js", "guest-host.html", "guest.html", "phone-mic.html", "remote.html", "remote.js", "stage-view.html", "stage-view.js", "tally.html"]);
 }

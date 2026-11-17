@@ -15,7 +15,7 @@ msgstr ""
 msgid "Search your Bibles"
 msgstr "Busca en tus Biblias"
 
-#: ui/bible-picker.slint src/ui/dialogs/settings_record.rs
+#: ui/bible-picker.slint src/ui/dialogs/settings_record.rs src/ui/dialogs/settings_sound.rs
 msgid "not connected"
 msgstr "sin conexión"
 
@@ -359,7 +359,7 @@ msgstr "Arriba"
 msgid "Hide after"
 msgstr "Ocultar después de"
 
-#: ui/dialogs/automation.slint src/ui/dialogs/stream_scenes.rs
+#: ui/dialogs/automation.slint ui/dialogs/stream-more.slint src/ui/dialogs/stream_scenes.rs
 msgid "Never"
 msgstr "Nunca"
 
@@ -599,11 +599,11 @@ msgstr "Pausa"
 msgid "Start"
 msgstr "Iniciar"
 
-#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_scenes.rs
+#: ui/dialogs/automation.slint ui/dialogs/overlays.slint ui/dialogs/services.slint ui/dialogs/stream-more.slint ui/operator.slint src/shortcuts.rs src/strings/stage.rs src/strings/themes.rs src/ui/dialogs/automation.rs src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
 msgid "Delete"
 msgstr "Eliminar"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-more.slint ui/dialogs/stream-scenes.slint
 msgid "Save"
 msgstr "Guardar"
 
@@ -615,7 +615,7 @@ msgstr "Hex"
 msgid "Pick any color"
 msgstr "Elige cualquier color"
 
-#: ui/dialogs/design-canvas.slint
+#: ui/dialogs/design-canvas.slint src/stream/transition.rs
 msgid "Slide"
 msgstr "Diapositiva"
 
@@ -667,7 +667,7 @@ msgstr "Transición"
 msgid "Use on every slide"
 msgstr "Usar en todas"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/music.slint src/i18n/remote_strings.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/music.slint src/i18n/remote_strings.rs src/stream/phone_camera.rs src/stream/phone_mic.rs
 msgid "Stop"
 msgstr "Detener"
 
@@ -775,7 +775,7 @@ msgstr "Línea"
 msgid "Arrow"
 msgstr "Flecha"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/stream-more.slint src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/theme/layouts.rs
 msgid "Picture"
 msgstr "Imagen"
 
@@ -791,7 +791,7 @@ msgstr "Rellenar"
 msgid "Stretch"
 msgstr "Estirar"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/stream-scenes.slint
 msgid "Web address"
 msgstr "Dirección web"
 
@@ -964,7 +964,7 @@ msgstr "Imagen o video"
 msgid "Import pictures into the media library first"
 msgstr "Primero importa imágenes a la biblioteca multimedia"
 
-#: ui/dialogs/design-editor.slint src/strings/design.rs src/strings/print.rs
+#: ui/dialogs/design-editor.slint src/stream/own_scenes.rs src/strings/design.rs src/strings/print.rs
 msgid "Web page"
 msgstr "Página web"
 
@@ -1052,7 +1052,7 @@ msgstr "Arrastra para mover, arrastra una esquina para cambiar el tamaño, las f
 msgid "Video: {}"
 msgstr "Video: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/network.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-more.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -1091,6 +1091,110 @@ msgstr "Orden bíblico"
 #: ui/dialogs/find-verse.slint
 msgid "Pick a result to see its chapter. Click a verse, or Shift+click to add a range."
 msgstr "Elige un resultado para ver su capítulo. Haz clic en un versículo, o Mayús+clic para agregar un rango."
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Step {} of 4"
+msgstr "Paso {} de 4"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Where should the service go?"
+msgstr "¿Adónde debe ir el culto?"
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+msgid "Another server"
+msgstr "Otro servidor"
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+msgid "The server's address"
+msgstr "La dirección del servidor"
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+msgid "Its address: rtmp://, rtmps:// or srt://"
+msgstr "Su dirección: rtmp://, rtmps:// o srt://"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Stream key"
+msgstr "Clave de transmisión"
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+msgid "A key is saved. Type a new one to change it."
+msgstr "Hay una clave guardada. Escribe otra para cambiarla."
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/settings-media.slint
+msgid "Paste the stream key"
+msgstr "Pega la clave de transmisión"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "A stream key is a password: whoever has it can broadcast as you. It is kept in this computer's own password store."
+msgstr "Una clave de transmisión es una contraseña: quien la tenga puede transmitir en tu nombre. Se guarda en el almacén de contraseñas de esta computadora."
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Sign in instead…"
+msgstr "Iniciar sesión en su lugar…"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Opens Settings, where you can sign in: Go Live then makes each broadcast itself, with its title"
+msgstr "Abre Configuración, donde puedes iniciar sesión: Transmitir crea entonces cada transmisión, con su título"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Which camera?"
+msgstr "¿Qué cámara?"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the room screen."
+msgstr "Las canciones y los versículos salen con la letra sobre la cámara. Sin cámara, los espectadores ven la pantalla de la sala."
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Which sound?"
+msgstr "¿Qué sonido?"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Choose the sound board's input (a USB sound interface or the line-in) if it sends the service to this computer. The sound of videos and songs the app plays goes out too."
+msgstr "Elige la entrada de la mesa de sonido (una interfaz de audio USB o la entrada de línea) si envía el culto a esta computadora. El sonido de los videos y canciones que reproduce la app también sale."
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Check it"
+msgstr "Comprobar"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "The check measures the internet, takes a picture from the camera and listens to the sound for a moment. Nothing is sent to viewers."
+msgstr "La comprobación mide el internet, toma una imagen de la cámara y escucha el sonido un momento. No se envía nada a los espectadores."
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Checking…"
+msgstr "Comprobando…"
+
+#: ui/dialogs/go-live-helper.slint ui/operator/service.slint
+msgid "Check"
+msgstr "Revisar"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Send a 20-second test"
+msgstr "Enviar una prueba de 20 segundos"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Ready to go live"
+msgstr "Listo para transmitir"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Media → Livestream."
+msgstr "Pulsa Transmitir arriba cuando empiece el culto, y púlsalo otra vez al final. Todo lo que elijas aquí se puede cambiar en Configuración → Multimedia → Transmisión en vivo."
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Back"
+msgstr "Atrás"
+
+#: ui/dialogs/go-live-helper.slint ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "Siguiente"
+
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
+msgid "Close"
+msgstr "Cerrar"
+
+#: ui/dialogs/go-live-helper.slint
+msgid "Go Live now"
+msgstr "Transmitir ahora"
 
 #: ui/dialogs/item-edit.slint
 msgid "Lyrics, order and credits belong to the song in your library."
@@ -1140,7 +1244,7 @@ msgstr "Lado a lado"
 msgid "Top and bottom"
 msgstr "Arriba y abajo"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/settings-media.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-look.slint ui/dialogs/settings-media.slint ui/dialogs/slide-breaks.slint ui/dialogs/stream-more.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "Automático"
 
@@ -1248,7 +1352,7 @@ msgstr "Usar en todas las diapositivas"
 msgid "Auto-advance after (s)"
 msgstr "Avanzar solo tras (s)"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr "Desactivado"
 
@@ -1467,7 +1571,7 @@ msgstr "Un letrero que se queda en pantalla, como “¡Bienvenidos!” o la cont
 msgid "A logo in the corner"
 msgstr "Un logo en la esquina"
 
-#: ui/dialogs/overlays.slint src/strings/stage.rs src/strings/themes.rs
+#: ui/dialogs/overlays.slint src/stream/own_scenes.rs src/strings/stage.rs src/strings/themes.rs
 msgid "Clock"
 msgstr "Reloj"
 
@@ -1495,7 +1599,7 @@ msgstr "Opacidad"
 msgid "Show seconds"
 msgstr "Mostrar segundos"
 
-#: ui/dialogs/overlays.slint
+#: ui/dialogs/overlays.slint ui/dialogs/stream-scenes.slint
 msgid "24-hour clock"
 msgstr "Reloj de 24 horas"
 
@@ -1547,17 +1651,9 @@ msgstr "Vista previa"
 msgid "Editing an overlay that is on the screen does not change the screen: turn it off and on to show the new one."
 msgstr "Editar una superposición que está en pantalla no cambia la pantalla: desactívala y vuelve a activarla para mostrar la nueva."
 
-#: ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Back"
-msgstr "Atrás"
-
 #: ui/dialogs/overlays.slint
 msgid "Save overlay"
 msgstr "Guardar superposición"
-
-#: ui/dialogs/overlays.slint ui/dialogs/print.slint ui/widgets.slint
-msgid "Close"
-msgstr "Cerrar"
 
 #: ui/dialogs/phone.slint
 msgid "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer."
@@ -2079,7 +2175,7 @@ msgstr "Prueba los modelos descargados en esta PC y te dice cuál le conviene."
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
 msgstr "Reproduce una grabación (por ejemplo, la del domingo pasado) con el seguimiento automático para ver qué haría. Nada cambia en las pantallas."
 
-#: ui/dialogs/settings-follow.slint ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-follow.slint ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
 msgid "Recording"
 msgstr "Grabación"
 
@@ -2339,11 +2435,11 @@ msgstr "20 segundos"
 msgid "30 seconds"
 msgstr "30 segundos"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
 msgid "1 minute"
 msgstr "1 minuto"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/dialogs/stream-more.slint
 msgid "Sound"
 msgstr "Sonido"
 
@@ -2519,7 +2615,7 @@ msgstr "Retraso de la transmisión"
 msgid "What goes out to the stream is held back this long, so Hold or Mute can stop something before anyone watching sees it. The recording is not held back. Viewers' comments come in later than what they answer."
 msgstr "Lo que sale a la transmisión se retiene este tiempo, para que Pausa o Silenciar puedan detener algo antes de que alguien lo vea. La grabación no se retrasa. Los comentarios de los espectadores llegan más tarde que aquello a lo que responden."
 
-#: ui/dialogs/settings-media.slint src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
+#: ui/dialogs/settings-media.slint src/stream/sound_setup.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_media.rs
 msgid "None"
 msgstr "Ninguna"
 
@@ -2575,15 +2671,15 @@ msgstr "Niveles de sonido"
 msgid "Turn each sound up or down in the stream only (not in the room)."
 msgstr "Sube o baja cada sonido solo en la transmisión (no en el salón)."
 
-#: ui/dialogs/settings-media.slint src/record/mod.rs
+#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint src/record/mod.rs
 msgid "Microphone or line-in"
 msgstr "Micrófono o entrada de línea"
 
-#: ui/dialogs/settings-media.slint
+#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint
 msgid "{} dB"
 msgstr "{} dB"
 
-#: ui/dialogs/settings-media.slint src/app.rs src/record/mod.rs
+#: ui/dialogs/settings-media.slint ui/dialogs/settings-sound.slint src/app.rs src/record/mod.rs
 msgid "This computer"
 msgstr "Esta computadora"
 
@@ -2652,6 +2748,30 @@ msgid "Fourth camera"
 msgstr "Cuarta cámara"
 
 #: ui/dialogs/settings-media.slint
+msgid "When a camera sends nothing"
+msgstr "Cuando una cámara no envía nada"
+
+#: ui/dialogs/settings-media.slint
+msgid "What the stream shows in a camera's place while it is unplugged or sends no picture. The camera comes back by itself as soon as it sends again."
+msgstr "Lo que muestra la transmisión en lugar de una cámara mientras está desconectada o no envía imagen. La cámara vuelve sola en cuanto envía de nuevo."
+
+#: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
+msgid "The room screen"
+msgstr "La pantalla de la sala"
+
+#: ui/dialogs/settings-media.slint
+msgid "The church logo"
+msgstr "El logo de la iglesia"
+
+#: ui/dialogs/settings-media.slint src/strings/screens.rs src/theme/backgrounds.rs
+msgid "Black"
+msgstr "Negro"
+
+#: ui/dialogs/settings-media.slint
+msgid "Phone as a camera"
+msgstr "Teléfono como cámara"
+
+#: ui/dialogs/settings-media.slint
 msgid "Scenes"
 msgstr "Escenas"
 
@@ -2666,10 +2786,6 @@ msgstr "Elegir la escena por sí sola según lo que está en vivo"
 #: ui/dialogs/settings-media.slint
 msgid "Presentations:"
 msgstr "Presentaciones:"
-
-#: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
-msgid "The room screen"
-msgstr "La pantalla de la sala"
 
 #: ui/dialogs/settings-media.slint
 msgid "The room screen with the camera in a corner"
@@ -2784,14 +2900,6 @@ msgid "YouTube stream key"
 msgstr "Clave de transmisión de YouTube"
 
 #: ui/dialogs/settings-media.slint
-msgid "A key is saved. Type a new one to change it."
-msgstr "Hay una clave guardada. Escribe otra para cambiarla."
-
-#: ui/dialogs/settings-media.slint
-msgid "Paste the stream key"
-msgstr "Pega la clave de transmisión"
-
-#: ui/dialogs/settings-media.slint
 msgid "Sign in"
 msgstr "Iniciar sesión"
 
@@ -2816,24 +2924,52 @@ msgid "Twitch stream key"
 msgstr "Clave de transmisión de Twitch"
 
 #: ui/dialogs/settings-media.slint
-msgid "Another server"
-msgstr "Otro servidor"
-
-#: ui/dialogs/settings-media.slint
-msgid "The server's address"
-msgstr "La dirección del servidor"
-
-#: ui/dialogs/settings-media.slint
-msgid "Its address: rtmp://, rtmps:// or srt://"
-msgstr "Su dirección: rtmp://, rtmps:// o srt://"
-
-#: ui/dialogs/settings-media.slint
 msgid "The server's stream key"
 msgstr "La clave de transmisión del servidor"
 
 #: ui/dialogs/settings-media.slint
 msgid "Its stream key, if it has one"
 msgstr "Su clave de transmisión, si tiene"
+
+#: ui/dialogs/settings-media.slint
+msgid "Instagram's server address"
+msgstr "Dirección del servidor de Instagram"
+
+#: ui/dialogs/settings-media.slint
+msgid "Its server address, if Instagram shows one"
+msgstr "Su dirección de servidor, si Instagram muestra una"
+
+#: ui/dialogs/settings-media.slint
+msgid "Instagram stream key"
+msgstr "Clave de transmisión de Instagram"
+
+#: ui/dialogs/settings-media.slint
+msgid "X's server address"
+msgstr "Dirección del servidor de X"
+
+#: ui/dialogs/settings-media.slint
+msgid "Its server address, if X shows one"
+msgstr "Su dirección de servidor, si X muestra una"
+
+#: ui/dialogs/settings-media.slint
+msgid "X stream key"
+msgstr "Clave de transmisión de X"
+
+#: ui/dialogs/settings-media.slint
+msgid "TikTok's server address"
+msgstr "Dirección del servidor de TikTok"
+
+#: ui/dialogs/settings-media.slint
+msgid "The server address TikTok shows with the key"
+msgstr "La dirección de servidor que TikTok muestra con la clave"
+
+#: ui/dialogs/settings-media.slint
+msgid "TikTok stream key"
+msgstr "Clave de transmisión de TikTok"
+
+#: ui/dialogs/settings-media.slint src/stream/mod.rs
+msgid "Instagram, X and TikTok give stream keys only to some accounts (TikTok asks for enough followers; Instagram's come from Live Producer on a computer). Each shows a server address with the key: paste both. Their keys often work for one broadcast only."
+msgstr "Instagram, X y TikTok dan claves de transmisión solo a algunas cuentas (TikTok pide suficientes seguidores; las de Instagram vienen de Live Producer en una computadora). Cada uno muestra una dirección de servidor con la clave: pega las dos. Sus claves a menudo sirven para una sola transmisión."
 
 #: ui/dialogs/settings-media.slint
 msgid "Tall for phones"
@@ -2844,12 +2980,28 @@ msgid "These get a tall picture (for YouTube Shorts, Reels, TikTok and other pho
 msgstr "Estos reciben una imagen vertical (para YouTube Shorts, Reels, TikTok y otras apps de celular): la imagen ancha en el medio, negro arriba y abajo. La grabación sigue siendo ancha."
 
 #: ui/dialogs/settings-media.slint
+msgid "More settings"
+msgstr "Más ajustes"
+
+#: ui/dialogs/settings-media.slint
+msgid "Pictures a second, video format, sound quality, which network card sends, each destination's own quality, the recording's file type and name, and setups saved by name (Sunday, Wedding) to use again in one go."
+msgstr "Imágenes por segundo, formato de video, calidad del sonido, qué tarjeta de red envía, la calidad propia de cada destino, el tipo y nombre del archivo de grabación, y configuraciones guardadas con un nombre (Domingo, Boda) para usarlas de nuevo de una vez."
+
+#: ui/dialogs/settings-media.slint
+msgid "More settings and saved setups…"
+msgstr "Más ajustes y configuraciones guardadas…"
+
+#: ui/dialogs/settings-media.slint
+msgid "Setup: {}"
+msgstr "Configuración: {}"
+
+#: ui/dialogs/settings-media.slint
 msgid "Broadcast title"
 msgstr "Título de la transmisión"
 
 #: ui/dialogs/settings-media.slint
-msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
-msgstr "Cómo llaman YouTube y Facebook a cada transmisión. {{date}} se convierte en la fecha del día."
+msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date, {{weekday}} the day's name and {{time}} the time; the description can have them too."
+msgstr "Cómo llaman YouTube y Facebook a cada transmisión. {{date}} se convierte en la fecha del día, {{weekday}} en el nombre del día y {{time}} en la hora; la descripción también puede tenerlos."
 
 #: ui/dialogs/settings-media.slint
 msgid "Sunday Service — {{date}}"
@@ -2987,9 +3139,217 @@ msgstr "Agregar etiqueta"
 msgid "Use the usual names, colours and labels"
 msgstr "Usar los nombres, colores y etiquetas habituales"
 
+#: ui/dialogs/settings-sound.slint
+msgid "Gate (quiet between words)"
+msgstr "Puerta (silencio entre palabras)"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Light"
+msgstr "Suave"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Strong"
+msgstr "Fuerte"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Evener (loud down, quiet up)"
+msgstr "Nivelador (baja lo fuerte, sube lo suave)"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Low (boom)"
+msgstr "Graves (retumbe)"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Middle (voices)"
+msgstr "Medios (voces)"
+
+#: ui/dialogs/settings-sound.slint
+msgid "High (clarity, hiss)"
+msgstr "Agudos (claridad, siseo)"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Never too loud (keeps the stream from crackling; best left on)"
+msgstr "Nunca demasiado alto (evita que la transmisión cruja; mejor dejarlo activado)"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Sound setup"
+msgstr "Configuración de sonido"
+
+#: ui/dialogs/settings-sound.slint
+msgid "One choice sets the microphone and how each sound is cleaned up. Anything changed by hand below makes it Custom."
+msgstr "Una sola elección ajusta el micrófono y cómo se limpia cada sonido. Cualquier cambio a mano abajo lo vuelve Personalizado."
+
+#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
+msgid "Second microphone or line-in"
+msgstr "Segundo micrófono o entrada de línea"
+
+#: ui/dialogs/settings-sound.slint
+msgid "While you are live, mixed with the one chosen under \"Sound in the recording\": for a second sound board, a pulpit microphone or the phone."
+msgstr "Mientras estás en vivo, se mezcla con el elegido en “Sonido en la grabación”: para una segunda mesa de sonido, un micrófono del púlpito o el teléfono."
+
+#: ui/dialogs/settings-sound.slint
+msgid "Its level"
+msgstr "Su nivel"
+
+#: ui/dialogs/settings-sound.slint src/stream/sound_setup.rs
+msgid "Third microphone or line-in"
+msgstr "Tercer micrófono o entrada de línea"
+
+#: ui/dialogs/settings-sound.slint src/stream/phone_mic.rs
+msgid "Phone microphone"
+msgstr "Micrófono del teléfono"
+
+#: ui/dialogs/settings-sound.slint
+msgid "Turn on the stage view (Network), then open this page on the phone and press Start: {}"
+msgstr "Activa la vista del escenario (Red), luego abre esta página en el teléfono y pulsa Iniciar: {}"
+
+#: ui/dialogs/settings-sound.slint
+msgid "The first time, the phone warns that the page is not private, because this computer made its own certificate: tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+msgstr "La primera vez, el teléfono avisa que la página no es privada, porque esta computadora hizo su propio certificado: toca Avanzado (en un iPhone, Mostrar detalles) y luego sigue a la página. Mantén el teléfono despierto y enchufado."
+
+#: ui/dialogs/settings-sound.slint
+msgid "Listen to the stream"
+msgstr "Escuchar la transmisión"
+
+#: ui/dialogs/settings-sound.slint
+msgid "While you are live, the stream's sound plays here as viewers hear it (cleaned up and with the sound delay), for headphones at the desk. The room does not hear it unless it is the room's output."
+msgstr "Mientras estás en vivo, el sonido de la transmisión se reproduce aquí como lo oyen los espectadores (limpio y con el retraso del sonido), para audífonos en la mesa. La sala no lo oye, a menos que sea la salida de la sala."
+
+#: ui/dialogs/settings-sound.slint
+msgid "More sound settings"
+msgstr "Más ajustes de sonido"
+
+#: ui/dialogs/settings-sound.slint
+msgid "For the stream only. Each sound has its own: start with the Sound setup above and change little at a time."
+msgstr "Solo para la transmisión. Cada sonido tiene los suyos: empieza con la Configuración de sonido de arriba y cambia poco cada vez."
+
+#: ui/dialogs/settings-sound.slint
+msgid "Show each sound's gate, evener, low, middle and high"
+msgstr "Mostrar puerta, nivelador, graves, medios y agudos de cada sonido"
+
 #: ui/dialogs/settings-state.slint src/strings/catalog.rs
 msgid "All languages"
 msgstr "Todos los idiomas"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Live captions"
+msgstr "Subtítulos en vivo"
+
+#: ui/dialogs/settings-stream-extras.slint src/stream/captions.rs
+msgid "Captions are made on this computer from the microphone, in English only. They are often wrong: names, Bible places, quiet or echoing speech and songs come out badly, and there is no punctuation. They show about two seconds after the words are said."
+msgstr "Los subtítulos se hacen en esta computadora a partir del micrófono, solo en inglés. A menudo se equivocan: los nombres, los lugares bíblicos, el habla baja o con eco y las canciones salen mal, y no hay puntuación. Aparecen unos dos segundos después de que se dicen las palabras."
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Write out what is said while live"
+msgstr "Escribir lo que se dice en vivo"
+
+#: ui/dialogs/settings-stream-extras.slint src/stream/captions.rs
+msgid "Live captions need the English speech model. Download the fast model in Settings → Auto-follow."
+msgstr "Los subtítulos en vivo necesitan el modelo de voz en inglés. Descarga el modelo rápido en Configuración → Autoseguimiento."
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Show them at the bottom of the stream (not over song words or verses)"
+msgstr "Mostrarlos abajo en la transmisión (no sobre la letra de las canciones ni los versículos)"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Keep them in a captions file beside the recording (for YouTube's replay and video players)"
+msgstr "Guardarlos en un archivo de subtítulos junto a la grabación (para la repetición de YouTube y los reproductores de video)"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Listen to:"
+msgstr "Escuchar:"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "YouTube captions address"
+msgstr "Dirección de subtítulos de YouTube"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "YouTube's captions address (optional)"
+msgstr "Dirección de subtítulos de YouTube (opcional)"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "For captions viewers can turn on and off on YouTube: in YouTube Studio, open the stream's settings, turn on Closed captions, choose \"POST captions to URL\", and paste the address it gives here."
+msgstr "Para subtítulos que los espectadores pueden activar y desactivar en YouTube: en YouTube Studio, abre la configuración de la transmisión, activa los subtítulos, elige “POST captions to URL” y pega aquí la dirección que te da."
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "On your website"
+msgstr "En tu sitio web"
+
+#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
+msgid "To play the livestream on your church's website: copy the code, then in your website's editor add an \"HTML\", \"Embed\" or \"Code\" block where the video should go and paste it there. You do this once: the same code plays every week's service."
+msgstr "Para mostrar la transmisión en vivo en el sitio web de tu iglesia: copia el código y luego, en el editor de tu sitio, agrega un bloque “HTML”, “Insertar” o “Código” donde debe ir el video y pégalo ahí. Se hace una sola vez: el mismo código muestra el culto de cada semana."
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "YouTube channel id"
+msgstr "ID del canal de YouTube"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "YouTube channel id (starts with UC)"
+msgstr "ID del canal de YouTube (empieza con UC)"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Fill in"
+msgstr "Rellenar"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Fill in the channel of the YouTube account signed in above"
+msgstr "Rellenar con el canal de la cuenta de YouTube con sesión iniciada arriba"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Copy the code"
+msgstr "Copiar el código"
+
+#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
+msgid "YouTube plays whatever your channel has live; between services it shows the next scheduled stream or says nothing is live. YouTube Studio must allow embedding (it does unless it was turned off)."
+msgstr "YouTube muestra lo que tu canal tenga en vivo; entre cultos muestra la próxima transmisión programada o dice que no hay nada en vivo. YouTube Studio debe permitir insertar el video (lo permite, salvo que se haya desactivado)."
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Facebook Page"
+msgstr "Página de Facebook"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Facebook Page address"
+msgstr "Dirección de la página de Facebook"
+
+#: ui/dialogs/settings-stream-extras.slint src/stream/website.rs
+msgid "Facebook shows your Page with its posts; while you are live the live video is at the top. The Page must be public."
+msgstr "Facebook muestra tu página con sus publicaciones; mientras estás en vivo, el video en vivo aparece arriba. La página debe ser pública."
+
+#: ui/dialogs/settings-stream-extras.slint src/network/guest.rs
+msgid "Remote guest"
+msgstr "Invitado a distancia"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "A guest speaker or missionary joins from a browser at home: their picture comes in as a camera, their voice through this computer's sound. The connection goes directly between the two computers; some internets do not allow that, and the pages then say so."
+msgstr "Un predicador invitado o un misionero se une desde un navegador en su casa: su imagen entra como una cámara y su voz por el sonido de esta computadora. La conexión va directo entre las dos computadoras; algunos internet no lo permiten, y entonces las páginas lo dicen."
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Invite a guest…"
+msgstr "Invitar a alguien…"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Opens the invitation page in this computer's web browser"
+msgstr "Abre la página de invitación en el navegador web de esta computadora"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Use the guest as a camera"
+msgstr "Usar al invitado como cámara"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Puts the guest in the first free camera row above"
+msgstr "Pone al invitado en la primera fila de cámara libre de arriba"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Getting started"
+msgstr "Primeros pasos"
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "A few steps: where to stream, which camera, which sound, and a check."
+msgstr "Unos pocos pasos: adónde transmitir, qué cámara, qué sonido y una comprobación."
+
+#: ui/dialogs/settings-stream-extras.slint
+msgid "Set up step by step…"
+msgstr "Configurar paso a paso…"
 
 #: ui/dialogs/settings-themes.slint src/strings/themes.rs
 msgid "Church default"
@@ -3347,7 +3707,7 @@ msgstr "Idioma"
 msgid "Auto-follow"
 msgstr "Autoseguimiento"
 
-#: ui/dialogs/settings.slint src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs
+#: ui/dialogs/settings.slint src/stream/own_scenes.rs src/strings/design.rs src/strings/import.rs src/strings/operator.rs src/strings/print.rs src/strings/themes.rs src/ui/operator/file_input.rs
 msgid "Video"
 msgstr "Video"
 
@@ -3639,13 +3999,289 @@ msgstr "Elegir el diseño de escenario"
 msgid "Edit stage layouts…"
 msgstr "Editar diseños de escenario…"
 
+#: ui/dialogs/stream-more.slint
+msgid "Saved setups"
+msgstr "Configuraciones guardadas"
+
+#: ui/dialogs/stream-more.slint
+msgid "Keep everything set for the livestream (destinations, cameras, sound, scenes and these settings) under a name, and use it again in one go. Stream keys stay as they are."
+msgstr "Guarda todo lo ajustado para la transmisión en vivo (destinos, cámaras, sonido, escenas y estos ajustes) con un nombre, y úsalo de nuevo de una vez. Las claves de transmisión se quedan como están."
+
+#: ui/dialogs/stream-more.slint
+msgid "Save as a setup…"
+msgstr "Guardar como configuración…"
+
+#: ui/dialogs/stream-more.slint
+msgid "No setups saved yet."
+msgstr "Aún no hay configuraciones guardadas."
+
+#: ui/dialogs/stream-more.slint
+msgid "Pictures a second"
+msgstr "Imágenes por segundo"
+
+#: ui/dialogs/stream-more.slint
+msgid "30 (usual)"
+msgstr "30 (lo usual)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Video format"
+msgstr "Formato de video"
+
+#: ui/dialogs/stream-more.slint
+msgid "H.264 (plays everywhere)"
+msgstr "H.264 (se reproduce en todas partes)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Bitrate kept"
+msgstr "Tasa de bits"
+
+#: ui/dialogs/stream-more.slint
+msgid "Always the same (CBR)"
+msgstr "Siempre igual (CBR)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Varies with the picture (VBR)"
+msgstr "Varía con la imagen (VBR)"
+
+#: ui/dialogs/stream-more.slint
+msgid "HEVC and AV1 give a sharper picture for the same upload. HEVC is used when every destination that is on takes it (YouTube and your own server do); otherwise H.264. AV1 is for recordings only: while live, H.264 is used. Both need a newer computer or graphics card."
+msgstr "HEVC y AV1 dan una imagen más nítida con la misma subida. HEVC se usa cuando todos los destinos activados lo aceptan (YouTube y tu propio servidor lo aceptan); si no, H.264. AV1 es solo para grabaciones: en vivo se usa H.264. Los dos necesitan una computadora o tarjeta gráfica más nueva."
+
+#: ui/dialogs/stream-more.slint
+msgid "A whole picture every"
+msgstr "Una imagen completa cada"
+
+#: ui/dialogs/stream-more.slint
+msgid "1 second"
+msgstr "1 segundo"
+
+#: ui/dialogs/stream-more.slint
+msgid "2 seconds (usual)"
+msgstr "2 segundos (lo usual)"
+
+#: ui/dialogs/stream-more.slint
+msgid "3 seconds"
+msgstr "3 segundos"
+
+#: ui/dialogs/stream-more.slint
+msgid "4 seconds"
+msgstr "4 segundos"
+
+#: ui/dialogs/stream-more.slint
+msgid "Encoder speed"
+msgstr "Velocidad del codificador"
+
+#: ui/dialogs/stream-more.slint
+msgid "Fastest (least work)"
+msgstr "Lo más rápido (menos trabajo)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Fast"
+msgstr "Rápido"
+
+#: ui/dialogs/stream-more.slint
+msgid "Balanced"
+msgstr "Equilibrado"
+
+#: ui/dialogs/stream-more.slint
+msgid "Best picture (most work)"
+msgstr "Mejor imagen (más trabajo)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Profile"
+msgstr "Perfil"
+
+#: ui/dialogs/stream-more.slint
+msgid "B-frames"
+msgstr "Fotogramas B"
+
+#: ui/dialogs/stream-more.slint
+msgid "Leave these on Automatic unless a service or a video editor asks for something else. Faster leaves more of the computer free; Baseline is only for very old players."
+msgstr "Déjalos en Automático salvo que un servicio o un editor de video pida otra cosa. Más rápido deja más libre la computadora; Baseline es solo para reproductores muy viejos."
+
+#: ui/dialogs/stream-more.slint
+msgid "Sample rate"
+msgstr "Frecuencia de muestreo"
+
+#: ui/dialogs/stream-more.slint
+msgid "As it comes (usual)"
+msgstr "Como llega (lo usual)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Sound bitrate"
+msgstr "Tasa de bits del sonido"
+
+#: ui/dialogs/stream-more.slint
+msgid "160 kbit/s (usual)"
+msgstr "160 kbit/s (lo usual)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Channels"
+msgstr "Canales"
+
+#: ui/dialogs/stream-more.slint
+msgid "Stereo"
+msgstr "Estéreo"
+
+#: ui/dialogs/stream-more.slint
+msgid "Mono"
+msgstr "Mono"
+
+#: ui/dialogs/stream-more.slint src/ui/dialogs/network.rs
+msgid "Network"
+msgstr "Red"
+
+#: ui/dialogs/stream-more.slint
+msgid "Send the stream from"
+msgstr "Enviar la transmisión desde"
+
+#: ui/dialogs/stream-more.slint
+msgid "Safer send (SRT servers)"
+msgstr "Envío más seguro (servidores SRT)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Off (SRT's own)"
+msgstr "Desactivado (el propio de SRT)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Half a second"
+msgstr "Medio segundo"
+
+#: ui/dialogs/stream-more.slint
+msgid "2 seconds"
+msgstr "2 segundos"
+
+#: ui/dialogs/stream-more.slint
+msgid "Send from a wired network card to keep the stream off busy Wi-Fi (YouTube, Facebook, Twitch and other RTMP servers; an SRT server is reached however the computer chooses). Safer send gives an SRT server time to ask again for what got lost on a poor line; the picture arrives that much later."
+msgstr "Envía desde una tarjeta de red con cable para que la transmisión no pase por un Wi-Fi cargado (YouTube, Facebook, Twitch y otros servidores RTMP; a un servidor SRT se llega como la computadora elija). El envío más seguro le da a un servidor SRT tiempo para volver a pedir lo que se perdió en una mala línea; la imagen llega así de tarde."
+
+#: ui/dialogs/stream-more.slint
+msgid "Each destination's quality"
+msgstr "Calidad de cada destino"
+
+#: ui/dialogs/stream-more.slint
+msgid "A destination can get a smaller picture or a lower bitrate than the main stream (a phone app, a slow server). Each one that differs costs the computer a second encode."
+msgstr "Un destino puede recibir una imagen más pequeña o una tasa de bits más baja que la transmisión principal (una app de celular, un servidor lento). Cada uno distinto le cuesta a la computadora una segunda codificación."
+
+#: ui/dialogs/stream-more.slint
+msgid "Size: the main stream's"
+msgstr "Tamaño: el de la transmisión principal"
+
+#: ui/dialogs/stream-more.slint
+msgid "Bitrate: the main stream's"
+msgstr "Tasa de bits: la de la transmisión principal"
+
+#: ui/dialogs/stream-more.slint
+msgid "File type"
+msgstr "Tipo de archivo"
+
+#: ui/dialogs/stream-more.slint
+msgid "MP4 (plays everywhere)"
+msgstr "MP4 (se reproduce en todas partes)"
+
+#: ui/dialogs/stream-more.slint
+msgid "MKV (as written; nothing to wait for at the end)"
+msgstr "MKV (tal como se escribe; nada que esperar al final)"
+
+#: ui/dialogs/stream-more.slint
+msgid "Cut long recordings"
+msgstr "Partir las grabaciones largas"
+
+#: ui/dialogs/stream-more.slint
+msgid "Every 30 minutes"
+msgstr "Cada 30 minutos"
+
+#: ui/dialogs/stream-more.slint
+msgid "Every hour"
+msgstr "Cada hora"
+
+#: ui/dialogs/stream-more.slint
+msgid "Every 2 hours"
+msgstr "Cada 2 horas"
+
+#: ui/dialogs/stream-more.slint
+msgid "At 2 GB"
+msgstr "A los 2 GB"
+
+#: ui/dialogs/stream-more.slint
+msgid "At 4 GB (old USB sticks)"
+msgstr "A los 4 GB (memorias USB viejas)"
+
+#: ui/dialogs/stream-more.slint
+msgid "At 8 GB"
+msgstr "A los 8 GB"
+
+#: ui/dialogs/stream-more.slint
+msgid "“Save last” button keeps"
+msgstr "El botón “Guardar lo último” guarda"
+
+#: ui/dialogs/stream-more.slint
+msgid "No button"
+msgstr "Sin botón"
+
+#: ui/dialogs/stream-more.slint
+msgid "2 minutes"
+msgstr "2 minutos"
+
+#: ui/dialogs/stream-more.slint
+msgid "5 minutes"
+msgstr "5 minutos"
+
+#: ui/dialogs/stream-more.slint
+msgid "10 minutes"
+msgstr "10 minutos"
+
+#: ui/dialogs/stream-more.slint
+msgid "15 minutes"
+msgstr "15 minutos"
+
+#: ui/dialogs/stream-more.slint
+msgid "File name"
+msgstr "Nombre del archivo"
+
+#: ui/dialogs/stream-more.slint
+msgid "Recording file name"
+msgstr "Nombre del archivo de grabación"
+
+#: ui/dialogs/stream-more.slint
+msgid "Recording {{date}} {{time}}"
+msgstr "Grabación {{date}} {{time}}"
+
+#: ui/dialogs/stream-more.slint
+msgid "{{date}} becomes the day, {{time}} the time it started, {{title}} the service's name. Now: {}"
+msgstr "{{date}} se convierte en el día, {{time}} en la hora de inicio, {{title}} en el nombre del culto. Ahora: {}"
+
+#: ui/dialogs/stream-more.slint
+msgid "While live, also record the stream without the words (for editing)"
+msgstr "En vivo, grabar también la transmisión sin la letra (para editar)"
+
 #: ui/dialogs/stream-scenes.slint
-msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
-msgstr "Todavía no tienes escenas propias. Agrega una y pon en ella cámaras, la pantalla de la sala, la letra, imágenes, colores o texto."
+msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, videos, colours, text or a clock in it."
+msgstr "Aún no tienes escenas propias. Agrega una y luego pon en ella cámaras, la pantalla de la sala, la letra, imágenes, videos, colores, texto o un reloj."
 
 #: ui/dialogs/stream-scenes.slint
 msgid "Add a scene"
 msgstr "Agregar una escena"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Changing scenes"
+msgstr "Cambio de escena"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No video chosen yet: scenes fade."
+msgstr "Aún no hay video elegido: las escenas se funden."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Choose a video…"
+msgstr "Elegir un video…"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "How the stream changes from one scene to the next, built-in scenes too. A scene of yours can have its own way. A stinger is a short video played over the change; the scene changes half way through it."
+msgstr "Cómo pasa la transmisión de una escena a la siguiente, también en las escenas integradas. Una escena tuya puede tener su propia forma. Un stinger es un video corto que se reproduce sobre el cambio; la escena cambia a la mitad."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "How the scene looks"
+msgstr "Cómo se ve la escena"
 
 #: ui/dialogs/stream-scenes.slint
 msgid "Layers (in front at the top)"
@@ -3676,8 +4312,52 @@ msgid "No picture chosen yet."
 msgstr "Todavía no se eligió ninguna imagen."
 
 #: ui/dialogs/stream-scenes.slint
+msgid "No video chosen yet."
+msgstr "Aún no hay video elegido."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "It plays again and again, without its sound, while the stream is live."
+msgstr "Se repite una y otra vez, sin sonido, mientras la transmisión está en vivo."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Show the seconds"
+msgstr "Mostrar los segundos"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Count down to (for example 10:30)"
+msgstr "Cuenta regresiva hasta (por ejemplo 10:30)"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Leave it empty to count down to the service's start time (Services → Starts at)."
+msgstr "Déjalo vacío para contar hasta la hora de inicio del culto (Cultos → Empieza a las)."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "While live, the page is opened in this computer's Microsoft Edge or Google Chrome, without a window, the size of the stream. A page with a see-through background shows what is behind it."
+msgstr "En vivo, la página se abre en Microsoft Edge o Google Chrome de esta computadora, sin ventana, del tamaño de la transmisión. Una página con fondo transparente muestra lo que hay detrás."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Size: like your other words"
+msgstr "Tamaño: como tu otra letra"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Size: {}"
+msgstr "Tamaño: {}"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Colour (empty: like your other words)"
+msgstr "Color (vacío: como tu otra letra)"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Place in the tall picture"
+msgstr "Lugar en la imagen vertical"
+
+#: ui/dialogs/stream-scenes.slint
 msgid "Place"
 msgstr "Posición"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Or drag it on the picture; drag its corner square to make it bigger or smaller."
+msgstr "O arrástralo sobre la imagen; arrastra el cuadrito de la esquina para hacerlo más grande o más pequeño."
 
 #: ui/dialogs/stream-scenes.slint
 msgid "From the left: {}%"
@@ -3700,12 +4380,76 @@ msgid "See-through: {}%"
 msgstr "Transparencia: {} %"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "How the scene looks"
-msgstr "Cómo se ve la escena"
+msgid "Cut off the edges"
+msgstr "Recortar los bordes"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
-msgstr "Aquí las cámaras, la pantalla de la sala y la letra son de muestra; en vivo son las reales. Una cámara que no envía nada muestra la pantalla de la sala en su lugar."
+msgid "Left: {}%"
+msgstr "Izquierda: {} %"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Top: {}%"
+msgstr "Arriba: {} %"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Right: {}%"
+msgstr "Derecha: {} %"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Bottom: {}%"
+msgstr "Abajo: {} %"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Take out"
+msgstr "Quitar"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "The colour to take out"
+msgstr "El color que se quita"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "How close a colour must be: {}%"
+msgstr "Qué tan parecido debe ser un color: {} %"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Darker than: {}%"
+msgstr "Más oscuro que: {} %"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Lighter than: {}%"
+msgstr "Más claro que: {} %"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Soft edge: {}%"
+msgstr "Borde suave: {} %"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "For a green screen: light it evenly, then raise “How close” until the screen is gone and lower it if the person starts to go."
+msgstr "Para una pantalla verde: ilumínala de forma pareja, luego sube “Qué tan parecido” hasta que la pantalla desaparezca y bájalo si la persona empieza a desaparecer."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Wide picture"
+msgstr "Imagen ancha"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Tall picture (phones)"
+msgstr "Imagen vertical (celulares)"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Destinations set to tall get the wide picture fitted across, as here. You can place this scene's layers in the tall picture yourself."
+msgstr "Los destinos en vertical reciben la imagen ancha ajustada a lo ancho, como aquí. Puedes colocar tú mismo las capas de esta escena en la imagen vertical."
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Place the layers for phones"
+msgstr "Colocar las capas para celulares"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Use the wide picture fitted across again"
+msgstr "Volver a usar la imagen ancha ajustada a lo ancho"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "Cameras, the room screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgstr "Las cámaras, la pantalla de la sala, la letra, los videos y las páginas web son aquí sustitutos; en vivo son los reales. Una cámara que no envía nada muestra la pantalla de la sala en su lugar."
 
 #: ui/dialogs/stream-scenes.slint
 msgid "Use it by itself in place of"
@@ -3715,11 +4459,19 @@ msgstr "Usarla por sí sola en lugar de"
 msgid "When the scene is chosen by itself from what is live, this scene goes out instead of that one. For example, choose “Camera + words” to use it for songs and verses."
 msgstr "Cuando la escena se elige por sí sola según lo que está en vivo, sale esta escena en lugar de esa. Por ejemplo, elige “Cámara + letra” para usarla en canciones y versículos."
 
+#: ui/dialogs/stream-scenes.slint
+msgid "When this scene comes in"
+msgstr "Cuando entra esta escena"
+
+#: ui/dialogs/stream-scenes.slint
+msgid "No video chosen yet: the scene fades in."
+msgstr "Aún no hay video elegido: la escena entra con un fundido."
+
 #: ui/dialogs/transition.slint src/theme/richtext.rs
 msgid "Normal"
 msgstr "Normal"
 
-#: ui/dialogs/transition.slint ui/operator/cameras.slint
+#: ui/dialogs/transition.slint ui/operator/cameras.slint src/stream/transition.rs
 msgid "Fade"
 msgstr "Fundido"
 
@@ -4043,10 +4795,6 @@ msgstr "Canciones y volumen de la música de entrada"
 msgid "Going out now"
 msgstr "Al aire ahora"
 
-#: ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Next"
-msgstr "Siguiente"
-
 #: ui/operator/cameras.slint
 msgid "This camera is going out now"
 msgstr "Esta cámara está al aire ahora"
@@ -4060,8 +4808,52 @@ msgid "Live"
 msgstr "En vivo"
 
 #: ui/operator/cameras.slint
-msgid "Move the next camera to its saved position {}"
-msgstr "Mover la siguiente cámara a su posición guardada {}"
+msgid "Turn left while held"
+msgstr "Girar a la izquierda mientras se mantiene"
+
+#: ui/operator/cameras.slint
+msgid "Tilt up while held"
+msgstr "Inclinar arriba mientras se mantiene"
+
+#: ui/operator/cameras.slint
+msgid "Tilt down while held"
+msgstr "Inclinar abajo mientras se mantiene"
+
+#: ui/operator/cameras.slint
+msgid "Turn right while held"
+msgstr "Girar a la derecha mientras se mantiene"
+
+#: ui/operator/cameras.slint
+msgid "Zoom out while held"
+msgstr "Alejar mientras se mantiene"
+
+#: ui/operator/cameras.slint
+msgid "Zoom in while held"
+msgstr "Acercar mientras se mantiene"
+
+#: ui/operator/cameras.slint
+msgid "Save this shot as"
+msgstr "Guardar este encuadre como"
+
+#: ui/operator/cameras.slint
+msgid "Save this shot as position {}"
+msgstr "Guardar este encuadre como posición {}"
+
+#: ui/operator/cameras.slint
+msgid "Move the camera to its saved position {}"
+msgstr "Mover la cámara a su posición guardada {}"
+
+#: ui/operator/cameras.slint
+msgid "Save…"
+msgstr "Guardar…"
+
+#: ui/operator/cameras.slint
+msgid "Keep the saved positions as they are"
+msgstr "Dejar las posiciones guardadas como están"
+
+#: ui/operator/cameras.slint
+msgid "Save the camera's shot now as one of its positions"
+msgstr "Guardar ahora el encuadre de la cámara como una de sus posiciones"
 
 #: ui/operator/cameras.slint
 msgid "Switch"
@@ -4094,6 +4886,26 @@ msgstr "Opciones del seguimiento automático"
 #: ui/operator/follow.slint src/i18n/remote_strings.rs
 msgid "Holding"
 msgstr "En pausa"
+
+#: ui/operator/live-status.slint
+msgid "Stream status"
+msgstr "Estado de la transmisión"
+
+#: ui/operator/live-status.slint
+msgid "How the stream is doing"
+msgstr "Cómo va la transmisión"
+
+#: ui/operator/live-status.slint
+msgid "Live captions: {}"
+msgstr "Subtítulos en vivo: {}"
+
+#: ui/operator/live-status.slint
+msgid "Copy the title"
+msgstr "Copiar el título"
+
+#: ui/operator/live-status.slint
+msgid "Copy the description"
+msgstr "Copiar la descripción"
 
 #: ui/operator/live.slint ui/operator.slint
 msgid "—"
@@ -4235,7 +5047,7 @@ msgstr "No se encontró ninguna. Escribe el nombre de la cámara:"
 msgid "Or type its name"
 msgstr "O escribe su nombre"
 
-#: ui/operator/media.slint
+#: ui/operator/media.slint src/stream/phone_camera.rs
 msgid "Camera name"
 msgstr "Nombre de la cámara"
 
@@ -4303,11 +5115,11 @@ msgstr "Suelta para agregar al culto"
 msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect lyric files"
 msgstr "Videos, imágenes, música, presentaciones (PowerPoint, Keynote, PDF), archivos de letras de SongSelect"
 
-#: ui/operator/record.slint
+#: ui/operator/record.slint ui/operator.slint
 msgid "Stop the livestream"
 msgstr "Detener la transmisión"
 
-#: ui/operator/record.slint src/record/mod.rs
+#: ui/operator/record.slint ui/operator.slint src/record/mod.rs
 msgid "Go Live"
 msgstr "Transmitir"
 
@@ -4419,6 +5231,18 @@ msgstr "{} nuevos"
 msgid "Nothing written yet."
 msgstr "Nadie ha escrito todavía."
 
+#: ui/operator/save-last.slint
+msgid "Save the last {} minutes"
+msgstr "Guardar los últimos {} minutos"
+
+#: ui/operator/save-last.slint
+msgid "Save last {} min"
+msgstr "Guardar últimos {} min"
+
+#: ui/operator/save-last.slint
+msgid "Save the last {} minutes of the recording as a video of its own, now"
+msgstr "Guardar ahora los últimos {} minutos de la grabación como un video aparte"
+
 #: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Service"
 msgstr "Culto"
@@ -4430,10 +5254,6 @@ msgstr "Agregar un encabezado"
 #: ui/operator/service.slint
 msgid "Add a coloured heading to the service list, like “Worship” or “Message”"
 msgstr "Agrega un encabezado de color a la lista del culto, como “Alabanza” o “Mensaje”"
-
-#: ui/operator/service.slint
-msgid "Check"
-msgstr "Revisar"
 
 #: ui/operator/service.slint
 msgid "Before the service: are all the songs, files and screens there?"
@@ -5711,7 +6531,7 @@ msgstr "Control remoto de RustyPresenter"
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
 msgstr "En la computadora de presentación, haz clic en {phone} → {pair} y escribe aquí el código de 6 dígitos."
 
-#: src/i18n/remote_strings.rs
+#: src/i18n/remote_strings.rs src/stream/phone_camera.rs
 msgid "Connect"
 msgstr "Conectar"
 
@@ -5866,7 +6686,7 @@ msgstr "No se está reproduciendo"
 msgid "{time} left"
 msgstr "Quedan {time}"
 
-#: src/i18n/remote_strings.rs
+#: src/i18n/remote_strings.rs src/stream/phone_camera.rs
 msgid "Password"
 msgstr "Contraseña"
 
@@ -6322,6 +7142,10 @@ msgstr "Esa pantalla no está conectada en este momento."
 msgid "Scripture"
 msgstr "Escritura"
 
+#: src/record/advanced.rs
+msgid "{name} last {minutes} minutes"
+msgstr "{name} últimos {minutes} minutos"
+
 #: src/record/args.rs
 msgid "Network camera {host}"
 msgstr "Cámara de red {host}"
@@ -6359,8 +7183,8 @@ msgid "RustyPresenter stopped in the middle of a livestream. The recording up to
 msgstr "RustyPresenter se detuvo en medio de una transmisión en vivo. Se guardó la grabación hasta ese momento. ¿Volver a transmitir en vivo?"
 
 #: src/record/mod.rs
-msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or close other programs."
-msgstr "Esta computadora no da abasto, así que la grabación y la transmisión se ven a saltos. Elige 720p en «Tamaño de imagen» en Configuración → Multimedia, o cierra otros programas."
+msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or the graphics card under Video encoder, and close other programs."
+msgstr "Esta computadora no da abasto, así que la grabación y la transmisión van a saltos. Elige 720p en Tamaño de imagen en Configuración → Multimedia, o la tarjeta gráfica en Codificador de video, y cierra otros programas."
 
 #: src/record/mod.rs
 msgid "The computer is keeping up again: the picture is smooth."
@@ -6405,6 +7229,26 @@ msgstr "Grabación guardada: {path}"
 #: src/record/mod.rs
 msgid "Recording saved as {path} (it could not be turned into MP4)."
 msgstr "Grabación guardada como {path} (no se pudo convertir a MP4)."
+
+#: src/record/mod.rs
+msgid "Recording saved in {n} pieces, the first: {path}"
+msgstr "Grabación guardada en {n} partes, la primera: {path}"
+
+#: src/record/mod.rs
+msgid "Saving the last {minutes} minutes…"
+msgstr "Guardando los últimos {minutes} minutos…"
+
+#: src/record/mod.rs
+msgid "The last minutes are saved: {path}"
+msgstr "Los últimos minutos están guardados: {path}"
+
+#: src/record/mod.rs
+msgid "The last minutes could not be saved: {path}"
+msgstr "No se pudieron guardar los últimos minutos: {path}"
+
+#: src/record/mod.rs
+msgid "Next time, the graphics card's encoder is used by itself, if this computer has one that works."
+msgstr "La próxima vez se usará solo el codificador de la tarjeta gráfica, si esta computadora tiene uno que funcione."
 
 #: src/record/mod.rs
 msgid "The recording was saved without the app's sound, which could not be added."
@@ -6597,8 +7441,28 @@ msgid "Hold auto-follow (the slides stay put)"
 msgstr "Pausar el seguimiento automático (las diapositivas no se mueven)"
 
 #: src/shortcuts.rs
+msgid "Livestream: camera {n} next"
+msgstr "Transmisión: cámara {n} a continuación"
+
+#: src/shortcuts.rs
+msgid "Livestream: switch to the next camera"
+msgstr "Transmisión: cambiar a la siguiente cámara"
+
+#: src/shortcuts.rs
+msgid "Livestream: fade to the next camera"
+msgstr "Transmisión: fundido a la siguiente cámara"
+
+#: src/shortcuts.rs
 msgid "Everything but the background"
 msgstr "Todo menos el fondo"
+
+#: src/shortcuts.rs
+msgid "Livestream scene: {name}"
+msgstr "Escena de la transmisión: {name}"
+
+#: src/shortcuts.rs
+msgid "Scene keys work while the stream is live."
+msgstr "Las teclas de escena funcionan mientras la transmisión está en vivo."
 
 #: src/slides.rs src/strings/print.rs
 msgid "Missing song"
@@ -6704,6 +7568,174 @@ msgstr "Enlace copiado."
 msgid "{name}: the replay is at {link}"
 msgstr "{name}: la repetición está en {link}"
 
+#: src/stream/captions.rs
+msgid "Live captions could not start: {why}"
+msgstr "Los subtítulos en vivo no pudieron empezar: {why}"
+
+#: src/stream/captions.rs
+msgid "Live captions need a microphone or line-in: choose one under Sound in Settings → Media, or under Live captions."
+msgstr "Los subtítulos en vivo necesitan un micrófono o entrada de línea: elige uno en Sonido en Configuración → Multimedia, o en Subtítulos en vivo."
+
+#: src/stream/captions.rs
+msgid "Live captions stopped hearing the microphone ({why}). Trying again…"
+msgstr "Los subtítulos en vivo dejaron de oír el micrófono ({why}). Intentando de nuevo…"
+
+#: src/stream/captions.rs
+msgid "The captions file {path} could not be made: {why}"
+msgstr "No se pudo crear el archivo de subtítulos {path}: {why}"
+
+#: src/stream/captions.rs
+msgid "Live captions are on."
+msgstr "Los subtítulos en vivo están activados."
+
+#: src/stream/captions.rs
+msgid "Captions saved: {path}"
+msgstr "Subtítulos guardados: {path}"
+
+#: src/stream/health.rs
+msgid "{name}: going out, but the internet is too slow for it"
+msgstr "{name}: saliendo, pero el internet es demasiado lento"
+
+#: src/stream/health.rs
+msgid "{name}: going out, lighter ({kbps} kbit/s) for a slow internet"
+msgstr "{name}: saliendo, más ligero ({kbps} kbit/s) por un internet lento"
+
+#: src/stream/health.rs
+msgid "{name}: going out"
+msgstr "{name}: saliendo"
+
+#: src/stream/health.rs
+msgid "{name}: not connecting. Check its stream key and the internet; still trying"
+msgstr "{name}: no se conecta. Revisa su clave de transmisión y el internet; se sigue intentando"
+
+#: src/stream/health.rs
+msgid "{name}: connecting…"
+msgstr "{name}: conectando…"
+
+#: src/stream/health.rs
+msgid "NDI: going out"
+msgstr "NDI: saliendo"
+
+#: src/stream/health.rs
+msgid "Camera: picture coming in"
+msgstr "Cámara: llega imagen"
+
+#: src/stream/health.rs
+msgid "Camera: no picture (the room screen is shown instead)"
+msgstr "Cámara: sin imagen (se muestra la pantalla de la sala en su lugar)"
+
+#: src/stream/health.rs
+msgid "Sound: {name}"
+msgstr "Sonido: {name}"
+
+#: src/stream/health.rs
+msgid "Sound: nothing from {name} for 10 seconds"
+msgstr "Sonido: nada de {name} desde hace 10 segundos"
+
+#: src/stream/health.rs
+msgid "This computer is not keeping up: the picture is jerky"
+msgstr "Esta computadora no da abasto: la imagen va a saltos"
+
+#: src/stream/health.rs
+msgid "Frozen: viewers see a still picture"
+msgstr "Congelado: los espectadores ven una imagen fija"
+
+#: src/stream/health.rs
+msgid "Muted: viewers hear nothing"
+msgstr "Silenciado: los espectadores no oyen nada"
+
+#: src/stream/health.rs
+msgid "Live captions: on"
+msgstr "Subtítulos en vivo: activados"
+
+#: src/stream/health.rs
+msgid "All good"
+msgstr "Todo bien"
+
+#: src/stream/health.rs
+msgid "Check the stream"
+msgstr "Revisa la transmisión"
+
+#: src/stream/health.rs
+msgid "Not going out"
+msgstr "No está saliendo"
+
+#: src/stream/helper.rs
+msgid "Paste the stream key first."
+msgstr "Primero pega la clave de transmisión."
+
+#: src/stream/helper.rs
+msgid "Type the server's address first."
+msgstr "Primero escribe la dirección del servidor."
+
+#: src/stream/helper.rs
+msgid "On YouTube: open YouTube Studio, choose Create → Go live → Stream, and copy the Stream key."
+msgstr "En YouTube: abre YouTube Studio, elige Crear → Emitir en directo → Emisión y copia la clave de transmisión."
+
+#: src/stream/helper.rs
+msgid "On Facebook: open your Page, choose Live video → Streaming software, and copy the Stream key (turn on \"Use a persistent stream key\" so it stays the same every week)."
+msgstr "En Facebook: abre tu página, elige Video en vivo → Software de transmisión y copia la clave de transmisión (activa “Usar una clave de transmisión persistente” para que sea la misma cada semana)."
+
+#: src/stream/helper.rs
+msgid "On Twitch: open the Creator Dashboard, choose Settings → Stream, and copy the Primary stream key."
+msgstr "En Twitch: abre el Panel de control del creador, elige Configuración → Transmisión y copia la clave de transmisión principal."
+
+#: src/stream/helper.rs
+msgid "Your streaming service gives you a server address (starting with rtmp://, rtmps:// or srt://) and usually a stream key."
+msgstr "Tu servicio de transmisión te da una dirección de servidor (que empieza con rtmp://, rtmps:// o srt://) y por lo general una clave de transmisión."
+
+#: src/stream/helper.rs
+msgid "On Instagram: in Live Producer (on a computer, Create → Live video → Streaming software), copy the Stream URL and Stream key. Only some accounts are given a stream key."
+msgstr "En Instagram: en Live Producer (en una computadora, Crear → Video en vivo → Software de transmisión), copia la URL de transmisión y la clave de transmisión. Solo algunas cuentas reciben una clave."
+
+#: src/stream/helper.rs
+msgid "On X: in Media Studio, choose Producer → Sources, and copy the RTMP URL and Stream key. Only some accounts can stream from software."
+msgstr "En X: en Media Studio, elige Producer → Sources y copia la URL RTMP y la clave de transmisión. Solo algunas cuentas pueden transmitir desde un programa."
+
+#: src/stream/helper.rs
+msgid "On TikTok: in LIVE Studio or the LIVE Center, copy the Server URL and Stream key. Only some accounts are given a stream key."
+msgstr "En TikTok: en LIVE Studio o el LIVE Center, copia la URL del servidor y la clave de transmisión. Solo algunas cuentas reciben una clave."
+
+#: src/stream/helper.rs
+msgid "The test sends 20 seconds to YouTube. Anyone who can see your stream sees it: in YouTube Studio, set the stream to Private or Unlisted first if nobody should."
+msgstr "La prueba envía 20 segundos a YouTube. Quien pueda ver tu transmisión la verá: en YouTube Studio, pon antes la transmisión en Privada o No listada si nadie debe verla."
+
+#: src/stream/helper.rs
+msgid "The test sends 20 seconds to Facebook. With a persistent key Facebook waits for you to press Go live there, so nobody sees it."
+msgstr "La prueba envía 20 segundos a Facebook. Con una clave persistente, Facebook espera a que pulses Transmitir en vivo allí, así que nadie la ve."
+
+#: src/stream/helper.rs
+msgid "The test sends 20 seconds to the service, then stops by itself."
+msgstr "La prueba envía 20 segundos al servicio y luego se detiene sola."
+
+#: src/stream/helper.rs
+msgid "Sound: {name} could not be opened. Is it plugged in?"
+msgstr "Sonido: no se pudo abrir {name}. ¿Está conectado?"
+
+#: src/stream/helper.rs
+msgid "Sound: almost nothing from {name}. Is the sound board sending to this computer, and is someone talking?"
+msgstr "Sonido: casi nada de {name}. ¿La mesa de sonido está enviando a esta computadora, y alguien está hablando?"
+
+#: src/stream/helper.rs
+msgid "Sound: {name} is coming in."
+msgstr "Sonido: llega {name}."
+
+#: src/stream/helper.rs
+msgid "Camera: {name} gives a picture."
+msgstr "Cámara: {name} da imagen."
+
+#: src/stream/helper.rs
+msgid "Camera: no picture from {name}. Is it plugged in, and closed in other programs (Zoom, Teams, OBS)?"
+msgstr "Cámara: sin imagen de {name}. ¿Está conectada y cerrada en otros programas (Zoom, Teams, OBS)?"
+
+#: src/stream/listen.rs
+msgid "This computer's usual output"
+msgstr "La salida habitual de esta computadora"
+
+#: src/stream/listen.rs
+msgid "Listening to the stream could not start: {error}"
+msgstr "No se pudo empezar a escuchar la transmisión: {error}"
+
 #: src/stream/mod.rs
 msgid "The stream ran {time}."
 msgstr "La transmisión duró {time}."
@@ -6808,6 +7840,14 @@ msgstr "Hay una grabación en curso. Detenla y luego pulsa Transmitir."
 msgid "A Mac cannot send its own sound by itself. Install the free BlackHole, make a Multi-Output Device of the speakers and BlackHole in Audio MIDI Setup, and choose it as the app's sound output."
 msgstr "Un Mac no puede enviar su propio sonido por sí solo. Instala BlackHole, que es gratuito, crea en Configuración de Audio MIDI un dispositivo de salida múltiple con los altavoces y BlackHole, y elígelo como salida de sonido de la aplicación."
 
+#: src/stream/network_card.rs
+msgid "Let the computer choose"
+msgstr "Dejar que elija la computadora"
+
+#: src/stream/network_card.rs
+msgid "{address} (not on this computer now)"
+msgstr "{address} (no está en esta computadora ahora)"
+
 #: src/stream/own_scenes.rs
 msgid "small"
 msgstr "pequeño"
@@ -6877,6 +7917,22 @@ msgid "Some words of your own"
 msgstr "Un texto propio"
 
 #: src/stream/own_scenes.rs
+msgid "A video"
+msgstr "Un video"
+
+#: src/stream/own_scenes.rs
+msgid "A clock (the time now)"
+msgstr "Un reloj (la hora actual)"
+
+#: src/stream/own_scenes.rs
+msgid "A countdown"
+msgstr "Una cuenta regresiva"
+
+#: src/stream/own_scenes.rs
+msgid "A web page"
+msgstr "Una página web"
+
+#: src/stream/own_scenes.rs
 msgid "A picture (none chosen yet)"
 msgstr "Una imagen (todavía sin elegir)"
 
@@ -6885,12 +7941,36 @@ msgid "Picture: {name}"
 msgstr "Imagen: {name}"
 
 #: src/stream/own_scenes.rs
+msgid "A video (none chosen yet)"
+msgstr "Un video (aún sin elegir)"
+
+#: src/stream/own_scenes.rs
+msgid "Video: {name}"
+msgstr "Video: {name}"
+
+#: src/stream/own_scenes.rs
 msgid "Colour {hex}"
 msgstr "Color {hex}"
 
 #: src/stream/own_scenes.rs
 msgid "Your words: {text}"
 msgstr "Tu texto: {text}"
+
+#: src/stream/own_scenes.rs
+msgid "Countdown to the service's start"
+msgstr "Cuenta regresiva al inicio del culto"
+
+#: src/stream/own_scenes.rs
+msgid "Countdown to {time}"
+msgstr "Cuenta regresiva hasta las {time}"
+
+#: src/stream/own_scenes.rs
+msgid "A web page (no address yet)"
+msgstr "Una página web (aún sin dirección)"
+
+#: src/stream/own_scenes.rs
+msgid "Web page: {address}"
+msgstr "Página web: {address}"
 
 #: src/stream/own_scenes.rs src/strings/operator.rs src/ui/dialogs/settings_themes.rs src/ui/dialogs/stream_scenes.rs
 msgid "Welcome"
@@ -6916,9 +7996,169 @@ msgstr "Una escena eliminada"
 msgid "The words of the song go here"
 msgstr "Aquí va la letra de la canción"
 
+#: src/stream/phone_camera.rs
+msgid "Phone camera: {name}"
+msgstr "Cámara del teléfono: {name}"
+
+#: src/stream/phone_camera.rs
+msgid "Phone camera"
+msgstr "Cámara del teléfono"
+
+#: src/stream/phone_camera.rs
+msgid "One step the first time"
+msgstr "Un paso la primera vez"
+
+#: src/stream/phone_camera.rs
+msgid "A phone only lets a page use its camera when the page is private. Tap the button below. The phone then warns that the connection is not private: that is expected, because the page comes from your church's own computer, not from the internet."
+msgstr "Un teléfono solo deja que una página use su cámara cuando la página es privada. Toca el botón de abajo. Luego el teléfono avisa que la conexión no es privada: es lo esperado, porque la página viene de la propia computadora de tu iglesia, no de internet."
+
+#: src/stream/phone_camera.rs
+msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
+msgstr "Toca Avanzado (o Mostrar detalles) y luego Continuar (o Visitar este sitio web). El teléfono lo recuerda, así que solo hace falta una vez."
+
+#: src/stream/phone_camera.rs
+msgid "Open the camera page"
+msgstr "Abrir la página de la cámara"
+
+#: src/stream/phone_camera.rs
+msgid "The private camera page is not running on the computer. Close the app and open it again; if it still does not start, another program is using its port."
+msgstr "La página privada de la cámara no está funcionando en la computadora. Cierra la app y ábrela de nuevo; si aún no arranca, otro programa está usando su puerto."
+
+#: src/stream/phone_camera.rs
+msgid "Connect this phone"
+msgstr "Conectar este teléfono"
+
+#: src/stream/phone_camera.rs
+msgid "On the presentation computer, click Phone remote, then Pair a phone, and type the 6-digit code here."
+msgstr "En la computadora de presentación, haz clic en Control remoto del teléfono, luego en Vincular un teléfono, y escribe aquí el código de 6 dígitos."
+
+#: src/stream/phone_camera.rs
+msgid "6-digit code"
+msgstr "Código de 6 dígitos"
+
+#: src/stream/phone_camera.rs
+msgid "Like Balcony or Side. The computer lists this phone by this name."
+msgstr "Por ejemplo Balcón o Lateral. La computadora muestra este teléfono con este nombre."
+
+#: src/stream/phone_camera.rs
+msgid "Start the camera"
+msgstr "Iniciar la cámara"
+
+#: src/stream/phone_camera.rs
+msgid "Front camera"
+msgstr "Cámara frontal"
+
+#: src/stream/phone_camera.rs
+msgid "Back camera"
+msgstr "Cámara trasera"
+
+#: src/stream/phone_camera.rs
+msgid "Turn the phone sideways for a full picture."
+msgstr "Pon el teléfono de lado para una imagen completa."
+
+#: src/stream/phone_camera.rs
+msgid "Sending to the computer"
+msgstr "Enviando a la computadora"
+
+#: src/stream/phone_camera.rs
+msgid "Connecting to the computer…"
+msgstr "Conectando con la computadora…"
+
+#: src/stream/phone_camera.rs
+msgid "The computer cannot be reached. Trying again…"
+msgstr "No se puede llegar a la computadora. Intentando de nuevo…"
+
+#: src/stream/phone_camera.rs
+msgid "The camera could not be opened. Allow the camera for this page in the phone's settings, and close other apps using it."
+msgstr "No se pudo abrir la cámara. Permite la cámara para esta página en los ajustes del teléfono y cierra otras apps que la usen."
+
+#: src/stream/phone_camera.rs
+msgid "On the stream now"
+msgstr "En la transmisión ahora"
+
+#: src/stream/phone_camera.rs
+msgid "Next on the stream"
+msgstr "Siguiente en la transmisión"
+
+#: src/stream/phone_camera.rs
+msgid "Not on the stream"
+msgstr "No está en la transmisión"
+
+#: src/stream/phone_camera.rs
+msgid "On the computer, choose this phone in Settings, Media, Livestream, Camera."
+msgstr "En la computadora, elige este teléfono en Configuración, Multimedia, Transmisión en vivo, Cámara."
+
+#: src/stream/phone_camera.rs
+msgid "Any phone on the church's Wi-Fi can be a camera. On the phone, open {address} and follow the steps there. The first time, the phone warns that the connection is not private: that is expected, because the page comes from this computer. Tap Advanced (or Show Details), then Proceed (or Visit this website). Then pair it with the code from Phone remote, Pair a phone. Once it sends its picture, it is listed in the camera lists above as Phone camera and its name."
+msgstr "Cualquier teléfono en el Wi-Fi de la iglesia puede ser una cámara. En el teléfono, abre {address} y sigue los pasos. La primera vez, el teléfono avisa que la conexión no es privada: es lo esperado, porque la página viene de esta computadora. Toca Avanzado (o Mostrar detalles) y luego Continuar (o Visitar este sitio web). Después vincúlalo con el código de Control remoto del teléfono, Vincular un teléfono. Cuando envíe su imagen, aparecerá en las listas de cámaras de arriba como Cámara del teléfono y su nombre."
+
+#: src/stream/phone_camera.rs
+msgid "This computer is not on a network, so no phone can reach it."
+msgstr "Esta computadora no está en ninguna red, así que ningún teléfono puede llegar a ella."
+
+#: src/stream/phone_mic.rs
+msgid "Phone microphone (open its page on the phone)"
+msgstr "Micrófono del teléfono (abre su página en el teléfono)"
+
+#: src/stream/phone_mic.rs
+msgid "Start sending sound"
+msgstr "Empezar a enviar sonido"
+
+#: src/stream/phone_mic.rs
+msgid "Sending to the stream. Keep this page open and the phone awake."
+msgstr "Enviando a la transmisión. Deja esta página abierta y el teléfono despierto."
+
+#: src/stream/phone_mic.rs
+msgid "Sending, but the stream is not using this phone yet. Choose \"Phone microphone\" in Settings → Media → Livestream, then go live."
+msgstr "Enviando, pero la transmisión aún no usa este teléfono. Elige “Micrófono del teléfono” en Configuración → Multimedia → Transmisión en vivo y luego transmite."
+
+#: src/stream/phone_mic.rs
+msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
+msgstr "El teléfono solo deja que una página segura use su micrófono. Abre la página segura de abajo; la primera vez, el teléfono avisa que no es privada: toca Avanzado (o Mostrar detalles) y sigue a la página."
+
+#: src/stream/phone_mic.rs
+msgid "The phone did not let the page use its microphone. Allow it in the browser's settings for this page, then try again."
+msgstr "El teléfono no dejó que la página use su micrófono. Permítelo en los ajustes del navegador para esta página y vuelve a intentarlo."
+
+#: src/stream/phone_mic.rs
+msgid "Turn on the stage view in RustyPresenter (Network), and sign in to it on this phone first."
+msgstr "Primero activa la vista del escenario en RustyPresenter (Red) e inicia sesión en ella en este teléfono."
+
+#: src/stream/preflight.rs
+msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Media → Livestream. The stream shows the slides in its place."
+msgstr "La cámara {n} ({camera}) no está conectada. Revisa su cable o elígela otra vez en Configuración → Multimedia → Transmisión en vivo. La transmisión muestra las diapositivas en su lugar."
+
+#: src/stream/preflight.rs
+msgid "Camera {n} ({camera}) is connected but sends no picture. Close any other program using it (Zoom, the Camera app, OBS), or switch it on. The stream shows the slides in its place until it comes."
+msgstr "La cámara {n} ({camera}) está conectada pero no envía imagen. Cierra cualquier otro programa que la use (Zoom, la app Cámara, OBS) o enciéndela. La transmisión muestra las diapositivas en su lugar hasta que llegue la imagen."
+
+#: src/stream/preflight.rs
+msgid "Camera {n} ({camera}) comes over NDI, but NDI is not installed on this computer. Install the free NDI Tools."
+msgstr "La cámara {n} ({camera}) llega por NDI, pero NDI no está instalado en esta computadora. Instala las NDI Tools gratuitas."
+
+#: src/stream/preflight.rs
+msgid "The sound input {name} is not connected. Check its cable, or choose it again in Settings → Media. The stream goes out without it."
+msgstr "La entrada de sonido {name} no está conectada. Revisa su cable o elígela otra vez en Configuración → Multimedia. La transmisión sale sin ella."
+
+#: src/stream/preflight.rs
+msgid "The sound input {name} is connected but could not be opened. Close any other program using it, then try again."
+msgstr "La entrada de sonido {name} está conectada pero no se pudo abrir. Cierra cualquier otro programa que la use y vuelve a intentarlo."
+
 #: src/stream/ptz.rs
 msgid "Camera {camera}: position {position}"
 msgstr "Cámara {camera}: posición {position}"
+
+#: src/stream/report.rs
+msgid "The computer could not keep up for {secs} seconds and left out {frames} pictures: the stream was jerky then. Next time, try 720p or the graphics card's encoder (Settings → Media)."
+msgstr "La computadora no dio abasto durante {secs} segundos y se saltó {frames} imágenes: la transmisión fue a saltos en ese momento. La próxima vez, prueba 720p o el codificador de la tarjeta gráfica (Configuración → Multimedia)."
+
+#: src/stream/report.rs
+msgid "{name} got a lighter stream (down to {kbps} kbit/s) because the internet could not keep up."
+msgstr "{name} recibió una transmisión más ligera (hasta {kbps} kbit/s) porque el internet no daba abasto."
+
+#: src/stream/report.rs
+msgid "At most {viewers} watching at once."
+msgstr "Como máximo {viewers} mirando a la vez."
 
 #: src/stream/scene.rs
 msgid "Camera + words"
@@ -6935,6 +8175,30 @@ msgstr "Pantalla + cámara"
 #: src/stream/scene.rs
 msgid "Your scene"
 msgstr "Tu escena"
+
+#: src/stream/sound_setup.rs
+msgid "Custom (as set below)"
+msgstr "Personalizado (como se ajusta abajo)"
+
+#: src/stream/sound_setup.rs
+msgid "Sound board or mixer"
+msgstr "Mesa de sonido o mezclador"
+
+#: src/stream/sound_setup.rs
+msgid "USB microphone"
+msgstr "Micrófono USB"
+
+#: src/stream/sound_setup.rs
+msgid "Computer's microphone"
+msgstr "Micrófono de la computadora"
+
+#: src/stream/sound_setup.rs
+msgid "The app's sound only"
+msgstr "Solo el sonido de la app"
+
+#: src/stream/sound_setup.rs
+msgid "No sound input here looks like one. Choose it under \"Sound in the recording\" above."
+msgstr "Ninguna entrada de sonido aquí parece serlo. Elígela arriba en “Sonido en la grabación”."
 
 #: src/stream/speed.rs
 msgid "Upload: {speed} Mbit/s. Enough to stream in 1080p."
@@ -6967,6 +8231,26 @@ msgstr "Sin transmitir"
 #: src/stream/tally.rs
 msgid "Turn on the stage view in Settings → Network. If it has a password, open the stage view on this phone once and sign in."
 msgstr "Active la vista del escenario en Configuración → Red. Si tiene contraseña, abra la vista del escenario una vez en este teléfono e inicie sesión."
+
+#: src/stream/transition.rs
+msgid "Cut (at once)"
+msgstr "Corte (de inmediato)"
+
+#: src/stream/transition.rs
+msgid "Stinger video"
+msgstr "Video stinger"
+
+#: src/stream/website.rs
+msgid "Type the channel's id: it starts with UC. In YouTube Studio, choose Customisation → Basic info and copy it from the channel address."
+msgstr "Escribe el ID del canal: empieza con UC. En YouTube Studio, elige Personalización → Información básica y cópialo de la dirección del canal."
+
+#: src/stream/website.rs
+msgid "Type the Facebook Page's address, like https://www.facebook.com/yourchurch"
+msgstr "Escribe la dirección de la página de Facebook, como https://www.facebook.com/tuiglesia"
+
+#: src/stream/website.rs
+msgid "Website code copied. Paste it into your website's editor."
+msgstr "Código del sitio web copiado. Pégalo en el editor de tu sitio web."
 
 #: src/strings/add.rs
 msgid "Nothing here yet."
@@ -7600,7 +8884,7 @@ msgstr "¿Descartar los cambios de estas diapositivas?"
 msgid "Throw away"
 msgstr "Descartar"
 
-#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_scenes.rs
+#: src/strings/design.rs src/strings/stage.rs src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
 msgid "Keep editing"
 msgstr "Seguir editando"
 
@@ -8714,10 +9998,6 @@ msgstr "Barras de color"
 #: src/strings/screens.rs src/theme/backgrounds.rs
 msgid "White"
 msgstr "Blanco"
-
-#: src/strings/screens.rs src/theme/backgrounds.rs
-msgid "Black"
-msgstr "Negro"
 
 #: src/strings/screens.rs
 msgid "left"
@@ -10606,6 +11886,34 @@ msgstr "Dejarlo como está"
 msgid "Saved."
 msgstr "Guardado."
 
+#: src/ui/dialogs/go_live_helper.rs
+msgid "Go Live: getting started"
+msgstr "Transmitir: primeros pasos"
+
+#: src/ui/dialogs/go_live_helper.rs src/ui/dialogs/settings_record.rs
+msgid "The stream key could not be kept: {error}"
+msgstr "No se pudo guardar la clave de transmisión: {error}"
+
+#: src/ui/dialogs/go_live_helper.rs
+msgid "No camera: viewers see the room screen"
+msgstr "Sin cámara: los espectadores ven la pantalla de la sala"
+
+#: src/ui/dialogs/go_live_helper.rs
+msgid "Checking… (about 10 seconds)"
+msgstr "Comprobando… (unos 10 segundos)"
+
+#: src/ui/dialogs/go_live_helper.rs
+msgid "Internet: the speed test could not reach the internet. Check this computer's connection."
+msgstr "Internet: la prueba de velocidad no pudo llegar a internet. Revisa la conexión de esta computadora."
+
+#: src/ui/dialogs/go_live_helper.rs
+msgid "Camera: an NDI camera is looked for when you go live."
+msgstr "Cámara: se busca una cámara NDI cuando empiezas a transmitir."
+
+#: src/ui/dialogs/go_live_helper.rs
+msgid "Test stream: it stops by itself in {secs} seconds."
+msgstr "Transmisión de prueba: se detiene sola en {secs} segundos."
+
 #: src/ui/dialogs/item_edit.rs
 msgid "Auto-advance after: type a number of seconds, or leave it empty."
 msgstr "Avanzar solo tras: escribe un número de segundos o déjalo vacío."
@@ -10621,10 +11929,6 @@ msgstr "Mostrar mensaje"
 #: src/ui/dialogs/music.rs
 msgid "Now: {title} · {time} left"
 msgstr "Ahora: {title} · quedan {time}"
-
-#: src/ui/dialogs/network.rs
-msgid "Network"
-msgstr "Red"
 
 #: src/ui/dialogs/network.rs
 msgid "Send one command a line: next, prev, clear, clear slide, logo, go 3 (item 3), go 3 2 (its slide 2), status. With a password, send “password …” first. Every line is answered with OK or ERR."
@@ -10857,12 +12161,32 @@ msgid "Network camera"
 msgstr "Cámara de red"
 
 #: src/ui/dialogs/settings_record.rs
-msgid "The stream key could not be kept: {error}"
-msgstr "No se pudo guardar la clave de transmisión: {error}"
-
-#: src/ui/dialogs/settings_record.rs
 msgid "The speed test could not reach the internet. Check the connection and try again."
 msgstr "La prueba de velocidad no pudo llegar a internet. Revisa la conexión e inténtalo de nuevo."
+
+#: src/ui/dialogs/settings_stream_extras.rs
+msgid "The stream's own microphone or line-in"
+msgstr "El micrófono o entrada de línea propio de la transmisión"
+
+#: src/ui/dialogs/settings_stream_extras.rs
+msgid "YouTube did not say the channel's id: {why}"
+msgstr "YouTube no dio el ID del canal: {why}"
+
+#: src/ui/dialogs/settings_stream_extras.rs
+msgid "The invitation page opened in this computer's web browser. If it did not, open {url} there."
+msgstr "La página de invitación se abrió en el navegador web de esta computadora. Si no, abre {url} allí."
+
+#: src/ui/dialogs/settings_stream_extras.rs
+msgid "The guest is camera {n}. Save, then switch to that camera while live once the guest is connected."
+msgstr "El invitado es la cámara {n}. Guarda y luego cambia a esa cámara en vivo cuando el invitado esté conectado."
+
+#: src/ui/dialogs/settings_stream_extras.rs
+msgid "The guest is already one of the cameras above."
+msgstr "El invitado ya es una de las cámaras de arriba."
+
+#: src/ui/dialogs/settings_stream_extras.rs
+msgid "All four camera rows are in use. Set one to No camera first."
+msgstr "Las cuatro filas de cámara están en uso. Pon primero una en Sin cámara."
 
 #: src/ui/dialogs/settings_themes.rs
 msgid "Show {n} ready-made theme"
@@ -10904,6 +12228,34 @@ msgstr ""
 "Lee la Biblia\n"
 "Sirve a tu prójimo"
 
+#: src/ui/dialogs/stream_more.rs
+msgid "More livestream settings"
+msgstr "Más ajustes de la transmisión en vivo"
+
+#: src/ui/dialogs/stream_more.rs
+msgid "The setup “{name}” is chosen. Save to use it."
+msgstr "La configuración “{name}” está elegida. Guarda para usarla."
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Name of the setup (for example Sunday, or Wedding)"
+msgstr "Nombre de la configuración (por ejemplo Domingo, o Boda)"
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Delete the setup “{name}”? The settings in use now stay as they are."
+msgstr "¿Eliminar la configuración “{name}”? Los ajustes en uso ahora se quedan como están."
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Leave without saving these settings?"
+msgstr "¿Salir sin guardar estos ajustes?"
+
+#: src/ui/dialogs/stream_more.rs src/ui/dialogs/stream_scenes.rs
+msgid "Leave"
+msgstr "Salir"
+
+#: src/ui/dialogs/stream_more.rs
+msgid "Livestream settings saved."
+msgstr "Ajustes de la transmisión en vivo guardados."
+
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Your livestream scenes"
 msgstr "Tus escenas de la transmisión"
@@ -10911,6 +12263,26 @@ msgstr "Tus escenas de la transmisión"
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Scene {n}"
 msgstr "Escena {n}"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Like the other scenes ({way})"
+msgstr "Como las otras escenas ({way})"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "Nothing"
+msgstr "Nada"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "A colour (green screen)"
+msgstr "Un color (pantalla verde)"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "The dark parts"
+msgstr "Las partes oscuras"
+
+#: src/ui/dialogs/stream_scenes.rs
+msgid "The light parts"
+msgstr "Las partes claras"
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Scene name"
@@ -10923,10 +12295,6 @@ msgstr "¿Eliminar la escena “{name}”? Las acciones de diapositiva y las mac
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Leave without saving your scene changes?"
 msgstr "¿Salir sin guardar los cambios en las escenas?"
-
-#: src/ui/dialogs/stream_scenes.rs
-msgid "Leave"
-msgstr "Salir"
 
 #: src/ui/dialogs/stream_scenes.rs
 msgid "Scenes saved."
@@ -11173,6 +12541,18 @@ msgstr "No se pudo descargar FFmpeg. Revisa la conexión a internet o instálalo
 #: src/ui/operator/record.rs
 msgid "{camera} (not in this scene)"
 msgstr "{camera} (no está en esta escena)"
+
+#: src/ui/operator/record.rs
+msgid "Move {camera}"
+msgstr "Mover {camera}"
+
+#: src/ui/operator/record.rs
+msgid "The camera's shot is saved as position {n}."
+msgstr "El encuadre de la cámara se guardó como posición {n}."
+
+#: src/ui/operator/stream_extras.rs
+msgid "Copied. Paste it into the service's own page for this stream."
+msgstr "Copiado. Pégalo en la página propia del servicio para esta transmisión."
 
 #: src/ui/operator/transfer.rs
 msgid "Saved to {path}"
@@ -11576,6 +12956,21 @@ msgstr "yt-dlp no guardó ningún video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "no es un archivo multimedia"
+
+#~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
+#~ msgstr "Cómo llaman YouTube y Facebook a cada transmisión. {{date}} se convierte en la fecha del día."
+
+#~ msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
+#~ msgstr "Todavía no tienes escenas propias. Agrega una y pon en ella cámaras, la pantalla de la sala, la letra, imágenes, colores o texto."
+
+#~ msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+#~ msgstr "Aquí las cámaras, la pantalla de la sala y la letra son de muestra; en vivo son las reales. Una cámara que no envía nada muestra la pantalla de la sala en su lugar."
+
+#~ msgid "Move the next camera to its saved position {}"
+#~ msgstr "Mover la siguiente cámara a su posición guardada {}"
+
+#~ msgid "This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or close other programs."
+#~ msgstr "Esta computadora no da abasto, así que la grabación y la transmisión se ven a saltos. Elige 720p en «Tamaño de imagen» en Configuración → Multimedia, o cierra otros programas."
 
 #~ msgid "Another camera to switch to while live, from the scene button beside Live."
 #~ msgstr "Otra cámara a la que cambiar en vivo, desde el botón de escena junto a En vivo."
