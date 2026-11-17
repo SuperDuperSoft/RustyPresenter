@@ -37,6 +37,8 @@ pub enum KeyAction {
     /// 1.3: A turns auto-follow on or off for the live song; H holds it.
     FollowAuto,
     FollowHold,
+    /// A livestream scene's key.
+    StreamScene(crate::stream::scene::Scene),
     None,
 }
 
@@ -157,6 +159,7 @@ fn key_action(action: Action) -> KeyAction {
         Action::FindMouse => KeyAction::FindMouse,
         Action::FollowAuto => KeyAction::FollowAuto,
         Action::FollowHold => KeyAction::FollowHold,
+        Action::Scene(scene) => KeyAction::StreamScene(scene),
         _ => KeyAction::None,
     }
 }
@@ -254,6 +257,7 @@ impl Operator {
             KeyAction::FindMouse => self.find_mouse(),
             KeyAction::FollowAuto => return super::follow::toggle_auto(self, true),
             KeyAction::FollowHold => return super::follow::toggle_hold(self, true),
+            KeyAction::StreamScene(scene) => self.key_scene(scene),
             KeyAction::None => return false,
         }
         true
@@ -823,5 +827,25 @@ mod window_tests {
         key(&op, Key::RightArrow);
         assert_eq!(cursor(&app), Some((id, 2)), "the Bible box lost focus to the click, as in the web");
         assert!(!op.ui.global::<crate::ui::OperatorState>().get_focus_in_text());
+    }
+
+    #[test]
+    fn a_livestream_scene_key_chooses_its_scene_and_says_when_not_live() {
+        use crate::stream::scene::Scene;
+        use crate::ui::operator::keys::{Chord, KeyAction, KeyCtx, Keymap, route_in};
+        const PLAIN: KeyCtx = KeyCtx { in_text_field: false, in_bible_box: false, dialog_open: false, in_list: false };
+        const TYPING: KeyCtx = KeyCtx { in_text_field: true, in_bible_box: false, dialog_open: false, in_list: false };
+        let mut s = crate::shortcuts::KeySettings::default();
+        s.set(crate::shortcuts::Action::Scene(Scene::Hold), vec![Chord::parse("F11").unwrap()]);
+        let map = Keymap::new(&s);
+        let f11 = Chord::parse("F11").unwrap();
+        assert_eq!(route_in(&f11, PLAIN, &map), KeyAction::StreamScene(Scene::Hold));
+        assert_eq!(route_in(&f11, TYPING, &map), KeyAction::StreamScene(Scene::Hold), "an F-key works while typing");
+        assert_eq!(route_in(&f11, PLAIN, &Keymap::default()), KeyAction::None, "no key until the church gives one");
+        let app = crate::app::test_app();
+        let op = crate::ui::operator::window::testing::open(&app);
+        crate::ui::operator::window::testing::refresh(&op);
+        op.key_scene(Scene::Hold);
+        assert_eq!(app.stream_info().1.scene, None, "not live: nothing chosen");
     }
 }

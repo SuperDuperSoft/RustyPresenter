@@ -188,6 +188,9 @@ pub struct RecordPrefs {
     /// The note about streaming licences was shown (once, the first time Go Live started).
     #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub licence_noted: bool,
+    /// How the stream changes between scenes, unless the church's scene has its own way (`stream::transition`).
+    #[serde(default, skip_serializing_if = "crate::stream::transition::Transition::is_fade")]
+    pub scene_transition: crate::stream::transition::Transition,
 }
 
 

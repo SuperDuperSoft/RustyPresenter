@@ -17,6 +17,7 @@ pub mod camera_feed;
 pub mod chat;
 pub mod compose;
 pub mod delay;
+pub mod key_out;
 pub mod keys;
 pub mod level;
 pub mod live_info;
@@ -27,9 +28,13 @@ pub mod pc_sound;
 pub mod pictures;
 pub mod ptz;
 pub mod scene;
+pub mod scene_media;
 pub mod send;
 pub mod speed;
+pub mod tall;
 pub mod tally;
+pub mod transition;
+pub mod web_page;
 pub mod words_file;
 
 /// A place a stream can be sent.

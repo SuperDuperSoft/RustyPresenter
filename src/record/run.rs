@@ -345,9 +345,18 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     // Whether the camera in the picture is sending pictures (kept by the writer as the operator switches).
     let seeing: Arc<std::sync::atomic::AtomicBool> = Arc::default();
     if !camera_feeds.is_empty() { *camera_seen.lock().unwrap_or_else(|e| e.into_inner()) = Some(seeing.clone()) }
+    // The church's tall scenes: the app puts the tall picture together and FFmpeg reads it from a local port.
+    let tall_size = args::tall_size(sink.size);
+    let tall_listener = match &plan.look {
+        Some(look) if live && crate::stream::tall::wanted(&look.own, &plan.tall) => crate::stream::tall::listen().await.map_err(|e| eprintln!("recording: the tall picture is the wide one fitted: {e}")).ok(),
+        _ => None,
+    };
+    let tall_on = tall_listener.is_some();
     let mut worker = match (&plan.look, live) {
         (Some(look), true) => {
-            crate::stream::pictures::start(look.clone(), sink.size, seeing.clone(), plan.controls.hold.clone())
+            let mut look = look.clone();
+            look.more.tall = tall_on.then_some(tall_size);
+            crate::stream::pictures::start(look, sink.size, seeing.clone(), plan.controls.hold.clone())
                 .map_err(|e| eprintln!("recording: the stream shows the room screen only: {e}")).ok()
         }
         _ => None,
@@ -383,7 +392,8 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let mut ndi = if live && worker.is_some() && plan.ndi.any() {
         crate::stream::ndi::Out::start(plan.ndi, sink.size, FPS).map_err(|e| eprintln!("recording: nothing goes out over NDI: {e}")).ok()
     } else { None };
-    let a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, board: board.as_ref().map(|b| b.feed), out: &part, stream: &feeds, tall: &plan.tall, kbps: plan.kbps, pc: pc.as_ref().map(|c| c.feed), fx: if live { plan.sound_fx } else { args::SoundFx::default() }, ndi_sound: ndi.as_ref().and_then(|n| n.sound_port) });
+    let mut a = args::record(&args::Record { size: sink.size, fps: FPS, preset: plan.preset, encoder: plan.encoder, input, board: board.as_ref().map(|b| b.feed), out: &part, stream: &feeds, tall: &plan.tall, kbps: plan.kbps, pc: pc.as_ref().map(|c| c.feed), fx: if live { plan.sound_fx } else { args::SoundFx::default() }, ndi_sound: ndi.as_ref().and_then(|n| n.sound_port) });
+    if let Some((_, port)) = &tall_listener { crate::stream::tall::read_from(&mut a, *port, tall_size, FPS); }
     let mut cmd = tokio::process::Command::new(&plan.ffmpeg);
     cmd.args(a).stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::piped());
     let mut tree = match spawn_tree(cmd) {
@@ -394,6 +404,10 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let _ = started.send(Ok(()));
     let senders = CancellationToken::new();
     let relays = CancellationToken::new();
+    // The tall picture's own feed: the newest tall picture at the frame rate.
+    let tall_slot: crate::stream::tall::Slot = Arc::new(Mutex::new(crate::stream::tall::black(tall_size)));
+    let tall_stop = CancellationToken::new();
+    if let Some((listener, _)) = tall_listener { tokio::spawn(crate::stream::tall::feed(listener, tall_slot.clone(), FPS, tall_stop.clone())); }
     let lighter = plan.lighter.then(|| crate::stream::send::Lighter {
         encoder: plan.encoder, full_kbps: if plan.kbps > 0 { plan.kbps } else { plan.preset.max_kbps() }, fps: FPS,
     });
@@ -432,6 +446,13 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     let mut current: Vec<u8> = [0, 0, 0, 255].repeat(sink.bytes() / 4);
     // With scenes: the picture put together, written in place of the room's.
     let mut mix = worker.as_ref().map(|_| Mixer { layout: plan.look.as_ref().map(|l| l.layout).unwrap_or_default(), ..Mixer::new(sink.size) });
+    // The tall picture, and the church's scenes' videos, web pages and stingers (`stream::scene_media`).
+    if let (Some(m), Some(look)) = (mix.as_mut(), plan.look.as_ref()) {
+        if tall_on { m.tall = Some(TallMix::new(tall_size)) }
+        if !look.own.is_empty() || look.more.transition.stinger().is_some() {
+            m.media = Some(crate::stream::scene_media::Media::start(&plan.ffmpeg, &look.own, &look.more.transition, sink.size, tall_on.then_some(tall_size), FPS));
+        }
+    }
     let mut room_new = true;
     // The words alone in a file of their own, beside the recording, when asked for (`stream::words_file`).
     let mut words_file = if live && worker.is_some() && plan.words_file {
@@ -466,6 +487,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
             if matches!(shown.scene, crate::stream::scene::Scene::Own(_)) { m.cameras = camera_feeds.iter().map(|f| f.as_ref().and_then(|f| f.picture())).collect() }
             m.update(&shown, &current, camera.and_then(|f| f.picture()), room_new, Instant::now());
             room_new = false;
+            if let Some(t) = m.tall_out() { *tall_slot.lock().unwrap_or_else(|e| e.into_inner()) = Arc::new(t.to_vec()) }
         }
         let out: &[u8] = mix.as_ref().map_or(&current, |m| m.out());
         let due = pump.due(t0.elapsed());
@@ -510,6 +532,9 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     if let Some(f) = &words_file { f.stop() }
     let _ = stdin.flush().await;
     drop(stdin);
+    // The tall picture ends with the wide one; the scenes' videos and pages stop.
+    tall_stop.cancel();
+    if let Some(m) = mix.as_mut() && let Some(mut media) = m.media.take() { media.stop() }
     // The PC's sound has no end of its own: stopping it lets FFmpeg end its file.
     if let Some(c) = pc.as_mut() { c.stop() }
     if let Some(b) = board.as_mut() { b.stop() }
@@ -544,15 +569,16 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
 }
 
 /// The stream's picture put together from the room, the camera and the scene worker's words and cards
-/// (`stream::compose`), with a fade at each scene change. Put together again only when something in it changed.
+/// (`stream::compose`), with a transition at each scene change (`stream::transition`). Put together again only when
+/// something in it changed. With the church's tall scenes it puts the tall picture together too.
 struct Mixer {
     size: (u32, u32),
     /// Where the corner camera goes (Settings).
     layout: crate::stream::compose::Layout,
     out: Vec<u8>,
     next: Vec<u8>,
-    /// The picture going out when the scene changed, and when: the fade runs from it.
-    fade: Option<(Vec<u8>, Instant)>,
+    /// The change from the picture that was going out to the new scene, while it runs.
+    change: Option<crate::stream::transition::Running>,
     scene: Option<crate::stream::scene::Scene>,
     camera: Option<Arc<Vec<u8>>>,
     words: Option<Arc<Vec<u8>>>,
@@ -562,59 +588,118 @@ struct Mixer {
     own: Option<Arc<crate::stream::own_scenes::Prepared>>,
     cameras: Vec<Option<Arc<Vec<u8>>>>,
     used: Vec<Option<Arc<Vec<u8>>>>,
+    /// The videos, web pages and stingers of the church's scenes (`stream::scene_media`), and the pictures of the
+    /// videos and pages the scene shows, as last put together.
+    media: Option<crate::stream::scene_media::Media>,
+    more: Vec<Option<Arc<Vec<u8>>>>,
+    /// The tall picture, when the app puts it together (`stream::tall`).
+    tall: Option<TallMix>,
     /// How many times the picture was put together (tests).
     composes: u64,
 }
 
+type SharedScene = Option<Arc<crate::stream::own_scenes::Prepared>>;
+
+/// The tall picture: its size, the new scene's picture, the one going out (and whether it changed since the writer
+/// last took it), and the church's tall scene as last put together.
+struct TallMix { size: (u32, u32), next: Vec<u8>, out: Vec<u8>, changed: bool, own: SharedScene }
+
+impl TallMix {
+    fn new(size: (u32, u32)) -> TallMix {
+        let black = [0, 0, 0, 255].repeat(size.0 as usize * size.1 as usize);
+        TallMix { size, next: black.clone(), out: black, changed: true, own: None }
+    }
+}
+
+fn same(a: &Option<Arc<Vec<u8>>>, b: &Option<Arc<Vec<u8>>>) -> bool { match (a, b) { (Some(a), Some(b)) => Arc::ptr_eq(a, b), (None, None) => true, _ => false } }
+fn same_list(a: &[Option<Arc<Vec<u8>>>], b: &[Option<Arc<Vec<u8>>>]) -> bool { a.len() == b.len() && a.iter().zip(b).all(|(a, b)| same(a, b)) }
+fn same_scene(a: &SharedScene, b: &SharedScene) -> bool { match (a, b) { (Some(a), Some(b)) => Arc::ptr_eq(a, b), (None, None) => true, _ => false } }
+
 impl Mixer {
     fn new(size: (u32, u32)) -> Mixer {
         let black = [0, 0, 0, 255].repeat(size.0 as usize * size.1 as usize);
-        Mixer { size, layout: Default::default(), out: black.clone(), next: black, fade: None, scene: None, camera: None, words: None, card: None, own: None, cameras: vec![], used: vec![], composes: 0 }
+        Mixer { size, layout: Default::default(), out: black.clone(), next: black, change: None, scene: None, camera: None, words: None, card: None, own: None,
+            cameras: vec![], used: vec![], media: None, more: vec![], tall: None, composes: 0 }
     }
 
     fn out(&self) -> &[u8] { &self.out }
 
+    /// The tall picture going out, when it changed since last asked.
+    fn tall_out(&mut self) -> Option<&[u8]> {
+        let t = self.tall.as_mut()?;
+        if !std::mem::take(&mut t.changed) { return None }
+        Some(&t.out)
+    }
+
     /// A camera switched with a fade: the half-second fade runs from the picture going out now, as at a scene change.
-    fn fade_from_now(&mut self, now: Instant) { self.fade = Some((self.out.clone(), now)) }
+    fn fade_from_now(&mut self, now: Instant) {
+        use crate::stream::transition::{Running, Transition};
+        self.change = Running::start(&Transition::Fade, &self.out, self.tall.as_ref().map(|t| t.out.as_slice()), now, None);
+    }
 
     fn update(&mut self, shown: &crate::stream::pictures::Shown, room: &[u8], camera: Option<Arc<Vec<u8>>>, room_new: bool, now: Instant) {
-        use crate::stream::compose::{FADE, Inputs, blend, compose};
+        use crate::stream::compose::{Inputs, compose};
         use crate::stream::scene::Scene;
-        let same = |a: &Option<Arc<Vec<u8>>>, b: &Option<Arc<Vec<u8>>>| match (a, b) { (Some(a), Some(b)) => Arc::ptr_eq(a, b), (None, None) => true, _ => false };
+        use crate::stream::transition::{Frame, Running};
         // Only what the scene shows counts: a card needs neither the room nor the camera, only Camera + words
         // and Screen + camera need the camera, and the camera scenes need the room only while there is no camera.
-        // The church's own scene needs the cameras it has layers of, and the room when it has a layer of it or one
-        // of its cameras sends nothing.
+        // The church's own scene needs the cameras, videos and pages it has layers of, and the room when it has a
+        // layer of it or one of its cameras sends nothing.
         let own = shown.own.clone().filter(|_| matches!(shown.scene, Scene::Own(_)));
-        let on_air = own.as_ref().is_some_and(|p| p.cameras().any(|n| n == 0));
+        let own_tall = shown.own_tall.clone().filter(|_| own.is_some() && self.tall.is_some());
+        let on_air = [&own, &own_tall].iter().any(|p| p.as_ref().is_some_and(|p| p.cameras().any(|n| n == 0)));
         let camera = camera.filter(|_| shown.scene.needs_camera() || on_air);
-        let used: Vec<Option<Arc<Vec<u8>>>> = own.as_ref().map(|p| p.cameras().filter(|n| *n > 0).map(|n| self.cameras.get(usize::from(n) - 1).cloned().flatten()).collect()).unwrap_or_default();
+        let numbered: Vec<u8> = [&own, &own_tall].iter().flat_map(|p| p.iter().flat_map(|p| p.cameras().filter(|n| *n > 0).collect::<Vec<u8>>())).collect();
+        let used: Vec<Option<Arc<Vec<u8>>>> = numbered.into_iter().map(|n| self.cameras.get(usize::from(n) - 1).cloned().flatten()).collect();
+        let more: Vec<Option<Arc<Vec<u8>>>> = match (&own, &self.media) {
+            (Some(p), Some(m)) => p.moving().iter().map(|x| m.picture(x)).collect(),
+            (Some(p), None) => vec![None; p.moving().len()],
+            _ => vec![],
+        };
         let needs_room = match &own {
-            Some(p) => p.shows_room() || (on_air && camera.is_none()) || used.iter().any(Option::is_none),
+            Some(_) => [&own, &own_tall].iter().any(|p| p.as_ref().is_some_and(|p| p.shows_room())) || (on_air && camera.is_none()) || used.iter().any(Option::is_none),
             None => !shown.scene.is_card() && (camera.is_none() || shown.scene == Scene::ScreenCamera),
         };
         let room_new = room_new && needs_room;
-        let same_own = match (&self.own, &own) { (Some(a), Some(b)) => Arc::ptr_eq(a, b), (None, None) => true, _ => false };
-        let same_used = self.used.len() == used.len() && self.used.iter().zip(&used).all(|(a, b)| same(a, b));
         let scene_changed = self.scene.is_some_and(|s| s != shown.scene);
         let changed = self.scene != Some(shown.scene) || room_new || !same(&self.camera, &camera) || !same(&self.words, &shown.words) || !same(&self.card, &shown.card)
-            || !same_own || !same_used;
-        if scene_changed { self.fade = Some((self.out.clone(), now)) }
+            || !same_scene(&self.own, &own) || !same_list(&self.used, &used) || !same_list(&self.more, &more)
+            || self.tall.as_ref().is_some_and(|t| !same_scene(&t.own, &own_tall));
+        if scene_changed {
+            // A stinger plays from its FFmpeg started ahead (`scene_media`); without one the change fades.
+            let tall = self.tall.is_some();
+            let stinger = match (shown.transition.stinger(), self.media.as_mut()) { (Some(path), Some(m)) => m.stinger(path, tall), _ => None };
+            self.change = Running::start(&shown.transition, &self.out, self.tall.as_ref().map(|t| t.out.as_slice()), now, stinger);
+        }
         if changed {
             let cameras: Vec<Option<&[u8]>> = self.cameras.iter().map(|c| c.as_deref().map(Vec::as_slice)).collect();
-            compose(shown.scene, &Inputs { size: self.size, room, camera: camera.as_deref().map(Vec::as_slice), words: shown.words.as_deref().map(Vec::as_slice),
-                card: shown.card.as_deref().map(Vec::as_slice), cameras: &cameras, own: own.as_deref() }, &self.layout, &mut self.next);
-            (self.scene, self.camera, self.words, self.card, self.own, self.used) = (Some(shown.scene), camera, shown.words.clone(), shown.card.clone(), own, used);
+            let pictures: Vec<Option<&[u8]>> = more.iter().map(|c| c.as_deref().map(Vec::as_slice)).collect();
+            let i = Inputs { size: self.size, room, camera: camera.as_deref().map(Vec::as_slice), words: shown.words.as_deref().map(Vec::as_slice),
+                card: shown.card.as_deref().map(Vec::as_slice), cameras: &cameras, own: own.as_deref(), more: &pictures };
+            compose(shown.scene, &i, &self.layout, &mut self.next);
+            // The tall picture: the church's tall scene, or the wide picture fitted across.
+            if let Some(t) = self.tall.as_mut() {
+                match &own_tall {
+                    Some(p) => crate::stream::own_scenes::compose(p, &i, &mut t.next),
+                    None => crate::stream::tall::fit(&self.next, self.size, &mut t.next, t.size),
+                }
+                t.own = own_tall;
+            }
+            (self.scene, self.camera, self.words, self.card, self.own, self.used, self.more) = (Some(shown.scene), camera, shown.words.clone(), shown.card.clone(), own, used, more);
             self.composes += 1;
         }
-        match &self.fade {
-            Some((from, at)) if now.duration_since(*at) < FADE => {
-                let t = now.duration_since(*at).as_secs_f32() / FADE.as_secs_f32();
-                blend(from, &self.next, t, &mut self.out);
+        let running = match self.change.as_mut() {
+            Some(r) => {
+                let tall = self.tall.as_mut().map(|t| Frame { size: t.size, next: &t.next, out: &mut t.out });
+                r.frame(Frame { size: self.size, next: &self.next, out: &mut self.out }, tall, now)
             }
-            Some(_) => { self.fade = None; self.out.copy_from_slice(&self.next) }
-            None if changed => self.out.copy_from_slice(&self.next),
-            None => {}
+            None => false,
+        };
+        if running {
+            if let Some(t) = self.tall.as_mut() { t.changed = true }
+        } else if self.change.take().is_some() || changed {
+            self.out.copy_from_slice(&self.next);
+            if let Some(t) = self.tall.as_mut() { t.out.copy_from_slice(&t.next); t.changed = true }
         }
     }
 }
