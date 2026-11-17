@@ -290,7 +290,7 @@ fn look(live: Arc<Mutex<(LiveInfo, Choice)>>, words: &str, auto: AutoPrefs) -> c
     crate::stream::pictures::Look {
         info: Arc::new(move || { let (i, c) = live.lock().unwrap().clone(); (i, c, None) }),
         words: Arc::new(move || crate::stream::lyrics::key_for(&slide, &crate::model::Theme::default(), (1280, 720))),
-        auto, cards: Default::default(), theme: Default::default(), layout: Default::default(),
+        auto, cards: Default::default(), theme: Default::default(), layout: Default::default(), own: vec![],
     }
 }
 
@@ -330,6 +330,35 @@ fn a_card_is_not_put_together_again_for_each_camera_picture() {
     m.update(&card, &room, Some(Arc::new([2u8; 16].to_vec())), true, t0 + Duration::from_millis(33));
     m.update(&card, &room, Some(Arc::new([3u8; 16].to_vec())), true, t0 + Duration::from_millis(66));
     assert_eq!(m.composes, after_first, "new camera and room pictures change nothing on a card");
+}
+
+/// The church's own scene shows the cameras it names, whichever is on air, and is put together again only when one
+/// of them (or the room it shows) has a new picture.
+#[test]
+fn the_mixer_puts_a_church_scene_together_from_the_cameras_it_names() {
+    use crate::stream::own_scenes::{Layer, OwnScene, Place, Shows, prepare};
+    use crate::stream::pictures::Shown;
+    let ours = OwnScene { id: uuid::Uuid::from_u128(3), name: "Two cameras".into(), instead_of: None, layers: vec![
+        Layer { shows: Shows::Camera { number: 1 }, place: Place::LeftHalf, see_through: 0 },
+        Layer { shows: Shows::Camera { number: 2 }, place: Place::RightHalf, see_through: 0 },
+    ] };
+    let size = (4, 2);
+    let p = Arc::new(prepare(&ours, size, &Default::default(), &mut crate::render::Fonts::bundled_only()));
+    let shown = Shown { scene: Scene::Own(ours.id), own: Some(p), ..Shown::default() };
+    let solid = |c: [u8; 4]| Arc::new(c.repeat(8));
+    let (red, blue, room) = (solid([200, 0, 0, 255]), solid([0, 0, 200, 255]), [9u8, 9, 9, 255].repeat(8));
+    let mut m = Mixer::new(size);
+    m.cameras = vec![Some(red.clone()), Some(blue.clone()), Some(solid([1, 1, 1, 255]))];
+    let t0 = Instant::now();
+    m.update(&shown, &room, Some(solid([7, 7, 7, 255])), true, t0);
+    assert_eq!((&m.out()[..4], &m.out()[12..16]), (&[200, 0, 0, 255][..], &[0, 0, 200, 255][..]), "camera 1 on the left, camera 2 on the right");
+    let first = m.composes;
+    m.cameras[2] = Some(solid([2, 2, 2, 255]));
+    m.update(&shown, &room, Some(solid([8, 8, 8, 255])), true, t0 + Duration::from_millis(33));
+    assert_eq!(m.composes, first, "a camera it does not show, the camera on air and the room change nothing");
+    m.cameras[1] = Some(solid([0, 200, 0, 255]));
+    m.update(&shown, &room, None, false, t0 + Duration::from_millis(66));
+    assert_eq!(&m.out()[12..16], &[0, 200, 0, 255], "a new picture from camera 2");
 }
 
 /// The tall stream for real: the destination gets 720×1280 (the wide picture across the middle), the file stays

@@ -141,6 +141,7 @@ pub(crate) fn fill_form(g: &SettingsDlg, p: &RecordPrefs) {
     g.set_record_encoder(record::args::CHOOSABLE.iter().position(|e| *e == p.encoder).map_or(0, |i| i as i32 + 1));
     g.set_record_bitrate(record::BITRATES.iter().position(|b| *b == p.bitrate_kbps).map_or(0, |i| i as i32 + 1));
     use stream::compose::{Corner, CornerSize};
+    g.set_stream_own_count(p.own_scenes.len() as i32);
     let l = p.stream_layout;
     g.set_stream_corner(match l.corner { Corner::TopLeft => 0, Corner::TopRight => 1, Corner::BottomLeft => 2, Corner::BottomRight => 3 });
     g.set_stream_corner_size(match l.corner_size { CornerSize::Small => 0, CornerSize::Medium => 1, CornerSize::Large => 2 });

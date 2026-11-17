@@ -60,6 +60,8 @@ pub struct RecordUi {
     broadcasts: RefCell<Vec<(String, stream::accounts::Live)>>,
     /// Seconds since the viewers were last asked about.
     viewers_age: Cell<u32>,
+    /// Go Live: the church's own scenes, listed after the built-in ones on the scene button.
+    own_scenes: RefCell<Vec<stream::own_scenes::OwnScene>>,
     /// Tests: how the recording ended, waited for by `testing::wait_ended` (no event loop to deliver it).
     #[cfg(test)]
     ended: RefCell<Option<tokio::sync::oneshot::Receiver<Ended>>>,
@@ -198,7 +200,9 @@ impl Operator {
             cards: prefs.cards.clone(),
             theme,
             layout: prefs.stream_layout,
+            own: prefs.own_scenes.clone(),
         };
+        if live { *self.record.own_scenes.borrow_mut() = prefs.own_scenes.clone() }
         let (ids, ends) = (stream::accounts::app_ids(), stream::accounts::app_ends());
         let scheduled_id = prefs.stream_scheduled.clone();
         off_ui(self, move || (Plan::make(&data, &prefs), make_broadcasts(&ids, &ends, signed)), move |(plan, made)| {
@@ -570,9 +574,12 @@ impl Operator {
         if self.while_live(|r| r.mute(on)) { self.ui.set_live_muted(on) }
     }
 
-    /// The scene button's list: `i` is a scene (`Scene::ALL`), -1 Automatic. Holds until another item goes live.
+    /// Every scene on the scene button: the built-in ones, then the church's own.
+    fn scenes(&self) -> Vec<Scene> { stream::own_scenes::all(&self.record.own_scenes.borrow()) }
+
+    /// The scene button's list: `i` is a scene (`scenes`), -1 Automatic. Holds until another item goes live.
     pub fn pick_scene(&self, i: i32) {
-        let scene = usize::try_from(i).ok().and_then(|i| Scene::ALL.get(i).copied());
+        let scene = usize::try_from(i).ok().and_then(|i| self.scenes().get(i).copied());
         self.app().set_stream_scene(scene);
         self.show_scene();
     }
@@ -609,13 +616,14 @@ impl Operator {
     /// The scene button: the scene going out, and the one chosen by hand while it holds.
     pub fn show_scene(&self) {
         let (info, choice, _) = self.app().stream_info();
-        let index = |s: Scene| Scene::ALL.iter().position(|x| *x == s).map_or(-1, |i| i as i32);
+        let all = self.scenes();
+        let index = |s: Scene| all.iter().position(|x| *x == s).map_or(-1, |i| i as i32);
         self.ui.set_scene_chosen(stream::scene::lit(choice, &info).map_or(-1, index));
         let out = self.record.rec.borrow().as_ref().and_then(Recording::scene);
         if let Some(s) = out { self.ui.set_scene_out(index(s)) }
         // The phones' tally lights.
         let camera = usize::try_from(self.ui.get_camera_active()).ok().filter(|_| !self.record.cameras.borrow().is_empty());
-        let tally = stream::tally::Tally::of(self.record.live.get() && self.is_recording(), camera, out.is_some_and(Scene::needs_camera));
+        let tally = stream::tally::Tally::of(self.record.live.get() && self.is_recording(), camera, out.is_some_and(|s| stream::own_scenes::shows_camera(s, camera.unwrap_or(0), &self.record.own_scenes.borrow())));
         *self.app().tally.lock().unwrap() = tally;
         // The sound meter: the loudest since the last look (-1 hides it: no sound going out to measure).
         let level = self.record.rec.borrow().as_ref().and_then(Recording::level);
@@ -653,7 +661,8 @@ impl Operator {
         }
         // The scene button, while live: its names, and what goes out looked at four times a second.
         if self.record.live.get() {
-            let labels: Vec<slint::SharedString> = Scene::ALL.iter().map(|s| s.label().into()).collect();
+            let own = self.record.own_scenes.borrow().clone();
+            let labels: Vec<slint::SharedString> = self.scenes().into_iter().map(|s| stream::own_scenes::name(s, &own).into()).collect();
             self.ui.set_scene_labels(slint::ModelRc::new(slint::VecModel::from(labels)));
             // With two cameras the list offers each; the first is in the picture at the start.
             let cams = self.record.cameras.borrow();

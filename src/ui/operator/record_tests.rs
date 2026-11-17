@@ -711,6 +711,23 @@ fn a_scene_click_lights_and_holds_until_the_next_item() {
     assert_eq!(op.ui.get_scene_chosen(), -1);
 }
 
+/// The church's own scenes come after the built-in ones on the scene button, and light when chosen.
+#[test]
+fn the_churchs_own_scenes_are_on_the_scene_button() {
+    use crate::stream::{own_scenes::OwnScene, scene::Scene};
+    let app = test_app();
+    let room = Arc::new(Room { open: true, ..Default::default() });
+    let op = open(&app, &room);
+    refresh(&op);
+    let ours = OwnScene::new("Welcome".into());
+    *op.record.own_scenes.borrow_mut() = vec![ours.clone()];
+    op.record.live.set(true);
+    let i = Scene::ALL.len() as i32;
+    op.ui.invoke_pick_scene(i);
+    assert_eq!(app.stream_choice.lock().unwrap().scene, Some(Scene::Own(ours.id)));
+    assert_eq!(op.ui.get_scene_chosen(), i, "lit");
+}
+
 #[test]
 fn hold_and_mute_do_nothing_unless_live() {
     let app = test_app();

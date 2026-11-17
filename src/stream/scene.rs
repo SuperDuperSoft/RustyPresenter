@@ -23,6 +23,8 @@ pub enum Scene {
     Ending,
     /// A card for a break ("We'll be right back").
     Hold,
+    /// One of the church's own scenes (`own_scenes`), by its id. Not in `ALL`.
+    Own(Uuid),
 }
 
 impl Scene {
@@ -38,10 +40,12 @@ impl Scene {
             Scene::StartingSoon => tr!("Starting soon"),
             Scene::Ending => tr!("Ending"),
             Scene::Hold => tr!("Hold"),
+            // Its name is in the church's list: `own_scenes::name`.
+            Scene::Own(_) => tr!("Your scene"),
         }
     }
 
-    /// Whether the scene shows the camera.
+    /// Whether the scene shows the camera (a built-in one; the church's own scenes: `own_scenes::shows_camera`).
     pub fn needs_camera(self) -> bool { matches!(self, Scene::Camera | Scene::CameraWords | Scene::ScreenCamera) }
 
     /// Whether the scene is a card (a picture or words of its own).
@@ -197,5 +201,8 @@ mod tests {
     fn scene_names_are_kept_by_name() {
         assert_eq!(serde_json::to_value(Scene::CameraWords).unwrap(), serde_json::json!("camera_words"));
         assert_eq!(serde_json::from_value::<Scene>(serde_json::json!("starting_soon")).unwrap(), Scene::StartingSoon);
+        let own = Scene::Own(Uuid::from_u128(5));
+        assert_eq!(serde_json::to_value(own).unwrap(), serde_json::json!({ "own": Uuid::from_u128(5) }), "the church's own by its id");
+        assert_eq!(serde_json::from_value::<Scene>(serde_json::to_value(own).unwrap()).unwrap(), own);
     }
 }

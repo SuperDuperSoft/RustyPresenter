@@ -235,6 +235,10 @@ export global SettingsDlg {
     in-out property <string> stream-card-picture-2;
     /// "Use a pictureâ€¦" on card `i` (0 Starting soon, 1 Ending, 2 Hold).
     callback stream-card-choose(int);
+    /// Opens Your scenes (the church's own livestream scenes), saving the other changes first.
+    callback edit-own-scenes();
+    /// How many scenes the church has made.
+    in property <int> stream-own-count;
     /// A key was typed for destination 0–3: it is kept at once (empty forgets it).
     callback stream-key-edited(int, string);
     /// Signing in instead of a key (YouTube 0, Facebook 1): whether this copy of the app can, the account signed

@@ -4,7 +4,8 @@
 //! countdown, Ending, Hold), each a picture the church chose or words. The recorder's writer reads the newest of
 //! all three from `Slot` and puts the stream's picture together (`compose`).
 use super::lyrics;
-use super::scene::{AutoPrefs, Choice, LiveInfo, Scene, choose, effective};
+use super::own_scenes::{self, OwnScene, Prepared};
+use super::scene::{AutoPrefs, Choice, LiveInfo, Scene, choose, effective, lit};
 use crate::model::Theme;
 use crate::render::cache::{RenderKey, draw_key};
 use crate::tr;
@@ -90,6 +91,8 @@ pub struct Look {
     pub theme: Theme,
     /// Where the corner camera and the words go (Settings).
     pub layout: super::compose::Layout,
+    /// The church's own scenes (Settings → Livestream → Your scenes).
+    pub own: Vec<OwnScene>,
 }
 
 impl std::fmt::Debug for Look {
@@ -97,11 +100,13 @@ impl std::fmt::Debug for Look {
 }
 
 /// What the stream shows now: its scene, and the words and card pictures (premultiplied RGBA of the stream's size).
+/// For the church's own scene, `own` is it made ready for the stream's size.
 #[derive(Clone, Debug, Default)]
 pub struct Shown {
     pub scene: Scene,
     pub words: Option<Arc<Vec<u8>>>,
     pub card: Option<Arc<Vec<u8>>>,
+    pub own: Option<Arc<Prepared>>,
 }
 
 pub type Slot = Arc<Mutex<Shown>>;
@@ -147,20 +152,37 @@ struct State {
     last: Scene,
     words: Option<(RenderKey, Option<Arc<Vec<u8>>>)>,
     card: Option<(Scene, Card, Option<String>, Option<Arc<Vec<u8>>>)>,
+    /// The church's scene made ready last, and what it was made from.
+    own: Option<(OwnScene, Arc<Prepared>)>,
 }
 
 impl State {
-    fn new(size: (u32, u32)) -> State { State { size, fonts: crate::render::Fonts::new(), last: Scene::Screen, words: None, card: None } }
+    fn new(size: (u32, u32)) -> State { State { size, fonts: crate::render::Fonts::new(), last: Scene::Screen, words: None, card: None, own: None } }
 
     fn tick(&mut self, look: &Look, camera: bool, slot: &Slot) {
         let (info, choice, countdown) = (look.info)();
         let wanted = choose(&info, look.auto, choice, self.last);
         self.last = wanted;
-        let scene = effective(wanted, camera);
-        let words = if scene == Scene::CameraWords || wanted == Scene::CameraWords { self.words_picture(look) } else { None };
+        let mut scene = effective(wanted, camera);
+        // Chosen by itself: the church's scene that stands in for it, if any. A scene that was deleted since it was
+        // chosen shows the room.
+        if lit(choice, &info).is_none() { scene = own_scenes::stand_in(scene, &look.own) }
+        let ours = match scene { Scene::Own(id) => own_scenes::find(&look.own, id), _ => None };
+        if matches!(scene, Scene::Own(_)) && ours.is_none() { scene = Scene::Screen }
+        let own = ours.map(|s| self.prepared(s, &look.theme));
+        let wants_words = scene == Scene::CameraWords || wanted == Scene::CameraWords || ours.is_some_and(OwnScene::shows_words);
+        let words = if wants_words { self.words_picture(look) } else { None };
         let card = look.cards.of(scene).map(|c| self.card_picture(c, scene, countdown.filter(|_| scene == Scene::StartingSoon), &look.theme));
         let card = card.flatten();
-        *slot.lock().unwrap_or_else(|e| e.into_inner()) = Shown { scene, words, card };
+        *slot.lock().unwrap_or_else(|e| e.into_inner()) = Shown { scene, words, card, own };
+    }
+
+    /// The church's scene made ready for the stream, again only when it changed.
+    fn prepared(&mut self, scene: &OwnScene, theme: &Theme) -> Arc<Prepared> {
+        if let Some((s, p)) = &self.own && s == scene { return p.clone() }
+        let p = Arc::new(own_scenes::prepare(scene, self.size, theme, &mut self.fonts));
+        self.own = Some((scene.clone(), p.clone()));
+        p
     }
 
     fn words_picture(&mut self, look: &Look) -> Option<Arc<Vec<u8>>> {
@@ -220,7 +242,7 @@ mod tests {
     }
 
     fn look(live: Arc<Mutex<LiveInfo>>, cards: Cards) -> Look {
-        Look { info: Arc::new(move || (live.lock().unwrap().clone(), Choice::default(), None)), words: words_slide(), auto: AutoPrefs::default(), cards, theme: Theme::default(), layout: Default::default() }
+        Look { info: Arc::new(move || (live.lock().unwrap().clone(), Choice::default(), None)), words: words_slide(), auto: AutoPrefs::default(), cards, theme: Theme::default(), layout: Default::default(), own: vec![] }
     }
 
     fn wait_for(slot: &Slot, scene: Scene) -> Shown {
@@ -281,5 +303,36 @@ mod tests {
         *live.lock().unwrap() = LiveInfo::default();
         std::thread::sleep(Duration::from_millis(300));
         assert_eq!(w.slot.lock().unwrap().scene, Scene::Screen, "frozen");
+    }
+
+    #[test]
+    fn a_church_scene_stands_in_when_chosen_by_itself_and_has_the_words() {
+        use crate::stream::own_scenes::{Layer, Shows};
+        let mut ours = OwnScene::new("Songs".into());
+        ours.layers.push(Layer { shows: Shows::Words, ..Layer::default() });
+        ours.instead_of = Some(Scene::CameraWords);
+        let live = Arc::new(Mutex::new(LiveInfo { cursor_item: Some(Uuid::from_u128(1)), slide: crate::stream::scene::SlideKind::Words, ..LiveInfo::default() }));
+        let w = start(Look { own: vec![ours.clone()], ..look(live, Cards::default()) }, SIZE, Arc::new(AtomicBool::new(true)), Arc::default()).unwrap();
+        let s = wait_for(&w.slot, Scene::Own(ours.id));
+        assert_eq!(s.own.as_ref().map(|p| p.id), Some(ours.id), "made ready for the writer");
+        assert!(s.words.is_some(), "its words layer gets the words");
+        std::thread::sleep(Duration::from_millis(250));
+        let again = w.slot.lock().unwrap().clone();
+        assert!(Arc::ptr_eq(s.own.as_ref().unwrap(), again.own.as_ref().unwrap()), "made ready once, not every tick");
+    }
+
+    #[test]
+    fn a_church_scene_chosen_by_hand_is_kept_and_a_deleted_one_shows_the_room() {
+        let ours = OwnScene::new("Welcome".into());
+        let gone = Uuid::from_u128(99);
+        let pick = Arc::new(Mutex::new(Some(Scene::Own(ours.id))));
+        let p2 = pick.clone();
+        let info: Info = Arc::new(move || (LiveInfo::default(), Choice::pick(*p2.lock().unwrap(), None), None));
+        let look = Look { info, own: vec![ours.clone()], ..look(Arc::default(), Cards::default()) };
+        let w = start(look, SIZE, Arc::new(AtomicBool::new(true)), Arc::default()).unwrap();
+        wait_for(&w.slot, Scene::Own(ours.id));
+        *pick.lock().unwrap() = Some(Scene::Own(gone));
+        let s = wait_for(&w.slot, Scene::Screen);
+        assert!(s.own.is_none());
     }
 }

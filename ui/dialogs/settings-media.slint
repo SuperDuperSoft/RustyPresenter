@@ -391,6 +391,25 @@ export component SettingsMedia inherits VerticalLayout {
         }
     }
     Field {
+        label: @tr("Your scenes");
+        help: @tr("Make scenes of your own from cameras, the room screen, the words, pictures, colours and text. They are listed after the built-in scenes while live.");
+        HorizontalLayout {
+            alignment: start;
+            spacing: 8px;
+            own-scenes-btn := Btn {
+                text: @tr("Your scenes…");
+                clicked => { SettingsDlg.edit-own-scenes(); }
+            }
+            Text {
+                text: SettingsDlg.stream-own-count == 0 ? @tr("None yet") : SettingsDlg.stream-own-count == 1 ? @tr("1 scene") : @tr("{} scenes", SettingsDlg.stream-own-count);
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                vertical-alignment: center;
+            }
+        }
+    }
+    Field {
         label: @tr("Starting soon");
         help: @tr("Before the service, with the pre-service countdown under the words while it runs.");
         HorizontalLayout {

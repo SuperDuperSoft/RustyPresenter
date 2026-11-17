@@ -30,20 +30,23 @@ impl Layout {
     pub fn is_default(&self) -> bool { *self == Layout::default() }
 }
 
-/// The pictures a scene is made of, each RGBA of `size`. `camera` is opaque (its own FFmpeg kept its shape with
-/// black bars); `words` and `card` are premultiplied and clear where they show nothing. A picture of the wrong
-/// length counts as missing.
+/// The pictures a scene is made of, each RGBA of `size`. `camera` (the camera on air) is opaque (its own FFmpeg kept
+/// its shape with black bars); `words` and `card` are premultiplied and clear where they show nothing. A picture of
+/// the wrong length counts as missing. The church's own scenes also use `cameras` (each camera's newest picture,
+/// the first camera first) and `own` (the scene made ready, `own_scenes::prepare`).
 pub struct Inputs<'a> {
     pub size: (u32, u32),
     pub room: &'a [u8],
     pub camera: Option<&'a [u8]>,
     pub words: Option<&'a [u8]>,
     pub card: Option<&'a [u8]>,
+    pub cameras: &'a [Option<&'a [u8]>],
+    pub own: Option<&'a super::own_scenes::Prepared>,
 }
 
 impl Inputs<'_> {
     fn bytes(&self) -> usize { self.size.0 as usize * self.size.1 as usize * 4 }
-    fn ok<'b>(&self, p: Option<&'b [u8]>) -> Option<&'b [u8]> { p.filter(|p| p.len() == self.bytes()) }
+    pub(crate) fn ok<'b>(&self, p: Option<&'b [u8]>) -> Option<&'b [u8]> { p.filter(|p| p.len() == self.bytes()) }
 }
 
 /// Draws `scene` into `out` (RGBA of `i.size`).
@@ -66,10 +69,15 @@ pub fn compose(scene: Scene, i: &Inputs, layout: &Layout, out: &mut [u8]) {
             black(out);
             if let Some(c) = i.ok(i.card) { over(out, c) }
         }
+        // The church's own scene; one that is not ready (deleted since) shows the room.
+        Scene::Own(id) => match i.own.filter(|p| p.id == id) {
+            Some(p) => super::own_scenes::compose(p, i, out),
+            None => fill_room(out),
+        },
     }
 }
 
-fn black(out: &mut [u8]) { out.chunks_exact_mut(4).for_each(|p| p.copy_from_slice(&[0, 0, 0, 255])) }
+pub(crate) fn black(out: &mut [u8]) { out.chunks_exact_mut(4).for_each(|p| p.copy_from_slice(&[0, 0, 0, 255])) }
 
 /// Where the small picture goes in a `w`×`h` frame: `(x, y, width, height)`, in `layout`'s corner and size, `w / 40`
 /// from the edges.
@@ -140,7 +148,7 @@ mod tests {
         let room = vec![255u8; n];
         let camera: Vec<u8> = [0, 0, 255, 255].repeat(40 * 40);
         let mut out = vec![0u8; n];
-        let i = Inputs { size, room: &room, camera: Some(&camera), words: None, card: None };
+        let i = Inputs { size, room: &room, camera: Some(&camera), words: None, card: None, cameras: &[], own: None };
         compose(Scene::ScreenCamera, &i, &Layout { corner: Corner::TopLeft, ..Layout::default() }, &mut out);
         let px = |x: usize, y: usize| out[(y * 40 + x) * 4..(y * 40 + x) * 4 + 4].to_vec();
         assert_eq!(px(2, 2), [0, 0, 255, 255], "the camera top left");
@@ -157,7 +165,7 @@ mod tests {
     fn px(img: &[u8], x: u32, y: u32) -> [u8; 4] { let i = ((y * W + x) * 4) as usize; img[i..i + 4].try_into().unwrap() }
     fn run(scene: Scene, room: &[u8], camera: Option<&[u8]>, words: Option<&[u8]>, card: Option<&[u8]>) -> Vec<u8> {
         let mut out = vec![7u8; (W * H * 4) as usize];
-        compose(scene, &Inputs { size: (W, H), room, camera, words, card }, &Layout::default(), &mut out);
+        compose(scene, &Inputs { size: (W, H), room, camera, words, card, cameras: &[], own: None }, &Layout::default(), &mut out);
         out
     }
     /// Clear everywhere but one opaque white row.
