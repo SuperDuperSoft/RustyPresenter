@@ -228,7 +228,7 @@ mod tr {
     pub fn t_show() -> String { tr!("Put things on the screen") }
     pub fn t_show_1() -> String { tr!("Click a slide: it goes on the screen at once. The red outline shows what the room sees.") }
     pub fn t_show_2(next: &str, back: &str) -> String { tr!("Next slide: {next}. Back: {back}.", next = next, back = back) }
-    pub fn t_show_3() -> String { tr!("Window → Screens… picks which monitor is the room screen and which is the stage screen.") }
+    pub fn t_show_3() -> String { tr!("Window → Screens… picks which monitor is the audience screen and which is the stage screen.") }
     pub fn t_clear() -> String { tr!("Clear the screen") }
     pub fn t_clear_change() -> String { tr!("Settings → Keys and clear groups… changes these keys and makes your own clear groups.") }
     pub fn t_bible() -> String { tr!("Bible passages") }
@@ -239,7 +239,7 @@ mod tr {
     pub fn t_songs_2() -> String { tr!("While a song is on the screen, C jumps to the chorus, B to the bridge and 1–9 to that verse.") }
     pub fn t_help() -> String { tr!("When something goes wrong") }
     pub fn t_help_1(key: &str) -> String { tr!("Lost the mouse on the projector? {key} brings it back to this window.", key = key) }
-    pub fn t_help_2() -> String { tr!("The room screen shows the wrong thing: press the clear keys above, then show the slide again.") }
+    pub fn t_help_2() -> String { tr!("The audience screen shows the wrong thing: press the clear keys above, then show the slide again.") }
     pub fn t_help_3() -> String { tr!("Help → Report a problem… writes a note to fill in and says where the log files are.") }
 }
 

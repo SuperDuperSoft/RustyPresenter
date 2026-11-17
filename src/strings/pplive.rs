@@ -22,7 +22,7 @@ pub fn now_runs(title: &str) -> String { tr!("“{title}” runs in PowerPoint n
 pub fn now_pictures(title: &str) -> String { tr!("“{title}” shows as pictures now.", title = title) }
 
 pub fn no_room_screen() -> String {
-    tr!("Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures.")
+    tr!("Run in PowerPoint needs the audience screen on a monitor. Turn the audience screen on in Screens; until then the room shows the slide pictures.")
 }
 pub fn failed(title: &str, error: &str) -> String {
     tr!("PowerPoint could not run “{title}”: {error} The room shows the slide pictures instead.", title = title, error = error)

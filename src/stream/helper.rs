@@ -19,7 +19,7 @@ pub struct Choice {
     pub service: usize,
     /// The other server's address (row 3 only).
     pub url: String,
-    /// The camera's name as FFmpeg opens it; empty: no camera (the room screen goes out).
+    /// The camera's name as FFmpeg opens it; empty: no camera (the audience screen goes out).
     pub camera: String,
     /// The sound's saved key (`record::Sound::key`).
     pub sound: String,
@@ -134,7 +134,7 @@ mod tests {
         assert_eq!(p.sound, "input:Line In (USB)");
         assert!(!needed(&p));
         apply(&mut p, &Choice { service: 1, camera: String::new(), ..Choice::default() });
-        assert!(p.camera.is_empty(), "no camera: the room screen");
+        assert!(p.camera.is_empty(), "no camera: the audience screen");
         assert_eq!(p.sound, "input:Line In (USB)", "an empty sound choice leaves it");
     }
 

@@ -91,7 +91,7 @@ export component GoLiveHelperDialog inherits VerticalLayout {
                 spacing: 10px;
                 Big { text: @tr("Which camera?"); }
                 helper-camera := Select { options: GoLiveHelperDlg.cameras; index <=> GoLiveHelperDlg.camera; }
-                Muted { text: @tr("Songs and Bible verses go out with the words over the camera. With no camera, viewers see the room screen."); }
+                Muted { text: @tr("Songs and Bible verses go out with the words over the camera. With no camera, viewers see the audience screen."); }
             }
             if GoLiveHelperDlg.step == 2: VerticalLayout {
                 spacing: 10px;

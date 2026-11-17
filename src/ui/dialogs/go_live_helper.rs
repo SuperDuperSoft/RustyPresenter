@@ -248,7 +248,7 @@ pub(crate) fn wire(op: &Rc<Operator>) {
 
 pub mod tr {
     use crate::tr;
-    pub fn no_camera() -> String { tr!("No camera: viewers see the room screen") }
+    pub fn no_camera() -> String { tr!("No camera: viewers see the audience screen") }
     pub fn checking() -> String { tr!("Checking… (about 10 seconds)") }
     pub fn no_internet() -> String { tr!("Internet: the speed test could not reach the internet. Check this computer's connection.") }
     pub fn ndi_camera() -> String { tr!("Camera: an NDI camera is looked for when you go live.") }

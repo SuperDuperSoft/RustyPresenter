@@ -148,7 +148,7 @@ impl Drop for Worker {
 }
 
 /// Starts the worker for a stream of `size`. `camera`: whether camera pictures are coming (camera scenes fall back
-/// to the room screen without). While `hold` (Freeze) is set nothing changes.
+/// to the audience screen without). While `hold` (Freeze) is set nothing changes.
 pub fn start(look: Look, size: (u32, u32), camera: Arc<AtomicBool>, hold: Arc<AtomicBool>) -> Result<Worker, String> {
     let slot: Slot = Arc::default();
     let stop = Arc::new(AtomicBool::new(false));

@@ -1146,7 +1146,7 @@ msgid "Which camera?"
 msgstr ""
 
 #: ui/dialogs/go-live-helper.slint
-msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the room screen."
+msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the audience screen."
 msgstr ""
 
 #: ui/dialogs/go-live-helper.slint
@@ -1553,7 +1553,7 @@ msgid "TCP password"
 msgstr ""
 
 #: ui/dialogs/overlays.slint
-msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
+msgid "Overlays stay on the audience screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
 msgstr ""
 
 #: ui/dialogs/overlays.slint
@@ -1837,7 +1837,7 @@ msgid "Aspect ratio: {}"
 msgstr ""
 
 #: ui/dialogs/screens.slint
-msgid "Show what the room screen shows"
+msgid "Show what the audience screen shows"
 msgstr ""
 
 #: ui/dialogs/screens.slint
@@ -2481,7 +2481,7 @@ msgid "Right speaker only"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
-msgid "File → Start recording (or the Record button at the top) saves what the room screen shows as an MP4 video."
+msgid "File → Start recording (or the Record button at the top) saves what the audience screen shows as an MP4 video."
 msgstr ""
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint ui/operator/slides.slint
@@ -2753,7 +2753,7 @@ msgid "What the stream shows in a camera's place while it is unplugged or sends 
 msgstr ""
 
 #: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
-msgid "The room screen"
+msgid "The audience screen"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
@@ -2773,7 +2773,7 @@ msgid "Scenes"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
-msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the audience screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
@@ -2785,7 +2785,7 @@ msgid "Presentations:"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
-msgid "The room screen with the camera in a corner"
+msgid "The audience screen with the camera in a corner"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
@@ -2793,7 +2793,7 @@ msgid "Scene layout"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
-msgid "Where the camera goes when it is in a corner of the room screen, and where the words go over the camera."
+msgid "Where the camera goes when it is in a corner of the audience screen, and where the words go over the camera."
 msgstr ""
 
 #: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
@@ -2825,7 +2825,7 @@ msgid "Your scenes"
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
-msgid "Make scenes of your own from cameras, the room screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgid "Make scenes of your own from cameras, the audience screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
 msgstr ""
 
 #: ui/dialogs/settings-media.slint
@@ -3609,11 +3609,11 @@ msgid "Screens"
 msgstr ""
 
 #: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs src/strings/screens.rs
-msgid "Room screen"
+msgid "Audience screen"
 msgstr ""
 
 #: ui/dialogs/settings.slint
-msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
+msgid "Keep the audience screen in front when it has its own monitor (smoother fades)"
 msgstr ""
 
 #: ui/dialogs/settings.slint
@@ -4291,7 +4291,7 @@ msgid "While live, also record the stream without the words (for editing)"
 msgstr ""
 
 #: ui/dialogs/stream-scenes.slint
-msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, videos, colours, text or a clock in it."
+msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, videos, colours, text or a clock in it."
 msgstr ""
 
 #: ui/dialogs/stream-scenes.slint
@@ -4483,7 +4483,7 @@ msgid "Use the wide picture fitted across again"
 msgstr ""
 
 #: ui/dialogs/stream-scenes.slint
-msgid "Cameras, the room screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgid "Cameras, the audience screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the audience screen in its place."
 msgstr ""
 
 #: ui/dialogs/stream-scenes.slint
@@ -5103,7 +5103,7 @@ msgid "Move to folder"
 msgstr ""
 
 #: ui/operator/monitor.slint src/ui/perf.rs
-msgid "Room screen is off"
+msgid "Audience screen is off"
 msgstr ""
 
 #: ui/operator/monitor.slint
@@ -5175,7 +5175,7 @@ msgid "Stop the livestream and save the recording"
 msgstr ""
 
 #: ui/operator/record.slint
-msgid "Send the room screen to the livestream, and record it"
+msgid "Send the audience screen to the livestream, and record it"
 msgstr ""
 
 #: ui/operator/record.slint
@@ -5227,7 +5227,7 @@ msgid "Stop recording and save the file"
 msgstr ""
 
 #: ui/operator/record.slint
-msgid "Record the room screen to a video file"
+msgid "Record the audience screen to a video file"
 msgstr ""
 
 #: ui/operator/record.slint src/automation/slide_actions.rs src/ui/dialogs/automation.rs
@@ -5735,7 +5735,7 @@ msgid "Easy view (big words)"
 msgstr ""
 
 #: ui/operator.slint
-msgid "Preview the room screen"
+msgid "Preview the audience screen"
 msgstr ""
 
 #: ui/operator.slint
@@ -5771,7 +5771,7 @@ msgid "Close the room window"
 msgstr ""
 
 #: ui/operator.slint
-msgid "Room screen in a window"
+msgid "Audience screen in a window"
 msgstr ""
 
 #: ui/operator.slint
@@ -5943,11 +5943,11 @@ msgid "That slide isn't there any more."
 msgstr ""
 
 #: src/app.rs
-msgid "The room screen restarted. Video/audio stopped — click it again to replay."
+msgid "The audience screen restarted. Video/audio stopped — click it again to replay."
 msgstr ""
 
 #: src/app.rs
-msgid "The room screen restarted."
+msgid "The audience screen restarted."
 msgstr ""
 
 #: src/app.rs src/platform/instance.rs
@@ -6059,7 +6059,7 @@ msgid "Add a screen first."
 msgstr ""
 
 #: src/app.rs
-msgid "Room screen {number}"
+msgid "Audience screen {number}"
 msgstr ""
 
 #: src/app.rs
@@ -7202,7 +7202,7 @@ msgid "The computer is keeping up again: the picture is smooth."
 msgstr ""
 
 #: src/record/mod.rs
-msgid "Turn the room screen on first: the recording is what the room shows."
+msgid "Turn the audience screen on first: the recording is what the room shows."
 msgstr ""
 
 #: src/record/mod.rs
@@ -7226,7 +7226,7 @@ msgid "The recording stopped: {why}"
 msgstr ""
 
 #: src/record/mod.rs
-msgid "Recording the room screen."
+msgid "Recording the audience screen."
 msgstr ""
 
 #: src/record/mod.rs
@@ -7648,7 +7648,7 @@ msgid "Camera: picture coming in"
 msgstr ""
 
 #: src/stream/health.rs
-msgid "Camera: no picture (the room screen is shown instead)"
+msgid "Camera: no picture (the audience screen is shown instead)"
 msgstr ""
 
 #: src/stream/health.rs
@@ -9240,15 +9240,15 @@ msgid "Something went wrong."
 msgstr ""
 
 #: src/strings/operator.rs
-msgid "Room screen is showing"
+msgid "Audience screen is showing"
 msgstr ""
 
 #: src/strings/operator.rs
-msgid "Room screen is starting…"
+msgid "Audience screen is starting…"
 msgstr ""
 
 #: src/strings/operator.rs
-msgid "Room screen is not open — click Screens"
+msgid "Audience screen is not open — click Screens"
 msgstr ""
 
 #: src/strings/operator.rs
@@ -9791,7 +9791,7 @@ msgid "“{title}” shows as pictures now."
 msgstr ""
 
 #: src/strings/pplive.rs
-msgid "Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures."
+msgid "Run in PowerPoint needs the audience screen on a monitor. Turn the audience screen on in Screens; until then the room shows the slide pictures."
 msgstr ""
 
 #: src/strings/pplive.rs
@@ -9815,11 +9815,11 @@ msgid "This service has no items yet."
 msgstr ""
 
 #: src/strings/preflight.rs
-msgid "No room screen is chosen. Choose one in Screens."
+msgid "No audience screen is chosen. Choose one in Screens."
 msgstr ""
 
 #: src/strings/preflight.rs
-msgid "The room screen is not connected. Check its cable, or choose another in Screens."
+msgid "The audience screen is not connected. Check its cable, or choose another in Screens."
 msgstr ""
 
 #: src/strings/preflight.rs
@@ -9999,7 +9999,7 @@ msgid "Nothing shows on a placeholder. Set it up now, then pick the projector he
 msgstr ""
 
 #: src/strings/screens.rs
-msgid "Shows the room screen's picture instead of a stage layout. It has no sound."
+msgid "Shows the audience screen's picture instead of a stage layout. It has no sound."
 msgstr ""
 
 #: src/strings/screens.rs
@@ -11900,7 +11900,7 @@ msgid "The stream key could not be kept: {error}"
 msgstr ""
 
 #: src/ui/dialogs/go_live_helper.rs
-msgid "No camera: viewers see the room screen"
+msgid "No camera: viewers see the audience screen"
 msgstr ""
 
 #: src/ui/dialogs/go_live_helper.rs
@@ -12339,7 +12339,7 @@ msgid "Scene name"
 msgstr ""
 
 #: src/ui/dialogs/stream_scenes.rs
-msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the room screen instead."
+msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the audience screen instead."
 msgstr ""
 
 #: src/ui/dialogs/stream_scenes.rs
@@ -12509,7 +12509,7 @@ msgid "Next slide: {next}. Back: {back}."
 msgstr ""
 
 #: src/ui/operator/help.rs
-msgid "Window → Screens… picks which monitor is the room screen and which is the stage screen."
+msgid "Window → Screens… picks which monitor is the audience screen and which is the stage screen."
 msgstr ""
 
 #: src/ui/operator/help.rs
@@ -12545,7 +12545,7 @@ msgid "Lost the mouse on the projector? {key} brings it back to this window."
 msgstr ""
 
 #: src/ui/operator/help.rs
-msgid "The room screen shows the wrong thing: press the clear keys above, then show the slide again."
+msgid "The audience screen shows the wrong thing: press the clear keys above, then show the slide again."
 msgstr ""
 
 #: src/ui/operator/help.rs
@@ -12707,7 +12707,7 @@ msgid "the room could not prepare it"
 msgstr ""
 
 #: src/ui/room.rs
-msgid "Could not open the room screen: {error}"
+msgid "Could not open the audience screen: {error}"
 msgstr ""
 
 #: src/ui/screens.rs
@@ -12715,11 +12715,11 @@ msgid "A presentation is on screen"
 msgstr ""
 
 #: src/ui/screens.rs
-msgid "The room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The audience screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr ""
 
 #: src/ui/screens.rs
-msgid "The extra room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr ""
 
 #: src/ui/screens.rs
@@ -12731,11 +12731,11 @@ msgid "The extra stage screen was unplugged. It comes back by itself when that s
 msgstr ""
 
 #: src/ui/screens.rs
-msgid "The room screen is plugged in again, but it could not open: {error}"
+msgid "The audience screen is plugged in again, but it could not open: {error}"
 msgstr ""
 
 #: src/ui/screens.rs
-msgid "The extra room screen is plugged in again, but it could not open: {error}"
+msgid "The extra audience screen is plugged in again, but it could not open: {error}"
 msgstr ""
 
 #: src/ui/screens.rs
@@ -12852,7 +12852,7 @@ msgid "It closed before it finished. It may have crashed."
 msgstr ""
 
 #: src/video/bench.rs
-msgid "Slides never reached the room screen."
+msgid "Slides never reached the audience screen."
 msgstr ""
 
 #: src/video/bench.rs

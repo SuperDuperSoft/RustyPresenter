@@ -1,5 +1,5 @@
 //! What the stream shows in a camera's place while that camera sends nothing (unplugged, a phone out of Wi-Fi, a
-//! network camera restarting): Settings → Media → Livestream → "When a camera sends nothing". The room screen (as
+//! network camera restarting): Settings → Media → Livestream → "When a camera sends nothing". The audience screen (as
 //! before), the church's logo, or black. The camera's own picture comes back by itself as soon as it sends again
 //! (`camera_feed`); the lost-camera light still says the camera is not sending.
 use serde::{Deserialize, Serialize};
@@ -10,7 +10,7 @@ use std::sync::Arc;
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum CameraLost {
-    /// The room screen fills the camera's place (as before this choice existed).
+    /// The audience screen fills the camera's place (as before this choice existed).
     #[default]
     Room,
     /// The church's logo (Settings → Look → Logo), on black; black when there is none.
@@ -34,7 +34,7 @@ pub struct Lost {
     pub logo: Option<PathBuf>,
 }
 
-/// The picture to put in a lost camera's place, RGBA of `size`; `None` for the room screen. Reads the logo's file:
+/// The picture to put in a lost camera's place, RGBA of `size`; `None` for the audience screen. Reads the logo's file:
 /// done once when the stream starts, not for each picture.
 pub fn prepare(lost: &Lost, size: (u32, u32)) -> Option<Arc<Vec<u8>>> {
     let mut out = [0u8, 0, 0, 255].repeat(super::camera_feed::frame_bytes(size) / 4);
@@ -69,7 +69,7 @@ mod tests {
     #[test]
     fn a_lost_camera_shows_the_room_the_logo_or_black() {
         let size = (64, 36);
-        assert_eq!(prepare(&Lost::default(), size), None, "the room screen, as before");
+        assert_eq!(prepare(&Lost::default(), size), None, "the audience screen, as before");
         let black = prepare(&Lost { choice: CameraLost::Black, logo: None }, size).unwrap();
         assert!(black.chunks_exact(4).all(|p| p == [0, 0, 0, 255]));
         // A white logo: white in the middle, black at the edges.

@@ -3,8 +3,8 @@ use crate::{tr, trn};
 
 pub fn all_clear() -> String { tr!("All set. Every song, file and screen for this service was found.") }
 pub fn empty_service() -> String { tr!("This service has no items yet.") }
-pub fn no_room() -> String { tr!("No room screen is chosen. Choose one in Screens.") }
-pub fn room_gone() -> String { tr!("The room screen is not connected. Check its cable, or choose another in Screens.") }
+pub fn no_room() -> String { tr!("No audience screen is chosen. Choose one in Screens.") }
+pub fn room_gone() -> String { tr!("The audience screen is not connected. Check its cable, or choose another in Screens.") }
 pub fn stage_gone() -> String { tr!("The stage screen is not connected. The service can run without it.") }
 pub fn audio_gone() -> String { tr!("The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video.") }
 /// On the live column, when the output goes away during the service (spec §6.4).

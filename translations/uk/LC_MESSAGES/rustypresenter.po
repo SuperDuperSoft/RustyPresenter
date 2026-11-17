@@ -1149,7 +1149,7 @@ msgid "Which camera?"
 msgstr "Яка камера?"
 
 #: ui/dialogs/go-live-helper.slint
-msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the room screen."
+msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the audience screen."
 msgstr "Пісні й вірші з Біблії йдуть у трансляцію зі словами поверх камери. Без камери глядачі бачать екран у залі."
 
 #: ui/dialogs/go-live-helper.slint
@@ -1556,7 +1556,7 @@ msgid "TCP password"
 msgstr "Пароль TCP"
 
 #: ui/dialogs/overlays.slint
-msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
+msgid "Overlays stay on the audience screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
 msgstr "Накладання лишаються на екрані в залі, поки змінюються слайди: логотип у куті, годинник чи короткий напис. Вмикайте й вимикайте їх позначками під «Наступне» у стовпці «В ефірі». Останнє в списку малюється поверх інших."
 
 #: ui/dialogs/overlays.slint
@@ -1840,7 +1840,7 @@ msgid "Aspect ratio: {}"
 msgstr "Співвідношення сторін: {}"
 
 #: ui/dialogs/screens.slint
-msgid "Show what the room screen shows"
+msgid "Show what the audience screen shows"
 msgstr "Показувати те, що показує екран у залі"
 
 #: ui/dialogs/screens.slint
@@ -2484,7 +2484,7 @@ msgid "Right speaker only"
 msgstr "Лише правий динамік"
 
 #: ui/dialogs/settings-media.slint
-msgid "File → Start recording (or the Record button at the top) saves what the room screen shows as an MP4 video."
+msgid "File → Start recording (or the Record button at the top) saves what the audience screen shows as an MP4 video."
 msgstr "Файл → Почати запис (або кнопка «Запис» угорі) зберігає те, що показує екран у залі, як відео MP4."
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint ui/operator/slides.slint
@@ -2756,7 +2756,7 @@ msgid "What the stream shows in a camera's place while it is unplugged or sends 
 msgstr "Що трансляція показує замість камери, поки та від’єднана або не дає зображення. Камера повернеться сама, щойно знову почне передавати."
 
 #: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
-msgid "The room screen"
+msgid "The audience screen"
 msgstr "Екран у залі"
 
 #: ui/dialogs/settings-media.slint
@@ -2776,7 +2776,7 @@ msgid "Scenes"
 msgstr "Сцени"
 
 #: ui/dialogs/settings-media.slint
-msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the audience screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
 msgstr "Пісні та вірші з Біблії йдуть як камера зі словами; відео та презентації — як екран у залі; коли на екрані нічого немає — камера. Сцена, обрана кнопкою сцени поруч з «В ефірі», тримається до наступного пункту служіння."
 
 #: ui/dialogs/settings-media.slint
@@ -2788,7 +2788,7 @@ msgid "Presentations:"
 msgstr "Презентації:"
 
 #: ui/dialogs/settings-media.slint
-msgid "The room screen with the camera in a corner"
+msgid "The audience screen with the camera in a corner"
 msgstr "Екран у залі з камерою в куті"
 
 #: ui/dialogs/settings-media.slint
@@ -2796,7 +2796,7 @@ msgid "Scene layout"
 msgstr "Розташування в сценах"
 
 #: ui/dialogs/settings-media.slint
-msgid "Where the camera goes when it is in a corner of the room screen, and where the words go over the camera."
+msgid "Where the camera goes when it is in a corner of the audience screen, and where the words go over the camera."
 msgstr "Де камера, коли вона в кутку екрана в залі, і де слова поверх камери."
 
 #: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
@@ -2828,7 +2828,7 @@ msgid "Your scenes"
 msgstr "Ваші сцени"
 
 #: ui/dialogs/settings-media.slint
-msgid "Make scenes of your own from cameras, the room screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgid "Make scenes of your own from cameras, the audience screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
 msgstr "Створюйте власні сцени з камер, екрана в залі, слів, зображень, кольорів і тексту. В ефірі вони йдуть у списку після вбудованих сцен."
 
 #: ui/dialogs/settings-media.slint
@@ -3612,11 +3612,11 @@ msgid "Screens"
 msgstr "Екрани"
 
 #: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs src/strings/screens.rs
-msgid "Room screen"
+msgid "Audience screen"
 msgstr "Екран у залі"
 
 #: ui/dialogs/settings.slint
-msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
+msgid "Keep the audience screen in front when it has its own monitor (smoother fades)"
 msgstr "Тримати екран у залі поверх інших вікон, коли він має власний монітор (плавніші переходи)"
 
 #: ui/dialogs/settings.slint
@@ -4300,7 +4300,7 @@ msgid "While live, also record the stream without the words (for editing)"
 msgstr "Під час ефіру також записувати трансляцію без слів (для монтажу)"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, videos, colours, text or a clock in it."
+msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, videos, colours, text or a clock in it."
 msgstr "Власних сцен поки немає. Додайте сцену, потім розмістіть у ній камери, екран у залі, слова, зображення, відео, кольори, текст або годинник."
 
 #: ui/dialogs/stream-scenes.slint
@@ -4492,7 +4492,7 @@ msgid "Use the wide picture fitted across again"
 msgstr "Знову вписувати широке зображення по ширині"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "Cameras, the room screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgid "Cameras, the audience screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the audience screen in its place."
 msgstr "Камери, екран у залі, слова, відео й вебсторінки тут — заглушки; в ефірі вони справжні. Камера, яка нічого не передає, показує замість себе екран у залі."
 
 #: ui/dialogs/stream-scenes.slint
@@ -5112,7 +5112,7 @@ msgid "Move to folder"
 msgstr "Перемістити в папку"
 
 #: ui/operator/monitor.slint src/ui/perf.rs
-msgid "Room screen is off"
+msgid "Audience screen is off"
 msgstr "Екран у залі вимкнено"
 
 #: ui/operator/monitor.slint
@@ -5184,7 +5184,7 @@ msgid "Stop the livestream and save the recording"
 msgstr "Зупинити трансляцію і зберегти запис"
 
 #: ui/operator/record.slint
-msgid "Send the room screen to the livestream, and record it"
+msgid "Send the audience screen to the livestream, and record it"
 msgstr "Надіслати екран у залі в трансляцію і записати його"
 
 #: ui/operator/record.slint
@@ -5236,7 +5236,7 @@ msgid "Stop recording and save the file"
 msgstr "Зупинити запис і зберегти файл"
 
 #: ui/operator/record.slint
-msgid "Record the room screen to a video file"
+msgid "Record the audience screen to a video file"
 msgstr "Записати екран у залі у відеофайл"
 
 #: ui/operator/record.slint src/automation/slide_actions.rs src/ui/dialogs/automation.rs
@@ -5744,7 +5744,7 @@ msgid "Easy view (big words)"
 msgstr "Простий вигляд (великі слова)"
 
 #: ui/operator.slint
-msgid "Preview the room screen"
+msgid "Preview the audience screen"
 msgstr "Попередній перегляд екрана в залі"
 
 #: ui/operator.slint
@@ -5780,7 +5780,7 @@ msgid "Close the room window"
 msgstr "Закрити вікно залу"
 
 #: ui/operator.slint
-msgid "Room screen in a window"
+msgid "Audience screen in a window"
 msgstr "Екран у залі у вікні"
 
 #: ui/operator.slint
@@ -5952,11 +5952,11 @@ msgid "That slide isn't there any more."
 msgstr "Цього слайда вже немає."
 
 #: src/app.rs
-msgid "The room screen restarted. Video/audio stopped — click it again to replay."
+msgid "The audience screen restarted. Video/audio stopped — click it again to replay."
 msgstr "Екран у залі перезапустився. Відео/аудіо зупинено — клацніть ще раз, щоб відтворити знову."
 
 #: src/app.rs
-msgid "The room screen restarted."
+msgid "The audience screen restarted."
 msgstr "Екран у залі перезапустився."
 
 #: src/app.rs src/platform/instance.rs
@@ -6068,7 +6068,7 @@ msgid "Add a screen first."
 msgstr "Спочатку додайте екран."
 
 #: src/app.rs
-msgid "Room screen {number}"
+msgid "Audience screen {number}"
 msgstr "Екран у залі {number}"
 
 #: src/app.rs
@@ -7215,7 +7215,7 @@ msgid "The computer is keeping up again: the picture is smooth."
 msgstr "Комп’ютер знову встигає: зображення плавне."
 
 #: src/record/mod.rs
-msgid "Turn the room screen on first: the recording is what the room shows."
+msgid "Turn the audience screen on first: the recording is what the room shows."
 msgstr "Спершу ввімкніть екран у залі: записується те, що показує зал."
 
 #: src/record/mod.rs
@@ -7239,7 +7239,7 @@ msgid "The recording stopped: {why}"
 msgstr "Запис зупинено: {why}"
 
 #: src/record/mod.rs
-msgid "Recording the room screen."
+msgid "Recording the audience screen."
 msgstr "Іде запис екрана в залі."
 
 #: src/record/mod.rs
@@ -7662,7 +7662,7 @@ msgid "Camera: picture coming in"
 msgstr "Камера: зображення надходить"
 
 #: src/stream/health.rs
-msgid "Camera: no picture (the room screen is shown instead)"
+msgid "Camera: no picture (the audience screen is shown instead)"
 msgstr "Камера: немає зображення (замість нього показано екран у залі)"
 
 #: src/stream/health.rs
@@ -9268,15 +9268,15 @@ msgid "Something went wrong."
 msgstr "Щось пішло не так."
 
 #: src/strings/operator.rs
-msgid "Room screen is showing"
+msgid "Audience screen is showing"
 msgstr "Екран у залі працює"
 
 #: src/strings/operator.rs
-msgid "Room screen is starting…"
+msgid "Audience screen is starting…"
 msgstr "Екран у залі запускається…"
 
 #: src/strings/operator.rs
-msgid "Room screen is not open — click Screens"
+msgid "Audience screen is not open — click Screens"
 msgstr "Екран у залі не відкрито — натисніть «Екрани»"
 
 #: src/strings/operator.rs
@@ -9826,7 +9826,7 @@ msgid "“{title}” shows as pictures now."
 msgstr "«{title}» тепер показується як зображення."
 
 #: src/strings/pplive.rs
-msgid "Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures."
+msgid "Run in PowerPoint needs the audience screen on a monitor. Turn the audience screen on in Screens; until then the room shows the slide pictures."
 msgstr "Для «Запуску у PowerPoint» екран у залі має бути на моніторі. Увімкніть екран у залі в розділі «Екрани»; доти зал показує зображення слайдів."
 
 #: src/strings/pplive.rs
@@ -9850,11 +9850,11 @@ msgid "This service has no items yet."
 msgstr "У цьому служінні ще немає пунктів."
 
 #: src/strings/preflight.rs
-msgid "No room screen is chosen. Choose one in Screens."
+msgid "No audience screen is chosen. Choose one in Screens."
 msgstr "Екран у залі не вибрано. Виберіть його в «Екранах»."
 
 #: src/strings/preflight.rs
-msgid "The room screen is not connected. Check its cable, or choose another in Screens."
+msgid "The audience screen is not connected. Check its cable, or choose another in Screens."
 msgstr "Екран у залі не під’єднано. Перевірте кабель або виберіть інший в «Екранах»."
 
 #: src/strings/preflight.rs
@@ -10036,7 +10036,7 @@ msgid "Nothing shows on a placeholder. Set it up now, then pick the projector he
 msgstr "На заповнювачі нічого не показується. Налаштуйте його зараз, а коли проєктор буде під’єднано, виберіть його тут."
 
 #: src/strings/screens.rs
-msgid "Shows the room screen's picture instead of a stage layout. It has no sound."
+msgid "Shows the audience screen's picture instead of a stage layout. It has no sound."
 msgstr "Показує зображення екрана в залі замість макета сцени. Без звуку."
 
 #: src/strings/screens.rs
@@ -11952,7 +11952,7 @@ msgid "The stream key could not be kept: {error}"
 msgstr "Не вдалося зберегти ключ трансляції: {error}"
 
 #: src/ui/dialogs/go_live_helper.rs
-msgid "No camera: viewers see the room screen"
+msgid "No camera: viewers see the audience screen"
 msgstr "Без камери: глядачі бачать екран у залі"
 
 #: src/ui/dialogs/go_live_helper.rs
@@ -12400,7 +12400,7 @@ msgid "Scene name"
 msgstr "Назва сцени"
 
 #: src/ui/dialogs/stream_scenes.rs
-msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the room screen instead."
+msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the audience screen instead."
 msgstr "Видалити сцену «{name}»? Дії слайдів і макроси, які її обирають, показуватимуть замість неї екран у залі."
 
 #: src/ui/dialogs/stream_scenes.rs
@@ -12571,7 +12571,7 @@ msgid "Next slide: {next}. Back: {back}."
 msgstr "Наступний слайд: {next}. Назад: {back}."
 
 #: src/ui/operator/help.rs
-msgid "Window → Screens… picks which monitor is the room screen and which is the stage screen."
+msgid "Window → Screens… picks which monitor is the audience screen and which is the stage screen."
 msgstr "Вікно → Екрани… визначає, який монітор є екраном у залі, а який — сценічним екраном."
 
 #: src/ui/operator/help.rs
@@ -12607,7 +12607,7 @@ msgid "Lost the mouse on the projector? {key} brings it back to this window."
 msgstr "Загубили мишу на проєкторі? {key} поверне її до цього вікна."
 
 #: src/ui/operator/help.rs
-msgid "The room screen shows the wrong thing: press the clear keys above, then show the slide again."
+msgid "The audience screen shows the wrong thing: press the clear keys above, then show the slide again."
 msgstr "Екран у залі показує не те: натисніть клавіші очищення вище, а потім знову покажіть слайд."
 
 #: src/ui/operator/help.rs
@@ -12772,7 +12772,7 @@ msgid "the room could not prepare it"
 msgstr "екран у залі не зміг це підготувати"
 
 #: src/ui/room.rs
-msgid "Could not open the room screen: {error}"
+msgid "Could not open the audience screen: {error}"
 msgstr "Не вдалося відкрити екран у залі: {error}"
 
 #: src/ui/screens.rs
@@ -12780,11 +12780,11 @@ msgid "A presentation is on screen"
 msgstr "На екрані презентація"
 
 #: src/ui/screens.rs
-msgid "The room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The audience screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr "Екран у залі від’єднано. Він повернеться сам, коли екран знову під’єднають."
 
 #: src/ui/screens.rs
-msgid "The extra room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr "Додатковий екран у залі від’єднано. Він повернеться сам, коли екран знову під’єднають."
 
 #: src/ui/screens.rs
@@ -12796,11 +12796,11 @@ msgid "The extra stage screen was unplugged. It comes back by itself when that s
 msgstr "Додатковий сценічний екран від’єднано. Він повернеться сам, коли екран знову під’єднають."
 
 #: src/ui/screens.rs
-msgid "The room screen is plugged in again, but it could not open: {error}"
+msgid "The audience screen is plugged in again, but it could not open: {error}"
 msgstr "Екран у залі знову під’єднано, але його не вдалося відкрити: {error}"
 
 #: src/ui/screens.rs
-msgid "The extra room screen is plugged in again, but it could not open: {error}"
+msgid "The extra audience screen is plugged in again, but it could not open: {error}"
 msgstr "Додатковий екран у залі знову під’єднано, але його не вдалося відкрити: {error}"
 
 #: src/ui/screens.rs
@@ -12917,7 +12917,7 @@ msgid "It closed before it finished. It may have crashed."
 msgstr "Воно закрилося, не завершивши. Можливо, стався збій."
 
 #: src/video/bench.rs
-msgid "Slides never reached the room screen."
+msgid "Slides never reached the audience screen."
 msgstr "Слайди так і не дійшли до екрана в залі."
 
 #: src/video/bench.rs
@@ -13078,10 +13078,10 @@ msgstr "не медіафайл"
 #~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
 #~ msgstr "Як YouTube і Facebook називають кожну трансляцію. {{date}} замінюється датою дня."
 
-#~ msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
+#~ msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, colours or text in it."
 #~ msgstr "Власних сцен поки немає. Додайте сцену, а тоді покладіть у неї камери, екран у залі, слова, зображення, кольори чи текст."
 
-#~ msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+#~ msgid "Cameras, the audience screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the audience screen in its place."
 #~ msgstr "Тут камери, екран у залі та слова — лише замінники; в ефірі будуть справжні. Якщо камера нічого не передає, замість неї показується екран у залі."
 
 #~ msgid "Move the next camera to its saved position {}"
@@ -13093,7 +13093,7 @@ msgstr "не медіафайл"
 #~ msgid "Another camera to switch to while live, from the scene button beside Live."
 #~ msgstr "Ще одна камера, на яку можна перемкнутися в ефірі, кнопкою сцени поруч з «В ефірі»."
 
-#~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+#~ msgid "A camera or capture card put together with the audience screen in the stream (and its recording)."
 #~ msgstr "Камера або карта захоплення, поєднана з екраном залу в трансляції (і в її записі)."
 
 #~ msgid "Camera, with the screen in a corner"

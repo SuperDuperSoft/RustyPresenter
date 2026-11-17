@@ -12,7 +12,7 @@ const SPAN: Duration = Duration::from_secs(2);
 const STILL_AFTER: Duration = Duration::from_secs(1);
 /// How often the driver is asked for its free memory.
 const MEMORY_EVERY: Duration = Duration::from_secs(2);
-/// Below this, a moving room screen is struggling.
+/// Below this, a moving audience screen is struggling.
 pub const SLOW_FPS: f32 = 20.0;
 
 static WANTED: AtomicBool = AtomicBool::new(false);
@@ -139,7 +139,7 @@ impl Reading {
         })
     }
 
-    /// The room screen is moving, but slowly.
+    /// The audience screen is moving, but slowly.
     pub fn slow(&self) -> bool { matches!(self.room, Some(Some(f)) if f > 0.0 && f < SLOW_FPS) }
 
     /// "Room 60 fps · Stage 1 fps · This window 30 fps · Video memory 1.2 GB free of 4.0 GB".
@@ -152,7 +152,7 @@ impl Reading {
         let mut parts = vec![];
         match self.room {
             Some(f) => parts.push(fps(f, &tr!("Room"))),
-            None => parts.push(tr!("Room screen is off")),
+            None => parts.push(tr!("Audience screen is off")),
         }
         if let Some(f) = self.stage { parts.push(fps(f, &tr!("Stage"))) }
         if let Some(f) = self.operator { parts.push(fps(Some(f), &tr!("This window"))) }
@@ -235,7 +235,7 @@ mod tests {
         let r = Reading { room: Some(None), stage: None, operator: None, memory: Some(None) };
         assert_eq!(r.line(), "Room: not measured · Video memory: this graphics card does not say");
         let r = Reading { room: None, memory: Some(Some(VideoMemory { free_kb: 524288, total_kb: None })), ..Default::default() };
-        assert_eq!(r.line(), "Room screen is off · Video memory 512 MB free");
+        assert_eq!(r.line(), "Audience screen is off · Video memory 512 MB free");
         assert!(Reading { room: Some(Some(12.0)), ..Default::default() }.slow(), "a room moving at 12 frames a second is struggling");
         assert!(!Reading { room: Some(Some(0.0)), ..Default::default() }.slow(), "a still picture is fine");
     }

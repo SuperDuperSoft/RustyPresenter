@@ -1,8 +1,8 @@
 // Drawing on the live slide from the phone or tablet, like a sports telestrator: circle a word, underline a line.
-// One tap on Draw (or on the live picture) fills the screen with the slide, at the room screen's own shape, and the
+// One tap on Draw (or on the live picture) fills the screen with the slide, at the audience screen's own shape, and the
 // finger draws straight away. The page can't scroll, zoom or reload under the finger while this is open.
 // Finger, mouse and pen all come as Pointer Events. While drawing, the points go to the computer in small batches
-// (every 40 ms) as 0–1 of the slide, so the room screen shows the line as it is drawn, at any screen size. The
+// (every 40 ms) as 0–1 of the slide, so the audience screen shows the line as it is drawn, at any screen size. The
 // computer checks everything again.
 // Ink either stays, or fades like a laser pointer: a few seconds after the finger lifts it fades out and is gone.
 
@@ -33,7 +33,7 @@ const t = (en, args) => app.t(en, args);
 // The tool choice: size 0–2 is a pen, 3 the highlighter. Remembered on this phone.
 let color = PALETTE[0], size = 1, fades = false, drewBefore = false, notesOn = true, notes = '';
 let fadeMs = 3000;                    // Settings → "Fading ink disappears after", from the remote view
-let aspect = 16 / 9;                  // the room screen's shape (the remote view, then the picture itself)
+let aspect = 16 / 9;                  // the audience screen's shape (the remote view, then the picture itself)
 let strokes = [];                     // my lines on screen: { id, color, width, pen, ink, pts, sent, acked, ended }
 let cur = null;                       // the line under the finger
 let nextId = Date.now() % 1000000;    // stroke numbers, fresh after a reload

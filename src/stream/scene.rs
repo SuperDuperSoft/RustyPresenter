@@ -15,7 +15,7 @@ pub enum Scene {
     /// What the room shows.
     #[default]
     Screen,
-    /// The room screen, with the camera small in the bottom right corner.
+    /// The audience screen, with the camera small in the bottom right corner.
     ScreenCamera,
     /// A card before the service, with the pre-service countdown.
     StartingSoon,
@@ -85,7 +85,7 @@ pub struct LiveInfo {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct AutoPrefs {
     pub on: bool,
-    /// Presentations show the room screen with the camera in the corner, not the room screen alone.
+    /// Presentations show the audience screen with the camera in the corner, not the audience screen alone.
     pub presentation_camera: bool,
 }
 
@@ -123,7 +123,7 @@ pub fn choose(info: &LiveInfo, prefs: AutoPrefs, choice: Choice, last: Scene) ->
     }
 }
 
-/// `scene` as it can go out: a camera scene with no camera picture shows the room screen instead.
+/// `scene` as it can go out: a camera scene with no camera picture shows the audience screen instead.
 pub fn effective(scene: Scene, camera: bool) -> Scene {
     if scene.needs_camera() && !camera { Scene::Screen } else { scene }
 }

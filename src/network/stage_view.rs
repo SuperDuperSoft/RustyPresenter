@@ -217,7 +217,7 @@ async fn next_picture(State(app): State<Arc<App>>, headers: HeaderMap, Query(q):
     }
 }
 
-/// The slide on the room screen now as a JPEG, `w` pixels wide, the room's shape (the phone remote's picture).
+/// The slide on the audience screen now as a JPEG, `w` pixels wide, the room's shape (the phone remote's picture).
 async fn live_picture(State(app): State<Arc<App>>, headers: HeaderMap, Query(q): Query<Size>) -> Response {
     if !allowed(&app, &headers) { return StatusCode::UNAUTHORIZED.into_response() }
     match tokio::task::spawn_blocking(move || crate::server::live_slide_jpeg(&app, q.w.unwrap_or(640))).await {

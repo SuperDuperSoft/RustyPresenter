@@ -1149,7 +1149,7 @@ msgid "Which camera?"
 msgstr "用哪台摄像头？"
 
 #: ui/dialogs/go-live-helper.slint
-msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the room screen."
+msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the audience screen."
 msgstr "诗歌和经文会把歌词叠在摄像头画面上播出。没有摄像头时，观众看到的是会众屏幕。"
 
 #: ui/dialogs/go-live-helper.slint
@@ -1556,7 +1556,7 @@ msgid "TCP password"
 msgstr "TCP 密码"
 
 #: ui/dialogs/overlays.slint
-msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
+msgid "Overlays stay on the audience screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
 msgstr "叠加层在切换幻灯片时会一直留在会众屏幕上：角落里的标志、时钟或简短标语。用“显示中”栏中“接下来”下方的按钮开关它们。列表中最后一个显示在最上层。"
 
 #: ui/dialogs/overlays.slint
@@ -1840,7 +1840,7 @@ msgid "Aspect ratio: {}"
 msgstr "宽高比：{}"
 
 #: ui/dialogs/screens.slint
-msgid "Show what the room screen shows"
+msgid "Show what the audience screen shows"
 msgstr "显示会众屏幕的画面"
 
 #: ui/dialogs/screens.slint
@@ -2484,7 +2484,7 @@ msgid "Right speaker only"
 msgstr "仅右音箱"
 
 #: ui/dialogs/settings-media.slint
-msgid "File → Start recording (or the Record button at the top) saves what the room screen shows as an MP4 video."
+msgid "File → Start recording (or the Record button at the top) saves what the audience screen shows as an MP4 video."
 msgstr "“文件 → 开始录制”（或顶部的“录制”按钮）会将会众屏幕的画面保存为 MP4 视频。"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint ui/operator/slides.slint
@@ -2756,7 +2756,7 @@ msgid "What the stream shows in a camera's place while it is unplugged or sends 
 msgstr "摄像头被拔出或没有画面时，直播在它的位置显示的内容。摄像头一恢复发送，就会自动切回。"
 
 #: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
-msgid "The room screen"
+msgid "The audience screen"
 msgstr "会众屏幕"
 
 #: ui/dialogs/settings-media.slint
@@ -2776,7 +2776,7 @@ msgid "Scenes"
 msgstr "场景"
 
 #: ui/dialogs/settings-media.slint
-msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the audience screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
 msgstr "诗歌和经文以摄像头加歌词播出；视频和演示文稿以会众屏幕播出；屏幕上没有内容时播出摄像头。用“直播”旁的场景按钮选择的场景会保持到下一个聚会项目。"
 
 #: ui/dialogs/settings-media.slint
@@ -2788,7 +2788,7 @@ msgid "Presentations:"
 msgstr "演示文稿："
 
 #: ui/dialogs/settings-media.slint
-msgid "The room screen with the camera in a corner"
+msgid "The audience screen with the camera in a corner"
 msgstr "会众屏幕，摄像头在角落"
 
 #: ui/dialogs/settings-media.slint
@@ -2796,7 +2796,7 @@ msgid "Scene layout"
 msgstr "场景布局"
 
 #: ui/dialogs/settings-media.slint
-msgid "Where the camera goes when it is in a corner of the room screen, and where the words go over the camera."
+msgid "Where the camera goes when it is in a corner of the audience screen, and where the words go over the camera."
 msgstr "摄像头放在会众屏幕角落时的位置，以及摄像头上歌词的位置。"
 
 #: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
@@ -2828,7 +2828,7 @@ msgid "Your scenes"
 msgstr "我的场景"
 
 #: ui/dialogs/settings-media.slint
-msgid "Make scenes of your own from cameras, the room screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgid "Make scenes of your own from cameras, the audience screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
 msgstr "用摄像头、会众屏幕、歌词、图片、颜色和文字制作自己的场景。直播时，它们排在内置场景之后。"
 
 #: ui/dialogs/settings-media.slint
@@ -3612,11 +3612,11 @@ msgid "Screens"
 msgstr "屏幕"
 
 #: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs src/strings/screens.rs
-msgid "Room screen"
+msgid "Audience screen"
 msgstr "会众屏幕"
 
 #: ui/dialogs/settings.slint
-msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
+msgid "Keep the audience screen in front when it has its own monitor (smoother fades)"
 msgstr "会众屏幕有独立显示器时保持在最前（淡入淡出更流畅）"
 
 #: ui/dialogs/settings.slint
@@ -4300,7 +4300,7 @@ msgid "While live, also record the stream without the words (for editing)"
 msgstr "直播时另外录制不带歌词的直播画面（用于剪辑）"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, videos, colours, text or a clock in it."
+msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, videos, colours, text or a clock in it."
 msgstr "还没有自己的场景。先添加一个，再放入摄像头、会众屏幕、歌词、图片、视频、颜色、文字或时钟。"
 
 #: ui/dialogs/stream-scenes.slint
@@ -4492,7 +4492,7 @@ msgid "Use the wide picture fitted across again"
 msgstr "恢复为按宽度放入横屏画面"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "Cameras, the room screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgid "Cameras, the audience screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the audience screen in its place."
 msgstr "这里的摄像头、会众屏幕、歌词、视频和网页只是示意画面；直播时会换成真实画面。没有画面的摄像头，其位置会显示会众屏幕。"
 
 #: ui/dialogs/stream-scenes.slint
@@ -5112,7 +5112,7 @@ msgid "Move to folder"
 msgstr "移到文件夹"
 
 #: ui/operator/monitor.slint src/ui/perf.rs
-msgid "Room screen is off"
+msgid "Audience screen is off"
 msgstr "会众屏幕已关闭"
 
 #: ui/operator/monitor.slint
@@ -5184,7 +5184,7 @@ msgid "Stop the livestream and save the recording"
 msgstr "停止直播并保存录制内容"
 
 #: ui/operator/record.slint
-msgid "Send the room screen to the livestream, and record it"
+msgid "Send the audience screen to the livestream, and record it"
 msgstr "把会众屏幕发送到直播，并录制下来"
 
 #: ui/operator/record.slint
@@ -5236,7 +5236,7 @@ msgid "Stop recording and save the file"
 msgstr "停止录制并保存文件"
 
 #: ui/operator/record.slint
-msgid "Record the room screen to a video file"
+msgid "Record the audience screen to a video file"
 msgstr "将会众屏幕录制为视频文件"
 
 #: ui/operator/record.slint src/automation/slide_actions.rs src/ui/dialogs/automation.rs
@@ -5744,7 +5744,7 @@ msgid "Easy view (big words)"
 msgstr "简易视图（大字）"
 
 #: ui/operator.slint
-msgid "Preview the room screen"
+msgid "Preview the audience screen"
 msgstr "预览会众屏幕"
 
 #: ui/operator.slint
@@ -5780,7 +5780,7 @@ msgid "Close the room window"
 msgstr "关闭会众窗口"
 
 #: ui/operator.slint
-msgid "Room screen in a window"
+msgid "Audience screen in a window"
 msgstr "在窗口中显示会众屏幕"
 
 #: ui/operator.slint
@@ -5952,11 +5952,11 @@ msgid "That slide isn't there any more."
 msgstr "该幻灯片已不存在。"
 
 #: src/app.rs
-msgid "The room screen restarted. Video/audio stopped — click it again to replay."
+msgid "The audience screen restarted. Video/audio stopped — click it again to replay."
 msgstr "会众屏幕已重新启动。视频/音频已停止 — 再次点击即可重新播放。"
 
 #: src/app.rs
-msgid "The room screen restarted."
+msgid "The audience screen restarted."
 msgstr "会众屏幕已重新启动。"
 
 #: src/app.rs src/platform/instance.rs
@@ -6068,7 +6068,7 @@ msgid "Add a screen first."
 msgstr "请先添加屏幕。"
 
 #: src/app.rs
-msgid "Room screen {number}"
+msgid "Audience screen {number}"
 msgstr "会众屏幕 {number}"
 
 #: src/app.rs
@@ -7207,7 +7207,7 @@ msgid "The computer is keeping up again: the picture is smooth."
 msgstr "电脑又跟上了：画面流畅。"
 
 #: src/record/mod.rs
-msgid "Turn the room screen on first: the recording is what the room shows."
+msgid "Turn the audience screen on first: the recording is what the room shows."
 msgstr "请先打开会众屏幕：录制的是会众看到的画面。"
 
 #: src/record/mod.rs
@@ -7231,7 +7231,7 @@ msgid "The recording stopped: {why}"
 msgstr "录制已停止：{why}"
 
 #: src/record/mod.rs
-msgid "Recording the room screen."
+msgid "Recording the audience screen."
 msgstr "正在录制会众屏幕。"
 
 #: src/record/mod.rs
@@ -7652,7 +7652,7 @@ msgid "Camera: picture coming in"
 msgstr "摄像头：画面正常"
 
 #: src/stream/health.rs
-msgid "Camera: no picture (the room screen is shown instead)"
+msgid "Camera: no picture (the audience screen is shown instead)"
 msgstr "摄像头：无画面（改为显示会众屏幕）"
 
 #: src/stream/health.rs
@@ -9230,15 +9230,15 @@ msgid "Something went wrong."
 msgstr "出了点问题。"
 
 #: src/strings/operator.rs
-msgid "Room screen is showing"
+msgid "Audience screen is showing"
 msgstr "会众屏幕正在显示"
 
 #: src/strings/operator.rs
-msgid "Room screen is starting…"
+msgid "Audience screen is starting…"
 msgstr "会众屏幕正在启动…"
 
 #: src/strings/operator.rs
-msgid "Room screen is not open — click Screens"
+msgid "Audience screen is not open — click Screens"
 msgstr "会众屏幕未打开 — 请点击“屏幕”"
 
 #: src/strings/operator.rs
@@ -9774,7 +9774,7 @@ msgid "“{title}” shows as pictures now."
 msgstr "“{title}”现在以图片显示。"
 
 #: src/strings/pplive.rs
-msgid "Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures."
+msgid "Run in PowerPoint needs the audience screen on a monitor. Turn the audience screen on in Screens; until then the room shows the slide pictures."
 msgstr "“在 PowerPoint 中放映”需要会众屏幕在一台显示器上。请在“屏幕”中打开会众屏幕；在此之前，会众屏幕显示幻灯片图片。"
 
 #: src/strings/pplive.rs
@@ -9798,11 +9798,11 @@ msgid "This service has no items yet."
 msgstr "此聚会还没有项目。"
 
 #: src/strings/preflight.rs
-msgid "No room screen is chosen. Choose one in Screens."
+msgid "No audience screen is chosen. Choose one in Screens."
 msgstr "未选择会众屏幕。请在“屏幕”中选择。"
 
 #: src/strings/preflight.rs
-msgid "The room screen is not connected. Check its cable, or choose another in Screens."
+msgid "The audience screen is not connected. Check its cable, or choose another in Screens."
 msgstr "会众屏幕未连接。请检查连接线，或在“屏幕”中选择其他屏幕。"
 
 #: src/strings/preflight.rs
@@ -9980,7 +9980,7 @@ msgid "Nothing shows on a placeholder. Set it up now, then pick the projector he
 msgstr "占位屏幕上不显示任何内容。现在先设置好，插上投影机后再在此处选择它。"
 
 #: src/strings/screens.rs
-msgid "Shows the room screen's picture instead of a stage layout. It has no sound."
+msgid "Shows the audience screen's picture instead of a stage layout. It has no sound."
 msgstr "显示会众屏幕的画面，而不是舞台布局。没有声音。"
 
 #: src/strings/screens.rs
@@ -11870,7 +11870,7 @@ msgid "The stream key could not be kept: {error}"
 msgstr "无法保存推流密钥：{error}"
 
 #: src/ui/dialogs/go_live_helper.rs
-msgid "No camera: viewers see the room screen"
+msgid "No camera: viewers see the audience screen"
 msgstr "无摄像头：观众看到会众屏幕"
 
 #: src/ui/dialogs/go_live_helper.rs
@@ -12314,7 +12314,7 @@ msgid "Scene name"
 msgstr "场景名称"
 
 #: src/ui/dialogs/stream_scenes.rs
-msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the room screen instead."
+msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the audience screen instead."
 msgstr "要删除场景“{name}”吗？选择它的幻灯片动作和宏将改为显示会众屏幕。"
 
 #: src/ui/dialogs/stream_scenes.rs
@@ -12483,7 +12483,7 @@ msgid "Next slide: {next}. Back: {back}."
 msgstr "下一张：{next}。上一张：{back}。"
 
 #: src/ui/operator/help.rs
-msgid "Window → Screens… picks which monitor is the room screen and which is the stage screen."
+msgid "Window → Screens… picks which monitor is the audience screen and which is the stage screen."
 msgstr "“窗口 → 屏幕…”可选择哪台显示器是会众屏幕、哪台是舞台屏幕。"
 
 #: src/ui/operator/help.rs
@@ -12519,7 +12519,7 @@ msgid "Lost the mouse on the projector? {key} brings it back to this window."
 msgstr "鼠标跑到投影屏幕上找不到了？按 {key} 把它带回此窗口。"
 
 #: src/ui/operator/help.rs
-msgid "The room screen shows the wrong thing: press the clear keys above, then show the slide again."
+msgid "The audience screen shows the wrong thing: press the clear keys above, then show the slide again."
 msgstr "会众屏幕显示错了：按上面的清空键，然后重新显示幻灯片。"
 
 #: src/ui/operator/help.rs
@@ -12678,7 +12678,7 @@ msgid "the room could not prepare it"
 msgstr "会众屏幕无法准备该内容"
 
 #: src/ui/room.rs
-msgid "Could not open the room screen: {error}"
+msgid "Could not open the audience screen: {error}"
 msgstr "无法打开会众屏幕：{error}"
 
 #: src/ui/screens.rs
@@ -12686,11 +12686,11 @@ msgid "A presentation is on screen"
 msgstr "屏幕上正在显示演示文稿"
 
 #: src/ui/screens.rs
-msgid "The room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The audience screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr "会众屏幕已拔出。重新插上该屏幕后会自动恢复。"
 
 #: src/ui/screens.rs
-msgid "The extra room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr "额外的会众屏幕已拔出。重新插上该屏幕后会自动恢复。"
 
 #: src/ui/screens.rs
@@ -12702,11 +12702,11 @@ msgid "The extra stage screen was unplugged. It comes back by itself when that s
 msgstr "额外的舞台屏幕已拔出。重新插上该屏幕后会自动恢复。"
 
 #: src/ui/screens.rs
-msgid "The room screen is plugged in again, but it could not open: {error}"
+msgid "The audience screen is plugged in again, but it could not open: {error}"
 msgstr "会众屏幕已重新插上，但无法打开：{error}"
 
 #: src/ui/screens.rs
-msgid "The extra room screen is plugged in again, but it could not open: {error}"
+msgid "The extra audience screen is plugged in again, but it could not open: {error}"
 msgstr "额外的会众屏幕已重新插上，但无法打开：{error}"
 
 #: src/ui/screens.rs
@@ -12823,7 +12823,7 @@ msgid "It closed before it finished. It may have crashed."
 msgstr "它在完成前关闭了，可能已崩溃。"
 
 #: src/video/bench.rs
-msgid "Slides never reached the room screen."
+msgid "Slides never reached the audience screen."
 msgstr "幻灯片从未到达会众屏幕。"
 
 #: src/video/bench.rs
@@ -12984,10 +12984,10 @@ msgstr "不是媒体文件"
 #~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
 #~ msgstr "YouTube 和 Facebook 上每场直播的名称。{{date}} 会换成当天日期。"
 
-#~ msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
+#~ msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, colours or text in it."
 #~ msgstr "还没有自己的场景。先添加一个，再放入摄像头、会众屏幕、歌词、图片、颜色或文字。"
 
-#~ msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+#~ msgid "Cameras, the audience screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the audience screen in its place."
 #~ msgstr "这里的摄像头、会众屏幕和歌词只是示意画面；直播时会换成真实画面。没有画面的摄像头，其位置会显示会众屏幕。"
 
 #~ msgid "Move the next camera to its saved position {}"
@@ -12999,7 +12999,7 @@ msgstr "不是媒体文件"
 #~ msgid "Another camera to switch to while live, from the scene button beside Live."
 #~ msgstr "直播时可切换到的另一台摄像头，在“直播”旁的场景按钮中选择。"
 
-#~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+#~ msgid "A camera or capture card put together with the audience screen in the stream (and its recording)."
 #~ msgstr "在直播（及其录像）中与会众屏幕合在一起的摄像头或采集卡。"
 
 #~ msgid "Camera, with the screen in a corner"

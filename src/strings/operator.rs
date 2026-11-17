@@ -50,9 +50,9 @@ pub fn welcome() -> String { tr!("Welcome") }
 pub fn action_stopped() -> String { tr!("Something went wrong.") }
 
 /// The room pill's tooltip (`operator.js:104`).
-pub fn room_showing() -> String { tr!("Room screen is showing") }
-pub fn room_starting() -> String { tr!("Room screen is starting…") }
-pub fn room_off() -> String { tr!("Room screen is not open — click Screens") }
+pub fn room_showing() -> String { tr!("Audience screen is showing") }
+pub fn room_starting() -> String { tr!("Audience screen is starting…") }
+pub fn room_off() -> String { tr!("Audience screen is not open — click Screens") }
 
 pub fn open_failed(e: impl std::fmt::Display) -> String { tr!("Could not open the operator window: {error}", error = e) }
 

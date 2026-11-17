@@ -45,7 +45,7 @@ export component LiveBtn inherits Rectangle {
         clicked => { root.clicked(); }
     }
 
-    TipArea { text: root.live ? @tr("Stop the livestream and save the recording") : @tr("Send the room screen to the livestream, and record it"); hover: live-ta.has-hover; pressed: live-ta.pressed; pointer-x: live-ta.mouse-x; }
+    TipArea { text: root.live ? @tr("Stop the livestream and save the recording") : @tr("Send the audience screen to the livestream, and record it"); hover: live-ta.has-hover; pressed: live-ta.pressed; pointer-x: live-ta.mouse-x; }
 }
 
 /// The stream's panic buttons, beside Live while live: Freeze (every picture stays as it is) and Mute (silence goes
@@ -363,7 +363,7 @@ export component RecordBtn inherits Rectangle {
         clicked => { root.clicked(); }
     }
 
-    TipArea { text: root.recording ? @tr("Stop recording and save the file") : @tr("Record the room screen to a video file"); hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
+    TipArea { text: root.recording ? @tr("Stop recording and save the file") : @tr("Record the audience screen to a video file"); hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
 }
 
 /// Beside Record while recording: starts a clip (the sermon, say), and ends it. Each clip is saved as its own

@@ -5,7 +5,7 @@ use crate::tr;
 /// The two lists.
 pub fn audience() -> String { tr!("Room") }
 pub fn stage() -> String { tr!("Stage") }
-pub fn audience_screen() -> String { tr!("Room screen") }
+pub fn audience_screen() -> String { tr!("Audience screen") }
 pub fn stage_screen() -> String { tr!("Stage screen") }
 
 /// A row's status chip.
@@ -30,7 +30,7 @@ pub fn remove_question(name: &str) -> String { tr!("Remove “{name}”?", name 
 pub fn output_placeholder() -> String { tr!("Placeholder (connect the projector later)") }
 pub fn placeholder() -> String { tr!("Placeholder") }
 pub fn placeholder_note() -> String { tr!("Nothing shows on a placeholder. Set it up now, then pick the projector here once it is plugged in.") }
-pub fn stage_mirrors() -> String { tr!("Shows the room screen's picture instead of a stage layout. It has no sound.") }
+pub fn stage_mirrors() -> String { tr!("Shows the audience screen's picture instead of a stage layout. It has no sound.") }
 
 /// The Picture tab's choices.
 pub fn test_off() -> String { tr!("Off") }

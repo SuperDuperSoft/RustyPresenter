@@ -89,7 +89,7 @@ pub fn live_group(app: &App, size: (u32, u32)) -> Option<LiveGroup> {
     Some(LiveGroup { version, base, play, lead_ms, layers })
 }
 
-/// The live slide's click group for a phone `width` wide (the room screen's shape). None when no group plays.
+/// The live slide's click group for a phone `width` wide (the audience screen's shape). None when no group plays.
 pub fn phone_anim(app: &App, width: u32) -> Result<Option<Arc<PhoneAnim>>, String> {
     let size = crate::server::live_slide_size(width, app.room_canvas());
     if let Some(a) = cached(app.live.lock().unwrap().version, size.0) { return Ok(Some(a)) }

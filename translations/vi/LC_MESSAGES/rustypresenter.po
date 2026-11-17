@@ -1149,7 +1149,7 @@ msgid "Which camera?"
 msgstr "Camera nào?"
 
 #: ui/dialogs/go-live-helper.slint
-msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the room screen."
+msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the audience screen."
 msgstr "Bài hát và câu Kinh Thánh được phát với lời hiện trên hình camera. Không có camera thì người xem thấy màn hình hội trường."
 
 #: ui/dialogs/go-live-helper.slint
@@ -1556,7 +1556,7 @@ msgid "TCP password"
 msgstr "Mật khẩu TCP"
 
 #: ui/dialogs/overlays.slint
-msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
+msgid "Overlays stay on the audience screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
 msgstr "Lớp phủ luôn nằm trên màn hình hội trường khi chuyển trang: logo ở góc, đồng hồ hoặc một bảng ngắn. Bật tắt chúng bằng các nhãn dưới Kế tiếp trong cột Đang phát. Lớp cuối trong danh sách được vẽ trên cùng."
 
 #: ui/dialogs/overlays.slint
@@ -1840,7 +1840,7 @@ msgid "Aspect ratio: {}"
 msgstr "Tỷ lệ khung hình: {}"
 
 #: ui/dialogs/screens.slint
-msgid "Show what the room screen shows"
+msgid "Show what the audience screen shows"
 msgstr "Hiện những gì màn hình hội trường hiển thị"
 
 #: ui/dialogs/screens.slint
@@ -2484,7 +2484,7 @@ msgid "Right speaker only"
 msgstr "Chỉ loa phải"
 
 #: ui/dialogs/settings-media.slint
-msgid "File → Start recording (or the Record button at the top) saves what the room screen shows as an MP4 video."
+msgid "File → Start recording (or the Record button at the top) saves what the audience screen shows as an MP4 video."
 msgstr "Tệp → Bắt đầu ghi (hoặc nút Ghi ở trên cùng) lưu những gì màn hình hội trường hiển thị thành video MP4."
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint ui/operator/slides.slint
@@ -2756,7 +2756,7 @@ msgid "What the stream shows in a camera's place while it is unplugged or sends 
 msgstr "Thứ hiện trên luồng phát thay cho camera khi camera bị rút dây hoặc không gửi hình. Camera tự quay lại ngay khi gửi hình trở lại."
 
 #: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
-msgid "The room screen"
+msgid "The audience screen"
 msgstr "Màn hình hội trường"
 
 #: ui/dialogs/settings-media.slint
@@ -2776,7 +2776,7 @@ msgid "Scenes"
 msgstr "Cảnh"
 
 #: ui/dialogs/settings-media.slint
-msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the audience screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
 msgstr "Bài hát và câu Kinh Thánh phát ra dưới dạng camera kèm lời; video và bài trình chiếu là màn hình hội trường; khi màn hình trống thì là camera. Cảnh chọn bằng nút cảnh bên cạnh Đang phát giữ nguyên đến mục tiếp theo của buổi lễ."
 
 #: ui/dialogs/settings-media.slint
@@ -2788,7 +2788,7 @@ msgid "Presentations:"
 msgstr "Bài trình chiếu:"
 
 #: ui/dialogs/settings-media.slint
-msgid "The room screen with the camera in a corner"
+msgid "The audience screen with the camera in a corner"
 msgstr "Màn hình hội trường với camera ở góc"
 
 #: ui/dialogs/settings-media.slint
@@ -2796,7 +2796,7 @@ msgid "Scene layout"
 msgstr "Bố cục cảnh"
 
 #: ui/dialogs/settings-media.slint
-msgid "Where the camera goes when it is in a corner of the room screen, and where the words go over the camera."
+msgid "Where the camera goes when it is in a corner of the audience screen, and where the words go over the camera."
 msgstr "Vị trí camera khi ở góc màn hình hội trường, và vị trí lời trên hình camera."
 
 #: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
@@ -2828,7 +2828,7 @@ msgid "Your scenes"
 msgstr "Cảnh của bạn"
 
 #: ui/dialogs/settings-media.slint
-msgid "Make scenes of your own from cameras, the room screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgid "Make scenes of your own from cameras, the audience screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
 msgstr "Tự tạo cảnh từ camera, màn hình hội trường, lời, hình ảnh, màu và văn bản. Khi đang phát, chúng được liệt kê sau các cảnh có sẵn."
 
 #: ui/dialogs/settings-media.slint
@@ -3612,11 +3612,11 @@ msgid "Screens"
 msgstr "Màn hình"
 
 #: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs src/strings/screens.rs
-msgid "Room screen"
+msgid "Audience screen"
 msgstr "Màn hình hội trường"
 
 #: ui/dialogs/settings.slint
-msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
+msgid "Keep the audience screen in front when it has its own monitor (smoother fades)"
 msgstr "Giữ màn hình hội trường ở trên cùng khi có màn hình riêng (chuyển mờ mượt hơn)"
 
 #: ui/dialogs/settings.slint
@@ -4300,7 +4300,7 @@ msgid "While live, also record the stream without the words (for editing)"
 msgstr "Khi đang phát trực tiếp, ghi thêm luồng phát không có lời (để dựng video)"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, videos, colours, text or a clock in it."
+msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, videos, colours, text or a clock in it."
 msgstr "Bạn chưa có cảnh riêng nào. Hãy thêm một cảnh, rồi đặt vào đó camera, màn hình hội trường, lời, hình ảnh, video, màu, chữ hoặc đồng hồ."
 
 #: ui/dialogs/stream-scenes.slint
@@ -4492,7 +4492,7 @@ msgid "Use the wide picture fitted across again"
 msgstr "Dùng lại hình ngang đặt vừa theo chiều ngang"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "Cameras, the room screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgid "Cameras, the audience screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the audience screen in its place."
 msgstr "Camera, màn hình hội trường, lời, video và trang web ở đây chỉ là hình tạm; khi phát trực tiếp sẽ là thật. Camera không gửi gì sẽ hiện màn hình hội trường thay thế."
 
 #: ui/dialogs/stream-scenes.slint
@@ -5112,7 +5112,7 @@ msgid "Move to folder"
 msgstr "Chuyển vào thư mục"
 
 #: ui/operator/monitor.slint src/ui/perf.rs
-msgid "Room screen is off"
+msgid "Audience screen is off"
 msgstr "Màn hình hội trường đang tắt"
 
 #: ui/operator/monitor.slint
@@ -5184,7 +5184,7 @@ msgid "Stop the livestream and save the recording"
 msgstr "Dừng phát trực tiếp và lưu bản ghi"
 
 #: ui/operator/record.slint
-msgid "Send the room screen to the livestream, and record it"
+msgid "Send the audience screen to the livestream, and record it"
 msgstr "Gửi màn hình hội trường lên buổi phát trực tiếp và ghi lại"
 
 #: ui/operator/record.slint
@@ -5236,7 +5236,7 @@ msgid "Stop recording and save the file"
 msgstr "Dừng ghi và lưu tệp"
 
 #: ui/operator/record.slint
-msgid "Record the room screen to a video file"
+msgid "Record the audience screen to a video file"
 msgstr "Ghi màn hình hội trường thành tệp video"
 
 #: ui/operator/record.slint src/automation/slide_actions.rs src/ui/dialogs/automation.rs
@@ -5744,7 +5744,7 @@ msgid "Easy view (big words)"
 msgstr "Dễ xem (chữ to)"
 
 #: ui/operator.slint
-msgid "Preview the room screen"
+msgid "Preview the audience screen"
 msgstr "Xem trước màn hình hội trường"
 
 #: ui/operator.slint
@@ -5780,7 +5780,7 @@ msgid "Close the room window"
 msgstr "Đóng cửa sổ hội trường"
 
 #: ui/operator.slint
-msgid "Room screen in a window"
+msgid "Audience screen in a window"
 msgstr "Màn hình hội trường trong cửa sổ"
 
 #: ui/operator.slint
@@ -5952,11 +5952,11 @@ msgid "That slide isn't there any more."
 msgstr "Trang chiếu đó không còn nữa."
 
 #: src/app.rs
-msgid "The room screen restarted. Video/audio stopped — click it again to replay."
+msgid "The audience screen restarted. Video/audio stopped — click it again to replay."
 msgstr "Màn hình hội trường đã khởi động lại. Video/âm thanh đã dừng — bấm lại để phát lại."
 
 #: src/app.rs
-msgid "The room screen restarted."
+msgid "The audience screen restarted."
 msgstr "Màn hình hội trường đã khởi động lại."
 
 #: src/app.rs src/platform/instance.rs
@@ -6068,7 +6068,7 @@ msgid "Add a screen first."
 msgstr "Hãy thêm màn hình trước."
 
 #: src/app.rs
-msgid "Room screen {number}"
+msgid "Audience screen {number}"
 msgstr "Màn hình hội trường {number}"
 
 #: src/app.rs
@@ -7207,7 +7207,7 @@ msgid "The computer is keeping up again: the picture is smooth."
 msgstr "Máy tính đã theo kịp trở lại: hình ảnh mượt."
 
 #: src/record/mod.rs
-msgid "Turn the room screen on first: the recording is what the room shows."
+msgid "Turn the audience screen on first: the recording is what the room shows."
 msgstr "Hãy bật màn hình hội trường trước: bản ghi là những gì hội trường thấy."
 
 #: src/record/mod.rs
@@ -7231,7 +7231,7 @@ msgid "The recording stopped: {why}"
 msgstr "Đã dừng ghi: {why}"
 
 #: src/record/mod.rs
-msgid "Recording the room screen."
+msgid "Recording the audience screen."
 msgstr "Đang ghi màn hình hội trường."
 
 #: src/record/mod.rs
@@ -7652,7 +7652,7 @@ msgid "Camera: picture coming in"
 msgstr "Camera: đang có hình"
 
 #: src/stream/health.rs
-msgid "Camera: no picture (the room screen is shown instead)"
+msgid "Camera: no picture (the audience screen is shown instead)"
 msgstr "Camera: không có hình (đang hiện màn hình hội trường thay thế)"
 
 #: src/stream/health.rs
@@ -9230,15 +9230,15 @@ msgid "Something went wrong."
 msgstr "Đã xảy ra lỗi."
 
 #: src/strings/operator.rs
-msgid "Room screen is showing"
+msgid "Audience screen is showing"
 msgstr "Màn hình hội trường đang chiếu"
 
 #: src/strings/operator.rs
-msgid "Room screen is starting…"
+msgid "Audience screen is starting…"
 msgstr "Màn hình hội trường đang khởi động…"
 
 #: src/strings/operator.rs
-msgid "Room screen is not open — click Screens"
+msgid "Audience screen is not open — click Screens"
 msgstr "Màn hình hội trường chưa mở — bấm Màn hình"
 
 #: src/strings/operator.rs
@@ -9774,7 +9774,7 @@ msgid "“{title}” shows as pictures now."
 msgstr "“{title}” giờ hiện dưới dạng hình ảnh."
 
 #: src/strings/pplive.rs
-msgid "Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures."
+msgid "Run in PowerPoint needs the audience screen on a monitor. Turn the audience screen on in Screens; until then the room shows the slide pictures."
 msgstr "“Chạy trong PowerPoint” cần màn hình hội trường ở trên một màn hình máy tính. Hãy bật màn hình hội trường trong “Màn hình”; trong lúc chờ, hội trường sẽ hiện hình trang chiếu."
 
 #: src/strings/pplive.rs
@@ -9798,11 +9798,11 @@ msgid "This service has no items yet."
 msgstr "Buổi lễ này chưa có mục nào."
 
 #: src/strings/preflight.rs
-msgid "No room screen is chosen. Choose one in Screens."
+msgid "No audience screen is chosen. Choose one in Screens."
 msgstr "Chưa chọn màn hình hội trường. Hãy chọn trong Màn hình."
 
 #: src/strings/preflight.rs
-msgid "The room screen is not connected. Check its cable, or choose another in Screens."
+msgid "The audience screen is not connected. Check its cable, or choose another in Screens."
 msgstr "Màn hình hội trường chưa được kết nối. Hãy kiểm tra dây cáp, hoặc chọn màn hình khác trong Màn hình."
 
 #: src/strings/preflight.rs
@@ -9980,7 +9980,7 @@ msgid "Nothing shows on a placeholder. Set it up now, then pick the projector he
 msgstr "Màn hình giữ chỗ không hiện gì. Hãy thiết lập ngay, rồi chọn máy chiếu ở đây khi đã cắm vào."
 
 #: src/strings/screens.rs
-msgid "Shows the room screen's picture instead of a stage layout. It has no sound."
+msgid "Shows the audience screen's picture instead of a stage layout. It has no sound."
 msgstr "Hiện hình của màn hình hội trường thay cho bố cục sân khấu. Không có âm thanh."
 
 #: src/strings/screens.rs
@@ -11870,7 +11870,7 @@ msgid "The stream key could not be kept: {error}"
 msgstr "Không giữ được khóa phát trực tiếp: {error}"
 
 #: src/ui/dialogs/go_live_helper.rs
-msgid "No camera: viewers see the room screen"
+msgid "No camera: viewers see the audience screen"
 msgstr "Không có camera: người xem thấy màn hình hội trường"
 
 #: src/ui/dialogs/go_live_helper.rs
@@ -12314,7 +12314,7 @@ msgid "Scene name"
 msgstr "Tên cảnh"
 
 #: src/ui/dialogs/stream_scenes.rs
-msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the room screen instead."
+msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the audience screen instead."
 msgstr "Xóa cảnh “{name}”? Các hành động trang chiếu và macro chọn cảnh này sẽ hiện màn hình hội trường thay thế."
 
 #: src/ui/dialogs/stream_scenes.rs
@@ -12483,7 +12483,7 @@ msgid "Next slide: {next}. Back: {back}."
 msgstr "Trang tiếp theo: {next}. Quay lại: {back}."
 
 #: src/ui/operator/help.rs
-msgid "Window → Screens… picks which monitor is the room screen and which is the stage screen."
+msgid "Window → Screens… picks which monitor is the audience screen and which is the stage screen."
 msgstr "Cửa sổ → Màn hình… chọn màn hình nào là màn hình hội trường và màn hình nào là màn hình sân khấu."
 
 #: src/ui/operator/help.rs
@@ -12519,7 +12519,7 @@ msgid "Lost the mouse on the projector? {key} brings it back to this window."
 msgstr "Mất chuột trên máy chiếu? {key} đưa chuột về cửa sổ này."
 
 #: src/ui/operator/help.rs
-msgid "The room screen shows the wrong thing: press the clear keys above, then show the slide again."
+msgid "The audience screen shows the wrong thing: press the clear keys above, then show the slide again."
 msgstr "Màn hình hội trường hiện sai: nhấn các phím xóa ở trên, rồi chiếu lại trang."
 
 #: src/ui/operator/help.rs
@@ -12678,7 +12678,7 @@ msgid "the room could not prepare it"
 msgstr "màn hình hội trường không chuẩn bị được"
 
 #: src/ui/room.rs
-msgid "Could not open the room screen: {error}"
+msgid "Could not open the audience screen: {error}"
 msgstr "Không mở được màn hình hội trường: {error}"
 
 #: src/ui/screens.rs
@@ -12686,11 +12686,11 @@ msgid "A presentation is on screen"
 msgstr "Đang có bài trình chiếu trên màn hình"
 
 #: src/ui/screens.rs
-msgid "The room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The audience screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr "Màn hình hội trường đã bị rút. Sẽ tự hiện lại khi cắm lại màn hình đó."
 
 #: src/ui/screens.rs
-msgid "The extra room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr "Màn hình hội trường phụ đã bị rút. Sẽ tự hiện lại khi cắm lại màn hình đó."
 
 #: src/ui/screens.rs
@@ -12702,11 +12702,11 @@ msgid "The extra stage screen was unplugged. It comes back by itself when that s
 msgstr "Màn hình sân khấu phụ đã bị rút. Sẽ tự hiện lại khi cắm lại màn hình đó."
 
 #: src/ui/screens.rs
-msgid "The room screen is plugged in again, but it could not open: {error}"
+msgid "The audience screen is plugged in again, but it could not open: {error}"
 msgstr "Màn hình hội trường đã được cắm lại, nhưng không mở được: {error}"
 
 #: src/ui/screens.rs
-msgid "The extra room screen is plugged in again, but it could not open: {error}"
+msgid "The extra audience screen is plugged in again, but it could not open: {error}"
 msgstr "Màn hình hội trường phụ đã được cắm lại, nhưng không mở được: {error}"
 
 #: src/ui/screens.rs
@@ -12823,7 +12823,7 @@ msgid "It closed before it finished. It may have crashed."
 msgstr "Nó đóng trước khi xong. Có thể đã bị lỗi."
 
 #: src/video/bench.rs
-msgid "Slides never reached the room screen."
+msgid "Slides never reached the audience screen."
 msgstr "Các trang chưa bao giờ đến được màn hình hội trường."
 
 #: src/video/bench.rs
@@ -12984,10 +12984,10 @@ msgstr "không phải tệp đa phương tiện"
 #~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
 #~ msgstr "Tên YouTube và Facebook đặt cho mỗi buổi phát. {{date}} sẽ thành ngày hôm đó."
 
-#~ msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
+#~ msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, colours or text in it."
 #~ msgstr "Bạn chưa có cảnh riêng nào. Hãy thêm một cảnh, rồi đặt camera, màn hình hội trường, lời, hình ảnh, màu hoặc văn bản vào đó."
 
-#~ msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+#~ msgid "Cameras, the audience screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the audience screen in its place."
 #~ msgstr "Ở đây camera, màn hình hội trường và lời chỉ là hình tạm; khi đang phát sẽ là hình thật. Camera không gửi hình sẽ hiện màn hình hội trường thay vào chỗ đó."
 
 #~ msgid "Move the next camera to its saved position {}"
@@ -12999,7 +12999,7 @@ msgstr "không phải tệp đa phương tiện"
 #~ msgid "Another camera to switch to while live, from the scene button beside Live."
 #~ msgstr "Một camera khác để chuyển sang khi đang phát, từ nút cảnh bên cạnh Trực tiếp."
 
-#~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+#~ msgid "A camera or capture card put together with the audience screen in the stream (and its recording)."
 #~ msgstr "Máy quay hoặc thiết bị ghi hình được ghép với màn hình hội trường trong buổi phát (và bản ghi của nó)."
 
 #~ msgid "Camera, with the screen in a corner"

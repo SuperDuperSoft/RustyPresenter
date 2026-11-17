@@ -286,7 +286,7 @@ pub struct App {
     pub(crate) search: OnceLock<crate::scripture::search::SearchService>,
     /// Listen (N21): the sound goes to the operator's headphones only. Never saved, so every start has it off.
     pub(crate) listening: AtomicBool,
-    /// The room screen's size (width << 32 | height), so the phone draws on a picture of the same shape.
+    /// The audience screen's size (width << 32 | height), so the phone draws on a picture of the same shape.
     room_canvas: AtomicU64,
     /// 1.2: decks that run in PowerPoint (`pplive`).
     pub(crate) pplive: crate::pplive::app::Hub,
@@ -326,13 +326,13 @@ pub(crate) const MAX_PHONES: usize = 5;
 pub(crate) fn now_secs() -> u64 { std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0) }
 
 impl App {
-    /// The room screen's size in pixels (1920×1080 until a room screen opens).
+    /// The audience screen's size in pixels (1920×1080 until a audience screen opens).
     pub fn room_canvas(&self) -> (u32, u32) {
         let v = self.room_canvas.load(Ordering::Relaxed);
         ((v >> 32) as u32, v as u32)
     }
 
-    /// The room screen tells its size; an empty size is ignored.
+    /// The audience screen tells its size; an empty size is ignored.
     pub fn set_room_canvas(&self, (w, h): (u32, u32)) {
         if w > 0 && h > 0 { self.room_canvas.store((w as u64) << 32 | h as u64, Ordering::Relaxed) }
     }
@@ -759,7 +759,7 @@ impl App {
                 live.apply(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::ClearAudio }, &DataPlan(&data));
                 stopped = true;
             }
-            live.notice = Some(if stopped { tr!("The room screen restarted. Video/audio stopped — click it again to replay.") } else { tr!("The room screen restarted.") });
+            live.notice = Some(if stopped { tr!("The audience screen restarted. Video/audio stopped — click it again to replay.") } else { tr!("The audience screen restarted.") });
         }
         self.broadcast_live();
     }
@@ -1656,7 +1656,7 @@ impl App {
             let id = tryr!(app.edit(|d| {
                 let g = d.settings.screens.group_mut(&group).ok_or_else(|| tr!("Unknown screen."))?;
                 let n = g.screens.len() + 1;
-                let name = (n..).map(|i| if group == "audience" { tr!("Room screen {number}", number = i) } else { tr!("Stage screen {number}", number = i) }).find(|name| !g.screens.iter().any(|s| s.name == *name)).unwrap_or_default();
+                let name = (n..).map(|i| if group == "audience" { tr!("Audience screen {number}", number = i) } else { tr!("Stage screen {number}", number = i) }).find(|name| !g.screens.iter().any(|s| s.name == *name)).unwrap_or_default();
                 let screen = Screen::new(Uuid::new_v4(), &name);
                 let id = screen.id;
                 g.screens.push(screen);

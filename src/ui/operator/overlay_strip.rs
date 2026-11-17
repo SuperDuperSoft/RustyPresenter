@@ -1,5 +1,5 @@
 //! The Overlays strip in the Live column (FEAT-1 spec §3.6; `ui/operator/overlay-strip.slint`): a chip per saved
-//! overlay, lit while it is on the room screen. A click turns it on or off with `Command::Overlay`, sending the newest
+//! overlay, lit while it is on the audience screen. A click turns it on or off with `Command::Overlay`, sending the newest
 //! `clear_epoch` this window has seen, so a chip clicked just after a clear from the phone is refused with "The
 //! screen was cleared — try again." F6 and the strip's Clear button take every overlay down.
 use super::window::Operator;

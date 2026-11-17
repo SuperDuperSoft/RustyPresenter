@@ -1149,7 +1149,7 @@ msgid "Which camera?"
 msgstr "Aling camera?"
 
 #: ui/dialogs/go-live-helper.slint
-msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the room screen."
+msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the audience screen."
 msgstr "Lumalabas ang mga kanta at talata ng Bibliya na may mga salita sa ibabaw ng camera. Kapag walang camera, ang screen sa silid ang nakikita ng mga nanonood."
 
 #: ui/dialogs/go-live-helper.slint
@@ -1556,7 +1556,7 @@ msgid "TCP password"
 msgstr "Password ng TCP"
 
 #: ui/dialogs/overlays.slint
-msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
+msgid "Overlays stay on the audience screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
 msgstr "Nananatili ang overlays sa screen sa silid habang nagpapalit ng slides: logo sa sulok, orasan o maikling karatula. I-on at i-off ang mga ito gamit ang chips sa ilalim ng Kasunod sa Live column. Ang huli sa listahan ang nasa pinakaibabaw."
 
 #: ui/dialogs/overlays.slint
@@ -1840,7 +1840,7 @@ msgid "Aspect ratio: {}"
 msgstr "Aspect ratio: {}"
 
 #: ui/dialogs/screens.slint
-msgid "Show what the room screen shows"
+msgid "Show what the audience screen shows"
 msgstr "Ipakita ang ipinapakita ng screen sa silid"
 
 #: ui/dialogs/screens.slint
@@ -2484,7 +2484,7 @@ msgid "Right speaker only"
 msgstr "Kanang speaker lang"
 
 #: ui/dialogs/settings-media.slint
-msgid "File → Start recording (or the Record button at the top) saves what the room screen shows as an MP4 video."
+msgid "File → Start recording (or the Record button at the top) saves what the audience screen shows as an MP4 video."
 msgstr "Sine-save ng File → Simulan ang pag-record (o ng button na I-record sa itaas) ang ipinapakita ng screen sa silid bilang MP4 video."
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint ui/operator/slides.slint
@@ -2756,7 +2756,7 @@ msgid "What the stream shows in a camera's place while it is unplugged or sends 
 msgstr "Ang ipinapakita ng stream kapalit ng camera habang naka-unplug ito o walang ipinapadalang larawan. Kusang babalik ang camera sa sandaling magpadala ulit ito."
 
 #: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
-msgid "The room screen"
+msgid "The audience screen"
 msgstr "Ang screen sa silid"
 
 #: ui/dialogs/settings-media.slint
@@ -2776,7 +2776,7 @@ msgid "Scenes"
 msgstr "Mga scene"
 
 #: ui/dialogs/settings-media.slint
-msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the audience screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
 msgstr "Ang mga kanta at talata ng Bibliya ay lumalabas bilang camera na may mga salita; ang mga video at presentation bilang screen sa silid; kapag walang nasa screen, ang camera. Ang scene na pinili gamit ang scene button sa tabi ng Live ay mananatili hanggang sa susunod na item sa service."
 
 #: ui/dialogs/settings-media.slint
@@ -2788,7 +2788,7 @@ msgid "Presentations:"
 msgstr "Mga presentasyon:"
 
 #: ui/dialogs/settings-media.slint
-msgid "The room screen with the camera in a corner"
+msgid "The audience screen with the camera in a corner"
 msgstr "Ang screen sa silid na may camera sa isang sulok"
 
 #: ui/dialogs/settings-media.slint
@@ -2796,7 +2796,7 @@ msgid "Scene layout"
 msgstr "Ayos ng scene"
 
 #: ui/dialogs/settings-media.slint
-msgid "Where the camera goes when it is in a corner of the room screen, and where the words go over the camera."
+msgid "Where the camera goes when it is in a corner of the audience screen, and where the words go over the camera."
 msgstr "Kung saan ang camera kapag nasa sulok ng screen sa silid, at kung saan ang mga salita sa ibabaw ng camera."
 
 #: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
@@ -2828,7 +2828,7 @@ msgid "Your scenes"
 msgstr "Iyong mga scene"
 
 #: ui/dialogs/settings-media.slint
-msgid "Make scenes of your own from cameras, the room screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgid "Make scenes of your own from cameras, the audience screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
 msgstr "Gumawa ng sarili mong mga scene mula sa mga camera, sa screen sa silid, sa mga salita, mga larawan, mga kulay at teksto. Nakalista ang mga ito pagkatapos ng mga built-in na scene habang naka-live."
 
 #: ui/dialogs/settings-media.slint
@@ -3612,11 +3612,11 @@ msgid "Screens"
 msgstr "Mga screen"
 
 #: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs src/strings/screens.rs
-msgid "Room screen"
+msgid "Audience screen"
 msgstr "Screen sa silid"
 
 #: ui/dialogs/settings.slint
-msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
+msgid "Keep the audience screen in front when it has its own monitor (smoother fades)"
 msgstr "Panatilihin sa harap ang screen sa silid kapag may sarili itong monitor (mas makinis na fade)"
 
 #: ui/dialogs/settings.slint
@@ -4300,7 +4300,7 @@ msgid "While live, also record the stream without the words (for editing)"
 msgstr "Habang naka-live, i-record din ang stream nang walang mga salita (para sa pag-edit)"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, videos, colours, text or a clock in it."
+msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, videos, colours, text or a clock in it."
 msgstr "Wala ka pang sariling scene. Magdagdag ng isa, saka ilagay rito ang mga camera, ang screen sa silid, ang mga salita, mga larawan, video, kulay, teksto o orasan."
 
 #: ui/dialogs/stream-scenes.slint
@@ -4492,7 +4492,7 @@ msgid "Use the wide picture fitted across again"
 msgstr "Gamitin ulit ang malapad na larawan na pinagkasya nang pahalang"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "Cameras, the room screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgid "Cameras, the audience screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the audience screen in its place."
 msgstr "Pansamantalang pamalit lang dito ang mga camera, ang screen sa silid, ang mga salita, mga video at mga web page; habang naka-live, ang mga totoo ang gagamitin. Ang camera na walang ipinapadala ay papalitan ng screen sa silid."
 
 #: ui/dialogs/stream-scenes.slint
@@ -5112,7 +5112,7 @@ msgid "Move to folder"
 msgstr "Ilipat sa folder"
 
 #: ui/operator/monitor.slint src/ui/perf.rs
-msgid "Room screen is off"
+msgid "Audience screen is off"
 msgstr "Naka-off ang screen sa silid"
 
 #: ui/operator/monitor.slint
@@ -5184,7 +5184,7 @@ msgid "Stop the livestream and save the recording"
 msgstr "Itigil ang livestream at i-save ang recording"
 
 #: ui/operator/record.slint
-msgid "Send the room screen to the livestream, and record it"
+msgid "Send the audience screen to the livestream, and record it"
 msgstr "Ipadala ang screen sa silid sa livestream, at i-record ito"
 
 #: ui/operator/record.slint
@@ -5236,7 +5236,7 @@ msgid "Stop recording and save the file"
 msgstr "Ihinto ang pag-record at i-save ang file"
 
 #: ui/operator/record.slint
-msgid "Record the room screen to a video file"
+msgid "Record the audience screen to a video file"
 msgstr "I-record ang screen sa silid sa isang video file"
 
 #: ui/operator/record.slint src/automation/slide_actions.rs src/ui/dialogs/automation.rs
@@ -5744,7 +5744,7 @@ msgid "Easy view (big words)"
 msgstr "Madaling view (malalaking salita)"
 
 #: ui/operator.slint
-msgid "Preview the room screen"
+msgid "Preview the audience screen"
 msgstr "I-preview ang screen sa silid"
 
 #: ui/operator.slint
@@ -5780,7 +5780,7 @@ msgid "Close the room window"
 msgstr "Isara ang window ng silid"
 
 #: ui/operator.slint
-msgid "Room screen in a window"
+msgid "Audience screen in a window"
 msgstr "Screen sa silid sa isang window"
 
 #: ui/operator.slint
@@ -5952,11 +5952,11 @@ msgid "That slide isn't there any more."
 msgstr "Wala na roon ang slide na iyon."
 
 #: src/app.rs
-msgid "The room screen restarted. Video/audio stopped — click it again to replay."
+msgid "The audience screen restarted. Video/audio stopped — click it again to replay."
 msgstr "Nag-restart ang screen sa silid. Huminto ang video/audio — i-click itong muli para i-replay."
 
 #: src/app.rs
-msgid "The room screen restarted."
+msgid "The audience screen restarted."
 msgstr "Nag-restart ang screen sa silid."
 
 #: src/app.rs src/platform/instance.rs
@@ -6068,7 +6068,7 @@ msgid "Add a screen first."
 msgstr "Magdagdag muna ng screen."
 
 #: src/app.rs
-msgid "Room screen {number}"
+msgid "Audience screen {number}"
 msgstr "Screen sa silid {number}"
 
 #: src/app.rs
@@ -7211,7 +7211,7 @@ msgid "The computer is keeping up again: the picture is smooth."
 msgstr "Nakakasabay na ulit ang computer: maayos na ang larawan."
 
 #: src/record/mod.rs
-msgid "Turn the room screen on first: the recording is what the room shows."
+msgid "Turn the audience screen on first: the recording is what the room shows."
 msgstr "I-on muna ang screen sa silid: ang nire-record ay ang ipinapakita sa silid."
 
 #: src/record/mod.rs
@@ -7235,7 +7235,7 @@ msgid "The recording stopped: {why}"
 msgstr "Huminto ang recording: {why}"
 
 #: src/record/mod.rs
-msgid "Recording the room screen."
+msgid "Recording the audience screen."
 msgstr "Nire-record ang screen sa silid."
 
 #: src/record/mod.rs
@@ -7657,7 +7657,7 @@ msgid "Camera: picture coming in"
 msgstr "Camera: may dumarating na larawan"
 
 #: src/stream/health.rs
-msgid "Camera: no picture (the room screen is shown instead)"
+msgid "Camera: no picture (the audience screen is shown instead)"
 msgstr "Camera: walang larawan (ang screen sa silid ang ipinapakita)"
 
 #: src/stream/health.rs
@@ -9249,15 +9249,15 @@ msgid "Something went wrong."
 msgstr "May nangyaring mali."
 
 #: src/strings/operator.rs
-msgid "Room screen is showing"
+msgid "Audience screen is showing"
 msgstr "Nagpapakita ang screen sa silid"
 
 #: src/strings/operator.rs
-msgid "Room screen is starting…"
+msgid "Audience screen is starting…"
 msgstr "Nagsisimula ang screen sa silid…"
 
 #: src/strings/operator.rs
-msgid "Room screen is not open — click Screens"
+msgid "Audience screen is not open — click Screens"
 msgstr "Hindi bukas ang screen sa silid — i-click ang Mga screen"
 
 #: src/strings/operator.rs
@@ -9800,7 +9800,7 @@ msgid "“{title}” shows as pictures now."
 msgstr "Ipinapakita na bilang mga larawan ang “{title}”."
 
 #: src/strings/pplive.rs
-msgid "Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures."
+msgid "Run in PowerPoint needs the audience screen on a monitor. Turn the audience screen on in Screens; until then the room shows the slide pictures."
 msgstr "Kailangan ng “Patakbuhin sa PowerPoint” na nasa isang monitor ang screen sa silid. I-on ang screen sa silid sa Mga screen; hanggang doon, mga larawan ng slide ang ipinapakita sa silid."
 
 #: src/strings/pplive.rs
@@ -9824,11 +9824,11 @@ msgid "This service has no items yet."
 msgstr "Wala pang item ang service na ito."
 
 #: src/strings/preflight.rs
-msgid "No room screen is chosen. Choose one in Screens."
+msgid "No audience screen is chosen. Choose one in Screens."
 msgstr "Walang napiling screen sa silid. Pumili ng isa sa Mga screen."
 
 #: src/strings/preflight.rs
-msgid "The room screen is not connected. Check its cable, or choose another in Screens."
+msgid "The audience screen is not connected. Check its cable, or choose another in Screens."
 msgstr "Hindi nakakonekta ang screen sa silid. Suriin ang cable nito, o pumili ng iba sa Mga screen."
 
 #: src/strings/preflight.rs
@@ -10008,7 +10008,7 @@ msgid "Nothing shows on a placeholder. Set it up now, then pick the projector he
 msgstr "Walang lumalabas sa placeholder. I-set up ito ngayon, saka piliin dito ang projector kapag nakakabit na ito."
 
 #: src/strings/screens.rs
-msgid "Shows the room screen's picture instead of a stage layout. It has no sound."
+msgid "Shows the audience screen's picture instead of a stage layout. It has no sound."
 msgstr "Ipinapakita ang larawan ng screen sa silid sa halip na stage layout. Walang tunog ito."
 
 #: src/strings/screens.rs
@@ -11911,7 +11911,7 @@ msgid "The stream key could not be kept: {error}"
 msgstr "Hindi naitago ang stream key: {error}"
 
 #: src/ui/dialogs/go_live_helper.rs
-msgid "No camera: viewers see the room screen"
+msgid "No camera: viewers see the audience screen"
 msgstr "Walang camera: ang screen sa silid ang nakikita ng mga nanonood"
 
 #: src/ui/dialogs/go_live_helper.rs
@@ -12357,7 +12357,7 @@ msgid "Scene name"
 msgstr "Pangalan ng scene"
 
 #: src/ui/dialogs/stream_scenes.rs
-msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the room screen instead."
+msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the audience screen instead."
 msgstr "Burahin ang scene na “{name}”? Ang mga action ng slide at mga macro na pumipili nito ay magpapakita na lang ng screen sa silid."
 
 #: src/ui/dialogs/stream_scenes.rs
@@ -12527,7 +12527,7 @@ msgid "Next slide: {next}. Back: {back}."
 msgstr "Susunod na slide: {next}. Bumalik: {back}."
 
 #: src/ui/operator/help.rs
-msgid "Window → Screens… picks which monitor is the room screen and which is the stage screen."
+msgid "Window → Screens… picks which monitor is the audience screen and which is the stage screen."
 msgstr "Ang Window → Mga screen… ay pumipili kung aling monitor ang screen sa silid at alin ang stage screen."
 
 #: src/ui/operator/help.rs
@@ -12563,7 +12563,7 @@ msgid "Lost the mouse on the projector? {key} brings it back to this window."
 msgstr "Nawala ang mouse sa projector? Ibinabalik ito ng {key} sa window na ito."
 
 #: src/ui/operator/help.rs
-msgid "The room screen shows the wrong thing: press the clear keys above, then show the slide again."
+msgid "The audience screen shows the wrong thing: press the clear keys above, then show the slide again."
 msgstr "Mali ang ipinapakita ng screen sa silid: pindutin ang mga clear key sa itaas, saka ipakita muli ang slide."
 
 #: src/ui/operator/help.rs
@@ -12725,7 +12725,7 @@ msgid "the room could not prepare it"
 msgstr "hindi ito maihanda ng silid"
 
 #: src/ui/room.rs
-msgid "Could not open the room screen: {error}"
+msgid "Could not open the audience screen: {error}"
 msgstr "Hindi mabuksan ang screen sa silid: {error}"
 
 #: src/ui/screens.rs
@@ -12733,11 +12733,11 @@ msgid "A presentation is on screen"
 msgstr "May presentation sa screen"
 
 #: src/ui/screens.rs
-msgid "The room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The audience screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr "Nahugot ang screen sa silid. Kusa itong babalik kapag naisaksak muli ang screen na iyon."
 
 #: src/ui/screens.rs
-msgid "The extra room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr "Nahugot ang karagdagang screen sa silid. Kusa itong babalik kapag naisaksak muli ang screen na iyon."
 
 #: src/ui/screens.rs
@@ -12749,11 +12749,11 @@ msgid "The extra stage screen was unplugged. It comes back by itself when that s
 msgstr "Nahugot ang karagdagang stage screen. Kusa itong babalik kapag naisaksak muli ang screen na iyon."
 
 #: src/ui/screens.rs
-msgid "The room screen is plugged in again, but it could not open: {error}"
+msgid "The audience screen is plugged in again, but it could not open: {error}"
 msgstr "Naisaksak muli ang screen sa silid, pero hindi ito mabuksan: {error}"
 
 #: src/ui/screens.rs
-msgid "The extra room screen is plugged in again, but it could not open: {error}"
+msgid "The extra audience screen is plugged in again, but it could not open: {error}"
 msgstr "Naisaksak muli ang karagdagang screen sa silid, pero hindi ito mabuksan: {error}"
 
 #: src/ui/screens.rs
@@ -12870,7 +12870,7 @@ msgid "It closed before it finished. It may have crashed."
 msgstr "Nagsara ito bago matapos. Baka nag-crash ito."
 
 #: src/video/bench.rs
-msgid "Slides never reached the room screen."
+msgid "Slides never reached the audience screen."
 msgstr "Hindi umabot ang mga slide sa screen sa silid."
 
 #: src/video/bench.rs
@@ -13031,10 +13031,10 @@ msgstr "hindi media file"
 #~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
 #~ msgstr "Ang tawag ng YouTube at Facebook sa bawat broadcast. Ang {{date}} ay magiging petsa ng araw."
 
-#~ msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
+#~ msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, colours or text in it."
 #~ msgstr "Wala ka pang sariling scene. Magdagdag ng isa, saka ilagay rito ang mga camera, ang screen sa silid, ang mga salita, mga larawan, mga kulay o teksto."
 
-#~ msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+#~ msgid "Cameras, the audience screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the audience screen in its place."
 #~ msgstr "Pansamantalang pamalit lang dito ang mga camera, ang screen sa silid at ang mga salita; habang naka-live, ang mga totoo ang gagamitin. Ang camera na walang ipinapadala ay papalitan ng screen sa silid."
 
 #~ msgid "Move the next camera to its saved position {}"
@@ -13046,7 +13046,7 @@ msgstr "hindi media file"
 #~ msgid "Another camera to switch to while live, from the scene button beside Live."
 #~ msgstr "Isa pang camera na mapapalitan habang live, mula sa scene button sa tabi ng Live."
 
-#~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+#~ msgid "A camera or capture card put together with the audience screen in the stream (and its recording)."
 #~ msgstr "Isang camera o capture card na isinasama sa screen ng silid sa stream (at sa recording nito)."
 
 #~ msgid "Camera, with the screen in a corner"

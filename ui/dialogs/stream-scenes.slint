@@ -216,7 +216,7 @@ component SceneList inherits VerticalLayout {
         picked => { StreamScenesDlg.select-scene(i); }
     }
     if StreamScenesDlg.scenes.length == 0: SmallText {
-        text: @tr("No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, videos, colours, text or a clock in it.");
+        text: @tr("No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, videos, colours, text or a clock in it.");
     }
     Rectangle { height: 8px; }
     add-scene-btn := Btn {
@@ -646,7 +646,7 @@ export component StreamScenesDialog inherits VerticalLayout {
                     }
                 }
                 if StreamScenesDlg.scene-index >= 0: SmallText {
-                    text: @tr("Cameras, the room screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place.");
+                    text: @tr("Cameras, the audience screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the audience screen in its place.");
                 }
                 if StreamScenesDlg.scene-index >= 0: Lbl { label: @tr("Use it by itself in place of"); }
                 if StreamScenesDlg.scene-index >= 0: instead := Select {

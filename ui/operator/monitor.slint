@@ -28,7 +28,7 @@ export component LiveMonitor inherits Rectangle {
     /// `panscan=1.0`). A foreground video is letterboxed on black (`object-fit: contain`), as mpv does in the room.
     in property <bool> video-cover;
     in property <float> black;
-    /// A video is live but the room screen is not open, so there is no frame to show.
+    /// A video is live but the audience screen is not open, so there is no frame to show.
     in property <bool> room-off;
     /// N5: show the stage screen (`stage-frame`, a picture of its window) instead of the room.
     in property <bool> show-stage;
@@ -109,7 +109,7 @@ export component LiveMonitor inherits Rectangle {
             opacity: root.black;
         }
         if root.video && root.room-off: room-off := Text {
-            text: @tr("Room screen is off");
+            text: @tr("Audience screen is off");
             color: Theme.muted;
             font-family: Theme.font;
             font-size: 13px;

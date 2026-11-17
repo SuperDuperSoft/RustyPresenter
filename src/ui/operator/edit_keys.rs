@@ -298,7 +298,7 @@ mod tests {
         assert_eq!(op.selected_item(), Some(ids[2]), "stays on the last");
         key(&op, Key::UpArrow);
         assert_eq!(op.selected_item(), Some(ids[1]));
-        assert_eq!(app.live_view().version, version, "the room screen did not move");
+        assert_eq!(app.live_view().version, version, "the audience screen did not move");
         // Showing an item gives the arrows back to the live screen.
         op.ui.invoke_service_show_first(ids[1].to_string().into());
         assert_eq!(op.state.borrow().list, ListFocus::Live);

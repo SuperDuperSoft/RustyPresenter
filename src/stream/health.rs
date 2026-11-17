@@ -67,7 +67,7 @@ pub fn status(i: &Inputs) -> (Light, Vec<Line>) {
     if i.ndi { lines.push(Line { light: Light::Good, text: tr!("NDI: going out") }) }
     match i.camera {
         Some(true) => lines.push(Line { light: Light::Good, text: tr!("Camera: picture coming in") }),
-        Some(false) => lines.push(Line { light: Light::Look, text: tr!("Camera: no picture (the room screen is shown instead)") }),
+        Some(false) => lines.push(Line { light: Light::Look, text: tr!("Camera: no picture (the audience screen is shown instead)") }),
         None => {}
     }
     match &i.sound {

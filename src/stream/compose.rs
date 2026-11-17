@@ -1,4 +1,4 @@
-//! Putting the stream's picture together in the app (1.3b): the room screen, the camera, the words over the camera
+//! Putting the stream's picture together in the app (1.3b): the audience screen, the camera, the words over the camera
 //! and the scene cards, all RGBA pictures of the stream's size, into the one picture FFmpeg gets. Pure.
 use super::scene::Scene;
 use std::time::Duration;

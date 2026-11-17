@@ -125,7 +125,7 @@ fn with_a_room_only_a_committed_frame_counts() {
     let (app, item, _) = app_with_song("22025");
     app.room_conns.store(1, std::sync::atomic::Ordering::Relaxed);
     send(&app, Command::Show { item_id: item, slide: 0 });
-    assert!(logged(&app).is_empty(), "asked for, not yet on the room screen");
+    assert!(logged(&app).is_empty(), "asked for, not yet on the audience screen");
     commit(&app);
     assert_eq!(logged(&app).len(), 1);
 }

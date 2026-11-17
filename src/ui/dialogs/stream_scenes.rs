@@ -564,7 +564,7 @@ fn rename(op: &Rc<Operator>, st: &St) {
 fn delete(op: &Rc<Operator>, st: &St) {
     let Some(scene) = st.borrow().ed.current().cloned() else { return };
     let (me, st) = (Rc::downgrade(op), st.clone());
-    let question = tr!("Delete the scene “{name}”? Slide actions and macros that choose it will show the room screen instead.", name = scene.title());
+    let question = tr!("Delete the scene “{name}”? Slide actions and macros that choose it will show the audience screen instead.", name = scene.title());
     confirm(op, &question, &tr!("Delete"), &dlg::cancel(), true, move |ok| {
         let Some(op) = me.upgrade().filter(|_| ok) else { return };
         if op.dialog() != Some(DialogKind::StreamScenes) || st.borrow().ed.current().map(|s| s.id) != Some(scene.id) { return }

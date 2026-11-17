@@ -1,6 +1,6 @@
 //! The live preview's screen picker (N5): Room shows the room as drawn here (`live`), Stage shows a picture of the
 //! stage window taken once a second, so the operator can check it without walking to it. The performance line under
-//! the preview (N33) and Window → Room screen in a window (N30) live here too.
+//! the preview (N33) and Window → Audience screen in a window (N30) live here too.
 use super::{view::OperatorSnapshot, window::Operator};
 use crate::{model::ScreenTarget, ui::{OutputsState, perf}};
 use slint::{ComponentHandle, Image, Timer, TimerMode};
@@ -20,7 +20,7 @@ pub const STAGE: i32 = 1;
 pub(crate) struct OutputsUi {
     stage_timer: Timer,
     perf_timer: Timer,
-    /// The room's first screen before Room screen in a window moved it there: its id, output and switch, put back
+    /// The room's first screen before Audience screen in a window moved it there: its id, output and switch, put back
     /// when the window is closed again from the menu.
     before_window: Option<(Uuid, ScreenTarget, bool)>,
 }
@@ -73,7 +73,7 @@ impl Operator {
         });
     }
 
-    /// Window → Room screen in a window: the room shows in a plain window (for trying things out with no projector,
+    /// Window → Audience screen in a window: the room shows in a plain window (for trying things out with no projector,
     /// or to capture it). Again: the window closes and the room goes back to where it was set to show.
     fn toggle_room_window(self: &Rc<Self>) {
         let Some(snap) = self.state.borrow().snap.clone() else { return };
@@ -194,7 +194,7 @@ mod tests {
         assert!(app.data.lock().unwrap().settings.show_performance, "saved");
         refresh(&op);
         assert!(g.get_show_perf());
-        assert!(g.get_perf().contains("Room screen is off"), "{}", g.get_perf());
+        assert!(g.get_perf().contains("Audience screen is off"), "{}", g.get_perf());
         assert!(op.outputs_ui.borrow().perf_timer.running());
         g.invoke_toggle_perf();
         refresh(&op);

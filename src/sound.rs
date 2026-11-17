@@ -173,9 +173,9 @@ mod tests {
     fn another_notice_is_left_alone() {
         let (app, outputs) = app_with("wasapi/{board}", &["wasapi/{board}"]);
         play_audio(&app);
-        app.set_notice("The room screen restarted.");
+        app.set_notice("The audience screen restarted.");
         app.watch_sound();
-        assert_eq!(app.live.lock().unwrap().notice.as_deref(), Some("The room screen restarted."));
+        assert_eq!(app.live.lock().unwrap().notice.as_deref(), Some("The audience screen restarted."));
         assert_eq!(outputs.asked.load(Ordering::Relaxed), 1, "something can be heard");
     }
 

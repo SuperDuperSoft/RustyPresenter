@@ -100,7 +100,7 @@ pub struct Plan {
     /// Go Live: each camera's FFmpeg input arguments (`args::camera_input`), for the camera scenes; the one in the
     /// picture is `Controls::camera`.
     pub cameras: Vec<Vec<String>>,
-    /// Go Live: how the scenes are chosen and what the cards say (`stream::pictures`). `None`: the room screen as is.
+    /// Go Live: how the scenes are chosen and what the cards say (`stream::pictures`). `None`: the audience screen as is.
     pub look: Option<crate::stream::pictures::Look>,
     /// The stream's panic buttons.
     pub controls: Controls,
@@ -154,7 +154,7 @@ fn listed(list: &str, name: &str) -> bool { list.lines().any(|l| l.split_whitesp
 /// encode, so the recording holds and goes quiet with the stream.
 #[derive(Clone, Debug, Default)]
 pub struct Controls {
-    /// Hold: every picture stays as it is (the room screen, the camera, the words over it).
+    /// Hold: every picture stays as it is (the audience screen, the camera, the words over it).
     pub hold: Arc<std::sync::atomic::AtomicBool>,
     /// Mute: silence in place of the sound input and the PC's sound.
     pub mute: Arc<std::sync::atomic::AtomicBool>,
@@ -436,7 +436,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     // Whether the camera in the picture is sending pictures (kept by the writer as the operator switches).
     let seeing: Arc<std::sync::atomic::AtomicBool> = Arc::default();
     if !camera_feeds.is_empty() { *camera_seen.lock().unwrap_or_else(|e| e.into_inner()) = Some(seeing.clone()) }
-    // What goes in a camera's place while it sends nothing (`None`: the room screen, as before).
+    // What goes in a camera's place while it sends nothing (`None`: the audience screen, as before).
     let lost = if camera_feeds.is_empty() { None } else { crate::stream::camera_lost::prepare(&plan.camera_lost, sink.size) };
     // The church's tall scenes: the app puts the tall picture together and FFmpeg reads it from a local port.
     let tall_size = args::tall_size(sink.size);
@@ -450,7 +450,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
             let mut look = look.clone();
             look.more.tall = tall_on.then_some(tall_size);
             crate::stream::pictures::start(look, sink.size, seeing.clone(), plan.controls.hold.clone())
-                .map_err(|e| eprintln!("recording: the stream shows the room screen only: {e}")).ok()
+                .map_err(|e| eprintln!("recording: the stream shows the audience screen only: {e}")).ok()
         }
         _ => None,
     };
@@ -605,7 +605,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
             let shown = w.slot.lock().unwrap_or_else(|e| e.into_inner()).clone();
             if let Some(n) = ndi.as_mut() { n.words(&shown.words) }
             if let Some(f) = words_file.as_mut() { f.words(&shown.words) }
-            // A camera sending nothing: the church's choice in its place (not in the room screen's corner).
+            // A camera sending nothing: the church's choice in its place (not in the audience screen's corner).
             let stand_in = |p: Option<Arc<Vec<u8>>>| p.or_else(|| lost.clone());
             // The church's own scenes can show any camera, not only the one on air.
             if matches!(shown.scene, crate::stream::scene::Scene::Own(_)) { m.cameras = camera_feeds.iter().map(|f| stand_in(f.as_ref().and_then(|f| f.picture()))).collect() }

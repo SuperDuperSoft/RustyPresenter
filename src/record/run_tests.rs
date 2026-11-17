@@ -640,7 +640,7 @@ fn first_frame_where(ff: &Path, dir: &Path, file: &Path, seen: impl Fn(&image::R
 
 fn is_blue(p: [u8; 3]) -> bool { p[2] > 180 && p[0] < 60 }
 fn is_red(p: [u8; 3]) -> bool { p[0] > 180 && p[2] < 60 }
-/// The room screen after half way in `record_for`.
+/// The audience screen after half way in `record_for`.
 fn is_green(p: [u8; 3]) -> bool { p[1] > 180 && p[0] < 60 && p[2] < 60 }
 
 /// The Camera scene, for real, with a stand-in 4:3 camera (blue, made at the clock's pace like a camera's): the
@@ -687,7 +687,7 @@ fn go_live_puts_the_words_over_the_camera() {
 }
 
 /// The scene follows what is live while streaming: a song first (the camera with words), then a presentation
-/// slide with "Presentations: with the camera in the corner" (the room screen, the camera in the corner).
+/// slide with "Presentations: with the camera in the corner" (the audience screen, the camera in the corner).
 #[test]
 fn go_live_switches_scene_while_live() {
     let Some(ff) = ffmpeg() else { return };
@@ -698,7 +698,7 @@ fn go_live_switches_scene_while_live() {
     let l = live.clone();
     let corner = AutoPrefs { on: true, presentation_camera: true };
     // Waited for, not timed: the camera's first picture (late while the whole suite runs), a second and a half of
-    // the song with it, then the picture slide; then two seconds more. The room screen is red.
+    // the song with it, then the picture slide; then two seconds more. The audience screen is red.
     let mut m = Marks::default();
     let ended = record_while(Plan { stream: vec![dead], cameras: lavfi_camera("color=c=blue:size=1280x720:rate=30"), look: Some(look(live, "Grace", corner)),
         ..plan(ff.clone(), &dir, Sound::None) }, 40.0, |rec, t| {
@@ -709,13 +709,13 @@ fn go_live_switches_scene_while_live() {
     assert_eq!(ended.problem, None, "{ended:?}");
     assert!(m.changed.is_some(), "the camera never sent a picture: {m:?}");
     // In order, every quarter second (a busy computer's file can run behind the clock, so no fixed second is
-    // looked at): the camera filling the picture (C) while the song is live, then the room screen filling it with
+    // looked at): the camera filling the picture (C) while the song is live, then the audience screen filling it with
     // the camera in the corner (P), and not the camera alone again.
     let rec = dir.join("Recording test.mp4");
     let seen: String = quarter_seconds(&ff, &dir, &rec).iter().map(|f| {
         if is_blue(f.get_pixel(640, 100).0) { 'C' } else if is_red(f.get_pixel(300, 200).0) && is_blue(f.get_pixel(1088, 598).0) { 'P' } else { '.' }
     }).collect();
-    let first_p = seen.find('P').unwrap_or_else(|| panic!("the room screen with the camera in the corner never came: {seen} ({m:?})"));
+    let first_p = seen.find('P').unwrap_or_else(|| panic!("the audience screen with the camera in the corner never came: {seen} ({m:?})"));
     assert!(seen[..first_p].contains('C'), "the camera while the song is live, first: {seen}");
     assert!(!seen[first_p..].contains('C'), "the picture slide holds: {seen}");
     std::fs::remove_dir_all(&dir).unwrap();
@@ -834,7 +834,7 @@ fn real_camera_goes_live_with_the_words() {
 
 /// A camera that stops in the middle (unplugged) and comes back, for each camera scene. The stand-in camera runs
 /// for 2.5 s each time it is started; `camera_feed` starts it again 2 s after it stops. So in the recording the
-/// camera (blue) is seen first, then the room screen (red) in the gap, then the camera again; and the stream and
+/// camera (blue) is seen first, then the audience screen (red) in the gap, then the camera again; and the stream and
 /// the recording run to the end. (The destination is one nobody listens on: the recording is what is looked at.)
 #[test]
 fn a_camera_that_stops_drops_out_and_comes_back() {
@@ -842,7 +842,7 @@ fn a_camera_that_stops_drops_out_and_comes_back() {
     for scene in [Scene::Camera, Scene::ScreenCamera, Scene::CameraWords] {
         let dir = scratch("camback");
         let dead = format!("rtmp://127.0.0.1:{}/live/TEST-KEY", std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port());
-        // The room screen: red for the first 4.6 s, then green (`record_for` changes at half way).
+        // The audience screen: red for the first 4.6 s, then green (`record_for` changes at half way).
         let ended = record_for(Plan { stream: vec![dead], cameras: lavfi_camera("color=c=blue:size=1280x720:rate=30:duration=2.5"), look: Some(only(scene, "Grace")),
             ..plan(ff.clone(), &dir, Sound::None) }, 9.2, |_, _| {});
         assert_eq!(ended.problem, None, "{scene:?}: {ended:?}");
@@ -852,13 +852,13 @@ fn a_camera_that_stops_drops_out_and_comes_back() {
         // Where the camera shows in this scene: the middle, or (screen filling it) the corner.
         let (x, y) = if scene == Scene::ScreenCamera { (1280 - 32 - 160, 720 - 32 - 90) } else { (640, 200) };
         // In order, whenever the stand-in camera got going (later while the whole suite runs): the camera, the
-        // room screen in the gap (red, or green after half way), the camera again.
+        // audience screen in the gap (red, or green after half way), the camera again.
         let seen: Vec<char> = quarter_seconds(&ff, &dir, &rec).iter().map(|f| f.get_pixel(x, y).0)
             .map(|p| if is_blue(p) { 'C' } else if is_red(p) || is_green(p) { 'R' } else { '.' }).collect();
         let seen: String = seen.into_iter().collect();
         eprintln!("REAL {scene:?}: every quarter second {seen}");
         let first = seen.find('C').unwrap_or_else(|| panic!("{scene:?}: the camera never showed: {seen}"));
-        let gap = seen[first..].find('R').map(|i| first + i).unwrap_or_else(|| panic!("{scene:?}: the room screen while the camera is gone: {seen}"));
+        let gap = seen[first..].find('R').map(|i| first + i).unwrap_or_else(|| panic!("{scene:?}: the audience screen while the camera is gone: {seen}"));
         assert!(seen[gap..].contains('C'), "{scene:?}: the camera back: {seen}");
         std::fs::remove_dir_all(&dir).unwrap();
     }

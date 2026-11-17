@@ -1,5 +1,5 @@
 //! A second recording while live, without the words over the camera (More settings → "Also record the stream
-//! without the words"): the same scenes, cameras, cards and room screen, so an editor can cut a clean video, or lay
+//! without the words"): the same scenes, cameras, cards and audience screen, so an editor can cut a clean video, or lay
 //! other words over it. Its pictures are put together by the writer beside the stream's (`record::run`) and handed
 //! here; a thread of its own feeds a FFmpeg of its own, which writes Matroska (readable after a crash) and times
 //! each picture as it comes, filling any gap. So it never holds up the recording or the stream: when it cannot keep

@@ -1149,7 +1149,7 @@ msgid "Which camera?"
 msgstr "どのカメラを使いますか？"
 
 #: ui/dialogs/go-live-helper.slint
-msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the room screen."
+msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the audience screen."
 msgstr "曲と聖句は、カメラの映像に歌詞を重ねて配信されます。カメラがない場合、視聴者には会場画面が見えます。"
 
 #: ui/dialogs/go-live-helper.slint
@@ -1556,7 +1556,7 @@ msgid "TCP password"
 msgstr "TCP パスワード"
 
 #: ui/dialogs/overlays.slint
-msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
+msgid "Overlays stay on the audience screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
 msgstr "オーバーレイは、スライドを切り替えても会場画面に残ります。隅のロゴ、時計、短い案内などです。ライブ列の「次の項目」の下のチップでオン・オフを切り替えます。一覧の最後のものが一番上に描画されます。"
 
 #: ui/dialogs/overlays.slint
@@ -1840,7 +1840,7 @@ msgid "Aspect ratio: {}"
 msgstr "縦横比: {}"
 
 #: ui/dialogs/screens.slint
-msgid "Show what the room screen shows"
+msgid "Show what the audience screen shows"
 msgstr "会場画面と同じ映像を表示"
 
 #: ui/dialogs/screens.slint
@@ -2484,7 +2484,7 @@ msgid "Right speaker only"
 msgstr "右スピーカーのみ"
 
 #: ui/dialogs/settings-media.slint
-msgid "File → Start recording (or the Record button at the top) saves what the room screen shows as an MP4 video."
+msgid "File → Start recording (or the Record button at the top) saves what the audience screen shows as an MP4 video."
 msgstr "「ファイル → 録画を開始」（または上部の「録画」ボタン）で、会場画面の表示内容を MP4 動画として保存します。"
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint ui/operator/slides.slint
@@ -2756,7 +2756,7 @@ msgid "What the stream shows in a camera's place while it is unplugged or sends 
 msgstr "カメラが外れているか映像を送っていない間、配信でそのカメラの代わりに表示するもの。カメラが再び映像を送ると自動で戻ります。"
 
 #: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
-msgid "The room screen"
+msgid "The audience screen"
 msgstr "会場画面"
 
 #: ui/dialogs/settings-media.slint
@@ -2776,7 +2776,7 @@ msgid "Scenes"
 msgstr "シーン"
 
 #: ui/dialogs/settings-media.slint
-msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the audience screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
 msgstr "曲と聖句はカメラに歌詞を重ねて、動画とプレゼンテーションは会場画面として、画面に何もないときはカメラで配信されます。ライブの横のシーンボタンで選んだシーンは、次の礼拝項目まで続きます。"
 
 #: ui/dialogs/settings-media.slint
@@ -2788,7 +2788,7 @@ msgid "Presentations:"
 msgstr "プレゼンテーション:"
 
 #: ui/dialogs/settings-media.slint
-msgid "The room screen with the camera in a corner"
+msgid "The audience screen with the camera in a corner"
 msgstr "会場画面（隅にカメラ）"
 
 #: ui/dialogs/settings-media.slint
@@ -2796,7 +2796,7 @@ msgid "Scene layout"
 msgstr "シーンの配置"
 
 #: ui/dialogs/settings-media.slint
-msgid "Where the camera goes when it is in a corner of the room screen, and where the words go over the camera."
+msgid "Where the camera goes when it is in a corner of the audience screen, and where the words go over the camera."
 msgstr "会場画面の隅にカメラを置くときの位置と、カメラに重ねる歌詞の位置です。"
 
 #: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
@@ -2828,7 +2828,7 @@ msgid "Your scenes"
 msgstr "自分のシーン"
 
 #: ui/dialogs/settings-media.slint
-msgid "Make scenes of your own from cameras, the room screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgid "Make scenes of your own from cameras, the audience screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
 msgstr "カメラ、会場画面、歌詞、画像、色、テキストを組み合わせて、自分のシーンを作れます。配信中は内蔵のシーンの後に並びます。"
 
 #: ui/dialogs/settings-media.slint
@@ -3612,11 +3612,11 @@ msgid "Screens"
 msgstr "画面"
 
 #: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs src/strings/screens.rs
-msgid "Room screen"
+msgid "Audience screen"
 msgstr "会場画面"
 
 #: ui/dialogs/settings.slint
-msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
+msgid "Keep the audience screen in front when it has its own monitor (smoother fades)"
 msgstr "会場画面に専用モニターがある場合は前面に保つ（フェードがなめらかに）"
 
 #: ui/dialogs/settings.slint
@@ -4300,7 +4300,7 @@ msgid "While live, also record the stream without the words (for editing)"
 msgstr "配信中、歌詞のない配信も録画する（編集用）"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, videos, colours, text or a clock in it."
+msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, videos, colours, text or a clock in it."
 msgstr "自分のシーンはまだありません。シーンを追加して、カメラ、会場画面、歌詞、画像、動画、色、テキスト、時計を入れてください。"
 
 #: ui/dialogs/stream-scenes.slint
@@ -4492,7 +4492,7 @@ msgid "Use the wide picture fitted across again"
 msgstr "横長の映像を横幅に合わせる方法に戻す"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "Cameras, the room screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgid "Cameras, the audience screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the audience screen in its place."
 msgstr "ここではカメラ、会場画面、歌詞、動画、Web ページは仮の表示です。配信中は本物が使われます。何も送ってこないカメラの場所には、会場画面が表示されます。"
 
 #: ui/dialogs/stream-scenes.slint
@@ -5112,7 +5112,7 @@ msgid "Move to folder"
 msgstr "フォルダーへ移動"
 
 #: ui/operator/monitor.slint src/ui/perf.rs
-msgid "Room screen is off"
+msgid "Audience screen is off"
 msgstr "会場画面はオフです"
 
 #: ui/operator/monitor.slint
@@ -5184,7 +5184,7 @@ msgid "Stop the livestream and save the recording"
 msgstr "ライブ配信を止めて録画を保存"
 
 #: ui/operator/record.slint
-msgid "Send the room screen to the livestream, and record it"
+msgid "Send the audience screen to the livestream, and record it"
 msgstr "会場画面をライブ配信に送り、録画もする"
 
 #: ui/operator/record.slint
@@ -5236,7 +5236,7 @@ msgid "Stop recording and save the file"
 msgstr "録画を停止してファイルを保存"
 
 #: ui/operator/record.slint
-msgid "Record the room screen to a video file"
+msgid "Record the audience screen to a video file"
 msgstr "会場画面を動画ファイルに録画"
 
 #: ui/operator/record.slint src/automation/slide_actions.rs src/ui/dialogs/automation.rs
@@ -5744,7 +5744,7 @@ msgid "Easy view (big words)"
 msgstr "簡単表示（大きな文字）"
 
 #: ui/operator.slint
-msgid "Preview the room screen"
+msgid "Preview the audience screen"
 msgstr "会場画面をプレビュー"
 
 #: ui/operator.slint
@@ -5780,7 +5780,7 @@ msgid "Close the room window"
 msgstr "会場ウィンドウを閉じる"
 
 #: ui/operator.slint
-msgid "Room screen in a window"
+msgid "Audience screen in a window"
 msgstr "会場画面をウィンドウで表示"
 
 #: ui/operator.slint
@@ -5952,11 +5952,11 @@ msgid "That slide isn't there any more."
 msgstr "そのスライドはもうありません。"
 
 #: src/app.rs
-msgid "The room screen restarted. Video/audio stopped — click it again to replay."
+msgid "The audience screen restarted. Video/audio stopped — click it again to replay."
 msgstr "会場画面が再起動しました。動画/音声は停止しました — もう一度クリックすると再生します。"
 
 #: src/app.rs
-msgid "The room screen restarted."
+msgid "The audience screen restarted."
 msgstr "会場画面が再起動しました。"
 
 #: src/app.rs src/platform/instance.rs
@@ -6068,7 +6068,7 @@ msgid "Add a screen first."
 msgstr "先に画面を追加してください。"
 
 #: src/app.rs
-msgid "Room screen {number}"
+msgid "Audience screen {number}"
 msgstr "会場画面 {number}"
 
 #: src/app.rs
@@ -7207,7 +7207,7 @@ msgid "The computer is keeping up again: the picture is smooth."
 msgstr "コンピューターが追いつきました。映像はなめらかです。"
 
 #: src/record/mod.rs
-msgid "Turn the room screen on first: the recording is what the room shows."
+msgid "Turn the audience screen on first: the recording is what the room shows."
 msgstr "先に会場画面をオンにしてください。録画されるのは会場に表示される内容です。"
 
 #: src/record/mod.rs
@@ -7231,7 +7231,7 @@ msgid "The recording stopped: {why}"
 msgstr "録画が停止しました: {why}"
 
 #: src/record/mod.rs
-msgid "Recording the room screen."
+msgid "Recording the audience screen."
 msgstr "会場画面を録画中です。"
 
 #: src/record/mod.rs
@@ -7652,7 +7652,7 @@ msgid "Camera: picture coming in"
 msgstr "カメラ: 映像が来ています"
 
 #: src/stream/health.rs
-msgid "Camera: no picture (the room screen is shown instead)"
+msgid "Camera: no picture (the audience screen is shown instead)"
 msgstr "カメラ: 映像なし（代わりに会場画面を表示中）"
 
 #: src/stream/health.rs
@@ -9230,15 +9230,15 @@ msgid "Something went wrong."
 msgstr "問題が発生しました。"
 
 #: src/strings/operator.rs
-msgid "Room screen is showing"
+msgid "Audience screen is showing"
 msgstr "会場画面を表示中"
 
 #: src/strings/operator.rs
-msgid "Room screen is starting…"
+msgid "Audience screen is starting…"
 msgstr "会場画面を起動中…"
 
 #: src/strings/operator.rs
-msgid "Room screen is not open — click Screens"
+msgid "Audience screen is not open — click Screens"
 msgstr "会場画面が開いていません — 「画面」をクリックしてください"
 
 #: src/strings/operator.rs
@@ -9774,7 +9774,7 @@ msgid "“{title}” shows as pictures now."
 msgstr "「{title}」は画像として表示されるようになりました。"
 
 #: src/strings/pplive.rs
-msgid "Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures."
+msgid "Run in PowerPoint needs the audience screen on a monitor. Turn the audience screen on in Screens; until then the room shows the slide pictures."
 msgstr "「PowerPoint で実行」には、会場画面がモニターに表示されている必要があります。「画面」で会場画面をオンにしてください。それまでは会場にスライド画像が表示されます。"
 
 #: src/strings/pplive.rs
@@ -9798,11 +9798,11 @@ msgid "This service has no items yet."
 msgstr "この礼拝にはまだ項目がありません。"
 
 #: src/strings/preflight.rs
-msgid "No room screen is chosen. Choose one in Screens."
+msgid "No audience screen is chosen. Choose one in Screens."
 msgstr "会場画面が選ばれていません。「画面」で選んでください。"
 
 #: src/strings/preflight.rs
-msgid "The room screen is not connected. Check its cable, or choose another in Screens."
+msgid "The audience screen is not connected. Check its cable, or choose another in Screens."
 msgstr "会場画面が接続されていません。ケーブルを確認するか、「画面」で別の画面を選んでください。"
 
 #: src/strings/preflight.rs
@@ -9980,7 +9980,7 @@ msgid "Nothing shows on a placeholder. Set it up now, then pick the projector he
 msgstr "仮の画面には何も表示されません。今のうちに設定しておき、プロジェクターを接続したらここで選んでください。"
 
 #: src/strings/screens.rs
-msgid "Shows the room screen's picture instead of a stage layout. It has no sound."
+msgid "Shows the audience screen's picture instead of a stage layout. It has no sound."
 msgstr "ステージレイアウトの代わりに会場画面の映像を表示します。音声はありません。"
 
 #: src/strings/screens.rs
@@ -11870,7 +11870,7 @@ msgid "The stream key could not be kept: {error}"
 msgstr "ストリームキーを保存できませんでした: {error}"
 
 #: src/ui/dialogs/go_live_helper.rs
-msgid "No camera: viewers see the room screen"
+msgid "No camera: viewers see the audience screen"
 msgstr "カメラなし: 視聴者には会場画面が見えます"
 
 #: src/ui/dialogs/go_live_helper.rs
@@ -12314,7 +12314,7 @@ msgid "Scene name"
 msgstr "シーン名"
 
 #: src/ui/dialogs/stream_scenes.rs
-msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the room screen instead."
+msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the audience screen instead."
 msgstr "シーン「{name}」を削除しますか？このシーンを選ぶスライドのアクションやマクロは、代わりに会場画面を表示します。"
 
 #: src/ui/dialogs/stream_scenes.rs
@@ -12483,7 +12483,7 @@ msgid "Next slide: {next}. Back: {back}."
 msgstr "次のスライド: {next}。戻る: {back}。"
 
 #: src/ui/operator/help.rs
-msgid "Window → Screens… picks which monitor is the room screen and which is the stage screen."
+msgid "Window → Screens… picks which monitor is the audience screen and which is the stage screen."
 msgstr "「ウィンドウ → 画面…」で、どのモニターを会場画面とステージ画面にするか選びます。"
 
 #: src/ui/operator/help.rs
@@ -12519,7 +12519,7 @@ msgid "Lost the mouse on the projector? {key} brings it back to this window."
 msgstr "プロジェクターでマウスを見失ったら、{key} でこのウィンドウに戻せます。"
 
 #: src/ui/operator/help.rs
-msgid "The room screen shows the wrong thing: press the clear keys above, then show the slide again."
+msgid "The audience screen shows the wrong thing: press the clear keys above, then show the slide again."
 msgstr "会場画面に違うものが表示されている場合: 上のクリアキーを押してから、もう一度スライドを表示してください。"
 
 #: src/ui/operator/help.rs
@@ -12678,7 +12678,7 @@ msgid "the room could not prepare it"
 msgstr "会場画面で準備できませんでした"
 
 #: src/ui/room.rs
-msgid "Could not open the room screen: {error}"
+msgid "Could not open the audience screen: {error}"
 msgstr "会場画面を開けませんでした: {error}"
 
 #: src/ui/screens.rs
@@ -12686,11 +12686,11 @@ msgid "A presentation is on screen"
 msgstr "プレゼンテーションを表示中"
 
 #: src/ui/screens.rs
-msgid "The room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The audience screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr "会場画面が取り外されました。その画面を再接続すると自動で復帰します。"
 
 #: src/ui/screens.rs
-msgid "The extra room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr "追加の会場画面が取り外されました。その画面を再接続すると自動で復帰します。"
 
 #: src/ui/screens.rs
@@ -12702,11 +12702,11 @@ msgid "The extra stage screen was unplugged. It comes back by itself when that s
 msgstr "追加のステージ画面が取り外されました。その画面を再接続すると自動で復帰します。"
 
 #: src/ui/screens.rs
-msgid "The room screen is plugged in again, but it could not open: {error}"
+msgid "The audience screen is plugged in again, but it could not open: {error}"
 msgstr "会場画面が再接続されましたが、開けませんでした: {error}"
 
 #: src/ui/screens.rs
-msgid "The extra room screen is plugged in again, but it could not open: {error}"
+msgid "The extra audience screen is plugged in again, but it could not open: {error}"
 msgstr "追加の会場画面が再接続されましたが、開けませんでした: {error}"
 
 #: src/ui/screens.rs
@@ -12823,7 +12823,7 @@ msgid "It closed before it finished. It may have crashed."
 msgstr "終わる前に閉じました。クラッシュした可能性があります。"
 
 #: src/video/bench.rs
-msgid "Slides never reached the room screen."
+msgid "Slides never reached the audience screen."
 msgstr "スライドが会場画面に届きませんでした。"
 
 #: src/video/bench.rs
@@ -12984,10 +12984,10 @@ msgstr "メディアファイルではありません"
 #~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
 #~ msgstr "YouTube と Facebook での各配信の名前。{{date}} はその日の日付になります。"
 
-#~ msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
+#~ msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, colours or text in it."
 #~ msgstr "自分のシーンはまだありません。シーンを追加して、カメラ、会場画面、歌詞、画像、色、テキストを入れてください。"
 
-#~ msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+#~ msgid "Cameras, the audience screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the audience screen in its place."
 #~ msgstr "ここではカメラ、会場画面、歌詞は仮の表示です。配信中は本物が使われます。何も送ってこないカメラの場所には、会場画面が表示されます。"
 
 #~ msgid "Move the next camera to its saved position {}"
@@ -12999,7 +12999,7 @@ msgstr "メディアファイルではありません"
 #~ msgid "Another camera to switch to while live, from the scene button beside Live."
 #~ msgstr "ライブ中に切り替えるもう1台のカメラ。ライブの横のシーンボタンから選びます。"
 
-#~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+#~ msgid "A camera or capture card put together with the audience screen in the stream (and its recording)."
 #~ msgstr "配信 (とその録画) で会場画面と組み合わせるカメラまたはキャプチャーカード。"
 
 #~ msgid "Camera, with the screen in a corner"

@@ -273,7 +273,7 @@ async fn remote_draw(State(app): State<Arc<App>>, headers: HeaderMap, body: Byte
 #[derive(Deserialize)]
 struct SlideSize { #[serde(default)] w: Option<u32> }
 
-/// The live slide as a JPEG for the phone's drawing view, `w` pixels wide, the room screen's shape. Paired phones only.
+/// The live slide as a JPEG for the phone's drawing view, `w` pixels wide, the audience screen's shape. Paired phones only.
 async fn remote_live_slide(State(app): State<Arc<App>>, headers: HeaderMap, Query(q): Query<SlideSize>) -> Response {
     if phone_for(&app, &headers).is_none() { return (StatusCode::UNAUTHORIZED, "pair first").into_response() }
     let width = q.w.unwrap_or(960);
@@ -305,7 +305,7 @@ async fn remote_live_anim_pic(State(app): State<Arc<App>>, headers: HeaderMap, Q
     ([(header::CONTENT_TYPE, ctype), (header::CACHE_CONTROL, "private, max-age=600")], px).into_response()
 }
 
-/// The size the phone's picture is drawn at: `width` kept to 160–1920 pixels, the room screen's shape
+/// The size the phone's picture is drawn at: `width` kept to 160–1920 pixels, the audience screen's shape
 /// (`canvas`; 16:9 when it has no size).
 pub fn live_slide_size(width: u32, canvas: (u32, u32)) -> (u32, u32) {
     let w = width.clamp(160, 1920);
@@ -446,7 +446,7 @@ fn remote_view(app: &App, phone: Option<Uuid>) -> String {
         // Drawing: whether this phone may draw (its Draw button), and its strokes still up.
         "may_draw": may_draw,
         "fade_secs": live.drawing.fade_after.as_secs(),
-        // The room screen's shape: the phone draws on a slide of the same shape, so lines land where drawn.
+        // The audience screen's shape: the phone draws on a slide of the same shape, so lines land where drawn.
         "aspect": app.room_canvas(),
         "my_strokes": phone.map(|id| live.drawing.ids_of(id)).unwrap_or_default(),
         // ...and when a translation is edited in the app.
@@ -992,7 +992,7 @@ msgstr[1] "{n} Folien"
     #[tokio::test]
     async fn the_phone_picture_and_view_follow_the_rooms_shape() {
         let app = test_app();
-        assert_eq!(app.room_canvas(), (1920, 1080), "16:9 until a room screen says otherwise");
+        assert_eq!(app.room_canvas(), (1920, 1080), "16:9 until a audience screen says otherwise");
         app.set_room_canvas((1024, 768));
         assert_eq!(app.room_canvas(), (1024, 768));
         app.set_room_canvas((0, 768));

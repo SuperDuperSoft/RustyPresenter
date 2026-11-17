@@ -46,7 +46,7 @@ pub const MAX_DELAY_MS: u32 = 2000;
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 #[serde(default)]
 pub struct MediaPrefs {
-    /// How pictures and videos on the media layer fill the room screen.
+    /// How pictures and videos on the media layer fill the audience screen.
     pub scale: Scale,
     /// Pictures added together as one slideshow turn by themselves after this many seconds; 0: they don't.
     pub picture_secs: u16,

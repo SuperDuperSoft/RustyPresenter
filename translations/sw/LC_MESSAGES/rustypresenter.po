@@ -1149,7 +1149,7 @@ msgid "Which camera?"
 msgstr "Kamera ipi?"
 
 #: ui/dialogs/go-live-helper.slint
-msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the room screen."
+msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the audience screen."
 msgstr "Nyimbo na mistari ya Biblia hutoka na maneno juu ya kamera. Bila kamera, watazamaji huona skrini ya ukumbi."
 
 #: ui/dialogs/go-live-helper.slint
@@ -1556,7 +1556,7 @@ msgid "TCP password"
 msgstr "Nenosiri la TCP"
 
 #: ui/dialogs/overlays.slint
-msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
+msgid "Overlays stay on the audience screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
 msgstr "Viwekelezo hubaki kwenye skrini ya ukumbi slaidi zinapobadilika: nembo pembeni, saa au tangazo fupi. Viwashe na kuvizima kwa vibonye vilivyo chini ya Kinachofuata kwenye safu ya Moja kwa moja. Cha mwisho kwenye orodha huchorwa juu."
 
 #: ui/dialogs/overlays.slint
@@ -1840,7 +1840,7 @@ msgid "Aspect ratio: {}"
 msgstr "Uwiano wa vipimo: {}"
 
 #: ui/dialogs/screens.slint
-msgid "Show what the room screen shows"
+msgid "Show what the audience screen shows"
 msgstr "Onyesha kile skrini ya ukumbi inachoonyesha"
 
 #: ui/dialogs/screens.slint
@@ -2484,7 +2484,7 @@ msgid "Right speaker only"
 msgstr "Spika ya kulia pekee"
 
 #: ui/dialogs/settings-media.slint
-msgid "File → Start recording (or the Record button at the top) saves what the room screen shows as an MP4 video."
+msgid "File → Start recording (or the Record button at the top) saves what the audience screen shows as an MP4 video."
 msgstr "Faili → Anza kurekodi (au kitufe cha Rekodi juu) huhifadhi kile skrini ya ukumbi inachoonyesha kama video ya MP4."
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint ui/operator/slides.slint
@@ -2756,7 +2756,7 @@ msgid "What the stream shows in a camera's place while it is unplugged or sends 
 msgstr "Kile ambacho matangazo huonyesha mahali pa kamera wakati imechomolewa au haitumi picha. Kamera hurudi yenyewe mara tu inapotuma tena."
 
 #: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
-msgid "The room screen"
+msgid "The audience screen"
 msgstr "Skrini ya ukumbi"
 
 #: ui/dialogs/settings-media.slint
@@ -2776,7 +2776,7 @@ msgid "Scenes"
 msgstr "Matukio"
 
 #: ui/dialogs/settings-media.slint
-msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the audience screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
 msgstr "Nyimbo na mistari ya Biblia hutoka kama kamera pamoja na maneno; video na mawasilisho kama skrini ya ukumbi; kukiwa hakuna kitu skrinini, kamera. Tukio lililochaguliwa kwa kitufe cha tukio kando ya Moja kwa moja hubaki hadi kipengele kijacho cha ibada."
 
 #: ui/dialogs/settings-media.slint
@@ -2788,7 +2788,7 @@ msgid "Presentations:"
 msgstr "Mawasilisho:"
 
 #: ui/dialogs/settings-media.slint
-msgid "The room screen with the camera in a corner"
+msgid "The audience screen with the camera in a corner"
 msgstr "Skrini ya ukumbi yenye kamera pembeni"
 
 #: ui/dialogs/settings-media.slint
@@ -2796,7 +2796,7 @@ msgid "Scene layout"
 msgstr "Mpangilio wa tukio"
 
 #: ui/dialogs/settings-media.slint
-msgid "Where the camera goes when it is in a corner of the room screen, and where the words go over the camera."
+msgid "Where the camera goes when it is in a corner of the audience screen, and where the words go over the camera."
 msgstr "Mahali kamera inapokaa ikiwa kwenye kona ya skrini ya ukumbi, na mahali maneno yanapokaa juu ya kamera."
 
 #: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
@@ -2828,7 +2828,7 @@ msgid "Your scenes"
 msgstr "Matukio yako"
 
 #: ui/dialogs/settings-media.slint
-msgid "Make scenes of your own from cameras, the room screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgid "Make scenes of your own from cameras, the audience screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
 msgstr "Tengeneza matukio yako mwenyewe kutoka kwa kamera, skrini ya ukumbi, maneno, picha, rangi na maandishi. Huorodheshwa baada ya matukio yaliyojengwa ndani wakati wa kurusha moja kwa moja."
 
 #: ui/dialogs/settings-media.slint
@@ -3612,11 +3612,11 @@ msgid "Screens"
 msgstr "Skrini"
 
 #: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs src/strings/screens.rs
-msgid "Room screen"
+msgid "Audience screen"
 msgstr "Skrini ya ukumbi"
 
 #: ui/dialogs/settings.slint
-msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
+msgid "Keep the audience screen in front when it has its own monitor (smoother fades)"
 msgstr "Weka skrini ya ukumbi mbele ikiwa na monita yake (mfifio laini zaidi)"
 
 #: ui/dialogs/settings.slint
@@ -4300,7 +4300,7 @@ msgid "While live, also record the stream without the words (for editing)"
 msgstr "Ukiwa moja kwa moja, rekodi pia matangazo bila maneno (kwa kuhariri)"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, videos, colours, text or a clock in it."
+msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, videos, colours, text or a clock in it."
 msgstr "Bado huna matukio yako mwenyewe. Ongeza moja, kisha weka ndani yake kamera, skrini ya ukumbi, maneno, picha, video, rangi, maandishi au saa."
 
 #: ui/dialogs/stream-scenes.slint
@@ -4492,7 +4492,7 @@ msgid "Use the wide picture fitted across again"
 msgstr "Tumia tena picha pana iliyowekwa kwa upana"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "Cameras, the room screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgid "Cameras, the audience screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the audience screen in its place."
 msgstr "Kamera, skrini ya ukumbi, maneno, video na kurasa za wavuti ni vishikizi vya muda hapa; ukiwa moja kwa moja ni halisi. Kamera isiyotuma chochote huonyesha skrini ya ukumbi mahali pake."
 
 #: ui/dialogs/stream-scenes.slint
@@ -5112,7 +5112,7 @@ msgid "Move to folder"
 msgstr "Hamishia kwenye folda"
 
 #: ui/operator/monitor.slint src/ui/perf.rs
-msgid "Room screen is off"
+msgid "Audience screen is off"
 msgstr "Skrini ya ukumbi imezimwa"
 
 #: ui/operator/monitor.slint
@@ -5184,7 +5184,7 @@ msgid "Stop the livestream and save the recording"
 msgstr "Simamisha matangazo na uhifadhi rekodi"
 
 #: ui/operator/record.slint
-msgid "Send the room screen to the livestream, and record it"
+msgid "Send the audience screen to the livestream, and record it"
 msgstr "Tuma skrini ya ukumbi kwenye matangazo ya moja kwa moja, na uirekodi"
 
 #: ui/operator/record.slint
@@ -5236,7 +5236,7 @@ msgid "Stop recording and save the file"
 msgstr "Acha kurekodi na uhifadhi faili"
 
 #: ui/operator/record.slint
-msgid "Record the room screen to a video file"
+msgid "Record the audience screen to a video file"
 msgstr "Rekodi skrini ya ukumbi kwenye faili ya video"
 
 #: ui/operator/record.slint src/automation/slide_actions.rs src/ui/dialogs/automation.rs
@@ -5744,7 +5744,7 @@ msgid "Easy view (big words)"
 msgstr "Mwonekano rahisi (maneno makubwa)"
 
 #: ui/operator.slint
-msgid "Preview the room screen"
+msgid "Preview the audience screen"
 msgstr "Hakiki skrini ya ukumbi"
 
 #: ui/operator.slint
@@ -5780,7 +5780,7 @@ msgid "Close the room window"
 msgstr "Funga dirisha la ukumbi"
 
 #: ui/operator.slint
-msgid "Room screen in a window"
+msgid "Audience screen in a window"
 msgstr "Skrini ya ukumbi kwenye dirisha"
 
 #: ui/operator.slint
@@ -5952,11 +5952,11 @@ msgid "That slide isn't there any more."
 msgstr "Slaidi hiyo haipo tena."
 
 #: src/app.rs
-msgid "The room screen restarted. Video/audio stopped — click it again to replay."
+msgid "The audience screen restarted. Video/audio stopped — click it again to replay."
 msgstr "Skrini ya ukumbi imeanza upya. Video/sauti imesimama — ibofye tena ili kucheza upya."
 
 #: src/app.rs
-msgid "The room screen restarted."
+msgid "The audience screen restarted."
 msgstr "Skrini ya ukumbi imeanza upya."
 
 #: src/app.rs src/platform/instance.rs
@@ -6068,7 +6068,7 @@ msgid "Add a screen first."
 msgstr "Ongeza skrini kwanza."
 
 #: src/app.rs
-msgid "Room screen {number}"
+msgid "Audience screen {number}"
 msgstr "Skrini ya ukumbi {number}"
 
 #: src/app.rs
@@ -7211,7 +7211,7 @@ msgid "The computer is keeping up again: the picture is smooth."
 msgstr "Kompyuta inaenda sawa tena: picha ni laini."
 
 #: src/record/mod.rs
-msgid "Turn the room screen on first: the recording is what the room shows."
+msgid "Turn the audience screen on first: the recording is what the room shows."
 msgstr "Washa skrini ya ukumbi kwanza: rekodi ni kile ukumbi unachoonyesha."
 
 #: src/record/mod.rs
@@ -7235,7 +7235,7 @@ msgid "The recording stopped: {why}"
 msgstr "Kurekodi kumesimama: {why}"
 
 #: src/record/mod.rs
-msgid "Recording the room screen."
+msgid "Recording the audience screen."
 msgstr "Inarekodi skrini ya ukumbi."
 
 #: src/record/mod.rs
@@ -7657,7 +7657,7 @@ msgid "Camera: picture coming in"
 msgstr "Kamera: picha inaingia"
 
 #: src/stream/health.rs
-msgid "Camera: no picture (the room screen is shown instead)"
+msgid "Camera: no picture (the audience screen is shown instead)"
 msgstr "Kamera: hakuna picha (skrini ya ukumbi inaonyeshwa badala yake)"
 
 #: src/stream/health.rs
@@ -9249,15 +9249,15 @@ msgid "Something went wrong."
 msgstr "Hitilafu fulani imetokea."
 
 #: src/strings/operator.rs
-msgid "Room screen is showing"
+msgid "Audience screen is showing"
 msgstr "Skrini ya ukumbi inaonyesha"
 
 #: src/strings/operator.rs
-msgid "Room screen is starting…"
+msgid "Audience screen is starting…"
 msgstr "Skrini ya ukumbi inaanza…"
 
 #: src/strings/operator.rs
-msgid "Room screen is not open — click Screens"
+msgid "Audience screen is not open — click Screens"
 msgstr "Skrini ya ukumbi haijafunguliwa — bofya Skrini"
 
 #: src/strings/operator.rs
@@ -9800,7 +9800,7 @@ msgid "“{title}” shows as pictures now."
 msgstr "“{title}” sasa inaonyeshwa kama picha."
 
 #: src/strings/pplive.rs
-msgid "Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures."
+msgid "Run in PowerPoint needs the audience screen on a monitor. Turn the audience screen on in Screens; until then the room shows the slide pictures."
 msgstr "“Endesha katika PowerPoint” inahitaji skrini ya ukumbi iwe kwenye kifuatiliaji. Washa skrini ya ukumbi katika Skrini; hadi hapo ukumbi unaonyesha picha za slaidi."
 
 #: src/strings/pplive.rs
@@ -9824,11 +9824,11 @@ msgid "This service has no items yet."
 msgstr "Ibada hii bado haina vipengele."
 
 #: src/strings/preflight.rs
-msgid "No room screen is chosen. Choose one in Screens."
+msgid "No audience screen is chosen. Choose one in Screens."
 msgstr "Hakuna skrini ya ukumbi iliyochaguliwa. Chagua moja katika Skrini."
 
 #: src/strings/preflight.rs
-msgid "The room screen is not connected. Check its cable, or choose another in Screens."
+msgid "The audience screen is not connected. Check its cable, or choose another in Screens."
 msgstr "Skrini ya ukumbi haijaunganishwa. Kagua kebo yake, au chagua nyingine katika Skrini."
 
 #: src/strings/preflight.rs
@@ -10008,7 +10008,7 @@ msgid "Nothing shows on a placeholder. Set it up now, then pick the projector he
 msgstr "Hakuna kinachoonyeshwa kwenye kishika nafasi. Kiweke sasa, kisha chagua projekta hapa ikishachomekwa."
 
 #: src/strings/screens.rs
-msgid "Shows the room screen's picture instead of a stage layout. It has no sound."
+msgid "Shows the audience screen's picture instead of a stage layout. It has no sound."
 msgstr "Huonyesha picha ya skrini ya ukumbi badala ya mpangilio wa jukwaa. Haina sauti."
 
 #: src/strings/screens.rs
@@ -11911,7 +11911,7 @@ msgid "The stream key could not be kept: {error}"
 msgstr "Ufunguo wa matangazo haukuweza kuhifadhiwa: {error}"
 
 #: src/ui/dialogs/go_live_helper.rs
-msgid "No camera: viewers see the room screen"
+msgid "No camera: viewers see the audience screen"
 msgstr "Hakuna kamera: watazamaji wanaona skrini ya ukumbi"
 
 #: src/ui/dialogs/go_live_helper.rs
@@ -12357,7 +12357,7 @@ msgid "Scene name"
 msgstr "Jina la tukio"
 
 #: src/ui/dialogs/stream_scenes.rs
-msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the room screen instead."
+msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the audience screen instead."
 msgstr "Futa tukio “{name}”? Vitendo vya slaidi na makro zinazolichagua zitaonyesha skrini ya ukumbi badala yake."
 
 #: src/ui/dialogs/stream_scenes.rs
@@ -12527,7 +12527,7 @@ msgid "Next slide: {next}. Back: {back}."
 msgstr "Slaidi inayofuata: {next}. Nyuma: {back}."
 
 #: src/ui/operator/help.rs
-msgid "Window → Screens… picks which monitor is the room screen and which is the stage screen."
+msgid "Window → Screens… picks which monitor is the audience screen and which is the stage screen."
 msgstr "Dirisha → Skrini… huchagua monita ipi ni skrini ya ukumbi na ipi ni skrini ya jukwaa."
 
 #: src/ui/operator/help.rs
@@ -12563,7 +12563,7 @@ msgid "Lost the mouse on the projector? {key} brings it back to this window."
 msgstr "Umepoteza kipanya kwenye projekta? {key} hukirudisha kwenye dirisha hili."
 
 #: src/ui/operator/help.rs
-msgid "The room screen shows the wrong thing: press the clear keys above, then show the slide again."
+msgid "The audience screen shows the wrong thing: press the clear keys above, then show the slide again."
 msgstr "Skrini ya ukumbi inaonyesha kitu kisicho sahihi: bonyeza vitufe vya kusafisha vilivyo juu, kisha onyesha slaidi tena."
 
 #: src/ui/operator/help.rs
@@ -12725,7 +12725,7 @@ msgid "the room could not prepare it"
 msgstr "skrini ya ukumbi haikuweza kukiandaa"
 
 #: src/ui/room.rs
-msgid "Could not open the room screen: {error}"
+msgid "Could not open the audience screen: {error}"
 msgstr "Imeshindwa kufungua skrini ya ukumbi: {error}"
 
 #: src/ui/screens.rs
@@ -12733,11 +12733,11 @@ msgid "A presentation is on screen"
 msgstr "Wasilisho liko kwenye skrini"
 
 #: src/ui/screens.rs
-msgid "The room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The audience screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr "Skrini ya ukumbi ilichomolewa. Itarudi yenyewe skrini hiyo ikichomekwa tena."
 
 #: src/ui/screens.rs
-msgid "The extra room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr "Skrini ya ziada ya ukumbi ilichomolewa. Itarudi yenyewe skrini hiyo ikichomekwa tena."
 
 #: src/ui/screens.rs
@@ -12749,11 +12749,11 @@ msgid "The extra stage screen was unplugged. It comes back by itself when that s
 msgstr "Skrini ya ziada ya jukwaa ilichomolewa. Itarudi yenyewe skrini hiyo ikichomekwa tena."
 
 #: src/ui/screens.rs
-msgid "The room screen is plugged in again, but it could not open: {error}"
+msgid "The audience screen is plugged in again, but it could not open: {error}"
 msgstr "Skrini ya ukumbi imechomekwa tena, lakini haikuweza kufunguka: {error}"
 
 #: src/ui/screens.rs
-msgid "The extra room screen is plugged in again, but it could not open: {error}"
+msgid "The extra audience screen is plugged in again, but it could not open: {error}"
 msgstr "Skrini ya ziada ya ukumbi imechomekwa tena, lakini haikuweza kufunguka: {error}"
 
 #: src/ui/screens.rs
@@ -12870,7 +12870,7 @@ msgid "It closed before it finished. It may have crashed."
 msgstr "Ilifungwa kabla ya kumaliza. Huenda ilianguka."
 
 #: src/video/bench.rs
-msgid "Slides never reached the room screen."
+msgid "Slides never reached the audience screen."
 msgstr "Slaidi hazikufika kwenye skrini ya ukumbi."
 
 #: src/video/bench.rs
@@ -13031,10 +13031,10 @@ msgstr "si faili ya midia"
 #~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
 #~ msgstr "Jina ambalo YouTube na Facebook zinaipa kila matangazo. {{date}} inakuwa tarehe ya siku."
 
-#~ msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
+#~ msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, colours or text in it."
 #~ msgstr "Bado huna mandhari yako mwenyewe. Ongeza moja, kisha weka ndani yake kamera, skrini ya ukumbi, maneno, picha, rangi au maandishi."
 
-#~ msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+#~ msgid "Cameras, the audience screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the audience screen in its place."
 #~ msgstr "Kamera, skrini ya ukumbi na maneno ni vishika-nafasi hapa; wakati wa kurusha moja kwa moja ni vya kweli. Kamera isiyotuma chochote huonyesha skrini ya ukumbi mahali pake."
 
 #~ msgid "Move the next camera to its saved position {}"
@@ -13046,7 +13046,7 @@ msgstr "si faili ya midia"
 #~ msgid "Another camera to switch to while live, from the scene button beside Live."
 #~ msgstr "Kamera nyingine ya kubadilisha ukiwa hewani, kutoka kitufe cha mandhari kando ya Hewani."
 
-#~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+#~ msgid "A camera or capture card put together with the audience screen in the stream (and its recording)."
 #~ msgstr "Kamera au kadi ya kunasa inayowekwa pamoja na skrini ya ukumbi kwenye matangazo (na rekodi yake)."
 
 #~ msgid "Camera, with the screen in a corner"

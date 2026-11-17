@@ -95,7 +95,7 @@ fn save_settings_round_trips_theme_and_lines() {
     assert_eq!((s.theme.font.as_str(), s.theme.size, s.theme.scripture_size), ("Arial", 120, 70));
     assert_eq!((s.theme.color.as_str(), s.theme.position.as_str(), s.theme.shadow, s.theme.uppercase), ("#ffcc00", "lower", false, true));
     assert_eq!((s.lines_per_slide, s.credits.as_str(), s.church_ccli.as_str()), (4, "none", "12345"));
-    assert!(!s.room_on_top, "Settings → Video can let the room screen go behind other windows");
+    assert!(!s.room_on_top, "Settings → Video can let the audience screen go behind other windows");
     assert!(!s.screens_at_start && s.show_performance, "Settings → Video keeps the screens off at start and shows performance");
     assert!(s.keep_drawings && !s.stage_drawings, "Settings → Video: the two drawing choices");
     assert_eq!((s.drawing_limit, s.drawing_max_strokes, s.drawing_max_per_second, s.fade_secs), (true, 40, 30, 30), "not a number: unchanged; too many seconds: 30");

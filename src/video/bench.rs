@@ -198,7 +198,7 @@ pub fn reason(m: &Measured) -> String {
     if e == "took too long" { tr!("It stopped responding.") }
     else if e.starts_with("could not start") { tr!("It could not start.") }
     else if e == "stopped without a result" { tr!("It closed before it finished. It may have crashed.") }
-    else if m.started && m.seen == 0 { tr!("Slides never reached the room screen.") }
+    else if m.started && m.seen == 0 { tr!("Slides never reached the audience screen.") }
     else { tr!("This graphics card or its driver can't draw with it.") }
 }
 
@@ -563,7 +563,7 @@ mod tests {
     fn a_failure_says_why_in_plain_words() {
         assert_eq!(reason(&Measured::failed(Vulkan, "could not start: no file")), "It could not start.");
         assert_eq!(reason(&Measured::failed(Vulkan, "stopped without a result")), "It closed before it finished. It may have crashed.");
-        assert_eq!(reason(&Measured { started: true, ..Measured::failed(Vulkan, "") }), "Slides never reached the room screen.");
+        assert_eq!(reason(&Measured { started: true, ..Measured::failed(Vulkan, "") }), "Slides never reached the audience screen.");
         assert_eq!(reason(&Measured::failed(Vulkan, "No Vulkan adapter")), "This graphics card or its driver can't draw with it.");
     }
 

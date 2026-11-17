@@ -742,7 +742,7 @@ impl Room {
     fn open_as(app: Arc<App>, renderer: Arc<Renderer>, mpv: Option<Arc<Mpv>>, monitor: Option<MonitorId>, mirror_of: Option<&str>) -> Result<Rc<Room>, String> {
         let mirror = mirror_of.is_some();
         let role = mirror_of.unwrap_or("room").to_string();
-        let ui = RoomWindow::new().map_err(|e| crate::tr!("Could not open the room screen: {error}", error = e))?;
+        let ui = RoomWindow::new().map_err(|e| crate::tr!("Could not open the audience screen: {error}", error = e))?;
         // Slint picks the computer's language for the first window; show the app's.
         crate::i18n::sync_slint();
         let weak = ui.as_weak();
@@ -762,7 +762,7 @@ impl Room {
         let (events, rx) = std::sync::mpsc::channel();
         let shared = Arc::new(Shared { inbox: Mutex::default(), latest: Mutex::default(), started: Mutex::default(), events, queued: AtomicBool::new(false), closed: AtomicBool::new(false), wake, canvas: Mutex::new((1920, 1080)), role: role.clone(), mask: Mutex::default() });
         let to_shared = shared.clone();
-        let jobs = prepare::worker(work.clone(), move |m| to_shared.send(m)).map_err(|e| crate::tr!("Could not open the room screen: {error}", error = e))?;
+        let jobs = prepare::worker(work.clone(), move |m| to_shared.send(m)).map_err(|e| crate::tr!("Could not open the audience screen: {error}", error = e))?;
         let to_live = app.clone();
         let _ = std::thread::Builder::new().name("room-events".into()).spawn(move || for ev in rx { if !mirror { to_live.room_event(ev) } });
         // The faces' opacities and the black overlay, each written straight to this window.
@@ -785,7 +785,7 @@ impl Room {
             }
         });
         let room = Rc::new(Room { inner });
-        ui.show().map_err(|e| crate::tr!("Could not open the room screen: {error}", error = e))?;
+        ui.show().map_err(|e| crate::tr!("Could not open the audience screen: {error}", error = e))?;
         if let Some(m) = &monitor { monitors::fullscreen_on(&ui, m)? }
         // Subscribe before reading the view so no update falls in between.
         let rx = app.subscribe();

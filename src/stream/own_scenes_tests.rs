@@ -181,7 +181,7 @@ fn the_preview_draws_the_stand_ins() {
     let stand = StandIns::new((160, 90), &Theme::default(), &mut fonts);
     let out = preview(&OwnScene::new("x".into()), &stand, &Theme::default(), &mut fonts);
     assert_eq!(out.len(), 160 * 90 * 4);
-    assert_eq!(&out[..3], &stand.room[..3], "the room screen behind");
+    assert_eq!(&out[..3], &stand.room[..3], "the audience screen behind");
     let (x, y, _, ch) = corner_rect((160, 90), &Layout::default());
     let i = (((y + ch - 1) * 160 + x + 1) * 4) as usize;
     assert_eq!(&out[i..i + 3], &[92, 92, 92], "the grey camera in the corner");

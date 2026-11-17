@@ -1149,7 +1149,7 @@ msgid "Which camera?"
 msgstr "Qual câmera?"
 
 #: ui/dialogs/go-live-helper.slint
-msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the room screen."
+msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the audience screen."
 msgstr "Músicas e versículos saem com a letra sobre a câmera. Sem câmera, os espectadores veem a tela do salão."
 
 #: ui/dialogs/go-live-helper.slint
@@ -1556,7 +1556,7 @@ msgid "TCP password"
 msgstr "Senha TCP"
 
 #: ui/dialogs/overlays.slint
-msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
+msgid "Overlays stay on the audience screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
 msgstr "As sobreposições ficam na tela do salão enquanto os slides mudam: um logo no canto, um relógio ou um aviso curto. Ligue e desligue com os botões abaixo de A seguir na coluna Ao vivo. A última da lista fica por cima."
 
 #: ui/dialogs/overlays.slint
@@ -1840,7 +1840,7 @@ msgid "Aspect ratio: {}"
 msgstr "Proporção: {}"
 
 #: ui/dialogs/screens.slint
-msgid "Show what the room screen shows"
+msgid "Show what the audience screen shows"
 msgstr "Mostrar o que a tela do salão mostra"
 
 #: ui/dialogs/screens.slint
@@ -2484,7 +2484,7 @@ msgid "Right speaker only"
 msgstr "Só a caixa direita"
 
 #: ui/dialogs/settings-media.slint
-msgid "File → Start recording (or the Record button at the top) saves what the room screen shows as an MP4 video."
+msgid "File → Start recording (or the Record button at the top) saves what the audience screen shows as an MP4 video."
 msgstr "Arquivo → Iniciar gravação (ou o botão Gravar lá em cima) salva o que a tela do salão mostra como um vídeo MP4."
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint ui/operator/slides.slint
@@ -2756,7 +2756,7 @@ msgid "What the stream shows in a camera's place while it is unplugged or sends 
 msgstr "O que a transmissão mostra no lugar de uma câmera enquanto ela está desconectada ou não envia imagem. A câmera volta sozinha assim que enviar de novo."
 
 #: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
-msgid "The room screen"
+msgid "The audience screen"
 msgstr "A tela do salão"
 
 #: ui/dialogs/settings-media.slint
@@ -2776,7 +2776,7 @@ msgid "Scenes"
 msgstr "Cenas"
 
 #: ui/dialogs/settings-media.slint
-msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the audience screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
 msgstr "Músicas e versículos saem como a câmera com a letra; vídeos e apresentações como a tela do salão; nada na tela, a câmera. Uma cena escolhida com o botão de cena ao lado de Ao vivo fica até o próximo item do culto."
 
 #: ui/dialogs/settings-media.slint
@@ -2788,7 +2788,7 @@ msgid "Presentations:"
 msgstr "Apresentações:"
 
 #: ui/dialogs/settings-media.slint
-msgid "The room screen with the camera in a corner"
+msgid "The audience screen with the camera in a corner"
 msgstr "A tela do salão com a câmera num canto"
 
 #: ui/dialogs/settings-media.slint
@@ -2796,7 +2796,7 @@ msgid "Scene layout"
 msgstr "Disposição das cenas"
 
 #: ui/dialogs/settings-media.slint
-msgid "Where the camera goes when it is in a corner of the room screen, and where the words go over the camera."
+msgid "Where the camera goes when it is in a corner of the audience screen, and where the words go over the camera."
 msgstr "Onde a câmera fica quando está num canto da tela do salão, e onde fica a letra sobre a câmera."
 
 #: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
@@ -2828,7 +2828,7 @@ msgid "Your scenes"
 msgstr "Suas cenas"
 
 #: ui/dialogs/settings-media.slint
-msgid "Make scenes of your own from cameras, the room screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgid "Make scenes of your own from cameras, the audience screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
 msgstr "Crie suas próprias cenas com câmeras, a tela do salão, a letra, imagens, cores e texto. Ao vivo, elas aparecem depois das cenas incluídas."
 
 #: ui/dialogs/settings-media.slint
@@ -3612,11 +3612,11 @@ msgid "Screens"
 msgstr "Telas"
 
 #: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs src/strings/screens.rs
-msgid "Room screen"
+msgid "Audience screen"
 msgstr "Tela do salão"
 
 #: ui/dialogs/settings.slint
-msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
+msgid "Keep the audience screen in front when it has its own monitor (smoother fades)"
 msgstr "Manter a tela do salão na frente quando ela tiver seu próprio monitor (transições mais suaves)"
 
 #: ui/dialogs/settings.slint
@@ -4300,7 +4300,7 @@ msgid "While live, also record the stream without the words (for editing)"
 msgstr "Ao vivo, gravar também a transmissão sem a letra (para edição)"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, videos, colours, text or a clock in it."
+msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, videos, colours, text or a clock in it."
 msgstr "Ainda não há cenas suas. Adicione uma e coloque nela câmeras, a tela do salão, a letra, imagens, vídeos, cores, texto ou um relógio."
 
 #: ui/dialogs/stream-scenes.slint
@@ -4492,7 +4492,7 @@ msgid "Use the wide picture fitted across again"
 msgstr "Usar de novo a imagem larga ajustada na largura"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "Cameras, the room screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgid "Cameras, the audience screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the audience screen in its place."
 msgstr "Câmeras, a tela do salão, a letra, vídeos e páginas da web são substitutos aqui; ao vivo, são os de verdade. Uma câmera que não envia nada mostra a tela do salão no lugar."
 
 #: ui/dialogs/stream-scenes.slint
@@ -5112,7 +5112,7 @@ msgid "Move to folder"
 msgstr "Mover para pasta"
 
 #: ui/operator/monitor.slint src/ui/perf.rs
-msgid "Room screen is off"
+msgid "Audience screen is off"
 msgstr "A tela do salão está desligada"
 
 #: ui/operator/monitor.slint
@@ -5184,7 +5184,7 @@ msgid "Stop the livestream and save the recording"
 msgstr "Parar a transmissão e salvar a gravação"
 
 #: ui/operator/record.slint
-msgid "Send the room screen to the livestream, and record it"
+msgid "Send the audience screen to the livestream, and record it"
 msgstr "Enviar a tela do salão para a transmissão ao vivo, e gravar"
 
 #: ui/operator/record.slint
@@ -5236,7 +5236,7 @@ msgid "Stop recording and save the file"
 msgstr "Parar a gravação e salvar o arquivo"
 
 #: ui/operator/record.slint
-msgid "Record the room screen to a video file"
+msgid "Record the audience screen to a video file"
 msgstr "Gravar a tela do salão em um arquivo de vídeo"
 
 #: ui/operator/record.slint src/automation/slide_actions.rs src/ui/dialogs/automation.rs
@@ -5744,7 +5744,7 @@ msgid "Easy view (big words)"
 msgstr "Visão fácil (letras grandes)"
 
 #: ui/operator.slint
-msgid "Preview the room screen"
+msgid "Preview the audience screen"
 msgstr "Prévia da tela do salão"
 
 #: ui/operator.slint
@@ -5780,7 +5780,7 @@ msgid "Close the room window"
 msgstr "Fechar a janela do salão"
 
 #: ui/operator.slint
-msgid "Room screen in a window"
+msgid "Audience screen in a window"
 msgstr "Tela do salão em uma janela"
 
 #: ui/operator.slint
@@ -5952,11 +5952,11 @@ msgid "That slide isn't there any more."
 msgstr "Esse slide não existe mais."
 
 #: src/app.rs
-msgid "The room screen restarted. Video/audio stopped — click it again to replay."
+msgid "The audience screen restarted. Video/audio stopped — click it again to replay."
 msgstr "A tela do salão reiniciou. O vídeo/áudio parou — clique nele de novo para reproduzir."
 
 #: src/app.rs
-msgid "The room screen restarted."
+msgid "The audience screen restarted."
 msgstr "A tela do salão reiniciou."
 
 #: src/app.rs src/platform/instance.rs
@@ -6068,7 +6068,7 @@ msgid "Add a screen first."
 msgstr "Adicione uma tela primeiro."
 
 #: src/app.rs
-msgid "Room screen {number}"
+msgid "Audience screen {number}"
 msgstr "Tela do salão {number}"
 
 #: src/app.rs
@@ -7211,7 +7211,7 @@ msgid "The computer is keeping up again: the picture is smooth."
 msgstr "O computador voltou a dar conta: a imagem está fluida."
 
 #: src/record/mod.rs
-msgid "Turn the room screen on first: the recording is what the room shows."
+msgid "Turn the audience screen on first: the recording is what the room shows."
 msgstr "Ligue a tela do salão primeiro: a gravação é o que o salão mostra."
 
 #: src/record/mod.rs
@@ -7235,7 +7235,7 @@ msgid "The recording stopped: {why}"
 msgstr "A gravação parou: {why}"
 
 #: src/record/mod.rs
-msgid "Recording the room screen."
+msgid "Recording the audience screen."
 msgstr "Gravando a tela do salão."
 
 #: src/record/mod.rs
@@ -7657,7 +7657,7 @@ msgid "Camera: picture coming in"
 msgstr "Câmera: imagem chegando"
 
 #: src/stream/health.rs
-msgid "Camera: no picture (the room screen is shown instead)"
+msgid "Camera: no picture (the audience screen is shown instead)"
 msgstr "Câmera: sem imagem (a tela do salão aparece no lugar)"
 
 #: src/stream/health.rs
@@ -9249,15 +9249,15 @@ msgid "Something went wrong."
 msgstr "Algo deu errado."
 
 #: src/strings/operator.rs
-msgid "Room screen is showing"
+msgid "Audience screen is showing"
 msgstr "A tela do salão está exibindo"
 
 #: src/strings/operator.rs
-msgid "Room screen is starting…"
+msgid "Audience screen is starting…"
 msgstr "A tela do salão está iniciando…"
 
 #: src/strings/operator.rs
-msgid "Room screen is not open — click Screens"
+msgid "Audience screen is not open — click Screens"
 msgstr "A tela do salão não está aberta — clique em Telas"
 
 #: src/strings/operator.rs
@@ -9800,7 +9800,7 @@ msgid "“{title}” shows as pictures now."
 msgstr "“{title}” agora aparece como imagens."
 
 #: src/strings/pplive.rs
-msgid "Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures."
+msgid "Run in PowerPoint needs the audience screen on a monitor. Turn the audience screen on in Screens; until then the room shows the slide pictures."
 msgstr "“Executar no PowerPoint” precisa da tela do salão em um monitor. Ligue a tela do salão em Telas; até lá, o salão mostra as imagens dos slides."
 
 #: src/strings/pplive.rs
@@ -9824,11 +9824,11 @@ msgid "This service has no items yet."
 msgstr "Este culto ainda não tem itens."
 
 #: src/strings/preflight.rs
-msgid "No room screen is chosen. Choose one in Screens."
+msgid "No audience screen is chosen. Choose one in Screens."
 msgstr "Nenhuma tela do salão foi escolhida. Escolha uma em Telas."
 
 #: src/strings/preflight.rs
-msgid "The room screen is not connected. Check its cable, or choose another in Screens."
+msgid "The audience screen is not connected. Check its cable, or choose another in Screens."
 msgstr "A tela do salão não está conectada. Verifique o cabo ou escolha outra em Telas."
 
 #: src/strings/preflight.rs
@@ -10008,7 +10008,7 @@ msgid "Nothing shows on a placeholder. Set it up now, then pick the projector he
 msgstr "Nada aparece em uma tela reservada. Configure agora e escolha o projetor aqui quando ele estiver conectado."
 
 #: src/strings/screens.rs
-msgid "Shows the room screen's picture instead of a stage layout. It has no sound."
+msgid "Shows the audience screen's picture instead of a stage layout. It has no sound."
 msgstr "Mostra a imagem da tela do salão em vez de um layout do palco. Não tem som."
 
 #: src/strings/screens.rs
@@ -11911,7 +11911,7 @@ msgid "The stream key could not be kept: {error}"
 msgstr "Não foi possível guardar a chave de transmissão: {error}"
 
 #: src/ui/dialogs/go_live_helper.rs
-msgid "No camera: viewers see the room screen"
+msgid "No camera: viewers see the audience screen"
 msgstr "Sem câmera: os espectadores veem a tela do salão"
 
 #: src/ui/dialogs/go_live_helper.rs
@@ -12357,7 +12357,7 @@ msgid "Scene name"
 msgstr "Nome da cena"
 
 #: src/ui/dialogs/stream_scenes.rs
-msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the room screen instead."
+msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the audience screen instead."
 msgstr "Excluir a cena “{name}”? As ações de slide e as macros que a escolhem vão mostrar a tela do salão no lugar."
 
 #: src/ui/dialogs/stream_scenes.rs
@@ -12527,7 +12527,7 @@ msgid "Next slide: {next}. Back: {back}."
 msgstr "Próximo slide: {next}. Voltar: {back}."
 
 #: src/ui/operator/help.rs
-msgid "Window → Screens… picks which monitor is the room screen and which is the stage screen."
+msgid "Window → Screens… picks which monitor is the audience screen and which is the stage screen."
 msgstr "Janela → Telas… escolhe qual monitor é a tela do salão e qual é a tela do palco."
 
 #: src/ui/operator/help.rs
@@ -12563,7 +12563,7 @@ msgid "Lost the mouse on the projector? {key} brings it back to this window."
 msgstr "Perdeu o mouse no projetor? {key} o traz de volta para esta janela."
 
 #: src/ui/operator/help.rs
-msgid "The room screen shows the wrong thing: press the clear keys above, then show the slide again."
+msgid "The audience screen shows the wrong thing: press the clear keys above, then show the slide again."
 msgstr "A tela do salão mostra a coisa errada: pressione as teclas de limpar acima e mostre o slide de novo."
 
 #: src/ui/operator/help.rs
@@ -12725,7 +12725,7 @@ msgid "the room could not prepare it"
 msgstr "o salão não conseguiu prepará-lo"
 
 #: src/ui/room.rs
-msgid "Could not open the room screen: {error}"
+msgid "Could not open the audience screen: {error}"
 msgstr "Não foi possível abrir a tela do salão: {error}"
 
 #: src/ui/screens.rs
@@ -12733,11 +12733,11 @@ msgid "A presentation is on screen"
 msgstr "Uma apresentação está na tela"
 
 #: src/ui/screens.rs
-msgid "The room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The audience screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr "A tela do salão foi desconectada. Ela volta sozinha quando essa tela for conectada de novo."
 
 #: src/ui/screens.rs
-msgid "The extra room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr "A tela extra do salão foi desconectada. Ela volta sozinha quando essa tela for conectada de novo."
 
 #: src/ui/screens.rs
@@ -12749,11 +12749,11 @@ msgid "The extra stage screen was unplugged. It comes back by itself when that s
 msgstr "A tela extra do palco foi desconectada. Ela volta sozinha quando essa tela for conectada de novo."
 
 #: src/ui/screens.rs
-msgid "The room screen is plugged in again, but it could not open: {error}"
+msgid "The audience screen is plugged in again, but it could not open: {error}"
 msgstr "A tela do salão foi conectada de novo, mas não pôde abrir: {error}"
 
 #: src/ui/screens.rs
-msgid "The extra room screen is plugged in again, but it could not open: {error}"
+msgid "The extra audience screen is plugged in again, but it could not open: {error}"
 msgstr "A tela extra do salão foi conectada de novo, mas não pôde abrir: {error}"
 
 #: src/ui/screens.rs
@@ -12870,7 +12870,7 @@ msgid "It closed before it finished. It may have crashed."
 msgstr "Fechou antes de terminar. Pode ter travado."
 
 #: src/video/bench.rs
-msgid "Slides never reached the room screen."
+msgid "Slides never reached the audience screen."
 msgstr "Os slides nunca chegaram à tela do salão."
 
 #: src/video/bench.rs
@@ -13031,10 +13031,10 @@ msgstr "não é um arquivo de mídia"
 #~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
 #~ msgstr "Como o YouTube e o Facebook chamam cada transmissão. {{date}} vira a data do dia."
 
-#~ msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
+#~ msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, colours or text in it."
 #~ msgstr "Ainda não há cenas suas. Adicione uma e coloque nela câmeras, a tela do salão, a letra, imagens, cores ou texto."
 
-#~ msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+#~ msgid "Cameras, the audience screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the audience screen in its place."
 #~ msgstr "Aqui as câmeras, a tela do salão e a letra são só de exemplo; ao vivo são as de verdade. Uma câmera que não envia nada mostra a tela do salão no lugar."
 
 #~ msgid "Move the next camera to its saved position {}"
@@ -13046,7 +13046,7 @@ msgstr "não é um arquivo de mídia"
 #~ msgid "Another camera to switch to while live, from the scene button beside Live."
 #~ msgstr "Outra câmera para trocar ao vivo, pelo botão de cena ao lado de Ao vivo."
 
-#~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+#~ msgid "A camera or capture card put together with the audience screen in the stream (and its recording)."
 #~ msgstr "Uma câmera ou placa de captura combinada com a tela do salão na transmissão (e na gravação dela)."
 
 #~ msgid "Camera, with the screen in a corner"

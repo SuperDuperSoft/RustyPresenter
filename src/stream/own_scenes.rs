@@ -1,5 +1,5 @@
 //! The church's own livestream scenes (designs `docs/superpowers/specs/2026-11-17-own-scenes-design.md` and
-//! `2026-11-17-scene-extras-design.md`): a name and layers, back to front, each a camera, the room screen, the words,
+//! `2026-11-17-scene-extras-design.md`): a name and layers, back to front, each a camera, the audience screen, the words,
 //! a picture file, a colour, a short text, a clock, a countdown, a video or a web page, in a place, cropped, with a
 //! colour taken out and as see-through as the church wants. A scene can have its own places for the tall (phone)
 //! picture. `Prepared` is a scene made ready for one picture size: what does not move is drawn once, so putting a frame
@@ -95,7 +95,7 @@ impl Crop {
 pub enum Shows {
     /// `number` 0: the camera on air (the one the operator switched to); 1: the first camera, and so on.
     Camera { #[serde(default)] number: u8 },
-    /// What the room screen shows.
+    /// What the audience screen shows.
     #[default]
     Room,
     /// The live slide's words, as over the camera.
@@ -254,7 +254,7 @@ impl Shows {
         match self {
             Shows::Camera { number: 0 } => tr!("The camera on air"),
             Shows::Camera { number } => tr!("Camera {n}", n = number),
-            Shows::Room => tr!("The room screen"),
+            Shows::Room => tr!("The audience screen"),
             Shows::Words => tr!("The words"),
             Shows::Picture { .. } => tr!("A picture"),
             Shows::Colour { .. } => tr!("A colour"),
@@ -330,7 +330,7 @@ impl Layer {
 }
 
 impl OwnScene {
-    /// A new scene: the room screen, with the camera on air in the bottom right corner.
+    /// A new scene: the audience screen, with the camera on air in the bottom right corner.
     pub fn new(name: String) -> OwnScene {
         OwnScene {
             id: Uuid::new_v4(),
@@ -645,7 +645,7 @@ fn text_patch(text: &str, look: &TextLook, canvas: (u32, u32), (w, h): (u32, u32
 }
 
 /// Draws the prepared scene into `out` (RGBA of `p.size`), over black. The live pictures in `i` are of `i.size`
-/// (the wide stream); the scene may be the tall picture. A camera with no picture shows the room screen in its
+/// (the wide stream); the scene may be the tall picture. A camera with no picture shows the audience screen in its
 /// place.
 pub fn compose(p: &Prepared, i: &Inputs, out: &mut [u8]) {
     black(out);
@@ -739,7 +739,7 @@ fn place(src: &[u8], (w, h): (u32, u32), (ow, _): (u32, u32), rect: Rect, alpha:
     }
 }
 
-/// Stand-in pictures for the editor: a grey picture named for each camera, a blue "Room screen", sample words, and
+/// Stand-in pictures for the editor: a grey picture named for each camera, a blue "Audience screen", sample words, and
 /// named pictures for a video and a web page.
 pub struct StandIns {
     pub size: (u32, u32),
@@ -762,7 +762,7 @@ impl StandIns {
             if (r.width, r.height) == size { over(&mut px, r.rgba_premul.buffer().as_bytes()) }
             px
         };
-        let room = named([24, 48, 96, 255], tr!("Room screen"));
+        let room = named([24, 48, 96, 255], tr!("Audience screen"));
         let cameras = (1..=CAMERAS).map(|n| named([92, 92, 92, 255], tr!("Camera {n}", n = n))).collect();
         let video = named([72, 40, 96, 255], tr!("Video"));
         let web = named([0, 0, 0, 0], tr!("Web page"));

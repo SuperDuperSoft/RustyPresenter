@@ -262,9 +262,9 @@ component SettingsVideo inherits VerticalLayout {
     Rectangle { height: 10px; }
     Heading { text: @tr("Screens"); }
     Field {
-        label: @tr("Room screen");
+        label: @tr("Audience screen");
         room-on-top := Check {
-            text: @tr("Keep the room screen in front when it has its own monitor (smoother fades)");
+            text: @tr("Keep the audience screen in front when it has its own monitor (smoother fades)");
             checked <=> SettingsDlg.room-on-top;
         }
     }

@@ -1,13 +1,13 @@
 //! One word for each thing (docs/superpowers/specs/2026-11-17-words-design.md): no text in
-//! `translations/rustypresenter.pot` uses a word the glossary retired, so new texts keep calling the room screen the
-//! room screen. Fails with the text, the retired word and the word to use instead.
+//! `translations/rustypresenter.pot` uses a word the glossary retired, so new texts keep calling the audience screen the
+//! audience screen (Jake, November 17, 2026: "I like Stage Screen and audience screen better"). Fails with the text, the retired word and the word to use instead.
 use rustypresenter::i18n::po;
 use std::path::Path;
 
 /// `(retired word, the word to use)`. Matched as whole words, ignoring capitals unless the word has some.
 const RETIRED: &[(&str, &str)] = &[
     // The screens.
-    ("audience", "room screen (the screen the room sees)"),
+    ("room screen", "audience screen (the screen the people in the room see)"),
     ("stage display", "stage screen"),
     ("stage view", "stage screen (on a phone: the stage screen for phones)"),
     ("Screen Configuration", "Screens (the window's name in the Window menu)"),
@@ -123,7 +123,7 @@ fn texts_use_the_glossary_words() {
 
 #[test]
 fn the_checks_find_whole_words_only() {
-    assert!(has_word("The Audience screen", "audience"));
+    assert!(has_word("The Room screen", "room screen"));
     assert!(!has_word("Audiences", "audience"), "only whole words");
     assert!(has_word("Clear All", "Clear All") && !has_word("Clear all", "Clear All"), "capitals matter in names");
     assert!(!has_word(&checked_text("Use {color} here"), "color"), "gaps are not words");

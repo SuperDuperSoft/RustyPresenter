@@ -1149,7 +1149,7 @@ msgid "Which camera?"
 msgstr "Ki kamera?"
 
 #: ui/dialogs/go-live-helper.slint
-msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the room screen."
+msgid "Songs and Bible verses go out with the words over the camera. With no camera, viewers see the audience screen."
 msgstr "Chante ak vèsè Bib yo soti ak pawòl yo sou kamera a. San kamera, moun k ap gade yo wè ekran sal la."
 
 #: ui/dialogs/go-live-helper.slint
@@ -1556,7 +1556,7 @@ msgid "TCP password"
 msgstr "Modpas TCP"
 
 #: ui/dialogs/overlays.slint
-msgid "Overlays stay on the room screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
+msgid "Overlays stay on the audience screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
 msgstr "Kouch yo rete sou ekran sal la pandan diapo yo ap chanje: yon logo nan kwen an, lè a oswa yon ti pankat. Limen yo epi etenn yo ak ti bouton ki anba Apre sa nan kolòn An dirèk la. Dènye a nan lis la parèt anlè tout lòt yo."
 
 #: ui/dialogs/overlays.slint
@@ -1840,7 +1840,7 @@ msgid "Aspect ratio: {}"
 msgstr "Pwopòsyon: {}"
 
 #: ui/dialogs/screens.slint
-msgid "Show what the room screen shows"
+msgid "Show what the audience screen shows"
 msgstr "Montre sa ekran sal la montre"
 
 #: ui/dialogs/screens.slint
@@ -2484,7 +2484,7 @@ msgid "Right speaker only"
 msgstr "Opalè dwat sèlman"
 
 #: ui/dialogs/settings-media.slint
-msgid "File → Start recording (or the Record button at the top) saves what the room screen shows as an MP4 video."
+msgid "File → Start recording (or the Record button at the top) saves what the audience screen shows as an MP4 video."
 msgstr "Fichye → Kòmanse anrejistreman (oswa bouton Anrejistre anwo a) anrejistre sa ekran sal la montre kòm yon videyo MP4."
 
 #: ui/dialogs/settings-media.slint ui/operator/media.slint ui/operator/slides.slint
@@ -2756,7 +2756,7 @@ msgid "What the stream shows in a camera's place while it is unplugged or sends 
 msgstr "Sa emisyon an montre nan plas yon kamera pandan li dekonekte oswa li pa voye imaj. Kamera a tounen poukont li depi li voye ankò."
 
 #: ui/dialogs/settings-media.slint src/stream/own_scenes.rs
-msgid "The room screen"
+msgid "The audience screen"
 msgstr "Ekran sal la"
 
 #: ui/dialogs/settings-media.slint
@@ -2776,7 +2776,7 @@ msgid "Scenes"
 msgstr "Sèn"
 
 #: ui/dialogs/settings-media.slint
-msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the room screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
+msgid "Songs and Bible verses go out as the camera with the words; videos and presentations as the audience screen; nothing on the screen as the camera. A scene chosen with the scene button beside Live holds until the next service item."
 msgstr "Chante ak vèsè Bib yo soti kòm kamera ak pawòl yo; videyo ak prezantasyon kòm ekran sal la; lè pa gen anyen sou ekran an, kamera a. Yon sèn ou chwazi ak bouton sèn bò kote An dirèk rete jiskaske pwochen eleman sèvis la."
 
 #: ui/dialogs/settings-media.slint
@@ -2788,7 +2788,7 @@ msgid "Presentations:"
 msgstr "Prezantasyon:"
 
 #: ui/dialogs/settings-media.slint
-msgid "The room screen with the camera in a corner"
+msgid "The audience screen with the camera in a corner"
 msgstr "Ekran sal la ak kamera a nan yon kwen"
 
 #: ui/dialogs/settings-media.slint
@@ -2796,7 +2796,7 @@ msgid "Scene layout"
 msgstr "Aranjman sèn yo"
 
 #: ui/dialogs/settings-media.slint
-msgid "Where the camera goes when it is in a corner of the room screen, and where the words go over the camera."
+msgid "Where the camera goes when it is in a corner of the audience screen, and where the words go over the camera."
 msgstr "Ki kote kamera a ye lè li nan yon kwen ekran sal la, ak ki kote pawòl yo ye sou kamera a."
 
 #: ui/dialogs/settings-media.slint src/strings/themes.rs src/theme/richtext.rs
@@ -2828,7 +2828,7 @@ msgid "Your scenes"
 msgstr "Sèn pa w yo"
 
 #: ui/dialogs/settings-media.slint
-msgid "Make scenes of your own from cameras, the room screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
+msgid "Make scenes of your own from cameras, the audience screen, the words, pictures, colours and text. They are listed after the built-in scenes while live."
 msgstr "Fè pwòp sèn pa w ak kamera, ekran sal la, pawòl yo, foto, koulè ak tèks. Pandan w an dirèk, yo parèt nan lis la apre sèn entegre yo."
 
 #: ui/dialogs/settings-media.slint
@@ -3612,11 +3612,11 @@ msgid "Screens"
 msgstr "Ekran"
 
 #: ui/dialogs/settings.slint ui/operator/outputs.slint src/stream/own_scenes.rs src/strings/screens.rs
-msgid "Room screen"
+msgid "Audience screen"
 msgstr "Ekran sal la"
 
 #: ui/dialogs/settings.slint
-msgid "Keep the room screen in front when it has its own monitor (smoother fades)"
+msgid "Keep the audience screen in front when it has its own monitor (smoother fades)"
 msgstr "Kenbe ekran sal la devan lè li gen pwòp monitè pa l (tranzisyon pi dous)"
 
 #: ui/dialogs/settings.slint
@@ -4300,7 +4300,7 @@ msgid "While live, also record the stream without the words (for editing)"
 msgstr "Pandan an dirèk, anrejistre emisyon an san pawòl yo tou (pou fè montaj)"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, videos, colours, text or a clock in it."
+msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, videos, colours, text or a clock in it."
 msgstr "Poko gen sèn pa w. Ajoute youn, apre sa mete kamera, ekran sal la, pawòl yo, foto, videyo, koulè, tèks oswa yon lè ladan l."
 
 #: ui/dialogs/stream-scenes.slint
@@ -4492,7 +4492,7 @@ msgid "Use the wide picture fitted across again"
 msgstr "Sèvi ak imaj laj la ajiste sou lajè a ankò"
 
 #: ui/dialogs/stream-scenes.slint
-msgid "Cameras, the room screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+msgid "Cameras, the audience screen, the words, videos and web pages are stand-ins here; while live they are the real ones. A camera that sends nothing shows the audience screen in its place."
 msgstr "Kamera, ekran sal la, pawòl yo, videyo ak paj wèb yo se ranplasan la a; pandan an dirèk se vrè yo. Yon kamera ki pa voye anyen montre ekran sal la nan plas li."
 
 #: ui/dialogs/stream-scenes.slint
@@ -5112,7 +5112,7 @@ msgid "Move to folder"
 msgstr "Mete nan dosye"
 
 #: ui/operator/monitor.slint src/ui/perf.rs
-msgid "Room screen is off"
+msgid "Audience screen is off"
 msgstr "Ekran sal la etenn"
 
 #: ui/operator/monitor.slint
@@ -5184,7 +5184,7 @@ msgid "Stop the livestream and save the recording"
 msgstr "Kanpe emisyon an dirèk la epi sove anrejistreman an"
 
 #: ui/operator/record.slint
-msgid "Send the room screen to the livestream, and record it"
+msgid "Send the audience screen to the livestream, and record it"
 msgstr "Voye ekran sal la nan emisyon an dirèk la, epi anrejistre l"
 
 #: ui/operator/record.slint
@@ -5236,7 +5236,7 @@ msgid "Stop recording and save the file"
 msgstr "Kanpe anrejistreman an epi anrejistre fichye a"
 
 #: ui/operator/record.slint
-msgid "Record the room screen to a video file"
+msgid "Record the audience screen to a video file"
 msgstr "Anrejistre ekran sal la nan yon fichye videyo"
 
 #: ui/operator/record.slint src/automation/slide_actions.rs src/ui/dialogs/automation.rs
@@ -5744,7 +5744,7 @@ msgid "Easy view (big words)"
 msgstr "Afichaj fasil (gwo mo)"
 
 #: ui/operator.slint
-msgid "Preview the room screen"
+msgid "Preview the audience screen"
 msgstr "Apèsi ekran sal la"
 
 #: ui/operator.slint
@@ -5780,7 +5780,7 @@ msgid "Close the room window"
 msgstr "Fèmen fenèt sal la"
 
 #: ui/operator.slint
-msgid "Room screen in a window"
+msgid "Audience screen in a window"
 msgstr "Ekran sal la nan yon fenèt"
 
 #: ui/operator.slint
@@ -5952,11 +5952,11 @@ msgid "That slide isn't there any more."
 msgstr "Diapo sa a pa la ankò."
 
 #: src/app.rs
-msgid "The room screen restarted. Video/audio stopped — click it again to replay."
+msgid "The audience screen restarted. Video/audio stopped — click it again to replay."
 msgstr "Ekran sal la te redemare. Videyo/odyo kanpe — klike sou li ankò pou rejwe l."
 
 #: src/app.rs
-msgid "The room screen restarted."
+msgid "The audience screen restarted."
 msgstr "Ekran sal la te redemare."
 
 #: src/app.rs src/platform/instance.rs
@@ -6068,7 +6068,7 @@ msgid "Add a screen first."
 msgstr "Ajoute yon ekran anvan."
 
 #: src/app.rs
-msgid "Room screen {number}"
+msgid "Audience screen {number}"
 msgstr "Ekran sal {number}"
 
 #: src/app.rs
@@ -7211,7 +7211,7 @@ msgid "The computer is keeping up again: the picture is smooth."
 msgstr "Òdinatè a kenbe ankò: imaj la koule byen."
 
 #: src/record/mod.rs
-msgid "Turn the room screen on first: the recording is what the room shows."
+msgid "Turn the audience screen on first: the recording is what the room shows."
 msgstr "Limen ekran sal la anvan: anrejistreman an se sa sal la montre."
 
 #: src/record/mod.rs
@@ -7235,7 +7235,7 @@ msgid "The recording stopped: {why}"
 msgstr "Anrejistreman an kanpe: {why}"
 
 #: src/record/mod.rs
-msgid "Recording the room screen."
+msgid "Recording the audience screen."
 msgstr "Ap anrejistre ekran sal la."
 
 #: src/record/mod.rs
@@ -7657,7 +7657,7 @@ msgid "Camera: picture coming in"
 msgstr "Kamera: imaj ap antre"
 
 #: src/stream/health.rs
-msgid "Camera: no picture (the room screen is shown instead)"
+msgid "Camera: no picture (the audience screen is shown instead)"
 msgstr "Kamera: pa gen imaj (y ap montre ekran sal la pito)"
 
 #: src/stream/health.rs
@@ -9249,15 +9249,15 @@ msgid "Something went wrong."
 msgstr "Yon bagay pa mache."
 
 #: src/strings/operator.rs
-msgid "Room screen is showing"
+msgid "Audience screen is showing"
 msgstr "Ekran sal la ap montre"
 
 #: src/strings/operator.rs
-msgid "Room screen is starting…"
+msgid "Audience screen is starting…"
 msgstr "Ekran sal la ap demare…"
 
 #: src/strings/operator.rs
-msgid "Room screen is not open — click Screens"
+msgid "Audience screen is not open — click Screens"
 msgstr "Ekran sal la pa louvri — klike Ekran"
 
 #: src/strings/operator.rs
@@ -9800,7 +9800,7 @@ msgid "“{title}” shows as pictures now."
 msgstr "“{title}” parèt kòm foto kounye a."
 
 #: src/strings/pplive.rs
-msgid "Run in PowerPoint needs the room screen on a monitor. Turn the room screen on in Screens; until then the room shows the slide pictures."
+msgid "Run in PowerPoint needs the audience screen on a monitor. Turn the audience screen on in Screens; until then the room shows the slide pictures."
 msgstr "“Lanse nan PowerPoint” bezwen ekran sal la sou yon monitè. Limen ekran sal la nan Ekran; jiskaske sa fèt, sal la montre foto diapo yo."
 
 #: src/strings/pplive.rs
@@ -9824,11 +9824,11 @@ msgid "This service has no items yet."
 msgstr "Sèvis sa a poko gen eleman."
 
 #: src/strings/preflight.rs
-msgid "No room screen is chosen. Choose one in Screens."
+msgid "No audience screen is chosen. Choose one in Screens."
 msgstr "Pa gen ekran sal ki chwazi. Chwazi youn nan Ekran."
 
 #: src/strings/preflight.rs
-msgid "The room screen is not connected. Check its cable, or choose another in Screens."
+msgid "The audience screen is not connected. Check its cable, or choose another in Screens."
 msgstr "Ekran sal la pa konekte. Tcheke kab li, oswa chwazi yon lòt nan Ekran."
 
 #: src/strings/preflight.rs
@@ -10008,7 +10008,7 @@ msgid "Nothing shows on a placeholder. Set it up now, then pick the projector he
 msgstr "Anyen pa parèt sou yon plas rezève. Konfigire l kounye a, epi chwazi pwojektè a isit la lè li branche."
 
 #: src/strings/screens.rs
-msgid "Shows the room screen's picture instead of a stage layout. It has no sound."
+msgid "Shows the audience screen's picture instead of a stage layout. It has no sound."
 msgstr "Montre imaj ekran sal la olye yon aranjman sèn. Li pa gen son."
 
 #: src/strings/screens.rs
@@ -11911,7 +11911,7 @@ msgid "The stream key could not be kept: {error}"
 msgstr "Yo pa t ka kenbe kle emisyon an: {error}"
 
 #: src/ui/dialogs/go_live_helper.rs
-msgid "No camera: viewers see the room screen"
+msgid "No camera: viewers see the audience screen"
 msgstr "Pa gen kamera: moun k ap gade yo wè ekran sal la"
 
 #: src/ui/dialogs/go_live_helper.rs
@@ -12357,7 +12357,7 @@ msgid "Scene name"
 msgstr "Non sèn nan"
 
 #: src/ui/dialogs/stream_scenes.rs
-msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the room screen instead."
+msgid "Delete the scene “{name}”? Slide actions and macros that choose it will show the audience screen instead."
 msgstr "Efase sèn “{name}” la? Aksyon diapo ak makro ki chwazi l ap montre ekran sal la nan plas li."
 
 #: src/ui/dialogs/stream_scenes.rs
@@ -12527,7 +12527,7 @@ msgid "Next slide: {next}. Back: {back}."
 msgstr "Pwochen diapo: {next}. Retounen: {back}."
 
 #: src/ui/operator/help.rs
-msgid "Window → Screens… picks which monitor is the room screen and which is the stage screen."
+msgid "Window → Screens… picks which monitor is the audience screen and which is the stage screen."
 msgstr "Fenèt → Ekran… chwazi ki monitè ki ekran sal la ak ki youn ki ekran sèn nan."
 
 #: src/ui/operator/help.rs
@@ -12563,7 +12563,7 @@ msgid "Lost the mouse on the projector? {key} brings it back to this window."
 msgstr "Pèdi sourit la sou pwojektè a? {key} mennen l tounen nan fenèt sa a."
 
 #: src/ui/operator/help.rs
-msgid "The room screen shows the wrong thing: press the clear keys above, then show the slide again."
+msgid "The audience screen shows the wrong thing: press the clear keys above, then show the slide again."
 msgstr "Ekran sal la montre move bagay: peze kle efase ki anwo yo, epi montre diapo a ankò."
 
 #: src/ui/operator/help.rs
@@ -12725,7 +12725,7 @@ msgid "the room could not prepare it"
 msgstr "ekran sal la pa t ka prepare l"
 
 #: src/ui/room.rs
-msgid "Could not open the room screen: {error}"
+msgid "Could not open the audience screen: {error}"
 msgstr "Pa t ka louvri ekran sal la: {error}"
 
 #: src/ui/screens.rs
@@ -12733,11 +12733,11 @@ msgid "A presentation is on screen"
 msgstr "Yon prezantasyon sou ekran an"
 
 #: src/ui/screens.rs
-msgid "The room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The audience screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr "Ekran sal la te dekonekte. L ap tounen pou kont li lè ekran sa a ploge ankò."
 
 #: src/ui/screens.rs
-msgid "The extra room screen was unplugged. It comes back by itself when that screen is plugged in again."
+msgid "The extra audience screen was unplugged. It comes back by itself when that screen is plugged in again."
 msgstr "Ekran sal siplemantè a te dekonekte. L ap tounen pou kont li lè ekran sa a ploge ankò."
 
 #: src/ui/screens.rs
@@ -12749,11 +12749,11 @@ msgid "The extra stage screen was unplugged. It comes back by itself when that s
 msgstr "Ekran sèn siplemantè a te dekonekte. L ap tounen pou kont li lè ekran sa a ploge ankò."
 
 #: src/ui/screens.rs
-msgid "The room screen is plugged in again, but it could not open: {error}"
+msgid "The audience screen is plugged in again, but it could not open: {error}"
 msgstr "Ekran sal la ploge ankò, men li pa t ka louvri: {error}"
 
 #: src/ui/screens.rs
-msgid "The extra room screen is plugged in again, but it could not open: {error}"
+msgid "The extra audience screen is plugged in again, but it could not open: {error}"
 msgstr "Ekran sal siplemantè a ploge ankò, men li pa t ka louvri: {error}"
 
 #: src/ui/screens.rs
@@ -12870,7 +12870,7 @@ msgid "It closed before it finished. It may have crashed."
 msgstr "Li fèmen anvan l fini. Li ka te kraze."
 
 #: src/video/bench.rs
-msgid "Slides never reached the room screen."
+msgid "Slides never reached the audience screen."
 msgstr "Diapo yo pa janm rive sou ekran sal la."
 
 #: src/video/bench.rs
@@ -13031,10 +13031,10 @@ msgstr "se pa yon fichye medya"
 #~ msgid "What YouTube and Facebook call each broadcast. {{date}} becomes the day's date."
 #~ msgstr "Non YouTube ak Facebook bay chak difizyon. {{date}} vin dat jou a."
 
-#~ msgid "No scenes of your own yet. Add one, then put cameras, the room screen, the words, pictures, colours or text in it."
+#~ msgid "No scenes of your own yet. Add one, then put cameras, the audience screen, the words, pictures, colours or text in it."
 #~ msgstr "Ou poko gen sèn pa w. Ajoute youn, epi mete kamera, ekran sal la, pawòl yo, foto, koulè oswa tèks ladan l."
 
-#~ msgid "Cameras, the room screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the room screen in its place."
+#~ msgid "Cameras, the audience screen and the words are stand-ins here; while live they are the real ones. A camera that sends nothing shows the audience screen in its place."
 #~ msgstr "Isit la, kamera yo, ekran sal la ak pawòl yo se ranplasan sèlman; pandan w an dirèk se vrè yo. Yon kamera ki pa voye anyen montre ekran sal la nan plas li."
 
 #~ msgid "Move the next camera to its saved position {}"
@@ -13046,7 +13046,7 @@ msgstr "se pa yon fichye medya"
 #~ msgid "Another camera to switch to while live, from the scene button beside Live."
 #~ msgstr "Yon lòt kamera pou chanje pandan w an dirèk, ak bouton sèn bò kote An dirèk."
 
-#~ msgid "A camera or capture card put together with the room screen in the stream (and its recording)."
+#~ msgid "A camera or capture card put together with the audience screen in the stream (and its recording)."
 #~ msgstr "Yon kamera oswa yon kat kaptire yo mete ansanm ak ekran sal la nan emisyon an (ak anrejistreman li)."
 
 #~ msgid "Camera, with the screen in a corner"

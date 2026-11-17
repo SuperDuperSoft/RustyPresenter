@@ -15,7 +15,7 @@ Counts are texts (msgids) before the change.
 
 | Thing | Word to use | Retired (texts that used it) | Notes |
 |---|---|---|---|
-| The screen the people in the room see | **room screen** (36) | audience screen (3), Audience / Audience *n* (screen names and the Screens list), "what the audience sees" (2) | "projector" or "TV" stays for the device you plug in ("Plug in the projector/TV"). "Output" stays for the monitor a screen goes to (Screens → Output) and for a sound output. |
+| The screen the people in the room see | **audience screen** (Jake chose it, November 17, 2026: "I like Stage Screen and audience screen better") | room screen, Audience / Audience *n* as a bare screen name, "what the audience sees" | "projector" or "TV" stays for the device you plug in ("Plug in the projector/TV"). "Output" stays for the monitor a screen goes to (Screens → Output) and for a sound output. |
 | The screen the band and speaker see | **stage screen** (24) | stage display (5), Stage Display *n*, stage view (4) | On a phone or tablet: "the stage screen for phones" (Settings → Network…). A **stage layout** is what it shows. |
 | The window that sets them up | **Screens** (Window → Screens…) | Screen Configuration (window title) | The title now matches the menu item. |
 | Sending the service to YouTube etc. | **livestream** (27); **stream** as the short noun ("the stream", "stream key") | live stream (3) | **Go Live** is the button's name (capitals when naming it); "go live" as a verb. **broadcast** only for YouTube's and Facebook's own event ("Broadcast title"); "can broadcast as you" became "can stream as you". |
@@ -63,7 +63,7 @@ Counts are texts (msgids) before the change.
 - Choose / pick and could not / couldn't are both everyday words used in ordinary sentences, not names of things;
   they were not changed.
 - Saved names: screens still called "Audience", "Audience 2", "Stage Display", "Stage Display 2" (the old default
-  names) are renamed once to "Room screen", "Room screen 2", "Stage screen", "Stage screen 2" when the data loads
+  names, and "Room screen" from a few days of test builds) are renamed once to "Audience screen", "Audience screen 2", "Stage screen", "Stage screen 2" when the data loads
   (`ScreenSetup::rename_old_defaults`); a name typed by hand stays. Saved blank items keep the label they were given
   ("Bible reading"); new ones say "Bible passage".
 - `web/guest.html` and `web/guest-host.html` (untranslated, for the guest speaker) already followed the glossary.

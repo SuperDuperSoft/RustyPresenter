@@ -1291,7 +1291,7 @@ fn settings_keep_what_a_lost_camera_shows_and_say_how_to_use_a_phone() {
     let g = op.ui.global::<SettingsDlg>();
     let mut prefs = RecordPrefs { camera: "phone://Balcony".into(), ..RecordPrefs::default() };
     crate::ui::dialogs::settings_record::fill_form(&g, &prefs);
-    assert_eq!(g.get_stream_camera_lost(), 0, "the room screen, as before");
+    assert_eq!(g.get_stream_camera_lost(), 0, "the audience screen, as before");
     assert!(g.get_stream_camera_labels().iter().any(|l| l.contains("Phone camera: Balcony")), "a saved phone camera stays listed");
     g.set_stream_camera_lost(1);
     crate::ui::dialogs::settings_record::read_form(&g, &mut prefs);

@@ -84,7 +84,7 @@ pub enum DialogKind {
     Overlays,
     /// Timers, messages, macros and the pre-service countdown (FEAT-2).
     Automation,
-    /// Show a message on the room screen (FEAT-2 §3.3).
+    /// Show a message on the audience screen (FEAT-2 §3.3).
     ShowMessage,
     /// Find a verse by its words (FEAT-5 §3.1).
     FindVerse,

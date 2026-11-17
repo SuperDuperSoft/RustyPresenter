@@ -506,7 +506,7 @@ mod tests {
         refresh(&op);
         let pill = find(&op, "TopBar::status-room").expect("room pill");
         assert_eq!(pill.accessible_value().unwrap_or_default(), "warn");
-        assert_eq!(pill.accessible_description().unwrap_or_default(), "Room screen is not open — click Screens");
+        assert_eq!(pill.accessible_description().unwrap_or_default(), "Audience screen is not open — click Screens");
         assert_eq!(pill.accessible_label().unwrap_or_default(), "Room");
     }
 
@@ -518,7 +518,7 @@ mod tests {
         refresh(&op);
         let pill = find(&op, "TopBar::status-room").expect("room pill");
         assert_eq!(pill.accessible_value().unwrap_or_default(), "on");
-        assert_eq!(pill.accessible_description().unwrap_or_default(), "Room screen is showing");
+        assert_eq!(pill.accessible_description().unwrap_or_default(), "Audience screen is showing");
     }
 
     #[test]

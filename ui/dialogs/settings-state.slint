@@ -115,7 +115,7 @@ export global SettingsDlg {
     /// Songs: songs downloaded from SongSelect come in whenever the app is open.
     in-out property <bool> songselect-inbox;
     // ---- Video ----
-    /// Keep the room screen on top while it has a monitor of its own (`Settings::room_on_top`).
+    /// Keep the audience screen on top while it has a monitor of its own (`Settings::room_on_top`).
     in-out property <bool> room-on-top: true;
     /// N33: the room and stage screens come back on at start (`Settings::screens_at_start`).
     in-out property <bool> screens-at-start: true;
@@ -241,7 +241,7 @@ export global SettingsDlg {
     in-out property <bool> stream-ndi;
     in-out property <bool> stream-ndi-words;
     in-out property <bool> stream-words-file;
-    // What shows in a camera's place while it sends nothing: 0 the room screen, 1 the church's logo, 2 black.
+    // What shows in a camera's place while it sends nothing: 0 the audience screen, 1 the church's logo, 2 black.
     in-out property <int> stream-camera-lost;
     // How to make a phone a camera, with this computer's address for it.
     in property <string> phone-camera-help;

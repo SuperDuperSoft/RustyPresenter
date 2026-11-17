@@ -85,7 +85,7 @@ pub struct Want {
     pub black: bool,
     /// The logo is on or an overlay is up: the room window must be seen, so PowerPoint's steps behind it.
     pub covered: bool,
-    /// The room monitor; `None` when the room screen is not on a monitor.
+    /// The room monitor; `None` when the audience screen is not on a monitor.
     pub screen: Option<Rect>,
 }
 

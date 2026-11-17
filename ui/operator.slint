@@ -276,7 +276,7 @@ export component OperatorWindow inherits Window {
     in property <int> zoom-percent: 100;
     /// View → Listen in headphones is on (N21): the sound goes to the operator's headphones only.
     in property <bool> listening;
-    /// N22: the room screen is being recorded, and for how long ("12:34"). The Record button and File → Start
+    /// N22: the audience screen is being recorded, and for how long ("12:34"). The Record button and File → Start
     /// recording call `record`.
     in property <bool> recording;
     /// Recording with a clip open (Clip pressed once).
@@ -740,7 +740,7 @@ export component OperatorWindow inherits Window {
                 }
             }
             MenuItem {
-                title: OutputsState.view == 1 ? @tr("Preview the room screen") : @tr("Preview the stage screen");
+                title: OutputsState.view == 1 ? @tr("Preview the audience screen") : @tr("Preview the stage screen");
                 activated => { OutputsState.view-changed(OutputsState.view == 1 ? 0 : 1); }
             }
             MenuItem {
@@ -773,7 +773,7 @@ export component OperatorWindow inherits Window {
                 activated => { root.focus-keys(); root.screens(); }
             }
             MenuItem {
-                title: OutputsState.room-windowed ? @tr("Close the room window") : @tr("Room screen in a window");
+                title: OutputsState.room-windowed ? @tr("Close the room window") : @tr("Audience screen in a window");
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); OutputsState.toggle-room-window(); }
             }

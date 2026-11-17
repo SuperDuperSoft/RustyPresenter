@@ -113,7 +113,7 @@ impl Converters {
 /// Keynote package), which is the operator's and stays.
 pub fn start(app: Arc<App>, file: PathBuf, display: String) -> Uuid { start_as(app, file, display, false) }
 
-/// `start`, and with `run` (1.2) the deck keeps its file and runs in PowerPoint on the room screen.
+/// `start`, and with `run` (1.2) the deck keeps its file and runs in PowerPoint on the audience screen.
 pub fn start_as(app: Arc<App>, file: PathBuf, display: String, run: bool) -> Uuid {
     let label = strings::importing(&display);
     let (job, token) = app.job_start_cancellable(&label);

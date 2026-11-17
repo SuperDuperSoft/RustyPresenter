@@ -1,4 +1,4 @@
-//! N22: recording the room screen to an MP4 file. The room's composed picture (video under the slide, overlays and
+//! N22: recording the audience screen to an MP4 file. The room's composed picture (video under the slide, overlays and
 //! fades included) is read back after each frame it draws (`gl`, or a snapshot in software drawing) into a
 //! `FrameSink`; a writer thread feeds it to an `ffmpeg` child at a fixed 30 frames a second (`pump`), which writes
 //! H.264 into a Matroska file that survives a crash. Stopping turns it into the MP4 (`args::finish`), adding the
@@ -116,7 +116,7 @@ pub struct RecordPrefs {
     /// Livestream scenes chosen by themselves from what is live (`stream::scene::choose`); `None` is on.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub auto_scenes: Option<bool>,
-    /// Presentations go out as the room screen with the camera in the corner (not the room screen alone).
+    /// Presentations go out as the audience screen with the camera in the corner (not the audience screen alone).
     #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub presentation_camera: bool,
     /// Livestream: the sound held back this many milliseconds (0 to `MAX_SOUND_DELAY`), so it lines up with a
@@ -359,13 +359,13 @@ pub mod tr {
     pub fn go_live_again() -> String { tr!("Go Live") }
     pub fn too_slow() -> String { tr!("This computer is not keeping up, so the recording and stream are jerky. Choose 720p under Picture size in Settings → Media, or the graphics card under Video encoder, and close other programs.") }
     pub fn smooth_again() -> String { tr!("The computer is keeping up again: the picture is smooth.") }
-    pub fn no_room() -> String { tr!("Turn the room screen on first: the recording is what the room shows.") }
+    pub fn no_room() -> String { tr!("Turn the audience screen on first: the recording is what the room shows.") }
     pub fn no_folder(path: &str, why: &str) -> String { tr!("Could not use the recordings folder {path}: {why}", path = path, why = why) }
     pub fn low_disk(free: &str, need: &str) -> String { tr!("The recordings folder's disk has only {free} free. An hour of recording needs about {need}. Choose another folder in Settings → Media.", free = free, need = need) }
     pub fn disk_full() -> String { tr!("The disk is almost full, so the recording stopped.") }
     pub fn not_started(why: &str) -> String { tr!("The recording could not start: {why}", why = why) }
     pub fn failed(why: &str) -> String { tr!("The recording stopped: {why}", why = why) }
-    pub fn recording() -> String { tr!("Recording the room screen.") }
+    pub fn recording() -> String { tr!("Recording the audience screen.") }
     pub fn finishing() -> String { tr!("Saving the recording…") }
     pub fn saved(path: &str) -> String { tr!("Recording saved: {path}", path = path) }
     pub fn saved_mkv(path: &str) -> String { tr!("Recording saved as {path} (it could not be turned into MP4).", path = path) }

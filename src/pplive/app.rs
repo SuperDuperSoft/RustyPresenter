@@ -66,7 +66,7 @@ impl App {
         })
     }
 
-    /// The room monitor, when the room screen is on and set to one.
+    /// The room monitor, when the audience screen is on and set to one.
     fn room_screen(&self, data: &Data) -> Option<Rect> {
         let screens = &data.settings.screens;
         if !screens.audience.on { return None }

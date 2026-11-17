@@ -109,9 +109,9 @@ mod tests {
     fn pill_says_ready_or_counts_problems_and_lists_a_few() {
         let ok = pill(&[]);
         assert_eq!((ok.state, ok.label.as_str()), ("on", "Ready"));
-        let one = pill(&["Room screen is not connected".into()]);
+        let one = pill(&["Audience screen is not connected".into()]);
         assert_eq!((one.state, one.label.as_str()), ("warn", "1 problem"));
-        assert!(one.tip.starts_with("Room screen is not connected"), "{}", one.tip);
+        assert!(one.tip.starts_with("Audience screen is not connected"), "{}", one.tip);
         let five: Vec<String> = (1..=5).map(|i| format!("p{i}")).collect();
         let many = pill(&five);
         assert_eq!(many.label, "5 problems");
@@ -122,7 +122,7 @@ mod tests {
     fn status_pill_shows_the_quiet_check_and_opens_the_report() {
         let (_app, op) = opened();
         recheck(&op);
-        assert_eq!(op.ui.get_check_state(), "warn", "a test app has no room screen");
+        assert_eq!(op.ui.get_check_state(), "warn", "a test app has no audience screen");
         click(&op, "TopBar::status-check");
         let row = asked(&op).expect("a report");
         assert!(row.text.contains(&pf::no_room()), "{}", row.text);

@@ -1,4 +1,4 @@
-//! N12 masks: the shape a room screen's picture is cut to (a smaller rectangle, rounded corners or an oval). Outside
+//! N12 masks: the shape a audience screen's picture is cut to (a smaller rectangle, rounded corners or an oval). Outside
 //! the shape the screen stays black. Each audience screen has its own (`Screen::mask`); the room window draws the
 //! picture made here over everything else.
 use serde::{Deserialize, Serialize};

@@ -138,7 +138,7 @@ pub fn compose(job: &ThumbJob, size: (u32, u32), renderer: &TextRenderer, store:
     Pixels::clone_from_slice(img.as_raw(), w, h)
 }
 
-/// The slide on the room screen now, drawn like a thumbnail at `size` (the phone's drawing view and the stage's
+/// The slide on the audience screen now, drawn like a thumbnail at `size` (the phone's drawing view and the stage's
 /// drawing panel). Black when nothing is on screen. Never the phone drawing itself.
 pub fn live_slide(app: &crate::app::App, size: (u32, u32), renderer: &TextRenderer) -> Pixels {
     let job = {

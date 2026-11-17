@@ -273,7 +273,7 @@ impl Operator {
         st.grab_timer.start(TimerMode::Repeated, GRAB_EVERY, move || if let Some(op) = me.upgrade() { op.grab_tick() });
     }
 
-    /// "Room screen is off" over a live video while the room window is not open (a room that is opening, or
+    /// "Audience screen is off" over a live video while the room window is not open (a room that is opening, or
     /// preparing the video, shows black without it).
     pub(super) fn mark_room_off(&self) {
         let closed = self.state.borrow().snap.as_ref().is_none_or(|s| s.room == RoomStatus::Off);
@@ -622,10 +622,10 @@ mod tests {
         let op = opened(&app);
         assert!(find(&op, "LiveColumn::notice").is_none());
         let mut v = app.live_view();
-        v.notice = Some("The room screen restarted.".into());
+        v.notice = Some("The audience screen restarted.".into());
         v.version += 1;
         op.apply_live(LiveUpdate::new(v));
-        assert_eq!(label(&op, "LiveColumn::notice"), "The room screen restarted.");
+        assert_eq!(label(&op, "LiveColumn::notice"), "The audience screen restarted.");
     }
 
     #[test]
@@ -722,7 +722,7 @@ mod tests {
         assert!(find(&op, "LiveMonitor::room-off").is_none());
         run(&op, Command::Show { item_id: id, slide: 0 });
         assert!(op.ui.get_monitor_video());
-        assert_eq!(label(&op, "LiveMonitor::room-off"), "Room screen is off");
+        assert_eq!(label(&op, "LiveMonitor::room-off"), "Audience screen is off");
         assert_eq!(op.ui.get_monitor_video_frame().size().width, 0, "no second player: the frame stays empty");
         // Once the room is open (and drawing nothing yet) the caption goes; a slide has no caption at all.
         let _room = app.screen_guard("room");
