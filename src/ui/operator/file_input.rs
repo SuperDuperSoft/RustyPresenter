@@ -212,7 +212,8 @@ mod tests {
     #[test]
     fn exact_filters_match_the_web() {
         assert_eq!(Filter::PowerPoint.extensions(), crate::import::deck::DECK_EXT);
-        assert_eq!(Filter::Lyrics.extensions(), ["txt"]);
+        // SongSelect's song downloads: lyrics, ChordPro and `.usr`.
+        assert_eq!(Filter::Lyrics.extensions(), ["txt", "usr", "chordpro", "cho", "chopro", "pro"]);
         assert_eq!(Filter::Pictures.extensions(), media::IMAGE);
         assert_eq!(Filter::Bibles.extensions(), ["xml", "usx", "osis", "zef"]);
     }
