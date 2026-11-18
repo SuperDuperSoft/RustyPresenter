@@ -2803,6 +2803,50 @@ msgstr "라벨 추가"
 msgid "Use the usual names, colours and labels"
 msgstr "기본 이름, 색, 라벨 사용"
 
+#: ui/dialogs/settings-songs-folder.slint src/ui/dialogs/settings_find.rs
+msgid "Songs folder"
+msgstr "찬양 폴더"
+
+#: ui/dialogs/settings-songs-folder.slint src/ui/dialogs/settings_find.rs
+msgid "Every song is also kept as a ChordPro file in a folder you can open, back up or edit in Notepad. Song files you put in the folder (ChordPro, SongSelect, OpenLyrics, OpenSong or plain text with Verse/Chorus headings) come into the song library by themselves."
+msgstr "모든 찬양은 열어 보거나 백업하거나 메모장에서 고칠 수 있는 폴더에 ChordPro 파일로도 보관돼요. 폴더에 넣은 찬양 파일(ChordPro, SongSelect, OpenLyrics, OpenSong, Verse/Chorus 제목이 있는 일반 텍스트)은 저절로 찬양 라이브러리에 들어와요."
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Keep my songs in a folder"
+msgstr "찬양을 폴더에도 보관하기"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Open the folder"
+msgstr "폴더 열기"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Choose another folder…"
+msgstr "다른 폴더 선택…"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Use the usual folder"
+msgstr "기본 폴더 사용"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Documents → RustyPresenter → Songs"
+msgstr "문서 → RustyPresenter → Songs"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Tidy imported files into ChordPro"
+msgstr "가져온 파일을 ChordPro로 정리하기"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song file of another kind is moved into the “Imported files” folder once it is in the library, so only ChordPro files stay."
+msgstr "다른 형식의 찬양 파일은 라이브러리에 들어오면 “Imported files” 폴더로 옮겨져 ChordPro 파일만 남아요."
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song file of another kind stays as it is, and its ChordPro copy is written beside it. Changing the file later changes the song."
+msgstr "다른 형식의 찬양 파일은 그대로 두고, 그 옆에 ChordPro 사본을 써요. 나중에 그 파일을 바꾸면 찬양도 바뀌어요."
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song removed from the library has its file moved into the “Removed” folder. To remove a song, remove it in RustyPresenter: a file deleted from the folder is written again."
+msgstr "라이브러리에서 뺀 찬양의 파일은 “Removed” 폴더로 옮겨져요. 찬양을 빼려면 RustyPresenter에서 빼세요. 폴더에서 지운 파일은 다시 써져요."
+
 #: ui/dialogs/settings-sound.slint
 msgid "{} dB"
 msgstr "{} dB"
@@ -4138,6 +4182,34 @@ msgstr "이 찬양 글자 크게"
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Back to the lines and size in Settings"
 msgstr "설정의 줄 수와 크기로 되돌리기"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Key"
+msgstr "키"
+
+#: ui/dialogs/song-editor.slint
+msgid "G"
+msgstr "G"
+
+#: ui/dialogs/song-editor.slint
+msgid "The key the song is written in"
+msgstr "찬양이 쓰인 키"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Chords one step lower on the stage screen"
+msgstr "무대 화면의 코드를 반음 내리기"
+
+#: ui/dialogs/song-editor.slint src/ui/song_key.rs
+msgid "As written"
+msgstr "쓰인 그대로"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Chords one step higher on the stage screen"
+msgstr "무대 화면의 코드를 반음 올리기"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Show the chords as they are written"
+msgstr "코드를 쓰인 그대로 보이기"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
@@ -6059,6 +6131,10 @@ msgstr "사진이 하나 빠졌어요. 다시 업로드해 보세요."
 msgid "These slides are in a service. Remove them from the service first."
 msgstr "이 슬라이드는 예배에 들어 있어요. 먼저 예배에서 제거하세요."
 
+#: src/app.rs
+msgid "Choose a whole folder path."
+msgstr "폴더의 전체 경로를 선택하세요."
+
 #: src/app.rs src/strings/scripture.rs
 msgid "Unknown translation."
 msgstr "알 수 없는 번역본이에요."
@@ -7515,6 +7591,10 @@ msgstr "라이브 방송 장면: {name}"
 msgid "Scene keys work while the stream is live."
 msgstr "장면 키는 방송 중에 작동해요."
 
+#: src/slides.rs
+msgid "♪ chords only"
+msgstr "♪ 코드만"
+
 #: src/slides.rs src/strings/print.rs
 msgid "Missing song"
 msgstr "없는 찬양"
@@ -7526,6 +7606,87 @@ msgstr "없는 미디어"
 #: src/slides.rs src/strings/print.rs
 msgid "Missing slides"
 msgstr "없는 슬라이드"
+
+#: src/songs_folder/format.rs
+msgid "it has no RustyPresenter song id"
+msgstr "RustyPresenter 찬양 ID가 없어요"
+
+#: src/songs_folder/format.rs
+msgid "it has no title"
+msgstr "제목이 없어요"
+
+#: src/songs_folder/mod.rs
+msgid "The songs folder could not be made: {error}"
+msgstr "찬양 폴더를 만들 수 없어요: {error}"
+
+#: src/songs_folder/mod.rs
+msgid "The songs folder cannot be found. Is the drive connected?"
+msgstr "찬양 폴더를 찾을 수 없어요. 드라이브가 연결되어 있나요?"
+
+#: src/songs_folder/mod.rs
+msgid "{n} song came in from the songs folder."
+msgid_plural "{n} songs came in from the songs folder."
+msgstr[0] "찬양 폴더에서 {n}곡이 들어왔어요."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” came in from the songs folder."
+msgstr "“{title}”이(가) 찬양 폴더에서 들어왔어요."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” was changed in the songs folder, so it changed here too."
+msgstr "“{title}”이(가) 찬양 폴더에서 바뀌어서 여기도 바뀌었어요."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” was changed here and in the songs folder, so both were kept: the folder's version is “{copy}”."
+msgstr "“{title}”이(가) 여기와 찬양 폴더 양쪽에서 바뀌어서 둘 다 남겼어요. 폴더의 버전은 “{copy}”예요."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” is in the songs folder, so it is back in the song library."
+msgstr "“{title}”이(가) 찬양 폴더에 있어서 찬양 라이브러리에 다시 들어왔어요."
+
+#: src/songs_folder/mod.rs
+msgid "{file} in the songs folder could not be read: {why}"
+msgstr "찬양 폴더의 {file}을(를) 읽을 수 없어요: {why}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} song in the folder"
+msgid_plural "{n} songs in the folder"
+msgstr[0] "폴더에 {n}곡"
+
+#: src/songs_folder/mod.rs
+msgid "last change just now"
+msgstr "마지막 변경: 방금"
+
+#: src/songs_folder/mod.rs
+msgid "last change {n} minute ago"
+msgid_plural "last change {n} minutes ago"
+msgstr[0] "마지막 변경: {n}분 전"
+
+#: src/songs_folder/mod.rs
+msgid "last change {when}"
+msgstr "마지막 변경: {when}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} file could not be read: {files}"
+msgid_plural "{n} files could not be read: {files}"
+msgstr[0] "파일 {n}개를 읽을 수 없어요: {files}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} file is busy and will be tried again"
+msgid_plural "{n} files are busy and will be tried again"
+msgstr[0] "파일 {n}개가 사용 중이라 다시 시도할게요"
+
+#: src/songs_folder/sync.rs
+msgid "{title} (from the folder)"
+msgstr "{title} (폴더에서)"
+
+#: src/songs_folder/sync.rs
+msgid "it is not a song file"
+msgstr "찬양 파일이 아니에요"
+
+#: src/songs_folder/sync.rs
+msgid "it is too big to be a song file"
+msgstr "찬양 파일이라기엔 너무 커요"
 
 #: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
 msgid "No song words were found in this file."
@@ -11788,6 +11949,18 @@ msgstr "클립보드에 텍스트가 없어요. 먼저 글자를 복사하세요
 msgid "{name} (imported)"
 msgstr "{name}(가져옴)"
 
+#: src/transpose.rs
+msgid "{from} → {to}, {amount}"
+msgstr "{from} → {to}, {amount}"
+
+#: src/transpose.rs
+msgid "Capo {fret} to play {key} shapes"
+msgstr "카포 {fret}에서 {key} 모양으로 연주"
+
+#: src/transpose.rs
+msgid "Capo {fret} to play the chords as written"
+msgstr "카포 {fret}에서 쓰인 그대로 코드 연주"
+
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
 msgstr "예배 항목을 화면에 표시"
@@ -12372,6 +12545,10 @@ msgstr ""
 "매일 기도하기\n"
 "성경 읽기\n"
 "이웃 섬기기"
+
+#: src/ui/dialogs/songs_folder.rs
+msgid "Could not open the songs folder: {error}"
+msgstr "찬양 폴더를 열 수 없어요: {error}"
 
 #: src/ui/dialogs/songselect.rs
 msgid "Songs from SongSelect"

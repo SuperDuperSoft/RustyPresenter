@@ -2803,6 +2803,50 @@ msgstr "添加标签"
 msgid "Use the usual names, colours and labels"
 msgstr "使用默认名称、颜色和标签"
 
+#: ui/dialogs/settings-songs-folder.slint src/ui/dialogs/settings_find.rs
+msgid "Songs folder"
+msgstr "诗歌文件夹"
+
+#: ui/dialogs/settings-songs-folder.slint src/ui/dialogs/settings_find.rs
+msgid "Every song is also kept as a ChordPro file in a folder you can open, back up or edit in Notepad. Song files you put in the folder (ChordPro, SongSelect, OpenLyrics, OpenSong or plain text with Verse/Chorus headings) come into the song library by themselves."
+msgstr "每首诗歌也会以 ChordPro 文件保存在一个文件夹里，你可以打开、备份或用记事本修改。放进这个文件夹的诗歌文件（ChordPro、SongSelect、OpenLyrics、OpenSong，或带 Verse/Chorus 标题的纯文本）会自动进入诗歌库。"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Keep my songs in a folder"
+msgstr "把我的诗歌也保存在文件夹里"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Open the folder"
+msgstr "打开文件夹"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Choose another folder…"
+msgstr "选择其他文件夹…"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Use the usual folder"
+msgstr "使用默认文件夹"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Documents → RustyPresenter → Songs"
+msgstr "文档 → RustyPresenter → Songs"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Tidy imported files into ChordPro"
+msgstr "把导入的文件整理成 ChordPro"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song file of another kind is moved into the “Imported files” folder once it is in the library, so only ChordPro files stay."
+msgstr "其他格式的诗歌文件进入诗歌库后，会被移到“Imported files”文件夹，只留下 ChordPro 文件。"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song file of another kind stays as it is, and its ChordPro copy is written beside it. Changing the file later changes the song."
+msgstr "其他格式的诗歌文件保持原样，旁边会写一份 ChordPro 副本。以后修改这个文件，诗歌也会跟着改。"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song removed from the library has its file moved into the “Removed” folder. To remove a song, remove it in RustyPresenter: a file deleted from the folder is written again."
+msgstr "从诗歌库删除的诗歌，它的文件会被移到“Removed”文件夹。要删除诗歌，请在 RustyPresenter 里删除：在文件夹里删掉的文件会被重新写入。"
+
 #: ui/dialogs/settings-sound.slint
 msgid "{} dB"
 msgstr "{} dB"
@@ -4138,6 +4182,34 @@ msgstr "放大这首诗歌的文字"
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Back to the lines and size in Settings"
 msgstr "恢复为设置中的行数和大小"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Key"
+msgstr "调"
+
+#: ui/dialogs/song-editor.slint
+msgid "G"
+msgstr "G"
+
+#: ui/dialogs/song-editor.slint
+msgid "The key the song is written in"
+msgstr "诗歌原本写的调"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Chords one step lower on the stage screen"
+msgstr "舞台屏幕上的和弦降半音"
+
+#: ui/dialogs/song-editor.slint src/ui/song_key.rs
+msgid "As written"
+msgstr "按原样"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Chords one step higher on the stage screen"
+msgstr "舞台屏幕上的和弦升半音"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Show the chords as they are written"
+msgstr "按原样显示和弦"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
@@ -6059,6 +6131,10 @@ msgstr "缺少一张图片。请重新上传。"
 msgid "These slides are in a service. Remove them from the service first."
 msgstr "这些幻灯片在某个聚会中。请先将其从聚会中移除。"
 
+#: src/app.rs
+msgid "Choose a whole folder path."
+msgstr "请选择文件夹的完整路径。"
+
 #: src/app.rs src/strings/scripture.rs
 msgid "Unknown translation."
 msgstr "未知译本。"
@@ -7515,6 +7591,10 @@ msgstr "直播场景：{name}"
 msgid "Scene keys work while the stream is live."
 msgstr "场景快捷键在直播时有效。"
 
+#: src/slides.rs
+msgid "♪ chords only"
+msgstr "♪ 只有和弦"
+
 #: src/slides.rs src/strings/print.rs
 msgid "Missing song"
 msgstr "缺少诗歌"
@@ -7526,6 +7606,87 @@ msgstr "缺少媒体"
 #: src/slides.rs src/strings/print.rs
 msgid "Missing slides"
 msgstr "缺少幻灯片"
+
+#: src/songs_folder/format.rs
+msgid "it has no RustyPresenter song id"
+msgstr "没有 RustyPresenter 诗歌编号"
+
+#: src/songs_folder/format.rs
+msgid "it has no title"
+msgstr "没有标题"
+
+#: src/songs_folder/mod.rs
+msgid "The songs folder could not be made: {error}"
+msgstr "无法创建诗歌文件夹：{error}"
+
+#: src/songs_folder/mod.rs
+msgid "The songs folder cannot be found. Is the drive connected?"
+msgstr "找不到诗歌文件夹。磁盘连接好了吗？"
+
+#: src/songs_folder/mod.rs
+msgid "{n} song came in from the songs folder."
+msgid_plural "{n} songs came in from the songs folder."
+msgstr[0] "{n} 首诗歌已从诗歌文件夹进入。"
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” came in from the songs folder."
+msgstr "“{title}”已从诗歌文件夹进入。"
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” was changed in the songs folder, so it changed here too."
+msgstr "“{title}”在诗歌文件夹里被修改了，所以这里也跟着改了。"
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” was changed here and in the songs folder, so both were kept: the folder's version is “{copy}”."
+msgstr "“{title}”在这里和诗歌文件夹里都被修改了，所以两份都保留：文件夹里的版本是“{copy}”。"
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” is in the songs folder, so it is back in the song library."
+msgstr "“{title}”在诗歌文件夹里，所以它回到了诗歌库。"
+
+#: src/songs_folder/mod.rs
+msgid "{file} in the songs folder could not be read: {why}"
+msgstr "无法读取诗歌文件夹里的 {file}：{why}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} song in the folder"
+msgid_plural "{n} songs in the folder"
+msgstr[0] "文件夹里有 {n} 首诗歌"
+
+#: src/songs_folder/mod.rs
+msgid "last change just now"
+msgstr "最近修改：刚刚"
+
+#: src/songs_folder/mod.rs
+msgid "last change {n} minute ago"
+msgid_plural "last change {n} minutes ago"
+msgstr[0] "最近修改：{n} 分钟前"
+
+#: src/songs_folder/mod.rs
+msgid "last change {when}"
+msgstr "最近修改：{when}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} file could not be read: {files}"
+msgid_plural "{n} files could not be read: {files}"
+msgstr[0] "有 {n} 个文件无法读取：{files}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} file is busy and will be tried again"
+msgid_plural "{n} files are busy and will be tried again"
+msgstr[0] "有 {n} 个文件正在被占用，稍后再试"
+
+#: src/songs_folder/sync.rs
+msgid "{title} (from the folder)"
+msgstr "{title}（来自文件夹）"
+
+#: src/songs_folder/sync.rs
+msgid "it is not a song file"
+msgstr "不是诗歌文件"
+
+#: src/songs_folder/sync.rs
+msgid "it is too big to be a song file"
+msgstr "太大，不可能是诗歌文件"
 
 #: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
 msgid "No song words were found in this file."
@@ -11788,6 +11949,18 @@ msgstr "剪贴板中没有文字。请先复制文字。"
 msgid "{name} (imported)"
 msgstr "{name}（已导入）"
 
+#: src/transpose.rs
+msgid "{from} → {to}, {amount}"
+msgstr "{from} → {to}，{amount}"
+
+#: src/transpose.rs
+msgid "Capo {fret} to play {key} shapes"
+msgstr "变调夹夹第 {fret} 品，用 {key} 的指法弹"
+
+#: src/transpose.rs
+msgid "Capo {fret} to play the chords as written"
+msgstr "变调夹夹第 {fret} 品，按原样弹和弦"
+
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
 msgstr "将聚会项目显示到屏幕上"
@@ -12372,6 +12545,10 @@ msgstr ""
 "每天祷告\n"
 "读圣经\n"
 "服事邻舍"
+
+#: src/ui/dialogs/songs_folder.rs
+msgid "Could not open the songs folder: {error}"
+msgstr "无法打开诗歌文件夹：{error}"
 
 #: src/ui/dialogs/songselect.rs
 msgid "Songs from SongSelect"

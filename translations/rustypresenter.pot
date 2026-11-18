@@ -2800,6 +2800,50 @@ msgstr ""
 msgid "Use the usual names, colours and labels"
 msgstr ""
 
+#: ui/dialogs/settings-songs-folder.slint src/ui/dialogs/settings_find.rs
+msgid "Songs folder"
+msgstr ""
+
+#: ui/dialogs/settings-songs-folder.slint src/ui/dialogs/settings_find.rs
+msgid "Every song is also kept as a ChordPro file in a folder you can open, back up or edit in Notepad. Song files you put in the folder (ChordPro, SongSelect, OpenLyrics, OpenSong or plain text with Verse/Chorus headings) come into the song library by themselves."
+msgstr ""
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Keep my songs in a folder"
+msgstr ""
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Open the folder"
+msgstr ""
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Choose another folder…"
+msgstr ""
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Use the usual folder"
+msgstr ""
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Documents → RustyPresenter → Songs"
+msgstr ""
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Tidy imported files into ChordPro"
+msgstr ""
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song file of another kind is moved into the “Imported files” folder once it is in the library, so only ChordPro files stay."
+msgstr ""
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song file of another kind stays as it is, and its ChordPro copy is written beside it. Changing the file later changes the song."
+msgstr ""
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song removed from the library has its file moved into the “Removed” folder. To remove a song, remove it in RustyPresenter: a file deleted from the folder is written again."
+msgstr ""
+
 #: ui/dialogs/settings-sound.slint
 msgid "{} dB"
 msgstr ""
@@ -4128,6 +4172,34 @@ msgstr ""
 
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Back to the lines and size in Settings"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Key"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "G"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "The key the song is written in"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Chords one step lower on the stage screen"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint src/ui/song_key.rs
+msgid "As written"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Chords one step higher on the stage screen"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Show the chords as they are written"
 msgstr ""
 
 #: ui/dialogs/song-editor.slint
@@ -6050,6 +6122,10 @@ msgstr ""
 msgid "These slides are in a service. Remove them from the service first."
 msgstr ""
 
+#: src/app.rs
+msgid "Choose a whole folder path."
+msgstr ""
+
 #: src/app.rs src/strings/scripture.rs
 msgid "Unknown translation."
 msgstr ""
@@ -7511,6 +7587,10 @@ msgstr ""
 msgid "Scene keys work while the stream is live."
 msgstr ""
 
+#: src/slides.rs
+msgid "♪ chords only"
+msgstr ""
+
 #: src/slides.rs src/strings/print.rs
 msgid "Missing song"
 msgstr ""
@@ -7521,6 +7601,92 @@ msgstr ""
 
 #: src/slides.rs src/strings/print.rs
 msgid "Missing slides"
+msgstr ""
+
+#: src/songs_folder/format.rs
+msgid "it has no RustyPresenter song id"
+msgstr ""
+
+#: src/songs_folder/format.rs
+msgid "it has no title"
+msgstr ""
+
+#: src/songs_folder/mod.rs
+msgid "The songs folder could not be made: {error}"
+msgstr ""
+
+#: src/songs_folder/mod.rs
+msgid "The songs folder cannot be found. Is the drive connected?"
+msgstr ""
+
+#: src/songs_folder/mod.rs
+msgid "{n} song came in from the songs folder."
+msgid_plural "{n} songs came in from the songs folder."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” came in from the songs folder."
+msgstr ""
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” was changed in the songs folder, so it changed here too."
+msgstr ""
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” was changed here and in the songs folder, so both were kept: the folder's version is “{copy}”."
+msgstr ""
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” is in the songs folder, so it is back in the song library."
+msgstr ""
+
+#: src/songs_folder/mod.rs
+msgid "{file} in the songs folder could not be read: {why}"
+msgstr ""
+
+#: src/songs_folder/mod.rs
+msgid "{n} song in the folder"
+msgid_plural "{n} songs in the folder"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/songs_folder/mod.rs
+msgid "last change just now"
+msgstr ""
+
+#: src/songs_folder/mod.rs
+msgid "last change {n} minute ago"
+msgid_plural "last change {n} minutes ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/songs_folder/mod.rs
+msgid "last change {when}"
+msgstr ""
+
+#: src/songs_folder/mod.rs
+msgid "{n} file could not be read: {files}"
+msgid_plural "{n} files could not be read: {files}"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/songs_folder/mod.rs
+msgid "{n} file is busy and will be tried again"
+msgid_plural "{n} files are busy and will be tried again"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/songs_folder/sync.rs
+msgid "{title} (from the folder)"
+msgstr ""
+
+#: src/songs_folder/sync.rs
+msgid "it is not a song file"
+msgstr ""
+
+#: src/songs_folder/sync.rs
+msgid "it is too big to be a song file"
 msgstr ""
 
 #: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
@@ -11817,6 +11983,18 @@ msgstr ""
 msgid "{name} (imported)"
 msgstr ""
 
+#: src/transpose.rs
+msgid "{from} → {to}, {amount}"
+msgstr ""
+
+#: src/transpose.rs
+msgid "Capo {fret} to play {key} shapes"
+msgstr ""
+
+#: src/transpose.rs
+msgid "Capo {fret} to play the chords as written"
+msgstr ""
+
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
 msgstr ""
@@ -12396,6 +12574,10 @@ msgid ""
 "Pray every day\n"
 "Read the Bible\n"
 "Serve your neighbour"
+msgstr ""
+
+#: src/ui/dialogs/songs_folder.rs
+msgid "Could not open the songs folder: {error}"
 msgstr ""
 
 #: src/ui/dialogs/songselect.rs
