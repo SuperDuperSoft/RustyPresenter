@@ -82,7 +82,7 @@ pub fn section(slide: &Slide) -> &'static str {
 }
 
 /// Settings → Sections' colours into `Theme` (the captions, the section bar and the order chips).
-pub fn apply_section_colors(t: &crate::ui::Theme) {
+pub fn apply_section_colors(t: &crate::ui::ThemeAll) {
     let c = |k: SectionKind| crate::ui::dialogs::services::parse_color(&k.color()).unwrap_or_default();
     let now = [t.get_sec_verse(), t.get_sec_chorus(), t.get_sec_pre(), t.get_sec_bridge(), t.get_sec_end(), t.get_sec_tag(), t.get_sec_intro(), t.get_sec_interlude()];
     let want = [c(SectionKind::Verse), c(SectionKind::Chorus), c(SectionKind::PreChorus), c(SectionKind::Bridge), c(SectionKind::Ending), c(SectionKind::Tag),
@@ -186,7 +186,7 @@ impl Operator {
         super::action_palette::render(self);
         if self.slides.borrow().built != key {
             let other_item = self.slides.borrow().built.as_ref().map(|k| k.id) != key.as_ref().map(|k| k.id);
-            if other_item { ui.invoke_slides_scroll_to_top(); }
+            if other_item { ui.set_slides_top_serial(ui.get_slides_top_serial() + 1); }
             let n = key.as_ref().map_or(0, |k| k.slides.len());
             let same_rows = {
                 let mut s = self.slides.borrow_mut();
@@ -235,7 +235,11 @@ impl Operator {
             (old, live, scroll)
         };
         if old != live { for i in [old, live].into_iter().flatten() { self.set_cell(i) } }
-        if let Some(row) = scroll { self.ui.invoke_slides_scroll_to_row(row as i32) }
+        if let Some(row) = scroll {
+            // Whichever window holds the slides scrolls (`SlidesPane.slides-scroll-serial`).
+            self.ui.set_slides_scroll_row(row as i32);
+            self.ui.set_slides_scroll_serial(self.ui.get_slides_scroll_serial() + 1);
+        }
     }
 
     /// The section bar of the selected song, live or not.
@@ -430,7 +434,11 @@ pub(super) fn wire(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
     ui.on_slides_pick_section(move |i| if let (Some(op), Ok(i)) = (me.upgrade(), usize::try_from(i)) { op.pick_section(i) });
     let me = Rc::downgrade(op);
-    ui.on_slides_grid_resized(move |w| if let Some(op) = me.upgrade() { op.grid_resized(w) });
+    ui.on_slides_grid_resized(move |w| if let Some(op) = me.upgrade() {
+        // Kept here for every window: the grid may be in a window of its own.
+        op.ui.set_slides_grid_width(w);
+        op.grid_resized(w)
+    });
     let me = Rc::downgrade(op);
     ui.on_slides_view_picked(move |i| if let (Some(op), Some(v)) = (me.upgrade(), SlideView::at(i)) { op.set_slide_view(v, None) });
     let me = Rc::downgrade(op);
@@ -644,7 +652,7 @@ mod tests {
         assert!(before.iter().all(Option::is_some), "drawn");
         // The worker is busy: the new thumbnails have not arrived yet.
         op.thumbs.hold();
-        let p = op.ui.global::<crate::ui::ServicePlanning>();
+        let p = op.ui.service_planning_all();
         let at = p.get_theme_options().iter().position(|l| l == "Christmas").unwrap() as i32;
         p.invoke_pick_theme(at);
         refresh(&op);

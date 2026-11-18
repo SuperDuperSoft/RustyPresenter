@@ -824,7 +824,7 @@ impl Operator {
 
     /// The Cameras box: shown while live with a camera; which camera is out and which is next, and their names.
     pub(crate) fn show_cameras(&self) {
-        let g = self.ui.global::<crate::ui::CameraSwitch>();
+        let g = self.ui.camera_switch_all();
         let names: Vec<String> = self.record.cameras.borrow().iter().map(|c| record::args::camera_label(c)).collect();
         let shown = self.record.live.get() && !names.is_empty();
         g.set_shown(shown);
@@ -854,7 +854,7 @@ impl Operator {
         use record::peek::Small;
         let same = |a: &Option<Arc<Small>>, b: &Option<Arc<Small>>| match (a, b) { (Some(a), Some(b)) => Arc::ptr_eq(a, b), (None, None) => true, _ => false };
         let image = |s: &Small| slint::Image::from_rgba8(slint::SharedPixelBuffer::<slint::Rgba8Pixel>::clone_from_slice(&s.rgba, s.width, s.height));
-        let g = self.ui.global::<crate::ui::CameraSwitch>();
+        let g = self.ui.camera_switch_all();
         let mut shown = self.record.peek_shown.borrow_mut();
         if !same(&shown.live, &peek.live) {
             g.set_live_has_picture(peek.live.is_some());
@@ -1027,7 +1027,7 @@ pub(super) fn wire(op: &Rc<Operator>) {
     op.ui.on_chat_opened(move || if let Some(op) = me.upgrade() { op.chat_opened() });
     let me = Rc::downgrade(op);
     op.ui.on_pick_position(move |i| if let Some(op) = me.upgrade() { op.pick_position(i) });
-    let cams = op.ui.global::<crate::ui::CameraSwitch>();
+    let cams = op.ui.camera_switch_all();
     let me = Rc::downgrade(op);
     cams.on_choose_next(move |i| if let Some(op) = me.upgrade() { op.choose_next(i) });
     let me = Rc::downgrade(op);

@@ -5,9 +5,7 @@ use super::window::Operator;
 use crate::{
     follow::{FollowState, Light, Mode, strings as tr},
     live::Command,
-    ui::FollowUi,
 };
-use slint::ComponentHandle;
 use std::rc::{Rc, Weak};
 use uuid::Uuid;
 
@@ -32,7 +30,7 @@ fn live_follow(op: &Operator) -> Option<(Uuid, FollowState)> {
 
 /// Draws the row from the newest live view, and the glow on the suggested slide when the grid shows the live song.
 pub(super) fn render(op: &Operator) {
-    let g = op.ui.global::<FollowUi>();
+    let g = op.ui.follow_ui_all();
     let Some((item, f)) = live_follow(op) else {
         g.set_shown(false);
         g.set_suggested(-1);
@@ -100,7 +98,7 @@ pub(crate) fn listen(op: &Operator, again: bool) {
 }
 
 pub(super) fn wire(op: &Rc<Operator>) {
-    let g = op.ui.global::<FollowUi>();
+    let g = op.ui.follow_ui_all();
     let me: Weak<Operator> = Rc::downgrade(op);
     g.on_cycle_mode(move || if let Some(op) = me.upgrade() { cycle_mode(&op) });
     let me: Weak<Operator> = Rc::downgrade(op);
@@ -121,7 +119,7 @@ mod tests {
         model::{ItemKind, ServiceItem, Song},
         ui::operator::window::testing::{find, open, refresh},
     };
-    use slint::{SharedString, platform::{PointerEventButton, WindowEvent}};
+    use slint::{ComponentHandle, SharedString, platform::{PointerEventButton, WindowEvent}};
     use std::sync::Arc;
 
     /// A song (two slides) in the library and the service; returns its item id.
@@ -245,15 +243,15 @@ mod tests {
         app.data.lock().unwrap().automation.follow.insert(song, Mode::Auto);
         let op = opened(&app);
         show(&op, song);
-        assert!(find(&op, "FollowRow::follow-hold").is_some() && !op.ui.global::<FollowUi>().get_holding());
+        assert!(find(&op, "FollowRow::follow-hold").is_some() && !op.ui.follow_ui_all().get_holding());
         press(&op, "h");
         assert!(app.follower().unwrap().holding());
-        assert!(op.ui.global::<FollowUi>().get_holding());
-        assert_eq!(op.ui.global::<FollowUi>().get_light(), "holding");
+        assert!(op.ui.follow_ui_all().get_holding());
+        assert_eq!(op.ui.follow_ui_all().get_light(), "holding");
         assert!(op.toast_log().iter().any(|(t, _)| t == "Hold on: the slides stay put"));
         click(&op, "FollowRow::follow-hold");
         assert!(!app.follower().unwrap().holding(), "the button lets go");
-        assert!(!op.ui.global::<FollowUi>().get_holding());
+        assert!(!op.ui.follow_ui_all().get_holding());
     }
 
     #[test]
@@ -275,11 +273,11 @@ mod tests {
         assert_eq!(light.accessible_value().unwrap_or_default(), "sure");
         assert_eq!(light.accessible_label().unwrap_or_default(), "Following the singers");
         assert_eq!(label(&op, "FollowRow::follow-line"), "Amazing grace how sweet the sound");
-        assert_eq!(op.ui.global::<FollowUi>().get_suggested(), 1, "Suggest: the next slide glows");
+        assert_eq!(op.ui.follow_ui_all().get_suggested(), 1, "Suggest: the next slide glows");
         put(Light::Unsure, None, None);
         assert_eq!(find(&op, "FollowRow::follow-light").unwrap().accessible_value().unwrap_or_default(), "unsure");
         assert_eq!(label(&op, "FollowRow::follow-line"), "Not sure — staying on this slide", "no line: the light says it");
-        assert_eq!(op.ui.global::<FollowUi>().get_suggested(), -1);
+        assert_eq!(op.ui.follow_ui_all().get_suggested(), -1);
         put(Light::Blank, None, None);
         assert_eq!(label(&op, "FollowRow::follow-line"), "Nobody singing — words off");
     }

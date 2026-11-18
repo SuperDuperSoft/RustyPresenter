@@ -5,7 +5,7 @@
 use super::{strings as tr, window::Operator};
 use crate::{
     model::{Background, BackgroundEntry},
-    ui::{BinRow, VideoInputs, dialogs::ask},
+    ui::{BinRow, dialogs::ask},
     video::inputs,
 };
 use serde_json::{Value, json};
@@ -71,27 +71,27 @@ impl Operator {
 
     /// The tab was opened: look for devices the first time.
     pub(super) fn inputs_opened(self: &Rc<Self>) {
-        let g = self.ui.global::<VideoInputs>();
+        let g = self.ui.video_inputs_all();
         if g.get_found().row_count() == 0 && !g.get_searching() { self.find_inputs() }
     }
 
     /// Looks for cameras and capture cards on a thread of its own; the list fills in when it is done.
     pub(super) fn find_inputs(self: &Rc<Self>) {
-        let g = self.ui.global::<VideoInputs>();
+        let g = self.ui.video_inputs_all();
         if g.get_searching() { return }
         g.set_searching(true);
         let ffmpeg = self.app().youtube.ffmpeg_exe();
         let weak = self.ui.as_weak();
         let spawned = std::thread::Builder::new().name("video-inputs".into()).spawn(move || {
             let found = inputs::list(ffmpeg);
-            let _ = weak.upgrade_in_event_loop(move |ui| show_found(&ui.global::<VideoInputs>(), found));
+            let _ = weak.upgrade_in_event_loop(move |ui| show_found(&ui.video_inputs_all(), found));
         });
         if spawned.is_err() { g.set_searching(false) }
     }
 
     /// Saves the device picked or typed as a background, and chooses it.
     pub(super) fn add_input(self: &Rc<Self>) {
-        let g = self.ui.global::<VideoInputs>();
+        let g = self.ui.video_inputs_all();
         let typed = g.get_typed().trim().to_string();
         let device = if typed.is_empty() { g.get_found().row_data(g.get_found_index().max(0) as usize).map(|s| s.to_string()).unwrap_or_default() } else { typed };
         if device.is_empty() { return self.toast(crate::tr!("Pick a camera or type its name first."), false) }
@@ -102,7 +102,7 @@ impl Operator {
             let Some(op) = me.upgrade() else { return };
             match r {
                 Ok(v) => {
-                    op.ui.global::<VideoInputs>().set_typed(SharedString::new());
+                    op.ui.video_inputs_all().set_typed(SharedString::new());
                     // Chosen now; its tile shows once the new library arrives.
                     op.bin.borrow_mut().picked = v["id"].as_str().and_then(|id| id.parse::<Uuid>().ok());
                     op.render_media();
@@ -149,7 +149,7 @@ impl Operator {
 fn tr_camera() -> String { crate::tr!("Camera") }
 
 /// Puts what a device search found in the list.
-pub(super) fn show_found(g: &VideoInputs, found: Vec<String>) {
+pub(super) fn show_found(g: &crate::ui::VideoInputsAll, found: Vec<String>) {
     let names: Vec<SharedString> = found.into_iter().map(SharedString::from).collect();
     g.set_found(ModelRc::new(VecModel::from(names)));
     g.set_found_index(0);
@@ -157,7 +157,7 @@ pub(super) fn show_found(g: &VideoInputs, found: Vec<String>) {
 }
 
 pub(super) fn wire(op: &Rc<Operator>) {
-    let g = op.ui.global::<VideoInputs>();
+    let g = op.ui.video_inputs_all();
     let on = |f: fn(&Rc<Operator>)| { let me: Weak<Operator> = Rc::downgrade(op); move || if let Some(op) = me.upgrade() { f(&op) } };
     g.on_find(on(Operator::find_inputs));
     g.on_add(on(Operator::add_input));
@@ -209,12 +209,12 @@ mod tests {
         let app = test_app();
         let op = opened(&app);
         // The tab is opened by hand here: a real search would run on a thread.
-        op.ui.global::<VideoInputs>().set_searching(true);
+        op.ui.video_inputs_all().set_searching(true);
         op.ui.invoke_bin_set_tab(TAB.into());
         settle();
         assert!(find(&op, "MediaBin::inputs-empty").is_some(), "says what to do with none saved");
-        show_found(&op.ui.global::<VideoInputs>(), vec!["Integrated Camera".into(), "USB Capture HDMI".into()]);
-        op.ui.global::<VideoInputs>().set_found_index(1);
+        show_found(&op.ui.video_inputs_all(), vec!["Integrated Camera".into(), "USB Capture HDMI".into()]);
+        op.ui.video_inputs_all().set_found_index(1);
         settle();
         assert!(find(&op, "MediaBin::inputs-found").is_some());
         click(&op, "MediaBin::inputs-add");
@@ -241,7 +241,7 @@ mod tests {
     fn a_typed_name_wins_and_nothing_is_refused() {
         let app = test_app();
         let op = opened(&app);
-        let g = op.ui.global::<VideoInputs>();
+        let g = op.ui.video_inputs_all();
         g.set_searching(true);
         op.ui.invoke_bin_set_tab(TAB.into());
         show_found(&g, vec![]);

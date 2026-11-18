@@ -1,0 +1,232 @@
+// What the operator window's panels show and what their buttons ask for (dock panels design). A panel can sit in a
+// window of its own, and Slint keeps a copy of every global for each window, so Rust writes these to every window and
+// a click in any window runs the operator window's handler (`crates/rp-ui/build.rs`, `panes`). The names are the
+// operator window's old property names, so the Rust side reads `op.ui.set_service_rows(…)` as before (`PaneProps`).
+import { ServiceRow } from "service.slint";
+import { SlideRowCells, SlideJump } from "slides.slint";
+import { BinRow, BinFolder } from "media.slint";
+import { TransportCell, LiveSong } from "live.slint";
+import { Side, Geo, Sprite } from "../room.slint";
+import { AddRow } from "../dialogs/add.slint";
+import { TranslationChip } from "../bible-picker.slint";
+
+/// What several panels share.
+export global DockShared {
+    /// The first state read has arrived (the web `onopen`); until then the panels stay empty, with no Welcome.
+    in property <bool> loaded;
+    in property <int> item-count;
+    /// These panels are shown on their own somewhere, so the Live panel (or the top bar) leaves out its own copy.
+    in property <bool> up-next-apart;
+    in property <bool> follow-apart;
+    in property <bool> cameras-apart;
+    in property <bool> automation-apart;
+    in property <bool> livestream-apart;
+}
+
+// Service list (see `ServiceColumn`).
+export global ServicePane {
+    in property <[ServiceRow]> service-rows;
+    in property <string> service-count;
+    in property <string> service-count-short;
+    callback service-select(string);
+    callback service-show-first(string);
+    callback service-edit(string);
+    callback service-remove(string);
+    callback service-add();
+    /// Check the service (the list's Check button).
+    callback service-check();
+    callback service-move(string, int);
+    callback service-drag-started();
+    callback service-drag-finished();
+    pure callback service-drag-data(string) -> data-transfer;
+    pure callback service-drag-id(data-transfer) -> string;
+}
+
+// Slides (see `SlidesPanel`).
+export global SlidesPane {
+    in property <string> slides-title: @tr("Nothing selected");
+    in property <string> slides-kind;
+    in property <bool> has-selection;
+    in property <int> slide-count;
+    in property <[SlideRowCells]> slide-rows;
+    in property <int> slide-columns: 1;
+    /// A song's sections, to jump straight to one.
+    in property <[SlideJump]> slide-jumps;
+    /// The grid's width, from `slides-grid-resized` (Rust keeps it here for every window).
+    in property <length> slides-grid-width;
+    callback slides-show(int);
+    callback slides-pick-section(int);
+    callback slides-edit();
+    callback slides-grid-resized(length);
+    /// N37: 0 grid, 1 Easy, 2 Table; N8: the grid's picture size. Both stay for this session (`slides.rs`).
+    in-out property <int> slides-view;
+    in-out property <int> slides-thumb-size: 230;
+    callback slides-view-picked(int);
+    callback slides-thumb-size-changed(int);
+    /// A Bible passage is selected: its text size ("Auto" or pixels) with A− / A+ / Auto.
+    in property <bool> slides-text-size-shown;
+    in property <string> slides-text-size;
+    in property <bool> slides-text-size-custom;
+    /// A song is selected: its lines per slide with − / + / Auto, and the size buttons change the song's size.
+    in property <bool> slides-song-fit;
+    in property <string> slides-lines;
+    in property <bool> slides-lines-custom;
+    callback slides-lines-fewer();
+    callback slides-lines-more();
+    callback slides-lines-auto();
+    /// The selected item's note under the grid (a passage's missing verses), or "".
+    in property <string> slides-note;
+    in property <bool> slides-custom-order;
+    callback slides-text-smaller();
+    callback slides-text-larger();
+    callback slides-text-auto();
+    /// The Welcome panel's Screens button.
+    callback slides-welcome-screens();
+    /// Scrolls the grid: to `slides-scroll-row` when `slides-scroll-serial` changes, to the top when
+    /// `slides-top-serial` changes (`slides.rs`).
+    in property <int> slides-scroll-row;
+    in property <int> slides-scroll-serial;
+    in property <int> slides-top-serial;
+}
+
+// The library (see `MediaBin`).
+export global LibraryPane {
+    /// The library is unfolded (View → Show media library).
+    in property <bool> bin-open: true;
+    callback bin-fold(bool);
+    in property <[BinRow]> bin-rows;
+    in property <[BinFolder]> bin-folders;
+    in property <string> bin-tab: "all";
+    in property <bool> bin-has-pick;
+    in property <string> bin-pick-name;
+    in property <string> bin-pick-hint;
+    in property <bool> bin-can-use;
+    in property <bool> bin-can-delete-folder;
+    callback bin-set-tab(string);
+    callback bin-set-folder(string);
+    callback bin-search(string);
+    callback bin-pick(string);
+    callback bin-use-picked();
+    callback bin-add-picked();
+    callback bin-move-picked();
+    callback bin-import();
+    callback bin-new-folder();
+    callback bin-delete-folder();
+    in property <[AddRow]> bin-songs;
+    in property <string> bin-song-placeholder;
+    in property <string> bin-song-empty;
+    callback bin-song-search(string);
+    callback bin-add-song(string);
+    callback bin-edit-song(string);
+    callback bin-new-song();
+}
+
+// The Bible box (see `BibleBox`).
+export global BiblePane {
+    in property <[TranslationChip]> translations;
+    in property <[TranslationChip]> quick-chips;
+    in property <string> translation;
+    in property <[TranslationChip]> picker-rows;
+    in-out property <string> picker-search;
+    in property <string> picker-note;
+    in-out property <string> bible-text;
+    /// Verses per slide for the next passage: 0 Automatic, else 1–4.
+    in property <int> bible-per-slide;
+    callback bible-submit(string);
+    callback pick-translation(int);
+    callback picker-opening();
+    callback picker-search-changed(string);
+    callback picker-accept();
+    callback pick-bible(string);
+    callback toggle-favourite(string);
+    callback find-more-bibles(string);
+    callback cycle-per-slide();
+    /// Bumped to focus the box (Ctrl+B), open Recent verses, open the picker (`bible.rs`).
+    in property <int> bible-focus-serial;
+    in property <int> bible-history-serial;
+    in property <int> bible-picker-serial;
+}
+
+// The Live panel (see `LiveColumn`).
+export global LivePane {
+    in property <bool> live-pending;
+    in property <string> live-what;
+    in property <string> live-notice;
+    in property <string> live-notes;
+    in property <LiveSong> live-song;
+    callback live-song-action(string);
+    in property <bool> logo-on;
+    in property <string> up-next-title;
+    in property <string> up-next-body: @tr("—");
+    in property <[TransportCell]> transport;
+    in property <Side> monitor-bg;
+    in property <bool> monitor-bg-visible: true;
+    in property <Side> monitor-media;
+    in property <Side> monitor-slide;
+    /// The slide going out while the new one comes in with a deck or designed slide's own transition, its
+    /// opacity and both faces' places (`Geo`, a push or wipe). Rust moves them (`src/ui/operator/live.rs`).
+    in property <Side> monitor-slide-old;
+    in property <float> monitor-slide-op: 1;
+    in property <float> monitor-slide-old-op;
+    in property <Geo> monitor-slide-geo;
+    in property <Geo> monitor-slide-old-geo;
+    /// A designed slide's click group playing on the monitor (`src/ui/operator/live.rs`).
+    in property <[Sprite]> monitor-sprites;
+    in property <Side> monitor-logo;
+    in property <image> monitor-drawing;
+    in property <bool> drawing-on;
+    in property <bool> monitor-video;
+    in property <image> monitor-video-frame;
+    in property <bool> monitor-video-cover;
+    in property <float> monitor-black;
+    in property <bool> monitor-room-off;
+    /// The preview's width, from `monitor-resized` (Rust keeps it here for every window).
+    in property <length> monitor-width;
+    callback live-next();
+    callback live-prev();
+    callback live-clear(string);
+    callback transport-toggle(int);
+    callback transport-seek(int, string);
+    callback monitor-resized(length);
+}
+
+// Recording and the livestream: the top bar's buttons and the Livestream panel.
+export global StreamPane {
+    /// N22: the audience screen is being recorded, and for how long ("12:34").
+    in property <bool> recording;
+    /// Recording with a clip open (Clip pressed once).
+    in property <bool> clipping;
+    callback toggle-clip();
+    /// Recording, with More settings keeping the last minutes: how many (0: no "Save last" button).
+    in property <int> replay-minutes;
+    callback save-last();
+    in property <string> record-time;
+    callback record();
+    in property <bool> can-stream;
+    in property <bool> live;
+    in property <int> live-up;
+    /// Signed in, while live: how many are watching (-1: not known).
+    in property <int> live-watching: -1;
+    in property <int> live-total;
+    callback go-live();
+    in property <bool> live-held;
+    in property <bool> live-muted;
+    callback hold-stream();
+    callback mute-stream();
+    in property <[string]> scene-labels;
+    in property <int> scene-out;
+    in property <int> scene-chosen: -1;
+    callback pick-scene(int);
+    in property <int> live-level: -1;
+    in property <[string]> camera-labels;
+    in property <int> camera-active;
+    callback pick-camera(int);
+    /// The camera in the picture can be moved: how many saved positions it offers (0: none).
+    in property <int> camera-positions;
+    /// Signed in, while live: the viewers' chat, newest last, and how many came since the list was last opened.
+    in property <bool> chat-on;
+    in property <[string]> chat-lines;
+    in property <int> chat-new;
+    callback chat-opened();
+    callback pick-position(int);
+}

@@ -3,10 +3,10 @@
 //! the `automation/slide-actions/*` actions. The selected item's slides are the ones it edits.
 use super::window::Operator;
 use crate::automation::{macros::MacroStep, slide_actions::{self, GROUPS}};
-use crate::ui::{PaletteGroup, PaletteRow, PaletteTile, SlideActChip, SlideActChipRow, SlideActs};
+use crate::ui::{PaletteGroup, PaletteRow, PaletteTile, SlideActChip, SlideActChipRow};
 use crate::ui::dialogs::automation::step_label;
 use serde_json::{Value, json};
-use slint::{ComponentHandle, DataTransfer, ModelRc, SharedString, VecModel};
+use slint::{DataTransfer, ModelRc, SharedString, VecModel};
 use std::rc::{Rc, Weak};
 
 /// A dragged tile: plain text `act:` and its steps as JSON.
@@ -41,7 +41,7 @@ pub(super) fn badges(op: &Operator, slides: usize) -> Vec<(i32, String)> {
 
 /// The palette's tiles, the slide list and the picked slide's actions. Only while it is open.
 pub(super) fn render(op: &Operator) {
-    let g = op.ui.global::<SlideActs>();
+    let g = op.ui.slide_acts_all();
     if !g.get_open() { return }
     let st = op.state.borrow();
     let Some(snap) = st.snap.as_ref() else { return };
@@ -73,7 +73,7 @@ pub(super) fn render(op: &Operator) {
 
 /// Opens or closes the palette (the Actions button, Window → Action palette).
 pub fn toggle(op: &Operator) {
-    let g = op.ui.global::<SlideActs>();
+    let g = op.ui.slide_acts_all();
     g.set_open(!g.get_open());
     render(op);
 }
@@ -94,14 +94,14 @@ fn send(op: &Rc<Operator>, action: &'static str, body: Value) {
 
 /// A thumbnail's badge, or a tile dropped on a slide: the palette shows that slide.
 fn pick(op: &Operator, slide: usize) {
-    let g = op.ui.global::<SlideActs>();
+    let g = op.ui.slide_acts_all();
     g.set_slide(slide as i32);
     if !g.get_open() { g.set_open(true) }
     render(op);
 }
 
 pub(super) fn wire(op: &Rc<Operator>) {
-    let g = op.ui.global::<SlideActs>();
+    let g = op.ui.slide_acts_all();
     let w = |op: &Rc<Operator>| -> Weak<Operator> { Rc::downgrade(op) };
     let me = w(op);
     g.on_toggle(move || if let Some(op) = me.upgrade() { toggle(&op) });
@@ -109,12 +109,12 @@ pub(super) fn wire(op: &Rc<Operator>) {
     g.on_slide_picked(move |_| if let Some(op) = me.upgrade() { render(&op) });
     let me = w(op);
     g.on_add(move |code| if let (Some(op), Some(steps)) = (me.upgrade(), steps_of(&code)) {
-        let slide = op.ui.global::<SlideActs>().get_slide().max(0) as usize;
+        let slide = op.ui.slide_acts_all().get_slide().max(0) as usize;
         add(&op, slide, steps);
     });
     let me = w(op);
     g.on_remove(move |i| if let Some(op) = me.upgrade() {
-        let (Some(item), slide) = (op.state.borrow().selected, op.ui.global::<SlideActs>().get_slide().max(0)) else { return };
+        let (Some(item), slide) = (op.state.borrow().selected, op.ui.slide_acts_all().get_slide().max(0)) else { return };
         send(&op, "automation/slide-actions/remove", json!({ "item": item, "slide": slide, "index": i.max(0) }));
     });
     let me = w(op);
@@ -161,7 +161,7 @@ mod tests {
     }
 
     fn tile_code(op: &Operator, label: &str) -> String {
-        let g = op.ui.global::<SlideActs>();
+        let g = op.ui.slide_acts_all();
         g.get_groups().iter().flat_map(|g| g.rows.iter().collect::<Vec<_>>()).flat_map(|r| r.tiles.iter().collect::<Vec<_>>())
             .find(|t| t.label == label).map(|t| t.code.to_string()).unwrap_or_default()
     }
@@ -172,7 +172,7 @@ mod tests {
         let id = add_text(&app, "Welcome", "One\n\nTwo\n\nThree");
         let op = opened(&app);
         find(&op, "SlidesPanel::palette-btn").expect("the Actions button").mock_single_click(PointerEventButton::Left);
-        let g = op.ui.global::<SlideActs>();
+        let g = op.ui.slide_acts_all();
         assert!(g.get_open());
         assert!(find(&op, "SlidesPanel::action-palette").is_some(), "the palette shows");
         let code = tile_code(&op, "Start “Stopwatch”");
@@ -201,7 +201,7 @@ mod tests {
         let id = add_text(&app, "Welcome", "One\n\nTwo");
         let op = opened(&app);
         toggle(&op);
-        let g = op.ui.global::<SlideActs>();
+        let g = op.ui.slide_acts_all();
         assert_eq!(g.get_slide_options().row_count(), 2);
         g.set_slide(1);
         g.invoke_add(tile_code(&op, "Clear audio").into());
@@ -224,7 +224,7 @@ mod tests {
         add_text(&app, "Welcome", "One");
         let op = opened(&app);
         op.ui.invoke_menu("action-palette".into());
-        assert!(op.ui.global::<SlideActs>().get_open());
+        assert!(op.ui.slide_acts_all().get_open());
         op.ui.invoke_menu("start-preservice".into());
         // No start time set: the toast says what to do, nothing goes up.
         assert!(op.state.borrow().toasts.last().is_some());

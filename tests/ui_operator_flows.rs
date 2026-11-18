@@ -195,17 +195,17 @@ fn clear_all_from_button_and_f1() {
     assert_eq!(f.label("LiveColumn::live-what"), "Clear");
     // F1 clears too, even while the keyboard is in the Bible box; nothing is typed there.
     show();
-    f.click("TopBar::bible-input");
+    f.click("BibleBox::bible-input");
     f.press("J");
     f.key(Key::F1);
     empty();
-    assert_eq!(f.get("TopBar::bible-input").accessible_value().unwrap_or_default(), "J");
+    assert_eq!(f.get("BibleBox::bible-input").accessible_value().unwrap_or_default(), "J");
 }
 
 #[test]
 fn bible_lookup_then_enter_takes_it_live() {
     let f = flow(|_| {});
-    let input = f.get("TopBar::bible-input");
+    let input = f.get("BibleBox::bible-input");
     input.mock_single_click(PointerEventButton::Left);
     input.set_accessible_value("John 3:16");
     // Enter in the box looks the passage up, adds it and arms it; nothing goes live yet.

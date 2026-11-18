@@ -436,6 +436,7 @@ mod tests {
         ];
         let op = open(&app);
         op.window().set_size(slint::LogicalSize::new(1440.0, 900.0));
+        slint::platform::update_timers_and_animations();
         refresh(&op);
         let click = |id| {
             find(&op, id).unwrap_or_else(|| panic!("{id} not found")).mock_single_click(PointerEventButton::Left);

@@ -247,6 +247,18 @@ impl Operator {
         self.ui.set_zoom_percent((zoom_of(next) * 100.0).round() as i32);
     }
 
+    /// A first zoom that suits the screen (View → Zoom changes it): a small laptop screen (1366 × 768 at 125 %
+    /// leaves 1093 × 614 to lay out) draws smaller so every panel fits; a large monitor at 100 % draws a little
+    /// larger so its text is not tiny. Nothing on the testing backend, which has no monitor.
+    pub(crate) fn auto_zoom(&self) {
+        use slint::winit_030::WinitWindowAccessor;
+        let Some((w, h)) = self.window().with_winit_window(|w| w.current_monitor().map(|m| {
+            let s = m.size().to_logical::<f32>(m.scale_factor());
+            (s.width, s.height)
+        })).flatten() else { return };
+        if let Some(step) = auto_zoom_step(w, h) { self.zoom(step) }
+    }
+
     /// View → Listen in headphones (N21): turns Listen on or off and says where the sound goes now.
     fn listen(self: &Rc<Self>) {
         let on = !self.ui.get_listening();
@@ -271,6 +283,15 @@ impl Operator {
 }
 
 fn zoom_of(step: i8) -> f32 { ZOOMS[(step + ZOOM_AT_100) as usize] }
+
+/// The zoom step for a monitor `w` × `h` (logical pixels, the taskbar included): the largest of 100 %, 90 % and 80 %
+/// that leaves at least 1024 × 700 for the window (the taskbar and title bar take the rest of 768), 110 % on a
+/// screen of 2400 × 1300 or more; `None` for 100 %.
+pub(crate) fn auto_zoom_step(w: f32, h: f32) -> Option<i8> {
+    if w >= 2400.0 && h >= 1300.0 { return Some(1) }
+    if w >= 1024.0 && h >= 760.0 { return None }
+    (1..=ZOOM_AT_100).find(|k| w / zoom_of(-k) >= 1024.0 && h / zoom_of(-k) >= 760.0).or(Some(ZOOM_AT_100)).map(|k| -k)
+}
 
 /// What the menu shows from a new snapshot: Undo / Redo and the recent files.
 pub(super) fn render(op: &Operator, s: &OperatorSnapshot) {

@@ -54,3 +54,35 @@ OBS) and **pop panels out into their own window** on another monitor.
 - **Tests**: the dock model thoroughly (drops in every zone, closing the last panel of a tab group, minimums, shares,
   pop out/in, lenient loading); the window driven inline (arrange mode, a divider drag, saving and choosing a layout,
   a pop-out window opened and closed and its panels coming back, a panel's state shown in the pop-out window).
+
+## As built (November 17, 2026, branch `dock-panels`)
+
+- **The overlap Jake saw**, measured in today's window (testing backend, live with every stream button on): the
+  Bible box's form had a fixed smallest width of 260 px, smaller than what is inside it (the box, the chosen Bible,
+  the favourite chips, the Verses chip, Ctrl B). When the top bar ran short of room (always once the live buttons
+  show), the form was squeezed to 260 px and its chips and Verses chip ran past its right edge over the **Room**
+  light (1440 × 900: Verses chip at x 549–630, Room light at 508–574). At every width the bar also ran past the
+  window (Settings at x 1868 in a 1440 window). Separately, its pop-up lists (the Bible picker, Recent verses) dropped
+  down from the top bar over the top of the Live column, where the audience screen preview is.
+- **Now**: the Bible box is a panel of its own (in Standard: over the service list and slides, never over Live); its
+  smallest size comes from what is in it, and the dock never makes a panel smaller than its content needs. Pop-up
+  lists ask `DockGuard` where they may go: never over the Live or Stage preview panels of their window (moved beside
+  them, or made shorter). The top bar puts Clip, Save last, the stage layout and the stream's buttons under **More**
+  when it runs short, so nothing runs past the window.
+- **Sizes**: a split's child is a share (`Weight`), a number of pixels (`Px`) or as large as its content wants
+  (`Fit`, the Bible box and the library, so folding the library gives the slides the room as before). Standard is
+  today's window: the live column 440 px, the service list 264 px, 8 px gaps (the gaps are the dividers).
+- **Nothing cut off**: each panel tells the model its content's smallest size; a window smaller than its panels need
+  scrolls. A first zoom suits the screen (80–90 % on small laptop screens, 110 % on large monitors at 100 %); View →
+  Zoom still changes it.
+- **Panels that were parts of the live column or the top bar** (Up next, Follow, Cameras, Message and macros,
+  Livestream) are shown there unless they are panels of their own, so Standard is today's window and nothing is ever
+  shown twice or lost. Stage preview is new (a picture of the stage window once a second while it is shown).
+- **Layouts**: the arrangement in use is kept as it is changed; choosing a layout copies it in, "Save this layout
+  as…" stores it under a name (a name used again replaces that layout). Deleting the layout in use goes back to
+  Standard.
+- **Windows of their own**: `PanelWindow`; the panel globals are written to every window by code `crates/rp-ui/
+  build.rs` writes from Slint's own Rust API (`<Global>All`, the old property names on `OperatorWindow`,
+  `copy_panes`, `forward_panes`), so no list of properties has to be kept by hand. Its monitor and place are
+  remembered every few seconds and on every change. Dragging a panel between two windows is not possible (a drag
+  stays in its window); the ⋯ menu moves it ("Move to …", "Move back to the main window").

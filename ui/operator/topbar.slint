@@ -1,40 +1,21 @@
-// The operator's top bar (`web/operator.html:11-24`, `operator.css:28-46`): brand, service picker, Bible box,
-// status pills, Screens, Phone and Settings. The Bible box only draws here; its behaviour is in `src/ui/operator/bible.rs`.
+// The operator's top bar (`web/operator.html:11-24`, `operator.css:28-46`): brand, service picker, status lights,
+// Record and Go Live, Screens, Remote and Settings. The Bible box is a panel of its own (dock panels design). What
+// does not fit goes under More, so nothing runs past the window or over anything else.
 import { Theme, OperatorState } from "../theme.slint";
-import { EditMenu, Icon, TopBtn, Pill, Kbd, TipArea } from "../widgets.slint";
-
-import { BiblePickerList, TranslationChip } from "../bible-picker.slint";
+import { Icon, TopBtn, Pill, TipArea } from "../widgets.slint";
 import { StageLayoutButton } from "../dialogs/stage-layouts.slint";
-import { PanelExtras } from "extras.slint";
-import { RecordBtn, ClipBtn, ChatBtn, LiveBtn, PanicBtn, SceneBtn, SoundMeter } from "record.slint";
-import { LiveStatusBtn } from "live-status.slint";
+import { RecordBtn, ClipBtn, LiveBtn } from "record.slint";
 import { SaveLastBtn } from "save-last.slint";
-
-export { TranslationChip }
+import { StreamWatch, StreamPanic } from "stream-buttons.slint";
+import { StreamPane, DockShared } from "panes.slint";
+import { DockGuard } from "dock-guard.slint";
 
 export component TopBar inherits Rectangle {
-    /// Window width ≤ 1250 px: no brand word, Screens/Phone as icons, pills as dots (`operator.css:239`).
+    /// Window width ≤ 1250 px: no brand word, Screens/Remote as icons, lights as dots (`operator.css:239`).
     in property <bool> narrow;
-    /// The window is too narrow for the favourite and recent chips: the Bible box shows only the chosen one.
+    /// Below 1400 px: Record shows only its dot.
     in property <bool> compact;
-    /// There is room for the Verses button.
-    in property <bool> verses-shown;
-    /// A dialog or question is over the window: the Bible box takes no focus (Tab would otherwise reach it).
-    in property <bool> covered;
     in property <string> service-name;
-    /// The chips Alt+1…5 pick: the chosen Bible, then favourites and recent ones.
-    in property <[TranslationChip]> translations;
-    /// `translations` without the chosen one: the chips drawn after it.
-    in property <[TranslationChip]> quick-chips;
-    /// The chosen Bible's chip text.
-    in property <string> translation;
-    /// The picker's lines, its search and the line above the list (no match).
-    in property <[TranslationChip]> picker-rows;
-    in-out property <string> picker-search;
-    in property <string> picker-note;
-    in-out property <string> bible-text;
-    /// Verses per slide for the next passage: 0 Automatic, else 1–4.
-    in property <int> bible-per-slide;
     in property <bool> room-on;
     /// "on" or "warn".
     in property <string> room-state: "warn";
@@ -45,90 +26,28 @@ export component TopBar inherits Rectangle {
     in property <string> check-tip;
     in property <bool> stage-shown;
     in property <bool> stage-on;
-    /// "1 phone", "2 phones"; empty hides the pill.
+    /// "1 remote", "2 remotes"; empty hides the light.
     in property <string> phones-label;
-    /// N22: recording the room, and for how long.
-    in property <bool> recording;
-    /// Recording with a clip open (Clip pressed once).
-    in property <bool> clipping;
-    callback toggle-clip();
-    /// Recording, with More settings keeping the last minutes: how many (0: no button).
-    in property <int> replay-minutes;
-    callback save-last();
-    in property <string> record-time;
-
-    callback record();
-    /// Livestreaming: a destination is switched on (the button shows), and a stream is going out.
-    in property <bool> can-stream;
-    in property <bool> live;
-    in property <int> live-up;
-    in property <int> live-total;
-    in property <int> live-watching: -1;
-    callback go-live();
-    /// The stream's panic buttons, shown while live: Freeze (every picture stays; `Recording::hold`) and Mute (silence goes out).
-    in property <bool> live-held;
-    in property <bool> live-muted;
-    callback hold-stream();
-    callback mute-stream();
-    /// The stream's scene (1.3b, `SceneBtn`): the names, the one going out, the one chosen by hand (-1 Automatic).
-    in property <[string]> scene-labels;
-    in property <int> scene-out;
-    in property <int> scene-chosen: -1;
-    callback pick-scene(int);
-    /// The stream's sound meter: lit bars, or -1 to hide it (no sound going out to measure).
-    in property <int> live-level: -1;
-    /// Two cameras or more while live: their names, and the one in the picture.
-    in property <[string]> camera-labels;
-    in property <int> camera-active;
-    callback pick-camera(int);
-    /// The camera in the picture can be moved: how many saved positions it offers (0: none).
-    in property <int> camera-positions;
-    /// Signed in, while live: the viewers' chat, newest last, and how many came since the list was last opened.
-    in property <bool> chat-on;
-    in property <[string]> chat-lines;
-    in property <int> chat-new;
-    callback chat-opened();
-    callback pick-position(int);
     callback services();
     callback screens();
     callback phone();
     callback stage-message();
     callback check();
     callback settings();
-    callback bible-submit(string);
-    callback pick-translation(int);
-    /// The picker is about to open: the window fills its lines.
-    callback picker-opening();
-    callback picker-search-changed(string);
-    /// Enter in the picker's search.
-    callback picker-accept();
-    callback pick-bible(string);
-    callback toggle-favourite(string);
-    /// "Find more Bibles…" with the picker's search.
-    callback find-more-bibles(string);
-    /// The Verses chip: the next verses-per-slide choice.
-    callback cycle-per-slide();
+    /// Gives the keyboard back to the window after a click.
+    callback focus-keys();
 
-    /// The Bible box has the keyboard focus (the window's keys then leave typing keys to it).
-    out property <bool> bible-focused: bible-input.has-focus;
-
-    /// Opens the Bible picker on an empty search.
-    public function open-picker() {
-        root.picker-search = "";
-        root.picker-opening();
-        picker.show();
-    }
-
-    /// N6: the Bible box's last references (Edit → Recent verses).
-    public function open-history() {
-        if PanelExtras.history.length > 0 { history-popup.show(); }
-    }
-
-    /// Ctrl+B: focus the Bible box with its whole text selected (`operator.js:308`).
-    public function focus-bible() {
-        bible-input.focus();
-        bible-input.select-all();
-    }
+    /// Not everything fits the window: Clip, Save last, the stage layout and the stream's buttons go under More.
+    /// They sit in boxes that need no room of their own (`min-width: 0`), so `need` (what the whole bar would take)
+    /// is the same whether they show or not. Rust compares it with the window's width and sets `tight`
+    /// (`Operator::fit_top_bar`), told by `need-changed` when it changes.
+    in property <bool> tight;
+    out property <length> need: bar.min-width + rec-row.preferred-width + stage-row.preferred-width + stream-row.preferred-width + 44px;
+    callback need-changed();
+    changed need => { root.need-changed(); }
+    /// Something is under More now.
+    property <bool> more-shown: root.tight && (StreamPane.recording || root.stage-shown
+        || (StreamPane.live && !DockShared.livestream-apart));
 
     height: 60px;
     background: Theme.panel;
@@ -140,7 +59,9 @@ export component TopBar inherits Rectangle {
         background: Theme.line;
     }
 
-    HorizontalLayout {
+    clip: true;
+
+    bar := HorizontalLayout {
         padding-left: 14px;
         padding-right: 14px;
         spacing: 10px;
@@ -223,343 +144,8 @@ export component TopBar inherits Rectangle {
             }
         }
 
-        // `.bible`: up to 760 px wide, centred in the space left (`margin: 0 auto`).
-        HorizontalLayout {
-            horizontal-stretch: 1;
-            alignment: center;
-            VerticalLayout {
-                alignment: center;
-                horizontal-stretch: 1;
-                max-width: 900px;
-                preferred-width: 900px;
-                form := Rectangle {
-                    property <bool> focused: bible-input.has-focus;
-                    height: 42px;
-                    min-width: 260px;
-                    background: Theme.bg;
-                    border-width: 1.5px;
-                    border-radius: 11px;
-                    border-color: self.focused ? Theme.accent : Theme.line;
-                    animate border-color { duration: 150ms; }
-
-                    // `.bible:focus-within` box-shadow: a 4 px ring outside the border.
-                    Rectangle {
-                        x: -4px;
-                        y: -4px;
-                        width: parent.width + 8px;
-                        height: parent.height + 8px;
-                        border-radius: 15px;
-                        border-width: 4px;
-                        border-color: form.focused ? Theme.focus-ring : transparent;
-                        animate border-color { duration: 150ms; }
-                    }
-
-                    history-popup := PopupWindow {
-                        x: 0;
-                        y: parent.height + 8px;
-                        width: min(360px, parent.width);
-                        close-policy: close-on-click-outside;
-                        Rectangle {
-                            background: Theme.panel;
-                            border-color: Theme.line;
-                            border-width: 1px;
-                            border-radius: 10px;
-                            drop-shadow-blur: 24px;
-                            drop-shadow-offset-y: 8px;
-                            drop-shadow-color: Theme.shadow-dialog;
-                            VerticalLayout {
-                                padding: 6px;
-                                spacing: 1px;
-                                HorizontalLayout {
-                                    padding-left: 9px;
-                                    height: 22px;
-                                    Text {
-                                        text: @tr("Recent verses");
-                                        color: Theme.faint;
-                                        font-family: Theme.font;
-                                        font-size: 10.5px;
-                                        font-weight: 700;
-                                        vertical-alignment: center;
-                                    }
-                                }
-                                for reference in PanelExtras.history: history-row := Rectangle {
-                                    height: 30px;
-                                    border-radius: 6px;
-                                    background: history-row-ta.has-hover ? Theme.raise : transparent;
-                                    accessible-role: button;
-                                    accessible-label: reference;
-                                    accessible-action-default => {
-                                        history-popup.close();
-                                        bible-input.focus();
-                                        PanelExtras.history-pick(reference);
-                                    }
-                                    Text {
-                                        x: 9px;
-                                        width: parent.width - 18px;
-                                        text: reference;
-                                        color: Theme.text;
-                                        font-family: Theme.font;
-                                        font-size: 13px;
-                                        vertical-alignment: center;
-                                        overflow: elide;
-                                    }
-                                    history-row-ta := TouchArea {
-                                        mouse-cursor: pointer;
-                                        clicked => {
-                                            history-popup.close();
-                                            bible-input.focus();
-                                            PanelExtras.history-pick(reference);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    HorizontalLayout {
-                        padding-left: 12px;
-                        padding-right: 8px;
-                        spacing: 8px;
-                        VerticalLayout {
-                            alignment: center;
-                            Icon {
-                                name: "book";
-                                color: Theme.accent;
-                            }
-                        }
-                        Rectangle {
-                            horizontal-stretch: 1;
-                            min-width: 120px;
-                            if bible-input.text == "": Text {
-                                x: 0;
-                                y: 0;
-                                width: parent.width;
-                                height: parent.height;
-                                text: @tr("Bible verse — type John 3:16 and press Enter");
-                                color: Theme.faint;
-                                font-family: Theme.font;
-                                font-size: 15px;
-                                overflow: elide;
-                                vertical-alignment: center;
-                            }
-                            bible-input := TextInput {
-                                x: 0;
-                                y: 0;
-                                width: parent.width;
-                                height: parent.height;
-                                text <=> root.bible-text;
-                                single-line: true;
-                                color: Theme.text;
-                                selection-background-color: Theme.accent;
-                                selection-foreground-color: Theme.accent-ink;
-                                font-family: Theme.font;
-                                font-size: 15px;
-                                vertical-alignment: center;
-                                enabled: !root.covered;
-                                accessible-placeholder-text: @tr("Bible verse — type John 3:16 and press Enter");
-                                changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
-                                accepted => { root.bible-submit(self.text); }
-                                EditMenu {
-                                    x: 0;
-                                    y: 0;
-                                    width: 100%;
-                                    height: 100%;
-                                    has-text: bible-input.text != "";
-                                    cut-text => { bible-input.cut(); }
-                                    copy-text => { bible-input.copy(); }
-                                    paste-text => { bible-input.paste(); }
-                                    select-text => { bible-input.select-all(); }
-                                }
-                            }
-                        }
-                        // N6: the last references typed here, one click to add again.
-                        if PanelExtras.history.length > 0: VerticalLayout {
-                            horizontal-stretch: 0;
-                            alignment: center;
-                            history-btn := Rectangle {
-                                width: 26px;
-                                height: 26px;
-                                border-radius: 6px;
-                                background: history-ta.has-hover ? Theme.raise : transparent;
-                                accessible-role: button;
-                                accessible-label: @tr("Recent verses");
-                                accessible-action-default => { root.open-history(); }
-                                Icon {
-                                    width: 15px;
-                                    height: 15px;
-                                    name: "restart";
-                                    color: Theme.muted;
-                                }
-                                history-ta := TouchArea {
-                                    mouse-cursor: pointer;
-                                    clicked => { root.open-history(); }
-                                }
-                                TipArea { text: @tr("Recent verses"); hover: history-ta.has-hover; pressed: history-ta.pressed; pointer-x: history-ta.mouse-x; }
-                            }
-                        }
-                        // The chosen Bible and a chevron: a click opens the picker (spec §7.2).
-                        VerticalLayout {
-                            horizontal-stretch: 0;
-                            alignment: center;
-                            translation-pick := Rectangle {
-                                border-radius: 6px;
-                                background: Theme.accent;
-                                accessible-role: button;
-                                accessible-label: root.translation;
-                                accessible-description: @tr("Choose a Bible");
-                                accessible-action-default => { root.open-picker(); }
-                                HorizontalLayout {
-                                    padding-top: 5px;
-                                    padding-bottom: 5px;
-                                    padding-left: 7px;
-                                    padding-right: 5px;
-                                    spacing: 3px;
-                                    Text {
-                                        text: root.translation;
-                                        color: Theme.accent-ink;
-                                        font-family: Theme.font;
-                                        font-size: 11.5px;
-                                        font-weight: 700;
-                                        vertical-alignment: center;
-                                    }
-                                    VerticalLayout {
-                                        alignment: center;
-                                        Icon {
-                                            width: 14px;
-                                            height: 14px;
-                                            name: "chevron-down";
-                                            color: Theme.accent-ink;
-                                        }
-                                    }
-                                }
-                                pick-ta := TouchArea {
-                                    mouse-cursor: pointer;
-                                    clicked => { root.open-picker(); }
-                                }
-                                TipArea { text: @tr("Choose a Bible"); hover: pick-ta.has-hover; pressed: pick-ta.pressed; pointer-x: pick-ta.mouse-x; }
-                                picker := PopupWindow {
-                                    x: parent.width - self.width;
-                                    y: parent.height + 8px;
-                                    width: 300px;
-                                    close-policy: close-on-click-outside;
-                                    BiblePickerList {
-                                        rows: root.picker-rows;
-                                        search <=> root.picker-search;
-                                        note: root.picker-note;
-                                        search-changed(text) => { root.picker-search-changed(text); }
-                                        // Enter picks the first Bible listed; a row's click picks it. Either way the
-                                        // Bible box takes the keyboard again, as after a chip.
-                                        accept => {
-                                            root.picker-accept();
-                                            picker.close();
-                                            bible-input.focus();
-                                        }
-                                        pick(id) => {
-                                            bible-input.focus();
-                                            root.pick-bible(id);
-                                            picker.close();
-                                        }
-                                        toggle-favourite(id) => { root.toggle-favourite(id); }
-                                        find-more(q) => {
-                                            picker.close();
-                                            root.find-more-bibles(q);
-                                        }
-                                        info(id) => {
-                                            picker.close();
-                                            PanelExtras.bible-info(id);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        // The favourite and recent Bibles as one-click chips (Alt+2…5); hidden in a narrow window.
-                        if !root.compact: HorizontalLayout {
-                            spacing: 3px;
-                            for chip[i] in root.quick-chips: VerticalLayout {
-                                alignment: center;
-                                translation-chip := Rectangle {
-                                    // Its full name, or how to connect it.
-                                    property <string> tip: chip.off
-                                        ? @tr("{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible.", chip.name)
-                                        : chip.full-name != "" ? chip.full-name : chip.name;
-                                    border-radius: 6px;
-                                    background: transparent;
-                                    opacity: chip.off ? 0.4 : 1;
-                                    accessible-role: button;
-                                    accessible-label: chip.name;
-                                    accessible-checked: chip.on;
-                                    accessible-description: self.tip;
-                                    HorizontalLayout {
-                                        padding-top: 5px;
-                                        padding-bottom: 5px;
-                                        padding-left: 7px;
-                                        padding-right: 7px;
-                                        Text {
-                                            text: chip.name;
-                                            color: Theme.muted;
-                                            font-family: Theme.font;
-                                            font-size: 11.5px;
-                                            font-weight: 700;
-                                            vertical-alignment: center;
-                                        }
-                                    }
-                                    chip-ta := TouchArea {
-                                        mouse-cursor: pointer;
-                                        // The web refocuses the input after a pick (`operator.js:101`).
-                                        clicked => {
-                                            bible-input.focus();
-                                            root.pick-translation(i + 1);
-                                        }
-                                    }
-                                    TipArea { text: translation-chip.tip; hover: chip-ta.has-hover; pressed: chip-ta.pressed; pointer-x: chip-ta.mouse-x; }
-                                }
-                            }
-                        }
-                        // Verses per slide for the next passage; a click moves to the next choice.
-                        if root.verses-shown: VerticalLayout {
-                            alignment: center;
-                            per-slide-chip := Rectangle {
-                                property <string> value: root.bible-per-slide == 0 ? @tr("Auto") : "\{root.bible-per-slide}";
-                                border-radius: 6px;
-                                border-width: 1px;
-                                border-color: per-slide-ta.has-hover ? Theme.accent : Theme.line;
-                                accessible-role: button;
-                                accessible-label: @tr("Verses per slide");
-                                accessible-value: self.value;
-                                accessible-description: @tr("Verses per slide for the next passage. Click to change.");
-                                accessible-action-default => { root.cycle-per-slide(); }
-                                HorizontalLayout {
-                                    padding-top: 4px;
-                                    padding-bottom: 4px;
-                                    padding-left: 7px;
-                                    padding-right: 7px;
-                                    Text {
-                                        text: root.narrow ? per-slide-chip.value : @tr("Verses: {}", per-slide-chip.value);
-                                        color: Theme.muted;
-                                        font-family: Theme.font;
-                                        font-size: 11.5px;
-                                        font-weight: 700;
-                                        vertical-alignment: center;
-                                    }
-                                }
-                                per-slide-ta := TouchArea {
-                                    mouse-cursor: pointer;
-                                    clicked => {
-                                        bible-input.focus();
-                                        root.cycle-per-slide();
-                                    }
-                                }
-                                TipArea { text: @tr("Verses per slide for the next passage. Click to change."); hover: per-slide-ta.has-hover; pressed: per-slide-ta.pressed; pointer-x: per-slide-ta.mouse-x; }
-                            }
-                        }
-                        VerticalLayout {
-                            alignment: center;
-                            Kbd { text: @tr("Ctrl B"); }
-                        }
-                    }
-                }
-            }
-        }
+        // The room the Bible box had (a panel of its own now): the status lights and buttons keep to the right.
+        Rectangle { horizontal-stretch: 1; min-width: 0px; }
 
         // `.status`
         HorizontalLayout {
@@ -598,7 +184,7 @@ export component TopBar inherits Rectangle {
                 status-phones := Pill {
                     label: root.phones-label;
                     state: "on";
-                    tooltip: @tr("Phone remotes connected");
+                    tooltip: @tr("Remotes connected");
                     narrow: root.narrow;
                 }
             }
@@ -614,106 +200,76 @@ export component TopBar inherits Rectangle {
                 clicked => { root.stage-message(); }
             }
         }
-        if root.stage-shown: VerticalLayout {
+        // The stage layout button; under More when the bar is tight.
+        Rectangle {
+            min-width: 0px;
             horizontal-stretch: 0;
-            alignment: center;
-            stage-layout-btn := StageLayoutButton { narrow: root.narrow; }
+            max-width: root.tight ? 0px : stage-row.preferred-width;
+            clip: true;
+            stage-row := HorizontalLayout {
+                if root.stage-shown: VerticalLayout {
+                    alignment: center;
+                    stage-layout-btn := StageLayoutButton { narrow: root.narrow; }
+                }
+            }
         }
         VerticalLayout {
             horizontal-stretch: 0;
             alignment: center;
             record-btn := RecordBtn {
-                recording: root.recording;
-                time: root.record-time;
+                recording: StreamPane.recording;
+                time: StreamPane.record-time;
                 // Only the dot below 1400 px: with its word the bar overflows just above `narrow`.
                 narrow: root.compact;
-                clicked => { root.record(); }
+                clicked => { root.focus-keys(); StreamPane.record(); }
             }
         }
-        if root.recording: VerticalLayout {
+        // Clip and Save last while recording; under More when the bar is tight.
+        Rectangle {
+            min-width: 0px;
             horizontal-stretch: 0;
-            alignment: center;
-            clip-btn := ClipBtn {
-                clipping: root.clipping;
-                clicked => { root.toggle-clip(); }
+            max-width: root.tight ? 0px : rec-row.preferred-width;
+            clip: true;
+            rec-row := HorizontalLayout {
+                spacing: 10px;
+                if StreamPane.recording: VerticalLayout {
+                    alignment: center;
+                    clip-btn := ClipBtn {
+                        clipping: StreamPane.clipping;
+                        clicked => { root.focus-keys(); StreamPane.toggle-clip(); }
+                    }
+                }
+                if StreamPane.recording && StreamPane.replay-minutes > 0: VerticalLayout {
+                    alignment: center;
+                    save-last-btn := SaveLastBtn {
+                        minutes: StreamPane.replay-minutes;
+                        clicked => { root.focus-keys(); StreamPane.save-last(); }
+                    }
+                }
             }
         }
-        if root.recording && root.replay-minutes > 0: VerticalLayout {
-            horizontal-stretch: 0;
-            alignment: center;
-            save-last-btn := SaveLastBtn {
-                minutes: root.replay-minutes;
-                clicked => { root.save-last(); }
-            }
-        }
-        if root.can-stream || root.live: VerticalLayout {
+        if StreamPane.can-stream || StreamPane.live: VerticalLayout {
             horizontal-stretch: 0;
             alignment: center;
             live-btn := LiveBtn {
-                live: root.live;
-                up: root.live-up;
-                total: root.live-total;
-                watching: root.live-watching;
-                clicked => { root.go-live(); }
+                live: StreamPane.live;
+                up: StreamPane.live-up;
+                total: StreamPane.live-total;
+                watching: StreamPane.live-watching;
+                clicked => { root.focus-keys(); StreamPane.go-live(); }
             }
         }
-        if root.live: VerticalLayout {
+        // While live: the stream's own buttons, unless the Livestream panel shows them; under More when tight.
+        Rectangle {
+            min-width: 0px;
             horizontal-stretch: 0;
-            alignment: center;
-            live-status := LiveStatusBtn { }
-        }
-        if root.live && root.chat-on: VerticalLayout {
-            horizontal-stretch: 0;
-            alignment: center;
-            chat-btn := ChatBtn {
-                lines: root.chat-lines;
-                new: root.chat-new;
-                opened => { root.chat-opened(); }
+            max-width: root.tight ? 0px : stream-row.preferred-width;
+            clip: true;
+            stream-row := HorizontalLayout {
+                spacing: 10px;
+                if StreamPane.live && !DockShared.livestream-apart: StreamWatch { focus-keys => { root.focus-keys(); } }
+                if StreamPane.live && !DockShared.livestream-apart: StreamPanic { focus-keys => { root.focus-keys(); } }
             }
-        }
-        if root.live && root.scene-labels.length > 0: VerticalLayout {
-            horizontal-stretch: 0;
-            alignment: center;
-            scene-btn := SceneBtn {
-                labels: root.scene-labels;
-                out: root.scene-out;
-                chosen: root.scene-chosen;
-                cameras: root.camera-labels;
-                camera: root.camera-active;
-                pick(i) => { root.pick-scene(i); }
-                pick-camera(i) => { root.pick-camera(i); }
-                positions: root.camera-positions;
-                pick-position(i) => { root.pick-position(i); }
-            }
-        }
-        if root.live: VerticalLayout {
-            horizontal-stretch: 0;
-            alignment: center;
-            hold-btn := PanicBtn {
-                on: root.live-held;
-                text: @tr("Freeze");
-                on-text: @tr("Frozen");
-                tip: @tr("Keep the stream's picture as it is now, while something private is on the screens");
-                on-tip: @tr("The stream shows a still picture. Click to show the live picture again");
-                clicked => { root.hold-stream(); }
-            }
-        }
-        if root.live: VerticalLayout {
-            horizontal-stretch: 0;
-            alignment: center;
-            mute-btn := PanicBtn {
-                on: root.live-muted;
-                text: @tr("Mute");
-                on-text: @tr("Muted");
-                tip: @tr("Send silence to the stream instead of the sound");
-                on-tip: @tr("The stream is silent. Click to send the sound again");
-                clicked => { root.mute-stream(); }
-            }
-        }
-        if root.live && root.live-level >= 0: VerticalLayout {
-            horizontal-stretch: 0;
-            alignment: center;
-            sound-meter := SoundMeter { bars: root.live-level; }
         }
         VerticalLayout {
             horizontal-stretch: 0;
@@ -730,9 +286,65 @@ export component TopBar inherits Rectangle {
             alignment: center;
             phone-btn := TopBtn {
                 icon: "phone";
-                text: @tr("Phone");
+                text: @tr("Remote");
                 narrow: root.narrow;
                 clicked => { root.phone(); }
+            }
+        }
+        // More: in a box that needs no room of its own, like the ones it holds (see `tight`).
+        Rectangle {
+            min-width: 0px;
+            horizontal-stretch: 0;
+            max-width: root.more-shown ? more-row.preferred-width : 0px;
+            clip: true;
+            more-row := VerticalLayout {
+            alignment: center;
+            more-btn := TopBtn {
+                icon: "dots";
+                icon-only: true;
+                tooltip: @tr("More");
+                clicked => { more-menu.show(); }
+            }
+            more-menu := PopupWindow {
+                // Under the button, never over the audience or stage preview (`DockGuard`).
+                property <length> want-x: more-btn.absolute-position.x + more-btn.width - 320px;
+                property <length> ay: more-btn.absolute-position.y + more-btn.height + 6px;
+                x: DockGuard.place-x(self.want-x, self.ay, 320px, 200px) - more-btn.absolute-position.x;
+                y: more-btn.height + 6px;
+                width: 320px;
+                close-policy: close-on-click-outside;
+                Rectangle {
+                    background: Theme.panel;
+                    border-color: Theme.line;
+                    border-width: 1px;
+                    border-radius: 10px;
+                    drop-shadow-blur: 24px;
+                    drop-shadow-offset-y: 8px;
+                    drop-shadow-color: Theme.shadow-dialog;
+                    VerticalLayout {
+                        padding: 10px;
+                        spacing: 8px;
+                        if StreamPane.recording: HorizontalLayout {
+                            spacing: 8px;
+                            alignment: start;
+                            ClipBtn {
+                                clipping: StreamPane.clipping;
+                                clicked => { root.focus-keys(); StreamPane.toggle-clip(); }
+                            }
+                            if StreamPane.replay-minutes > 0: SaveLastBtn {
+                                minutes: StreamPane.replay-minutes;
+                                clicked => { root.focus-keys(); StreamPane.save-last(); }
+                            }
+                        }
+                        if root.stage-shown: HorizontalLayout {
+                            alignment: start;
+                            StageLayoutButton { }
+                        }
+                        if StreamPane.live && !DockShared.livestream-apart: StreamWatch { focus-keys => { root.focus-keys(); } }
+                        if StreamPane.live && !DockShared.livestream-apart: StreamPanic { focus-keys => { root.focus-keys(); } }
+                    }
+                }
+            }
             }
         }
         VerticalLayout {

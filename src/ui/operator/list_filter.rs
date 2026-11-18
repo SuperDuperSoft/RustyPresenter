@@ -1,8 +1,6 @@
 //! N8: the filter box under each list (`ui/filter.slint`). A row shows while its text holds every typed word, in any
 //! order and any letter case; the Slint side asks `matches` for each row.
 use super::window::Operator;
-use crate::ui::ListFilter;
-use slint::ComponentHandle;
 
 /// Whether `text` holds every word of `query` (any order, any letter case). An empty query lets everything through.
 pub fn matches(text: &str, query: &str) -> bool {
@@ -11,7 +9,7 @@ pub fn matches(text: &str, query: &str) -> bool {
 }
 
 pub(super) fn wire(op: &Operator) {
-    op.ui.global::<ListFilter>().on_matches(|text, query| matches(&text, &query));
+    op.ui.list_filter_all().on_matches(|text, query| matches(&text, &query));
 }
 
 #[cfg(test)]

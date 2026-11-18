@@ -137,7 +137,11 @@ component BinTile inherits Rectangle {
 }
 
 export component MediaBin inherits VerticalLayout {
-    in-out property <bool> open: true;
+    /// The panel is too narrow for the tabs in a row: they become a drop-down, and the title only its chevron.
+    in property <bool> narrow;
+    /// Unfolded; the header's chevron asks for the other (`fold`), so every window follows.
+    in property <bool> open: true;
+    callback fold(bool);
     /// How tall the list under the tabs is. Shorter on a short window, so the slides keep their room.
     in property <length> body-height: 220px;
     /// The window is wide enough for the thumbnail size slider beside the tabs, the search box and Import.
@@ -197,7 +201,7 @@ export component MediaBin inherits VerticalLayout {
             accessible-label: root.tab == "songs" ? @tr("Songs") : @tr("Media library");
             accessible-expandable: true;
             accessible-expanded: root.open;
-            accessible-action-default => { root.open = !root.open; }
+            accessible-action-default => { root.fold(!root.open); }
             toggle-row := HorizontalLayout {
                 spacing: 6px;
                 VerticalLayout {
@@ -207,7 +211,7 @@ export component MediaBin inherits VerticalLayout {
                         color: Theme.muted;
                     }
                 }
-                Text {
+                if !root.narrow: Text {
                     text: root.tab == "songs" ? @tr("Songs") : @tr("Media library");
                     color: Theme.text;
                     font-family: Theme.font;
@@ -218,10 +222,20 @@ export component MediaBin inherits VerticalLayout {
             }
             TouchArea {
                 mouse-cursor: pointer;
-                clicked => { root.open = !root.open; }
+                clicked => { root.fold(!root.open); }
             }
         }
-        if root.open: Rectangle {
+        if root.open && root.narrow: VerticalLayout {
+            alignment: center;
+            tab-pick := Select {
+                width: 160px;
+                height: 32px;
+                options: [@tr("Songs"), @tr("All"), @tr("Videos"), @tr("Pictures"), @tr("Audio"), @tr("Video inputs")];
+                index: root.tab == "songs" ? 0 : root.tab == "video" ? 2 : root.tab == "image" ? 3 : root.tab == "audio" ? 4 : root.tab == "inputs" ? 5 : 1;
+                changed(i) => { root.set-tab(i == 0 ? "songs" : i == 2 ? "video" : i == 3 ? "image" : i == 4 ? "audio" : i == 5 ? "inputs" : "all"); }
+            }
+        }
+        if root.open && !root.narrow: Rectangle {
             width: tabs.preferred-width + 4px;
             border-radius: 8px;
             background: Theme.bg;
@@ -256,7 +270,9 @@ export component MediaBin inherits VerticalLayout {
             edited(t) => { root.song-search(t); }
         }
         // N8: the thumbnail size slider. It gives way on a narrow window, so Import always stays on the screen.
+        // It never makes the panel wider than it needs without it (`min-width`): it shows only where it fits.
         if root.open && root.tab != "songs" && root.roomy: HorizontalLayout {
+            min-width: 0px;
             spacing: 6px;
             VerticalLayout {
                 alignment: center;

@@ -197,7 +197,7 @@ mod tests {
         let ids = add_texts(&app, &["A", "B"]);
         let op = opened(&app);
         click_row(&op, ids[0]);
-        crate::ui::operator::window::testing::find(&op, "TopBar::bible-input").unwrap()
+        crate::ui::operator::window::testing::find(&op, "BibleBox::bible-input").unwrap()
             .mock_single_click(slint::platform::PointerEventButton::Left);
         for c in "Jn".chars() { press(&op, c) }
         key(&op, Key::Backspace);

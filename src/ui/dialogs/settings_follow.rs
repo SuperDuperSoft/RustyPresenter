@@ -355,7 +355,7 @@ mod tests {
         app.start_follower();
         let op = open(&app);
         refresh(&op);
-        op.ui.global::<crate::ui::FollowUi>().invoke_open_log();
+        op.ui.follow_ui_all().invoke_open_log();
         let g = op.ui.global::<SettingsDlg>();
         assert_eq!((g.get_tab(), g.get_follow_page()), (4, 2), "Settings → Auto-follow → Review log");
         assert_eq!(g.get_review_lines().row_count(), 0, "nothing yet");

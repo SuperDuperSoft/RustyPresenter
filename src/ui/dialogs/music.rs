@@ -154,7 +154,7 @@ mod tests {
     use crate::{
         app::test_app,
         model::{MediaFile, MediaStatus},
-        ui::{AutoStrip, operator::window::testing::{open as open_window, refresh}},
+        ui::{operator::window::testing::{open as open_window, refresh}},
     };
     use slint::Model;
 
@@ -169,7 +169,7 @@ mod tests {
         app.data.lock().unwrap().media.extend([audio("Hymn"), audio("Psalm")]);
         let op = open_window(&app);
         refresh(&op);
-        assert!(!op.ui.global::<AutoStrip>().get_music_shown(), "no walk-in music: no mini player");
+        assert!(!op.ui.auto_strip_all().get_music_shown(), "no walk-in music: no mini player");
         open(&op);
         let g = op.ui.global::<MusicDlg>();
         assert_eq!(g.get_library().row_count(), 2);
@@ -185,7 +185,7 @@ mod tests {
         assert!(g.get_playing());
         assert_eq!(app.automation.lock().unwrap().music.current(&app.data.lock().unwrap().automation.music).unwrap().title, "Psalm");
         op.apply_timers();
-        let s = op.ui.global::<AutoStrip>();
+        let s = op.ui.auto_strip_all();
         assert!(s.get_music_shown() && s.get_music_playing());
         assert_eq!(s.get_music_title(), "Psalm");
         s.invoke_music_toggle();

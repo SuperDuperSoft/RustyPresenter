@@ -3,6 +3,7 @@
 // camera, the sound, the computer and the live captions in plain words (`src/ui/operator/stream_extras.rs`).
 import { Theme } from "../theme.slint";
 import { Btn, TipArea } from "../widgets.slint";
+import { DockGuard } from "dock-guard.slint";
 
 /// One line of the list: 0 green, 1 amber, 2 red.
 export struct LiveStatusLine { light: int, text: string }
@@ -64,7 +65,9 @@ export component LiveStatusBtn inherits Rectangle {
     TipArea { text: @tr("How the stream is doing"); hover: status-ta.has-hover; pressed: status-ta.pressed; pointer-x: status-ta.mouse-x; }
 
     menu := PopupWindow {
-        x: root.width - 420px;
+        // Never over the audience or stage preview (`DockGuard`).
+
+        x: DockGuard.place-x(root.absolute-position.x + root.width - 420px, root.absolute-position.y + root.height + 4px, 420px, 300px) - root.absolute-position.x;
         y: root.height + 4px;
         width: 420px;
         close-policy: close-on-click-outside;

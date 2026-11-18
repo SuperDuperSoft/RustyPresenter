@@ -228,7 +228,7 @@ impl Operator {
     }
 
     /// One key press from the window's key scope; true when it was used (the scope then accepts it).
-    fn key(self: &Rc<Self>, text: &str, ctrl_or_cmd: bool, alt: bool, shift: bool, in_text_field: bool, in_bible_box: bool) -> bool {
+    pub(crate) fn key(self: &Rc<Self>, text: &str, ctrl_or_cmd: bool, alt: bool, shift: bool, in_text_field: bool, in_bible_box: bool) -> bool {
         let pressed = Chord::new(key_name(text).unwrap_or(text), ctrl_or_cmd, alt, shift);
         // Settings → Help is waiting for a new key (N28): it gets every key, and nothing else runs.
         if crate::ui::dialogs::settings_keys::capturing() {
@@ -239,7 +239,7 @@ impl Operator {
         let ctx = KeyCtx { in_text_field, in_bible_box, dialog_open: self.covered(), in_list };
         match route_in(&pressed, ctx, &self.keymap()) {
             KeyAction::Clear(cmd) => self.command(cmd, None),
-            KeyAction::FocusBible => self.ui.invoke_focus_bible(),
+            KeyAction::FocusBible => self.focus_bible(),
             // Only the keys drop the Bible arm; the Back/Next buttons keep it (`operator.js:314-315, 343-344`).
             action @ (KeyAction::Next | KeyAction::Prev) => {
                 self.state.borrow_mut().armed = None;
@@ -615,7 +615,7 @@ mod window_tests {
     fn type_text(op: &Operator, text: &str) { for c in text.chars() { press(op, c) } }
 
     fn click_bible_box(op: &Operator) {
-        find(op, "TopBar::bible-input").expect("Bible input").mock_single_click(PointerEventButton::Left);
+        find(op, "BibleBox::bible-input").expect("Bible input").mock_single_click(PointerEventButton::Left);
     }
 
     #[test]

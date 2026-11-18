@@ -332,12 +332,12 @@ fn repair_removes_duplicates_and_empty_parts() {
     let mut l = Layout {
         name: String::new(),
         windows: vec![
-            DockWindow { monitor: String::new(), place: None, root: row(vec![
+            DockWindow { monitor: String::new(), place: None, id: 0, root: row(vec![
                 child(tabs(&[Live, Live, Slides]), Size::Weight(f32::NAN)),
                 child(tabs(&[]), Size::Px(-3.0)),
                 child(column(vec![child(tabs(&[Service]), Size::Fit)]), Size::Px(f32::INFINITY)),
             ]) },
-            DockWindow { monitor: String::new(), place: None, root: tabs(&[]) },
+            DockWindow { monitor: String::new(), place: None, id: 0, root: tabs(&[]) },
         ],
         closed: vec![Live, Bible],
     };

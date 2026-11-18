@@ -5,10 +5,10 @@ use crate::{
     automation::{macros::MacroColor, music::{MusicReadout, MusicState}, slots},
     live::Command,
     timers::{RunState, TimerState, TimersView},
-    ui::{AutoMacroBtn, AutoMacroRow, AutoStrip, AutoTimerChip, ops::outcome_toast},
+    ui::{AutoMacroBtn, AutoMacroRow, AutoTimerChip, ops::outcome_toast},
 };
 use serde_json::{Value, json};
-use slint::{ComponentHandle, Model, ModelRc, VecModel};
+use slint::{Model, ModelRc, VecModel};
 use std::rc::{Rc, Weak};
 use uuid::Uuid;
 
@@ -52,7 +52,7 @@ pub fn timer_chips(view: &TimersView, in_room: &[Uuid], can_pause: impl Fn(Uuid)
 
 /// Draws the strip from the newest data, live view and timer readout.
 pub fn render(op: &Operator) {
-    let g = op.ui.global::<AutoStrip>();
+    let g = op.ui.auto_strip_all();
     let (overlays, macros) = {
         let st = op.state.borrow();
         let overlays = st.live.as_ref().map(|l| l.view().frame.overlays.clone()).unwrap_or_default();
@@ -83,7 +83,7 @@ pub fn render(op: &Operator) {
 
 /// N13: the mini player, from the newest readout.
 fn music(op: &Operator, m: Option<&MusicReadout>) {
-    let g = op.ui.global::<AutoStrip>();
+    let g = op.ui.auto_strip_all();
     g.set_music_shown(m.is_some());
     let Some(m) = m else { return };
     let stopped = m.state == MusicState::Stopped;
@@ -112,12 +112,12 @@ fn call(op: &Rc<Operator>, action: &'static str, body: Value) {
 }
 
 fn chip(op: &Operator, id: &str) -> Option<AutoTimerChip> {
-    let g = op.ui.global::<AutoStrip>();
+    let g = op.ui.auto_strip_all();
     g.get_timers().iter().find(|t| t.id == id)
 }
 
 pub(super) fn wire(op: &Rc<Operator>) {
-    let g = op.ui.global::<AutoStrip>();
+    let g = op.ui.auto_strip_all();
     let with = |f: fn(&Rc<Operator>)| {
         let me: Weak<Operator> = Rc::downgrade(op);
         move || if let Some(op) = me.upgrade() { f(&op) }
@@ -127,10 +127,10 @@ pub(super) fn wire(op: &Rc<Operator>) {
         move |id: slint::SharedString| if let Some(op) = me.upgrade() { f(&op, &id) }
     };
     g.on_message(with(|op| {
-        if op.ui.global::<AutoStrip>().get_message_on() { op.command(Command::HideMessage, None) } else { crate::ui::dialogs::show_message::open(op) }
+        if op.ui.auto_strip_all().get_message_on() { op.command(Command::HideMessage, None) } else { crate::ui::dialogs::show_message::open(op) }
     }));
     g.on_auto_toggle(with(|op| {
-        let paused = op.ui.global::<AutoStrip>().get_auto_paused();
+        let paused = op.ui.auto_strip_all().get_auto_paused();
         call(op, "auto/set", json!({ "on": paused }));
     }));
     g.on_open_automation(with(|op| crate::ui::dialogs::automation::open(op)));

@@ -2,8 +2,8 @@
 //! stage window taken once a second, so the operator can check it without walking to it. The performance line under
 //! the preview (N33) and Window → Audience screen in a window (N30) live here too.
 use super::{view::OperatorSnapshot, window::Operator};
-use crate::{model::ScreenTarget, ui::{OutputsState, perf}};
-use slint::{ComponentHandle, Image, Timer, TimerMode};
+use crate::{model::ScreenTarget, ui::{OutputsStateAll, dock::PanelId, perf}};
+use slint::{Image, Timer, TimerMode};
 use std::{rc::Rc, time::Duration};
 use uuid::Uuid;
 
@@ -26,18 +26,25 @@ pub(crate) struct OutputsUi {
 }
 
 impl Operator {
-    fn outputs(&self) -> OutputsState<'_> { self.ui.global::<OutputsState>() }
+    fn outputs(&self) -> OutputsStateAll<'_> { self.ui.outputs_state_all() }
 
     /// The picker under the preview: Room or Stage.
     pub(crate) fn set_preview_view(&self, view: i32) {
+        self.outputs().set_view(view);
+        self.follow_stage();
+    }
+
+    /// Pictures of the stage window while the preview or the Stage preview panel shows them, else none.
+    pub(crate) fn follow_stage(&self) {
         let g = self.outputs();
-        g.set_view(view);
+        let wanted = g.get_view() == STAGE || self.dock.prefs.borrow().current.is_shown(PanelId::Stage);
         let st = self.outputs_ui.borrow();
-        if view != STAGE {
+        if !wanted {
             st.stage_timer.stop();
             g.set_stage_frame(Image::default());
             return
         }
+        if st.stage_timer.running() { return }
         let me = self.me.clone();
         st.stage_timer.start(TimerMode::Repeated, STAGE_EVERY, move || if let Some(op) = me.upgrade() { op.stage_tick() });
         drop(st);
@@ -123,7 +130,7 @@ pub(super) fn render(op: &Operator, s: &OperatorSnapshot) {
     }
     drop(st);
     if on { op.perf_tick() }
-    if g.get_view() == STAGE { op.stage_tick() }
+    if g.get_view() == STAGE || op.dock.prefs.borrow().current.is_shown(PanelId::Stage) { op.stage_tick() }
 }
 
 pub(super) fn wire(op: &Rc<Operator>) {
@@ -165,7 +172,7 @@ mod tests {
         let open = Rc::new(Cell::new(true));
         let op = Operator::open(app.clone(), Ops::inline(app.clone()), Rc::new(StageScreens { open: open.clone() })).unwrap();
         refresh(&op);
-        let g = op.ui.global::<OutputsState>();
+        let g = op.ui.outputs_state_all();
         assert_eq!(g.get_view(), ROOM, "the room by default");
         assert_eq!(g.get_view_names().row_count(), 2);
         g.invoke_view_changed(STAGE);
@@ -187,7 +194,7 @@ mod tests {
         let app = test_app();
         let op = crate::ui::test_support::operator_for_tests(app.clone());
         refresh(&op);
-        let g = op.ui.global::<OutputsState>();
+        let g = op.ui.outputs_state_all();
         assert!(!g.get_show_perf());
         assert_eq!(g.get_perf(), "", "off by default");
         g.invoke_toggle_perf();
@@ -221,7 +228,7 @@ mod tests {
         app.edit(|d| { d.settings.screens.assign("audience", projector.clone()); d.settings.screens.audience.on = false; Ok(()) }).unwrap();
         let op = crate::ui::test_support::operator_for_tests(app.clone());
         refresh(&op);
-        let g = op.ui.global::<OutputsState>();
+        let g = op.ui.outputs_state_all();
         assert!(!g.get_room_windowed());
         g.invoke_toggle_room_window();
         refresh(&op);

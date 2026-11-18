@@ -9,7 +9,6 @@ use crate::{
     },
 };
 use i_slint_backend_testing::ElementHandle;
-use slint::ComponentHandle;
 use std::rc::Rc;
 use uuid::Uuid;
 
@@ -53,22 +52,25 @@ fn columns_and_top_bar_fit_the_window() {
     op.apply_live(LiveUpdate::new(op.app().live_view()));
     // The busiest live column: a phone drawing (its chip) and the performance line under the preview.
     op.ui.set_drawing_on(true);
-    op.ui.global::<crate::ui::OutputsState>().set_perf("Room 60 frames a second · Stage 60 frames a second · 1.2 GB video memory free".into());
+    op.ui.outputs_state_all().set_perf("Room 60 frames a second · Stage 60 frames a second · 1.2 GB video memory free".into());
     for size in SIZES {
         resize(&op, size);
+        // The preview's new width redraws it from the live view, which has no drawing: put the chip back.
+        op.ui.set_drawing_on(true);
+        slint::platform::update_timers_and_animations();
         for id in [
-            "OperatorWindow::service-col", "OperatorWindow::slides-col", "OperatorWindow::live-col",
-            "TopBar::service-pick", "TopBar::form", "TopBar::status-room", "TopBar::screens-btn", "TopBar::phone-btn",
+            "DockArea::service-col", "DockArea::slides-col", "DockArea::live-col",
+            "TopBar::service-pick", "BibleBox::form", "TopBar::status-room", "TopBar::screens-btn", "TopBar::phone-btn",
             "TopBar::settings-btn", "LiveColumn::preview-view", "LiveColumn::live-what", "LiveColumn::drawing-chip",
             "LiveColumn::next-btn", "LiveColumn::clear-all", "LiveColumn::clear-logo",
         ] {
             assert_inside(&op, id, size);
         }
         let width = |id: &str| { let (l, _, r, _) = bounds(&op, id); r - l };
-        assert!(width("OperatorWindow::service-col") >= 250.0, "the service column keeps its width at {size:?}");
-        assert!(width("OperatorWindow::live-col") >= 360.0, "the live column keeps its width at {size:?}");
+        assert!(width("DockArea::service-col") >= 250.0, "the service column keeps its width at {size:?}");
+        assert!(width("DockArea::live-col") >= 360.0, "the live column keeps its width at {size:?}");
         // The top bar's parts do not overlap: each starts after the one before it ends.
-        let order = ["TopBar::service-pick", "TopBar::form", "TopBar::status-room", "TopBar::screens-btn", "TopBar::phone-btn", "TopBar::settings-btn"];
+        let order = ["TopBar::service-pick", "TopBar::status-room", "TopBar::screens-btn", "TopBar::phone-btn", "TopBar::settings-btn"];
         for pair in order.windows(2) {
             assert!(bounds(&op, pair[0]).2 <= bounds(&op, pair[1]).0 + 0.5, "{} overlaps {} at {size:?}", pair[0], pair[1]);
         }
@@ -257,18 +259,20 @@ fn tabbed_dialogs_keep_their_place_and_size_on_every_tab() {
 }
 
 #[test]
-fn bible_chips_collapse_to_the_chosen_one_in_a_narrow_window() {
+fn bible_chips_show_while_they_fit() {
     use crate::ui::operator::window::testing::find_all;
     use slint::platform::PointerEventButton;
     let app = test_app();
     let op = open(&app);
     refresh(&op);
     resize(&op, (1454.0, 938.0));
-    assert!(find(&op, "TopBar::translation-pick").is_some(), "the chosen Bible's button is always there");
-    assert_eq!(find_all(&op, "TopBar::translation-chip").len(), 2, "then the favourite and recent chips (here WEB, BSB)");
-    resize(&op, (1280.0, 720.0));
-    assert!(find(&op, "TopBar::translation-chip").is_none());
-    let pick = find(&op, "TopBar::translation-pick").expect("the chosen translation's button");
+    assert!(find(&op, "BibleBox::translation-pick").is_some(), "the chosen Bible's button is always there");
+    assert_eq!(find_all(&op, "BibleBox::translation-chip").len(), 2, "then the favourite and recent chips (here WEB, BSB)");
+    // The Bible box is a panel now: a 1024 px window leaves it 560 px, still room for the chips. Narrower than
+    // what it needs in full, it shows only the chosen Bible (the dock decides, `docking::TIGHT`).
+    resize(&op, (1024.0, 720.0));
+    assert_eq!(find_all(&op, "BibleBox::translation-chip").len(), 2);
+    let pick = find(&op, "BibleBox::translation-pick").expect("the chosen translation's button");
     assert_eq!(pick.accessible_label().unwrap_or_default(), "KJV");
     assert!(pick.size().width <= 80.0, "the button keeps its own width, not the Bible box's: {}", pick.size().width);
     pick.mock_single_click(PointerEventButton::Left);

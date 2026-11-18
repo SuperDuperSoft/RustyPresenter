@@ -448,7 +448,7 @@ mod tests {
         assert_eq!(names(&op), ["Wi-Fi"]);
         // The strip has its chip.
         refresh(&op);
-        assert_eq!(op.ui.global::<crate::ui::OverlayStrip>().get_chips().row_count(), 1);
+        assert_eq!(op.ui.overlay_strip_all().get_chips().row_count(), 1);
     }
 
     #[test]

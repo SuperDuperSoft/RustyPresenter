@@ -125,7 +125,7 @@ fn change_a_key_then_save_and_the_window_uses_it() {
     assert_eq!(op.ui.global::<KeysDlg>().get_capturing(), row as i32);
     assert_eq!(op.ui.global::<KeysDlg>().get_capture_text(), "Press the new key for “Clear text”");
     // The menu bar lets go of its shortcuts meanwhile, so F11 cannot run anything.
-    assert_eq!(op.ui.global::<crate::ui::MenuKeys>().get_clear_all().to_string(), "");
+    assert_eq!(op.ui.menu_keys_all().get_clear_all().to_string(), "");
     press(&op, &key(Key::Shift));
     assert!(capturing(), "Shift alone is not a key yet");
     press(&op, &key(Key::F11));
@@ -133,7 +133,7 @@ fn change_a_key_then_save_and_the_window_uses_it() {
     assert_eq!(shown(&op)[row].0, "F11");
     assert!(op.ui.global::<KeysDlg>().get_any_changed());
     assert!(op.ui.global::<SettingsDlg>().get_help().row_data(row).unwrap().changed);
-    assert_eq!(op.ui.global::<crate::ui::MenuKeys>().get_clear_all(), slint::Keys::from_parts(["F1"]).unwrap(), "the menu has its keys again");
+    assert_eq!(op.ui.menu_keys_all().get_clear_all(), slint::Keys::from_parts(["F1"]).unwrap(), "the menu has its keys again");
     // Not saved yet: the window still has F2.
     assert_eq!(op.keymap().action_for(&Chord::parse("F11").unwrap()), None);
     click(&op, "SettingsDialog::save", 0);
@@ -142,7 +142,7 @@ fn change_a_key_then_save_and_the_window_uses_it() {
     assert_eq!(app.data.lock().unwrap().settings.keys.changed.len(), 1);
     assert_eq!(route_in(&Chord::parse("F11").unwrap(), PLAIN, &op.keymap()), KeyAction::Clear(Command::ClearSlide));
     assert_eq!(route_in(&Chord::parse("F2").unwrap(), PLAIN, &op.keymap()), KeyAction::None);
-    assert_eq!(op.ui.global::<crate::ui::MenuKeys>().get_clear_slide(), slint::Keys::from_parts(["F11"]).unwrap());
+    assert_eq!(op.ui.menu_keys_all().get_clear_slide(), slint::Keys::from_parts(["F11"]).unwrap());
 }
 
 #[test]

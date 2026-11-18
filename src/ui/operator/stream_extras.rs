@@ -5,9 +5,9 @@ use super::window::Operator;
 use crate::{
     record::{Plan, RecordPrefs, Sound},
     stream::{self, captions, health},
-    ui::{LiveStatus, LiveStatusLine},
+    ui::LiveStatusLine,
 };
-use slint::{ComponentHandle, ModelRc, VecModel};
+use slint::{ModelRc, VecModel};
 use std::{cell::RefCell, rc::Rc, time::Duration};
 
 /// What Go Live started besides the recording, until it stops.
@@ -37,7 +37,7 @@ impl Operator {
         self.stop_captions(false);
         let now = chrono::Local::now().naive_local();
         let title = health::fill(&if prefs.stream_title.trim().is_empty() { stream::accounts::default_title() } else { prefs.stream_title.clone() }, now, "");
-        let g = self.ui.global::<LiveStatus>();
+        let g = self.ui.live_status_all();
         g.set_title(title.into());
         g.set_description(health::fill(&prefs.stream_description, now, "").into());
         g.set_captions("".into());
@@ -92,7 +92,7 @@ impl Operator {
         inputs.ndi = ndi;
         inputs.captions = captions;
         let (light, lines) = health::status(&inputs);
-        let g = self.ui.global::<LiveStatus>();
+        let g = self.ui.live_status_all();
         g.set_light(light.index());
         g.set_summary(health::summary(light).into());
         let rows: Vec<LiveStatusLine> = lines.into_iter().map(|l| LiveStatusLine { light: l.light.index(), text: l.text.into() }).collect();
@@ -102,15 +102,15 @@ impl Operator {
 }
 
 pub(super) fn wire(op: &Rc<Operator>) {
-    let g = op.ui.global::<LiveStatus>();
+    let g = op.ui.live_status_all();
     let me = Rc::downgrade(op);
     g.on_copy_title(move || if let Some(op) = me.upgrade() {
-        let t = op.ui.global::<LiveStatus>().get_title();
+        let t = op.ui.live_status_all().get_title();
         crate::ui::dialogs::settings::copy(&op, &t, &tr::copied());
     });
     let me = Rc::downgrade(op);
     g.on_copy_description(move || if let Some(op) = me.upgrade() {
-        let t = op.ui.global::<LiveStatus>().get_description();
+        let t = op.ui.live_status_all().get_description();
         crate::ui::dialogs::settings::copy(&op, &t, &tr::copied());
     });
 }

@@ -209,7 +209,11 @@ pub(super) fn wire(op: &Rc<Operator>) {
     let me: Weak<Operator> = Rc::downgrade(op);
     op.ui.on_picker_opening(move || if let Some(op) = me.upgrade() { search_picker(&op, "") });
     let me: Weak<Operator> = Rc::downgrade(op);
-    op.ui.on_picker_search_changed(move |q| if let Some(op) = me.upgrade() { search_picker(&op, &q) });
+    op.ui.on_picker_search_changed(move |q| if let Some(op) = me.upgrade() {
+        // Kept here for every window: the picker may be in a window of its own.
+        op.ui.set_picker_search(q.clone());
+        search_picker(&op, &q)
+    });
     let me: Weak<Operator> = Rc::downgrade(op);
     op.ui.on_picker_accept(move || if let Some(op) = me.upgrade() { accept_picker(&op) });
     let me: Weak<Operator> = Rc::downgrade(op);
@@ -266,7 +270,7 @@ mod tests {
 
     /// Clicks into the box, types `reference` and presses Enter, as the operator would.
     fn type_and_enter(op: &Operator, reference: &str) {
-        find(op, "TopBar::bible-input").expect("Bible input").mock_single_click(PointerEventButton::Left);
+        find(op, "BibleBox::bible-input").expect("Bible input").mock_single_click(PointerEventButton::Left);
         for c in reference.chars() { press(op, c) }
         press(op, char::from(Key::Return));
     }
@@ -401,7 +405,7 @@ mod tests {
         refresh(&op);
         op.window().set_size(slint::LogicalSize::new(1440.0, 900.0));
         slint::platform::update_timers_and_animations();
-        let chips = find_all(&op, "TopBar::translation-chip");
+        let chips = find_all(&op, "BibleBox::translation-chip");
         let tip = |name: &str| chips.iter().find(|c| c.accessible_label().unwrap_or_default() == name)
             .and_then(|c| c.accessible_description()).unwrap_or_default().to_string();
         assert_eq!(tip("WEB"), "World English Bible");
@@ -426,7 +430,7 @@ mod tests {
         assert_eq!(chip_names(&op).len(), 5, "at most four after the chosen one");
         assert_eq!(chip_names(&op), ["NLT", "ESV", "BSB", "NIV", "KJV"]);
         // Alt+2 picks the second chip.
-        find(&op, "TopBar::bible-input").unwrap().mock_single_click(PointerEventButton::Left);
+        find(&op, "BibleBox::bible-input").unwrap().mock_single_click(PointerEventButton::Left);
         chord(&op, Key::Alt, "2");
         assert_eq!(app.data.lock().unwrap().settings.translation, "ESV");
     }
@@ -439,7 +443,7 @@ mod tests {
         pick_id(&op, "NIV".into());
         pick_id(&op, "KJV".into());
         refresh(&op);
-        op.ui.invoke_open_bible_picker();
+        op.open_bible_picker();
         let all = picker(&op);
         assert_eq!(&all[..5], ["# Favourites", "WEB *", "# Recent", "KJV", "NIV"]);
         assert_eq!(all[5], "# English");
@@ -459,7 +463,7 @@ mod tests {
         let app = test_app();
         let op = opened(&app);
         op.window().dispatch_event(WindowEvent::PointerMoved { position: slint::LogicalPosition::new(0.0, 0.0) });
-        find(&op, "TopBar::translation-pick").expect("the chosen chip").mock_single_click(PointerEventButton::Left);
+        find(&op, "BibleBox::translation-pick").expect("the chosen chip").mock_single_click(PointerEventButton::Left);
         slint::platform::update_timers_and_animations();
         let stars = find_all(&op, "BiblePickerList::star");
         assert!(!stars.is_empty(), "the picker is open");
@@ -474,7 +478,7 @@ mod tests {
     fn find_more_opens_the_library_with_the_search() {
         let app = test_app();
         let op = opened(&app);
-        op.ui.invoke_open_bible_picker();
+        op.open_bible_picker();
         op.ui.set_picker_search("Reina".into());
         op.ui.invoke_find_more_bibles("Reina".into());
         assert!(op.state.borrow().dialog.is_some(), "Settings opened");
@@ -502,7 +506,7 @@ mod tests {
         let op = opened(&app);
         // The first pointer event lays the chips out; a position read before it can be stale.
         op.window().dispatch_event(WindowEvent::PointerMoved { position: slint::LogicalPosition::new(0.0, 0.0) });
-        let chips = find_all(&op, "TopBar::translation-chip");
+        let chips = find_all(&op, "BibleBox::translation-chip");
         let web = chips.iter().find(|c| c.accessible_label().unwrap_or_default() == "WEB").expect("WEB chip");
         web.mock_single_click(PointerEventButton::Left);
         assert_eq!(app.data.lock().unwrap().settings.translation, "WEB");
@@ -529,7 +533,7 @@ mod tests {
         let app = test_app();
         let op = opened(&app);
         assert_eq!(op.ui.get_bible_per_slide(), 0, "Automatic by default");
-        let chip = find(&op, "TopBar::per-slide-chip").expect("Verses chip");
+        let chip = find(&op, "BibleBox::per-slide-chip").expect("Verses chip");
         chip.mock_single_click(PointerEventButton::Left);
         chip.mock_single_click(PointerEventButton::Left);
         assert_eq!(op.ui.get_bible_per_slide(), 2);

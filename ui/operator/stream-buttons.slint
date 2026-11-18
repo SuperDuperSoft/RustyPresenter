@@ -1,0 +1,134 @@
+// The livestream's buttons while live (livestreaming design §4): how the stream is doing, the viewers' chat, the
+// scene, Freeze and Mute, and the sound meter. In the top bar, or in the Livestream panel when that panel is shown
+// (dock panels design). They read `StreamPane`; Rust: `src/ui/operator/record.rs`.
+import { Theme } from "../theme.slint";
+import { PanelHead } from "../widgets.slint";
+import { RecordBtn, ClipBtn, ChatBtn, LiveBtn, PanicBtn, SceneBtn, SoundMeter } from "record.slint";
+import { LiveStatusBtn } from "live-status.slint";
+import { SaveLastBtn } from "save-last.slint";
+import { StreamPane } from "panes.slint";
+
+/// How the stream is doing, the chat and the scene.
+export component StreamWatch inherits HorizontalLayout {
+    callback focus-keys();
+    spacing: 8px;
+    alignment: start;
+    if StreamPane.live: VerticalLayout {
+        alignment: center;
+        live-status := LiveStatusBtn { }
+    }
+    if StreamPane.live && StreamPane.chat-on: VerticalLayout {
+        alignment: center;
+        chat-btn := ChatBtn {
+            lines: StreamPane.chat-lines;
+            new: StreamPane.chat-new;
+            opened => { StreamPane.chat-opened(); }
+        }
+    }
+    if StreamPane.live && StreamPane.scene-labels.length > 0: VerticalLayout {
+        alignment: center;
+        scene-btn := SceneBtn {
+            labels: StreamPane.scene-labels;
+            out: StreamPane.scene-out;
+            chosen: StreamPane.scene-chosen;
+            cameras: StreamPane.camera-labels;
+            camera: StreamPane.camera-active;
+            pick(i) => { root.focus-keys(); StreamPane.pick-scene(i); }
+            pick-camera(i) => { root.focus-keys(); StreamPane.pick-camera(i); }
+            positions: StreamPane.camera-positions;
+            pick-position(i) => { root.focus-keys(); StreamPane.pick-position(i); }
+        }
+    }
+}
+
+/// Freeze, Mute and the sound meter.
+export component StreamPanic inherits HorizontalLayout {
+    callback focus-keys();
+    spacing: 8px;
+    alignment: start;
+    if StreamPane.live: VerticalLayout {
+        alignment: center;
+        hold-btn := PanicBtn {
+            on: StreamPane.live-held;
+            text: @tr("Freeze");
+            on-text: @tr("Frozen");
+            tip: @tr("Keep the stream's picture as it is now, while something private is on the screens");
+            on-tip: @tr("The stream shows a still picture. Click to show the live picture again");
+            clicked => { root.focus-keys(); StreamPane.hold-stream(); }
+        }
+    }
+    if StreamPane.live: VerticalLayout {
+        alignment: center;
+        mute-btn := PanicBtn {
+            on: StreamPane.live-muted;
+            text: @tr("Mute");
+            on-text: @tr("Muted");
+            tip: @tr("Send silence to the stream instead of the sound");
+            on-tip: @tr("The stream is silent. Click to send the sound again");
+            clicked => { root.focus-keys(); StreamPane.mute-stream(); }
+        }
+    }
+    if StreamPane.live && StreamPane.live-level >= 0: VerticalLayout {
+        alignment: center;
+        sound-meter := SoundMeter { bars: StreamPane.live-level; }
+    }
+}
+
+/// The Livestream panel: Record and Go Live, then the buttons above, on rows of their own so they fit the panel.
+export component LivestreamPanel inherits VerticalLayout {
+    callback focus-keys();
+    PanelHead { title: @tr("Livestream"); }
+    VerticalLayout {
+        padding-left: 14px;
+        padding-right: 14px;
+        padding-bottom: 12px;
+        spacing: 10px;
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: start;
+            VerticalLayout {
+                alignment: center;
+                panel-record-btn := RecordBtn {
+                    recording: StreamPane.recording;
+                    time: StreamPane.record-time;
+                    clicked => { root.focus-keys(); StreamPane.record(); }
+                }
+            }
+            if StreamPane.recording: VerticalLayout {
+                alignment: center;
+                ClipBtn {
+                    clipping: StreamPane.clipping;
+                    clicked => { root.focus-keys(); StreamPane.toggle-clip(); }
+                }
+            }
+            if StreamPane.recording && StreamPane.replay-minutes > 0: VerticalLayout {
+                alignment: center;
+                SaveLastBtn {
+                    minutes: StreamPane.replay-minutes;
+                    clicked => { root.focus-keys(); StreamPane.save-last(); }
+                }
+            }
+            if StreamPane.can-stream || StreamPane.live: VerticalLayout {
+                alignment: center;
+                panel-live-btn := LiveBtn {
+                    live: StreamPane.live;
+                    up: StreamPane.live-up;
+                    total: StreamPane.live-total;
+                    watching: StreamPane.live-watching;
+                    clicked => { root.focus-keys(); StreamPane.go-live(); }
+                }
+            }
+        }
+        if StreamPane.live: StreamWatch { focus-keys => { root.focus-keys(); } }
+        if StreamPane.live: StreamPanic { focus-keys => { root.focus-keys(); } }
+        if !StreamPane.live: Text {
+            text: StreamPane.can-stream
+                ? @tr("Freeze, Mute, the scene and the chat show here while you are live.")
+                : @tr("Go Live shows here once a livestream is switched on in Settings → Media → Livestream.");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 12.5px;
+            wrap: word-wrap;
+        }
+    }
+}

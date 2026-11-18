@@ -5,7 +5,7 @@ use super::window::Operator;
 use crate::{
     print::html::escape,
     shortcuts::{Action, Chord, ClearGroup, EditKey, Keymap, labels},
-    ui::{FindMouse, MenuGroup, MenuKeys},
+    ui::{FindMouse, MenuGroup},
 };
 use slint::{ComponentHandle, Keys, Model, ModelRc, VecModel};
 use std::{cell::Cell, rc::{Rc, Weak}, time::Duration};
@@ -25,7 +25,7 @@ pub(crate) fn render_keys(op: &Operator, map: &Keymap, groups: &[ClearGroup]) {
         if off { return Keys::default() }
         map.menu_key(a).and_then(|c| Keys::from_parts(c.slint_parts().iter().map(String::as_str)).ok()).unwrap_or_default()
     };
-    let g = op.ui.global::<MenuKeys>();
+    let g = op.ui.menu_keys_all();
     g.set_undo(key(Action::Undo));
     g.set_redo(key(Action::Redo));
     g.set_find(key(Action::Find));
@@ -307,7 +307,7 @@ mod tests {
         app.data.lock().unwrap().settings.keys = keys;
         let op = open(&app);
         refresh(&op);
-        let g = op.ui.global::<MenuKeys>();
+        let g = op.ui.menu_keys_all();
         assert_eq!(g.get_clear_slide().to_string(), "", "a typing key is never a menu shortcut");
         assert_eq!(g.get_logo(), Keys::from_parts(["Control", "l"]).unwrap());
         assert_eq!(g.get_clear_slide_label(), "X", "the clear button's hint shows the new key");

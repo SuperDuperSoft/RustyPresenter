@@ -7,6 +7,7 @@ import { DialogBody, DialogFoot } from "shell.slint";
 import { TextField, Lbl, Select, RangeSlider, Note, Check } from "form.slint";
 import { FilterBox, ListFilter } from "../filter.slint";
 import { StageCanvas, StageBoxVm, StageGuideVm } from "stage-canvas.slint";
+import { DockGuard } from "../operator/dock-guard.slint";
 
 export { StageBoxVm, StageGuideVm }
 
@@ -480,7 +481,8 @@ export component StageLayoutButton inherits Rectangle {
     width: layout-btn.preferred-width;
     height: layout-btn.preferred-height;
     menu := PopupWindow {
-        x: 0;
+        // Never over the audience or stage preview (`DockGuard`).
+        x: DockGuard.place-x(root.absolute-position.x, root.absolute-position.y + root.height + 4px, 240px, self.height) - root.absolute-position.x;
         y: root.height + 4px;
         width: 240px;
         height: (StageLayoutsDlg.picker-names.length + 1) * 32px + 17px;

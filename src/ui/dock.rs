@@ -132,6 +132,9 @@ pub struct DockWindow {
     #[serde(default)]
     pub place: Option<WinRect>,
     pub root: Node,
+    /// Which open window shows it, while the app runs (`ui::operator::docking`); never saved.
+    #[serde(skip)]
+    pub id: u32,
 }
 
 /// A built-in layout's window goes to the second monitor if there is one.
@@ -220,7 +223,7 @@ impl Default for Layout {
 impl Layout {
     pub fn builtin(b: Builtin) -> Layout {
         use PanelId::*;
-        let main = |root| DockWindow { monitor: String::new(), place: None, root };
+        let main = |root| DockWindow { monitor: String::new(), place: None, root, id: 0 };
         let (windows, closed) = match b {
             // Today's window: the work area beside the live column.
             Builtin::Standard => (
@@ -255,6 +258,7 @@ impl Layout {
                     DockWindow {
                         monitor: SECOND_MONITOR.into(),
                         place: None,
+                        id: 0,
                         root: row(vec![
                             child(tabs(&[Live]), Size::Weight(1.0)),
                             child(column(vec![
@@ -369,8 +373,16 @@ impl Layout {
         let main = self.windows[0].root.panels();
         if main.iter().all(|m| panels.contains(m)) { return None }
         for p in panels { if !self.take(*p) { return None } }
-        self.windows.push(DockWindow { monitor: monitor.into(), place, root: tabs(panels) });
+        self.windows.push(DockWindow { monitor: monitor.into(), place, root: tabs(panels), id: 0 });
         Some(self.windows.len() - 1)
+    }
+
+    /// Moves a panel back to the main window, beside where it is in Standard. False if it is the main window's last.
+    pub fn send_home(&mut self, p: PanelId) -> bool {
+        if self.window_of(p) == Some(0) { return false }
+        if !self.take(p) { return false }
+        self.restore(p);
+        true
     }
 
     /// A window of its own closed: its panels go back into the main window, never lost.
@@ -524,15 +536,18 @@ impl Node {
     }
 
     /// The least room this node needs (width, height).
-    pub fn min_size(&self, arrange: bool) -> (f32, f32) {
+    pub fn min_size(&self, arrange: bool) -> (f32, f32) { self.min_with(arrange, &|_| (0.0, 0.0)) }
+
+    /// The least room this node needs, each panel at least as large as `mins` says its content needs.
+    fn min_with(&self, arrange: bool, mins: &dyn Fn(PanelId) -> (f32, f32)) -> (f32, f32) {
         match self {
             Node::Tabs { panels, .. } => {
-                let (w, h) = panels.iter().map(|p| p.min_size()).fold((0.0f32, 0.0f32), |a, b| (a.0.max(b.0), a.1.max(b.1)));
+                let (w, h) = panels.iter().map(|p| panel_min(*p, mins)).fold((0.0f32, 0.0f32), |a, b| (a.0.max(b.0), a.1.max(b.1)));
                 (w, h + if self.has_head(arrange) { HEAD } else { 0.0 })
             }
             Node::Split { dir, children } => {
                 let gaps = GAP * (children.len().saturating_sub(1)) as f32;
-                let mins = children.iter().map(|c| c.node.min_size(arrange));
+                let mins = children.iter().map(|c| c.node.min_with(arrange, mins));
                 match dir {
                     Dir::Row => mins.fold((gaps, 0.0f32), |a, b| (a.0 + b.0, a.1.max(b.1))),
                     Dir::Column => mins.fold((0.0f32, gaps), |a, b| (a.0.max(b.0), a.1 + b.1)),
@@ -542,23 +557,29 @@ impl Node {
     }
 
     /// The room this node's content wants along `dir` (for `Size::Fit`).
-    fn wanted(&self, dir: Dir, arrange: bool, fit: &dyn Fn(PanelId) -> (f32, f32)) -> f32 {
+    fn wanted(&self, dir: Dir, arrange: bool, fit: &dyn Fn(PanelId) -> (f32, f32), mins: &dyn Fn(PanelId) -> (f32, f32)) -> f32 {
         let along = |s: (f32, f32)| match dir { Dir::Row => s.0, Dir::Column => s.1 };
         match self {
             Node::Tabs { panels, .. } => {
-                let want = panels.iter().map(|p| along(fit(*p)).max(along(p.min_size()))).fold(0.0, f32::max);
+                let want = panels.iter().map(|p| along(fit(*p)).max(along(panel_min(*p, mins)))).fold(0.0, f32::max);
                 want + if dir == Dir::Column && self.has_head(arrange) { HEAD } else { 0.0 }
             }
             Node::Split { dir: d, children } => {
                 let each = children.iter().map(|c| match c.size {
                     Size::Px(p) if *d == dir => p,
-                    Size::Weight(_) if *d == dir => along(c.node.min_size(arrange)),
-                    _ => c.node.wanted(dir, arrange, fit),
+                    Size::Weight(_) if *d == dir => along(c.node.min_with(arrange, mins)),
+                    _ => c.node.wanted(dir, arrange, fit, mins),
                 });
                 if *d == dir { each.sum::<f32>() + GAP * children.len().saturating_sub(1) as f32 } else { each.fold(0.0, f32::max) }
             }
         }
     }
+}
+
+/// A panel's minimum: its own, or more when its content needs more.
+fn panel_min(p: PanelId, mins: &dyn Fn(PanelId) -> (f32, f32)) -> (f32, f32) {
+    let (a, b) = (p.min_size(), mins(p));
+    (a.0.max(b.0).ceil(), a.1.max(b.1).ceil())
 }
 
 /// The size a new panel `p` gets beside a child of size `target` (which may give up half of its own).
@@ -657,15 +678,20 @@ impl Placement {
 /// Works out every panel's rectangle in a window `w` × `h` (logical pixels). `fit` gives a panel's content's
 /// wanted size, for `Size::Fit`. A window smaller than the panels need gets a larger area (it scrolls).
 pub fn place(root: &Node, w: f32, h: f32, arrange: bool, fit: &dyn Fn(PanelId) -> (f32, f32)) -> Placement {
-    let (mw, mh) = root.min_size(arrange);
+    place_with(root, w, h, arrange, fit, &|_| (0.0, 0.0))
+}
+
+/// `place`, with each panel at least as large as `mins` says its content needs (what the window measured).
+pub fn place_with(root: &Node, w: f32, h: f32, arrange: bool, fit: &dyn Fn(PanelId) -> (f32, f32), mins: &dyn Fn(PanelId) -> (f32, f32)) -> Placement {
+    let (mw, mh) = root.min_with(arrange, mins);
     let (width, height) = (w.max(mw + 2.0 * PAD), h.max(mh + 2.0 * PAD));
     let mut out = Placement { width, height, ..Default::default() };
     let area = Rect { x: PAD, y: PAD, w: width - 2.0 * PAD, h: height - 2.0 * PAD };
-    place_node(root, area, arrange, fit, &mut Vec::new(), &mut out);
+    place_node(root, area, arrange, fit, mins, &mut Vec::new(), &mut out);
     out
 }
 
-fn place_node(node: &Node, r: Rect, arrange: bool, fit: &dyn Fn(PanelId) -> (f32, f32), path: &mut Vec<usize>, out: &mut Placement) {
+fn place_node(node: &Node, r: Rect, arrange: bool, fit: &dyn Fn(PanelId) -> (f32, f32), mins: &dyn Fn(PanelId) -> (f32, f32), path: &mut Vec<usize>, out: &mut Placement) {
     match node {
         Node::Tabs { panels, active } => {
             let body = if node.has_head(arrange) {
@@ -677,8 +703,8 @@ fn place_node(node: &Node, r: Rect, arrange: bool, fit: &dyn Fn(PanelId) -> (f32
         Node::Split { dir, children } => {
             let along = |s: (f32, f32)| match dir { Dir::Row => s.0, Dir::Column => s.1 };
             let total = along((r.w, r.h)) - GAP * children.len().saturating_sub(1) as f32;
-            let mins: Vec<f32> = children.iter().map(|c| along(c.node.min_size(arrange))).collect();
-            let sizes = distribute(children, &mins, total, |c| c.node.wanted(*dir, arrange, fit));
+            let lows: Vec<f32> = children.iter().map(|c| along(c.node.min_with(arrange, mins))).collect();
+            let sizes = distribute(children, &lows, total, |c| c.node.wanted(*dir, arrange, fit, mins));
             // Whole pixels: each edge rounded, so neighbours meet exactly one gap apart.
             let start = along((r.x, r.y));
             let mut pos = start;
@@ -687,14 +713,14 @@ fn place_node(node: &Node, r: Rect, arrange: bool, fit: &dyn Fn(PanelId) -> (f32
             for (i, (c, (a, b))) in children.iter().zip(&edges).enumerate() {
                 let cr = match dir { Dir::Row => Rect { x: *a, w: b - a, ..r }, Dir::Column => Rect { y: *a, h: b - a, ..r } };
                 path.push(i);
-                place_node(&c.node, cr, arrange, fit, path, out);
+                place_node(&c.node, cr, arrange, fit, mins, path, out);
                 path.pop();
                 if i + 1 < children.len() {
                     let next = edges[i + 1].0;
                     let rect = match dir { Dir::Row => Rect { x: *b, w: next - b, ..r }, Dir::Column => Rect { y: *b, h: next - b, ..r } };
                     out.dividers.push(Divider {
                         rect, dir: *dir, path: path.clone(), index: i, before: sizes[i], after: sizes[i + 1],
-                        min_before: mins[i], min_after: mins[i + 1],
+                        min_before: lows[i], min_after: lows[i + 1],
                     });
                 }
             }

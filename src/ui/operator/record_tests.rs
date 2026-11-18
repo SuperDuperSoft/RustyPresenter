@@ -443,12 +443,11 @@ fn live_with(op: &Rc<Operator>, cameras: &[&str]) {
 
 #[test]
 fn switch_and_fade_put_the_next_camera_out_and_the_one_out_becomes_next() {
-    use crate::ui::CameraSwitch;
     let app = test_app();
     let room = Arc::new(Room { open: true, ..Default::default() });
     let op = open(&app, &room);
     refresh(&op);
-    let g = op.ui.global::<CameraSwitch>();
+    let g = op.ui.camera_switch_all();
     assert!(!g.get_shown(), "not live: no Cameras box");
     live_with(&op, &["Pulpit", "Wide"]);
     assert!(g.get_shown());
@@ -470,12 +469,11 @@ fn switch_and_fade_put_the_next_camera_out_and_the_one_out_becomes_next() {
 
 #[test]
 fn with_more_cameras_any_but_the_one_out_can_be_chosen_next() {
-    use crate::ui::CameraSwitch;
     let app = test_app();
     let room = Arc::new(Room { open: true, ..Default::default() });
     let op = open(&app, &room);
     refresh(&op);
-    let g = op.ui.global::<CameraSwitch>();
+    let g = op.ui.camera_switch_all();
     live_with(&op, &["A", "B", "C", "D"]);
     assert_eq!(g.get_names().row_count(), 4);
     g.invoke_choose_next(3);
@@ -493,12 +491,11 @@ fn with_more_cameras_any_but_the_one_out_can_be_chosen_next() {
 
 #[test]
 fn one_camera_shows_the_live_picture_only() {
-    use crate::ui::CameraSwitch;
     let app = test_app();
     let room = Arc::new(Room { open: true, ..Default::default() });
     let op = open(&app, &room);
     refresh(&op);
-    let g = op.ui.global::<CameraSwitch>();
+    let g = op.ui.camera_switch_all();
     live_with(&op, &["Pulpit"]);
     assert!(g.get_shown());
     assert_eq!(g.get_next(), -1, "no Next, no Switch");
@@ -509,12 +506,11 @@ fn one_camera_shows_the_live_picture_only() {
 #[test]
 fn the_small_pictures_are_shown_and_no_picture_is_said() {
     use crate::record::peek::{Peek, Small};
-    use crate::ui::CameraSwitch;
     let app = test_app();
     let room = Arc::new(Room { open: true, ..Default::default() });
     let op = open(&app, &room);
     refresh(&op);
-    let g = op.ui.global::<CameraSwitch>();
+    let g = op.ui.camera_switch_all();
     live_with(&op, &["Pulpit", "Wide"]);
     let blue = Arc::new(Small { width: 4, height: 2, rgba: [0, 0, 200, 255].repeat(8) });
     op.show_peek(Peek { live: Some(blue.clone()), next: None, cameras: vec![] });
@@ -529,7 +525,6 @@ fn the_small_pictures_are_shown_and_no_picture_is_said() {
 
 #[test]
 fn the_next_camera_can_be_moved_before_it_goes_out() {
-    use crate::ui::CameraSwitch;
     let app = test_app();
     let room = Arc::new(Room { open: true, ..Default::default() });
     let op = open(&app, &room);
@@ -537,7 +532,7 @@ fn the_next_camera_can_be_moved_before_it_goes_out() {
     let camera = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
     camera.set_read_timeout(Some(Duration::from_secs(5))).unwrap();
     let port = camera.local_addr().unwrap().port();
-    let g = op.ui.global::<CameraSwitch>();
+    let g = op.ui.camera_switch_all();
     live_with(&op, &["Pulpit", "Wide"]);
     assert_eq!(g.get_next_positions(), 0, "the next camera cannot be moved");
     *op.record.camera_controls.borrow_mut() = vec![None, stream::ptz::Control::parse(&format!("127.0.0.1:{port}"))];
@@ -1194,7 +1189,6 @@ fn received(camera: &std::net::UdpSocket, n: usize) -> Vec<Vec<u8>> {
 
 #[test]
 fn the_next_camera_is_moved_by_hand_and_its_shot_saved() {
-    use crate::ui::CameraSwitch;
     use stream::ptz::{Move, move_command, save_command};
     let app = test_app();
     let room = Arc::new(Room { open: true, ..Default::default() });
@@ -1203,7 +1197,7 @@ fn the_next_camera_is_moved_by_hand_and_its_shot_saved() {
     let camera = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
     camera.set_read_timeout(Some(Duration::from_secs(5))).unwrap();
     let control = stream::ptz::Control::parse(&format!("127.0.0.1:{}", camera.local_addr().unwrap().port()));
-    let g = op.ui.global::<CameraSwitch>();
+    let g = op.ui.camera_switch_all();
     live_with(&op, &["Pulpit", "Wide"]);
     *op.record.camera_controls.borrow_mut() = vec![None, control.clone()];
     op.show_cameras();
@@ -1235,13 +1229,12 @@ fn the_next_camera_is_moved_by_hand_and_its_shot_saved() {
 
 #[test]
 fn every_camera_is_shown_small_and_a_click_makes_it_next() {
-    use crate::ui::CameraSwitch;
     use record::peek::{Peek, Small};
     let app = test_app();
     let room = Arc::new(Room { open: true, ..Default::default() });
     let op = open(&app, &room);
     refresh(&op);
-    let g = op.ui.global::<CameraSwitch>();
+    let g = op.ui.camera_switch_all();
     live_with(&op, &["Pulpit", "Wide", "Band"]);
     let small = Some(Arc::new(Small { width: 2, height: 1, rgba: vec![9; 8] }));
     op.show_peek(Peek { cameras: vec![small.clone(), None, small], ..Default::default() });

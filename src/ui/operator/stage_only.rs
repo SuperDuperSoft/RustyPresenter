@@ -4,8 +4,6 @@
 //! the slide (`App::set_stage_only`), like the stage message.
 use super::{strings as tr, window::Operator};
 use crate::live::Command;
-use crate::ui::PanelExtras;
-use slint::ComponentHandle;
 use std::rc::{Rc, Weak};
 use uuid::Uuid;
 
@@ -14,12 +12,12 @@ pub(super) fn render(op: &Operator) {
     let label = op.state.borrow().live.as_ref().and_then(|l| l.view().stage_only.clone())
         .map(|o| if o.slide.label.trim().is_empty() { tr::stage_only_slide(o.index + 1) } else { o.slide.label.clone() })
         .unwrap_or_default();
-    op.ui.global::<PanelExtras>().set_stage_only(label.into());
+    op.ui.panel_extras_all().set_stage_only(label.into());
 }
 
 /// A slide click while armed: it goes to the stage only, and the arm is used up. False when not armed.
 pub(super) fn take_click(op: &Rc<Operator>, item_id: Uuid, slide: usize) -> bool {
-    let g = op.ui.global::<PanelExtras>();
+    let g = op.ui.panel_extras_all();
     if !g.get_stage_mode() { return false }
     g.set_stage_mode(false);
     send(op, Some(item_id), slide);
@@ -40,7 +38,7 @@ fn send(op: &Rc<Operator>, item_id: Option<Uuid>, slide: usize) {
 
 /// Arms (or disarms) the next slide click for the stage only.
 pub fn toggle(op: &Operator) {
-    let g = op.ui.global::<PanelExtras>();
+    let g = op.ui.panel_extras_all();
     g.set_stage_mode(!g.get_stage_mode());
 }
 
@@ -48,7 +46,7 @@ pub fn toggle(op: &Operator) {
 pub fn take_down(op: &Rc<Operator>) { send(op, None, 0) }
 
 pub(super) fn wire(op: &Rc<Operator>) {
-    let g = op.ui.global::<PanelExtras>();
+    let g = op.ui.panel_extras_all();
     let me: Weak<Operator> = Rc::downgrade(op);
     g.on_toggle_stage_mode(move || if let Some(op) = me.upgrade() { toggle(&op) });
     let me: Weak<Operator> = Rc::downgrade(op);
@@ -87,7 +85,7 @@ mod tests {
         let app = test_app();
         let id = add_text(&app, "Band", "Watch me\n\nTwo more times\n\nEnd");
         let op = opened(&app);
-        let g = op.ui.global::<PanelExtras>();
+        let g = op.ui.panel_extras_all();
         find(&op, "SlidesPanel::stage-mode").expect("the Stage only button").mock_single_click(PointerEventButton::Left);
         assert!(g.get_stage_mode());
         assert!(find(&op, "SlidesPanel::stage-bar").is_some(), "the bar says what the next click does");
@@ -116,9 +114,9 @@ mod tests {
         let app = test_app();
         add_text(&app, "Band", "Watch me");
         let op = opened(&app);
-        op.ui.global::<PanelExtras>().invoke_toggle_stage_mode();
-        assert!(op.ui.global::<PanelExtras>().get_stage_mode());
+        op.ui.panel_extras_all().invoke_toggle_stage_mode();
+        assert!(op.ui.panel_extras_all().get_stage_mode());
         toggle(&op);
-        assert!(!op.ui.global::<PanelExtras>().get_stage_mode(), "again: cancelled");
+        assert!(!op.ui.panel_extras_all().get_stage_mode(), "again: cancelled");
     }
 }

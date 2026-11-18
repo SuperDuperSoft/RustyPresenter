@@ -188,7 +188,7 @@ pub fn stage_pill(snap: &OperatorSnapshot) -> Option<bool> {
     (snap.stage_configured || snap.stage_connected).then_some(snap.stage_connected)
 }
 
-/// "1 phone", "N phones", or no pill (`operator.js:106`).
+/// "1 remote", "N remotes", or no light (`operator.js:106`).
 pub fn phones_label(n: usize) -> Option<String> { (n > 0).then(|| tr::phones(n)) }
 
 /// The line under an item's title (`operator.js:111-121`).
@@ -562,8 +562,8 @@ mod tests {
     #[test]
     fn phones_label_singular_plural_and_hidden() {
         assert_eq!(phones_label(0), None);
-        assert_eq!(phones_label(1).as_deref(), Some("1 phone"));
-        assert_eq!(phones_label(3).as_deref(), Some("3 phones"));
+        assert_eq!(phones_label(1).as_deref(), Some("1 remote"));
+        assert_eq!(phones_label(3).as_deref(), Some("3 remotes"));
     }
 
     #[test]

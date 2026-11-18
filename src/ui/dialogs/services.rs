@@ -10,7 +10,7 @@ use crate::{
     bundle,
     model::{BlankKind, DateOrder, ItemKind},
     planning::{self, strings as ptr},
-    ui::{ServiceListRow, ServicePlanning, ServicesDialogState, TemplateListRow, dialogs::AddTab, operator::{file_input::Filter, files, window::Operator}},
+    ui::{ServiceListRow, ServicesDialogState, TemplateListRow, dialogs::AddTab, operator::{file_input::Filter, files, window::Operator}},
 };
 use chrono::NaiveDate;
 use serde::Deserialize;
@@ -472,7 +472,7 @@ pub(crate) fn wire(op: &Rc<Operator>) {
     g.on_template_day(by_id(template_day));
     g.on_delete_template(by_id(delete_template));
     g.on_use_template(by_id(from_template));
-    let p = op.ui.global::<ServicePlanning>();
+    let p = op.ui.service_planning_all();
     p.on_choose(by_id(choose_for_blank));
     p.on_recolor(by_id(recolor));
     p.on_add_header(plain(add_header));

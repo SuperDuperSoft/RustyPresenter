@@ -24,7 +24,7 @@ pub fn player_missing(kind: &str) -> String { tr!("{kind} · The video player is
 pub fn slide_count(kind: &str, n: usize) -> String { trn!("{kind} · {n} slide", "{kind} · {n} slides", n, kind = kind) }
 
 pub fn items(n: usize) -> String { trn!("{n} item", "{n} items", n) }
-pub fn phones(n: usize) -> String { trn!("{n} phone", "{n} phones", n) }
+pub fn phones(n: usize) -> String { trn!("{n} remote", "{n} remotes", n) }
 
 pub fn logo() -> String { tr!("Logo") }
 pub fn clear() -> String { tr!("Clear") }
@@ -132,3 +132,29 @@ pub fn cancel_action() -> String { tr!("Cancel") }
 pub fn stage_only_slide(n: usize) -> String { tr!("slide {n}", n = n) }
 /// N29: the stage-only slide went up.
 pub fn on_stage_only() -> String { tr!("On the stage screen only. The room didn't change.") }
+
+/// Dock panels: the panels' names (as `DockText.name` in `ui/operator/dock.slint` says them).
+pub fn dock_service() -> String { tr!("Service") }
+pub fn dock_slides() -> String { tr!("Slides") }
+pub fn dock_library() -> String { tr!("Library") }
+pub fn dock_bible() -> String { tr!("Bible") }
+pub fn dock_live() -> String { tr!("Live") }
+pub fn dock_up_next() -> String { tr!("Up next") }
+pub fn dock_cameras() -> String { tr!("Cameras") }
+pub fn dock_automation() -> String { tr!("Message and macros") }
+pub fn dock_livestream() -> String { tr!("Livestream") }
+pub fn dock_stage() -> String { tr!("Stage preview") }
+pub fn dock_follow() -> String { tr!("Follow") }
+/// The layouts that come with the app (View → Layouts).
+pub fn layout_standard() -> String { tr!("Standard") }
+pub fn layout_big_slides() -> String { tr!("Big slides") }
+pub fn layout_livestream() -> String { tr!("Livestream") }
+pub fn layout_two_monitors() -> String { tr!("Two monitors") }
+/// A window of panels of its own: "RustyPresenter — Live, Cameras".
+pub fn popout_title(panels: &str) -> String { tr!("RustyPresenter — {panels}", panels = panels) }
+pub fn main_keeps_a_panel() -> String { tr!("The main window keeps at least one panel.") }
+pub fn layout_name_prompt() -> String { tr!("Name for this layout") }
+pub fn layout_rename_prompt() -> String { tr!("New name for this layout") }
+pub fn layout_saved(name: &str) -> String { tr!("Layout “{name}” saved", name = name) }
+pub fn layout_delete_question(name: &str) -> String { tr!("Delete the layout “{name}”? The window goes back to Standard.", name = name) }
+pub fn delete_layout_button() -> String { tr!("Delete layout") }

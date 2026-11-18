@@ -6,9 +6,9 @@ use super::window::Operator;
 use crate::{
     live::Command,
     theme::overlay::{OverlayKind, slots::{self, Chip}},
-    ui::{OverlayChipRow, OverlayStrip},
+    ui::OverlayChipRow,
 };
-use slint::{ComponentHandle, ModelRc, VecModel};
+use slint::{ModelRc, VecModel};
 use std::rc::{Rc, Weak};
 
 pub fn kind_name(k: OverlayKind) -> &'static str {
@@ -33,7 +33,7 @@ impl Operator {
         let rows: Vec<OverlayChipRow> = self.overlay_chips().into_iter().map(|c| OverlayChipRow {
             name: c.name.as_str().into(), kind: kind_name(c.kind).into(), on: c.on, changed: c.changed, deleted: c.deleted,
         }).collect();
-        self.ui.global::<OverlayStrip>().set_chips(ModelRc::new(VecModel::from(rows)));
+        self.ui.overlay_strip_all().set_chips(ModelRc::new(VecModel::from(rows)));
     }
 
     /// A chip's click: on when it is off, off when it is on.
@@ -46,7 +46,7 @@ impl Operator {
 
 /// Connects the strip's callbacks. Each holds a `Weak`, so the window does not keep itself alive.
 pub(super) fn wire(op: &Rc<Operator>) {
-    let g = op.ui.global::<OverlayStrip>();
+    let g = op.ui.overlay_strip_all();
     let me: Weak<Operator> = Rc::downgrade(op);
     g.on_toggle(move |i| if let Some(op) = me.upgrade() {
         op.ui.invoke_focus_keys();
@@ -91,7 +91,7 @@ mod tests {
 
     fn live(op: &Operator) { op.apply_live(LiveUpdate::new(op.app().live_view())); }
 
-    fn chips(op: &Operator) -> Vec<OverlayChipRow> { op.ui.global::<OverlayStrip>().get_chips().iter().collect() }
+    fn chips(op: &Operator) -> Vec<OverlayChipRow> { op.ui.overlay_strip_all().get_chips().iter().collect() }
 
     fn up(app: &App) -> Vec<String> { app.live_view().frame.overlays.iter().map(|s| s.name.clone()).collect() }
 

@@ -2,6 +2,7 @@
 // red outline (no animation, so the window only redraws once a second); clicking stops. Behaviour is in `src/ui/operator/record.rs`.
 import { Theme } from "../theme.slint";
 import { TipArea } from "../widgets.slint";
+import { DockGuard } from "dock-guard.slint";
 
 /// Go Live: beside Record once a destination is switched on. Off: "Go Live". On: "Live" on red; clicking stops
 /// the stream and the recording.
@@ -151,7 +152,9 @@ export component SceneBtn inherits Rectangle {
     TipArea { text: @tr("What the livestream shows. It changes by itself with what is live; click to choose"); hover: scene-ta.has-hover; pressed: scene-ta.pressed; pointer-x: scene-ta.mouse-x; }
 
     menu := PopupWindow {
-        x: 0;
+        // Never over the audience or stage preview (`DockGuard`).
+
+        x: DockGuard.place-x(root.absolute-position.x + 0, root.absolute-position.y + root.height + 4px, 220px, self.height) - root.absolute-position.x;
         y: root.height + 4px;
         width: 220px;
         height: (root.labels.length + 1 + root.cameras.length + root.positions) * 32px + 9px + (root.cameras.length > 0 ? 9px : 0px) + (root.positions > 0 ? 9px : 0px);
@@ -455,7 +458,9 @@ export component ChatBtn inherits Rectangle {
     }
 
     menu := PopupWindow {
-        x: root.width - 420px;
+        // Never over the audience or stage preview (`DockGuard`).
+
+        x: DockGuard.place-x(root.absolute-position.x + root.width - 420px, root.absolute-position.y + root.height + 4px, 420px, 380px) - root.absolute-position.x;
         y: root.height + 4px;
         width: 420px;
         height: 380px;

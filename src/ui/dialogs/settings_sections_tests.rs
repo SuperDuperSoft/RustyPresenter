@@ -3,7 +3,7 @@ use crate::{
     app::{App, test_app},
     model::{ItemKind, ServiceItem},
     ui::{
-        SettingsDlg, SlideCell, Theme,
+        SettingsDlg, SlideCell,
         dialogs::{DialogKind, SettingsTab, settings},
         operator::window::testing::{find, find_all, open as open_window, refresh},
     },
@@ -73,7 +73,7 @@ fn sections_page_edits_names_colours_keys_and_labels() {
     assert_eq!(SectionKind::Chorus.name(), "Refrain", "in use at once");
     assert_eq!(SectionKind::from_label("Spontaneous").0, SectionKind::Interlude);
     refresh(&op);
-    assert_eq!(hex(op.ui.global::<Theme>().get_sec_chorus()), "#ff6b70", "the operator's colours follow");
+    assert_eq!(hex(op.ui.theme_all().get_sec_chorus()), "#ff6b70", "the operator's colours follow");
 
     // Back to the usual.
     refresh(&op);
@@ -83,7 +83,7 @@ fn sections_page_edits_names_colours_keys_and_labels() {
     click(&op, "SettingsDialog::save");
     assert_eq!(app.data.lock().unwrap().settings.sections, SectionLook::default());
     refresh(&op);
-    assert_eq!(hex(op.ui.global::<Theme>().get_sec_chorus()), "#ff8f93");
+    assert_eq!(hex(op.ui.theme_all().get_sec_chorus()), "#ff8f93");
 }
 
 #[test]

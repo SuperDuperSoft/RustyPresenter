@@ -118,6 +118,8 @@ pub struct Operator {
     pub(super) record: super::record::RecordUi,
     /// Songs downloaded from SongSelect coming in from the Downloads folder (see `dialogs::songselect`).
     pub(crate) songselect: crate::ui::dialogs::songselect::Inbox,
+    /// The panels: where they are, in this window and in windows of their own (see `docking`).
+    pub(crate) dock: super::docking::Dock,
     /// This window, for callbacks that outlive a call (thumbnails arrive later).
     pub(crate) me: Weak<Operator>,
     /// The follower's mailbox; `None` on the testing backend, which has no event loop to deliver into.
@@ -148,7 +150,7 @@ impl Operator {
             Operator {
                 ui, app, ops, screens, state: RefCell::default(), service_rows: Rc::default(), slide_rows: Rc::default(),
                 bin: RefCell::default(), bin_rows: Rc::default(), bin_folders: Rc::default(), bin_thumbs,
-                slides: RefCell::default(), thumbs, live: RefCell::default(), preview, overlays: Overlays::default(), files: FilesState::default(), check_timer: slint::Timer::default(), outputs_ui: RefCell::default(), record: Default::default(), songselect: Default::default(), me: me.clone(), feed: listening.then(|| feed.clone()),
+                slides: RefCell::default(), thumbs, live: RefCell::default(), preview, overlays: Overlays::default(), files: FilesState::default(), check_timer: slint::Timer::default(), outputs_ui: RefCell::default(), record: Default::default(), songselect: Default::default(), dock: Default::default(), me: me.clone(), feed: listening.then(|| feed.clone()),
                 #[cfg(test)]
                 raises: Default::default(),
             }
@@ -176,7 +178,9 @@ impl Operator {
         menu::wire(&op);
         super::outputs::wire(&op);
         super::record::wire(&op);
+        super::docking::wire(&op);
         op.ui.show().map_err(tr::open_failed)?;
+        op.auto_zoom();
         // User translation files that could not be read at start (`i18n::load_user_folder`).
         for p in crate::i18n::take_problems() { op.toast(p, true) }
         if op.feed.is_some() { follow(feed, rx); }
@@ -243,7 +247,7 @@ impl Operator {
         if lang_changed { crate::i18n::sync_slint() }
         st.snap = Some(s.clone());
         drop(st);
-        super::slides::apply_section_colors(&self.ui.global::<crate::ui::Theme>());
+        super::slides::apply_section_colors(&self.ui.theme_all());
         self.render_top(&s);
         self.render_service();
         self.render_slides();
@@ -256,6 +260,7 @@ impl Operator {
         if data_changed || lang_changed { self.dialog_refresh(); }
         if lang_changed && self.state.borrow().live.is_some() { self.render_live(); }
         super::automation::render(self);
+        self.fit_top_bar();
         self.watch_decks();
         // Settings → Songs may have turned bringing in SongSelect downloads on or off.
         if data_changed && let Some(op) = self.me.upgrade() { crate::ui::dialogs::songselect::follow_setting(&op) }
@@ -274,6 +279,7 @@ impl Operator {
         self.render_live();
         super::stage_only::render(self);
         super::automation::render(self);
+        self.fit_top_bar();
     }
 
     /// A new timer readout (FEAT-2): the strip and the Automation dialog's readouts follow it.
@@ -319,6 +325,7 @@ impl Drop for Operator {
         // The follower thread sits in `blocking_recv`, so it sees `closed` and exits (dropping its `Arc<App>`) at the
         // next core update after this, not at once. Harmless: the window lives as long as the app.
         if let Some(feed) = &self.feed { feed.close(); }
+        super::docking::close_all(self);
         let _ = self.ui.hide();
     }
 }
@@ -546,8 +553,8 @@ mod tests {
             refresh(&op);
             find(&op, "TopBar::status-phones").map(|p| p.accessible_label().unwrap_or_default().to_string())
         };
-        assert_eq!(label(1).as_deref(), Some("1 phone"));
-        assert_eq!(label(2).as_deref(), Some("2 phones"));
+        assert_eq!(label(1).as_deref(), Some("1 remote"));
+        assert_eq!(label(2).as_deref(), Some("2 remotes"));
         assert_eq!(label(0), None);
     }
 

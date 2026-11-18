@@ -4,7 +4,7 @@ use crate::{
     app::{App, test_app},
     automation::messages::NURSERY_ID,
     timers::SERMON_ID,
-    ui::{AutoStrip, ShowMessageDlg, operator::window::testing::{find, open as open_window, refresh}},
+    ui::{ShowMessageDlg, operator::window::testing::{find, open as open_window, refresh}},
 };
 use slint::{Model, platform::PointerEventButton};
 use std::sync::Arc;
@@ -84,7 +84,7 @@ fn macro_steps_are_added_moved_and_saved() {
     assert_eq!(m.steps[1].known(), Some(&MacroStep::TimerStart { timer: SERMON_ID }));
     // The strip shows its button.
     refresh(&op);
-    let names: Vec<String> = op.ui.global::<AutoStrip>().get_macros().iter().flat_map(|r| r.buttons.iter().map(|b| b.name.to_string()).collect::<Vec<_>>()).collect();
+    let names: Vec<String> = op.ui.auto_strip_all().get_macros().iter().flat_map(|r| r.buttons.iter().map(|b| b.name.to_string()).collect::<Vec<_>>()).collect();
     assert_eq!(names, ["Sermon"]);
 }
 
@@ -103,23 +103,23 @@ fn show_message_needs_its_box_then_shows_and_the_button_hides_it() {
     m.invoke_show();
     assert_eq!(op.dialog(), None);
     op.apply_live(crate::app::LiveUpdate::new(app.live_view()));
-    assert!(op.ui.global::<AutoStrip>().get_message_on());
+    assert!(op.ui.auto_strip_all().get_message_on());
     click(&op, "AutomationStrip::message-btn");
     op.apply_live(crate::app::LiveUpdate::new(app.live_view()));
-    assert!(!op.ui.global::<AutoStrip>().get_message_on());
+    assert!(!op.ui.auto_strip_all().get_message_on());
 }
 
 #[test]
 fn running_timer_gets_a_chip_that_pauses() {
     let app = test_app();
     let op = opened(&app);
-    assert_eq!(op.ui.global::<AutoStrip>().get_timers().row_count(), 0, "stopped timers have no chip");
+    assert_eq!(op.ui.auto_strip_all().get_timers().row_count(), 0, "stopped timers have no chip");
     crate::ui::ops::Ops::inline(app.clone()).call::<Value>("timer/start", json!({ "id": SERMON_ID }), |r| { r.unwrap(); });
     op.apply_timers();
-    let chips = op.ui.global::<AutoStrip>().get_timers();
+    let chips = op.ui.auto_strip_all().get_timers();
     assert_eq!(chips.row_count(), 1);
     assert!(chips.row_data(0).unwrap().running);
-    op.ui.global::<AutoStrip>().invoke_timer_toggle(SERMON_ID.to_string().into());
+    op.ui.auto_strip_all().invoke_timer_toggle(SERMON_ID.to_string().into());
     assert_eq!(app.timers().timers.iter().find(|t| t.id == SERMON_ID).unwrap().state, TimerState::Paused);
 }
 

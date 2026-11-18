@@ -425,7 +425,11 @@ pub(super) fn wire(op: &Rc<Operator>) {
         }
     });
     let me = Rc::downgrade(op);
-    ui.on_monitor_resized(move |_| if let Some(op) = me.upgrade() { op.monitor_resized() });
+    ui.on_monitor_resized(move |w| if let Some(op) = me.upgrade() {
+        // Kept here for every window: the preview may be in a window of its own.
+        op.ui.set_monitor_width(w);
+        op.monitor_resized()
+    });
 }
 
 #[cfg(test)]

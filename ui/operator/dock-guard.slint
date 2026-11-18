@@ -1,0 +1,43 @@
+// Where a panel's pop-up list may go in this window (dock panels design): never over the audience screen's or the
+// stage screen's preview. The dock area sets the two previews' places for its window (`DockArea`); this
+// global is the window's own (not copied between windows), in window coordinates.
+
+export struct DockRect { x: length, y: length, w: length, h: length }
+
+export global DockGuard {
+    /// The Live panel and the Stage preview panel (zero size when not in this window).
+    in-out property <DockRect> a;
+    in-out property <DockRect> b;
+    in-out property <length> win-width: 10000px;
+    in-out property <length> win-height: 10000px;
+
+    pure function hits(x: length, y: length, w: length, h: length, r: DockRect) -> bool {
+        return r.w > 0 && r.h > 0 && x < r.x + r.w && r.x < x + w && y < r.y + r.h && r.y < y + h;
+    }
+
+    /// The box `x`, `y`, `w`, `h` covers no preview and is inside the window across.
+    pure public function clear(x: length, y: length, w: length, h: length) -> bool {
+        return x >= 0 && x + w <= root.win-width && !root.hits(x, y, w, h, root.a) && !root.hits(x, y, w, h, root.b);
+    }
+
+    /// Where across a pop-up `w` × `h` at `y` goes: where it wants to be, else just left or right of a preview it
+    /// would cover, else as far left as it stays in the window (it is then made short enough by `room-below`).
+    pure public function place-x(want: length, y: length, w: length, h: length) -> length {
+        return root.clear(want, y, w, h) ? want
+            : root.clear(root.a.x - w - 4px, y, w, h) ? root.a.x - w - 4px
+            : root.clear(root.a.x + root.a.w + 4px, y, w, h) ? root.a.x + root.a.w + 4px
+            : root.clear(root.b.x - w - 4px, y, w, h) ? root.b.x - w - 4px
+            : root.clear(root.b.x + root.b.w + 4px, y, w, h) ? root.b.x + root.b.w + 4px
+            : max(0, min(want, root.win-width - w));
+    }
+
+    /// How tall a pop-up at `x`, `y`, `w` wide may be before it reaches a preview below it or the window's bottom.
+    pure public function room-below(x: length, y: length, w: length) -> length {
+        return min(root.win-height - y - 8px,
+            root.below(x, y, w, root.a), root.below(x, y, w, root.b));
+    }
+
+    pure function below(x: length, y: length, w: length, r: DockRect) -> length {
+        return r.w > 0 && x < r.x + r.w && r.x < x + w && r.y + r.h > y ? max(0, r.y - y - 4px) : 100000px;
+    }
+}

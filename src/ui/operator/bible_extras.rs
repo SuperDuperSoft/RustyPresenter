@@ -5,9 +5,8 @@
 use super::{bible, view, window::Operator};
 use crate::model::{ItemKind, Song, VerseText};
 use crate::scripture::strings as ss;
-use crate::ui::PanelExtras;
 use serde_json::{Value, json};
-use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
+use slint::{ModelRc, SharedString, VecModel};
 use std::rc::{Rc, Weak};
 use uuid::Uuid;
 
@@ -28,7 +27,7 @@ fn selected_passage(op: &Operator) -> Option<(Passage, view::ItemRow)> {
 pub(super) fn render(op: &Operator) {
     let history: Vec<SharedString> = op.state.borrow().snap.as_ref()
         .map(|s| s.settings.bible_history.iter().map(|r| r.as_str().into()).collect()).unwrap_or_default();
-    let g = op.ui.global::<PanelExtras>();
+    let g = op.ui.panel_extras_all();
     g.set_history(ModelRc::new(VecModel::from(history)));
     g.set_passage(selected_passage(op).is_some());
 }
@@ -135,7 +134,7 @@ pub fn info(op: &Rc<Operator>, id: &str) {
 
 /// Connects the global's callbacks. They hold a `Weak`, so the window does not keep itself alive.
 pub(super) fn wire(op: &Rc<Operator>) {
-    let g = op.ui.global::<PanelExtras>();
+    let g = op.ui.panel_extras_all();
     let me: Weak<Operator> = Rc::downgrade(op);
     g.on_history_pick(move |r| if let Some(op) = me.upgrade() { pick_history(&op, r.into()) });
     let me: Weak<Operator> = Rc::downgrade(op);
@@ -170,20 +169,20 @@ mod tests {
         app.data.lock().unwrap().services[0].items.iter().map(|i| (i.id, match &i.kind { ItemKind::Scripture { reference, .. } => reference.clone(), _ => String::new() })).collect()
     }
 
-    fn history(op: &Operator) -> Vec<String> { op.ui.global::<PanelExtras>().get_history().iter().map(|s| s.to_string()).collect() }
+    fn history(op: &Operator) -> Vec<String> { op.ui.panel_extras_all().get_history().iter().map(|s| s.to_string()).collect() }
 
     #[test]
     fn the_box_keeps_the_last_references_and_one_click_adds_one_again() {
         let app = test_app();
         let op = opened(&app);
         assert!(history(&op).is_empty());
-        assert!(find(&op, "TopBar::history-btn").is_none(), "no history, no button");
+        assert!(find(&op, "BibleBox::history-btn").is_none(), "no history, no button");
         bible::submit(&op, "jn 3:16".into());
         bible::submit(&op, "Psalm 23:1-2".into());
         assert_eq!(history(&op), ["Psalm 23:1–2", "John 3:16"], "newest first, as the lookup names it");
         assert_eq!(app.data.lock().unwrap().settings.bible_history, ["Psalm 23:1–2", "John 3:16"], "and saved");
         refresh(&op);
-        assert!(find(&op, "TopBar::history-btn").is_some());
+        assert!(find(&op, "BibleBox::history-btn").is_some());
         pick_history(&op, "John 3:16".into());
         let all = items(&app);
         assert_eq!(all.len(), 3);
@@ -204,7 +203,7 @@ mod tests {
         assert_eq!(op.ui.get_slide_count() as usize, row.slides.len());
         let idx: Vec<i32> = op.ui.get_slide_rows().iter().flat_map(|r| r.cells.iter().map(|c| c.idx).collect::<Vec<_>>()).collect();
         assert_eq!(idx, (0..row.slides.len() as i32).collect::<Vec<_>>(), "one numbered cell per slide");
-        assert!(op.ui.global::<PanelExtras>().get_passage());
+        assert!(op.ui.panel_extras_all().get_passage());
         assert!(find(&op, "SlidesPanel::next-verse").is_some() && find(&op, "SlidesPanel::save-passage").is_some());
     }
 
@@ -261,7 +260,7 @@ mod tests {
         assert_eq!(op.state.borrow().asks, 1, "shown as a notice");
         assert_eq!(crate::ui::operator::menu::action("bible-info"), Some(crate::ui::operator::menu::MenuAction::BibleInfo));
         // Every picker row has its ⓘ.
-        op.ui.invoke_open_bible_picker();
+        op.open_bible_picker();
         slint::platform::update_timers_and_animations();
         assert!(!find_all(&op, "BiblePickerList::info").is_empty());
     }

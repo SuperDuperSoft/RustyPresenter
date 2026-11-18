@@ -5,9 +5,9 @@ use super::window::Operator;
 use crate::{
     model::{Data, Service},
     theme::{self, ThemeId, strings as ts},
-    ui::{ServicePlanning, dialogs::{SettingsTab, choose, settings}},
+    ui::{dialogs::{SettingsTab, choose, settings}},
 };
-use slint::{ComponentHandle, ModelRc, VecModel};
+use slint::{ModelRc, VecModel};
 use std::rc::{Rc, Weak};
 
 /// What each line of the box picks: `Some(None)` the church default, `Some(Some(id))` a theme, `None` Manage themes.
@@ -27,7 +27,7 @@ pub fn index_of(data: &Data, service: Option<&Service>) -> usize {
 impl Operator {
     pub(super) fn render_service_theme(&self) {
         let st = self.state.borrow();
-        let p = self.ui.global::<ServicePlanning>();
+        let p = self.ui.service_planning_all();
         let Some(snap) = st.snap.as_ref() else { return };
         let service = snap.service_id.and_then(|id| snap.data.services.iter().find(|s| s.id == id));
         if service.is_none() { return p.set_theme_options(ModelRc::default()) }
@@ -80,7 +80,7 @@ fn ask_backgrounds(op: &Rc<Operator>, service_id: uuid::Uuid, n: usize) {
 
 pub(super) fn wire(op: &Rc<Operator>) {
     let me: Weak<Operator> = Rc::downgrade(op);
-    op.ui.global::<ServicePlanning>().on_pick_theme(move |i| if let Some(op) = me.upgrade() {
+    op.ui.service_planning_all().on_pick_theme(move |i| if let Some(op) = me.upgrade() {
         op.ui.invoke_focus_keys();
         op.pick_service_theme(i.max(0) as usize);
     });
@@ -105,7 +105,7 @@ mod tests {
             background: with_background.then(|| Background::Color { color: "#3a2412".into() }) }
     }
 
-    fn labels(op: &Operator) -> Vec<String> { op.ui.global::<ServicePlanning>().get_theme_options().iter().map(|s| s.to_string()).collect() }
+    fn labels(op: &Operator) -> Vec<String> { op.ui.service_planning_all().get_theme_options().iter().map(|s| s.to_string()).collect() }
 
     #[test]
     fn service_theme_box_lists_church_default_themes_and_manage() {
@@ -118,7 +118,7 @@ mod tests {
         expect.extend(crate::theme::builtin().into_iter().map(|b| b.name));
         expect.extend(["Christmas".into(), "Manage themes…".into()]);
         assert_eq!(labels(&op), expect);
-        assert_eq!(op.ui.global::<ServicePlanning>().get_theme_index(), 0);
+        assert_eq!(op.ui.service_planning_all().get_theme_index(), 0);
         assert!(find(&op, "ServiceColumn::service-theme").is_some());
     }
 
@@ -130,14 +130,14 @@ mod tests {
         let op = open(&app);
         refresh(&op);
         let at = labels(&op).iter().position(|l| l == "Christmas").unwrap() as i32;
-        op.ui.global::<ServicePlanning>().invoke_pick_theme(at);
+        op.ui.service_planning_all().invoke_pick_theme(at);
         assert_eq!(app.data.lock().unwrap().services[0].theme, Some(t.id));
-        assert_eq!(op.ui.global::<ServicePlanning>().get_theme_index(), at, "the box shows it after the read");
-        op.ui.global::<ServicePlanning>().invoke_pick_theme(0);
+        assert_eq!(op.ui.service_planning_all().get_theme_index(), at, "the box shows it after the read");
+        op.ui.service_planning_all().invoke_pick_theme(0);
         assert_eq!(app.data.lock().unwrap().services[0].theme, None, "back to the church default");
-        op.ui.global::<ServicePlanning>().invoke_pick_theme(at + 1);
+        op.ui.service_planning_all().invoke_pick_theme(at + 1);
         assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Themes)));
-        assert_eq!(op.ui.global::<ServicePlanning>().get_theme_index(), 0, "Manage themes… is not a theme");
+        assert_eq!(op.ui.service_planning_all().get_theme_index(), 0, "Manage themes… is not a theme");
     }
 
     #[test]
@@ -153,7 +153,7 @@ mod tests {
         }
         let op = open(&app);
         refresh(&op);
-        op.ui.global::<ServicePlanning>().invoke_pick_theme(3);
+        op.ui.service_planning_all().invoke_pick_theme(3);
         settle();
         let ask = op.ui.get_ask().row_data(0).expect("asked");
         assert_eq!(ask.text, "1 item has its own background. Use the theme's background for it too?");

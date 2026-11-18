@@ -18,7 +18,61 @@ export struct TransportCell { video: bool, label: string, paused: bool, percent:
 /// in the colour of `kind`; `edit` shows Edit words; `banner` is the change text, `update` shows Update screen.
 export struct LiveSong { line: string, kind: string, edit: bool, banner: string, update: bool }
 
+/// What comes next (`.next-up`): under the live preview, or a panel of its own.
+export component UpNextBox inherits Rectangle {
+    in property <string> title;
+    in property <string> body: @tr("—");
+    /// The text is cut here (in the live column); a panel of its own shows all of it.
+    in property <length> body-max: 110px;
+
+    min-height: 70px;
+    background: Theme.panel-2;
+    border-radius: 10px;
+    accessible-role: text;
+    accessible-label: root.body;
+    accessible-description: root.title;
+    VerticalLayout {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        padding-left: 12px;
+        padding-right: 12px;
+        spacing: 4px;
+        Text {
+            text: @tr("Up next").to-uppercase();
+            color: Theme.faint;
+            font-family: Theme.font;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.32px;
+        }
+        Rectangle {
+            max-height: root.body-max;
+            clip: true;
+            VerticalLayout {
+                alignment: start;
+                if root.title != "": Text {
+                    text: root.title;
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 11.25px;
+                    wrap: word-wrap;
+                }
+                Text {
+                    text: root.body;
+                    color: Theme.upnext-text;
+                    font-family: Theme.font;
+                    font-size: 13.5px;
+                    wrap: word-wrap;
+                }
+            }
+        }
+    }
+}
+
 export component LiveColumn inherits Rectangle {
+    /// Up next (with the notes) and auto-follow show here unless they are panels of their own.
+    in property <bool> up-next-shown: true;
+    in property <bool> follow-shown: true;
     in property <bool> pending;
     in property <string> live-what;
     /// The live slide's speaker or stage notes, shown small under the monitor.
@@ -166,7 +220,7 @@ export component LiveColumn inherits Rectangle {
                     stage-off: OutputsState.stage-off;
                 }
 
-                if root.notes != "": live-notes := Text {
+                if root.notes != "" && root.up-next-shown: live-notes := Text {
                     text: @tr("Notes: {}", root.notes);
                     color: Theme.muted;
                     font-family: Theme.font;
@@ -335,7 +389,7 @@ export component LiveColumn inherits Rectangle {
                 }
 
                 // 1.3: song auto-follow (Auto chip, listening light, Hold).
-                if FollowUi.shown: follow := FollowRow {}
+                if FollowUi.shown && root.follow-shown: follow := FollowRow {}
 
                 if root.song.banner != "": live-changed := Rectangle {
                     accessible-role: text;
@@ -392,50 +446,10 @@ export component LiveColumn inherits Rectangle {
 
                 overlays := OverlaysStrip {}
 
-                // `.next-up`: min 70 px, the body clipped at 110 px.
-                up-next := Rectangle {
-                    min-height: 70px;
-                    background: Theme.panel-2;
-                    border-radius: 10px;
-                    accessible-role: text;
-                    accessible-label: root.up-next-body;
-                    accessible-description: root.up-next-title;
-                    VerticalLayout {
-                        padding-top: 10px;
-                        padding-bottom: 10px;
-                        padding-left: 12px;
-                        padding-right: 12px;
-                        spacing: 4px;
-                        Text {
-                            text: @tr("Up next").to-uppercase();
-                            color: Theme.faint;
-                            font-family: Theme.font;
-                            font-size: 11px;
-                            font-weight: 700;
-                            letter-spacing: 1.32px;
-                        }
-                        Rectangle {
-                            max-height: 110px;
-                            clip: true;
-                            VerticalLayout {
-                                alignment: start;
-                                if root.up-next-title != "": Text {
-                                    text: root.up-next-title;
-                                    color: Theme.muted;
-                                    font-family: Theme.font;
-                                    font-size: 11.25px;
-                                    wrap: word-wrap;
-                                }
-                                Text {
-                                    text: root.up-next-body;
-                                    color: Theme.upnext-text;
-                                    font-family: Theme.font;
-                                    font-size: 13.5px;
-                                    wrap: word-wrap;
-                                }
-                            }
-                        }
-                    }
+                // `.next-up`: min 70 px, the body clipped at 110 px. Left out while Up next is a panel of its own.
+                if root.up-next-shown: up-next := UpNextBox {
+                    title: root.up-next-title;
+                    body: root.up-next-body;
                 }
             }
         }

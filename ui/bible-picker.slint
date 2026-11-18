@@ -25,6 +25,8 @@ export component BiblePickerList inherits Rectangle {
     callback find-more(string);
     /// N6: the ⓘ on a row: what that Bible is and its licence. The owner closes the pop-up.
     callback info(string);
+    /// The tallest the list of Bibles may be (less when the pop-up must stay clear of the previews).
+    in property <length> max-list: 360px;
     Rectangle {
         background: Theme.panel;
         border-color: Theme.line;
@@ -98,7 +100,7 @@ export component BiblePickerList inherits Rectangle {
                 wrap: word-wrap;
             }
             ScrollBox {
-                height: min(360px, picker-rows-box.preferred-height);
+                height: max(60px, min(root.max-list, picker-rows-box.preferred-height));
                 picker-rows-box := VerticalLayout {
                     spacing: 1px;
                     for row[i] in root.rows: Rectangle {

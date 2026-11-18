@@ -1,12 +1,15 @@
 // The native operator window (`web/operator.html`): the top bar over three columns (`operator.css:52`).
 import { Theme, OperatorState } from "theme.slint";
-import { Panel, TipLayer } from "widgets.slint";
+import { TipLayer } from "widgets.slint";
 import { Palette } from "std-widgets.slint";
-import { TopBar, TranslationChip } from "operator/topbar.slint";
-import { ServiceColumn, ServiceRow } from "operator/service.slint";
-import { SlidesPanel, SlideCell, SlideRowCells, SlideJump } from "operator/slides.slint";
-import { MediaBin, BinRow, BinFolder } from "operator/media.slint";
-import { LiveColumn, TransportCell, LiveSong } from "operator/live.slint";
+import { TopBar } from "operator/topbar.slint";
+import { TranslationChip } from "bible-picker.slint";
+import { ServiceRow } from "operator/service.slint";
+import { SlideCell, SlideRowCells, SlideJump } from "operator/slides.slint";
+import { BinRow, BinFolder } from "operator/media.slint";
+import { TransportCell, LiveSong } from "operator/live.slint";
+import { DockArea, DockPlace, DockHead, DockBar, DockWin, DockRect, DockText } from "operator/dock.slint";
+import { ServicePane, SlidesPane, LibraryPane, BiblePane, LivePane, StreamPane, DockShared } from "operator/panes.slint";
 import { OutputsState } from "operator/outputs.slint";
 import { Side, Geo, Sprite } from "room.slint";
 import { ToastStack, JobsBox, DropHint, ToastRow, JobRow } from "operator/overlays.slint";
@@ -32,8 +35,6 @@ import { NetworkDialog } from "dialogs/network.slint";
 import { StreamScenesDialog } from "dialogs/stream-scenes.slint";
 import { GoLiveHelperDialog } from "dialogs/go-live-helper.slint";
 import { StreamMoreDialog } from "dialogs/stream-more.slint";
-import { AutomationStrip } from "operator/automation-strip.slint";
-import { CameraStrip } from "operator/cameras.slint";
 import { FindVerseDialog } from "dialogs/find-verse.slint";
 import { TranslationEditorDialog } from "dialogs/translation-editor.slint";
 import { SlideBreaksDialog } from "dialogs/slide-breaks.slint";
@@ -43,6 +44,10 @@ import { PanelExtras } from "operator/extras.slint";
 import { SlideActs } from "operator/action-palette.slint";
 
 export { TranslationChip, ServiceRow, SlideCell, SlideRowCells, SlideJump, TransportCell, LiveSong, BinRow, BinFolder }
+export { ServicePane, SlidesPane, LibraryPane, BiblePane, LivePane, StreamPane, DockShared, DockPlace, DockHead, DockBar, DockWin, DockRect }
+
+/// A line of View → Panels or View → Layouts: what Rust is told (`key`), what it says, and whether it is ticked.
+export struct DockMenuRow { key: string, name: string, checked: bool }
 
 export component OperatorWindow inherits Window {
     title: @tr("RustyPresenter");
@@ -59,43 +64,26 @@ export component OperatorWindow inherits Window {
     /// not a binding: the top bar's width needs depend on it, and the window's width on those (a binding loop).
     /// `changed` fires only on a change, so `init` sets it for a window whose first width is already its last.
     out property <bool> narrow;
-    /// Below 1400 px the Bible box's favourite and recent chips are hidden, leaving the chosen one (`TopBar.compact`), so the top
-    /// bar fits a 1280 px window. Set with `narrow`, for the same reason.
+    /// Below 1400 px Record shows only its dot. Set with `narrow`, for the same reason.
     out property <bool> compact;
-    /// The Verses button shows with the full Bible box; narrower, it is still in Add → Bible and Settings → Look.
-    out property <bool> verses-shown;
+    /// The top bar puts some buttons under More when they do not fit (`Operator::fit_top_bar`).
+    in property <bool> top-tight;
+    out property <length> top-need: top.need;
+    callback top-need-changed();
     init => {
         // The app is always dark; the menu bar Slint draws (Linux) and its drop-downs follow the style's palette.
         Palette.color-scheme = ColorScheme.dark;
         root.fit();
     }
-    /// The window is wide enough for the media library's thumbnail size slider beside its tabs, search and Import.
-    /// Set from `fit`, like `narrow`: a binding on the window's own size would make the layout depend on itself.
-    out property <bool> bin-roomy: true;
-    /// The window is short (a 768 px laptop screen): the media library's list is lower, so the slides keep
-    /// more than one row.
-    out property <bool> short;
     changed width => { root.fit(); }
     changed height => { root.fit(); }
     function fit() {
         root.narrow = root.width <= 1250px;
         root.compact = root.width < 1400px;
-        root.verses-shown = !root.compact;
-        root.bin-roomy = root.width >= 1340px;
-        root.short = root.height < 820px;
     }
 
     // Top bar (see `TopBar`).
     in property <string> service-name: @tr("Service");
-    in property <[TranslationChip]> translations;
-    in property <[TranslationChip]> quick-chips;
-    in property <string> translation;
-    in property <[TranslationChip]> picker-rows;
-    in-out property <string> picker-search;
-    in property <string> picker-note;
-    in-out property <string> bible-text;
-    /// Verses per slide for the next passage: 0 Automatic, else 1–4.
-    in property <int> bible-per-slide;
     in property <bool> room-on;
     in property <string> room-state: "warn";
     in property <string> room-tip;
@@ -106,130 +94,33 @@ export component OperatorWindow inherits Window {
     in property <bool> stage-on;
     in property <string> phones-label;
 
-    /// The first state read has arrived (the web `onopen`); until then the columns stay empty, with no Welcome.
-    in property <bool> loaded;
-    in property <int> item-count;
-
-    // Service column (see `ServiceColumn`).
-    in property <[ServiceRow]> service-rows;
-    in property <string> service-count;
-    in property <string> service-count-short;
-    callback service-select(string);
-    callback service-show-first(string);
-    callback service-edit(string);
-    callback service-remove(string);
-    callback service-add();
-    callback service-move(string, int);
-    callback service-drag-started();
-    callback service-drag-finished();
-    pure callback service-drag-data(string) -> data-transfer;
-    pure callback service-drag-id(data-transfer) -> string;
-
-    // Slides column (see `SlidesPanel`).
-    in property <string> slides-title: @tr("Nothing selected");
-    in property <string> slides-kind;
-    in property <bool> has-selection;
-    in property <int> slide-count;
-    in property <[SlideRowCells]> slide-rows;
-    in property <int> slide-columns: 1;
-    /// A song's sections, to jump straight to one.
-    in property <[SlideJump]> slide-jumps;
-    out property <length> slides-grid-width: slides.grid-width;
-    callback slides-show(int);
-    callback slides-pick-section(int);
-    callback slides-edit();
-    callback slides-grid-resized(length);
-    /// N37: 0 grid, 1 Easy, 2 Table; N8: the grid's picture size. Both stay for this session (`slides.rs`).
-    in-out property <int> slides-view;
-    in-out property <int> slides-thumb-size: 230;
-    callback slides-view-picked(int);
-    callback slides-thumb-size-changed(int);
-    /// A Bible passage is selected: its text size ("Auto" or pixels) with A− / A+ / Auto.
-    in property <bool> slides-text-size-shown;
-    in property <string> slides-text-size;
-    in property <bool> slides-text-size-custom;
-    /// A song is selected: its lines per slide with − / + / Auto, and the size buttons change the song's size.
-    in property <bool> slides-song-fit;
-    in property <string> slides-lines;
-    in property <bool> slides-lines-custom;
-    callback slides-lines-fewer();
-    callback slides-lines-more();
-    callback slides-lines-auto();
-    /// The selected item's note under the grid (a passage's missing verses), or "".
-    in property <string> slides-note;
-    in property <bool> slides-custom-order;
-    callback slides-text-smaller();
-    callback slides-text-larger();
-    callback slides-text-auto();
-    public function slides-scroll-to-row(row: int) { slides.scroll-to-row(row); }
-    public function slides-scroll-to-top() { slides.scroll-to-top(); }
-
-    // The bottom library pane (see `MediaBin`).
-    in property <[BinRow]> bin-rows;
-    in property <[BinFolder]> bin-folders;
-    in property <string> bin-tab: "all";
-    in property <bool> bin-has-pick;
-    in property <string> bin-pick-name;
-    in property <string> bin-pick-hint;
-    in property <bool> bin-can-use;
-    in property <bool> bin-can-delete-folder;
-    callback bin-set-tab(string);
-    callback bin-set-folder(string);
-    callback bin-search(string);
-    callback bin-pick(string);
-    callback bin-use-picked();
-    callback bin-add-picked();
-    callback bin-move-picked();
-    callback bin-import();
-    callback bin-new-folder();
-    callback bin-delete-folder();
-    in property <[AddRow]> bin-songs;
-    in property <string> bin-song-placeholder;
-    in property <string> bin-song-empty;
-    callback bin-song-search(string);
-    callback bin-add-song(string);
-    callback bin-edit-song(string);
-    callback bin-new-song();
-
-    // Live column (see `LiveColumn`).
-    in property <bool> live-pending;
-    in property <string> live-what;
-    in property <string> live-notice;
-    in property <string> live-notes;
-    in property <LiveSong> live-song;
-    callback live-song-action(string);
-    in property <bool> logo-on;
-    in property <string> up-next-title;
-    in property <string> up-next-body: @tr("—");
-    in property <[TransportCell]> transport;
-    in property <Side> monitor-bg;
-    in property <bool> monitor-bg-visible: true;
-    in property <Side> monitor-media;
-    in property <Side> monitor-slide;
-    /// The slide going out while the new one comes in with a deck or designed slide's own transition, its
-    /// opacity and both faces' places (`Geo`, a push or wipe). Rust moves them (`src/ui/operator/live.rs`).
-    in property <Side> monitor-slide-old;
-    in property <float> monitor-slide-op: 1;
-    in property <float> monitor-slide-old-op;
-    in property <Geo> monitor-slide-geo;
-    in property <Geo> monitor-slide-old-geo;
-    /// A designed slide's click group playing on the monitor (`src/ui/operator/live.rs`).
-    in property <[Sprite]> monitor-sprites;
-    in property <Side> monitor-logo;
-    in property <image> monitor-drawing;
-    in property <bool> drawing-on;
-    in property <bool> monitor-video;
-    in property <image> monitor-video-frame;
-    in property <bool> monitor-video-cover;
-    in property <float> monitor-black;
-    in property <bool> monitor-room-off;
-    out property <length> monitor-width: live.monitor-width;
-    callback live-next();
-    callback live-prev();
-    callback live-clear(string);
-    callback transport-toggle(int);
-    callback transport-seek(int, string);
-    callback monitor-resized(length);
+    // The panels (dock panels design, `src/ui/operator/docking.rs`): where each one is in this window, the tab
+    // bars and title bars, the strips between them, and arrange mode. What the panels show is in `panes.slint`.
+    in property <[DockPlace]> dock-places;
+    in property <[DockHead]> dock-heads;
+    in property <[DockBar]> dock-bars;
+    in property <bool> dock-arrange;
+    in property <[DockWin]> dock-windows;
+    in property <length> dock-area-width;
+    in property <length> dock-area-height;
+    in property <bool> dock-lit-shown;
+    in property <DockRect> dock-lit;
+    /// View → Panels and View → Layouts: one row each (Rust replaces the lists when they change).
+    in property <[DockMenuRow]> dock-panel-rows;
+    in property <[DockMenuRow]> dock-layout-rows;
+    /// The layout in use is one the church saved (Rename and Delete apply to it).
+    in property <bool> dock-saved-chosen;
+    callback dock-area-resized(length, length);
+    callback dock-fit(int, bool, length, length, length, length);
+    callback dock-bar-moved(int, length);
+    callback dock-bar-done(int);
+    callback dock-tab-picked(int);
+    callback dock-drag-moved(int, length, length);
+    callback dock-drag-done(int, length, length);
+    callback dock-panel-action(int, string);
+    /// View → Panels, View → Layouts: "arrange", "panel:<index>", "layout:<key>", "save-as", "rename", "delete",
+    /// "reset".
+    callback dock-menu(string);
 
     // Toasts and the jobs box (see `overlays.slint`).
     in property <[ToastRow]> toasts;
@@ -247,15 +138,6 @@ export component OperatorWindow inherits Window {
     callback settings();
     /// Opens the Song use report (FEAT-7 §3.3); for the menu bar and Settings → Songs.
     callback usage-report();
-    callback bible-submit(string);
-    callback pick-translation(int);
-    callback picker-opening();
-    callback picker-search-changed(string);
-    callback picker-accept();
-    callback pick-bible(string);
-    callback toggle-favourite(string);
-    callback find-more-bibles(string);
-    callback cycle-per-slide();
 
     // The menu bar (`src/ui/operator/menu.rs`).
     /// There is a current service (File → Save this service to a file…).
@@ -263,8 +145,8 @@ export component OperatorWindow inherits Window {
     callback menu(string);
     /// Items that open a dialog or act on the window: the first read is in and nothing covers the window (its
     /// buttons are under a dialog's backdrop then).
-    out property <bool> menu-ready: root.loaded && !root.covered;
-    out property <bool> menu-can-edit: root.menu-ready && root.has-selection;
+    out property <bool> menu-ready: DockShared.loaded && !root.covered;
+    out property <bool> menu-can-edit: root.menu-ready && SlidesPane.has-selection;
     out property <bool> menu-can-save: root.menu-ready && root.has-service;
     /// Edit → Undo / Redo have a step to take (`crate::undo`).
     in property <bool> can-undo;
@@ -276,44 +158,6 @@ export component OperatorWindow inherits Window {
     in property <int> zoom-percent: 100;
     /// View → Listen in headphones is on (N21): the sound goes to the operator's headphones only.
     in property <bool> listening;
-    /// N22: the audience screen is being recorded, and for how long ("12:34"). The Record button and File → Start
-    /// recording call `record`.
-    in property <bool> recording;
-    /// Recording with a clip open (Clip pressed once).
-    in property <bool> clipping;
-    callback toggle-clip();
-    /// Recording, with More settings keeping the last minutes: how many (0: no "Save last" button).
-    in property <int> replay-minutes;
-    callback save-last();
-    in property <string> record-time;
-    callback record();
-    in property <bool> can-stream;
-    in property <bool> live;
-    in property <int> live-up;
-    /// Signed in, while live: how many are watching (-1: not known).
-    in property <int> live-watching: -1;
-    in property <int> live-total;
-    callback go-live();
-    in property <bool> live-held;
-    in property <bool> live-muted;
-    callback hold-stream();
-    callback mute-stream();
-    in property <[string]> scene-labels;
-    in property <int> scene-out;
-    in property <int> scene-chosen: -1;
-    callback pick-scene(int);
-    in property <int> live-level: -1;
-    in property <[string]> camera-labels;
-    in property <int> camera-active;
-    callback pick-camera(int);
-    /// The camera in the picture can be moved: how many saved positions it offers (0: none).
-    in property <int> camera-positions;
-    /// Signed in, while live: the viewers' chat, newest last, and how many came since the list was last opened.
-    in property <bool> chat-on;
-    in property <[string]> chat-lines;
-    in property <int> chat-new;
-    callback chat-opened();
-    callback pick-position(int);
 
     /// One key press, for `keys::route_in` in Rust: the key's text, Ctrl (Cmd on macOS), Alt, Shift, whether a text
     /// field has focus and whether that field is the Bible box. True when the key was used.
@@ -329,12 +173,6 @@ export component OperatorWindow inherits Window {
         keys.focus();
         OperatorState.focus-in-text = false;
     }
-
-    public function focus-bible() { top.focus-bible(); }
-    /// N6: Edit → Recent verses.
-    public function open-bible-history() { top.open-history(); }
-    /// Opens the Bible picker (tests and the chosen chip).
-    public function open-bible-picker() { top.open-picker(); }
 
     // The dialog layer (see `src/ui/dialogs`): one dialog at a time, swapped in place like the web `<dialog>`.
     in property <bool> dialog-open;
@@ -369,7 +207,7 @@ export component OperatorWindow inherits Window {
     property <bool> covered: root.dialog-open || root.ask.length > 0;
 
     function send-key(e: KeyEvent) -> bool {
-        return root.key(e.text, e.modifiers.control, e.modifiers.alt, e.modifiers.shift, OperatorState.focus-in-text, top.bible-focused);
+        return root.key(e.text, e.modifiers.control, e.modifiers.alt, e.modifiers.shift, OperatorState.focus-in-text, dock.bible-focused);
     }
 
     // File, Edit, View, Window, Settings, Help. Each item runs what its button or key runs. Shortcuts come from
@@ -492,12 +330,12 @@ export component OperatorWindow inherits Window {
             MenuItem {
                 title: @tr("Import media…");
                 enabled: root.menu-ready;
-                activated => { root.focus-keys(); root.bin-import(); }
+                activated => { root.focus-keys(); LibraryPane.bin-import(); }
             }
             MenuItem {
                 title: @tr("Video inputs…");
                 enabled: root.menu-ready;
-                activated => { root.focus-keys(); bin.open = true; root.bin-set-tab("inputs"); }
+                activated => { root.focus-keys(); root.dock-menu("panel-show:2"); LibraryPane.bin-fold(true); LibraryPane.bin-set-tab("inputs"); }
             }
             MenuItem {
                 title: @tr("Clean up unused media…");
@@ -506,12 +344,12 @@ export component OperatorWindow inherits Window {
             }
             MenuSeparator {}
             MenuItem {
-                title: root.recording ? @tr("Stop recording") : @tr("Start recording");
+                title: StreamPane.recording ? @tr("Stop recording") : @tr("Start recording");
                 enabled: root.menu-ready;
-                activated => { root.focus-keys(); root.record(); }
+                activated => { root.focus-keys(); StreamPane.record(); }
             }
             MenuItem {
-                title: root.live ? @tr("Stop the livestream") : @tr("Go Live");
+                title: StreamPane.live ? @tr("Stop the livestream") : @tr("Go Live");
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.menu("go-live"); }
             }
@@ -613,19 +451,19 @@ export component OperatorWindow inherits Window {
             MenuItem {
                 title: @tr("Edit the selected item…");
                 enabled: root.menu-can-edit;
-                activated => { root.focus-keys(); root.slides-edit(); }
+                activated => { root.focus-keys(); SlidesPane.slides-edit(); }
             }
             MenuItem {
                 title: @tr("Bible box");
                 shortcut: MenuKeys.bible;
                 enabled: !root.covered;
-                activated => { root.focus-bible(); }
+                activated => { root.dock-menu("bible-focus"); }
             }
             // N6: Bible extras.
             MenuItem {
                 title: @tr("Recent verses…");
                 enabled: !root.covered && PanelExtras.history.length > 0;
-                activated => { root.open-bible-history(); }
+                activated => { root.dock-menu("bible-history"); }
             }
             MenuItem {
                 title: @tr("Add the verse before");
@@ -653,33 +491,33 @@ export component OperatorWindow inherits Window {
             MenuItem {
                 title: @tr("Next");
                 enabled: !root.covered;
-                activated => { root.focus-keys(); root.live-next(); }
+                activated => { root.focus-keys(); LivePane.live-next(); }
             }
             MenuItem {
                 title: @tr("Back");
                 enabled: !root.covered;
-                activated => { root.focus-keys(); root.live-prev(); }
+                activated => { root.focus-keys(); LivePane.live-prev(); }
             }
             MenuSeparator {}
             MenuItem {
                 title: @tr("Clear all");
                 shortcut: MenuKeys.clear-all;
-                activated => { root.live-clear("clear_all"); }
+                activated => { LivePane.live-clear("clear_all"); }
             }
             MenuItem {
                 title: @tr("Clear text");
                 shortcut: MenuKeys.clear-slide;
-                activated => { root.live-clear("clear_slide"); }
+                activated => { LivePane.live-clear("clear_slide"); }
             }
             MenuItem {
                 title: @tr("Clear media & background");
                 shortcut: MenuKeys.clear-media;
-                activated => { root.live-clear("clear_media"); }
+                activated => { LivePane.live-clear("clear_media"); }
             }
             MenuItem {
                 title: @tr("Clear audio");
                 shortcut: MenuKeys.clear-audio;
-                activated => { root.live-clear("clear_audio"); }
+                activated => { LivePane.live-clear("clear_audio"); }
             }
             MenuItem {
                 title: root.listening ? @tr("Stop listening in headphones") : @tr("Listen in headphones");
@@ -689,22 +527,22 @@ export component OperatorWindow inherits Window {
             MenuItem {
                 title: @tr("Logo");
                 shortcut: MenuKeys.logo;
-                activated => { root.live-clear("logo"); }
+                activated => { LivePane.live-clear("logo"); }
             }
             MenuItem {
                 title: @tr("Clear overlays");
                 shortcut: MenuKeys.clear-overlays;
-                activated => { root.live-clear("clear_overlays"); }
+                activated => { LivePane.live-clear("clear_overlays"); }
             }
             MenuItem {
                 title: @tr("Clear the message");
                 shortcut: MenuKeys.clear-message;
-                activated => { root.live-clear("clear_message"); }
+                activated => { LivePane.live-clear("clear_message"); }
             }
             MenuItem {
                 title: @tr("Clear the timers");
                 shortcut: MenuKeys.clear-timers;
-                activated => { root.live-clear("clear_timers"); }
+                activated => { LivePane.live-clear("clear_timers"); }
             }
             for g[i] in MenuKeys.groups: MenuItem {
                 title: g.name;
@@ -713,14 +551,14 @@ export component OperatorWindow inherits Window {
             }
             MenuItem {
                 title: @tr("Clear drawing");
-                enabled: root.drawing-on;
-                activated => { root.live-clear("clear_drawing"); }
+                enabled: LivePane.drawing-on;
+                activated => { LivePane.live-clear("clear_drawing"); }
             }
             MenuSeparator {}
             MenuItem {
-                title: bin.open ? @tr("Hide media library") : @tr("Show media library");
+                title: LibraryPane.bin-open ? @tr("Hide media library") : @tr("Show media library");
                 enabled: !root.covered;
-                activated => { bin.open = !bin.open; }
+                activated => { LibraryPane.bin-fold(!LibraryPane.bin-open); }
             }
             // N37: how the selected item's slides are shown.
             Menu {
@@ -747,6 +585,56 @@ export component OperatorWindow inherits Window {
                 title: OutputsState.show-perf ? @tr("Hide performance") : @tr("Show performance");
                 enabled: root.menu-ready;
                 activated => { OutputsState.toggle-perf(); }
+            }
+            MenuSeparator {}
+            // Dock panels: arrange them, show or hide each one, and the layouts.
+            MenuItem {
+                title: root.dock-arrange ? @tr("Stop arranging panels") : @tr("Arrange panels");
+                enabled: !root.covered;
+                activated => { root.dock-menu("arrange"); }
+            }
+            Menu {
+                title: @tr("Panels");
+                enabled: !root.covered;
+                for row in root.dock-panel-rows: MenuItem {
+                    title: row.name;
+                    checkable: true;
+                    checked: row.checked;
+                    activated => { root.dock-menu(row.key); }
+                }
+            }
+            Menu {
+                title: @tr("Layouts");
+                enabled: !root.covered;
+                for row in root.dock-layout-rows: MenuItem {
+                    title: row.name;
+                    checkable: true;
+                    checked: row.checked;
+                    activated => { root.dock-menu(row.key); }
+                }
+                MenuSeparator {}
+                MenuItem {
+                    title: root.dock-arrange ? @tr("Stop arranging panels") : @tr("Arrange panels");
+                    activated => { root.dock-menu("arrange"); }
+                }
+                MenuItem {
+                    title: @tr("Save this layout as…");
+                    activated => { root.dock-menu("save-as"); }
+                }
+                MenuItem {
+                    title: @tr("Rename this layout…");
+                    enabled: root.dock-saved-chosen;
+                    activated => { root.dock-menu("rename"); }
+                }
+                MenuItem {
+                    title: @tr("Delete this layout");
+                    enabled: root.dock-saved-chosen;
+                    activated => { root.dock-menu("delete"); }
+                }
+                MenuItem {
+                    title: @tr("Reset to Standard");
+                    activated => { root.dock-menu("reset"); }
+                }
             }
             MenuSeparator {}
             MenuItem {
@@ -778,7 +666,7 @@ export component OperatorWindow inherits Window {
                 activated => { root.focus-keys(); OutputsState.toggle-room-window(); }
             }
             MenuItem {
-                title: @tr("Phone remote…");
+                title: @tr("Remote…");
                 enabled: root.menu-ready;
                 activated => { root.focus-keys(); root.phone(); }
             }
@@ -949,19 +837,14 @@ export component OperatorWindow inherits Window {
 
         VerticalLayout {
             top := TopBar {
+                // Never wider than the window: what does not fit goes under More (`TopBar.tight`), so the panels
+                // below always get the window's width.
+                min-width: 0px;
+                tight: root.top-tight;
+                need-changed => { root.top-need-changed(); }
                 narrow: root.narrow;
                 compact: root.compact;
-                verses-shown: root.verses-shown;
-                covered: root.covered;
                 service-name: root.service-name;
-                translations: root.translations;
-                quick-chips: root.quick-chips;
-                translation: root.translation;
-                picker-rows: root.picker-rows;
-                picker-search <=> root.picker-search;
-                picker-note: root.picker-note;
-                bible-text <=> root.bible-text;
-                bible-per-slide: root.bible-per-slide;
                 room-on: root.room-on;
                 room-state: root.room-state;
                 room-tip: root.room-tip;
@@ -972,212 +855,36 @@ export component OperatorWindow inherits Window {
                 stage-shown: root.stage-shown;
                 stage-on: root.stage-on;
                 phones-label: root.phones-label;
-                recording: root.recording;
-                clipping: root.clipping;
-                toggle-clip => { root.focus-keys(); root.toggle-clip(); }
-                replay-minutes: root.replay-minutes;
-                save-last => { root.focus-keys(); root.save-last(); }
-                record-time: root.record-time;
-                record => { root.focus-keys(); root.record(); }
-                can-stream: root.can-stream;
-                live: root.live;
-                live-up: root.live-up;
-                live-total: root.live-total;
-                live-watching: root.live-watching;
-                go-live => { root.focus-keys(); root.go-live(); }
-                live-held: root.live-held;
-                live-muted: root.live-muted;
-                hold-stream => { root.focus-keys(); root.hold-stream(); }
-                mute-stream => { root.focus-keys(); root.mute-stream(); }
-                scene-labels: root.scene-labels;
-                scene-out: root.scene-out;
-                scene-chosen: root.scene-chosen;
-                live-level: root.live-level;
-                camera-labels: root.camera-labels;
-                camera-active: root.camera-active;
-                pick-camera(i) => { root.focus-keys(); root.pick-camera(i); }
-                camera-positions: root.camera-positions;
-                chat-on: root.chat-on;
-                chat-lines: root.chat-lines;
-                chat-new: root.chat-new;
-                chat-opened => { root.chat-opened(); }
-                pick-position(i) => { root.focus-keys(); root.pick-position(i); }
-                pick-scene(i) => { root.focus-keys(); root.pick-scene(i); }
+                focus-keys => { root.focus-keys(); }
                 services => { root.focus-keys(); root.services(); }
                 screens => { root.focus-keys(); root.screens(); }
                 phone => { root.focus-keys(); root.phone(); }
                 stage-message => { root.focus-keys(); root.stage-message(); }
                 settings => { root.focus-keys(); root.settings(); }
-                bible-submit(text) => { root.bible-submit(text); }
-                pick-translation(i) => { root.pick-translation(i); }
-                picker-opening => { root.picker-opening(); }
-                picker-search-changed(text) => { root.picker-search-changed(text); }
-                picker-accept => { root.picker-accept(); }
-                pick-bible(id) => { root.pick-bible(id); }
-                toggle-favourite(id) => { root.toggle-favourite(id); }
-                find-more-bibles(text) => { root.focus-keys(); root.find-more-bibles(text); }
-                cycle-per-slide => { root.cycle-per-slide(); }
             }
 
-            // The work area (service, slides, media library) beside the live column, which runs the full height.
-            HorizontalLayout {
+            // The panels: the Bible box, the service, the slides, the library and Live by default (Standard).
+            dock := DockArea {
                 vertical-stretch: 1;
-                padding: 8px;
-                spacing: 8px;
-                VerticalLayout {
-                    horizontal-stretch: 1;
-                    min-width: 0px;
-                    spacing: 8px;
-                    HorizontalLayout {
-                        vertical-stretch: 1;
-                        spacing: 8px;
-                        service-col := Panel {
-                            min-width: 250px;
-                            preferred-width: 264px;
-                            max-width: 280px;
-                            horizontal-stretch: 0;
-                            ServiceColumn {
-                                vertical-stretch: 1;
-                                rows: root.service-rows;
-                                count: root.service-count;
-                                count-short: root.service-count-short;
-                                loaded: root.loaded;
-                                select(id) => { root.focus-keys(); root.service-select(id); }
-                                show-first(id) => { root.focus-keys(); root.service-show-first(id); }
-                                edit(id) => { root.focus-keys(); root.service-edit(id); }
-                                remove(id) => { root.focus-keys(); root.service-remove(id); }
-                                add => { root.focus-keys(); root.service-add(); }
-                                check => { root.focus-keys(); root.check-service(); }
-                                move(id, to) => { root.service-move(id, to); }
-                                drag-started => { root.service-drag-started(); }
-                                drag-finished => { root.service-drag-finished(); }
-                                drag-data(id) => { return root.service-drag-data(id); }
-                                drag-id(data) => { return root.service-drag-id(data); }
-                            }
-                        }
-                        slides-col := Panel {
-                            horizontal-stretch: 1;
-                            min-width: 0px;
-                            slides := SlidesPanel {
-                                vertical-stretch: 1;
-                                title: root.slides-title;
-                                kind: root.slides-kind;
-                                has-selection: root.has-selection;
-                                slide-count: root.slide-count;
-                                rows: root.slide-rows;
-                                columns: root.slide-columns;
-                                jumps: root.slide-jumps;
-                                loaded: root.loaded;
-                                item-count: root.item-count;
-                                window-height: root.height;
-                                show(idx) => { root.focus-keys(); root.slides-show(idx); }
-                                pick-section(i) => { root.focus-keys(); root.slides-pick-section(i); }
-                                edit => { root.focus-keys(); root.slides-edit(); }
-                                text-size-shown: root.slides-text-size-shown;
-                                text-size: root.slides-text-size;
-                                text-size-custom: root.slides-text-size-custom;
-                                song-fit: root.slides-song-fit;
-                                lines: root.slides-lines;
-                                lines-custom: root.slides-lines-custom;
-                                lines-fewer => { root.focus-keys(); root.slides-lines-fewer(); }
-                                lines-more => { root.focus-keys(); root.slides-lines-more(); }
-                                lines-auto => { root.focus-keys(); root.slides-lines-auto(); }
-                                note: root.slides-note;
-                                custom-order: root.slides-custom-order;
-                                text-smaller => { root.focus-keys(); root.slides-text-smaller(); }
-                                text-larger => { root.focus-keys(); root.slides-text-larger(); }
-                                text-auto => { root.focus-keys(); root.slides-text-auto(); }
-                                grid-resized(w) => { root.slides-grid-resized(w); }
-                                view <=> root.slides-view;
-                                thumb-size <=> root.slides-thumb-size;
-                                view-picked(i) => { root.focus-keys(); root.slides-view-picked(i); }
-                                thumb-size-changed(v) => { root.slides-thumb-size-changed(v); }
-                                welcome-add => { root.focus-keys(); root.service-add(); }
-                                welcome-screens => { root.focus-keys(); root.screens(); }
-                            }
-                        }
-                    }
-                    bin-col := Panel {
-                        vertical-stretch: 0;
-                        bin := MediaBin {
-                            // A 768 px laptop screen keeps more than one row of slides above the library.
-                            body-height: root.short ? 150px : 220px;
-                            roomy: root.bin-roomy;
-                            rows: root.bin-rows;
-                            folders: root.bin-folders;
-                            tab: root.bin-tab;
-                            has-pick: root.bin-has-pick;
-                            pick-name: root.bin-pick-name;
-                            pick-hint: root.bin-pick-hint;
-                            can-use: root.bin-can-use;
-                            can-delete-folder: root.bin-can-delete-folder;
-                            songs: root.bin-songs;
-                            song-placeholder: root.bin-song-placeholder;
-                            song-empty: root.bin-song-empty;
-                            set-tab(t) => { root.focus-keys(); root.bin-set-tab(t); }
-                            set-folder(f) => { root.focus-keys(); root.bin-set-folder(f); }
-                            search(q) => { root.bin-search(q); }
-                            pick(id) => { root.focus-keys(); root.bin-pick(id); }
-                            use-picked => { root.focus-keys(); root.bin-use-picked(); }
-                            add-picked => { root.focus-keys(); root.bin-add-picked(); }
-                            move-picked => { root.bin-move-picked(); }
-                            import => { root.focus-keys(); root.bin-import(); }
-                            new-folder => { root.bin-new-folder(); }
-                            delete-folder => { root.bin-delete-folder(); }
-                            song-search(q) => { root.bin-song-search(q); }
-                            add-song(id) => { root.focus-keys(); root.bin-add-song(id); }
-                            edit-song(id) => { root.focus-keys(); root.bin-edit-song(id); }
-                            new-song => { root.focus-keys(); root.bin-new-song(); }
-                        }
-                    }
-                }
-                live-col := Panel {
-                    min-width: 360px;
-                    preferred-width: 440px;
-                    max-width: 440px;
-                    horizontal-stretch: 0;
-                    live := LiveColumn {
-                        vertical-stretch: 1;
-                        pending: root.live-pending;
-                        live-what: root.live-what;
-                        notice: root.live-notice;
-                        notes: root.live-notes;
-                        song: root.live-song;
-                        song-action(a) => { root.focus-keys(); root.live-song-action(a); }
-                        logo-on: root.logo-on;
-                        up-next-title: root.up-next-title;
-                        up-next-body: root.up-next-body;
-                        transport: root.transport;
-                        monitor-bg: root.monitor-bg;
-                        monitor-bg-visible: root.monitor-bg-visible;
-                        monitor-media: root.monitor-media;
-                        monitor-slide: root.monitor-slide;
-                        monitor-slide-old: root.monitor-slide-old;
-                        monitor-slide-op: root.monitor-slide-op;
-                        monitor-slide-old-op: root.monitor-slide-old-op;
-                        monitor-slide-geo: root.monitor-slide-geo;
-                        monitor-slide-old-geo: root.monitor-slide-old-geo;
-                        monitor-sprites: root.monitor-sprites;
-                        monitor-logo: root.monitor-logo;
-                        monitor-drawing: root.monitor-drawing;
-                        drawing-on: root.drawing-on;
-                        monitor-video: root.monitor-video;
-                        monitor-video-frame: root.monitor-video-frame;
-                        monitor-video-cover: root.monitor-video-cover;
-                        monitor-black: root.monitor-black;
-                        monitor-room-off: root.monitor-room-off;
-                        next => { root.focus-keys(); root.live-next(); }
-                        prev => { root.focus-keys(); root.live-prev(); }
-                        clear(cmd) => { root.focus-keys(); root.live-clear(cmd); }
-                        transport-toggle(i) => { root.focus-keys(); root.transport-toggle(i); }
-                        transport-seek(i, which) => { root.focus-keys(); root.transport-seek(i, which); }
-                        monitor-resized(w) => { root.monitor-resized(w); }
-                    }
-                    // Live with cameras: the Live and Next pictures, Switch and Fade (`src/ui/operator/record.rs`).
-                    camera-strip := CameraStrip { }
-                    // FEAT-2: Message, the Auto chip, timers and macros (`src/ui/operator/automation.rs`).
-                    auto-strip := AutomationStrip { }
-                }
+                places: root.dock-places;
+                heads: root.dock-heads;
+                bars: root.dock-bars;
+                arrange: root.dock-arrange;
+                windows: root.dock-windows;
+                area-width: root.dock-area-width;
+                area-height: root.dock-area-height;
+                lit-shown: root.dock-lit-shown;
+                lit: root.dock-lit;
+                covered: root.covered;
+                focus-keys => { root.focus-keys(); }
+                area-resized(w, h) => { root.dock-area-resized(w, h); }
+                fit(p, t, a, b, c, d) => { root.dock-fit(p, t, a, b, c, d); }
+                bar-moved(i, d) => { root.dock-bar-moved(i, d); }
+                bar-done(i) => { root.dock-bar-done(i); }
+                tab-picked(p) => { root.dock-tab-picked(p); }
+                drag-moved(p, x, y) => { root.dock-drag-moved(p, x, y); }
+                drag-done(p, x, y) => { root.dock-drag-done(p, x, y); }
+                panel-action(p, a) => { root.dock-panel-action(p, a); }
             }
         }
 

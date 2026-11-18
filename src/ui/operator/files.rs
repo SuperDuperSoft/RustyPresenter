@@ -13,9 +13,9 @@ use crate::{
     model::{AssetId, Deck, ItemKind, ServiceItem},
     platform::winit_events::{self, Dispatcher, WindowEvent},
     pplive::strings as pplive,
-    ui::{ImportingRow, ServicePlanning, dialogs},
+    ui::{ImportingRow, dialogs},
 };
-use slint::{ComponentHandle, Model, ModelRc, Timer, VecModel};
+use slint::{Model, ModelRc, Timer, VecModel};
 use serde::Deserialize;
 use serde_json::json;
 use std::{
@@ -558,7 +558,7 @@ fn name_deck(op: &Rc<Operator>, p: Pictures) {
 
 /// Installs the operator window's one event filter and its desktop drop handler (`operator.js:601-612`).
 pub(super) fn wire(op: &Rc<Operator>) {
-    op.ui.global::<ServicePlanning>().set_importing(ModelRc::from(op.files.importing_rows.clone()));
+    op.ui.service_planning_all().set_importing(ModelRc::from(op.files.importing_rows.clone()));
     winit_events::attach(op.window(), op.files.events.clone());
     let me = Rc::downgrade(op);
     op.files.events.add(move |e| {
@@ -1106,7 +1106,7 @@ mod window_tests {
     }
 
     /// The "Importing…" rows under the service list.
-    fn importing(op: &Operator) -> Vec<String> { op.ui.global::<ServicePlanning>().get_importing().iter().map(|r| r.label.to_string()).collect() }
+    fn importing(op: &Operator) -> Vec<String> { op.ui.service_planning_all().get_importing().iter().map(|r| r.label.to_string()).collect() }
 
     #[test]
     fn importing_rows_show_from_the_pick_until_the_slides_are_in() {
@@ -1124,7 +1124,7 @@ mod window_tests {
         assert_eq!(importing(&op), ["Importing Talk.pptx…"], "the picture is in; the slides are still being made");
         app.job_progress(job, 40);
         refresh(&op);
-        assert_eq!(op.ui.global::<ServicePlanning>().get_importing().row_data(0).unwrap().percent, 40, "the job's progress");
+        assert_eq!(op.ui.service_planning_all().get_importing().row_data(0).unwrap().percent, 40, "the job's progress");
         let id = Uuid::new_v4();
         app.edit(|d| { d.decks.push(Deck { id, title: "Talk".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![], show: None }); Ok(()) }).unwrap();
         app.job_result(job, id);
