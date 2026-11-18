@@ -2803,6 +2803,50 @@ msgstr "Magdagdag ng label"
 msgid "Use the usual names, colours and labels"
 msgstr "Gamitin ang karaniwang pangalan, kulay at label"
 
+#: ui/dialogs/settings-songs-folder.slint src/ui/dialogs/settings_find.rs
+msgid "Songs folder"
+msgstr "Folder ng mga kanta"
+
+#: ui/dialogs/settings-songs-folder.slint src/ui/dialogs/settings_find.rs
+msgid "Every song is also kept as a ChordPro file in a folder you can open, back up or edit in Notepad. Song files you put in the folder (ChordPro, SongSelect, OpenLyrics, OpenSong or plain text with Verse/Chorus headings) come into the song library by themselves."
+msgstr "Naitatago rin ang bawat kanta bilang ChordPro file sa isang folder na puwede mong buksan, i-back up o i-edit sa Notepad. Ang mga song file na ilalagay mo sa folder (ChordPro, SongSelect, OpenLyrics, OpenSong o plain text na may Verse/Chorus na heading) ay kusang papasok sa library ng mga kanta."
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Keep my songs in a folder"
+msgstr "Itago ang mga kanta ko sa isang folder"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Open the folder"
+msgstr "Buksan ang folder"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Choose another folder…"
+msgstr "Pumili ng ibang folder…"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Use the usual folder"
+msgstr "Gamitin ang karaniwang folder"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Documents → RustyPresenter → Songs"
+msgstr "Documents → RustyPresenter → Songs"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Tidy imported files into ChordPro"
+msgstr "Ayusin ang mga na-import na file sa ChordPro"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song file of another kind is moved into the “Imported files” folder once it is in the library, so only ChordPro files stay."
+msgstr "Ang song file na ibang uri ay ililipat sa folder na “Imported files” kapag nasa library na ito, para ChordPro file lang ang matira."
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song file of another kind stays as it is, and its ChordPro copy is written beside it. Changing the file later changes the song."
+msgstr "Ang song file na ibang uri ay mananatili, at isusulat sa tabi nito ang ChordPro na kopya. Kapag binago mo ang file mamaya, magbabago rin ang kanta."
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song removed from the library has its file moved into the “Removed” folder. To remove a song, remove it in RustyPresenter: a file deleted from the folder is written again."
+msgstr "Kapag tinanggal ang kanta sa library, ililipat ang file nito sa folder na “Removed”. Para magtanggal ng kanta, tanggalin ito sa RustyPresenter: isusulat muli ang file na binura sa folder."
+
 #: ui/dialogs/settings-sound.slint
 msgid "{} dB"
 msgstr "{} dB"
@@ -4138,6 +4182,34 @@ msgstr "Mas malaking teksto para sa kantang ito"
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Back to the lines and size in Settings"
 msgstr "Ibalik sa mga linya at laki sa Settings"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Key"
+msgstr "Key"
+
+#: ui/dialogs/song-editor.slint
+msgid "G"
+msgstr "G"
+
+#: ui/dialogs/song-editor.slint
+msgid "The key the song is written in"
+msgstr "Ang key kung saan nakasulat ang kanta"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Chords one step lower on the stage screen"
+msgstr "Mga chord nang kalahating tono pababa sa stage screen"
+
+#: ui/dialogs/song-editor.slint src/ui/song_key.rs
+msgid "As written"
+msgstr "Gaya ng nakasulat"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Chords one step higher on the stage screen"
+msgstr "Mga chord nang kalahating tono pataas sa stage screen"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Show the chords as they are written"
+msgstr "Ipakita ang mga chord gaya ng pagkakasulat"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
@@ -6059,6 +6131,10 @@ msgstr "May nawawalang larawan. Subukang i-upload muli."
 msgid "These slides are in a service. Remove them from the service first."
 msgstr "Nasa isang service ang slides na ito. Alisin muna ang mga ito sa service."
 
+#: src/app.rs
+msgid "Choose a whole folder path."
+msgstr "Pumili ng buong path ng folder."
+
 #: src/app.rs src/strings/scripture.rs
 msgid "Unknown translation."
 msgstr "Hindi kilalang salin."
@@ -7520,6 +7596,10 @@ msgstr "Scene ng livestream: {name}"
 msgid "Scene keys work while the stream is live."
 msgstr "Gumagana ang mga key ng scene habang naka-live ang stream."
 
+#: src/slides.rs
+msgid "♪ chords only"
+msgstr "♪ chord lang"
+
 #: src/slides.rs src/strings/print.rs
 msgid "Missing song"
 msgstr "Nawawalang kanta"
@@ -7531,6 +7611,92 @@ msgstr "Nawawalang media"
 #: src/slides.rs src/strings/print.rs
 msgid "Missing slides"
 msgstr "Nawawalang slides"
+
+#: src/songs_folder/format.rs
+msgid "it has no RustyPresenter song id"
+msgstr "wala itong RustyPresenter song id"
+
+#: src/songs_folder/format.rs
+msgid "it has no title"
+msgstr "wala itong pamagat"
+
+#: src/songs_folder/mod.rs
+msgid "The songs folder could not be made: {error}"
+msgstr "Hindi magawa ang folder ng mga kanta: {error}"
+
+#: src/songs_folder/mod.rs
+msgid "The songs folder cannot be found. Is the drive connected?"
+msgstr "Hindi makita ang folder ng mga kanta. Nakakonekta ba ang drive?"
+
+#: src/songs_folder/mod.rs
+msgid "{n} song came in from the songs folder."
+msgid_plural "{n} songs came in from the songs folder."
+msgstr[0] "{n} kanta ang pumasok mula sa folder ng mga kanta."
+msgstr[1] "{n} kanta ang pumasok mula sa folder ng mga kanta."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” came in from the songs folder."
+msgstr "Pumasok ang “{title}” mula sa folder ng mga kanta."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” was changed in the songs folder, so it changed here too."
+msgstr "Binago ang “{title}” sa folder ng mga kanta, kaya nagbago rin ito rito."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” was changed here and in the songs folder, so both were kept: the folder's version is “{copy}”."
+msgstr "Binago ang “{title}” dito at sa folder ng mga kanta, kaya itinago ang dalawa: ang bersyon ng folder ay “{copy}”."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” is in the songs folder, so it is back in the song library."
+msgstr "Nasa folder ng mga kanta ang “{title}”, kaya bumalik ito sa library ng mga kanta."
+
+#: src/songs_folder/mod.rs
+msgid "{file} in the songs folder could not be read: {why}"
+msgstr "Hindi mabasa ang {file} sa folder ng mga kanta: {why}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} song in the folder"
+msgid_plural "{n} songs in the folder"
+msgstr[0] "{n} kanta sa folder"
+msgstr[1] "{n} kanta sa folder"
+
+#: src/songs_folder/mod.rs
+msgid "last change just now"
+msgstr "huling pagbabago ngayon lang"
+
+#: src/songs_folder/mod.rs
+msgid "last change {n} minute ago"
+msgid_plural "last change {n} minutes ago"
+msgstr[0] "huling pagbabago {n} minuto ang nakalipas"
+msgstr[1] "huling pagbabago {n} minuto ang nakalipas"
+
+#: src/songs_folder/mod.rs
+msgid "last change {when}"
+msgstr "huling pagbabago {when}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} file could not be read: {files}"
+msgid_plural "{n} files could not be read: {files}"
+msgstr[0] "{n} file ang hindi mabasa: {files}"
+msgstr[1] "{n} file ang hindi mabasa: {files}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} file is busy and will be tried again"
+msgid_plural "{n} files are busy and will be tried again"
+msgstr[0] "{n} file ang ginagamit pa at susubukan muli"
+msgstr[1] "{n} file ang ginagamit pa at susubukan muli"
+
+#: src/songs_folder/sync.rs
+msgid "{title} (from the folder)"
+msgstr "{title} (mula sa folder)"
+
+#: src/songs_folder/sync.rs
+msgid "it is not a song file"
+msgstr "hindi ito song file"
+
+#: src/songs_folder/sync.rs
+msgid "it is too big to be a song file"
+msgstr "masyado itong malaki para maging song file"
 
 #: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
 msgid "No song words were found in this file."
@@ -11828,6 +11994,18 @@ msgstr "Walang teksto sa clipboard. Kopyahin muna ang mga salita."
 msgid "{name} (imported)"
 msgstr "{name} (na-import)"
 
+#: src/transpose.rs
+msgid "{from} → {to}, {amount}"
+msgstr "{from} → {to}, {amount}"
+
+#: src/transpose.rs
+msgid "Capo {fret} to play {key} shapes"
+msgstr "Capo sa fret {fret} para tugtugin ang hugis ng {key}"
+
+#: src/transpose.rs
+msgid "Capo {fret} to play the chords as written"
+msgstr "Capo sa fret {fret} para tugtugin ang mga chord gaya ng nakasulat"
+
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
 msgstr "Ilagay sa screen ang isang item ng service"
@@ -12415,6 +12593,10 @@ msgstr ""
 "Manalangin araw-araw\n"
 "Basahin ang Bibliya\n"
 "Paglingkuran ang kapwa"
+
+#: src/ui/dialogs/songs_folder.rs
+msgid "Could not open the songs folder: {error}"
+msgstr "Hindi mabuksan ang folder ng mga kanta: {error}"
 
 #: src/ui/dialogs/songselect.rs
 msgid "Songs from SongSelect"

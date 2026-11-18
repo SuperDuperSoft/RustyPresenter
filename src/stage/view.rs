@@ -111,6 +111,16 @@ fn slide_content(slide: &Slide, pictures: bool, chords: bool, caption: Option<St
         SlideContent::Image { asset, .. } => CellContent::Picture { asset: asset.clone(), caption },
         SlideContent::Design { design, .. } if let Some(next) = designed => CellContent::Designed { next, words: design.words(), caption },
         SlideContent::Still { asset } if pictures => CellContent::Picture { asset: asset.clone(), caption },
+        // Chords and no words (an intro, a break): the band sees the section's name and, when the box shows
+        // chords, the chords to play; the room shows no words.
+        SlideContent::Text { text, .. } if text.trim().is_empty() && slide.chords.is_some() => {
+            let name = format!("{} ♪", section_of(&slide.label));
+            match slide.chords.as_ref().filter(|_| chords) {
+                Some(with) => CellContent::text(format!("{name}
+{with}"), caption),
+                None => CellContent::text(name, caption),
+            }
+        }
         _ => match slide.chords.as_ref().filter(|_| chords) {
             Some(with) => CellContent::text(with.clone(), caption),
             None => CellContent::text(label(slide), caption),
@@ -610,6 +620,24 @@ mod tests {
         // A slide without chords shows its words.
         let v = song_view(&s, 2);
         assert_eq!(words(&only(&v, &s, ElementKind::CurrentSlide { pictures: false, keep_after_clear: false, chords: true })).0, "My chains are gone");
+    }
+
+    #[test]
+    fn an_intro_of_chords_shows_its_name_and_moved_chords_on_the_stage_only() {
+        let song = crate::model::Song { title: "T".into(), key: "G".into(), transpose: 2, lyrics: "Intro
+[G] [D] [Em] [C]
+
+Verse 1
+[G]Amazing [C]grace".into(), ..Default::default() };
+        let s = crate::slides::song_slides(&song, &crate::model::Settings { credits: "none".into(), ..Default::default() });
+        assert!(matches!(&s[0].content, SlideContent::Text { text, .. } if text.is_empty()), "the room shows no words");
+        let v = song_view(&s, 0);
+        let cur = |chords| ElementKind::CurrentSlide { pictures: false, keep_after_clear: false, chords };
+        assert_eq!(words(&only(&v, &s, cur(true))).0, "Intro ♪
+[A] [E] [F#m] [D]", "moved up 2, as the band plays it");
+        assert_eq!(words(&only(&v, &s, cur(false))).0, "Intro ♪");
+        assert_eq!(words(&only(&v, &s, ElementKind::NextSlide { pictures: false, chords: false })).0, "Amazing grace", "the first sung line is next");
+        assert_eq!(words(&only(&v, &s, ElementKind::NextSlide { pictures: false, chords: true })).0, "[A]Amazing [D]grace");
     }
 
     #[test]

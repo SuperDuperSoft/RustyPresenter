@@ -2803,6 +2803,50 @@ msgstr "Ongeza lebo"
 msgid "Use the usual names, colours and labels"
 msgstr "Tumia majina, rangi na lebo za kawaida"
 
+#: ui/dialogs/settings-songs-folder.slint src/ui/dialogs/settings_find.rs
+msgid "Songs folder"
+msgstr "Folda ya nyimbo"
+
+#: ui/dialogs/settings-songs-folder.slint src/ui/dialogs/settings_find.rs
+msgid "Every song is also kept as a ChordPro file in a folder you can open, back up or edit in Notepad. Song files you put in the folder (ChordPro, SongSelect, OpenLyrics, OpenSong or plain text with Verse/Chorus headings) come into the song library by themselves."
+msgstr "Kila wimbo pia huhifadhiwa kama faili la ChordPro kwenye folda unayoweza kufungua, kuhifadhi nakala au kuhariri kwenye Notepad. Faili za nyimbo unazoweka kwenye folda (ChordPro, SongSelect, OpenLyrics, OpenSong au maandishi ya kawaida yenye vichwa vya Verse/Chorus) huingia kwenye maktaba ya nyimbo zenyewe."
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Keep my songs in a folder"
+msgstr "Hifadhi nyimbo zangu kwenye folda"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Open the folder"
+msgstr "Fungua folda"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Choose another folder…"
+msgstr "Chagua folda nyingine…"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Use the usual folder"
+msgstr "Tumia folda ya kawaida"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Documents → RustyPresenter → Songs"
+msgstr "Hati → RustyPresenter → Songs"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Tidy imported files into ChordPro"
+msgstr "Panga faili zilizoingizwa kuwa ChordPro"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song file of another kind is moved into the “Imported files” folder once it is in the library, so only ChordPro files stay."
+msgstr "Faili la wimbo la aina nyingine huhamishiwa kwenye folda ya “Imported files” likishaingia kwenye maktaba, ili zibaki faili za ChordPro pekee."
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song file of another kind stays as it is, and its ChordPro copy is written beside it. Changing the file later changes the song."
+msgstr "Faili la wimbo la aina nyingine hubaki kama lilivyo, na nakala yake ya ChordPro huandikwa kando yake. Ukibadilisha faili baadaye, wimbo hubadilika."
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song removed from the library has its file moved into the “Removed” folder. To remove a song, remove it in RustyPresenter: a file deleted from the folder is written again."
+msgstr "Wimbo ukiondolewa kwenye maktaba, faili lake huhamishiwa kwenye folda ya “Removed”. Ili kuondoa wimbo, uondoe kwenye RustyPresenter: faili lililofutwa kwenye folda huandikwa tena."
+
 #: ui/dialogs/settings-sound.slint
 msgid "{} dB"
 msgstr "{} dB"
@@ -4138,6 +4182,34 @@ msgstr "Maandishi makubwa zaidi kwa wimbo huu"
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Back to the lines and size in Settings"
 msgstr "Rudi kwenye mistari na ukubwa ulio katika Mipangilio"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Key"
+msgstr "Ufunguo"
+
+#: ui/dialogs/song-editor.slint
+msgid "G"
+msgstr "G"
+
+#: ui/dialogs/song-editor.slint
+msgid "The key the song is written in"
+msgstr "Ufunguo ambao wimbo umeandikwa"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Chords one step lower on the stage screen"
+msgstr "Chodi nusu toni chini kwenye skrini ya jukwaa"
+
+#: ui/dialogs/song-editor.slint src/ui/song_key.rs
+msgid "As written"
+msgstr "Kama ilivyoandikwa"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Chords one step higher on the stage screen"
+msgstr "Chodi nusu toni juu kwenye skrini ya jukwaa"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Show the chords as they are written"
+msgstr "Onyesha chodi kama zilivyoandikwa"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
@@ -6059,6 +6131,10 @@ msgstr "Picha moja haipo. Jaribu kupakia tena."
 msgid "These slides are in a service. Remove them from the service first."
 msgstr "Slaidi hizi ziko kwenye ibada. Ziondoe kwenye ibada kwanza."
 
+#: src/app.rs
+msgid "Choose a whole folder path."
+msgstr "Chagua njia kamili ya folda."
+
 #: src/app.rs src/strings/scripture.rs
 msgid "Unknown translation."
 msgstr "Tafsiri isiyojulikana."
@@ -7520,6 +7596,10 @@ msgstr "Tukio la matangazo: {name}"
 msgid "Scene keys work while the stream is live."
 msgstr "Vitufe vya matukio hufanya kazi wakati matangazo yako moja kwa moja."
 
+#: src/slides.rs
+msgid "♪ chords only"
+msgstr "♪ chodi pekee"
+
 #: src/slides.rs src/strings/print.rs
 msgid "Missing song"
 msgstr "Wimbo haupo"
@@ -7531,6 +7611,92 @@ msgstr "Midia haipo"
 #: src/slides.rs src/strings/print.rs
 msgid "Missing slides"
 msgstr "Slaidi hazipo"
+
+#: src/songs_folder/format.rs
+msgid "it has no RustyPresenter song id"
+msgstr "halina kitambulisho cha wimbo cha RustyPresenter"
+
+#: src/songs_folder/format.rs
+msgid "it has no title"
+msgstr "halina kichwa"
+
+#: src/songs_folder/mod.rs
+msgid "The songs folder could not be made: {error}"
+msgstr "Imeshindwa kutengeneza folda ya nyimbo: {error}"
+
+#: src/songs_folder/mod.rs
+msgid "The songs folder cannot be found. Is the drive connected?"
+msgstr "Folda ya nyimbo haipatikani. Je, diski imeunganishwa?"
+
+#: src/songs_folder/mod.rs
+msgid "{n} song came in from the songs folder."
+msgid_plural "{n} songs came in from the songs folder."
+msgstr[0] "Wimbo {n} umeingia kutoka kwenye folda ya nyimbo."
+msgstr[1] "Nyimbo {n} zimeingia kutoka kwenye folda ya nyimbo."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” came in from the songs folder."
+msgstr "“{title}” imeingia kutoka kwenye folda ya nyimbo."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” was changed in the songs folder, so it changed here too."
+msgstr "“{title}” ilibadilishwa kwenye folda ya nyimbo, kwa hiyo imebadilika hapa pia."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” was changed here and in the songs folder, so both were kept: the folder's version is “{copy}”."
+msgstr "“{title}” ilibadilishwa hapa na kwenye folda ya nyimbo, kwa hiyo zote mbili zimehifadhiwa: toleo la folda ni “{copy}”."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” is in the songs folder, so it is back in the song library."
+msgstr "“{title}” iko kwenye folda ya nyimbo, kwa hiyo imerudi kwenye maktaba ya nyimbo."
+
+#: src/songs_folder/mod.rs
+msgid "{file} in the songs folder could not be read: {why}"
+msgstr "{file} kwenye folda ya nyimbo haikuweza kusomwa: {why}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} song in the folder"
+msgid_plural "{n} songs in the folder"
+msgstr[0] "Wimbo {n} kwenye folda"
+msgstr[1] "Nyimbo {n} kwenye folda"
+
+#: src/songs_folder/mod.rs
+msgid "last change just now"
+msgstr "badiliko la mwisho sasa hivi"
+
+#: src/songs_folder/mod.rs
+msgid "last change {n} minute ago"
+msgid_plural "last change {n} minutes ago"
+msgstr[0] "badiliko la mwisho dakika {n} iliyopita"
+msgstr[1] "badiliko la mwisho dakika {n} zilizopita"
+
+#: src/songs_folder/mod.rs
+msgid "last change {when}"
+msgstr "badiliko la mwisho {when}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} file could not be read: {files}"
+msgid_plural "{n} files could not be read: {files}"
+msgstr[0] "Faili {n} haikuweza kusomwa: {files}"
+msgstr[1] "Faili {n} hazikuweza kusomwa: {files}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} file is busy and will be tried again"
+msgid_plural "{n} files are busy and will be tried again"
+msgstr[0] "Faili {n} inatumika na itajaribiwa tena"
+msgstr[1] "Faili {n} zinatumika na zitajaribiwa tena"
+
+#: src/songs_folder/sync.rs
+msgid "{title} (from the folder)"
+msgstr "{title} (kutoka kwenye folda)"
+
+#: src/songs_folder/sync.rs
+msgid "it is not a song file"
+msgstr "si faili la wimbo"
+
+#: src/songs_folder/sync.rs
+msgid "it is too big to be a song file"
+msgstr "ni kubwa mno kuwa faili la wimbo"
 
 #: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
 msgid "No song words were found in this file."
@@ -11828,6 +11994,18 @@ msgstr "Ubao wa kunakili hauna maandishi. Nakili maneno kwanza."
 msgid "{name} (imported)"
 msgstr "{name} (imeletwa)"
 
+#: src/transpose.rs
+msgid "{from} → {to}, {amount}"
+msgstr "{from} → {to}, {amount}"
+
+#: src/transpose.rs
+msgid "Capo {fret} to play {key} shapes"
+msgstr "Kapo kwenye fret {fret} ili kupiga maumbo ya {key}"
+
+#: src/transpose.rs
+msgid "Capo {fret} to play the chords as written"
+msgstr "Kapo kwenye fret {fret} ili kupiga chodi kama zilivyoandikwa"
+
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
 msgstr "Weka kipengele cha ibada kwenye skrini"
@@ -12415,6 +12593,10 @@ msgstr ""
 "Omba kila siku\n"
 "Soma Biblia\n"
 "Mtumikie jirani yako"
+
+#: src/ui/dialogs/songs_folder.rs
+msgid "Could not open the songs folder: {error}"
+msgstr "Imeshindwa kufungua folda ya nyimbo: {error}"
 
 #: src/ui/dialogs/songselect.rs
 msgid "Songs from SongSelect"
