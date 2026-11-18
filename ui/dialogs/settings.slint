@@ -20,6 +20,7 @@ import { ScreensPage, SongsPage, SongSelectPage, MediaPage, RoomSoundPage, Stage
 import { RemotePage, PhoneStagePage, PhoneCamMicPage, OtherGearPage } from "settings-remote.slint";
 import { StreamWherePage, StreamPicturePage, StreamCamerasPage, StreamScenesPage, RecordingPage, StreamCaptionsPage, StreamNdiPage, StreamSetupsPage } from "settings-stream.slint";
 import { StreamSoundPage } from "settings-sound.slint";
+import { SongsFolderPage } from "settings-songs-folder.slint";
 
 export { SettingsDlg }
 
@@ -33,32 +34,33 @@ component Pages inherits VerticalLayout {
     if SettingsDlg.tab == 4: songs := SongsPage {}
     if SettingsDlg.tab == 5: sections := SettingsSections {}
     if SettingsDlg.tab == 6: songselect := SongSelectPage {}
-    if SettingsDlg.tab == 7: bible := BiblePage {}
-    if SettingsDlg.tab == 8: bible-online := BibleOnlinePage {}
-    if SettingsDlg.tab == 9: media := MediaPage {}
-    if SettingsDlg.tab == 10: room-sound := RoomSoundPage {}
-    if SettingsDlg.tab == 11: stage := StagePage {}
-    if SettingsDlg.tab == 12: remote := RemotePage {}
-    if SettingsDlg.tab == 13: phone-stage := PhoneStagePage {}
-    if SettingsDlg.tab == 14: phone-cam-mic := PhoneCamMicPage {}
-    if SettingsDlg.tab == 15: other-gear := OtherGearPage {}
-    if SettingsDlg.tab == 16: keys := KeysPage {}
-    if SettingsDlg.tab == 17: clear-groups := ClearGroupsPage {}
-    if SettingsDlg.tab == 18: follow := FollowListenPage {}
-    if SettingsDlg.tab == 19: follow-model := FollowModelPage {}
-    if SettingsDlg.tab == 20: follow-practice := FollowPracticePage {}
-    if SettingsDlg.tab == 21: follow-review := FollowReviewPage {}
-    if SettingsDlg.tab == 22: stream-where := StreamWherePage {}
-    if SettingsDlg.tab == 23: stream-picture := StreamPicturePage {}
-    if SettingsDlg.tab == 24: stream-cameras := StreamCamerasPage {}
-    if SettingsDlg.tab == 25: stream-sound := StreamSoundPage {}
-    if SettingsDlg.tab == 26: stream-scenes := StreamScenesPage {}
-    if SettingsDlg.tab == 27: recording := RecordingPage {}
-    if SettingsDlg.tab == 28: stream-captions := StreamCaptionsPage {}
-    if SettingsDlg.tab == 29: stream-ndi := StreamNdiPage {}
-    if SettingsDlg.tab == 30: stream-setups := StreamSetupsPage {}
-    if SettingsDlg.tab == 31: backups := BackupsPage {}
-    if SettingsDlg.tab == 32: about := SettingsAbout {}
+    if SettingsDlg.tab == 7: songs-folder := SongsFolderPage {}
+    if SettingsDlg.tab == 8: bible := BiblePage {}
+    if SettingsDlg.tab == 9: bible-online := BibleOnlinePage {}
+    if SettingsDlg.tab == 10: media := MediaPage {}
+    if SettingsDlg.tab == 11: room-sound := RoomSoundPage {}
+    if SettingsDlg.tab == 12: stage := StagePage {}
+    if SettingsDlg.tab == 13: remote := RemotePage {}
+    if SettingsDlg.tab == 14: phone-stage := PhoneStagePage {}
+    if SettingsDlg.tab == 15: phone-cam-mic := PhoneCamMicPage {}
+    if SettingsDlg.tab == 16: other-gear := OtherGearPage {}
+    if SettingsDlg.tab == 17: keys := KeysPage {}
+    if SettingsDlg.tab == 18: clear-groups := ClearGroupsPage {}
+    if SettingsDlg.tab == 19: follow := FollowListenPage {}
+    if SettingsDlg.tab == 20: follow-model := FollowModelPage {}
+    if SettingsDlg.tab == 21: follow-practice := FollowPracticePage {}
+    if SettingsDlg.tab == 22: follow-review := FollowReviewPage {}
+    if SettingsDlg.tab == 23: stream-where := StreamWherePage {}
+    if SettingsDlg.tab == 24: stream-picture := StreamPicturePage {}
+    if SettingsDlg.tab == 25: stream-cameras := StreamCamerasPage {}
+    if SettingsDlg.tab == 26: stream-sound := StreamSoundPage {}
+    if SettingsDlg.tab == 27: stream-scenes := StreamScenesPage {}
+    if SettingsDlg.tab == 28: recording := RecordingPage {}
+    if SettingsDlg.tab == 29: stream-captions := StreamCaptionsPage {}
+    if SettingsDlg.tab == 30: stream-ndi := StreamNdiPage {}
+    if SettingsDlg.tab == 31: stream-setups := StreamSetupsPage {}
+    if SettingsDlg.tab == 32: backups := BackupsPage {}
+    if SettingsDlg.tab == 33: about := SettingsAbout {}
 }
 
 /// A line of the sidebar: a category's name, or a page (lit when it is the one shown).

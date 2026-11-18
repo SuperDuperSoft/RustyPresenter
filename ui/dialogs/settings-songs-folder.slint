@@ -3,8 +3,9 @@
 // everything it shows and does goes through `SongsFolderState`, which `src/ui/dialogs/songs_folder.rs` fills and
 // answers. Each choice saves at once (no Save button needed).
 import { Theme } from "../theme.slint";
-import { Btn, Field } from "../widgets.slint";
+import { Btn } from "../widgets.slint";
 import { Check } from "form.slint";
+import { SetRow } from "settings-row.slint";
 
 export global SongsFolderState {
     /// "Keep my songs in a folder" (off by default).
@@ -28,8 +29,11 @@ export global SongsFolderState {
     callback open-folder();
 }
 
-export component SongsFolderRows inherits VerticalLayout {
-    Field {
+/// Songs → Songs folder: one row (its key, label and help match `settings_find::rows`).
+export component SongsFolderPage inherits VerticalLayout {
+    alignment: start;
+    songs-folder-row := SetRow {
+        key: "songs-folder";
         label: @tr("Songs folder");
         help: @tr("Every song is also kept as a ChordPro file in a folder you can open, back up or edit in Notepad. Song files you put in the folder (ChordPro, SongSelect, OpenLyrics, OpenSong or plain text with Verse/Chorus headings) come into the song library by themselves.");
         songs-folder-on := Check {

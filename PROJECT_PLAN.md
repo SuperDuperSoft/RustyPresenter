@@ -1751,10 +1751,9 @@ well." and "will it show [intro chords] before the song?". Design: `docs/superpo
 - **Intro chords**: chord-only lines/sections kept on ChordPro import; such a slide shows no words in the room, the
   section name and chords on the stage, "♪ chords only" in the slide list/editor; credits go on sung slides;
   auto-follow treats it as instrumental (test).
-- **For the lead to place:** `SongsFolderRows {}` (from `ui/dialogs/settings-songs-folder.slint`) on Settings → Songs,
-  with `ui::dialogs::songs_folder::connect(&op)` once at window start and `fill(&op)` when Settings opens;
-  `SongKeyControl {}` (from `ui/song-key.slint`) in the Slides header, with `ui::song_key::connect(&op)` once and
-  `ui::song_key::render(&op)` wherever `render_text_size` runs.
-- **Not verified by a person:** the two new components on screen (not placed yet), the Key row in the song editor by
+- **Placed:** Settings → Songs → **Songs folder** is its own page (after SongSelect; in Find a setting).
+  **For the lead to place:** `SongKeyControl {}` (from `ui/song-key.slint`) in the Slides header, with
+  `ui::song_key::connect(&op)` once and `ui::song_key::render(&op)` wherever `render_text_size` runs.
+- **Not verified by a person:** the Songs folder page and the Key control on screen (the control is not placed yet), the Key row in the song editor by
   eye, a real OneDrive/Dropbox/network folder, Explorer opening the folder, and real SongSelect/OpenSong files from
   other programs dropped into the folder.

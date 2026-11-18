@@ -123,7 +123,11 @@ fn open_songselect(op: &Operator) {
 }
 
 /// Called when the settings may have changed (each new data read): starts or stops watching as they now say.
-pub(crate) fn follow_setting(op: &Rc<Operator>) { ensure(op) }
+pub(crate) fn follow_setting(op: &Rc<Operator>) {
+    ensure(op);
+    // Settings → Songs → Songs folder: its messages show at the bottom of the window too.
+    super::songs_folder::watch_notes(op);
+}
 
 /// Watching is wanted while the window is open, or always when Settings says so.
 fn wanted(op: &Operator) -> bool {

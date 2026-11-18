@@ -84,7 +84,7 @@ export component RemotePage inherits VerticalLayout {
     }
     SetLink {
         text: @tr("Show drawings on the stage screen: Settings → Stage screen");
-        page: 11;
+        page: 12;
         key: "stage-drawings";
     }
 }
@@ -144,7 +144,7 @@ export component PhoneCamMicPage inherits VerticalLayout {
         }
         SetLink {
             text: @tr("Then choose it in Settings → Livestream → Cameras");
-            page: 24;
+            page: 25;
             key: "stream-cameras";
         }
     }
@@ -165,7 +165,7 @@ export component PhoneCamMicPage inherits VerticalLayout {
         if !NetworkDlg.stage-on: phone-mic-off := Hint { text: @tr("The stage screen on phones is off, so the phone cannot reach this page yet."); }
         SetLink {
             text: @tr("Then choose Phone in Settings → Livestream → Sound");
-            page: 25;
+            page: 26;
             key: "stream-mics";
         }
     }

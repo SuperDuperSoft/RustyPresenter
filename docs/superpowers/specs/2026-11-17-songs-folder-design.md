@@ -7,7 +7,7 @@ during the intro before anyone's singing?"
 
 ## 1. Songs folder
 
-**Settings → Songs → Songs folder** (`ui/dialogs/settings-songs-folder.slint`, `src/ui/dialogs/songs_folder.rs`):
+**Settings → Songs → Songs folder** (its own page; `ui/dialogs/settings-songs-folder.slint`, `src/ui/dialogs/songs_folder.rs`):
 "Keep my songs in a folder" (off by default). When on: the folder's path, **Open the folder**, **Choose another
 folder…**, **Use the usual folder** (only when another was chosen), a status line ("212 songs in the folder · last
 change 3 minutes ago · 1 file could not be read: notes.txt", or what is wrong: "The songs folder cannot be found. Is
@@ -135,9 +135,9 @@ My chains are gone
 
 ## Placing the two new components (for the lead)
 
-- Settings → Songs page: `import { SongsFolderRows } from "settings-songs-folder.slint";` and put `SongsFolderRows {}`
-  on the page; call `crate::ui::dialogs::songs_folder::connect(&op)` once when the operator window opens (it starts
-  the status timer and answers the callbacks) and `songs_folder::fill(&op)` when Settings opens.
+- Settings: placed on its own page, **Settings → Songs → Songs folder** (`SettingsTab::SongsFolder`, after
+  SongSelect), with its row in Find a setting (`settings_find`). `songs_folder::connect` runs each time Settings
+  opens; the folder's messages reach the operator window through `songselect::follow_setting`.
 - Slides panel header: `import { SongKeyControl } from "../song-key.slint";` and put `SongKeyControl {}` beside the
   song's A− / A+ and lines controls; call `crate::ui::song_key::connect(&op)` once when the window opens and
   `crate::ui::song_key::render(&op)` wherever `render_text_size` runs (selection or library changed).

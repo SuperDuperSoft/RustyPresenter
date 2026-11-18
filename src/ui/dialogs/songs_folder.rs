@@ -1,7 +1,9 @@
 //! Settings → Songs → "Keep my songs in a folder" (`ui/dialogs/settings-songs-folder.slint`, `crate::songs_folder`).
-//! Self-contained: `connect` (once, when the window opens) answers `SongsFolderState`'s callbacks and, once a
-//! second, shows the folder's status line and its messages ("“Grace” came in from the songs folder."). `fill` puts
-//! the saved choices in the rows (when Settings opens). Each choice saves at once through `songs-folder/set`.
+//! The page is in the Settings window (Songs → Songs folder), so its `SongsFolderState` is that window's
+//! (`settings_window::win`). `connect` (each time Settings opens) puts the saved choices in the row, answers its
+//! callbacks and keeps its status line fresh while Settings is open. `watch_notes` (from the operator's data reads,
+//! through `songselect::follow_setting`) shows a message for each thing the folder did ("“Grace” came in from the
+//! songs folder."). Each choice saves at once through `songs-folder/set`.
 use crate::{
     songs_folder::{self, Status},
     ui::{SongsFolderState, operator::window::Operator},
@@ -15,9 +17,14 @@ use std::{cell::RefCell, rc::Rc, time::{Duration, SystemTime}};
 const EVERY: Duration = Duration::from_secs(1);
 
 thread_local! {
-    /// The window's timer for the status line and the messages.
+    /// The Settings page's timer for the status line.
     static TIMER: RefCell<Option<slint::Timer>> = const { RefCell::new(None) };
+    /// The operator window's timer for the folder's messages.
+    static NOTES: RefCell<Option<slint::Timer>> = const { RefCell::new(None) };
 }
+
+/// The Settings window's `SongsFolderState`.
+fn state(op: &Operator) -> SongsFolderState<'static> { super::settings_window::win(op).global::<SongsFolderState>() }
 
 /// What `songs-folder/set` answers: the choices as saved.
 #[derive(Deserialize, Debug, Clone, PartialEq)]
@@ -31,7 +38,7 @@ pub fn fill(op: &Operator) {
 }
 
 fn show_prefs(op: &Operator, p: &Saved) {
-    let g = op.ui.global::<SongsFolderState>();
+    let g = state(op);
     g.set_on(p.on);
     g.set_folder(p.folder.as_str().into());
     g.set_chosen(p.chosen);
@@ -40,7 +47,7 @@ fn show_prefs(op: &Operator, p: &Saved) {
 
 /// The line under the choice. A status for another folder (just changed, not looked at yet) is not shown.
 fn show_status(op: &Operator, s: &Status) {
-    let g = op.ui.global::<SongsFolderState>();
+    let g = state(op);
     let current = g.get_on() && s.on && s.folder.display().to_string() == g.get_folder().as_str();
     g.set_status(if current { songs_folder::status_line(s, SystemTime::now()) } else { String::new() }.into());
     g.set_problem(current && s.problem.is_some());
@@ -58,9 +65,9 @@ fn save(op: &Rc<Operator>, body: Value) {
     });
 }
 
-/// Answers the rows' callbacks and starts the status line's timer. Call once when the window opens.
+/// Puts the saved choices in the row, answers its callbacks and keeps its status line fresh. Call when Settings opens.
 pub fn connect(op: &Rc<Operator>) {
-    let g = op.ui.global::<SongsFolderState>();
+    let g = state(op);
     let me = Rc::downgrade(op);
     g.on_set_on(move |on| if let Some(op) = me.upgrade() { save(&op, json!({ "on": on })) });
     let me = Rc::downgrade(op);
@@ -70,34 +77,40 @@ pub fn connect(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
     g.on_choose_folder(move || {
         let Some(op) = me.upgrade() else { return };
-        let start = std::path::PathBuf::from(op.ui.global::<SongsFolderState>().get_folder().as_str());
+        let start = std::path::PathBuf::from(state(&op).get_folder().as_str());
         let me = Rc::downgrade(&op);
         crate::ui::operator::files::pick_folder(&op, &start, move |dir| if let Some(op) = me.upgrade() { save(&op, json!({ "folder": dir })) });
     });
     let me = Rc::downgrade(op);
     g.on_open_folder(move || {
         let Some(op) = me.upgrade() else { return };
-        let dir = std::path::PathBuf::from(op.ui.global::<SongsFolderState>().get_folder().as_str());
+        let dir = std::path::PathBuf::from(state(&op).get_folder().as_str());
         let opened = std::fs::create_dir_all(&dir).map_err(|e| e.to_string()).and_then(|()| crate::usage::open::open_file(&dir));
         if let Err(e) = opened { op.toast(crate::tr!("Could not open the songs folder: {error}", error = e), true) }
     });
     fill(op);
     let me = Rc::downgrade(op);
     let timer = slint::Timer::default();
-    timer.start(TimerMode::Repeated, EVERY, move || if let Some(op) = me.upgrade() { tick(&op) });
+    timer.start(TimerMode::Repeated, EVERY, move || if let Some(op) = me.upgrade() && super::settings_window::is_open(&op) { show_status(&op, &songs_folder::status()) });
     TIMER.with(|t| *t.borrow_mut() = Some(timer));
 }
 
-/// Once a second: the status line, and a message for each thing the folder did.
-fn tick(op: &Operator) {
-    show_status(op, &songs_folder::status());
-    for (text, problem) in songs_folder::take_notes() { op.toast(text, problem) }
+/// Starts showing the folder's messages at the bottom of the operator window, once a second (the first call starts
+/// it; later calls do nothing).
+pub fn watch_notes(op: &Rc<Operator>) {
+    if NOTES.with(|n| n.borrow().as_ref().is_some_and(slint::Timer::running)) { return }
+    let me = Rc::downgrade(op);
+    let timer = slint::Timer::default();
+    timer.start(TimerMode::Repeated, EVERY, move || if let Some(op) = me.upgrade() {
+        for (text, problem) in songs_folder::take_notes() { op.toast(text, problem) }
+    });
+    NOTES.with(|n| *n.borrow_mut() = Some(timer));
 }
 
 /// The choices as Settings shows them, for tests.
 #[cfg(test)]
 fn shown(op: &Operator) -> (bool, String, bool, bool) {
-    let g = op.ui.global::<SongsFolderState>();
+    let g = state(op);
     (g.get_on(), g.get_folder().to_string(), g.get_chosen(), g.get_tidy())
 }
 
@@ -115,7 +128,7 @@ mod tests {
         let op = opened(&app);
         connect(&op);
         assert_eq!(shown(&op), (false, usual(), false, false), "off, in Documents → RustyPresenter → Songs");
-        let g = op.ui.global::<SongsFolderState>();
+        let g = state(&op);
         g.invoke_set_on(true);
         settle(&op);
         assert!(app.data.lock().unwrap().settings.songs_folder.on);
@@ -146,7 +159,7 @@ mod tests {
         let app = test_app();
         let op = opened(&app);
         connect(&op);
-        let g = op.ui.global::<SongsFolderState>();
+        let g = state(&op);
         g.set_on(true);
         g.set_folder("C:\\Songs".into());
         show_status(&op, &Status { on: true, folder: "C:\\Songs".into(), songs: 12, ..Default::default() });
