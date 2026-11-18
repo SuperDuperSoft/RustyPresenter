@@ -1835,3 +1835,6 @@ PDF: "We want the chords to appear more like the PDF. That is much more readable
   `RP_CHORD_SAMPLE=<file>`; an always-run test uses a SongSelect-shaped file with public-domain words.
 - **Not verified by a person:** the chord sheet on a real stage monitor and on a real phone/tablet (the phone page
   was not opened in a browser here), and the colour choice on church-made layouts with unusual colours.
+- **Test run:** 3,619 of 3,622 library tests passed; the 3 failures were the timing-sensitive `record::run` FFmpeg
+  go-live tests, which passed when run again alone (10 of 10). The real-sample test passes (15 slides, all chord
+  sheets). `i18n_catalogs`, `cleanup` and `words` pass. No new on-screen texts, so nothing to translate.
