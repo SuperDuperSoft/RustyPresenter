@@ -7350,6 +7350,18 @@ msgstr[1] "Faili {n} zimeondolewa kwenye maktaba ya midia na {size} zimeachiliwa
 msgid "Sunday Service"
 msgstr "Ibada ya Jumapili"
 
+#: src/platform/data_folder.rs
+msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
+msgstr "Nakala hii ya RustyPresenter huhifadhi data yake kando yake, katika {wanted}, lakini folda hiyo haiwezi kubadilishwa (huenda ni USB iliyofungwa au CD). Kwa sasa kazi yako inahifadhiwa kwenye kompyuta hii, katika {here}. Ili kuihifadhi kando ya programu, nakili folda nzima ya RustyPresenter mahali panapoweza kubadilishwa na uifungue kutoka hapo."
+
+#: src/platform/data_folder.rs
+msgid "RustyPresenter was opened from inside the zip file, so it cannot keep its data beside it. For now your work is kept on this computer, in {here}. Close RustyPresenter, unzip the whole file first (on Windows: right-click it, then Extract All), and open RustyPresenter from the folder that makes."
+msgstr "RustyPresenter ilifunguliwa kutoka ndani ya faili la zip, kwa hiyo haiwezi kuhifadhi data yake kando yake. Kwa sasa kazi yako inahifadhiwa kwenye kompyuta hii, katika {here}. Funga RustyPresenter, fungua zip ya faili zima kwanza (kwenye Windows: bofya kulia juu yake, kisha Extract All), na ufungue RustyPresenter kutoka kwenye folda itakayotokea."
+
+#: src/platform/data_folder.rs
+msgid "macOS opened a locked copy of RustyPresenter, because it has not been moved since it was downloaded. For now your work is kept on this computer, in {here}. Close RustyPresenter. In Finder, drag RustyPresenter out of its folder (onto the Desktop, say) and back in again, or into Applications if it came from the .dmg file. Then open it again."
+msgstr "macOS ilifungua nakala iliyofungwa ya RustyPresenter, kwa sababu haijahamishwa tangu ilipopakuliwa. Kwa sasa kazi yako inahifadhiwa kwenye kompyuta hii, katika {here}. Funga RustyPresenter. Katika Finder, buruta RustyPresenter nje ya folda yake (kwenye Desktop, kwa mfano) na uirudishe tena, au kwenye Applications ikiwa ilitoka kwenye faili la .dmg. Kisha uifungue tena."
+
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
 msgstr "Skrini hazifanyi kazi."
@@ -12157,6 +12169,10 @@ msgstr "Kapo kwenye fret {fret} ili kupiga maumbo ya {key}"
 #: src/transpose.rs
 msgid "Capo {fret} to play the chords as written"
 msgstr "Kapo kwenye fret {fret} ili kupiga chodi kama zilivyoandikwa"
+
+#: src/ui/dialogs/about.rs
+msgid "{folder} (a portable copy: the data is kept beside the app)"
+msgstr "{folder} (nakala ya kubeba: data inahifadhiwa kando ya programu)"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"

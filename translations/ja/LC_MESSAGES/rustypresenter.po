@@ -7346,6 +7346,18 @@ msgstr[0] "メディアライブラリから {n} 個のファイルを削除し�
 msgid "Sunday Service"
 msgstr "主日礼拝"
 
+#: src/platform/data_folder.rs
+msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
+msgstr "この RustyPresenter のコピーはデータを自分の隣の {wanted} に保存しますが、そのフォルダーは変更できません（ロックされた USB メモリーや CD かもしれません）。今は作業をこのコンピューターの {here} に保存します。アプリの隣に保存するには、RustyPresenter フォルダー全体を変更できる場所にコピーして、そこから開いてください。"
+
+#: src/platform/data_folder.rs
+msgid "RustyPresenter was opened from inside the zip file, so it cannot keep its data beside it. For now your work is kept on this computer, in {here}. Close RustyPresenter, unzip the whole file first (on Windows: right-click it, then Extract All), and open RustyPresenter from the folder that makes."
+msgstr "RustyPresenter が zip ファイルの中から開かれたため、データを隣に保存できません。今は作業をこのコンピューターの {here} に保存します。RustyPresenter を閉じ、まずファイル全体を展開して（Windows では右クリックして「すべて展開」）、できたフォルダーから RustyPresenter を開いてください。"
+
+#: src/platform/data_folder.rs
+msgid "macOS opened a locked copy of RustyPresenter, because it has not been moved since it was downloaded. For now your work is kept on this computer, in {here}. Close RustyPresenter. In Finder, drag RustyPresenter out of its folder (onto the Desktop, say) and back in again, or into Applications if it came from the .dmg file. Then open it again."
+msgstr "RustyPresenter はダウンロード後に移動されていないため、macOS がロックされたコピーを開きました。今は作業をこのコンピューターの {here} に保存します。RustyPresenter を閉じてください。Finder で RustyPresenter をフォルダーの外（デスクトップなど）にドラッグしてから元に戻すか、.dmg ファイルから入れた場合は「アプリケーション」にドラッグしてください。それからもう一度開いてください。"
+
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
 msgstr "画面が動作していません。"
@@ -12112,6 +12124,10 @@ msgstr "カポ {fret} で {key} の形で弾けます"
 #: src/transpose.rs
 msgid "Capo {fret} to play the chords as written"
 msgstr "カポ {fret} で書かれたとおりのコードで弾けます"
+
+#: src/ui/dialogs/about.rs
+msgid "{folder} (a portable copy: the data is kept beside the app)"
+msgstr "{folder}（ポータブル版：データはアプリの隣に保存されます）"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"

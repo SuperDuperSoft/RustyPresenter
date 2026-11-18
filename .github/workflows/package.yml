@@ -1,9 +1,12 @@
 name: Packages
 
 # Installers for Windows (NSIS), macOS (app + dmg, Apple silicon) and Linux (AppImage +
-# deb), built with cargo-packager from Packager.toml after packaging/stage.sh. A `v*` tag
-# also publishes them on a GitHub Release, together with THIRD-PARTY-LICENSES.txt and the
-# libmpv source tarball (LGPL-2.1 §6(d): the source sits next to the download).
+# deb), built with cargo-packager from Packager.toml after packaging/stage.sh, and a
+# portable copy for each (Jake, November 18, 2026: "one for each and a portable version"),
+# made by packaging/release-files.sh, which also gives every file its release name
+# (packaging/README.md, "Release files"). A `v*` tag also publishes them on a GitHub
+# Release, together with THIRD-PARTY-LICENSES.txt and the libmpv source tarball
+# (LGPL-2.1 §6(d): the source sits next to the download).
 on:
   push:
     tags: ["v*"]
@@ -84,15 +87,26 @@ jobs:
         if: runner.os == 'macOS'
         run: codesign --verify --deep --strict -v dist/RustyPresenter.app
 
+      # RustyPresenter-<version>-windows-setup.exe, -macos.dmg, -linux.AppImage, -linux.deb.
+      - name: Release names
+        run: packaging/release-files.sh rename ${{ matrix.stage }}
+
+      # The same program and libraries with portable.txt beside them, so the data stays in the folder
+      # (src/platform/data_folder.rs): -windows-portable.zip, -macos-portable.zip, -linux-portable.tar.gz.
+      - name: Portable package
+        run: packaging/release-files.sh portable ${{ matrix.stage }}
+
       - name: Upload packages
         uses: actions/upload-artifact@v4
         with:
           name: packages-${{ matrix.stage }}
           path: |
-            dist/*.exe
-            dist/*.dmg
-            dist/*.AppImage
-            dist/*.deb
+            dist/RustyPresenter-*-setup.exe
+            dist/RustyPresenter-*.dmg
+            dist/RustyPresenter-*.AppImage
+            dist/RustyPresenter-*.deb
+            dist/RustyPresenter-*-portable.zip
+            dist/RustyPresenter-*-portable.tar.gz
           if-no-files-found: error
 
   release:
@@ -114,6 +128,17 @@ jobs:
           pattern: packages-*
           path: release
           merge-multiple: true
+
+      # Every OS's installer and portable copy must be here before anything is published.
+      - name: Check the release files
+        run: |
+          v="$(sed -n 's/^version *= *"\([^"]*\)".*/\1/p' Packager.toml | head -n 1)"
+          [ "v$v" = "$GITHUB_REF_NAME" ] || { echo "::error::tag $GITHUB_REF_NAME is not Packager.toml's version $v"; exit 1; }
+          for f in windows-setup.exe windows-portable.zip macos.dmg macos-portable.zip \
+            linux.AppImage linux.deb linux-portable.tar.gz; do
+            [ -f "release/RustyPresenter-$v-$f" ] || { echo "::error::RustyPresenter-$v-$f is missing"; exit 1; }
+          done
+          ls -l release
 
       - name: libmpv sources
         run: |

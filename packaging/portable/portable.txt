@@ -1,0 +1,7 @@
+This file makes RustyPresenter a portable copy.
+
+While this file is here, RustyPresenter keeps everything it saves (songs, services, settings, pictures and
+videos, backups, logs, downloaded Bibles and helpers) in the folder "RustyPresenter Data" next to it, not on
+the computer. Copy or move the whole folder (to a USB stick, say) and it works the same on any computer.
+
+Delete this file to keep the data on the computer instead, like the installed version does.

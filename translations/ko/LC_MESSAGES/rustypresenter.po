@@ -7346,6 +7346,18 @@ msgstr[0] "미디어 라이브러리에서 파일 {n}개를 빼고 {size}를 확
 msgid "Sunday Service"
 msgstr "주일 예배"
 
+#: src/platform/data_folder.rs
+msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
+msgstr "이 RustyPresenter 사본은 데이터를 옆에 있는 {wanted}에 보관하지만, 그 폴더를 변경할 수 없습니다(잠긴 USB 메모리나 CD일 수 있습니다). 지금은 작업이 이 컴퓨터의 {here}에 보관됩니다. 앱 옆에 보관하려면 RustyPresenter 폴더 전체를 변경할 수 있는 곳에 복사하고 거기서 여세요."
+
+#: src/platform/data_folder.rs
+msgid "RustyPresenter was opened from inside the zip file, so it cannot keep its data beside it. For now your work is kept on this computer, in {here}. Close RustyPresenter, unzip the whole file first (on Windows: right-click it, then Extract All), and open RustyPresenter from the folder that makes."
+msgstr "RustyPresenter가 zip 파일 안에서 열려서 데이터를 옆에 보관할 수 없습니다. 지금은 작업이 이 컴퓨터의 {here}에 보관됩니다. RustyPresenter를 닫고, 먼저 파일 전체의 압축을 푼 다음(Windows에서는 마우스 오른쪽 버튼을 누르고 \"압축 풀기\"), 만들어진 폴더에서 RustyPresenter를 여세요."
+
+#: src/platform/data_folder.rs
+msgid "macOS opened a locked copy of RustyPresenter, because it has not been moved since it was downloaded. For now your work is kept on this computer, in {here}. Close RustyPresenter. In Finder, drag RustyPresenter out of its folder (onto the Desktop, say) and back in again, or into Applications if it came from the .dmg file. Then open it again."
+msgstr "RustyPresenter를 다운로드한 뒤 옮기지 않아서 macOS가 잠긴 사본을 열었습니다. 지금은 작업이 이 컴퓨터의 {here}에 보관됩니다. RustyPresenter를 닫으세요. Finder에서 RustyPresenter를 폴더 밖(예: 데스크탑)으로 끌었다가 다시 넣거나, .dmg 파일에서 받았다면 응용 프로그램으로 끄세요. 그런 다음 다시 여세요."
+
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
 msgstr "화면이 실행되고 있지 않아요."
@@ -12112,6 +12124,10 @@ msgstr "카포 {fret}에서 {key} 모양으로 연주"
 #: src/transpose.rs
 msgid "Capo {fret} to play the chords as written"
 msgstr "카포 {fret}에서 쓰인 그대로 코드 연주"
+
+#: src/ui/dialogs/about.rs
+msgid "{folder} (a portable copy: the data is kept beside the app)"
+msgstr "{folder} (휴대용 사본: 데이터가 앱 옆에 보관됩니다)"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"

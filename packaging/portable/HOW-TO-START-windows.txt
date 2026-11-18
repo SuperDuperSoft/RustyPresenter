@@ -1,0 +1,22 @@
+RustyPresenter (portable copy for Windows)
+
+To start
+  1. Unzip first: right-click the zip file, choose "Extract All", then open the folder it makes.
+     (Opened straight from inside the zip, RustyPresenter cannot keep your work with it.)
+  2. Double-click rustypresenter.exe.
+  3. If Windows says "Windows protected your PC", click "More info", then "Run anyway".
+
+Where your work is kept
+  Everything RustyPresenter saves goes in the folder "RustyPresenter Data" beside rustypresenter.exe, because
+  of the file portable.txt. Copy the whole RustyPresenter folder to a USB stick and it works on any Windows PC.
+  Close RustyPresenter before you unplug the stick.
+  If the folder cannot be changed (a locked USB stick, a CD), RustyPresenter says so when it starts and keeps
+  your work on that computer for that time.
+
+What stays on each computer
+  Stream keys (for YouTube, Facebook and the like) are kept in Windows' own password store (Credential
+  Manager), never in the data folder: type them once on each computer. Recordings go to the computer's
+  Videos folder unless you choose another folder in Settings.
+
+To keep the data on the computer instead, delete portable.txt (or use the installer, which keeps it in
+%LOCALAPPDATA%\RustyPresenter).

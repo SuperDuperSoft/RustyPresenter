@@ -7350,6 +7350,18 @@ msgstr[1] "Se quitaron {n} archivos de la biblioteca multimedia y se liberaron {
 msgid "Sunday Service"
 msgstr "Culto dominical"
 
+#: src/platform/data_folder.rs
+msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
+msgstr "Esta copia de RustyPresenter guarda sus datos a su lado, en {wanted}, pero esa carpeta no se puede modificar (puede ser una memoria USB bloqueada o un CD). Por ahora su trabajo se guarda en esta computadora, en {here}. Para guardarlo junto a la aplicación, copie toda la carpeta RustyPresenter a un lugar que se pueda modificar y ábrala desde allí."
+
+#: src/platform/data_folder.rs
+msgid "RustyPresenter was opened from inside the zip file, so it cannot keep its data beside it. For now your work is kept on this computer, in {here}. Close RustyPresenter, unzip the whole file first (on Windows: right-click it, then Extract All), and open RustyPresenter from the folder that makes."
+msgstr "RustyPresenter se abrió desde dentro del archivo zip, así que no puede guardar sus datos a su lado. Por ahora su trabajo se guarda en esta computadora, en {here}. Cierre RustyPresenter, descomprima primero todo el archivo (en Windows: clic derecho sobre él y luego «Extraer todo») y abra RustyPresenter desde la carpeta que se crea."
+
+#: src/platform/data_folder.rs
+msgid "macOS opened a locked copy of RustyPresenter, because it has not been moved since it was downloaded. For now your work is kept on this computer, in {here}. Close RustyPresenter. In Finder, drag RustyPresenter out of its folder (onto the Desktop, say) and back in again, or into Applications if it came from the .dmg file. Then open it again."
+msgstr "macOS abrió una copia bloqueada de RustyPresenter, porque no se ha movido desde que se descargó. Por ahora su trabajo se guarda en esta computadora, en {here}. Cierre RustyPresenter. En el Finder, arrastre RustyPresenter fuera de su carpeta (al Escritorio, por ejemplo) y de vuelta, o a Aplicaciones si vino del archivo .dmg. Luego ábralo de nuevo."
+
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
 msgstr "Las pantallas no están funcionando."
@@ -12157,6 +12169,10 @@ msgstr "Cejilla en el traste {fret} para tocar con posiciones de {key}"
 #: src/transpose.rs
 msgid "Capo {fret} to play the chords as written"
 msgstr "Cejilla en el traste {fret} para tocar los acordes como están escritos"
+
+#: src/ui/dialogs/about.rs
+msgid "{folder} (a portable copy: the data is kept beside the app)"
+msgstr "{folder} (una copia portátil: los datos se guardan junto a la aplicación)"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"

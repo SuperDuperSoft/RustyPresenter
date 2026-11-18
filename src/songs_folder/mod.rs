@@ -43,12 +43,16 @@ impl Prefs {
     pub fn dir(&self) -> PathBuf { self.folder.clone().unwrap_or_else(default_folder) }
 }
 
-/// Documents\RustyPresenter\Songs (on macOS and Linux the same under the person's Documents folder).
+/// Documents\RustyPresenter\Songs (on macOS and Linux the same under the person's Documents folder). A portable
+/// copy keeps them in its own data folder beside the app, so they travel with it.
 pub fn default_folder() -> PathBuf {
     #[cfg(test)]
     { std::env::temp_dir().join("rp-test-documents").join("RustyPresenter").join("Songs") }
     #[cfg(not(test))]
-    { dirs::document_dir().or_else(dirs::home_dir).unwrap_or_else(std::env::temp_dir).join("RustyPresenter").join("Songs") }
+    {
+        if let Some(d) = crate::platform::data_folder::portable_dir() { return d.join("Songs") }
+        dirs::document_dir().or_else(dirs::home_dir).unwrap_or_else(std::env::temp_dir).join("RustyPresenter").join("Songs")
+    }
 }
 
 /// What Settings shows under the choice.

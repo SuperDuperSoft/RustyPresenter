@@ -1874,3 +1874,45 @@ Design: `docs/superpowers/specs/2026-11-18-drag-panels-between-windows-design.md
 - **Test run** (merged with follow-sunday at bfe6e72): 3,643 of 3,643 library tests pass (two `record::run` FFmpeg
   tests failed in the full run while other agents built and passed run alone), and `i18n_catalogs`, `cleanup`,
   `words`. The three new texts are in all 13 languages.
+
+### November 18, 2026 — Portable versions on every platform (branch `portable-release`)
+
+Jake: "All releases should have one for each [Windows, Mac, Linux] and a portable version." Design:
+`docs/superpowers/specs/2026-11-18-portable-versions-design.md`.
+
+- **Portable mode in the app** (`src/platform/data_folder.rs`): a file `portable.txt` beside the program (beside
+  `rustypresenter.exe`, beside `RustyPresenter.app`, beside the AppImage file via `$APPIMAGE`) makes the app keep
+  all its data in `RustyPresenter Data` beside it. `server::data_dir()` (which everything already used: store,
+  backups, logs, deps/FFmpeg/models/LibreOffice profile, Bibles, translations, `settings-window.json`, recovery state,
+  the supervisor's log) now asks it; the answer is worked out once per run. `RUSTYPRESENTER_DATA` still wins (an
+  empty value is now ignored). The Songs folder's default moves into the data folder in a portable copy. Settings →
+  About shows "(a portable copy: the data is kept beside the app)" after the folder.
+- **When it cannot be used**, the per-user folder is used for that run and a warning box says why and what to do:
+  macOS translocation (path has `AppTranslocation`: drag the app out of its folder and back, or into Applications),
+  opened from inside a zip (`.zip` in the folder's path, as Windows' `Temp1_*.zip`: Extract All first), the folder
+  cannot be made or written (locked stick, CD: copy the folder somewhere that can be changed).
+- **Release files** (`packaging/release-files.sh rename|portable <os>`, run by `package.yml` after cargo-packager):
+  `RustyPresenter-<v>-windows-setup.exe`, `-windows-portable.zip`, `-macos.dmg`, `-macos-portable.zip` (ditto
+  `--keepParent`, marker beside the .app), `-linux.AppImage`, `-linux.deb`, `-linux-portable.tar.gz` (binary,
+  LGPL `libmpv.so.2`, `libpdfium.so`, launcher `RustyPresenter.sh` setting `LD_LIBRARY_PATH`). All uploaded as
+  artifacts; the release job checks all seven are there and the tag equals the version before the draft release.
+  Texts beside the app: `packaging/portable/` (`portable.txt`, `HOW-TO-START-<os>.txt`, which say stream keys and
+  recordings stay on each computer). `packaging/README.md` has a "Release files" section.
+- **On the PC:** `packaging/windows/make-portable.cmd` (replaces the untracked `make-portable.cmd` in the main
+  checkout, which can be deleted after merging) adds the marker and the readme and names the zip
+  `RustyPresenter-<version>-windows-portable.zip` on the Desktop; `--no-pause`, `RP_SRC`.
+- **Tests:** `platform::data_folder::tests` (with and without the marker, a folder named like the marker, read-only
+  fallback with a real folder that cannot be made, env wins, inside a zip, beside the .app and the AppImage,
+  translocation, this test run not portable), `about_says_when_the_data_is_beside_the_app`, and
+  `packaging/test-release-files.sh` (fake builds, zip and ditto; added to the CI `packaging` job).
+- **Checked on this PC:** a release build of this branch zipped by `make-portable.cmd`, unzipped and started
+  headless on another port: `data.json`, `assets`, `backups`, `logs`, `deps` appeared in `RustyPresenter Data`
+  beside the exe.
+- **Test run:** 3,666 of 3,666 library tests pass (`record::run::tests::go_live_sends_the_churchs_tall_scene_to_a_tall_destination`
+  failed in the full run and passed run alone: FFmpeg timing), and `i18n_catalogs`, `cleanup`, `words`. The four new
+  texts are in all 13 languages.
+- **Not verified:** none of `package.yml` has run (GitHub Actions does not start jobs because of the account's
+  billing); the YAML was checked by reading and a structure script only, since PyYAML is not installed here. Mac and
+  Linux packages have never been built. Not tried by a person: the warning boxes, a real locked USB stick, a
+  translocated Mac app (and whether dragging the app out and back clears it on current macOS), the Linux launcher on
+  a real distro.

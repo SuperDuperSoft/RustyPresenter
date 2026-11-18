@@ -492,9 +492,9 @@ pub fn router(app: Arc<App>) -> Router {
         .with_state(app)
 }
 
-pub fn data_dir() -> Option<PathBuf> {
-    std::env::var_os("RUSTYPRESENTER_DATA").map(PathBuf::from).or_else(|| dirs::data_local_dir().map(|p| p.join("RustyPresenter")))
-}
+/// The data folder: `RUSTYPRESENTER_DATA`, a portable copy's folder beside the app, or the person's own folder
+/// (`platform::data_folder`).
+pub fn data_dir() -> Option<PathBuf> { crate::platform::data_folder::data_dir() }
 
 #[cfg(test)]
 mod tests {

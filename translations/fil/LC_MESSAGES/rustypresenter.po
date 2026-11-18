@@ -7350,6 +7350,18 @@ msgstr[1] "Inalis ang {n} file sa media library at lumuwag ang {size}."
 msgid "Sunday Service"
 msgstr "Service sa Linggo"
 
+#: src/platform/data_folder.rs
+msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
+msgstr "Itinatabi ng kopyang ito ng RustyPresenter ang data nito sa tabi nito, sa {wanted}, pero hindi mababago ang folder na iyon (baka naka-lock na USB stick o CD ito). Sa ngayon, sa computer na ito itinatabi ang trabaho mo, sa {here}. Para maitabi ito sa tabi ng app, kopyahin ang buong RustyPresenter folder sa lugar na puwedeng baguhin at buksan ito mula roon."
+
+#: src/platform/data_folder.rs
+msgid "RustyPresenter was opened from inside the zip file, so it cannot keep its data beside it. For now your work is kept on this computer, in {here}. Close RustyPresenter, unzip the whole file first (on Windows: right-click it, then Extract All), and open RustyPresenter from the folder that makes."
+msgstr "Binuksan ang RustyPresenter mula sa loob ng zip file, kaya hindi nito maitatabi ang data sa tabi nito. Sa ngayon, sa computer na ito itinatabi ang trabaho mo, sa {here}. Isara ang RustyPresenter, i-unzip muna ang buong file (sa Windows: i-right-click ito, tapos Extract All), at buksan ang RustyPresenter mula sa folder na ginawa nito."
+
+#: src/platform/data_folder.rs
+msgid "macOS opened a locked copy of RustyPresenter, because it has not been moved since it was downloaded. For now your work is kept on this computer, in {here}. Close RustyPresenter. In Finder, drag RustyPresenter out of its folder (onto the Desktop, say) and back in again, or into Applications if it came from the .dmg file. Then open it again."
+msgstr "Nagbukas ang macOS ng naka-lock na kopya ng RustyPresenter, dahil hindi pa ito nailipat mula nang i-download. Sa ngayon, sa computer na ito itinatabi ang trabaho mo, sa {here}. Isara ang RustyPresenter. Sa Finder, i-drag ang RustyPresenter palabas ng folder nito (sa Desktop, halimbawa) at ibalik ulit, o sa Applications kung galing ito sa .dmg file. Tapos buksan ulit."
+
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
 msgstr "Hindi tumatakbo ang mga screen."
@@ -12157,6 +12169,10 @@ msgstr "Capo sa fret {fret} para tugtugin ang hugis ng {key}"
 #: src/transpose.rs
 msgid "Capo {fret} to play the chords as written"
 msgstr "Capo sa fret {fret} para tugtugin ang mga chord gaya ng nakasulat"
+
+#: src/ui/dialogs/about.rs
+msgid "{folder} (a portable copy: the data is kept beside the app)"
+msgstr "{folder} (portable na kopya: nasa tabi ng app ang data)"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"

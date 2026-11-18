@@ -7346,6 +7346,18 @@ msgstr[0] "已从媒体库中移除 {n} 个文件，释放了 {size}。"
 msgid "Sunday Service"
 msgstr "主日聚会"
 
+#: src/platform/data_folder.rs
+msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
+msgstr "此 RustyPresenter 副本把数据保存在它旁边的 {wanted} 中，但该文件夹无法更改（可能是锁定的 U 盘或光盘）。目前您的工作保存在这台电脑的 {here} 中。要把它保存在应用旁边，请把整个 RustyPresenter 文件夹复制到可以更改的位置，然后从那里打开。"
+
+#: src/platform/data_folder.rs
+msgid "RustyPresenter was opened from inside the zip file, so it cannot keep its data beside it. For now your work is kept on this computer, in {here}. Close RustyPresenter, unzip the whole file first (on Windows: right-click it, then Extract All), and open RustyPresenter from the folder that makes."
+msgstr "RustyPresenter 是直接从 zip 文件里打开的，所以无法把数据保存在它旁边。目前您的工作保存在这台电脑的 {here} 中。请关闭 RustyPresenter，先解压整个文件（在 Windows 上：右键点击它，然后选择“全部解压缩”），再从解压出的文件夹中打开 RustyPresenter。"
+
+#: src/platform/data_folder.rs
+msgid "macOS opened a locked copy of RustyPresenter, because it has not been moved since it was downloaded. For now your work is kept on this computer, in {here}. Close RustyPresenter. In Finder, drag RustyPresenter out of its folder (onto the Desktop, say) and back in again, or into Applications if it came from the .dmg file. Then open it again."
+msgstr "RustyPresenter 下载后没有移动过，所以 macOS 打开了一个锁定的副本。目前您的工作保存在这台电脑的 {here} 中。请关闭 RustyPresenter。在访达中把 RustyPresenter 拖出它的文件夹（例如拖到桌面）再拖回去；如果它来自 .dmg 文件，就拖到“应用程序”中。然后再次打开它。"
+
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
 msgstr "屏幕未运行。"
@@ -12112,6 +12124,10 @@ msgstr "变调夹夹第 {fret} 品，用 {key} 的指法弹"
 #: src/transpose.rs
 msgid "Capo {fret} to play the chords as written"
 msgstr "变调夹夹第 {fret} 品，按原样弹和弦"
+
+#: src/ui/dialogs/about.rs
+msgid "{folder} (a portable copy: the data is kept beside the app)"
+msgstr "{folder}（便携版：数据保存在应用旁边）"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"

@@ -75,6 +75,11 @@ fn main() {
         Bind::Taken => { tell(&instance::taken_message(port)); std::process::exit(exitcode::PORT_TAKEN); }
     };
     let started = startup::open(listener, root, port).unwrap_or_else(|e| fail(&e));
+    // A portable copy that cannot keep its data beside it this time (locked stick, still in the zip, macOS's locked
+    // copy) says so, and where the work goes instead.
+    if let Some(w) = rustypresenter::platform::data_folder::start_warning() {
+        if headless_mode() { eprintln!("{w}") } else { dialog::warning(&w) }
+    }
     if let Err(e) = fs::write(started.root.join("app.pid"), std::process::id().to_string()) { eprintln!("Could not write app.pid: {e}"); }
     startup::banner(&started, "Close the operator window (or press Ctrl+C here) to quit.");
     let startup::Started { app, listener, root } = started;

@@ -1,0 +1,25 @@
+RustyPresenter (portable copy for Mac, Apple silicon)
+
+To start
+  1. Double-click the zip file to unzip it. Move the RustyPresenter folder it makes out of Downloads
+     (to Documents or a USB stick, say).
+  2. Open the RustyPresenter folder. The first time, right-click (or Control-click) RustyPresenter and choose
+     Open, then Open again: the app is not signed by Apple yet.
+  3. If RustyPresenter says macOS opened a locked copy of it: close it, drag RustyPresenter out of the folder
+     (onto the Desktop) and back into the folder, then open it again. (In Terminal this does the same:
+     xattr -dr com.apple.quarantine followed by the folder's path.)
+
+Where your work is kept
+  Everything RustyPresenter saves goes in the folder "RustyPresenter Data" beside RustyPresenter, because of
+  the file portable.txt. Copy the whole RustyPresenter folder and it works on any Mac with Apple silicon.
+  Close RustyPresenter before you eject a USB stick.
+  If the folder cannot be changed (a locked USB stick), RustyPresenter says so when it starts and keeps your
+  work on that Mac for that time.
+
+What stays on each computer
+  Stream keys are kept in the Mac's Keychain, never in the data folder: type them once on each Mac.
+  Recordings go to the Mac's Movies folder unless you choose another folder in Settings. macOS asks once on
+  each Mac before RustyPresenter may use a camera or a microphone.
+
+To keep the data on the Mac instead, delete portable.txt (or use the .dmg and drag RustyPresenter into
+Applications).

@@ -7350,6 +7350,18 @@ msgstr[1] "Retire {n} fichye nan bibliyotèk medya a epi libere {size}."
 msgid "Sunday Service"
 msgstr "Sèvis Dimanch"
 
+#: src/platform/data_folder.rs
+msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
+msgstr "Kopi RustyPresenter sa a kenbe done li bò kote l, nan {wanted}, men yo pa ka chanje dosye sa a (petèt se yon kle USB ki bloke oswa yon CD). Pou kounye a, travay ou kenbe sou òdinatè sa a, nan {here}. Pou kenbe l bò kote aplikasyon an, kopye tout dosye RustyPresenter la yon kote yo ka chanje epi louvri l la."
+
+#: src/platform/data_folder.rs
+msgid "RustyPresenter was opened from inside the zip file, so it cannot keep its data beside it. For now your work is kept on this computer, in {here}. Close RustyPresenter, unzip the whole file first (on Windows: right-click it, then Extract All), and open RustyPresenter from the folder that makes."
+msgstr "Yo louvri RustyPresenter andedan fichye zip la, kidonk li pa ka kenbe done li bò kote l. Pou kounye a, travay ou kenbe sou òdinatè sa a, nan {here}. Fèmen RustyPresenter, dezipe tout fichye a anvan (sou Windows: klike adwat sou li, apre sa Extract All), epi louvri RustyPresenter nan dosye sa fè a."
+
+#: src/platform/data_folder.rs
+msgid "macOS opened a locked copy of RustyPresenter, because it has not been moved since it was downloaded. For now your work is kept on this computer, in {here}. Close RustyPresenter. In Finder, drag RustyPresenter out of its folder (onto the Desktop, say) and back in again, or into Applications if it came from the .dmg file. Then open it again."
+msgstr "macOS louvri yon kopi RustyPresenter ki bloke, paske yo pa t deplase l depi yo telechaje l. Pou kounye a, travay ou kenbe sou òdinatè sa a, nan {here}. Fèmen RustyPresenter. Nan Finder, trennen RustyPresenter soti nan dosye li (sou Desktop la, pa egzanp) epi remete l ankò, oswa nan Applications si li soti nan fichye .dmg la. Apre sa louvri l ankò."
+
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
 msgstr "Ekran yo pa mache."
@@ -12157,6 +12169,10 @@ msgstr "Kapo nan fret {fret} pou jwe fòm {key} yo"
 #: src/transpose.rs
 msgid "Capo {fret} to play the chords as written"
 msgstr "Kapo nan fret {fret} pou jwe akò yo jan yo ekri a"
+
+#: src/ui/dialogs/about.rs
+msgid "{folder} (a portable copy: the data is kept beside the app)"
+msgstr "{folder} (yon kopi pòtab: done yo kenbe bò kote aplikasyon an)"
 
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
