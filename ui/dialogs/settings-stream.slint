@@ -459,7 +459,7 @@ export component StreamCamerasPage inherits VerticalLayout {
         }
         SetLink {
             text: @tr("A phone as a camera: Settings → Remote and network");
-            page: 14;
+            page: 15;
             key: "phone-camera";
         }
     }
@@ -627,8 +627,8 @@ export component RecordingPage inherits VerticalLayout {
             }
         }
     }
-    SetLink { text: @tr("Picture size: Settings → Livestream → Picture and quality"); page: 23; key: "record-size"; }
-    SetLink { text: @tr("Sound: Settings → Livestream → Sound"); page: 25; key: "stream-mics"; }
+    SetLink { text: @tr("Picture size: Settings → Livestream → Picture and quality"); page: 24; key: "record-size"; }
+    SetLink { text: @tr("Sound: Settings → Livestream → Sound"); page: 26; key: "stream-mics"; }
     if SettingsDlg.advanced: VerticalLayout {
         Gap {}
         file-row := SetRow {
@@ -676,7 +676,7 @@ export component StreamCaptionsPage inherits VerticalLayout {
         help: @tr("Captions are made on this computer from the microphone, in English only. They are often wrong: names, Bible places, quiet or echoing speech and songs come out badly, and there is no punctuation. They show about two seconds after the words are said.");
         captions-on := Check { text: @tr("Write out what is said while live"); checked <=> SettingsDlg.captions-on; }
         if !SettingsDlg.captions-model: Hint { text: @tr("Live captions need the English speech model. Download the fast model in Settings → Auto-follow → Speech model."); }
-        if !SettingsDlg.captions-model: SetLink { text: @tr("Settings → Auto-follow → Speech model"); page: 19; key: "follow-model"; }
+        if !SettingsDlg.captions-model: SetLink { text: @tr("Settings → Auto-follow → Speech model"); page: 20; key: "follow-model"; }
         if SettingsDlg.captions-on: VerticalLayout {
             spacing: 6px;
             captions-picture := Check { text: @tr("Show them at the bottom of the stream (not over song words or verses)"); checked <=> SettingsDlg.captions-picture; }

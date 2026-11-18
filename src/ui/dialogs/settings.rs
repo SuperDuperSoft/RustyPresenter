@@ -103,6 +103,7 @@ fn open_at(op: &Rc<Operator>, tab: Option<SettingsTab>) {
     g.set_advanced(remembered.advanced);
     fill_pages(op, &edit, &snap);
     connect(op, &edit);
+    super::songs_folder::connect(op);
     settings_sections::open(op, &edit);
     settings_bible::remember(&edit);
     settings_bible::reset(&g);

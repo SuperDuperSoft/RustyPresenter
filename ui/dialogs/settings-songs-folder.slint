@@ -1,0 +1,106 @@
+// Settings → Songs → "Keep my songs in a folder" (`src/songs_folder`): one ChordPro file per song in a folder the
+// church can see, back up and edit, and song files put in it come into the library by themselves. Self-contained:
+// everything it shows and does goes through `SongsFolderState`, which `src/ui/dialogs/songs_folder.rs` fills and
+// answers. Each choice saves at once (no Save button needed).
+import { Theme } from "../theme.slint";
+import { Btn } from "../widgets.slint";
+import { Check } from "form.slint";
+import { SetRow } from "settings-row.slint";
+
+export global SongsFolderState {
+    /// "Keep my songs in a folder" (off by default).
+    in-out property <bool> on;
+    /// The folder, as a path to show.
+    in property <string> folder;
+    /// The folder is one the church chose (not Documents\RustyPresenter\Songs).
+    in property <bool> chosen;
+    /// "Tidy imported files into ChordPro".
+    in-out property <bool> tidy;
+    /// How many songs, the last change, files that could not be read; or what is wrong with the folder.
+    in property <string> status;
+    in property <bool> problem;
+    callback set-on(bool);
+    callback set-tidy(bool);
+    /// The folder picker.
+    callback choose-folder();
+    /// Back to Documents\RustyPresenter\Songs.
+    callback usual-folder();
+    /// Opens the folder in the computer's file window (Explorer, Finder).
+    callback open-folder();
+}
+
+/// Songs → Songs folder: one row (its key, label and help match `settings_find::rows`).
+export component SongsFolderPage inherits VerticalLayout {
+    alignment: start;
+    songs-folder-row := SetRow {
+        key: "songs-folder";
+        label: @tr("Songs folder");
+        help: @tr("Every song is also kept as a ChordPro file in a folder you can open, back up or edit in Notepad. Song files you put in the folder (ChordPro, SongSelect, OpenLyrics, OpenSong or plain text with Verse/Chorus headings) come into the song library by themselves.");
+        songs-folder-on := Check {
+            text: @tr("Keep my songs in a folder");
+            checked <=> SongsFolderState.on;
+            toggled(v) => { SongsFolderState.set-on(v); }
+        }
+        if SongsFolderState.on: VerticalLayout {
+            spacing: 8px;
+            songs-folder-path := Text {
+                text: SongsFolderState.folder;
+                color: Theme.text;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                wrap: word-wrap;
+                accessible-role: text;
+                accessible-label: @tr("Songs folder");
+                accessible-value: SongsFolderState.folder;
+            }
+            HorizontalLayout {
+                alignment: start;
+                spacing: 8px;
+                songs-folder-open := Btn {
+                    small: true;
+                    text: @tr("Open the folder");
+                    clicked => { SongsFolderState.open-folder(); }
+                }
+                songs-folder-choose := Btn {
+                    small: true;
+                    text: @tr("Choose another folder…");
+                    clicked => { SongsFolderState.choose-folder(); }
+                }
+                if SongsFolderState.chosen: songs-folder-usual := Btn {
+                    small: true;
+                    text: @tr("Use the usual folder");
+                    tooltip: @tr("Documents → RustyPresenter → Songs");
+                    clicked => { SongsFolderState.usual-folder(); }
+                }
+            }
+            songs-folder-status := Text {
+                text: SongsFolderState.status;
+                color: SongsFolderState.problem ? Theme.danger-text : Theme.muted;
+                font-family: Theme.font;
+                font-size: 12px;
+                wrap: word-wrap;
+            }
+            songs-folder-tidy := Check {
+                text: @tr("Tidy imported files into ChordPro");
+                checked <=> SongsFolderState.tidy;
+                toggled(v) => { SongsFolderState.set-tidy(v); }
+            }
+            songs-folder-tidy-help := Text {
+                text: SongsFolderState.tidy
+                    ? @tr("A song file of another kind is moved into the “Imported files” folder once it is in the library, so only ChordPro files stay.")
+                    : @tr("A song file of another kind stays as it is, and its ChordPro copy is written beside it. Changing the file later changes the song.");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 12px;
+                wrap: word-wrap;
+            }
+            songs-folder-removed-help := Text {
+                text: @tr("A song removed from the library has its file moved into the “Removed” folder. To remove a song, remove it in RustyPresenter: a file deleted from the folder is written again.");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 12px;
+                wrap: word-wrap;
+            }
+        }
+    }
+}

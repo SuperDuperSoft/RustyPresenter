@@ -143,7 +143,16 @@ pub struct Song {
     /// This song's largest text size in pixels on a 1080p screen; 0 = automatic (the theme's size).
     #[serde(default, skip_serializing_if = "is_zero")]
     pub text_size: u32,
+    /// The key the song is written in, as typed or read from a song file ("G", "Bb", "F#m"); empty = not known.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub key: String,
+    /// How far the stage screen moves the chords, in semitones (−11 … +11; 0 = as written). The words and the
+    /// chords in `lyrics` never change (`crate::transpose`).
+    #[serde(default, skip_serializing_if = "is_zero_i8")]
+    pub transpose: i8,
 }
+
+fn is_zero_i8(n: &i8) -> bool { *n == 0 }
 
 fn is_zero_u8(n: &u8) -> bool { *n == 0 }
 
@@ -680,6 +689,10 @@ pub struct Settings {
     /// Settings → Songs: songs downloaded from SongSelect come into the library whenever the app is open
     /// (`ui::dialogs::songselect`). Off: only while the "Songs from SongSelect" window is open.
     pub songselect_inbox: bool,
+    /// Settings → Songs → "Keep my songs in a folder": one ChordPro file per song (`crate::songs_folder`). Changed
+    /// only by `songs-folder/set`. A value this version can't read loads as off.
+    #[serde(deserialize_with = "crate::lenient::or_default")]
+    pub songs_folder: crate::songs_folder::Prefs,
     /// The operator window's panels: the arrangement in use and the church's saved layouts (dock panels design).
     /// Saved only by `settings/dock`. A value this version can't read loads as Standard.
     #[serde(deserialize_with = "crate::lenient::or_default")]
@@ -801,6 +814,7 @@ impl Default for Settings {
             bible_history: Vec::new(),
             follow: Default::default(),
             songselect_inbox: false,
+            songs_folder: Default::default(),
             dock: Default::default(),
         }
     }

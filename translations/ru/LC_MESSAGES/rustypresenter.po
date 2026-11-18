@@ -2803,6 +2803,50 @@ msgstr "Добавить метку"
 msgid "Use the usual names, colours and labels"
 msgstr "Вернуть обычные названия, цвета и метки"
 
+#: ui/dialogs/settings-songs-folder.slint src/ui/dialogs/settings_find.rs
+msgid "Songs folder"
+msgstr "Папка песен"
+
+#: ui/dialogs/settings-songs-folder.slint src/ui/dialogs/settings_find.rs
+msgid "Every song is also kept as a ChordPro file in a folder you can open, back up or edit in Notepad. Song files you put in the folder (ChordPro, SongSelect, OpenLyrics, OpenSong or plain text with Verse/Chorus headings) come into the song library by themselves."
+msgstr "Каждая песня также хранится как файл ChordPro в папке, которую можно открыть, скопировать в резерв или изменить в Блокноте. Файлы песен, положенные в папку (ChordPro, SongSelect, OpenLyrics, OpenSong или простой текст с заголовками Verse/Chorus), сами попадают в библиотеку песен."
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Keep my songs in a folder"
+msgstr "Хранить мои песни в папке"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Open the folder"
+msgstr "Открыть папку"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Choose another folder…"
+msgstr "Выбрать другую папку…"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Use the usual folder"
+msgstr "Использовать обычную папку"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Documents → RustyPresenter → Songs"
+msgstr "Документы → RustyPresenter → Songs"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Tidy imported files into ChordPro"
+msgstr "Приводить импортированные файлы к ChordPro"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song file of another kind is moved into the “Imported files” folder once it is in the library, so only ChordPro files stay."
+msgstr "Файл песни другого вида переносится в папку «Imported files», когда песня уже в библиотеке, чтобы остались только файлы ChordPro."
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song file of another kind stays as it is, and its ChordPro copy is written beside it. Changing the file later changes the song."
+msgstr "Файл песни другого вида остаётся как есть, а рядом записывается его копия ChordPro. Если потом изменить файл, изменится и песня."
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song removed from the library has its file moved into the “Removed” folder. To remove a song, remove it in RustyPresenter: a file deleted from the folder is written again."
+msgstr "Файл песни, убранной из библиотеки, переносится в папку «Removed». Чтобы убрать песню, уберите её в RustyPresenter: файл, удалённый из папки, будет записан снова."
+
 #: ui/dialogs/settings-sound.slint
 msgid "{} dB"
 msgstr "{} дБ"
@@ -4138,6 +4182,34 @@ msgstr "Больше текст для этой песни"
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Back to the lines and size in Settings"
 msgstr "Вернуть строки и размер из настроек"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Key"
+msgstr "Тональность"
+
+#: ui/dialogs/song-editor.slint
+msgid "G"
+msgstr "G"
+
+#: ui/dialogs/song-editor.slint
+msgid "The key the song is written in"
+msgstr "Тональность, в которой написана песня"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Chords one step lower on the stage screen"
+msgstr "Аккорды на полтона ниже на экране сцены"
+
+#: ui/dialogs/song-editor.slint src/ui/song_key.rs
+msgid "As written"
+msgstr "Как написано"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Chords one step higher on the stage screen"
+msgstr "Аккорды на полтона выше на экране сцены"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Show the chords as they are written"
+msgstr "Показывать аккорды как написано"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
@@ -6059,6 +6131,10 @@ msgstr "Не хватает картинки. Попробуйте загруз�
 msgid "These slides are in a service. Remove them from the service first."
 msgstr "Эти слайды есть в служении. Сначала уберите их из служения."
 
+#: src/app.rs
+msgid "Choose a whole folder path."
+msgstr "Выберите полный путь к папке."
+
 #: src/app.rs src/strings/scripture.rs
 msgid "Unknown translation."
 msgstr "Неизвестный перевод."
@@ -7525,6 +7601,10 @@ msgstr "Сцена трансляции: {name}"
 msgid "Scene keys work while the stream is live."
 msgstr "Клавиши сцен работают, пока идёт трансляция."
 
+#: src/slides.rs
+msgid "♪ chords only"
+msgstr "♪ только аккорды"
+
 #: src/slides.rs src/strings/print.rs
 msgid "Missing song"
 msgstr "Песня не найдена"
@@ -7536,6 +7616,97 @@ msgstr "Медиа не найдено"
 #: src/slides.rs src/strings/print.rs
 msgid "Missing slides"
 msgstr "Слайды не найдены"
+
+#: src/songs_folder/format.rs
+msgid "it has no RustyPresenter song id"
+msgstr "в нём нет id песни RustyPresenter"
+
+#: src/songs_folder/format.rs
+msgid "it has no title"
+msgstr "в нём нет названия"
+
+#: src/songs_folder/mod.rs
+msgid "The songs folder could not be made: {error}"
+msgstr "Не удалось создать папку песен: {error}"
+
+#: src/songs_folder/mod.rs
+msgid "The songs folder cannot be found. Is the drive connected?"
+msgstr "Папка песен не найдена. Диск подключён?"
+
+#: src/songs_folder/mod.rs
+msgid "{n} song came in from the songs folder."
+msgid_plural "{n} songs came in from the songs folder."
+msgstr[0] "Из папки песен пришла {n} песня."
+msgstr[1] "Из папки песен пришли {n} песни."
+msgstr[2] "Из папки песен пришло {n} песен."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” came in from the songs folder."
+msgstr "«{title}» пришла из папки песен."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” was changed in the songs folder, so it changed here too."
+msgstr "«{title}» изменили в папке песен, поэтому она изменилась и здесь."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” was changed here and in the songs folder, so both were kept: the folder's version is “{copy}”."
+msgstr "«{title}» изменили и здесь, и в папке песен, поэтому сохранены обе: версия из папки называется «{copy}»."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” is in the songs folder, so it is back in the song library."
+msgstr "«{title}» есть в папке песен, поэтому она снова в библиотеке песен."
+
+#: src/songs_folder/mod.rs
+msgid "{file} in the songs folder could not be read: {why}"
+msgstr "Не удалось прочитать {file} в папке песен: {why}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} song in the folder"
+msgid_plural "{n} songs in the folder"
+msgstr[0] "{n} песня в папке"
+msgstr[1] "{n} песни в папке"
+msgstr[2] "{n} песен в папке"
+
+#: src/songs_folder/mod.rs
+msgid "last change just now"
+msgstr "последнее изменение только что"
+
+#: src/songs_folder/mod.rs
+msgid "last change {n} minute ago"
+msgid_plural "last change {n} minutes ago"
+msgstr[0] "последнее изменение {n} минуту назад"
+msgstr[1] "последнее изменение {n} минуты назад"
+msgstr[2] "последнее изменение {n} минут назад"
+
+#: src/songs_folder/mod.rs
+msgid "last change {when}"
+msgstr "последнее изменение {when}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} file could not be read: {files}"
+msgid_plural "{n} files could not be read: {files}"
+msgstr[0] "Не удалось прочитать {n} файл: {files}"
+msgstr[1] "Не удалось прочитать {n} файла: {files}"
+msgstr[2] "Не удалось прочитать {n} файлов: {files}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} file is busy and will be tried again"
+msgid_plural "{n} files are busy and will be tried again"
+msgstr[0] "{n} файл занят, попробуем снова"
+msgstr[1] "{n} файла заняты, попробуем снова"
+msgstr[2] "{n} файлов заняты, попробуем снова"
+
+#: src/songs_folder/sync.rs
+msgid "{title} (from the folder)"
+msgstr "{title} (из папки)"
+
+#: src/songs_folder/sync.rs
+msgid "it is not a song file"
+msgstr "это не файл песни"
+
+#: src/songs_folder/sync.rs
+msgid "it is too big to be a song file"
+msgstr "он слишком большой для файла песни"
 
 #: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
 msgid "No song words were found in this file."
@@ -11868,6 +12039,18 @@ msgstr "В буфере обмена нет текста. Сначала ско�
 msgid "{name} (imported)"
 msgstr "{name} (импорт)"
 
+#: src/transpose.rs
+msgid "{from} → {to}, {amount}"
+msgstr "{from} → {to}, {amount}"
+
+#: src/transpose.rs
+msgid "Capo {fret} to play {key} shapes"
+msgstr "Каподастр на {fret}-м ладу, чтобы играть аппликатурами {key}"
+
+#: src/transpose.rs
+msgid "Capo {fret} to play the chords as written"
+msgstr "Каподастр на {fret}-м ладу, чтобы играть аккорды как написано"
+
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
 msgstr "Вывести пункт служения на экран"
@@ -12458,6 +12641,10 @@ msgstr ""
 "Молитесь каждый день\n"
 "Читайте Библию\n"
 "Служите ближнему"
+
+#: src/ui/dialogs/songs_folder.rs
+msgid "Could not open the songs folder: {error}"
+msgstr "Не удалось открыть папку песен: {error}"
 
 #: src/ui/dialogs/songselect.rs
 msgid "Songs from SongSelect"

@@ -2803,6 +2803,50 @@ msgstr "Ajoute etikèt"
 msgid "Use the usual names, colours and labels"
 msgstr "Itilize non, koulè ak etikèt abityèl yo"
 
+#: ui/dialogs/settings-songs-folder.slint src/ui/dialogs/settings_find.rs
+msgid "Songs folder"
+msgstr "Dosye chante"
+
+#: ui/dialogs/settings-songs-folder.slint src/ui/dialogs/settings_find.rs
+msgid "Every song is also kept as a ChordPro file in a folder you can open, back up or edit in Notepad. Song files you put in the folder (ChordPro, SongSelect, OpenLyrics, OpenSong or plain text with Verse/Chorus headings) come into the song library by themselves."
+msgstr "Chak chante kenbe tou kòm yon fichye ChordPro nan yon dosye ou ka louvri, sove kòm sekou oswa chanje nan Notepad. Fichye chante ou mete nan dosye a (ChordPro, SongSelect, OpenLyrics, OpenSong oswa tèks senp ak tit Verse/Chorus) antre nan bibliyotèk chante a pou kont yo."
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Keep my songs in a folder"
+msgstr "Kenbe chante m yo nan yon dosye"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Open the folder"
+msgstr "Louvri dosye a"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Choose another folder…"
+msgstr "Chwazi yon lòt dosye…"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Use the usual folder"
+msgstr "Sèvi ak dosye abityèl la"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Documents → RustyPresenter → Songs"
+msgstr "Dokiman → RustyPresenter → Songs"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Tidy imported files into ChordPro"
+msgstr "Ranje fichye enpòte yo an ChordPro"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song file of another kind is moved into the “Imported files” folder once it is in the library, so only ChordPro files stay."
+msgstr "Yon fichye chante yon lòt kalite ale nan dosye “Imported files” la lè li fin antre nan bibliyotèk la, konsa se sèlman fichye ChordPro ki rete."
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song file of another kind stays as it is, and its ChordPro copy is written beside it. Changing the file later changes the song."
+msgstr "Yon fichye chante yon lòt kalite rete jan li ye a, epi kopi ChordPro li ekri bò kote l. Si ou chanje fichye a pita, chante a chanje."
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song removed from the library has its file moved into the “Removed” folder. To remove a song, remove it in RustyPresenter: a file deleted from the folder is written again."
+msgstr "Lè ou retire yon chante nan bibliyotèk la, fichye li ale nan dosye “Removed” la. Pou retire yon chante, retire l nan RustyPresenter: yon fichye ou efase nan dosye a ap ekri ankò."
+
 #: ui/dialogs/settings-sound.slint
 msgid "{} dB"
 msgstr "{} dB"
@@ -4138,6 +4182,34 @@ msgstr "Tèks pi gwo pou chante sa a"
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Back to the lines and size in Settings"
 msgstr "Retounen nan liy ak gwosè ki nan Paramèt"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Key"
+msgstr "Ton"
+
+#: ui/dialogs/song-editor.slint
+msgid "G"
+msgstr "G"
+
+#: ui/dialogs/song-editor.slint
+msgid "The key the song is written in"
+msgstr "Ton chante a ekri ladan l"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Chords one step lower on the stage screen"
+msgstr "Akò yon demi-ton pi ba sou ekran sèn nan"
+
+#: ui/dialogs/song-editor.slint src/ui/song_key.rs
+msgid "As written"
+msgstr "Jan li ekri a"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Chords one step higher on the stage screen"
+msgstr "Akò yon demi-ton pi wo sou ekran sèn nan"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Show the chords as they are written"
+msgstr "Montre akò yo jan yo ekri a"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
@@ -6059,6 +6131,10 @@ msgstr "Gen yon foto ki manke. Eseye voye l ankò."
 msgid "These slides are in a service. Remove them from the service first."
 msgstr "Diapo sa yo nan yon sèvis. Retire yo nan sèvis la anvan."
 
+#: src/app.rs
+msgid "Choose a whole folder path."
+msgstr "Chwazi chemen tout dosye a."
+
 #: src/app.rs src/strings/scripture.rs
 msgid "Unknown translation."
 msgstr "Tradiksyon enkoni."
@@ -7520,6 +7596,10 @@ msgstr "Sèn emisyon an dirèk: {name}"
 msgid "Scene keys work while the stream is live."
 msgstr "Touch sèn yo mache pandan emisyon an an dirèk."
 
+#: src/slides.rs
+msgid "♪ chords only"
+msgstr "♪ sèlman akò"
+
 #: src/slides.rs src/strings/print.rs
 msgid "Missing song"
 msgstr "Chante ki manke"
@@ -7531,6 +7611,92 @@ msgstr "Medya ki manke"
 #: src/slides.rs src/strings/print.rs
 msgid "Missing slides"
 msgstr "Diapo ki manke"
+
+#: src/songs_folder/format.rs
+msgid "it has no RustyPresenter song id"
+msgstr "li pa gen id chante RustyPresenter"
+
+#: src/songs_folder/format.rs
+msgid "it has no title"
+msgstr "li pa gen tit"
+
+#: src/songs_folder/mod.rs
+msgid "The songs folder could not be made: {error}"
+msgstr "Pa t kapab fè dosye chante a: {error}"
+
+#: src/songs_folder/mod.rs
+msgid "The songs folder cannot be found. Is the drive connected?"
+msgstr "Pa jwenn dosye chante a. Èske disk la konekte?"
+
+#: src/songs_folder/mod.rs
+msgid "{n} song came in from the songs folder."
+msgid_plural "{n} songs came in from the songs folder."
+msgstr[0] "{n} chante antre soti nan dosye chante a."
+msgstr[1] "{n} chante antre soti nan dosye chante a."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” came in from the songs folder."
+msgstr "“{title}” antre soti nan dosye chante a."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” was changed in the songs folder, so it changed here too."
+msgstr "“{title}” te chanje nan dosye chante a, kidonk li chanje isit la tou."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” was changed here and in the songs folder, so both were kept: the folder's version is “{copy}”."
+msgstr "“{title}” te chanje isit la ak nan dosye chante a, kidonk yo kenbe toude: vèsyon dosye a se “{copy}”."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” is in the songs folder, so it is back in the song library."
+msgstr "“{title}” nan dosye chante a, kidonk li tounen nan bibliyotèk chante a."
+
+#: src/songs_folder/mod.rs
+msgid "{file} in the songs folder could not be read: {why}"
+msgstr "Pa t kapab li {file} nan dosye chante a: {why}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} song in the folder"
+msgid_plural "{n} songs in the folder"
+msgstr[0] "{n} chante nan dosye a"
+msgstr[1] "{n} chante nan dosye a"
+
+#: src/songs_folder/mod.rs
+msgid "last change just now"
+msgstr "dènye chanjman kounye a"
+
+#: src/songs_folder/mod.rs
+msgid "last change {n} minute ago"
+msgid_plural "last change {n} minutes ago"
+msgstr[0] "dènye chanjman sa gen {n} minit"
+msgstr[1] "dènye chanjman sa gen {n} minit"
+
+#: src/songs_folder/mod.rs
+msgid "last change {when}"
+msgstr "dènye chanjman {when}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} file could not be read: {files}"
+msgid_plural "{n} files could not be read: {files}"
+msgstr[0] "{n} fichye pa t kapab li: {files}"
+msgstr[1] "{n} fichye pa t kapab li: {files}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} file is busy and will be tried again"
+msgid_plural "{n} files are busy and will be tried again"
+msgstr[0] "{n} fichye okipe, n ap eseye ankò"
+msgstr[1] "{n} fichye okipe, n ap eseye ankò"
+
+#: src/songs_folder/sync.rs
+msgid "{title} (from the folder)"
+msgstr "{title} (soti nan dosye a)"
+
+#: src/songs_folder/sync.rs
+msgid "it is not a song file"
+msgstr "se pa yon fichye chante"
+
+#: src/songs_folder/sync.rs
+msgid "it is too big to be a song file"
+msgstr "li twò gwo pou se yon fichye chante"
 
 #: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
 msgid "No song words were found in this file."
@@ -11828,6 +11994,18 @@ msgstr "Klipbòd la pa gen tèks. Kopye pawòl yo anvan."
 msgid "{name} (imported)"
 msgstr "{name} (enpòte)"
 
+#: src/transpose.rs
+msgid "{from} → {to}, {amount}"
+msgstr "{from} → {to}, {amount}"
+
+#: src/transpose.rs
+msgid "Capo {fret} to play {key} shapes"
+msgstr "Kapo nan fret {fret} pou jwe fòm {key} yo"
+
+#: src/transpose.rs
+msgid "Capo {fret} to play the chords as written"
+msgstr "Kapo nan fret {fret} pou jwe akò yo jan yo ekri a"
+
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
 msgstr "Mete yon eleman sèvis sou ekran an"
@@ -12415,6 +12593,10 @@ msgstr ""
 "Priye chak jou\n"
 "Li Bib la\n"
 "Sèvi pwochen ou"
+
+#: src/ui/dialogs/songs_folder.rs
+msgid "Could not open the songs folder: {error}"
+msgstr "Pa t kapab louvri dosye chante a: {error}"
 
 #: src/ui/dialogs/songselect.rs
 msgid "Songs from SongSelect"

@@ -6,6 +6,7 @@ import { RangeSlider } from "../dialogs/form.slint";
 import { FollowUi } from "follow.slint";
 import { PanelExtras } from "extras.slint";
 import { SlideActs, ActionPalette } from "action-palette.slint";
+import { SongKeyControl } from "../song-key.slint";
 
 /// One thumbnail. `image` is empty until it is drawn (the cell shows black); `play` marks video and audio.
 /// `section` is the slide's section kind ("verse", "chorus", "pre_chorus"…, see `SectionKind::id`) or "" (no colour).
@@ -791,6 +792,8 @@ export component SlidesPanel inherits VerticalLayout {
                 clicked => { root.lines-auto(); root.text-auto(); }
             }
         }
+        // The song's chords on the stage screen, a step up or down (`src/ui/song_key.rs`).
+        song-key := SongKeyControl { }
         Rectangle { horizontal-stretch: 1; }
         // N15: the action palette.
         palette-btn := Btn {

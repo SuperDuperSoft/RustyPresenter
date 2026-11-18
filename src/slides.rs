@@ -151,10 +151,14 @@ pub fn song_slides_in(song: &Song, order: &[String], settings: &Settings) -> Vec
             for (p, text) in pages.into_iter().enumerate() {
                 let label = if n > 1 { format!("{} ({}/{})", s.label, p + 1, n) } else { s.label.clone() };
                 // N10: chords stay out of the room's words; the stage can show them.
-                let (text, chords) = match strip_chords(&text) { Some(plain) => (plain, Some(text)), None => (text, None) };
+                // A song moved to another key shows its chords moved (`transpose`); the words never change.
+                let (text, chords) = match strip_chords(&text) { Some(plain) => (plain, Some(crate::transpose::for_stage(song, &text))), None => (text, None) };
+                // Chords and no words (an intro, a break): the room shows no words, the stage shows the chords.
+                let wordless = chords.is_some() && text.trim().is_empty();
                 let mut slide = Slide::new(label, SlideContent::Text { text, footer: None, reference: None, size: song.text_size, parallel: None });
                 slide.chords = chords;
                 if p == 0 { slide.tag = tag.clone() }
+                if wordless && slide.tag.is_none() { slide.tag = Some(chords_only()) }
                 slides.push(slide);
             }
         }
@@ -163,14 +167,20 @@ pub fn song_slides_in(song: &Song, order: &[String], settings: &Settings) -> Vec
     let counts: Vec<(&str, usize)> = sections.iter().map(|s| (s.label.as_str(), s.groups.iter().map(|g| group_pages(g, lps).1.len()).sum())).collect();
     for (slide, r) in slides.iter_mut().zip(crate::sections::song_refs(&counts, &order)) { slide.section = Some(r) }
     if let Some(credit) = credit {
-        let last = slides.len().checked_sub(1);
-        let at: &[Option<usize>] = match settings.credits.as_str() { "first" => &[Some(0)], "last" => &[last], "both" => &[Some(0), last], _ => &[] };
+        // The credit goes on a slide with words: an intro of chords alone shows nothing in the room.
+        let sung = |s: &Slide| !(s.chords.is_some() && matches!(&s.content, SlideContent::Text { text, .. } if text.trim().is_empty()));
+        let first = slides.iter().position(sung).or((!slides.is_empty()).then_some(0));
+        let last = slides.iter().rposition(sung).or(slides.len().checked_sub(1));
+        let at: &[Option<usize>] = match settings.credits.as_str() { "first" => &[first], "last" => &[last], "both" => &[first, last], _ => &[] };
         for p in at.iter().flatten() {
             if let Some(SlideContent::Text { footer, .. }) = slides.get_mut(*p).map(|s| &mut s.content) { *footer = Some(credit.clone()); }
         }
     }
     slides
 }
+
+/// The slide list's note on a slide of chords and no words (an intro, a break).
+pub fn chords_only() -> String { crate::tr!("♪ chords only") }
 
 /// A passage's credit goes on its first or last slide, as Settings says for songs (Bible library spec §10). With
 /// credits off it still shows, on the first slide, for a Bible that is not public domain.
@@ -541,6 +551,35 @@ mod tests {
         assert!(json.get("lines_per_slide").is_none() && json.get("text_size").is_none(), "old files stay the same");
         let back: Song = serde_json::from_value(serde_json::to_value(&own).unwrap()).unwrap();
         assert_eq!((back.lines_per_slide, back.text_size), (4, 96));
+    }
+
+    #[test]
+    fn an_intro_of_chords_is_a_slide_with_no_words_in_the_room() {
+        let settings = Settings { credits: "both".into(), ..Default::default() };
+        let song = Song { ccli: "1".into(), key: "G".into(), transpose: 3, lyrics: "Intro
+[G] [D] [Em] [C]
+
+Verse 1
+[G]Amazing [C]grace
+
+Instrumental
+[C] [G]".into(), arrangement: vec!["Intro".into(), "Verse 1".into(), "Instrumental".into()], ..usual_song() };
+        let slides = song_slides(&song, &settings);
+        let text = |i: usize| match &slides[i].content { SlideContent::Text { text, .. } => text.clone(), _ => panic!() };
+        let footer = |i: usize| match &slides[i].content { SlideContent::Text { footer, .. } => footer.clone(), _ => panic!() };
+        assert_eq!(slides.iter().map(|s| s.label.as_str()).collect::<Vec<_>>(), ["Intro", "Verse 1", "Instrumental"], "in the song's order");
+        assert_eq!((text(0), text(1), text(2)), ("".into(), "Amazing grace".into(), "".into()), "no chord or name in the room");
+        assert_eq!(slides[0].chords.as_deref(), Some("[Bb] [F] [Gm] [Eb]"), "moved into B flat");
+        assert_eq!(slides[1].chords.as_deref(), Some("[Bb]Amazing [Eb]grace"));
+        assert_eq!(slides[0].tag.as_deref(), Some("♪ chords only"), "the slide list says what it is");
+        assert_eq!(slides[1].tag, None);
+        assert!(footer(0).is_none() && footer(2).is_none() && footer(1).is_some(), "the credit goes on the sung slide");
+        // A song with no intro and no key is as it always was.
+        let plain = song_slides(&usual_song(), &settings);
+        assert!(plain.iter().all(|s| s.tag.is_none() && s.chords.is_none()));
+        assert!(matches!(&plain[0].content, SlideContent::Text { footer: Some(_), .. }));
+        // Not moved: the chords as written.
+        assert_eq!(song_slides(&Song { transpose: 0, ..song.clone() }, &settings)[1].chords.as_deref(), Some("[G]Amazing [C]grace"));
     }
 
     fn usual_song() -> Song {

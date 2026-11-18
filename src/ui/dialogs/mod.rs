@@ -39,6 +39,7 @@ pub mod settings_window;
 pub mod show_message;
 pub mod song_editor;
 pub mod songselect;
+pub mod songs_folder;
 pub mod stage_layouts;
 pub mod stream_more;
 pub mod stream_scenes;
@@ -77,6 +78,8 @@ pub enum SettingsTab {
     Songs,
     Sections,
     SongSelect,
+    /// Songs → Songs folder (`songs_folder`).
+    SongsFolder,
     // Bible
     Bible,
     BibleOnline,
@@ -117,9 +120,9 @@ pub enum SettingsTab {
 
 impl SettingsTab {
     /// Every page, in the sidebar's order.
-    pub const ALL: [SettingsTab; 33] = [
+    pub const ALL: [SettingsTab; 34] = [
         SettingsTab::Language, SettingsTab::Video, SettingsTab::Look, SettingsTab::Themes, SettingsTab::Songs, SettingsTab::Sections,
-        SettingsTab::SongSelect, SettingsTab::Bible, SettingsTab::BibleOnline, SettingsTab::Media, SettingsTab::Sound, SettingsTab::Stage,
+        SettingsTab::SongSelect, SettingsTab::SongsFolder, SettingsTab::Bible, SettingsTab::BibleOnline, SettingsTab::Media, SettingsTab::Sound, SettingsTab::Stage,
         SettingsTab::Remote, SettingsTab::PhoneStage, SettingsTab::PhoneCamMic, SettingsTab::OtherGear, SettingsTab::Help,
         SettingsTab::ClearGroups, SettingsTab::AutoFollow, SettingsTab::FollowModel, SettingsTab::FollowPractice, SettingsTab::FollowReview,
         SettingsTab::StreamWhere, SettingsTab::StreamPicture, SettingsTab::StreamCameras, SettingsTab::StreamSound, SettingsTab::StreamScenes,

@@ -179,6 +179,7 @@ impl Operator {
         super::outputs::wire(&op);
         super::record::wire(&op);
         super::docking::wire(&op);
+        crate::ui::song_key::connect(&op);
         op.ui.show().map_err(tr::open_failed)?;
         op.auto_zoom();
         // User translation files that could not be read at start (`i18n::load_user_folder`).

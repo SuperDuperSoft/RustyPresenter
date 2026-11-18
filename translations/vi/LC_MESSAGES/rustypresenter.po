@@ -2803,6 +2803,50 @@ msgstr "Thêm nhãn"
 msgid "Use the usual names, colours and labels"
 msgstr "Dùng tên, màu và nhãn mặc định"
 
+#: ui/dialogs/settings-songs-folder.slint src/ui/dialogs/settings_find.rs
+msgid "Songs folder"
+msgstr "Thư mục bài hát"
+
+#: ui/dialogs/settings-songs-folder.slint src/ui/dialogs/settings_find.rs
+msgid "Every song is also kept as a ChordPro file in a folder you can open, back up or edit in Notepad. Song files you put in the folder (ChordPro, SongSelect, OpenLyrics, OpenSong or plain text with Verse/Chorus headings) come into the song library by themselves."
+msgstr "Mỗi bài hát cũng được lưu thành tệp ChordPro trong một thư mục bạn có thể mở, sao lưu hoặc sửa bằng Notepad. Tệp bài hát bạn bỏ vào thư mục (ChordPro, SongSelect, OpenLyrics, OpenSong hoặc văn bản thường có tiêu đề Verse/Chorus) sẽ tự vào thư viện bài hát."
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Keep my songs in a folder"
+msgstr "Giữ bài hát của tôi trong một thư mục"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Open the folder"
+msgstr "Mở thư mục"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Choose another folder…"
+msgstr "Chọn thư mục khác…"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Use the usual folder"
+msgstr "Dùng thư mục thường dùng"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Documents → RustyPresenter → Songs"
+msgstr "Tài liệu → RustyPresenter → Songs"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "Tidy imported files into ChordPro"
+msgstr "Sắp xếp tệp nhập vào thành ChordPro"
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song file of another kind is moved into the “Imported files” folder once it is in the library, so only ChordPro files stay."
+msgstr "Tệp bài hát loại khác sẽ được chuyển vào thư mục “Imported files” khi đã vào thư viện, để chỉ còn tệp ChordPro."
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song file of another kind stays as it is, and its ChordPro copy is written beside it. Changing the file later changes the song."
+msgstr "Tệp bài hát loại khác được giữ nguyên, và bản ChordPro của nó được ghi bên cạnh. Sau này đổi tệp thì bài hát cũng đổi."
+
+#: ui/dialogs/settings-songs-folder.slint
+msgid "A song removed from the library has its file moved into the “Removed” folder. To remove a song, remove it in RustyPresenter: a file deleted from the folder is written again."
+msgstr "Bài hát bị xoá khỏi thư viện sẽ có tệp được chuyển vào thư mục “Removed”. Muốn xoá bài hát, hãy xoá trong RustyPresenter: tệp bị xoá trong thư mục sẽ được ghi lại."
+
 #: ui/dialogs/settings-sound.slint
 msgid "{} dB"
 msgstr "{} dB"
@@ -4138,6 +4182,34 @@ msgstr "Chữ lớn hơn cho bài hát này"
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Back to the lines and size in Settings"
 msgstr "Về số dòng và cỡ chữ trong Cài đặt"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Key"
+msgstr "Giọng"
+
+#: ui/dialogs/song-editor.slint
+msgid "G"
+msgstr "G"
+
+#: ui/dialogs/song-editor.slint
+msgid "The key the song is written in"
+msgstr "Giọng mà bài hát được viết"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Chords one step lower on the stage screen"
+msgstr "Hợp âm thấp xuống nửa cung trên màn hình sân khấu"
+
+#: ui/dialogs/song-editor.slint src/ui/song_key.rs
+msgid "As written"
+msgstr "Như đã viết"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Chords one step higher on the stage screen"
+msgstr "Hợp âm cao lên nửa cung trên màn hình sân khấu"
+
+#: ui/dialogs/song-editor.slint ui/song-key.slint
+msgid "Show the chords as they are written"
+msgstr "Hiện hợp âm như đã viết"
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
@@ -6059,6 +6131,10 @@ msgstr "Thiếu một hình. Hãy thử tải lên lại."
 msgid "These slides are in a service. Remove them from the service first."
 msgstr "Các trang chiếu này đang có trong một buổi lễ. Hãy gỡ khỏi buổi lễ trước."
 
+#: src/app.rs
+msgid "Choose a whole folder path."
+msgstr "Hãy chọn đường dẫn đầy đủ của thư mục."
+
 #: src/app.rs src/strings/scripture.rs
 msgid "Unknown translation."
 msgstr "Bản dịch không xác định."
@@ -7515,6 +7591,10 @@ msgstr "Cảnh phát trực tiếp: {name}"
 msgid "Scene keys work while the stream is live."
 msgstr "Phím cảnh hoạt động khi luồng phát đang trực tiếp."
 
+#: src/slides.rs
+msgid "♪ chords only"
+msgstr "♪ chỉ hợp âm"
+
 #: src/slides.rs src/strings/print.rs
 msgid "Missing song"
 msgstr "Thiếu bài hát"
@@ -7526,6 +7606,87 @@ msgstr "Thiếu tệp đa phương tiện"
 #: src/slides.rs src/strings/print.rs
 msgid "Missing slides"
 msgstr "Thiếu trang chiếu"
+
+#: src/songs_folder/format.rs
+msgid "it has no RustyPresenter song id"
+msgstr "không có mã bài hát RustyPresenter"
+
+#: src/songs_folder/format.rs
+msgid "it has no title"
+msgstr "không có tên"
+
+#: src/songs_folder/mod.rs
+msgid "The songs folder could not be made: {error}"
+msgstr "Không tạo được thư mục bài hát: {error}"
+
+#: src/songs_folder/mod.rs
+msgid "The songs folder cannot be found. Is the drive connected?"
+msgstr "Không tìm thấy thư mục bài hát. Ổ đĩa đã được cắm chưa?"
+
+#: src/songs_folder/mod.rs
+msgid "{n} song came in from the songs folder."
+msgid_plural "{n} songs came in from the songs folder."
+msgstr[0] "{n} bài hát đã vào từ thư mục bài hát."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” came in from the songs folder."
+msgstr "“{title}” đã vào từ thư mục bài hát."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” was changed in the songs folder, so it changed here too."
+msgstr "“{title}” đã được sửa trong thư mục bài hát, nên ở đây cũng đổi theo."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” was changed here and in the songs folder, so both were kept: the folder's version is “{copy}”."
+msgstr "“{title}” đã được sửa ở đây và trong thư mục bài hát, nên giữ cả hai: bản trong thư mục là “{copy}”."
+
+#: src/songs_folder/mod.rs
+msgid "“{title}” is in the songs folder, so it is back in the song library."
+msgstr "“{title}” có trong thư mục bài hát, nên đã trở lại thư viện bài hát."
+
+#: src/songs_folder/mod.rs
+msgid "{file} in the songs folder could not be read: {why}"
+msgstr "Không đọc được {file} trong thư mục bài hát: {why}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} song in the folder"
+msgid_plural "{n} songs in the folder"
+msgstr[0] "{n} bài hát trong thư mục"
+
+#: src/songs_folder/mod.rs
+msgid "last change just now"
+msgstr "thay đổi gần nhất vừa xong"
+
+#: src/songs_folder/mod.rs
+msgid "last change {n} minute ago"
+msgid_plural "last change {n} minutes ago"
+msgstr[0] "thay đổi gần nhất {n} phút trước"
+
+#: src/songs_folder/mod.rs
+msgid "last change {when}"
+msgstr "thay đổi gần nhất {when}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} file could not be read: {files}"
+msgid_plural "{n} files could not be read: {files}"
+msgstr[0] "Không đọc được {n} tệp: {files}"
+
+#: src/songs_folder/mod.rs
+msgid "{n} file is busy and will be tried again"
+msgid_plural "{n} files are busy and will be tried again"
+msgstr[0] "{n} tệp đang bận và sẽ được thử lại"
+
+#: src/songs_folder/sync.rs
+msgid "{title} (from the folder)"
+msgstr "{title} (từ thư mục)"
+
+#: src/songs_folder/sync.rs
+msgid "it is not a song file"
+msgstr "không phải tệp bài hát"
+
+#: src/songs_folder/sync.rs
+msgid "it is too big to be a song file"
+msgstr "quá lớn để là tệp bài hát"
 
 #: src/songselect/inbox.rs src/songselect/usr.rs src/songselect.rs
 msgid "No song words were found in this file."
@@ -11788,6 +11949,18 @@ msgstr "Bộ nhớ tạm không có văn bản. Hãy sao chép chữ trước."
 msgid "{name} (imported)"
 msgstr "{name} (đã nhập)"
 
+#: src/transpose.rs
+msgid "{from} → {to}, {amount}"
+msgstr "{from} → {to}, {amount}"
+
+#: src/transpose.rs
+msgid "Capo {fret} to play {key} shapes"
+msgstr "Capo phím {fret} để chơi thế bấm {key}"
+
+#: src/transpose.rs
+msgid "Capo {fret} to play the chords as written"
+msgstr "Capo phím {fret} để chơi hợp âm như đã viết"
+
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
 msgstr "Chiếu một mục của buổi lễ"
@@ -12372,6 +12545,10 @@ msgstr ""
 "Cầu nguyện mỗi ngày\n"
 "Đọc Kinh Thánh\n"
 "Phục vụ người lân cận"
+
+#: src/ui/dialogs/songs_folder.rs
+msgid "Could not open the songs folder: {error}"
+msgstr "Không mở được thư mục bài hát: {error}"
 
 #: src/ui/dialogs/songselect.rs
 msgid "Songs from SongSelect"

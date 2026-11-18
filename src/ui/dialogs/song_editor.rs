@@ -88,6 +88,9 @@ fn open_song_editor_at(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool
     st.set_order(s.arrangement.join(", ").into());
     st.set_lines(i32::from(s.lines_per_slide));
     st.set_text_size(i32::try_from(s.text_size).unwrap_or(0));
+    st.set_key(s.key.as_str().into());
+    st.set_transpose(i32::from(s.transpose));
+    show_key(&st, &s);
     if let Some(set) = op.state.borrow().snap.as_ref().map(|s| s.settings.clone()) {
         st.set_lines_default(i32::from(set.lines_per_slide.clamp(1, Song::MAX_LINES)));
         st.set_text_size_default(if set.theme.size == 0 { 84 } else { set.theme.size.clamp(Song::MIN_TEXT, Song::MAX_TEXT) as i32 });
@@ -192,7 +195,15 @@ fn song_from_fields(st: &SongEditorState, id: Option<Uuid>, trim: bool) -> Song 
         artist: f(st.get_artist()), publisher: f(st.get_publisher()), year: f(st.get_year()),
         lines_per_slide: u8::try_from(st.get_lines()).unwrap_or(0).min(Song::MAX_LINES),
         text_size: u32::try_from(st.get_text_size()).unwrap_or(0),
+        key: f(st.get_key()),
+        transpose: crate::transpose::clamp(i8::try_from(st.get_transpose()).unwrap_or(0)),
     }
+}
+
+/// The Key row's words for `song`: where it is now ("G → A, +2") and the capo for the written shapes.
+fn show_key(st: &SongEditorState, song: &Song) {
+    st.set_key_text(crate::transpose::describe(song).into());
+    st.set_capo_text(crate::transpose::capo(song).into());
 }
 
 /// `draw()` (`operator.js:667-684`): the section buttons, the Order warning and the preview, from the core's slides.
@@ -369,6 +380,11 @@ fn wire(op: &Rc<Operator>, ctx: &Rc<EditorCtx>) {
     st.on_arr_drag_index(|d| arr_drag_index(&d));
     let c = ctx.clone();
     st.on_slide_break(move |caret| edit_lyrics(&c, caret, insert_slide_break));
+    let c = ctx.clone();
+    st.on_key_changed(move || if let Some(op) = c.op.upgrade() {
+        let st = op.ui.global::<SongEditorState>();
+        show_key(&st, &song_from_fields(&st, c.song_id, true));
+    });
     let c = ctx.clone();
     st.on_label_slide(move |caret, i| {
         let Some(name) = c.op.upgrade().and_then(|op| label_names(&op).into_iter().nth(usize::try_from(i).unwrap_or(usize::MAX))) else { return caret };
@@ -583,6 +599,42 @@ mod tests {
         open_song_editor(&op, Some(s.id), false);
         assert_eq!(st(&op).get_artist(), "Chris Tomlin");
         assert_eq!(st(&op).get_year(), "2006");
+    }
+
+    #[test]
+    fn the_key_row_moves_the_chords_and_says_where_they_are() {
+        let app = test_app();
+        let id = song(&app, "Grace", "", "", "Intro
+[G] [D]
+
+Verse 1
+[G]Amazing grace");
+        let op = opened(&app);
+        open_song_editor(&op, Some(id), false);
+        settle(&op);
+        assert_eq!((st(&op).get_key_text().as_str(), st(&op).get_transpose()), ("G", 0), "no key typed: the first chord says it");
+        st(&op).set_key("G".into());
+        click(&op, "SongEditor::key-up");
+        click(&op, "SongEditor::key-up");
+        assert_eq!(st(&op).get_transpose(), 2);
+        assert_eq!(st(&op).get_key_text(), "G → A, +2");
+        assert_eq!(st(&op).get_capo_text(), "Capo 2 to play G shapes");
+        click(&op, "SongEditor::key-down");
+        click(&op, "SongEditor::key-down");
+        click(&op, "SongEditor::key-down");
+        assert_eq!(st(&op).get_key_text(), "G → F#, −1");
+        assert_eq!(st(&op).get_capo_text(), "");
+        // The intro of chords is its own slide in the preview, marked for what it is.
+        mock_elapsed_time(PREVIEW_AFTER + Duration::from_millis(10));
+        assert_eq!(labels(&op), ["Intro · ♪ chords only", "Verse 1"]);
+        click(&op, "SongEditor::save");
+        let s = library(&app).into_iter().find(|s| s.id == id).unwrap();
+        assert_eq!((s.key.as_str(), s.transpose), ("G", -1));
+        assert_eq!(s.lyrics, "Intro
+[G] [D]
+
+Verse 1
+[G]Amazing grace", "the chords as written never change");
     }
 
     #[test]

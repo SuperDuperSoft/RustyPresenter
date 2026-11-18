@@ -103,6 +103,8 @@ impl Operator {
     /// The header's size controls for the selected item: shown for a Bible passage or a song, with "Auto" or its
     /// size; a song also shows its lines per slide.
     pub(super) fn render_text_size(&self) {
+        // The song's quick Key control sits with the song's size and lines (songs folder design).
+        crate::ui::song_key::render(self);
         let song = self.selected_song();
         let size = match &song {
             Some((s, _)) => Some(s.text_size),
