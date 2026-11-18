@@ -16,9 +16,9 @@ use super::align::Heard;
 use super::audio::Ear;
 use super::g2p::{coarse, letters, listened, variants};
 use super::lyrics::{SongText, sound_key};
-use super::voice::RATE;
-use std::collections::HashSet;
-use std::sync::mpsc::{Receiver, Sender, channel};
+use super::voice::{FRAME, RATE};
+use std::collections::{HashSet, VecDeque};
+use std::sync::mpsc::{Receiver, SyncSender, channel, sync_channel};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
@@ -480,7 +480,9 @@ impl Decoder {
 
     /// One frame's log-probabilities at `at` seconds; the words it finished.
     pub fn frame(&mut self, row: &[f32], at: f64) -> Vec<Heard> {
-        let Some((id, lp)) = row.iter().copied().enumerate().max_by(|a, b| a.1.total_cmp(&b.1)) else { return vec![] };
+        let Some((id, lp)) = row.iter().copied().take(self.vocab.len()).enumerate()
+            .filter(|&(_, lp)| lp.is_finite()).max_by(|a, b| a.1.total_cmp(&b.1))
+        else { return vec![] };
         let p = lp.exp();
         if id == self.blank {
             self.prev = id;
@@ -525,6 +527,15 @@ impl Decoder {
             Units::Letters => self.end_word(true),
             Units::Phonemes => self.spot.give_up(),
         }
+    }
+
+    /// An interruption in the samples invalidates both open words and CTC repetition state.
+    fn reset(&mut self) {
+        self.prev = self.blank;
+        self.quiet = 0;
+        self.word.clear();
+        self.orphan.clear();
+        self.spot = Spotter::new(self.lexicon.clone());
     }
 
     /// The letter model ended a word (a "|", or a pause: `pause`). A word of the song, or one a letter or two
@@ -586,6 +597,11 @@ pub const WINDOW_S: f64 = 1.5;
 pub const HOP_S: f64 = 0.5;
 /// The model's frame step (320 samples).
 const STEP_S: f64 = 0.02;
+/// Keep the newest frames provisional until they have some context after them. Sung vowels
+/// can look like complete words at the right edge until their consonant or next syllable arrives.
+const RIGHT_CONTEXT_S: f64 = 0.12;
+const KEEP_SAMPLES: usize = (WINDOW_S * RATE as f64) as usize;
+const MAX_QUEUED_FRAMES: usize = KEEP_SAMPLES / FRAME;
 
 /// The model on a rolling window: each new half second is heard with a second before it as context.
 pub struct Stream {
@@ -596,28 +612,29 @@ pub struct Stream {
     start: f64,
     /// Frames before this time were decoded.
     done: f64,
+    last_run_end: f64,
 }
 
 impl Stream {
     pub fn new(model: Box<dyn Acoustic>, lexicon: Lexicon) -> Stream {
         let decoder = Decoder::new(model.units(), model.vocab().to_vec(), model.blank(), lexicon);
-        Stream { model, decoder, buf: vec![], start: 0.0, done: 0.0 }
+        Stream { model, decoder, buf: Vec::with_capacity(KEEP_SAMPLES + FRAME), start: 0.0, done: 0.0, last_run_end: 0.0 }
     }
 
     fn end(&self) -> f64 { self.start + self.buf.len() as f64 / RATE as f64 }
 
     /// Adds samples starting at `at` seconds. A gap (or a jump back) starts again.
     pub fn push(&mut self, pcm: &[i16], at: f64) {
-        if self.buf.is_empty() || (at - self.end()).abs() > 0.1 {
-            if !self.buf.is_empty() { let _ = self.decoder.give_up(); }
+        if self.buf.is_empty() || (at - self.end()).abs() >= STEP_S / 2.0 {
+            self.decoder.reset();
             self.buf.clear();
             self.start = at;
             self.done = at;
+            self.last_run_end = at;
         }
         self.buf.extend(pcm.iter().map(|&s| s as f32 / 32768.0));
-        let keep = (WINDOW_S * RATE as f64) as usize;
-        if self.buf.len() > keep {
-            let cut = self.buf.len() - keep;
+        if self.buf.len() > KEEP_SAMPLES {
+            let cut = self.buf.len() - KEEP_SAMPLES;
             self.buf.drain(..cut);
             self.start += cut as f64 / RATE as f64;
         }
@@ -625,18 +642,35 @@ impl Stream {
 
     /// Runs the model when a hop of new sound is in; the words it finished.
     pub fn run(&mut self) -> Vec<Heard> {
-        if self.end() - self.done < HOP_S - 1e-9 || self.buf.len() < 400 { return vec![] }
+        let end = self.end();
+        if end - self.last_run_end < HOP_S - 1e-9 { return vec![] }
+        self.decode(end - RIGHT_CONTEXT_S)
+    }
+
+    fn decode(&mut self, until: f64) -> Vec<Heard> {
+        if self.buf.len() < 400 || until <= self.done { return vec![] }
+        if self.start > self.done + 1e-9 {
+            self.decoder.reset();
+            self.done = self.start;
+        }
+        self.last_run_end = self.end();
         let rows = match self.model.log_probs(&self.buf) {
             Ok(r) => r,
-            Err(e) => { eprintln!("auto-follow ear: {e}"); self.done = self.end(); return vec![] }
+            Err(e) => {
+                eprintln!("auto-follow ear: {e}");
+                self.decoder.reset();
+                self.done = self.end();
+                return vec![];
+            }
         };
         let mut out = vec![];
         for (i, row) in rows.iter().enumerate() {
             let t = self.start + i as f64 * STEP_S;
             if t + 1e-9 < self.done { continue }
+            if t + 1e-9 >= until { break }
             out.extend(self.decoder.frame(row, t));
+            self.done = t + STEP_S;
         }
-        self.done = self.start + rows.len() as f64 * STEP_S;
         out
     }
 
@@ -651,29 +685,38 @@ impl Stream {
 impl Ear for Stream {
     fn words(&self) -> bool { true }
     fn frames(&mut self, pcm: &[i16], at: f64) -> Vec<Heard> { self.feed(pcm, at) }
+    fn finish(&mut self) -> Vec<Heard> {
+        let mut out = self.decode(self.end());
+        out.extend(self.decoder.pause());
+        out
+    }
 }
 
 /// The real ear: the model runs on its own thread so the sound input never waits for it. When the model is
 /// slower than the room it skips ahead to the newest sound.
 pub struct CtcEar {
-    tx: Option<Sender<(Vec<i16>, f64)>>,
+    tx: Option<SyncSender<()>>,
+    pending: Arc<Mutex<VecDeque<(Vec<i16>, f64)>>>,
     rx: Receiver<Heard>,
     thread: Option<std::thread::JoinHandle<()>>,
 }
 
 impl CtcEar {
     pub fn new(model: Box<dyn Acoustic>, lexicon: Lexicon) -> CtcEar {
-        let (tx, frames) = channel::<(Vec<i16>, f64)>();
+        let (tx, wake) = sync_channel(1);
+        let pending = Arc::new(Mutex::new(VecDeque::<(Vec<i16>, f64)>::with_capacity(MAX_QUEUED_FRAMES)));
+        let frames = pending.clone();
         let (heard, rx) = channel();
         let mut stream = Stream::new(model, lexicon);
         let thread = std::thread::Builder::new().name("follow-ear".into()).spawn(move || {
-            while let Ok((pcm, at)) = frames.recv() {
-                stream.push(&pcm, at);
-                for (pcm, at) in frames.try_iter() { stream.push(&pcm, at) }
+            let mut batch = VecDeque::new();
+            while wake.recv().is_ok() {
+                std::mem::swap(&mut *frames.lock().unwrap(), &mut batch);
+                for (pcm, at) in batch.drain(..) { stream.push(&pcm, at) }
                 for h in stream.run() { if heard.send(h).is_err() { return } }
             }
         }).ok();
-        CtcEar { tx: Some(tx), rx, thread }
+        CtcEar { tx: thread.as_ref().map(|_| tx), pending, rx, thread }
     }
 
     /// Waits up to `wait` for words still being worked on (tests, the end of a Practice file).
@@ -688,15 +731,22 @@ impl CtcEar {
 }
 
 impl Ear for CtcEar {
-    fn words(&self) -> bool { true }
+    fn words(&self) -> bool { self.thread.is_some() }
     fn frames(&mut self, pcm: &[i16], at: f64) -> Vec<Heard> {
-        if let Some(tx) = &self.tx { let _ = tx.send((pcm.to_vec(), at)); }
+        if let Some(tx) = &self.tx {
+            let mut pending = self.pending.lock().unwrap();
+            if pending.len() == MAX_QUEUED_FRAMES { pending.pop_front(); }
+            pending.push_back((pcm.to_vec(), at));
+            drop(pending);
+            let _ = tx.try_send(());
+        }
         self.rx.try_iter().collect()
     }
 }
 
 impl Drop for CtcEar {
     fn drop(&mut self) {
+        self.pending.lock().unwrap().clear();
         self.tx.take();
         if let Some(t) = self.thread.take() { let _ = t.join(); }
     }

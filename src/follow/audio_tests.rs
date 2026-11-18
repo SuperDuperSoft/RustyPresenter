@@ -1,7 +1,11 @@
 use super::*;
+#[cfg(unix)]
 use crate::follow::rules::{Mode, Voice};
+#[cfg(unix)]
 use crate::follow::testing::Fake;
+#[cfg(unix)]
 use crate::follow::{Follower, Light};
+#[cfg(unix)]
 use std::time::Instant;
 
 fn strs(a: &[OsString]) -> Vec<String> { a.iter().map(|s| s.to_string_lossy().into_owned()).collect() }
@@ -49,7 +53,7 @@ fn input_lost_falls_back_to_manual() {
         if let Ok(ev) = rx.recv_timeout(Duration::from_millis(100)) { got.push(ev) }
     }
     assert_eq!(got.first(), Some(&FollowEvent::Listening { words: false }));
-    assert_eq!(got.iter().filter(|e| matches!(e, FollowEvent::Voice(Voice::Silence, _))).count(), 10);
+    assert_eq!(got.iter().filter(|e| matches!(e, FollowEvent::Audio { voice: Voice::Silence, .. })).count(), 10);
     assert_eq!(got.last(), Some(&FollowEvent::InputLost("device unplugged".into())));
     let until = Instant::now() + Duration::from_secs(5);
     while cap.running() && Instant::now() < until { std::thread::sleep(Duration::from_millis(10)) }

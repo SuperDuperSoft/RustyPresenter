@@ -7,6 +7,7 @@ use super::ear::{Lexicon, file_ear};
 use super::engine::{Engine, Host, LiveSong};
 use super::log::LogEntry;
 use super::rules::{Mode, Settings};
+use super::voice::RATE;
 use crate::model::Slide;
 use std::ffi::OsString;
 use std::path::Path;
@@ -50,14 +51,22 @@ fn practice_ear(program: &Path, args: Vec<OsString>, slides: Vec<Slide>, setting
     engine.step(&host, 0.0, Some(listener.hello()));
     let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().map_err(|e| e.to_string())?;
     let mut failed = None;
+    let mut end_at = 0.0;
     let end = rt.block_on(read_pcm(program, args, CancellationToken::new(), |r| failed = r.err(), |pcm, at| {
         for ev in listener.frame(pcm, at) { engine.step(&host, at, Some(ev)) }
+        end_at = at + pcm.len() as f64 / RATE as f64;
         log.extend(engine.take_log());
         heard.extend(engine.take_trace());
     }));
     if let Some(e) = failed { return Err(e) }
     match end {
         End::Ended { ok: false, why } => Err(why),
+        End::Ended { ok: true, .. } => {
+            for ev in listener.finish() { engine.step(&host, end_at, Some(ev)) }
+            log.extend(engine.take_log());
+            heard.extend(engine.take_trace());
+            Ok((log, heard))
+        }
         _ => Ok((log, heard)),
     }
 }

@@ -142,7 +142,7 @@ fn a_timer_blanks_when_settings_ask() {
 }
 
 #[test]
-fn instrumental_slide_comes_up_when_quiet_and_leaves_as_singing_starts() {
+fn instrumental_slide_comes_up_when_quiet_and_leaves_on_the_next_lyric() {
     // Slide 1 "come now" is sung, then slide 2 is an instrumental before slide 3 "be still".
     let s = hymn();
     let mut r = Rules::new(auto(4.0), &s);
@@ -159,10 +159,10 @@ fn instrumental_slide_comes_up_when_quiet_and_leaves_as_singing_starts() {
         let voice = if i < 300 { Voice::Music } else { Voice::Speaking };
         assert_eq!(r.tick(16.0 + i as f64 * 0.1, &at(15), voice, 4.0, 2), None, "{i}");
     }
-    // Singing starts: the next words come up before a word of them is heard.
-    assert_eq!(r.tick(80.0, &at(15), Voice::Singing, 2.0, 2), Some(Show(3)));
+    // A guitar solo can sound sung. Wait for a lyric with enough detail to place the singers.
+    assert_eq!(r.tick(80.0, &at(15), Voice::Singing, 2.0, 2), None);
+    assert_eq!(r.tick(80.3, &at(17), Voice::Music, 4.0, 2), Some(Show(3)));
     assert_eq!(r.tick(80.5, &at(15), Voice::Singing, 2.0, 3), None, "and it stays there");
-    assert_eq!(r.tick(81.0, &at(16), Voice::Singing, 2.0, 3), None);
     // Not while the last word is not yet sung: a pause before it keeps the words.
     let mut r = Rules::new(auto(4.0), &s);
     r.tick(10.0, &at(14), Voice::Singing, 2.0, 1);
@@ -171,37 +171,34 @@ fn instrumental_slide_comes_up_when_quiet_and_leaves_as_singing_starts() {
     let mut r = Rules::new(Settings { mode: Mode::Suggest, ..auto(4.0) }, &s);
     r.tick(10.0, &at(15), Voice::Singing, 2.0, 1);
     assert_eq!(r.tick(13.0, &at(15), Voice::Music, 4.0, 1), Some(Suggest(2)));
-    // (The band is heard on the instrumental slide, for a second or more, before the singing starts: see
-    // `an_instrumental_slide_waits_for_singing_to_start_on_it`.)
     assert_eq!(r.tick(16.0, &at(15), Voice::Music, 4.0, 2), None);
     assert_eq!(r.tick(17.5, &at(15), Voice::Music, 4.0, 2), None);
-    assert_eq!(r.tick(20.0, &at(15), Voice::Singing, 2.0, 2), Some(Suggest(3)));
+    assert_eq!(r.tick(20.0, &at(17), Voice::Singing, 2.0, 2), Some(Suggest(3)));
 }
 
 #[test]
-fn an_instrumental_slide_waits_for_singing_to_start_on_it() {
+fn an_instrumental_slide_waits_for_lyrics() {
     // The operator takes the next song live on its intro slide while the last note of the song before is still
     // held. The room's label says singing, but nothing has started: the intro slide stays.
     let s = song(&["{Instrumental}", "amazing grace", "how sweet the sound"]);
     let mut r = Rules::new(auto(2.0), &s);
     for i in 0..30 { assert_eq!(r.tick(i as f64 * 0.1, &nowhere(), Voice::Singing, 2.0, 0), None, "held note {i}") }
-    // The note ends and the band plays the intro. Then the singers come in: the first words go up.
+    // The note ends and the band plays the intro. Only lyric evidence moves the intro slide.
     for i in 0..100 { assert_eq!(r.tick(3.0 + i as f64 * 0.1, &nowhere(), Voice::Music, 4.0, 0), None, "intro {i}") }
-    assert_eq!(r.tick(13.0, &nowhere(), Voice::Singing, 2.0, 0), Some(Show(1)));
+    assert_eq!(r.tick(13.0, &nowhere(), Voice::Singing, 2.0, 0), None);
     // A sure word heard on another slide does not wait for the label.
     let mut r = Rules::new(auto(2.0), &s);
     assert_eq!(r.tick(0.0, &nowhere(), Voice::Singing, 2.0, 0), None);
     assert_eq!(r.tick(0.5, &at(0), Voice::Singing, 2.0, 0), Some(Show(1)));
-    // It is asked of each slide: the band was heard on the intro slide, then the screen goes to a break slide
-    // while someone sings. Nothing has started on that one yet. It does once the room has been quiet there for
-    // a second (two looks a second apart: one look alone is only a flicker of the label).
+    // The same rule holds on an instrumental break mid-song.
     let s = song(&["{Instrumental}", "amazing grace", "{Instrumental}", "how sweet the sound"]);
     let mut r = Rules::new(auto(2.0), &s);
     assert_eq!(r.tick(0.0, &nowhere(), Voice::Music, 4.0, 0), None);
     assert_eq!(r.tick(1.0, &nowhere(), Voice::Singing, 2.0, 2), None);
     assert_eq!(r.tick(2.0, &nowhere(), Voice::Silence, 0.0, 2), None);
     assert_eq!(r.tick(3.0, &nowhere(), Voice::Silence, 0.0, 2), None);
-    assert_eq!(r.tick(4.0, &nowhere(), Voice::Singing, 2.0, 2), Some(Show(3)));
+    assert_eq!(r.tick(4.0, &nowhere(), Voice::Singing, 2.0, 2), None);
+    assert_eq!(r.tick(4.3, &at(3), Voice::Singing, 2.0, 2), Some(Show(3)));
 }
 
 #[test]
@@ -218,10 +215,9 @@ fn a_flicker_of_the_label_in_a_held_note_is_not_singing_starting() {
     let mut r = Rules::new(auto(2.0), &s);
     assert_eq!(r.tick(0.0, &nowhere(), Voice::Music, 4.0, 0), None);
     for i in 1..30 { assert_eq!(r.tick(i as f64 * 0.1, &nowhere(), Voice::Singing, 2.0, 0), None, "held note {i}") }
-    // The note ends and the band plays for a second and a half: now the room has stopped singing, and the
-    // singers coming in is a start.
+    // A full band break still doesn't make the next pitched note proof of a lyric.
     for i in 0..15 { assert_eq!(r.tick(3.0 + i as f64 * 0.1, &nowhere(), Voice::Music, 4.0, 0), None, "intro {i}") }
-    assert_eq!(r.tick(4.5, &nowhere(), Voice::Singing, 2.0, 0), Some(Show(1)));
+    assert_eq!(r.tick(4.5, &nowhere(), Voice::Singing, 2.0, 0), None);
     // Under a second of band between two sung phrases is not a stop either.
     let mut r = Rules::new(auto(2.0), &s);
     for i in 0..10 { assert_eq!(r.tick(i as f64 * 0.1, &nowhere(), Voice::Singing, 2.0, 0), None, "note {i}") }
@@ -265,13 +261,14 @@ fn on_an_instrumental_slide_one_stray_word_does_not_bring_the_verse_back() {
 }
 
 #[test]
-fn an_intro_slide_leaves_as_singing_starts() {
-    // Slide 0 is an intro with nothing to sing; no word has been heard yet (or there is no speech model).
-    let s = song(&["{Instrumental}", "amazing grace", "how sweet the sound"]);
+fn an_intro_slide_ignores_a_held_vowel() {
+    let s = song(&["{Instrumental}", "oh grace", "how sweet the sound"]);
     let mut r = Rules::new(auto(2.0), &s);
     for i in 0..300 { assert_eq!(r.tick(i as f64 * 0.1, &nowhere(), Voice::Music, 4.0, 0), None) }
     assert_eq!(r.tick(30.0, &nowhere(), Voice::Speaking, 3.0, 0), None, "a welcome is not singing");
-    assert_eq!(r.tick(31.0, &nowhere(), Voice::Singing, 2.0, 0), Some(Show(1)));
+    assert_eq!(r.tick(31.0, &nowhere(), Voice::Singing, 2.0, 0), None);
+    assert_eq!(r.tick(31.1, &at(0), Voice::Singing, 2.0, 0), None, "a lone Oh can be the note before the intro");
+    assert_eq!(r.tick(31.4, &at(1), Voice::Singing, 2.0, 0), Some(Show(1)));
     // The singers are heard somewhere else: that wins.
     let mut r = Rules::new(auto(2.0), &s);
     assert_eq!(r.tick(1.0, &at(3), Voice::Singing, 2.0, 0), Some(Show(2)));
@@ -586,6 +583,22 @@ fn a_held_word_stops_the_clock() {
         assert_eq!(r.tick(22.0 + (i + 1) as f64 / 1.5, &at(w), Voice::Singing, 2.0, 0), None, "word {w}");
     }
     assert_eq!(r.tick(22.0 + 6.0 / 1.5, &at(9), Voice::Singing, 2.0, 0), Some(Show(1)));
+}
+
+#[test]
+fn an_acoustically_held_note_freezes_the_prediction_until_a_new_word() {
+    let s = song(&["first\nwe praise your holy name", "joy"]);
+    let mut r = Rules::new(auto(0.5), &s);
+    assert_eq!(r.tick(0.0, &at(0), Voice::Singing, 2.0, 0), None);
+    assert_eq!(r.tick(0.5, &at(1), Voice::Singing, 2.0, 0), None);
+    for i in 0..32 {
+        let now = 1.0 + i as f64 * 0.1;
+        assert_eq!(r.tick_audio(now, now, &at(1), Voice::Singing, 2.0, 0, Some(0.5)), None, "{now}");
+    }
+    // A breath or a different pitch isn't new lyric evidence.
+    assert_eq!(r.tick(4.2, &at(1), Voice::Music, 2.0, 0), None);
+    assert_eq!(r.tick(4.4, &at(1), Voice::Singing, 2.0, 0), None);
+    assert_eq!(r.tick(4.7, &at(4), Voice::Singing, 2.0, 0), Some(Show(1)));
 }
 
 #[test]
@@ -917,7 +930,7 @@ fn a_place_heard_while_not_looking_is_old_when_they_look_again() {
 #[test]
 fn an_intro_of_chords_waits_for_the_singing_like_any_instrumental_slide() {
     // A song whose first slide is its intro chords (no words in the room): auto-follow treats it as a slide with
-    // nothing to sing, so the intro stays up while the band plays, and the first words come up as singing starts.
+    // nothing to sing, so the intro stays up until a lyric is heard.
     let song = crate::model::Song { lyrics: "Intro\n[G] [D] [Em] [C]\n\nVerse 1\n[G]Amazing grace\nhow sweet the sound".into(), ..Default::default() };
     let slides = crate::slides::song_slides(&song, &crate::model::Settings { credits: "none".into(), ..Default::default() });
     let s = SongText::from_slides(&slides);
@@ -925,5 +938,6 @@ fn an_intro_of_chords_waits_for_the_singing_like_any_instrumental_slide() {
     assert_eq!(s.words[0].text, "Amazing", "no chord is taken for a word");
     let mut r = Rules::new(auto(2.0), &s);
     for i in 0..100 { assert_eq!(r.tick(i as f64 * 0.1, &nowhere(), Voice::Music, 4.0, 0), None, "intro {i}") }
-    assert_eq!(r.tick(12.0, &nowhere(), Voice::Singing, 2.0, 0), Some(Show(1)));
+    assert_eq!(r.tick(12.0, &nowhere(), Voice::Singing, 2.0, 0), None);
+    assert_eq!(r.tick(12.4, &at(0), Voice::Singing, 2.0, 0), Some(Show(1)));
 }
