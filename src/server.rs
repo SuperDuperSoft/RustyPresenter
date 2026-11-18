@@ -774,7 +774,8 @@ msgstr[1] "{n} Folien"
         assert!(computer_name().chars().count() <= 40);
         // The Android remote (`apps/android`) is released with the app, at the same version.
         let remote = include_str!("../apps/android/Cargo.toml");
-        assert!(remote.contains(&format!("\nversion = \"{}\"\n", env!("CARGO_PKG_VERSION"))), "apps/android/Cargo.toml's version is the app's");
+        let version = remote.lines().map(str::trim).find(|l| l.starts_with("version = ")).unwrap_or_default();
+        assert_eq!(version, format!("version = \"{}\"", env!("CARGO_PKG_VERSION")), "apps/android/Cargo.toml's version is the app's");
     }
 
     #[tokio::test]
