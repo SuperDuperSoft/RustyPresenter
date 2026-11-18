@@ -84,5 +84,6 @@ OBS) and **pop panels out into their own window** on another monitor.
 - **Windows of their own**: `PanelWindow`; the panel globals are written to every window by code `crates/rp-ui/
   build.rs` writes from Slint's own Rust API (`<Global>All`, the old property names on `OperatorWindow`,
   `copy_panes`, `forward_panes`), so no list of properties has to be kept by hand. Its monitor and place are
-  remembered every few seconds and on every change. Dragging a panel between two windows is not possible (a drag
-  stays in its window); the ⋯ menu moves it ("Move to …", "Move back to the main window").
+  remembered every few seconds and on every change. A panel is dragged between windows like a browser tab, or torn off
+  into a window of its own (November 18, `2026-11-18-drag-panels-between-windows-design.md`); the ⋯ menu also moves
+  it ("Move to …", "Move back to the main window").

@@ -128,6 +128,15 @@ export component DockArea inherits Rectangle {
     /// Where a dragged panel would go.
     in property <bool> lit-shown;
     in property <DockRect> lit;
+    /// The panel being dragged (-1: none) and where the pointer is, when it is over this window: its name follows
+    /// the pointer, whichever window the drag began in (Rust sets it).
+    in property <int> ghost: -1;
+    in property <length> ghost-x;
+    in property <length> ghost-y;
+    /// Where the panels start inside the window (under the top bar in the operator window; with the scroll), for
+    /// Rust to turn a point on the screen into a point among the panels.
+    out property <length> origin-x: flick.absolute-position.x + flick.content-x;
+    out property <length> origin-y: flick.absolute-position.y + flick.content-y;
     /// A dialog or question covers the window (the Bible box takes no focus then).
     in property <bool> covered;
     /// The Bible box has the keyboard.
@@ -142,9 +151,11 @@ export component DockArea inherits Rectangle {
     callback bar-moved(int, length);
     callback bar-done(int);
     callback tab-picked(int);
-    /// A panel's title bar dragged to a point of the area; let go there.
+    /// A panel's title bar dragged to a point of the area (outside the window too: the window keeps the mouse while
+    /// its button is held); let go there; or stopped with a right click.
     callback drag-moved(int, length, length);
     callback drag-done(int, length, length);
+    callback drag-cancel(int);
     /// The ⋯ menu: "close", "new-window", "group-window", "main", or "window:<index>".
     callback panel-action(int, string);
 
@@ -158,8 +169,7 @@ export component DockArea inherits Rectangle {
 
     /// A short window (a 768 px laptop screen): the library's list is lower, so the slides keep more than one row.
     property <bool> short: root.height < 760px;
-    /// A title bar is being dragged: its panel's name follows the pointer.
-    property <int> dragging: -1;
+    /// Where the pointer is while a title bar is dragged (area terms).
     property <length> drag-x;
     property <length> drag-y;
 
@@ -529,20 +539,23 @@ export component DockArea inherits Rectangle {
                             mouse-cursor: MouseCursor.move;
                             moved => {
                                 head-bar.moving = true;
-                                root.dragging = head.active;
                                 root.drag-x = self.absolute-position.x + self.mouse-x - flick.absolute-position.x - flick.content-x;
                                 root.drag-y = self.absolute-position.y + self.mouse-y - flick.absolute-position.y - flick.content-y;
                                 root.drag-moved(head.active, root.drag-x, root.drag-y);
                             }
                             pointer-event(e) => {
-                                if e.kind == PointerEventKind.up && head-bar.moving {
+                                // A right click while dragging, or the window losing the mouse: nothing moves.
+                                if head-bar.moving && (e.kind == PointerEventKind.cancel || (e.kind == PointerEventKind.down && e.button == PointerEventButton.right)) {
                                     head-bar.moving = false;
-                                    root.dragging = -1;
+                                    root.drag-cancel(head.active);
+                                }
+                                if e.kind == PointerEventKind.up && e.button == PointerEventButton.left && head-bar.moving {
+                                    head-bar.moving = false;
                                     root.drag-done(head.active, root.drag-x, root.drag-y);
                                 }
                             }
                         }
-                        TipArea { text: @tr("Drag onto another panel: beside it, or in its middle to share its place as a tab"); hover: grip-ta.has-hover; pressed: grip-ta.pressed; pointer-x: grip-ta.mouse-x; }
+                        TipArea { text: @tr("Drag onto a panel, in this window or another: beside it, or in its middle to share its place as a tab. Let go outside the app's windows to open it in a window of its own."); hover: grip-ta.has-hover; pressed: grip-ta.pressed; pointer-x: grip-ta.mouse-x; }
                     }
                 }
                 for t in head.tabs: VerticalLayout {
@@ -657,15 +670,15 @@ export component DockArea inherits Rectangle {
             border-width: 2px;
             border-radius: Theme.radius;
         }
-        if root.dragging >= 0: Rectangle {
-            x: root.drag-x + 12px;
-            y: root.drag-y + 8px;
+        if root.ghost >= 0: drag-ghost := Rectangle {
+            x: root.ghost-x + 12px;
+            y: root.ghost-y + 8px;
             width: drag-name.preferred-width + 20px;
             height: 26px;
             border-radius: 13px;
             background: Theme.accent;
             drag-name := Text {
-                text: DockText.name(root.dragging);
+                text: DockText.name(root.ghost);
                 color: Theme.accent-ink;
                 font-family: Theme.font;
                 font-size: 12.5px;

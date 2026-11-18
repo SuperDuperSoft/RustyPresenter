@@ -5072,8 +5072,8 @@ msgid "Move {}"
 msgstr "Deplase {}"
 
 #: ui/operator/dock.slint
-msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
-msgstr "Trennen l sou yon lòt panno: bò kote l, oswa nan mitan l pou pataje plas li kòm onglè"
+msgid "Drag onto a panel, in this window or another: beside it, or in its middle to share its place as a tab. Let go outside the app's windows to open it in a window of its own."
+msgstr "Trennen l sou yon panno, nan fenèt sa a oswa yon lòt: bò kote l, oswa nan mitan l pou pataje plas li kòm onglè. Lage l deyò fenèt app la pou louvri l nan pwòp fenèt li."
 
 #: ui/operator/dock.slint
 msgid "{} options"
@@ -9801,6 +9801,14 @@ msgid "Layout “{name}” saved"
 msgstr "Aranjman “{name}” anrejistre"
 
 #: src/strings/operator.rs
+msgid "{name} (changed)"
+msgstr "{name} (chanje)"
+
+#: src/strings/operator.rs
+msgid "Update “{name}”"
+msgstr "Mete “{name}” ajou"
+
+#: src/strings/operator.rs
 msgid "Delete the layout “{name}”? The window goes back to Standard."
 msgstr "Efase aranjman “{name}”? Fenèt la retounen nan Estanda."
 
@@ -13526,6 +13534,9 @@ msgstr "yt-dlp pa anrejistre okenn videyo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "se pa yon fichye medya"
+
+#~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
+#~ msgstr "Trennen l sou yon lòt panno: bò kote l, oswa nan mitan l pou pataje plas li kòm onglè"
 
 #~ msgid "{n} phone"
 #~ msgid_plural "{n} phones"

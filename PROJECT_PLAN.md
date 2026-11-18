@@ -1806,3 +1806,36 @@ found: `docs/superpowers/specs/2026-11-17-dock-panels-design.md` ("As built").
 - **Test run:** all 3,609 library tests pass on the merged branch (follow-sunday at 2ed0e1c), and `i18n_catalogs`,
   `cleanup`, `words` and `ui_operator_flows`. Earlier runs had the known timing-sensitive `record::run` FFmpeg tests
   fail while other agents built; they passed when run again.
+
+### November 18, 2026 — Drag panels between windows (branch `dock-drag`)
+
+Design: `docs/superpowers/specs/2026-11-18-drag-panels-between-windows-design.md`.
+
+- **Like browser tabs**: in arrange mode a panel dragged by its grip follows the pointer out of its window. The
+  window under the pointer (main or a window of its own) lights up its drop zones and shows the panel's name at the
+  pointer. Let go on a panel of another window: it moves there; back in its own window: an ordinary drop; over no
+  window of the app (desktop, or another program in front): a new window of its own opens at the pointer, as large as
+  the panel was, wholly on the monitor under the pointer (a panel alone in its window just moves that window). A
+  window left empty closes; the main window keeps a panel. Esc, a right click or another program taking the keyboard
+  stops it; nothing changes before the release. The ⋯ menu's "Move to …" stays.
+- **How the pointer is followed**: no polling. winit 0.30.13 on Windows calls `SetCapture` on each press and keeps
+  sending moves outside the window; Slint 1.18.1 ignores `CursorLeft` while a button is down and its pressed
+  `TouchArea` keeps the mouse, so the grip's `moved` reports the whole drag (read in both sources; the testing
+  backend runs the same Slint path in the tests). Screen places from winit (`inner_position`, `scale_factor`), the
+  window in front from Win32 `WindowFromPoint` (elsewhere: the window brought to the front last). macOS and X11 send
+  the moves the same way (winit sources), so the same code is built there; Wayland cannot tell where windows are,
+  so there a drag stays in its window and the ⋯ menu moves panels.
+- **Layouts remembered**: every drag, tear-off and window move is saved for next time as before; "Save this layout
+  as…" saves the windows too; View → Layouts shows "Sunday (changed)" when the saved layout in use was changed, with
+  **Update “Sunday”** to save the changes into it.
+- **Tests**: `ui::dock::drag::tests` (screen point → window and place, the front window, what Windows says is in
+  front, tear-off placement and monitor), `ui::dock::tests` (`same_arrangement`, drops across windows), and
+  `ui::operator::docking::tests` driving the windows with the mouse (onto a window of its own, back to the main
+  window closing the empty one, onto the desktop, a lone panel's window moved, out and back, Esc / right click /
+  focus loss, a tear-off and a cross-window drop surviving a restart and saved by "Save this layout as…",
+  "(changed)" and Update).
+- **Not verified by a person:** all of it with a real mouse: dragging out of a window and over another (one and two
+  monitors, mixed 100 % / 150 % scaling), letting go on the desktop and where the new window lands, a window of
+  another program in front of ours, Esc and right click mid-drag, Alt+Tab mid-drag, and the look of the name at the
+  pointer. No name follows the pointer over the desktop (only in the app's windows). macOS and Linux (X11) are built
+  but need a real Mac / Linux PC to try; on Wayland only the ⋯ menu moves panels between windows.

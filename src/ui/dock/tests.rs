@@ -347,3 +347,39 @@ fn repair_removes_duplicates_and_empty_parts() {
     assert!(l.closed.contains(&Bible) && !l.closed.contains(&Live));
     assert!(l.is_shown(Library), "missing: back at its Standard place");
 }
+
+#[test]
+fn the_same_arrangement_ignores_names_ids_and_rounding() {
+    let mut a = Layout::builtin(Builtin::TwoMonitors);
+    a.windows[1].place = Some(WinRect { x: 1920, y: 0, w: 900, h: 700 });
+    let mut b = a.clone();
+    b.name = "Sunday".into();
+    b.windows[1].id = 7;
+    b.windows[1].place = Some(WinRect { x: 1924, y: 3, w: 898, h: 700 });
+    b.closed.reverse();
+    assert!(a.same_arrangement(&b), "names, ids, closed order and a few pixels do not count");
+    b.windows[1].place = Some(WinRect { x: 0, y: 0, w: 900, h: 700 });
+    assert!(!a.same_arrangement(&b), "a window moved to another monitor counts");
+    let mut c = a.clone();
+    assert!(c.drop_on(Cameras, Live, Zone::Center));
+    assert!(!a.same_arrangement(&c), "a panel moved counts");
+    let mut d = a.clone();
+    d.restore(Stage);
+    assert!(!a.same_arrangement(&d), "a panel shown again counts");
+}
+
+#[test]
+fn a_panel_dropped_in_another_window_leaves_an_empty_window_to_close() {
+    let mut l = std_layout();
+    l.pop_out(&[Live], None, "").unwrap();
+    // The library dragged from the main window onto Live's right half in the window of its own.
+    assert!(l.drop_on(Library, Live, Zone::Right));
+    assert_eq!(l.window_of(Library), Some(1));
+    // And Live dragged back onto the slides: the window of its own keeps the library.
+    assert!(l.drop_on(Live, Slides, Zone::Bottom));
+    assert_eq!(l.windows.len(), 2);
+    // The library too: nothing is left there, so that window goes.
+    assert!(l.drop_on(Library, Slides, Zone::Center));
+    assert_eq!(l.windows.len(), 1, "a window of its own with no panels closes");
+    assert_valid(&l);
+}

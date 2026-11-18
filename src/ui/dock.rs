@@ -7,6 +7,8 @@
 //! holds one panel or several shown one at a time. Panels never overlap: every panel gets a rectangle of its own.
 use serde::{Deserialize, Deserializer, Serialize};
 
+pub mod drag;
+
 /// The room between panels: the strip a volunteer drags to resize (today's 8 px gaps).
 pub const GAP: f32 = 8.0;
 /// The room around the panels inside the window.
@@ -273,6 +275,22 @@ impl Layout {
             ),
         };
         Layout { name: String::new(), windows, closed }
+    }
+
+    /// The same arrangement as `other`: the same panels in the same places and sizes, the same panels closed, the
+    /// windows of their own where they were (a few pixels either way, as Windows rounds them, count as the same).
+    /// The names and the open windows' ids do not count. View → Layouts says "(changed)" when the arrangement in use
+    /// is no longer the saved layout it came from.
+    pub fn same_arrangement(&self, other: &Layout) -> bool {
+        let near = |a: &Option<WinRect>, b: &Option<WinRect>| match (a, b) {
+            (Some(a), Some(b)) => (a.x - b.x).abs() <= 16 && (a.y - b.y).abs() <= 16
+                && (a.w as i64 - b.w as i64).abs() <= 16 && (a.h as i64 - b.h as i64).abs() <= 16,
+            // A window not yet placed (a built-in layout's) is where it opened.
+            _ => true,
+        };
+        let sorted = |c: &[PanelId]| { let mut c = c.to_vec(); c.sort(); c };
+        sorted(&self.closed) == sorted(&other.closed) && self.windows.len() == other.windows.len()
+            && self.windows.iter().zip(&other.windows).all(|(a, b)| a.root == b.root && near(&a.place, &b.place))
     }
 
     /// The window a panel is in, if it is shown.
