@@ -1732,3 +1732,45 @@ and "Phones should say remotes". Design and the full audit of every setting: `do
   item is now "Remote…" and its tooltip "Remotes connected", two one-word edits in those files).
 - **Not verified by a person:** the window on a real desktop (placement on two monitors, resizing, focus), the look of
   every page, the remote's page wording on a phone, and a 4K or typed-size recording and stream on real hardware.
+
+### November 17, 2026 — Dock panels (branch `dock-panels`)
+
+Jake: "I want the whole UI to be modular … custom savable layouts … the Bible thing can go over the room thing at
+the top", then "sometimes things cut off and I can't see it all. It needs to scale and fit." Design and what was
+found: `docs/superpowers/specs/2026-11-17-dock-panels-design.md` ("As built").
+
+- **The overlap**, measured: in the top bar the Bible box had a fixed smallest width (260 px) smaller than what is in
+  it, so whenever the bar ran short (always once the livestream buttons show) its chips and Verses chip ran over the
+  **Room** light, and the bar ran past the window (Settings at x 1868 in a 1440 window). Its lists dropped over the
+  live column's audience screen preview. Now the Bible box is a **panel** (Standard: over the service list and the
+  slides); no panel is ever smaller than its content needs; pop-up lists (Bible picker, Recent verses, stream status,
+  chat, scene, stage layouts, More) keep clear of the Live and Stage preview panels (`DockGuard`); the top bar puts
+  Clip, Save last, the stage layout and the stream's buttons under **More** when they do not fit.
+- **Panels** (`ui::dock`, pure and tested): Service, Slides, Library, Bible, Live, Up next, Cameras, Message and
+  macros, Livestream, Stage preview, Follow, in rows, columns and tabs. Dividers resize (also when locked);
+  **View → Arrange panels** gives each panel a title bar with a grip (drag onto another panel: left, right, top,
+  bottom, or the middle for tabs) and a ⋯ menu (Close panel, Move to a new window, Move these tabs to a new window,
+  Move to …, Move back to the main window). **View → Panels** ticks each panel. Up next, Follow, Cameras, Message and
+  macros and the stream's buttons show inside Live / the top bar until they are panels of their own, so Standard is
+  today's window and nothing is lost.
+- **Layouts** (View → Layouts): Standard, Big slides, Livestream, Two monitors, the church's own (Save this layout
+  as…, Rename this layout…, Delete this layout, Reset to Standard). The arrangement in use is saved in Settings
+  (`settings/dock`, lenient) and opens next time.
+- **Windows of their own** (`PanelWindow`): panel state moved into globals (`ui/operator/panes.slint`); the code that
+  writes them to every window and runs a window's clicks in the operator window is written by `crates/rp-ui/build.rs`
+  from Slint's own Rust API, so nothing is listed twice. Their monitor and place are remembered; a missing monitor
+  means the main one; closing one puts its panels back.
+- **Fit**: a window smaller than its panels need scrolls; the library's tabs become a drop-down and the Bible box
+  shows only the chosen Bible when narrow (`docking::TIGHT`); the first zoom suits the screen (80–90 % on small
+  laptop screens, 110 % on big monitors at 100 %; View → Zoom still changes it). "Phone" in the top bar is "Remote".
+- **Tests:** `ui::dock::tests` (placement, drops in every zone, tabs, close/restore, pop out/in, dividers, minimums,
+  lenient loading), `ui::operator::docking::tests` (Standard = today's rectangles at 1440 × 900 and 1024 × 768,
+  arrange mode, a divider dragged with the mouse, a drop making tabs, layouts saved/chosen/renamed/deleted/reset,
+  the layout opening next time, a window of its own showing the same state with a click in it working and its panels
+  coming back when closed, Two monitors, Ctrl+B bringing back a closed Bible box, nothing covering anything and
+  nothing in a panel cut off in every built-in layout at 1024 × 768 and 1920 × 1080).
+- **Not verified by a person:** everything on a real screen: dragging dividers and panels with a real mouse,
+  windows of their own on a real second monitor (placing, remembering, a monitor unplugged), the auto zoom on a real
+  small laptop and a 4K monitor, the look of title bars, tabs and drop highlights, and how fast it feels with video
+  playing in a Live panel in a window of its own (the preview's frames go to every window). Dragging a panel from
+  one window into another is not possible (a drag stays in its window); the ⋯ menu moves it.

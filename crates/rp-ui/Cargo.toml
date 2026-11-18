@@ -11,3 +11,10 @@ slint = { version = "1.18", features = ["unstable-winit-030", "raw-window-handle
 
 [build-dependencies]
 slint-build = "1.18"
+
+[features]
+# Does nothing in the code. Several worktrees share one build folder (agent-check.ps1), and Cargo files this crate by
+# its place in the workspace, so one worktree's screens could be built with another's build script; the app turns
+# this on so the dock panels' screens (and the code build.rs writes for them) get a place of their own. The lead can
+# drop it once every worktree has the dock panels.
+dock-panels = []

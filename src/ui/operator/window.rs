@@ -247,7 +247,9 @@ impl Operator {
         if lang_changed { crate::i18n::sync_slint() }
         st.snap = Some(s.clone());
         drop(st);
-        super::slides::apply_section_colors(&self.ui.theme_all());
+        super::slides::apply_section_colors(&self.ui.global::<crate::ui::Theme>());
+        // Windows of their own draw the same colours.
+        for w in self.dock_popouts() { super::slides::apply_section_colors(&w.global::<crate::ui::Theme>()) }
         self.render_top(&s);
         self.render_service();
         self.render_slides();

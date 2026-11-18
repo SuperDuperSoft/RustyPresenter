@@ -396,6 +396,8 @@ mod tests {
     fn empty_state_text() {
         let app = test_app();
         let op = open(&app);
+        op.window().set_size(slint::LogicalSize::new(1440.0, 900.0));
+        slint::platform::update_timers_and_animations();
         assert!(find(&op, "ServiceColumn::empty").is_none(), "nothing before the first read");
         refresh(&op);
         assert_eq!(find(&op, "ServiceColumn::empty-title").unwrap().accessible_label().unwrap(), "Your service is empty");

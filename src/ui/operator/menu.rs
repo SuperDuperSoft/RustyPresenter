@@ -422,7 +422,8 @@ mod tests {
             let t = t.trim();
             // `file`: Open recent's file names, which are not words to translate.
             // `g.name`: the church's own clear group names.
-            assert!(t.starts_with("@tr(") || t.contains("? @tr(") || t == "file;" || t == "g.name;", "{t:?} is not translatable");
+            // `row.name`: View → Panels and Layouts, translated in Rust (`docking`), or a layout the church named.
+            assert!(t.starts_with("@tr(") || t.contains("? @tr(") || t == "file;" || t == "g.name;" || t == "row.name;", "{t:?} is not translatable");
         }
     }
 
@@ -435,15 +436,15 @@ mod tests {
             ("MenuKeys.undo", Action::Undo, "root.menu(\"undo\")"),
             ("MenuKeys.redo", Action::Redo, "root.menu(\"redo\")"),
             ("MenuKeys.find", Action::Find, "root.menu(\"find\")"),
-            ("MenuKeys.bible", Action::FocusBible, "root.focus-bible()"),
-            ("MenuKeys.clear-all", Action::ClearAll, "root.live-clear(\"clear_all\")"),
-            ("MenuKeys.clear-slide", Action::ClearSlide, "root.live-clear(\"clear_slide\")"),
-            ("MenuKeys.clear-media", Action::ClearMedia, "root.live-clear(\"clear_media\")"),
-            ("MenuKeys.clear-audio", Action::ClearAudio, "root.live-clear(\"clear_audio\")"),
-            ("MenuKeys.logo", Action::Logo, "root.live-clear(\"logo\")"),
-            ("MenuKeys.clear-overlays", Action::ClearOverlays, "root.live-clear(\"clear_overlays\")"),
-            ("MenuKeys.clear-message", Action::ClearMessage, "root.live-clear(\"clear_message\")"),
-            ("MenuKeys.clear-timers", Action::ClearTimers, "root.live-clear(\"clear_timers\")"),
+            ("MenuKeys.bible", Action::FocusBible, "root.dock-menu(\"bible-focus\")"),
+            ("MenuKeys.clear-all", Action::ClearAll, "LivePane.live-clear(\"clear_all\")"),
+            ("MenuKeys.clear-slide", Action::ClearSlide, "LivePane.live-clear(\"clear_slide\")"),
+            ("MenuKeys.clear-media", Action::ClearMedia, "LivePane.live-clear(\"clear_media\")"),
+            ("MenuKeys.clear-audio", Action::ClearAudio, "LivePane.live-clear(\"clear_audio\")"),
+            ("MenuKeys.logo", Action::Logo, "LivePane.live-clear(\"logo\")"),
+            ("MenuKeys.clear-overlays", Action::ClearOverlays, "LivePane.live-clear(\"clear_overlays\")"),
+            ("MenuKeys.clear-message", Action::ClearMessage, "LivePane.live-clear(\"clear_message\")"),
+            ("MenuKeys.clear-timers", Action::ClearTimers, "LivePane.live-clear(\"clear_timers\")"),
             ("MenuKeys.find-mouse", Action::FindMouse, "root.menu(\"find-mouse\")"),
             ("MenuKeys.paste", Action::PasteLink, "root.menu(\"paste\")"),
             ("g.keys", Action::Group(crate::shortcuts::BUILTIN_GROUP), "root.clear-group(i)"),

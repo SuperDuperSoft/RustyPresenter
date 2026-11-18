@@ -82,7 +82,7 @@ pub fn section(slide: &Slide) -> &'static str {
 }
 
 /// Settings → Sections' colours into `Theme` (the captions, the section bar and the order chips).
-pub fn apply_section_colors(t: &crate::ui::ThemeAll) {
+pub fn apply_section_colors(t: &crate::ui::Theme) {
     let c = |k: SectionKind| crate::ui::dialogs::services::parse_color(&k.color()).unwrap_or_default();
     let now = [t.get_sec_verse(), t.get_sec_chorus(), t.get_sec_pre(), t.get_sec_bridge(), t.get_sec_end(), t.get_sec_tag(), t.get_sec_intro(), t.get_sec_interlude()];
     let want = [c(SectionKind::Verse), c(SectionKind::Chorus), c(SectionKind::PreChorus), c(SectionKind::Bridge), c(SectionKind::Ending), c(SectionKind::Tag),
@@ -494,7 +494,8 @@ mod tests {
 
     fn opened(app: &Arc<App>) -> Rc<Operator> {
         let op = open(app);
-        op.window().set_size(slint::LogicalSize::new(1520.0, 900.0));
+        // Tall enough for four rows of the Easy view under the Bible box.
+        op.window().set_size(slint::LogicalSize::new(1520.0, 1000.0));
         slint::platform::update_timers_and_animations();
         refresh(&op);
         op
