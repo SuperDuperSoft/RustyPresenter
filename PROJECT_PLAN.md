@@ -1871,3 +1871,6 @@ Design: `docs/superpowers/specs/2026-11-18-drag-panels-between-windows-design.md
   another program in front of ours, Esc and right click mid-drag, Alt+Tab mid-drag, and the look of the name at the
   pointer. No name follows the pointer over the desktop (only in the app's windows). macOS and Linux (X11) are built
   but need a real Mac / Linux PC to try; on Wayland only the ⋯ menu moves panels between windows.
+- **Test run** (merged with follow-sunday at bfe6e72): 3,643 of 3,643 library tests pass (two `record::run` FFmpeg
+  tests failed in the full run while other agents built and passed run alone), and `i18n_catalogs`, `cleanup`,
+  `words`. The three new texts are in all 13 languages.
