@@ -74,7 +74,7 @@ mod tests {
         }
         let op = opened(&app);
         connect(&op);
-        let g = op.ui.global::<SongKeyState>();
+        let g = op.ui.song_key_state_all();
         op.state.borrow_mut().selected = Some(text_id);
         render(&op);
         assert!(!g.get_shown(), "only for a song");

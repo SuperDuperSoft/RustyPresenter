@@ -30,7 +30,6 @@ export component SongKeyControl inherits HorizontalLayout {
             small: true;
             text: "−";
             tooltip: @tr("Chords one step lower on the stage screen");
-            accessible-label: @tr("Chords one step lower on the stage screen");
             clicked => { SongKeyState.step(-1); }
         }
         VerticalLayout {
@@ -49,14 +48,12 @@ export component SongKeyControl inherits HorizontalLayout {
             small: true;
             text: "+";
             tooltip: @tr("Chords one step higher on the stage screen");
-            accessible-label: @tr("Chords one step higher on the stage screen");
             clicked => { SongKeyState.step(1); }
         }
         if SongKeyState.moved: song-key-reset := Btn {
             small: true;
             text: "0";
             tooltip: @tr("Show the chords as they are written");
-            accessible-label: @tr("Show the chords as they are written");
             clicked => { SongKeyState.reset(); }
         }
     }
