@@ -31,7 +31,7 @@ msgstr "お気に入り"
 msgid "Find more Bibles…"
 msgstr "聖書をさらに探す…"
 
-#: ui/bible-picker.slint ui/operator/topbar.slint
+#: ui/bible-picker.slint ui/operator/bible-box.slint
 msgid "Choose a Bible"
 msgstr "聖書を選択"
 
@@ -143,11 +143,11 @@ msgstr "聖句を追加"
 msgid "Paste the verses instead"
 msgstr "聖句を貼り付ける"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/slide-breaks.slint ui/operator/topbar.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/slide-breaks.slint ui/operator/bible-box.slint src/ui/dialogs/settings_find.rs
 msgid "Verses per slide"
 msgstr "スライドごとの節数"
 
-#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/record.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/bible-box.slint ui/operator/record.slint ui/operator/slides.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "自動"
 
@@ -195,7 +195,7 @@ msgstr "曲"
 msgid "Words"
 msgstr "歌詞"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/operator/dock.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Bible"
 msgstr "聖書"
 
@@ -211,7 +211,7 @@ msgstr "動画とメディア"
 msgid "Videos, pictures, music"
 msgstr "動画、画像、音楽"
 
-#: ui/dialogs/add.slint ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint src/automation/slide_actions.rs src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
+#: ui/dialogs/add.slint ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/dock.slint src/automation/slide_actions.rs src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Slides"
 msgstr "スライド"
 
@@ -495,7 +495,7 @@ msgstr "これらのスライドをループ"
 msgid "Play music"
 msgstr "音楽を再生"
 
-#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs src/ui/dialogs/settings_find.rs
+#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/dock.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs src/ui/dialogs/settings_find.rs
 msgid "Stage screen"
 msgstr "ステージ画面"
 
@@ -3447,7 +3447,7 @@ msgstr "カメラ制御のアドレス"
 msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
 msgstr "PTZ カメラを保存済みの位置に動かすには、そのアドレスを入力（例: 192.168.1.60）"
 
-#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-stream.slint ui/operator/dock.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Cameras"
 msgstr "カメラ"
 
@@ -4923,6 +4923,30 @@ msgstr "入場時の音楽を停止"
 msgid "Walk-in music songs and volume"
 msgstr "入場時の音楽の曲と音量"
 
+#: ui/operator/bible-box.slint
+msgid "Recent verses"
+msgstr "最近の聖句"
+
+#: ui/operator/bible-box.slint
+msgid "Bible verse — type John 3:16 and press Enter"
+msgstr "聖句 — John 3:16 と入力して Enter"
+
+#: ui/operator/bible-box.slint
+msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
+msgstr "{} はまだ接続されていません（設定 → 聖書）。「追加 → 聖書」で聖句を貼り付けることはできます。"
+
+#: ui/operator/bible-box.slint
+msgid "Verses per slide for the next passage. Click to change."
+msgstr "次の聖書箇所のスライドごとの節数。クリックで変更します。"
+
+#: ui/operator/bible-box.slint
+msgid "Verses: {}"
+msgstr "節数: {}"
+
+#: ui/operator/bible-box.slint
+msgid "Ctrl B"
+msgstr "Ctrl B"
+
 #: ui/operator/cameras.slint
 msgid "Going out now"
 msgstr "配信中"
@@ -4935,7 +4959,7 @@ msgstr "このカメラが配信中です"
 msgid "Show this camera next"
 msgstr "このカメラを次に表示"
 
-#: ui/operator/cameras.slint ui/operator/record.slint
+#: ui/operator/cameras.slint ui/operator/dock.slint ui/operator/record.slint src/strings/operator.rs
 msgid "Live"
 msgstr "配信中"
 
@@ -4999,6 +5023,82 @@ msgstr "次のカメラを今すぐ配信に出す"
 msgid "Fade the stream over to the next camera"
 msgstr "次のカメラへフェードで切り替える"
 
+#: ui/operator/dock.slint ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
+msgid "Service"
+msgstr "礼拝"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Library"
+msgstr "ライブラリ"
+
+#: ui/operator/dock.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/operator.rs
+msgid "Up next"
+msgstr "次の項目"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Message and macros"
+msgstr "メッセージとマクロ"
+
+#: ui/operator/dock.slint ui/operator/stream-buttons.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
+msgid "Livestream"
+msgstr "ライブ配信"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Stage preview"
+msgstr "ステージのプレビュー"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Follow"
+msgstr "自動追従"
+
+#: ui/operator/dock.slint ui/operator/live.slint
+msgid "Notes: {}"
+msgstr "メモ: {}"
+
+#: ui/operator/dock.slint
+msgid "The cameras show here while you are live with cameras."
+msgstr "カメラを使って配信している間、ここにカメラが表示されます。"
+
+#: ui/operator/dock.slint
+msgid "The stage screen is not open."
+msgstr "ステージ画面が開いていません。"
+
+#: ui/operator/dock.slint
+msgid "Auto-follow shows here while a song is live."
+msgstr "曲がライブの間、ここに自動追従が表示されます。"
+
+#: ui/operator/dock.slint
+msgid "Move {}"
+msgstr "{}を移動"
+
+#: ui/operator/dock.slint
+msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
+msgstr "別のパネルにドラッグ：その横に置くか、真ん中に置いてタブとして場所を分け合います"
+
+#: ui/operator/dock.slint
+msgid "{} options"
+msgstr "{}のオプション"
+
+#: ui/operator/dock.slint
+msgid "Close panel"
+msgstr "パネルを閉じる"
+
+#: ui/operator/dock.slint
+msgid "Move to a new window"
+msgstr "新しいウィンドウに移動"
+
+#: ui/operator/dock.slint
+msgid "Move these tabs to a new window"
+msgstr "これらのタブを新しいウィンドウに移動"
+
+#: ui/operator/dock.slint
+msgid "Move to {}"
+msgstr "{}に移動"
+
+#: ui/operator/dock.slint
+msgid "Move back to the main window"
+msgstr "メインウィンドウに戻す"
+
 #: ui/operator/follow.slint
 msgid "Review log…"
 msgstr "記録…"
@@ -5039,7 +5139,7 @@ msgstr "タイトルをコピー"
 msgid "Copy the description"
 msgstr "説明をコピー"
 
-#: ui/operator/live.slint ui/operator.slint
+#: ui/operator/live.slint ui/operator/panes.slint
 msgid "—"
 msgstr "—"
 
@@ -5050,10 +5150,6 @@ msgstr "ライブ"
 #: ui/operator/live.slint
 msgid "updating…"
 msgstr "更新中…"
-
-#: ui/operator/live.slint
-msgid "Notes: {}"
-msgstr "メモ: {}"
 
 #: ui/operator/live.slint
 msgid "Drawing"
@@ -5098,10 +5194,6 @@ msgstr "ライブ中の曲の歌詞を修正します。画面は指示するま
 #: ui/operator/live.slint
 msgid "Update screen"
 msgstr "画面を更新"
-
-#: ui/operator/live.slint src/i18n/remote_strings.rs
-msgid "Up next"
-msgstr "次の項目"
 
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
@@ -5251,6 +5343,14 @@ msgstr "ドロップして礼拝に追加"
 msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect song files"
 msgstr "動画、画像、音楽、プレゼンテーション（PowerPoint、Keynote、PDF）、SongSelect の曲ファイル"
 
+#: ui/operator/panel-window.slint ui/operator/topbar.slint ui/operator.slint
+msgid "RustyPresenter"
+msgstr "RustyPresenter"
+
+#: ui/operator/panes.slint ui/operator/slides.slint
+msgid "Nothing selected"
+msgstr "何も選択されていません"
+
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop the livestream"
 msgstr "ライブ配信を止める"
@@ -5379,10 +5479,6 @@ msgstr "直前{}分を保存"
 msgid "Save the last {} minutes of the recording as a video of its own, now"
 msgstr "録画の直前 {} 分を、今すぐ別の動画として保存"
 
-#: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
-msgid "Service"
-msgstr "礼拝"
-
 #: ui/operator/service.slint
 msgid "Add a header"
 msgstr "見出しを追加"
@@ -5458,10 +5554,6 @@ msgstr "礼拝中は大きな「次へ」ボタン（または → キー）を�
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "画面"
-
-#: ui/operator/slides.slint ui/operator.slint
-msgid "Nothing selected"
-msgstr "何も選択されていません"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
@@ -5555,37 +5647,49 @@ msgstr "簡単"
 msgid "Table"
 msgstr "表"
 
-#: ui/operator/topbar.slint ui/operator.slint
-msgid "RustyPresenter"
-msgstr "RustyPresenter"
+#: ui/operator/stream-buttons.slint
+msgid "Freeze"
+msgstr "静止"
+
+#: ui/operator/stream-buttons.slint
+msgid "Frozen"
+msgstr "静止中"
+
+#: ui/operator/stream-buttons.slint
+msgid "Keep the stream's picture as it is now, while something private is on the screens"
+msgstr "画面に見せたくないものが映っている間、配信の映像を今のまま止めます"
+
+#: ui/operator/stream-buttons.slint
+msgid "The stream shows a still picture. Click to show the live picture again"
+msgstr "配信は静止画を映しています。クリックするとライブ映像に戻ります"
+
+#: ui/operator/stream-buttons.slint
+msgid "Mute"
+msgstr "ミュート"
+
+#: ui/operator/stream-buttons.slint
+msgid "Muted"
+msgstr "ミュート中"
+
+#: ui/operator/stream-buttons.slint
+msgid "Send silence to the stream instead of the sound"
+msgstr "音の代わりに無音を配信に送ります"
+
+#: ui/operator/stream-buttons.slint
+msgid "The stream is silent. Click to send the sound again"
+msgstr "配信は無音です。クリックすると音を再び送ります"
+
+#: ui/operator/stream-buttons.slint
+msgid "Freeze, Mute, the scene and the chat show here while you are live."
+msgstr "配信中は、静止、ミュート、シーン、チャットがここに表示されます。"
+
+#: ui/operator/stream-buttons.slint
+msgid "Go Live shows here once a livestream is switched on in Settings → Livestream → Where to stream."
+msgstr "設定 → ライブ配信 → 配信先 でライブ配信をオンにすると、ここに配信開始が表示されます。"
 
 #: ui/operator/topbar.slint
 msgid "Switch or create services"
 msgstr "礼拝の切り替え・作成"
-
-#: ui/operator/topbar.slint
-msgid "Recent verses"
-msgstr "最近の聖句"
-
-#: ui/operator/topbar.slint
-msgid "Bible verse — type John 3:16 and press Enter"
-msgstr "聖句 — John 3:16 と入力して Enter"
-
-#: ui/operator/topbar.slint
-msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
-msgstr "{} はまだ接続されていません（設定 → 聖書）。「追加 → 聖書」で聖句を貼り付けることはできます。"
-
-#: ui/operator/topbar.slint
-msgid "Verses per slide for the next passage. Click to change."
-msgstr "次の聖書箇所のスライドごとの節数。クリックで変更します。"
-
-#: ui/operator/topbar.slint
-msgid "Verses: {}"
-msgstr "節数: {}"
-
-#: ui/operator/topbar.slint
-msgid "Ctrl B"
-msgstr "Ctrl B"
 
 #: ui/operator/topbar.slint src/strings/screens.rs src/ui/perf.rs
 msgid "Room"
@@ -5603,41 +5707,13 @@ msgstr "つながっているリモコン"
 msgid "Show a message on the stage screen"
 msgstr "ステージ画面にメッセージを表示"
 
-#: ui/operator/topbar.slint
-msgid "Freeze"
-msgstr "静止"
+#: ui/operator/topbar.slint src/i18n/remote_strings.rs src/strings/dialogs.rs src/ui/dialogs/settings_find.rs
+msgid "Remote"
+msgstr "リモコン"
 
 #: ui/operator/topbar.slint
-msgid "Frozen"
-msgstr "静止中"
-
-#: ui/operator/topbar.slint
-msgid "Keep the stream's picture as it is now, while something private is on the screens"
-msgstr "画面に見せたくないものが映っている間、配信の映像を今のまま止めます"
-
-#: ui/operator/topbar.slint
-msgid "The stream shows a still picture. Click to show the live picture again"
-msgstr "配信は静止画を映しています。クリックするとライブ映像に戻ります"
-
-#: ui/operator/topbar.slint
-msgid "Mute"
-msgstr "ミュート"
-
-#: ui/operator/topbar.slint
-msgid "Muted"
-msgstr "ミュート中"
-
-#: ui/operator/topbar.slint
-msgid "Send silence to the stream instead of the sound"
-msgstr "音の代わりに無音を配信に送ります"
-
-#: ui/operator/topbar.slint
-msgid "The stream is silent. Click to send the sound again"
-msgstr "配信は無音です。クリックすると音を再び送ります"
-
-#: ui/operator/topbar.slint src/i18n/remote_strings.rs
-msgid "Phone"
-msgstr "スマホ"
+msgid "More"
+msgstr "その他"
 
 #: ui/operator.slint
 msgid "File"
@@ -5854,6 +5930,38 @@ msgstr "ステージ画面をプレビュー"
 #: ui/operator.slint
 msgid "Hide performance"
 msgstr "パフォーマンスを隠す"
+
+#: ui/operator.slint
+msgid "Stop arranging panels"
+msgstr "パネルの配置を終える"
+
+#: ui/operator.slint
+msgid "Arrange panels"
+msgstr "パネルを配置"
+
+#: ui/operator.slint
+msgid "Panels"
+msgstr "パネル"
+
+#: ui/operator.slint
+msgid "Layouts"
+msgstr "レイアウト"
+
+#: ui/operator.slint
+msgid "Save this layout as…"
+msgstr "このレイアウトに名前を付けて保存…"
+
+#: ui/operator.slint
+msgid "Rename this layout…"
+msgstr "このレイアウトの名前を変更…"
+
+#: ui/operator.slint
+msgid "Delete this layout"
+msgstr "このレイアウトを削除"
+
+#: ui/operator.slint
+msgid "Reset to Standard"
+msgstr "標準に戻す"
 
 #: ui/operator.slint src/strings/design.rs
 msgid "Zoom in"
@@ -6643,13 +6751,13 @@ msgstr "翻訳ファイル {file} を読み込めなかったため（{reason}�
 msgid "Remote — RustyPresenter"
 msgstr "リモコン — RustyPresenter"
 
-#: src/i18n/remote_strings.rs src/strings/dialogs.rs src/ui/dialogs/settings_find.rs
-msgid "Remote"
-msgstr "リモコン"
-
 #: src/i18n/remote_strings.rs
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
 msgstr "プレゼン用コンピューターで {phone} → {pair} をクリックし、6桁のコードをここに入力してください。"
+
+#: src/i18n/remote_strings.rs
+msgid "Phone"
+msgstr "スマホ"
 
 #: src/i18n/remote_strings.rs src/stream/phone_camera.rs
 msgid "Connect"
@@ -9418,9 +9526,9 @@ msgid_plural "{n} items"
 msgstr[0] "{n} 項目"
 
 #: src/strings/operator.rs
-msgid "{n} phone"
-msgid_plural "{n} phones"
-msgstr[0] "{n} 台のスマホ"
+msgid "{n} remote"
+msgid_plural "{n} remotes"
+msgstr[0] "リモコン {n} 台"
 
 #: src/strings/operator.rs
 msgid "Slide picture"
@@ -9632,6 +9740,46 @@ msgstr "スライド {n}"
 #: src/strings/operator.rs
 msgid "On the stage screen only. The room didn't change."
 msgstr "ステージ画面のみに表示しています。会場は変わっていません。"
+
+#: src/strings/operator.rs src/strings/themes.rs
+msgid "Standard"
+msgstr "標準"
+
+#: src/strings/operator.rs
+msgid "Big slides"
+msgstr "大きいスライド"
+
+#: src/strings/operator.rs
+msgid "Two monitors"
+msgstr "2 台のモニター"
+
+#: src/strings/operator.rs
+msgid "RustyPresenter — {panels}"
+msgstr "RustyPresenter — {panels}"
+
+#: src/strings/operator.rs
+msgid "The main window keeps at least one panel."
+msgstr "メインウィンドウには少なくとも 1 つのパネルが残ります。"
+
+#: src/strings/operator.rs
+msgid "Name for this layout"
+msgstr "このレイアウトの名前"
+
+#: src/strings/operator.rs
+msgid "New name for this layout"
+msgstr "このレイアウトの新しい名前"
+
+#: src/strings/operator.rs
+msgid "Layout “{name}” saved"
+msgstr "レイアウト「{name}」を保存しました"
+
+#: src/strings/operator.rs
+msgid "Delete the layout “{name}”? The window goes back to Standard."
+msgstr "レイアウト「{name}」を削除しますか？ウィンドウは標準に戻ります。"
+
+#: src/strings/operator.rs
+msgid "Delete layout"
+msgstr "レイアウトを削除"
 
 #: src/strings/phone.rs
 msgid "Code works for {n} more seconds"
@@ -11255,10 +11403,6 @@ msgid "Theme deleted"
 msgstr "テーマを削除しました"
 
 #: src/strings/themes.rs
-msgid "Standard"
-msgstr "標準"
-
-#: src/strings/themes.rs
 msgid "Built-in — the style RustyPresenter started with"
 msgstr "内蔵 — RustyPresenter の初期スタイル"
 
@@ -12193,10 +12337,6 @@ msgstr "キー"
 #: src/ui/dialogs/settings_find.rs
 msgid "Auto-follow"
 msgstr "自動追従"
-
-#: src/ui/dialogs/settings_find.rs
-msgid "Livestream"
-msgstr "ライブ配信"
 
 #: src/ui/dialogs/settings_find.rs
 msgid "Backups"
@@ -13334,6 +13474,10 @@ msgstr "yt-dlp は動画を保存しませんでした"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "メディアファイルではありません"
+
+#~ msgid "{n} phone"
+#~ msgid_plural "{n} phones"
+#~ msgstr[0] "{n} 台のスマホ"
 
 #~ msgid "Show on the phone remote"
 #~ msgstr "スマホリモコンに表示"

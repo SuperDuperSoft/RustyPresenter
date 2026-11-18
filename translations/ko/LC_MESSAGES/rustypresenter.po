@@ -31,7 +31,7 @@ msgstr "즐겨찾기"
 msgid "Find more Bibles…"
 msgstr "성경 더 찾기…"
 
-#: ui/bible-picker.slint ui/operator/topbar.slint
+#: ui/bible-picker.slint ui/operator/bible-box.slint
 msgid "Choose a Bible"
 msgstr "성경 선택"
 
@@ -143,11 +143,11 @@ msgstr "구절 추가"
 msgid "Paste the verses instead"
 msgstr "대신 구절 붙여 넣기"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/slide-breaks.slint ui/operator/topbar.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/slide-breaks.slint ui/operator/bible-box.slint src/ui/dialogs/settings_find.rs
 msgid "Verses per slide"
 msgstr "슬라이드당 구절 수"
 
-#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/record.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/bible-box.slint ui/operator/record.slint ui/operator/slides.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "자동"
 
@@ -195,7 +195,7 @@ msgstr "찬양"
 msgid "Words"
 msgstr "가사"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/operator/dock.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Bible"
 msgstr "성경"
 
@@ -211,7 +211,7 @@ msgstr "동영상 및 미디어"
 msgid "Videos, pictures, music"
 msgstr "동영상, 사진, 음악"
 
-#: ui/dialogs/add.slint ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint src/automation/slide_actions.rs src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
+#: ui/dialogs/add.slint ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/dock.slint src/automation/slide_actions.rs src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Slides"
 msgstr "슬라이드"
 
@@ -495,7 +495,7 @@ msgstr "이 슬라이드 반복"
 msgid "Play music"
 msgstr "음악 재생"
 
-#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs src/ui/dialogs/settings_find.rs
+#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/dock.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs src/ui/dialogs/settings_find.rs
 msgid "Stage screen"
 msgstr "무대 화면"
 
@@ -3447,7 +3447,7 @@ msgstr "카메라 제어 주소"
 msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
 msgstr "PTZ 카메라를 저장된 위치로 움직이려면 카메라 주소를 입력하세요 (예: 192.168.1.60)"
 
-#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-stream.slint ui/operator/dock.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Cameras"
 msgstr "카메라"
 
@@ -4923,6 +4923,30 @@ msgstr "입장 음악 정지"
 msgid "Walk-in music songs and volume"
 msgstr "입장 음악 곡 및 볼륨"
 
+#: ui/operator/bible-box.slint
+msgid "Recent verses"
+msgstr "최근 구절"
+
+#: ui/operator/bible-box.slint
+msgid "Bible verse — type John 3:16 and press Enter"
+msgstr "성경 구절 — John 3:16 입력 후 Enter"
+
+#: ui/operator/bible-box.slint
+msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
+msgstr "{}은(는) 아직 연결되지 않았어요(설정 → 성경). 추가 → 성경에서 구절을 붙여 넣을 수는 있어요."
+
+#: ui/operator/bible-box.slint
+msgid "Verses per slide for the next passage. Click to change."
+msgstr "다음 본문의 슬라이드당 구절 수예요. 클릭해서 바꾸세요."
+
+#: ui/operator/bible-box.slint
+msgid "Verses: {}"
+msgstr "구절: {}"
+
+#: ui/operator/bible-box.slint
+msgid "Ctrl B"
+msgstr "Ctrl B"
+
 #: ui/operator/cameras.slint
 msgid "Going out now"
 msgstr "송출 중"
@@ -4935,7 +4959,7 @@ msgstr "이 카메라가 송출 중이에요"
 msgid "Show this camera next"
 msgstr "다음에 이 카메라 보이기"
 
-#: ui/operator/cameras.slint ui/operator/record.slint
+#: ui/operator/cameras.slint ui/operator/dock.slint ui/operator/record.slint src/strings/operator.rs
 msgid "Live"
 msgstr "방송 중"
 
@@ -4999,6 +5023,82 @@ msgstr "다음 카메라를 지금 방송에 내보내기"
 msgid "Fade the stream over to the next camera"
 msgstr "다음 카메라로 페이드 전환"
 
+#: ui/operator/dock.slint ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
+msgid "Service"
+msgstr "예배"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Library"
+msgstr "라이브러리"
+
+#: ui/operator/dock.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/operator.rs
+msgid "Up next"
+msgstr "다음 순서"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Message and macros"
+msgstr "메시지와 매크로"
+
+#: ui/operator/dock.slint ui/operator/stream-buttons.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
+msgid "Livestream"
+msgstr "라이브 방송"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Stage preview"
+msgstr "무대 미리 보기"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Follow"
+msgstr "자동 따라가기"
+
+#: ui/operator/dock.slint ui/operator/live.slint
+msgid "Notes: {}"
+msgstr "메모: {}"
+
+#: ui/operator/dock.slint
+msgid "The cameras show here while you are live with cameras."
+msgstr "카메라로 방송하는 동안 여기에 카메라가 표시됩니다."
+
+#: ui/operator/dock.slint
+msgid "The stage screen is not open."
+msgstr "무대 화면이 열려 있지 않습니다."
+
+#: ui/operator/dock.slint
+msgid "Auto-follow shows here while a song is live."
+msgstr "곡이 방송 중일 때 여기에 자동 따라가기가 표시됩니다."
+
+#: ui/operator/dock.slint
+msgid "Move {}"
+msgstr "{} 옮기기"
+
+#: ui/operator/dock.slint
+msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
+msgstr "다른 패널 위로 끌어 놓으세요: 옆에 놓거나, 가운데에 놓으면 탭으로 자리를 함께 씁니다"
+
+#: ui/operator/dock.slint
+msgid "{} options"
+msgstr "{} 옵션"
+
+#: ui/operator/dock.slint
+msgid "Close panel"
+msgstr "패널 닫기"
+
+#: ui/operator/dock.slint
+msgid "Move to a new window"
+msgstr "새 창으로 옮기기"
+
+#: ui/operator/dock.slint
+msgid "Move these tabs to a new window"
+msgstr "이 탭들을 새 창으로 옮기기"
+
+#: ui/operator/dock.slint
+msgid "Move to {}"
+msgstr "{}(으)로 옮기기"
+
+#: ui/operator/dock.slint
+msgid "Move back to the main window"
+msgstr "기본 창으로 되돌리기"
+
 #: ui/operator/follow.slint
 msgid "Review log…"
 msgstr "기록…"
@@ -5039,7 +5139,7 @@ msgstr "제목 복사"
 msgid "Copy the description"
 msgstr "설명 복사"
 
-#: ui/operator/live.slint ui/operator.slint
+#: ui/operator/live.slint ui/operator/panes.slint
 msgid "—"
 msgstr "—"
 
@@ -5050,10 +5150,6 @@ msgstr "라이브"
 #: ui/operator/live.slint
 msgid "updating…"
 msgstr "업데이트 중…"
-
-#: ui/operator/live.slint
-msgid "Notes: {}"
-msgstr "메모: {}"
 
 #: ui/operator/live.slint
 msgid "Drawing"
@@ -5098,10 +5194,6 @@ msgstr "라이브 중인 찬양의 가사를 고쳐요. 원할 때만 화면이 
 #: ui/operator/live.slint
 msgid "Update screen"
 msgstr "화면 업데이트"
-
-#: ui/operator/live.slint src/i18n/remote_strings.rs
-msgid "Up next"
-msgstr "다음 순서"
 
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
@@ -5251,6 +5343,14 @@ msgstr "놓으면 예배에 추가돼요"
 msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect song files"
 msgstr "동영상, 사진, 음악, 프레젠테이션(PowerPoint, Keynote, PDF), SongSelect 찬양 파일"
 
+#: ui/operator/panel-window.slint ui/operator/topbar.slint ui/operator.slint
+msgid "RustyPresenter"
+msgstr "RustyPresenter"
+
+#: ui/operator/panes.slint ui/operator/slides.slint
+msgid "Nothing selected"
+msgstr "선택된 항목 없음"
+
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop the livestream"
 msgstr "라이브 방송 멈추기"
@@ -5379,10 +5479,6 @@ msgstr "마지막 {}분 저장"
 msgid "Save the last {} minutes of the recording as a video of its own, now"
 msgstr "녹화의 마지막 {}분을 지금 따로 동영상으로 저장"
 
-#: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
-msgid "Service"
-msgstr "예배"
-
 #: ui/operator/service.slint
 msgid "Add a header"
 msgstr "제목 추가"
@@ -5458,10 +5554,6 @@ msgstr "예배 중에는 큰 다음 버튼(또는 → 키)을 사용하세요."
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "화면"
-
-#: ui/operator/slides.slint ui/operator.slint
-msgid "Nothing selected"
-msgstr "선택된 항목 없음"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
@@ -5555,37 +5647,49 @@ msgstr "간단히"
 msgid "Table"
 msgstr "표"
 
-#: ui/operator/topbar.slint ui/operator.slint
-msgid "RustyPresenter"
-msgstr "RustyPresenter"
+#: ui/operator/stream-buttons.slint
+msgid "Freeze"
+msgstr "화면 고정"
+
+#: ui/operator/stream-buttons.slint
+msgid "Frozen"
+msgstr "고정됨"
+
+#: ui/operator/stream-buttons.slint
+msgid "Keep the stream's picture as it is now, while something private is on the screens"
+msgstr "화면에 공개하면 안 되는 내용이 있는 동안 방송 화면을 지금 그대로 유지해요"
+
+#: ui/operator/stream-buttons.slint
+msgid "The stream shows a still picture. Click to show the live picture again"
+msgstr "방송에 정지 화면이 나가고 있어요. 클릭하면 실시간 화면으로 돌아가요"
+
+#: ui/operator/stream-buttons.slint
+msgid "Mute"
+msgstr "음소거"
+
+#: ui/operator/stream-buttons.slint
+msgid "Muted"
+msgstr "음소거 중"
+
+#: ui/operator/stream-buttons.slint
+msgid "Send silence to the stream instead of the sound"
+msgstr "소리 대신 무음을 방송으로 보내요"
+
+#: ui/operator/stream-buttons.slint
+msgid "The stream is silent. Click to send the sound again"
+msgstr "방송이 무음이에요. 클릭하면 소리를 다시 보내요"
+
+#: ui/operator/stream-buttons.slint
+msgid "Freeze, Mute, the scene and the chat show here while you are live."
+msgstr "방송하는 동안 화면 고정, 음소거, 장면, 채팅이 여기에 표시됩니다."
+
+#: ui/operator/stream-buttons.slint
+msgid "Go Live shows here once a livestream is switched on in Settings → Livestream → Where to stream."
+msgstr "설정 → 라이브 방송 → 방송할 곳에서 라이브 방송을 켜면 여기에 라이브 시작이 표시됩니다."
 
 #: ui/operator/topbar.slint
 msgid "Switch or create services"
 msgstr "예배 전환 또는 만들기"
-
-#: ui/operator/topbar.slint
-msgid "Recent verses"
-msgstr "최근 구절"
-
-#: ui/operator/topbar.slint
-msgid "Bible verse — type John 3:16 and press Enter"
-msgstr "성경 구절 — John 3:16 입력 후 Enter"
-
-#: ui/operator/topbar.slint
-msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
-msgstr "{}은(는) 아직 연결되지 않았어요(설정 → 성경). 추가 → 성경에서 구절을 붙여 넣을 수는 있어요."
-
-#: ui/operator/topbar.slint
-msgid "Verses per slide for the next passage. Click to change."
-msgstr "다음 본문의 슬라이드당 구절 수예요. 클릭해서 바꾸세요."
-
-#: ui/operator/topbar.slint
-msgid "Verses: {}"
-msgstr "구절: {}"
-
-#: ui/operator/topbar.slint
-msgid "Ctrl B"
-msgstr "Ctrl B"
 
 #: ui/operator/topbar.slint src/strings/screens.rs src/ui/perf.rs
 msgid "Room"
@@ -5603,41 +5707,13 @@ msgstr "연결된 리모컨"
 msgid "Show a message on the stage screen"
 msgstr "무대 화면에 메시지 표시"
 
-#: ui/operator/topbar.slint
-msgid "Freeze"
-msgstr "화면 고정"
+#: ui/operator/topbar.slint src/i18n/remote_strings.rs src/strings/dialogs.rs src/ui/dialogs/settings_find.rs
+msgid "Remote"
+msgstr "리모컨"
 
 #: ui/operator/topbar.slint
-msgid "Frozen"
-msgstr "고정됨"
-
-#: ui/operator/topbar.slint
-msgid "Keep the stream's picture as it is now, while something private is on the screens"
-msgstr "화면에 공개하면 안 되는 내용이 있는 동안 방송 화면을 지금 그대로 유지해요"
-
-#: ui/operator/topbar.slint
-msgid "The stream shows a still picture. Click to show the live picture again"
-msgstr "방송에 정지 화면이 나가고 있어요. 클릭하면 실시간 화면으로 돌아가요"
-
-#: ui/operator/topbar.slint
-msgid "Mute"
-msgstr "음소거"
-
-#: ui/operator/topbar.slint
-msgid "Muted"
-msgstr "음소거 중"
-
-#: ui/operator/topbar.slint
-msgid "Send silence to the stream instead of the sound"
-msgstr "소리 대신 무음을 방송으로 보내요"
-
-#: ui/operator/topbar.slint
-msgid "The stream is silent. Click to send the sound again"
-msgstr "방송이 무음이에요. 클릭하면 소리를 다시 보내요"
-
-#: ui/operator/topbar.slint src/i18n/remote_strings.rs
-msgid "Phone"
-msgstr "휴대폰"
+msgid "More"
+msgstr "더 보기"
 
 #: ui/operator.slint
 msgid "File"
@@ -5854,6 +5930,38 @@ msgstr "무대 화면 미리 보기"
 #: ui/operator.slint
 msgid "Hide performance"
 msgstr "성능 숨기기"
+
+#: ui/operator.slint
+msgid "Stop arranging panels"
+msgstr "패널 배치 끝내기"
+
+#: ui/operator.slint
+msgid "Arrange panels"
+msgstr "패널 배치하기"
+
+#: ui/operator.slint
+msgid "Panels"
+msgstr "패널"
+
+#: ui/operator.slint
+msgid "Layouts"
+msgstr "레이아웃"
+
+#: ui/operator.slint
+msgid "Save this layout as…"
+msgstr "이 레이아웃을 다른 이름으로 저장…"
+
+#: ui/operator.slint
+msgid "Rename this layout…"
+msgstr "이 레이아웃 이름 바꾸기…"
+
+#: ui/operator.slint
+msgid "Delete this layout"
+msgstr "이 레이아웃 삭제"
+
+#: ui/operator.slint
+msgid "Reset to Standard"
+msgstr "표준으로 되돌리기"
 
 #: ui/operator.slint src/strings/design.rs
 msgid "Zoom in"
@@ -6643,13 +6751,13 @@ msgstr "번역 파일 {file}을(를) 읽을 수 없어서({reason}) 사용하지
 msgid "Remote — RustyPresenter"
 msgstr "리모컨 — RustyPresenter"
 
-#: src/i18n/remote_strings.rs src/strings/dialogs.rs src/ui/dialogs/settings_find.rs
-msgid "Remote"
-msgstr "리모컨"
-
 #: src/i18n/remote_strings.rs
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
 msgstr "프레젠테이션 컴퓨터에서 {phone} → {pair}을(를) 클릭한 다음, 여기에 6자리 코드를 입력하세요."
+
+#: src/i18n/remote_strings.rs
+msgid "Phone"
+msgstr "휴대폰"
 
 #: src/i18n/remote_strings.rs src/stream/phone_camera.rs
 msgid "Connect"
@@ -9418,9 +9526,9 @@ msgid_plural "{n} items"
 msgstr[0] "항목 {n}개"
 
 #: src/strings/operator.rs
-msgid "{n} phone"
-msgid_plural "{n} phones"
-msgstr[0] "휴대폰 {n}대"
+msgid "{n} remote"
+msgid_plural "{n} remotes"
+msgstr[0] "리모컨 {n}대"
 
 #: src/strings/operator.rs
 msgid "Slide picture"
@@ -9632,6 +9740,46 @@ msgstr "슬라이드 {n}"
 #: src/strings/operator.rs
 msgid "On the stage screen only. The room didn't change."
 msgstr "무대 화면에만 표시했어요. 예배당 화면은 그대로예요."
+
+#: src/strings/operator.rs src/strings/themes.rs
+msgid "Standard"
+msgstr "표준"
+
+#: src/strings/operator.rs
+msgid "Big slides"
+msgstr "큰 슬라이드"
+
+#: src/strings/operator.rs
+msgid "Two monitors"
+msgstr "모니터 두 대"
+
+#: src/strings/operator.rs
+msgid "RustyPresenter — {panels}"
+msgstr "RustyPresenter — {panels}"
+
+#: src/strings/operator.rs
+msgid "The main window keeps at least one panel."
+msgstr "기본 창에는 패널이 하나 이상 남아 있습니다."
+
+#: src/strings/operator.rs
+msgid "Name for this layout"
+msgstr "이 레이아웃의 이름"
+
+#: src/strings/operator.rs
+msgid "New name for this layout"
+msgstr "이 레이아웃의 새 이름"
+
+#: src/strings/operator.rs
+msgid "Layout “{name}” saved"
+msgstr "레이아웃 ‘{name}’ 저장됨"
+
+#: src/strings/operator.rs
+msgid "Delete the layout “{name}”? The window goes back to Standard."
+msgstr "레이아웃 ‘{name}’을(를) 삭제할까요? 창은 표준으로 돌아갑니다."
+
+#: src/strings/operator.rs
+msgid "Delete layout"
+msgstr "레이아웃 삭제"
 
 #: src/strings/phone.rs
 msgid "Code works for {n} more seconds"
@@ -11255,10 +11403,6 @@ msgid "Theme deleted"
 msgstr "테마 삭제됨"
 
 #: src/strings/themes.rs
-msgid "Standard"
-msgstr "표준"
-
-#: src/strings/themes.rs
 msgid "Built-in — the style RustyPresenter started with"
 msgstr "기본 제공 — RustyPresenter의 처음 스타일"
 
@@ -12193,10 +12337,6 @@ msgstr "키"
 #: src/ui/dialogs/settings_find.rs
 msgid "Auto-follow"
 msgstr "자동 따라가기"
-
-#: src/ui/dialogs/settings_find.rs
-msgid "Livestream"
-msgstr "라이브 방송"
 
 #: src/ui/dialogs/settings_find.rs
 msgid "Backups"
@@ -13334,6 +13474,10 @@ msgstr "yt-dlp가 동영상을 저장하지 않았어요"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "미디어 파일 아님"
+
+#~ msgid "{n} phone"
+#~ msgid_plural "{n} phones"
+#~ msgstr[0] "휴대폰 {n}대"
 
 #~ msgid "Show on the phone remote"
 #~ msgstr "휴대폰 리모컨에 표시"

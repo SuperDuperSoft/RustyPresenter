@@ -31,7 +31,7 @@ msgstr "Избранное"
 msgid "Find more Bibles…"
 msgstr "Найти другие Библии…"
 
-#: ui/bible-picker.slint ui/operator/topbar.slint
+#: ui/bible-picker.slint ui/operator/bible-box.slint
 msgid "Choose a Bible"
 msgstr "Выберите Библию"
 
@@ -143,11 +143,11 @@ msgstr "Добавить стихи"
 msgid "Paste the verses instead"
 msgstr "Вставить стихи вручную"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/slide-breaks.slint ui/operator/topbar.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/slide-breaks.slint ui/operator/bible-box.slint src/ui/dialogs/settings_find.rs
 msgid "Verses per slide"
 msgstr "Стихов на слайде"
 
-#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/record.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/bible-box.slint ui/operator/record.slint ui/operator/slides.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "Авто"
 
@@ -195,7 +195,7 @@ msgstr "Песня"
 msgid "Words"
 msgstr "Слова"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/operator/dock.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Bible"
 msgstr "Библия"
 
@@ -211,7 +211,7 @@ msgstr "Видео и медиа"
 msgid "Videos, pictures, music"
 msgstr "Видео, картинки, музыка"
 
-#: ui/dialogs/add.slint ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint src/automation/slide_actions.rs src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
+#: ui/dialogs/add.slint ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/dock.slint src/automation/slide_actions.rs src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Slides"
 msgstr "Слайды"
 
@@ -495,7 +495,7 @@ msgstr "Повторять эти слайды"
 msgid "Play music"
 msgstr "Включить музыку"
 
-#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs src/ui/dialogs/settings_find.rs
+#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/dock.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs src/ui/dialogs/settings_find.rs
 msgid "Stage screen"
 msgstr "Экран сцены"
 
@@ -3447,7 +3447,7 @@ msgstr "Адрес управления камерой"
 msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
 msgstr "Чтобы поворачивать PTZ-камеру в сохранённые положения: её адрес, например 192.168.1.60"
 
-#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-stream.slint ui/operator/dock.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Cameras"
 msgstr "Камеры"
 
@@ -4923,6 +4923,30 @@ msgstr "Остановить музыку перед служением"
 msgid "Walk-in music songs and volume"
 msgstr "Песни и громкость музыки перед служением"
 
+#: ui/operator/bible-box.slint
+msgid "Recent verses"
+msgstr "Недавние стихи"
+
+#: ui/operator/bible-box.slint
+msgid "Bible verse — type John 3:16 and press Enter"
+msgstr "Стих Библии — введите John 3:16 и нажмите Enter"
+
+#: ui/operator/bible-box.slint
+msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
+msgstr "{} ещё не подключена (Настройки → Библия). Вы всё равно можете вставить её стихи через «Добавить → Библия»."
+
+#: ui/operator/bible-box.slint
+msgid "Verses per slide for the next passage. Click to change."
+msgstr "Стихов на слайде для следующего отрывка. Нажмите, чтобы изменить."
+
+#: ui/operator/bible-box.slint
+msgid "Verses: {}"
+msgstr "Стихов: {}"
+
+#: ui/operator/bible-box.slint
+msgid "Ctrl B"
+msgstr "Ctrl B"
+
 #: ui/operator/cameras.slint
 msgid "Going out now"
 msgstr "Сейчас в эфире"
@@ -4935,7 +4959,7 @@ msgstr "Эта камера сейчас в эфире"
 msgid "Show this camera next"
 msgstr "Показать эту камеру следующей"
 
-#: ui/operator/cameras.slint ui/operator/record.slint
+#: ui/operator/cameras.slint ui/operator/dock.slint ui/operator/record.slint src/strings/operator.rs
 msgid "Live"
 msgstr "В эфире"
 
@@ -4999,6 +5023,82 @@ msgstr "Сразу вывести следующую камеру в транс�
 msgid "Fade the stream over to the next camera"
 msgstr "Плавно перевести трансляцию на следующую камеру"
 
+#: ui/operator/dock.slint ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
+msgid "Service"
+msgstr "Служение"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Library"
+msgstr "Библиотека"
+
+#: ui/operator/dock.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/operator.rs
+msgid "Up next"
+msgstr "Следующее"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Message and macros"
+msgstr "Сообщение и макросы"
+
+#: ui/operator/dock.slint ui/operator/stream-buttons.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
+msgid "Livestream"
+msgstr "Трансляция"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Stage preview"
+msgstr "Просмотр сцены"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Follow"
+msgstr "Автоследование"
+
+#: ui/operator/dock.slint ui/operator/live.slint
+msgid "Notes: {}"
+msgstr "Заметки: {}"
+
+#: ui/operator/dock.slint
+msgid "The cameras show here while you are live with cameras."
+msgstr "Камеры появятся здесь, пока вы в эфире с камерами."
+
+#: ui/operator/dock.slint
+msgid "The stage screen is not open."
+msgstr "Экран сцены не открыт."
+
+#: ui/operator/dock.slint
+msgid "Auto-follow shows here while a song is live."
+msgstr "Автоследование появится здесь, пока песня в эфире."
+
+#: ui/operator/dock.slint
+msgid "Move {}"
+msgstr "Переместить: {}"
+
+#: ui/operator/dock.slint
+msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
+msgstr "Перетащите на другую панель: рядом с ней или в её середину, чтобы делить место как вкладка"
+
+#: ui/operator/dock.slint
+msgid "{} options"
+msgstr "Параметры: {}"
+
+#: ui/operator/dock.slint
+msgid "Close panel"
+msgstr "Закрыть панель"
+
+#: ui/operator/dock.slint
+msgid "Move to a new window"
+msgstr "Перенести в новое окно"
+
+#: ui/operator/dock.slint
+msgid "Move these tabs to a new window"
+msgstr "Перенести эти вкладки в новое окно"
+
+#: ui/operator/dock.slint
+msgid "Move to {}"
+msgstr "Перенести в {}"
+
+#: ui/operator/dock.slint
+msgid "Move back to the main window"
+msgstr "Вернуть в главное окно"
+
 #: ui/operator/follow.slint
 msgid "Review log…"
 msgstr "Журнал…"
@@ -5039,7 +5139,7 @@ msgstr "Скопировать название"
 msgid "Copy the description"
 msgstr "Скопировать описание"
 
-#: ui/operator/live.slint ui/operator.slint
+#: ui/operator/live.slint ui/operator/panes.slint
 msgid "—"
 msgstr "—"
 
@@ -5050,10 +5150,6 @@ msgstr "В ЭФИРЕ"
 #: ui/operator/live.slint
 msgid "updating…"
 msgstr "обновление…"
-
-#: ui/operator/live.slint
-msgid "Notes: {}"
-msgstr "Заметки: {}"
 
 #: ui/operator/live.slint
 msgid "Drawing"
@@ -5098,10 +5194,6 @@ msgstr "Исправьте слова текущей песни. Экран из
 #: ui/operator/live.slint
 msgid "Update screen"
 msgstr "Обновить экран"
-
-#: ui/operator/live.slint src/i18n/remote_strings.rs
-msgid "Up next"
-msgstr "Следующее"
 
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
@@ -5251,6 +5343,14 @@ msgstr "Отпустите, чтобы добавить в служение"
 msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect song files"
 msgstr "Видео, картинки, музыка, презентации (PowerPoint, Keynote, PDF), файлы песен SongSelect"
 
+#: ui/operator/panel-window.slint ui/operator/topbar.slint ui/operator.slint
+msgid "RustyPresenter"
+msgstr "RustyPresenter"
+
+#: ui/operator/panes.slint ui/operator/slides.slint
+msgid "Nothing selected"
+msgstr "Ничего не выбрано"
+
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop the livestream"
 msgstr "Остановить трансляцию"
@@ -5379,10 +5479,6 @@ msgstr "Сохр. последние {} мин"
 msgid "Save the last {} minutes of the recording as a video of its own, now"
 msgstr "Сохранить последние {} минут записи отдельным видео прямо сейчас"
 
-#: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
-msgid "Service"
-msgstr "Служение"
-
 #: ui/operator/service.slint
 msgid "Add a header"
 msgstr "Добавить заголовок"
@@ -5458,10 +5554,6 @@ msgstr "Во время служения нажимайте большую кн�
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "Экраны"
-
-#: ui/operator/slides.slint ui/operator.slint
-msgid "Nothing selected"
-msgstr "Ничего не выбрано"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
@@ -5555,37 +5647,49 @@ msgstr "Просто"
 msgid "Table"
 msgstr "Таблица"
 
-#: ui/operator/topbar.slint ui/operator.slint
-msgid "RustyPresenter"
-msgstr "RustyPresenter"
+#: ui/operator/stream-buttons.slint
+msgid "Freeze"
+msgstr "Стоп-кадр"
+
+#: ui/operator/stream-buttons.slint
+msgid "Frozen"
+msgstr "Стоп-кадр вкл."
+
+#: ui/operator/stream-buttons.slint
+msgid "Keep the stream's picture as it is now, while something private is on the screens"
+msgstr "Оставить изображение трансляции как сейчас, пока на экранах что-то личное"
+
+#: ui/operator/stream-buttons.slint
+msgid "The stream shows a still picture. Click to show the live picture again"
+msgstr "Трансляция показывает неподвижное изображение. Нажмите, чтобы снова показывать живое изображение"
+
+#: ui/operator/stream-buttons.slint
+msgid "Mute"
+msgstr "Без звука"
+
+#: ui/operator/stream-buttons.slint
+msgid "Muted"
+msgstr "Звук выкл."
+
+#: ui/operator/stream-buttons.slint
+msgid "Send silence to the stream instead of the sound"
+msgstr "Отправлять в трансляцию тишину вместо звука"
+
+#: ui/operator/stream-buttons.slint
+msgid "The stream is silent. Click to send the sound again"
+msgstr "Трансляция без звука. Нажмите, чтобы снова отправлять звук"
+
+#: ui/operator/stream-buttons.slint
+msgid "Freeze, Mute, the scene and the chat show here while you are live."
+msgstr "Стоп-кадр, Без звука, сцена и чат появятся здесь, пока вы в эфире."
+
+#: ui/operator/stream-buttons.slint
+msgid "Go Live shows here once a livestream is switched on in Settings → Livestream → Where to stream."
+msgstr "Кнопка «В эфир» появится здесь, когда трансляция включена в Настройки → Трансляция → Куда транслировать."
 
 #: ui/operator/topbar.slint
 msgid "Switch or create services"
 msgstr "Сменить или создать служение"
-
-#: ui/operator/topbar.slint
-msgid "Recent verses"
-msgstr "Недавние стихи"
-
-#: ui/operator/topbar.slint
-msgid "Bible verse — type John 3:16 and press Enter"
-msgstr "Стих Библии — введите John 3:16 и нажмите Enter"
-
-#: ui/operator/topbar.slint
-msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
-msgstr "{} ещё не подключена (Настройки → Библия). Вы всё равно можете вставить её стихи через «Добавить → Библия»."
-
-#: ui/operator/topbar.slint
-msgid "Verses per slide for the next passage. Click to change."
-msgstr "Стихов на слайде для следующего отрывка. Нажмите, чтобы изменить."
-
-#: ui/operator/topbar.slint
-msgid "Verses: {}"
-msgstr "Стихов: {}"
-
-#: ui/operator/topbar.slint
-msgid "Ctrl B"
-msgstr "Ctrl B"
 
 #: ui/operator/topbar.slint src/strings/screens.rs src/ui/perf.rs
 msgid "Room"
@@ -5603,41 +5707,13 @@ msgstr "Подключённые пульты"
 msgid "Show a message on the stage screen"
 msgstr "Показать сообщение на экране сцены"
 
-#: ui/operator/topbar.slint
-msgid "Freeze"
-msgstr "Стоп-кадр"
+#: ui/operator/topbar.slint src/i18n/remote_strings.rs src/strings/dialogs.rs src/ui/dialogs/settings_find.rs
+msgid "Remote"
+msgstr "Пульт"
 
 #: ui/operator/topbar.slint
-msgid "Frozen"
-msgstr "Стоп-кадр вкл."
-
-#: ui/operator/topbar.slint
-msgid "Keep the stream's picture as it is now, while something private is on the screens"
-msgstr "Оставить изображение трансляции как сейчас, пока на экранах что-то личное"
-
-#: ui/operator/topbar.slint
-msgid "The stream shows a still picture. Click to show the live picture again"
-msgstr "Трансляция показывает неподвижное изображение. Нажмите, чтобы снова показывать живое изображение"
-
-#: ui/operator/topbar.slint
-msgid "Mute"
-msgstr "Без звука"
-
-#: ui/operator/topbar.slint
-msgid "Muted"
-msgstr "Звук выкл."
-
-#: ui/operator/topbar.slint
-msgid "Send silence to the stream instead of the sound"
-msgstr "Отправлять в трансляцию тишину вместо звука"
-
-#: ui/operator/topbar.slint
-msgid "The stream is silent. Click to send the sound again"
-msgstr "Трансляция без звука. Нажмите, чтобы снова отправлять звук"
-
-#: ui/operator/topbar.slint src/i18n/remote_strings.rs
-msgid "Phone"
-msgstr "Телефон"
+msgid "More"
+msgstr "Ещё"
 
 #: ui/operator.slint
 msgid "File"
@@ -5854,6 +5930,38 @@ msgstr "Просмотр экрана сцены"
 #: ui/operator.slint
 msgid "Hide performance"
 msgstr "Скрыть производительность"
+
+#: ui/operator.slint
+msgid "Stop arranging panels"
+msgstr "Закончить расстановку панелей"
+
+#: ui/operator.slint
+msgid "Arrange panels"
+msgstr "Расставить панели"
+
+#: ui/operator.slint
+msgid "Panels"
+msgstr "Панели"
+
+#: ui/operator.slint
+msgid "Layouts"
+msgstr "Макеты"
+
+#: ui/operator.slint
+msgid "Save this layout as…"
+msgstr "Сохранить этот макет как…"
+
+#: ui/operator.slint
+msgid "Rename this layout…"
+msgstr "Переименовать этот макет…"
+
+#: ui/operator.slint
+msgid "Delete this layout"
+msgstr "Удалить этот макет"
+
+#: ui/operator.slint
+msgid "Reset to Standard"
+msgstr "Вернуть стандартный"
 
 #: ui/operator.slint src/strings/design.rs
 msgid "Zoom in"
@@ -6643,13 +6751,13 @@ msgstr "Не удалось прочитать файл перевода {file} 
 msgid "Remote — RustyPresenter"
 msgstr "Пульт — RustyPresenter"
 
-#: src/i18n/remote_strings.rs src/strings/dialogs.rs src/ui/dialogs/settings_find.rs
-msgid "Remote"
-msgstr "Пульт"
-
 #: src/i18n/remote_strings.rs
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
 msgstr "На компьютере для показа нажмите {phone} → {pair}, затем введите здесь 6-значный код."
+
+#: src/i18n/remote_strings.rs
+msgid "Phone"
+msgstr "Телефон"
 
 #: src/i18n/remote_strings.rs src/stream/phone_camera.rs
 msgid "Connect"
@@ -9464,11 +9572,11 @@ msgstr[1] "{n} пункта"
 msgstr[2] "{n} пунктов"
 
 #: src/strings/operator.rs
-msgid "{n} phone"
-msgid_plural "{n} phones"
-msgstr[0] "{n} телефон"
-msgstr[1] "{n} телефона"
-msgstr[2] "{n} телефонов"
+msgid "{n} remote"
+msgid_plural "{n} remotes"
+msgstr[0] "{n} пульт"
+msgstr[1] "{n} пульта"
+msgstr[2] "{n} пультов"
 
 #: src/strings/operator.rs
 msgid "Slide picture"
@@ -9686,6 +9794,46 @@ msgstr "слайд {n}"
 #: src/strings/operator.rs
 msgid "On the stage screen only. The room didn't change."
 msgstr "Только на экране сцены. В зале ничего не изменилось."
+
+#: src/strings/operator.rs src/strings/themes.rs
+msgid "Standard"
+msgstr "Стандартная"
+
+#: src/strings/operator.rs
+msgid "Big slides"
+msgstr "Большие слайды"
+
+#: src/strings/operator.rs
+msgid "Two monitors"
+msgstr "Два монитора"
+
+#: src/strings/operator.rs
+msgid "RustyPresenter — {panels}"
+msgstr "RustyPresenter — {panels}"
+
+#: src/strings/operator.rs
+msgid "The main window keeps at least one panel."
+msgstr "В главном окне остаётся хотя бы одна панель."
+
+#: src/strings/operator.rs
+msgid "Name for this layout"
+msgstr "Название этого макета"
+
+#: src/strings/operator.rs
+msgid "New name for this layout"
+msgstr "Новое название этого макета"
+
+#: src/strings/operator.rs
+msgid "Layout “{name}” saved"
+msgstr "Макет «{name}» сохранён"
+
+#: src/strings/operator.rs
+msgid "Delete the layout “{name}”? The window goes back to Standard."
+msgstr "Удалить макет «{name}»? Окно вернётся к стандартному."
+
+#: src/strings/operator.rs
+msgid "Delete layout"
+msgstr "Удалить макет"
 
 #: src/strings/phone.rs
 msgid "Code works for {n} more seconds"
@@ -11333,10 +11481,6 @@ msgid "Theme deleted"
 msgstr "Тема удалена"
 
 #: src/strings/themes.rs
-msgid "Standard"
-msgstr "Стандартная"
-
-#: src/strings/themes.rs
 msgid "Built-in — the style RustyPresenter started with"
 msgstr "Встроенная — стиль, с которого начинался RustyPresenter"
 
@@ -12285,10 +12429,6 @@ msgstr "Клавиши"
 #: src/ui/dialogs/settings_find.rs
 msgid "Auto-follow"
 msgstr "Автоследование"
-
-#: src/ui/dialogs/settings_find.rs
-msgid "Livestream"
-msgstr "Трансляция"
 
 #: src/ui/dialogs/settings_find.rs
 msgid "Backups"
@@ -13438,6 +13578,12 @@ msgstr "yt-dlp не сохранил видео"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "не медиафайл"
+
+#~ msgid "{n} phone"
+#~ msgid_plural "{n} phones"
+#~ msgstr[0] "{n} телефон"
+#~ msgstr[1] "{n} телефона"
+#~ msgstr[2] "{n} телефонов"
 
 #~ msgid "Show on the phone remote"
 #~ msgstr "Показать на телефоне-пульте"

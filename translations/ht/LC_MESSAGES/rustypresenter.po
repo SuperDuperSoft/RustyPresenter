@@ -31,7 +31,7 @@ msgstr "Favori"
 msgid "Find more Bibles…"
 msgstr "Jwenn plis Bib…"
 
-#: ui/bible-picker.slint ui/operator/topbar.slint
+#: ui/bible-picker.slint ui/operator/bible-box.slint
 msgid "Choose a Bible"
 msgstr "Chwazi yon Bib"
 
@@ -143,11 +143,11 @@ msgstr "Ajoute vèsè"
 msgid "Paste the verses instead"
 msgstr "Kole vèsè yo pito"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/slide-breaks.slint ui/operator/topbar.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/slide-breaks.slint ui/operator/bible-box.slint src/ui/dialogs/settings_find.rs
 msgid "Verses per slide"
 msgstr "Vèsè pou chak diapo"
 
-#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/record.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/bible-box.slint ui/operator/record.slint ui/operator/slides.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "Oto"
 
@@ -195,7 +195,7 @@ msgstr "Chante"
 msgid "Words"
 msgstr "Pawòl"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/operator/dock.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Bible"
 msgstr "Bib"
 
@@ -211,7 +211,7 @@ msgstr "Videyo ak medya"
 msgid "Videos, pictures, music"
 msgstr "Videyo, foto, mizik"
 
-#: ui/dialogs/add.slint ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint src/automation/slide_actions.rs src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
+#: ui/dialogs/add.slint ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/dock.slint src/automation/slide_actions.rs src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Slides"
 msgstr "Diapo"
 
@@ -495,7 +495,7 @@ msgstr "Repete diapo sa yo"
 msgid "Play music"
 msgstr "Jwe mizik"
 
-#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs src/ui/dialogs/settings_find.rs
+#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/dock.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs src/ui/dialogs/settings_find.rs
 msgid "Stage screen"
 msgstr "Ekran sèn"
 
@@ -3447,7 +3447,7 @@ msgstr "Adrès kontwòl kamera a"
 msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
 msgstr "Pou voye yon kamera PTZ nan pozisyon li anrejistre yo: adrès li, tankou 192.168.1.60"
 
-#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-stream.slint ui/operator/dock.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Cameras"
 msgstr "Kamera"
 
@@ -4923,6 +4923,30 @@ msgstr "Kanpe mizik akèy la"
 msgid "Walk-in music songs and volume"
 msgstr "Chante ak volim mizik akèy la"
 
+#: ui/operator/bible-box.slint
+msgid "Recent verses"
+msgstr "Vèsè resan"
+
+#: ui/operator/bible-box.slint
+msgid "Bible verse — type John 3:16 and press Enter"
+msgstr "Vèsè Bib — tape John 3:16 epi peze Enter"
+
+#: ui/operator/bible-box.slint
+msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
+msgstr "{} poko konekte (Paramèt → Bib). Ou ka toujou kole vèsè li yo ak Ajoute → Bib."
+
+#: ui/operator/bible-box.slint
+msgid "Verses per slide for the next passage. Click to change."
+msgstr "Vèsè pou chak diapo pou pwochen pasaj la. Klike pou chanje."
+
+#: ui/operator/bible-box.slint
+msgid "Verses: {}"
+msgstr "Vèsè: {}"
+
+#: ui/operator/bible-box.slint
+msgid "Ctrl B"
+msgstr "Ctrl B"
+
 #: ui/operator/cameras.slint
 msgid "Going out now"
 msgstr "Ap soti kounye a"
@@ -4935,7 +4959,7 @@ msgstr "Kamera sa a ap soti kounye a"
 msgid "Show this camera next"
 msgstr "Montre kamera sa a apre"
 
-#: ui/operator/cameras.slint ui/operator/record.slint
+#: ui/operator/cameras.slint ui/operator/dock.slint ui/operator/record.slint src/strings/operator.rs
 msgid "Live"
 msgstr "An dirèk"
 
@@ -4999,6 +5023,82 @@ msgstr "Mete pwochen kamera a sou emisyon an kounye a"
 msgid "Fade the stream over to the next camera"
 msgstr "Fondi emisyon an tou dousman sou pwochen kamera a"
 
+#: ui/operator/dock.slint ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
+msgid "Service"
+msgstr "Sèvis"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Library"
+msgstr "Bibliyotèk"
+
+#: ui/operator/dock.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/operator.rs
+msgid "Up next"
+msgstr "Apre sa"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Message and macros"
+msgstr "Mesaj ak makro"
+
+#: ui/operator/dock.slint ui/operator/stream-buttons.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
+msgid "Livestream"
+msgstr "Emisyon an dirèk"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Stage preview"
+msgstr "Apèsi sèn"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Follow"
+msgstr "Swiv oto"
+
+#: ui/operator/dock.slint ui/operator/live.slint
+msgid "Notes: {}"
+msgstr "Nòt: {}"
+
+#: ui/operator/dock.slint
+msgid "The cameras show here while you are live with cameras."
+msgstr "Kamera yo parèt isit la pandan w an dirèk ak kamera."
+
+#: ui/operator/dock.slint
+msgid "The stage screen is not open."
+msgstr "Ekran sèn nan pa louvri."
+
+#: ui/operator/dock.slint
+msgid "Auto-follow shows here while a song is live."
+msgstr "Swiv oto parèt isit la pandan yon chante an dirèk."
+
+#: ui/operator/dock.slint
+msgid "Move {}"
+msgstr "Deplase {}"
+
+#: ui/operator/dock.slint
+msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
+msgstr "Trennen l sou yon lòt panno: bò kote l, oswa nan mitan l pou pataje plas li kòm onglè"
+
+#: ui/operator/dock.slint
+msgid "{} options"
+msgstr "Opsyon pou {}"
+
+#: ui/operator/dock.slint
+msgid "Close panel"
+msgstr "Fèmen panno a"
+
+#: ui/operator/dock.slint
+msgid "Move to a new window"
+msgstr "Mete l nan yon nouvo fenèt"
+
+#: ui/operator/dock.slint
+msgid "Move these tabs to a new window"
+msgstr "Mete onglè sa yo nan yon nouvo fenèt"
+
+#: ui/operator/dock.slint
+msgid "Move to {}"
+msgstr "Mete l nan {}"
+
+#: ui/operator/dock.slint
+msgid "Move back to the main window"
+msgstr "Remete l nan fenèt prensipal la"
+
 #: ui/operator/follow.slint
 msgid "Review log…"
 msgstr "Jounal…"
@@ -5039,7 +5139,7 @@ msgstr "Kopye tit la"
 msgid "Copy the description"
 msgstr "Kopye deskripsyon an"
 
-#: ui/operator/live.slint ui/operator.slint
+#: ui/operator/live.slint ui/operator/panes.slint
 msgid "—"
 msgstr "—"
 
@@ -5050,10 +5150,6 @@ msgstr "AN DIRÈK"
 #: ui/operator/live.slint
 msgid "updating…"
 msgstr "ap mete ajou…"
-
-#: ui/operator/live.slint
-msgid "Notes: {}"
-msgstr "Nòt: {}"
 
 #: ui/operator/live.slint
 msgid "Drawing"
@@ -5098,10 +5194,6 @@ msgstr "Korije pawòl chante k ap pase a. Ekran an chanje sèlman lè ou di l."
 #: ui/operator/live.slint
 msgid "Update screen"
 msgstr "Mete ekran ajou"
-
-#: ui/operator/live.slint src/i18n/remote_strings.rs
-msgid "Up next"
-msgstr "Apre sa"
 
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
@@ -5251,6 +5343,14 @@ msgstr "Lage l pou ajoute l nan sèvis la"
 msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect song files"
 msgstr "Videyo, foto, mizik, prezantasyon (PowerPoint, Keynote, PDF), fichye chante SongSelect"
 
+#: ui/operator/panel-window.slint ui/operator/topbar.slint ui/operator.slint
+msgid "RustyPresenter"
+msgstr "RustyPresenter"
+
+#: ui/operator/panes.slint ui/operator/slides.slint
+msgid "Nothing selected"
+msgstr "Anyen pa chwazi"
+
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop the livestream"
 msgstr "Kanpe emisyon an dirèk la"
@@ -5379,10 +5479,6 @@ msgstr "Anrejistre dènye {} min"
 msgid "Save the last {} minutes of the recording as a video of its own, now"
 msgstr "Anrejistre dènye {} minit anrejistreman an kòm yon videyo apa, kounye a"
 
-#: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
-msgid "Service"
-msgstr "Sèvis"
-
 #: ui/operator/service.slint
 msgid "Add a header"
 msgstr "Ajoute yon tit"
@@ -5458,10 +5554,6 @@ msgstr "Itilize gwo bouton Pwochen an (oswa kle →) pandan sèvis la."
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "Ekran"
-
-#: ui/operator/slides.slint ui/operator.slint
-msgid "Nothing selected"
-msgstr "Anyen pa chwazi"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
@@ -5555,37 +5647,49 @@ msgstr "Fasil"
 msgid "Table"
 msgstr "Tablo"
 
-#: ui/operator/topbar.slint ui/operator.slint
-msgid "RustyPresenter"
-msgstr "RustyPresenter"
+#: ui/operator/stream-buttons.slint
+msgid "Freeze"
+msgstr "Fize imaj"
+
+#: ui/operator/stream-buttons.slint
+msgid "Frozen"
+msgstr "Imaj fize"
+
+#: ui/operator/stream-buttons.slint
+msgid "Keep the stream's picture as it is now, while something private is on the screens"
+msgstr "Kenbe imaj emisyon an jan li ye kounye a, pandan gen yon bagay prive sou ekran yo"
+
+#: ui/operator/stream-buttons.slint
+msgid "The stream shows a still picture. Click to show the live picture again"
+msgstr "Emisyon an ap montre yon imaj fiks. Klike pou montre imaj an dirèk la ankò"
+
+#: ui/operator/stream-buttons.slint
+msgid "Mute"
+msgstr "Koupe son"
+
+#: ui/operator/stream-buttons.slint
+msgid "Muted"
+msgstr "Son koupe"
+
+#: ui/operator/stream-buttons.slint
+msgid "Send silence to the stream instead of the sound"
+msgstr "Voye silans nan emisyon an olye son an"
+
+#: ui/operator/stream-buttons.slint
+msgid "The stream is silent. Click to send the sound again"
+msgstr "Emisyon an pa gen son. Klike pou voye son an ankò"
+
+#: ui/operator/stream-buttons.slint
+msgid "Freeze, Mute, the scene and the chat show here while you are live."
+msgstr "Fize imaj, Koupe son, sèn nan ak chat la parèt isit la pandan w an dirèk."
+
+#: ui/operator/stream-buttons.slint
+msgid "Go Live shows here once a livestream is switched on in Settings → Livestream → Where to stream."
+msgstr "Ale an dirèk parèt isit la lè yon emisyon an dirèk limen nan Paramèt → Emisyon an dirèk → Ki kote pou voye."
 
 #: ui/operator/topbar.slint
 msgid "Switch or create services"
 msgstr "Chanje oswa kreye sèvis"
-
-#: ui/operator/topbar.slint
-msgid "Recent verses"
-msgstr "Vèsè resan"
-
-#: ui/operator/topbar.slint
-msgid "Bible verse — type John 3:16 and press Enter"
-msgstr "Vèsè Bib — tape John 3:16 epi peze Enter"
-
-#: ui/operator/topbar.slint
-msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
-msgstr "{} poko konekte (Paramèt → Bib). Ou ka toujou kole vèsè li yo ak Ajoute → Bib."
-
-#: ui/operator/topbar.slint
-msgid "Verses per slide for the next passage. Click to change."
-msgstr "Vèsè pou chak diapo pou pwochen pasaj la. Klike pou chanje."
-
-#: ui/operator/topbar.slint
-msgid "Verses: {}"
-msgstr "Vèsè: {}"
-
-#: ui/operator/topbar.slint
-msgid "Ctrl B"
-msgstr "Ctrl B"
 
 #: ui/operator/topbar.slint src/strings/screens.rs src/ui/perf.rs
 msgid "Room"
@@ -5603,41 +5707,13 @@ msgstr "Telekòmand ki konekte"
 msgid "Show a message on the stage screen"
 msgstr "Montre yon mesaj sou ekran sèn nan"
 
-#: ui/operator/topbar.slint
-msgid "Freeze"
-msgstr "Fize imaj"
+#: ui/operator/topbar.slint src/i18n/remote_strings.rs src/strings/dialogs.rs src/ui/dialogs/settings_find.rs
+msgid "Remote"
+msgstr "Telekòmand"
 
 #: ui/operator/topbar.slint
-msgid "Frozen"
-msgstr "Imaj fize"
-
-#: ui/operator/topbar.slint
-msgid "Keep the stream's picture as it is now, while something private is on the screens"
-msgstr "Kenbe imaj emisyon an jan li ye kounye a, pandan gen yon bagay prive sou ekran yo"
-
-#: ui/operator/topbar.slint
-msgid "The stream shows a still picture. Click to show the live picture again"
-msgstr "Emisyon an ap montre yon imaj fiks. Klike pou montre imaj an dirèk la ankò"
-
-#: ui/operator/topbar.slint
-msgid "Mute"
-msgstr "Koupe son"
-
-#: ui/operator/topbar.slint
-msgid "Muted"
-msgstr "Son koupe"
-
-#: ui/operator/topbar.slint
-msgid "Send silence to the stream instead of the sound"
-msgstr "Voye silans nan emisyon an olye son an"
-
-#: ui/operator/topbar.slint
-msgid "The stream is silent. Click to send the sound again"
-msgstr "Emisyon an pa gen son. Klike pou voye son an ankò"
-
-#: ui/operator/topbar.slint src/i18n/remote_strings.rs
-msgid "Phone"
-msgstr "Telefòn"
+msgid "More"
+msgstr "Plis"
 
 #: ui/operator.slint
 msgid "File"
@@ -5854,6 +5930,38 @@ msgstr "Apèsi ekran sèn nan"
 #: ui/operator.slint
 msgid "Hide performance"
 msgstr "Kache pèfòmans"
+
+#: ui/operator.slint
+msgid "Stop arranging panels"
+msgstr "Sispann ranje panno yo"
+
+#: ui/operator.slint
+msgid "Arrange panels"
+msgstr "Ranje panno yo"
+
+#: ui/operator.slint
+msgid "Panels"
+msgstr "Panno"
+
+#: ui/operator.slint
+msgid "Layouts"
+msgstr "Aranjman"
+
+#: ui/operator.slint
+msgid "Save this layout as…"
+msgstr "Anrejistre aranjman sa a kòm…"
+
+#: ui/operator.slint
+msgid "Rename this layout…"
+msgstr "Chanje non aranjman sa a…"
+
+#: ui/operator.slint
+msgid "Delete this layout"
+msgstr "Efase aranjman sa a"
+
+#: ui/operator.slint
+msgid "Reset to Standard"
+msgstr "Retounen nan Estanda"
 
 #: ui/operator.slint src/strings/design.rs
 msgid "Zoom in"
@@ -6643,13 +6751,13 @@ msgstr "Nou pa t ka li fichye tradiksyon {file} la ({reason}), kidonk li pa itil
 msgid "Remote — RustyPresenter"
 msgstr "Telekòmand — RustyPresenter"
 
-#: src/i18n/remote_strings.rs src/strings/dialogs.rs src/ui/dialogs/settings_find.rs
-msgid "Remote"
-msgstr "Telekòmand"
-
 #: src/i18n/remote_strings.rs
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
 msgstr "Sou òdinatè prezantasyon an, klike {phone} → {pair}, epi tape kòd 6 chif la la a."
+
+#: src/i18n/remote_strings.rs
+msgid "Phone"
+msgstr "Telefòn"
 
 #: src/i18n/remote_strings.rs src/stream/phone_camera.rs
 msgid "Connect"
@@ -9441,10 +9549,10 @@ msgstr[0] "{n} eleman"
 msgstr[1] "{n} eleman"
 
 #: src/strings/operator.rs
-msgid "{n} phone"
-msgid_plural "{n} phones"
-msgstr[0] "{n} telefòn"
-msgstr[1] "{n} telefòn"
+msgid "{n} remote"
+msgid_plural "{n} remotes"
+msgstr[0] "{n} telekòmand"
+msgstr[1] "{n} telekòmand"
 
 #: src/strings/operator.rs
 msgid "Slide picture"
@@ -9659,6 +9767,46 @@ msgstr "diapo {n}"
 #: src/strings/operator.rs
 msgid "On the stage screen only. The room didn't change."
 msgstr "Sou ekran sèn nan sèlman. Sal la pa chanje."
+
+#: src/strings/operator.rs src/strings/themes.rs
+msgid "Standard"
+msgstr "Estanda"
+
+#: src/strings/operator.rs
+msgid "Big slides"
+msgstr "Gwo diapo"
+
+#: src/strings/operator.rs
+msgid "Two monitors"
+msgstr "De ekran"
+
+#: src/strings/operator.rs
+msgid "RustyPresenter — {panels}"
+msgstr "RustyPresenter — {panels}"
+
+#: src/strings/operator.rs
+msgid "The main window keeps at least one panel."
+msgstr "Fenèt prensipal la toujou gen omwen yon panno."
+
+#: src/strings/operator.rs
+msgid "Name for this layout"
+msgstr "Non pou aranjman sa a"
+
+#: src/strings/operator.rs
+msgid "New name for this layout"
+msgstr "Nouvo non pou aranjman sa a"
+
+#: src/strings/operator.rs
+msgid "Layout “{name}” saved"
+msgstr "Aranjman “{name}” anrejistre"
+
+#: src/strings/operator.rs
+msgid "Delete the layout “{name}”? The window goes back to Standard."
+msgstr "Efase aranjman “{name}”? Fenèt la retounen nan Estanda."
+
+#: src/strings/operator.rs
+msgid "Delete layout"
+msgstr "Efase aranjman an"
 
 #: src/strings/phone.rs
 msgid "Code works for {n} more seconds"
@@ -11294,10 +11442,6 @@ msgid "Theme deleted"
 msgstr "Tèm efase"
 
 #: src/strings/themes.rs
-msgid "Standard"
-msgstr "Estanda"
-
-#: src/strings/themes.rs
 msgid "Built-in — the style RustyPresenter started with"
 msgstr "Enstale ladan l — stil RustyPresenter te kòmanse avè l"
 
@@ -12239,10 +12383,6 @@ msgstr "Touch"
 #: src/ui/dialogs/settings_find.rs
 msgid "Auto-follow"
 msgstr "Swiv oto"
-
-#: src/ui/dialogs/settings_find.rs
-msgid "Livestream"
-msgstr "Emisyon an dirèk"
 
 #: src/ui/dialogs/settings_find.rs
 msgid "Backups"
@@ -13386,6 +13526,11 @@ msgstr "yt-dlp pa anrejistre okenn videyo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "se pa yon fichye medya"
+
+#~ msgid "{n} phone"
+#~ msgid_plural "{n} phones"
+#~ msgstr[0] "{n} telefòn"
+#~ msgstr[1] "{n} telefòn"
 
 #~ msgid "Show on the phone remote"
 #~ msgstr "Montre sou telefòn kontwòl la"

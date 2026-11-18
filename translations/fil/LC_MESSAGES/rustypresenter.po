@@ -31,7 +31,7 @@ msgstr "Paborito"
 msgid "Find more Bibles…"
 msgstr "Maghanap ng iba pang Bibliya…"
 
-#: ui/bible-picker.slint ui/operator/topbar.slint
+#: ui/bible-picker.slint ui/operator/bible-box.slint
 msgid "Choose a Bible"
 msgstr "Pumili ng Bibliya"
 
@@ -143,11 +143,11 @@ msgstr "Idagdag ang mga talata"
 msgid "Paste the verses instead"
 msgstr "I-paste na lang ang mga talata"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/slide-breaks.slint ui/operator/topbar.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/slide-breaks.slint ui/operator/bible-box.slint src/ui/dialogs/settings_find.rs
 msgid "Verses per slide"
 msgstr "Talata bawat slide"
 
-#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/record.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/bible-box.slint ui/operator/record.slint ui/operator/slides.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "Auto"
 
@@ -195,7 +195,7 @@ msgstr "Kanta"
 msgid "Words"
 msgstr "Mga salita"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/operator/dock.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Bible"
 msgstr "Bibliya"
 
@@ -211,7 +211,7 @@ msgstr "Video at media"
 msgid "Videos, pictures, music"
 msgstr "Video, larawan, musika"
 
-#: ui/dialogs/add.slint ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint src/automation/slide_actions.rs src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
+#: ui/dialogs/add.slint ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/dock.slint src/automation/slide_actions.rs src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Slides"
 msgstr "Slides"
 
@@ -495,7 +495,7 @@ msgstr "Ulit-ulitin ang slides na ito"
 msgid "Play music"
 msgstr "Magpatugtog ng musika"
 
-#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs src/ui/dialogs/settings_find.rs
+#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/dock.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs src/ui/dialogs/settings_find.rs
 msgid "Stage screen"
 msgstr "Stage screen"
 
@@ -3447,7 +3447,7 @@ msgstr "Address ng kontrol ng camera"
 msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
 msgstr "Para igalaw ang PTZ camera sa mga naka-save na posisyon nito: ang address nito, gaya ng 192.168.1.60"
 
-#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-stream.slint ui/operator/dock.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Cameras"
 msgstr "Mga camera"
 
@@ -4923,6 +4923,30 @@ msgstr "Ihinto ang walk-in music"
 msgid "Walk-in music songs and volume"
 msgstr "Mga kanta at volume ng walk-in music"
 
+#: ui/operator/bible-box.slint
+msgid "Recent verses"
+msgstr "Mga huling talata"
+
+#: ui/operator/bible-box.slint
+msgid "Bible verse — type John 3:16 and press Enter"
+msgstr "Talata sa Bibliya — i-type ang John 3:16 at pindutin ang Enter"
+
+#: ui/operator/bible-box.slint
+msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
+msgstr "Hindi pa nakakonekta ang {} (Settings → Bibliya). Maaari mo pa ring i-paste ang mga talata nito gamit ang Idagdag → Bibliya."
+
+#: ui/operator/bible-box.slint
+msgid "Verses per slide for the next passage. Click to change."
+msgstr "Talata bawat slide para sa susunod na passage. I-click para baguhin."
+
+#: ui/operator/bible-box.slint
+msgid "Verses: {}"
+msgstr "Talata: {}"
+
+#: ui/operator/bible-box.slint
+msgid "Ctrl B"
+msgstr "Ctrl B"
+
 #: ui/operator/cameras.slint
 msgid "Going out now"
 msgstr "Lumalabas ngayon"
@@ -4935,7 +4959,7 @@ msgstr "Lumalabas ngayon ang camera na ito"
 msgid "Show this camera next"
 msgstr "Ipakita ang camera na ito sa susunod"
 
-#: ui/operator/cameras.slint ui/operator/record.slint
+#: ui/operator/cameras.slint ui/operator/dock.slint ui/operator/record.slint src/strings/operator.rs
 msgid "Live"
 msgstr "Live"
 
@@ -4999,6 +5023,82 @@ msgstr "Ilagay na ngayon sa stream ang susunod na camera"
 msgid "Fade the stream over to the next camera"
 msgstr "I-fade ang stream papunta sa susunod na camera"
 
+#: ui/operator/dock.slint ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
+msgid "Service"
+msgstr "Service"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Library"
+msgstr "Library"
+
+#: ui/operator/dock.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/operator.rs
+msgid "Up next"
+msgstr "Kasunod"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Message and macros"
+msgstr "Mensahe at mga macro"
+
+#: ui/operator/dock.slint ui/operator/stream-buttons.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
+msgid "Livestream"
+msgstr "Livestream"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Stage preview"
+msgstr "Silip sa stage"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Follow"
+msgstr "Auto-sunod"
+
+#: ui/operator/dock.slint ui/operator/live.slint
+msgid "Notes: {}"
+msgstr "Notes: {}"
+
+#: ui/operator/dock.slint
+msgid "The cameras show here while you are live with cameras."
+msgstr "Lumalabas dito ang mga camera habang naka-live ka gamit ang mga camera."
+
+#: ui/operator/dock.slint
+msgid "The stage screen is not open."
+msgstr "Hindi bukas ang stage screen."
+
+#: ui/operator/dock.slint
+msgid "Auto-follow shows here while a song is live."
+msgstr "Lumalabas dito ang Auto-sunod habang live ang isang kanta."
+
+#: ui/operator/dock.slint
+msgid "Move {}"
+msgstr "Ilipat ang {}"
+
+#: ui/operator/dock.slint
+msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
+msgstr "I-drag sa ibang panel: sa tabi nito, o sa gitna nito para makihati sa puwesto nito bilang tab"
+
+#: ui/operator/dock.slint
+msgid "{} options"
+msgstr "Mga opsyon ng {}"
+
+#: ui/operator/dock.slint
+msgid "Close panel"
+msgstr "Isara ang panel"
+
+#: ui/operator/dock.slint
+msgid "Move to a new window"
+msgstr "Ilipat sa bagong window"
+
+#: ui/operator/dock.slint
+msgid "Move these tabs to a new window"
+msgstr "Ilipat ang mga tab na ito sa bagong window"
+
+#: ui/operator/dock.slint
+msgid "Move to {}"
+msgstr "Ilipat sa {}"
+
+#: ui/operator/dock.slint
+msgid "Move back to the main window"
+msgstr "Ibalik sa pangunahing window"
+
 #: ui/operator/follow.slint
 msgid "Review log…"
 msgstr "Log…"
@@ -5039,7 +5139,7 @@ msgstr "Kopyahin ang pamagat"
 msgid "Copy the description"
 msgstr "Kopyahin ang description"
 
-#: ui/operator/live.slint ui/operator.slint
+#: ui/operator/live.slint ui/operator/panes.slint
 msgid "—"
 msgstr "—"
 
@@ -5050,10 +5150,6 @@ msgstr "LIVE"
 #: ui/operator/live.slint
 msgid "updating…"
 msgstr "nag-a-update…"
-
-#: ui/operator/live.slint
-msgid "Notes: {}"
-msgstr "Notes: {}"
 
 #: ui/operator/live.slint
 msgid "Drawing"
@@ -5098,10 +5194,6 @@ msgstr "Ayusin ang mga salita ng live na kanta. Magbabago lang ang screen kapag 
 #: ui/operator/live.slint
 msgid "Update screen"
 msgstr "I-update ang screen"
-
-#: ui/operator/live.slint src/i18n/remote_strings.rs
-msgid "Up next"
-msgstr "Kasunod"
 
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
@@ -5251,6 +5343,14 @@ msgstr "Bitawan para idagdag sa service"
 msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect song files"
 msgstr "Video, larawan, musika, presentation (PowerPoint, Keynote, PDF), mga song file ng SongSelect"
 
+#: ui/operator/panel-window.slint ui/operator/topbar.slint ui/operator.slint
+msgid "RustyPresenter"
+msgstr "RustyPresenter"
+
+#: ui/operator/panes.slint ui/operator/slides.slint
+msgid "Nothing selected"
+msgstr "Walang napili"
+
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop the livestream"
 msgstr "Itigil ang livestream"
@@ -5379,10 +5479,6 @@ msgstr "I-save ang huling {} min"
 msgid "Save the last {} minutes of the recording as a video of its own, now"
 msgstr "I-save ngayon ang huling {} minuto ng recording bilang hiwalay na video"
 
-#: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
-msgid "Service"
-msgstr "Service"
-
 #: ui/operator/service.slint
 msgid "Add a header"
 msgstr "Magdagdag ng header"
@@ -5458,10 +5554,6 @@ msgstr "Gamitin ang malaking Susunod na button (o ang → key) habang may servic
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "Mga screen"
-
-#: ui/operator/slides.slint ui/operator.slint
-msgid "Nothing selected"
-msgstr "Walang napili"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
@@ -5555,37 +5647,49 @@ msgstr "Madali"
 msgid "Table"
 msgstr "Table"
 
-#: ui/operator/topbar.slint ui/operator.slint
-msgid "RustyPresenter"
-msgstr "RustyPresenter"
+#: ui/operator/stream-buttons.slint
+msgid "Freeze"
+msgstr "I-freeze"
+
+#: ui/operator/stream-buttons.slint
+msgid "Frozen"
+msgstr "Naka-freeze"
+
+#: ui/operator/stream-buttons.slint
+msgid "Keep the stream's picture as it is now, while something private is on the screens"
+msgstr "Panatilihin ang larawan ng stream gaya ngayon, habang may pribadong nasa mga screen"
+
+#: ui/operator/stream-buttons.slint
+msgid "The stream shows a still picture. Click to show the live picture again"
+msgstr "Isang hindi gumagalaw na larawan ang nasa stream. I-click para ipakita ulit ang live na larawan"
+
+#: ui/operator/stream-buttons.slint
+msgid "Mute"
+msgstr "I-mute"
+
+#: ui/operator/stream-buttons.slint
+msgid "Muted"
+msgstr "Naka-mute"
+
+#: ui/operator/stream-buttons.slint
+msgid "Send silence to the stream instead of the sound"
+msgstr "Magpadala ng katahimikan sa stream sa halip na ang tunog"
+
+#: ui/operator/stream-buttons.slint
+msgid "The stream is silent. Click to send the sound again"
+msgstr "Tahimik ang stream. I-click para ipadala ulit ang tunog"
+
+#: ui/operator/stream-buttons.slint
+msgid "Freeze, Mute, the scene and the chat show here while you are live."
+msgstr "Lumalabas dito ang I-freeze, I-mute, ang scene at ang chat habang naka-live ka."
+
+#: ui/operator/stream-buttons.slint
+msgid "Go Live shows here once a livestream is switched on in Settings → Livestream → Where to stream."
+msgstr "Lumalabas dito ang Mag-live kapag naka-on ang livestream sa Settings → Livestream → Saan mag-stream."
 
 #: ui/operator/topbar.slint
 msgid "Switch or create services"
 msgstr "Magpalit o gumawa ng service"
-
-#: ui/operator/topbar.slint
-msgid "Recent verses"
-msgstr "Mga huling talata"
-
-#: ui/operator/topbar.slint
-msgid "Bible verse — type John 3:16 and press Enter"
-msgstr "Talata sa Bibliya — i-type ang John 3:16 at pindutin ang Enter"
-
-#: ui/operator/topbar.slint
-msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
-msgstr "Hindi pa nakakonekta ang {} (Settings → Bibliya). Maaari mo pa ring i-paste ang mga talata nito gamit ang Idagdag → Bibliya."
-
-#: ui/operator/topbar.slint
-msgid "Verses per slide for the next passage. Click to change."
-msgstr "Talata bawat slide para sa susunod na passage. I-click para baguhin."
-
-#: ui/operator/topbar.slint
-msgid "Verses: {}"
-msgstr "Talata: {}"
-
-#: ui/operator/topbar.slint
-msgid "Ctrl B"
-msgstr "Ctrl B"
 
 #: ui/operator/topbar.slint src/strings/screens.rs src/ui/perf.rs
 msgid "Room"
@@ -5603,41 +5707,13 @@ msgstr "Mga nakakonektang remote"
 msgid "Show a message on the stage screen"
 msgstr "Magpakita ng mensahe sa stage screen"
 
-#: ui/operator/topbar.slint
-msgid "Freeze"
-msgstr "I-freeze"
+#: ui/operator/topbar.slint src/i18n/remote_strings.rs src/strings/dialogs.rs src/ui/dialogs/settings_find.rs
+msgid "Remote"
+msgstr "Remote"
 
 #: ui/operator/topbar.slint
-msgid "Frozen"
-msgstr "Naka-freeze"
-
-#: ui/operator/topbar.slint
-msgid "Keep the stream's picture as it is now, while something private is on the screens"
-msgstr "Panatilihin ang larawan ng stream gaya ngayon, habang may pribadong nasa mga screen"
-
-#: ui/operator/topbar.slint
-msgid "The stream shows a still picture. Click to show the live picture again"
-msgstr "Isang hindi gumagalaw na larawan ang nasa stream. I-click para ipakita ulit ang live na larawan"
-
-#: ui/operator/topbar.slint
-msgid "Mute"
-msgstr "I-mute"
-
-#: ui/operator/topbar.slint
-msgid "Muted"
-msgstr "Naka-mute"
-
-#: ui/operator/topbar.slint
-msgid "Send silence to the stream instead of the sound"
-msgstr "Magpadala ng katahimikan sa stream sa halip na ang tunog"
-
-#: ui/operator/topbar.slint
-msgid "The stream is silent. Click to send the sound again"
-msgstr "Tahimik ang stream. I-click para ipadala ulit ang tunog"
-
-#: ui/operator/topbar.slint src/i18n/remote_strings.rs
-msgid "Phone"
-msgstr "Phone"
+msgid "More"
+msgstr "Iba pa"
 
 #: ui/operator.slint
 msgid "File"
@@ -5854,6 +5930,38 @@ msgstr "I-preview ang stage screen"
 #: ui/operator.slint
 msgid "Hide performance"
 msgstr "Itago ang performance"
+
+#: ui/operator.slint
+msgid "Stop arranging panels"
+msgstr "Tapusin ang pag-ayos ng mga panel"
+
+#: ui/operator.slint
+msgid "Arrange panels"
+msgstr "Ayusin ang mga panel"
+
+#: ui/operator.slint
+msgid "Panels"
+msgstr "Mga panel"
+
+#: ui/operator.slint
+msgid "Layouts"
+msgstr "Mga layout"
+
+#: ui/operator.slint
+msgid "Save this layout as…"
+msgstr "I-save ang layout na ito bilang…"
+
+#: ui/operator.slint
+msgid "Rename this layout…"
+msgstr "Palitan ang pangalan ng layout na ito…"
+
+#: ui/operator.slint
+msgid "Delete this layout"
+msgstr "Burahin ang layout na ito"
+
+#: ui/operator.slint
+msgid "Reset to Standard"
+msgstr "Ibalik sa Standard"
 
 #: ui/operator.slint src/strings/design.rs
 msgid "Zoom in"
@@ -6643,13 +6751,13 @@ msgstr "Hindi mabasa ang translation file na {file} ({reason}), kaya hindi ito g
 msgid "Remote — RustyPresenter"
 msgstr "Remote — RustyPresenter"
 
-#: src/i18n/remote_strings.rs src/strings/dialogs.rs src/ui/dialogs/settings_find.rs
-msgid "Remote"
-msgstr "Remote"
-
 #: src/i18n/remote_strings.rs
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
 msgstr "Sa presentation computer, i-click ang {phone} → {pair}, saka i-type dito ang 6-digit na code."
+
+#: src/i18n/remote_strings.rs
+msgid "Phone"
+msgstr "Phone"
 
 #: src/i18n/remote_strings.rs src/stream/phone_camera.rs
 msgid "Connect"
@@ -9441,10 +9549,10 @@ msgstr[0] "{n} item"
 msgstr[1] "{n} na item"
 
 #: src/strings/operator.rs
-msgid "{n} phone"
-msgid_plural "{n} phones"
-msgstr[0] "{n} phone"
-msgstr[1] "{n} na phone"
+msgid "{n} remote"
+msgid_plural "{n} remotes"
+msgstr[0] "{n} remote"
+msgstr[1] "{n} remote"
 
 #: src/strings/operator.rs
 msgid "Slide picture"
@@ -9659,6 +9767,46 @@ msgstr "slide {n}"
 #: src/strings/operator.rs
 msgid "On the stage screen only. The room didn't change."
 msgstr "Sa stage screen lang. Hindi nagbago ang silid."
+
+#: src/strings/operator.rs src/strings/themes.rs
+msgid "Standard"
+msgstr "Standard"
+
+#: src/strings/operator.rs
+msgid "Big slides"
+msgstr "Malalaking slide"
+
+#: src/strings/operator.rs
+msgid "Two monitors"
+msgstr "Dalawang monitor"
+
+#: src/strings/operator.rs
+msgid "RustyPresenter — {panels}"
+msgstr "RustyPresenter — {panels}"
+
+#: src/strings/operator.rs
+msgid "The main window keeps at least one panel."
+msgstr "May kahit isang panel ang pangunahing window."
+
+#: src/strings/operator.rs
+msgid "Name for this layout"
+msgstr "Pangalan ng layout na ito"
+
+#: src/strings/operator.rs
+msgid "New name for this layout"
+msgstr "Bagong pangalan ng layout na ito"
+
+#: src/strings/operator.rs
+msgid "Layout “{name}” saved"
+msgstr "Na-save ang layout na “{name}”"
+
+#: src/strings/operator.rs
+msgid "Delete the layout “{name}”? The window goes back to Standard."
+msgstr "Burahin ang layout na “{name}”? Babalik sa Standard ang window."
+
+#: src/strings/operator.rs
+msgid "Delete layout"
+msgstr "Burahin ang layout"
 
 #: src/strings/phone.rs
 msgid "Code works for {n} more seconds"
@@ -11294,10 +11442,6 @@ msgid "Theme deleted"
 msgstr "Nabura ang theme"
 
 #: src/strings/themes.rs
-msgid "Standard"
-msgstr "Standard"
-
-#: src/strings/themes.rs
 msgid "Built-in — the style RustyPresenter started with"
 msgstr "Built-in — ang istilong unang ginamit ng RustyPresenter"
 
@@ -12239,10 +12383,6 @@ msgstr "Mga key"
 #: src/ui/dialogs/settings_find.rs
 msgid "Auto-follow"
 msgstr "Auto-sunod"
-
-#: src/ui/dialogs/settings_find.rs
-msgid "Livestream"
-msgstr "Livestream"
 
 #: src/ui/dialogs/settings_find.rs
 msgid "Backups"
@@ -13386,6 +13526,11 @@ msgstr "walang na-save na video ang yt-dlp"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "hindi media file"
+
+#~ msgid "{n} phone"
+#~ msgid_plural "{n} phones"
+#~ msgstr[0] "{n} phone"
+#~ msgstr[1] "{n} na phone"
 
 #~ msgid "Show on the phone remote"
 #~ msgstr "Ipakita sa phone remote"

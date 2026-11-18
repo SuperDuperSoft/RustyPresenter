@@ -31,7 +31,7 @@ msgstr "Pendwa"
 msgid "Find more Bibles…"
 msgstr "Tafuta Biblia zaidi…"
 
-#: ui/bible-picker.slint ui/operator/topbar.slint
+#: ui/bible-picker.slint ui/operator/bible-box.slint
 msgid "Choose a Bible"
 msgstr "Chagua Biblia"
 
@@ -143,11 +143,11 @@ msgstr "Ongeza mistari"
 msgid "Paste the verses instead"
 msgstr "Bandika mistari badala yake"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/slide-breaks.slint ui/operator/topbar.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/slide-breaks.slint ui/operator/bible-box.slint src/ui/dialogs/settings_find.rs
 msgid "Verses per slide"
 msgstr "Mistari kwa kila slaidi"
 
-#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/record.slint ui/operator/slides.slint ui/operator/topbar.slint src/strings/operator.rs
+#: ui/dialogs/add.slint ui/dialogs/song-editor.slint ui/operator/bible-box.slint ui/operator/record.slint ui/operator/slides.slint src/strings/operator.rs
 msgid "Auto"
 msgstr "Otomatiki"
 
@@ -195,7 +195,7 @@ msgstr "Wimbo"
 msgid "Words"
 msgstr "Maneno"
 
-#: ui/dialogs/add.slint ui/dialogs/item-edit.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/add.slint ui/dialogs/item-edit.slint ui/operator/dock.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Bible"
 msgstr "Biblia"
 
@@ -211,7 +211,7 @@ msgstr "Video na midia"
 msgid "Videos, pictures, music"
 msgstr "Video, picha, muziki"
 
-#: ui/dialogs/add.slint ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint src/automation/slide_actions.rs src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
+#: ui/dialogs/add.slint ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/dock.slint src/automation/slide_actions.rs src/print/html.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
 msgid "Slides"
 msgstr "Slaidi"
 
@@ -495,7 +495,7 @@ msgstr "Rudia slaidi hizi"
 msgid "Play music"
 msgstr "Cheza muziki"
 
-#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs src/ui/dialogs/settings_find.rs
+#: ui/dialogs/automation.slint ui/dialogs/stage-canvas.slint ui/operator/dock.slint ui/operator/outputs.slint ui/operator/topbar.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs src/strings/screens.rs src/ui/dialogs/settings_find.rs
 msgid "Stage screen"
 msgstr "Skrini ya jukwaa"
 
@@ -3447,7 +3447,7 @@ msgstr "Anwani ya kudhibiti kamera"
 msgid "To move a PTZ camera to its saved positions: its address, like 192.168.1.60"
 msgstr "Ili kusogeza kamera ya PTZ kwenye nafasi zake zilizohifadhiwa: anwani yake, kama 192.168.1.60"
 
-#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-stream.slint ui/operator/dock.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
 msgid "Cameras"
 msgstr "Kamera"
 
@@ -4923,6 +4923,30 @@ msgstr "Simamisha muziki wa kuingia"
 msgid "Walk-in music songs and volume"
 msgstr "Nyimbo na sauti ya muziki wa kuingia"
 
+#: ui/operator/bible-box.slint
+msgid "Recent verses"
+msgstr "Mistari ya hivi karibuni"
+
+#: ui/operator/bible-box.slint
+msgid "Bible verse — type John 3:16 and press Enter"
+msgstr "Mstari wa Biblia — andika John 3:16 na ubonyeze Enter"
+
+#: ui/operator/bible-box.slint
+msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
+msgstr "{} bado haijaunganishwa (Mipangilio → Biblia). Bado unaweza kubandika mistari yake kwa Ongeza → Biblia."
+
+#: ui/operator/bible-box.slint
+msgid "Verses per slide for the next passage. Click to change."
+msgstr "Mistari kwa kila slaidi kwa kifungu kijacho. Bofya kubadilisha."
+
+#: ui/operator/bible-box.slint
+msgid "Verses: {}"
+msgstr "Mistari: {}"
+
+#: ui/operator/bible-box.slint
+msgid "Ctrl B"
+msgstr "Ctrl B"
+
 #: ui/operator/cameras.slint
 msgid "Going out now"
 msgstr "Iko hewani sasa"
@@ -4935,7 +4959,7 @@ msgstr "Kamera hii iko hewani sasa"
 msgid "Show this camera next"
 msgstr "Onyesha kamera hii inayofuata"
 
-#: ui/operator/cameras.slint ui/operator/record.slint
+#: ui/operator/cameras.slint ui/operator/dock.slint ui/operator/record.slint src/strings/operator.rs
 msgid "Live"
 msgstr "Moja kwa moja"
 
@@ -4999,6 +5023,82 @@ msgstr "Weka kamera inayofuata kwenye matangazo sasa"
 msgid "Fade the stream over to the next camera"
 msgstr "Fifisha matangazo kwenda kamera inayofuata"
 
+#: ui/operator/dock.slint ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
+msgid "Service"
+msgstr "Ibada"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Library"
+msgstr "Maktaba"
+
+#: ui/operator/dock.slint ui/operator/live.slint src/i18n/remote_strings.rs src/strings/operator.rs
+msgid "Up next"
+msgstr "Kinachofuata"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Message and macros"
+msgstr "Ujumbe na makro"
+
+#: ui/operator/dock.slint ui/operator/stream-buttons.slint src/strings/operator.rs src/ui/dialogs/settings_find.rs
+msgid "Livestream"
+msgstr "Matangazo ya moja kwa moja"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Stage preview"
+msgstr "Onyesho la jukwaa"
+
+#: ui/operator/dock.slint src/strings/operator.rs
+msgid "Follow"
+msgstr "Fuata otomatiki"
+
+#: ui/operator/dock.slint ui/operator/live.slint
+msgid "Notes: {}"
+msgstr "Maelezo: {}"
+
+#: ui/operator/dock.slint
+msgid "The cameras show here while you are live with cameras."
+msgstr "Kamera zinaonekana hapa ukiwa moja kwa moja na kamera."
+
+#: ui/operator/dock.slint
+msgid "The stage screen is not open."
+msgstr "Skrini ya jukwaa haijafunguliwa."
+
+#: ui/operator/dock.slint
+msgid "Auto-follow shows here while a song is live."
+msgstr "Fuata otomatiki inaonekana hapa wimbo ukiwa moja kwa moja."
+
+#: ui/operator/dock.slint
+msgid "Move {}"
+msgstr "Hamisha {}"
+
+#: ui/operator/dock.slint
+msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
+msgstr "Buruta juu ya paneli nyingine: kando yake, au katikati yake ili kushiriki nafasi yake kama kichupo"
+
+#: ui/operator/dock.slint
+msgid "{} options"
+msgstr "Chaguo za {}"
+
+#: ui/operator/dock.slint
+msgid "Close panel"
+msgstr "Funga paneli"
+
+#: ui/operator/dock.slint
+msgid "Move to a new window"
+msgstr "Hamisha kwenye dirisha jipya"
+
+#: ui/operator/dock.slint
+msgid "Move these tabs to a new window"
+msgstr "Hamisha vichupo hivi kwenye dirisha jipya"
+
+#: ui/operator/dock.slint
+msgid "Move to {}"
+msgstr "Hamisha kwenye {}"
+
+#: ui/operator/dock.slint
+msgid "Move back to the main window"
+msgstr "Rudisha kwenye dirisha kuu"
+
 #: ui/operator/follow.slint
 msgid "Review log…"
 msgstr "Kumbukumbu…"
@@ -5039,7 +5139,7 @@ msgstr "Nakili kichwa"
 msgid "Copy the description"
 msgstr "Nakili maelezo"
 
-#: ui/operator/live.slint ui/operator.slint
+#: ui/operator/live.slint ui/operator/panes.slint
 msgid "—"
 msgstr "—"
 
@@ -5050,10 +5150,6 @@ msgstr "HEWANI"
 #: ui/operator/live.slint
 msgid "updating…"
 msgstr "inasasisha…"
-
-#: ui/operator/live.slint
-msgid "Notes: {}"
-msgstr "Maelezo: {}"
 
 #: ui/operator/live.slint
 msgid "Drawing"
@@ -5098,10 +5194,6 @@ msgstr "Rekebisha maneno ya wimbo ulio hewani. Skrini hubadilika tu utakaposema.
 #: ui/operator/live.slint
 msgid "Update screen"
 msgstr "Sasisha skrini"
-
-#: ui/operator/live.slint src/i18n/remote_strings.rs
-msgid "Up next"
-msgstr "Kinachofuata"
 
 #: ui/operator/live.slint
 msgid "Back (← or Page Up)"
@@ -5251,6 +5343,14 @@ msgstr "Achilia hapa ili kuongeza kwenye ibada"
 msgid "Videos, pictures, music, presentations (PowerPoint, Keynote, PDF), SongSelect song files"
 msgstr "Video, picha, muziki, mawasilisho (PowerPoint, Keynote, PDF), faili za nyimbo za SongSelect"
 
+#: ui/operator/panel-window.slint ui/operator/topbar.slint ui/operator.slint
+msgid "RustyPresenter"
+msgstr "RustyPresenter"
+
+#: ui/operator/panes.slint ui/operator/slides.slint
+msgid "Nothing selected"
+msgstr "Hakuna kilichochaguliwa"
+
 #: ui/operator/record.slint ui/operator.slint
 msgid "Stop the livestream"
 msgstr "Simamisha matangazo"
@@ -5379,10 +5479,6 @@ msgstr "Hifadhi dak {} za mwisho"
 msgid "Save the last {} minutes of the recording as a video of its own, now"
 msgstr "Hifadhi sasa dakika {} za mwisho za rekodi kama video yake yenyewe"
 
-#: ui/operator/service.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/operator.rs src/strings/planning.rs src/ui/dialogs/quick_search.rs
-msgid "Service"
-msgstr "Ibada"
-
 #: ui/operator/service.slint
 msgid "Add a header"
 msgstr "Ongeza kichwa"
@@ -5458,10 +5554,6 @@ msgstr "Tumia kitufe kikubwa cha Ifuatayo (au kitufe →) wakati wa ibada."
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "Skrini"
-
-#: ui/operator/slides.slint ui/operator.slint
-msgid "Nothing selected"
-msgstr "Hakuna kilichochaguliwa"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
@@ -5555,37 +5647,49 @@ msgstr "Rahisi"
 msgid "Table"
 msgstr "Jedwali"
 
-#: ui/operator/topbar.slint ui/operator.slint
-msgid "RustyPresenter"
-msgstr "RustyPresenter"
+#: ui/operator/stream-buttons.slint
+msgid "Freeze"
+msgstr "Simamisha picha"
+
+#: ui/operator/stream-buttons.slint
+msgid "Frozen"
+msgstr "Picha imesimama"
+
+#: ui/operator/stream-buttons.slint
+msgid "Keep the stream's picture as it is now, while something private is on the screens"
+msgstr "Weka picha ya matangazo kama ilivyo sasa, wakati kuna kitu cha faragha kwenye skrini"
+
+#: ui/operator/stream-buttons.slint
+msgid "The stream shows a still picture. Click to show the live picture again"
+msgstr "Matangazo yanaonyesha picha tulivu. Bofya ili kuonyesha picha ya moja kwa moja tena"
+
+#: ui/operator/stream-buttons.slint
+msgid "Mute"
+msgstr "Nyamazisha"
+
+#: ui/operator/stream-buttons.slint
+msgid "Muted"
+msgstr "Imenyamazishwa"
+
+#: ui/operator/stream-buttons.slint
+msgid "Send silence to the stream instead of the sound"
+msgstr "Tuma ukimya kwenye matangazo badala ya sauti"
+
+#: ui/operator/stream-buttons.slint
+msgid "The stream is silent. Click to send the sound again"
+msgstr "Matangazo hayana sauti. Bofya ili kutuma sauti tena"
+
+#: ui/operator/stream-buttons.slint
+msgid "Freeze, Mute, the scene and the chat show here while you are live."
+msgstr "Simamisha picha, Nyamazisha, onyesho na gumzo vinaonekana hapa ukiwa moja kwa moja."
+
+#: ui/operator/stream-buttons.slint
+msgid "Go Live shows here once a livestream is switched on in Settings → Livestream → Where to stream."
+msgstr "Rusha moja kwa moja inaonekana hapa matangazo yakiwashwa katika Mipangilio → Matangazo ya moja kwa moja → Mahali pa kutangaza."
 
 #: ui/operator/topbar.slint
 msgid "Switch or create services"
 msgstr "Badilisha au unda ibada"
-
-#: ui/operator/topbar.slint
-msgid "Recent verses"
-msgstr "Mistari ya hivi karibuni"
-
-#: ui/operator/topbar.slint
-msgid "Bible verse — type John 3:16 and press Enter"
-msgstr "Mstari wa Biblia — andika John 3:16 na ubonyeze Enter"
-
-#: ui/operator/topbar.slint
-msgid "{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible."
-msgstr "{} bado haijaunganishwa (Mipangilio → Biblia). Bado unaweza kubandika mistari yake kwa Ongeza → Biblia."
-
-#: ui/operator/topbar.slint
-msgid "Verses per slide for the next passage. Click to change."
-msgstr "Mistari kwa kila slaidi kwa kifungu kijacho. Bofya kubadilisha."
-
-#: ui/operator/topbar.slint
-msgid "Verses: {}"
-msgstr "Mistari: {}"
-
-#: ui/operator/topbar.slint
-msgid "Ctrl B"
-msgstr "Ctrl B"
 
 #: ui/operator/topbar.slint src/strings/screens.rs src/ui/perf.rs
 msgid "Room"
@@ -5603,41 +5707,13 @@ msgstr "Rimoti zilizounganishwa"
 msgid "Show a message on the stage screen"
 msgstr "Onyesha ujumbe kwenye skrini ya jukwaa"
 
-#: ui/operator/topbar.slint
-msgid "Freeze"
-msgstr "Simamisha picha"
+#: ui/operator/topbar.slint src/i18n/remote_strings.rs src/strings/dialogs.rs src/ui/dialogs/settings_find.rs
+msgid "Remote"
+msgstr "Rimoti"
 
 #: ui/operator/topbar.slint
-msgid "Frozen"
-msgstr "Picha imesimama"
-
-#: ui/operator/topbar.slint
-msgid "Keep the stream's picture as it is now, while something private is on the screens"
-msgstr "Weka picha ya matangazo kama ilivyo sasa, wakati kuna kitu cha faragha kwenye skrini"
-
-#: ui/operator/topbar.slint
-msgid "The stream shows a still picture. Click to show the live picture again"
-msgstr "Matangazo yanaonyesha picha tulivu. Bofya ili kuonyesha picha ya moja kwa moja tena"
-
-#: ui/operator/topbar.slint
-msgid "Mute"
-msgstr "Nyamazisha"
-
-#: ui/operator/topbar.slint
-msgid "Muted"
-msgstr "Imenyamazishwa"
-
-#: ui/operator/topbar.slint
-msgid "Send silence to the stream instead of the sound"
-msgstr "Tuma ukimya kwenye matangazo badala ya sauti"
-
-#: ui/operator/topbar.slint
-msgid "The stream is silent. Click to send the sound again"
-msgstr "Matangazo hayana sauti. Bofya ili kutuma sauti tena"
-
-#: ui/operator/topbar.slint src/i18n/remote_strings.rs
-msgid "Phone"
-msgstr "Simu"
+msgid "More"
+msgstr "Zaidi"
 
 #: ui/operator.slint
 msgid "File"
@@ -5854,6 +5930,38 @@ msgstr "Hakiki skrini ya jukwaa"
 #: ui/operator.slint
 msgid "Hide performance"
 msgstr "Ficha utendaji"
+
+#: ui/operator.slint
+msgid "Stop arranging panels"
+msgstr "Acha kupanga paneli"
+
+#: ui/operator.slint
+msgid "Arrange panels"
+msgstr "Panga paneli"
+
+#: ui/operator.slint
+msgid "Panels"
+msgstr "Paneli"
+
+#: ui/operator.slint
+msgid "Layouts"
+msgstr "Mipangilio ya skrini"
+
+#: ui/operator.slint
+msgid "Save this layout as…"
+msgstr "Hifadhi mpangilio huu kama…"
+
+#: ui/operator.slint
+msgid "Rename this layout…"
+msgstr "Badilisha jina la mpangilio huu…"
+
+#: ui/operator.slint
+msgid "Delete this layout"
+msgstr "Futa mpangilio huu"
+
+#: ui/operator.slint
+msgid "Reset to Standard"
+msgstr "Rudi kwenye Kawaida"
 
 #: ui/operator.slint src/strings/design.rs
 msgid "Zoom in"
@@ -6643,13 +6751,13 @@ msgstr "Faili ya tafsiri {file} haikuweza kusomwa ({reason}), kwa hiyo haitumiki
 msgid "Remote — RustyPresenter"
 msgstr "Rimoti — RustyPresenter"
 
-#: src/i18n/remote_strings.rs src/strings/dialogs.rs src/ui/dialogs/settings_find.rs
-msgid "Remote"
-msgstr "Rimoti"
-
 #: src/i18n/remote_strings.rs
 msgid "On the presentation computer, click {phone} → {pair}, then type the 6-digit code here."
 msgstr "Kwenye kompyuta ya maonyesho, bofya {phone} → {pair}, kisha andika msimbo wa tarakimu 6 hapa."
+
+#: src/i18n/remote_strings.rs
+msgid "Phone"
+msgstr "Simu"
 
 #: src/i18n/remote_strings.rs src/stream/phone_camera.rs
 msgid "Connect"
@@ -9441,10 +9549,10 @@ msgstr[0] "kipengele {n}"
 msgstr[1] "vipengele {n}"
 
 #: src/strings/operator.rs
-msgid "{n} phone"
-msgid_plural "{n} phones"
-msgstr[0] "simu {n}"
-msgstr[1] "simu {n}"
+msgid "{n} remote"
+msgid_plural "{n} remotes"
+msgstr[0] "Rimoti {n}"
+msgstr[1] "Rimoti {n}"
 
 #: src/strings/operator.rs
 msgid "Slide picture"
@@ -9659,6 +9767,46 @@ msgstr "slaidi {n}"
 #: src/strings/operator.rs
 msgid "On the stage screen only. The room didn't change."
 msgstr "Kwenye skrini ya jukwaa pekee. Ukumbi haukubadilika."
+
+#: src/strings/operator.rs src/strings/themes.rs
+msgid "Standard"
+msgstr "Kawaida"
+
+#: src/strings/operator.rs
+msgid "Big slides"
+msgstr "Slaidi kubwa"
+
+#: src/strings/operator.rs
+msgid "Two monitors"
+msgstr "Skrini mbili"
+
+#: src/strings/operator.rs
+msgid "RustyPresenter — {panels}"
+msgstr "RustyPresenter — {panels}"
+
+#: src/strings/operator.rs
+msgid "The main window keeps at least one panel."
+msgstr "Dirisha kuu linabaki na angalau paneli moja."
+
+#: src/strings/operator.rs
+msgid "Name for this layout"
+msgstr "Jina la mpangilio huu"
+
+#: src/strings/operator.rs
+msgid "New name for this layout"
+msgstr "Jina jipya la mpangilio huu"
+
+#: src/strings/operator.rs
+msgid "Layout “{name}” saved"
+msgstr "Mpangilio “{name}” umehifadhiwa"
+
+#: src/strings/operator.rs
+msgid "Delete the layout “{name}”? The window goes back to Standard."
+msgstr "Futa mpangilio “{name}”? Dirisha linarudi kwenye Kawaida."
+
+#: src/strings/operator.rs
+msgid "Delete layout"
+msgstr "Futa mpangilio"
 
 #: src/strings/phone.rs
 msgid "Code works for {n} more seconds"
@@ -11294,10 +11442,6 @@ msgid "Theme deleted"
 msgstr "Mandhari imefutwa"
 
 #: src/strings/themes.rs
-msgid "Standard"
-msgstr "Kawaida"
-
-#: src/strings/themes.rs
 msgid "Built-in — the style RustyPresenter started with"
 msgstr "Imejengwa ndani — mtindo ambao RustyPresenter ilianza nao"
 
@@ -12239,10 +12383,6 @@ msgstr "Vitufe"
 #: src/ui/dialogs/settings_find.rs
 msgid "Auto-follow"
 msgstr "Fuata otomatiki"
-
-#: src/ui/dialogs/settings_find.rs
-msgid "Livestream"
-msgstr "Matangazo ya moja kwa moja"
 
 #: src/ui/dialogs/settings_find.rs
 msgid "Backups"
@@ -13386,6 +13526,11 @@ msgstr "yt-dlp haikuhifadhi video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "si faili ya midia"
+
+#~ msgid "{n} phone"
+#~ msgid_plural "{n} phones"
+#~ msgstr[0] "simu {n}"
+#~ msgstr[1] "simu {n}"
 
 #~ msgid "Show on the phone remote"
 #~ msgstr "Onyesha kwenye simu ya kudhibiti"
