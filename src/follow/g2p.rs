@@ -1,0 +1,383 @@
+//! Words to the sounds the ear hears. The phoneme model (`wav2vec2-xlsr-53-espeak-cv-ft`) writes speech as
+//! espeak-style IPA, so a song's words are turned into the same (English rules plus a table of common words that
+//! break them). The letter model (`wav2vec2-base-960h`) writes capital letters, so its words only need folding to
+//! A–Z. Words in other scripts have no phonemes here: they keep their letters.
+use super::lyrics::latin;
+
+/// Common words the rules get wrong, as espeak (en-us) says them.
+const EXCEPTIONS: &[(&str, &str)] = &[
+    ("a", "ɐ"), ("above", "ɐbʌv"), ("again", "ɐɡɛn"), ("all", "ɔːl"), ("alleluia", "ælɪluːjə"), ("already", "ɔːlɹɛdi"),
+    ("amazing", "ɐmeɪzɪŋ"), ("amen", "ɑːmɛn"), ("an", "æn"), ("and", "ænd"), ("any", "ɛni"), ("are", "ɑːɹ"), ("as", "æz"),
+    ("be", "biː"), ("been", "bɪn"), ("begin", "bɪɡɪn"), ("below", "bɪloʊ"), ("break", "bɹeɪk"), ("brother", "bɹʌðɚ"),
+    ("by", "baɪ"), ("christ", "kɹaɪst"), ("come", "kʌm"), ("could", "kʊd"), ("do", "duː"), ("does", "dʌz"),
+    ("done", "dʌn"), ("earth", "ɜːθ"), ("father", "fɑːðɚ"), ("flow", "floʊ"), ("forgive", "fɚɡɪv"), ("four", "foːɹ"),
+    ("from", "fɹʌm"), ("full", "fʊl"), ("get", "ɡɛt"), ("give", "ɡɪv"), ("glory", "ɡloːɹi"), ("go", "ɡoʊ"), ("god", "ɡɑːd"),
+    ("great", "ɡɹeɪt"), ("grow", "ɡɹoʊ"), ("hallelujah", "hælɪluːjə"), ("has", "hæz"), ("have", "hæv"), ("he", "hiː"),
+    ("heart", "hɑːɹt"), ("heaven", "hɛvən"), ("here", "hɪɹ"), ("his", "hɪz"), ("holy", "hoʊli"), ("how", "haʊ"),
+    ("i", "aɪ"), ("into", "ɪntuː"), ("is", "ɪz"), ("jesus", "dʒiːzəs"), ("know", "noʊ"), ("live", "lɪv"), ("lord", "lɔːɹd"),
+    ("love", "lʌv"), ("low", "loʊ"), ("many", "mɛni"), ("me", "miː"), ("mother", "mʌðɚ"), ("my", "maɪ"), ("no", "noʊ"),
+    ("now", "naʊ"), ("o", "oʊ"), ("of", "ʌv"), ("oh", "oʊ"), ("ohh", "oʊ"), ("once", "wʌns"), ("one", "wʌn"), ("only", "oʊnli"),
+    ("other", "ʌðɚ"), ("our", "aʊɚ"), ("own", "oʊn"), ("put", "pʊt"), ("said", "sɛd"), ("says", "sɛz"), ("shall", "ʃæl"),
+    ("she", "ʃiː"), ("should", "ʃʊd"), ("show", "ʃoʊ"), ("slow", "sloʊ"), ("so", "soʊ"), ("some", "sʌm"), ("son", "sʌn"),
+    ("sorrow", "sɑːɹoʊ"), ("spirit", "spɪɹɪt"), ("sure", "ʃʊɹ"), ("than", "ðæn"), ("that", "ðæt"), ("the", "ðə"),
+    ("thee", "ðiː"), ("their", "ðɛɹ"), ("them", "ðɛm"), ("then", "ðɛn"), ("there", "ðɛɹ"), ("these", "ðiːz"),
+    ("they", "ðeɪ"), ("thine", "ðaɪn"), ("this", "ðɪs"), ("those", "ðoʊz"), ("thou", "ðaʊ"), ("though", "ðoʊ"),
+    ("through", "θɹuː"), ("thy", "ðaɪ"), ("to", "tuː"), ("unto", "ʌntuː"), ("was", "wʌz"), ("we", "wiː"), ("were", "wɜː"),
+    ("what", "wʌt"), ("where", "wɛɹ"), ("who", "huː"), ("whom", "huːm"), ("whose", "huːz"), ("with", "wɪð"),
+    ("won", "wʌn"), ("word", "wɜːd"), ("work", "wɜːk"), ("world", "wɜːld"), ("worship", "wɜːʃɪp"), ("worthy", "wɜːði"),
+    ("would", "wʊd"), ("you", "juː"), ("your", "jʊɹ"),
+    // Names sung in worship: long, strong words that lock the place, and the rules miss them.
+    ("emmanuel", "ɪmænjuːɛl"), ("immanuel", "ɪmænjuːɛl"), ("yahweh", "jɑːweɪ"), ("messiah", "məsaɪə"), ("israel", "ɪzɹeɪəl"),
+    ("jerusalem", "dʒəɹuːsələm"), ("zion", "zaɪən"), ("judah", "dʒuːdə"), ("jehovah", "dʒɪhoʊvə"), ("adonai", "ɑːdoʊnaɪ"),
+    ("calvary", "kælvɚi"), ("savior", "seɪvjɚ"), ("saviour", "seɪvjɚ"),
+    // More common words the rules get wrong.
+    ("lion", "laɪən"), ("angel", "eɪndʒəl"), ("valley", "væli"), ("blood", "blʌd"), ("flood", "flʌd"), ("enough", "ɪnʌf"),
+    ("reign", "ɹeɪn"), ("died", "daɪd"), ("cried", "kɹaɪd"), ("tried", "tɹaɪd"), ("death", "dɛθ"), ("dead", "dɛd"),
+    ("head", "hɛd"), ("bread", "bɹɛd"), ("breath", "bɹɛθ"), ("soul", "soʊl"), ("eye", "aɪ"), ("prayer", "pɹɛɹ"),
+    ("people", "piːpəl"), ("forever", "fɚɹɛvɚ"), ("honor", "ɑːnɚ"), ("honour", "ɑːnɚ"), ("ocean", "oʊʃən"),
+    ("beautiful", "bjuːɾɪfəl"), ("worth", "wɜːθ"),
+    // Common words of worship songs that the rules built two sounds or more away from how they are said, or one
+    // sound away in a word too short to spare one: the ear never heard them. (Plurals, "-ed", "-ing", "-ly",
+    // "-ful" and "-ness" forms come through these too.)
+    ("us", "ʌs"), ("yes", "jɛs"), ("thus", "ðʌs"), ("two", "tuː"), ("few", "fjuː"), ("none", "nʌn"), ("both", "boʊθ"), ("gone", "ɡɔːn"),
+    ("use", "juːz"), ("hour", "aʊɚ"), ("house", "haʊs"), ("whole", "hoʊl"), ("want", "wɑːnt"), ("water", "wɔːɾɚ"), ("walk", "wɔːk"),
+    ("talk", "tɔːk"), ("calm", "kɑːm"), ("psalm", "sɑːm"), ("away", "ɐweɪ"), ("awake", "ɐweɪk"), ("awaken", "ɐweɪkən"),
+    ("always", "ɔːlweɪz"), ("although", "ɔːlðoʊ"), ("today", "tədeɪ"), ("tomorrow", "təmɑːɹoʊ"), ("together", "təɡɛðɚ"),
+    ("toward", "təwɔːɹd"), ("towards", "təwɔːɹdz"), ("beyond", "bɪjɑːnd"), ("because", "bɪkʌz"), ("before", "bᵻfoːɹ"),
+    ("become", "bɪkʌm"), ("welcome", "wɛlkəm"), ("overcome", "oʊvɚkʌm"), ("something", "sʌmθɪŋ"), ("sometimes", "sʌmtaɪmz"),
+    ("someone", "sʌmwʌn"), ("anyone", "ɛnɪwʌn"), ("nothing", "nʌθɪŋ"), ("every", "ɛvɹi"), ("everything", "ɛvɹɪθɪŋ"),
+    ("everywhere", "ɛvɹɪwɛɹ"), ("everyone", "ɛvɹɪwʌn"), ("everybody", "ɛvɹɪbɑːdi"), ("body", "bɑːdi"), ("even", "iːvən"),
+    ("evening", "iːvnɪŋ"), ("evermore", "ɛvɚmoːɹ"), ("forevermore", "fɚɹɛvɚmoːɹ"), ("door", "doːɹ"), ("floor", "floːɹ"),
+    ("pour", "poːɹ"), ("court", "koːɹt"), ("course", "koːɹs"), ("source", "soːɹs"), ("sword", "soːɹd"), ("mourning", "moːɹnɪŋ"),
+    ("known", "noʊn"), ("shown", "ʃoʊn"), ("grown", "ɡɹoʊn"), ("thrown", "θɹoʊn"), ("snow", "snoʊ"), ("shadow", "ʃædoʊ"),
+    ("window", "wɪndoʊ"), ("heard", "hɜːd"), ("learn", "lɜːn"), ("search", "sɜːtʃ"), ("early", "ɜːli"), ("bear", "bɛɹ"),
+    ("wear", "wɛɹ"), ("heavy", "hɛvi"), ("ready", "ɹɛdi"), ("health", "hɛlθ"), ("instead", "ɪnstɛd"), ("spread", "spɹɛd"),
+    ("treasure", "tɹɛʒɚ"), ("pleasure", "plɛʒɚ"), ("measure", "mɛʒɚ"), ("greater", "ɡɹeɪɾɚ"), ("greatest", "ɡɹeɪɾᵻst"),
+    ("given", "ɡɪvən"), ("gift", "ɡɪft"), ("forgiven", "fɚɡɪvən"), ("forget", "fɚɡɛt"), ("guilt", "ɡɪlt"), ("guide", "ɡaɪd"),
+    ("guiding", "ɡaɪdɪŋ"), ("build", "bɪld"), ("built", "bɪlt"), ("rough", "ɹʌf"), ("tough", "tʌf"), ("laugh", "læf"),
+    ("young", "jʌŋ"), ("youth", "juːθ"), ("touch", "tʌtʃ"), ("trouble", "tɹʌbəl"), ("courage", "kɜːɹɪdʒ"), ("journey", "dʒɜːni"),
+    ("truth", "tɹuːθ"), ("truly", "tɹuːli"), ("friend", "fɹɛnd"), ("tongue", "tʌŋ"), ("dove", "dʌv"), ("move", "muːv"),
+    ("prove", "pɹuːv"), ("lose", "luːz"), ("cover", "kʌvɚ"), ("wonder", "wʌndɚ"), ("worry", "wɜːɹi"), ("quiet", "kwaɪət"),
+    ("doubt", "daʊt"), ("debt", "dɛt"), ("tomb", "tuːm"), ("climb", "klaɪm"), ("sign", "saɪn"), ("height", "haɪt"),
+    ("listen", "lɪsən"), ("silent", "saɪlənt"), ("breathe", "bɹiːð"), ("wind", "wɪnd"), ("cleanse", "klɛnz"),
+    ("danger", "deɪndʒɚ"), ("manger", "meɪndʒɚ"), ("stranger", "stɹeɪndʒɚ"), ("changed", "tʃeɪndʒd"), ("changing", "tʃeɪndʒɪŋ"),
+    ("unchanging", "ʌntʃeɪndʒɪŋ"), ("mountain", "maʊntən"), ("fountain", "faʊntən"), ("certain", "sɜːtən"),
+    ("mercies", "mɜːsiz"), ("enemies", "ɛnəmiz"), ("victory", "vɪktɚɹi"), ("wisdom", "wɪzdəm"), ("beauty", "bjuːɾi"),
+    ("awesome", "ɔːsəm"), ("majesty", "mædʒɪsti"), ("sovereign", "sɑːvɹᵻn"), ("righteous", "ɹaɪtʃəs"),
+    ("righteousness", "ɹaɪtʃəsnəs"), ("creation", "kɹiːeɪʃən"), ("creator", "kɹiːeɪɾɚ"), ("created", "kɹiːeɪɾᵻd"),
+    ("shepherd", "ʃɛpɚd"), ("receive", "ɹᵻsiːv"), ("release", "ɹᵻliːs"), ("revival", "ɹᵻvaɪvəl"), ("eternal", "ɪtɜːnəl"),
+    ("eternity", "ɪtɜːnᵻɾi"), ("promise", "pɹɑːmɪs"), ("promised", "pɹɑːmɪst"), ("purpose", "pɜːpəs"), ("covenant", "kʌvənənt"),
+    ("altar", "ɔːltɚ"), ("dominion", "dəmɪnjən"), ("authority", "ɐθɔːɹᵻɾi"), ("conquer", "kɑːŋkɚ"), ("rescued", "ɹɛskjuːd"),
+    ("comfort", "kʌmfɚt"), ("comforter", "kʌmfɚɾɚ"), ("provider", "pɹəvaɪdɚ"), ("protector", "pɹətɛktɚ"), ("deny", "dɪnaɪ"),
+    ("supply", "səplaɪ"), ("multiply", "mʌltɪplaɪ"), ("reply", "ɹᵻplaɪ"), ("christmas", "kɹɪsməs"),
+    // Words with an apostrophe, as they arrive here without it: "I'm", "I'll", "I'd", "he's", "don't", "won't",
+    // "o'er", "e'er", "heav'n", "you're", "they're", "doesn't", "wasn't". (So the rare sung "ill", "id" and "wont"
+    // are said as these.)
+    ("im", "aɪm"), ("ill", "aɪl"), ("id", "aɪd"), ("hes", "hiːz"), ("dont", "doʊnt"), ("wont", "woʊnt"), ("oer", "oːɹ"),
+    ("eer", "ɛɹ"), ("heavn", "hɛvən"), ("youre", "jʊɹ"), ("theyre", "ðɛɹ"), ("doesnt", "dʌzənt"), ("wasnt", "wʌzənt"),
+];
+
+/// Sung syllables of one sound that the rules get wrong ("Ah" is not the "a" of "at"). Kept apart from
+/// `EXCEPTIONS`, whose words all have two sounds or more. ("Ooh", "oo", "awe" come out right by the rules.)
+const LONE: &[(&str, &str)] = &[("ah", "ɑː"), ("ahh", "ɑː"), ("aah", "ɑː"), ("ooo", "uː"), ("oooh", "uː")];
+
+/// Other ways a word is sung ("ay-men", "bless-ed"). Long words only: a short extra way is a short extra false hit.
+const SUNG: &[(&str, &[&str])] = &[
+    ("amen", &["eɪmɛn"]), ("blessed", &["blɛsɪd"]), ("hallelujah", &["hɑːleɪluːjɑː"]), ("alleluia", &["ɑːleɪluːjɑː"]),
+    ("prayer", &["pɹeɪɚ"]),
+];
+
+/// The word in a–z only, as the tables and the rules read it. `None` for a word that isn't written in Latin
+/// letters, or has no letters at all.
+fn folded(word: &str) -> Option<String> {
+    let w = latin(word)?;
+    let w: String = w.chars().filter(|c| c.is_ascii_lowercase()).collect();
+    if w.is_empty() { return None }
+    Some(w)
+}
+
+/// The word as espeak-style IPA (en-us, no stress marks), e.g. "grace" → "ɡɹeɪs". `None` for a word that isn't
+/// written in Latin letters (it keeps its letters, `key`).
+pub fn phonemes(word: &str) -> Option<String> {
+    let w = folded(word)?;
+    Some(english(&w))
+}
+
+/// The CMU Pronouncing Dictionary (Carnegie Mellon University, BSD-style licence in `assets/cmudict/LICENSE`,
+/// downloaded November 14, 2026 from github.com/cmusphinx/cmudict): 121,735 English words, each with every way it
+/// is said, turned from its own symbols into the IPA the phoneme ear writes (`assets/cmudict/README.md`).
+const CMUDICT: &str = include_str!("../../assets/cmudict/cmudict-ipa.tsv");
+
+/// The dictionary's ways of saying `w` (a–z only), read on first use.
+fn dictionary(w: &str) -> Option<&'static [&'static str]> {
+    static WORDS: std::sync::OnceLock<std::collections::HashMap<&'static str, Vec<&'static str>>> = std::sync::OnceLock::new();
+    let words = WORDS.get_or_init(|| CMUDICT.lines().filter_map(|l| {
+        let mut parts = l.split('\t');
+        let word = parts.next()?;
+        let ways: Vec<&str> = parts.filter(|p| !p.is_empty()).collect();
+        (!ways.is_empty()).then_some((word, ways))
+    }).collect());
+    words.get(w).map(Vec::as_slice)
+}
+
+/// Every way the phoneme ear listens for the word, so the leader is heard whichever way it comes out: the
+/// hand-made table's way when the word is in it (those are chosen on purpose: "a" is never listened for, "the" is
+/// only "thuh"); else every way the dictionary has; else the spelling rules (`phonemes`). Then the ways it is
+/// sung (`SUNG`). Ways that sound the same to the ear (`coarse`) are given once. Empty when the word has no
+/// phonemes.
+pub fn variants(word: &str) -> Vec<String> {
+    let Some(w) = folded(word) else { return vec![] };
+    let mut out: Vec<String> = match (exception(&w), dictionary(&w)) {
+        (Some(p), _) => vec![p.to_string()],
+        // Its other ways only when about as long as its first: the dictionary also lists letters spelled out
+        // ("am" as A.M., "us" as U.S.), which match far more than the word ("I am" was heard as "A.M.").
+        (None, Some(ways)) => {
+            let first = coarse(ways[0]).len();
+            ways.iter().filter(|s| coarse(s).len().abs_diff(first) <= 1).map(|s| s.to_string()).collect()
+        }
+        (None, None) => vec![english(&w)],
+    };
+    for (k, ways) in SUNG {
+        if *k == w.as_str() { out.extend(ways.iter().map(|s| s.to_string())) }
+    }
+    let mut seen = std::collections::HashSet::new();
+    out.retain(|p| seen.insert(coarse(p)));
+    out
+}
+
+/// Whether the phoneme ear listens for a word said with these sounds (`coarse`). Two sounds or more: always. One
+/// sound: only a full vowel, a sung "Ooh" or "Ah", and the ear hears that only when it stands alone at a pause.
+/// The neutral vowel of "a" and "uh" is in every stray sound, and a lone consonant ("mm") is no word: never.
+pub fn listened(sounds: &[char]) -> bool {
+    match sounds {
+        [] => false,
+        [one] => matches!(*one, 'u' | 'ɑ' | 'e' | 'i' | 'o'),
+        _ => true,
+    }
+}
+
+/// What the ear compares for a word: its phonemes, or for other scripts its letters.
+pub fn key(word: &str) -> String { phonemes(word).unwrap_or_else(|| letters(word)) }
+
+/// The word as the letter model writes it: capitals A–Z (accents dropped). Other scripts keep their own letters.
+pub fn letters(word: &str) -> String {
+    match latin(word) {
+        Some(w) => w.chars().filter(|c| c.is_ascii_lowercase()).map(|c| c.to_ascii_uppercase()).collect(),
+        None => word.to_lowercase().chars().filter(|c| c.is_alphanumeric()).collect(),
+    }
+}
+
+fn exception(w: &str) -> Option<&'static str> { EXCEPTIONS.iter().chain(LONE).find(|(k, _)| *k == w).map(|(_, v)| *v) }
+
+fn vowel(c: u8) -> bool { matches!(c, b'a' | b'e' | b'i' | b'o' | b'u' | b'y') }
+
+/// One vowel group: a word of one syllable.
+fn one_syllable(w: &[u8]) -> bool {
+    let mut groups = 0;
+    let mut prev = false;
+    for &c in w {
+        let v = vowel(c);
+        if v && !prev { groups += 1 }
+        prev = v;
+    }
+    groups == 1
+}
+
+/// The stem of "saving" / "saved": "save" when the stem is one syllable ending in vowel + consonant, "run" for
+/// "running".
+fn stem(s: &str) -> String {
+    let b = s.as_bytes();
+    let n = b.len();
+    // "dancing", "rejoiced": the stem ends in a soft "c", which only its "e" keeps soft.
+    if n >= 3 && b[n - 1] == b'c' { return format!("{s}e") }
+    if n >= 2 && b[n - 1] == b[n - 2] && !vowel(b[n - 1]) && !matches!(b[n - 1], b'l' | b's') { return s[..n - 1].to_string() }
+    if n >= 2 && one_syllable(b) && vowel(b[n - 2]) && !vowel(b[n - 1]) && !matches!(b[n - 1], b'w' | b'x' | b'y') && !(n >= 3 && vowel(b[n - 3])) {
+        return format!("{s}e");
+    }
+    s.to_string()
+}
+
+/// The last sound of `p` (an IPA string).
+fn ends_with_any(p: &str, ends: &[&str]) -> bool { ends.iter().any(|e| p.ends_with(e)) }
+
+fn english(w: &str) -> String {
+    if let Some(p) = exception(w) { return p.to_string() }
+    let n = w.len();
+    // Endings: the stem's sounds and the ending's.
+    if n > 4 && w.ends_with("ing") {
+        return format!("{}ɪŋ", english(&stem(&w[..n - 3])));
+    }
+    if n > 3 && w.ends_with("ed") && !w.ends_with("eed") {
+        let p = english(&stem(&w[..n - 2]));
+        let end = if ends_with_any(&p, &["t", "d"]) { "ᵻd" } else if ends_with_any(&p, &["p", "k", "f", "s", "ʃ", "tʃ", "θ"]) { "t" } else { "d" };
+        return format!("{p}{end}");
+    }
+    if n > 3 && w.ends_with('s') && !w.ends_with("ss") && !w.ends_with("us") && !w.ends_with("is") {
+        let p = english(&w[..n - 1]);
+        let end = if ends_with_any(&p, &["s", "z", "ʃ", "ʒ"]) { "ᵻz" } else if ends_with_any(&p, &["p", "t", "k", "f", "θ"]) { "s" } else { "z" };
+        return format!("{p}{end}");
+    }
+    // "glorify", "magnify", "satisfy": the last "y" is "eye" (not in "fluffy").
+    if n > 4 && w.ends_with("fy") && !w.ends_with("ffy") { return format!("{}aɪ", rules(&w.as_bytes()[..n - 1])) }
+    if n > 4 && w.ends_with("ly") { return format!("{}li", english(&w[..n - 2])) }
+    if n > 5 && w.ends_with("ness") { return format!("{}nəs", english(&w[..n - 4])) }
+    if n > 4 && w.ends_with("ful") { return format!("{}fəl", english(&w[..n - 3])) }
+    rules(w.as_bytes())
+}
+
+/// Letter-to-sound rules for one stem.
+fn rules(b: &[u8]) -> String {
+    let n = b.len();
+    let at = |i: usize| b.get(i).copied().unwrap_or(0);
+    let rest = |i: usize, s: &str| b[i..].starts_with(s.as_bytes());
+    // A final "e" after a consonant is silent (not in "be", handled as an exception) and makes the vowel before
+    // it long ("grace", "shine").
+    let silent_e = n > 2 && b[n - 1] == b'e' && !vowel(b[n - 2]) && b[..n - 1].iter().any(|&c| vowel(c));
+    let magic = |i: usize| silent_e && i + 2 == n - 1 && !vowel(at(i + 1));
+    let last_vowel = (0..n).rev().find(|&i| vowel(b[i]) && !(silent_e && i == n - 1));
+    let mut out = String::new();
+    let mut i = 0;
+    while i < n {
+        let c = b[i];
+        let (n1, n2) = (at(i + 1), at(i + 2));
+        let mut step = 1;
+        let p: &str = match c {
+            // Several letters at once, longest first.
+            _ if rest(i, "eigh") => { step = 4; "eɪ" }
+            _ if rest(i, "igh") => { step = 3; "aɪ" }
+            _ if rest(i, "ough") || rest(i, "augh") => { step = 4; "ɔː" }
+            _ if rest(i, "tion") => { step = 4; "ʃən" }
+            _ if rest(i, "sion") => { step = 4; "ʒən" }
+            _ if rest(i, "tious") || rest(i, "cious") => { step = 5; "ʃəs" }
+            _ if rest(i, "ture") => { step = 4; "tʃɚ" }
+            _ if rest(i, "ous") && i + 3 == n => { step = 3; "əs" }
+            _ if rest(i, "tch") => { step = 3; "tʃ" }
+            _ if rest(i, "ther") && i > 0 => { step = 4; "ðɚ" }
+            _ if rest(i, "air") => { step = 3; "ɛɹ" }
+            _ if rest(i, "are") && i + 3 == n => { step = 3; "ɛɹ" }
+            _ if rest(i, "ear") || rest(i, "eer") => { step = 3; "ɪɹ" }
+            _ if rest(i, "ere") && i + 3 == n => { step = 3; "ɪɹ" }
+            _ if rest(i, "ire") && i + 3 == n => { step = 3; "aɪɚ" }
+            // "more", "adore", "restore" (espeak writes these "oːɹ", and "ɔːɹ" for "lord", "born").
+            _ if rest(i, "ore") && i + 3 == n => { step = 3; "oːɹ" }
+            _ if rest(i, "our") => { step = 3; "aʊɚ" }
+            _ if rest(i, "ure") && i + 3 == n => { step = 3; "ʊɹ" }
+            _ if rest(i, "le") && i + 2 == n && i > 0 && !vowel(b[i - 1]) => { step = 2; "əl" }
+            b'a' if n1 == b'r' && !vowel(n2) => { step = 2; "ɑːɹ" }
+            b'o' if n1 == b'r' && !vowel(n2) => { step = 2; "ɔːɹ" }
+            b'e' | b'i' | b'u' if n1 == b'r' && !vowel(n2) => {
+                step = 2;
+                // Unstressed at the end ("never", "savior"); stressed "her", "bird", "turn".
+                if i + 2 == n && i > 0 && !one_syllable(b) { "ɚ" } else { "ɜː" }
+            }
+            b'a' if matches!(n1, b'i' | b'y') => { step = 2; "eɪ" }
+            b'e' if matches!(n1, b'i' | b'y') => { step = 2; "eɪ" }
+            b'e' if matches!(n1, b'e' | b'a') => { step = 2; "iː" }
+            b'i' if n1 == b'e' => { step = 2; if i + 2 == n { "aɪ" } else { "iː" } }
+            b'o' if matches!(n1, b'a') || (n1 == b'e' && i + 2 == n) => { step = 2; "oʊ" }
+            b'o' if n1 == b'o' => { step = 2; "uː" }
+            b'o' if n1 == b'u' => { step = 2; "aʊ" }
+            b'o' if n1 == b'w' => {
+                step = 2;
+                if i + 2 == n && i > 0 && matches!(b[i - 1], b'l' | b'r') { "oʊ" } else { "aʊ" }
+            }
+            b'o' if matches!(n1, b'i' | b'y') => { step = 2; "ɔɪ" }
+            b'a' if matches!(n1, b'u' | b'w') => { step = 2; "ɔː" }
+            b'e' if n1 == b'w' => { step = 2; "uː" }
+            b'u' if matches!(n1, b'e' | b'i') && !magic(i) => { step = 2; "uː" }
+            // One vowel.
+            b'a' if magic(i) => "eɪ",
+            b'e' if magic(i) => "iː",
+            b'i' if magic(i) => "aɪ",
+            b'o' if magic(i) => "oʊ",
+            b'u' if magic(i) => "uː",
+            b'y' if magic(i) => "aɪ",
+            b'e' if silent_e && i == n - 1 => "",
+            b'a' if i == 0 && n > 3 && !vowel(n1) && vowel(n2) => "ɐ",
+            b'a' if n1 == b'l' && matches!(n2, b'l' | b'k') => "ɔː",
+            b'a' if i + 1 == n => "ə",
+            b'a' if Some(i) != last_vowel && !vowel(n1) && vowel(n2) && i > 0 => "eɪ",
+            b'a' => "æ",
+            b'e' if i + 1 == n && n <= 2 => "iː",
+            b'e' => "ɛ",
+            b'i' if (rest(i, "ind") || rest(i, "ild")) && i + 3 == n => "aɪ",
+            b'i' => "ɪ",
+            b'o' if i + 1 == n => "oʊ",
+            b'o' if rest(i, "old") || rest(i, "ost") && i + 3 == n && i > 0 && b[i - 1] == b'm' => "oʊ",
+            b'o' if Some(i) != last_vowel && !vowel(n1) && n1 != 0 && vowel(n2) => "oʊ",
+            b'o' => "ɑː",
+            b'u' if matches!(n1, b'l' | b's') && matches!(n2, b'l' | b'h') => "ʊ",
+            b'u' if i > 0 && b[i - 1] == b'q' => "",
+            b'u' => "ʌ",
+            b'y' if i == 0 && vowel(n1) => "j",
+            b'y' if i + 1 == n => if b[..i].iter().any(|&c| vowel(c)) { "i" } else { "aɪ" },
+            b'y' => "ɪ",
+            // Consonants.
+            b'c' if n1 == b'k' => { step = 2; "k" }
+            b'c' if n1 == b'h' && n2 == b'r' => { step = 2; "k" }
+            b'c' if n1 == b'h' => { step = 2; "tʃ" }
+            b'c' if matches!(n1, b'e' | b'i' | b'y') => "s",
+            b'c' => "k",
+            b's' if n1 == b'h' => { step = 2; "ʃ" }
+            b's' if n1 == b'c' && matches!(n2, b'e' | b'i' | b'y') => { step = 2; "s" }
+            b's' if n1 == b's' => { step = 2; "s" }
+            b's' if i > 0 && vowel(b[i - 1]) && (vowel(n1) || i + 1 == n) => "z",
+            b't' if n1 == b'h' => { step = 2; "θ" }
+            b'p' if n1 == b'h' => { step = 2; "f" }
+            b'w' if n1 == b'h' => { step = 2; "w" }
+            b'w' if n1 == b'r' && i == 0 => { step = 2; "ɹ" }
+            b'k' if n1 == b'n' && i == 0 => { step = 2; "n" }
+            b'g' if n1 == b'n' && i == 0 => { step = 2; "n" }
+            b'g' if n1 == b'h' => { step = 2; if i == 0 { "ɡ" } else { "" } }
+            b'g' if n1 == b'g' => { step = 2; "ɡ" }
+            b'g' if matches!(n1, b'e' | b'i' | b'y') => "dʒ",
+            b'g' => "ɡ",
+            b'n' if n1 == b'g' => { step = 2; "ŋ" }
+            b'n' if n1 == b'k' => "ŋ",
+            b'q' => "kw",
+            b'x' if i == 0 => "z",
+            b'x' => "ks",
+            b'j' => "dʒ",
+            b'r' => "ɹ",
+            b'd' if n1 == b'g' && matches!(n2, b'e' | b'i' | b'y') => { step = 2; "dʒ" }
+            b'm' if n1 == b'b' && i + 2 == n => { step = 2; "m" }
+            b'h' if vowel(n1) && n1 != b'y' => "h",
+            b'h' => "",
+            b'w' if vowel(n1) => "w",
+            b'w' => "",
+            c if !vowel(c) && n1 == c => { step = 2; std::str::from_utf8(std::slice::from_ref(&b[i])).unwrap_or("") }
+            _ => std::str::from_utf8(std::slice::from_ref(&b[i])).unwrap_or(""),
+        };
+        out.push_str(p);
+        i += step;
+    }
+    out
+}
+
+/// The sounds as the ear compares them: stress and length marks dropped, and sounds that singers (and the
+/// model) mix up folded together ("ɐ"/"ʌ"/"ə", "ɑ"/"ɔ", "ɪ"/"i", "ɾ"/"t").
+pub fn coarse(ipa: &str) -> Vec<char> {
+    let mut out = Vec::with_capacity(ipa.len());
+    for c in ipa.chars() {
+        match c {
+            'ː' | 'ˈ' | 'ˌ' | '.' | '\u{329}' | '\u{32a}' | 'ʰ' | '^' | 'ʔ' | '-' | ' ' => {}
+            c if c.is_ascii_digit() => {}
+            'ɐ' | 'ʌ' | 'ᵻ' | 'ɜ' | 'ə' => out.push('ə'),
+            'ɚ' => { out.push('ə'); out.push('ɹ') }
+            'ɾ' => out.push('t'),
+            'ɒ' | 'ɔ' | 'a' | 'ɑ' => out.push('ɑ'),
+            'ɪ' | 'i' => out.push('i'),
+            'ʊ' | 'u' => out.push('u'),
+            'ɛ' | 'æ' => out.push('e'),
+            'r' | 'ɻ' => out.push('ɹ'),
+            'g' => out.push('ɡ'),
+            'ɫ' => out.push('l'),
+            c => out.push(c),
+        }
+    }
+    out
+}
+
+#[cfg(test)]
+#[path = "g2p_tests.rs"]
+mod tests;

@@ -1,0 +1,26 @@
+# Plain text in ui/**/*.slint that is not translated (checked by `slint_has_no_bare_user_text` in tests/i18n_catalogs.rs).
+# One text per line, exactly as written in the .slint file; or `file: <path>` for a whole file. Lines starting with # are notes.
+# Only symbols, names and the like belong here: words people read go through @tr(...).
+
+# The developer's widget gallery (`cargo run --example widgets`); church volunteers never see it.
+file: ui/gallery.slint
+
+# The letter in the brand mark (top left of the operator).
+R
+
+# The start of a web address, as the hint in an empty address box.
+https://
+
+# The graphics test window title (the app name).
+RustyPresenter
+
+# Streaming services, by their own names (Settings → Media → Livestream).
+YouTube
+Facebook
+Twitch
+Instagram
+X
+TikTok
+
+# CCLI's song service, by its own name (Settings → Songs).
+SongSelect

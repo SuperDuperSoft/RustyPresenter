@@ -1,0 +1,314 @@
+// The room output (same layers as `web/output.html`): background, media, slide, logo, drawing, overlays, bottom → top.
+// Video is drawn by mpv under the whole scene (OpenGL) or handed in as `video-frame` (software).
+// Each layer has two faces, so a new picture fades in over the old one as it fades out (driven from Rust).
+import { Theme } from "theme.slint";
+
+/// One picture: `image` over a `color` fill (transparent = none).
+export struct Side { image: image, color: color }
+
+/// One picture over its colour fill, at opacity `op`. The fill and the picture each carry the opacity and have no
+/// children, so the renderer applies it while drawing: an opacity over an element with children needs an offscreen
+/// layer, a full-screen texture per face (`Opacity::need_layer` in i-slint-core). A face at opacity 0 is skipped by
+/// the renderer. It has no `visible` binding on purpose: the compiler would wrap the Image in a Clip, which brings
+/// the offscreen layer back.
+component Face {
+    in property <Side> side;
+    in property <float> op: 1;
+    in property <ImageFit> fit;
+    /// Share of the screen the picture may take (the logo uses 70 %).
+    in property <float> scale: 1;
+    Rectangle {
+        width: root.width;
+        height: root.height;
+        background: root.side.color;
+        opacity: root.op;
+    }
+    Image {
+        width: root.width * root.scale;
+        height: root.height * root.scale;
+        x: (root.width - self.width) / 2;
+        y: (root.height - self.height) / 2;
+        source: root.side.image;
+        image-fit: root.fit;
+        opacity: root.op;
+    }
+}
+
+/// A layer with two faces, so a new picture fades in over the old one. Rust sets each face's picture only when it
+/// changes and drives the opacities (`src/ui/fade.rs`): an `animate` here would make every window redraw.
+export component FadeLayer {
+    in property <Side> a;
+    in property <Side> b;
+    in property <float> a-op;
+    in property <float> b-op;
+    in property <ImageFit> fit: contain;
+    in property <float> scale: 1;
+    Face {
+        width: root.width;
+        height: root.height;
+        side: root.a;
+        op: root.a-op;
+        fit: root.fit;
+        scale: root.scale;
+    }
+    Face {
+        width: root.width;
+        height: root.height;
+        side: root.b;
+        op: root.b-op;
+        fit: root.fit;
+        scale: root.scale;
+    }
+}
+
+/// Where a face is during a push or wipe, as shares of the screen: `x`/`y` moves the picture, `l`/`r`/`t`/`b` cut
+/// that much off each side (a wipe), `z` shrinks it about the middle (a zoom: 1 - z of its size). `over`: face a
+/// is drawn over face b. All 0: the whole picture in place.
+export struct Geo { x: float, y: float, l: float, r: float, t: float, b: float, z: float, over: bool }
+
+/// A face that can move and be cut (`Geo`). The cut is a clip with no opacity of its own, so it needs no
+/// offscreen layer.
+component MoveFace {
+    in property <Side> side;
+    in property <float> op: 1;
+    in property <Geo> geo;
+    in property <ImageFit> fit;
+    Rectangle {
+        x: root.width * root.geo.l;
+        y: root.height * root.geo.t;
+        width: root.width * max(0, 1 - root.geo.l - root.geo.r);
+        height: root.height * max(0, 1 - root.geo.t - root.geo.b);
+        clip: true;
+        Face {
+            x: root.width * (root.geo.x - root.geo.l + root.geo.z / 2);
+            y: root.height * (root.geo.y - root.geo.t + root.geo.z / 2);
+            width: root.width * (1 - root.geo.z);
+            height: root.height * (1 - root.geo.z);
+            side: root.side;
+            op: root.op;
+            fit: root.fit;
+        }
+    }
+}
+
+/// The slide layer: two faces that crossfade, or push and wipe (Rust sets `a-geo`/`b-geo` as it moves).
+export component MoveLayer {
+    in property <Side> a;
+    in property <Side> b;
+    in property <float> a-op;
+    in property <float> b-op;
+    in property <Geo> a-geo;
+    in property <Geo> b-geo;
+    in property <ImageFit> fit: contain;
+    if !root.a-geo.over: MoveFace {
+        width: root.width;
+        height: root.height;
+        side: root.a;
+        op: root.a-op;
+        geo: root.a-geo;
+        fit: root.fit;
+    }
+    MoveFace {
+        width: root.width;
+        height: root.height;
+        side: root.b;
+        op: root.b-op;
+        geo: root.b-geo;
+        fit: root.fit;
+    }
+    // A split or zoom brings the new face in over the old one, whichever face it is on.
+    if root.a-geo.over: MoveFace {
+        width: root.width;
+        height: root.height;
+        side: root.a;
+        op: root.a-op;
+        geo: root.a-geo;
+        fit: root.fit;
+    }
+}
+
+/// One face shown at once, with no fade: the operator's live monitor cuts straight to the new picture.
+export component CutLayer {
+    in property <Side> side;
+    in property <ImageFit> fit: contain;
+    in property <float> scale: 1;
+    Face {
+        width: root.width;
+        height: root.height;
+        side: root.side;
+        fit: root.fit;
+        scale: root.scale;
+    }
+}
+
+/// One picture of a designed slide's click group while it plays (`src/ui/room/anim.rs`), in shares of the window:
+/// the picture's place (`x`, `y`, `w`, `h`) moved by `dx`/`dy`, grown `scale` times and turned `rot` degrees about
+/// (`ox`, `oy`) (shares of the picture), at opacity `op`, shown only inside the clip box (`cx`, `cy`, `cw`, `ch`).
+export struct Sprite { image: image, x: float, y: float, w: float, h: float, dx: float, dy: float, ox: float, oy: float, scale: float, rot: float, op: float, cx: float, cy: float, cw: float, ch: float }
+
+/// A click group's pictures, moved by Rust each frame. The clip has no opacity of its own (no offscreen layer).
+export component SpriteLayer {
+    in property <[Sprite]> sprites;
+    for s in root.sprites: Rectangle {
+        x: root.width * s.cx;
+        y: root.height * s.cy;
+        width: root.width * s.cw;
+        height: root.height * s.ch;
+        clip: true;
+        Image {
+            x: root.width * (s.x + s.dx - s.cx);
+            y: root.height * (s.y + s.dy - s.cy);
+            width: root.width * s.w;
+            height: root.height * s.h;
+            source: s.image;
+            image-fit: fill;
+            opacity: s.op;
+            transform-origin: { x: self.width * s.ox, y: self.height * s.oy };
+            transform-rotation: s.rot * 1deg;
+            transform-scale: s.scale;
+        }
+    }
+}
+
+export component RoomWindow inherits Window {
+    title: @tr("RustyPresenter — Room");
+    background: transparent;
+    preferred-width: 1280px;
+    preferred-height: 720px;
+
+    // Each layer's two faces and their opacities (`src/ui/room.rs` writes only the face that changes).
+    in property <Side> bg-a;
+    in property <Side> bg-b;
+    in property <float> bg-a-op;
+    in property <float> bg-b-op;
+    /// False while a foreground video is live: the video fills the screen instead (spec §5).
+    in property <bool> bg-visible: true;
+    in property <Side> media-a;
+    in property <Side> media-b;
+    in property <float> media-a-op;
+    in property <float> media-b-op;
+    /// How a picture on the media layer fills the screen (Settings → General → Screens and graphics and media): 0 fit, 1 fill (crop), 2 stretch.
+    in property <int> media-fit;
+    in property <Side> slide-a;
+    in property <Side> slide-b;
+    in property <float> slide-a-op;
+    in property <float> slide-b-op;
+    /// Where each slide face is while a push or wipe runs.
+    in property <Geo> slide-a-geo;
+    in property <Geo> slide-b-geo;
+    /// A designed slide's click group while it plays, over the slide layer (which is hidden meanwhile).
+    in property <[Sprite]> sprites;
+    in property <Side> logo-a;
+    in property <Side> logo-b;
+    in property <float> logo-a-op;
+    in property <float> logo-b-op;
+    /// Every overlay (logo bug, clock, sign) on one transparent picture, above the logo.
+    in property <Side> overlays-a;
+    in property <Side> overlays-b;
+    in property <float> overlays-a-op;
+    in property <float> overlays-b-op;
+    /// Lines drawn from a phone (`src/render/drawing.rs`), over the slide and logo, under the overlays.
+    in property <image> drawing;
+    /// A video is drawn under the scene, so nothing here may paint the base black.
+    in property <bool> video;
+    /// Software drawing: the current video frame.
+    in property <image> video-frame;
+    /// Fade-through-black overlay, 0–1 (a change that starts or stops a foreground video), set as it fades.
+    in property <float> black;
+    /// N12: black outside the screen's mask shape, clear inside (empty: no mask). Over everything.
+    in property <image> mask;
+    /// A test pattern over everything (Screen Configuration, N20).
+    in property <bool> testing;
+    in property <image> test-pattern;
+    /// Work arrived for the room glue (prepared layers, player reports, live updates).
+    callback pump();
+
+    TouchArea { mouse-cursor: none; }
+
+    base := Rectangle {
+        background: Theme.room-black;
+        visible: !root.video;
+    }
+    video-frame := Image {
+        width: root.width;
+        height: root.height;
+        source: root.video-frame;
+        image-fit: fill;
+        visible: root.video;
+    }
+    bg := FadeLayer {
+        width: root.width;
+        height: root.height;
+        a: root.bg-a;
+        b: root.bg-b;
+        a-op: root.bg-a-op;
+        b-op: root.bg-b-op;
+        fit: cover;
+        visible: root.bg-visible;
+    }
+    media := FadeLayer {
+        width: root.width;
+        height: root.height;
+        a: root.media-a;
+        b: root.media-b;
+        a-op: root.media-a-op;
+        b-op: root.media-b-op;
+        fit: root.media-fit == 1 ? ImageFit.cover : root.media-fit == 2 ? ImageFit.fill : ImageFit.contain;
+    }
+    slide := MoveLayer {
+        width: root.width;
+        height: root.height;
+        a: root.slide-a;
+        b: root.slide-b;
+        a-op: root.slide-a-op;
+        b-op: root.slide-b-op;
+        a-geo: root.slide-a-geo;
+        b-geo: root.slide-b-geo;
+    }
+    sprites := SpriteLayer {
+        width: root.width;
+        height: root.height;
+        sprites: root.sprites;
+    }
+    logo := FadeLayer {
+        width: root.width;
+        height: root.height;
+        a: root.logo-a;
+        b: root.logo-b;
+        a-op: root.logo-a-op;
+        b-op: root.logo-b-op;
+        scale: 0.7;
+    }
+    drawing := Image {
+        width: root.width;
+        height: root.height;
+        source: root.drawing;
+        image-fit: fill;
+    }
+    overlays := FadeLayer {
+        width: root.width;
+        height: root.height;
+        a: root.overlays-a;
+        b: root.overlays-b;
+        a-op: root.overlays-a-op;
+        b-op: root.overlays-b-op;
+        fit: fill;
+    }
+    // Driven by Rust (`src/ui/fade.rs`), like the faces; childless, so no offscreen layer.
+    black := Rectangle {
+        background: Theme.room-black;
+        opacity: root.black;
+    }
+    mask := Image {
+        width: root.width;
+        height: root.height;
+        source: root.mask;
+        image-fit: fill;
+    }
+    if root.testing: test-pattern := Image {
+        width: root.width;
+        height: root.height;
+        source: root.test-pattern;
+        image-fit: fill;
+    }
+}

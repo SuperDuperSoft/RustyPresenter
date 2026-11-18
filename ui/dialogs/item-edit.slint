@@ -1,0 +1,573 @@
+// Item edit (`openItemEdit`, `operator.js:720-796`): the sections for the item's kind, the stage notes, and
+// Remove / Cancel / Save. Rust (`src/ui/dialogs/item_edit.rs`) fills `ItemEdit` when the dialog opens and reads it on
+// Save; nothing here is redrawn by a data update, so what the user typed stays.
+import { Theme } from "../theme.slint";
+import { Btn, Chip, Segmented, Field } from "../widgets.slint";
+import { DialogBody, DialogFoot } from "shell.slint";
+import { TextField, TextArea, Check, Note, RangeSlider, Select } from "form.slint";
+import { BackgroundPicker, BgChoice } from "background-picker.slint";
+import { BiblePickButton, TranslationChip } from "../bible-picker.slint";
+import { ArrangementStrip, ArrChipRow, ArrAddRow } from "arrangement.slint";
+import { TransitionPicker } from "transition.slint";
+
+export { BgChoice }
+
+/// One slide of a deck in "Speaker notes" and "Slide transitions": "Slide 3", its notes, and its transition as
+/// `TransitionPicker` shows it (`transition` 0: Normal), and its auto-advance seconds as typed ("": off).
+export struct DeckNoteRow { label: string, notes: string, transition: int, dir: int, ms: int, advance: string }
+
+/// What the open Item edit shows and what the user changed.
+export global ItemEdit {
+    /// The row's kind: song, scripture, text, video, image, audio or deck.
+    in property <string> kind;
+    /// Song: the library still has the song.
+    in property <bool> song-exists;
+    /// Scripture: the passage's Bible as its chip says it, and that Bible's picker (spec §7.2). A new Bible looks the
+    /// verses up again on Save.
+    in property <string> translation;
+    in property <bool> translation-changed;
+    in property <[TranslationChip]> picker-rows;
+    in-out property <string> picker-search;
+    in property <string> picker-note;
+    /// Scripture: 0 = Automatic, else verses per slide.
+    in-out property <int> per-slide;
+    /// Scripture text size: 0 = Automatic (Settings → Look), 1 = this passage's own `text-size`.
+    in-out property <int> size-mode;
+    in-out property <int> text-size: 64;
+    /// Announcement.
+    in-out property <string> title;
+    in-out property <string> body;
+    /// N25: an announcement's layout (`theme::LayoutKind::ALL` order) and how to type each one.
+    in property <[string]> layout-options;
+    in property <[string]> layout-hints;
+    in-out property <int> layout-index: 7;
+    /// Video: 0 = Clear the screen, 1 = Stay on last frame, 2 = Play again (loop).
+    in-out property <bool> autoplay;
+    in-out property <int> end-index;
+    /// Audio.
+    in-out property <bool> looped;
+    /// Media ("Name in library") and slides ("Name"): the name field is there.
+    in property <bool> has-name;
+    in-out property <string> name;
+    /// Media that is not ready: its status chip and reason.
+    in property <bool> not-ready;
+    in property <string> status-text;
+    in property <string> status-state;
+    in property <string> status-reason;
+    /// Song, scripture and announcement items have a background.
+    in property <bool> has-background;
+    in property <[BgChoice]> choices;
+    /// Song, scripture and announcement items have a theme (FEAT-1 §3.3): "Same as service (…)", then each theme.
+    in property <[string]> theme-options;
+    in-out property <int> theme-index;
+    in property <[color]> palette;
+    in-out property <string> notes;
+    /// A deck's slides with their speaker notes (empty for other items).
+    in property <[DeckNoteRow]> deck-notes;
+    /// 1.2: how a deck shows ("Pictures", "Run in PowerPoint"), and its button to change that.
+    in property <string> deck-shows-as;
+    callback deck-how();
+    callback deck-note-edited(int, string);
+    /// A deck slide's transition changed: (slide, kind / way / ms).
+    callback deck-transition-changed(int, int);
+    callback deck-transition-dir-changed(int, int);
+    callback deck-transition-ms-changed(int, int);
+    /// That slide's transition on every slide.
+    callback deck-transition-to-all(int);
+    /// A deck slide's "Auto-advance after (s)" was typed in.
+    callback deck-advance-edited(int, string);
+    /// FEAT-2: song, scripture, announcement and slides items can turn their own slides.
+    in property <bool> advance-shown;
+    /// The item has at least two slides.
+    in property <bool> advance-allowed;
+    in-out property <bool> advance-on;
+    in-out property <string> advance-secs: "8";
+    in-out property <bool> advance-loop: true;
+    /// 1.3 Song: how it follows the singers. 0 As in Settings, 1 Manual, 2 Suggest, 3 Auto.
+    in-out property <int> follow-mode;
+
+    /// Song: this service's order (FEAT-4 §3.5). Ticked: the song's usual order, shown dimmed; unticked: the strip
+    /// is this service's own order.
+    in-out property <bool> usual-order: true;
+    in property <[ArrChipRow]> order-rows;
+    in property <int> order-count;
+    in property <bool> order-written;
+    in property <[ArrAddRow]> order-adds;
+    in-out property <int> order-selected: -1;
+    callback usual-order-toggled(bool);
+    callback order-move(int, int);
+    callback order-remove(int);
+    callback order-add(string);
+    callback order-reset();
+    pure callback order-drag-data(int) -> data-transfer;
+    pure callback order-drag-index(data-transfer) -> int;
+    /// Saves the strip as the song's usual order and drops this service's own.
+    callback make-usual();
+
+    callback edit-song();
+    callback save();
+    /// Save, then open Slide breaks for this passage.
+    callback choose-breaks();
+    callback remove();
+    callback pick-background(int);
+    callback custom-color(color);
+    callback custom-hex(string);
+    callback upload();
+    callback picker-opening();
+    callback picker-search-changed(string);
+    callback picker-accept();
+    callback pick-bible(string);
+    callback toggle-favourite(string);
+    callback find-more-bibles(string);
+    /// Scripture: the Bibles shown with the main one in this passage only (Nov 5 spec §3), at most two, as their
+    /// chips say them. Both "Also show" pickers share one list; `also-opening` says which one is opening.
+    in property <[string]> also-labels;
+    /// 0 side by side, 1 top and bottom.
+    in-out property <int> also-layout;
+    in property <[TranslationChip]> also-rows;
+    in-out property <string> also-search;
+    in property <string> also-note;
+    callback also-opening(int);
+    callback also-search-changed(string);
+    callback also-accept();
+    callback also-pick(string);
+    /// The X beside an Also Bible: the one after it moves up.
+    callback also-remove(int);
+}
+
+/// The text of a `Note` that has something beside it (a button or a status chip).
+component NoteText inherits Text {
+    color: Theme.muted;
+    font-family: Theme.font;
+    font-size: Theme.base-size;
+    wrap: word-wrap;
+    vertical-alignment: center;
+}
+
+/// The dialog's body and footer, inside `DialogShell`.
+export component ItemEditDialog inherits VerticalLayout {
+    callback close();
+
+    DialogBody {
+        if ItemEdit.kind == "song": VerticalLayout {
+            padding-bottom: 12px;
+            Note {
+                HorizontalLayout {
+                    spacing: 8px;
+                    NoteText {
+                        horizontal-stretch: 1;
+                        text: ItemEdit.song-exists
+                            ? @tr("Words, order and credits belong to the song in your library.")
+                            : @tr("Words, order and credits belong to the song in your library. This song was deleted from the library.");
+                    }
+                    if ItemEdit.song-exists: VerticalLayout {
+                        alignment: center;
+                        edit-song := Btn {
+                            small: true;
+                            icon: "edit";
+                            text: @tr("Edit song");
+                            clicked => { ItemEdit.edit-song(); }
+                        }
+                    }
+                }
+            }
+        }
+        if ItemEdit.kind == "song" && ItemEdit.song-exists: Field {
+            label: @tr("Order for this service");
+            usual-order := Check {
+                text: @tr("Use the song's usual order");
+                checked <=> ItemEdit.usual-order;
+                toggled(on) => { ItemEdit.usual-order-toggled(on); }
+            }
+            order-strip := ArrangementStrip {
+                active: !ItemEdit.usual-order;
+                rows: ItemEdit.order-rows;
+                count: ItemEdit.order-count;
+                written: ItemEdit.order-written;
+                adds: ItemEdit.order-adds;
+                selected <=> ItemEdit.order-selected;
+                move(from, to) => { ItemEdit.order-move(from, to); }
+                remove(i) => { ItemEdit.order-remove(i); }
+                add(label) => { ItemEdit.order-add(label); }
+                reset => { ItemEdit.order-reset(); }
+                drag-data(i) => { return ItemEdit.order-drag-data(i); }
+                drag-index(d) => { return ItemEdit.order-drag-index(d); }
+            }
+            if !ItemEdit.usual-order: HorizontalLayout {
+                alignment: start;
+                make-usual := Btn {
+                    small: true;
+                    text: @tr("Make this the song's usual order");
+                    clicked => { ItemEdit.make-usual(); }
+                }
+            }
+        }
+        if ItemEdit.kind == "scripture": Field {
+            label: @tr("Bible");
+            HorizontalLayout {
+                spacing: 14px;
+                bible-pick := BiblePickButton {
+                    height: 32px;
+                    label: ItemEdit.translation;
+                    rows: ItemEdit.picker-rows;
+                    search <=> ItemEdit.picker-search;
+                    note: ItemEdit.picker-note;
+                    opening => { ItemEdit.picker-opening(); }
+                    search-changed(text) => { ItemEdit.picker-search-changed(text); }
+                    accept => { ItemEdit.picker-accept(); }
+                    pick(id) => { ItemEdit.pick-bible(id); }
+                    toggle-favourite(id) => { ItemEdit.toggle-favourite(id); }
+                    find-more(q) => { ItemEdit.find-more-bibles(q); }
+                }
+                Text {
+                    horizontal-stretch: 1;
+                    text: ItemEdit.translation-changed ? @tr("The verses are looked up again in this Bible when you save.") : "";
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
+                    wrap: word-wrap;
+                }
+            }
+        }
+        if ItemEdit.kind == "scripture": Field {
+            label: @tr("Also show");
+            VerticalLayout {
+                spacing: 8px;
+                HorizontalLayout {
+                    alignment: start;
+                    spacing: 8px;
+                    also-0 := BiblePickButton {
+                        height: 32px;
+                        label: ItemEdit.also-labels.length > 0 ? ItemEdit.also-labels[0] : @tr("none");
+                        rows: ItemEdit.also-rows;
+                        search <=> ItemEdit.also-search;
+                        note: ItemEdit.also-note;
+                        opening => { ItemEdit.also-opening(0); }
+                        search-changed(text) => { ItemEdit.also-search-changed(text); }
+                        accept => { ItemEdit.also-accept(); }
+                        pick(id) => { ItemEdit.also-pick(id); }
+                        toggle-favourite(id) => { ItemEdit.toggle-favourite(id); }
+                        find-more(q) => { ItemEdit.find-more-bibles(q); }
+                    }
+                    if ItemEdit.also-labels.length > 0: also-x-0 := Btn {
+                        small: true;
+                        icon: "close";
+                        tooltip: @tr("Stop showing this Bible");
+                        clicked => { ItemEdit.also-remove(0); }
+                    }
+                    if ItemEdit.also-labels.length > 0: also-1 := BiblePickButton {
+                        height: 32px;
+                        label: ItemEdit.also-labels.length > 1 ? ItemEdit.also-labels[1] : @tr("none");
+                        rows: ItemEdit.also-rows;
+                        search <=> ItemEdit.also-search;
+                        note: ItemEdit.also-note;
+                        opening => { ItemEdit.also-opening(1); }
+                        search-changed(text) => { ItemEdit.also-search-changed(text); }
+                        accept => { ItemEdit.also-accept(); }
+                        pick(id) => { ItemEdit.also-pick(id); }
+                        toggle-favourite(id) => { ItemEdit.toggle-favourite(id); }
+                        find-more(q) => { ItemEdit.find-more-bibles(q); }
+                    }
+                    if ItemEdit.also-labels.length > 1: also-x-1 := Btn {
+                        small: true;
+                        icon: "close";
+                        tooltip: @tr("Stop showing this Bible");
+                        clicked => { ItemEdit.also-remove(1); }
+                    }
+                }
+                if ItemEdit.also-labels.length > 0: HorizontalLayout {
+                    alignment: start;
+                    also-layout := Segmented {
+                        labels: [@tr("Side by side"), @tr("Top and bottom")];
+                        index <=> ItemEdit.also-layout;
+                    }
+                }
+            }
+        }
+        if ItemEdit.kind == "scripture": Field {
+            label: @tr("Verses per slide");
+            HorizontalLayout {
+                alignment: start;
+                spacing: 12px;
+                per-slide := Segmented {
+                    labels: [@tr("Automatic"), @tr("1 verse"), @tr("2 verses"), @tr("3 verses"), @tr("4 verses")];
+                    index <=> ItemEdit.per-slide;
+                }
+                choose-breaks := Btn {
+                    small: true;
+                    text: @tr("Choose slide breaks…");
+                    clicked => { ItemEdit.choose-breaks(); }
+                }
+            }
+        }
+        if ItemEdit.kind == "scripture": Field {
+            label: @tr("Text size");
+            help: @tr("(biggest; text shrinks automatically when a slide holds more words)");
+            HorizontalLayout {
+                spacing: 14px;
+                size-mode := Segmented {
+                    labels: [@tr("Automatic"), @tr("Choose")];
+                    index <=> ItemEdit.size-mode;
+                }
+                if ItemEdit.size-mode == 0: Text {
+                    text: @tr("Same as Settings → Look → Text and logo");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
+                }
+                if ItemEdit.size-mode == 1: VerticalLayout {
+                    horizontal-stretch: 1;
+                    alignment: center;
+                    text-size := RangeSlider {
+                        minimum: 36;
+                        maximum: 120;
+                        value <=> ItemEdit.text-size;
+                    }
+                }
+            }
+        }
+        if ItemEdit.kind == "text": HorizontalLayout {
+            spacing: 14px;
+            Field {
+                horizontal-stretch: 2;
+                label: @tr("Title");
+                title-box := TextField {
+                    label: @tr("Title");
+                    text <=> ItemEdit.title;
+                }
+            }
+            if ItemEdit.layout-options.length > 0: Field {
+                horizontal-stretch: 1;
+                label: @tr("Layout");
+                item-layout := Select {
+                    options: ItemEdit.layout-options;
+                    index <=> ItemEdit.layout-index;
+                }
+            }
+        }
+        if ItemEdit.kind == "text": Field {
+            label: @tr("Text");
+            // N25: how to type the slide for the picked layout; plain text keeps the old help.
+            help: ItemEdit.layout-index == 7 || ItemEdit.layout-hints.length == 0 ? @tr("— an empty line starts a new slide") : "— " + ItemEdit.layout-hints[ItemEdit.layout-index];
+            body-box := TextArea {
+                label: @tr("Text");
+                text <=> ItemEdit.body;
+            }
+        }
+        if ItemEdit.kind == "video": autoplay := Check {
+            text: @tr("Start playing as soon as it is shown");
+            checked <=> ItemEdit.autoplay;
+        }
+        if ItemEdit.kind == "video": Field {
+            label: @tr("When the video ends");
+            HorizontalLayout {
+                alignment: start;
+                end := Segmented {
+                    labels: [@tr("Clear the screen"), @tr("Stay on last frame"), @tr("Play again (loop)"), @tr("Go to the next slide")];
+                    index <=> ItemEdit.end-index;
+                }
+            }
+        }
+        if ItemEdit.kind == "audio": looped := Check {
+            text: @tr("Repeat until stopped");
+            checked <=> ItemEdit.looped;
+        }
+        if ItemEdit.kind == "audio": VerticalLayout {
+            padding-bottom: 12px;
+            Note {
+                text: @tr("Audio keeps playing while you change slides. Stop it with Clear audio (F4) or Clear all.");
+            }
+        }
+        if ItemEdit.has-name: Field {
+            label: ItemEdit.kind == "deck" ? @tr("Name") : @tr("Name in library");
+            name-box := TextField {
+                label: ItemEdit.kind == "deck" ? @tr("Name") : @tr("Name in library");
+                text <=> ItemEdit.name;
+            }
+        }
+        if ItemEdit.deck-notes.length > 0: Field {
+            label: @tr("Speaker notes");
+            help: @tr("Shown on the stage screen with each slide");
+            for row[i] in ItemEdit.deck-notes: VerticalLayout {
+                spacing: 4px;
+                padding-bottom: 6px;
+                Text {
+                    text: row.label;
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                }
+                deck-note := TextArea {
+                    label: row.label;
+                    min-height: 48px;
+                    text: row.notes;
+                    edited(t) => { ItemEdit.deck-note-edited(i, t); }
+                }
+            }
+        }
+        if ItemEdit.deck-notes.length > 0: Field {
+            label: @tr("Slide transitions");
+            help: @tr("How each slide comes on screen. Normal uses the usual fade.");
+            for row[i] in ItemEdit.deck-notes: VerticalLayout {
+                spacing: 4px;
+                padding-bottom: 6px;
+                Text {
+                    text: row.label;
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                }
+                deck-transition := TransitionPicker {
+                    normal: true;
+                    label: row.label;
+                    kind: row.transition;
+                    dir: row.dir;
+                    ms: row.ms;
+                    kind-changed(k) => { ItemEdit.deck-transition-changed(i, k); }
+                    dir-changed(d) => { ItemEdit.deck-transition-dir-changed(i, d); }
+                    ms-changed(v) => { ItemEdit.deck-transition-ms-changed(i, v); }
+                }
+                HorizontalLayout {
+                    alignment: start;
+                    spacing: 8px;
+                    deck-transition-all := Btn {
+                        small: true;
+                        text: @tr("Use for all slides");
+                        clicked => { ItemEdit.deck-transition-to-all(i); }
+                    }
+                    Text { text: @tr("Auto-advance after (s)"); color: Theme.text; font-family: Theme.font; vertical-alignment: center; }
+                    deck-advance := TextField {
+                        width: 70px;
+                        label: @tr("Auto-advance after (s)");
+                        placeholder: @tr("Off");
+                        text: row.advance;
+                        edited(t) => { ItemEdit.deck-advance-edited(i, t); }
+                    }
+                }
+            }
+        }
+        if ItemEdit.kind == "deck": Field {
+            label: @tr("Shows as");
+            HorizontalLayout {
+                alignment: start;
+                spacing: 12px;
+                Text {
+                    text: ItemEdit.deck-shows-as;
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    vertical-alignment: center;
+                }
+                deck-how := Btn {
+                    small: true;
+                    text: @tr("How it shows…");
+                    clicked => { ItemEdit.deck-how(); }
+                }
+            }
+        }
+        if ItemEdit.not-ready: VerticalLayout {
+            padding-bottom: 12px;
+            Note {
+                HorizontalLayout {
+                    spacing: 8px;
+                    VerticalLayout {
+                        alignment: center;
+                        Chip {
+                            text: ItemEdit.status-text;
+                            state: ItemEdit.status-state;
+                            tooltip: ItemEdit.status-reason;
+                        }
+                    }
+                    NoteText {
+                        horizontal-stretch: 1;
+                        text: ItemEdit.status-reason;
+                    }
+                }
+            }
+        }
+        if ItemEdit.has-background && ItemEdit.theme-options.length > 0: Field {
+            label: @tr("Theme");
+            item-theme := Select {
+                options: ItemEdit.theme-options;
+                index <=> ItemEdit.theme-index;
+            }
+        }
+        if ItemEdit.has-background: Field {
+            label: @tr("Background");
+            picker := BackgroundPicker {
+                choices: ItemEdit.choices;
+                palette: ItemEdit.palette;
+                pick(i) => { ItemEdit.pick-background(i); }
+                custom-color(c) => { ItemEdit.custom-color(c); }
+                custom-hex(t) => { ItemEdit.custom-hex(t); }
+                upload => { ItemEdit.upload(); }
+            }
+        }
+        if ItemEdit.kind == "song": Field {
+            label: @tr("Follow the singers");
+            help: @tr("Suggest: the next slide glows. Auto: the slides move by themselves.");
+            HorizontalLayout {
+                alignment: start;
+                follow-mode := Segmented {
+                    labels: [@tr("As in Settings"), @tr("auto-follow" => "Manual"), @tr("auto-follow" => "Suggest"), @tr("auto-follow" => "Auto")];
+                    index <=> ItemEdit.follow-mode;
+                }
+            }
+        }
+        if ItemEdit.advance-shown: VerticalLayout {
+            padding-bottom: 6px;
+            advance-on := Check {
+                text: @tr("Advance slides automatically");
+                checked <=> ItemEdit.advance-on;
+            }
+            if !ItemEdit.advance-allowed: Text {
+                text: @tr("Needs at least two slides.");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 12.5px;
+            }
+            if ItemEdit.advance-on && ItemEdit.advance-allowed: HorizontalLayout {
+                spacing: 8px;
+                alignment: start;
+                padding-bottom: 10px;
+                Text { text: @tr("every"); color: Theme.text; font-family: Theme.font; vertical-alignment: center; }
+                advance-secs := TextField { width: 70px; text <=> ItemEdit.advance-secs; label: @tr("Seconds"); }
+                Text { text: @tr("seconds"); color: Theme.text; font-family: Theme.font; vertical-alignment: center; }
+            }
+            if ItemEdit.advance-on && ItemEdit.advance-allowed: advance-loop := Check {
+                text: @tr("Start over after the last slide");
+                checked <=> ItemEdit.advance-loop;
+            }
+        }
+        Field {
+            label: @tr("Stage notes");
+            notes-box := TextArea {
+                label: @tr("Stage notes");
+                min-height: 64px;
+                placeholder: @tr("Shown on the stage screen only");
+                text <=> ItemEdit.notes;
+            }
+        }
+    }
+    DialogFoot {
+        remove := Btn {
+            danger: true;
+            icon: "trash";
+            text: @tr("Remove from service");
+            clicked => { ItemEdit.remove(); }
+        }
+        // `margin-right: auto` on the danger button.
+        Rectangle { horizontal-stretch: 1; }
+        cancel := Btn {
+            text: @tr("Cancel");
+            clicked => { root.close(); }
+        }
+        save := Btn {
+            primary: true;
+            text: @tr("Save");
+            clicked => { ItemEdit.save(); }
+        }
+    }
+}

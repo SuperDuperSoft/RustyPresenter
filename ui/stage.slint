@@ -1,0 +1,404 @@
+// The stage screen for the people on the platform (same content as `web/stage.html`).
+// Sizes follow the web page's vh/vw units, so the screen scales with the monitor.
+import { Sprite, SpriteLayer } from "room.slint";
+
+/// One box of a stage layout (`stage::view::Cell`), placed in % of the window. Rust picks `size` so the words fit.
+export struct StageCellVm {
+    x: float, y: float, w: float, h: float,
+    text: string,
+    caption: string,
+    color: color,
+    fill: color,
+    /// Font size in % of the window height.
+    size: float,
+    /// 0 left, 1 centre, 2 right.
+    align: int,
+    /// 0 top, 1 middle, 2 bottom.
+    valign: int,
+    bold: bool,
+    dim: bool,
+    /// Over time: red whatever the box colour.
+    red: bool,
+    /// A stage message: yellow box, dark words.
+    message: bool,
+    /// N10: a shape instead of words: 0 box, 1 rounded, 2 circle, 3 line; -1 = not a shape.
+    shape: int,
+    /// N10: a picture (the next slide) instead of words.
+    has-picture: bool,
+    picture: image,
+    /// The live designed slide: its click group plays over the picture (`anim-*` on the window).
+    anim: bool,
+}
+
+export component StageWindow inherits Window {
+    title: @tr("RustyPresenter — Stage");
+    background: root.use-cells ? root.bg : #07080a;
+    preferred-width: 1280px;
+    preferred-height: 720px;
+
+    in property <bool> connected;
+    /// A test pattern over everything (Screen Configuration, N20).
+    in property <bool> testing;
+    in property <image> test-pattern;
+    in property <string> item-title: @tr("Waiting for the service…");
+    in property <string> clock;
+    /// Time left on the playing video or audio, `−m:ss`; empty hides it.
+    in property <string> timer;
+    in property <string> now;
+    in property <bool> now-dim;
+    /// N29: `now` is a slide for the stage only (the room shows something else).
+    in property <bool> stage-only;
+    in property <string> notes;
+    /// Classic's notes size in % of the window height: Rust lowers it until the notes fit their box (`fit_notes`).
+    in property <float> notes-size: 3.2;
+    in property <string> next: @tr("End of service");
+    /// The operator's message (spec §12.2); empty hides it.
+    in property <string> message;
+    /// The current slide's font size in % of the window height. Rust lowers it until `now-fits`.
+    in property <float> now-size: 9;
+    out property <bool> now-fits: now-t.preferred-height <= now-box.height && now-t.min-width <= now-box.width;
+    /// The window or the box for the current slide changed size: fit the text again.
+    callback refit();
+
+    /// A layout other than Classic is on stage: draw `cells` instead of the fixed screen.
+    in property <bool> use-cells;
+    in property <color> bg: #07080a;
+    in property <[StageCellVm]> cells;
+    /// A designed slide's click group playing in the current slide's box (`src/ui/stage.rs`): the picture under
+    /// it and its pictures, as the room plays them.
+    in property <bool> animating;
+    in property <image> anim-base;
+    in property <[Sprite]> anim-sprites;
+    /// A message when the layout has no message box: a banner over the top of the screen.
+    in property <string> banner;
+    /// 1.3: "Auto: following — Chorus 2", small at the bottom left, while the live song follows the singers.
+    in property <string> follow;
+    /// Words Rust measures (with `probe-*`) to find the size that fits a box.
+    /// The live slide with the phone drawing on it, in a corner (Settings → "Show drawings on the stage screen").
+    in property <bool> drawing-on;
+    in property <image> drawing;
+    in property <string> probe-text;
+    in property <length> probe-width;
+    in property <float> probe-size: 3;
+    in property <bool> probe-bold;
+    out property <length> probe-height: probe.preferred-height;
+    out property <length> probe-min-width: probe.min-width;
+    out property <length> window-width: root.width;
+    out property <length> window-height: root.height;
+
+    property <length> vh: root.height / 100;
+    property <length> vw: root.width / 100;
+
+    changed width => { root.refit(); }
+    changed height => { root.refit(); }
+
+    TouchArea { mouse-cursor: none; }
+
+    probe := Text {
+        x: 0;
+        y: 0;
+        width: root.probe-width;
+        opacity: 0;
+        text: root.probe-text;
+        font-size: root.probe-size * vh;
+        font-weight: root.probe-bold ? 650 : 500;
+        wrap: word-wrap;
+    }
+
+    // Placed explicitly (x, y), so the window does not take its size constraints from text sized by the window.
+    VerticalLayout {
+        visible: !root.use-cells;
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.height;
+        padding-top: 2.2 * vh;
+        padding-bottom: 2.2 * vh;
+        padding-left: 3 * vw;
+        padding-right: 3 * vw;
+        spacing: 1.6 * vh;
+
+        HorizontalLayout {
+            alignment: space-between;
+            HorizontalLayout {
+                spacing: 0.8 * vw;
+                dot := Rectangle {
+                    y: (parent.height - self.height) / 2;
+                    width: 1.4 * vh;
+                    height: 1.4 * vh;
+                    border-radius: self.width / 2;
+                    background: root.connected ? #3ccf91 : #3a3f4b;
+                }
+                title-t := Text {
+                    text: root.item-title;
+                    color: #9aa3b5;
+                    font-size: 3 * vh;
+                    vertical-alignment: center;
+                }
+            }
+            HorizontalLayout {
+                spacing: 1.2 * vw;
+                timer-t := Text {
+                    text: root.timer;
+                    color: #ff6b6b;
+                    font-size: 3 * vh;
+                    font-weight: 700;
+                    vertical-alignment: center;
+                }
+                clock-t := Text {
+                    text: root.clock;
+                    color: #fff;
+                    font-size: 6 * vh;
+                    font-weight: 600;
+                    vertical-alignment: center;
+                }
+            }
+        }
+
+        if root.message != "": message-box := Rectangle {
+            background: #ffd166;
+            border-radius: 1 * vh;
+            VerticalLayout {
+                padding-top: 1.2 * vh;
+                padding-bottom: 1.2 * vh;
+                padding-left: 1.6 * vw;
+                padding-right: 1.6 * vw;
+                message-t := Text {
+                    text: root.message;
+                    color: #07080a;
+                    font-size: 5 * vh;
+                    font-weight: 700;
+                    wrap: word-wrap;
+                    horizontal-alignment: center;
+                }
+            }
+        }
+
+        if root.stage-only: HorizontalLayout {
+            alignment: center;
+            stage-only-tag := Rectangle {
+                background: #ff9f6b;
+                border-radius: 0.8 * vh;
+                HorizontalLayout {
+                    padding-left: 1.2 * vw;
+                    padding-right: 1.2 * vw;
+                    padding-top: 0.4 * vh;
+                    padding-bottom: 0.4 * vh;
+                    Text {
+                        text: @tr("STAGE ONLY");
+                        color: #07080a;
+                        font-size: 2.6 * vh;
+                        font-weight: 800;
+                        letter-spacing: 1px;
+                    }
+                }
+            }
+        }
+
+        now-box := Rectangle {
+            vertical-stretch: 1;
+            clip: true;
+            now-t := Text {
+                x: 0;
+                y: 0;
+                width: parent.width;
+                height: parent.height;
+                text: root.now;
+                color: #fff;
+                opacity: root.now-dim ? 0.35 : 1;
+                font-size: root.now-size * vh;
+                font-weight: 650;
+                wrap: word-wrap;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+        }
+
+        if root.notes != "": Rectangle {
+            background: #12151b;
+            border-radius: 1 * vh;
+            // At most 30 % of the screen; the words are made smaller to fit it rather than cut off.
+            max-height: 30 * vh;
+            clip: true;
+            VerticalLayout {
+                padding-top: 1.2 * vh;
+                padding-bottom: 1.2 * vh;
+                padding-left: 1.6 * vw;
+                padding-right: 1.6 * vw;
+                notes-t := Text {
+                    text: root.notes;
+                    color: #cfe3ff;
+                    font-size: root.notes-size * vh;
+                    wrap: word-wrap;
+                }
+            }
+        }
+
+        Rectangle {
+            height: 2px;
+            background: #22262f;
+        }
+
+        next-box := Rectangle {
+            max-height: 22 * vh;
+            clip: true;
+            VerticalLayout {
+                alignment: start;
+                spacing: 0.6 * vh;
+                Text {
+                    text: @tr("NEXT");
+                    color: #8b93a7;
+                    font-size: 2.2 * vh;
+                    letter-spacing: 0.12 * 2.2 * vh;
+                }
+                next-t := Text {
+                    text: root.next;
+                    color: #f5c66b;
+                    font-size: 4.4 * vh;
+                    wrap: word-wrap;
+                }
+            }
+        }
+    }
+
+    if root.use-cells: Rectangle {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.height;
+        for c in root.cells: Rectangle {
+            x: c.x * root.width / 100;
+            y: c.y * root.height / 100;
+            width: c.w * root.width / 100;
+            height: c.h * root.height / 100;
+            background: c.message ? #f5c66b : c.shape >= 0 && c.shape != 0 && c.shape != 1 ? transparent : c.fill;
+            border-radius: c.shape == 0 ? 0 : c.shape == 1 ? 3 * vh : 1 * vh;
+            clip: true;
+            if c.shape == 2: Path {
+                width: parent.width;
+                height: parent.height;
+                viewbox-width: 100;
+                viewbox-height: 100;
+                fill: c.fill;
+                commands: "M 0 50 A 50 50 0 1 0 100 50 A 50 50 0 1 0 0 50 Z";
+            }
+            if c.shape == 3: Rectangle {
+                y: (parent.height - self.height) / 2;
+                height: max(2px, 0.6 * vh);
+                background: c.color;
+            }
+            if c.shape < 0: VerticalLayout {
+                padding: 1.2 * vh;
+                spacing: 0.6 * vh;
+                if c.caption != "": Text {
+                    height: 2.75 * vh;
+                    text: c.caption;
+                    color: #8b93a7;
+                    font-size: 2.2 * vh;
+                    letter-spacing: 0.12 * 2.2 * vh;
+                    horizontal-alignment: c.align == 0 ? left : c.align == 2 ? right : center;
+                }
+                if c.has-picture: Rectangle {
+                    vertical-stretch: 1;
+                    Image {
+                        width: parent.width;
+                        height: parent.height;
+                        source: c.picture;
+                        image-fit: contain;
+                    }
+                    // Over the picture, where `contain` put it.
+                    if c.anim && root.animating: Rectangle {
+                        property <float> ar: c.picture.width / max(1, c.picture.height);
+                        width: min(parent.width, parent.height * self.ar);
+                        height: self.width / max(0.01, self.ar);
+                        x: (parent.width - self.width) / 2;
+                        y: (parent.height - self.height) / 2;
+                        clip: true;
+                        Image {
+                            width: parent.width;
+                            height: parent.height;
+                            source: root.anim-base;
+                            image-fit: fill;
+                        }
+                        SpriteLayer {
+                            width: parent.width;
+                            height: parent.height;
+                            sprites: root.anim-sprites;
+                        }
+                    }
+                }
+                if !c.has-picture: cell-t := Text {
+                    vertical-stretch: 1;
+                    text: c.text;
+                    color: c.red ? #ff4f55 : c.message ? #1a1405 : c.color;
+                    opacity: c.dim ? 0.35 : 1;
+                    font-size: c.size * vh;
+                    font-weight: c.bold || c.message ? 650 : 500;
+                    wrap: word-wrap;
+                    horizontal-alignment: c.align == 0 ? left : c.align == 2 ? right : center;
+                    vertical-alignment: c.valign == 0 ? top : c.valign == 2 ? bottom : center;
+                }
+            }
+        }
+        if root.banner != "": Rectangle {
+            x: 0;
+            y: 0;
+            width: root.width;
+            height: 16 * vh;
+            background: #f5c66b;
+            banner-t := Text {
+                text: root.banner;
+                color: #1a1405;
+                font-size: 6 * vh;
+                font-weight: 700;
+                wrap: word-wrap;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+        }
+    }
+    if root.drawing-on: drawing-panel := Rectangle {
+        x: root.width - self.width - 2 * vw;
+        y: 2 * vh;
+        width: 36 * vw;
+        height: self.width * 9 / 16;
+        background: #000000;
+        border-width: 3px;
+        border-color: #f5c66b;
+        border-radius: 6px;
+        clip: true;
+        accessible-role: image;
+        accessible-label: @tr("The slide with its drawing");
+        Image {
+            width: parent.width;
+            height: parent.height;
+            source: root.drawing;
+            image-fit: contain;
+        }
+    }
+    if root.follow != "": follow-line := Rectangle {
+        x: 1.5 * vw;
+        y: root.height - self.height - 1.5 * vh;
+        width: follow-text.preferred-width + 2 * vh;
+        height: 5 * vh;
+        border-radius: self.height / 2;
+        background: #000000b0;
+        follow-text := Text {
+            text: root.follow;
+            color: #3ccf91;
+            font-size: 2.8 * vh;
+            font-weight: 700;
+            vertical-alignment: center;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+    }
+    if root.testing: test-pattern := Image {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.height;
+        source: root.test-pattern;
+        image-fit: fill;
+    }
+}

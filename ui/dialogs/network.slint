@@ -1,0 +1,23 @@
+// Network (N31): a password for the remote, the stage screen on phones and tablets, and the TCP control for other
+// gear. Everything starts off. Shown on Settings → Remote and network (`settings-remote.slint`); filled and saved by
+// `src/ui/dialogs/network.rs`.
+
+export global NetworkDlg {
+    // A password: asked for (`*-pw-on`), already saved (`*-pw-set`, so an empty field keeps it), and a new one typed.
+    in-out property <bool> remote-pw-on;
+    in property <bool> remote-pw-set;
+    in-out property <string> remote-pw;
+    in-out property <bool> stage-on;
+    in-out property <bool> stage-pw-on;
+    in property <bool> stage-pw-set;
+    in-out property <string> stage-pw;
+    in property <string> stage-url;
+    in-out property <bool> tcp-on;
+    in-out property <string> tcp-port: "4319";
+    in-out property <bool> tcp-pw-on;
+    in property <bool> tcp-pw-set;
+    in-out property <string> tcp-pw;
+    in property <string> tcp-address;
+    in property <string> tcp-help;
+    in property <string> error;
+}

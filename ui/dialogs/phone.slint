@@ -1,0 +1,184 @@
+// The Phone remote dialog (`operator.js:830-874`): the address, pairing with a QR code and a PIN, and the list of
+// paired phones.
+import { Theme } from "../theme.slint";
+import { Btn, CopyText } from "../widgets.slint";
+import { DialogBody } from "shell.slint";
+import { ListRow, RowMain, Note, Lbl, Check } from "form.slint";
+
+export struct PairedPhone { id: string, name: string, may-draw: bool }
+
+/// Set and answered by `src/ui/dialogs/phone.rs`.
+export global PhoneDialogState {
+    /// Empty when no network was found.
+    in property <string> lan-url;
+    /// The pairing code; empty while no pairing is shown.
+    in property <string> pin;
+    in property <image> qr;
+    in property <bool> has-qr;
+    in property <string> countdown;
+    in property <[PairedPhone]> phones;
+    callback pair();
+    callback remove(string);
+    /// "May draw on slides" turned on or off for phone `id`.
+    callback may-draw(string, bool);
+}
+
+export component PhoneDialog inherits VerticalLayout {
+    DialogBody {
+        VerticalLayout {
+            padding-bottom: 12px;
+            note := Note {
+                text: @tr("Use your phone or tablet as a remote: it runs the slides from anywhere on the church Wi-Fi. It must be on the same network as this computer.")
+                    + (PhoneDialogState.lan-url == "" ? @tr(" (No network found — connect this computer to Wi-Fi.)") : "");
+                accessible-role: text;
+                accessible-label: self.text;
+                if PhoneDialogState.lan-url != "": HorizontalLayout {
+                    alignment: start;
+                    spacing: 0px;
+                    Text {
+                        text: @tr("Address: ");
+                        color: Theme.muted;
+                        font-family: Theme.font;
+                        font-size: Theme.base-size;
+                        vertical-alignment: center;
+                    }
+                    address := CopyText {
+                        text: PhoneDialogState.lan-url;
+                        accessible-role: text;
+                        accessible-label: PhoneDialogState.lan-url;
+                    }
+                }
+            }
+        }
+        HorizontalLayout {
+            alignment: start;
+            pair-btn := Btn {
+                primary: true;
+                icon: "phone";
+                text: @tr("Pair a phone or tablet");
+                clicked => { PhoneDialogState.pair(); }
+            }
+        }
+        // `#pairArea` / `.pair`: the code beside its steps, 240 px + the rest, 22 px apart.
+        if PhoneDialogState.pin != "": HorizontalLayout {
+            padding-top: 16px;
+            spacing: 22px;
+            qr := Rectangle {
+                width: 240px;
+                height: 240px;
+                background: Theme.white;
+                border-radius: 12px;
+                accessible-role: image;
+                accessible-label: @tr("QR code");
+                accessible-value: PhoneDialogState.has-qr ? "qr" : "";
+                if PhoneDialogState.has-qr: Image {
+                    x: 10px;
+                    y: 10px;
+                    width: parent.width - 20px;
+                    height: parent.height - 20px;
+                    source: PhoneDialogState.qr;
+                    image-fit: contain;
+                }
+            }
+            VerticalLayout {
+                alignment: center;
+                horizontal-stretch: 1;
+                // With a QR code, scanning is all it takes (the code carries a one-time secret); the PIN is the
+                // smaller fallback for typing.
+                if PhoneDialogState.has-qr: scan := Text {
+                    text: @tr("Scan this with your phone's camera. That's it.");
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: 18px;
+                    font-weight: 700;
+                    wrap: word-wrap;
+                    accessible-role: text;
+                    accessible-label: self.text;
+                }
+                if PhoneDialogState.has-qr: Rectangle { height: 14px; }
+                if PhoneDialogState.has-qr: or-type := Text {
+                    text: @tr("Or open {} and type", PhoneDialogState.lan-url);
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    wrap: word-wrap;
+                    accessible-role: text;
+                    accessible-label: self.text;
+                }
+                if !PhoneDialogState.has-qr: Text {
+                    text: @tr("1. On the phone, open the camera and scan the code (or type the address).");
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: 15px;
+                    wrap: word-wrap;
+                }
+                if !PhoneDialogState.has-qr: Rectangle { height: 10px; }
+                if !PhoneDialogState.has-qr: Text {
+                    text: @tr("2. Enter this code on the phone:");
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: 15px;
+                    wrap: word-wrap;
+                }
+                // `.pin`: 700 44px Consolas, 0.2em apart, 8 px above and below; smaller under a QR code.
+                pin := Text {
+                    text: PhoneDialogState.pin;
+                    color: Theme.accent;
+                    font-family: Theme.mono;
+                    font-size: PhoneDialogState.has-qr ? 24px : 44px;
+                    font-weight: 700;
+                    letter-spacing: PhoneDialogState.has-qr ? 4.8px : 8.8px;
+                    accessible-role: text;
+                    accessible-label: self.text;
+                    height: self.preferred-height + (PhoneDialogState.has-qr ? 8px : 16px);
+                    vertical-alignment: center;
+                }
+                countdown := Text {
+                    text: PhoneDialogState.countdown;
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    accessible-role: text;
+                    accessible-label: self.text;
+                }
+            }
+        }
+        VerticalLayout {
+            padding-top: 18px;
+            padding-bottom: 8px;
+            Lbl { label: @tr("Paired phones and tablets"); }
+        }
+        if PhoneDialogState.phones.length > 0: VerticalLayout {
+            spacing: 4px;
+            for p in PhoneDialogState.phones: phone-row := ListRow {
+                accessible-role: list-item;
+                accessible-label: p.name;
+                RowMain { title: p.name; }
+                VerticalLayout {
+                    alignment: center;
+                    may-draw := Check {
+                        padding-bottom: 0px;
+                        text: @tr("May draw on slides");
+                        checked: p.may-draw;
+                        toggled(on) => { PhoneDialogState.may-draw(p.id, on); }
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    remove-btn := Btn {
+                        small: true;
+                        danger: true;
+                        text: @tr("Remove");
+                        clicked => { PhoneDialogState.remove(p.id); }
+                    }
+                }
+            }
+        }
+        if PhoneDialogState.phones.length == 0: none-yet := Text {
+            text: @tr("None yet.");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+        }
+    }
+}

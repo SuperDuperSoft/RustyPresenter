@@ -1,0 +1,96 @@
+// Settings → About (native spec §7): Slint's `AboutSlint`, the version and data folder, how video is drawn, the
+// libmpv/FFmpeg LGPL notice and the third-party licences.
+import { AboutSlint, TextEdit } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
+import { Btn, CopyText } from "../widgets.slint";
+import { Note } from "form.slint";
+import { SettingsDlg } from "settings-state.slint";
+
+export component SettingsAbout inherits VerticalLayout {
+    spacing: 12px;
+    if !SettingsDlg.licences-open: VerticalLayout {
+        spacing: 12px;
+        HorizontalLayout {
+            alignment: start;
+            AboutSlint {
+                preferred-width: 320px;
+            }
+        }
+        Note {
+            VerticalLayout {
+                spacing: 6px;
+                version := Text {
+                    text: SettingsDlg.about-version;
+                    color: Theme.text;
+                    font-weight: 600;
+                }
+                HorizontalLayout {
+                    spacing: 6px;
+                    alignment: start;
+                    Text {
+                        text: @tr("Your data:");
+                        color: Theme.muted;
+                        vertical-alignment: center;
+                    }
+                    data-folder := CopyText { text: SettingsDlg.about-data-folder; }
+                }
+                video := Text {
+                    text: SettingsDlg.about-video;
+                    color: Theme.muted;
+                }
+                if SettingsDlg.about-mpv != "": mpv := Text {
+                    text: SettingsDlg.about-mpv;
+                    color: Theme.muted;
+                    wrap: word-wrap;
+                }
+                if SettingsDlg.about-ffmpeg != "": ffmpeg := Text {
+                    text: SettingsDlg.about-ffmpeg;
+                    color: Theme.muted;
+                }
+                if SettingsDlg.about-pdfium != "": pdfium := Text {
+                    text: SettingsDlg.about-pdfium;
+                    color: Theme.muted;
+                }
+                if SettingsDlg.about-libreoffice != "": libreoffice := Text {
+                    text: SettingsDlg.about-libreoffice;
+                    color: Theme.muted;
+                    wrap: word-wrap;
+                }
+                if SettingsDlg.about-powerpoint != "": powerpoint := Text {
+                    text: SettingsDlg.about-powerpoint;
+                    color: Theme.muted;
+                }
+                licence := Text {
+                    text: SettingsDlg.about-licence;
+                    color: Theme.muted;
+                    wrap: word-wrap;
+                }
+            }
+        }
+        HorizontalLayout {
+            alignment: start;
+            show-licences := Btn {
+                text: @tr("Show licences");
+                clicked => { SettingsDlg.show-licences(true); }
+            }
+        }
+    }
+    if SettingsDlg.licences-open: VerticalLayout {
+        spacing: 12px;
+        HorizontalLayout {
+            alignment: start;
+            hide-licences := Btn {
+                icon: "chevron-left";
+                text: @tr("Back");
+                clicked => { SettingsDlg.show-licences(false); }
+            }
+        }
+        licence-text := TextEdit {
+            height: 420px;
+            read-only: true;
+            wrap: word-wrap;
+            font-size: 12px;
+            text: SettingsDlg.licences;
+        }
+    }
+}

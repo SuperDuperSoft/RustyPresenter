@@ -1,0 +1,353 @@
+// Settings → Bible (`operator.js:922-973`, after the `bible-esv` merge): every translation with its status, the
+// online services a church connects with a key, Bible file import, and the copyright lines of what is in use.
+import { Theme } from "../theme.slint";
+import { Btn, Chip, CopyText, Segmented, Bar } from "../widgets.slint";
+import { TextField, Note, Lbl, ListRow, RowMain, Select } from "form.slint";
+import { SettingsDlg } from "settings-state.slint";
+import { SetRow, Hint } from "settings-row.slint";
+
+/// Bible → Bibles: the one in use, the ones shown with it, verses per slide, and the library to add more.
+export component BiblePage inherits VerticalLayout {
+    alignment: start;
+    // ---- Default Bible (§7.1): what the Bible box and new passages use ----
+    default-row := SetRow {
+        key: "default-bible";
+        label: @tr("Default Bible");
+    default-bible := Select {
+        options: SettingsDlg.default-bibles;
+        index <=> SettingsDlg.default-bible;
+        changed(i) => { SettingsDlg.default-bible-changed(i); }
+    }
+    }
+
+    // ---- Also show (Nov 5 spec §3): up to two more Bibles with every new passage ----
+    also-row := SetRow {
+        key: "also-show";
+        label: @tr("Also show with every new passage");
+        help: @tr("Pick up to two. Each slide then shows the same verses from every Bible.");
+    also-chips := Rectangle {
+        property <length> chip-w: 120px;
+        property <int> per-row: max(1, floor((self.width + 6px) / (self.chip-w + 6px)));
+        height: ceil(SettingsDlg.also-chips.length / self.per-row) * 36px;
+        for c[i] in SettingsDlg.also-chips: also-chip := Rectangle {
+            x: mod(i, also-chips.per-row) * (also-chips.chip-w + 6px);
+            y: floor(i / also-chips.per-row) * 36px;
+            width: also-chips.chip-w;
+            height: 30px;
+            border-radius: 7px;
+            border-width: 1px;
+            border-color: c.on ? Theme.accent : Theme.line;
+            background: c.on ? Theme.accent : cta.has-hover ? Theme.raise : transparent;
+            accessible-role: checkbox;
+            accessible-label: c.label;
+            accessible-checked: c.on;
+            accessible-action-default => { SettingsDlg.toggle-also(i); }
+            Text {
+                text: c.label;
+                color: c.on ? Theme.accent-ink : Theme.text;
+                font-size: 12.5px;
+                font-weight: 700;
+                overflow: elide;
+            }
+            cta := TouchArea {
+                mouse-cursor: pointer;
+                clicked => { SettingsDlg.toggle-also(i); }
+            }
+        }
+    }
+    HorizontalLayout {
+        alignment: start;
+    also-layout := Segmented {
+        labels: [@tr("Side by side"), @tr("Top and bottom")];
+        index <=> SettingsDlg.also-layout;
+        changed(i) => { SettingsDlg.also-layout-changed(i); }
+    }
+    }
+    }
+    per-slide-row := SetRow {
+        key: "bible-per-slide";
+        label: @tr("Verses per slide");
+        help: @tr("For new passages. Text shrinks automatically when a slide holds more words.");
+        HorizontalLayout {
+            alignment: start;
+            bible-per-slide := Segmented {
+                labels: [@tr("Automatic"), "1", "2", "3", "4"];
+                index <=> SettingsDlg.bible-per-slide;
+            }
+        }
+    }
+
+    // ---- Bible library (Bible library spec §7.1): search, Installed/All, language, one button per row ----
+    library-row := SetRow {
+        key: "bible-library";
+        label: @tr("Add Bibles");
+        help: @tr("KJV, WEB and BSB are built in and work offline. The others come from the internet or from their publisher's service.");
+    HorizontalLayout {
+        spacing: 8px;
+        catalog-search := TextField {
+            horizontal-stretch: 1;
+            search: true;
+            text <=> SettingsDlg.catalog-search;
+            placeholder: @tr("Search by name, short name or language");
+            edited => { SettingsDlg.catalog-changed(); }
+        }
+        catalog-filter := Segmented {
+            labels: [@tr("Installed"), @tr("All")];
+            index <=> SettingsDlg.catalog-filter;
+            changed => { SettingsDlg.catalog-changed(); }
+        }
+    }
+    Rectangle { height: 8px; }
+    catalog-language := Select {
+        options: SettingsDlg.catalog-languages;
+        index <=> SettingsDlg.catalog-language;
+        changed => { SettingsDlg.catalog-changed(); }
+    }
+    if SettingsDlg.catalog-note != "": VerticalLayout {
+        padding-top: 8px;
+        catalog-note := Text {
+            text: SettingsDlg.catalog-note;
+            color: Theme.muted;
+            font-size: 12.5px;
+            wrap: word-wrap;
+        }
+    }
+    Rectangle { height: 8px; }
+    VerticalLayout {
+        spacing: 4px;
+        for r[i] in SettingsDlg.catalog-rows: VerticalLayout {
+            if r.heading != "": VerticalLayout {
+                padding-top: i == 0 ? 0px : 8px;
+                padding-bottom: 2px;
+                Text {
+                    text: r.heading;
+                    color: Theme.text;
+                    font-size: 13px;
+                    font-weight: 700;
+                    accessible-role: text;
+                }
+            }
+            if r.heading == "": catalog-row := ListRow {
+                accessible-role: list-item;
+                accessible-label: r.title;
+                accessible-value: r.status != "" ? r.status : r.tag;
+                accessible-description: r.font-warning;
+                VerticalLayout {
+                    alignment: center;
+                    width: 86px;
+                    Text {
+                        text: r.abbr;
+                        color: Theme.text;
+                        font-weight: 700;
+                        overflow: elide;
+                    }
+                }
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    alignment: center;
+                    spacing: 4px;
+                    RowMain {
+                        title: r.title;
+                        sub: r.status != "" ? r.status : r.tag;
+                    }
+                    if r.progress >= 0: Bar { progress: r.progress; }
+                    if r.font-warning != "": font-warning := Text {
+                        text: r.font-warning;
+                        color: Theme.accent;
+                        font-size: 12px;
+                        wrap: word-wrap;
+                    }
+                }
+                if r.button != "": VerticalLayout {
+                    alignment: center;
+                    catalog-button := Btn {
+                        small: true;
+                        primary: r.primary;
+                        enabled: r.enabled;
+                        text: r.button;
+                        clicked => { SettingsDlg.catalog-button(i); }
+                    }
+                }
+            }
+        }
+    }
+
+    }
+}
+
+/// Bible → Online services and files: each Bible's status, the publishers' services, Bible files, and credits.
+export component BibleOnlinePage inherits VerticalLayout {
+    alignment: start;
+    spacing: 4px;
+    Note {
+        bold: @tr("KJV, WEB and BSB are built in and work offline.");
+        text: @tr("The others are copyrighted: connect the publisher’s free service with a key your church makes once. Passages you add to a service are saved with it, so they still show if the internet drops.");
+    }
+    translations-row := SetRow {
+        key: "bible-translations";
+        label: @tr("Translations");
+    VerticalLayout {
+        spacing: 4px;
+        for b[i] in SettingsDlg.bible-sources: source-row := ListRow {
+            accessible-role: list-item;
+            accessible-label: b.translation;
+            accessible-value: b.chip;
+            accessible-description: b.hint;
+            RowMain {
+                title: b.translation;
+                sub: b.hint;
+            }
+            if b.imported: remove-import := Btn {
+                small: true;
+                text: @tr("Remove");
+                clicked => { SettingsDlg.remove-import(i); }
+            }
+            VerticalLayout {
+                alignment: center;
+                Chip {
+                    text: b.chip;
+                    state: b.chip-state;
+                }
+            }
+        }
+    }
+
+    }
+    online-row := SetRow {
+        key: "bible-online";
+        label: @tr("Online services");
+    VerticalLayout {
+        spacing: 4px;
+        for p[i] in SettingsDlg.bible-providers: provider-row := Rectangle {
+            background: Theme.panel-2;
+            border-radius: 10px;
+            accessible-role: list-item;
+            accessible-label: p.label;
+            accessible-value: p.key-set ? @tr("Connected") : @tr("Not connected");
+            VerticalLayout {
+                padding-top: 9px;
+                padding-bottom: 9px;
+                padding-left: 12px;
+                padding-right: 12px;
+                spacing: 6px;
+                HorizontalLayout {
+                    spacing: 8px;
+                    RowMain {
+                        title: p.label;
+                        sub: p.for-text;
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        Chip {
+                            text: p.key-set ? @tr("Connected") : @tr("Not connected");
+                            state: p.key-set ? "ok" : "warn";
+                        }
+                    }
+                }
+                VerticalLayout {
+                    spacing: 4px;
+                    HorizontalLayout {
+                        spacing: 6px;
+                        alignment: start;
+                        Text {
+                            text: @tr("1. Sign up free at");
+                            color: Theme.muted;
+                            font-size: 12.5px;
+                            vertical-alignment: center;
+                        }
+                        CopyText { text: p.signup-url; }
+                        copy-link := Btn {
+                            small: true;
+                            icon: "copy";
+                            text: @tr("Copy link");
+                            clicked => { SettingsDlg.copy-link(i); }
+                        }
+                    }
+                    Text {
+                        text: @tr("2. {}", p.note);
+                        color: Theme.muted;
+                        font-size: 12.5px;
+                        wrap: word-wrap;
+                    }
+                    Text {
+                        text: @tr("3. Paste the key here. RustyPresenter checks it with one lookup, then keeps it on this computer only.");
+                        color: Theme.muted;
+                        font-size: 12.5px;
+                        wrap: word-wrap;
+                    }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    key := TextField {
+                        horizontal-stretch: 1;
+                        password: true;
+                        placeholder: p.key-set ? @tr("Key saved — paste a new one to replace it") : @tr("Paste the key here");
+                    }
+                    save-key := Btn {
+                        small: true;
+                        primary: true;
+                        text: @tr("Save key");
+                        clicked => { SettingsDlg.save-key(i, key.text); }
+                    }
+                    if p.key-set: disconnect := Btn {
+                        small: true;
+                        text: @tr("Disconnect");
+                        clicked => {
+                            key.text = "";
+                            SettingsDlg.save-key(i, "");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    }
+    files-row := SetRow {
+        key: "bible-files";
+        label: @tr("Bible files");
+        help: @tr("Import a Zefania, OSIS, USX or OpenSong file (.xml or .usx). Only import Bibles that are public domain or that your church is licensed to use. Give it the short name of a translation above (like HCSB) to use the file for that translation.");
+    HorizontalLayout {
+        spacing: 8px;
+        alignment: start;
+        short := TextField {
+            width: 220px;
+            text <=> SettingsDlg.bible-short;
+            placeholder: @tr("Short name, e.g. HCSB (optional)");
+        }
+        import-bible := Btn {
+            small: true;
+            icon: "upload";
+            text: @tr("Import a Bible file");
+            clicked => { SettingsDlg.import-bible(); }
+        }
+    }
+    }
+    if SettingsDlg.bible-credits.length > 0: VerticalLayout {
+        padding-top: 16px;
+        Lbl { label: @tr("Credits"); }
+        Rectangle { height: 8px; }
+        Note {
+            font-size: 12.5px;
+            VerticalLayout {
+                spacing: 6px;
+                for c in SettingsDlg.bible-credits: credit := VerticalLayout {
+                    spacing: 2px;
+                    accessible-role: text;
+                    accessible-label: c.text;
+                    accessible-description: c.url;
+                    Text {
+                        text: c.text;
+                        color: Theme.muted;
+                        font-size: 12.5px;
+                        wrap: word-wrap;
+                    }
+                    if c.url != "": HorizontalLayout {
+                        alignment: start;
+                        CopyText { text: c.url; }
+                    }
+                }
+            }
+        }
+    }
+}

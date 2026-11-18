@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RVPresentationDocument height="1080" width="1920" docType="0" versionNumber="600" usedCount="0" backgroundColor="0 0 0 1" drawingBackgroundColor="false" CCLIDisplay="true" lastDateUsed="2026-01-01T00:00:00+00:00" selectedArrangementID="arr-main" category="Song" resourcesDirectory="" notes="" CCLIAuthor="John Newton" CCLIArtistCredits="Traditional" CCLISongTitle="Amazing Grace" CCLIPublisher="Public Domain" CCLICopyrightYear="1779" CCLISongNumber="22025" chordChartPath="" os="1" buildNumber="6016">
+  <RVTimeline timeOffset="0" duration="0" selectedMediaTrackIndex="0" loop="false" rvXMLIvarName="timeline">
+    <array rvXMLIvarName="timeCues" />
+    <array rvXMLIvarName="mediaTracks" />
+  </RVTimeline>
+  <array rvXMLIvarName="groups">
+    <RVSlideGrouping name="Verse 1" uuid="g-v1" color="0 0 1 1">
+      <array rvXMLIvarName="slides">
+        <RVDisplaySlide backgroundColor="0 0 0 0" enabled="true" hotKey="" label="" notes="" UUID="4d3a692d-4701-41d9-8b23-3822df29343e" chordChartPath="">
+          <array rvXMLIvarName="cues" />
+          <array rvXMLIvarName="displayElements">
+            <RVTextElement displayName="Default" UUID="32e2ede6-0da7-433c-b6ff-90c620ec4ce6" typeID="0" displayDelay="0" locked="false" persistent="0" fromTemplate="false" opacity="1" source="" bezelRadius="0" rotation="0" drawingFill="false" drawingShadow="true" drawingStroke="false" fillColor="1 1 1 1" adjustsHeightToFit="false" verticalAlignment="0" revealType="0">
+              <RVRect3D rvXMLIvarName="position">{0 0 0 1920 1080}</RVRect3D>
+              <NSString rvXMLIvarName="PlainText">QW1hemluZyBncmFjZSEgaG93IHN3ZWV0IHRoZSBzb3VuZApUaGF0IHNhdmVkIGEgd3JldGNoIGxpa2UgbWUh</NSString>
+            </RVTextElement>
+          </array>
+        </RVDisplaySlide>
+        <RVDisplaySlide backgroundColor="0 0 0 0" enabled="true" hotKey="" label="" notes="" UUID="9cbe36e3-4779-47dc-85f5-186084992b07" chordChartPath="">
+          <array rvXMLIvarName="cues" />
+          <array rvXMLIvarName="displayElements">
+            <RVTextElement displayName="Default" UUID="c2ee036f-ac09-4f42-9e93-e9ee640190d4" typeID="0" displayDelay="0" locked="false" persistent="0" fromTemplate="false" opacity="1" source="" bezelRadius="0" rotation="0" drawingFill="false" drawingShadow="true" drawingStroke="false" fillColor="1 1 1 1" adjustsHeightToFit="false" verticalAlignment="0" revealType="0">
+              <RVRect3D rvXMLIvarName="position">{0 0 0 1920 1080}</RVRect3D>
+              <NSString rvXMLIvarName="PlainText">SSBvbmNlIHdhcyBsb3N0LCBidXQgbm93IGFtIGZvdW5kLA0KV2FzIGJsaW5kLCBidXQgbm93IEkgc2VlLg==</NSString>
+            </RVTextElement>
+          </array>
+        </RVDisplaySlide>
+      </array>
+    </RVSlideGrouping>
+    <RVSlideGrouping name="Chorus" uuid="g-c" color="1 0 0 1">
+      <array rvXMLIvarName="slides">
+        <RVDisplaySlide backgroundColor="0 0 0 0" enabled="true" hotKey="" label="" notes="" UUID="14fc3e35-eb9d-4756-83ff-b73cdf581e26" chordChartPath="">
+          <array rvXMLIvarName="cues" />
+          <array rvXMLIvarName="displayElements">
+            <RVTextElement displayName="Default" UUID="5e8e666e-9bd0-45f5-8022-7b86fa3a18fd" typeID="0" displayDelay="0" locked="false" persistent="0" fromTemplate="false" opacity="1" source="" bezelRadius="0" rotation="0" drawingFill="false" drawingShadow="true" drawingStroke="false" fillColor="1 1 1 1" adjustsHeightToFit="false" verticalAlignment="0" revealType="0">
+              <RVRect3D rvXMLIvarName="position">{0 0 0 1920 1080}</RVRect3D>
+              <NSString rvXMLIvarName="PlainText">U2luZyBpdCBvdXQsIHNpbmcgaXQgb3V04oCoR3JhY2UgdGhhdCBzZXRzIHVzIGZyZWU=</NSString>
+            </RVTextElement>
+          </array>
+        </RVDisplaySlide>
+      </array>
+    </RVSlideGrouping>
+    <RVSlideGrouping name="Verse 2" uuid="g-v2" color="0 0 1 1">
+      <array rvXMLIvarName="slides">
+        <RVDisplaySlide backgroundColor="0 0 0 0" enabled="true" hotKey="" label="" notes="" UUID="6f15a9df-ff88-4677-a4de-331d2229f8ad" chordChartPath="">
+          <array rvXMLIvarName="cues" />
+          <array rvXMLIvarName="displayElements">
+            <RVTextElement displayName="Default" UUID="668f1334-1888-4f1d-ae1b-2aef2d687a55" typeID="0" displayDelay="0" locked="false" persistent="0" fromTemplate="false" opacity="1" source="" bezelRadius="0" rotation="0" drawingFill="false" drawingShadow="true" drawingStroke="false" fillColor="1 1 1 1" adjustsHeightToFit="false" verticalAlignment="0" revealType="0">
+              <RVRect3D rvXMLIvarName="position">{0 0 0 1920 1080}</RVRect3D>
+              <NSString rvXMLIvarName="RTFData">e1xydGYxXGFuc2lcYW5zaWNwZzEyNTJ7XGZvbnR0YmxcZjBcZnN3aXNzXGZjaGFyc2V0MCBIZWx2ZXRpY2E7fXtcKlxleHBhbmRlZGNvbG9ydGJsOzt9XHBhcmRccWNcZjBcZnMxMjAgXCc5MVR3YXMgZ3JhY2UgdGhhdCB0YXVnaHQgbXkgaGVhcnQgdG8gZmVhcixccGFyIEFuZCBncmFjZSBteSBmZWFycyByZWxpZXZlZDt9</NSString>
+            </RVTextElement>
+          </array>
+        </RVDisplaySlide>
+        <RVDisplaySlide backgroundColor="0 0 0 0" enabled="true" hotKey="" label="" notes="" UUID="ef0c055b-9710-4dca-9d01-54cc96a9ca90" chordChartPath="">
+          <array rvXMLIvarName="cues" />
+          <array rvXMLIvarName="displayElements">
+            <RVTextElement displayName="Default" UUID="52a5b031-c17f-45b7-8260-a75a07f102b5" typeID="0" displayDelay="0" locked="false" persistent="0" fromTemplate="false" opacity="1" source="" bezelRadius="0" rotation="0" drawingFill="false" drawingShadow="true" drawingStroke="false" fillColor="1 1 1 1" adjustsHeightToFit="false" verticalAlignment="0" revealType="0">
+              <RVRect3D rvXMLIvarName="position">{0 0 0 1920 1080}</RVRect3D>
+              <NSString rvXMLIvarName="PlainText"></NSString>
+              <NSString rvXMLIvarName="WinFlowData">PEZsb3dEb2N1bWVudCB4bWxucz0iaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93aW5meC8yMDA2L3hhbWwvcHJlc2VudGF0aW9uIj48UGFyYWdyYXBoPjxSdW4gVGV4dD0iSG93IHByZWNpb3VzIGRpZCB0aGF0IGdyYWNlIGFwcGVhciIgLz48TGluZUJyZWFrIC8+PFJ1bj5UaGUgaG91ciBJIGZpcnN0IGJlbGlldmVkLjwvUnVuPjwvUGFyYWdyYXBoPjwvRmxvd0RvY3VtZW50Pg==</NSString>
+            </RVTextElement>
+          </array>
+        </RVDisplaySlide>
+        <RVDisplaySlide backgroundColor="0 0 0 0" enabled="true" hotKey="" label="" notes="" UUID="3cc857b6-4b64-4e7f-b71d-52675afb2243" chordChartPath="">
+          <array rvXMLIvarName="cues" />
+          <array rvXMLIvarName="displayElements">
+            <RVTextElement displayName="Default" UUID="21c6bf84-05a0-4862-b92c-5a65c1e2a29a" typeID="0" displayDelay="0" locked="false" persistent="0" fromTemplate="false" opacity="1" source="" bezelRadius="0" rotation="0" drawingFill="false" drawingShadow="true" drawingStroke="false" fillColor="1 1 1 1" adjustsHeightToFit="false" verticalAlignment="0" revealType="0">
+              <RVRect3D rvXMLIvarName="position">{0 0 0 1920 1080}</RVRect3D>
+
+            </RVTextElement>
+          </array>
+        </RVDisplaySlide>
+      </array>
+    </RVSlideGrouping>
+    <RVSlideGrouping name="Blank" uuid="g-blank" color="0 0 0 1">
+      <array rvXMLIvarName="slides">
+        <RVDisplaySlide backgroundColor="0 0 0 0" enabled="true" hotKey="" label="" notes="" UUID="9d57cb59-271e-4929-b8d3-4678aeceb04e" chordChartPath="">
+          <array rvXMLIvarName="cues" />
+          <array rvXMLIvarName="displayElements">
+            <RVTextElement displayName="Default" UUID="bf639912-aa77-4b49-866c-f0baddc6e4b9" typeID="0" displayDelay="0" locked="false" persistent="0" fromTemplate="false" opacity="1" source="" bezelRadius="0" rotation="0" drawingFill="false" drawingShadow="true" drawingStroke="false" fillColor="1 1 1 1" adjustsHeightToFit="false" verticalAlignment="0" revealType="0">
+              <RVRect3D rvXMLIvarName="position">{0 0 0 1920 1080}</RVRect3D>
+
+            </RVTextElement>
+          </array>
+        </RVDisplaySlide>
+      </array>
+    </RVSlideGrouping>
+  </array>
+  <array rvXMLIvarName="arrangements">
+    <RVSongArrangement name="Short" uuid="arr-short" color="0 0 0 0">
+      <array rvXMLIvarName="groupIDs"><NSString>g-v1</NSString></array>
+    </RVSongArrangement>
+    <RVSongArrangement name="Main" uuid="arr-main" color="0 0 0 0">
+      <array rvXMLIvarName="groupIDs">
+        <NSString>g-blank</NSString>
+        <NSString>g-v1</NSString>
+        <NSString>g-c</NSString>
+        <NSString>g-v2</NSString>
+        <NSString>g-c</NSString>
+        <NSString>g-missing</NSString>
+      </array>
+    </RVSongArrangement>
+  </array>
+</RVPresentationDocument>

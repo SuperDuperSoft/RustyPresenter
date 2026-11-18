@@ -1,0 +1,60 @@
+// The Slides panel's quick Key control for the selected song: − / + move the chords on the stage screen one
+// semitone during a service without opening the song editor (the audience screen never shows chords). Self-contained:
+// `src/ui/song_key.rs` fills `SongKeyState` and answers its callbacks. Shows nothing when the item is not a song.
+import { Theme } from "theme.slint";
+import { Btn } from "widgets.slint";
+
+export global SongKeyState {
+    /// The selected item is a song.
+    in property <bool> shown;
+    /// Where the song's chords are: "G → A, +2", "G", "+2", or "As written".
+    in property <string> text;
+    /// The chords are moved (the reset button shows).
+    in property <bool> moved;
+    /// One semitone down (−1) or up (+1).
+    callback step(int);
+    /// Back to the chords as written.
+    callback reset();
+}
+
+export component SongKeyControl inherits HorizontalLayout {
+    spacing: 4px;
+    alignment: start;
+    if SongKeyState.shown: HorizontalLayout {
+        spacing: 4px;
+        VerticalLayout {
+            alignment: center;
+            Text { text: @tr("Key"); color: Theme.muted; font-family: Theme.font; font-size: 12px; }
+        }
+        song-key-down := Btn {
+            small: true;
+            text: "−";
+            tooltip: @tr("Chords one step lower on the stage screen");
+            clicked => { SongKeyState.step(-1); }
+        }
+        VerticalLayout {
+            alignment: center;
+            song-key-now := Text {
+                min-width: 30px;
+                text: SongKeyState.text;
+                color: SongKeyState.moved ? Theme.text : Theme.muted;
+                font-family: Theme.font;
+                font-size: 12px;
+                font-weight: 600;
+                horizontal-alignment: center;
+            }
+        }
+        song-key-up := Btn {
+            small: true;
+            text: "+";
+            tooltip: @tr("Chords one step higher on the stage screen");
+            clicked => { SongKeyState.step(1); }
+        }
+        if SongKeyState.moved: song-key-reset := Btn {
+            small: true;
+            text: "0";
+            tooltip: @tr("Show the chords as they are written");
+            clicked => { SongKeyState.reset(); }
+        }
+    }
+}

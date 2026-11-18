@@ -1,0 +1,555 @@
+// Stage layouts (FEAT-3 spec §3.6): the list of layouts, the picture of the stage screen with its boxes, the box
+// list and the chosen box's settings. Also the top bar's quick layout picker. Set and answered by
+// `src/ui/dialogs/stage_layouts.rs`.
+import { Theme } from "../theme.slint";
+import { Btn, TopBtn, Segmented } from "../widgets.slint";
+import { DialogBody, DialogFoot } from "shell.slint";
+import { TextField, Lbl, Select, RangeSlider, Note, Check } from "form.slint";
+import { FilterBox, ListFilter } from "../filter.slint";
+import { StageCanvas, StageBoxVm, StageGuideVm } from "stage-canvas.slint";
+import { DockGuard } from "../operator/dock-guard.slint";
+
+export { StageBoxVm, StageGuideVm }
+
+/// One stage layout in the list.
+export struct StageLayoutRow { name: string, builtin: bool, on-stage: bool, selected: bool }
+
+export global StageLayoutsDlg {
+    in property <[StageLayoutRow]> layouts;
+    in property <[StageBoxVm]> boxes;
+    in property <[StageGuideVm]> guides;
+    in property <color> screen-bg: #07080a;
+    /// The chosen layout is built in: it can only be copied.
+    in property <bool> locked;
+    /// The chosen layout is saved and can go on the stage.
+    in property <bool> can-use;
+    in property <bool> can-undo;
+    in property <bool> can-redo;
+    /// Why Save didn't work.
+    in property <string> error;
+    in property <[string]> kind-names;
+    in property <[string]> kind-help;
+    // The chosen box.
+    in property <bool> has-box;
+    in property <bool> box-unknown;
+    in-out property <int> box-kind;
+    in-out property <int> box-size: 9;
+    in-out property <string> box-color: "#ffffff";
+    in-out property <int> box-align: 1;
+    in-out property <string> box-text;
+    in property <bool> box-is-text;
+    // N10: lock, hide, chords on slide boxes, a shape's shape; `box-fills` = the colour is the shape's fill.
+    in-out property <bool> box-locked;
+    in-out property <bool> box-hidden;
+    in property <bool> box-is-slide;
+    in-out property <bool> box-chords;
+    in property <bool> box-is-shape;
+    in-out property <int> box-shape;
+    in property <bool> box-fills;
+    in property <[string]> shape-names;
+    /// N10: the grid and rulers on the picture.
+    in-out property <bool> show-grid;
+    // The top bar's picker: every layout's name and which one is on stage.
+    in property <[string]> picker-names;
+    in property <int> picker-current: -1;
+
+    callback select-layout(int);
+    callback new-layout();
+    callback duplicate-layout();
+    callback rename-layout();
+    callback delete-layout();
+    callback use-layout();
+    callback select-box(string);
+    callback add-box(int);
+    callback remove-box();
+    callback press(float, float, float, float, bool);
+    callback drag(float, float);
+    callback release();
+    callback nudge(int, bool);
+    callback undo();
+    callback redo();
+    callback duplicate-box();
+    callback next-box(bool);
+    callback kind-changed(int);
+    callback size-changed(int);
+    callback color-changed(string);
+    callback align-changed(int);
+    callback text-edited(string);
+    callback locked-changed(bool);
+    callback hidden-changed(bool);
+    callback chords-changed(bool);
+    callback shape-changed(int);
+    callback cancel();
+    callback save();
+    // The top bar's picker.
+    callback fill-picker();
+    callback pick(int);
+    callback edit-layouts();
+}
+
+component SmallText inherits Text {
+    color: Theme.muted;
+    font-family: Theme.font;
+    font-size: 12px;
+    wrap: word-wrap;
+}
+
+component Swatch inherits Rectangle {
+    in property <string> hex;
+    in property <color> shade;
+    callback picked(string);
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    background: root.shade;
+    border-color: StageLayoutsDlg.box-color == root.hex ? Theme.accent : Theme.line;
+    border-width: 2px;
+    accessible-role: button;
+    accessible-label: root.hex;
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.picked(root.hex); }
+    }
+}
+
+/// The list of layouts and what can be done with the chosen one.
+component LayoutList inherits VerticalLayout {
+    /// N8: the words in the filter box.
+    property <string> filter;
+    spacing: 4px;
+    alignment: start;
+    Lbl { label: @tr("Stage layouts"); }
+    if StageLayoutsDlg.layouts.length >= ListFilter.min-rows || root.filter != "": HorizontalLayout {
+        layouts-filter := FilterBox {
+            text <=> root.filter;
+            placeholder: @tr("Filter layouts");
+        }
+    }
+    // N8: rows the filter hides take no room; `i` stays the row's place in the whole list.
+    VerticalLayout {
+        for l[i] in StageLayoutsDlg.layouts: VerticalLayout {
+            padding-bottom: ListFilter.shown(l.name, root.filter) ? 4px : 0px;
+            if ListFilter.shown(l.name, root.filter): layout-row := Rectangle {
+                height: 36px;
+                border-radius: 8px;
+                background: l.selected ? Theme.raise : row-ta.has-hover ? Theme.panel-2 : transparent;
+                border-color: l.selected ? Theme.accent : transparent;
+                border-width: 1px;
+                accessible-role: list-item;
+                accessible-label: l.name;
+                accessible-item-selected: l.selected;
+                row-ta := TouchArea {
+                    mouse-cursor: pointer;
+                    clicked => { StageLayoutsDlg.select-layout(i); }
+                }
+                HorizontalLayout {
+                    padding-left: 10px;
+                    padding-right: 8px;
+                    spacing: 6px;
+                    Text {
+                        horizontal-stretch: 1;
+                        text: l.name;
+                        color: Theme.text;
+                        font-family: Theme.font;
+                        font-size: Theme.base-size;
+                        font-weight: l.selected ? 600 : 400;
+                        overflow: elide;
+                        vertical-alignment: center;
+                    }
+                    if l.on-stage: Text {
+                        text: @tr("On stage");
+                        color: Theme.ok;
+                        font-family: Theme.font;
+                        font-size: 11px;
+                        font-weight: 700;
+                        vertical-alignment: center;
+                    }
+                    if l.builtin: Text {
+                        text: @tr("Built-in");
+                        color: Theme.faint;
+                        font-family: Theme.font;
+                        font-size: 11px;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+        }
+    }
+    Rectangle { height: 8px; }
+    new-btn := Btn {
+        small: true;
+        icon: "plus";
+        text: @tr("New");
+        clicked => { StageLayoutsDlg.new-layout(); }
+    }
+    duplicate-btn := Btn {
+        small: true;
+        icon: "copy";
+        primary: StageLayoutsDlg.locked;
+        text: StageLayoutsDlg.locked ? @tr("Duplicate to edit") : @tr("Duplicate");
+        clicked => { StageLayoutsDlg.duplicate-layout(); }
+    }
+    rename-btn := Btn {
+        small: true;
+        icon: "edit";
+        text: @tr("Rename…");
+        enabled: !StageLayoutsDlg.locked;
+        clicked => { StageLayoutsDlg.rename-layout(); }
+    }
+    delete-btn := Btn {
+        small: true;
+        icon: "trash";
+        danger: true;
+        text: @tr("Delete…");
+        enabled: !StageLayoutsDlg.locked;
+        clicked => { StageLayoutsDlg.delete-layout(); }
+    }
+    use-btn := Btn {
+        small: true;
+        icon: "monitor";
+        text: @tr("Use on stage");
+        enabled: StageLayoutsDlg.can-use;
+        tooltip: StageLayoutsDlg.can-use ? "" : @tr("Save first");
+        clicked => { StageLayoutsDlg.use-layout(); }
+    }
+}
+
+/// The boxes of the chosen layout, Add and Remove, and the chosen box's settings.
+component BoxPanel inherits VerticalLayout {
+    spacing: 6px;
+    alignment: start;
+    Lbl { label: @tr("Boxes"); }
+    for b in StageLayoutsDlg.boxes: box-row := Rectangle {
+        height: 28px;
+        border-radius: 7px;
+        background: b.selected ? Theme.raise : box-ta.has-hover ? Theme.panel-2 : transparent;
+        border-color: b.selected ? Theme.accent : transparent;
+        border-width: 1px;
+        accessible-role: list-item;
+        accessible-label: b.name;
+        accessible-item-selected: b.selected;
+        box-ta := TouchArea {
+            mouse-cursor: pointer;
+            clicked => { StageLayoutsDlg.select-box(b.id); }
+        }
+        Text {
+            x: 10px;
+            width: parent.width - 20px;
+            text: b.unknown ? @tr("Needs a newer RustyPresenter")
+                : b.locked && b.hidden ? @tr("{} · locked · hidden", b.name) : b.locked ? @tr("{} · locked", b.name) : b.hidden ? @tr("{} · hidden", b.name) : b.name;
+            color: b.unknown || b.hidden ? Theme.muted : Theme.text;
+            font-family: Theme.font;
+            font-size: 13px;
+            overflow: elide;
+            vertical-alignment: center;
+        }
+    }
+    if StageLayoutsDlg.boxes.length == 0: SmallText {
+        text: StageLayoutsDlg.locked ? "" : @tr("No boxes yet. Add one to show something on the stage.");
+    }
+    HorizontalLayout {
+        spacing: 6px;
+        alignment: start;
+        add-btn := Btn {
+            small: true;
+            icon: "plus";
+            text: @tr("Add box");
+            enabled: !StageLayoutsDlg.locked;
+            clicked => { add-menu.show(); }
+        }
+        remove-btn := Btn {
+            small: true;
+            icon: "trash";
+            text: @tr("Remove");
+            enabled: !StageLayoutsDlg.locked && StageLayoutsDlg.has-box && !StageLayoutsDlg.box-locked;
+            clicked => { StageLayoutsDlg.remove-box(); }
+        }
+    }
+    add-menu := PopupWindow {
+        x: 0;
+        y: add-btn.y + add-btn.height + 2px;
+        width: 280px;
+        height: StageLayoutsDlg.kind-names.length * 40px + 8px;
+        close-policy: close-on-click-outside;
+        Rectangle {
+            background: Theme.panel-2;
+            border-color: Theme.line;
+            border-width: 1px;
+            border-radius: 9px;
+            VerticalLayout {
+                padding: 4px;
+                for k[i] in StageLayoutsDlg.kind-names: kind-row := Rectangle {
+                    height: 40px;
+                    border-radius: 6px;
+                    background: kind-ta.has-hover ? Theme.raise : transparent;
+                    accessible-role: list-item;
+                    accessible-label: k;
+                    kind-ta := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { StageLayoutsDlg.add-box(i); add-menu.close(); }
+                    }
+                    VerticalLayout {
+                        padding-left: 10px;
+                        alignment: center;
+                        Text { text: k; color: Theme.text; font-family: Theme.font; font-size: 13px; font-weight: 600; }
+                        Text { text: StageLayoutsDlg.kind-help[i]; color: Theme.muted; font-family: Theme.font; font-size: 11px; overflow: elide; }
+                    }
+                }
+            }
+        }
+    }
+
+    Rectangle { height: 8px; }
+    if StageLayoutsDlg.has-box && !StageLayoutsDlg.box-unknown && !StageLayoutsDlg.locked: VerticalLayout {
+        spacing: 6px;
+        lock-check := Check {
+            text: @tr("Locked (can't be moved by mistake)");
+            checked <=> StageLayoutsDlg.box-locked;
+            toggled(v) => { StageLayoutsDlg.locked-changed(v); }
+        }
+        hide-check := Check {
+            text: @tr("Hidden on the stage");
+            checked <=> StageLayoutsDlg.box-hidden;
+            toggled(v) => { StageLayoutsDlg.hidden-changed(v); }
+        }
+        Lbl { label: @tr("Shows"); }
+        kind := Select {
+            options: StageLayoutsDlg.kind-names;
+            index <=> StageLayoutsDlg.box-kind;
+            changed(i) => { StageLayoutsDlg.kind-changed(i); }
+        }
+        if StageLayoutsDlg.box-is-slide: chords-check := Check {
+            text: @tr("Show chords (typed in the words like [G])");
+            checked <=> StageLayoutsDlg.box-chords;
+            toggled(v) => { StageLayoutsDlg.chords-changed(v); }
+        }
+        if StageLayoutsDlg.box-is-shape: VerticalLayout {
+            spacing: 6px;
+            Lbl { label: @tr("Shape"); }
+            shape := Select {
+                options: StageLayoutsDlg.shape-names;
+                index <=> StageLayoutsDlg.box-shape;
+                changed(i) => { StageLayoutsDlg.shape-changed(i); }
+            }
+        }
+        if StageLayoutsDlg.box-is-text: VerticalLayout {
+            spacing: 6px;
+            Lbl { label: @tr("Words"); }
+            words := TextField {
+                text <=> StageLayoutsDlg.box-text;
+                edited(t) => { StageLayoutsDlg.text-edited(t); }
+            }
+        }
+        if !StageLayoutsDlg.box-is-shape: Lbl { label: @tr("Biggest text ({}%)", StageLayoutsDlg.box-size); }
+        if !StageLayoutsDlg.box-is-shape: size := RangeSlider {
+            minimum: 2;
+            maximum: 40;
+            value <=> StageLayoutsDlg.box-size;
+            changed(v) => { StageLayoutsDlg.size-changed(v); }
+        }
+        Lbl { label: StageLayoutsDlg.box-fills ? @tr("Colour") : @tr("Text colour"); }
+        HorizontalLayout {
+            spacing: 6px;
+            alignment: start;
+            Swatch { hex: "#ffffff"; shade: #ffffff; picked(h) => { StageLayoutsDlg.color-changed(h); } }
+            Swatch { hex: "#f5c66b"; shade: #f5c66b; picked(h) => { StageLayoutsDlg.color-changed(h); } }
+            Swatch { hex: "#cfe3ff"; shade: #cfe3ff; picked(h) => { StageLayoutsDlg.color-changed(h); } }
+            Swatch { hex: "#9aa3b5"; shade: #9aa3b5; picked(h) => { StageLayoutsDlg.color-changed(h); } }
+            Swatch { hex: "#ff6b6b"; shade: #ff6b6b; picked(h) => { StageLayoutsDlg.color-changed(h); } }
+            Swatch { hex: "#7ee08a"; shade: #7ee08a; picked(h) => { StageLayoutsDlg.color-changed(h); } }
+        }
+        color := TextField {
+            label: StageLayoutsDlg.box-fills ? @tr("Colour") : @tr("Text colour");
+            text <=> StageLayoutsDlg.box-color;
+            edited(t) => { StageLayoutsDlg.color-changed(t); }
+        }
+        if !StageLayoutsDlg.box-is-shape: Lbl { label: @tr("Alignment"); }
+        if !StageLayoutsDlg.box-is-shape: HorizontalLayout {
+            alignment: start;
+            align := Segmented {
+                labels: [@tr("Left"), @tr("Centre"), @tr("Right")];
+                index <=> StageLayoutsDlg.box-align;
+                changed(i) => { StageLayoutsDlg.align-changed(i); }
+            }
+        }
+    }
+    if StageLayoutsDlg.has-box && StageLayoutsDlg.box-unknown: SmallText {
+        text: @tr("A newer RustyPresenter made this box. It can be removed but not changed here.");
+    }
+}
+
+export component StageLayoutsDialog inherits VerticalLayout {
+    DialogBody {
+        HorizontalLayout {
+            spacing: 18px;
+            list := LayoutList {
+                width: 210px;
+            }
+            VerticalLayout {
+                horizontal-stretch: 1;
+                spacing: 8px;
+                alignment: start;
+                HorizontalLayout {
+                    spacing: 6px;
+                    undo-btn := Btn {
+                        small: true;
+                        icon: "restart";
+                        text: @tr("Undo");
+                        enabled: StageLayoutsDlg.can-undo;
+                        clicked => { StageLayoutsDlg.undo(); }
+                    }
+                    redo-btn := Btn {
+                        small: true;
+                        text: @tr("Redo");
+                        enabled: StageLayoutsDlg.can-redo;
+                        clicked => { StageLayoutsDlg.redo(); }
+                    }
+                    grid-check := Check {
+                        padding-bottom: 0;
+                        text: @tr("Grid");
+                        checked <=> StageLayoutsDlg.show-grid;
+                    }
+                    hint := SmallText {
+                        horizontal-stretch: 1;
+                        vertical-alignment: center;
+                        text: StageLayoutsDlg.locked
+                            ? @tr("Built-in layouts can't be changed. Duplicate one to make your own.")
+                            : @tr("Drag a box to move it; drag a corner to resize. Arrow keys nudge. Hold Alt to move freely.");
+                    }
+                }
+                canvas := StageCanvas {
+                    height: 380px;
+                    boxes: StageLayoutsDlg.boxes;
+                    guides: StageLayoutsDlg.guides;
+                    screen-bg: StageLayoutsDlg.screen-bg;
+                    locked: StageLayoutsDlg.locked;
+                    show-grid: StageLayoutsDlg.show-grid;
+                    press(x, y, tx, ty, free) => { StageLayoutsDlg.press(x, y, tx, ty, free); }
+                    drag(x, y) => { StageLayoutsDlg.drag(x, y); }
+                    release => { StageLayoutsDlg.release(); }
+                    nudge(k, shift) => { StageLayoutsDlg.nudge(k, shift); }
+                    remove-box => { StageLayoutsDlg.remove-box(); }
+                    undo => { StageLayoutsDlg.undo(); }
+                    redo => { StageLayoutsDlg.redo(); }
+                    duplicate-box => { StageLayoutsDlg.duplicate-box(); }
+                    next-box(back) => { StageLayoutsDlg.next-box(back); }
+                }
+            }
+            boxes := BoxPanel {
+                width: 260px;
+            }
+        }
+    }
+    DialogFoot {
+        if StageLayoutsDlg.error != "": error := Text {
+            horizontal-stretch: 1;
+            text: StageLayoutsDlg.error;
+            color: Theme.danger-text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            wrap: word-wrap;
+            vertical-alignment: center;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+        cancel := Btn {
+            text: @tr("Cancel");
+            clicked => { StageLayoutsDlg.cancel(); }
+        }
+        save := Btn {
+            primary: true;
+            text: @tr("Save");
+            clicked => { StageLayoutsDlg.save(); }
+        }
+    }
+}
+
+/// The top bar's quick picker: every stage layout, the one on stage ticked, and the editor.
+export component StageLayoutButton inherits Rectangle {
+    in property <bool> narrow;
+    horizontal-stretch: 0;
+    layout-btn := TopBtn {
+        icon: "chevron-down";
+        text: @tr("Layout");
+        narrow: root.narrow;
+        tooltip: @tr("Choose the stage layout");
+        clicked => {
+            StageLayoutsDlg.fill-picker();
+            menu.show();
+        }
+    }
+    width: layout-btn.preferred-width;
+    height: layout-btn.preferred-height;
+    menu := PopupWindow {
+        // Never over the audience or stage preview (`DockGuard`).
+        x: DockGuard.place-x(root.absolute-position.x, root.absolute-position.y + root.height + 4px, 240px, self.height) - root.absolute-position.x;
+        y: root.height + 4px;
+        width: 240px;
+        height: (StageLayoutsDlg.picker-names.length + 1) * 32px + 17px;
+        close-policy: close-on-click-outside;
+        Rectangle {
+            background: Theme.panel-2;
+            border-color: Theme.line;
+            border-width: 1px;
+            border-radius: 9px;
+            VerticalLayout {
+                padding: 4px;
+                for n[i] in StageLayoutsDlg.picker-names: pick-row := Rectangle {
+                    height: 32px;
+                    border-radius: 6px;
+                    background: pick-ta.has-hover ? Theme.raise : transparent;
+                    accessible-role: list-item;
+                    accessible-label: n;
+                    accessible-checked: i == StageLayoutsDlg.picker-current;
+                    pick-ta := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { StageLayoutsDlg.pick(i); menu.close(); }
+                    }
+                    HorizontalLayout {
+                        padding-left: 10px;
+                        spacing: 8px;
+                        // The one on stage: an accent dot.
+                        VerticalLayout {
+                            alignment: center;
+                            Rectangle {
+                                width: 8px;
+                                height: 8px;
+                                border-radius: 4px;
+                                background: i == StageLayoutsDlg.picker-current ? Theme.accent : transparent;
+                            }
+                        }
+                        Text {
+                            text: n;
+                            color: Theme.text;
+                            font-family: Theme.font;
+                            font-size: 13px;
+                            font-weight: i == StageLayoutsDlg.picker-current ? 600 : 400;
+                            overflow: elide;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+                Rectangle { height: 1px; background: Theme.line; }
+                edit-row := Rectangle {
+                    height: 32px;
+                    border-radius: 6px;
+                    background: edit-ta.has-hover ? Theme.raise : transparent;
+                    accessible-role: list-item;
+                    accessible-label: edit-text.text;
+                    edit-ta := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { StageLayoutsDlg.edit-layouts(); menu.close(); }
+                    }
+                    edit-text := Text {
+                        x: 32px;
+                        text: @tr("Edit stage layouts…");
+                        color: Theme.text;
+                        font-family: Theme.font;
+                        font-size: 13px;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+        }
+    }
+}

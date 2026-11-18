@@ -1,0 +1,196 @@
+// A song's order as coloured chips (FEAT-4 §3.5), in the song editor and in Item edit: drag a chip onto another to
+// move it there or onto End, × removes one, and with a chip selected Ctrl+←/→ move it, ←/→ choose another and
+// Delete or Backspace removes it. The logic is in Rust (`src/sections/arrangement.rs` and the dialogs' glue).
+import { Theme } from "../theme.slint";
+import { Btn, TipArea } from "../widgets.slint";
+
+/// One entry of the order as a chip: `index` in the order, `kind` its section kind for the colour, `missing` matches
+/// no section of the lyrics, `faded` shows the written order while the order is empty.
+export struct ArrChip { index: int, label: string, short: string, kind: string, missing: bool, faded: bool }
+
+/// A row of order chips.
+export struct ArrChipRow { chips: [ArrChip] }
+
+/// A row of `+ <label>` buttons.
+export struct ArrAddRow { labels: [string] }
+
+export component ArrangementStrip inherits FocusScope {
+    in property <[ArrChipRow]> rows;
+    /// How many chips there are in all.
+    in property <int> count;
+    /// The order is empty: the chips show the written order.
+    in property <bool> written;
+    /// `+ <label>` buttons under the chips (none: no row).
+    in property <[ArrAddRow]> adds;
+    /// Off: shown dimmed, and nothing can be changed.
+    in property <bool> active: true;
+    /// The chip the keys act on (-1: none).
+    in-out property <int> selected: -1;
+
+    /// Move entry `from` to `to` (`to` = the number of entries: the end).
+    callback move(int, int);
+    callback remove(int);
+    callback add(string);
+    /// Use written order: the order becomes empty.
+    callback reset();
+    /// A chip's drag payload, and the index in one (-1 when it is not an order chip).
+    pure callback drag-data(int) -> data-transfer;
+    pure callback drag-index(data-transfer) -> int;
+
+    enabled: root.active;
+    changed has-focus => {
+        if self.has-focus && root.selected < 0 && root.count > 0 { root.selected = 0; }
+    }
+    key-pressed(e) => {
+        if !root.active || root.selected < 0 || root.selected >= root.count { return reject; }
+        if e.text == Key.LeftArrow || e.text == Key.RightArrow {
+            let to = root.selected + (e.text == Key.LeftArrow ? -1 : 1);
+            if to >= 0 && to < root.count {
+                if e.modifiers.control { root.move(root.selected, to); }
+                root.selected = to;
+            }
+            return accept;
+        }
+        if e.text == Key.Delete || e.text == Key.Backspace {
+            root.remove(root.selected);
+            root.selected = min(root.selected, root.count - 1);
+            return accept;
+        }
+        reject
+    }
+
+    VerticalLayout {
+        spacing: 6px;
+        opacity: root.active ? 1 : 0.5;
+        for row in root.rows: HorizontalLayout {
+            spacing: 4px;
+            alignment: start;
+            for c in row.chips: arr-chip := Rectangle {
+                property <bool> chosen: root.has-focus && c.index == root.selected;
+                min-width: 30px;
+                height: 26px;
+                border-radius: 6px;
+                background: c.missing ? transparent : Theme.section-color(c.kind);
+                border-width: self.chosen ? 2px : c.missing ? 1px : 0px;
+                border-color: self.chosen ? Theme.text : Theme.faint;
+                opacity: arr-drag.dragging ? 0.4 : c.faded ? 0.55 : 1;
+                accessible-role: button;
+                accessible-label: c.label;
+                accessible-description: c.missing ? @tr("Not in the words — it is skipped") : "";
+                accessible-item-selected: self.chosen;
+                HorizontalLayout {
+                    padding-left: 7px;
+                    padding-right: arr-ta.has-hover ? 2px : 7px;
+                    spacing: 2px;
+                    Text {
+                        text: c.short;
+                        color: c.missing ? Theme.faint : Theme.sec-ink;
+                        font-family: Theme.font;
+                        font-size: 12px;
+                        font-weight: 700;
+                        vertical-alignment: center;
+                    }
+                }
+                if arr-drop.has-drag: Rectangle {
+                    x: 0;
+                    width: 2px;
+                    background: Theme.accent;
+                }
+                arr-drop := DropArea {
+                    enabled: root.active;
+                    can-drop(e) => {
+                        let j = root.drag-index(e.data);
+                        return j >= 0 && j != c.index ? DragAction.move : DragAction.none;
+                    }
+                    dropped(e) => {
+                        let j = root.drag-index(e.data);
+                        if j >= 0 && j != c.index { root.move(j, c.index); }
+                        return e.proposed-action;
+                    }
+                }
+                arr-drag := DragArea {
+                    enabled: root.active;
+                    allow-move: true;
+                    data: root.drag-data(c.index);
+                    arr-ta := TouchArea {
+                        enabled: root.active;
+                        mouse-cursor: pointer;
+                        clicked => {
+                            root.selected = c.index;
+                            root.focus();
+                        }
+                    }
+                }
+                if root.active && arr-ta.has-hover && !c.faded: arr-remove := Rectangle {
+                    x: parent.width - 14px;
+                    width: 14px;
+                    accessible-role: button;
+                    accessible-label: @tr("Remove");
+                    accessible-action-default => { root.remove(c.index); }
+                    Text {
+                        text: "×";
+                        color: Theme.sec-ink;
+                        font-size: 13px;
+                        vertical-alignment: center;
+                    }
+                    TouchArea { clicked => { root.remove(c.index); } }
+                }
+                TipArea { text: c.missing ? @tr("Not in the words — it is skipped") : ""; hover: arr-ta.has-hover; pressed: arr-ta.pressed; pointer-x: arr-ta.mouse-x; }
+            }
+        }
+        if root.rows.length > 0: HorizontalLayout {
+            spacing: 8px;
+            alignment: start;
+            // Drop here to move a chip to the end.
+            arr-end := Rectangle {
+                width: 60px;
+                height: 22px;
+                border-radius: 6px;
+                border-width: 1px;
+                border-color: end-drop.has-drag ? Theme.accent : Theme.line;
+                Text {
+                    text: @tr("End");
+                    color: Theme.faint;
+                    font-family: Theme.font;
+                    font-size: 11px;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+                end-drop := DropArea {
+                    enabled: root.active;
+                    can-drop(e) => { return root.drag-index(e.data) >= 0 ? DragAction.move : DragAction.none; }
+                    dropped(e) => {
+                        let j = root.drag-index(e.data);
+                        if j >= 0 { root.move(j, 9999); }
+                        return e.proposed-action;
+                    }
+                }
+            }
+            if root.written: Text {
+                text: @tr("Written order — drag to change");
+                color: Theme.faint;
+                font-family: Theme.font;
+                font-size: 12px;
+                vertical-alignment: center;
+            }
+            if !root.written: arr-reset := Btn {
+                small: true;
+                enabled: root.active;
+                text: @tr("⟲ Use written order");
+                clicked => { root.reset(); }
+            }
+        }
+        for row in root.adds: HorizontalLayout {
+            spacing: 6px;
+            alignment: start;
+            for label in row.labels: arr-add := Btn {
+                text: "+ " + label;
+                small: true;
+                enabled: root.active;
+                accessible-role: button;
+                accessible-label: label;
+                clicked => { root.add(label); }
+            }
+        }
+    }
+}

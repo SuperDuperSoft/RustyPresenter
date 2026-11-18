@@ -1,9 +1,10 @@
 [package]
 name = "rustypresenter"
-version = "0.2.0"
+version = "1.3.0"
 edition = "2024"
 description = "Church presentation app: lyrics, scripture, slides, video, phone remote"
 publish = false
+license = "MIT OR Apache-2.0"
 
 [dependencies]
 axum = "0.8"
@@ -13,16 +14,156 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 uuid = { version = "1", features = ["v4", "serde"] }
 dirs = "6"
-tauri = "2"
 sha2 = "0.10"
 qrcode = { version = "0.14", default-features = false, features = ["svg"] }
+cosmic-text = "0.19.0"
+tiny-skia = "0.12.0"
+libloading = "0.8"
+slint = { version = "1.18", features = ["unstable-winit-030", "raw-window-handle-06"] }
+# The screens, compiled from ui/app.slint in their own crate.
+rp-ui = { path = "crates/rp-ui", features = ["dock-panels"] }
+# Song auto-follow's "ear" (1.3): a speech-sound model run in pure Rust (Candle). Apache-2.0/MIT.
+candle-core = { version = "0.11", default-features = false, optional = true }
+candle-nn = { version = "0.11", default-features = false, optional = true }
+# Only for the `gpu-apis` feature: `require_wgpu_30` and its settings. Internal API, so pinned to the version slint uses.
+i-slint-backend-selector = { version = "=1.18.1", optional = true, default-features = false }
+glow = "0.18"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+# FEAT-6: the computer's region, for date order and paper size. Already in Cargo.lock through slint.
+sys-locale = "0.3"
+# Settings → Video: the Copy button (Slint 1.18 has no public clipboard-write API).
+arboard = { version = "=3.7.0", default-features = false }
+image = { version = "0.25.10", default-features = false, features = ["png", "jpeg", "gif", "webp", "bmp"] }
+pdfium-render = "0.8.37"
+rusqlite = { version = "=0.32.1", features = ["bundled", "backup"] }
+encoding_rs = "=0.8.35"
+# Licensed Bible APIs. rustls with ring (aws-lc-rs needs cmake/nasm, which the MinGW toolchain lacks).
+reqwest = { version = "0.13", default-features = false, features = ["json", "query", "form", "rustls-no-provider"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
+# Twitch's live chat is read over TLS (already in the build through reqwest).
+tokio-rustls = { version = "0.26", default-features = false }
+# The phone pages over https too (`network::https`): a phone's camera and microphone need a secure page. The
+# certificate is made with ring (already rustls' provider); connections, and the camera's WebSocket, are served by
+# hyper, as axum does. All already in the lock file.
+ring = "0.17"
+hyper = { version = "1", features = ["server", "http1"] }
+hyper-util = { version = "0.1", features = ["tokio", "server", "service", "http1"] }
+rustls-platform-verifier = "0.7"
+# Imported Bible files (Zefania, OSIS, USX, OpenSong).
+quick-xml = "0.38.4"
+# OpenLP song lyrics are XML. Already in Cargo.lock; refuses DTDs, so no entity expansion.
+roxmltree = "=0.21.2"
+# Native file dialogs for the operator. 0.17 has no `tokio` feature: its xdg portal (Linux) runs on its own executor.
+rfd = { version = "=0.17.2", default-features = false, features = ["xdg-portal", "wayland", "common-controls-v6"] }
+# Plan 4: file addresses for LibreOffice, cancelling converters.
+url = "2.5"
+# The Bible blocklist compares titles in any script. Already in Cargo.lock through `url`.
+icu_normalizer = { version = "2", default-features = false, features = ["compiled_data"] }
+tokio-util = "0.7"
+# Plan 4: telling presentations apart by their content (zip packages, OLE compound files).
+zip = { version = "9.2", default-features = false, features = ["deflate"] }
+cfb = "0.10"
+# Slint's internals, pinned to the version slint uses: the run-time translation hook of the patched copy
+# (patches/i-slint-core/PATCHED.md, `i18n::sync_slint`), and the window's layout constraints in tests
+# (ui::operator::fit), and `require_wgpu_30` (gpu-apis). Its features come from slint.
+i-slint-core = { version = "=1.18.1", default-features = false }
+# The computer's language (I18N). Already in Cargo.lock through Slint.
 
-[build-dependencies]
-tauri-build = "2"
+[features]
+# Vulkan, Direct3D 12 and Metal are offered in Settings → Video → Graphics; Auto stays OpenGL.
+default = ["gpu-apis", "follow-model"]
+# Song auto-follow's speech-sound model (Candle).
+follow-model = ["dep:candle-core", "dep:candle-nn"]
+# PERF EXPERIMENT renderers for RP_RENDERER (see `video::graphics`); off by default, the app uses FemtoVG.
+# FemtoVG on wgpu (Direct3D 12 / Vulkan / Metal), pure Rust: builds with the MinGW toolchain (no Microsoft C++ tools).
+renderer-wgpu = ["slint/renderer-femtovg-wgpu"]
+# Offers Vulkan, Direct3D (Windows) and Metal (macOS) in Settings → Video → Graphics, drawn by FemtoVG on wgpu.
+# Slint's own `slint/unstable-wgpu-30` would pull `i-slint-backend-android-activity`, which isn't vendored, and Cargo
+# resolves every feature even when off. So this turns on the same switch in the two crates behind it instead.
+gpu-apis = ["renderer-wgpu", "dep:i-slint-backend-selector", "i-slint-backend-selector/unstable-wgpu-30", "i-slint-core/unstable-wgpu-30"]
+# Skia: rust-skia has no prebuilt binaries for x86_64-pc-windows-gnu, so on Windows this needs the MSVC toolchain.
+# It downloads Skia while building, so it can't be built offline. With it, Settings → Video → Graphics offers Vulkan,
+# Direct3D (Windows) and Metal (macOS).
+renderer-skia = ["slint/renderer-skia", "slint/renderer-skia-opengl", "slint/renderer-skia-vulkan"]
+
+[target.'cfg(windows)'.build-dependencies]
+# The icon and the manifest. Already in the lock file; compiled by MinGW's windres or MSVC's rc.
+embed-resource = "3"
 
 [target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.61", features = ["Win32_Graphics_Gdi", "Win32_Foundation", "Win32_UI_WindowsAndMessaging"] }
+windows-sys = { version = "0.61", features = ["Win32_Graphics_Gdi", "Win32_Foundation", "Win32_System_Diagnostics_Debug", "Win32_UI_WindowsAndMessaging", "Win32_Security", "Win32_Security_Credentials", "Win32_System_JobObjects", "Win32_System_Registry", "Win32_System_Threading", "Win32_Storage_FileSystem", "Win32_NetworkManagement_IpHelper", "Win32_NetworkManagement_Ndis", "Win32_Networking_WinSock"] }
+# The PC's sound in a livestream (`stream::pc_sound`): Windows' audio capture is COM, which windows-sys does not cover.
+# The same version the rest of the build already has.
+windows = { version = "0.62", features = ["Win32_Media_Audio", "Win32_System_Com", "Win32_System_Com_StructuredStorage", "Win32_System_Variant"] }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+# Plan 4's `signal-hook` is a thin layer over this, which tokio already brings in.
+signal-hook-registry = "1.4"
+
+# macOS: stream keys in the Keychain (`stream::keys`). Already in the lock file (rustls's certificate check uses it).
+[target.'cfg(target_os = "macos")'.dependencies]
+security-framework = "3.7"
+# macOS 14.2+: what the Mac plays, for the livestream, without BlackHole (`stream::mac_tap`, a Core Audio process
+# tap). Both already in the lock file (Slint's macOS backend uses them).
+objc2 = "0.6"
+core-foundation = "0.10"
+
+# Linux: ask the desktop (KDE, XFCE, Cinnamon, MATE...) not to blank the screen, and keep stream keys in its
+# password store (`stream::keys`), over D-Bus.
+[target.'cfg(target_os = "linux")'.dependencies]
+# Not pinned exactly: slint pulls zbus too, and Cargo.lock already fixes the version.
+zbus = { version = "5.19", default-features = false, features = ["blocking-api", "async-io"] }
 
 [profile.release]
 lto = "thin"
-strip = true
+# Release backtraces keep their names. No `split-debuginfo`: the local MinGW toolchain rejects it.
+debug = "line-tables-only"
+strip = "debuginfo"
+
+# The screens' generated code (crates/rp-ui) is most of the program. It draws menus and dialogs, not video,
+# so build it for size: it makes the program and the setup file much smaller.
+# The generated screen code (54+ MB of Rust) needs no debug info, and building it with debug info needs more
+# memory than a small build machine has.
+[profile.dev.package.rp-ui]
+debug = 0
+
+[profile.release.package.rp-ui]
+opt-level = "s"
+
+# For checking a change quickly (cargo test --profile quick): light optimising, no debug info, no LTO, and only
+# the changed code is rebuilt. The release profile above is for the program people run, not for every test run.
+[profile.quick]
+inherits = "dev"
+opt-level = 1
+debug = 0
+incremental = true
+
+[profile.quick.package."*"]
+opt-level = 2
+
+# The generated screen code is the biggest thing to compile: leave it
+# unoptimised so a change to a screen rebuilds fast.
+[profile.quick.package.rp-ui]
+opt-level = 0
+
+# src/main.rs has no tests of its own: do not build a test program for it.
+[[bin]]
+name = "rustypresenter"
+path = "src/main.rs"
+test = false
+
+[dev-dependencies]
+i-slint-backend-testing = "1.18"
+
+# examples/slide_bench.rs reads the process CPU time.
+[target.'cfg(windows)'.dev-dependencies]
+windows-sys = { version = "0.61", features = ["Win32_System_Threading"] }
+
+# Slint 1.18.1's winit backend with the fix from slint#14282 (the timer frame throttle drew every change twice, one
+# refresh late). See patches/i-slint-backend-winit/PATCHED.md; drop this once a Slint release has it.
+[patch.crates-io]
+i-slint-backend-winit = { path = "patches/i-slint-backend-winit" }
+# Slint 1.18.1's core with a hook for translations edited in the app (Settings → Translations…), which Slint's
+# bundled translations cannot show. See patches/i-slint-core/PATCHED.md.
+i-slint-core = { path = "patches/i-slint-core" }

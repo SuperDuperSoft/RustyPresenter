@@ -1,0 +1,55 @@
+// How a slide comes on screen: the kind, which way a push or wipe goes, and how long. Shared by the slide editor
+// and Item edit (a deck's slides).
+import { Select, RangeSlider, Lbl } from "form.slint";
+
+export component TransitionPicker inherits VerticalLayout {
+    /// The kind picked: Fade, Cut, Through black, Push, Wipe, Cover, Uncover, Split, Zoom, Dissolve
+    /// (`TransitionKind::ALL`); with `normal`, "Normal" comes first (index 0).
+    in-out property <int> kind;
+    /// Left, Right, Up, Down.
+    in-out property <int> dir;
+    in-out property <int> ms: 400;
+    /// Offer "Normal" (the app's own crossfade) first.
+    in property <bool> normal;
+    /// Says which slide the picker is for (Item edit's rows).
+    in property <string> label: @tr("Transition");
+    callback kind-changed(int);
+    callback dir-changed(int);
+    callback ms-changed(int);
+
+    property <int> first: root.normal ? 1 : 0;
+    // Cut and Normal have no time; Push, Wipe, Cover, Uncover and Split go one way.
+    property <bool> has-time: root.kind - root.first != 1 && root.kind >= root.first;
+    property <bool> moves: root.kind - root.first >= 3 && root.kind - root.first <= 7;
+
+    spacing: 6px;
+    HorizontalLayout {
+        spacing: 6px;
+        kind-pick := Select {
+            horizontal-stretch: 1;
+            accessible-label: root.label;
+            options: root.normal
+                ? [@tr("Normal"), @tr("Fade"), @tr("Cut"), @tr("Through black"), @tr("Push"), @tr("Wipe"), @tr("Cover"), @tr("Uncover"), @tr("Split"), @tr("Zoom"), @tr("Dissolve")]
+                : [@tr("Fade"), @tr("Cut"), @tr("Through black"), @tr("Push"), @tr("Wipe"), @tr("Cover"), @tr("Uncover"), @tr("Split"), @tr("Zoom"), @tr("Dissolve")];
+            index <=> root.kind;
+            changed(i) => { root.kind-changed(i); }
+        }
+        if root.moves: dir-pick := Select {
+            horizontal-stretch: 1;
+            accessible-label: @tr("Which way");
+            options: [@tr("To the left"), @tr("To the right"), @tr("Up"), @tr("Down")];
+            index <=> root.dir;
+            changed(i) => { root.dir-changed(i); }
+        }
+    }
+    if root.has-time: VerticalLayout {
+        spacing: 6px;
+        Lbl { label: @tr("Time ({} ms)", root.ms); }
+        time := RangeSlider {
+            minimum: 100;
+            maximum: 5000;
+            value <=> root.ms;
+            changed(v) => { root.ms-changed(v); }
+        }
+    }
+}

@@ -1,0 +1,10 @@
+// What is done to one sound of the livestream (Settings → Livestream → More sound settings), as
+// `record::args::Filters`: gate and evener 0 off, 1 light, 2 strong; low, middle and high in dB (-12 to 12).
+export struct SoundFilters {
+    gate: int,
+    even: int,
+    limit: bool,
+    low: int,
+    mid: int,
+    high: int,
+}

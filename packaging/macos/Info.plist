@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyLists/PLIST-1.0.dtd">
+<!-- Merged into the Info.plist cargo-packager makes (Packager.toml `infoPlistPath`). macOS shows these words when
+     the app (or the FFmpeg it starts) first opens a camera or a sound input; without them the app is stopped. -->
+<plist version="1.0">
+<dict>
+	<key>NSCameraUsageDescription</key>
+	<string>RustyPresenter shows your cameras in the livestream and the recording.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>RustyPresenter records and streams the sound from your microphone or sound board, and listens to the room to follow songs.</string>
+	<!-- macOS 14.2 and later: hearing what this Mac plays (videos, songs) for the livestream (`stream::mac_tap`). -->
+	<key>NSAudioCaptureUsageDescription</key>
+	<string>RustyPresenter sends what this Mac plays (videos and songs) out with the livestream.</string>
+</dict>
+</plist>

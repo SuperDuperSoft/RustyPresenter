@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tally</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; height: 100%; background: #111; color: #eceef3; font: 16px/1.25 -apple-system, "Segoe UI", Roboto, system-ui, sans-serif; overflow: hidden; }
+  #light { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; box-sizing: border-box;
+    font-weight: 800; font-size: min(12vw, 12vh); transition: background .15s; }
+  #light.on_air { background: #d6202a; color: #fff; }
+  #light.next { background: #1d8f4e; color: #fff; }
+  #light.off { background: #111; color: #6b7280; }
+  #light.gate { font-size: 20px; font-weight: 500; color: #c8ccd6; }
+  #sub { position: absolute; left: 0; right: 0; bottom: 14px; text-align: center; font-size: 14px; color: #ffffffa0; }
+</style>
+</head>
+<body>
+<div id="light" class="off"></div>
+<div id="sub"></div>
+<script>
+  // Which camera this phone is on: ?camera=1 (the first) or 2.
+  const camera = Math.max(1, parseInt(new URLSearchParams(location.search).get('camera') || '1', 10) || 1);
+  const light = document.getElementById('light'), sub = document.getElementById('sub');
+  let wake = null;
+  async function keepAwake() { try { if (!wake && navigator.wakeLock) { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => { wake = null; }); } } catch (e) {} }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') keepAwake(); });
+  async function ask() {
+    try {
+      const r = await fetch('/stage-view/tally.json?camera=' + camera, { cache: 'no-store' });
+      const j = await r.json();
+      light.className = j.allowed ? j.light : 'off gate';
+      light.textContent = j.text;
+      sub.textContent = j.sub || '';
+    } catch (e) {
+      light.className = 'off';
+      sub.textContent = '…';
+    }
+    setTimeout(ask, 500);
+  }
+  keepAwake();
+  ask();
+</script>
+</body>
+</html>

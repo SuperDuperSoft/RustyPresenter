@@ -1,0 +1,396 @@
+// The Bible box (`web/operator.html:14-20`): type a reference and press Enter. A panel of its own since the dock
+// panels (in the top bar it could run over the Room light). Behaviour: `src/ui/operator/bible.rs`.
+import { Theme, OperatorState } from "../theme.slint";
+import { EditMenu, Icon, Kbd, ScrollBox, TipArea } from "../widgets.slint";
+import { BiblePickerList } from "../bible-picker.slint";
+import { PanelExtras } from "extras.slint";
+import { BiblePane } from "panes.slint";
+import { DockGuard } from "dock-guard.slint";
+
+export component BibleBox inherits Rectangle {
+    /// A dialog or question is over the window: the box takes no focus (Tab would otherwise reach it).
+    in property <bool> covered;
+    /// Too narrow for the favourite and recent chips: only the chosen Bible shows.
+    in property <bool> compact;
+    /// There is room for the Verses chip.
+    in property <bool> verses-shown;
+    /// Gives the keyboard back to the window (Find more Bibles opens a dialog).
+    callback focus-keys();
+    /// The box has the keyboard (the window's keys then leave typing keys to it).
+    out property <bool> bible-focused: bible-input.has-focus;
+
+    /// Opens the Bible picker on an empty search.
+    public function open-picker() {
+        BiblePane.picker-search = "";
+        BiblePane.picker-opening();
+        picker.show();
+    }
+
+    /// N6: the last references (Edit → Recent verses).
+    public function open-history() {
+        if PanelExtras.history.length > 0 { history-popup.show(); }
+    }
+
+    /// Ctrl+B: the box with its whole text selected (`operator.js:308`).
+    public function focus-bible() {
+        bible-input.focus();
+        bible-input.select-all();
+    }
+
+    // Rust asks through `BiblePane`, so the request reaches whichever window holds the box.
+    property <int> focus-serial: BiblePane.bible-focus-serial;
+    property <int> history-serial: BiblePane.bible-history-serial;
+    property <int> picker-serial: BiblePane.bible-picker-serial;
+    changed focus-serial => { root.focus-bible(); }
+    changed history-serial => { root.open-history(); }
+    changed picker-serial => { root.open-picker(); }
+
+    VerticalLayout {
+        padding-left: 10px;
+        padding-right: 10px;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        alignment: center;
+        form := Rectangle {
+            property <bool> focused: bible-input.has-focus;
+            height: 42px;
+            background: Theme.bg;
+            border-width: 1.5px;
+            border-radius: 11px;
+            border-color: self.focused ? Theme.accent : Theme.line;
+            animate border-color { duration: 150ms; }
+
+            // `.bible:focus-within` box-shadow: a 4 px ring outside the border.
+            Rectangle {
+                x: -4px;
+                y: -4px;
+                width: parent.width + 8px;
+                height: parent.height + 8px;
+                border-radius: 15px;
+                border-width: 4px;
+                border-color: form.focused ? Theme.focus-ring : transparent;
+                animate border-color { duration: 150ms; }
+            }
+
+            history-popup := PopupWindow {
+            // Under the box, never over the audience or stage preview (`DockGuard`).
+                property <length> want-w: min(360px, form.width);
+                property <length> ay: form.absolute-position.y + form.height + 8px;
+                property <length> ax: DockGuard.place-x(form.absolute-position.x, self.ay, self.want-w, 34px + PanelExtras.history.length * 31px);
+                x: self.ax - form.absolute-position.x;
+                y: form.height + 8px;
+                width: self.want-w;
+                close-policy: close-on-click-outside;
+                Rectangle {
+                    background: Theme.panel;
+                    border-color: Theme.line;
+                    border-width: 1px;
+                    border-radius: 10px;
+                    drop-shadow-blur: 24px;
+                    drop-shadow-offset-y: 8px;
+                    drop-shadow-color: Theme.shadow-dialog;
+                    VerticalLayout {
+                        padding: 6px;
+                        spacing: 1px;
+                        HorizontalLayout {
+                            padding-left: 9px;
+                            height: 22px;
+                            Text {
+                                text: @tr("Recent verses");
+                                color: Theme.faint;
+                                font-family: Theme.font;
+                                font-size: 10.5px;
+                                font-weight: 700;
+                                vertical-alignment: center;
+                            }
+                        }
+                        // As many as there is room for under the box; the rest scroll.
+                        ScrollBox {
+                        height: max(31px, min(PanelExtras.history.length * 31px, DockGuard.room-below(history-popup.ax, history-popup.ay, history-popup.want-w) - 40px));
+                        VerticalLayout {
+                        spacing: 1px;
+                        for reference in PanelExtras.history: history-row := Rectangle {
+                            height: 30px;
+                            border-radius: 6px;
+                            background: history-row-ta.has-hover ? Theme.raise : transparent;
+                            accessible-role: button;
+                            accessible-label: reference;
+                            accessible-action-default => {
+                                history-popup.close();
+                                bible-input.focus();
+                                PanelExtras.history-pick(reference);
+                            }
+                            Text {
+                                x: 9px;
+                                width: parent.width - 18px;
+                                text: reference;
+                                color: Theme.text;
+                                font-family: Theme.font;
+                                font-size: 13px;
+                                vertical-alignment: center;
+                                overflow: elide;
+                            }
+                            history-row-ta := TouchArea {
+                                mouse-cursor: pointer;
+                                clicked => {
+                                    history-popup.close();
+                                    bible-input.focus();
+                                    PanelExtras.history-pick(reference);
+                                }
+                            }
+                        }
+                        }
+                        }
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                padding-left: 12px;
+                padding-right: 8px;
+                spacing: 8px;
+                VerticalLayout {
+                    alignment: center;
+                    Icon {
+                        name: "book";
+                        color: Theme.accent;
+                    }
+                }
+                Rectangle {
+                    horizontal-stretch: 1;
+                    min-width: 120px;
+                    if bible-input.text == "": Text {
+                        x: 0;
+                        y: 0;
+                        width: parent.width;
+                        height: parent.height;
+                        text: @tr("Bible verse — type John 3:16 and press Enter");
+                        color: Theme.faint;
+                        font-family: Theme.font;
+                        font-size: 15px;
+                        overflow: elide;
+                        vertical-alignment: center;
+                    }
+                    bible-input := TextInput {
+                        x: 0;
+                        y: 0;
+                        width: parent.width;
+                        height: parent.height;
+                        text <=> BiblePane.bible-text;
+                        single-line: true;
+                        color: Theme.text;
+                        selection-background-color: Theme.accent;
+                        selection-foreground-color: Theme.accent-ink;
+                        font-family: Theme.font;
+                        font-size: 15px;
+                        vertical-alignment: center;
+                        enabled: !root.covered;
+                        accessible-placeholder-text: @tr("Bible verse — type John 3:16 and press Enter");
+                        changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
+                        accepted => { BiblePane.bible-submit(self.text); }
+                        EditMenu {
+                            x: 0;
+                            y: 0;
+                            width: 100%;
+                            height: 100%;
+                            has-text: bible-input.text != "";
+                            cut-text => { bible-input.cut(); }
+                            copy-text => { bible-input.copy(); }
+                            paste-text => { bible-input.paste(); }
+                            select-text => { bible-input.select-all(); }
+                        }
+                    }
+                }
+                // N6: the last references typed here, one click to add again.
+                if PanelExtras.history.length > 0: VerticalLayout {
+                    horizontal-stretch: 0;
+                    alignment: center;
+                    history-btn := Rectangle {
+                        width: 26px;
+                        height: 26px;
+                        border-radius: 6px;
+                        background: history-ta.has-hover ? Theme.raise : transparent;
+                        accessible-role: button;
+                        accessible-label: @tr("Recent verses");
+                        accessible-action-default => { root.open-history(); }
+                        Icon {
+                            width: 15px;
+                            height: 15px;
+                            name: "restart";
+                            color: Theme.muted;
+                        }
+                        history-ta := TouchArea {
+                            mouse-cursor: pointer;
+                            clicked => { root.open-history(); }
+                        }
+                        TipArea { text: @tr("Recent verses"); hover: history-ta.has-hover; pressed: history-ta.pressed; pointer-x: history-ta.mouse-x; }
+                    }
+                }
+                // The chosen Bible and a chevron: a click opens the picker (spec §7.2).
+                VerticalLayout {
+                    horizontal-stretch: 0;
+                    alignment: center;
+                    translation-pick := Rectangle {
+                        border-radius: 6px;
+                        background: Theme.accent;
+                        accessible-role: button;
+                        accessible-label: BiblePane.translation;
+                        accessible-description: @tr("Choose a Bible");
+                        accessible-action-default => { root.open-picker(); }
+                        HorizontalLayout {
+                            padding-top: 5px;
+                            padding-bottom: 5px;
+                            padding-left: 7px;
+                            padding-right: 5px;
+                            spacing: 3px;
+                            Text {
+                                text: BiblePane.translation;
+                                color: Theme.accent-ink;
+                                font-family: Theme.font;
+                                font-size: 11.5px;
+                                font-weight: 700;
+                                vertical-alignment: center;
+                            }
+                            VerticalLayout {
+                                alignment: center;
+                                Icon {
+                                    width: 14px;
+                                    height: 14px;
+                                    name: "chevron-down";
+                                    color: Theme.accent-ink;
+                                }
+                            }
+                        }
+                        pick-ta := TouchArea {
+                            mouse-cursor: pointer;
+                            clicked => { root.open-picker(); }
+                        }
+                        TipArea { text: @tr("Choose a Bible"); hover: pick-ta.has-hover; pressed: pick-ta.pressed; pointer-x: pick-ta.mouse-x; }
+                        picker := PopupWindow {
+                        // Under the chip, never over the audience or stage preview (`DockGuard`).
+                        property <length> ay: translation-pick.absolute-position.y + translation-pick.height + 8px;
+                        property <length> ax: DockGuard.place-x(translation-pick.absolute-position.x + translation-pick.width - 300px, self.ay, 300px, 460px);
+                        x: self.ax - translation-pick.absolute-position.x;
+                        y: translation-pick.height + 8px;
+                        width: 300px;
+                            close-policy: close-on-click-outside;
+                            BiblePickerList {
+                                max-list: min(360px, DockGuard.room-below(picker.ax, picker.ay, 300px) - 110px);
+                                rows: BiblePane.picker-rows;
+                                search <=> BiblePane.picker-search;
+                                note: BiblePane.picker-note;
+                                search-changed(text) => { BiblePane.picker-search-changed(text); }
+                                // Enter picks the first Bible listed; a row's click picks it. Either way the
+                                // Bible box takes the keyboard again, as after a chip.
+                                accept => {
+                                    BiblePane.picker-accept();
+                                    picker.close();
+                                    bible-input.focus();
+                                }
+                                pick(id) => {
+                                    bible-input.focus();
+                                    BiblePane.pick-bible(id);
+                                    picker.close();
+                                }
+                                toggle-favourite(id) => { BiblePane.toggle-favourite(id); }
+                                find-more(q) => {
+                                    picker.close();
+                                    root.focus-keys();
+                                    BiblePane.find-more-bibles(q);
+                                }
+                                info(id) => {
+                                    picker.close();
+                                    PanelExtras.bible-info(id);
+                                }
+                            }
+                        }
+                    }
+                }
+                // The favourite and recent Bibles as one-click chips (Alt+2…5); hidden in a narrow window.
+                if !root.compact: HorizontalLayout {
+                    spacing: 3px;
+                    for chip[i] in BiblePane.quick-chips: VerticalLayout {
+                        alignment: center;
+                        translation-chip := Rectangle {
+                            // Its full name, or how to connect it.
+                            property <string> tip: chip.off
+                                ? @tr("{} isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible.", chip.name)
+                                : chip.full-name != "" ? chip.full-name : chip.name;
+                            border-radius: 6px;
+                            background: transparent;
+                            opacity: chip.off ? 0.4 : 1;
+                            accessible-role: button;
+                            accessible-label: chip.name;
+                            accessible-checked: chip.on;
+                            accessible-description: self.tip;
+                            HorizontalLayout {
+                                padding-top: 5px;
+                                padding-bottom: 5px;
+                                padding-left: 7px;
+                                padding-right: 7px;
+                                Text {
+                                    text: chip.name;
+                                    color: Theme.muted;
+                                    font-family: Theme.font;
+                                    font-size: 11.5px;
+                                    font-weight: 700;
+                                    vertical-alignment: center;
+                                }
+                            }
+                            chip-ta := TouchArea {
+                                mouse-cursor: pointer;
+                                // The web refocuses the input after a pick (`operator.js:101`).
+                                clicked => {
+                                    bible-input.focus();
+                                    BiblePane.pick-translation(i + 1);
+                                }
+                            }
+                            TipArea { text: translation-chip.tip; hover: chip-ta.has-hover; pressed: chip-ta.pressed; pointer-x: chip-ta.mouse-x; }
+                        }
+                    }
+                }
+                // Verses per slide for the next passage; a click moves to the next choice.
+                if root.verses-shown: VerticalLayout {
+                    alignment: center;
+                    per-slide-chip := Rectangle {
+                        property <string> value: BiblePane.bible-per-slide == 0 ? @tr("Auto") : "\{BiblePane.bible-per-slide}";
+                        border-radius: 6px;
+                        border-width: 1px;
+                        border-color: per-slide-ta.has-hover ? Theme.accent : Theme.line;
+                        accessible-role: button;
+                        accessible-label: @tr("Verses per slide");
+                        accessible-value: self.value;
+                        accessible-description: @tr("Verses per slide for the next passage. Click to change.");
+                        accessible-action-default => { BiblePane.cycle-per-slide(); }
+                        HorizontalLayout {
+                            padding-top: 4px;
+                            padding-bottom: 4px;
+                            padding-left: 7px;
+                            padding-right: 7px;
+                            Text {
+                                text: root.compact ? per-slide-chip.value : @tr("Verses: {}", per-slide-chip.value);
+                                color: Theme.muted;
+                                font-family: Theme.font;
+                                font-size: 11.5px;
+                                font-weight: 700;
+                                vertical-alignment: center;
+                            }
+                        }
+                        per-slide-ta := TouchArea {
+                            mouse-cursor: pointer;
+                            clicked => {
+                                bible-input.focus();
+                                BiblePane.cycle-per-slide();
+                            }
+                        }
+                        TipArea { text: @tr("Verses per slide for the next passage. Click to change."); hover: per-slide-ta.has-hover; pressed: per-slide-ta.pressed; pointer-x: per-slide-ta.mouse-x; }
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    Kbd { text: @tr("Ctrl B"); }
+                }
+            }
+        }
+    }
+}

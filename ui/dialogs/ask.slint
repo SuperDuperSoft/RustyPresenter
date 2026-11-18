@@ -1,0 +1,165 @@
+// The web's `confirm()` and `prompt()` (`operator.js`), as small overlays above any dialog or the bare window.
+import { Theme, OperatorState } from "../theme.slint";
+import { Btn, EditMenu } from "../widgets.slint";
+
+/// One question: a confirm (OK / Cancel) or a prompt (a text field too).
+export struct AskRow {
+    prompt: bool,
+    text: string,
+    value: string,
+    ok-label: string,
+    cancel-label: string,
+    /// A second answer beside OK (`ask::choose`). Empty for none.
+    other-label: string,
+    danger: bool,
+    /// A third answer (`ask::choose3`, 1.2). Empty for none. Greyed unless `third-enabled`, with `third-note` saying why.
+    third-label: string,
+    third-enabled: bool,
+    third-note: string,
+}
+
+/// Enter = OK, Esc = Cancel. Esc cancels only this question: the dialog under it stays open.
+export component AskOverlay inherits Rectangle {
+    in property <AskRow> ask;
+    /// OK or Cancel, with the prompt's text.
+    callback answer(bool, string);
+    /// The `other-label` button.
+    callback other();
+    /// The `third-label` button.
+    callback third();
+
+    property <string> typed: root.ask.value;
+
+    background: Theme.dialog-scrim;
+
+    TouchArea {}
+
+    scope := FocusScope {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.height;
+        init => {
+            if !root.ask.prompt { self.focus(); }
+        }
+        key-pressed(event) => {
+            if event.text == Key.Escape {
+                root.answer(false, "");
+                return accept;
+            }
+            if event.text == Key.Return {
+                root.answer(true, root.typed);
+                return accept;
+            }
+            // Like the web's `confirm()`/`prompt()`, the question keeps the keyboard: Tab has nowhere else to go.
+            if event.text == Key.Tab || event.text == Key.Backtab {
+                return accept;
+            }
+            reject
+        }
+
+        card := Rectangle {
+            width: min(460px, root.width * 0.9);
+            height: min(lay.preferred-height, root.height - 2 * Theme.dialog-top);
+            x: (root.width - self.width) / 2;
+            // At the same height as every dialog's top.
+            y: Theme.dialog-top;
+            background: Theme.panel;
+            border-color: Theme.line;
+            border-width: 1px;
+            border-radius: 16px;
+            drop-shadow-blur: 80px;
+            drop-shadow-offset-y: 30px;
+            drop-shadow-color: Theme.shadow-dialog;
+            accessible-role: groupbox;
+            accessible-label: root.ask.text;
+
+            TouchArea {}
+
+            lay := VerticalLayout {
+                padding-top: 20px;
+                padding-bottom: 18px;
+                padding-left: 22px;
+                padding-right: 22px;
+                spacing: 14px;
+                text := Text {
+                    text: root.ask.text;
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: 15px;
+                    wrap: word-wrap;
+                }
+                if root.ask.third-label != "" && !root.ask.third-enabled && root.ask.third-note != "": Text {
+                    text: root.ask.third-note;
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 13px;
+                    wrap: word-wrap;
+                }
+                if root.ask.prompt: Rectangle {
+                    height: 38px;
+                    background: Theme.bg;
+                    border-color: input.has-focus ? Theme.accent : Theme.line;
+                    border-width: 1px;
+                    border-radius: 9px;
+                    HorizontalLayout {
+                        padding-left: 11px;
+                        padding-right: 11px;
+                        input := TextInput {
+                            text <=> root.typed;
+                            single-line: true;
+                            color: Theme.text;
+                            selection-background-color: Theme.accent;
+                            selection-foreground-color: Theme.accent-ink;
+                            font-family: Theme.font;
+                            font-size: Theme.base-size;
+                            vertical-alignment: center;
+                            accessible-label: root.ask.text;
+                            init => {
+                                self.focus();
+                                self.select-all();
+                            }
+                            changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
+                            accepted => { root.answer(true, root.typed); }
+                            EditMenu {
+                                x: 0;
+                                y: 0;
+                                width: 100%;
+                                height: 100%;
+                                has-text: input.text != "";
+                                cut-text => { input.cut(); }
+                                copy-text => { input.copy(); }
+                                paste-text => { input.paste(); }
+                                select-text => { input.select-all(); }
+                            }
+                        }
+                    }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    alignment: end;
+                    if root.ask.cancel-label != "": cancel := Btn {
+                        text: root.ask.cancel-label;
+                        clicked => { root.answer(false, ""); }
+                    }
+                    if root.ask.other-label != "": other := Btn {
+                        text: root.ask.other-label;
+                        clicked => { root.other(); }
+                    }
+                    if root.ask.third-label != "": third := Btn {
+                        text: root.ask.third-label;
+                        enabled: root.ask.third-enabled;
+                        tooltip: root.ask.third-enabled ? "" : root.ask.third-note;
+                        clicked => { root.third(); }
+                    }
+                    ok := Btn {
+                        text: root.ask.ok-label;
+                        primary: !root.ask.danger;
+                        danger: root.ask.danger;
+                        clicked => { root.answer(true, root.typed); }
+                    }
+                }
+            }
+        }
+    }
+}

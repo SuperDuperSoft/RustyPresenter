@@ -1,0 +1,266 @@
+// The Add dialog's Video & media and Slides tabs (`addMedia()` and `addDeck()`, `operator.js:470-500`). The rows
+// are `AddRow`s with a thumbnail; the logic is in Rust (`src/ui/dialogs/add_media.rs`).
+import { Theme } from "../theme.slint";
+import { Btn, Icon } from "../widgets.slint";
+import { AddState, AddList } from "add-list.slint";
+import { Check, Select, TextField } from "form.slint";
+
+/// Download from YouTube: the rights notice, the link (filled from the clipboard), then the video found with one
+/// Download button. Quality and "Add to service when done" are there for whoever wants them.
+component YouTubePanel inherits VerticalLayout {
+    padding-bottom: 12px;
+    Rectangle {
+        background: Theme.panel-2;
+        border-radius: 10px;
+        VerticalLayout {
+            padding: 14px;
+            spacing: 10px;
+            notice := Text {
+                text: @tr("Only download videos your church has the right to use (your own, licensed, or Creative Commons).");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                wrap: word-wrap;
+            }
+            link := TextField {
+                text <=> AddState.yt-link;
+                placeholder: @tr("Paste a YouTube link here");
+                font-size: 16px;
+                init => { self.focus(); }
+                edited(t) => { AddState.yt-link-edited(t); }
+                accepted => { AddState.yt-look-up(); }
+            }
+            if AddState.yt-status != "": status := Text {
+                text: AddState.yt-status;
+                color: AddState.yt-error ? Theme.clear-all-text : Theme.muted;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                wrap: word-wrap;
+                accessible-role: text;
+                accessible-label: self.text;
+            }
+            if AddState.yt-found: HorizontalLayout {
+                spacing: 12px;
+                VerticalLayout {
+                    alignment: start;
+                    thumb := Rectangle {
+                        width: 160px;
+                        height: 90px;
+                        border-radius: 6px;
+                        background: Theme.black;
+                        clip: true;
+                        if AddState.yt-thumb-shown: Image {
+                            width: parent.width;
+                            height: parent.height;
+                            source: AddState.yt-thumb;
+                            image-fit: cover;
+                        }
+                        if !AddState.yt-thumb-shown: Icon {
+                            name: "video";
+                            color: Theme.muted;
+                        }
+                    }
+                }
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    spacing: 4px;
+                    alignment: start;
+                    title := Text {
+                        text: AddState.yt-title;
+                        color: Theme.text;
+                        font-family: Theme.font;
+                        font-size: 15px;
+                        font-weight: 650;
+                        wrap: word-wrap;
+                        accessible-role: text;
+                        accessible-label: self.text;
+                    }
+                    detail := Text {
+                        text: AddState.yt-detail;
+                        color: Theme.muted;
+                        font-family: Theme.font;
+                        font-size: 13px;
+                        accessible-role: text;
+                        accessible-label: self.text;
+                    }
+                    if AddState.yt-note != "": note := Text {
+                        text: AddState.yt-note;
+                        color: Theme.muted;
+                        font-family: Theme.font;
+                        font-size: 13px;
+                        wrap: word-wrap;
+                        accessible-role: text;
+                        accessible-label: self.text;
+                    }
+                }
+            }
+            if AddState.yt-found: HorizontalLayout {
+                spacing: 14px;
+                VerticalLayout {
+                    alignment: center;
+                    download := Btn {
+                        text: @tr("Download");
+                        icon: "download";
+                        primary: true;
+                        enabled: !AddState.yt-busy;
+                        clicked => { AddState.yt-download(); }
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    horizontal-stretch: 1;
+                    add-check := Check {
+                        padding-bottom: 0px;
+                        text: @tr("Add to service when done");
+                        checked <=> AddState.yt-add;
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    Text {
+                        text: @tr("Quality");
+                        color: Theme.muted;
+                        font-family: Theme.font;
+                        font-size: 13px;
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    quality := Select {
+                        width: 190px;
+                        options: AddState.yt-qualities;
+                        index <=> AddState.yt-quality;
+                        accessible-label: @tr("Quality");
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Upload files, Download from YouTube (and its panel), the formats hint, and the media library, newest first.
+export component AddMediaTab inherits VerticalLayout {
+    in property <length> list-height;
+    HorizontalLayout {
+        spacing: 8px;
+        padding-bottom: 12px;
+        alignment: start;
+        upload := Btn {
+            text: @tr("Upload files");
+            icon: "upload";
+            primary: true;
+            clicked => { AddState.upload-media(); }
+        }
+        youtube := Btn {
+            text: @tr("Download from YouTube");
+            icon: "download";
+            primary: !AddState.yt-open;
+            clicked => { AddState.yt-show(); }
+        }
+        hint := Text {
+            text: @tr("Any video format works.");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 13px;
+            vertical-alignment: center;
+            wrap: word-wrap;
+        }
+    }
+    if AddState.yt-open: YouTubePanel {}
+    AddList { max-list-height: root.list-height; }
+}
+
+/// Import presentation, Make slides from pictures, the Google Slides note, the LibreOffice help when it is
+/// needed, and the slides library, newest first.
+export component AddDeckTab inherits VerticalLayout {
+    in property <length> list-height;
+    HorizontalLayout {
+        spacing: 8px;
+        padding-bottom: 12px;
+        alignment: start;
+        import := Btn {
+            text: @tr("Import presentation");
+            icon: "upload";
+            primary: true;
+            clicked => { AddState.import-deck(); }
+        }
+        pictures := Btn {
+            text: @tr("Make slides from pictures");
+            icon: "image";
+            clicked => { AddState.pictures-to-slides(); }
+        }
+    }
+    // `.note`
+    VerticalLayout {
+        padding-bottom: 12px;
+        Rectangle {
+            background: Theme.panel-2;
+            border-radius: 10px;
+            VerticalLayout {
+                padding-top: 12px;
+                padding-bottom: 12px;
+                padding-left: 14px;
+                padding-right: 14px;
+                spacing: 6px;
+                note := Text {
+                    text: @tr("Google Slides: in Google Slides choose File → Download → Microsoft PowerPoint (.pptx) or PDF, then import that file here. Keynote and PDF files work too.");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    wrap: word-wrap;
+                }
+                notes-tip := Text {
+                    text: @tr("Download it as PowerPoint (.pptx) to keep your speaker notes.");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    wrap: word-wrap;
+                }
+            }
+        }
+    }
+    // Above the list, only when a presentation cannot be imported yet.
+    if AddState.deck-help != "": VerticalLayout {
+        padding-bottom: 12px;
+        spacing: 8px;
+        deck-help := Text {
+            text: AddState.deck-help;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+        if AddState.install-command != "": install-box := Rectangle {
+            background: Theme.panel-2;
+            border-radius: 8px;
+            accessible-role: text;
+            accessible-label: AddState.install-command;
+            HorizontalLayout {
+                padding: 8px;
+                Text {
+                    text: AddState.install-command;
+                    color: Theme.text;
+                    font-family: "Consolas, monospace";
+                    font-size: 13px;
+                    vertical-alignment: center;
+                    overflow: elide;
+                }
+            }
+        }
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: start;
+            if AddState.install-command != "": copy := Btn {
+                text: @tr("Copy");
+                clicked => { AddState.copy-install(); }
+            }
+            check := Btn {
+                text: @tr("Check again");
+                clicked => { AddState.check-libreoffice(); }
+            }
+        }
+    }
+    AddList { max-list-height: root.list-height; }
+}

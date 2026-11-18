@@ -1,27 +1,39 @@
-// Common Controls v6 is required (the window layer imports TaskDialogIndirect). Rust's std on windows-gnu
-// embeds its own manifest too; the linker keeps this one (and warns ".rsrc merge failure: multiple non-default
-// manifests"), so this one repeats std's settings.
-const MANIFEST: &str = r#"<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3">
-  <dependency>
-    <dependentAssembly>
-      <assemblyIdentity type="win32" name="Microsoft.Windows.Common-Controls" version="6.0.0.0" processorArchitecture="*" publicKeyToken="6595b64144ccf1df" language="*"/>
-    </dependentAssembly>
-  </dependency>
-  <asmv3:application>
-    <asmv3:windowsSettings xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">
-      <longPathAware>true</longPathAware>
-    </asmv3:windowsSettings>
-  </asmv3:application>
-  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
-    <security>
-      <requestedPrivileges>
-        <requestedExecutionLevel level="asInvoker" uiAccess="false"/>
-      </requestedPrivileges>
-    </security>
-  </trustInfo>
-</assembly>"#;
-
 fn main() {
-    let windows = tauri_build::WindowsAttributes::new().app_manifest(MANIFEST);
-    tauri_build::try_build(tauri_build::Attributes::new().windows_attributes(windows)).expect("tauri build setup failed");
+    i18n_bundle();
+    // The screens (`ui/*.slint`) are compiled by `crates/rp-ui`.
+    #[cfg(windows)]
+    windows_resources();
+}
+
+/// `$OUT_DIR/i18n_bundle.rs`: every `translations/<code>/LC_MESSAGES/rustypresenter.po` and the template, for
+/// `crate::i18n` (the Rust side reads the same files as Slint).
+fn i18n_bundle() {
+    use std::{fmt::Write, path::PathBuf};
+    println!("cargo:rerun-if-changed=translations");
+    let root = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap()).join("translations");
+    let mut langs: Vec<(String, PathBuf)> = std::fs::read_dir(&root).expect("translations folder").filter_map(Result::ok)
+        .map(|e| (e.file_name().to_string_lossy().into_owned(), e.path().join("LC_MESSAGES").join("rustypresenter.po")))
+        .filter(|(_, p)| p.is_file())
+        .collect();
+    langs.sort();
+    let mut out = String::from("pub static BUNDLE: &[(&str, &str)] = &[\n");
+    for (code, path) in &langs {
+        println!("cargo:rerun-if-changed={}", path.display());
+        writeln!(out, "    ({code:?}, include_str!({:?})),", path.display().to_string()).unwrap();
+    }
+    let pot = root.join("rustypresenter.pot");
+    println!("cargo:rerun-if-changed={}", pot.display());
+    writeln!(out, "];\npub static POT: &str = include_str!({:?});", pot.display().to_string()).unwrap();
+    std::fs::write(PathBuf::from(std::env::var("OUT_DIR").unwrap()).join("i18n_bundle.rs"), out).unwrap();
+}
+
+/// The icon and the manifest. Common Controls v6 is required (rfd's dialogs import TaskDialogIndirect), so this goes
+/// into every program this package links: a test binary without it does not start in a debug build. Rust's std on
+/// windows-gnu embeds its own manifest too; the linker keeps this one (and warns ".rsrc merge failure: multiple
+/// non-default manifests"), so this one repeats std's settings.
+#[cfg(windows)]
+fn windows_resources() {
+    println!("cargo:rerun-if-changed=packaging/windows/rustypresenter.manifest");
+    println!("cargo:rerun-if-changed=icons/icon.ico");
+    embed_resource::compile_for_everything("packaging/windows/rustypresenter.rc", embed_resource::NONE).manifest_required().expect("windows resources failed");
 }

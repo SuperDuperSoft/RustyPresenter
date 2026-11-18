@@ -1,0 +1,576 @@
+// Shared controls of the operator and its dialogs, sized and coloured as their `web/operator.css` rules
+// (named beside each component). Every colour, radius and font comes from `Theme`.
+import { Theme } from "theme.slint";
+import { Icon } from "icons.slint";
+import { TipBox, TipArea, TipLayer } from "tip.slint";
+import { ScrollBox } from "scroll.slint";
+
+export { Icon, TipBox, TipArea, TipLayer, ScrollBox }
+
+/// `.btn` (`.primary`, `.danger`, `.small`, `:disabled`): an optional icon and a label.
+export component Btn inherits Rectangle {
+    in property <string> text;
+    in property <string> icon;
+    in property <bool> primary;
+    in property <bool> danger;
+    in property <bool> small;
+    in property <bool> enabled: true;
+    in property <string> tooltip;
+    out property <bool> has-hover: ta.has-hover && root.enabled;
+    callback clicked();
+
+    property <brush> ink: root.primary ? Theme.accent-ink : root.danger ? Theme.danger-text : Theme.text;
+
+    // The look is on a child that fills the button: an `opacity` on the root makes Slint copy the whole button into
+    // every place that uses it, and there are hundreds.
+    Rectangle {
+        border-radius: 9px;
+        border-width: 1px;
+        background: root.primary ? Theme.accent : Theme.raise;
+        border-color: root.primary ? Theme.accent : ta.has-hover && root.enabled ? Theme.btn-hover : Theme.line;
+        opacity: root.enabled ? 1 : 0.45;
+
+        HorizontalLayout {
+            padding-top: root.small ? 5px : 8px;
+            padding-bottom: self.padding-top;
+            padding-left: root.small ? 10px : 13px;
+            padding-right: self.padding-left;
+            spacing: 7px;
+            alignment: center;
+            if root.icon != "": VerticalLayout {
+                alignment: center;
+                Icon {
+                    name: root.icon;
+                    color: root.ink;
+                }
+            }
+            if root.text != "": Text {
+                text: root.text;
+                color: root.ink;
+                font-family: Theme.font;
+                font-size: root.small ? 13px : Theme.base-size;
+                font-weight: 600;
+                vertical-alignment: center;
+            }
+        }
+    }
+
+    // Enabled even on a disabled button, so its tooltip (often the reason it is off) still shows.
+    ta := TouchArea {
+        mouse-cursor: root.enabled ? pointer : default;
+        clicked => {
+            if root.enabled {
+                root.clicked();
+            }
+        }
+    }
+
+    TipArea { text: root.tooltip; hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
+}
+
+/// `.top-btn` (and `.icon-only`): a top-bar button with an icon and a label; hover raises it.
+export component TopBtn inherits Rectangle {
+    in property <string> icon;
+    in property <string> text;
+    /// `.icon-only`: only the icon, 8 px padding all round (the Settings button).
+    in property <bool> icon-only;
+    /// A narrow window (`operator.css:180`): the label hides but the 8×10 padding stays (Screens and Phone).
+    in property <bool> narrow;
+    in property <string> tooltip;
+    callback clicked();
+
+    property <brush> ink: ta.has-hover ? Theme.text : Theme.muted;
+
+    border-radius: 9px;
+    border-width: 1px;
+    border-color: transparent;
+    background: ta.has-hover ? Theme.raise : transparent;
+
+    HorizontalLayout {
+        padding: 8px;
+        padding-left: root.icon-only ? 8px : 10px;
+        padding-right: self.padding-left;
+        spacing: 7px;
+        VerticalLayout {
+            alignment: center;
+            Icon {
+                name: root.icon;
+                color: root.ink;
+            }
+        }
+        if !root.icon-only && !root.narrow: Text {
+            text: root.text;
+            color: root.ink;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: 600;
+            vertical-alignment: center;
+        }
+    }
+
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+
+    TipArea { text: root.tooltip; hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
+}
+
+/// `.pill` in the top bar's status: a dot (`off` grey, `on` green with a glow, `warn` red) and a label.
+export component Pill inherits Rectangle {
+    in property <string> label;
+    in property <string> state: "off";
+    in property <string> tooltip;
+    /// A narrow window shows only the dot (`operator.css:239`).
+    in property <bool> narrow;
+
+    // Read by tests and screen readers: the label, the tooltip and the state.
+    accessible-role: text;
+    accessible-label: root.label;
+    accessible-description: root.tooltip;
+    accessible-value: root.state;
+
+    border-radius: self.height / 2;
+    border-width: 1px;
+    border-color: Theme.line;
+    background: Theme.panel-2;
+
+    HorizontalLayout {
+        padding-top: 4px;
+        padding-bottom: 4px;
+        padding-left: 10px;
+        padding-right: 10px;
+        spacing: 6px;
+        VerticalLayout {
+            alignment: center;
+            Rectangle {
+                width: 8px;
+                height: 8px;
+                border-radius: 4px;
+                background: root.state == "on" ? Theme.ok : root.state == "warn" ? Theme.live : Theme.faint;
+                drop-shadow-blur: root.state == "on" ? 8px : 0px;
+                drop-shadow-color: Theme.ok;
+            }
+        }
+        if !root.narrow: Text {
+            text: root.label;
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 12px;
+            vertical-alignment: center;
+        }
+    }
+
+    callback clicked();
+
+    ta := TouchArea {
+        clicked => { root.clicked(); }
+    }
+
+    TipArea { text: root.tooltip; hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
+}
+
+/// `kbd`: a key name.
+export component Kbd inherits Rectangle {
+    in property <string> text;
+    background: Theme.kbd-bg;
+    border-color: Theme.line;
+    border-width: 1px;
+    border-radius: 5px;
+    HorizontalLayout {
+        padding-top: 3px;
+        padding-bottom: 3px;
+        padding-left: 5px;
+        padding-right: 5px;
+        Text {
+            text: root.text;
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 10.5px;
+            font-weight: 600;
+            vertical-alignment: center;
+        }
+    }
+}
+
+/// `.status-chip` (`.ok`, `.warn`, `.bad`).
+export component Chip inherits Rectangle {
+    in property <string> text;
+    in property <string> state;
+    in property <string> tooltip;
+
+    background: Theme.raise;
+    border-radius: self.height / 2;
+
+    HorizontalLayout {
+        padding-top: 3px;
+        padding-bottom: 3px;
+        padding-left: 8px;
+        padding-right: 8px;
+        Text {
+            text: root.text;
+            color: root.state == "ok" ? Theme.ok : root.state == "warn" ? Theme.accent : root.state == "bad" ? Theme.live : Theme.muted;
+            font-family: Theme.font;
+            font-size: 11.5px;
+            font-weight: 700;
+            vertical-alignment: center;
+        }
+    }
+
+    ta := TouchArea { }
+
+    TipArea { text: root.tooltip; hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
+}
+
+/// `.seg`: a row of choices, one of them on.
+export component Segmented inherits Rectangle {
+    in property <[string]> labels;
+    in-out property <int> index;
+    callback changed(int);
+
+    background: Theme.bg;
+    border-color: Theme.line;
+    border-width: 1.5px;
+    border-radius: 10px;
+
+    HorizontalLayout {
+        padding: 3px;
+        spacing: 2px;
+        for label[i] in root.labels: Rectangle {
+            border-radius: 7px;
+            background: i == root.index ? Theme.raise : transparent;
+            // The inset highlight on the top edge (`box-shadow: 0 1px 0 … inset`).
+            Rectangle {
+                y: 0;
+                height: 1px;
+                visible: i == root.index;
+                background: Theme.seg-inset;
+            }
+            HorizontalLayout {
+                padding-top: 6px;
+                padding-bottom: 6px;
+                padding-left: 11px;
+                padding-right: 11px;
+                Text {
+                    text: label;
+                    color: i == root.index ? Theme.text : Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    font-weight: 600;
+                    vertical-alignment: center;
+                }
+            }
+            TouchArea {
+                mouse-cursor: pointer;
+                clicked => {
+                    if root.index != i {
+                        root.index = i;
+                        root.changed(i);
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// `.panel`: a column of the main layout. Its children are stacked top to bottom.
+export component Panel inherits Rectangle {
+    background: Theme.panel;
+    border-color: Theme.line;
+    border-width: 1px;
+    border-radius: Theme.radius;
+    clip: true;
+    VerticalLayout {
+        padding: 1px;
+        @children
+    }
+}
+
+/// `.panel-head`: an uppercase title and a count; children go on the right (`.head-actions`).
+export component PanelHead inherits HorizontalLayout {
+    in property <string> title;
+    in property <string> count;
+    padding-top: 14px;
+    padding-bottom: 10px;
+    padding-left: 16px;
+    padding-right: 16px;
+    spacing: 10px;
+    Text {
+        text: root.title.to-uppercase();
+        color: Theme.muted;
+        font-family: Theme.font;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 1.3px;
+        vertical-alignment: center;
+    }
+    Rectangle {
+        horizontal-stretch: 1;
+    }
+    // Gives way first when a translation makes the buttons wider (Spanish "Revisar" in a narrow service panel).
+    if root.count != "": Text {
+        text: root.count;
+        color: Theme.faint;
+        font-family: Theme.font;
+        font-size: 12px;
+        vertical-alignment: center;
+        overflow: elide;
+        min-width: 0px;
+    }
+    @children
+}
+
+/// `.transport .bar` / `.job .bar`: progress 0–100. The fill steps to each new value: `.transport .bar i` slides in
+/// 500 ms on the web, but a Slint `animate` here would keep every window redrawing during playback (the animation
+/// flag is global in Slint 1.18). Position reports come twice a second, so the steps are small. `animated` is kept
+/// for the callers and the gallery; it no longer changes anything.
+export component Bar inherits Rectangle {
+    in property <float> progress;
+    in property <bool> animated: true;
+    height: 6px;
+    background: Theme.line;
+    border-radius: self.height / 2;
+    clip: true;
+    Rectangle {
+        x: 0;
+        height: parent.height;
+        width: parent.width * clamp(root.progress, 0, 100) / 100;
+        background: Theme.accent;
+    }
+}
+
+/// `.field`: an uppercase label over its control (the children), with an optional help line in the label.
+export component Field inherits VerticalLayout {
+    in property <string> label;
+    in property <string> help;
+    spacing: 6px;
+    padding-bottom: 12px;
+    HorizontalLayout {
+        spacing: 6px;
+        Text {
+            text: root.label.to-uppercase();
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.48px;
+        }
+        if root.help != "": Text {
+            text: root.help;
+            color: Theme.faint;
+            font-family: Theme.font;
+            font-size: 12px;
+            horizontal-stretch: 1;
+            wrap: word-wrap;
+        }
+    }
+    @children
+}
+
+/// The right-click menu of a plain `TextInput` (the browser's menu in every web field; Slint's own `LineEdit` and
+/// `TextEdit` have one, a bare `TextInput` has none). Put it inside the field, filling it, and point its callbacks at
+/// the field's `cut()`, `copy()`, `paste()` and `select-all()`. A read-only field (`editable: false`) offers Copy and
+/// Select all only. It takes right clicks only, so the field still gets every other click. Give it `x: 0; y: 0;` too,
+/// so it does not fix the field at its current size (see `ScrollBox`).
+export component EditMenu inherits ContextMenuArea {
+    in property <bool> editable: true;
+    in property <bool> has-text;
+    callback cut-text();
+    callback copy-text();
+    callback paste-text();
+    callback select-text();
+    Menu {
+        if root.editable: MenuItem {
+            title: @tr("Cut");
+            enabled: root.has-text;
+            activated => { root.cut-text(); }
+        }
+        MenuItem {
+            title: @tr("Copy");
+            enabled: root.has-text;
+            activated => { root.copy-text(); }
+        }
+        if root.editable: MenuItem {
+            title: @tr("Paste");
+            activated => { root.paste-text(); }
+        }
+        MenuSeparator {}
+        MenuItem {
+            title: @tr("Select all");
+            enabled: root.has-text;
+            activated => { root.select-text(); }
+        }
+    }
+}
+
+/// `.copy`: text the user can select and copy (an address or a code), read-only, in the monospace font. One click
+/// selects all of it (`user-select: all`). Like the web `<span>`, it does not count as a text field for the operator
+/// keys, so it leaves `OperatorState.focus-in-text` alone.
+export component CopyText inherits Rectangle {
+    in property <string> text;
+    background: Theme.bg;
+    border-color: Theme.line;
+    border-width: 1px;
+    border-radius: 6px;
+    HorizontalLayout {
+        padding-top: 2px;
+        padding-bottom: 2px;
+        padding-left: 6px;
+        padding-right: 6px;
+        input := TextInput {
+            text: root.text;
+            read-only: true;
+            single-line: true;
+            color: Theme.text;
+            selection-background-color: Theme.accent;
+            selection-foreground-color: Theme.accent-ink;
+            font-family: Theme.mono;
+            font-size: Theme.base-size;
+            vertical-alignment: center;
+        }
+    }
+    TouchArea {
+        mouse-cursor: MouseCursor.text;
+        clicked => {
+            input.focus();
+            input.select-all();
+        }
+    }
+    // Over the click area, which would otherwise take the right click too.
+    EditMenu {
+        x: 0;
+        y: 0;
+        width: 100%;
+        height: 100%;
+        editable: false;
+        has-text: input.text != "";
+        cut-text => { input.cut(); }
+        copy-text => { input.copy(); }
+        paste-text => { input.paste(); }
+        select-text => { input.select-all(); }
+    }
+}
+
+/// One rounded corner of `DashedOutline`: an arc in a `size`-square box, in pixels of that box.
+component Corner inherits Path {
+    in property <length> size;
+    in property <length> thickness;
+    in property <brush> color;
+    width: root.size;
+    height: root.size;
+    visible: root.size > 0;
+    viewbox-x: 0;
+    viewbox-y: 0;
+    viewbox-width: root.size / 1px;
+    viewbox-height: root.size / 1px;
+    stroke: root.color;
+    stroke-width: root.thickness;
+    fill: transparent;
+    // Path elements, not a `commands` string: a string of numbers takes the app language's decimal comma.
+    in property <float> x0;
+    in property <float> y0;
+    in property <float> x1;
+    in property <float> y1;
+    in property <float> a;
+    MoveTo { x: root.x0; y: root.y0; }
+    ArcTo { x: root.x1; y: root.y1; radius-x: root.a; radius-y: root.a; sweep: true; }
+}
+
+/// A dashed outline (CSS `border-style: dashed`) laid over its parent: dashes along the four sides and solid arcs in
+/// the rounded corners. Slint borders are solid only. Input-transparent; put it last so it draws on top.
+export component DashedOutline inherits Rectangle {
+    in property <brush> line-color;
+    in property <length> thickness: 1.5px;
+    in property <length> radius;
+    /// Dash and gap length (Chromium draws dashes about three times the border width).
+    in property <length> dash: 4.5px;
+
+    property <length> run-x: root.width - 2 * root.radius;
+    property <length> run-y: root.height - 2 * root.radius;
+    property <int> across: max(0, floor((root.run-x + root.dash) / (2 * root.dash)));
+    property <int> down: max(0, floor((root.run-y + root.dash) / (2 * root.dash)));
+    // Centres the dashes on each side.
+    property <length> start-x: root.radius + (root.run-x - (2 * root.across - 1) * root.dash) / 2;
+    property <length> start-y: root.radius + (root.run-y - (2 * root.down - 1) * root.dash) / 2;
+    property <float> r: root.radius / 1px;
+    property <float> h: root.thickness / 2px;
+
+    for i in root.across: Rectangle {
+        x: root.start-x + i * 2 * root.dash;
+        y: 0;
+        width: root.dash;
+        height: root.thickness;
+        background: root.line-color;
+    }
+    for i in root.across: Rectangle {
+        x: root.start-x + i * 2 * root.dash;
+        y: root.height - root.thickness;
+        width: root.dash;
+        height: root.thickness;
+        background: root.line-color;
+    }
+    for i in root.down: Rectangle {
+        x: 0;
+        y: root.start-y + i * 2 * root.dash;
+        width: root.thickness;
+        height: root.dash;
+        background: root.line-color;
+    }
+    for i in root.down: Rectangle {
+        x: root.width - root.thickness;
+        y: root.start-y + i * 2 * root.dash;
+        width: root.thickness;
+        height: root.dash;
+        background: root.line-color;
+    }
+    // The corners: a quarter circle each, on the middle of the border line, drawn clockwise.
+    property <float> a: root.r - root.h;
+    Corner {
+        x: 0;
+        y: 0;
+        size: root.radius; thickness: root.thickness; color: root.line-color;
+        x0: root.h; y0: root.r; x1: root.r; y1: root.h; a: root.a;
+    }
+    Corner {
+        x: root.width - root.radius;
+        y: 0;
+        size: root.radius; thickness: root.thickness; color: root.line-color;
+        x0: 0; y0: root.h; x1: root.a; y1: root.r; a: root.a;
+    }
+    Corner {
+        x: root.width - root.radius;
+        y: root.height - root.radius;
+        size: root.radius; thickness: root.thickness; color: root.line-color;
+        x0: root.a; y0: 0; x1: 0; y1: root.a; a: root.a;
+    }
+    Corner {
+        x: 0;
+        y: root.height - root.radius;
+        size: root.radius; thickness: root.thickness; color: root.line-color;
+        x0: root.r; y0: root.a; x1: root.h; y1: 0; a: root.a;
+    }
+}
+
+/// `.dlg-close`: the X in a dialog's head (32 px) and on a failed job card (30 px).
+export component CloseButton inherits Rectangle {
+    in property <length> size: 32px;
+    in property <string> label: @tr("Close");
+    in property <string> tooltip;
+    callback clicked();
+    width: root.size;
+    height: root.size;
+    border-radius: 8px;
+    background: ta.has-hover ? Theme.raise : transparent;
+    accessible-role: button;
+    accessible-label: root.label;
+    accessible-action-default => { root.clicked(); }
+    Icon {
+        name: "close";
+        color: ta.has-hover ? Theme.text : Theme.muted;
+    }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    TipArea { text: root.tooltip; hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
+}

@@ -1,0 +1,46 @@
+// Identify in Screen Configuration: a badge in the middle of a monitor, on top of everything, for a few seconds.
+import { Theme } from "theme.slint";
+
+export component IdentifyWindow inherits Window {
+    in property <string> number;
+    in property <string> what;
+    title: @tr("Identify screen");
+    no-frame: true;
+    always-on-top: true;
+    background: Theme.panel;
+    frame := Rectangle {
+        x: 0;
+        y: 0;
+        width: 100%;
+        height: 100%;
+        border-width: 3px;
+        border-color: Theme.accent;
+        // Placed by hand: a layout would feed the text's size back into the window's.
+        number-text := Text {
+            x: 0;
+            y: parent.height * 0.08;
+            width: parent.width;
+            height: parent.height * 0.6;
+            text: root.number;
+            color: Theme.accent;
+            font-family: Theme.display;
+            font-size: self.height * 0.8;
+            font-weight: 700;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+        what-text := Text {
+            x: parent.width * 0.05;
+            y: parent.height * 0.7;
+            width: parent.width * 0.9;
+            height: parent.height * 0.2;
+            text: root.what;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: self.height * 0.55;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+    }
+}

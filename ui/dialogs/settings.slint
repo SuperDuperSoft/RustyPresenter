@@ -1,0 +1,305 @@
+// Settings (November 17, 2026 reorganisation, design `docs/superpowers/specs/2026-11-17-settings-design.md`): a window
+// of its own that can be any size. On the left, "Find a setting" and the categories with their short pages; on the
+// right, the page, which scrolls; at the bottom, Cancel and Save. Everything shown comes from this window's own
+// `SettingsDlg` global (`settings-state.slint`), set from `src/ui/dialogs/settings.rs`.
+import { Theme } from "../theme.slint";
+import { Btn, ScrollBox, TipLayer } from "../widgets.slint";
+import { DialogFoot } from "shell.slint";
+import { TextField, Check } from "form.slint";
+import { AskOverlay, AskRow } from "ask.slint";
+import { SettingsDlg } from "settings-state.slint";
+import { SettingsLook } from "settings-look.slint";
+import { BiblePage, BibleOnlinePage } from "settings-bible.slint";
+import { SettingsAbout } from "settings-about.slint";
+import { SettingsLanguage } from "settings-language.slint";
+import { SettingsThemes, ThemesDlg } from "settings-themes.slint";
+import { SettingsSections } from "settings-sections.slint";
+import { KeysPage, ClearGroupsPage, KeysDlg } from "settings-keys.slint";
+import { FollowListenPage, FollowModelPage, FollowPracticePage, FollowReviewPage } from "settings-follow.slint";
+import { ScreensPage, SongsPage, SongSelectPage, MediaPage, RoomSoundPage, StagePage, BackupsPage } from "settings-general.slint";
+import { RemotePage, PhoneStagePage, PhoneCamMicPage, OtherGearPage } from "settings-remote.slint";
+import { StreamWherePage, StreamPicturePage, StreamCamerasPage, StreamScenesPage, RecordingPage, StreamCaptionsPage, StreamNdiPage, StreamSetupsPage } from "settings-stream.slint";
+import { StreamSoundPage } from "settings-sound.slint";
+import { SongsFolderPage } from "settings-songs-folder.slint";
+
+export { SettingsDlg }
+
+/// The page shown, by `SettingsDlg.tab` (the order of `SettingsTab` in `src/ui/dialogs/mod.rs`).
+component Pages inherits VerticalLayout {
+    alignment: start;
+    if SettingsDlg.tab == 0: language := SettingsLanguage {}
+    if SettingsDlg.tab == 1: screens := ScreensPage {}
+    if SettingsDlg.tab == 2: look := SettingsLook {}
+    if SettingsDlg.tab == 3: themes := SettingsThemes {}
+    if SettingsDlg.tab == 4: songs := SongsPage {}
+    if SettingsDlg.tab == 5: sections := SettingsSections {}
+    if SettingsDlg.tab == 6: songselect := SongSelectPage {}
+    if SettingsDlg.tab == 7: songs-folder := SongsFolderPage {}
+    if SettingsDlg.tab == 8: bible := BiblePage {}
+    if SettingsDlg.tab == 9: bible-online := BibleOnlinePage {}
+    if SettingsDlg.tab == 10: media := MediaPage {}
+    if SettingsDlg.tab == 11: room-sound := RoomSoundPage {}
+    if SettingsDlg.tab == 12: stage := StagePage {}
+    if SettingsDlg.tab == 13: remote := RemotePage {}
+    if SettingsDlg.tab == 14: phone-stage := PhoneStagePage {}
+    if SettingsDlg.tab == 15: phone-cam-mic := PhoneCamMicPage {}
+    if SettingsDlg.tab == 16: other-gear := OtherGearPage {}
+    if SettingsDlg.tab == 17: keys := KeysPage {}
+    if SettingsDlg.tab == 18: clear-groups := ClearGroupsPage {}
+    if SettingsDlg.tab == 19: follow := FollowListenPage {}
+    if SettingsDlg.tab == 20: follow-model := FollowModelPage {}
+    if SettingsDlg.tab == 21: follow-practice := FollowPracticePage {}
+    if SettingsDlg.tab == 22: follow-review := FollowReviewPage {}
+    if SettingsDlg.tab == 23: stream-where := StreamWherePage {}
+    if SettingsDlg.tab == 24: stream-picture := StreamPicturePage {}
+    if SettingsDlg.tab == 25: stream-cameras := StreamCamerasPage {}
+    if SettingsDlg.tab == 26: stream-sound := StreamSoundPage {}
+    if SettingsDlg.tab == 27: stream-scenes := StreamScenesPage {}
+    if SettingsDlg.tab == 28: recording := RecordingPage {}
+    if SettingsDlg.tab == 29: stream-captions := StreamCaptionsPage {}
+    if SettingsDlg.tab == 30: stream-ndi := StreamNdiPage {}
+    if SettingsDlg.tab == 31: stream-setups := StreamSetupsPage {}
+    if SettingsDlg.tab == 32: backups := BackupsPage {}
+    if SettingsDlg.tab == 33: about := SettingsAbout {}
+}
+
+/// A line of the sidebar: a category's name, or a page (lit when it is the one shown).
+component NavLine inherits Rectangle {
+    in property <string> title;
+    in property <bool> heading;
+    in property <bool> on;
+    in property <string> sub;
+    callback clicked();
+    min-height: root.heading ? 28px : 30px;
+    border-radius: 7px;
+    background: root.on ? Theme.raise : ta.has-hover && !root.heading ? Theme.panel-2 : transparent;
+    accessible-role: list-item;
+    accessible-label: root.title;
+    accessible-description: root.sub;
+    accessible-item-selectable: !root.heading;
+    accessible-item-selected: root.on;
+    accessible-action-default => { if !root.heading { root.clicked(); } }
+    if root.on: Rectangle {
+        x: 0;
+        width: 3px;
+        height: parent.height - 10px;
+        y: 5px;
+        border-radius: 2px;
+        background: Theme.accent;
+    }
+    VerticalLayout {
+        padding-left: root.heading ? 8px : 16px;
+        padding-right: 8px;
+        padding-top: root.heading ? 10px : 5px;
+        padding-bottom: 5px;
+        alignment: center;
+        Text {
+            text: root.heading ? root.title.to-uppercase() : root.title;
+            color: root.heading ? Theme.muted : root.on ? Theme.text : Theme.text;
+            font-family: Theme.font;
+            font-size: root.heading ? 11.5px : 13.5px;
+            font-weight: root.heading ? 700 : root.on ? 600 : 400;
+            letter-spacing: root.heading ? 0.4px : 0px;
+            overflow: elide;
+        }
+        if root.sub != "": Text {
+            text: root.sub;
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 11.5px;
+            overflow: elide;
+        }
+    }
+    ta := TouchArea {
+        enabled: !root.heading;
+        mouse-cursor: root.heading ? default : pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+/// The Settings window. Esc and the window's close button are Cancel (it asks first when something changed).
+export component SettingsWindow inherits Window {
+    title: @tr("Settings");
+    min-width: 640px;
+    min-height: 440px;
+    preferred-width: 1040px;
+    preferred-height: 760px;
+    background: Theme.panel;
+    default-font-family: Theme.font;
+
+    /// The question shown over the window (`ask::confirm` from Settings), if any.
+    in property <[AskRow]> ask;
+    callback ask-answer(bool, string);
+    callback ask-other();
+    callback ask-third();
+    /// Gives the keyboard back to the window (after a question).
+    callback focus-keys();
+    focus-keys => { keys.focus(); }
+
+    keys := FocusScope {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.height;
+        // While a key is being changed (Keys → Keyboard shortcuts), every key goes to it.
+        capture-key-pressed(event) => {
+            if KeysDlg.capturing >= 0 {
+                KeysDlg.key-captured(event.text, event.modifiers.control || event.modifiers.meta, event.modifiers.alt, event.modifiers.shift);
+                return accept;
+            }
+            reject
+        }
+        key-pressed(event) => {
+            if event.text == Key.Escape {
+                SettingsDlg.cancel();
+                return accept;
+            }
+            reject
+        }
+
+        VerticalLayout {
+            HorizontalLayout {
+                vertical-stretch: 1;
+                // The sidebar: the search, the categories and their pages, and Show advanced settings.
+                sidebar := Rectangle {
+                    width: 236px;
+                    background: Theme.bg;
+                    VerticalLayout {
+                        padding: 12px;
+                        spacing: 8px;
+                        find := TextField {
+                            search: true;
+                            placeholder: @tr("Find a setting");
+                            text <=> SettingsDlg.find-text;
+                            edited(t) => { SettingsDlg.find-edited(t); }
+                            accepted => { if SettingsDlg.find-rows.length > 0 { SettingsDlg.find-pick(0); } }
+                        }
+                        ScrollBox {
+                            vertical-stretch: 1;
+                            track-edge: Theme.bg;
+                            VerticalLayout {
+                                alignment: start;
+                                padding-right: 6px;
+                                if SettingsDlg.find-text == "": VerticalLayout {
+                                    for n in SettingsDlg.nav: nav-row := NavLine {
+                                        title: n.title;
+                                        heading: n.heading;
+                                        on: !n.heading && n.page == SettingsDlg.tab;
+                                        clicked => { SettingsDlg.nav-pick(n.page); }
+                                    }
+                                }
+                                if SettingsDlg.find-text != "": VerticalLayout {
+                                    spacing: 2px;
+                                    for f[i] in SettingsDlg.find-rows: find-row := NavLine {
+                                        title: f.title;
+                                        sub: f.path;
+                                        on: SettingsDlg.highlight == f.key && f.key != "";
+                                        clicked => { SettingsDlg.find-pick(i); }
+                                    }
+                                    if SettingsDlg.find-rows.length == 0: no-match := Text {
+                                        text: @tr("No setting has those words.");
+                                        color: Theme.muted;
+                                        font-family: Theme.font;
+                                        font-size: 12.5px;
+                                        wrap: word-wrap;
+                                    }
+                                }
+                            }
+                        }
+                        advanced := Check {
+                            padding-bottom: 0px;
+                            text: @tr("Show advanced settings");
+                            checked <=> SettingsDlg.advanced;
+                            toggled(on) => { SettingsDlg.advanced-changed(on); }
+                        }
+                    }
+                }
+                Rectangle {
+                    width: 1px;
+                    background: Theme.line;
+                }
+                // The page: its title, then its rows, which scroll.
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    HorizontalLayout {
+                        vertical-stretch: 0;
+                        padding-left: 22px;
+                        padding-right: 22px;
+                        min-height: 58px;
+                        page-title := Text {
+                            text: SettingsDlg.page-title;
+                            color: Theme.text;
+                            font-family: Theme.display;
+                            font-size: 20px;
+                            font-weight: 600;
+                            overflow: elide;
+                            vertical-alignment: center;
+                            accessible-role: text;
+                            accessible-label: self.text;
+                        }
+                    }
+                    body := ScrollBox {
+                        vertical-stretch: 1;
+                        property <int> serial: SettingsDlg.reveal-serial;
+                        // A row found by the search or a link: scrolled to, a little below the top.
+                        changed serial => {
+                            self.content-y = clamp(self.content-y - (SettingsDlg.reveal-y - self.absolute-position.y) + 16px,
+                                min(0px, self.height - self.content-height), 0px);
+                        }
+                        changed width => { SettingsDlg.content-width = self.width - 44px; }
+                        init => { SettingsDlg.content-width = self.width - 44px; }
+                        VerticalLayout {
+                            alignment: start;
+                            padding-top: 4px;
+                            padding-bottom: 22px;
+                            padding-left: 12px;
+                            padding-right: 22px;
+                            pages := Pages {}
+                        }
+                    }
+                }
+            }
+            // While a theme is being edited, the footer saves the theme instead of the settings.
+            if SettingsDlg.tab == 3 && ThemesDlg.editing: DialogFoot {
+                theme-cancel := Btn {
+                    text: @tr("Cancel");
+                    clicked => { ThemesDlg.cancel-edit(); }
+                }
+                theme-save := Btn {
+                    primary: true;
+                    text: @tr("Save theme");
+                    clicked => { ThemesDlg.save-theme(); }
+                }
+            }
+            if !(SettingsDlg.tab == 3 && ThemesDlg.editing): DialogFoot {
+                cancel := Btn {
+                    text: @tr("Cancel");
+                    clicked => { SettingsDlg.cancel(); }
+                }
+                save := Btn {
+                    primary: true;
+                    text: @tr("Save settings");
+                    clicked => { SettingsDlg.save(); }
+                }
+            }
+        }
+    }
+
+    for a in root.ask: AskOverlay {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.height;
+        ask: a;
+        answer(ok, text) => { root.ask-answer(ok, text); }
+        other => { root.ask-other(); }
+        third => { root.ask-third(); }
+    }
+    // The hover tooltip of every widget in the window, over everything.
+    TipLayer {
+        x: 0px;
+        y: 0px;
+        width: root.width;
+        height: root.height;
+    }
+}

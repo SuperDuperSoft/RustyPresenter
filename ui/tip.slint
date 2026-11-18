@@ -1,0 +1,126 @@
+// The hover tooltip shared by the operator widgets (`widgets.slint`): one tip per window, not one popup per widget
+// (a popup in every button made the generated code too big to compile).
+import { Theme } from "theme.slint";
+
+/// The tooltip of this window (a global has one copy per window). `TipArea`s fill it in, `TipLayer` draws it.
+export global TipState {
+    in-out property <string> text;
+    /// Where the tip goes: its left edge, its top below the widget, and the widget's top (for a tip above it).
+    in-out property <length> x;
+    in-out property <length> y;
+    in-out property <length> top;
+    in-out property <bool> show;
+    /// Which `TipArea` showed it.
+    in-out property <int> serial;
+    /// Set by the `TipArea` while its tip shows, so a tip whose widget went away hides.
+    in-out property <bool> beat;
+}
+
+/// The content of a hover tooltip (the web `title` attribute), in the operator's colours.
+export component TipBox inherits Rectangle {
+    in property <string> text;
+    background: Theme.toast-bg;
+    border-color: Theme.dash;
+    border-width: 1px;
+    border-radius: 6px;
+    HorizontalLayout {
+        padding: 4px;
+        padding-left: 8px;
+        padding-right: 8px;
+        Text {
+            text: root.text;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: 12px;
+        }
+    }
+}
+
+/// The hover tooltip of its parent, which it fills. Like Slint's `Tooltip`, the tip shows 500 ms after the pointer
+/// rests and hides on leave; it also hides on a press and shows again 500 ms after. It takes no input, so the clicks
+/// still land. Put it last and point `hover`, `pressed` and `pointer-x` at the parent's `TouchArea`. An empty `text`
+/// shows nothing. The window draws the tip with its `TipLayer`.
+///
+/// ```slint
+/// TipArea { text: root.tooltip; hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
+/// ```
+export component TipArea inherits Rectangle {
+    in property <string> text;
+    in property <bool> hover;
+    in property <bool> pressed;
+    in property <length> pointer-x;
+    property <int> serial: -1;
+    property <bool> mine: TipState.show && TipState.serial == root.serial;
+
+    function hide() {
+        if root.mine {
+            TipState.show = false;
+        }
+    }
+
+    changed hover => {
+        if !root.hover {
+            root.hide();
+        }
+    }
+    changed pressed => {
+        if root.pressed {
+            root.hide();
+        }
+    }
+    changed text => {
+        if root.mine {
+            TipState.text = root.text;
+            if root.text == "" {
+                TipState.show = false;
+            }
+        }
+    }
+
+    // `hover` first: a widget away from the pointer does not watch the global.
+    Timer {
+        interval: 500ms;
+        running: root.hover && !root.pressed && root.text != "" && !root.mine;
+        triggered => {
+            TipState.serial += 1;
+            root.serial = TipState.serial;
+            TipState.text = root.text;
+            TipState.x = root.absolute-position.x + root.pointer-x;
+            TipState.y = root.absolute-position.y + root.height + 4px;
+            TipState.top = root.absolute-position.y - 4px;
+            TipState.beat = true;
+            TipState.show = true;
+        }
+    }
+    Timer {
+        interval: 200ms;
+        running: root.hover && root.mine;
+        triggered => {
+            TipState.beat = true;
+        }
+    }
+}
+
+/// The window's tooltip, over everything: put one last in each window, filling it. It takes no input.
+export component TipLayer inherits Rectangle {
+    if TipState.show: TipBox {
+        text: TipState.text;
+        width: min(self.preferred-width, root.width);
+        height: self.preferred-height;
+        // Below the widget, inside the window; above it when there is no room below.
+        x: max(0px, min(TipState.x, root.width - self.width));
+        y: TipState.y + self.height <= root.height ? TipState.y : max(0px, TipState.top - self.height);
+    }
+    // No beat for a while: the widget went away under the pointer.
+    Timer {
+        interval: 500ms;
+        running: TipState.show;
+        triggered => {
+            if TipState.beat {
+                TipState.beat = false;
+            } else {
+                TipState.show = false;
+            }
+        }
+    }
+}

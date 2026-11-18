@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyLists/PLIST-1.0.dtd">
+<!-- cargo-packager signs with the hardened runtime, whose library validation refuses to
+     dlopen a dylib without the app's Team ID. An ad-hoc signature has no Team ID, so
+     libmpv and pdfium in Contents/Frameworks would not load without this. -->
+<plist version="1.0">
+<dict>
+	<key>com.apple.security.cs.disable-library-validation</key>
+	<true/>
+	<!-- The hardened runtime refuses cameras and sound inputs unless the app says it uses them (livestream,
+	     recording, auto-follow). -->
+	<key>com.apple.security.device.camera</key>
+	<true/>
+	<key>com.apple.security.device.audio-input</key>
+	<true/>
+</dict>
+</plist>

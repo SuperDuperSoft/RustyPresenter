@@ -1,6 +1,19 @@
 //! Bible references and the bundled King James Version.
-//! Other translations need a licensed source (spec §8.5) and report "not set up".
+//! Copyrighted translations come from licensed online sources (`sources`, spec §8.5).
 use crate::model::VerseText;
+use crate::tr;
+
+pub mod api_bible;
+pub mod blocklist;
+pub mod catalog;
+pub mod esv;
+pub mod id;
+pub mod import;
+pub mod library;
+pub mod nlt;
+pub mod sources;
+pub mod youversion;
+pub use id::normalise_id;
 use std::{collections::BTreeMap, sync::OnceLock};
 
 /// (code in the eBible KJV source, display name, extra aliases)
@@ -24,16 +37,41 @@ pub const BOOKS: &[(&str, &str, &str)] = &[
     ("2JO", "2 John", "2jn 2jo 2jhn"), ("3JO", "3 John", "3jn 3jo 3jhn"), ("JUD", "Jude", "jude jud"), ("REV", "Revelation", "rev re rv revelations"),
 ];
 
-pub const TRANSLATIONS: &[&str] = &["NIV", "ESV", "CSB", "HCSB", "NLT", "KJV"];
+/// Standard USFM/USX book ids in `BOOKS` order (API.Bible, YouVersion and USX files use them). Several differ from
+/// the eBible-style codes above (SOL→SNG, EZE→EZK, JOE→JOL, NAH→NAM, MAR→MRK, JOH→JHN, PHI→PHP, JAM→JAS, 1JO→1JN…).
+pub const USFM: [&str; 66] = [
+    "GEN", "EXO", "LEV", "NUM", "DEU", "JOS", "JDG", "RUT", "1SA", "2SA", "1KI", "2KI", "1CH", "2CH", "EZR", "NEH",
+    "EST", "JOB", "PSA", "PRO", "ECC", "SNG", "ISA", "JER", "LAM", "EZK", "DAN", "HOS", "JOL", "AMO", "OBA", "JON",
+    "MIC", "NAM", "HAB", "ZEP", "HAG", "ZEC", "MAL",
+    "MAT", "MRK", "LUK", "JHN", "ACT", "ROM", "1CO", "2CO", "GAL", "EPH", "PHP", "COL", "1TH", "2TH", "1TI", "2TI",
+    "TIT", "PHM", "HEB", "JAS", "1PE", "2PE", "1JN", "2JN", "3JN", "JUD", "REV",
+];
+
+pub const TRANSLATIONS: &[&str] =&["NIV", "ESV", "CSB", "HCSB", "NLT", "KJV", "WEB", "BSB"];
+
+/// Public-domain texts in the app (eBible.org verse-per-line files, see assets/bibles/SOURCE.html): they work offline with no setup.
+pub const BUILT_IN: &[(&str, &str)] = &[("KJV", "King James Version"), ("WEB", "World English Bible"), ("BSB", "Berean Standard Bible")];
 
 pub struct Kjv {
     verses: BTreeMap<(u8, u16, u16), String>,
 }
 
 static KJV: OnceLock<Kjv> = OnceLock::new();
+static WEB: OnceLock<Kjv> = OnceLock::new();
+static BSB: OnceLock<Kjv> = OnceLock::new();
 
 pub fn kjv() -> &'static Kjv {
     KJV.get_or_init(|| Kjv::parse(include_str!("../assets/bibles/kjv.txt")))
+}
+
+/// A bundled public-domain translation, parsed on first use.
+pub fn built_in(translation: &str) -> Option<&'static Kjv> {
+    match translation {
+        "KJV" => Some(kjv()),
+        "WEB" => Some(WEB.get_or_init(|| Kjv::parse(include_str!("../assets/bibles/web.txt")))),
+        "BSB" => Some(BSB.get_or_init(|| Kjv::parse(include_str!("../assets/bibles/bsb.txt")))),
+        _ => None,
+    }
 }
 
 /// Remove source markup: paragraph marks and the brackets around supplied words.
@@ -58,37 +96,51 @@ impl Kjv {
     pub fn len(&self) -> usize { self.verses.len() }
     pub fn is_empty(&self) -> bool { self.verses.is_empty() }
 
+    /// Verses in a book (KJV versification); used for the "half a book" storage limits.
+    pub fn book_len(&self, book: u8) -> usize {
+        self.verses.range((book, 0, 0)..=(book, u16::MAX, u16::MAX)).count()
+    }
+
     fn last_verse(&self, book: u8, chapter: u16) -> Option<u16> {
         self.verses.range((book, chapter, 0)..=(book, chapter, u16::MAX)).next_back().map(|(k, _)| k.2)
     }
 
+    /// The verse just before (`forward` false) or after `id`, across chapters and books (N6's Prev/Next verse).
+    pub fn neighbour(&self, id: crate::scripture::VerseId, forward: bool) -> Option<crate::scripture::VerseId> {
+        use std::ops::Bound::{Excluded, Unbounded};
+        let key = (id.book(), id.chapter(), id.verse());
+        let near = if forward { self.verses.range((Excluded(key), Unbounded)).next() } else { self.verses.range(..key).next_back() };
+        near.map(|(k, _)| crate::scripture::VerseId(k.0, k.1, k.2))
+    }
+
     pub fn lookup(&self, input: &str) -> Result<(String, Vec<VerseText>), String> {
         let r = parse_reference(input)?;
-        let name = BOOKS[r.book as usize].1;
-        let display = if name == "Psalms" { "Psalm" } else { name };
+        let display = display_name(r.book);
         let mut out = Vec::new();
         for part in &r.parts {
             let (sc, sv) = part.start;
             let (ec, ev) = part.end;
-            let ev_resolved = match ev { Some(v) => v, None => self.last_verse(r.book, ec).ok_or_else(|| format!("{display} {ec} does not exist."))? };
-            if self.last_verse(r.book, sc).is_none() { return Err(format!("{display} {sc} does not exist.")); }
+            let ev_resolved = match ev { Some(v) => v, None => self.last_verse(r.book, ec).ok_or_else(|| tr!("{reference} does not exist.", reference = format!("{display} {ec}")))? };
+            if self.last_verse(r.book, sc).is_none() { return Err(tr!("{reference} does not exist.", reference = format!("{display} {sc}"))); }
             let mut c = sc;
             let mut v = sv.unwrap_or(1);
             loop {
+                // A range can run past the book's last chapter (Jude 1:1-3:1).
+                let last = self.last_verse(r.book, c).ok_or_else(|| tr!("{reference} does not exist.", reference = format!("{display} {c}")))?;
                 match self.verses.get(&(r.book, c, v)) {
-                    Some(t) => out.push(VerseText { reference: format!("{display} {c}:{v}"), text: t.clone() }),
-                    None if v == sv.unwrap_or(1) && c == sc => return Err(format!("{display} {c}:{v} does not exist.")),
+                    Some(t) => out.push(VerseText { id: Some(crate::scripture::VerseId(r.book, c, v)), ..VerseText::new(format!("{display} {c}:{v}"), t.clone()) }),
+                    None if v == sv.unwrap_or(1) && c == sc => return Err(tr!("{reference} does not exist.", reference = format!("{display} {c}:{v}"))),
                     None => {}
                 }
                 if c == ec && v >= ev_resolved { break; }
-                if self.last_verse(r.book, c).is_some_and(|last| v >= last) { c += 1; v = 1; if c > ec { break; } } else { v += 1; }
-                if out.len() > 400 { return Err("That passage is too long. Choose up to about 400 verses.".into()); }
+                if v >= last { c += 1; v = 1; if c > ec { break; } } else { v += 1; }
+                if out.len() > 400 { return Err(tr!("That passage is too long. Choose up to about 400 verses.")); }
             }
             if ev.is_some() && !out.iter().any(|x| x.reference == format!("{display} {ec}:{ev_resolved}")) {
-                return Err(format!("{display} {ec}:{ev_resolved} does not exist."));
+                return Err(tr!("{reference} does not exist.", reference = format!("{display} {ec}:{ev_resolved}")));
             }
         }
-        if out.is_empty() { return Err("No verses found.".into()); }
+        if out.is_empty() { return Err(tr!("No verses found.")); }
         Ok((canonical(&r, display), out))
     }
 }
@@ -113,7 +165,7 @@ pub fn find_book(name: &str) -> Option<u8> {
 /// Parse `John 3:16-18`, `jn 3 16`, `Ps 23`, `Ps 23:1,4-6`, `John 1:1-2:3`, `1 Cor 13`.
 pub fn parse_reference(input: &str) -> Result<Reference, String> {
     let s = input.trim().replace(['–', '—'], "-");
-    if s.is_empty() { return Err("Type a reference, like John 3:16.".into()); }
+    if s.is_empty() { return Err(tr!("Type a reference, like John 3:16.")); }
     // Book = everything up to the first digit that comes after a letter.
     let chars: Vec<char> = s.chars().collect();
     let mut seen_letter = false;
@@ -124,9 +176,9 @@ pub fn parse_reference(input: &str) -> Result<Reference, String> {
     }
     let book_part: String = chars[..split].iter().collect();
     let nums: String = chars[split..].iter().collect();
-    let book = find_book(&book_part).ok_or_else(|| format!("I don't recognize the book \"{}\".", book_part.trim()))?;
+    let book = find_book(&book_part).ok_or_else(|| tr!("I don't recognise the book \"{book}\".", book = book_part.trim()))?;
     let nums = nums.trim();
-    if nums.is_empty() { return Err("Add a chapter, like John 3 or John 3:16.".into()); }
+    if nums.is_empty() { return Err(tr!("Add a chapter, like John 3 or John 3:16.")); }
     // "3 16-18" (no colon) means chapter 3, verses 16-18.
     let nums = if !nums.contains(':') {
         let mut it = nums.splitn(2, |c: char| c == ' ' || c == '.');
@@ -134,7 +186,7 @@ pub fn parse_reference(input: &str) -> Result<Reference, String> {
         match it.next() { Some(rest) if !rest.trim().is_empty() => format!("{c}:{}", rest.trim()), _ => c.to_string() }
     } else { nums.to_string() };
     let nums: String = nums.chars().filter(|c| !c.is_whitespace()).collect();
-    let bad = || "That reference doesn't look right. Try something like John 3:16-18.".to_string();
+    let bad = || tr!("That reference doesn't look right. Try something like John 3:16-18.");
     let num = |t: &str| -> Result<u16, String> { t.parse::<u16>().ok().filter(|n| *n > 0).ok_or_else(bad) };
     let mut parts = Vec::new();
     let mut chapter: Option<u16> = None;
@@ -150,7 +202,7 @@ pub fn parse_reference(input: &str) -> Result<Reference, String> {
                 else if start.1.is_none() { (num(b)?, None) } // "Ps 23-24" chapters
                 else { (start.0, Some(num(b)?)) },
         };
-        if (end.0, end.1.unwrap_or(u16::MAX)) < (start.0, start.1.unwrap_or(0)) { return Err("The end of the range comes before the start.".into()); }
+        if (end.0, end.1.unwrap_or(u16::MAX)) < (start.0, start.1.unwrap_or(0)) { return Err(tr!("The end of the range comes before the start.")); }
         if start.1.is_none() && chapter.is_none() { /* whole chapter(s) */ }
         parts.push(Part { start, end });
     }
@@ -158,7 +210,64 @@ pub fn parse_reference(input: &str) -> Result<Reference, String> {
     Ok(Reference { book, parts })
 }
 
-fn canonical(r: &Reference, display: &str) -> String {
+/// Verses the operator pasted from a Bible they own (each publisher's free quotation allowance, e.g. Holman's
+/// 1,000 HCSB verses). Numbers in the text that continue the count — `16 For God… 17 For God…`, `[16]`, `3:16` —
+/// start new verses, as does the first verse of the next requested part (`Ps 23:1,4-6`); `1` moves to the next
+/// chapter when the reference reaches it. A leading chapter drop-cap (`3 There was a man`) is verse 1.
+/// Other numbers are text. Text with no numbers is one slide.
+pub fn pasted(input: &str, text: &str) -> Result<(String, Vec<VerseText>), String> {
+    let r = parse_reference(input)?;
+    let display = display_name(r.book);
+    let first = &r.parts[0];
+    let first_v = first.start.1.unwrap_or(1);
+    let (mut c, mut v) = (first.start.0, first_v);
+    let inside = |cv: (u16, u16)| r.parts.iter().any(|p| (p.start.0, p.start.1.unwrap_or(1)) <= cv && cv <= (p.end.0, p.end.1.unwrap_or(u16::MAX)));
+    let mut out: Vec<(u16, u16, String)> = Vec::new();
+    let mut started = false;
+    for word in text.split_whitespace() {
+        let n = word.trim_matches(|ch: char| matches!(ch, '[' | ']' | '(' | ')' | '.' | ','));
+        let cv = n.split_once(':').and_then(|(a, b)| Some((a.parse::<u16>().ok()?, b.parse::<u16>().ok()?)))
+            .filter(|&cv| inside(cv));
+        // Start of the next requested part after where we are.
+        let part_start = r.parts.iter().map(|p| (p.start.0, p.start.1.unwrap_or(1))).find(|&p| p > (c, v));
+        let next = match (cv, n.parse::<u16>()) {
+            (Some(cv), _) => Some(cv),
+            (None, Ok(x)) if !started => {
+                if x == first_v { Some((c, x)) }
+                else if x == c && first_v == 1 { Some((c, 1)) } // chapter drop-cap
+                else { Some((c, x)).filter(|&cv| inside(cv)) }
+            }
+            (None, Ok(1)) if inside((c.saturating_add(1), 1)) => Some((c.saturating_add(1), 1)),
+            (None, Ok(x)) if Some(x) == v.checked_add(1) => Some((c, x)),
+            (None, Ok(x)) => part_start.filter(|p| p.1 == x),
+            _ => None,
+        };
+        match next {
+            Some((nc, nv)) if !started || (nc, nv) > (c, v) => { (c, v) = (nc, nv); started = true; out.push((c, v, String::new())); }
+            _ => {
+                if out.is_empty() { out.push((c, v, String::new())); started = true; }
+                let t = &mut out.last_mut().unwrap().2;
+                if !t.is_empty() { t.push(' '); }
+                t.push_str(word);
+            }
+        }
+    }
+    out.retain(|x| !x.2.is_empty());
+    if out.is_empty() { return Err(tr!("Paste the verse text first.")); }
+    if out.len() > 400 { return Err(tr!("That passage is too long. Choose up to about 400 verses.")); }
+    let label = canonical(&r, display);
+    // One unnumbered block keeps the whole reference as its label.
+    let one = out.len() == 1 && !text.split_whitespace().next().is_some_and(|w| w.trim_matches(['[', ']']).chars().all(|ch| ch.is_ascii_digit() || ch == ':'));
+    Ok((label.clone(), out.into_iter().map(|(c, v, text)| VerseText { reference: if one { label.clone() } else { format!("{display} {c}:{v}") }, text, id: (!one).then_some(crate::scripture::VerseId(r.book, c, v)) }).collect()))
+}
+
+/// Book name as shown in a reference ("Psalm 23", not "Psalms 23").
+pub fn display_name(book: u8) -> &'static str {
+    let name = BOOKS[book as usize].1;
+    if name == "Psalms" { "Psalm" } else { name }
+}
+
+pub fn canonical(r: &Reference, display: &str) -> String {
     let mut out = String::new();
     let mut chapter = 0;
     for (i, p) in r.parts.iter().enumerate() {
@@ -179,6 +288,19 @@ fn canonical(r: &Reference, display: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn neighbour_steps_across_chapters_and_stops_at_the_ends() {
+        use crate::scripture::VerseId;
+        let k = Kjv::parse(SAMPLE);
+        let john = find_book("John").unwrap();
+        assert_eq!(k.neighbour(VerseId(john, 3, 16), true), Some(VerseId(john, 3, 17)));
+        assert_eq!(k.neighbour(VerseId(john, 1, 51), true), Some(VerseId(john, 2, 1)), "into the next chapter");
+        assert_eq!(k.neighbour(VerseId(john, 2, 1), false), Some(VerseId(john, 1, 51)), "back into the last one");
+        assert_eq!(k.neighbour(VerseId(0, 1, 1), false), None, "nothing before Genesis 1:1");
+        let rev = find_book("Revelation").unwrap();
+        assert_eq!(kjv().neighbour(VerseId(rev, 22, 21), true), None, "nothing after the last verse");
+    }
 
     const SAMPLE: &str = "GEN 1:1 In the beginning God created the heaven and the earth.\n\
 JOH 3:15 That whosoever believeth in him should not perish, but have eternal life.\n\
@@ -218,6 +340,12 @@ PSA 23:1 The LORD [is] my shepherd; I shall not want.\nPSA 23:2 b\nPSA 23:3 c\nP
     }
 
     #[test]
+    fn range_past_the_last_chapter_of_a_short_book_is_an_error_not_a_hang() {
+        let err = kjv().lookup("Jude 1:1-3:1").unwrap_err();
+        assert_eq!(err, "Jude 2 does not exist.");
+    }
+
+    #[test]
     fn cleans_markup() {
         let k = Kjv::parse(SAMPLE);
         assert_eq!(k.lookup("Ps 23:1").unwrap().1[0].text, "The LORD is my shepherd; I shall not want.");
@@ -241,5 +369,80 @@ PSA 23:1 The LORD [is] my shepherd; I shall not want.\nPSA 23:2 b\nPSA 23:3 c\nP
     fn full_bundled_kjv_has_the_protestant_canon() {
         let k = kjv();
         if k.len() > 1000 { assert_eq!(k.len(), 31102); }
+    }
+
+    #[test]
+    fn pasted_verses_split_on_their_numbers() {
+        let (label, v) = pasted("John 3:16-17", "16 For God loved the world 3 times. 17 For God did not send").unwrap();
+        assert_eq!(label, "John 3:16–17");
+        assert_eq!(v.iter().map(|x| (x.reference.as_str(), x.text.as_str())).collect::<Vec<_>>(),
+            vec![("John 3:16", "For God loved the world 3 times."), ("John 3:17", "For God did not send")]);
+        let (_, v) = pasted("John 1:51-2:2", "[51] a [1] b [2] c").unwrap();
+        assert_eq!(v.iter().map(|x| x.reference.as_str()).collect::<Vec<_>>(), vec!["John 1:51", "John 2:1", "John 2:2"]);
+        let (_, v) = pasted("Ps 23:1-2", "23:1 The LORD is my shepherd, see 3:1. 23:2 He makes me").unwrap();
+        assert_eq!(v.iter().map(|x| x.reference.as_str()).collect::<Vec<_>>(), vec!["Psalm 23:1", "Psalm 23:2"]);
+        assert_eq!(v[0].text, "The LORD is my shepherd, see 3:1.");
+    }
+
+    fn refs(v: &[VerseText]) -> Vec<&str> { v.iter().map(|x| x.reference.as_str()).collect() }
+
+    #[test]
+    fn pasted_parts_after_the_first_start_new_verses() {
+        let (_, v) = pasted("Ps 23:1,4-6", "1 The LORD 4 Even though 5 You prepare 6 Only goodness").unwrap();
+        assert_eq!(refs(&v), vec!["Psalm 23:1", "Psalm 23:4", "Psalm 23:5", "Psalm 23:6"]);
+        assert_eq!(v[1].text, "Even though");
+        // A number inside a later range that isn't its start stays text.
+        let (_, v) = pasted("Ps 23:1,4-6", "1 The LORD fed 5 people 4 Even though").unwrap();
+        assert_eq!(refs(&v), vec!["Psalm 23:1", "Psalm 23:4"]);
+        assert_eq!(v[0].text, "The LORD fed 5 people");
+        let (_, v) = pasted("Ps 23:6, 25:1", "6 Surely 1 To you").unwrap();
+        assert_eq!(refs(&v), vec!["Psalm 23:6", "Psalm 25:1"]);
+    }
+
+    #[test]
+    fn pasted_chapter_drop_cap_is_verse_one() {
+        let (_, v) = pasted("John 3:1-2", "3 There was a man 2 This man came").unwrap();
+        assert_eq!(refs(&v), vec!["John 3:1", "John 3:2"]);
+        assert_eq!(v[0].text, "There was a man");
+        let (_, v) = pasted("Psalm 23", "23 The LORD is my shepherd 2 He makes me").unwrap();
+        assert_eq!(refs(&v), vec!["Psalm 23:1", "Psalm 23:2"]);
+        // A leading number outside the reference is text.
+        let (_, v) = pasted("Gen 7:4", "40 days and 40 nights").unwrap();
+        assert_eq!(v.len(), 1);
+        assert_eq!(v[0].text, "40 days and 40 nights");
+        let (_, v) = pasted("John 3:16-17", "17 For God did not send").unwrap();
+        assert_eq!(refs(&v), vec!["John 3:17"]);
+    }
+
+    #[test]
+    fn pasted_next_chapter_only_inside_the_reference() {
+        let (_, v) = pasted("John 3:16-17", "16 For God so loved 1 world 17 For God").unwrap();
+        assert_eq!(refs(&v), vec!["John 3:16", "John 3:17"]);
+        assert_eq!(v[0].text, "For God so loved 1 world");
+        let (_, v) = pasted("John 3:16-17", "16 For God, see 3:20 and 4:1, 17 For God").unwrap();
+        assert_eq!(refs(&v), vec!["John 3:16", "John 3:17"]);
+        assert_eq!(v[0].text, "For God, see 3:20 and 4:1,");
+        let (_, v) = pasted("Ps 23-24", "23 The LORD 2 He makes 1 The earth").unwrap();
+        assert_eq!(refs(&v), vec!["Psalm 23:1", "Psalm 23:2", "Psalm 24:1"]);
+    }
+
+    #[test]
+    fn pasted_text_without_numbers_is_one_slide() {
+        let (_, v) = pasted("Romans 8:28", "And we know that all things work together").unwrap();
+        assert_eq!(v.len(), 1);
+        assert_eq!(v[0].reference, "Romans 8:28");
+        assert!(pasted("Romans 8:28", "   ").is_err());
+    }
+
+    #[test]
+    fn web_and_bsb_are_built_in() {
+        for t in ["WEB", "BSB"] {
+            let b = built_in(t).unwrap();
+            assert!(b.len() > 31_000, "{t} has {} verses", b.len());
+            let (label, v) = b.lookup("John 3:16").unwrap();
+            assert_eq!(label, "John 3:16");
+            assert!(v[0].text.starts_with("For God so loved the world"), "{t}: {}", v[0].text);
+        }
+        assert!(built_in("ESV").is_none());
     }
 }

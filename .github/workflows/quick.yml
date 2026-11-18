@@ -1,0 +1,41 @@
+name: Quick check
+
+# Fast feedback for the redesign branch: compile and unit tests on Linux. The full matrix runs at merge time.
+on:
+  push:
+    branches: [redesign-media-library, merge-all]
+  workflow_dispatch:
+
+# One run at a time: a newer push waits for the run going (and replaces any run still waiting).
+concurrency:
+  group: quick-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Linux packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libgtk-3-dev libdbus-1-dev libfontconfig-dev
+      # Without --locked, so a dependency change regenerates Cargo.lock here (cloud sessions cannot reach
+      # crates.io, nor download artifacts): the change is printed in the log to copy back.
+      - run: cargo check --lib --bin rustypresenter
+      - name: Cargo.lock changes
+        run: echo "LOCKDIFF $(git diff Cargo.lock | gzip -9 | base64 -w0)"
+      - run: cargo test --lib
+
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --locked --release --lib
+      - run: cargo build --locked --release

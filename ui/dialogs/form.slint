@@ -1,0 +1,551 @@
+// Form controls of the dialogs, sized and coloured as their `web/operator.css` rules (named beside each one).
+// Every colour comes from `Theme`. Each text field sets `OperatorState.focus-in-text` while it has focus.
+import { Theme, OperatorState } from "../theme.slint";
+import { EditMenu, Icon, TipBox } from "../widgets.slint";
+
+/// `.field input[type=text]`: one line on the page background with a 1.5 px border (accent when focused), radius 9,
+/// 9×11 padding. `search` gives the `.search` look (radius 10, 10×12 padding). A test (or a screen reader) can type
+/// into it through its accessible value.
+export component TextField inherits Rectangle {
+    in-out property <string> text;
+    in property <string> placeholder;
+    /// The accessible name when it differs from the placeholder.
+    in property <string> label;
+    in property <bool> password;
+    in property <bool> search;
+    in property <length> font-size: Theme.base-size;
+    out property <bool> has-focus: input.has-focus;
+    /// The text changed by typing (not by Rust setting it).
+    callback edited(string);
+    /// Enter.
+    callback accepted(string);
+    forward-focus: input;
+
+    min-width: 60px;
+    background: Theme.bg;
+    border-color: input.has-focus ? Theme.accent : Theme.line;
+    border-width: 1.5px;
+    border-radius: root.search ? 10px : 9px;
+    accessible-role: text-input;
+    accessible-label: root.label != "" ? root.label : root.placeholder;
+    accessible-placeholder-text: root.placeholder;
+    accessible-value: root.text;
+    accessible-action-set-value(v) => {
+        root.text = v;
+        root.edited(v);
+    }
+
+    HorizontalLayout {
+        padding-top: root.search ? 10px : 9px;
+        padding-bottom: self.padding-top;
+        padding-left: root.search ? 12px : 11px;
+        padding-right: self.padding-left;
+        Rectangle {
+            min-height: input.preferred-height;
+            if input.text == "": Text {
+                width: parent.width;
+                height: parent.height;
+                text: root.placeholder;
+                color: Theme.faint;
+                font-family: Theme.font;
+                font-size: root.font-size;
+                overflow: elide;
+                vertical-alignment: center;
+            }
+            input := TextInput {
+                width: parent.width;
+                height: parent.height;
+                text <=> root.text;
+                single-line: true;
+                input-type: root.password ? InputType.password : InputType.text;
+                color: Theme.text;
+                selection-background-color: Theme.accent;
+                selection-foreground-color: Theme.accent-ink;
+                font-family: Theme.font;
+                font-size: root.font-size;
+                vertical-alignment: center;
+                changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
+                edited => { root.edited(self.text); }
+                accepted => { root.accepted(self.text); }
+                EditMenu {
+                    x: 0;
+                    y: 0;
+                    width: 100%;
+                    height: 100%;
+                    has-text: input.text != "";
+                    cut-text => { input.cut(); }
+                    copy-text => { input.copy(); }
+                    paste-text => { input.paste(); }
+                    select-text => { input.select-all(); }
+                }
+            }
+        }
+    }
+}
+
+/// `.field textarea`: several lines that wrap, at least `min-height` tall, scrolled to keep the cursor in view.
+export component TextArea inherits Rectangle {
+    in-out property <string> text;
+    in property <string> placeholder;
+    /// The accessible name when it differs from the placeholder.
+    in property <string> label;
+    in property <length> font-size: Theme.base-size;
+    out property <bool> has-focus: input.has-focus;
+    /// Where the caret is now, as a byte offset of the text.
+    out property <int> caret: input.cursor-position-byte-offset;
+    /// Where the marked words begin (the caret is their other end), as a byte offset; the caret when none are.
+    out property <int> anchor: input.anchor-position-byte-offset;
+    callback edited(string);
+    forward-focus: input;
+    /// Puts the caret at byte `offset` of the text.
+    public function set-caret(offset: int) { input.set-selection-offsets(offset, offset); }
+
+    min-height: 120px;
+    background: Theme.bg;
+    border-width: 1.5px;
+    border-color: input.has-focus ? Theme.accent : Theme.line;
+    border-radius: 9px;
+    accessible-role: text-input;
+    accessible-label: root.label != "" ? root.label : root.placeholder;
+    accessible-placeholder-text: root.placeholder;
+    accessible-value: root.text;
+    accessible-action-set-value(v) => {
+        root.text = v;
+        root.edited(v);
+    }
+
+    fl := Flickable {
+        x: 11px;
+        y: 9px;
+        width: root.width - 22px;
+        height: root.height - 18px;
+        mouse-drag-pan-enabled: false;
+        content-width: self.width;
+        content-height: max(self.height, input.preferred-height);
+        if input.text == "": Text {
+            width: fl.width;
+            text: root.placeholder;
+            color: Theme.faint;
+            font-family: Theme.font;
+            font-size: root.font-size;
+            wrap: word-wrap;
+        }
+        input := TextInput {
+            width: fl.width;
+            height: max(fl.height, self.preferred-height);
+            text <=> root.text;
+            single-line: false;
+            wrap: word-wrap;
+            color: Theme.text;
+            selection-background-color: Theme.accent;
+            selection-foreground-color: Theme.accent-ink;
+            font-family: Theme.font;
+            font-size: root.font-size;
+            changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
+            edited => { root.edited(self.text); }
+            cursor-position-changed(p) => {
+                if p.y + fl.content-y < 0 {
+                    fl.content-y = -p.y;
+                } else if p.y + fl.content-y + root.font-size * 1.5 > fl.height {
+                    fl.content-y = min(0px, fl.height - p.y - root.font-size * 1.5);
+                }
+            }
+            EditMenu {
+                x: 0;
+                y: 0;
+                width: 100%;
+                height: 100%;
+                has-text: input.text != "";
+                cut-text => { input.cut(); }
+                copy-text => { input.copy(); }
+                paste-text => { input.paste(); }
+                select-text => { input.select-all(); }
+            }
+        }
+    }
+}
+
+/// `.switch`: an 18 px check box (accent when on) and its label; the whole row toggles it.
+export component Check inherits HorizontalLayout {
+    in property <string> text;
+    in-out property <bool> checked;
+    callback toggled(bool);
+    spacing: 10px;
+    padding-bottom: 10px;
+    accessible-role: checkbox;
+    accessible-checked: root.checked;
+    accessible-label: root.text;
+    accessible-action-default => { root.toggle(); }
+
+    function toggle() {
+        root.checked = !root.checked;
+        root.toggled(root.checked);
+    }
+
+    VerticalLayout {
+        alignment: center;
+        box := Rectangle {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border-width: root.checked ? 0px : 1.5px;
+            border-color: Theme.muted;
+            background: root.checked ? Theme.accent : Theme.bg;
+            if root.checked: Path {
+                width: 14px;
+                height: 14px;
+                viewbox-width: 24;
+                viewbox-height: 24;
+                commands: "M5 12l5 5L20 7";
+                stroke: Theme.accent-ink;
+                stroke-width: 3px;
+                fill: transparent;
+            }
+            TouchArea {
+                mouse-cursor: pointer;
+                clicked => { root.toggle(); }
+            }
+        }
+    }
+    Text {
+        horizontal-stretch: 1;
+        text: root.text;
+        color: Theme.text;
+        font-family: Theme.font;
+        font-size: Theme.base-size;
+        vertical-alignment: center;
+        wrap: word-wrap;
+        TouchArea {
+            mouse-cursor: pointer;
+            clicked => { root.toggle(); }
+        }
+    }
+}
+
+/// `input[type=range]`: a whole-number slider from `minimum` to `maximum`; dragging or clicking the track sets it.
+/// An on/off switch. It shows `on`, so whoever set it decides when it really changed.
+export component Toggle inherits Rectangle {
+    in property <bool> on;
+    in property <string> label;
+    callback toggled(bool);
+    width: 38px;
+    height: 22px;
+    border-radius: self.height / 2;
+    background: root.on ? Theme.ok : Theme.raise;
+    border-width: 1px;
+    border-color: root.on ? Theme.ok : Theme.line;
+    accessible-role: switch;
+    accessible-checkable: true;
+    accessible-checked: root.on;
+    accessible-label: root.label;
+    accessible-action-default => { root.toggled(!root.on); }
+    Rectangle {
+        x: root.on ? root.width - self.width - 3px : 3px;
+        y: 3px;
+        width: root.height - 6px;
+        height: root.height - 6px;
+        border-radius: self.height / 2;
+        background: root.on ? Theme.white : Theme.muted;
+        animate x { duration: 120ms; easing: ease-out; }
+    }
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.toggled(!root.on); }
+    }
+}
+
+export component RangeSlider inherits Rectangle {
+    in property <int> minimum;
+    in property <int> maximum: 100;
+    in-out property <int> value;
+    callback changed(int);
+
+    property <float> frac: root.maximum <= root.minimum ? 0 : (root.value - root.minimum) / (root.maximum - root.minimum);
+
+    height: 22px;
+    accessible-role: slider;
+    accessible-value: root.value;
+    accessible-value-minimum: root.minimum;
+    accessible-value-maximum: root.maximum;
+
+    Rectangle {
+        y: (parent.height - self.height) / 2;
+        height: 4px;
+        border-radius: 2px;
+        background: Theme.line;
+    }
+    Rectangle {
+        x: 0;
+        y: (parent.height - self.height) / 2;
+        width: (root.width - 16px) * root.frac + 8px;
+        height: 4px;
+        border-radius: 2px;
+        background: Theme.accent;
+    }
+    Rectangle {
+        x: (root.width - 16px) * root.frac;
+        y: (parent.height - self.height) / 2;
+        width: 16px;
+        height: 16px;
+        border-radius: 8px;
+        background: Theme.accent;
+    }
+
+    function set-from(x: length) {
+        let v = round(root.minimum + clamp((x - 8px) / max(1px, root.width - 16px), 0, 1) * (root.maximum - root.minimum));
+        if v != root.value {
+            root.value = v;
+            root.changed(v);
+        }
+    }
+
+    TouchArea {
+        mouse-cursor: pointer;
+        pointer-event(e) => {
+            if e.kind == PointerEventKind.down { root.set-from(self.mouse-x); }
+        }
+        moved => {
+            if self.pressed { root.set-from(self.mouse-x); }
+        }
+    }
+}
+
+/// `.field select`: the chosen option in a box; a click opens the list (each option in its own font, like the
+/// web's `style="font-family:…"` options).
+export component Select inherits Rectangle {
+    in property <[string]> options;
+    in-out property <int> index;
+    /// Draw each option in the font it names (the font picker).
+    in property <bool> font-preview;
+    callback changed(int);
+
+    height: 38px;
+    background: Theme.bg;
+    border-color: popup-open ? Theme.accent : Theme.line;
+    border-width: 1.5px;
+    border-radius: 9px;
+    accessible-role: combobox;
+    accessible-value: root.options[root.index];
+    property <bool> popup-open;
+
+    HorizontalLayout {
+        padding-left: 11px;
+        padding-right: 8px;
+        spacing: 6px;
+        Text {
+            horizontal-stretch: 1;
+            text: root.options[root.index];
+            color: Theme.text;
+            font-family: root.font-preview ? self.text : Theme.font;
+            font-size: Theme.base-size;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+        VerticalLayout {
+            alignment: center;
+            Icon {
+                name: "chevron-down";
+                color: Theme.muted;
+            }
+        }
+    }
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => {
+            root.popup-open = true;
+            list.show();
+        }
+    }
+    list := PopupWindow {
+        x: 0;
+        y: root.height + 2px;
+        width: root.width;
+        height: min(320px, root.options.length * 32px + 8px);
+        close-policy: close-on-click-outside;
+        init => { root.popup-open = true; }
+        Rectangle {
+            background: Theme.panel-2;
+            border-color: Theme.line;
+            border-width: 1px;
+            border-radius: 9px;
+            clip: true;
+            Flickable {
+                content-height: root.options.length * 32px + 8px;
+                VerticalLayout {
+                    padding: 4px;
+                    for option[i] in root.options: Rectangle {
+                        height: 32px;
+                        border-radius: 6px;
+                        background: i == root.index ? Theme.raise : opt-ta.has-hover ? Theme.panel : transparent;
+                        Text {
+                            x: 8px;
+                            width: parent.width - 16px;
+                            text: option;
+                            color: Theme.text;
+                            font-family: root.font-preview ? option : Theme.font;
+                            font-size: Theme.base-size;
+                            vertical-alignment: center;
+                            overflow: elide;
+                        }
+                        opt-ta := TouchArea {
+                            mouse-cursor: pointer;
+                            clicked => {
+                                root.popup-open = false;
+                                if root.index != i {
+                                    root.index = i;
+                                    root.changed(i);
+                                }
+                                list.close();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// `.tabs`: a row of tabs over a line; the open one is text-coloured with an accent underline.
+export component Tabs inherits Rectangle {
+    in property <[string]> labels;
+    in-out property <int> index;
+    callback changed(int);
+    height: lay.preferred-height;
+    Rectangle {
+        y: parent.height - 1px;
+        height: 1px;
+        background: Theme.line;
+    }
+    lay := HorizontalLayout {
+        spacing: 4px;
+        alignment: start;
+        for label[i] in root.labels: tab := Rectangle {
+            accessible-role: AccessibleRole.tab;
+            accessible-label: label;
+            accessible-checked: i == root.index;
+            accessible-action-default => { tab-ta.clicked(); }
+            HorizontalLayout {
+                padding-top: 9px;
+                padding-bottom: 9px;
+                padding-left: 12px;
+                padding-right: 12px;
+                Text {
+                    text: label;
+                    color: i == root.index ? Theme.text : Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    font-weight: 600;
+                }
+            }
+            Rectangle {
+                y: parent.height - 2px;
+                height: 2px;
+                background: i == root.index ? Theme.accent : transparent;
+            }
+            tab-ta := TouchArea {
+                mouse-cursor: pointer;
+                clicked => {
+                    if root.index != i {
+                        root.index = i;
+                        root.changed(i);
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// `.note`: a muted paragraph on `panel-2`. `bold` is the web's leading `<b>` sentence, drawn in the text colour on
+/// a line of its own (Slint 1.18 `Text` has no inline bold run). The children go under the text.
+export component Note inherits Rectangle {
+    in property <string> bold;
+    in property <string> text;
+    in property <length> font-size: Theme.base-size;
+    background: Theme.panel-2;
+    border-radius: 10px;
+    VerticalLayout {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        padding-left: 14px;
+        padding-right: 14px;
+        spacing: 6px;
+        if root.bold != "" || root.text != "": VerticalLayout {
+            spacing: 2px;
+            if root.bold != "": Text {
+                text: root.bold;
+                color: Theme.text;
+                font-family: Theme.font;
+                font-size: root.font-size;
+                font-weight: 700;
+                wrap: word-wrap;
+            }
+            if root.text != "": Text {
+                text: root.text;
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: root.font-size;
+                wrap: word-wrap;
+            }
+        }
+        @children
+    }
+}
+
+/// `.lbl`: a small uppercase label.
+export component Lbl inherits Text {
+    in property <string> label;
+    text: root.label.to-uppercase();
+    color: Theme.muted;
+    font-family: Theme.font;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.48px;
+}
+
+/// `.row`: a list row on `panel-2`, 9×12 padding, a line border on hover. Children go left to right.
+export component ListRow inherits Rectangle {
+    background: Theme.panel-2;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: hover.has-hover ? Theme.line : transparent;
+    hover := TouchArea {}
+    HorizontalLayout {
+        padding-top: 9px;
+        padding-bottom: 9px;
+        padding-left: 12px;
+        padding-right: 12px;
+        spacing: 12px;
+        @children
+    }
+}
+
+/// `.row .main`: a bold title over a muted line, both cut with an ellipsis; the children follow the title on its
+/// line (a "current" chip, say).
+export component RowMain inherits VerticalLayout {
+    in property <string> title;
+    in property <string> sub;
+    horizontal-stretch: 1;
+    min-width: 0px;
+    alignment: center;
+    HorizontalLayout {
+        spacing: 8px;
+        alignment: start;
+        Text {
+            text: root.title;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: 600;
+            overflow: elide;
+            vertical-alignment: center;
+        }
+        @children
+    }
+    if root.sub != "": Text {
+        text: root.sub;
+        color: Theme.muted;
+        font-family: Theme.font;
+        font-size: 12.5px;
+        overflow: elide;
+    }
+}

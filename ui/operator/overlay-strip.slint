@@ -1,0 +1,139 @@
+// The Overlays strip in the Live column (FEAT-1 spec §3.6, §7.2 row 5): one chip per saved overlay, lit while it is
+// on the audience screen; F6 (Clear overlays) and + (the Overlays dialog) stay at the right. One row, 36 px, scrolling
+// sideways when the chips don't fit. Rust (`src/ui/operator/overlay_strip.rs`) fills `OverlayStrip`.
+import { Theme } from "../theme.slint";
+import { Btn, TipArea } from "../widgets.slint";
+
+/// A chip: `kind` is "text", "picture", "clock" or "other"; `changed` when the library copy differs from what is up;
+/// `deleted` when it is up but was deleted from the library.
+export struct OverlayChipRow { name: string, kind: string, on: bool, changed: bool, deleted: bool }
+
+export global OverlayStrip {
+    in property <[OverlayChipRow]> chips;
+    callback toggle(int);
+    callback clear();
+    callback manage();
+}
+
+component OverlayChip inherits Rectangle {
+    in property <OverlayChipRow> chip;
+    callback clicked();
+    height: 28px;
+    width: min(140px, lay.preferred-width);
+    border-radius: 14px;
+    border-width: 1px;
+    border-color: root.chip.on ? Theme.accent : ta.has-hover ? Theme.btn-hover : Theme.line;
+    background: root.chip.on ? Theme.accent : Theme.raise;
+    accessible-role: button;
+    accessible-label: root.chip.name;
+    accessible-checkable: true;
+    accessible-checked: root.chip.on;
+    accessible-description: root.chip.changed ? @tr("Changed — turn it off and on to update.") : "";
+    accessible-action-default => { root.clicked(); }
+    lay := HorizontalLayout {
+        padding-left: 11px;
+        padding-right: 11px;
+        spacing: 6px;
+        Text {
+            text: root.chip.kind == "clock" ? "◷" : root.chip.kind == "picture" ? "▣" : "≡";
+            color: root.chip.on ? Theme.accent-ink : Theme.muted;
+            font-family: Theme.font;
+            font-size: 11px;
+            font-weight: 700;
+            vertical-alignment: center;
+            accessible-role: none;
+        }
+        Rectangle {
+            min-width: 0px;
+            horizontal-stretch: 1;
+            preferred-width: name.preferred-width;
+            name := Text {
+                width: parent.width;
+                height: parent.height;
+                text: root.chip.name;
+                color: root.chip.on ? Theme.accent-ink : root.chip.deleted ? Theme.muted : Theme.text;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                font-weight: 600;
+                font-italic: root.chip.deleted;
+                overflow: elide;
+                vertical-alignment: center;
+            }
+            // A deleted overlay's name is struck through.
+            if root.chip.deleted: Rectangle {
+                y: (parent.height - 1px) / 2;
+                height: 1px;
+                background: root.chip.on ? Theme.accent-ink : Theme.muted;
+            }
+        }
+        if root.chip.changed: VerticalLayout {
+            alignment: center;
+            dot := Rectangle {
+                width: 7px;
+                height: 7px;
+                border-radius: 3.5px;
+                background: root.chip.on ? Theme.accent-ink : Theme.blue;
+            }
+        }
+    }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    TipArea { text: root.chip.changed ? @tr("Changed — turn it off and on to update.") : ""; hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
+}
+
+export component OverlaysStrip inherits Rectangle {
+    height: 36px;
+    accessible-role: groupbox;
+    accessible-label: @tr("Overlays");
+
+    if OverlayStrip.chips.length == 0: HorizontalLayout {
+        alignment: start;
+        padding-top: 4px;
+        padding-bottom: 4px;
+        overlays-first-btn := Btn {
+            small: true;
+            text: @tr("+ Overlays");
+            tooltip: @tr("A logo in the corner, a clock or a short sign");
+            clicked => { OverlayStrip.manage(); }
+        }
+    }
+    if OverlayStrip.chips.length > 0: HorizontalLayout {
+        spacing: 6px;
+        Flickable {
+            horizontal-stretch: 1;
+            min-width: 0px;
+            content-width: max(self.width, chips.preferred-width);
+            content-height: self.height;
+            chips := HorizontalLayout {
+                spacing: 6px;
+                padding-top: 4px;
+                padding-bottom: 4px;
+                alignment: start;
+                for c[i] in OverlayStrip.chips: overlay-chip := OverlayChip {
+                    chip: c;
+                    clicked => { OverlayStrip.toggle(i); }
+                }
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            overlays-clear-btn := Btn {
+                small: true;
+                text: @tr("F6 Clear");
+                tooltip: @tr("Clear overlays (F6)");
+                clicked => { OverlayStrip.clear(); }
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            overlays-add-btn := Btn {
+                small: true;
+                icon: "plus";
+                tooltip: @tr("Overlays…");
+                clicked => { OverlayStrip.manage(); }
+            }
+        }
+    }
+}

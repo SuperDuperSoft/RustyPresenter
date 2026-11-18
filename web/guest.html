@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Join the livestream</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #111418; color: #eceef3; font: 17px/1.4 -apple-system, "Segoe UI", Roboto, system-ui, sans-serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 24px 18px 48px; }
+  h1 { font-size: 26px; margin: 0 0 8px; }
+  p { margin: 8px 0; color: #c8ccd6; }
+  textarea { width: 100%; box-sizing: border-box; min-height: 90px; background: #0b0d10; color: #eceef3; border: 1.5px solid #2a303b; border-radius: 9px; padding: 10px; font: 13px/1.3 ui-monospace, Consolas, monospace; word-break: break-all; }
+  button { font: inherit; font-weight: 700; border: 0; border-radius: 9px; padding: 11px 18px; background: #f5b94a; color: #1a1405; cursor: pointer; margin: 8px 8px 8px 0; }
+  button.plain { background: #232833; color: #eceef3; font-weight: 600; }
+  button:disabled { opacity: .5; cursor: default; }
+  video { width: 100%; max-height: 360px; background: #000; border-radius: 9px; margin-top: 12px; }
+  .step { border-top: 1px solid #2a303b; margin-top: 18px; padding-top: 12px; }
+  .hidden { display: none; }
+  #say { font-weight: 600; color: #eceef3; }
+  #say.bad { color: #ff8f93; }
+  #say.good { color: #3ccf91; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Join the livestream</h1>
+  <p>The church has invited you to speak on its livestream. You need a camera and a microphone (a laptop's own are fine), and a quiet room. Use Chrome, Edge or Firefox.</p>
+  <p id="insecure" class="hidden bad">This page cannot use your camera from here. Open the file the church sent you (double-click it), not a copy on a website.</p>
+
+  <div class="step" id="step1">
+    <p><b>1.</b> Paste the invitation code the church sent you:</p>
+    <textarea id="invite" placeholder="RP1-…" spellcheck="false"></textarea>
+    <button id="join">Turn on my camera and join</button>
+  </div>
+
+  <div class="step hidden" id="step2">
+    <p><b>2.</b> Send this reply code back to the church (by text message or email), then wait here:</p>
+    <textarea id="reply" readonly spellcheck="false"></textarea>
+    <button id="copy" class="plain">Copy the reply code</button>
+  </div>
+
+  <p id="say" aria-live="polite"></p>
+  <video id="me" autoplay muted playsinline class="hidden"></video>
+  <button id="leave" class="plain hidden">Leave</button>
+</main>
+<script>
+  // Turns an offer or answer into a short code to send by text or email, and back: compressed, then base64url.
+  async function pack(desc) {
+    const s = new Blob([JSON.stringify({ t: desc.type, s: desc.sdp })]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+    const buf = new Uint8Array(await new Response(s).arrayBuffer());
+    let b = ''; for (const x of buf) b += String.fromCharCode(x);
+    return 'RP1-' + btoa(b).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  async function unpack(code) {
+    code = code.trim().replace(/^.*#/, '').replace(/\s+/g, '');
+    if (!code.startsWith('RP1-')) throw new Error('That is not a code from RustyPresenter. Copy the whole code, starting with RP1-.');
+    let b64 = code.slice(4).replace(/-/g, '+').replace(/_/g, '/');
+    while (b64.length % 4) b64 += '=';
+    const u = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    const s = new Blob([u]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+    const j = JSON.parse(await new Response(s).text());
+    return { type: j.t, sdp: j.s };
+  }
+  // Waits for the network addresses to be found (a few seconds at most), so the code carries them all.
+  function gathered(pc) {
+    return new Promise(done => {
+      if (pc.iceGatheringState === 'complete') return done();
+      const t = setTimeout(done, 5000);
+      pc.addEventListener('icegatheringstatechange', () => { if (pc.iceGatheringState === 'complete') { clearTimeout(t); done(); } });
+    });
+  }
+  // Free public servers that only tell each computer its own internet address; the picture goes directly.
+  const ICE = [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun.cloudflare.com:3478'] }];
+  const $ = id => document.getElementById(id);
+  const say = (t, cls) => { $('say').textContent = t; $('say').className = cls || ''; };
+  const params = new URLSearchParams(location.search);
+  const fake = params.has('fake') && ['localhost', '127.0.0.1'].includes(location.hostname);
+  if (!window.isSecureContext || !navigator.mediaDevices) { $('insecure').classList.remove('hidden'); $('join').disabled = true; }
+  if (location.hash.length > 5) $('invite').value = location.hash.slice(1);
+  let pc = null, media = null, connectedOnce = false;
+
+  // A stand-in camera and microphone (tests on the church's own computer only).
+  function fakeMedia() {
+    const c = document.createElement('canvas'); c.width = 640; c.height = 360;
+    const g = c.getContext('2d'); let f = 0;
+    setInterval(() => { g.fillStyle = `hsl(${f++ % 360},70%,45%)`; g.fillRect(0, 0, 640, 360); g.fillStyle = '#fff'; g.font = '48px sans-serif'; g.fillText('Guest ' + f, 40, 200); }, 40);
+    const ac = new AudioContext(); const o = ac.createOscillator(); const d = ac.createMediaStreamDestination(); o.connect(d); o.start();
+    return new MediaStream([...c.captureStream(25).getVideoTracks(), ...d.stream.getAudioTracks()]);
+  }
+
+  $('join').onclick = async () => {
+    say('');
+    let offer;
+    try { offer = await unpack($('invite').value); } catch (e) { return say(e.message, 'bad'); }
+    $('join').disabled = true;
+    try {
+      media = fake ? fakeMedia() : await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+    } catch (e) {
+      $('join').disabled = false;
+      return say('The camera or microphone could not be used. Allow them when the browser asks, and close other programs that use the camera (Zoom, Teams). (' + e.name + ')', 'bad');
+    }
+    $('me').srcObject = media; $('me').classList.remove('hidden');
+    pc = new RTCPeerConnection({ iceServers: ICE });
+    for (const t of media.getTracks()) pc.addTrack(t, media);
+    pc.onconnectionstatechange = () => {
+      const s = pc.connectionState;
+      if (s === 'connected') { connectedOnce = true; say('You are connected. The church can see and hear you now; they will tell you when you are on the stream.', 'good'); }
+      else if (s === 'disconnected') say('The connection dropped for a moment. Trying again…', 'bad');
+      else if (s === 'failed') say(connectedOnce ? 'The connection was lost. Ask the church for a new invitation.' :
+        'A direct connection could not be made: your internet or the church\'s blocks it. Try another internet (a phone\'s hotspot often works), then ask the church for a new invitation.', 'bad');
+    };
+    try {
+      await pc.setRemoteDescription(offer);
+      await pc.setLocalDescription(await pc.createAnswer());
+      say('Getting the reply code ready…');
+      await gathered(pc);
+      $('reply').value = await pack(pc.localDescription);
+      $('step2').classList.remove('hidden'); $('leave').classList.remove('hidden');
+      say('Send the reply code to the church, then wait here.');
+      setTimeout(() => { if (pc && !connectedOnce && pc.connectionState !== 'connected') say('Still waiting for the church… Check they pasted your reply code. If it stays like this, your internet may block direct connections: try another one (a phone\'s hotspot).', 'bad'); }, 120000);
+    } catch (e) { say('This invitation could not be used: ' + e.message + '. Ask the church for a new one.', 'bad'); }
+  };
+  $('copy').onclick = async () => {
+    try { await navigator.clipboard.writeText($('reply').value); say('Copied. Paste it into a text message or email to the church.'); }
+    catch (e) { $('reply').select(); document.execCommand('copy'); }
+  };
+  $('leave').onclick = () => { if (pc) pc.close(); if (media) media.getTracks().forEach(t => t.stop()); say('You have left. Thank you!'); $('leave').classList.add('hidden'); $('me').classList.add('hidden'); };
+</script>
+</body>
+</html>

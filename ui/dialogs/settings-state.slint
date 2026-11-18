@@ -1,0 +1,519 @@
+// What the Settings dialog shows and edits (`operator.js:877-1007`), shared by its tab files and set from
+// `src/ui/dialogs/settings.rs`. The form fields are `in-out`: the Rust side reads them back on Save.
+import { BgChoice } from "background-picker.slint";
+import { SoundFilters } from "sound-filters.slint";
+
+/// A translation row of Settings → Bible: its status chip and the line under its name.
+/// A Bible that can be shown with the default one in every new passage: `on` when it is picked (at most two).
+export struct AlsoChip { label: string, on: bool }
+
+export struct SettingsBibleRow { translation: string, hint: string, chip: string, chip-state: string, imported: bool }
+
+/// A line of the Bible library list (Settings → Bible): a language heading when `heading` is set, else a Bible.
+/// `button` is "Add", "Update", "Remove", "Cancel" or empty; `progress` is 0–100 while downloading, else -1.
+/// `font-warning` is set when no font here can draw the title or the language's name.
+export struct SettingsCatalogRow {
+    heading: string, abbr: string, title: string, tag: string, status: string, button: string, progress: float,
+    enabled: bool, primary: bool, font-warning: string,
+}
+
+/// An online Bible service row of Settings → Bible.
+export struct SettingsProviderRow { label: string, for-text: string, key-set: bool, signup-url: string, note: string }
+
+/// A credit of Settings → Bible: the Bible's notice with its licence, and where to read the licence (may be empty).
+export struct SettingsCreditRow { text: string, url: string }
+
+/// A backup row: when it was made and what it holds.
+export struct SettingsBackupRow { label: string, counts: string }
+
+/// A row of Settings → Language: "Use the computer's language (…)" or a language by its own name; `sub` is its
+/// English name and how much is translated; `on` is the one chosen.
+export struct SettingsLanguageRow { title: string, sub: string, on: bool, font-warning: string }
+
+/// A row of the keyboard table in Help.
+/// A Help row: its keys, what they do, the shortcut's id (empty for a fixed key) and whether the church changed it.
+/// Settings → General → Screens and graphics → "Test which is fastest": one graphics choice's result (`video::bench::Row`).
+export struct GraphicsTestRow { name: string, bar: float, word: string, details: string, best: bool, works: bool }
+
+export struct SettingsHelpRow { keys: string, what: string, id: string, changed: bool }
+
+/// A line of the Settings sidebar: a category's name (`heading`), or one of its pages (`page`, `SettingsTab`'s place).
+export struct SettingsNavRow { title: string, page: int, heading: bool }
+
+/// A setting the search found: its name, where it is ("Livestream → Sound"), and its page and row.
+export struct SettingsFindRow { title: string, path: string, page: int, key: string }
+
+export global SettingsDlg {
+    /// The page shown, as `settings::tab_index` numbers them (the sidebar's pages, top to bottom).
+    in-out property <int> tab;
+
+    // ---- Auto-follow (1.3) ----
+    /// The sound inputs (the computer's usual one first) and the device each stands for.
+    in property <[string]> follow-device-labels;
+    in property <[string]> follow-device-names;
+    in-out property <int> follow-device-index;
+    /// Songs' usual mode: 0 Manual, 1 Suggest, 2 Auto.
+    in-out property <int> follow-mode;
+    /// The lead time in tenths of a second (5–40).
+    in-out property <int> follow-lead: 20;
+    in-out property <bool> follow-blank-on: false;
+    in-out property <string> follow-blank-secs: "15";
+    in-out property <bool> follow-talk-on: false;
+    in-out property <string> follow-talk-secs: "30";
+    in-out property <string> follow-jump: "4";
+    /// The input's level, 0–1, while Test listens.
+    in property <float> follow-level;
+    /// What Test found, or empty.
+    in property <string> follow-test-result;
+    callback follow-test();
+    /// Practice: the recording, the songs to pick from, and what the run found.
+    in property <string> practice-file;
+    in property <[string]> practice-songs;
+    in-out property <int> practice-song;
+    in property <bool> practice-running;
+    in property <string> practice-status;
+    in property <[string]> practice-lines;
+    callback practice-choose();
+    callback practice-run();
+    /// The speech model: 0 Fast, 1 Best; its size; downloaded or downloading (`model-busy`: any download runs).
+    in-out property <int> model-pick;
+    in property <string> model-size;
+    in property <bool> model-installed;
+    in property <bool> model-downloading;
+    in property <bool> model-busy;
+    in property <float> model-progress;
+    in property <string> model-status;
+    /// Test speed's answer, and while it runs.
+    in property <string> model-speed;
+    in property <bool> model-checking;
+    callback model-pick-changed(int);
+    callback model-download();
+    callback model-cancel();
+    callback model-remove();
+    callback model-speed-check();
+    /// Review log: one line per change auto-follow made or suggested this session.
+    in property <[string]> review-lines;
+    callback review-copy();
+
+    // ---- Language ----
+    in property <[SettingsLanguageRow]> languages;
+
+    // ---- Look ----
+    in property <[string]> fonts;
+    in-out property <int> font-index;
+    in-out property <int> size: 84;
+    in-out property <int> scripture-size: 64;
+    /// Verses per slide for new passages: 0 Automatic, else 1–4.
+    in-out property <int> bible-per-slide;
+    in-out property <string> color: "#ffffff";
+    /// The parsed `color`, for the swatch.
+    in property <color> color-swatch;
+    /// 0 Middle, 1 Lower third.
+    in-out property <int> position;
+    in-out property <bool> shadow;
+    in-out property <bool> uppercase;
+    /// N9: how long the room fades when only the theme changes, in tenths of a second (0 = cut).
+    in-out property <int> look-fade: 10;
+    /// C, B, 1–9… jump the live song (`Settings::section_keys`).
+    in-out property <bool> section-keys: true;
+    /// Songs: songs downloaded from SongSelect come in whenever the app is open.
+    in-out property <bool> songselect-inbox;
+    // ---- Video ----
+    /// Keep the audience screen on top while it has a monitor of its own (`Settings::room_on_top`).
+    in-out property <bool> room-on-top: true;
+    /// N33: the room and stage screens come back on at start (`Settings::screens_at_start`).
+    in-out property <bool> screens-at-start: true;
+    /// N33: the performance line under the live preview (`Settings::show_performance`).
+    in-out property <bool> show-performance;
+    /// Phone drawings (`Settings::keep_drawings`, `Settings::stage_drawings`).
+    in-out property <bool> keep-drawings: false;
+    in-out property <bool> stage-drawings: true;
+    in-out property <bool> drawing-limit: false;
+    in-out property <string> drawing-max-strokes: "100";
+    in-out property <string> drawing-max-per-second: "30";
+    in-out property <string> fade-secs: "3";
+    in property <bool> has-logo;
+    in property <image> logo;
+    in property <image> preview;
+    /// "“F” isn't installed on this computer…", or empty.
+    in property <string> font-note;
+    /// The Default background picker's tiles (`background::Picker`, no "Theme default").
+    in property <[BgChoice]> backgrounds;
+    /// The colour grid of Text color and the custom background colour.
+    in property <[color]> palette;
+
+    // ---- Media (N21, N24) ----
+    /// 0 Fit, 1 Fill, 2 Stretch (`media_prefs::SCALES`).
+    in-out property <int> media-scale;
+    /// An index of `media_prefs::PICTURE_SECS`.
+    in-out property <int> picture-secs;
+    /// An index of `media_prefs::ENDS`.
+    in-out property <int> video-end;
+    /// The headphones list: "None", then every sound output found.
+    in property <[string]> listen-labels;
+    in property <[string]> listen-names;
+    in-out property <int> listen-index;
+    /// The main output delay as typed, in milliseconds.
+    in-out property <string> delay-ms;
+    /// An index of `media_prefs::CHANNELS`.
+    in-out property <int> channels;
+    callback cleanup-media();
+    // ---- Media → Recording (N22) ----
+    /// 0 720p, 1 1080p (`record::Preset::ALL`).
+    in-out property <int> record-size;
+    /// The recordings folder as shown; "Choose folder…" changes it.
+    in-out property <string> record-folder;
+    /// The sound list: no sound, the app's sound, then each microphone or line-in found; `names` are the saved keys.
+    in property <[string]> record-sound-labels;
+    in property <[string]> record-sound-names;
+    in-out property <int> record-sound-index;
+    callback record-choose-folder();
+    // ---- Media → Livestream (step one: Go Live sends the recording to these) ----
+    /// The four destinations: YouTube, Facebook, Twitch, a custom server. On or off; whether this computer has
+    /// a stream key for it (keys are never shown and never in the settings: `stream::keys`).
+    in-out property <bool> stream-on-0;
+    in-out property <bool> stream-on-1;
+    in-out property <bool> stream-on-2;
+    in-out property <bool> stream-on-3;
+    // Each destination gets the tall picture (phones) instead of the wide one.
+    // The scene layout: the corner camera's corner (top left, top right, bottom left, bottom right) and size
+    // (small, medium, large); the words over the camera at the bottom (0) or the top (1).
+    // Advanced: the encoder (0: automatic, then `record::args::CHOOSABLE`) and the bitrate (0: automatic, then
+    // `record::BITRATES`).
+    in-out property <int> record-encoder;
+    in-out property <int> record-bitrate;
+    in-out property <int> stream-corner: 3;
+    in-out property <int> stream-corner-size: 1;
+    in-out property <int> stream-words-top;
+    in-out property <bool> stream-tall-0;
+    in-out property <bool> stream-tall-1;
+    in-out property <bool> stream-tall-2;
+    in-out property <bool> stream-tall-3;
+    in property <bool> stream-saved-0;
+    in property <bool> stream-saved-1;
+    in property <bool> stream-saved-2;
+    in property <bool> stream-saved-3;
+    /// The custom server's address.
+    in-out property <string> stream-url;
+    /// The sound output whose sound goes out with the stream: off, the app's own output, then each output.
+    in property <[string]> stream-sound-labels;
+    in property <[string]> stream-sound-names;
+    in-out property <int> stream-sound-index;
+    // What else this computer needs for its own sound in the stream (a Mac: a loopback device); empty: nothing.
+    in property <string> stream-sound-note;
+    /// The camera in the stream: none, then each camera found; and which fills the picture (0 camera, 1 screen).
+    in property <[string]> stream-camera-labels;
+    in property <[string]> stream-camera-names;
+    in-out property <int> stream-camera-index;
+    /// A second camera to switch to while live (the same list, its own pick).
+    in property <[string]> stream-camera2-labels;
+    in property <[string]> stream-camera2-names;
+    in-out property <int> stream-camera2-index;
+    // A camera on the network: its address, when the last choice ("Network camera") is chosen.
+    in-out property <string> stream-camera-address;
+    in-out property <string> stream-camera2-address;
+    // Each camera's PTZ control address (VISCA over IP); empty: none.
+    in-out property <string> stream-camera-control;
+    in-out property <string> stream-camera2-control;
+    /// A third and fourth camera, as the second.
+    in property <[string]> stream-camera3-labels;
+    in property <[string]> stream-camera3-names;
+    in-out property <int> stream-camera3-index;
+    in-out property <string> stream-camera3-address;
+    in-out property <string> stream-camera3-control;
+    in property <[string]> stream-camera4-labels;
+    in property <[string]> stream-camera4-names;
+    in-out property <int> stream-camera4-index;
+    in-out property <string> stream-camera4-address;
+    in-out property <string> stream-camera4-control;
+    /// 1.3b scenes: automatic on, presentations with the camera (1) or not (0), and the three cards' words and pictures.
+    in-out property <bool> stream-auto-scenes: true;
+    /// The upload speed test: running, and what it found.
+    in property <bool> stream-speed-testing;
+    in property <string> stream-speed-text;
+    callback stream-speed-test();
+    /// Livestream: the sound held back, in milliseconds (0 to 1000).
+    in-out property <int> stream-sound-delay;
+    in-out property <int> stream-delay;
+    in-out property <bool> stream-lighter: true;
+    // The stream's sound: each source turned up or down (dB), evened out, hum and hiss taken out.
+    in-out property <int> stream-board-level;
+    in-out property <int> stream-pc-level;
+    in-out property <bool> stream-even: true;
+    in-out property <bool> stream-quiet-noise;
+    in-out property <bool> stream-tracks;
+    in-out property <bool> stream-ndi;
+    in-out property <bool> stream-ndi-words;
+    in-out property <bool> stream-words-file;
+    // What shows in a camera's place while it sends nothing: 0 the audience screen, 1 the church's logo, 2 black.
+    in-out property <int> stream-camera-lost;
+    // How to make a phone a camera, with this computer's address for it.
+    in property <string> phone-camera-help;
+    // Whether the NDI runtime is on this computer (looked for as Settings opens).
+    in-out property <bool> ndi-ready: true;
+    in-out property <int> stream-presentation-camera;
+    in-out property <string> stream-card-words-0;
+    in-out property <string> stream-card-words-1;
+    in-out property <string> stream-card-words-2;
+    in-out property <string> stream-card-picture-0;
+    in-out property <string> stream-card-picture-1;
+    in-out property <string> stream-card-picture-2;
+    /// "Use a pictureâ€¦" on card `i` (0 Starting soon, 1 Ending, 2 Hold).
+    callback stream-card-choose(int);
+    /// Opens Your scenes (the church's own livestream scenes) in the operator window.
+    callback edit-own-scenes();
+    /// How many scenes the church has made.
+    in property <int> stream-own-count;
+    /// A key was typed for destination 0–3: it is kept at once (empty forgets it).
+    callback stream-key-edited(int, string);
+    /// Signing in instead of a key (YouTube 0, Facebook 1): whether this copy of the app can, the account signed
+    /// in to (empty: none), and what signing in is doing now.
+    in property <bool> stream-can-sign-in-0;
+    in property <bool> stream-can-sign-in-1;
+    in property <bool> stream-can-sign-in-2;
+    in property <string> stream-account-0;
+    in property <string> stream-account-1;
+    in property <string> stream-account-2;
+    in property <bool> stream-signing-in;
+    in property <string> stream-sign-in-text;
+    callback stream-sign-in(int);
+    callback stream-sign-out(int);
+    /// Signed in: what each broadcast is called, its description, and who can watch on YouTube (0 everyone,
+    /// 1 only people with the link).
+    in-out property <string> stream-title;
+    in-out property <string> stream-description;
+    in-out property <string> stream-thumbnail;
+    // Signed in to YouTube: the broadcast made ahead for the next service, and its link to share.
+    in-out property <string> stream-scheduled-id;
+    in-out property <string> stream-scheduled-link;
+    callback stream-schedule();
+    callback stream-copy-link();
+    in-out property <int> stream-privacy;
+    // ---- Media → Livestream: the sound (`src/ui/dialogs/settings_sound.rs`, `settings-sound.slint`) ----
+    /// "Sound setup": its choices (`stream::sound_setup::Mode`), the one chosen, and what it said when it found no
+    /// input that looks right (empty: nothing).
+    in property <[string]> stream-sound-mode-labels;
+    in-out property <int> stream-sound-mode;
+    in property <string> stream-sound-mode-note;
+    callback stream-sound-mode-chosen(int);
+    /// The second and third microphone or line-in: none, each input, the phone; and each one's level (dB).
+    in property <[string]> stream-input-labels;
+    in property <[string]> stream-input-names;
+    in-out property <int> stream-input2-index;
+    in-out property <int> stream-input3-index;
+    in-out property <int> stream-input2-level;
+    in-out property <int> stream-input3-level;
+    /// The phone's name among the inputs, and the addresses of its page (plain and secure).
+    in property <string> stream-phone-name;
+    in property <string> stream-phone-address;
+    in property <string> stream-phone-secure-address;
+    /// "More sound settings" open, and each sound's filters.
+    in-out property <bool> stream-sound-more;
+    in-out property <SoundFilters> stream-board-filters;
+    in-out property <SoundFilters> stream-input2-filters;
+    in-out property <SoundFilters> stream-input3-filters;
+    in-out property <SoundFilters> stream-pc-filters;
+    /// "Listen to the stream": off, the usual output, then each output.
+    in property <[string]> stream-listen-labels;
+    in property <[string]> stream-listen-names;
+    in-out property <int> stream-listen-index;
+
+    // ---- Songs ----
+    /// Lines per slide minus one (0–5).
+    in-out property <int> lines;
+    /// Credits shown at all; where: 0 first and last slide, 1 first slide, 2 last slide (N36).
+    in-out property <bool> credits-on: true;
+    in-out property <int> credits;
+    /// The copyright line's template (empty = the usual one, shown as its placeholder) and an example of it.
+    in-out property <string> credit-template;
+    in property <string> credit-usual;
+    in property <string> credit-sample;
+    in-out property <string> ccli;
+
+    // ---- Bible ----
+    in property <[SettingsBibleRow]> bible-sources;
+    in property <[SettingsProviderRow]> bible-providers;
+    in property <[SettingsCreditRow]> bible-credits;
+    /// The Bibles that can be used now (`available`), as "KJV — King James Version", and the one in use.
+    in property <[string]> default-bibles;
+    in-out property <int> default-bible;
+    /// Bibles shown with the default one in every new passage (Nov 5 spec §3).
+    in property <[AlsoChip]> also-chips;
+    /// 0 side by side, 1 top and bottom.
+    in-out property <int> also-layout;
+    in-out property <string> bible-short;
+    /// The library list: what matches the search, filter and language, with headings.
+    in property <[SettingsCatalogRow]> catalog-rows;
+    in-out property <string> catalog-search;
+    /// 0 Installed, 1 All.
+    in-out property <int> catalog-filter: 1;
+    /// "All languages", then each language in the list.
+    in property <[string]> catalog-languages: [@tr("All languages")];
+    in-out property <int> catalog-language;
+    /// "Loading the list of Bibles…", "You're offline…", "Showing 200 of 950…", or empty.
+    in property <string> catalog-note;
+    in property <bool> catalog-loading;
+
+    // ---- Video ----
+    in property <string> video-player;
+    in property <string> video-drawing;
+    /// Where sound goes: what the list shows, the device each line means, and the chosen line.
+    in property <[string]> audio-labels;
+    /// The stage screen's layout (FEAT-3): every layout's name and id, and the chosen one.
+    in property <[string]> stage-layout-names;
+    in property <[string]> stage-layout-ids;
+    in-out property <int> stage-layout;
+    in property <[string]> audio-names;
+    in-out property <int> audio-index;
+    /// Graphics (`video::graphics`): the choices this build has, the saved one, and "In use now: …".
+    in property <[string]> graphics-labels;
+    in-out property <int> graphics-index;
+    in property <string> graphics-now;
+    /// The graphics test (`video::bench`): running, what it is doing or found, each choice's result and the one
+    /// picked for "Use this".
+    in property <bool> graphics-testing;
+    in property <string> graphics-test-status;
+    in property <[GraphicsTestRow]> graphics-test-rows;
+    in-out property <int> graphics-test-pick;
+    /// A graphics change was saved: "Restart now" shows (`recovery::restart`).
+    in property <bool> graphics-restart;
+
+    // ---- Backups ----
+    in property <string> backups-folder;
+    in property <[SettingsBackupRow]> backups;
+
+    // ---- Help ----
+    in property <[SettingsHelpRow]> help;
+
+    // ---- About (Task 21) ----
+    in property <string> about-version;
+    in property <string> about-data-folder;
+    in property <string> about-video;
+    in property <string> about-mpv;
+    in property <string> about-ffmpeg;
+    in property <string> about-pdfium;
+    in property <string> about-libreoffice;
+    in property <string> about-powerpoint;
+    in property <string> about-licence;
+    in property <bool> licences-open;
+    in property <string> licences;
+
+    callback tab-changed(int);
+    /// Settings → Language: a row's Use button (applied at once), and the translators' guide link.
+    callback choose-language(int);
+    callback help-translate();
+    /// The translation editor for the language in use, or on "Add a language".
+    callback edit-translation();
+    callback add-language();
+    /// Settings → General → Screens and graphics → Graphics: saved at once (`settings/graphics`), used from the next start.
+    callback graphics-changed(int);
+    /// "Test which is fastest", and "Use this" with the picked row.
+    callback graphics-test();
+    callback graphics-test-use(int);
+    /// "Restart now": quits and starts again, so a setting used from the next start applies.
+    callback restart-now();
+    /// Any Look edit: the preview is drawn again 150 ms later.
+    callback look-changed();
+    callback choose-logo();
+    callback remove-logo();
+    /// Text color: a grid colour, or what was typed into its hex field.
+    callback text-color(color);
+    callback text-hex(string);
+    callback pick-background(int);
+    callback background-color(color);
+    callback background-hex(string);
+    callback upload-background();
+    callback save-key(int, string);
+    callback copy-link(int);
+    callback import-bible();
+    callback remove-import(int);
+    /// The library list: a new search, filter or language, and a row's button.
+    callback catalog-changed();
+    callback catalog-button(int);
+    /// Default Bible: applied at once (`settings/translation`), like the Bible box's chips; Cancel keeps it.
+    callback default-bible-changed(int);
+    callback toggle-also(int);
+    callback also-layout-changed(int);
+    callback backup-now();
+    callback restore(int);
+    callback show-licences(bool);
+    callback cancel();
+    callback save();
+    /// The copyright line was typed into: the example follows.
+    callback credit-template-edited();
+    /// Settings → Songs' "Song use report…" (FEAT-7 §3.3).
+    callback usage-report();
+    callback open-songselect();
+    /// Media → Livestream → Live captions (`stream::captions`): on, on the picture, in a file, YouTube's captions
+    /// address, and what they listen to (0: the stream's own sound input, then each input). `captions-model` says
+    /// whether the English speech model is downloaded.
+    in-out property <bool> captions-on;
+    in-out property <bool> captions-picture: true;
+    in-out property <bool> captions-file: true;
+    in-out property <string> captions-youtube;
+    in property <[string]> captions-inputs;
+    in-out property <int> captions-input;
+    in property <bool> captions-model;
+    /// Media → Livestream → On your website (`stream::website`): the channel and Page, and what went wrong.
+    in-out property <string> website-youtube;
+    in-out property <string> website-facebook;
+    in property <string> website-note;
+    callback website-fill();
+    callback website-copy(int);
+    /// The first-time Go Live helper, from Settings.
+    callback go-live-helper();
+    /// Media → Livestream → Remote guest (`network::guest`): the invitation page in this computer's browser, and the
+    /// guest put in the first free camera row.
+    callback guest-invite();
+    callback guest-camera();
+    in property <string> guest-note;
+    // ---- Media → Livestream: Instagram (4), X (5) and TikTok (6), after the first four ----
+    in-out property <bool> stream-on-4;
+    in-out property <bool> stream-on-5;
+    in-out property <bool> stream-on-6;
+    in-out property <bool> stream-tall-4;
+    in-out property <bool> stream-tall-5;
+    in-out property <bool> stream-tall-6;
+    in property <bool> stream-saved-4;
+    in property <bool> stream-saved-5;
+    in property <bool> stream-saved-6;
+    /// The server address each shows beside its key (TikTok's is needed; the others have a usual one).
+    in-out property <string> stream-url-4;
+    in-out property <string> stream-url-5;
+    in-out property <string> stream-url-6;
+
+    // ---- The Settings window (November 17, 2026): sidebar, search, advanced rows ----
+    /// The sidebar: categories and their pages; the page's own title ("Livestream → Sound").
+    in property <[SettingsNavRow]> nav;
+    in property <string> page-title;
+    /// "Find a setting": what is typed, and what it found.
+    in-out property <string> find-text;
+    in property <[SettingsFindRow]> find-rows;
+    callback find-edited(string);
+    callback find-pick(int);
+    /// The row found or linked to, lit for a moment; where it is on the window, so its page scrolls to it.
+    in property <string> highlight;
+    in-out property <length> reveal-y;
+    in-out property <int> reveal-serial;
+    /// Show advanced settings (remembered on this computer).
+    in-out property <bool> advanced;
+    callback advanced-changed(bool);
+    /// A page in the sidebar; a link to a row (`page`, `key`) on another page.
+    callback nav-pick(int);
+    callback go(int, string);
+    /// How wide the page is, so wide pages put their two columns one above the other when it is narrow.
+    in-out property <length> content-width: 800px;
+    /// Livestream → Picture: the sizes listed (the named ones, then a typed one in use), a typed size, and what
+    /// Settings says about the size chosen and the destinations that take less.
+    in property <[string]> record-size-labels: ["480p", "720p", "1080p", "1440p", "4K"];
+    in-out property <string> record-width;
+    in-out property <string> record-height;
+    callback record-custom-size();
+    callback record-size-changed();
+    in property <string> size-warning;
+    in property <string> cap-notes;
+    /// Buttons that open other windows: pair a phone or tablet, Screens, Stage layouts.
+    callback pair-remote();
+    callback open-screens();
+    callback open-stage-layouts();
+}

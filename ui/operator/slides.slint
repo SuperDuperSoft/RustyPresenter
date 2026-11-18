@@ -1,0 +1,986 @@
+// The slides column (`web/operator.html:33-38`, `operator.css:80-106`, `operator.js:156-210`): the selected item's
+// header, its slides as 16:9 thumbnails in rows, and the empty states. The rows are built in Rust (`slides.rs`).
+import { Theme } from "../theme.slint";
+import { Icon, Btn, ScrollBox, TipArea, Segmented } from "../widgets.slint";
+import { RangeSlider } from "../dialogs/form.slint";
+import { FollowUi } from "follow.slint";
+import { PanelExtras } from "extras.slint";
+import { SlideActs, ActionPalette } from "action-palette.slint";
+import { SongKeyControl } from "../song-key.slint";
+
+/// One thumbnail. `image` is empty until it is drawn (the cell shows black); `play` marks video and audio.
+/// `section` is the slide's section kind ("verse", "chorus", "pre_chorus"…, see `SectionKind::id`) or "" (no colour).
+/// `tag` is the slide's label ("Instrumental", N19) or "", shown on the picture in `tag-color`.
+/// `text` is what the slide says (or what kind of file it shows), for the Easy and Table views (N37).
+/// `actions`: how many things the slide does when it goes live (N15), and `actions-tip` lists them.
+export struct SlideCell { idx: int, label: string, image: image, live: bool, play: bool, section: string, tag: string, tag-color: color, text: string, actions: int, actions-tip: string }
+/// A section bar chip, one per section as the song plays: `short` is "V1", "C"... `live`: the live slide is in it.
+export struct SlideJump { idx: int, short: string, section: string, live: bool, tooltip: string }
+/// One row of the grid (`columns()` cells; the last may have fewer).
+export struct SlideRowCells { cells: [SlideCell] }
+
+/// `.welcome` (`operator.js:201-210`, `operator.css:231-235`): shown in the slides column when the service is empty.
+component Welcome inherits VerticalLayout {
+    callback add();
+    callback screens();
+    padding-left: 16px;
+    padding-right: 16px;
+    alignment: start;
+    HorizontalLayout {
+        alignment: center;
+        VerticalLayout {
+            max-width: 520px;
+            spacing: 8px;
+            Text {
+                text: @tr("Let’s build this Sunday’s service");
+                color: Theme.text;
+                font-family: Theme.display;
+                font-size: 26px;
+                font-weight: 600;
+                horizontal-alignment: center;
+                wrap: word-wrap;
+            }
+            Text {
+                text: @tr("Everything you add shows up on the left. Click a slide to put it on the screen.");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: Theme.base-size;
+                horizontal-alignment: center;
+                wrap: word-wrap;
+            }
+            HorizontalLayout {
+                alignment: center;
+                padding-top: 16px;
+                VerticalLayout {
+                    spacing: 10px;
+                    for step[i] in [
+                        @tr("Click “Screens” and choose the projector or TV."),
+                        @tr("Click “Add to service” for songs, videos and slides — or drag files in."),
+                        @tr("Type a verse like “John 3:16” in the Bible box and press Enter."),
+                        @tr("Use the big Next button (or the → key) during the service."),
+                    ]: HorizontalLayout {
+                        spacing: 12px;
+                        VerticalLayout {
+                            alignment: center;
+                            Rectangle {
+                                width: 26px;
+                                height: 26px;
+                                border-radius: 13px;
+                                background: Theme.raise;
+                                Text {
+                                    text: i + 1;
+                                    color: Theme.accent;
+                                    font-family: Theme.font;
+                                    font-size: Theme.base-size;
+                                    font-weight: 700;
+                                    horizontal-alignment: center;
+                                    vertical-alignment: center;
+                                }
+                            }
+                        }
+                        Text {
+                            text: step;
+                            color: Theme.muted;
+                            font-family: Theme.font;
+                            font-size: Theme.base-size;
+                            vertical-alignment: center;
+                            wrap: word-wrap;
+                        }
+                    }
+                    // N7: the first two steps as buttons.
+                    HorizontalLayout {
+                        alignment: center;
+                        spacing: 10px;
+                        padding-top: 6px;
+                        welcome-screens := Btn {
+                            icon: "monitor";
+                            text: @tr("Screens");
+                            clicked => { root.screens(); }
+                        }
+                        welcome-add := Btn {
+                            primary: true;
+                            icon: "plus";
+                            text: @tr("Add to service");
+                            clicked => { root.add(); }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// `.thumb`: a 16:9 screen with an outline, the LIVE badge and the play overlay, and a caption under it.
+component Thumb inherits Rectangle {
+    in property <SlideCell> cell;
+    callback clicked();
+
+    /// The caption row: 6 px padding over one 12.5 px line.
+    out property <length> caption-h: 23px;
+    /// 1.3 Suggest: auto-follow thinks this slide is next.
+    property <bool> glow: !root.cell.live && root.cell.idx == FollowUi.suggested;
+    property <length> outline: root.cell.live || root.glow ? 3px : 2px;
+
+    height: root.width * 9 / 16 + root.caption-h;
+    accessible-role: button;
+    accessible-label: root.cell.label;
+    accessible-item-index: root.cell.idx;
+    accessible-item-selected: root.cell.live;
+    accessible-action-default => { root.clicked(); }
+
+    // CSS `outline` (offset 0) sits outside the screen's edge; a Slint border is drawn inside, so it is a ring
+    // around the screen.
+    Rectangle {
+        x: -root.outline;
+        y: -root.outline;
+        width: root.width + 2 * root.outline;
+        height: screen.height + 2 * root.outline;
+        border-radius: 9px + root.outline;
+        border-width: root.outline;
+        border-color: root.cell.live ? Theme.live : root.glow ? Theme.ok : ta.has-hover ? Theme.thumb-hover : Theme.line;
+        drop-shadow-blur: root.glow ? 14px : 0px;
+        drop-shadow-color: Theme.ok;
+    }
+
+    screen := Rectangle {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.width * 9 / 16;
+        border-radius: 9px;
+        clip: true;
+        background: Theme.black;
+        Image {
+            width: parent.width;
+            height: parent.height;
+            source: root.cell.image;
+            image-fit: fill;
+        }
+        // `.thumb .play`: a 54 px dimmed circle with a filled 24 px play glyph.
+        if root.cell.play: Rectangle {
+            width: 54px;
+            height: 54px;
+            border-radius: 27px;
+            background: Theme.play-bg;
+            Icon {
+                width: 24px;
+                height: 24px;
+                name: "play";
+                color: Theme.white;
+            }
+        }
+        // N19: the slide's label, top right.
+        if root.cell.tag != "": tag := Rectangle {
+            x: parent.width - self.width - 8px;
+            y: 8px;
+            width: self.preferred-width;
+            height: self.preferred-height;
+            border-radius: 5px;
+            background: root.cell.tag-color;
+            accessible-role: text;
+            accessible-label: root.cell.tag;
+            HorizontalLayout {
+                padding-top: 3px;
+                padding-bottom: 3px;
+                padding-left: 6px;
+                padding-right: 6px;
+                Text {
+                    text: root.cell.tag;
+                    color: Theme.sec-ink;
+                    font-family: Theme.font;
+                    font-size: 10.5px;
+                    font-weight: 700;
+                    overflow: elide;
+                    max-width: root.width * 0.6;
+                }
+            }
+        }
+        if root.cell.live: badge := Rectangle {
+            x: 8px;
+            y: 8px;
+            width: self.preferred-width;
+            height: self.preferred-height;
+            border-radius: 5px;
+            background: Theme.live;
+            HorizontalLayout {
+                padding-top: 3px;
+                padding-bottom: 3px;
+                padding-left: 6px;
+                padding-right: 6px;
+                Text {
+                    text: @tr("LIVE");
+                    color: Theme.white;
+                    font-family: Theme.font;
+                    font-size: 10px;
+                    font-weight: 800;
+                    letter-spacing: 1px;
+                }
+            }
+        }
+    }
+
+    // The caption: the slide number and its label, on the section's colour for a song. Red and bold while live.
+    Rectangle {
+        y: screen.height + 3px;
+        height: root.caption-h - 3px;
+        border-radius: 5px;
+        background: Theme.section-color(root.cell.section);
+        HorizontalLayout {
+            padding-left: root.cell.section != "" ? 6px : 2px;
+            padding-right: 4px;
+            spacing: 6px;
+            Text {
+                text: root.cell.idx + 1;
+                color: root.cell.section != "" ? Theme.sec-ink : Theme.muted;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                font-weight: root.cell.live ? 700 : 400;
+                vertical-alignment: center;
+            }
+            Text {
+                horizontal-stretch: 1;
+                text: root.cell.label;
+                color: root.cell.section != "" ? Theme.sec-ink : root.cell.live ? Theme.live : Theme.muted;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                font-weight: root.cell.live || root.cell.section != "" ? 700 : 400;
+                vertical-alignment: center;
+                overflow: elide;
+            }
+        }
+    }
+
+    // N15: a palette tile dropped here goes on this slide.
+    if drop.has-drag: Rectangle {
+        width: root.width;
+        height: screen.height;
+        border-radius: 9px;
+        border-width: 3px;
+        border-color: Theme.accent;
+        background: Theme.accent.with-alpha(0.15);
+    }
+    drop := DropArea {
+        can-drop(e) => { return SlideActs.can-drop(e.data) ? DragAction.copy : DragAction.none; }
+        dropped(e) => {
+            SlideActs.dropped(root.cell.idx, e.data);
+            return e.proposed-action;
+        }
+    }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    // N15: what the slide does when it goes live. A click opens the action palette on it.
+    if root.cell.actions > 0: actions-badge := Rectangle {
+        x: 8px;
+        y: screen.height - self.height - 8px;
+        width: self.preferred-width;
+        height: 22px;
+        border-radius: 11px;
+        background: Theme.accent;
+        accessible-role: button;
+        accessible-label: root.cell.actions-tip;
+        accessible-action-default => { SlideActs.badge(root.cell.idx); }
+        HorizontalLayout {
+            padding-left: 6px;
+            padding-right: 8px;
+            spacing: 2px;
+            VerticalLayout { alignment: center; Icon { width: 14px; height: 14px; name: "bolt"; color: Theme.accent-ink; } }
+            Text {
+                text: root.cell.actions;
+                color: Theme.accent-ink;
+                font-family: Theme.font;
+                font-size: 11.5px;
+                font-weight: 800;
+                vertical-alignment: center;
+            }
+        }
+        badge-ta := TouchArea {
+            mouse-cursor: pointer;
+            clicked => { SlideActs.badge(root.cell.idx); }
+        }
+        TipArea { text: root.cell.actions-tip; hover: badge-ta.has-hover; pressed: badge-ta.pressed; pointer-x: badge-ta.mouse-x; }
+    }
+}
+
+/// N37 Easy view: one slide per row, its words in big type, for a small laptop screen.
+component EasyRow inherits Rectangle {
+    in property <SlideCell> cell;
+    callback clicked();
+    height: 112px;
+    border-radius: 9px;
+    background: Theme.panel-2;
+    property <bool> glow: !root.cell.live && root.cell.idx == FollowUi.suggested;
+    border-width: root.cell.live || root.glow ? 3px : 1.5px;
+    border-color: root.cell.live ? Theme.live : root.glow ? Theme.ok : ta.has-hover ? Theme.thumb-hover : Theme.line;
+    accessible-role: button;
+    accessible-label: root.cell.label;
+    accessible-description: root.cell.text;
+    accessible-item-index: root.cell.idx;
+    accessible-item-selected: root.cell.live;
+    accessible-action-default => { root.clicked(); }
+    HorizontalLayout {
+        padding: 10px;
+        padding-left: 12px;
+        spacing: 14px;
+        VerticalLayout {
+            width: 78px;
+            alignment: center;
+            spacing: 4px;
+            Rectangle {
+                height: 26px;
+                border-radius: 6px;
+                background: root.cell.section != "" ? Theme.section-color(root.cell.section) : Theme.raise;
+                Text {
+                    text: root.cell.idx + 1;
+                    color: root.cell.section != "" ? Theme.sec-ink : Theme.text;
+                    font-family: Theme.font;
+                    font-size: 14px;
+                    font-weight: 700;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+            Text {
+                text: root.cell.live ? @tr("LIVE") : root.cell.label;
+                color: root.cell.live ? Theme.live : Theme.muted;
+                font-family: Theme.font;
+                font-size: 12px;
+                font-weight: root.cell.live ? 800 : 400;
+                horizontal-alignment: center;
+                overflow: elide;
+            }
+        }
+        easy-text := Text {
+            horizontal-stretch: 1;
+            text: root.cell.text;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: 22px;
+            font-weight: 600;
+            vertical-alignment: center;
+            wrap: word-wrap;
+            overflow: elide;
+        }
+    }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+/// N37 Table view: number, a small picture, the part and the words, one slide per line.
+component TableRow inherits Rectangle {
+    in property <SlideCell> cell;
+    callback clicked();
+    height: 64px;
+    border-radius: 7px;
+    property <bool> glow: !root.cell.live && root.cell.idx == FollowUi.suggested;
+    background: root.cell.live ? Theme.live.with-alpha(0.16) : root.glow ? Theme.ok.with-alpha(0.14) : ta.has-hover ? Theme.panel-2 : transparent;
+    border-width: root.cell.live || root.glow ? 1.5px : 0px;
+    border-color: root.glow ? Theme.ok : Theme.live;
+    accessible-role: button;
+    accessible-label: root.cell.label;
+    accessible-description: root.cell.text;
+    accessible-item-index: root.cell.idx;
+    accessible-item-selected: root.cell.live;
+    accessible-action-default => { root.clicked(); }
+    HorizontalLayout {
+        padding: 5px;
+        padding-right: 10px;
+        spacing: 12px;
+        Text {
+            width: 28px;
+            text: root.cell.idx + 1;
+            color: root.cell.live ? Theme.live : Theme.muted;
+            font-family: Theme.font;
+            font-size: 13px;
+            font-weight: root.cell.live ? 700 : 400;
+            horizontal-alignment: right;
+            vertical-alignment: center;
+        }
+        Rectangle {
+            width: 96px;
+            height: 54px;
+            border-radius: 5px;
+            clip: true;
+            background: Theme.black;
+            Image {
+                width: parent.width;
+                height: parent.height;
+                source: root.cell.image;
+                image-fit: fill;
+            }
+        }
+        VerticalLayout {
+            width: 120px;
+            alignment: center;
+            Rectangle {
+                height: 22px;
+                border-radius: 5px;
+                background: Theme.section-color(root.cell.section);
+                HorizontalLayout {
+                    padding-left: root.cell.section != "" ? 6px : 0px;
+                    padding-right: 4px;
+                    Text {
+                        text: root.cell.label;
+                        color: root.cell.section != "" ? Theme.sec-ink : Theme.muted;
+                        font-family: Theme.font;
+                        font-size: 12.5px;
+                        font-weight: root.cell.section != "" ? 700 : 400;
+                        vertical-alignment: center;
+                        overflow: elide;
+                    }
+                }
+            }
+        }
+        table-text := Text {
+            horizontal-stretch: 1;
+            text: root.cell.text;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: 13.5px;
+            vertical-alignment: center;
+            wrap: word-wrap;
+            overflow: elide;
+        }
+    }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+/// `.empty` in the grid: an optional bold line over muted text, 8vh down (`.grid .empty`).
+component Empty inherits VerticalLayout {
+    in property <string> title;
+    in property <string> text;
+    padding-top: 28px;
+    padding-bottom: 28px;
+    padding-left: 18px + 16px;
+    padding-right: 18px + 16px;
+    spacing: 4px;
+    alignment: start;
+    if root.title != "": empty-title := Text {
+        text: root.title;
+        color: Theme.text;
+        font-family: Theme.font;
+        font-size: 15px;
+        font-weight: 700;
+        horizontal-alignment: center;
+        wrap: word-wrap;
+    }
+    empty-text := Text {
+        text: root.text;
+        color: Theme.muted;
+        font-family: Theme.font;
+        font-size: Theme.base-size;
+        horizontal-alignment: center;
+        wrap: word-wrap;
+    }
+}
+
+export component SlidesPanel inherits VerticalLayout {
+    /// The selected item's title, "Pick an item on the left" or "Welcome" (set from Rust).
+    in property <string> title: @tr("Nothing selected");
+    /// The selected item's icon name, or "" with nothing selected.
+    in property <string> kind;
+    in property <bool> has-selection;
+    in property <int> slide-count;
+    in property <[SlideRowCells]> rows;
+    /// A song's sections, to jump straight to one.
+    in property <[SlideJump]> jumps;
+    /// Cells per row, from `slides::columns(grid-width)`.
+    in property <int> columns: 1;
+    /// The first state read has arrived; until then the grid is empty with no Welcome.
+    in property <bool> loaded;
+    in property <int> item-count;
+    /// The window's height, for the `vh` margins of the empty states.
+    in property <length> window-height;
+    out property <length> grid-width: grid.width;
+
+    /// A Bible passage is selected: its text size ("Auto" or pixels) and the A− / A+ / Auto buttons.
+    in property <bool> text-size-shown;
+    in property <string> text-size;
+    in property <bool> text-size-custom;
+    /// The selected item is a song: the size is the song's own, and the lines-per-slide buttons show.
+    in property <bool> song-fit;
+    /// The song's lines on each slide, as a number.
+    in property <string> lines;
+    /// The song has its own number of lines or its own size (not Settings').
+    in property <bool> lines-custom;
+    /// What the operator should know about the selected item's slides (a verse a Bible lacks), under the grid.
+    in property <string> note;
+    /// The selected song plays in this service's own order (FEAT-4).
+    in property <bool> custom-order;
+    /// N37: 0 the grid of pictures, 1 Easy (big words), 2 Table. Set from Rust.
+    in-out property <int> view;
+    /// N8: how wide a picture in the grid may get at the least, in pixels (the size slider).
+    in-out property <int> thumb-size: 230;
+
+    callback show(int);
+    /// A section bar chip, by its index in `jumps`.
+    callback pick-section(int);
+    callback edit();
+    callback text-smaller();
+    callback text-larger();
+    callback text-auto();
+    callback lines-fewer();
+    callback lines-more();
+    callback lines-auto();
+    /// The grid's width changed (Rust works out the columns and the thumbnail size).
+    callback grid-resized(length);
+    /// The view and size controls under the slides (N37, N8).
+    callback view-picked(int);
+    callback thumb-size-changed(int);
+    /// The Welcome panel's buttons (N7).
+    callback welcome-add();
+    callback welcome-screens();
+
+    /// `.grid`: 16 px side padding and 14 px gaps; cells share the width like `repeat(auto-fill, minmax(230px, 1fr))`.
+    property <length> cell-w: max(1px, (grid.width - 32px - 14px * (root.columns - 1)) / max(1, root.columns));
+    /// A row's height and the gap under it, as each view draws them.
+    property <length> row-h: root.view == 1 ? 112px : root.view == 2 ? 64px : root.cell-w * 9 / 16 + 23px;
+    property <length> row-gap: root.view == 1 ? 8px : root.view == 2 ? 2px : 14px;
+
+    init => { root.grid-resized(root.grid-width); }
+    changed grid-width => { root.grid-resized(root.grid-width); }
+
+    /// Scrolls the grid so row `row` is in view, moving as little as possible (`scrollIntoView({block: 'nearest'})`).
+    public function scroll-to-row(row: int) {
+        // The live outline (3 px) is part of what must show.
+        let top = 4px + row * (root.row-h + root.row-gap) - 3px;
+        let bottom = top + root.row-h + 6px;
+        if top < -grid.content-y {
+            grid.content-y = -top;
+        } else if bottom > -grid.content-y + grid.height {
+            grid.content-y = min(0px, -(bottom - grid.height));
+        }
+    }
+
+    /// Back to the top (another item was selected).
+    public function scroll-to-top() {
+        grid.content-y = 0;
+    }
+
+    // `.panel-head` with `.item-title` (icon in accent, 19 px display title) and `.head-actions`.
+    HorizontalLayout {
+        padding-top: 14px;
+        padding-bottom: 10px;
+        padding-left: 16px;
+        padding-right: 16px;
+        spacing: 10px;
+        HorizontalLayout {
+            horizontal-stretch: 1;
+            min-width: 0px;
+            spacing: 10px;
+            if root.kind != "": VerticalLayout {
+                alignment: center;
+                Icon {
+                    name: root.kind;
+                    color: Theme.accent;
+                }
+            }
+            slides-title := Text {
+                horizontal-stretch: 1;
+                text: root.title;
+                color: Theme.text;
+                font-family: Theme.display;
+                font-size: 19px;
+                font-weight: 600;
+                vertical-alignment: center;
+                overflow: elide;
+            }
+            if root.custom-order: custom-order := Text {
+                text: @tr("Custom order for this service");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                vertical-alignment: center;
+                overflow: elide;
+            }
+        }
+        // The passage's text size: smaller, bigger, or back to Settings' size. (A song's is on the tools row.)
+        if root.text-size-shown && !root.song-fit: HorizontalLayout {
+            spacing: 4px;
+            text-smaller := Btn {
+                small: true;
+                text: @tr("A−");
+                tooltip: @tr("Smaller text for this passage");
+                clicked => { root.text-smaller(); }
+            }
+            VerticalLayout {
+                alignment: center;
+                text-size := Text {
+                    min-width: 34px;
+                    text: root.text-size;
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    font-weight: 600;
+                    horizontal-alignment: center;
+                    accessible-role: text;
+                    accessible-label: @tr("Text size");
+                    accessible-value: self.text;
+                }
+            }
+            text-larger := Btn {
+                small: true;
+                text: @tr("A+");
+                tooltip: @tr("Bigger text for this passage");
+                clicked => { root.text-larger(); }
+            }
+            if root.text-size-custom: text-auto := Btn {
+                small: true;
+                text: @tr("Auto");
+                tooltip: @tr("Back to the size in Settings");
+                clicked => { root.text-auto(); }
+            }
+        }
+        // A song's sections as it plays: click one to show it (on the live song, it jumps there like Next would).
+        if root.jumps.length > 0: HorizontalLayout {
+            spacing: 4px;
+            for j[i] in root.jumps: Rectangle {
+                min-width: 32px;
+                height: 30px;
+                border-radius: 7px;
+                background: Theme.section-color(j.section);
+                border-width: j.live ? 2px : 0px;
+                border-color: Theme.live;
+                opacity: ja.has-hover ? 0.85 : 1;
+                accessible-role: button;
+                accessible-label: j.short;
+                accessible-description: j.tooltip;
+                accessible-action-default => { root.pick-section(i); }
+                HorizontalLayout {
+                    padding-left: 7px;
+                    padding-right: 7px;
+                    Text {
+                        text: j.short;
+                        color: Theme.sec-ink;
+                        font-family: Theme.font;
+                        font-size: 12px;
+                        font-weight: 700;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                }
+                ja := TouchArea {
+                    mouse-cursor: pointer;
+                    clicked => { root.pick-section(i); }
+                }
+                TipArea { text: j.tooltip; hover: ja.has-hover; pressed: ja.pressed; pointer-x: ja.mouse-x; }
+            }
+        }
+        if root.has-selection: slides-edit := Btn {
+            // Its own width: the title takes the spare room, so on a wide window this is not a 400 px button.
+            horizontal-stretch: 0;
+            small: true;
+            icon: "edit";
+            text: @tr("Edit");
+            clicked => { root.edit(); }
+        }
+    }
+
+    // N6 and N29: tools for the selected item's slides, on their own row so the title keeps its room.
+    if root.has-selection && root.slide-count > 0: HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-bottom: 8px;
+        spacing: 8px;
+        // N6: the verse before or after this passage, and keeping it in the song library.
+        if PanelExtras.passage: HorizontalLayout {
+            spacing: 4px;
+            prev-verse := Btn {
+                horizontal-stretch: 0;
+                small: true;
+                text: @tr("‹ Verse");
+                tooltip: @tr("Add the verse before this passage");
+                clicked => { PanelExtras.prev-verse(); }
+            }
+            next-verse := Btn {
+                horizontal-stretch: 0;
+                small: true;
+                text: @tr("Verse ›");
+                tooltip: @tr("Add the verse after this passage");
+                clicked => { PanelExtras.next-verse(); }
+            }
+            save-passage := Btn {
+                horizontal-stretch: 0;
+                small: true;
+                icon: "download";
+                text: @tr("Save to library");
+                tooltip: @tr("Keep this passage in the song library, to edit it or use it again");
+                clicked => { PanelExtras.save-passage(); }
+            }
+        }
+        // A song's lines on each slide: fewer, more, or back to Settings' number. Kept with the song.
+        if root.song-fit: HorizontalLayout {
+            spacing: 4px;
+            VerticalLayout {
+                alignment: center;
+                Text {
+                    text: @tr("Lines");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                }
+            }
+            lines-fewer := Btn {
+                small: true;
+                text: "−";
+                tooltip: @tr("Fewer lines on each slide of this song");
+                clicked => { root.lines-fewer(); }
+            }
+            VerticalLayout {
+                alignment: center;
+                lines := Text {
+                    min-width: 18px;
+                    text: root.lines;
+                    color: root.lines-custom ? Theme.text : Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    font-weight: 600;
+                    horizontal-alignment: center;
+                    accessible-role: text;
+                    accessible-label: @tr("Lines per slide");
+                    accessible-value: self.text;
+                }
+            }
+            lines-more := Btn {
+                small: true;
+                text: "+";
+                tooltip: @tr("More lines on each slide of this song");
+                clicked => { root.lines-more(); }
+            }
+        }
+        // The song's text size, kept with the song like its lines.
+        if root.song-fit: HorizontalLayout {
+            spacing: 4px;
+            song-text-smaller := Btn {
+                small: true;
+                text: @tr("A−");
+                tooltip: @tr("Smaller text for this song");
+                clicked => { root.text-smaller(); }
+            }
+            VerticalLayout {
+                alignment: center;
+                song-text-size := Text {
+                    min-width: 34px;
+                    text: root.text-size;
+                    color: root.text-size-custom ? Theme.text : Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    font-weight: 600;
+                    horizontal-alignment: center;
+                    accessible-role: text;
+                    accessible-label: @tr("Text size");
+                    accessible-value: self.text;
+                }
+            }
+            song-text-larger := Btn {
+                small: true;
+                text: @tr("A+");
+                tooltip: @tr("Bigger text for this song");
+                clicked => { root.text-larger(); }
+            }
+            // One Auto for both: the song follows Settings again.
+            if root.text-size-custom || root.lines-custom: song-fit-auto := Btn {
+                small: true;
+                text: @tr("Auto");
+                tooltip: @tr("Back to the lines and size in Settings");
+                clicked => { root.lines-auto(); root.text-auto(); }
+            }
+        }
+        // The song's chords on the stage screen, a step up or down (`src/ui/song_key.rs`).
+        song-key := SongKeyControl { }
+        Rectangle { horizontal-stretch: 1; }
+        // N15: the action palette.
+        palette-btn := Btn {
+            horizontal-stretch: 0;
+            small: true;
+            primary: SlideActs.open;
+            icon: "bolt";
+            text: @tr("Actions");
+            tooltip: @tr("Things a slide does when it goes live: drag them onto a slide");
+            clicked => { SlideActs.toggle(); }
+        }
+        // N29: while on, a click on a slide puts it on the stage screen only.
+        stage-mode := Btn {
+            horizontal-stretch: 0;
+            small: true;
+            primary: PanelExtras.stage-mode;
+            icon: "monitor";
+            text: @tr("Stage only");
+            tooltip: PanelExtras.stage-mode ? @tr("The next slide you click goes to the stage screen only. Click again to cancel.") : @tr("Send the next slide you click to the stage screen only, as a note for the band");
+            clicked => { PanelExtras.toggle-stage-mode(); }
+        }
+    }
+
+    if SlideActs.open && root.has-selection && root.slide-count > 0: HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-bottom: 8px;
+        action-palette := ActionPalette {}
+    }
+
+    // N29: what is on the stage screen only, and how to take it down.
+    if PanelExtras.stage-mode || PanelExtras.stage-only != "": HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-bottom: 8px;
+        stage-bar := Rectangle {
+            border-radius: 8px;
+            background: Theme.raise;
+            border-width: 1px;
+            border-color: #ff9f6b;
+            HorizontalLayout {
+                padding-left: 12px;
+                padding-right: 6px;
+                padding-top: 5px;
+                padding-bottom: 5px;
+                spacing: 10px;
+                stage-bar-text := Text {
+                    horizontal-stretch: 1;
+                    text: PanelExtras.stage-only != ""
+                        ? @tr("On the stage screen only: {}", PanelExtras.stage-only)
+                        : @tr("Click a slide to show it on the stage screen only. The room won't see it.");
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    vertical-alignment: center;
+                    overflow: elide;
+                    accessible-role: text;
+                    accessible-label: self.text;
+                }
+                if PanelExtras.stage-only != "": stage-down := Btn {
+                    horizontal-stretch: 0;
+                    small: true;
+                    text: @tr("Take it down");
+                    clicked => { PanelExtras.stage-down(); }
+                }
+            }
+        }
+    }
+
+    Rectangle {
+        vertical-stretch: 1;
+        grid := ScrollBox {
+            x: 0;
+            y: 0;
+            width: parent.width;
+            height: parent.height;
+            VerticalLayout {
+                padding-top: 4px;
+                padding-bottom: 20px;
+                padding-left: 16px;
+                padding-right: 16px;
+                spacing: root.row-gap;
+                alignment: start;
+                // In Easy and Table every row holds one slide (Rust sets one column).
+                for row in root.rows: HorizontalLayout {
+                    spacing: 14px;
+                    alignment: start;
+                    for cell in row.cells: Rectangle {
+                        width: root.view == 0 ? root.cell-w : grid.width - 32px;
+                        height: root.row-h;
+                        if root.view == 0: thumb := Thumb {
+                            x: 0;
+                            y: 0;
+                            width: parent.width;
+                            cell: cell;
+                            clicked => { root.show(cell.idx); }
+                        }
+                        if root.view == 1: easy-row := EasyRow {
+                            x: 0;
+                            y: 0;
+                            width: parent.width;
+                            cell: cell;
+                            clicked => { root.show(cell.idx); }
+                        }
+                        if root.view == 2: table-row := TableRow {
+                            x: 0;
+                            y: 0;
+                            width: parent.width;
+                            cell: cell;
+                            clicked => { root.show(cell.idx); }
+                        }
+                    }
+                }
+            }
+        }
+
+        if root.loaded && root.item-count == 0: welcome := Welcome {
+            add => { root.welcome-add(); }
+            screens => { root.welcome-screens(); }
+            y: root.window-height * 9%;
+            width: parent.width;
+            height: self.preferred-height;
+        }
+        if root.loaded && root.item-count > 0 && !root.has-selection: choose := Empty {
+            y: root.window-height * 8%;
+            width: parent.width;
+            height: self.preferred-height;
+            text: @tr("Choose something from the service list.");
+        }
+        if root.loaded && root.has-selection && root.slide-count == 0: nothing := Empty {
+            y: root.window-height * 8%;
+            width: parent.width;
+            height: self.preferred-height;
+            title: @tr("Nothing to show");
+            text: @tr("This item has no slides yet. Click Edit to add some.");
+        }
+    }
+
+    // N37 and N8: how the slides are shown, and how big the pictures are.
+    if root.has-selection && root.slide-count > 0: HorizontalLayout {
+        padding-top: 6px;
+        padding-bottom: 8px;
+        padding-left: 16px;
+        padding-right: 16px;
+        spacing: 12px;
+        slides-view := Segmented {
+            labels: [@tr("Grid"), @tr("Easy"), @tr("Table")];
+            index <=> root.view;
+            changed(i) => { root.view-picked(i); }
+        }
+        Rectangle { horizontal-stretch: 1; }
+        if root.view == 0: VerticalLayout {
+            alignment: center;
+            Icon {
+                width: 16px;
+                height: 16px;
+                name: "image";
+                color: Theme.muted;
+            }
+        }
+        if root.view == 0: VerticalLayout {
+            alignment: center;
+            thumb-size := RangeSlider {
+                width: 150px;
+                minimum: 140;
+                maximum: 420;
+                value <=> root.thumb-size;
+                accessible-label: @tr("Picture size");
+                changed(v) => { root.thumb-size-changed(v); }
+            }
+        }
+    }
+
+    if root.note != "": HorizontalLayout {
+        padding-top: 8px;
+        padding-bottom: 10px;
+        padding-left: 16px;
+        padding-right: 16px;
+        slides-note := Text {
+            horizontal-stretch: 1;
+            text: root.note;
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 12.5px;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+    }
+}

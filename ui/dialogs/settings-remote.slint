@@ -1,0 +1,219 @@
+// Settings → Remote and network (November 17, 2026; was Settings → Network…): the remote (a phone or tablet that
+// runs the slides), drawing from it, the stage screen on phones and tablets, a phone as a camera or a microphone
+// (the one-time "not private" step is explained here, once), and control from other gear (TCP). The network rows
+// are `NetworkDlg`'s, saved with `network/save` when Settings is saved (`src/ui/dialogs/network.rs`).
+import { Theme } from "../theme.slint";
+import { Btn } from "../widgets.slint";
+import { TextField, Note, Check } from "form.slint";
+import { SettingsDlg } from "settings-state.slint";
+import { NetworkDlg } from "network.slint";
+import { SetRow, SetLink, Hint, Gap } from "settings-row.slint";
+
+/// Remote and network → Remote.
+export component RemotePage inherits VerticalLayout {
+    alignment: start;
+    pair-row := SetRow {
+        key: "remote-pair";
+        label: @tr("Use your phone or tablet as a remote");
+        help: @tr("Pair it once with the code or the QR code; it stays paired. It runs the slides from anywhere in the room on the same Wi-Fi.");
+        HorizontalLayout {
+            alignment: start;
+            pair := Btn {
+                small: true;
+                icon: "phone";
+                text: @tr("Pair a phone or tablet…");
+                clicked => { SettingsDlg.pair-remote(); }
+            }
+        }
+    }
+    remote-pw-row := SetRow {
+        key: "remote-password";
+        label: @tr("Remote password");
+        help: @tr("Phones and tablets still pair with the code or the QR code; the password is asked too. Ones already paired stay paired.");
+        remote-pw-check := Check {
+            text: @tr("Ask for a password when a phone or tablet pairs");
+            checked <=> NetworkDlg.remote-pw-on;
+        }
+        if NetworkDlg.remote-pw-on: remote-pw := TextField {
+            password: true;
+            label: @tr("Remote password");
+            placeholder: NetworkDlg.remote-pw-set ? @tr("Saved — type to change it") : @tr("New password");
+            text <=> NetworkDlg.remote-pw;
+        }
+    }
+    Gap {}
+    drawing-row := SetRow {
+        key: "remote-drawing";
+        label: @tr("Drawing from a phone");
+        help: @tr("On the phone, “Fades” ink works like a laser pointer: it goes away by itself.");
+        keep-drawings := Check {
+            text: @tr("Keep drawings when the slide changes");
+            checked <=> SettingsDlg.keep-drawings;
+        }
+        HorizontalLayout {
+            alignment: start;
+            spacing: 10px;
+            Text {
+                text: @tr("Fading ink disappears after (seconds, 1–30)");
+                color: Theme.text;
+                font-family: Theme.font;
+                vertical-alignment: center;
+            }
+            fade-secs := TextField {
+                width: 70px;
+                label: @tr("Fading ink disappears after (seconds, 1–30)");
+                text <=> SettingsDlg.fade-secs;
+            }
+        }
+    }
+    if SettingsDlg.advanced: limit-row := SetRow {
+        key: "drawing-limit";
+        label: @tr("Limits");
+        advanced: true;
+        drawing-limit := Check {
+            text: @tr("Limit phone drawing");
+            checked <=> SettingsDlg.drawing-limit;
+        }
+        if SettingsDlg.drawing-limit: VerticalLayout {
+            spacing: 6px;
+            Hint { text: @tr("Most lines on the screen at once"); }
+            drawing-max-strokes := TextField { width: 120px; text <=> SettingsDlg.drawing-max-strokes; label: @tr("Most lines on the screen at once"); }
+            Hint { text: @tr("Most drawing updates a second from one phone"); }
+            drawing-max-per-second := TextField { width: 120px; text <=> SettingsDlg.drawing-max-per-second; label: @tr("Most drawing updates a second from one phone"); }
+        }
+    }
+    SetLink {
+        text: @tr("Show drawings on the stage screen: Settings → Stage screen");
+        page: 12;
+        key: "stage-drawings";
+    }
+}
+
+/// Remote and network → Stage screen on phones.
+export component PhoneStagePage inherits VerticalLayout {
+    alignment: start;
+    stage-row := SetRow {
+        key: "phone-stage";
+        label: @tr("Stage screen on phones and tablets");
+        help: @tr("Singers and musicians see the stage screen on their own phone or tablet (read only), on the same Wi-Fi as this computer.");
+        stage-check := Check {
+            text: @tr("Show the stage screen to phones and tablets (read only)");
+            checked <=> NetworkDlg.stage-on;
+        }
+        if NetworkDlg.stage-on: VerticalLayout {
+            spacing: 6px;
+            stage-pw-check := Check {
+                text: @tr("Ask for a password");
+                checked <=> NetworkDlg.stage-pw-on;
+            }
+            if NetworkDlg.stage-pw-on: stage-pw := TextField {
+                password: true;
+                label: @tr("Stage screen password");
+                placeholder: NetworkDlg.stage-pw-set ? @tr("Saved — type to change it") : @tr("New password");
+                text <=> NetworkDlg.stage-pw;
+            }
+            if NetworkDlg.stage-url != "": stage-url := Note {
+                bold: NetworkDlg.stage-url;
+                text: @tr("Open this address on the singer's iPad or phone (same Wi-Fi as this computer).");
+            }
+        }
+    }
+}
+
+/// Remote and network → Phone camera and microphone: how to connect a phone, said once for both.
+export component PhoneCamMicPage inherits VerticalLayout {
+    alignment: start;
+    spacing: 4px;
+    Note {
+        text: @tr("A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in.");
+    }
+    Gap {}
+    camera-row := SetRow {
+        key: "phone-camera";
+        label: @tr("Phone as a camera");
+        help: @tr("Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera.");
+        Hint { text: @tr("On the phone, open:"); }
+        phone-camera-address := Text {
+            text: SettingsDlg.phone-camera-help;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-weight: 600;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+        SetLink {
+            text: @tr("Then choose it in Settings → Livestream → Cameras");
+            page: 25;
+            key: "stream-cameras";
+        }
+    }
+    mic-row := SetRow {
+        key: "phone-mic";
+        label: @tr("Phone as a microphone");
+        help: @tr("For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there.");
+        Hint { text: @tr("On the phone, open this page and press Start:"); }
+        phone-mic-address := Text {
+            text: SettingsDlg.stream-phone-secure-address != "" ? SettingsDlg.stream-phone-secure-address : SettingsDlg.stream-phone-address;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-weight: 600;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+        if !NetworkDlg.stage-on: phone-mic-off := Hint { text: @tr("The stage screen on phones is off, so the phone cannot reach this page yet."); }
+        SetLink {
+            text: @tr("Then choose Phone in Settings → Livestream → Sound");
+            page: 26;
+            key: "stream-mics";
+        }
+    }
+}
+
+/// Remote and network → Other gear: commands over the network (TCP).
+export component OtherGearPage inherits VerticalLayout {
+    alignment: start;
+    tcp-row := SetRow {
+        key: "tcp";
+        label: @tr("Control from other gear (TCP)");
+        help: @tr("For a stream deck, a lighting desk or a control system that sends text commands.");
+        tcp-check := Check {
+            text: @tr("Let other gear send commands over the network");
+            checked <=> NetworkDlg.tcp-on;
+        }
+        if NetworkDlg.tcp-on: VerticalLayout {
+            spacing: 6px;
+            HorizontalLayout {
+                spacing: 10px;
+                alignment: start;
+                Text { text: @tr("Port"); color: Theme.text; vertical-alignment: center; }
+                tcp-port := TextField {
+                    width: 100px;
+                    label: @tr("Port");
+                    text <=> NetworkDlg.tcp-port;
+                }
+                if NetworkDlg.tcp-address != "": Hint { text: NetworkDlg.tcp-address; vertical-alignment: center; }
+            }
+            tcp-pw-check := Check {
+                text: @tr("Ask for a password");
+                checked <=> NetworkDlg.tcp-pw-on;
+            }
+            if NetworkDlg.tcp-pw-on: tcp-pw := TextField {
+                password: true;
+                label: @tr("TCP password");
+                placeholder: NetworkDlg.tcp-pw-set ? @tr("Saved — type to change it") : @tr("New password");
+                text <=> NetworkDlg.tcp-pw;
+            }
+            tcp-help := Note { text: NetworkDlg.tcp-help; }
+        }
+    }
+    if NetworkDlg.error != "": net-error := Text {
+        text: NetworkDlg.error;
+        color: Theme.danger-text;
+        font-family: Theme.font;
+        wrap: word-wrap;
+        accessible-role: text;
+        accessible-label: self.text;
+    }
+}

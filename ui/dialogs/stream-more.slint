@@ -1,0 +1,54 @@
+// What was Livestream → More settings (November 17, 2026: now the advanced rows of Settings → Livestream's pages,
+// `settings-stream.slint`): saved setups, the picture, the sound, the network, each destination's own quality and
+// the recording. Every choice's first option is what the app does by itself. Set and answered by
+// `src/ui/dialogs/stream_more.rs`.
+
+/// One destination's own quality: its name, size (0 the main stream's, then `record::Preset::ALL`) and bitrate (0
+/// the main stream's, then `record::BITRATES`).
+export struct MoreDestination {
+    name: string,
+    size: int,
+    kbps: int,
+}
+
+export global StreamMoreDlg {
+    /// Saved setups: their names, and the one these settings are (-1: none).
+    in property <[string]> setups;
+    in-out property <int> setup-index: -1;
+    /// The picture.
+    in-out property <int> fps-index: 2;
+    in-out property <int> codec-index;
+    in-out property <int> rate-index;
+    in-out property <int> keyframe-index: 1;
+    in-out property <int> speed-index;
+    in-out property <int> profile-index;
+    in-out property <int> b-frames-index;
+    /// The sound.
+    in-out property <int> sound-rate-index;
+    in-out property <int> sound-kbps-index: 2;
+    in-out property <int> channels-index;
+    /// The network: the card to send from (labels from `stream::network_card`), and SRT's safer send.
+    in property <[string]> bind-labels;
+    in-out property <int> bind-index;
+    in-out property <int> srt-index;
+    /// Each destination's own quality, and the choices of its lists.
+    in-out property <[MoreDestination]> destinations;
+    in property <[string]> size-labels;
+    in property <[string]> dest-kbps-labels;
+    /// The main bitrate's list: "Automatic (6000 kbit/s)", then `record::BITRATES`.
+    in property <[string]> kbps-labels;
+    /// The recording.
+    in-out property <int> format-index;
+    in-out property <string> name;
+    in property <string> name-example;
+    in-out property <int> split-index;
+    in-out property <bool> clean;
+    in-out property <int> replay-index;
+
+    callback setup-use(int);
+    callback setup-save();
+    callback setup-delete();
+    callback destination-size(int, int);
+    callback destination-kbps(int, int);
+    callback name-edited();
+}

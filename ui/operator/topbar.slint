@@ -1,0 +1,361 @@
+// The operator's top bar (`web/operator.html:11-24`, `operator.css:28-46`): brand, service picker, status lights,
+// Record and Go Live, Screens, Remote and Settings. The Bible box is a panel of its own (dock panels design). What
+// does not fit goes under More, so nothing runs past the window or over anything else.
+import { Theme, OperatorState } from "../theme.slint";
+import { Icon, TopBtn, Pill, TipArea } from "../widgets.slint";
+import { StageLayoutButton } from "../dialogs/stage-layouts.slint";
+import { RecordBtn, ClipBtn, LiveBtn } from "record.slint";
+import { SaveLastBtn } from "save-last.slint";
+import { StreamWatch, StreamPanic } from "stream-buttons.slint";
+import { StreamPane, DockShared } from "panes.slint";
+import { DockGuard } from "dock-guard.slint";
+
+export component TopBar inherits Rectangle {
+    /// Window width ≤ 1250 px: no brand word, Screens/Remote as icons, lights as dots (`operator.css:239`).
+    in property <bool> narrow;
+    /// Below 1400 px: Record shows only its dot.
+    in property <bool> compact;
+    in property <string> service-name;
+    in property <bool> room-on;
+    /// "on" or "warn".
+    in property <string> room-state: "warn";
+    in property <string> room-tip;
+    /// N2: the service check, run by itself. "on" all clear, "warn" something is wrong, "off" not checked yet.
+    in property <string> check-state: "off";
+    in property <string> check-label;
+    in property <string> check-tip;
+    in property <bool> stage-shown;
+    in property <bool> stage-on;
+    /// "1 remote", "2 remotes"; empty hides the light.
+    in property <string> phones-label;
+    callback services();
+    callback screens();
+    callback phone();
+    callback stage-message();
+    callback check();
+    callback settings();
+    /// Gives the keyboard back to the window after a click.
+    callback focus-keys();
+
+    /// Not everything fits the window: Clip, Save last, the stage layout and the stream's buttons go under More.
+    /// They sit in boxes that need no room of their own (`min-width: 0`), so `need` (what the whole bar would take)
+    /// is the same whether they show or not. Rust compares it with the window's width and sets `tight`
+    /// (`Operator::fit_top_bar`), told by `need-changed` when it changes.
+    in property <bool> tight;
+    out property <length> need: bar.min-width + rec-row.preferred-width + stage-row.preferred-width + stream-row.preferred-width + 44px;
+    callback need-changed();
+    changed need => { root.need-changed(); }
+    /// Something is under More now.
+    property <bool> more-shown: root.tight && (StreamPane.recording || root.stage-shown
+        || (StreamPane.live && !DockShared.livestream-apart));
+
+    height: 60px;
+    background: Theme.panel;
+
+    // `border-bottom: 1px solid var(--line)`
+    Rectangle {
+        y: parent.height - 1px;
+        height: 1px;
+        background: Theme.line;
+    }
+
+    clip: true;
+
+    bar := HorizontalLayout {
+        padding-left: 14px;
+        padding-right: 14px;
+        spacing: 10px;
+
+        // `.brand`
+        HorizontalLayout {
+            horizontal-stretch: 0;
+            spacing: 9px;
+            padding-right: 4px;
+            VerticalLayout {
+                alignment: center;
+                Rectangle {
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 8px;
+                    background: Theme.accent;
+                    // The logo mark: a glyph, not text to translate.
+                    Text {
+                        text: "R";
+                        color: Theme.accent-ink;
+                        font-family: Theme.display;
+                        font-size: 16px;
+                        font-weight: 800;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+            if !root.narrow: brand-word := Text {
+                text: @tr("RustyPresenter");
+                color: Theme.text;
+                font-family: Theme.display;
+                font-size: 15px;
+                font-weight: 600;
+                letter-spacing: 0.15px;
+                vertical-alignment: center;
+            }
+        }
+
+        // `.service-pick`
+        VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            service-pick := Rectangle {
+                max-width: 220px;
+                background: Theme.raise;
+                border-width: 1px;
+                border-color: Theme.line;
+                border-radius: 9px;
+                accessible-role: button;
+                accessible-label: root.service-name;
+                HorizontalLayout {
+                    padding-top: 7px;
+                    padding-bottom: 7px;
+                    padding-left: 12px;
+                    padding-right: 10px;
+                    spacing: 6px;
+                    Text {
+                        text: root.service-name;
+                        color: Theme.text;
+                        font-family: Theme.font;
+                        font-size: Theme.base-size;
+                        font-weight: 600;
+                        overflow: elide;
+                        vertical-alignment: center;
+                    }
+                    VerticalLayout {
+                        alignment: center;
+                        Icon {
+                            name: "chevron-down";
+                            color: Theme.text;
+                        }
+                    }
+                }
+                services-ta := TouchArea {
+                    mouse-cursor: pointer;
+                    clicked => { root.services(); }
+                }
+                TipArea { text: @tr("Switch or create services"); hover: services-ta.has-hover; pressed: services-ta.pressed; pointer-x: services-ta.mouse-x; }
+            }
+        }
+
+        // The room the Bible box had (a panel of its own now): the status lights and buttons keep to the right.
+        Rectangle { horizontal-stretch: 1; min-width: 0px; }
+
+        // `.status`
+        HorizontalLayout {
+            horizontal-stretch: 0;
+            spacing: 6px;
+            VerticalLayout {
+                alignment: center;
+                status-room := Pill {
+                    label: @tr("Room");
+                    state: root.room-state;
+                    tooltip: root.room-tip;
+                    narrow: root.narrow;
+                }
+            }
+            if root.stage-shown: VerticalLayout {
+                alignment: center;
+                status-stage := Pill {
+                    label: @tr("Stage");
+                    state: root.stage-on ? "on" : "off";
+                    tooltip: @tr("Stage screen");
+                    narrow: root.narrow;
+                }
+            }
+            if root.check-label != "": VerticalLayout {
+                alignment: center;
+                status-check := Pill {
+                    label: root.check-label;
+                    state: root.check-state;
+                    tooltip: root.check-tip;
+                    narrow: root.narrow;
+                    clicked => { root.check(); }
+                }
+            }
+            if root.phones-label != "": VerticalLayout {
+                alignment: center;
+                status-phones := Pill {
+                    label: root.phones-label;
+                    state: "on";
+                    tooltip: @tr("Remotes connected");
+                    narrow: root.narrow;
+                }
+            }
+        }
+
+        if root.stage-shown: VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            message-btn := TopBtn {
+                icon: "message";
+                icon-only: true;
+                tooltip: @tr("Show a message on the stage screen");
+                clicked => { root.stage-message(); }
+            }
+        }
+        // The stage layout button; under More when the bar is tight.
+        Rectangle {
+            min-width: 0px;
+            horizontal-stretch: 0;
+            max-width: root.tight ? 0px : stage-row.preferred-width;
+            clip: true;
+            stage-row := HorizontalLayout {
+                if root.stage-shown: VerticalLayout {
+                    alignment: center;
+                    stage-layout-btn := StageLayoutButton { narrow: root.narrow; }
+                }
+            }
+        }
+        VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            record-btn := RecordBtn {
+                recording: StreamPane.recording;
+                time: StreamPane.record-time;
+                // Only the dot below 1400 px: with its word the bar overflows just above `narrow`.
+                narrow: root.compact;
+                clicked => { root.focus-keys(); StreamPane.record(); }
+            }
+        }
+        // Clip and Save last while recording; under More when the bar is tight.
+        Rectangle {
+            min-width: 0px;
+            horizontal-stretch: 0;
+            max-width: root.tight ? 0px : rec-row.preferred-width;
+            clip: true;
+            rec-row := HorizontalLayout {
+                spacing: 10px;
+                if StreamPane.recording: VerticalLayout {
+                    alignment: center;
+                    clip-btn := ClipBtn {
+                        clipping: StreamPane.clipping;
+                        clicked => { root.focus-keys(); StreamPane.toggle-clip(); }
+                    }
+                }
+                if StreamPane.recording && StreamPane.replay-minutes > 0: VerticalLayout {
+                    alignment: center;
+                    save-last-btn := SaveLastBtn {
+                        minutes: StreamPane.replay-minutes;
+                        clicked => { root.focus-keys(); StreamPane.save-last(); }
+                    }
+                }
+            }
+        }
+        if StreamPane.can-stream || StreamPane.live: VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            live-btn := LiveBtn {
+                live: StreamPane.live;
+                up: StreamPane.live-up;
+                total: StreamPane.live-total;
+                watching: StreamPane.live-watching;
+                clicked => { root.focus-keys(); StreamPane.go-live(); }
+            }
+        }
+        // While live: the stream's own buttons, unless the Livestream panel shows them; under More when tight.
+        Rectangle {
+            min-width: 0px;
+            horizontal-stretch: 0;
+            max-width: root.tight ? 0px : stream-row.preferred-width;
+            clip: true;
+            stream-row := HorizontalLayout {
+                spacing: 10px;
+                if StreamPane.live && !DockShared.livestream-apart: StreamWatch { focus-keys => { root.focus-keys(); } }
+                if StreamPane.live && !DockShared.livestream-apart: StreamPanic { focus-keys => { root.focus-keys(); } }
+            }
+        }
+        VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            screens-btn := TopBtn {
+                icon: "monitor";
+                text: @tr("Screens");
+                narrow: root.narrow;
+                clicked => { root.screens(); }
+            }
+        }
+        VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            phone-btn := TopBtn {
+                icon: "phone";
+                text: @tr("Remote");
+                narrow: root.narrow;
+                clicked => { root.phone(); }
+            }
+        }
+        // More: in a box that needs no room of its own, like the ones it holds (see `tight`).
+        Rectangle {
+            min-width: 0px;
+            horizontal-stretch: 0;
+            max-width: root.more-shown ? more-row.preferred-width : 0px;
+            clip: true;
+            more-row := VerticalLayout {
+            alignment: center;
+            more-btn := TopBtn {
+                icon: "dots";
+                icon-only: true;
+                tooltip: @tr("More");
+                clicked => { more-menu.show(); }
+            }
+            more-menu := PopupWindow {
+                // Under the button, never over the audience or stage preview (`DockGuard`).
+                property <length> want-x: more-btn.absolute-position.x + more-btn.width - 320px;
+                property <length> ay: more-btn.absolute-position.y + more-btn.height + 6px;
+                x: DockGuard.place-x(self.want-x, self.ay, 320px, 200px) - more-btn.absolute-position.x;
+                y: more-btn.height + 6px;
+                width: 320px;
+                close-policy: close-on-click-outside;
+                Rectangle {
+                    background: Theme.panel;
+                    border-color: Theme.line;
+                    border-width: 1px;
+                    border-radius: 10px;
+                    drop-shadow-blur: 24px;
+                    drop-shadow-offset-y: 8px;
+                    drop-shadow-color: Theme.shadow-dialog;
+                    VerticalLayout {
+                        padding: 10px;
+                        spacing: 8px;
+                        if StreamPane.recording: HorizontalLayout {
+                            spacing: 8px;
+                            alignment: start;
+                            ClipBtn {
+                                clipping: StreamPane.clipping;
+                                clicked => { root.focus-keys(); StreamPane.toggle-clip(); }
+                            }
+                            if StreamPane.replay-minutes > 0: SaveLastBtn {
+                                minutes: StreamPane.replay-minutes;
+                                clicked => { root.focus-keys(); StreamPane.save-last(); }
+                            }
+                        }
+                        if root.stage-shown: HorizontalLayout {
+                            alignment: start;
+                            StageLayoutButton { }
+                        }
+                        if StreamPane.live && !DockShared.livestream-apart: StreamWatch { focus-keys => { root.focus-keys(); } }
+                        if StreamPane.live && !DockShared.livestream-apart: StreamPanic { focus-keys => { root.focus-keys(); } }
+                    }
+                }
+            }
+            }
+        }
+        VerticalLayout {
+            horizontal-stretch: 0;
+            alignment: center;
+            settings-btn := TopBtn {
+                icon: "gear";
+                icon-only: true;
+                tooltip: @tr("Settings");
+                clicked => { root.settings(); }
+            }
+        }
+    }
+}

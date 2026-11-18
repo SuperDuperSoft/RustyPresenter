@@ -1,0 +1,429 @@
+// Settings pages with a few rows each (November 17, 2026 reorganisation): General → Screens and graphics,
+// Songs → Slides and credits and SongSelect, Video and media, Sound in the room, Stage screen, and Backups. Every
+// row is a `SetRow` whose key, label and help are also in `src/ui/dialogs/settings_find.rs`.
+import { Theme } from "../theme.slint";
+import { Btn, Segmented, CopyText } from "../widgets.slint";
+import { TextField, Note, ListRow, RowMain, Check, Select } from "form.slint";
+import { SettingsDlg } from "settings-state.slint";
+import { SetRow, SetLink, Heading, Hint, Gap } from "settings-row.slint";
+
+/// General → Screens and graphics: how the screens start, and what draws them.
+export component ScreensPage inherits VerticalLayout {
+    alignment: start;
+    room-on-top-row := SetRow {
+        key: "room-on-top";
+        label: @tr("Audience screen in front");
+        help: @tr("Keeps the audience screen above other windows when it has its own monitor, so fades stay smooth.");
+        room-on-top := Check {
+            text: @tr("Keep the audience screen in front");
+            checked <=> SettingsDlg.room-on-top;
+        }
+    }
+    screens-at-start-row := SetRow {
+        key: "screens-at-start";
+        label: @tr("At start");
+        screens-at-start := Check {
+            text: @tr("Turn the screens on when RustyPresenter starts");
+            checked <=> SettingsDlg.screens-at-start;
+        }
+    }
+    HorizontalLayout {
+        alignment: start;
+        padding-left: 10px;
+        screens := Btn {
+            small: true;
+            text: @tr("Screens…");
+            clicked => { SettingsDlg.open-screens(); }
+        }
+    }
+    Gap {}
+    graphics-row := SetRow {
+        key: "graphics";
+        label: @tr("Graphics");
+        help: @tr("Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start.");
+        player := Hint { text: SettingsDlg.video-player; }
+        drawing := Hint { text: SettingsDlg.video-drawing; }
+        graphics := Select {
+            options: SettingsDlg.graphics-labels;
+            index <=> SettingsDlg.graphics-index;
+            changed(i) => { SettingsDlg.graphics-changed(i); }
+        }
+        graphics-now := Hint { text: SettingsDlg.graphics-now; }
+        HorizontalLayout {
+            alignment: start;
+            spacing: 10px;
+            graphics-test := Btn {
+                small: true;
+                text: @tr("Test which is fastest");
+                enabled: !SettingsDlg.graphics-testing;
+                clicked => { SettingsDlg.graphics-test(); }
+            }
+            graphics-test-status := Text {
+                text: SettingsDlg.graphics-test-status != "" ? SettingsDlg.graphics-test-status : @tr("About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there.");
+                color: Theme.muted;
+                font-size: 12.5px;
+                wrap: word-wrap;
+                vertical-alignment: center;
+                horizontal-stretch: 1;
+                accessible-role: text;
+                accessible-label: self.text;
+            }
+        }
+        for r[i] in SettingsDlg.graphics-test-rows: graphics-test-row := Rectangle {
+            min-height: 30px;
+            border-radius: 6px;
+            background: SettingsDlg.graphics-test-pick == i ? Theme.raise : transparent;
+            accessible-role: list-item;
+            accessible-label: (r.best ? "★ " : "") + r.name + ": " + r.word + ". " + r.details;
+            accessible-item-selectable: true;
+            accessible-item-selected: SettingsDlg.graphics-test-pick == i;
+            accessible-action-default => { SettingsDlg.graphics-test-pick = i; }
+            TouchArea {
+                enabled: r.works;
+                mouse-cursor: r.works ? pointer : default;
+                clicked => { SettingsDlg.graphics-test-pick = i; }
+            }
+            HorizontalLayout {
+                padding-left: 6px;
+                padding-right: 6px;
+                spacing: 10px;
+                Text {
+                    width: 16px;
+                    text: r.best ? "★" : "";
+                    color: Theme.accent;
+                    vertical-alignment: center;
+                }
+                Text {
+                    width: 90px;
+                    text: r.name;
+                    color: Theme.text;
+                    vertical-alignment: center;
+                }
+                VerticalLayout {
+                    alignment: center;
+                    Rectangle {
+                        width: 120px;
+                        height: 8px;
+                        border-radius: 4px;
+                        background: Theme.line;
+                        Rectangle {
+                            x: 0;
+                            width: parent.width * clamp(r.bar, 0, 1);
+                            border-radius: 4px;
+                            background: r.best ? Theme.accent : Theme.muted;
+                        }
+                    }
+                }
+                Text {
+                    width: 80px;
+                    text: r.word;
+                    color: r.works ? Theme.text : Theme.muted;
+                    vertical-alignment: center;
+                }
+                graphics-test-details := Text {
+                    text: r.details;
+                    color: Theme.muted;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                    vertical-alignment: center;
+                    horizontal-stretch: 1;
+                    accessible-role: text;
+                    accessible-label: self.text;
+                }
+            }
+        }
+        if (SettingsDlg.graphics-test-rows.length > 0 && !SettingsDlg.graphics-testing) || SettingsDlg.graphics-restart: HorizontalLayout {
+            alignment: start;
+            spacing: 10px;
+            if SettingsDlg.graphics-test-rows.length > 0 && !SettingsDlg.graphics-testing: graphics-test-use := Btn {
+                small: true;
+                primary: !SettingsDlg.graphics-restart;
+                text: @tr("Use this");
+                clicked => { SettingsDlg.graphics-test-use(SettingsDlg.graphics-test-pick); }
+            }
+            if SettingsDlg.graphics-restart: graphics-restart := Btn {
+                small: true;
+                primary: true;
+                text: @tr("Restart now");
+                clicked => { SettingsDlg.restart-now(); }
+            }
+        }
+    }
+    if SettingsDlg.advanced: performance-row := SetRow {
+        key: "performance";
+        label: @tr("Performance");
+        help: @tr("Shows under the live preview how many frames a second the screens draw, and the free video memory when the graphics card says. Low numbers mean the computer is struggling.");
+        advanced: true;
+        show-performance := Check {
+            text: @tr("Show performance");
+            checked <=> SettingsDlg.show-performance;
+        }
+    }
+}
+
+/// Songs → Slides and credits.
+export component SongsPage inherits VerticalLayout {
+    alignment: start;
+    lines-row := SetRow {
+        key: "lines";
+        label: @tr("Lines per slide");
+        HorizontalLayout {
+            alignment: start;
+            lines := Segmented {
+                labels: ["1", "2", "3", "4", "5", "6"];
+                index <=> SettingsDlg.lines;
+            }
+        }
+    }
+    credits-row := SetRow {
+        key: "credits";
+        label: @tr("Credits");
+        // Bible library spec §10: the setting covers scripture too; a Bible that requires its credit always shows it.
+        help: @tr("Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage.");
+        credits-on := Check {
+            text: @tr("Show the copyright line");
+            checked <=> SettingsDlg.credits-on;
+        }
+        if SettingsDlg.credits-on: HorizontalLayout {
+            alignment: start;
+            credits := Segmented {
+                labels: [@tr("On first and last slide"), @tr("On first slide"), @tr("On last slide")];
+                index <=> SettingsDlg.credits;
+            }
+        }
+    }
+    if SettingsDlg.advanced: credit-template-row := SetRow {
+        key: "credit-template";
+        label: @tr("Copyright line");
+        help: @tr("Use {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}} and {{license}}. Parts between · with nothing in them are left out. Empty: the usual line.");
+        advanced: true;
+        credit-template := TextField {
+            text <=> SettingsDlg.credit-template;
+            placeholder: SettingsDlg.credit-usual;
+            edited => { SettingsDlg.credit-template-edited(); }
+        }
+        credit-sample := Hint { text: SettingsDlg.credit-sample; }
+    }
+    ccli-row := SetRow {
+        key: "ccli";
+        label: @tr("Church CCLI licence #");
+        ccli := TextField { text <=> SettingsDlg.ccli; }
+        HorizontalLayout {
+            alignment: start;
+            usage-report := Btn {
+                small: true;
+                text: @tr("Song use report…");
+                clicked => { SettingsDlg.usage-report(); }
+            }
+        }
+    }
+}
+
+/// Songs → SongSelect.
+export component SongSelectPage inherits VerticalLayout {
+    alignment: start;
+    songselect-row := SetRow {
+        key: "songselect-inbox";
+        label: "SongSelect";
+        help: @tr("Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted.");
+        songselect-inbox := Check {
+            text: @tr("Bring in SongSelect downloads whenever RustyPresenter is open");
+            checked <=> SettingsDlg.songselect-inbox;
+        }
+        HorizontalLayout {
+            alignment: start;
+            songselect-open := Btn {
+                small: true;
+                text: @tr("Songs from SongSelect…");
+                clicked => { SettingsDlg.open-songselect(); }
+            }
+        }
+    }
+}
+
+/// Video and media → Pictures and videos: what new pictures and videos do, and cleaning up the library.
+export component MediaPage inherits VerticalLayout {
+    alignment: start;
+    scale-row := SetRow {
+        key: "media-scale";
+        label: @tr("When the shape doesn't match the screen");
+        HorizontalLayout {
+            alignment: start;
+            scale := Segmented {
+                labels: [@tr("Fit (black bars)"), @tr("Fill (cut the edges)"), @tr("Stretch")];
+                index <=> SettingsDlg.media-scale;
+            }
+        }
+    }
+    video-end-row := SetRow {
+        key: "video-end";
+        label: @tr("When a video ends");
+        help: @tr("For videos added from now on. Change one video in its Edit window.");
+        video-end := Select {
+            options: [@tr("Clear the screen"), @tr("Stay on last frame"), @tr("Play again (loop)"), @tr("Go to the next slide")];
+            index <=> SettingsDlg.video-end;
+        }
+    }
+    picture-secs-row := SetRow {
+        key: "picture-secs";
+        label: @tr("Pictures added together as slides");
+        help: @tr("Each picture stays this long, then the next one comes up.");
+        picture-secs := Select {
+            options: [@tr("Until Next is pressed"), @tr("5 seconds"), @tr("8 seconds"), @tr("10 seconds"), @tr("15 seconds"), @tr("20 seconds"), @tr("30 seconds"), @tr("1 minute")];
+            index <=> SettingsDlg.picture-secs;
+        }
+    }
+    cleanup-row := SetRow {
+        key: "media-cleanup";
+        label: @tr("Media library");
+        help: @tr("Every file you add is copied into RustyPresenter's own folder, so moving or deleting the original never breaks a slide.");
+        HorizontalLayout {
+            alignment: start;
+            cleanup := Btn {
+                small: true;
+                text: @tr("Clean up unused media…");
+                clicked => { SettingsDlg.cleanup-media(); }
+            }
+        }
+    }
+}
+
+/// Sound → Sound in the room: where the app's sound goes, headphones, the delay and the speakers.
+export component RoomSoundPage inherits VerticalLayout {
+    alignment: start;
+    audio-row := SetRow {
+        key: "audio-device";
+        label: @tr("Sound goes to");
+        audio := Select {
+            options: SettingsDlg.audio-labels;
+            index <=> SettingsDlg.audio-index;
+        }
+    }
+    listen-row := SetRow {
+        key: "listen";
+        label: @tr("Headphones (Listen)");
+        help: @tr("View → Listen in headphones sends the sound here only, so you can check a video without the room hearing it.");
+        listen := Select {
+            options: SettingsDlg.listen-labels;
+            index <=> SettingsDlg.listen-index;
+        }
+    }
+    if SettingsDlg.advanced: delay-row := SetRow {
+        key: "room-delay";
+        label: @tr("Delay the room's sound (milliseconds)");
+        help: @tr("If the sound comes before the picture on the projector, try 50 to 150. 0 is no delay.");
+        advanced: true;
+        HorizontalLayout {
+            alignment: start;
+            delay := TextField {
+                width: 120px;
+                text <=> SettingsDlg.delay-ms;
+                label: @tr("Delay the room's sound (milliseconds)");
+            }
+        }
+    }
+    if SettingsDlg.advanced: channels-row := SetRow {
+        key: "speakers";
+        label: @tr("Speakers");
+        advanced: true;
+        channels := Select {
+            options: [@tr("Stereo (as recorded)"), @tr("Mono (both speakers the same)"), @tr("Swap left and right"), @tr("Left speaker only"), @tr("Right speaker only")];
+            index <=> SettingsDlg.channels;
+        }
+    }
+    SetLink {
+        text: @tr("The livestream's sound: Settings → Livestream → Sound");
+        page: 26;
+        key: "stream-mics";
+    }
+}
+
+/// Stage screen: its layout and the phone drawings on it.
+export component StagePage inherits VerticalLayout {
+    alignment: start;
+    stage-layout-row := SetRow {
+        key: "stage-layout";
+        label: @tr("Stage layout");
+        help: @tr("What the stage screen shows. Window → Stage layouts… makes your own.");
+        stage-layout := Select {
+            options: SettingsDlg.stage-layout-names;
+            index <=> SettingsDlg.stage-layout;
+        }
+        HorizontalLayout {
+            alignment: start;
+            spacing: 8px;
+            stage-layouts := Btn {
+                small: true;
+                text: @tr("Stage layouts…");
+                clicked => { SettingsDlg.open-stage-layouts(); }
+            }
+            screens := Btn {
+                small: true;
+                text: @tr("Screens…");
+                clicked => { SettingsDlg.open-screens(); }
+            }
+        }
+    }
+    stage-drawings-row := SetRow {
+        key: "stage-drawings";
+        label: @tr("Drawings");
+        stage-drawings := Check {
+            text: @tr("Show drawings on the stage screen");
+            checked <=> SettingsDlg.stage-drawings;
+        }
+    }
+    SetLink {
+        text: @tr("The stage screen on phones and tablets: Settings → Remote and network");
+        page: 14;
+        key: "phone-stage";
+    }
+}
+
+/// Backups: made by themselves; one more now; restore one.
+export component BackupsPage inherits VerticalLayout {
+    alignment: start;
+    spacing: 12px;
+    Note {
+        text: @tr("A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in");
+        HorizontalLayout {
+            alignment: start;
+            padding-top: 4px;
+            spacing: 2px;
+            folder := CopyText { text: SettingsDlg.backups-folder; }
+            Text {
+                text: ".";
+                color: Theme.muted;
+                vertical-alignment: center;
+            }
+        }
+    }
+    HorizontalLayout {
+        alignment: start;
+        backup-now := Btn {
+            primary: true;
+            text: @tr("Back up now");
+            clicked => { SettingsDlg.backup-now(); }
+        }
+    }
+    VerticalLayout {
+        spacing: 4px;
+        for b[i] in SettingsDlg.backups: backup-row := ListRow {
+            accessible-role: list-item;
+            accessible-label: b.label;
+            accessible-value: b.counts;
+            RowMain {
+                title: b.label;
+                sub: b.counts;
+            }
+            restore := Btn {
+                small: true;
+                text: @tr("Restore");
+                clicked => { SettingsDlg.restore(i); }
+            }
+        }
+        if SettingsDlg.backups.length == 0: no-backups := Text {
+            text: @tr("No backups yet.");
+            color: Theme.muted;
+        }
+    }
+}

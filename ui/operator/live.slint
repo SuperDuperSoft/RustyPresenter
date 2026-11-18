@@ -1,0 +1,518 @@
+// The live column (`web/operator.html:41-61`, `operator.css:108-142`, `operator.js:212-261`): what is live, the
+// monitor, the transport, the notice, Back/Next, the clears and Up next. The rows and texts come from Rust (`live.rs`).
+import { Theme } from "../theme.slint";
+import { Bar, ScrollBox, Btn } from "../widgets.slint";
+import { Side, Geo, Sprite } from "../room.slint";
+import { LiveMonitor } from "monitor.slint";
+import { TransportBtn, NavBtn, ClearBtn, ClearAllBtn } from "live_controls.slint";
+import { OverlaysStrip } from "overlay-strip.slint";
+import { MenuKeys } from "../keys.slint";
+import { OutputsState } from "outputs.slint";
+import { Select } from "../dialogs/form.slint";
+import { FollowRow, FollowUi } from "follow.slint";
+
+/// One play/pause row under the monitor (`transportRow`, `operator.js:254-261`).
+export struct TransportCell { video: bool, label: string, paused: bool, percent: float, time: string }
+
+/// The live song's line under the monitor and the change banner (FEAT-4 §3.4, §7): `line` "Chorus · slide 2 of 3"
+/// in the colour of `kind`; `edit` shows Edit words; `banner` is the change text, `update` shows Update screen.
+export struct LiveSong { line: string, kind: string, edit: bool, banner: string, update: bool }
+
+/// What comes next (`.next-up`): under the live preview, or a panel of its own.
+export component UpNextBox inherits Rectangle {
+    in property <string> title;
+    in property <string> body: @tr("—");
+    /// The text is cut here (in the live column); a panel of its own shows all of it.
+    in property <length> body-max: 110px;
+
+    min-height: 70px;
+    background: Theme.panel-2;
+    border-radius: 10px;
+    accessible-role: text;
+    accessible-label: root.body;
+    accessible-description: root.title;
+    VerticalLayout {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        padding-left: 12px;
+        padding-right: 12px;
+        spacing: 4px;
+        Text {
+            text: @tr("Up next").to-uppercase();
+            color: Theme.faint;
+            font-family: Theme.font;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.32px;
+        }
+        Rectangle {
+            max-height: root.body-max;
+            clip: true;
+            VerticalLayout {
+                alignment: start;
+                if root.title != "": Text {
+                    text: root.title;
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 11.25px;
+                    wrap: word-wrap;
+                }
+                Text {
+                    text: root.body;
+                    color: Theme.upnext-text;
+                    font-family: Theme.font;
+                    font-size: 13.5px;
+                    wrap: word-wrap;
+                }
+            }
+        }
+    }
+}
+
+export component LiveColumn inherits Rectangle {
+    /// Up next (with the notes) and auto-follow show here unless they are panels of their own.
+    in property <bool> up-next-shown: true;
+    in property <bool> follow-shown: true;
+    in property <bool> pending;
+    in property <string> live-what;
+    /// The live slide's speaker or stage notes, shown small under the monitor.
+    in property <string> notes;
+    in property <string> notice;
+    in property <bool> logo-on;
+    in property <string> up-next-title;
+    in property <string> up-next-body: @tr("—");
+    in property <[TransportCell]> transport;
+
+    in property <Side> monitor-bg;
+    in property <bool> monitor-bg-visible: true;
+    in property <Side> monitor-media;
+    in property <Side> monitor-slide;
+    /// The slide going out while the new one comes in with a deck or designed slide's own transition, its
+    /// opacity and both faces' places (`Geo`, a push or wipe). Rust moves them (`src/ui/operator/live.rs`).
+    in property <Side> monitor-slide-old;
+    in property <float> monitor-slide-op: 1;
+    in property <float> monitor-slide-old-op;
+    in property <Geo> monitor-slide-geo;
+    in property <Geo> monitor-slide-old-geo;
+    /// A designed slide's click group while it plays, over the slide (the room's pictures, drawn small).
+    in property <[Sprite]> monitor-sprites;
+    in property <Side> monitor-logo;
+    in property <image> monitor-drawing;
+    /// A phone drawing is on the audience screen: the Drawing chip shows, its ✕ clears it (`clear("clear_drawing")`).
+    in property <bool> drawing-on;
+    in property <bool> monitor-video;
+    in property <image> monitor-video-frame;
+    in property <bool> monitor-video-cover;
+    in property <float> monitor-black;
+    in property <bool> monitor-room-off;
+    out property <length> monitor-width: monitor.width;
+
+    in property <LiveSong> song;
+    /// "edit" (Edit words) or "update" (Update screen).
+    callback song-action(string);
+    callback next();
+    callback prev();
+    /// `clear_all`, `clear_slide`, `clear_media`, `clear_audio` or `logo` (the web's `data-cmd`).
+    callback clear(string);
+    callback transport-toggle(int);
+    /// N4: jump in transport row `int`: "back" (15 s), "forward" (15 s) or "end" (10 s before the end).
+    callback transport-seek(int, string);
+    /// The monitor's width changed (Rust redraws the preview at the new size).
+    callback monitor-resized(length);
+
+    init => { root.monitor-resized(root.monitor-width); }
+    changed monitor-width => { root.monitor-resized(root.monitor-width); }
+
+    // `.live-panel`: 14 px padding, 12 px gaps. When the window is short the top part scrolls; Back / Next and the clears
+    // stay pinned at the bottom: they are what an operator must always reach.
+    VerticalLayout {
+        x: 0;
+        y: 0;
+        width: parent.width;
+        height: parent.height;
+        alignment: start;
+        spacing: 12px;
+        top := ScrollBox {
+            min-height: 0px;
+            // As tall as what it holds, so the clears follow it on a tall window.
+            preferred-height: body.preferred-height;
+            max-height: body.preferred-height;
+            vertical-stretch: 1;
+            body := VerticalLayout {
+                padding: 14px;
+                padding-bottom: 0px;
+                spacing: 12px;
+                alignment: start;
+
+                // `.monitor-label`
+                HorizontalLayout {
+                    spacing: 8px;
+                    VerticalLayout {
+                        alignment: center;
+                        Rectangle {
+                            width: 9px;
+                            height: 9px;
+                            border-radius: 4.5px;
+                            background: Theme.live;
+                            drop-shadow-blur: 10px;
+                            drop-shadow-color: Theme.live;
+                        }
+                    }
+                    Text {
+                        text: @tr("LIVE");
+                        color: Theme.live;
+                        font-family: Theme.font;
+                        font-size: 12px;
+                        font-weight: 800;
+                        letter-spacing: 1.68px;
+                        vertical-alignment: center;
+                    }
+                    if root.pending: pending := Text {
+                        text: @tr("updating…");
+                        color: Theme.accent;
+                        font-family: Theme.font;
+                        font-size: 12px;
+                        font-weight: 600;
+                        vertical-alignment: center;
+                    }
+                    // N5: which screen the preview shows.
+                    preview-view := Select {
+                        width: 136px;
+                        height: 22px;
+                        options: OutputsState.view-names;
+                        index <=> OutputsState.view;
+                        changed(i) => { OutputsState.view-changed(i); }
+                    }
+                    Rectangle { horizontal-stretch: 1; }
+                    live-what := Text {
+                        max-width: root.width * 40%;
+                        text: root.live-what;
+                        color: Theme.muted;
+                        font-family: Theme.font;
+                        font-size: 12px;
+                        font-weight: 600;
+                        horizontal-alignment: right;
+                        vertical-alignment: center;
+                        overflow: elide;
+                    }
+                }
+
+                monitor := LiveMonitor {
+                    bg: root.monitor-bg;
+                    bg-visible: root.monitor-bg-visible;
+                    media: root.monitor-media;
+                    slide: root.monitor-slide;
+                    slide-old: root.monitor-slide-old;
+                    slide-op: root.monitor-slide-op;
+                    slide-old-op: root.monitor-slide-old-op;
+                    slide-geo: root.monitor-slide-geo;
+                    slide-old-geo: root.monitor-slide-old-geo;
+                    sprites: root.monitor-sprites;
+                    logo: root.monitor-logo;
+                    drawing: root.monitor-drawing;
+                    video: root.monitor-video;
+                    video-frame: root.monitor-video-frame;
+                    video-cover: root.monitor-video-cover;
+                    black: root.monitor-black;
+                    room-off: root.monitor-room-off;
+                    show-stage: OutputsState.view == 1;
+                    stage-frame: OutputsState.stage-frame;
+                    stage-off: OutputsState.stage-off;
+                }
+
+                if root.notes != "" && root.up-next-shown: live-notes := Text {
+                    text: @tr("Notes: {}", root.notes);
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    wrap: word-wrap;
+                    accessible-role: text;
+                    accessible-label: self.text;
+                }
+
+                // N33: how smoothly the screens draw.
+                if OutputsState.perf != "": perf := Text {
+                    text: OutputsState.perf;
+                    color: OutputsState.perf-warn ? Theme.live : Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 11.5px;
+                    wrap: word-wrap;
+                    accessible-role: text;
+                    accessible-label: self.text;
+                }
+
+                // A phone is drawing on the slide: say so, with a ✕ that takes the drawing away.
+                if root.drawing-on: HorizontalLayout {
+                    alignment: start;
+                    drawing-chip := Rectangle {
+                        height: 28px;
+                        border-radius: 14px;
+                        border-width: 1px;
+                        border-color: Theme.accent;
+                        background: Theme.raise;
+                        accessible-role: text;
+                        accessible-label: @tr("Drawing");
+                        HorizontalLayout {
+                            padding-left: 11px;
+                            padding-right: 4px;
+                            spacing: 6px;
+                            Text {
+                                text: "✎ " + @tr("Drawing");
+                                color: Theme.accent;
+                                font-family: Theme.font;
+                                font-size: 12.5px;
+                                font-weight: 700;
+                                vertical-alignment: center;
+                            }
+                            clear-drawing := Rectangle {
+                                width: 22px;
+                                height: 22px;
+                                y: 2px;
+                                border-radius: 11px;
+                                background: x-ta.has-hover ? Theme.btn-hover : transparent;
+                                accessible-role: button;
+                                accessible-label: @tr("Clear drawing");
+                                accessible-action-default => { root.clear("clear_drawing"); }
+                                Text {
+                                    text: "✕";
+                                    color: Theme.text;
+                                    font-family: Theme.font;
+                                    font-size: 12px;
+                                    horizontal-alignment: center;
+                                    vertical-alignment: center;
+                                }
+                                x-ta := TouchArea {
+                                    mouse-cursor: pointer;
+                                    clicked => { root.clear("clear_drawing"); }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // `.transport`: one box holding a row per playing video or audio.
+                if root.transport.length > 0: Rectangle {
+                    background: Theme.panel-2;
+                    border-radius: 10px;
+                    VerticalLayout {
+                        padding-top: 8px;
+                        padding-bottom: 8px;
+                        padding-left: 10px;
+                        padding-right: 10px;
+                        spacing: 10px;
+                        for row[i] in root.transport: HorizontalLayout {
+                            spacing: 10px;
+                            if row.video: transport-video := TransportBtn {
+                                paused: row.paused;
+                                clicked => { root.transport-toggle(i); }
+                            }
+                            if !row.video: transport-audio := TransportBtn {
+                                paused: row.paused;
+                                clicked => { root.transport-toggle(i); }
+                            }
+                            VerticalLayout {
+                                horizontal-stretch: 1;
+                                min-width: 0px;
+                                alignment: center;
+                                spacing: 5px;
+                                Text {
+                                    text: row.label;
+                                    color: Theme.muted;
+                                    font-family: Theme.font;
+                                    font-size: 12px;
+                                    overflow: elide;
+                                }
+                                Bar { progress: row.percent; }
+                                // N4: skip buttons, so a video's ending can be checked before the service.
+                                HorizontalLayout {
+                                    spacing: 6px;
+                                    alignment: start;
+                                    seek-back := Btn {
+                                        small: true;
+                                        text: @tr("−15 s");
+                                        tooltip: @tr("Back 15 seconds");
+                                        clicked => { root.transport-seek(i, "back"); }
+                                    }
+                                    seek-forward := Btn {
+                                        small: true;
+                                        text: @tr("+15 s");
+                                        tooltip: @tr("Forward 15 seconds");
+                                        clicked => { root.transport-seek(i, "forward"); }
+                                    }
+                                    seek-end := Btn {
+                                        small: true;
+                                        text: @tr("Last 10 s");
+                                        tooltip: @tr("Jump to 10 seconds before the end, to check how it finishes");
+                                        clicked => { root.transport-seek(i, "end"); }
+                                    }
+                                }
+                            }
+                            Text {
+                                min-width: 92px;
+                                text: row.time;
+                                color: Theme.muted;
+                                font-family: Theme.font;
+                                font-size: 12.5px;
+                                horizontal-alignment: right;
+                                vertical-alignment: center;
+                            }
+                        }
+                    }
+                }
+
+                if root.song.line != "" || root.song.edit: HorizontalLayout {
+                    spacing: 8px;
+                    if root.song.line != "": Rectangle {
+                        width: 6px;
+                        border-radius: 3px;
+                        background: Theme.section-color(root.song.kind);
+                    }
+                    live-section := Text {
+                        horizontal-stretch: 1;
+                        text: root.song.line;
+                        color: Theme.text;
+                        font-family: Theme.font;
+                        font-size: 13px;
+                        font-weight: 600;
+                        vertical-alignment: center;
+                        overflow: elide;
+                        accessible-role: text;
+                        accessible-label: self.text;
+                    }
+                    if root.song.edit: live-edit-words := Btn {
+                        small: true;
+                        icon: "edit";
+                        text: @tr("Edit words");
+                        tooltip: @tr("Fix the words of the live song. The screen changes only when you say so.");
+                        clicked => { root.song-action("edit"); }
+                    }
+                }
+
+                // 1.3: song auto-follow (Auto chip, listening light, Hold).
+                if FollowUi.shown && root.follow-shown: follow := FollowRow {}
+
+                if root.song.banner != "": live-changed := Rectangle {
+                    accessible-role: text;
+                    accessible-label: root.song.banner;
+                    background: Theme.notice-bg;
+                    border-color: Theme.notice-border;
+                    border-width: 1px;
+                    border-radius: 10px;
+                    HorizontalLayout {
+                        padding-top: 7px;
+                        padding-bottom: 7px;
+                        padding-left: 12px;
+                        padding-right: 8px;
+                        spacing: 8px;
+                        Text {
+                            horizontal-stretch: 1;
+                            text: root.song.banner;
+                            color: Theme.notice-text;
+                            font-family: Theme.font;
+                            font-size: 12.5px;
+                            wrap: word-wrap;
+                            vertical-alignment: center;
+                        }
+                        if root.song.update: live-update-screen := Btn {
+                            primary: true;
+                            small: true;
+                            text: @tr("Update screen");
+                            clicked => { root.song-action("update"); }
+                        }
+                    }
+                }
+
+                if root.notice != "": notice := Rectangle {
+                    accessible-role: text;
+                    accessible-label: root.notice;
+                    background: Theme.notice-bg;
+                    border-color: Theme.notice-border;
+                    border-width: 1px;
+                    border-radius: 10px;
+                    HorizontalLayout {
+                        padding-top: 9px;
+                        padding-bottom: 9px;
+                        padding-left: 12px;
+                        padding-right: 12px;
+                        Text {
+                            text: root.notice;
+                            color: Theme.notice-text;
+                            font-family: Theme.font;
+                            font-size: 13px;
+                            wrap: word-wrap;
+                        }
+                    }
+                }
+
+                overlays := OverlaysStrip {}
+
+                // `.next-up`: min 70 px, the body clipped at 110 px. Left out while Up next is a panel of its own.
+                if root.up-next-shown: up-next := UpNextBox {
+                    title: root.up-next-title;
+                    body: root.up-next-body;
+                }
+            }
+        }
+        // Back / Next and the clears are pinned under the part that scrolls.
+        pinned := VerticalLayout {
+            padding: 14px;
+            padding-top: 0px;
+            vertical-stretch: 0;
+            spacing: 12px;
+            // `.nav`: 1fr 1.6fr.
+            HorizontalLayout {
+                spacing: 10px;
+                prev-btn := NavBtn {
+                    horizontal-stretch: 1;
+                    text: @tr("Back");
+                    tooltip: @tr("Back (← or Page Up)");
+                    clicked => { root.prev(); }
+                }
+                next-btn := NavBtn {
+                    horizontal-stretch: 1.6;
+                    next: true;
+                    text: @tr("Next");
+                    tooltip: @tr("Next (→, Space or Page Down)");
+                    clicked => { root.next(); }
+                }
+            }
+            // `.clears`: Clear All across the width, then four in a row.
+            clears := VerticalLayout {
+                spacing: 8px;
+                clear-all := ClearAllBtn {
+                    text: @tr("Clear all");
+                    key: MenuKeys.clear-all-label;
+                    clicked => { root.clear("clear_all"); }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    clear-text := ClearBtn {
+                        horizontal-stretch: 1;
+                        text: @tr("Text");
+                        key: MenuKeys.clear-slide-label;
+                        clicked => { root.clear("clear_slide"); }
+                    }
+                    clear-media := ClearBtn {
+                        horizontal-stretch: 1;
+                        text: @tr("Media");
+                        key: MenuKeys.clear-media-label;
+                        clicked => { root.clear("clear_media"); }
+                    }
+                    clear-audio := ClearBtn {
+                        horizontal-stretch: 1;
+                        text: @tr("Audio");
+                        key: MenuKeys.clear-audio-label;
+                        clicked => { root.clear("clear_audio"); }
+                    }
+                    clear-logo := ClearBtn {
+                        horizontal-stretch: 1;
+                        text: @tr("Logo");
+                        key: MenuKeys.logo-label;
+                        on: root.logo-on;
+                        clicked => { root.clear("logo"); }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,212 @@
+// The slide editor's picture of the slide (N26): the slide as the room draws it (a picture made in Rust), with a
+// frame round each chosen object, the handles of the one chosen, and the snap guides. Pointer and keys go to Rust in
+// % of the slide (`src/ui/dialogs/design_editor.rs`), like the stage layout editor's canvas.
+import { Theme } from "../theme.slint";
+import { Sprite, SpriteLayer } from "../room.slint";
+
+/// One object's frame, in % of the slide (before turning).
+export struct DesignObjVm { id: string, x: float, y: float, w: float, h: float, rotation: float, selected: bool }
+
+/// A snap line while an object is dragged: `vertical` at x = `at` %, else horizontal at y = `at` %.
+export struct DesignGuideVm { vertical: bool, at: float }
+
+/// A round handle on a motion path at (`px`, `py`) % of a `sw` × `sh` slide; dragging it reports where to, in %.
+component PathHandle inherits Rectangle {
+    in property <length> sw;
+    in property <length> sh;
+    in property <float> px;
+    in property <float> py;
+    callback moved-to(float, float);
+    x: self.px * self.sw / 100 - 8px;
+    y: self.py * self.sh / 100 - 8px;
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background: Theme.accent;
+    border-color: #ffffff;
+    border-width: 2px;
+    accessible-role: slider;
+    TouchArea {
+        mouse-cursor: move;
+        moved => {
+            if self.pressed { root.moved-to((root.x + self.mouse-x) / root.sw * 100, (root.y + self.mouse-y) / root.sh * 100); }
+        }
+    }
+}
+
+export component DesignCanvas inherits Rectangle {
+    in property <image> picture;
+    in property <[DesignObjVm]> objects;
+    in property <[DesignGuideVm]> guides;
+    /// Exactly one object is chosen: it gets handles.
+    in property <bool> handles;
+    /// The pen is on: dragging draws a line.
+    in property <bool> pen;
+    /// Preview: the slide's animations play over the picture (which then holds only the background).
+    in property <[Sprite]> sprites;
+    in property <bool> previewing;
+    /// Pointer down at (x, y) %, with how many % a handle reaches each way; `add` = Shift, `free` = Alt.
+    /// The motion step being edited: its path (SVG commands in % of the slide), its end and, for an arc, the middle
+    /// of its bend.
+    in property <bool> path-shown;
+    in property <string> path-commands;
+    in property <float> path-end-x;
+    in property <float> path-end-y;
+    in property <bool> path-has-bend;
+    in property <float> path-bend-x;
+    in property <float> path-bend-y;
+    /// A path handle dragged to (x, y) %: 0 the end, 1 the bend.
+    callback path-drag(int, float, float);
+    callback press(float, float, float, float, bool, bool);
+    callback drag(float, float);
+    callback release();
+    /// Arrows: 0 left, 1 right, 2 up, 3 down; Shift resizes.
+    callback nudge(int, bool);
+    /// A key with Ctrl (and maybe Alt or Shift) held: "z", "y", "d", "a", "c", "v"…
+    callback command(string, bool, bool);
+    callback remove();
+    callback next(bool);
+
+    // The 16:9 slide, as big as fits and centred.
+    property <length> sw: min(root.width, root.height * 16 / 9);
+    property <length> sh: self.sw * 9 / 16;
+    property <length> sx: (root.width - self.sw) / 2;
+    property <length> sy: (root.height - self.sh) / 2;
+    property <length> grab: 9px;
+
+    public function focus-canvas() { keys.focus(); }
+
+    keys := FocusScope {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.height;
+        key-pressed(event) => {
+            if event.modifiers.control {
+                if event.text == "" { return reject; }
+                root.command(event.text, event.modifiers.alt, event.modifiers.shift);
+                return accept;
+            }
+            if event.text == Key.LeftArrow { root.nudge(0, event.modifiers.shift); return accept; }
+            if event.text == Key.RightArrow { root.nudge(1, event.modifiers.shift); return accept; }
+            if event.text == Key.UpArrow { root.nudge(2, event.modifiers.shift); return accept; }
+            if event.text == Key.DownArrow { root.nudge(3, event.modifiers.shift); return accept; }
+            if event.text == Key.Delete || event.text == Key.Backspace { root.remove(); return accept; }
+            if event.text == Key.Tab { root.next(false); return accept; }
+            if event.text == Key.Backtab { root.next(true); return accept; }
+            reject
+        }
+
+        screen := Rectangle {
+            x: root.sx;
+            y: root.sy;
+            width: root.sw;
+            height: root.sh;
+            background: #000000;
+            border-color: keys.has-focus ? Theme.accent : Theme.line;
+            border-width: 1px;
+            clip: true;
+            accessible-role: groupbox;
+            accessible-label: @tr("Slide");
+
+            Image {
+                width: parent.width;
+                height: parent.height;
+                source: root.picture;
+                image-fit: fill;
+            }
+
+            if root.previewing: SpriteLayer {
+                width: parent.width;
+                height: parent.height;
+                sprites: root.sprites;
+            }
+
+            for o in root.objects: Rectangle {
+                visible: !root.previewing;
+                x: o.x * root.sw / 100;
+                y: o.y * root.sh / 100;
+                width: o.w * root.sw / 100;
+                height: o.h * root.sh / 100;
+                border-color: o.selected ? Theme.accent : #ffffff30;
+                border-width: o.selected ? 2px : 1px;
+                accessible-role: list-item;
+                accessible-label: o.id;
+                accessible-item-selected: o.selected;
+            }
+
+            for g in root.guides: Rectangle {
+                x: g.vertical ? g.at * root.sw / 100 : 0;
+                y: g.vertical ? 0 : g.at * root.sh / 100;
+                width: g.vertical ? 1px : root.sw;
+                height: g.vertical ? root.sh : 1px;
+                background: Theme.accent;
+            }
+
+            // The chosen object's eight handles.
+            for o in root.objects: Rectangle {
+                if o.selected && root.handles && !root.pen: Rectangle {
+                    for h in [
+                        { hx: 0.0, hy: 0.0 }, { hx: 0.5, hy: 0.0 }, { hx: 1.0, hy: 0.0 }, { hx: 1.0, hy: 0.5 },
+                        { hx: 1.0, hy: 1.0 }, { hx: 0.5, hy: 1.0 }, { hx: 0.0, hy: 1.0 }, { hx: 0.0, hy: 0.5 }
+                    ]: Rectangle {
+                        x: (o.x + o.w * h.hx) * root.sw / 100 - 4px;
+                        y: (o.y + o.h * h.hy) * root.sh / 100 - 4px;
+                        width: 8px;
+                        height: 8px;
+                        background: Theme.accent;
+                        border-color: Theme.accent-ink;
+                        border-width: 1px;
+                    }
+                }
+            }
+
+            pointer := TouchArea {
+                mouse-cursor: root.pen ? crosshair : default;
+                pointer-event(e) => {
+                    if e.button != PointerEventButton.left { return; }
+                    if e.kind == PointerEventKind.down {
+                        keys.focus();
+                        root.press(self.mouse-x / root.sw * 100, self.mouse-y / root.sh * 100,
+                            root.grab / root.sw * 100, root.grab / root.sh * 100, e.modifiers.shift, e.modifiers.alt);
+                    }
+                    if e.kind == PointerEventKind.up { root.release(); }
+                }
+                moved => {
+                    if self.pressed { root.drag(self.mouse-x / root.sw * 100, self.mouse-y / root.sh * 100); }
+                }
+            }
+
+            // The motion path, over the object handles: its line, then a dot to drag at the end (and the bend).
+            if root.path-shown && !root.previewing && !root.pen: Path {
+                x: 0;
+                y: 0;
+                width: root.sw;
+                height: root.sh;
+                viewbox-x: 0;
+                viewbox-y: 0;
+                viewbox-width: 100;
+                viewbox-height: 100;
+                commands: root.path-commands;
+                stroke: Theme.accent;
+                stroke-width: 2px;
+            }
+            if root.path-shown && !root.previewing && !root.pen && root.path-has-bend: path-bend := PathHandle {
+                sw: root.sw;
+                sh: root.sh;
+                px: root.path-bend-x;
+                py: root.path-bend-y;
+                accessible-label: @tr("Bend of the motion path");
+                moved-to(x, y) => { root.path-drag(1, x, y); }
+            }
+            if root.path-shown && !root.previewing && !root.pen: path-end := PathHandle {
+                sw: root.sw;
+                sh: root.sh;
+                px: root.path-end-x;
+                py: root.path-end-y;
+                accessible-label: @tr("End of the motion path");
+                moved-to(x, y) => { root.path-drag(0, x, y); }
+            }
+        }
+    }
+}

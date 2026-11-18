@@ -1,0 +1,133 @@
+// The Go Live panel's health light (livestreaming design §4 item 9), beside Live while live: one light for the
+// whole stream (green all good, amber check it, red nothing going out). Clicking it lists each destination, the
+// camera, the sound, the computer and the live captions in plain words (`src/ui/operator/stream_extras.rs`).
+import { Theme } from "../theme.slint";
+import { Btn, TipArea } from "../widgets.slint";
+import { DockGuard } from "dock-guard.slint";
+
+/// One line of the list: 0 green, 1 amber, 2 red.
+export struct LiveStatusLine { light: int, text: string }
+
+export global LiveStatus {
+    in property <int> light;
+    in property <string> summary;
+    in property <[LiveStatusLine]> lines;
+    /// Live captions on the stream now (empty: none showing).
+    in property <string> captions;
+    /// Signed out destinations: the broadcast's title and description to paste into the service's own page.
+    in property <string> title;
+    in property <string> description;
+    callback copy-title();
+    callback copy-description();
+}
+
+export component LiveStatusBtn inherits Rectangle {
+    function colour(light: int) -> color { return light == 2 ? Theme.live : light == 1 ? Theme.accent : Theme.ok; }
+
+    accessible-role: button;
+    accessible-label: @tr("Stream status");
+    accessible-value: LiveStatus.summary;
+    accessible-action-default => { menu.show(); }
+
+    border-radius: 9px;
+    border-width: 1px;
+    border-color: Theme.line;
+    background: status-ta.has-hover ? Theme.raise : transparent;
+
+    HorizontalLayout {
+        padding: 8px;
+        padding-left: 10px;
+        padding-right: 10px;
+        spacing: 6px;
+        VerticalLayout {
+            alignment: center;
+            Rectangle {
+                width: 12px;
+                height: 12px;
+                border-radius: 6px;
+                background: colour(LiveStatus.light);
+            }
+        }
+        Text {
+            text: LiveStatus.summary;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            vertical-alignment: center;
+        }
+    }
+
+    status-ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { menu.show(); }
+    }
+
+    TipArea { text: @tr("How the stream is doing"); hover: status-ta.has-hover; pressed: status-ta.pressed; pointer-x: status-ta.mouse-x; }
+
+    menu := PopupWindow {
+        // Never over the audience or stage preview (`DockGuard`).
+
+        x: DockGuard.place-x(root.absolute-position.x + root.width - 420px, root.absolute-position.y + root.height + 4px, 420px, 300px) - root.absolute-position.x;
+        y: root.height + 4px;
+        width: 420px;
+        close-policy: close-on-click-outside;
+        Rectangle {
+            background: Theme.panel-2;
+            border-color: Theme.line;
+            border-width: 1px;
+            border-radius: 9px;
+            VerticalLayout {
+                padding: 12px;
+                spacing: 8px;
+                for line in LiveStatus.lines: HorizontalLayout {
+                    spacing: 8px;
+                    VerticalLayout {
+                        alignment: start;
+                        padding-top: 4px;
+                        Rectangle { width: 10px; height: 10px; border-radius: 5px; background: colour(line.light); }
+                    }
+                    Text {
+                        text: line.text;
+                        color: Theme.text;
+                        font-family: Theme.font;
+                        font-size: 13px;
+                        wrap: word-wrap;
+                        horizontal-stretch: 1;
+                        accessible-role: text;
+                        accessible-label: self.text;
+                    }
+                }
+                if LiveStatus.captions != "": Rectangle {
+                    background: #000000c0;
+                    border-radius: 6px;
+                    height: cap.preferred-height + 12px;
+                    cap := Text {
+                        x: 8px;
+                        width: parent.width - 16px;
+                        text: LiveStatus.captions;
+                        color: white;
+                        font-family: Theme.font;
+                        font-size: 13px;
+                        wrap: word-wrap;
+                        accessible-role: text;
+                        accessible-label: @tr("Live captions: {}", self.text);
+                    }
+                }
+                if LiveStatus.title != "": HorizontalLayout {
+                    spacing: 8px;
+                    Text {
+                        text: LiveStatus.title;
+                        color: Theme.muted;
+                        font-family: Theme.font;
+                        font-size: 13px;
+                        overflow: elide;
+                        horizontal-stretch: 1;
+                        vertical-alignment: center;
+                    }
+                    copy-title := Btn { small: true; text: @tr("Copy the title"); clicked => { LiveStatus.copy-title(); } }
+                    if LiveStatus.description != "": copy-description := Btn { small: true; text: @tr("Copy the description"); clicked => { LiveStatus.copy-description(); } }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,139 @@
+// Every shared widget in each state, for a person to compare against the web operator (`cargo run --example widgets`).
+// A development aid only: its strings are plain literals (no `@tr`) so they stay out of the translation catalog.
+import { Theme } from "theme.slint";
+import { Icon, Btn, TopBtn, Pill, Kbd, Chip, Segmented, Panel, PanelHead, Bar, Field, ScrollBox, CopyText, DashedOutline, TipLayer } from "widgets.slint";
+
+export component WidgetGallery inherits Window {
+    title: "RustyPresenter — widgets";
+    background: Theme.bg;
+    preferred-width: 1100px;
+    preferred-height: 760px;
+
+    in property <[string]> icons: [
+        "song", "scripture", "video", "image", "audio", "deck", "text", "edit", "trash", "play", "pause", "close",
+        "plus", "upload", "restart", "dots", "phone", "copy", "chevron-down", "chevron-left", "chevron-right",
+        "monitor", "gear", "book", "message",
+    ];
+    property <float> progress: 35;
+    /// Clicks on the tooltip button (a test checks that a button rested on until its tooltip shows still clicks).
+    out property <int> tip-clicks;
+
+    Panel {
+        x: 10px;
+        y: 10px;
+        width: root.width - 20px;
+        height: root.height - 20px;
+        PanelHead {
+            title: "Widgets";
+            count: "14 kinds";
+            Btn { text: "Head action"; small: true; }
+        }
+        ScrollBox {
+            VerticalLayout {
+                padding: 16px;
+                spacing: 14px;
+                HorizontalLayout {
+                    spacing: 10px;
+                    alignment: start;
+                    for name in root.icons: Icon { name: name; color: Theme.text; }
+                }
+                HorizontalLayout {
+                    spacing: 10px;
+                    alignment: start;
+                    Icon { name: "song"; color: Theme.accent; width: 28px; height: 28px; weight: 1.8; }
+                    Icon { name: "chevron-right"; color: Theme.accent; width: 22px; height: 22px; weight: 2.6; }
+                    Icon { name: "play"; color: Theme.white; width: 24px; height: 24px; }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    alignment: start;
+                    tip-btn := Btn {
+                        text: "Normal";
+                        tooltip: "A tooltip";
+                        clicked => { root.tip-clicks += 1; }
+                    }
+                    Btn { text: "Primary"; primary: true; }
+                    Btn { text: "Danger"; danger: true; icon: "trash"; }
+                    Btn { text: "Small"; small: true; icon: "edit"; }
+                    off-btn := Btn { text: "Disabled"; enabled: false; tooltip: "Why it is off"; }
+                    Btn { text: "Primary small"; primary: true; small: true; }
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    alignment: start;
+                    TopBtn { icon: "monitor"; text: "Screens"; }
+                    TopBtn { icon: "phone"; text: "Phone"; }
+                    narrow-btn := TopBtn { icon: "phone"; text: "Phone"; narrow: true; tooltip: "Phone (narrow window)"; }
+                    icon-btn := TopBtn { icon: "gear"; icon-only: true; tooltip: "Settings"; }
+                }
+                HorizontalLayout {
+                    spacing: 6px;
+                    alignment: start;
+                    Pill { label: "Room off"; state: "off"; }
+                    Pill { label: "Room on"; state: "on"; tooltip: "Audience screen is showing"; }
+                    Pill { label: "Warning"; state: "warn"; }
+                    Pill { label: "Narrow"; state: "on"; narrow: true; }
+                    Kbd { text: "Ctrl B"; }
+                    Kbd { text: "F1"; }
+                }
+                HorizontalLayout {
+                    spacing: 6px;
+                    alignment: start;
+                    Chip { text: "Plain"; }
+                    Chip { text: "Ready"; state: "ok"; }
+                    Chip { text: "Converting"; state: "warn"; }
+                    Chip { text: "Failed"; state: "bad"; tooltip: "Why it failed"; }
+                }
+                HorizontalLayout {
+                    alignment: start;
+                    Segmented {
+                        labels: ["1", "2", "3", "4", "5", "6"];
+                        index: 3;
+                    }
+                }
+                HorizontalLayout {
+                    spacing: 10px;
+                    Bar { progress: root.progress; horizontal-stretch: 1; }
+                    Bar { progress: root.progress; animated: false; horizontal-stretch: 1; }
+                    Btn {
+                        text: "+20";
+                        small: true;
+                        clicked => { root.progress = mod(root.progress + 20, 120); }
+                    }
+                }
+                Field {
+                    label: "Address";
+                    help: "Open this on the phone.";
+                    copy := CopyText { text: "http://192.168.1.20:7878/phone"; }
+                }
+                HorizontalLayout {
+                    alignment: start;
+                    Rectangle {
+                        width: 260px;
+                        height: 48px;
+                        Text {
+                            text: "Dashed outline";
+                            color: Theme.accent;
+                            font-family: Theme.font;
+                        }
+                        DashedOutline {
+                            line-color: Theme.dash;
+                            radius: 10px;
+                        }
+                    }
+                }
+                for i in 12: Text {
+                    text: "Row \{i + 1} (scroll to see the styled scrollbar)";
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                }
+            }
+        }
+    }
+    TipLayer {
+        x: 0px;
+        y: 0px;
+        width: root.width;
+        height: root.height;
+    }
+}

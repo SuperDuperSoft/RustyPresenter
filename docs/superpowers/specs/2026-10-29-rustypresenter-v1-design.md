@@ -3,6 +3,13 @@
 **Date:** 2026-10-29 (revision 3)
 **Author:** Claude, with the user
 **Status:** Revision 3 answers the Codex re-review (`docs/superpowers/reviews/2026-10-29-rustypresenter-v1-codex-review-rev2.md`, R2-01 to R2-04 and the small corrections). The user approved the design and asked for the app to be built (October 29). A first implementation (v0.2) exists; see §19 for what is built, what is verified, and two architecture changes that need the user's confirmation.
+**Superseded in part (November 2026):** Platform sections are superseded by the native app (`2026-10-29-native-slint-design.md`); the v0.2 Tauri app was removed in November 2026 (on branch `plan4-finish`, not yet on the main line). So the acceptance matrix below is not all covered by what is built:
+- §4.2–4.3 recovery: replaced by native §8.3 (supervisor restart; media resumes).
+- §6.4 FFmpeg conversion and the Ready/Converting/Needs converter library states: replaced by mpv playback and probing; no conversion.
+- §9.4 PowerPoint-only export: replaced by PowerPoint, LibreOffice or pdfium (native §9).
+- §16 items "LibreOffice conversion", "macOS and Linux" and "ffmpeg auto-transcode": the first two are written, not yet checked on real machines; the third is dropped.
+- §13 Preflight: built as the **Check** button on the service panel (a report, no separate dialog). §12.2 stage message: the top bar's message button, shown when a stage screen is set. §6.4 audio device: Settings → Video → Sound goes to; going away while playing pauses what can be heard and shows a notice (`src/sound.rs`, looked at every 3 s while something plays; the background video is muted and plays on), and a new choice moves what is on air to it. None of the three has run on Windows.
+- §9.3 EasyWorship: built (Add → Song → Import from EasyWorship), not yet run against a real library. Duplicates are skipped and listed in the end report, not asked about one by one. §9.5 Google Slides: **still not built**.
 **Authority:** This spec controls **v1 behavior**. `PROJECT_PLAN.md` holds long-term requirements, collaboration rules, and the work board.
 **Backups:** revision 1 `2026-10-29-rustypresenter-v1-design.rev1.bak.md`, revision 2 `2026-10-29-rustypresenter-v1-design.rev2.bak.md`
 
@@ -315,7 +322,7 @@ Foldback "next" and phone "next" show the cue that Next would produce under this
 - A backup is written to `backup-<time>.partial/` and renamed only after the data, the manifest and a `COMPLETE` marker exist. Partial or unmarked backups are never offered for restore.
 - Made at app start and daily. The last 10 are kept. Backup assets no retained backup references are pruned.
 - **Restore** uses only the backup set: it copies any missing assets from the backup asset store into the working store, keeps a copy of the data being replaced, and then loads the snapshot. It works into an empty data folder with the original working assets gone.
-- **Service bundle export** (zip with assets) for moving a service to another machine.
+- **Service bundle export** (zip with assets) for moving a service to another machine. Built: `src/bundle.rs`, Services → Save to file / Open from file, `.rpservice`. Carries the service and only the library entries it uses, not settings. Opening reuses what the computer already has (songs with the same words, media and decks with the same files). A song with other words comes in as a second copy, so the service shows what was saved and the library's song is untouched.
 - Autosave on every change.
 
 ## 12. Operator, foldback, phone remote
@@ -431,6 +438,8 @@ User decisions taken in this revision: Next at last slide → next item; Bible s
 | Small correction 3: plan error summary and optional foldback | `PROJECT_PLAN.md` §2, §14.2 Displays | — | — |
 
 ## 19. Implementation status (v0.2, October 29)
+
+*Note, November 3, 2026: architecture changes 1 and 2 below (Tauri windows, FFmpeg conversion) are replaced by the native app and mpv playback. The rest is kept as history.*
 
 The user approved the design and asked for the app to be built. What exists now:
 

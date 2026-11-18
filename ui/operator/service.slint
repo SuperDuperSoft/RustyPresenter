@@ -1,0 +1,462 @@
+// The service column (`web/operator.html:26-31`, `operator.css:59-79`, `operator.js:123-153`): the item list with
+// drag to reorder, its empty state and the dashed "Add to service" button. The behaviour is in Rust (`service.rs`).
+import { Theme } from "../theme.slint";
+import { Btn, Chip, Icon, ScrollBox, PanelHead, DashedOutline } from "../widgets.slint";
+import { Select } from "../dialogs/form.slint";
+import { FilterBox, ListFilter } from "../filter.slint";
+import { Spinner } from "std-widgets.slint";
+
+/// One row of the list. `kind` is the icon name (`I[it.kind] || I.text`). A blank (FEAT-6a) is drawn dashed with a
+/// Choose button; a header is a coloured band in `color`.
+/// `custom-order`: a song played in this service's own order (FEAT-4), shown as a "Custom order" badge.
+export struct ServiceRow { id: string, num: int, kind: string, title: string, subtitle: string, selected: bool, live: bool, blank: bool, header: bool, color: color, custom-order: bool }
+
+/// A file on its way into the service, shown under the list from the drop or pick until it is added or fails.
+/// `percent`: how much is copied (0: not known yet).
+export struct ImportingRow { id: string, label: string, percent: int }
+
+/// Blanks and headers in the service list (FEAT-6a, `src/ui/dialogs/services.rs`).
+export global ServicePlanning {
+    /// "Importing talk.pptx…" rows under the list (`src/ui/operator/files.rs`).
+    in property <[ImportingRow]> importing;
+    /// Choose what goes in a blank: opens Add on the blank's kind.
+    callback choose(string);
+    /// The next colour for a header.
+    callback recolor(string);
+    callback add-header();
+    /// The service's theme (FEAT-1 §3.2): "Church default (…)", each theme, then "Manage themes…".
+    in property <[string]> theme-options;
+    in-out property <int> theme-index;
+    callback pick-theme(int);
+}
+
+export component ServiceColumn inherits VerticalLayout {
+    in property <[ServiceRow]> rows;
+    /// "3 items", or empty.
+    in property <string> count;
+    /// The number of items alone, shown in the head.
+    in property <string> count-short;
+    /// The first state read has arrived; until then the list is empty with no empty-state text.
+    in property <bool> loaded;
+    /// N8: the words in the filter box under the list; rows without them are hidden.
+    in-out property <string> filter;
+
+    callback select(string);
+    callback show-first(string);
+    callback edit(string);
+    callback remove(string);
+    callback add();
+    /// Preflight: is everything this service needs really there?
+    callback check();
+    /// Drop on row `to` (by item id, so a rebuilt list cannot move the wrong item).
+    callback move(string, int);
+    callback drag-started();
+    callback drag-finished();
+    /// The drag payload for a row: plain text `svc:<id>` (`data-transfer` is opaque in Slint).
+    pure callback drag-data(string) -> data-transfer;
+    /// The item id in a drag payload, or "" when it is not a service row (files, text from elsewhere).
+    pure callback drag-id(data-transfer) -> string;
+
+    PanelHead {
+        title: @tr("Service");
+        // The bare number: "12 items" (longer still in other languages) does not fit beside the two buttons and
+        // was cut to "1 it…".
+        count: root.count-short != "" ? root.count-short : root.count;
+        VerticalLayout {
+            alignment: center;
+            header-btn := Btn {
+                small: true;
+                icon: "plus";
+                accessible-role: button;
+                accessible-label: @tr("Add a header");
+                tooltip: @tr("Add a coloured heading to the service list, like “Worship” or “Message”");
+                clicked => { ServicePlanning.add-header(); }
+            }
+        }
+        VerticalLayout {
+            alignment: center;
+            check-btn := Btn {
+                small: true;
+                text: @tr("Check");
+                tooltip: @tr("Before the service: are all the songs, files and screens there?");
+                clicked => { root.check(); }
+            }
+        }
+    }
+
+    if ServicePlanning.theme-options.length > 0: HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        padding-bottom: 6px;
+        spacing: 8px;
+        Text {
+            text: @tr("Theme");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 12px;
+            font-weight: 700;
+            vertical-alignment: center;
+        }
+        service-theme := Select {
+            horizontal-stretch: 1;
+            options: ServicePlanning.theme-options;
+            index <=> ServicePlanning.theme-index;
+            accessible-label: @tr("Theme for this service");
+            changed(i) => { ServicePlanning.pick-theme(i); }
+        }
+    }
+
+    // `.items`: padding 0 8px, rows 2 px apart.
+    ScrollBox {
+        vertical-stretch: 1;
+        VerticalLayout {
+            padding-left: 8px;
+            padding-right: 8px;
+            alignment: start;
+
+            // Rows 2 px apart; a row the filter hides takes no room (`i` stays the row's place in the whole list).
+            for it[i] in root.rows: VerticalLayout {
+                padding-bottom: ListFilter.shown(it.title + " " + it.subtitle, root.filter) ? 2px : 0px;
+                if ListFilter.shown(it.title + " " + it.subtitle, root.filter): row := Rectangle {
+                    accessible-role: list-item;
+                    accessible-label: it.title;
+                    accessible-description: it.subtitle;
+                    accessible-item-selected: it.selected;
+                    accessible-item-index: i;
+                    accessible-item-count: root.rows.length;
+
+                    // `.item.drag-over` squares the row and draws a 2 px accent top border.
+                    border-radius: drop.has-drag ? 0 : 10px;
+                    border-width: 1.5px;
+                    border-color: it.selected ? Theme.line : transparent;
+                    background: it.header ? it.color.with-alpha(it.selected ? 0.32 : 0.2) : it.selected ? Theme.raise : row-ta.has-hover ? Theme.panel-2 : transparent;
+
+                    if it.blank: DashedOutline {
+                        line-color: Theme.dash;
+                        radius: 10px;
+                    }
+                    if it.header: Rectangle {
+                        x: 0;
+                        width: 4px;
+                        y: 6px;
+                        height: parent.height - 12px;
+                        background: it.color;
+                        border-radius: 2px;
+                    }
+                    opacity: drag.dragging ? 0.4 : 1;
+
+                    // `.item.live::before`: a 4 px bar in the list's left padding.
+                    if it.live: Rectangle {
+                        x: -8px;
+                        y: 8px;
+                        width: 4px;
+                        height: parent.height - 16px;
+                        background: Theme.live;
+                        border-top-right-radius: 4px;
+                        border-bottom-right-radius: 4px;
+                    }
+
+                    // The CSS padding sits inside the 1.5 px border; a Slint layout's starts at the outer edge.
+                    HorizontalLayout {
+                        padding-top: (it.header ? 7px : 9px) + 1.5px;
+                        padding-bottom: (it.header ? 7px : 9px) + 1.5px;
+                        padding-left: it.header ? 14px : 10px + 1.5px;
+                        padding-right: 10px + 1.5px;
+                        spacing: 10px;
+                        if !it.header: Text {
+                            width: 18px;
+                            text: it.num;
+                            color: Theme.faint;
+                            font-family: Theme.font;
+                            font-size: 12px;
+                            horizontal-alignment: right;
+                            vertical-alignment: center;
+                        }
+                        if !it.header: VerticalLayout {
+                            alignment: center;
+                            Rectangle {
+                                width: 30px;
+                                height: 30px;
+                                border-radius: 8px;
+                                background: Theme.panel-2;
+                                Icon {
+                                    name: it.kind;
+                                    color: it.live ? Theme.live : Theme.muted;
+                                }
+                            }
+                        }
+                        VerticalLayout {
+                            horizontal-stretch: 1;
+                            min-width: 0px;
+                            alignment: center;
+                            HorizontalLayout {
+                                spacing: 6px;
+                                title := Text {
+                                    horizontal-stretch: 1;
+                                    text: it.title;
+                                    color: it.header ? it.color : it.blank ? Theme.muted : Theme.text;
+                                    font-family: Theme.font;
+                                    font-size: it.header ? 12.5px : Theme.base-size;
+                                    font-weight: it.header ? 800 : 600;
+                                    letter-spacing: it.header ? 0.6px : 0px;
+                                    overflow: elide;
+                                }
+                                if it.custom-order: VerticalLayout {
+                                    alignment: center;
+                                    custom-order := Chip {
+                                        text: @tr("Custom order");
+                                        tooltip: @tr("Custom order for this service");
+                                    }
+                                }
+                            }
+                            if !it.header: Text {
+                                text: it.subtitle;
+                                color: Theme.muted;
+                                font-family: Theme.font;
+                                font-size: 12px;
+                                overflow: elide;
+                            }
+                        }
+                        // Room for the Choose button (drawn over the row's touch area, below).
+                        if it.blank: Rectangle { width: 72px; }
+                    }
+
+                    if drop.has-drag: Rectangle {
+                        y: 0;
+                        height: 2px;
+                        background: Theme.accent;
+                    }
+
+                    // `ondragover`/`ondrop`: only another service row may be dropped here.
+                    drop := DropArea {
+                        can-drop(e) => {
+                            let id = root.drag-id(e.data);
+                            return id != "" && id != it.id ? DragAction.move : DragAction.none;
+                        }
+                        dropped(e) => {
+                            let id = root.drag-id(e.data);
+                            if id != "" && id != it.id {
+                                root.move(id, i);
+                            }
+                            return e.proposed-action;
+                        }
+                    }
+
+                    drag := DragArea {
+                        allow-move: true;
+                        data: root.drag-data(it.id);
+                        changed dragging => {
+                            if self.dragging {
+                                root.drag-started();
+                            }
+                        }
+                        drag-finished => { root.drag-finished(); }
+
+                        row-ta := TouchArea {
+                            mouse-cursor: pointer;
+                            clicked => { root.select(it.id); }
+                            double-clicked => { root.show-first(it.id); }
+
+                            if it.blank: choose-btn := Btn {
+                                width: self.preferred-width;
+                                height: self.preferred-height;
+                                x: parent.width - self.width - 10px - 1.5px;
+                                y: (parent.height - self.height) / 2;
+                                small: true;
+                                primary: true;
+                                text: @tr("Choose");
+                                tooltip: @tr("Choose what goes here");
+                                clicked => { ServicePlanning.choose(it.id); }
+                            }
+
+                            // Right-click a row: the same actions as the bar under the list. Nothing pops up over the
+                            // rows as the pointer passes, so the titles keep their room and no button sits under a click.
+                            ContextMenuArea {
+                                Menu {
+                                    MenuItem {
+                                        title: @tr("Edit");
+                                        activated => { root.edit(it.id); }
+                                    }
+                                    if it.header: MenuItem {
+                                        title: @tr("Change colour");
+                                        activated => { ServicePlanning.recolor(it.id); }
+                                    }
+                                    MenuItem {
+                                        title: @tr("Remove from service (Delete)");
+                                        activated => { root.remove(it.id); }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Files being imported, each with a spinner, until they are in the list.
+            for job in ServicePlanning.importing: VerticalLayout {
+                padding-bottom: 2px;
+                importing := Rectangle {
+                    height: 44px;
+                    border-radius: 8px;
+                    background: Theme.panel-2;
+                    accessible-role: progress-indicator;
+                    accessible-label: job.label;
+                    accessible-value: job.percent > 0 ? "\{job.percent}%" : "";
+                    HorizontalLayout {
+                        padding-left: 12px;
+                        padding-right: 12px;
+                        spacing: 10px;
+                        VerticalLayout {
+                            alignment: center;
+                            Spinner {
+                                width: 20px;
+                                height: 20px;
+                                indeterminate: true;
+                            }
+                        }
+                        Text {
+                            horizontal-stretch: 1;
+                            text: job.label;
+                            color: Theme.text;
+                            font-family: Theme.font;
+                            font-size: Theme.base-size;
+                            vertical-alignment: center;
+                            overflow: elide;
+                        }
+                        if job.percent > 0 && job.percent < 100: Text {
+                            text: "\{job.percent}%";
+                            color: Theme.muted;
+                            font-family: Theme.font;
+                            font-size: 12px;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+            }
+
+            if root.loaded && root.rows.length == 0 && ServicePlanning.importing.length == 0: empty := VerticalLayout {
+                // `.empty`: padding 28px 18px, line-height 1.6; the `<b>` is a 15 px block 4 px above the text.
+                padding-top: 28px;
+                padding-bottom: 28px;
+                padding-left: 18px - 8px;
+                padding-right: 18px - 8px;
+                spacing: 4px;
+                empty-title := Text {
+                    text: @tr("Your service is empty");
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: 15px;
+                    font-weight: 700;
+                    horizontal-alignment: center;
+                    wrap: word-wrap;
+                }
+                empty-text := Text {
+                    text: @tr("Add songs, videos and slides, type a Bible verse up top, or drag files onto this window.");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: Theme.base-size;
+                    horizontal-alignment: center;
+                    wrap: word-wrap;
+                }
+                // N7: one big button for the next step.
+                HorizontalLayout {
+                    alignment: center;
+                    padding-top: 10px;
+                    empty-add := Btn {
+                        primary: true;
+                        icon: "plus";
+                        text: @tr("Add to service");
+                        clicked => { root.add(); }
+                    }
+                }
+            }
+        }
+    }
+
+    // The selected item's actions, always in the same place under the list.
+    for it in root.rows: VerticalLayout {
+        if it.selected: HorizontalLayout {
+            padding-left: 8px;
+            padding-right: 8px;
+            padding-top: 6px;
+            spacing: 6px;
+            edit := Btn {
+                horizontal-stretch: 0;
+                small: true;
+                icon: "edit";
+                text: @tr("Edit");
+                clicked => { root.edit(it.id); }
+            }
+            if it.header: color := Btn {
+                horizontal-stretch: 0;
+                small: true;
+                icon: "star";
+                accessible-role: button;
+                accessible-label: @tr("Change colour");
+                tooltip: @tr("Change colour");
+                clicked => { ServicePlanning.recolor(it.id); }
+            }
+            Rectangle { horizontal-stretch: 1; }
+            trash := Btn {
+                horizontal-stretch: 0;
+                small: true;
+                icon: "trash";
+                accessible-role: button;
+                accessible-label: @tr("Remove from service (Delete)");
+                tooltip: @tr("Remove from service (Delete)");
+                clicked => { root.remove(it.id); }
+            }
+        }
+    }
+
+    // N8: the filter box under the list.
+    if root.loaded && root.rows.length > 0: HorizontalLayout {
+        padding-left: 8px;
+        padding-right: 8px;
+        padding-top: 6px;
+        service-filter := FilterBox {
+            text <=> root.filter;
+            placeholder: @tr("Filter the service");
+        }
+    }
+
+    // `.add-btn`: margin 8, padding 13, dashed border, accent text.
+    HorizontalLayout {
+        padding: 8px;
+        add-btn := Rectangle {
+            border-radius: 10px;
+            background: add-ta.has-hover ? Theme.add-hover : transparent;
+            accessible-role: button;
+            accessible-label: @tr("Add to service");
+            accessible-action-default => { root.add(); }
+            HorizontalLayout {
+                padding: 13px;
+                spacing: 8px;
+                alignment: center;
+                VerticalLayout {
+                    alignment: center;
+                    Icon {
+                        name: "plus";
+                        color: Theme.accent;
+                    }
+                }
+                Text {
+                    text: @tr("Add to service");
+                    color: Theme.accent;
+                    font-family: Theme.font;
+                    font-size: 14.5px;
+                    font-weight: 700;
+                    vertical-alignment: center;
+                }
+            }
+            DashedOutline {
+                line-color: add-ta.has-hover ? Theme.accent : Theme.dash;
+                radius: 10px;
+            }
+            add-ta := TouchArea {
+                mouse-cursor: pointer;
+                clicked => { root.add(); }
+            }
+        }
+    }
+}

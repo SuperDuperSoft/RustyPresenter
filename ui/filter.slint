@@ -1,0 +1,110 @@
+// N8: a filter box under a list. Typing hides the rows that don't hold every word; the list keeps its order and its
+// row numbers, so the buttons on a row still act on the right one. Matching is in Rust (`list_filter.rs`).
+import { Theme, OperatorState } from "theme.slint";
+import { Icon } from "widgets.slint";
+
+/// Answered by `src/ui/operator/list_filter.rs`.
+export global ListFilter {
+    /// Whether `text` holds every word of `query`, in any order and any letter case.
+    pure callback matches(string, string) -> bool;
+    /// Lists with fewer rows than this show no filter box (Themes, Overlays, Stage layouts).
+    out property <int> min-rows: 6;
+    /// Whether a row with `text` shows under the filter `query`.
+    public pure function shown(text: string, query: string) -> bool {
+        return query == "" || ListFilter.matches(text, query);
+    }
+}
+
+/// The box: a magnifier, the words, and an X that empties it.
+export component FilterBox inherits Rectangle {
+    in-out property <string> text;
+    in property <string> placeholder: @tr("Filter");
+    callback edited(string);
+    forward-focus: input;
+
+    height: 32px;
+    background: Theme.bg;
+    border-color: input.has-focus ? Theme.accent : Theme.line;
+    border-width: 1.5px;
+    border-radius: 8px;
+    accessible-role: text-input;
+    accessible-label: root.placeholder;
+    accessible-placeholder-text: root.placeholder;
+    accessible-value: root.text;
+    accessible-action-set-value(v) => {
+        root.text = v;
+        root.edited(v);
+    }
+
+    HorizontalLayout {
+        padding-left: 8px;
+        padding-right: 4px;
+        spacing: 6px;
+        VerticalLayout {
+            alignment: center;
+            Icon {
+                width: 14px;
+                height: 14px;
+                name: "search";
+                color: Theme.faint;
+            }
+        }
+        Rectangle {
+            horizontal-stretch: 1;
+            if input.text == "": Text {
+                width: parent.width;
+                height: parent.height;
+                text: root.placeholder;
+                color: Theme.faint;
+                font-family: Theme.font;
+                font-size: 13px;
+                overflow: elide;
+                vertical-alignment: center;
+            }
+            input := TextInput {
+                width: parent.width;
+                height: parent.height;
+                text <=> root.text;
+                single-line: true;
+                color: Theme.text;
+                selection-background-color: Theme.accent;
+                selection-foreground-color: Theme.accent-ink;
+                font-family: Theme.font;
+                font-size: 13px;
+                vertical-alignment: center;
+                changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
+                edited => { root.edited(self.text); }
+            }
+        }
+        if root.text != "": VerticalLayout {
+            alignment: center;
+            clear := Rectangle {
+                width: 24px;
+                height: 24px;
+                border-radius: 6px;
+                background: clear-ta.has-hover ? Theme.line : transparent;
+                accessible-role: button;
+                accessible-label: @tr("Clear the filter");
+                accessible-action-default => {
+                    root.text = "";
+                    root.edited("");
+                }
+                Icon {
+                    x: 5px;
+                    y: 5px;
+                    width: 14px;
+                    height: 14px;
+                    name: "close";
+                    color: Theme.muted;
+                }
+                clear-ta := TouchArea {
+                    mouse-cursor: pointer;
+                    clicked => {
+                        root.text = "";
+                        root.edited("");
+                    }
+                }
+            }
+        }
+    }
+}

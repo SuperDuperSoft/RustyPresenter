@@ -1,0 +1,59 @@
+// The operator's scrolling area with the web page's styled scrollbar (re-exported by `widgets.slint`).
+import { Theme } from "theme.slint";
+
+/// A scrolling area with the web's scrollbar (`::-webkit-scrollbar`: 10 px, thumb radius 6 with a 2 px border
+/// in the panel colour). The children are the content; a layout child sizes the viewport.
+///
+/// To fill a parent that is not a layout, give it `x: 0; y: 0;` as well as `width: parent.width; height: parent.height;`.
+/// Slint counts a child with a size but no position as fixed at that size, so the parent's minimum and maximum (and
+/// so the window's) would become its current size: the window could not be made smaller.
+export component ScrollBox inherits Rectangle {
+    in-out property <length> content-y <=> fl.content-y;
+    out property <length> content-height: fl.content-height;
+    /// The colour around the thumb: the surface the box sits on.
+    in property <color> track-edge: Theme.panel;
+
+    property <bool> scrolls: fl.content-height > fl.height + 0.5px;
+    property <length> thumb-h: max(24px, root.height * root.height / max(fl.content-height, 1px));
+    property <length> travel: fl.content-height - fl.height;
+
+    fl := Flickable {
+        // A web page never pans with a mouse drag (only the wheel and the scrollbar), and a pan would steal
+        // the drag from a `DragArea` inside (the service rows).
+        mouse-drag-pan-enabled: false;
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.height;
+        @children
+    }
+
+    if root.scrolls: Rectangle {
+        x: root.width - self.width;
+        y: root.travel <= 0 ? 0 : (-fl.content-y) / root.travel * (root.height - root.thumb-h);
+        width: 10px;
+        height: root.thumb-h;
+        background: Theme.scroll-thumb;
+        border-radius: 6px;
+        border-width: 2px;
+        border-color: root.track-edge;
+        // The thumb moves while it is dragged, so the pointer is measured in the box's coordinates.
+        TouchArea {
+            property <length> start-view;
+            property <length> start-pointer;
+            pointer-event(e) => {
+                if e.kind == PointerEventKind.down {
+                    self.start-view = fl.content-y;
+                    self.start-pointer = parent.y + self.mouse-y;
+                }
+            }
+            moved => {
+                if self.pressed && root.height > root.thumb-h {
+                    fl.content-y = clamp(
+                        self.start-view - (parent.y + self.mouse-y - self.start-pointer) * root.travel / (root.height - root.thumb-h),
+                        -root.travel, 0px);
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,53 @@
+# cargo-packager 0.11.8 configuration (camelCase keys; see packaging/README.md).
+# Kept out of Cargo.toml so packaging changes never touch the build manifest.
+#
+# Run from the repository root, always naming this file, after packaging/stage.sh <os>:
+#   cargo packager --release -c Packager.toml -f nsis
+# With `-c` a broken file is reported; without it cargo-packager silently skips it.
+#
+# The packaged binary is `rustypresenter`.
+
+# `name` is set explicitly: cargo-packager 0.11.8 otherwise looks it up by changing
+# into this file's path, which fails when the file is given with `-c`.
+name = "rustypresenter"
+productName = "RustyPresenter"
+identifier = "church.gracefirst.rustypresenter"
+version = "1.3.0"                    # keep equal to Cargo.toml; CI checks it (ci.yml version-match)
+publisher = "RustyPresenter contributors"
+outDir = "dist"
+# Binaries are read from here, not from outDir. cargo-packager 0.11.8 accepts but
+# ignores `--binaries-dir`, so package with CARGO_TARGET_DIR unset (see packaging/README.md).
+binariesDir = "target/release"
+icons = ["packaging/icons/32x32.png", "packaging/icons/128x128.png", "packaging/icons/256x256.png", "packaging/icons/icon.icns", "packaging/icons/icon.ico"]
+binaries = [{ path = "rustypresenter", main = true }]
+beforePackagingCommand = "cargo build --release --locked"
+resources = [
+  { src = "packaging/native/*", target = "." },
+  { src = "THIRD-PARTY-LICENSES.txt", target = "licenses/THIRD-PARTY-LICENSES.txt" },
+  # Notices of the code built into libmpv and pdfium, staged by stage.sh from their archives.
+  { src = "packaging/native-licenses/*", target = "licenses/" },
+]
+
+[nsis]
+installMode = "currentUser"
+# The stock template installs a currentUser build to %LOCALAPPDATA%\RustyPresenter, which
+# is the data folder. This copy installs to %LOCALAPPDATA%\Programs\RustyPresenter.
+template = "packaging/windows/installer.nsi"
+compression = "lzma"
+
+[macos]
+minimumSystemVersion = "12.0"
+signingIdentity = "-"
+# Hardened runtime plus an ad-hoc signature: without this, dlopen of the Frameworks dylibs fails.
+entitlements = "packaging/macos/entitlements.plist"
+# The words macOS shows when the app first opens a camera or a sound input.
+infoPlistPath = "packaging/macos/Info.plist"
+frameworks = ["packaging/native-macos/libmpv.2.dylib", "packaging/native-macos/libpdfium.dylib"]
+
+[appimage]
+libs = ["libmpv.so.2"]
+
+[deb]
+depends = ["libmpv2", "libfontconfig1", "libxkbcommon0"]
+# Recommends: pulseaudio-utils (parec/pactl/pacat for the livestream's sound). cargo-packager 0.11.8 has no field for
+# it; packaging/linux/deb-recommends.sh adds it to the built .deb (package.yml runs it).

@@ -1,0 +1,188 @@
+// N15: the action palette in the slides column. Every action a slide can do is a tile; drag one onto a slide, or click
+// it to add it to the slide picked at the top. A slide's actions run when it is taken live, never in a preview.
+// Filled by `src/ui/operator/action_palette.rs`.
+import { Theme } from "../theme.slint";
+import { Btn, Icon, ScrollBox, TipArea } from "../widgets.slint";
+import { Select } from "../dialogs/form.slint";
+
+/// A tile. `code` is what it adds (Rust reads it back); `off` says why it can't be used yet ("" when it can).
+export struct PaletteTile { label: string, code: string, off: string }
+export struct PaletteRow { tiles: [PaletteTile] }
+export struct PaletteGroup { name: string, rows: [PaletteRow] }
+/// One action already on the picked slide (`index` in its list).
+export struct SlideActChip { index: int, label: string }
+export struct SlideActChipRow { chips: [SlideActChip] }
+
+export global SlideActs {
+    in property <bool> open;
+    in property <[PaletteGroup]> groups;
+    /// "Slide 1", "Slide 2 — Chorus"…, one per slide of the selected item.
+    in property <[string]> slide-options;
+    in-out property <int> slide;
+    in property <[SlideActChipRow]> current;
+    callback toggle();
+    callback slide-picked(int);
+    /// A tile was clicked: it goes on the picked slide.
+    callback add(string);
+    callback remove(int);
+    /// A thumbnail's badge: the palette opens on that slide.
+    callback badge(int);
+    pure callback drag-data(string) -> data-transfer;
+    pure callback can-drop(data-transfer) -> bool;
+    /// A tile was dropped on slide `idx`.
+    callback dropped(int, data-transfer);
+}
+
+component Tile inherits Rectangle {
+    in property <PaletteTile> tile;
+    height: 30px;
+    border-radius: 7px;
+    background: root.tile.off != "" ? Theme.panel-2 : ta.has-hover ? Theme.btn-hover : Theme.raise;
+    border-width: 1px;
+    border-color: Theme.line;
+    accessible-role: button;
+    accessible-label: root.tile.label;
+    accessible-description: root.tile.off;
+    accessible-action-default => { if root.tile.off == "" { SlideActs.add(root.tile.code); } }
+    Text {
+        x: 8px;
+        width: parent.width - 16px;
+        height: parent.height;
+        text: root.tile.label;
+        color: root.tile.off != "" ? Theme.muted : Theme.text;
+        font-family: Theme.font;
+        font-size: 12.5px;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+    DragArea {
+        allow-copy: true;
+        data: SlideActs.drag-data(root.tile.code);
+        ta := TouchArea {
+            mouse-cursor: root.tile.off != "" ? default : pointer;
+            clicked => { if root.tile.off == "" { SlideActs.add(root.tile.code); } }
+        }
+    }
+    TipArea { text: root.tile.off != "" ? root.tile.off : @tr("Drag onto a slide, or click to add it to the picked slide"); hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
+}
+
+export component ActionPalette inherits Rectangle {
+    background: Theme.panel-2;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: Theme.line;
+    height: self.preferred-height;
+    /// Four tiles to a row: the inside width less the padding, the scrollbar and three gaps.
+    property <length> tile-w: max(60px, (root.width - 20px - 14px - 18px) / 4);
+    VerticalLayout {
+        padding: 10px;
+        spacing: 6px;
+        HorizontalLayout {
+            spacing: 8px;
+            VerticalLayout { alignment: center; Icon { name: "bolt"; color: Theme.accent; } }
+            Text {
+                text: @tr("Slide actions");
+                color: Theme.text;
+                font-family: Theme.font;
+                font-size: 14px;
+                font-weight: 700;
+                vertical-alignment: center;
+            }
+            palette-slide := Select {
+                width: 200px;
+                height: 32px;
+                options: SlideActs.slide-options;
+                index <=> SlideActs.slide;
+                changed(i) => { SlideActs.slide-picked(i); }
+            }
+            Rectangle { horizontal-stretch: 1; }
+            palette-close := Btn {
+                small: true;
+                icon: "close";
+                tooltip: @tr("Close the action palette");
+                clicked => { SlideActs.toggle(); }
+            }
+        }
+        Text {
+            text: @tr("They run when the slide goes live, never in a preview.");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 12px;
+            wrap: word-wrap;
+        }
+        if SlideActs.current.length == 0: Text {
+            text: @tr("This slide does nothing extra yet.");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 12.5px;
+            font-italic: true;
+        }
+        for row in SlideActs.current: HorizontalLayout {
+            spacing: 6px;
+            alignment: start;
+            for c in row.chips: Rectangle {
+                width: 180px;
+                height: 26px;
+                border-radius: 13px;
+                background: Theme.accent.with-alpha(0.18);
+                border-width: 1px;
+                border-color: Theme.accent;
+                HorizontalLayout {
+                    padding-left: 10px;
+                    padding-right: 2px;
+                    Text {
+                        horizontal-stretch: 1;
+                        text: (c.index + 1) + ". " + c.label;
+                        color: Theme.text;
+                        font-family: Theme.font;
+                        font-size: 12px;
+                        vertical-alignment: center;
+                        overflow: elide;
+                    }
+                    Rectangle {
+                        width: 22px;
+                        accessible-role: button;
+                        accessible-label: @tr("Take off “{}”", c.label);
+                        accessible-action-default => { SlideActs.remove(c.index); }
+                        Icon {
+                            width: 14px;
+                            height: 14px;
+                            name: "close";
+                            color: x-ta.has-hover ? Theme.danger-text : Theme.muted;
+                        }
+                        x-ta := TouchArea {
+                            mouse-cursor: pointer;
+                            clicked => { SlideActs.remove(c.index); }
+                        }
+                    }
+                }
+            }
+        }
+        ScrollBox {
+            height: min(220px, tiles.preferred-height);
+            tiles := VerticalLayout {
+                spacing: 4px;
+                alignment: start;
+                for g in SlideActs.groups: VerticalLayout {
+                    spacing: 4px;
+                    padding-bottom: 4px;
+                    Text {
+                        text: g.name;
+                        color: Theme.muted;
+                        font-family: Theme.font;
+                        font-size: 11px;
+                        font-weight: 700;
+                    }
+                    for r in g.rows: HorizontalLayout {
+                        spacing: 6px;
+                        alignment: start;
+                        for t in r.tiles: Tile {
+                            width: root.tile-w;
+                            tile: t;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

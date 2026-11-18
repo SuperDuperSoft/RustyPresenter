@@ -1,0 +1,325 @@
+// The Bible picker's list (Bible library spec §7.2): a search, Favourites, Recent, then the installed Bibles by
+// language, a star on each row, and "Find more Bibles…". The Bible box's chip and Add → Bible each put one in their
+// own pop-up; the rows come from Rust (`ui::operator::bible::picker_rows`).
+import { Theme, OperatorState } from "theme.slint";
+import { Icon, ScrollBox } from "widgets.slint";
+import { PanelExtras } from "operator/extras.slint";
+
+/// One Bible in the Bible box: a chip, or a picker row. `name` is what the chip says ("RV1909 · spa"),
+/// `full-name` the title. `on` is the chosen one, `off` is not connected yet. A picker row with a `heading` is only
+/// that heading.
+export struct TranslationChip { id: string, name: string, full-name: string, on: bool, off: bool, favourite: bool, heading: string }
+
+/// The pop-up's content. Its owner closes the pop-up and moves the keyboard in `accept`, `pick` and `find-more`.
+export component BiblePickerList inherits Rectangle {
+    in property <[TranslationChip]> rows;
+    in-out property <string> search;
+    /// The line above the list (no match).
+    in property <string> note;
+    callback search-changed(string);
+    /// Enter in the search: the owner picks the first Bible listed.
+    callback accept();
+    callback pick(string);
+    callback toggle-favourite(string);
+    /// "Find more Bibles…" with the search.
+    callback find-more(string);
+    /// N6: the ⓘ on a row: what that Bible is and its licence. The owner closes the pop-up.
+    callback info(string);
+    /// The tallest the list of Bibles may be (less when the pop-up must stay clear of the previews).
+    in property <length> max-list: 360px;
+    Rectangle {
+        background: Theme.panel;
+        border-color: Theme.line;
+        border-width: 1px;
+        border-radius: 10px;
+        drop-shadow-blur: 24px;
+        drop-shadow-offset-y: 8px;
+        drop-shadow-color: Theme.shadow-dialog;
+        VerticalLayout {
+            padding: 6px;
+            spacing: 4px;
+            // Search the Bibles this computer has.
+            Rectangle {
+                height: 32px;
+                border-radius: 7px;
+                border-width: 1px;
+                border-color: picker-search.has-focus ? Theme.accent : Theme.line;
+                background: Theme.bg;
+                HorizontalLayout {
+                    padding-left: 8px;
+                    padding-right: 8px;
+                    spacing: 6px;
+                    VerticalLayout {
+                        alignment: center;
+                        Icon {
+                            width: 14px;
+                            height: 14px;
+                            name: "search";
+                            color: Theme.faint;
+                        }
+                    }
+                    Rectangle {
+                        horizontal-stretch: 1;
+                        if picker-search.text == "": Text {
+                            x: 0;
+                            y: 0;
+                            width: parent.width;
+                            height: parent.height;
+                            text: @tr("Search your Bibles");
+                            color: Theme.faint;
+                            font-family: Theme.font;
+                            font-size: 12.5px;
+                            vertical-alignment: center;
+                        }
+                        picker-search := TextInput {
+                            x: 0;
+                            y: 0;
+                            width: parent.width;
+                            height: parent.height;
+                            text <=> root.search;
+                            single-line: true;
+                            color: Theme.text;
+                            font-family: Theme.font;
+                            font-size: 12.5px;
+                            vertical-alignment: center;
+                            accessible-placeholder-text: @tr("Search your Bibles");
+                            init => { self.focus(); }
+                            changed has-focus => { OperatorState.focus-in-text = self.has-focus; }
+                            edited => { root.search-changed(self.text); }
+                            // Enter picks the first Bible listed.
+                            accepted => { root.accept(); }
+                        }
+                    }
+                }
+            }
+            if root.note != "": Text {
+                text: root.note;
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 11.5px;
+                wrap: word-wrap;
+            }
+            ScrollBox {
+                height: max(60px, min(root.max-list, picker-rows-box.preferred-height));
+                picker-rows-box := VerticalLayout {
+                    spacing: 1px;
+                    for row[i] in root.rows: Rectangle {
+                        height: row.heading != "" ? 24px : 30px;
+                        if row.heading != "": Text {
+                            x: 9px;
+                            y: 0;
+                            width: parent.width - 18px;
+                            height: parent.height - 3px;
+                            text: row.heading;
+                            color: Theme.faint;
+                            font-family: Theme.font;
+                            font-size: 10.5px;
+                            font-weight: 700;
+                            vertical-alignment: bottom;
+                            overflow: elide;
+                        }
+                        if row.heading == "": picker-row := Rectangle {
+                            border-radius: 6px;
+                            background: row.on ? Theme.accent : row-ta.has-hover ? Theme.raise : transparent;
+                            accessible-role: button;
+                            accessible-label: row.name;
+                            accessible-description: row.full-name;
+                            accessible-checked: row.on;
+                            accessible-action-default => { root.pick(row.id); }
+                            row-ta := TouchArea {
+                                mouse-cursor: pointer;
+                                clicked => { root.pick(row.id); }
+                            }
+                            HorizontalLayout {
+                                padding-left: 9px;
+                                padding-right: 4px;
+                                spacing: 8px;
+                                Text {
+                                    text: row.name;
+                                    color: row.on ? Theme.accent-ink : Theme.text;
+                                    font-family: Theme.font;
+                                    font-size: 12.5px;
+                                    font-weight: 700;
+                                    vertical-alignment: center;
+                                }
+                                Text {
+                                    horizontal-stretch: 1;
+                                    text: row.off ? @tr("not connected") : row.full-name;
+                                    color: row.on ? Theme.accent-ink : Theme.faint;
+                                    font-family: Theme.font;
+                                    font-size: 11.5px;
+                                    overflow: elide;
+                                    vertical-alignment: center;
+                                }
+                                // N6: what this Bible is, where it comes from and its licence.
+                                info := Rectangle {
+                                    width: 22px;
+                                    accessible-role: button;
+                                    accessible-label: @tr("About {}", row.name);
+                                    accessible-action-default => { root.info(row.id); }
+                                    Rectangle {
+                                        width: 15px;
+                                        height: 15px;
+                                        border-radius: 7.5px;
+                                        border-width: 1.3px;
+                                        border-color: row.on ? Theme.accent-ink : info-ta.has-hover ? Theme.accent : Theme.faint;
+                                        // The "i", drawn: a dot over a short bar.
+                                        Rectangle {
+                                            x: (parent.width - self.width) / 2;
+                                            y: 3.4px;
+                                            width: 1.8px;
+                                            height: 1.8px;
+                                            border-radius: 0.9px;
+                                            background: parent.border-color;
+                                        }
+                                        Rectangle {
+                                            x: (parent.width - self.width) / 2;
+                                            y: 6.2px;
+                                            width: 1.6px;
+                                            height: 5px;
+                                            background: parent.border-color;
+                                        }
+                                    }
+                                    info-ta := TouchArea {
+                                        mouse-cursor: pointer;
+                                        clicked => { root.info(row.id); }
+                                    }
+                                }
+                                // The star: favourites come first as chips.
+                                star := Rectangle {
+                                    width: 24px;
+                                    accessible-role: checkbox;
+                                    accessible-label: @tr("Favourite");
+                                    accessible-checked: row.favourite;
+                                    accessible-action-default => { root.toggle-favourite(row.id); }
+                                    Icon {
+                                        width: 14px;
+                                        height: 14px;
+                                        name: "star";
+                                        filled: row.favourite;
+                                        color: row.on ? Theme.accent-ink : row.favourite || star-ta.has-hover ? Theme.accent : Theme.faint;
+                                    }
+                                    star-ta := TouchArea {
+                                        mouse-cursor: pointer;
+                                        clicked => { root.toggle-favourite(row.id); }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // Opens Settings → Bible with the search carried over.
+            find-more := Rectangle {
+                height: 30px;
+                border-radius: 6px;
+                background: find-more-ta.has-hover ? Theme.raise : transparent;
+                accessible-role: button;
+                accessible-label: @tr("Find more Bibles…");
+                accessible-action-default => { root.find-more(root.search); }
+                Text {
+                    x: 9px;
+                    text: @tr("Find more Bibles…");
+                    color: Theme.accent;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    font-weight: 700;
+                    vertical-alignment: center;
+                }
+                find-more-ta := TouchArea {
+                    mouse-cursor: pointer;
+                    clicked => { root.find-more(root.search); }
+                }
+            }
+        }
+    }
+}
+
+/// A Bible's chip with a chevron that opens its own picker (Add → Bible and Item edit; the Bible box draws its own
+/// chip). The owner keeps the rows current: `opening` comes first, with the search emptied.
+export component BiblePickButton inherits Rectangle {
+    /// What the chip says ("KJV", "RV1909 · spa").
+    in property <string> label;
+    in property <[TranslationChip]> rows;
+    in-out property <string> search;
+    in property <string> note;
+    callback opening();
+    callback search-changed(string);
+    callback accept();
+    callback pick(string);
+    callback toggle-favourite(string);
+    callback find-more(string);
+    /// The pop-up closed after a pick: the owner gives the keyboard back.
+    callback done();
+
+    public function open() {
+        root.search = "";
+        root.opening();
+        popup.show();
+    }
+
+    horizontal-stretch: 0;
+    border-radius: 9px;
+    background: Theme.accent;
+    accessible-role: button;
+    accessible-label: root.label;
+    accessible-description: @tr("Choose a Bible");
+    accessible-action-default => { root.open(); }
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 9px;
+        spacing: 4px;
+        Text {
+            text: root.label;
+            color: Theme.accent-ink;
+            font-family: Theme.font;
+            font-size: 13px;
+            font-weight: 700;
+            vertical-alignment: center;
+        }
+        VerticalLayout {
+            alignment: center;
+            Icon {
+                width: 16px;
+                height: 16px;
+                name: "chevron-down";
+                color: Theme.accent-ink;
+            }
+        }
+    }
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.open(); }
+    }
+    popup := PopupWindow {
+        x: parent.width - self.width;
+        y: parent.height + 6px;
+        width: 300px;
+        close-policy: close-on-click-outside;
+        BiblePickerList {
+            rows: root.rows;
+            search <=> root.search;
+            note: root.note;
+            search-changed(text) => { root.search-changed(text); }
+            accept => {
+                root.accept();
+                popup.close();
+                root.done();
+            }
+            pick(id) => {
+                root.pick(id);
+                popup.close();
+                root.done();
+            }
+            toggle-favourite(id) => { root.toggle-favourite(id); }
+            find-more(q) => {
+                popup.close();
+                root.find-more(q);
+            }
+            info(id) => {
+                popup.close();
+                PanelExtras.bible-info(id);
+            }
+        }
+    }
+}

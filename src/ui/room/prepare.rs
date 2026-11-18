@@ -1,0 +1,300 @@
+//! Preparing the room's new layers off the UI thread: slides drawn by the shared renderer,
+//! pictures decoded at display size, and players created and loaded (paused) for video and audio.
+use super::Msg;
+use crate::{app::App, live::{Frame, Live, MediaLayer, SlideLayer}, model::{Background, SlideContent, Theme}, render::{Generation, RenderKey, Renderer, Wanted, parse_color}};
+use crate::room::{Kind, Want};
+use crate::media_prefs::{Scale, mpv_options};
+use crate::video::{Player, Players, Role, inputs};
+use slint::{Color, Image, Rgba8Pixel, SharedPixelBuffer};
+use crate::ui::block_on;
+use std::{path::{Path, PathBuf}, sync::{Arc, Mutex, mpsc}};
+use crate::render::Fonts;
+use crate::theme::overlay::{ImageSource, OverlaySlot, OverlaySource};
+
+/// Pixels made off the UI thread (an `Image` is not `Send`).
+pub enum Px { Straight(SharedPixelBuffer<Rgba8Pixel>), Premul(SharedPixelBuffer<Rgba8Pixel>) }
+
+impl Px {
+    pub fn image(self) -> Image {
+        match self { Px::Straight(b) => Image::from_rgba8(b), Px::Premul(b) => Image::from_rgba8_premultiplied(b) }
+    }
+}
+
+/// A player made on a prepare thread. It has no render context yet (the only part of a
+/// `Player` tied to a thread), so it may move to the UI thread once.
+pub(super) struct Fresh(pub(super) Player);
+unsafe impl Send for Fresh {}
+
+/// One prepared layer: a picture over a fill color, or a loaded, paused player. `Anim`: a designed slide's
+/// picture once its click group has played, and the group's pictures to play it with.
+pub(super) enum Made { Pic(Option<Px>, Color), Player(Fresh), Anim(Px, super::anim::Layers) }
+
+/// What the prepare worker shares with the room. `generation` moves on with each new plan, so the worker drops
+/// what an older plan still had to do.
+pub(super) struct Work {
+    pub(super) app: Arc<App>, pub(super) renderer: Arc<Renderer>, pub(super) video: Players, pub(super) audio: Players, pub(super) generation: Generation,
+    /// For drawing overlays, made on first use (it loads the system fonts).
+    pub(super) fonts: Mutex<Option<Fonts>>,
+}
+
+/// One plan's layers to prepare, with what they need from the live view. `wanted` goes stale once a newer plan
+/// starts.
+pub(super) struct Job { pub(super) token: u64, pub(super) wants: Vec<Want>, pub(super) frame: Frame, pub(super) theme: Theme, pub(super) logo: Option<String>, pub(super) canvas: (u32, u32), pub(super) wanted: Wanted }
+
+/// The room's one prepare thread, for as long as the room is open: it takes the newest job, skipping any that a
+/// newer one replaced while it was busy (one thread per plan used to queue up on the renderer with fast Next
+/// presses). Once the jobs are done it has the renderer draw the slides either side of the live one.
+pub(super) fn worker(work: Arc<Work>, send: impl Fn(Msg) + Send + 'static) -> std::io::Result<mpsc::Sender<Job>> {
+    let (tx, rx) = mpsc::channel::<Job>();
+    std::thread::Builder::new().name("room-prepare".into()).spawn(move || {
+        let mut next = None;
+        loop {
+            let Some(mut job) = next.take().or_else(|| rx.recv().ok()) else { return };
+            while let Ok(newer) = rx.try_recv() { job = newer }
+            prepare(&work, &job, &send);
+            // Nothing new waiting: draw ahead. Something waiting: do that first.
+            match rx.try_recv() {
+                Ok(newer) => next = Some(newer),
+                Err(mpsc::TryRecvError::Empty) => prefetch_neighbours(&work, &job),
+                Err(mpsc::TryRecvError::Disconnected) => return,
+            }
+        }
+    })?;
+    Ok(tx)
+}
+
+/// mpv settings for a camera or capture card (N11): as little delay as it can, no sound, never "ended".
+pub(in crate::ui) const CAMERA_OPTIONS: [(&str, &str); 5] = [("cache", "no"), ("untimed", "yes"), ("audio", "no"), ("loop-file", "no"), ("demuxer-lavf-o", "rtbufsize=100M")];
+
+enum Source {
+    Fill(Color),
+    /// A gradient, or a picture with Darken (`render::background`).
+    Painted { bg: Background, picture: Option<PathBuf> },
+    Picture { path: PathBuf, cover: bool, scale: f32 },
+    Text(RenderKey),
+    /// A designed slide with a click group to play.
+    Animated(RenderKey, Box<crate::design::Play>),
+    Overlays(Vec<OverlaySlot>),
+    Player { role: Role, inst: u64, path: PathBuf },
+}
+
+pub(in crate::ui) const BLACK: Color = Color::from_argb_u8(255, 0, 0, 0);
+
+pub(in crate::ui) fn color(s: &str) -> Color { let [r, g, b, a] = parse_color(s); Color::from_argb_u8(a, r, g, b) }
+
+fn source(kind: Kind, job: &Job, app: &App) -> Option<Source> {
+    let (f, asset) = (&job.frame, |a: &str| app.store.asset_path(a));
+    let picture = |a: &str, cover, scale| Source::Picture { path: asset(a), cover, scale };
+    Some(match kind {
+        Kind::Background => {
+            let b = f.background.as_ref()?;
+            match &b.v {
+                Background::Color { color: c } => Source::Fill(color(c)),
+                Background::Image { asset, dim: 0 } => picture(asset, true, 1.0),
+                Background::Image { asset: a, .. } => Source::Painted { bg: b.v.clone(), picture: Some(asset(a)) },
+                Background::Gradient { .. } => Source::Painted { bg: b.v.clone(), picture: None },
+                Background::Video { asset: a, .. } => Source::Player { role: Role::Background, inst: b.inst, path: asset(a) },
+                // N11: a camera or capture card plays like a background video.
+                Background::Camera { device, .. } => Source::Player { role: Role::Background, inst: b.inst, path: inputs::url(device, inputs::Os::here()).into() },
+            }
+        }
+        Kind::Media => {
+            let m = f.media.as_ref()?;
+            match &m.v {
+                // Fill and Stretch need the whole screen covered; the room's `media-fit` crops or stretches it.
+                MediaLayer::Still { asset } => picture(asset, app.data.lock().unwrap().settings.media.scale != Scale::Fit, 1.0),
+                MediaLayer::Video { asset: a, end, .. } => Source::Player { role: Role::Foreground(*end), inst: m.inst, path: asset(a) },
+            }
+        }
+        Kind::Slide => match f.slide.as_ref()? {
+            SlideLayer::Text { text, footer, reference, scripture, size: max, passage, parallel, theme } => Source::Text(RenderKey {
+                text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: *scripture,
+                size: *max, passage: passage.clone(), theme: theme.clone().unwrap_or_else(|| job.theme.clone()), canvas: job.canvas, parallel: parallel.clone(), design: None
+            }),
+            SlideLayer::Image { asset, .. } => picture(asset, false, 1.0),
+            SlideLayer::Design { design, play, .. } => {
+                let key = RenderKey::design(design, job.theme.clone(), job.canvas, app.store.assets());
+                match play { Some(p) if p.duration_ms() > 0 => Source::Animated(key, p.clone()), _ => Source::Text(key) }
+            }
+        },
+        // The logo sits on black at up to 70 % of the screen (`logoEl` in `render.js`).
+        Kind::Logo => match &job.logo { Some(a) => picture(a, false, 0.7), None => Source::Fill(BLACK) },
+        Kind::Overlays => Source::Overlays(f.overlays.clone()),
+        Kind::Audio => {
+            let a = f.audio.as_ref()?;
+            Source::Player { role: Role::Audio { looped: a.v.looped }, inst: a.inst, path: asset(&a.v.asset) }
+        }
+    })
+}
+
+/// Prepares every layer of `job`, players first (they take longest to be ready), and sends each
+/// as it is done. A player that cannot be made is reported by `Players` for its instance instead.
+/// Once a newer plan has started, what is left is dropped unsent (the room ignores an old plan anyway).
+pub(super) fn prepare(work: &Work, job: &Job, send: impl Fn(Msg)) {
+    let mut sources: Vec<_> = job.wants.iter().map(|w| (w.kind, source(w.kind, job, &work.app).unwrap_or(Source::Fill(Color::default())))).collect();
+    sources.sort_by_key(|(_, s)| !matches!(s, Source::Player { .. }));
+    let token = job.token;
+    for (kind, s) in sources {
+        if !job.wanted.still() { return }
+        let made = match s {
+            Source::Fill(c) => Ok(Made::Pic(None, c)),
+            Source::Picture { path, cover, scale } => {
+                let canvas = ((job.canvas.0 as f32 * scale) as u32, (job.canvas.1 as f32 * scale) as u32);
+                // Pictures sit on black, as in the web room; image backgrounds cover the screen.
+                picture(&path, canvas, cover).map(|px| Made::Pic(Some(px), BLACK))
+            }
+            Source::Overlays(slots) => {
+                let mut fonts = work.fonts.lock().unwrap();
+                let fonts = fonts.get_or_insert_with(Fonts::new);
+                let (px, failed) = overlays(fonts, &slots, &job.theme.font, job.canvas, |a| work.app.store.asset_path(a));
+                // A slot that can't be drawn is left out and reported; it never stops the rest of the frame.
+                for (key, inst, reason) in failed { send(Msg::Event(crate::live::RoomEvent::OverlayFailed { key, inst, reason })) }
+                Ok(Made::Pic(Some(px), Color::default()))
+            }
+            Source::Painted { bg, picture } => painted(&bg, picture.as_deref(), job.canvas).map(|px| Made::Pic(Some(px), Color::default())),
+            Source::Text(key) => {
+                // Shared with the renderer's cache, not copied.
+                let Some(r) = block_on(work.renderer.render_if(key, job.wanted.clone())) else { return };
+                Ok(Made::Pic(Some(Px::Premul(r.rgba_premul.buffer())), Color::default()))
+            }
+            Source::Animated(key, play) => {
+                let Some(r) = block_on(work.renderer.render_if(key, job.wanted.clone())) else { return };
+                let layers = {
+                    let mut fonts = work.fonts.lock().unwrap();
+                    let fonts = fonts.get_or_insert_with(Fonts::new);
+                    let mut picture = |a: &str| decode(&work.app.store.asset_path(a)).ok();
+                    crate::render::design::render_layers(fonts, &play, &job.theme.font, job.canvas, &mut picture)
+                };
+                Ok(Made::Anim(Px::Premul(r.rgba_premul.buffer()), super::anim::Layers { canvas: job.canvas, layers }))
+            }
+            Source::Player { role, inst, path } => {
+                let players = if matches!(role, Role::Audio { .. }) { &work.audio } else { &work.video };
+                let (sound, scale) = (work.app.sound_out(), work.app.data.lock().unwrap().settings.media.scale);
+                let Some(p) = players.create(role, inst, &sound.device, mpv_options(role, scale, &sound)) else { continue };
+                p.set_paused(true); // starts at the swap, like `startMedia` in `output.js`
+                if role == Role::Background {
+                    // Fill the screen like CSS `object-fit: cover`.
+                    let _ = unsafe { p.mpv().set_property(p.handle(), "panscan", "1.0") };
+                }
+                let live = inputs::is_device(&path);
+                // A camera (N11): a live picture with no buffering behind it and no sound from the device.
+                if live { for (k, v) in CAMERA_OPTIONS { let _ = unsafe { p.mpv().set_property(p.handle(), k, v) }; } }
+                // After a crash a video starts where it was; a camera has no place to go back to.
+                p.load(&path, if live { 0.0 } else { work.app.resume_position(inst).unwrap_or(0.0) });
+                Ok(Made::Player(Fresh(p)))
+            }
+        };
+        send(Msg::Made { token, kind, made });
+    }
+}
+
+/// The render keys of the live item's text slides either side of the live one, as the room would draw them (in the
+/// item's own theme).
+pub(super) fn neighbours(live: &Live, canvas: (u32, u32), assets: std::path::PathBuf) -> Vec<RenderKey> {
+    let (Some(item), Some(cursor)) = (live.item.as_ref(), live.cursor.as_ref()) else { return vec![] };
+    let scripture = item.kind == "scripture";
+    let passage = crate::model::passage(&item.kind, &item.slides);
+    [cursor.slide + 1, cursor.slide.wrapping_sub(1)].into_iter().filter_map(|i| match &item.slides.get(i)?.content {
+        SlideContent::Text { text, footer, reference, size, parallel } => Some(RenderKey {
+            text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture,
+            size: *size, passage: passage.clone(), theme: item.theme.clone(), canvas, parallel: parallel.clone(), design: None
+        }),
+        SlideContent::Design { design, .. } => Some(RenderKey::design(design, item.theme.clone(), canvas, assets.clone())),
+        _ => None,
+    }).collect()
+}
+
+/// While the room shows a text slide, has the renderer draw the next and previous ones when it is idle.
+fn prefetch_neighbours(work: &Work, job: &Job) {
+    if !matches!(job.frame.slide, Some(SlideLayer::Text { .. } | SlideLayer::Design { .. })) { return }
+    let keys = { let live = work.app.live.lock().unwrap(); neighbours(&live, job.canvas, work.app.store.assets()) };
+    for k in keys { work.renderer.prefetch(k) }
+}
+
+fn unreadable<E>(_: E) -> String { crate::tr!("picture could not be loaded") }
+
+/// Every overlay slot drawn over one transparent `canvas`-sized picture, in order, with the slots that could not be
+/// drawn as (key, inst, reason). Shared with the operator's live monitor.
+pub(in crate::ui) fn overlays(fonts: &mut Fonts, slots: &[OverlaySlot], theme_font: &str, canvas: (u32, u32), path: impl Fn(&str) -> PathBuf)
+    -> (Px, Vec<(String, u64, String)>) {
+    let ctx = crate::theme::overlay::BoundCtx::at(chrono::Local::now());
+    let mut placed = Vec::new();
+    let mut failed = Vec::new();
+    for slot in slots {
+        let picture = match &slot.source {
+            OverlaySource::Image { source: ImageSource::Asset { asset }, .. } => match decode(&path(asset)) {
+                Ok(p) => Some(p),
+                Err(_) => { failed.push((slot.key.clone(), slot.inst, crate::theme::strings::picture_unreadable())); continue }
+            },
+            _ => None,
+        };
+        let text = crate::theme::overlay::bound_text(&slot.source, &ctx);
+        if let Some(p) = crate::render::overlay::draw(fonts, slot, text.as_deref(), theme_font, canvas, picture.as_ref()) { placed.push(p) }
+    }
+    (Px::Premul(crate::render::overlay::compose(&placed, canvas).rgba_premul.buffer()), failed)
+}
+
+/// Fonts for the click-group pictures drawn away from the room (the operator's monitor, the phone), loaded once.
+static PLAY_FONTS: Mutex<Option<Fonts>> = Mutex::new(None);
+
+/// `play`'s pictures at `canvas` (`render_layers`), its pictures read from the media folder `assets`.
+pub fn play_layers(play: &crate::design::Play, theme_font: &str, canvas: (u32, u32), assets: &Path) -> Vec<crate::render::design::AnimLayer> {
+    let mut fonts = PLAY_FONTS.lock().unwrap_or_else(|e| e.into_inner());
+    let fonts = fonts.get_or_insert_with(Fonts::new);
+    let mut picture = |a: &str| decode(&assets.join(a)).ok();
+    crate::render::design::render_layers(fonts, play, theme_font, canvas, &mut picture)
+}
+
+fn decode(path: &Path) -> Result<image::RgbaImage, String> {
+    Ok(image::ImageReader::open(path).map_err(unreadable)?.with_guessed_format().map_err(unreadable)?.decode().map_err(unreadable)?.into_rgba8())
+}
+
+/// A gradient or a darkened picture background at `canvas` (`picture`: the image file).
+pub(in crate::ui) fn painted(bg: &Background, picture: Option<&Path>, canvas: (u32, u32)) -> Result<Px, String> {
+    let img = match picture { Some(p) => Some(decode(p)?), None => None };
+    Ok(Px::Premul(crate::render::background::background_pixels(bg, img.as_ref(), canvas).rgba_premul.buffer()))
+}
+
+/// Decodes a picture (by its content, not its name) and shrinks it to fit (`cover`: to fill) `w`×`h`.
+pub(in crate::ui) fn picture(path: &Path, (w, h): (u32, u32), cover: bool) -> Result<Px, String> {
+    let img = image::ImageReader::open(path).map_err(unreadable)?.with_guessed_format().map_err(unreadable)?.decode().map_err(unreadable)?.into_rgba8();
+    let (iw, ih) = img.dimensions();
+    let (sx, sy) = (w.max(1) as f32 / iw as f32, h.max(1) as f32 / ih as f32);
+    let s = if cover { sx.max(sy) } else { sx.min(sy) };
+    let img = if s < 1.0 {
+        let size = |n: u32| ((n as f32 * s).round() as u32).max(1);
+        image::imageops::resize(&img, size(iw), size(ih), image::imageops::FilterType::Triangle)
+    } else { img };
+    Ok(Px::Straight(SharedPixelBuffer::clone_from_slice(img.as_raw(), img.width(), img.height())))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{live::{Cursor, LiveItem}, model::Slide};
+
+    fn text(t: &str) -> Slide { Slide::new(String::new(), SlideContent::Text { text: t.into(), footer: None, reference: None, size: 90, parallel: None }) }
+
+    #[test]
+    fn neighbours_are_the_text_slides_either_side_of_the_live_one() {
+        let mut live = Live::new();
+        assert!(neighbours(&live, (64, 36), Default::default()).is_empty(), "nothing live");
+        let picture = Slide::new(String::new(), SlideContent::Image { asset: "p.png".into(), transition: None });
+        live.item = Some(LiveItem {
+            item_id: uuid::Uuid::nil(), title: "John 3".into(), kind: "scripture".into(), slides: vec![text("one"), text("two"), picture, text("four")],
+            background: Background::Color { color: "#000000".into() }, theme: Theme::default(),
+        });
+        let at = |live: &mut Live, slide| live.cursor = Some(Cursor { item_id: uuid::Uuid::nil(), item_index: 0, slide });
+        let texts = |live: &Live| neighbours(live, (64, 36), Default::default()).into_iter().map(|k| { assert!(k.scripture && k.canvas == (64, 36)); k.text }).collect::<Vec<_>>();
+        at(&mut live, 0);
+        assert_eq!(texts(&live), ["two"], "nothing before the first slide");
+        // The same size and passage as the room's own key, or the drawing done ahead is never used.
+        let key = neighbours(&live, (64, 36), Default::default()).remove(0);
+        assert_eq!(key.size, 90);
+        assert_eq!(key.passage.iter().map(|s| s.text.as_str()).collect::<Vec<_>>(), ["one", "two", "four"]);
+        at(&mut live, 1);
+        assert_eq!(texts(&live), ["one"], "a picture slide is not drawn ahead");
+        at(&mut live, 3);
+        assert_eq!(texts(&live), Vec::<String>::new(), "after the last: nothing; before it: a picture");
+    }
+}

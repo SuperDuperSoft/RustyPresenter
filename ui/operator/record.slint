@@ -1,0 +1,500 @@
+// N22: the top bar's Record button. Off: a hollow red ring and "Record". On: a red dot, the time recorded and a
+// red outline (no animation, so the window only redraws once a second); clicking stops. Behaviour is in `src/ui/operator/record.rs`.
+import { Theme } from "../theme.slint";
+import { TipArea } from "../widgets.slint";
+import { DockGuard } from "dock-guard.slint";
+
+/// Go Live: beside Record once a destination is switched on. Off: "Go Live". On: "Live" on red; clicking stops
+/// the stream and the recording.
+export component LiveBtn inherits Rectangle {
+    in property <bool> live;
+    /// While live: how many destinations are connected, of how many. Fewer than all: amber, with the count, while
+    /// the others reconnect by themselves.
+    in property <int> up;
+    in property <int> total;
+    /// Signed in, while live: how many are watching (-1: not known).
+    in property <int> watching: -1;
+    property <bool> short: root.live && root.up < root.total;
+    callback clicked();
+
+    accessible-role: button;
+    accessible-label: root.live ? @tr("Stop the livestream") : @tr("Go Live");
+    accessible-value: root.short ? @tr("{} of {} connected", root.up, root.total) : root.live && root.watching >= 0 ? @tr("{} watching", root.watching) : "";
+    accessible-action-default => { root.clicked(); }
+
+    border-radius: 9px;
+    border-width: 1px;
+    border-color: root.short ? Theme.accent : Theme.live;
+    background: root.short ? Theme.accent : root.live ? Theme.live : live-ta.has-hover ? Theme.raise : transparent;
+
+    HorizontalLayout {
+        padding: 8px;
+        padding-left: 10px;
+        padding-right: 10px;
+        Text {
+            text: root.short ? @tr("Live {}/{}", root.up, root.total) : root.live && root.watching >= 0 ? @tr("Live · {} watching", root.watching) : root.live ? @tr("Live") : @tr("Go Live");
+            color: root.short ? Theme.accent-ink : root.live ? white : Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: 700;
+            vertical-alignment: center;
+        }
+    }
+
+    live-ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+
+    TipArea { text: root.live ? @tr("Stop the livestream and save the recording") : @tr("Send the audience screen to the livestream, and record it"); hover: live-ta.has-hover; pressed: live-ta.pressed; pointer-x: live-ta.mouse-x; }
+}
+
+/// The stream's panic buttons, beside Live while live: Freeze (every picture stays as it is) and Mute (silence goes
+/// out). On: amber with the word for it ("Frozen", "Muted"); clicking again sets it off.
+export component PanicBtn inherits Rectangle {
+    in property <bool> on;
+    in property <string> text;
+    in property <string> on-text;
+    in property <string> tip;
+    in property <string> on-tip;
+    callback clicked();
+
+    accessible-role: button;
+    accessible-label: root.on ? root.on-text : root.text;
+    accessible-description: root.on ? root.on-tip : root.tip;
+    accessible-action-default => { root.clicked(); }
+
+    border-radius: 9px;
+    border-width: 1px;
+    border-color: root.on ? Theme.accent : Theme.line;
+    background: root.on ? Theme.accent : panic-ta.has-hover ? Theme.raise : transparent;
+
+    HorizontalLayout {
+        padding: 8px;
+        padding-left: 10px;
+        padding-right: 10px;
+        Text {
+            text: root.on ? root.on-text : root.text;
+            color: root.on ? Theme.accent-ink : Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: 600;
+            vertical-alignment: center;
+        }
+    }
+
+    panic-ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+
+    TipArea { text: root.on ? root.on-tip : root.tip; hover: panic-ta.has-hover; pressed: panic-ta.pressed; pointer-x: panic-ta.mouse-x; }
+}
+
+/// The stream's scene, beside Live while live (1.3b): the scene going out, and whether it was chosen by itself
+/// ("Auto") or by hand. Clicking opens the list: Automatic, then every scene. A scene clicked holds until another
+/// service item goes live; Automatic gives the choice back at once.
+export component SceneBtn inherits Rectangle {
+    /// The scenes' names, in `stream::scene::Scene::ALL` order.
+    in property <[string]> labels;
+    /// The scene going out (an index into `labels`).
+    in property <int> out;
+    /// The scene chosen by hand, or -1 for Automatic.
+    in property <int> chosen: -1;
+    /// Two cameras or more: their names, and the one in the picture.
+    in property <[string]> cameras;
+    in property <int> camera;
+    /// The camera in the picture can be moved to this many saved positions (0: none).
+    in property <int> positions;
+    callback pick(int);
+    callback pick-camera(int);
+    callback pick-position(int);
+
+    property <string> name: root.out >= 0 && root.out < root.labels.length ? root.labels[root.out] : "";
+
+    accessible-role: button;
+    accessible-label: @tr("Stream scene");
+    accessible-value: root.chosen < 0 ? @tr("{} (automatic)", root.name) : root.name;
+    accessible-action-default => { menu.show(); }
+
+    border-radius: 9px;
+    border-width: 1px;
+    border-color: Theme.line;
+    background: scene-ta.has-hover ? Theme.raise : transparent;
+
+    HorizontalLayout {
+        padding: 8px;
+        padding-left: 10px;
+        padding-right: 10px;
+        spacing: 6px;
+        Text {
+            text: root.name;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: 600;
+            vertical-alignment: center;
+        }
+        if root.chosen < 0: Text {
+            text: @tr("Auto");
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 12px;
+            vertical-alignment: center;
+        }
+    }
+
+    scene-ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { menu.show(); }
+    }
+
+    TipArea { text: @tr("What the livestream shows. It changes by itself with what is live; click to choose"); hover: scene-ta.has-hover; pressed: scene-ta.pressed; pointer-x: scene-ta.mouse-x; }
+
+    menu := PopupWindow {
+        // Never over the audience or stage preview (`DockGuard`).
+
+        x: DockGuard.place-x(root.absolute-position.x + 0, root.absolute-position.y + root.height + 4px, 220px, self.height) - root.absolute-position.x;
+        y: root.height + 4px;
+        width: 220px;
+        height: (root.labels.length + 1 + root.cameras.length + root.positions) * 32px + 9px + (root.cameras.length > 0 ? 9px : 0px) + (root.positions > 0 ? 9px : 0px);
+        close-policy: close-on-click-outside;
+        Rectangle {
+            background: Theme.panel-2;
+            border-color: Theme.line;
+            border-width: 1px;
+            border-radius: 9px;
+            VerticalLayout {
+                padding: 4px;
+                auto-row := Rectangle {
+                    height: 32px;
+                    border-radius: 6px;
+                    background: auto-ta.has-hover ? Theme.raise : transparent;
+                    accessible-role: list-item;
+                    accessible-label: @tr("Automatic");
+                    accessible-checked: root.chosen < 0;
+                    auto-ta := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { root.pick(-1); menu.close(); }
+                    }
+                    HorizontalLayout {
+                        padding-left: 10px;
+                        spacing: 8px;
+                        VerticalLayout {
+                            alignment: center;
+                            Rectangle { width: 8px; height: 8px; border-radius: 4px; background: root.chosen < 0 ? Theme.accent : transparent; }
+                        }
+                        Text {
+                            text: @tr("Automatic");
+                            color: Theme.text;
+                            font-family: Theme.font;
+                            font-size: 13px;
+                            font-weight: root.chosen < 0 ? 600 : 400;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+                for c[i] in root.cameras: camera-row := Rectangle {
+                    height: 32px;
+                    border-radius: 6px;
+                    background: cam-ta.has-hover ? Theme.raise : transparent;
+                    accessible-role: list-item;
+                    accessible-label: c;
+                    accessible-checked: i == root.camera;
+                    cam-ta := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { root.pick-camera(i); menu.close(); }
+                    }
+                    HorizontalLayout {
+                        padding-left: 10px;
+                        spacing: 8px;
+                        VerticalLayout {
+                            alignment: center;
+                            Rectangle { width: 8px; height: 8px; border-radius: 4px; background: i == root.camera ? Theme.ok : transparent; }
+                        }
+                        Text {
+                            text: @tr("Camera: {}", c);
+                            color: Theme.text;
+                            font-family: Theme.font;
+                            font-size: 13px;
+                            font-weight: i == root.camera ? 600 : 400;
+                            overflow: elide;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+                if root.positions > 0: Rectangle { height: 9px; Rectangle { height: 1px; background: Theme.line; } }
+                for p[i] in root.positions: position-row := Rectangle {
+                    height: 32px;
+                    border-radius: 6px;
+                    background: pos-ta.has-hover ? Theme.raise : transparent;
+                    accessible-role: button;
+                    accessible-label: @tr("Camera position {}", i + 1);
+                    pos-ta := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { root.pick-position(i); menu.close(); }
+                    }
+                    HorizontalLayout {
+                        padding-left: 28px;
+                        Text {
+                            text: @tr("Camera position {}", i + 1);
+                            color: Theme.text;
+                            font-family: Theme.font;
+                            font-size: 13px;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+                if root.cameras.length > 0: Rectangle { height: 9px; Rectangle { height: 1px; background: Theme.line; } }
+                for n[i] in root.labels: scene-row := Rectangle {
+                    height: 32px;
+                    border-radius: 6px;
+                    background: row-ta.has-hover ? Theme.raise : transparent;
+                    accessible-role: list-item;
+                    accessible-label: n;
+                    accessible-checked: i == root.chosen;
+                    row-ta := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { root.pick(i); menu.close(); }
+                    }
+                    HorizontalLayout {
+                        padding-left: 10px;
+                        spacing: 8px;
+                        // The one chosen by hand: an accent dot. The one going out: red.
+                        VerticalLayout {
+                            alignment: center;
+                            Rectangle { width: 8px; height: 8px; border-radius: 4px; background: i == root.chosen ? Theme.accent : i == root.out ? Theme.live : transparent; }
+                        }
+                        Text {
+                            text: n;
+                            color: Theme.text;
+                            font-family: Theme.font;
+                            font-size: 13px;
+                            font-weight: i == root.out ? 600 : 400;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// How loud the stream's sound is, beside Mute while live: five bars, the last two amber and red. No bars lit
+/// means nothing is going out (a pulled cable, the sound board's send turned down, or Mute).
+export component SoundMeter inherits Rectangle {
+    /// Lit bars, 0 to 5.
+    in property <int> bars;
+    accessible-role: progress-indicator;
+    accessible-label: @tr("Stream sound");
+    accessible-value: root.bars == 0 ? @tr("Silent") : @tr("{} of 5", root.bars);
+    width: 36px;
+    height: 22px;
+    HorizontalLayout {
+        spacing: 2px;
+        alignment: center;
+        for i in 5: VerticalLayout {
+            alignment: end;
+            Rectangle {
+                width: 5px;
+                height: 6px + i * 3px;
+                border-radius: 1px;
+                background: i >= root.bars ? Theme.line : i == 4 ? Theme.live : i == 3 ? Theme.accent : Theme.ok;
+            }
+        }
+    }
+    meter-ta := TouchArea {}
+    TipArea { text: @tr("How loud the stream's sound is. No bars: nothing is going out"); hover: meter-ta.has-hover; pressed: meter-ta.pressed; pointer-x: meter-ta.mouse-x; }
+}
+
+export component RecordBtn inherits Rectangle {
+    in property <bool> recording;
+    /// "12:34" while recording.
+    in property <string> time;
+    /// A narrow window: only the dot (and the time while recording).
+    in property <bool> narrow;
+    callback clicked();
+
+    property <brush> ink: root.recording ? Theme.text : ta.has-hover ? Theme.text : Theme.muted;
+
+    accessible-role: button;
+    accessible-label: root.recording ? @tr("Stop recording") : @tr("Record");
+    accessible-value: root.recording ? root.time : "";
+    accessible-action-default => { root.clicked(); }
+
+    border-radius: 9px;
+    border-width: 1px;
+    border-color: root.recording ? Theme.live : transparent;
+    background: root.recording ? Theme.notice-bg : ta.has-hover ? Theme.raise : transparent;
+
+    HorizontalLayout {
+        padding: 8px;
+        padding-left: 10px;
+        padding-right: 10px;
+        spacing: 7px;
+        VerticalLayout {
+            alignment: center;
+            dot := Rectangle {
+                width: 12px;
+                height: 12px;
+                border-radius: 6px;
+                border-width: root.recording ? 0px : 2px;
+                border-color: Theme.live;
+                background: root.recording ? Theme.live : transparent;
+            }
+        }
+        if root.recording: Text {
+            text: root.time;
+            color: root.ink;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: 700;
+            vertical-alignment: center;
+        }
+        if !root.recording && !root.narrow: Text {
+            text: @tr("Record");
+            color: root.ink;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: 600;
+            vertical-alignment: center;
+        }
+    }
+
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+
+    TipArea { text: root.recording ? @tr("Stop recording and save the file") : @tr("Record the audience screen to a video file"); hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
+}
+
+/// Beside Record while recording: starts a clip (the sermon, say), and ends it. Each clip is saved as its own
+/// video when the recording stops.
+export component ClipBtn inherits Rectangle {
+    in property <bool> clipping;
+    callback clicked();
+
+    accessible-role: button;
+    accessible-label: root.clipping ? @tr("End the clip") : @tr("Start a clip");
+    accessible-action-default => { root.clicked(); }
+
+    border-radius: 9px;
+    border-width: 1px;
+    border-color: root.clipping ? Theme.live : Theme.line;
+    background: root.clipping ? Theme.notice-bg : clip-ta.has-hover ? Theme.raise : transparent;
+
+    HorizontalLayout {
+        padding: 8px;
+        padding-left: 10px;
+        padding-right: 10px;
+        Text {
+            text: root.clipping ? @tr("End clip") : @tr("Clip");
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: root.clipping ? 600 : 400;
+            vertical-alignment: center;
+        }
+    }
+
+    clip-ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+
+    TipArea { text: @tr("Mark a part of the recording (the sermon, say) to save as its own video"); hover: clip-ta.has-hover; pressed: clip-ta.pressed; pointer-x: clip-ta.mouse-x; }
+}
+
+/// Signed in, while live: the viewers' chat (YouTube, Facebook, Twitch) in one list, newest at the bottom. The
+/// number is how many came since it was last opened.
+export component ChatBtn inherits Rectangle {
+    in property <[string]> lines;
+    in property <int> new;
+    callback opened();
+
+    accessible-role: button;
+    accessible-label: @tr("Chat");
+    accessible-value: root.new > 0 ? @tr("{} new", root.new) : "";
+    accessible-action-default => { menu.show(); root.opened(); }
+
+    border-radius: 9px;
+    border-width: 1px;
+    border-color: Theme.line;
+    background: chat-ta.has-hover ? Theme.raise : transparent;
+
+    HorizontalLayout {
+        padding: 8px;
+        padding-left: 10px;
+        padding-right: 10px;
+        spacing: 6px;
+        Text {
+            text: @tr("Chat");
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            vertical-alignment: center;
+        }
+        if root.new > 0: Rectangle {
+            width: max(20px, count.preferred-width + 10px);
+            height: 20px;
+            border-radius: 10px;
+            background: Theme.accent;
+            count := Text {
+                text: root.new;
+                color: white;
+                font-family: Theme.font;
+                font-size: 12px;
+                font-weight: 700;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+        }
+    }
+
+    chat-ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { menu.show(); root.opened(); }
+    }
+
+    menu := PopupWindow {
+        // Never over the audience or stage preview (`DockGuard`).
+
+        x: DockGuard.place-x(root.absolute-position.x + root.width - 420px, root.absolute-position.y + root.height + 4px, 420px, 380px) - root.absolute-position.x;
+        y: root.height + 4px;
+        width: 420px;
+        height: 380px;
+        close-policy: close-on-click-outside;
+        Rectangle {
+            background: Theme.panel-2;
+            border-color: Theme.line;
+            border-width: 1px;
+            border-radius: 9px;
+            if root.lines.length == 0: Text {
+                text: @tr("Nothing written yet.");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 13px;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+            Flickable {
+                viewport-height: list.preferred-height;
+                viewport-y: min(0px, self.height - list.preferred-height);
+                list := VerticalLayout {
+                    padding: 10px;
+                    spacing: 6px;
+                    for line in root.lines: Text {
+                        text: line;
+                        color: Theme.text;
+                        font-family: Theme.font;
+                        font-size: 13px;
+                        wrap: word-wrap;
+                        accessible-role: text;
+                        accessible-label: self.text;
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,105 @@
+// A window of its own for panels moved out of the operator window (dock panels design), e.g. Live and Cameras on a
+// second monitor. It shows only its panels; they read the same globals as in the operator window, which Rust writes
+// to every window (`crates/rp-ui/build.rs`, `panes`), and their buttons run the operator window's handlers. Closing
+// it puts its panels back in the operator window (`src/ui/operator/docking.rs`).
+import { Theme, OperatorState } from "../theme.slint";
+import { TipLayer } from "../widgets.slint";
+import { Palette } from "std-widgets.slint";
+import { MenuKeys } from "../keys.slint";
+import { DockArea, DockPlace, DockHead, DockBar, DockWin, DockRect } from "dock.slint";
+
+export component PanelWindow inherits Window {
+    /// "RustyPresenter — Live, Cameras": its panels' names (`docking.rs`).
+    in property <string> panels-title: @tr("RustyPresenter");
+    title: root.panels-title;
+    min-width: 320px;
+    min-height: 240px;
+    preferred-width: 900px;
+    preferred-height: 700px;
+    background: Theme.bg;
+    default-font-family: Theme.font;
+    default-font-size: Theme.base-size;
+    forward-focus: keys;
+    init => { Palette.color-scheme = ColorScheme.dark; }
+
+    in property <[DockPlace]> dock-places;
+    in property <[DockHead]> dock-heads;
+    in property <[DockBar]> dock-bars;
+    in property <bool> dock-arrange;
+    in property <[DockWin]> dock-windows;
+    in property <length> dock-area-width;
+    in property <length> dock-area-height;
+    in property <bool> dock-lit-shown;
+    in property <DockRect> dock-lit;
+    callback dock-area-resized(length, length);
+    callback dock-fit(int, bool, length, length, length, length);
+    callback dock-bar-moved(int, length);
+    callback dock-bar-done(int);
+    callback dock-tab-picked(int);
+    callback dock-drag-moved(int, length, length);
+    callback dock-drag-done(int, length, length);
+    callback dock-panel-action(int, string);
+
+    /// A key, as in the operator window (`OperatorWindow.key`): Rust runs it the same way.
+    callback key(string, bool, bool, bool, bool, bool) -> bool;
+
+    public function focus-keys() {
+        keys.focus();
+        OperatorState.focus-in-text = false;
+    }
+
+    pure function captured(e: KeyEvent) -> bool {
+        return MenuKeys.capturing || e.modifiers.control || e.modifiers.alt
+            || e.text == Key.F1 || e.text == Key.F2 || e.text == Key.F3 || e.text == Key.F4 || e.text == Key.F5
+            || e.text == Key.F6 || e.text == Key.F7 || e.text == Key.F8 || e.text == Key.F9 || e.text == Key.F10
+            || e.text == Key.F11 || e.text == Key.F12;
+    }
+
+    function send-key(e: KeyEvent) -> bool {
+        return root.key(e.text, e.modifiers.control, e.modifiers.alt, e.modifiers.shift, OperatorState.focus-in-text, dock.bible-focused);
+    }
+
+    keys := FocusScope {
+        capture-key-pressed(event) => {
+            if root.captured(event) && root.send-key(event) { return accept; }
+            reject
+        }
+        key-pressed(event) => {
+            if root.send-key(event) { return accept; }
+            reject
+        }
+        dock := DockArea {
+            x: 0;
+            y: 0;
+            width: root.width;
+            height: root.height;
+            places: root.dock-places;
+            heads: root.dock-heads;
+            bars: root.dock-bars;
+            arrange: root.dock-arrange;
+            popout: true;
+            windows: root.dock-windows;
+            area-width: root.dock-area-width;
+            area-height: root.dock-area-height;
+            lit-shown: root.dock-lit-shown;
+            lit: root.dock-lit;
+            focus-keys => { root.focus-keys(); }
+            area-resized(w, h) => { root.dock-area-resized(w, h); }
+            fit(p, t, a, b, c, d) => { root.dock-fit(p, t, a, b, c, d); }
+            bar-moved(i, d) => { root.dock-bar-moved(i, d); }
+            bar-done(i) => { root.dock-bar-done(i); }
+            tab-picked(p) => { root.dock-tab-picked(p); }
+            drag-moved(p, x, y) => { root.dock-drag-moved(p, x, y); }
+            drag-done(p, x, y) => { root.dock-drag-done(p, x, y); }
+            panel-action(p, a) => { root.dock-panel-action(p, a); }
+        }
+    }
+
+    // The hover tooltip of every widget in the window, over everything.
+    TipLayer {
+        x: 0px;
+        y: 0px;
+        width: root.width;
+        height: root.height;
+    }
+}

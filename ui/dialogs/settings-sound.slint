@@ -1,0 +1,202 @@
+// Settings → Livestream → Sound (`src/ui/dialogs/settings_sound.rs`): the sound setup in one choice, the
+// microphones (a phone among them), this computer's own sound and Listen; the levels, clean-up and each sound's
+// filters are advanced rows. How to connect a phone as a microphone is on Settings → Remote and network.
+import { Theme } from "../theme.slint";
+import { Segmented } from "../widgets.slint";
+import { Select, Check, RangeSlider } from "form.slint";
+import { SettingsDlg } from "settings-state.slint";
+import { SoundFilters } from "sound-filters.slint";
+import { SetRow, SetLink, Hint } from "settings-row.slint";
+
+/// A row's name on the left, as the sound levels have it.
+component RowName inherits Text {
+    color: Theme.text;
+    font-family: Theme.font;
+    font-size: Theme.base-size;
+    vertical-alignment: center;
+    min-width: 150px;
+}
+
+/// A slider from -12 to 12 dB with its value.
+component DbRow inherits HorizontalLayout {
+    in property <string> name;
+    in property <int> minimum: -12;
+    in property <int> maximum: 12;
+    in-out property <int> value;
+    spacing: 10px;
+    RowName { text: root.name; }
+    RangeSlider {
+        minimum: root.minimum;
+        maximum: root.maximum;
+        value <=> root.value;
+        horizontal-stretch: 1;
+    }
+    Text {
+        text: @tr("{} dB", root.value);
+        color: Theme.text;
+        font-family: Theme.font;
+        font-size: Theme.base-size;
+        vertical-alignment: center;
+        min-width: 64px;
+    }
+}
+
+/// One sound's filters.
+component FilterRows inherits VerticalLayout {
+    in property <string> title;
+    in-out property <SoundFilters> value;
+    spacing: 6px;
+    Text {
+        text: root.title;
+        color: Theme.text;
+        font-family: Theme.font;
+        font-size: Theme.base-size;
+        font-weight: 700;
+    }
+    HorizontalLayout {
+        spacing: 10px;
+        alignment: start;
+        RowName { text: @tr("Gate (quiet between words)"); }
+        Segmented {
+            labels: [@tr("Off"), @tr("Light"), @tr("Strong")];
+            index <=> root.value.gate;
+        }
+    }
+    HorizontalLayout {
+        spacing: 10px;
+        alignment: start;
+        RowName { text: @tr("Evener (loud down, quiet up)"); }
+        Segmented {
+            labels: [@tr("Off"), @tr("Light"), @tr("Strong")];
+            index <=> root.value.even;
+        }
+    }
+    DbRow { name: @tr("Low (boom)"); value <=> root.value.low; }
+    DbRow { name: @tr("Middle (voices)"); value <=> root.value.mid; }
+    DbRow { name: @tr("High (clarity, hiss)"); value <=> root.value.high; }
+    Check { text: @tr("Never too loud (keeps the stream from crackling; best left on)"); checked <=> root.value.limit; }
+}
+
+/// Livestream → Sound.
+export component StreamSoundPage inherits VerticalLayout {
+    alignment: start;
+    // The first input is a microphone or line-in (0 is no sound, 1 the app's sound).
+    property <bool> has-input: SettingsDlg.record-sound-index >= 2;
+    mode-row := SetRow {
+        key: "stream-sound-setup";
+        label: @tr("Sound setup");
+        help: @tr("One choice sets the microphone and how each sound is cleaned up. Anything changed by hand below makes it Custom.");
+        stream-sound-mode := Select {
+            options: SettingsDlg.stream-sound-mode-labels;
+            index <=> SettingsDlg.stream-sound-mode;
+            changed(i) => { SettingsDlg.stream-sound-mode-chosen(i); }
+        }
+        if SettingsDlg.stream-sound-mode-note != "": Hint { text: SettingsDlg.stream-sound-mode-note; }
+    }
+    mics-row := SetRow {
+        key: "stream-mics";
+        label: @tr("Microphone or line-in");
+        help: @tr("For the livestream and the recording: the sound board, a microphone, or a phone (choose Phone). Up to three are mixed while you are live.");
+        record-sound := Select {
+            options: SettingsDlg.record-sound-labels;
+            index <=> SettingsDlg.record-sound-index;
+        }
+        if root.has-input: VerticalLayout {
+            spacing: 6px;
+            stream-input2 := Select {
+                options: SettingsDlg.stream-input-labels;
+                index <=> SettingsDlg.stream-input2-index;
+            }
+            if SettingsDlg.stream-input2-index > 0: DbRow { name: @tr("Its level"); minimum: -20; maximum: 20; value <=> SettingsDlg.stream-input2-level; }
+        }
+        if root.has-input && SettingsDlg.stream-input2-index > 0: VerticalLayout {
+            spacing: 6px;
+            stream-input3 := Select {
+                options: SettingsDlg.stream-input-labels;
+                index <=> SettingsDlg.stream-input3-index;
+            }
+            if SettingsDlg.stream-input3-index > 0: DbRow { name: @tr("Its level"); minimum: -20; maximum: 20; value <=> SettingsDlg.stream-input3-level; }
+        }
+        phone-mic-link := SetLink {
+            text: @tr("A phone as a microphone: Settings → Remote and network");
+            page: 15;
+            key: "phone-mic";
+        }
+    }
+    pc-row := SetRow {
+        key: "stream-pc-sound";
+        label: @tr("Sound from this computer");
+        help: @tr("Everything that plays on this output goes out with the stream (videos, songs, and any other sound sent there), mixed with the microphone or line-in chosen above.");
+        stream-sound := Select {
+            options: SettingsDlg.stream-sound-labels;
+            index <=> SettingsDlg.stream-sound-index;
+        }
+        if SettingsDlg.stream-sound-note != "": Hint { text: SettingsDlg.stream-sound-note; }
+    }
+    listen-row := SetRow {
+        key: "stream-listen";
+        label: @tr("Listen to the stream");
+        help: @tr("While you are live, the stream's sound plays here as viewers hear it (cleaned up and with the sound delay), for headphones at the desk. The room does not hear it unless it is the room's output.");
+        stream-listen := Select {
+            options: SettingsDlg.stream-listen-labels;
+            index <=> SettingsDlg.stream-listen-index;
+        }
+    }
+    if SettingsDlg.advanced: VerticalLayout {
+        delay-row := SetRow {
+            key: "stream-sound-delay";
+            label: @tr("Sound delay");
+            help: @tr("If the sound in the stream comes before people's lips move, the camera's picture is late: hold the sound back until they match.");
+            advanced: true;
+            HorizontalLayout {
+                spacing: 10px;
+                stream-delay := RangeSlider {
+                    minimum: 0;
+                    maximum: 1000;
+                    value <=> SettingsDlg.stream-sound-delay;
+                    horizontal-stretch: 1;
+                }
+                Text {
+                    text: @tr("{} ms", SettingsDlg.stream-sound-delay);
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    vertical-alignment: center;
+                    min-width: 64px;
+                }
+            }
+        }
+        levels-row := SetRow {
+            key: "stream-levels";
+            label: @tr("Sound levels");
+            help: @tr("Turn each sound up or down in the stream only (not in the room).");
+            advanced: true;
+            stream-board-level := DbRow { name: @tr("Microphone or line-in"); minimum: -20; maximum: 20; value <=> SettingsDlg.stream-board-level; }
+            stream-pc-level := DbRow { name: @tr("This computer"); minimum: -20; maximum: 20; value <=> SettingsDlg.stream-pc-level; }
+        }
+        cleanup-row := SetRow {
+            key: "stream-cleanup";
+            label: @tr("Sound clean-up");
+            help: @tr("For the stream only. Evening out keeps quiet speaking easy to hear at home and loud singing from crackling.");
+            advanced: true;
+            stream-even := Check { text: @tr("Even out loud and quiet moments"); checked <=> SettingsDlg.stream-even; }
+            stream-quiet-noise := Check { text: @tr("Take out hum and hiss from the microphone or line-in (can dull music)"); checked <=> SettingsDlg.stream-quiet-noise; }
+        }
+        filters-row := SetRow {
+            key: "stream-filters";
+            label: @tr("More sound settings");
+            help: @tr("For the stream only. Each sound has its own: start with the Sound setup above and change little at a time.");
+            advanced: true;
+            stream-sound-more := Check { text: @tr("Show each sound's gate, evener, low, middle and high"); checked <=> SettingsDlg.stream-sound-more; }
+            if SettingsDlg.stream-sound-more && root.has-input: FilterRows { title: @tr("Microphone or line-in"); value <=> SettingsDlg.stream-board-filters; }
+            if SettingsDlg.stream-sound-more && root.has-input && SettingsDlg.stream-input2-index > 0: FilterRows {
+                title: @tr("Second microphone or line-in");
+                value <=> SettingsDlg.stream-input2-filters;
+            }
+            if SettingsDlg.stream-sound-more && root.has-input && SettingsDlg.stream-input2-index > 0 && SettingsDlg.stream-input3-index > 0: FilterRows {
+                title: @tr("Third microphone or line-in");
+                value <=> SettingsDlg.stream-input3-filters;
+            }
+            if SettingsDlg.stream-sound-more && SettingsDlg.stream-sound-index != 0: FilterRows { title: @tr("This computer"); value <=> SettingsDlg.stream-pc-filters; }
+        }
+    }
+}

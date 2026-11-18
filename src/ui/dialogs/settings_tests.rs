@@ -1,0 +1,833 @@
+use super::*;
+use crate::ui::dialogs::settings::testing::{find_any as find, find_all_any as find_all};
+use crate::ui::operator::files::testing::will_pick;
+use crate::{
+    app::{App, test_app},
+    ui::{
+        block_on,
+        dialogs::{SettingsTab, settings_look::PREVIEW_DELAY},
+        operator::window::testing::{open as open_window, refresh},
+    },
+};
+use i_slint_backend_testing::mock_elapsed_time;
+use slint::{Model, platform::PointerEventButton};
+use std::{path::PathBuf, sync::Arc, time::Duration};
+
+fn opened(app: &Arc<App>) -> Rc<Operator> {
+    let op = open_window(app);
+    op.window().set_size(slint::LogicalSize::new(1520.0, 900.0));
+    slint::platform::update_timers_and_animations();
+    refresh(&op);
+    op
+}
+
+fn g(op: &Operator) -> SettingsDlg<'_> { crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>() }
+
+fn settle() { slint::platform::update_timers_and_animations(); }
+
+fn click(op: &Operator, id: &str) {
+    settle();
+    find(op, id).unwrap_or_else(|| panic!("{id} not found")).mock_single_click(PointerEventButton::Left);
+    settle();
+}
+
+fn toasts(op: &Operator) -> Vec<String> {
+    find_all(op, "ToastStack::toast").iter().map(|t| t.accessible_label().unwrap_or_default().to_string()).collect()
+}
+
+fn pixels(img: &slint::Image) -> Vec<u8> { img.to_rgba8().map(|p| p.as_bytes().to_vec()).unwrap_or_default() }
+
+fn temp_file(name: &str, bytes: &[u8]) -> PathBuf {
+    let dir = std::env::temp_dir().join(format!("rp-settings-{}", uuid::Uuid::new_v4()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let path = dir.join(name);
+    std::fs::write(&path, bytes).unwrap();
+    path
+}
+
+#[test]
+fn top_bar_settings_opens_on_look() {
+    let app = test_app();
+    let op = opened(&app);
+    op.ui.invoke_settings();
+    assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Look));
+    assert_eq!(op.dialog(), None, "the operator stays free");
+    assert!(find(&op, "SettingsWindow::save").is_some());
+    assert_eq!(g(&op).get_tab(), tab_index(SettingsTab::Look));
+    assert_eq!(g(&op).get_page_title(), "Look → Text and logo");
+}
+
+#[test]
+fn save_settings_round_trips_theme_and_lines() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Look);
+    let f = g(&op);
+    f.set_font_index(4);
+    f.set_size(120);
+    f.set_scripture_size(70);
+    f.set_color("#ffcc00".into());
+    f.set_position(1);
+    f.set_shadow(false);
+    f.set_uppercase(true);
+    f.invoke_look_changed();
+    f.set_lines(3);
+    f.set_credits_on(false);
+    f.set_ccli("12345".into());
+    assert!(f.get_room_on_top(), "on by default");
+    f.set_room_on_top(false);
+    assert!(f.get_screens_at_start() && !f.get_show_performance(), "screens on at start, performance hidden, by default");
+    f.set_screens_at_start(false);
+    f.set_show_performance(true);
+    assert!(!f.get_keep_drawings() && f.get_stage_drawings(), "drawings: cleared on a new slide, shown on stage");
+    f.set_keep_drawings(true);
+    f.set_stage_drawings(false);
+    assert_eq!((f.get_drawing_limit(), f.get_fade_secs().to_string()), (false, "3".to_string()), "no limits; ink fades after 3 s");
+    f.set_drawing_limit(true);
+    f.set_drawing_max_strokes("40".into());
+    f.set_drawing_max_per_second("abc".into());
+    f.set_fade_secs("90".into());
+    assert!(f.get_section_keys(), "section keys on by default");
+    f.set_section_keys(false);
+    assert_eq!(f.get_audio_labels().row_count(), 1, "the default, before a list arrives");
+    assert_eq!(f.get_audio_index(), 0);
+    click(&op, "SettingsWindow::save");
+    let s = app.data.lock().unwrap().settings.clone();
+    assert_eq!((s.theme.font.as_str(), s.theme.size, s.theme.scripture_size), ("Arial", 120, 70));
+    assert_eq!((s.theme.color.as_str(), s.theme.position.as_str(), s.theme.shadow, s.theme.uppercase), ("#ffcc00", "lower", false, true));
+    assert_eq!((s.lines_per_slide, s.credits.as_str(), s.church_ccli.as_str()), (4, "none", "12345"));
+    assert!(!s.room_on_top, "Settings → Video can let the audience screen go behind other windows");
+    assert!(!s.screens_at_start && s.show_performance, "Settings → Video keeps the screens off at start and shows performance");
+    assert!(s.keep_drawings && !s.stage_drawings, "Settings → Video: the two drawing choices");
+    assert_eq!((s.drawing_limit, s.drawing_max_strokes, s.drawing_max_per_second, s.fade_secs), (true, 40, 30, 30), "not a number: unchanged; too many seconds: 30");
+    assert_eq!(app.live.lock().unwrap().drawing.fade_after, std::time::Duration::from_secs(30));
+    assert!(app.live.lock().unwrap().keep_drawing, "the live engine follows at once");
+    assert!(!s.section_keys, "Settings → Songs can turn the section keys off");
+    assert!(!is_open(&op), "Save closes Settings");
+    assert!(toasts(&op).contains(&"Settings saved".to_string()));
+
+    // Opening again shows what was saved.
+    refresh(&op);
+    open(&op, SettingsTab::Songs);
+    assert_eq!((g(&op).get_lines(), g(&op).get_credits_on(), g(&op).get_ccli().to_string()), (3, false, "12345".to_string()));
+    assert_eq!(g(&op).get_font_index(), 4);
+}
+
+#[test]
+fn bible_verses_per_slide_round_trips_and_sits_with_the_scripture_size() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Look);
+    assert_eq!(g(&op).get_bible_per_slide(), 0, "Automatic by default");
+    assert!(find(&op, "LookText::scripture-size").is_some(), "the Bible text size is with the other text sizes");
+    go(&op, SettingsTab::Bible, "");
+    settle();
+    assert!(find(&op, "BiblePage::bible-per-slide").is_some(), "verses per slide is with the Bibles");
+    g(&op).set_bible_per_slide(2);
+    g(&op).set_scripture_size(90);
+    click(&op, "SettingsWindow::save");
+    let s = app.data.lock().unwrap().settings.clone();
+    assert_eq!((s.bible_per_slide, s.theme.scripture_size), (2, 90));
+    refresh(&op);
+    open(&op, SettingsTab::Look);
+    assert_eq!(g(&op).get_bible_per_slide(), 2, "opening again shows what was saved");
+}
+
+#[test]
+fn look_fade_slider_round_trips_in_tenths() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Look);
+    assert_eq!(g(&op).get_look_fade(), 10, "one second by default");
+    assert!(find(&op, "LookText::look-fade").is_none(), "an advanced row");
+    g(&op).set_advanced(true);
+    settle();
+    assert!(find(&op, "LookText::look-fade").is_some());
+    g(&op).set_look_fade(25);
+    click(&op, "SettingsWindow::save");
+    assert_eq!(app.data.lock().unwrap().settings.look_fade_ms, 2500);
+    assert_eq!(app.live_view().look_fade_ms, 2500, "the room reads it from the live view");
+    refresh(&op);
+    open(&op, SettingsTab::Look);
+    assert_eq!(g(&op).get_look_fade(), 25);
+}
+
+#[test]
+fn save_settings_keeps_translation_and_displays_changed_meanwhile() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Songs);
+    g(&op).set_ccli("777".into());
+    block_on(app.do_action("settings/translation", br#"{"translation":"WEB"}"#)).unwrap();
+    app.data.lock().unwrap().settings.screens.assign("audience", crate::model::ScreenTarget::Monitor(r"\\.\DISPLAY2".into()));
+    refresh(&op);
+    click(&op, "SettingsWindow::save");
+    let s = app.data.lock().unwrap().settings.clone();
+    assert_eq!(s.translation, "WEB", "the translation picked meanwhile is kept");
+    assert_eq!(s.screens.monitors("audience"), [r"\\.\DISPLAY2"], "the screen chosen meanwhile is kept");
+    assert_eq!(s.church_ccli, "777");
+}
+
+#[test]
+fn cancel_discards_changes() {
+    let app = test_app();
+    let op = opened(&app);
+    let before = app.data.lock().unwrap().settings.clone();
+    open(&op, SettingsTab::Songs);
+    g(&op).set_ccli("999".into());
+    g(&op).set_lines(5);
+    click(&op, "SettingsWindow::cancel");
+    // Changed: it asks first; Don't save leaves.
+    crate::ui::dialogs::ask::answer_other_settings(&op);
+    assert!(!is_open(&op));
+    let after = app.data.lock().unwrap().settings.clone();
+    assert_eq!((after.church_ccli, after.lines_per_slide), (before.church_ccli.clone(), before.lines_per_slide));
+    open(&op, SettingsTab::Songs);
+    assert_eq!(g(&op).get_ccli(), before.church_ccli.as_str(), "a new Settings starts from the saved settings");
+}
+
+#[test]
+fn settings_keeps_typed_text_across_a_data_update() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Songs);
+    g(&op).set_ccli("typed by hand".into());
+    g(&op).set_lines(0);
+    // A phone or a conversion changes the data meanwhile.
+    app.data.lock().unwrap().settings.church_ccli = "from elsewhere".into();
+    refresh(&op);
+    refresh(&op);
+    assert_eq!(g(&op).get_ccli(), "typed by hand");
+    assert_eq!(g(&op).get_lines(), 0);
+    assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Songs));
+    click(&op, "SettingsWindow::save");
+    assert_eq!(app.data.lock().unwrap().settings.church_ccli, "typed by hand");
+}
+
+#[test]
+fn look_preview_rerenders_after_change() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Look);
+    let first = pixels(&g(&op).get_preview());
+    assert!(!first.is_empty(), "Look draws its preview when it opens");
+    g(&op).set_uppercase(true);
+    g(&op).set_size(150);
+    g(&op).invoke_look_changed();
+    mock_elapsed_time(PREVIEW_DELAY - Duration::from_millis(10));
+    assert_eq!(pixels(&g(&op).get_preview()), first, "not before 150 ms");
+    mock_elapsed_time(Duration::from_millis(20));
+    let second = pixels(&g(&op).get_preview());
+    assert!(!second.is_empty());
+    assert_ne!(second, first, "redrawn from the edits");
+}
+
+#[test]
+fn look_preview_rebuilt_on_tab_return() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Look);
+    settle();
+    let first = pixels(&g(&op).get_preview());
+    g(&op).set_shadow(false);
+    g(&op).set_position(1);
+    g(&op).invoke_look_changed();
+    // Leave before the preview is drawn again: the image goes.
+    g(&op).invoke_nav_pick(tab_index(SettingsTab::Themes));
+    settle();
+    assert_eq!(g(&op).get_tab(), tab_index(SettingsTab::Themes));
+    assert!(pixels(&g(&op).get_preview()).is_empty(), "switching tabs drops the preview");
+    mock_elapsed_time(PREVIEW_DELAY * 2);
+    assert!(pixels(&g(&op).get_preview()).is_empty(), "the pending redraw was dropped too");
+    g(&op).invoke_nav_pick(tab_index(SettingsTab::Look));
+    settle();
+    let back = pixels(&g(&op).get_preview());
+    assert!(!back.is_empty(), "Look draws it again");
+    assert_ne!(back, first, "from the current edits, not a stale image");
+}
+
+#[test]
+fn missing_font_shows_note() {
+    let app = test_app();
+    app.data.lock().unwrap().settings.theme.font = "No Such Font".into();
+    let op = opened(&app);
+    open(&op, SettingsTab::Look);
+    settle();
+    assert_eq!(g(&op).get_font_note(), "“No Such Font” isn't installed on this computer, so slides use Noto Sans.");
+    let note = find(&op, "LookText::font-note").expect("the note under the font box");
+    assert_eq!(note.accessible_label().unwrap_or_default(), g(&op).get_font_note());
+    let fonts: Vec<String> = g(&op).get_fonts().iter().map(|f| f.to_string()).collect();
+    assert_eq!(fonts[g(&op).get_font_index() as usize], "No Such Font", "the box shows the saved font");
+    close(&op);
+
+    app.data.lock().unwrap().settings.theme.font = "Noto Sans".into();
+    refresh(&op);
+    open(&op, SettingsTab::Look);
+    settle();
+    assert_eq!(g(&op).get_font_note(), "");
+    assert!(find(&op, "LookText::font-note").is_none());
+}
+
+#[test]
+fn choose_logo_imports_a_picture_and_remove_clears_it() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Look);
+    settle();
+    assert!(find(&op, "LookText::no-logo").is_some());
+    let mut png = Vec::new();
+    image::RgbaImage::from_pixel(40, 20, image::Rgba([200, 30, 30, 255]))
+        .write_to(&mut std::io::Cursor::new(&mut png), image::ImageFormat::Png).unwrap();
+    will_pick(vec![temp_file("logo.png", &png)]);
+    click(&op, "LookText::choose-logo");
+    assert!(g(&op).get_has_logo());
+    assert!(!pixels(&g(&op).get_logo()).is_empty(), "the 44 px logo preview");
+    assert!(find(&op, "LookText::no-logo").is_none());
+    click(&op, "SettingsWindow::save");
+    let logo = app.data.lock().unwrap().settings.logo.clone().expect("logo saved");
+    assert!(app.store.asset_path(&logo).exists());
+
+    refresh(&op);
+    open(&op, SettingsTab::Look);
+    click(&op, "LookText::remove-logo");
+    assert!(!g(&op).get_has_logo());
+    click(&op, "SettingsWindow::save");
+    assert_eq!(app.data.lock().unwrap().settings.logo, None);
+}
+
+#[test]
+fn default_background_pick_is_saved() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Look);
+    let rows: Vec<_> = g(&op).get_backgrounds().iter().collect();
+    assert_eq!(rows.len(), 14, "the six swatches, the custom colour, six gradients and Upload (no media, no Theme default)");
+    assert!(rows[0].on, "black is the default");
+    g(&op).invoke_pick_background(1);
+    assert!(g(&op).get_backgrounds().row_data(1).unwrap().on);
+    click(&op, "SettingsWindow::save");
+    assert_eq!(app.data.lock().unwrap().settings.background, crate::model::Background::Color { color: "#0b1a33".into() });
+}
+
+#[test]
+fn default_background_custom_colour_is_saved() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Look);
+    g(&op).invoke_background_hex("#12AB3".into());
+    g(&op).invoke_background_hex("#12AB34".into());
+    assert!(g(&op).get_backgrounds().iter().all(|r| !r.on), "a custom colour is no tile");
+    click(&op, "SettingsWindow::save");
+    assert_eq!(app.data.lock().unwrap().settings.background, crate::model::Background::Color { color: "#12ab34".into() });
+}
+
+#[test]
+fn text_color_from_the_grid_and_its_hex_field() {
+    let app = test_app();
+    let op = opened(&app);
+    // `find` skips what the page's scroll box clips: the window is made tall enough for the colour grid.
+    open(&op, SettingsTab::Look);
+    crate::ui::dialogs::settings_window::win(&op).window().set_size(slint::LogicalSize::new(1400.0, 1600.0));
+    settle();
+    assert!(find(&op, "ColorGrid::hex").is_none(), "the grid opens from the swatch");
+    click(&op, "ColorPicker::swatch");
+    settle();
+    assert!(find(&op, "ColorGrid::hex").is_some());
+    let before = g(&op).get_color();
+    g(&op).invoke_text_hex("#12AB3".into());
+    assert_eq!(g(&op).get_color(), before, "half a colour is ignored");
+    g(&op).invoke_text_hex("#12AB34".into());
+    assert_eq!(g(&op).get_color(), "#12ab34");
+    g(&op).invoke_text_color(slint::Color::from_rgb_u8(255, 0, 0));
+    assert_eq!(g(&op).get_color(), "#ff0000");
+    click(&op, "SettingsWindow::save");
+    assert_eq!(app.data.lock().unwrap().settings.theme.color, "#ff0000");
+}
+
+#[test]
+fn backup_label_formats_like_web() {
+    assert_eq!(backup_label("2026-11-01_140512"), "2026-11-01 at 14:05 UTC");
+    assert_eq!(backup_label("2026-01-09_000000"), "2026-01-09 at 00:00 UTC");
+    assert_eq!(backup_label("odd"), "odd UTC", "an unexpected stamp is shown as it is");
+}
+
+#[test]
+fn backup_now_toasts_and_lists_it() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Backups);
+    settle();
+    assert!(find(&op, "BackupsPage::no-backups").is_some());
+    assert!(g(&op).get_backups_folder().ends_with("\\backups"));
+    click(&op, "BackupsPage::backup-now");
+    assert_eq!(toasts(&op), ["Backup made"]);
+    refresh(&op);
+    settle();
+    let rows: Vec<_> = g(&op).get_backups().iter().collect();
+    assert_eq!(rows.len(), 1);
+    assert!(rows[0].label.ends_with(" UTC"));
+    assert_eq!(rows[0].counts, "0 songs · 1 services · 0 files");
+}
+
+#[test]
+fn restore_asks_then_restores() {
+    let app = test_app();
+    let data = app.data.lock().unwrap().clone();
+    app.store.backup(&data).unwrap();
+    let op = opened(&app);
+    op.ops().call::<serde_json::Value>("song/save", serde_json::json!({ "id": uuid::Uuid::nil(), "title": "After the backup", "lyrics": "la" }), |r| { r.unwrap(); });
+    refresh(&op);
+    open(&op, SettingsTab::Backups);
+    settle();
+    click(&op, "BackupsPage::restore");
+    let ask = crate::ui::dialogs::settings_window::win(&op).get_ask().row_data(0).expect("a confirm, over Settings");
+    assert_eq!(ask.text, "Restore this backup? Your current songs and services are replaced (a copy of them is kept).");
+    // Cancel keeps everything.
+    click(&op, "AskOverlay::cancel");
+    assert_eq!(app.data.lock().unwrap().songs.len(), 1);
+    assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Backups));
+    click(&op, "BackupsPage::restore");
+    click(&op, "AskOverlay::ok");
+    assert!(app.data.lock().unwrap().songs.is_empty(), "the backup's data is back");
+    assert!(!is_open(&op));
+    assert_eq!(toasts(&op), ["Backup restored"]);
+}
+
+#[test]
+fn bible_tab_shows_sources_keys_and_import() {
+    let app = test_app();
+    let mut secrets = crate::bible::sources::Secrets::default();
+    secrets.keys.insert("esv".into(), "k".into());
+    secrets.save(&app.store.root).unwrap();
+    let op = opened(&app);
+    open(&op, SettingsTab::Bible);
+    settle();
+    let sources: Vec<_> = g(&op).get_bible_sources().iter().collect();
+    for t in ["KJV", "WEB", "BSB"] {
+        let row = sources.iter().find(|r| r.translation == t).unwrap_or_else(|| panic!("{t}"));
+        assert_eq!((row.chip.as_str(), row.chip_state.as_str()), ("Ready — offline", "ok"), "{t}");
+    }
+    let esv = sources.iter().find(|r| r.translation == "ESV").unwrap();
+    assert_eq!(esv.chip, "Ready — online");
+    let needs = sources.iter().find(|r| r.chip == "Needs a free key").expect("a translation that needs a key");
+    assert!(needs.hint.starts_with("Connect ") && needs.hint.ends_with(" below"), "{}", needs.hint);
+    let providers: Vec<_> = g(&op).get_bible_providers().iter().collect();
+    let i = providers.iter().position(|p| p.label == "ESV API (Crossway)").unwrap();
+    assert!(providers[i].key_set);
+    assert!(providers[i].for_text.starts_with("For ESV"));
+
+    // Disconnect: an empty key removes it.
+    g(&op).invoke_save_key(i as i32, "".into());
+    assert!(crate::bible::sources::Secrets::load(&app.store.root).keys.is_empty());
+    assert_eq!(toasts(&op), ["ESV API (Crossway) disconnected"]);
+    refresh(&op);
+    assert!(!g(&op).get_bible_providers().row_data(i).unwrap().key_set, "redrawn from the fresh read");
+
+    // Import a file under the typed short name.
+    let file = br#"<?xml version="1.0"?><XMLBIBLE biblename="Test"><INFORMATION><title>Holman Test</title><identifier>HCSB</identifier><rights>(c) Holman</rights></INFORMATION>
+        <BIBLEBOOK bnumber="43"><CHAPTER cnumber="3"><VERS vnumber="16">For God loved.</VERS><VERS vnumber="17">For God sent.</VERS></CHAPTER></BIBLEBOOK></XMLBIBLE>"#;
+    g(&op).set_bible_short(" hcsb ".into());
+    will_pick(vec![temp_file("holman.xml", file)]);
+    g(&op).invoke_import_bible();
+    assert_eq!(toasts(&op).last().map(String::as_str), Some("Added HCSB (2 verses)"));
+    refresh(&op);
+    let sources: Vec<_> = g(&op).get_bible_sources().iter().collect();
+    let hcsb = sources.iter().position(|r| r.translation == "HCSB").expect("the imported Bible is listed");
+    assert!(sources[hcsb].imported);
+    assert!(g(&op).get_bible_credits().iter().any(|c| c.text.contains("(c) Holman")));
+
+    g(&op).invoke_remove_import(hcsb as i32);
+    assert_eq!(toasts(&op).last().map(String::as_str), Some("HCSB removed"));
+    refresh(&op);
+    assert!(!g(&op).get_bible_sources().iter().any(|r| r.imported));
+    assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Bible), "Bible actions keep Settings open");
+}
+
+#[test]
+fn video_tab_shows_player_status_not_ffmpeg() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Video);
+    settle();
+    assert!(find(&op, "ScreensPage::player").is_some(), "the player line");
+    assert!(find(&op, "ScreensPage::drawing").is_some(), "the drawing line");
+    for gone in ["ScreensPage::missing", "ScreensPage::found", "ScreensPage::check-again"] {
+        assert!(find(&op, gone).is_none(), "{gone}");
+    }
+}
+
+#[test]
+fn the_graphics_picker_lists_this_builds_choices_and_saves_at_once() {
+    use crate::{model::Graphics, video::graphics};
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Video);
+    settle();
+    assert!(find(&op, "ScreensPage::graphics").is_some(), "the picker");
+    assert!(find(&op, "ScreensPage::graphics-now").is_some(), "the line saying what is in use");
+    let labels: Vec<String> = g(&op).get_graphics_labels().iter().map(|l| l.to_string()).collect();
+    let want: Vec<String> = graphics::available(graphics::Build::this()).into_iter().map(graphics::label).collect();
+    assert_eq!(labels, want, "only what this build can draw with");
+    assert_eq!(labels.first().map(String::as_str), Some("Automatic (recommended)"));
+    assert_eq!(labels.last().map(String::as_str), Some("Software (safe mode)"));
+    assert_eq!(g(&op).get_graphics_index(), 0, "Auto by default");
+    assert_eq!(g(&op).get_graphics_now(), "In use now: Software", "tests never choose a backend");
+
+    let last = labels.len() as i32 - 1;
+    g(&op).set_graphics_index(last);
+    g(&op).invoke_graphics_changed(last);
+    settle();
+    assert_eq!(app.data.lock().unwrap().settings.graphics, Graphics::Software);
+    assert!(toasts(&op).contains(&"Restart RustyPresenter to use the new graphics setting.".to_string()));
+    assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Video), "the dialog stays open");
+
+    // Save keeps it, and opening again shows it.
+    click(&op, "SettingsWindow::save");
+    assert_eq!(app.data.lock().unwrap().settings.graphics, Graphics::Software);
+    refresh(&op);
+    open(&op, SettingsTab::Video);
+    assert_eq!(g(&op).get_graphics_index(), last);
+}
+
+#[test]
+fn the_graphics_test_shows_each_choice_and_use_this_saves_the_pick() {
+    use crate::{model::Graphics, video::bench::{self, Measured}};
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Video);
+    settle();
+    assert!(find(&op, "ScreensPage::graphics-test").is_some(), "the button");
+    assert_eq!(find(&op, "ScreensPage::graphics-test-status").unwrap().accessible_label().unwrap(), "About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there.");
+    assert!(find(&op, "ScreensPage::graphics-test-use").is_none(), "nothing to use yet");
+    assert!(find(&op, "ScreensPage::graphics-restart").is_none(), "nothing to restart for yet");
+
+    let root = app.store.data_path().parent().unwrap().to_path_buf();
+    let ran = |graphics| Measured {
+        graphics, started: true, changes: 12, seen: 12, delay_ms: 50.0, delay_slow_ms: 70.0, hiccups_min: Some(0.0), freeze_ms: 20.0,
+        cpu: Some(20.0), adapter: "GPU 1".into(), ..Measured::default()
+    };
+    // The software choice is last in every build; the first real one wins.
+    let results = vec![ran(Graphics::OpenGl), Measured::failed(Graphics::Software, "stopped without a result")];
+    super::settings_graphics::finish(&g(&op), &root, results);
+    settle();
+    let rows: Vec<(String, String, bool)> = g(&op).get_graphics_test_rows().iter().map(|r| (r.name.to_string(), r.word.to_string(), r.best)).collect();
+    assert_eq!(rows, [("OpenGL".into(), "Smooth".into(), true), ("Software".into(), "Didn't work".into(), false)]);
+    let details: Vec<String> = g(&op).get_graphics_test_rows().iter().map(|r| r.details.to_string()).collect();
+    assert_eq!(details, ["Slide change 70 ms · 0 hiccups a minute · longest pause 20 ms · processor 20 %", "It closed before it finished. It may have crashed."]);
+    assert_eq!(find_all(&op, "ScreensPage::graphics-test-details").len(), 2, "each row says what was measured or why");
+    assert_eq!(find_all(&op, "ScreensPage::graphics-test-row").len(), 2);
+    assert_eq!(g(&op).get_graphics_test_pick(), 0, "the best is picked");
+    assert_eq!(g(&op).get_graphics_test_status(), "OpenGL is the best for this computer. Automatic will use it from the next start.");
+    assert_eq!(bench::load(&root).unwrap().winner, Some(Graphics::OpenGl), "kept for Automatic");
+
+    click(&op, "ScreensPage::graphics-test-use");
+    assert_eq!(app.data.lock().unwrap().settings.graphics, Graphics::OpenGl);
+    assert!(toasts(&op).contains(&"Restart RustyPresenter to use the new graphics setting.".to_string()));
+    let want = graphics_choices().iter().position(|c| *c == Graphics::OpenGl).unwrap() as i32;
+    assert_eq!(g(&op).get_graphics_index(), want);
+    // Nothing else changed: restarts at once, without asking.
+    click(&op, "ScreensPage::graphics-restart");
+    assert_eq!(op.state.borrow().asks, 0);
+    assert_eq!(crate::recovery::restart::requests_here(), 1, "Restart now");
+
+    // A choice that didn't work can't be used.
+    super::settings_graphics::use_picked(&op, &Rc::new(edit_for(&app)), 1);
+    settle();
+    assert_eq!(app.data.lock().unwrap().settings.graphics, Graphics::OpenGl);
+}
+
+fn graphics_choices() -> Vec<crate::model::Graphics> { crate::video::graphics::available(crate::video::graphics::Build::this()) }
+
+fn edit_for(app: &Arc<App>) -> Edit {
+    Edit {
+        settings: std::cell::RefCell::new(app.data.lock().unwrap().settings.clone()),
+        backups: Default::default(),
+        look: Default::default(),
+        bible: Default::default(),
+        language: Default::default(),
+        themes: Default::default(),
+    }
+}
+
+#[test]
+fn restart_now_asks_to_save_other_changes_first() {
+    use crate::recovery::restart::requests_here;
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Video);
+    settle();
+    g(&op).set_graphics_restart(true);
+    let before = app.data.lock().unwrap().settings.show_performance;
+    g(&op).set_show_performance(!before);
+    click(&op, "ScreensPage::graphics-restart");
+    let w = crate::ui::dialogs::settings_window::win(&op);
+    assert_eq!(w.get_ask().row_count(), 1, "asks once, over Settings");
+    let ask = w.get_ask().row_data(0).unwrap();
+    assert_eq!((ask.text.as_str(), ask.ok_label.as_str(), ask.cancel_label.as_str()), ("Save your other changes and restart?", "Save and restart", "Cancel"));
+    crate::ui::dialogs::ask::answer_settings(&op, false, String::new());
+    settle();
+    assert_eq!(requests_here(), 0, "Cancel: no restart");
+    assert_eq!(app.data.lock().unwrap().settings.show_performance, before, "and nothing saved");
+    assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Video), "Settings stays open");
+
+    click(&op, "ScreensPage::graphics-restart");
+    crate::ui::dialogs::ask::answer_settings(&op, true, String::new());
+    settle();
+    assert_eq!(app.data.lock().unwrap().settings.show_performance, !before, "saved first");
+    assert_eq!(requests_here(), 1, "then restarted");
+}
+
+#[test]
+fn the_graphics_test_is_offered_once_at_start() {
+    use crate::video::bench;
+    let app = test_app();
+    let op = opened(&app);
+    let root = app.store.data_path().parent().unwrap().to_path_buf();
+    super::settings_graphics::offer_at_start(&op);
+    assert_eq!(op.state.borrow().asks, 1, "asked");
+    assert!(bench::load(&root).unwrap().offered, "remembered");
+    crate::ui::dialogs::ask::answer(&op, false, String::new());
+    assert_eq!(op.dialog(), None, "Not now leaves it");
+    super::settings_graphics::offer_at_start(&op);
+    assert_eq!(op.state.borrow().asks, 0, "only once");
+}
+
+#[test]
+fn the_sound_output_is_saved_and_shown_again() {
+    let app = test_app();
+    let op = opened(&app);
+    app.data.lock().unwrap().settings.audio_device = "wasapi/{board}".into();
+    refresh(&op);
+    open(&op, SettingsTab::Video);
+    assert_eq!(g(&op).get_audio_index(), 1, "kept though no list came");
+    click(&op, "SettingsWindow::save");
+    assert_eq!(app.data.lock().unwrap().settings.audio_device, "wasapi/{board}");
+    refresh(&op);
+    open(&op, SettingsTab::Video);
+    g(&op).set_audio_index(0);
+    click(&op, "SettingsWindow::save");
+    assert_eq!(app.data.lock().unwrap().settings.audio_device, "");
+}
+
+/// A saved eBible list checked just now, so `bible/catalog` reads it from disk and asks no one.
+fn seed_catalog(app: &App) {
+    let dir = app.store.root.join("bibles/catalog");
+    std::fs::create_dir_all(&dir).unwrap();
+    let head = "languageCode,translationId,languageName,languageNameInEnglish,title,Redistributable,Copyright,UpdateDate,OTbooks,NTbooks,DCbooks,textDirection,downloadable,shortTitle,script\n";
+    let rows = [
+        "spa,spaRV1909,Español,Spanish,Santa Biblia Reina-Valera 1909,True,public domain,2025-01-02,39,27,0,ltr,True,Reina-Valera 1909,Latn",
+        "eng,engwebp,English,English,World English Bible,True,public domain,2026-03-01,39,27,0,ltr,True,World English Bible,Latn",
+        "eng,engbrent,English,English,Brenton Septuagint in English,True,public domain,2024-01-01,39,0,15,ltr,True,Brenton,Latn",
+        "grc,grcbrent,Ελληνικά,Ancient Greek,Brenton Greek Septuagint,True,public domain,2024-01-01,39,0,15,ltr,True,Brenton,Grek",
+        "amh,amh2005,አማርኛ,Amharic,መጽሐፍ ቅዱስ,True,public domain,2024-01-01,39,27,0,ltr,True,Amharic Bible,Ethi",
+    ];
+    std::fs::write(dir.join("ebible-translations.csv"), format!("{head}{}\n", rows.join("\n"))).unwrap();
+    let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();
+    std::fs::write(dir.join("ebible.json"), format!(r#"{{"etag":"","last_modified":"","checked_at":{now}}}"#)).unwrap();
+}
+
+fn catalog_lines(op: &Operator) -> Vec<String> {
+    g(op).get_catalog_rows().iter()
+        .map(|r| if r.heading.is_empty() { format!("{} {} [{}]", r.abbr, r.title, r.button) } else { format!("# {}", r.heading) })
+        .collect()
+}
+
+#[test]
+fn bible_library_lists_searches_and_filters_the_saved_catalog() {
+    let app = test_app();
+    seed_catalog(&app);
+    let op = opened(&app);
+    open(&op, SettingsTab::Look);
+    settle();
+    assert_eq!(g(&op).get_catalog_rows().row_count(), 0, "nothing is asked for before the Bible tab is shown");
+    g(&op).set_tab(tab_index(SettingsTab::Bible));
+    g(&op).invoke_tab_changed(tab_index(SettingsTab::Bible));
+    settle();
+    let lines = catalog_lines(&op);
+    assert_eq!(lines[0], "# English", "the church's language first: {lines:?}");
+    assert!(lines.iter().any(|l| l.contains(" World English Bible [Add]")), "{lines:?}");
+    let greek = lines.iter().position(|l| l.starts_with("# Ancient Greek")).expect("Greek heading");
+    let spanish = lines.iter().position(|l| l.starts_with("# Spanish")).expect("Spanish heading");
+    assert!(greek < spanish, "then English names A to Z: {lines:?}");
+    assert!(lines.iter().any(|l| l == "# Spanish · Español"), "{lines:?}");
+    assert!(find(&op, "BiblePage::catalog-search").is_some());
+
+    // Search folds accents and case, and needs every word.
+    g(&op).set_catalog_search("REINA valéra".into());
+    g(&op).invoke_catalog_changed();
+    let lines = catalog_lines(&op);
+    assert_eq!(lines.len(), 2, "{lines:?}");
+    assert!(lines[1].ends_with("Santa Biblia Reina-Valera 1909 [Add]"), "{lines:?}");
+    g(&op).set_catalog_search("brenton".into());
+    g(&op).invoke_catalog_changed();
+    assert_eq!(catalog_lines(&op).len(), 4, "two languages, a heading each");
+
+    // A language.
+    let langs: Vec<String> = g(&op).get_catalog_languages().iter().map(|s| s.to_string()).collect();
+    assert_eq!(langs[0], "All languages");
+    let grc = langs.iter().position(|l| l.starts_with("Ancient Greek")).unwrap();
+    g(&op).set_catalog_language(grc as i32);
+    g(&op).invoke_catalog_changed();
+    let lines = catalog_lines(&op);
+    assert_eq!(lines.len(), 2, "{lines:?}");
+    assert_eq!(lines[0], "# Ancient Greek · Ελληνικά");
+    assert!(lines[1].contains("Brenton Greek Septuagint [Add]"), "{lines:?}");
+
+    // Installed: nothing yet.
+    g(&op).set_catalog_search("".into());
+    g(&op).set_catalog_language(0);
+    g(&op).set_catalog_filter(0);
+    g(&op).invoke_catalog_changed();
+    assert_eq!(g(&op).get_catalog_rows().row_count(), 0);
+    assert!(g(&op).get_catalog_note().starts_with("No Bibles added yet"));
+}
+
+#[test]
+fn bible_library_warns_on_a_row_no_font_can_draw() {
+    let app = test_app();
+    seed_catalog(&app);
+    crate::ui::dialogs::settings_bible::check_with_bundled_fonts();
+    let op = opened(&app);
+    open(&op, SettingsTab::Bible);
+    settle();
+    let rows: Vec<_> = g(&op).get_catalog_rows().iter().filter(|r| r.heading.is_empty()).collect();
+    let warned: Vec<&str> = rows.iter().filter(|r| !r.font_warning.is_empty()).map(|r| r.title.as_str()).collect();
+    assert_eq!(warned, ["መጽሐፍ ቅዱስ"], "Latin and Greek are drawn by the bundled Noto Sans; Ethiopic isn't");
+    let amh = rows.iter().find(|r| r.title == "መጽሐፍ ቅዱስ").unwrap();
+    assert_eq!((amh.font_warning.as_str(), amh.button.as_str()), ("Your computer may not have a font for this language.", "Add"));
+    assert!(find(&op, "BiblePage::font-warning").is_some(), "the warning is on the page");
+}
+
+#[test]
+fn bible_library_row_follows_its_download_job() {
+    let app = test_app();
+    seed_catalog(&app);
+    let op = opened(&app);
+    open(&op, SettingsTab::Bible);
+    settle();
+    let web = |op: &Operator| g(op).get_catalog_rows().iter().find(|r| r.title == "World English Bible").unwrap();
+    assert_eq!((web(&op).button.as_str(), web(&op).progress), ("Add", -1.0));
+
+    let (job, cancel) = app.job_start_cancellable("Waiting to download World English Bible…");
+    app.job_subject(job, "ebible:engwebp");
+    refresh(&op);
+    assert_eq!((web(&op).button.as_str(), web(&op).status.as_str()), ("Cancel", "Waiting"));
+    app.job_label(job, "Downloading World English Bible…");
+    app.job_progress(job, 40);
+    refresh(&op);
+    assert_eq!((web(&op).status.as_str(), web(&op).progress), ("Downloading… 40%", 40.0));
+
+    let n = g(&op).get_catalog_rows().iter().position(|r| r.title == "World English Bible").unwrap();
+    g(&op).invoke_catalog_button(n as i32);
+    assert!(cancel.is_cancelled(), "Cancel cancels the row's job");
+}
+
+/// An eBible download as `bible/install` leaves it: prefixed id, its own abbreviation, licence and source.
+fn install_download(app: &App) {
+    use crate::bible::{import::{ImportedBible, install}, library::{BibleMeta, Licence, Source}};
+    let meta = BibleMeta {
+        id: "ebible:spaRVR".into(), abbr: "RVR".into(), name: "Reina Valera Revisada".into(), lang: "spa".into(),
+        lang_name_en: "Spanish".into(), copyright: "Copyright © 2020 Sociedad Ejemplo".into(),
+        licence: Licence::Cc { kind: "by-sa".into(), version: "4.0".into(), url: "https://creativecommons.org/licenses/by-sa/4.0/".into() },
+        source: Source::Ebible { update_date: "2026-03-01".into() }, ..Default::default()
+    };
+    let verses = [((42u8, 3u16, 16u16), "Porque de tal manera amó Dios al mundo.".to_string())].into_iter().collect();
+    install(&app.store.root, ImportedBible { abbreviation: meta.id.clone(), name: meta.name.clone(), copyright: meta.copyright.clone(), verses, meta: Some(meta) }).unwrap();
+}
+
+#[test]
+fn default_bible_lists_what_can_be_used_and_is_applied_at_once() {
+    let app = test_app();
+    install_download(&app);
+    let op = opened(&app);
+    open(&op, SettingsTab::Bible);
+    settle();
+    assert!(find(&op, "BiblePage::default-bible").is_some());
+    let options: Vec<String> = g(&op).get_default_bibles().iter().map(|s| s.to_string()).collect();
+    assert!(options.contains(&"KJV — King James Version".to_string()), "{options:?}");
+    assert!(options.contains(&"RVR — Reina Valera Revisada".to_string()), "a download by its abbreviation: {options:?}");
+    assert!(!options.iter().any(|o| o.starts_with("ESV")), "a Bible that needs a key isn't offered: {options:?}");
+    let kjv = options.iter().position(|o| o.starts_with("KJV")).unwrap();
+    assert_eq!(g(&op).get_default_bible(), kjv as i32, "the one in use");
+
+    let rvr = options.iter().position(|o| o.starts_with("RVR")).unwrap();
+    g(&op).set_default_bible(rvr as i32);
+    g(&op).invoke_default_bible_changed(rvr as i32);
+    assert_eq!(app.data.lock().unwrap().settings.translation, "ebible:spaRVR", "applied before Save, by its id");
+    assert_eq!(toasts(&op).last().map(String::as_str), Some("Default Bible changed"));
+    click(&op, "SettingsWindow::cancel");
+    assert_eq!(app.data.lock().unwrap().settings.translation, "ebible:spaRVR", "Cancel doesn't undo it");
+    refresh(&op);
+    open(&op, SettingsTab::Bible);
+    settle();
+    let options: Vec<String> = g(&op).get_default_bibles().iter().map(|s| s.to_string()).collect();
+    assert!(options[g(&op).get_default_bible() as usize].starts_with("RVR"), "shown again: {options:?}");
+}
+
+#[test]
+fn credits_show_each_downloaded_bible_with_its_licence_and_link() {
+    let app = test_app();
+    install_download(&app);
+    let op = opened(&app);
+    open(&op, SettingsTab::Bible);
+    settle();
+    let credits: Vec<_> = g(&op).get_bible_credits().iter().collect();
+    let c = credits.iter().find(|c| c.text.contains("Sociedad Ejemplo")).unwrap_or_else(|| panic!("{credits:?}"));
+    assert_eq!(c.text, "RVR: Copyright © 2020 Sociedad Ejemplo (CC BY-SA 4.0)");
+    assert_eq!(c.url, "https://creativecommons.org/licenses/by-sa/4.0/");
+    let sources: Vec<_> = g(&op).get_bible_sources().iter().collect();
+    let row = sources.iter().find(|r| r.translation == "RVR").unwrap_or_else(|| panic!("listed by abbreviation"));
+    assert_eq!(row.hint, "Reina Valera Revisada — downloaded from eBible.org");
+    assert!(row.imported, "it can still be removed here");
+}
+
+#[test]
+fn language_tab_lists_languages_and_switches_the_app_at_once() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Language);
+    settle();
+    assert_eq!(g(&op).get_tab(), 0, "Language is the first page, under General");
+    let tab_labels = || g(&op).get_nav().iter().map(|t| t.title.to_string()).collect::<Vec<_>>();
+    assert_eq!(tab_labels()[..3], ["General", "Language", "Screens and graphics"]);
+    let rows: Vec<crate::ui::SettingsLanguageRow> = g(&op).get_languages().iter().collect();
+    assert!(rows[0].title.starts_with("Use the computer's language ("), "{:?}", rows[0].title);
+    assert!(rows[0].on, "new data follows the computer");
+    assert_eq!(rows[1].title, "English");
+    let es = rows.iter().position(|r| r.title == "Español (needs review)").expect("Spanish is listed by its own name");
+    assert!(rows[es].sub.starts_with("Spanish · ") && rows[es].sub.ends_with("% translated"), "{:?}", rows[es].sub);
+    // The search skips rows scrolled out of view, so this counts the rows on screen (the chosen one is first).
+    let shown = find_all(&op, "SettingsLanguage::language-row").len();
+    assert!(shown > 2 && shown <= rows.len(), "{shown} of {} rows", rows.len());
+    assert_eq!(find_all(&op, "SettingsLanguage::use-language").len(), shown - 1, "every row but the chosen one has Use");
+
+    g(&op).invoke_choose_language(es as i32);
+    settle();
+    assert_eq!(crate::i18n::current(), "es");
+    assert_eq!(app.data.lock().unwrap().settings.ui_language, "es", "saved at once");
+    assert!(op.toast_log().iter().any(|(t, _)| t == "Idioma cambiado"), "the toast is in Spanish: {:?}", op.toast_log());
+    assert_eq!(format!("{:?}", slint::select_bundled_translation("es")), "Ok(())", "Spanish is bundled into the Slint side");
+    assert_eq!(tab_labels()[1], "Idioma", "the window's own words changed without a restart");
+    assert!(g(&op).get_languages().row_data(es).unwrap().on);
+
+    // Cancel keeps it; English again from its row.
+    g(&op).invoke_cancel();
+    open(&op, SettingsTab::Language);
+    settle();
+    g(&op).invoke_choose_language(1);
+    settle();
+    assert_eq!((crate::i18n::current().as_str(), tab_labels()[1].as_str()), ("en", "Language"));
+    assert_eq!(app.data.lock().unwrap().settings.ui_language, "en");
+}
+
+#[test]
+fn an_untouched_form_reads_back_the_settings_it_was_given() {
+    let app = test_app();
+    let op = opened(&app);
+    open(&op, SettingsTab::Songs);
+    settle();
+    let saved = app.data.lock().unwrap().settings.clone();
+    let mut read = saved.clone();
+    read_form(&g(&op), &mut read);
+    assert_eq!(read, saved);
+}

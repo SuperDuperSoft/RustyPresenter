@@ -1,0 +1,975 @@
+//! FEAT-2 timers: the stored definitions, times of day and the clock. Every stored type loads
+//! leniently (spec §4.1): unknown kinds stay as raw JSON, unknown names load as the default.
+use crate::lenient::Lenient;
+use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Offset, TimeDelta, TimeZone, Utc};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use std::sync::Mutex;
+use uuid::Uuid;
+
+/// A wall-clock time with no date, such as a service start. Saved as `"HH:MM"`.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
+pub struct TimeOfDay { pub hour: u8, pub minute: u8 }
+
+impl TimeOfDay {
+    /// Out-of-range values clamp to 23:59.
+    pub fn new(hour: u8, minute: u8) -> Self { TimeOfDay { hour: hour.min(23), minute: minute.min(59) } }
+
+    /// `H:MM` or `HH:MM`, spaces around it allowed; out-of-range values clamp. `None` for anything else.
+    pub fn parse(s: &str) -> Option<Self> {
+        let (h, m) = s.trim().split_once(':')?;
+        let digits = |t: &str| t.bytes().all(|b| b.is_ascii_digit());
+        if !(1..=2).contains(&h.len()) || m.len() != 2 || !digits(h) || !digits(m) { return None }
+        Some(TimeOfDay::new(h.parse().ok()?, m.parse().ok()?))
+    }
+
+    /// 12-hour form with AM/PM: `"10:30 AM"`, `"12:05 PM"`, `"12:00 AM"`.
+    pub fn label(&self) -> String {
+        let h = match self.hour % 12 { 0 => 12, h => h };
+        format!("{h}:{:02} {}", self.minute, if self.hour < 12 { "AM" } else { "PM" })
+    }
+}
+
+impl Serialize for TimeOfDay {
+    fn serialize<S: Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+        s.serialize_str(&format!("{:02}:{:02}", self.hour, self.minute))
+    }
+}
+
+impl<'de> Deserialize<'de> for TimeOfDay {
+    fn deserialize<D: Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        let s = String::deserialize(d)?;
+        TimeOfDay::parse(&s).ok_or_else(|| serde::de::Error::custom(format!("not a time of day: {s:?}")))
+    }
+}
+
+/// `deserialize_with` for an optional time that must never fail the load: null, a non-string
+/// or unreadable text all give `None`. Use with `#[serde(default, deserialize_with = "lenient_time")]`.
+pub fn lenient_time<'de, D: Deserializer<'de>>(d: D) -> Result<Option<TimeOfDay>, D::Error> {
+    let v = serde_json::Value::deserialize(d)?;
+    Ok(v.as_str().and_then(TimeOfDay::parse))
+}
+
+/// What a timer measures.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum TimerKind {
+    /// Counts down a fixed length.
+    Duration { secs: u32 },
+    /// Counts down to a time of day.
+    UntilTime { target: TimeTarget },
+    #[default]
+    CountUp,
+    /// N3: time left in the video on the screen. Follows the video; start and pause do nothing.
+    VideoLeft,
+    /// N3: time left in the audio playing (an audio item, else the walk-in music).
+    AudioLeft,
+}
+
+impl TimerKind {
+    pub fn is_countdown(&self) -> bool { matches!(self, TimerKind::Duration { .. } | TimerKind::UntilTime { .. } | TimerKind::VideoLeft | TimerKind::AudioLeft) }
+
+    /// Reads the playing video or audio instead of counting by itself (N3).
+    pub fn follows_media(&self) -> bool { matches!(self, TimerKind::VideoLeft | TimerKind::AudioLeft) }
+}
+
+/// What a video or audio timer reads (N3): the time left and whether it is paused, for each.
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct MediaLeft { pub video: Option<MediaClock>, pub audio: Option<MediaClock> }
+
+/// One player's time left, in milliseconds, and whether it is paused.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct MediaClock { pub left_ms: i64, pub paused: bool }
+
+impl MediaClock {
+    /// From a player's position and length in seconds; `None` before the length is known.
+    pub fn from_secs(position: f64, duration: f64, paused: bool) -> Option<MediaClock> {
+        (duration > 0.0).then(|| MediaClock { left_ms: ((duration - position).max(0.0) * 1000.0) as i64, paused })
+    }
+}
+
+/// The time a countdown-to-a-time aims at.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum TimeTarget {
+    /// The service's start time.
+    ServiceStart,
+    Fixed { at: TimeOfDay },
+}
+
+/// What happens when a countdown reaches zero.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum AtZero {
+    #[default]
+    Nothing,
+    HideFromRoom,
+    RunMacro { macro_id: Uuid },
+}
+
+// Unit enums: serde allows `#[serde(other)]` only on the last variant, so the default comes last.
+
+/// What a countdown does after zero.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Overrun {
+    CountUp,
+    #[default]
+    #[serde(other)]
+    Stop,
+}
+
+/// Where a timer overlay sits (Plan decision 1; FEAT-1 §4.5 maps it to a `Placement`).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum OverlayPlace {
+    TopLeft,
+    BottomRight,
+    BottomLeft,
+    CenterLarge,
+    #[default]
+    #[serde(other)]
+    TopRight,
+}
+
+/// Which built-in a timer is, when it is one with special handling.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Builtin {
+    PreService,
+    #[default]
+    #[serde(other)]
+    Unknown,
+}
+
+/// A saved timer.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct TimerDef {
+    pub id: Uuid,
+    pub name: String,
+    pub kind: Lenient<TimerKind>,
+    pub overrun: Overrun,
+    pub at_zero: Lenient<AtZero>,
+    #[serde(deserialize_with = "crate::lenient::or_default")]
+    pub place: OverlayPlace,
+    pub caption: String,
+    pub on_stage: bool,
+    pub on_remote: bool,
+    pub builtin: Option<Builtin>,
+}
+
+pub const SERVICE_START_ID: Uuid = Uuid::from_u128(0x52500000_0000_4000_8000_000000000001);
+pub const SERMON_ID: Uuid = Uuid::from_u128(0x52500000_0000_4000_8000_000000000002);
+pub const STOPWATCH_ID: Uuid = Uuid::from_u128(0x52500000_0000_4000_8000_000000000003);
+pub const PRE_SERVICE_TIMER_ID: Uuid = Uuid::from_u128(0x52500000_0000_4000_8000_000000000004);
+
+/// The time now. Only `SystemClock` reads the computer's clock; logic takes `now` as an input.
+pub trait Clock: Send + Sync { fn now(&self) -> DateTime<Utc>; }
+
+pub struct SystemClock;
+
+impl Clock for SystemClock {
+    fn now(&self) -> DateTime<Utc> { Utc::now() }
+}
+
+/// A clock that only moves when told to. Plain `pub` because Part B's app tests use it too.
+pub struct FakeClock(Mutex<DateTime<Utc>>);
+
+impl FakeClock {
+    pub fn new(at: DateTime<Utc>) -> Self { FakeClock(Mutex::new(at)) }
+
+    pub fn set(&self, at: DateTime<Utc>) { *self.0.lock().unwrap_or_else(|e| e.into_inner()) = at; }
+
+    pub fn advance_ms(&self, ms: i64) {
+        *self.0.lock().unwrap_or_else(|e| e.into_inner()) += TimeDelta::milliseconds(ms);
+    }
+}
+
+impl Clock for FakeClock {
+    fn now(&self) -> DateTime<Utc> { *self.0.lock().unwrap_or_else(|e| e.into_inner()) }
+}
+
+/// Where a timer is in its run (spec §4.4).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+pub enum TimerState { Stopped, Running, Paused, Finished }
+
+/// One timer's readout, the FEAT-3 contract (spec §4.4).
+#[derive(Clone, Debug, PartialEq, Serialize)]
+pub struct TimerSnapshot {
+    pub id: Uuid,
+    pub name: String,
+    pub kind: TimerKind,
+    pub state: TimerState,
+    /// Time left for countdowns, time gone for count-up; negative is overrun. Always whole
+    /// seconds (Plan decision 2), so `text` needs no rounding of its own.
+    pub value_ms: i64,
+    pub overrun: bool,
+    pub on_stage: bool,
+    pub on_remote: bool,
+}
+
+/// The auto-advance readout: seconds to the next slide, and whether it is paused.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize)]
+pub struct AutoReadout { pub next_in_secs: u32, pub paused: bool }
+
+/// Everything a tick publishes: timers in Timers-tab order (unknown kinds left out) and auto-advance.
+#[derive(Clone, Debug, PartialEq, Default, Serialize)]
+pub struct TimersView {
+    pub timers: Vec<TimerSnapshot>,
+    pub auto: Option<AutoReadout>,
+    /// N13: the walk-in music, for the mini player and the phone.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub music: Option<crate::automation::music::MusicReadout>,
+}
+
+/// The shared formatter: `m:ss` under an hour, `h:mm:ss` from an hour, `+` for overrun.
+/// Truncates to whole seconds, so callers pass a `display_ms` value.
+pub fn text(value_ms: i64) -> String {
+    let s = value_ms.unsigned_abs() / 1000;
+    let sign = if value_ms < 0 && s > 0 { "+" } else { "" };
+    let (h, m, s) = (s / 3600, s / 60 % 60, s % 60);
+    if h > 0 { format!("{sign}{h}:{m:02}:{s:02}") } else { format!("{sign}{m}:{s:02}") }
+}
+
+/// Quantises a raw value to whole seconds (Plan decision 2): a countdown with time left rounds
+/// up, so it reads 0:00 only at zero; anything else rounds toward zero and keeps its sign.
+pub fn display_ms(raw_ms: i64, countdown: bool) -> i64 {
+    if countdown && raw_ms > 0 {
+        raw_ms.saturating_add(999) / 1000 * 1000
+    } else {
+        raw_ms / 1000 * 1000
+    }
+}
+
+/// `at` on `date` in `tz`, as an instant (spec §5.1 DST rule). An ambiguous (fall-back) time
+/// uses the earlier instant; a time in the spring-forward gap uses the first valid minute after it.
+pub fn resolve_local<Tz: TimeZone>(tz: &Tz, date: NaiveDate, at: TimeOfDay) -> DateTime<Utc> {
+    let time = NaiveTime::from_hms_opt(at.hour.min(23).into(), at.minute.min(59).into(), 0).unwrap_or(NaiveTime::MIN);
+    let start = NaiveDateTime::new(date, time);
+    let mut naive = start;
+    for _ in 0..=180 {
+        if let Some(t) = tz.from_local_datetime(&naive).earliest() { return t.with_timezone(&Utc) }
+        naive += TimeDelta::minutes(1);
+    }
+    // No zone has a gap this long; read the time with the offset in force at that moment.
+    let offset = tz.offset_from_utc_datetime(&start).fix().local_minus_utc();
+    start.and_utc() - TimeDelta::seconds(offset.into())
+}
+
+/// When a countdown-to-a-time should reach zero, or the message to show instead (spec §5.1).
+/// A fixed time that passed under an hour ago is refused; one longer ago means tomorrow.
+pub fn until_target<Tz: TimeZone>(target: &TimeTarget, starts_at: Option<TimeOfDay>, now: DateTime<Utc>, tz: &Tz)
+    -> Result<DateTime<Utc>, String> {
+    use crate::automation::strings;
+    let today = now.with_timezone(tz).date_naive();
+    match target {
+        TimeTarget::ServiceStart => {
+            let at = starts_at.ok_or_else(|| strings::no_start_time())?;
+            let t = resolve_local(tz, today, at);
+            if t <= now { Err(strings::service_start_passed(&at.label())) } else { Ok(t) }
+        }
+        TimeTarget::Fixed { at } => {
+            let t = resolve_local(tz, today, *at);
+            if t > now {
+                Ok(t)
+            } else if now - t < TimeDelta::minutes(60) {
+                Err(strings::time_passed(&at.label()))
+            } else {
+                Ok(resolve_local(tz, today.succ_opt().unwrap_or(today), *at))
+            }
+        }
+    }
+}
+
+/// Where a timer's current run is. Lives only in memory; nothing here is saved.
+#[derive(Clone, Debug, PartialEq, Default)]
+pub enum RunState {
+    #[default]
+    Stopped,
+    /// Counting from `since`, plus time carried over from before a pause.
+    Running { since: DateTime<Utc>, carried_ms: u64 },
+    /// Counting down to an instant fixed when it started (spec §5.1).
+    RunningTo { target: DateTime<Utc> },
+    Paused { elapsed_ms: u64 },
+    Finished,
+}
+
+/// One timer's runtime: its state, which run this is, and what that run has seen.
+#[derive(Clone, Debug, PartialEq, Default)]
+pub struct TimerRun {
+    pub state: RunState,
+    /// Bumped by reset and restart, so a stale at-zero or overlay can tell runs apart.
+    pub run: u64,
+    pub zero_fired: bool,
+    /// "Set for now": a length for this run only; the saved definition is never changed.
+    pub length_for_now: Option<u32>,
+    /// The live engine's clear epoch when this run started.
+    pub seen_clear: u64,
+}
+
+/// A "set for now" change: it applies to the current run only, never to the saved timer.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SetNow {
+    /// A new length for a countdown of a length.
+    Secs(u32),
+    /// A new time for a running countdown to a time.
+    At(TimeOfDay),
+}
+
+/// What starting a timer needs to know.
+pub struct StartCtx<'a, Tz: TimeZone> {
+    pub now: DateTime<Utc>,
+    pub tz: &'a Tz,
+    pub starts_at: Option<TimeOfDay>,
+    pub clear_epoch: u64,
+}
+
+impl TimerRun {
+    /// The state a new run begins in. Refuses an unknown kind or a target that can't be used.
+    fn fresh<Tz: TimeZone>(def: &TimerDef, ctx: &StartCtx<Tz>) -> Result<RunState, String> {
+        use crate::automation::strings;
+        match def.kind.known().ok_or_else(|| strings::timer_needs_newer())? {
+            TimerKind::Duration { .. } | TimerKind::CountUp => Ok(RunState::Running { since: ctx.now, carried_ms: 0 }),
+            TimerKind::VideoLeft | TimerKind::AudioLeft => Ok(RunState::Stopped),
+            TimerKind::UntilTime { target } => {
+                Ok(RunState::RunningTo { target: until_target(target, ctx.starts_at, ctx.now, ctx.tz)? })
+            }
+        }
+    }
+
+    /// Starts or resumes. Already running is a no-op; on `Err` nothing changes.
+    pub fn start<Tz: TimeZone>(&mut self, def: &TimerDef, ctx: &StartCtx<Tz>) -> Result<(), String> {
+        match def.kind.known() {
+            None => return Err(crate::automation::strings::timer_needs_newer().into()),
+            // A video or audio timer follows its player: nothing to start.
+            Some(k) if k.follows_media() => return Ok(()),
+            _ => {}
+        }
+        match self.state {
+            RunState::Running { .. } | RunState::RunningTo { .. } => {}
+            RunState::Paused { elapsed_ms } => self.state = RunState::Running { since: ctx.now, carried_ms: elapsed_ms },
+            RunState::Stopped | RunState::Finished => {
+                let state = Self::fresh(def, ctx)?;
+                if self.state == RunState::Finished {
+                    self.run += 1;
+                    self.zero_fired = false;
+                }
+                self.state = state;
+                self.seen_clear = ctx.clear_epoch;
+            }
+        }
+        Ok(())
+    }
+
+    /// Pauses a running timer. A countdown to a time can't pause; anything else is a no-op.
+    pub fn pause(&mut self, now: DateTime<Utc>) -> Result<(), String> {
+        match self.state {
+            RunState::Running { .. } => self.state = RunState::Paused { elapsed_ms: self.elapsed_ms(now) },
+            RunState::RunningTo { .. } => return Err(crate::automation::strings::cant_pause_to_time().into()),
+            _ => {}
+        }
+        Ok(())
+    }
+
+    /// Back to the start value, dropping any "set for now" length.
+    pub fn reset(&mut self) {
+        self.state = RunState::Stopped;
+        self.run += 1;
+        self.zero_fired = false;
+        self.length_for_now = None;
+    }
+
+    /// Starts a new run from the beginning, whatever the state. On `Err` nothing changes.
+    pub fn restart<Tz: TimeZone>(&mut self, def: &TimerDef, ctx: &StartCtx<Tz>) -> Result<(), String> {
+        self.state = Self::fresh(def, ctx)?;
+        self.run += 1;
+        self.zero_fired = false;
+        self.seen_clear = ctx.clear_epoch;
+        Ok(())
+    }
+
+    /// "Set for now": a new length (countdown of a length) or a new time (a running countdown to a
+    /// time) for this run only. The definition is never changed; on `Err` nothing changes.
+    pub fn set_now<Tz: TimeZone>(&mut self, def: &TimerDef, change: SetNow, ctx: &StartCtx<Tz>) -> Result<(), String> {
+        use crate::automation::strings;
+        match (def.kind.known(), change, &self.state) {
+            (Some(TimerKind::Duration { .. }), SetNow::Secs(s), _) => {
+                if !(1..=86_399).contains(&s) { return Err(strings::duration_range().into()) }
+                self.length_for_now = Some(s);
+            }
+            (Some(TimerKind::UntilTime { .. }), SetNow::At(at), RunState::RunningTo { .. }) => {
+                let target = until_target(&TimeTarget::Fixed { at }, ctx.starts_at, ctx.now, ctx.tz)?;
+                self.state = RunState::RunningTo { target };
+            }
+            _ => return Err(strings::set_now_wrong_kind().into()),
+        }
+        Ok(())
+    }
+
+    /// True once per run, when a running countdown reaches zero. `Overrun::Stop` also finishes it;
+    /// `Overrun::CountUp` keeps it running past zero. Paused, stopped and count-up timers never fire.
+    pub fn check_zero(&mut self, def: &TimerDef, now: DateTime<Utc>) -> bool {
+        if self.zero_fired { return false }
+        let elapsed = i64::try_from(self.elapsed_ms(now)).unwrap_or(i64::MAX);
+        let raw = match (&self.state, def.kind.known()) {
+            (RunState::Running { .. }, Some(TimerKind::Duration { secs })) => {
+                i64::from(self.length_for_now.unwrap_or(*secs)) * 1000 - elapsed
+            }
+            (RunState::RunningTo { target }, Some(TimerKind::UntilTime { .. })) => (*target - now).num_milliseconds(),
+            _ => return false,
+        };
+        if raw > 0 { return false }
+        self.zero_fired = true;
+        if def.overrun == Overrun::Stop { self.state = RunState::Finished }
+        true
+    }
+
+    /// Time counted so far. A clock that went backwards counts as no time (Review Focus 1).
+    pub fn elapsed_ms(&self, now: DateTime<Utc>) -> u64 {
+        match self.state {
+            RunState::Running { since, carried_ms } => {
+                carried_ms.saturating_add(u64::try_from((now - since).num_milliseconds()).unwrap_or(0))
+            }
+            RunState::Paused { elapsed_ms } => elapsed_ms,
+            _ => 0,
+        }
+    }
+
+    /// The readout at `now`, quantised to whole seconds. `None` for a kind from a newer version.
+    pub fn snapshot<Tz: TimeZone>(&self, def: &TimerDef, now: DateTime<Utc>, tz: &Tz, starts_at: Option<TimeOfDay>)
+        -> Option<TimerSnapshot> {
+        self.snapshot_with(def, now, tz, starts_at, &MediaLeft::default())
+    }
+
+    /// `snapshot`, with what the video and audio timers read (N3).
+    pub fn snapshot_with<Tz: TimeZone>(&self, def: &TimerDef, now: DateTime<Utc>, tz: &Tz, starts_at: Option<TimeOfDay>, media: &MediaLeft)
+        -> Option<TimerSnapshot> {
+        let kind = def.kind.known()?;
+        if kind.follows_media() {
+            let clock = if *kind == TimerKind::VideoLeft { media.video } else { media.audio };
+            let state = match clock { None => TimerState::Stopped, Some(c) if c.paused => TimerState::Paused, Some(_) => TimerState::Running };
+            let raw = clock.map_or(0, |c| c.left_ms.max(0));
+            return Some(TimerSnapshot {
+                id: def.id, name: def.name.clone(), kind: kind.clone(), state, value_ms: display_ms(raw, true), overrun: false,
+                on_stage: def.on_stage, on_remote: def.on_remote,
+            });
+        }
+        let elapsed = i64::try_from(self.elapsed_ms(now)).unwrap_or(i64::MAX);
+        let raw = match (&self.state, kind) {
+            (RunState::Finished, _) => 0,
+            (_, TimerKind::Duration { secs }) => i64::from(self.length_for_now.unwrap_or(*secs)) * 1000 - elapsed,
+            (_, TimerKind::CountUp) => elapsed,
+            (RunState::RunningTo { target }, TimerKind::UntilTime { .. }) => (*target - now).num_milliseconds(),
+            (RunState::Stopped, TimerKind::UntilTime { target }) => until_target(target, starts_at, now, tz)
+                .map_or(0, |t| (t - now).num_milliseconds()),
+            (_, TimerKind::UntilTime { .. }) | (_, TimerKind::VideoLeft | TimerKind::AudioLeft) => 0,
+        };
+        let raw = if def.overrun == Overrun::Stop { raw.max(0) } else { raw };
+        let state = match self.state {
+            RunState::Stopped => TimerState::Stopped,
+            RunState::Running { .. } | RunState::RunningTo { .. } => TimerState::Running,
+            RunState::Paused { .. } => TimerState::Paused,
+            RunState::Finished => TimerState::Finished,
+        };
+        Some(TimerSnapshot {
+            id: def.id,
+            name: def.name.clone(),
+            kind: kind.clone(),
+            state,
+            value_ms: display_ms(raw, kind.is_countdown()),
+            overrun: raw < 0,
+            on_stage: def.on_stage,
+            on_remote: def.on_remote,
+        })
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod test_zone {
+    //! America/Chicago for 2026 only, so tests need no time zone database (replaces `chrono-tz`).
+    use chrono::{FixedOffset, MappedLocalTime, NaiveDate, NaiveDateTime, TimeZone, Utc};
+
+    #[derive(Clone, Copy, Debug)]
+    pub struct Chicago2026;
+
+    fn cdt() -> FixedOffset { FixedOffset::west_opt(5 * 3600).unwrap() }
+    fn cst() -> FixedOffset { FixedOffset::west_opt(6 * 3600).unwrap() }
+
+    impl TimeZone for Chicago2026 {
+        type Offset = FixedOffset;
+
+        fn from_offset(_: &FixedOffset) -> Self { Chicago2026 }
+
+        fn offset_from_local_date(&self, local: &NaiveDate) -> MappedLocalTime<FixedOffset> {
+            self.offset_from_local_datetime(&local.and_hms_opt(0, 0, 0).unwrap())
+        }
+
+        fn offset_from_local_datetime(&self, local: &NaiveDateTime) -> MappedLocalTime<FixedOffset> {
+            let fits = |o: FixedOffset| self.offset_from_utc_datetime(&(*local - o)) == o;
+            match (fits(cdt()), fits(cst())) {
+                (true, true) => MappedLocalTime::Ambiguous(cdt(), cst()),
+                (true, false) => MappedLocalTime::Single(cdt()),
+                (false, true) => MappedLocalTime::Single(cst()),
+                (false, false) => MappedLocalTime::None,
+            }
+        }
+
+        fn offset_from_utc_date(&self, utc: &NaiveDate) -> FixedOffset {
+            self.offset_from_utc_datetime(&utc.and_hms_opt(0, 0, 0).unwrap())
+        }
+
+        fn offset_from_utc_datetime(&self, utc: &NaiveDateTime) -> FixedOffset {
+            let begins = Utc.with_ymd_and_hms(2026, 3, 8, 8, 0, 0).unwrap().naive_utc();
+            let ends = Utc.with_ymd_and_hms(2026, 11, 1, 7, 0, 0).unwrap().naive_utc();
+            if (begins..ends).contains(utc) { cdt() } else { cst() }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::lenient::Lenient;
+    use chrono::{TimeDelta, TimeZone, Utc};
+    use serde::Deserialize;
+
+    #[test]
+    fn time_of_day_serializes_hh_mm() {
+        assert_eq!(serde_json::to_string(&TimeOfDay::new(9, 5)).unwrap(), "\"09:05\"");
+        assert_eq!(TimeOfDay::parse("9:05"), Some(TimeOfDay::new(9, 5)));
+        assert_eq!(TimeOfDay::parse(" 09:05 "), Some(TimeOfDay::new(9, 5)));
+        for bad in ["9:5", "9", "", "abc"] { assert_eq!(TimeOfDay::parse(bad), None, "{bad:?}"); }
+        assert_eq!(TimeOfDay::new(9, 5).label(), "9:05 AM");
+        assert_eq!(TimeOfDay::new(0, 0).label(), "12:00 AM");
+        assert_eq!(TimeOfDay::new(12, 5).label(), "12:05 PM");
+    }
+
+    #[test]
+    fn bad_time_of_day_clamps_or_drops_field() {
+        assert_eq!(TimeOfDay::parse("25:70"), Some(TimeOfDay::new(23, 59)));
+        #[derive(Deserialize)] struct Holder { #[serde(default, deserialize_with = "lenient_time")] at: Option<TimeOfDay> }
+        for src in [r#"{"at":"soon"}"#, r#"{"at":null}"#, r#"{"at":7}"#, r#"{}"#] {
+            assert_eq!(serde_json::from_str::<Holder>(src).unwrap().at, None, "{src}");
+        }
+        let k: Lenient<TimerKind> = serde_json::from_str(r#"{"type":"until_time","target":{"type":"fixed","at":"soon"}}"#).unwrap();
+        assert!(matches!(k, Lenient::Unknown(_)));
+    }
+
+    #[test]
+    fn unknown_timer_kind_loads_and_round_trips() {
+        let src = r#"{"type":"lap_timer","laps":3}"#;
+        let k: Lenient<TimerKind> = serde_json::from_str(src).unwrap();
+        assert!(matches!(k, Lenient::Unknown(_)));
+        assert_eq!(serde_json::to_value(&k).unwrap(), serde_json::from_str::<serde_json::Value>(src).unwrap());
+    }
+
+    #[test]
+    fn unknown_unit_enum_value_loads_as_default() {
+        let t: TimerDef = serde_json::from_str(r#"{"overrun":"explode","place":"middle","builtin":"robot"}"#).unwrap();
+        assert_eq!(t.overrun, Overrun::Stop);
+        assert_eq!(t.place, OverlayPlace::TopRight);
+        assert_eq!(t.builtin, Some(Builtin::Unknown));
+    }
+
+    #[test]
+    fn place_object_from_newer_version_loads_as_default() {
+        let t: TimerDef = serde_json::from_str(r#"{"name":"X","place":{"anchor":"bottom_left","width":25,"margin":4}}"#).unwrap();
+        assert_eq!(t.place, OverlayPlace::TopRight);
+        assert_eq!(t.name, "X");
+        let t: TimerDef = serde_json::from_str(r#"{"place":"center_large"}"#).unwrap();
+        assert_eq!(t.place, OverlayPlace::CenterLarge);
+    }
+
+    #[test]
+    fn timer_def_missing_fields_default() {
+        let t: TimerDef = serde_json::from_str("{}").unwrap();
+        assert_eq!(t, TimerDef::default());
+        assert_eq!(t.kind, Lenient::Known(TimerKind::CountUp));
+        assert_eq!(t.at_zero, Lenient::Known(AtZero::Nothing));
+    }
+
+    #[test]
+    fn timer_kind_json_shape() {
+        fn v<T: serde::Serialize>(x: &T) -> serde_json::Value { serde_json::to_value(x).unwrap() }
+        assert_eq!(v(&TimerKind::Duration { secs: 1800 }), serde_json::json!({"type":"duration","secs":1800}));
+        assert_eq!(v(&TimerKind::UntilTime { target: TimeTarget::ServiceStart }),
+            serde_json::json!({"type":"until_time","target":{"type":"service_start"}}));
+        assert_eq!(v(&TimeTarget::Fixed { at: TimeOfDay::new(10, 30) }), serde_json::json!({"type":"fixed","at":"10:30"}));
+        let id = uuid::Uuid::from_u128(7);
+        assert_eq!(v(&AtZero::RunMacro { macro_id: id }), serde_json::json!({"type":"run_macro","macro_id":id.to_string()}));
+    }
+
+    #[test]
+    fn fake_clock_advances() {
+        let t0 = Utc.with_ymd_and_hms(2026, 11, 1, 10, 0, 0).unwrap();
+        let c = FakeClock::new(t0);
+        assert_eq!(c.now(), t0);
+        c.advance_ms(1500);
+        assert_eq!(c.now(), t0 + TimeDelta::milliseconds(1500));
+        let t1 = t0 + TimeDelta::hours(1);
+        c.set(t1);
+        assert_eq!(c.now(), t1);
+    }
+
+    #[test]
+    fn timer_text_shared_formatter() {
+        for (ms, s) in [(0, "0:00"), (59_000, "0:59"), (60_000, "1:00"), (3_599_000, "59:59"), (3_600_000, "1:00:00"),
+                        (-72_000, "+1:12"), (-3_900_000, "+1:05:00"), (-400, "0:00")] {
+            assert_eq!(text(ms), s, "{ms}");
+        }
+        assert_eq!(display_ms(1, true), 1000);
+        assert_eq!(display_ms(1500, true), 2000);
+        assert_eq!(display_ms(2000, true), 2000);
+        assert_eq!(display_ms(0, true), 0);
+        assert_eq!(display_ms(1999, false), 1000);
+        assert_eq!(display_ms(-1999, true), -1000);
+    }
+
+    fn utc(y: i32, m: u32, d: u32, h: u32, mi: u32) -> chrono::DateTime<Utc> {
+        Utc.with_ymd_and_hms(y, m, d, h, mi, 0).unwrap()
+    }
+
+    fn fixed(h: u8, m: u8) -> TimeTarget { TimeTarget::Fixed { at: TimeOfDay::new(h, m) } }
+
+    #[test]
+    fn service_start_without_time_errors() {
+        let chi = test_zone::Chicago2026;
+        let now = utc(2026, 6, 7, 15, 45);
+        assert_eq!(until_target(&TimeTarget::ServiceStart, None, now, &chi),
+            Err(crate::automation::strings::no_start_time().into()));
+    }
+
+    #[test]
+    fn start_after_target_runs_at_zero_or_refuses() {
+        let chi = test_zone::Chicago2026;
+        let now = utc(2026, 6, 7, 15, 45); // 10:45 CDT, a Sunday
+        assert_eq!(until_target(&TimeTarget::ServiceStart, Some(TimeOfDay::new(10, 30)), now, &chi),
+            Err("The service start time (10:30 AM) has passed.".into()));
+        assert_eq!(until_target(&fixed(10, 15), None, now, &chi), Err("That time (10:15 AM) has passed.".into()));
+        assert_eq!(until_target(&fixed(7, 45), None, now, &chi), Ok(utc(2026, 6, 8, 12, 45)));
+        assert_eq!(until_target(&fixed(11, 0), None, now, &chi), Ok(utc(2026, 6, 7, 16, 0)));
+    }
+
+    #[test]
+    fn until_time_across_dst_change() {
+        let chi = test_zone::Chicago2026;
+        let march = utc(2026, 3, 8, 7, 0); // 1:00 CST
+        assert_eq!(until_target(&fixed(2, 30), None, march, &chi), Ok(utc(2026, 3, 8, 8, 0)));
+        assert_eq!(until_target(&fixed(10, 30), None, march, &chi), Ok(utc(2026, 3, 8, 15, 30)));
+        let november = utc(2026, 11, 1, 5, 30); // 0:30 CDT
+        assert_eq!(until_target(&fixed(1, 30), None, november, &chi), Ok(utc(2026, 11, 1, 6, 30)));
+        assert_eq!(until_target(&fixed(10, 30), None, november, &chi), Ok(utc(2026, 11, 1, 16, 30)));
+    }
+
+    // ---- Task A5: state machine and snapshots ----
+
+    fn t0() -> chrono::DateTime<Utc> { utc(2026, 6, 7, 15, 0) }
+
+    fn at(ms: i64) -> chrono::DateTime<Utc> { t0() + TimeDelta::milliseconds(ms) }
+
+    fn dur(secs: u32, overrun: Overrun) -> TimerDef {
+        TimerDef { kind: Lenient::Known(TimerKind::Duration { secs }), overrun, ..TimerDef::default() }
+    }
+
+    fn ctx(now: chrono::DateTime<Utc>) -> StartCtx<'static, Utc> { StartCtx { now, tz: &Utc, starts_at: None, clear_epoch: 0 } }
+
+    fn until(target: TimeTarget, overrun: Overrun) -> TimerDef {
+        TimerDef { kind: Lenient::Known(TimerKind::UntilTime { target }), overrun, ..TimerDef::default() }
+    }
+
+    fn count_up() -> TimerDef { TimerDef { kind: Lenient::Known(TimerKind::CountUp), ..TimerDef::default() } }
+
+    #[test]
+    fn countdown_rounds_up_and_stops_at_zero() {
+        let def = dur(30, Overrun::Stop);
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        let v = |r: &TimerRun, ms| text(r.snapshot(&def, at(ms), &Utc, None).unwrap().value_ms);
+        assert_eq!(v(&r, 500), "0:30");
+        assert_eq!(v(&r, 29_001), "0:01");
+        assert_eq!(v(&r, 31_000), "0:00"); // Stop clamps even before the ticker marks it Finished
+    }
+
+    #[test]
+    fn countdown_overrun_counts_up_with_plus() {
+        let def = dur(30, Overrun::CountUp);
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        let s = r.snapshot(&def, at(31_500), &Utc, None).unwrap();
+        assert_eq!(s.value_ms, -1000);
+        assert_eq!(text(s.value_ms), "+0:01");
+        assert!(s.overrun);
+        assert_eq!(s.state, TimerState::Running);
+    }
+
+    #[test]
+    fn count_up_formats_hours() {
+        let def = count_up();
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        assert_eq!(text(r.snapshot(&def, at(3_725_400), &Utc, None).unwrap().value_ms), "1:02:05");
+    }
+
+    #[test]
+    fn pause_and_resume_carry_elapsed() {
+        let def = dur(60, Overrun::Stop);
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        r.pause(at(10_000)).unwrap();
+        assert_eq!(r.state, RunState::Paused { elapsed_ms: 10_000 });
+        assert_eq!(r.snapshot(&def, at(50_000), &Utc, None).unwrap().state, TimerState::Paused);
+        r.start(&def, &ctx(at(100_000))).unwrap();
+        assert_eq!(r.snapshot(&def, at(105_000), &Utc, None).unwrap().value_ms, 45_000);
+    }
+
+    #[test]
+    fn stopped_shows_start_value() {
+        let r = TimerRun::default();
+        let chi = test_zone::Chicago2026;
+        let now = utc(2026, 6, 7, 15, 45); // 10:45 CDT
+        let v = |def: &TimerDef| text(r.snapshot(def, now, &chi, None).unwrap().value_ms);
+        assert_eq!(v(&dur(1800, Overrun::Stop)), "30:00");
+        assert_eq!(v(&count_up()), "0:00");
+        assert_eq!(v(&until(fixed(11, 0), Overrun::Stop)), "15:00");
+        assert_eq!(r.snapshot(&count_up(), now, &chi, None).unwrap().state, TimerState::Stopped);
+    }
+
+    #[test]
+    fn until_time_target_fixed_at_start() {
+        let chi = test_zone::Chicago2026;
+        let now = utc(2026, 6, 7, 15, 45);
+        let mut r = TimerRun::default();
+        r.start(&until(fixed(11, 0), Overrun::Stop), &StartCtx { now, tz: &chi, starts_at: None, clear_epoch: 0 }).unwrap();
+        assert_eq!(r.state, RunState::RunningTo { target: utc(2026, 6, 7, 16, 0) });
+    }
+
+    #[test]
+    fn editing_starts_at_does_not_move_running_timer() {
+        let chi = test_zone::Chicago2026;
+        let now = utc(2026, 6, 7, 15, 45);
+        let def = until(TimeTarget::ServiceStart, Overrun::Stop);
+        let mut r = TimerRun::default();
+        r.start(&def, &StartCtx { now, tz: &chi, starts_at: Some(TimeOfDay::new(11, 0)), clear_epoch: 0 }).unwrap();
+        let s = r.snapshot(&def, now, &chi, Some(TimeOfDay::new(11, 30))).unwrap();
+        assert_eq!(text(s.value_ms), "15:00");
+    }
+
+    #[test]
+    fn until_time_overrun_past_60_min_keeps_counting_up() {
+        let chi = test_zone::Chicago2026;
+        let def = until(fixed(11, 0), Overrun::CountUp);
+        let mut r = TimerRun::default();
+        r.start(&def, &StartCtx { now: utc(2026, 6, 7, 15, 45), tz: &chi, starts_at: None, clear_epoch: 0 }).unwrap();
+        let s = r.snapshot(&def, utc(2026, 6, 7, 17, 5), &chi, None).unwrap();
+        assert_eq!(text(s.value_ms), "+1:05:00");
+        assert!(s.overrun);
+    }
+
+    #[test]
+    fn until_time_refuses_pause() {
+        let chi = test_zone::Chicago2026;
+        let now = utc(2026, 6, 7, 15, 45);
+        let mut r = TimerRun::default();
+        r.start(&until(fixed(11, 0), Overrun::Stop), &StartCtx { now, tz: &chi, starts_at: None, clear_epoch: 0 }).unwrap();
+        let before = r.clone();
+        assert_eq!(r.pause(now + TimeDelta::minutes(1)), Err(crate::automation::strings::cant_pause_to_time().into()));
+        assert_eq!(r, before);
+    }
+
+    #[test]
+    fn unknown_timer_kind_loads_and_cannot_start() {
+        let def = TimerDef { kind: Lenient::Unknown(serde_json::json!({"type":"lap_timer"})), ..TimerDef::default() };
+        let mut r = TimerRun::default();
+        assert_eq!(r.start(&def, &ctx(at(0))), Err(crate::automation::strings::timer_needs_newer().into()));
+        assert_eq!(r, TimerRun::default());
+        assert_eq!(r.snapshot(&def, at(0), &Utc, None), None);
+    }
+
+    #[test]
+    fn restart_bumps_run_and_captures_seen_clear() {
+        let def = dur(60, Overrun::Stop);
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        r.restart(&def, &StartCtx { clear_epoch: 7, ..ctx(at(20_000)) }).unwrap();
+        assert_eq!(r.run, 1);
+        assert_eq!(r.seen_clear, 7);
+        assert_eq!(r.snapshot(&def, at(20_000), &Utc, None).unwrap().value_ms, 60_000);
+    }
+
+    #[test]
+    fn resume_keeps_seen_clear() {
+        let def = dur(60, Overrun::Stop);
+        let mut r = TimerRun::default();
+        r.start(&def, &StartCtx { clear_epoch: 1, ..ctx(at(0)) }).unwrap();
+        r.pause(at(5_000)).unwrap();
+        r.start(&def, &StartCtx { clear_epoch: 5, ..ctx(at(9_000)) }).unwrap();
+        assert_eq!(r.seen_clear, 1);
+    }
+
+    #[test]
+    fn refused_restart_keeps_state() {
+        let chi = test_zone::Chicago2026;
+        let now = utc(2026, 6, 7, 15, 45);
+        let def = until(TimeTarget::ServiceStart, Overrun::Stop);
+        let mut r = TimerRun::default();
+        r.start(&def, &StartCtx { now, tz: &chi, starts_at: Some(TimeOfDay::new(11, 0)), clear_epoch: 3 }).unwrap();
+        assert_eq!(r.state, RunState::RunningTo { target: utc(2026, 6, 7, 16, 0) });
+        assert_eq!(r.run, 0);
+        let res = r.restart(&def, &StartCtx { now, tz: &chi, starts_at: None, clear_epoch: 9 });
+        assert_eq!(res, Err(crate::automation::strings::no_start_time().into()));
+        assert_eq!(r.state, RunState::RunningTo { target: utc(2026, 6, 7, 16, 0) });
+        assert_eq!(r.run, 0);
+        assert_eq!(r.seen_clear, 3);
+    }
+
+    #[test]
+    fn clock_going_backwards_never_exceeds_full_length() {
+        let def = dur(60, Overrun::Stop);
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(10_000))).unwrap();
+        assert_eq!(r.elapsed_ms(at(0)), 0);
+        assert_eq!(r.snapshot(&def, at(0), &Utc, None).unwrap().value_ms, 60_000);
+    }
+
+    // ---- Task A6: "set for now" and firing at zero ----
+
+    #[test]
+    fn set_for_now_does_not_change_definition() {
+        let def = dur(1800, Overrun::Stop);
+        let saved = def.clone();
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        r.set_now(&def, SetNow::Secs(1500), &ctx(at(60_000))).unwrap();
+        assert_eq!(text(r.snapshot(&def, at(60_000), &Utc, None).unwrap().value_ms), "24:00");
+        assert_eq!(def, saved);
+        r.reset();
+        assert_eq!(r.length_for_now, None);
+        let s = r.snapshot(&def, at(70_000), &Utc, None).unwrap();
+        assert_eq!(s.state, TimerState::Stopped);
+        assert_eq!(text(s.value_ms), "30:00");
+    }
+
+    #[test]
+    fn reset_clears_zero_fired_and_set_for_now() {
+        let def = dur(10, Overrun::CountUp);
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        r.set_now(&def, SetNow::Secs(5), &ctx(at(0))).unwrap();
+        assert!(r.check_zero(&def, at(5_000)));
+        assert!(r.zero_fired);
+        r.reset();
+        assert!(!r.zero_fired);
+        assert_eq!(r.run, 1);
+        assert_eq!(r.length_for_now, None);
+    }
+
+    #[test]
+    fn set_now_moves_until_time_target_only_while_running() {
+        let chi = test_zone::Chicago2026;
+        let now = utc(2026, 6, 7, 15, 45); // 10:45 CDT
+        let c = StartCtx { now, tz: &chi, starts_at: None, clear_epoch: 0 };
+        let def = until(fixed(11, 0), Overrun::Stop);
+        let saved = def.clone();
+        let mut r = TimerRun::default();
+        assert_eq!(r.set_now(&def, SetNow::At(TimeOfDay::new(11, 30)), &c),
+            Err(crate::automation::strings::set_now_wrong_kind().into()));
+        assert_eq!(r, TimerRun::default());
+        r.start(&def, &c).unwrap();
+        r.set_now(&def, SetNow::At(TimeOfDay::new(11, 30)), &c).unwrap();
+        assert_eq!(r.state, RunState::RunningTo { target: utc(2026, 6, 7, 16, 30) });
+        assert_eq!(def, saved);
+        // A refused time leaves the target alone.
+        assert_eq!(r.set_now(&def, SetNow::At(TimeOfDay::new(10, 15)), &c), Err("That time (10:15 AM) has passed.".into()));
+        assert_eq!(r.state, RunState::RunningTo { target: utc(2026, 6, 7, 16, 30) });
+        // A length is the wrong kind of change for a countdown to a time.
+        assert_eq!(r.set_now(&def, SetNow::Secs(60), &c), Err(crate::automation::strings::set_now_wrong_kind().into()));
+    }
+
+    #[test]
+    fn set_now_rejects_out_of_range_and_wrong_kind() {
+        use crate::automation::strings::{duration_range, set_now_wrong_kind};
+        let def = dur(60, Overrun::Stop);
+        let mut r = TimerRun::default();
+        assert_eq!(r.set_now(&def, SetNow::Secs(0), &ctx(at(0))), Err(duration_range().into()));
+        assert_eq!(r.set_now(&def, SetNow::Secs(86_400), &ctx(at(0))), Err(duration_range().into()));
+        assert_eq!(r.length_for_now, None);
+        r.set_now(&def, SetNow::Secs(86_399), &ctx(at(0))).unwrap();
+        assert_eq!(r.length_for_now, Some(86_399));
+        assert_eq!(r.set_now(&def, SetNow::At(TimeOfDay::new(11, 0)), &ctx(at(0))), Err(set_now_wrong_kind().into()));
+        let mut r = TimerRun::default();
+        assert_eq!(r.set_now(&count_up(), SetNow::Secs(5), &ctx(at(0))), Err(set_now_wrong_kind().into()));
+        assert_eq!(r, TimerRun::default());
+    }
+
+    #[test]
+    fn at_zero_fires_once() {
+        let def = dur(10, Overrun::Stop);
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        assert!(!r.check_zero(&def, at(9_000)));
+        assert!(r.check_zero(&def, at(10_000)));
+        assert_eq!(r.state, RunState::Finished);
+        assert!(!r.check_zero(&def, at(11_000)));
+        r.restart(&def, &ctx(at(20_000))).unwrap();
+        assert!(!r.check_zero(&def, at(29_000)));
+        assert!(r.check_zero(&def, at(30_000)));
+    }
+
+    #[test]
+    fn count_up_overrun_fires_once_and_keeps_running() {
+        let def = dur(10, Overrun::CountUp);
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        assert!(r.check_zero(&def, at(10_000)));
+        assert!(matches!(r.state, RunState::Running { .. }));
+        assert!(!r.check_zero(&def, at(12_000)));
+        assert!(matches!(r.state, RunState::Running { .. }));
+    }
+
+    #[test]
+    fn paused_countdown_never_fires() {
+        let def = dur(10, Overrun::Stop);
+        let mut r = TimerRun::default();
+        r.start(&def, &ctx(at(0))).unwrap();
+        r.pause(at(5_000)).unwrap();
+        assert!(!r.check_zero(&def, at(60_000)));
+        assert!(!r.zero_fired);
+        assert_eq!(r.state, RunState::Paused { elapsed_ms: 5_000 });
+        // A count-up timer and a stopped countdown never fire either.
+        let mut c = TimerRun::default();
+        c.start(&count_up(), &ctx(at(0))).unwrap();
+        assert!(!c.check_zero(&count_up(), at(60_000)));
+        assert!(!TimerRun::default().check_zero(&def, at(60_000)));
+    }
+
+    fn media_timer(kind: TimerKind) -> TimerDef { TimerDef { kind: Lenient::Known(kind), ..TimerDef::default() } }
+
+    #[test]
+    fn video_and_audio_timers_read_their_player() {
+        let (v, a) = (media_timer(TimerKind::VideoLeft), media_timer(TimerKind::AudioLeft));
+        let r = TimerRun::default();
+        let none = r.snapshot(&v, at(0), &Utc, None).unwrap();
+        assert_eq!((none.state, none.value_ms), (TimerState::Stopped, 0), "nothing playing reads 0:00, stopped");
+        let media = MediaLeft { video: MediaClock::from_secs(10.4, 90.0, false), audio: MediaClock::from_secs(3.0, 125.0, true) };
+        let sv = r.snapshot_with(&v, at(0), &Utc, None, &media).unwrap();
+        assert_eq!((sv.state, text(sv.value_ms)), (TimerState::Running, "1:20".to_string()), "time left rounds up like a countdown");
+        let sa = r.snapshot_with(&a, at(0), &Utc, None, &media).unwrap();
+        assert_eq!((sa.state, text(sa.value_ms)), (TimerState::Paused, "2:02".to_string()));
+        assert_eq!(MediaClock::from_secs(5.0, 0.0, false), None, "no length yet");
+        assert_eq!(MediaClock::from_secs(95.0, 90.0, false).map(|c| c.left_ms), Some(0), "never below zero");
+    }
+
+    #[test]
+    fn video_and_audio_timers_ignore_start_pause_and_never_fire() {
+        let v = media_timer(TimerKind::VideoLeft);
+        let mut r = TimerRun::default();
+        r.start(&v, &ctx(at(0))).unwrap();
+        r.pause(at(1_000)).unwrap();
+        r.restart(&v, &ctx(at(2_000))).unwrap();
+        assert_eq!(r.state, RunState::Stopped);
+        assert!(!r.check_zero(&v, at(60_000)));
+        assert!(TimerKind::AudioLeft.is_countdown() && TimerKind::AudioLeft.follows_media() && !TimerKind::CountUp.follows_media());
+        assert_eq!(serde_json::to_value(TimerKind::VideoLeft).unwrap(), serde_json::json!({"type":"video_left"}));
+        assert_eq!(serde_json::from_str::<TimerKind>(r#"{"type":"audio_left"}"#).unwrap(), TimerKind::AudioLeft);
+    }
+}

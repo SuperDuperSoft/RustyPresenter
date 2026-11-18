@@ -1,0 +1,171 @@
+// 1.3 song auto-follow in the Live column: the Auto chip (Manual / Suggest / Auto), the listening light with the
+// line it thinks is being sung, and Hold. Everything comes from Rust (`src/ui/operator/follow.rs`).
+import { Theme } from "../theme.slint";
+import { Btn } from "../widgets.slint";
+
+export global FollowUi {
+    /// The live item is a song: the row shows.
+    in property <bool> shown;
+    /// 0 Manual, 1 Suggest, 2 Auto.
+    in property <int> mode;
+    in property <string> mode-label;
+    in property <string> mode-tip;
+    /// off, listening, sure, unsure, holding or blank.
+    in property <string> light;
+    in property <string> light-label;
+    /// The line it thinks is being sung (empty: the light's words show).
+    in property <string> line;
+    in property <bool> holding;
+    in property <string> hold-tip;
+    /// Suggest: the slide of the shown item that glows as "next" (-1: none).
+    in property <int> suggested: -1;
+    callback cycle-mode();
+    callback toggle-hold();
+    /// The chip's right-click menu: Settings → Auto-follow on its Review log or Practice page.
+    callback open-log();
+    callback open-practice();
+    callback open-settings();
+}
+
+/// One line of the options menu.
+component MenuLine inherits Rectangle {
+    in property <string> text;
+    callback clicked();
+    height: 34px;
+    border-radius: 6px;
+    background: ta.has-hover ? Theme.raise : transparent;
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-action-default => { root.clicked(); }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    Text { x: 10px; text: root.text; color: Theme.text; font-family: Theme.font; font-size: 13px; vertical-alignment: center; }
+}
+
+/// The colour of the listening light.
+export global FollowLook {
+    public pure function light-color(light: string) -> color {
+        return light == "sure" ? Theme.ok
+            : light == "unsure" || light == "holding" ? Theme.accent
+            : light == "listening" ? Theme.muted
+            : Theme.faint;
+    }
+}
+
+export component FollowRow inherits HorizontalLayout {
+    spacing: 8px;
+    follow-chip := Rectangle {
+        accessible-role: button;
+        accessible-label: FollowUi.mode-label;
+        accessible-description: FollowUi.mode-tip;
+        accessible-action-default => { FollowUi.cycle-mode(); }
+        border-radius: self.height / 2;
+        border-width: 1.5px;
+        border-color: FollowUi.mode == 2 ? Theme.ok : FollowUi.mode == 1 ? Theme.accent : Theme.line;
+        background: FollowUi.mode == 2 ? Theme.ok.with-alpha(0.18) : FollowUi.mode == 1 ? Theme.accent.with-alpha(0.14) : Theme.raise;
+        HorizontalLayout {
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-left: 12px;
+            padding-right: 12px;
+            Text {
+                text: FollowUi.mode-label;
+                color: FollowUi.mode == 2 ? Theme.ok : FollowUi.mode == 1 ? Theme.accent : Theme.muted;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                font-weight: 700;
+                vertical-alignment: center;
+            }
+        }
+        TouchArea {
+            mouse-cursor: pointer;
+            clicked => { FollowUi.cycle-mode(); }
+        }
+        ContextMenuArea {
+            Menu {
+                MenuItem {
+                    title: @tr("Review log…");
+                    activated => { FollowUi.open-log(); }
+                }
+                MenuItem {
+                    title: @tr("Practice with a recording…");
+                    activated => { FollowUi.open-practice(); }
+                }
+                MenuItem {
+                    title: @tr("Auto-follow settings…");
+                    activated => { FollowUi.open-settings(); }
+                }
+            }
+        }
+    }
+    // The same menu as a right-click on the chip, for those who don't right-click.
+    follow-more := Btn {
+        small: true;
+        text: "⋯";
+        tooltip: @tr("Auto-follow options");
+        clicked => { follow-menu.show(); }
+    }
+    follow-menu := PopupWindow {
+        x: follow-more.x;
+        y: follow-more.y + follow-more.height + 2px;
+        width: 240px;
+        height: 3 * 34px + 8px;
+        close-policy: close-on-click-outside;
+        Rectangle {
+            background: Theme.panel-2;
+            border-color: Theme.line;
+            border-width: 1px;
+            border-radius: 9px;
+            VerticalLayout {
+                padding: 4px;
+                follow-menu-log := MenuLine {
+                    text: @tr("Review log…");
+                    clicked => { follow-menu.close(); FollowUi.open-log(); }
+                }
+                follow-menu-practice := MenuLine {
+                    text: @tr("Practice with a recording…");
+                    clicked => { follow-menu.close(); FollowUi.open-practice(); }
+                }
+                follow-menu-settings := MenuLine {
+                    text: @tr("Auto-follow settings…");
+                    clicked => { follow-menu.close(); FollowUi.open-settings(); }
+                }
+            }
+        }
+    }
+    VerticalLayout {
+        alignment: center;
+        follow-light := Rectangle {
+            accessible-role: text;
+            accessible-label: FollowUi.light-label;
+            accessible-value: FollowUi.light;
+            width: 10px;
+            height: 10px;
+            border-radius: 5px;
+            background: FollowLook.light-color(FollowUi.light);
+            drop-shadow-blur: FollowUi.light == "sure" ? 8px : 0px;
+            drop-shadow-color: Theme.ok;
+        }
+    }
+    follow-line := Text {
+        horizontal-stretch: 1;
+        text: FollowUi.line != "" ? FollowUi.line : FollowUi.light-label;
+        color: FollowUi.line != "" ? Theme.text : Theme.muted;
+        font-family: Theme.font;
+        font-size: 12.5px;
+        font-italic: FollowUi.line != "";
+        vertical-alignment: center;
+        overflow: elide;
+        accessible-role: text;
+        accessible-label: self.text;
+    }
+    if FollowUi.mode != 0 || FollowUi.holding: follow-hold := Btn {
+        small: true;
+        primary: FollowUi.holding;
+        text: FollowUi.holding ? @tr("Holding") : @tr("Hold");
+        tooltip: FollowUi.hold-tip;
+        clicked => { FollowUi.toggle-hold(); }
+    }
+}

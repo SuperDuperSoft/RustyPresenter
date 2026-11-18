@@ -1,0 +1,40 @@
+// Beside Clip while recording, when Settings → Media → Livestream → More settings keeps the last minutes: saves
+// the last few minutes of the recording so far as a video of its own, at once (a moment worth sharing straight
+// away). Pressed by `src/ui/operator/record.rs` (`save_last_minutes`).
+import { Theme } from "../theme.slint";
+import { TipArea } from "../widgets.slint";
+
+export component SaveLastBtn inherits Rectangle {
+    /// How many minutes it keeps.
+    in property <int> minutes;
+    callback clicked();
+
+    accessible-role: button;
+    accessible-label: @tr("Save the last {} minutes", root.minutes);
+    accessible-action-default => { root.clicked(); }
+
+    border-radius: 9px;
+    border-width: 1px;
+    border-color: Theme.line;
+    background: last-ta.has-hover ? Theme.raise : transparent;
+
+    HorizontalLayout {
+        padding: 8px;
+        padding-left: 10px;
+        padding-right: 10px;
+        Text {
+            text: @tr("Save last {} min", root.minutes);
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            vertical-alignment: center;
+        }
+    }
+
+    last-ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+
+    TipArea { text: @tr("Save the last {} minutes of the recording as a video of its own, now", root.minutes); hover: last-ta.has-hover; pressed: last-ta.pressed; pointer-x: last-ta.mouse-x; }
+}

@@ -1,0 +1,279 @@
+// FEAT-2's automation strip in the live column (spec §3.1): the Message button, the auto-advance chip, timer
+// chips and macro buttons. Rows with nothing in them are hidden. Filled by `src/ui/operator/automation.rs`.
+import { Theme } from "../theme.slint";
+import { Btn, Icon, TipArea } from "../widgets.slint";
+
+export struct AutoTimerChip { id: string, name: string, text: string, over: bool, running: bool, can-pause: bool, in-room: bool, media: bool }
+export struct AutoMacroBtn { id: string, name: string, color: color }
+/// Up to three macro buttons on one row.
+export struct AutoMacroRow { buttons: [AutoMacroBtn] }
+
+export global AutoStrip {
+    in property <bool> message-on;
+    in property <bool> auto-shown;
+    in property <bool> auto-paused;
+    in property <string> auto-label;
+    in property <[AutoTimerChip]> timers;
+    in property <[AutoMacroRow]> macros;
+    // N13: the walk-in music's mini player.
+    in property <bool> music-shown;
+    in property <bool> music-playing;
+    in property <bool> music-stopped: true;
+    in property <string> music-title;
+    in property <string> music-time;
+    callback music-toggle();
+    callback music-next();
+    callback music-stop();
+    callback open-music();
+    callback message();
+    callback auto-toggle();
+    callback timer-toggle(string);
+    callback timer-room(string);
+    callback timer-reset(string);
+    callback run-macro(string);
+    callback open-automation();
+}
+
+/// A small round button inside a chip.
+component ChipBtn inherits Rectangle {
+    in property <string> icon;
+    in property <string> tooltip;
+    in property <bool> lit;
+    callback clicked();
+    width: 26px;
+    height: 26px;
+    border-radius: 13px;
+    background: root.lit ? Theme.accent : ta.has-hover ? Theme.btn-hover : transparent;
+    accessible-role: button;
+    accessible-label: root.tooltip;
+    accessible-action-default => { root.clicked(); }
+    Icon {
+        x: (parent.width - self.width) / 2;
+        y: (parent.height - self.height) / 2;
+        name: root.icon;
+        color: root.lit ? Theme.accent-ink : Theme.text;
+    }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    TipArea { text: root.tooltip; hover: ta.has-hover; pressed: ta.pressed; pointer-x: ta.mouse-x; }
+}
+
+export component AutomationStrip inherits VerticalLayout {
+    vertical-stretch: 0;
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-top: 6px;
+    padding-bottom: 8px;
+    spacing: 6px;
+
+    // Row 1: Message and, while the live item turns its own slides, the Auto chip.
+    HorizontalLayout {
+        height: 34px;
+        spacing: 6px;
+        message-btn := Btn {
+            horizontal-stretch: 1;
+            small: true;
+            icon: "message";
+            primary: AutoStrip.message-on;
+            text: AutoStrip.message-on ? @tr("Message showing — Hide") : @tr("Message");
+            tooltip: @tr("Show a message on the screen (Ctrl+Shift+M)");
+            clicked => { AutoStrip.message(); }
+        }
+        if AutoStrip.auto-shown: auto-chip := Btn {
+            width: 132px;
+            small: true;
+            icon: AutoStrip.auto-paused ? "play" : "pause";
+            text: AutoStrip.auto-label;
+            tooltip: AutoStrip.auto-paused ? @tr("Turn the slides by themselves again") : @tr("Stop turning the slides by themselves");
+            clicked => { AutoStrip.auto-toggle(); }
+        }
+        automation-btn := Btn {
+            small: true;
+            icon: "gear";
+            tooltip: @tr("Timers, messages and macros");
+            clicked => { AutoStrip.open-automation(); }
+        }
+    }
+
+    // Row 2: timers that run, are paused or finished, or are on the screen.
+    if AutoStrip.timers.length > 0: HorizontalLayout {
+        height: 34px;
+        spacing: 6px;
+        alignment: start;
+        for t[i] in AutoStrip.timers: Rectangle {
+            width: 168px;
+            height: 34px;
+            border-radius: 9px;
+            background: Theme.raise;
+            border-width: 1px;
+            border-color: t.in-room ? Theme.accent : Theme.line;
+            accessible-role: text;
+            accessible-label: t.name + " " + t.text;
+            HorizontalLayout {
+                padding-left: 9px;
+                padding-right: 3px;
+                spacing: 2px;
+                VerticalLayout {
+                    horizontal-stretch: 1;
+                    alignment: center;
+                    Text {
+                        text: t.name;
+                        color: Theme.muted;
+                        font-family: Theme.font;
+                        font-size: 10.5px;
+                        overflow: elide;
+                    }
+                    Text {
+                        text: t.text;
+                        color: t.over ? Theme.live : Theme.text;
+                        font-family: Theme.font;
+                        font-size: 14px;
+                        font-weight: 700;
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    if !t.media && (t.can-pause || !t.running): ChipBtn {
+                        icon: t.running ? "pause" : "play";
+                        tooltip: t.running ? @tr("Pause") : @tr("Start");
+                        clicked => { AutoStrip.timer-toggle(t.id); }
+                    }
+                }
+                VerticalLayout {
+                    alignment: center;
+                    ChipBtn {
+                        icon: "monitor";
+                        lit: t.in-room;
+                        tooltip: t.in-room ? @tr("Hide from room") : @tr("Show in room");
+                        clicked => { AutoStrip.timer-room(t.id); }
+                    }
+                }
+                if !t.media: VerticalLayout {
+                    alignment: center;
+                    ChipBtn {
+                        icon: "restart";
+                        tooltip: @tr("Reset");
+                        clicked => { AutoStrip.timer-reset(t.id); }
+                    }
+                }
+            }
+        }
+    }
+
+    // N13: the walk-in music, one compact row.
+    if AutoStrip.music-shown: music-row := Rectangle {
+        height: 34px;
+        border-radius: 9px;
+        background: Theme.raise;
+        border-width: 1px;
+        border-color: AutoStrip.music-playing ? Theme.accent : Theme.line;
+        accessible-role: groupbox;
+        accessible-label: @tr("Walk-in music");
+        HorizontalLayout {
+            padding-left: 9px;
+            padding-right: 3px;
+            spacing: 2px;
+            VerticalLayout {
+                alignment: center;
+                Icon { name: "audio"; color: AutoStrip.music-playing ? Theme.accent : Theme.muted; }
+            }
+            Rectangle { width: 6px; }
+            VerticalLayout {
+                horizontal-stretch: 1;
+                alignment: center;
+                Text {
+                    text: @tr("Walk-in music");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 10.5px;
+                    overflow: elide;
+                }
+                music-title := Text {
+                    text: AutoStrip.music-title;
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    font-weight: 600;
+                    overflow: elide;
+                }
+            }
+            if AutoStrip.music-time != "": VerticalLayout {
+                alignment: center;
+                Text {
+                    text: AutoStrip.music-time;
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: 13px;
+                    font-weight: 700;
+                }
+            }
+            VerticalLayout {
+                alignment: center;
+                music-toggle := ChipBtn {
+                    icon: AutoStrip.music-playing ? "pause" : "play";
+                    tooltip: AutoStrip.music-playing ? @tr("Pause the walk-in music") : @tr("Play the walk-in music");
+                    clicked => { AutoStrip.music-toggle(); }
+                }
+            }
+            if !AutoStrip.music-stopped: VerticalLayout {
+                alignment: center;
+                music-next := ChipBtn {
+                    icon: "chevron-right";
+                    tooltip: @tr("Next song");
+                    clicked => { AutoStrip.music-next(); }
+                }
+            }
+            if !AutoStrip.music-stopped: VerticalLayout {
+                alignment: center;
+                music-stop := ChipBtn {
+                    icon: "close";
+                    tooltip: @tr("Stop the walk-in music");
+                    clicked => { AutoStrip.music-stop(); }
+                }
+            }
+            VerticalLayout {
+                alignment: center;
+                music-list := ChipBtn {
+                    icon: "dots";
+                    tooltip: @tr("Walk-in music songs and volume");
+                    clicked => { AutoStrip.open-music(); }
+                }
+            }
+        }
+    }
+
+    // Rows 3–4: macro buttons, three to a row.
+    for row in AutoStrip.macros: HorizontalLayout {
+        height: 32px;
+        spacing: 6px;
+        alignment: start;
+        for m in row.buttons: Rectangle {
+            width: 112px;
+            height: 32px;
+            border-radius: 9px;
+            background: ta.has-hover ? m.color.brighter(0.15) : m.color;
+            accessible-role: button;
+            accessible-label: m.name;
+            accessible-action-default => { AutoStrip.run-macro(m.id); }
+            Text {
+                x: 8px;
+                width: parent.width - 16px;
+                height: parent.height;
+                text: m.name;
+                color: #111;
+                font-family: Theme.font;
+                font-size: 13px;
+                font-weight: 700;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+                overflow: elide;
+            }
+            ta := TouchArea {
+                mouse-cursor: pointer;
+                clicked => { AutoStrip.run-macro(m.id); }
+            }
+        }
+    }
+}

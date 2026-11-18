@@ -1,0 +1,678 @@
+// The operator window's panels, placed where the dock model says (dock panels design, `src/ui/dock.rs`): each panel
+// at its own rectangle, so none ever covers another; the strips between them to drag; tab bars; and in arrange mode
+// a title bar on every panel to drag it onto another, with a ⋯ menu. Used by the operator window and by every
+// window of its own (`PanelWindow`). Panels read the `*Pane` globals; Rust: `src/ui/operator/docking.rs`.
+import { Theme, OperatorState } from "../theme.slint";
+import { Icon, TipArea, PanelHead } from "../widgets.slint";
+import { ServiceColumn } from "service.slint";
+import { SlidesPanel } from "slides.slint";
+import { MediaBin } from "media.slint";
+import { LiveColumn, UpNextBox } from "live.slint";
+import { CameraStrip, CameraSwitch } from "cameras.slint";
+import { AutomationStrip } from "automation-strip.slint";
+import { FollowRow, FollowUi } from "follow.slint";
+import { OutputsState } from "outputs.slint";
+import { BibleBox } from "bible-box.slint";
+import { LivestreamPanel } from "stream-buttons.slint";
+import { ServicePane, SlidesPane, LibraryPane, BiblePane, LivePane, DockShared } from "panes.slint";
+import { DockRect, DockGuard } from "dock-guard.slint";
+
+export { DockRect, DockGuard }
+
+/// One panel in this window: here at all, shown (not a tab behind another), and where.
+/// `tight`: too little room across for it in full (the library's tabs become a drop-down; the Bible box shows only
+/// the chosen Bible).
+export struct DockPlace { here: bool, shown: bool, tight: bool, x: length, y: length, w: length, h: length }
+/// A tab in a tab bar or title bar: which panel (`DockText.name`), and whether it is the one shown.
+export struct DockTab { panel: int, active: bool }
+/// A tab bar (two panels or more) or arrange mode's title bar, over a group.
+export struct DockHead { x: length, y: length, w: length, tabs: [DockTab], active: int }
+/// A strip between two panels; `across` when it is dragged left and right.
+export struct DockBar { x: length, y: length, w: length, h: length, across: bool }
+/// Another window, for "Move to …".
+export struct DockWin { index: int, name: string }
+
+/// The panels' names, by place in the dock model's list (`PanelId::index`).
+export global DockText {
+    pure public function name(i: int) -> string {
+        return i == 0 ? @tr("Service")
+            : i == 1 ? @tr("Slides")
+            : i == 2 ? @tr("Library")
+            : i == 3 ? @tr("Bible")
+            : i == 4 ? @tr("Live")
+            : i == 5 ? @tr("Up next")
+            : i == 6 ? @tr("Cameras")
+            : i == 7 ? @tr("Message and macros")
+            : i == 8 ? @tr("Livestream")
+            : i == 9 ? @tr("Stage preview")
+            : @tr("Follow");
+    }
+}
+
+/// A panel's place, with the content laid out inside it. It tells Rust how small its content can get and how
+/// large it would like to be, so the model never makes it smaller than its content needs (nothing is cut off:
+/// the window scrolls instead).
+component DockSlot inherits Rectangle {
+    in property <int> panel;
+    in property <DockPlace> place;
+    callback fit(int, bool, length, length, length, length);
+    x: root.place.x;
+    y: root.place.y;
+    width: root.place.w;
+    height: root.place.h;
+    visible: root.place.shown;
+    background: Theme.panel;
+    border-color: Theme.line;
+    border-width: 1px;
+    border-radius: Theme.radius;
+    clip: true;
+    accessible-role: groupbox;
+    accessible-label: DockText.name(root.panel);
+    property <length> min-w: lay.min-width;
+    property <length> min-h: lay.min-height;
+    property <length> pref-w: lay.preferred-width;
+    property <length> pref-h: lay.preferred-height;
+    // With whether it is laid out tight now, which its sizes depend on.
+    function report() { root.fit(root.panel, root.place.tight, root.min-w, root.min-h, root.pref-w, root.pref-h); }
+    init => { root.report(); }
+    changed min-w => { root.report(); }
+    changed min-h => { root.report(); }
+    changed pref-w => { root.report(); }
+    changed pref-h => { root.report(); }
+    lay := VerticalLayout {
+        padding: 1px;
+        @children
+    }
+}
+
+/// A line of the ⋯ menu.
+component MenuLine inherits Rectangle {
+    in property <string> text;
+    callback clicked();
+    height: 32px;
+    border-radius: 6px;
+    background: ta.has-hover ? Theme.raise : transparent;
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-action-default => { root.clicked(); }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    Text {
+        x: 10px;
+        width: parent.width - 20px;
+        text: root.text;
+        color: Theme.text;
+        font-family: Theme.font;
+        font-size: 13px;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+}
+
+export component DockArea inherits Rectangle {
+    /// Every panel, by `PanelId::index`.
+    in property <[DockPlace]> places;
+    in property <[DockHead]> heads;
+    in property <[DockBar]> bars;
+    /// View → Arrange panels: title bars to drag, ⋯ menus. Otherwise the layout is locked (the strips still resize).
+    in property <bool> arrange;
+    /// This is a window of its own (its ⋯ menu offers "Move back to the main window").
+    in property <bool> popout;
+    /// The other windows, for "Move to …".
+    in property <[DockWin]> windows;
+    /// The room the panels take; more than the window when the window is smaller than they need (it scrolls).
+    in property <length> area-width;
+    in property <length> area-height;
+    /// Where a dragged panel would go.
+    in property <bool> lit-shown;
+    in property <DockRect> lit;
+    /// A dialog or question covers the window (the Bible box takes no focus then).
+    in property <bool> covered;
+    /// The Bible box has the keyboard.
+    out property <bool> bible-focused;
+
+    callback focus-keys();
+    /// This window's area changed size (Rust places the panels again).
+    callback area-resized(length, length);
+    /// A panel's content: its smallest size and the size it would like (`DockSlot`).
+    callback fit(int, bool, length, length, length, length);
+    /// Strip `int` dragged this far from where the drag began; let go.
+    callback bar-moved(int, length);
+    callback bar-done(int);
+    callback tab-picked(int);
+    /// A panel's title bar dragged to a point of the area; let go there.
+    callback drag-moved(int, length, length);
+    callback drag-done(int, length, length);
+    /// The ⋯ menu: "close", "new-window", "group-window", "main", or "window:<index>".
+    callback panel-action(int, string);
+
+    background: Theme.bg;
+    changed width => { root.area-resized(self.width, self.height); }
+    changed height => { root.area-resized(self.width, self.height); }
+    init => {
+        root.area-resized(self.width, self.height);
+        root.set-guard();
+    }
+
+    /// A short window (a 768 px laptop screen): the library's list is lower, so the slides keep more than one row.
+    property <bool> short: root.height < 760px;
+    /// A title bar is being dragged: its panel's name follows the pointer.
+    property <int> dragging: -1;
+    property <length> drag-x;
+    property <length> drag-y;
+
+    // Where pop-up lists in this window must not go: the Live and Stage preview panels (`DockGuard`), in window
+    // terms, and the window's own edges.
+    property <DockRect> guard-a: root.guard(4);
+    property <DockRect> guard-b: root.guard(9);
+    property <length> right: flick.absolute-position.x + root.width;
+    property <length> bottom: flick.absolute-position.y + root.height;
+    pure function guard(i: int) -> DockRect {
+        return root.places[i].here && root.places[i].shown
+            ? { x: flick.absolute-position.x + flick.content-x + root.places[i].x, y: flick.absolute-position.y + flick.content-y + root.places[i].y, w: root.places[i].w, h: root.places[i].h }
+            : { x: 0, y: 0, w: 0, h: 0 };
+    }
+    function set-guard() {
+        DockGuard.a = root.guard-a;
+        DockGuard.b = root.guard-b;
+        DockGuard.win-width = root.right;
+        DockGuard.win-height = root.bottom;
+    }
+    changed guard-a => { root.set-guard(); }
+    changed guard-b => { root.set-guard(); }
+    changed right => { root.set-guard(); }
+    changed bottom => { root.set-guard(); }
+
+    flick := Flickable {
+        // Panels hold lists and strips that are dragged; the area itself moves only with the wheel.
+        mouse-drag-pan-enabled: false;
+        content-width: max(root.width, root.area-width);
+        content-height: max(root.height, root.area-height);
+
+        if root.places[0].here: service-col := DockSlot {
+            panel: 0;
+            place: root.places[0];
+            fit(p, t, a, b, c, d) => { root.fit(p, t, a, b, c, d); }
+            ServiceColumn {
+                vertical-stretch: 1;
+                rows: ServicePane.service-rows;
+                count: ServicePane.service-count;
+                count-short: ServicePane.service-count-short;
+                loaded: DockShared.loaded;
+                select(id) => { root.focus-keys(); ServicePane.service-select(id); }
+                show-first(id) => { root.focus-keys(); ServicePane.service-show-first(id); }
+                edit(id) => { root.focus-keys(); ServicePane.service-edit(id); }
+                remove(id) => { root.focus-keys(); ServicePane.service-remove(id); }
+                add => { root.focus-keys(); ServicePane.service-add(); }
+                check => { root.focus-keys(); ServicePane.service-check(); }
+                move(id, to) => { ServicePane.service-move(id, to); }
+                drag-started => { ServicePane.service-drag-started(); }
+                drag-finished => { ServicePane.service-drag-finished(); }
+                drag-data(id) => { return ServicePane.service-drag-data(id); }
+                drag-id(data) => { return ServicePane.service-drag-id(data); }
+            }
+        }
+
+        if root.places[1].here: slides-col := DockSlot {
+            panel: 1;
+            place: root.places[1];
+            fit(p, t, a, b, c, d) => { root.fit(p, t, a, b, c, d); }
+            property <int> scroll-serial: SlidesPane.slides-scroll-serial;
+            property <int> top-serial: SlidesPane.slides-top-serial;
+            changed scroll-serial => { slides.scroll-to-row(SlidesPane.slides-scroll-row); }
+            changed top-serial => { slides.scroll-to-top(); }
+            slides := SlidesPanel {
+                vertical-stretch: 1;
+                title: SlidesPane.slides-title;
+                kind: SlidesPane.slides-kind;
+                has-selection: SlidesPane.has-selection;
+                slide-count: SlidesPane.slide-count;
+                rows: SlidesPane.slide-rows;
+                columns: SlidesPane.slide-columns;
+                jumps: SlidesPane.slide-jumps;
+                loaded: DockShared.loaded;
+                item-count: DockShared.item-count;
+                window-height: root.height;
+                show(idx) => { root.focus-keys(); SlidesPane.slides-show(idx); }
+                pick-section(i) => { root.focus-keys(); SlidesPane.slides-pick-section(i); }
+                edit => { root.focus-keys(); SlidesPane.slides-edit(); }
+                text-size-shown: SlidesPane.slides-text-size-shown;
+                text-size: SlidesPane.slides-text-size;
+                text-size-custom: SlidesPane.slides-text-size-custom;
+                song-fit: SlidesPane.slides-song-fit;
+                lines: SlidesPane.slides-lines;
+                lines-custom: SlidesPane.slides-lines-custom;
+                lines-fewer => { root.focus-keys(); SlidesPane.slides-lines-fewer(); }
+                lines-more => { root.focus-keys(); SlidesPane.slides-lines-more(); }
+                lines-auto => { root.focus-keys(); SlidesPane.slides-lines-auto(); }
+                note: SlidesPane.slides-note;
+                custom-order: SlidesPane.slides-custom-order;
+                text-smaller => { root.focus-keys(); SlidesPane.slides-text-smaller(); }
+                text-larger => { root.focus-keys(); SlidesPane.slides-text-larger(); }
+                text-auto => { root.focus-keys(); SlidesPane.slides-text-auto(); }
+                grid-resized(w) => { SlidesPane.slides-grid-resized(w); }
+                view <=> SlidesPane.slides-view;
+                thumb-size <=> SlidesPane.slides-thumb-size;
+                view-picked(i) => { root.focus-keys(); SlidesPane.slides-view-picked(i); }
+                thumb-size-changed(v) => { SlidesPane.slides-thumb-size-changed(v); }
+                welcome-add => { root.focus-keys(); ServicePane.service-add(); }
+                welcome-screens => { root.focus-keys(); SlidesPane.slides-welcome-screens(); }
+            }
+        }
+
+        if root.places[2].here: bin-col := DockSlot {
+            panel: 2;
+            place: root.places[2];
+            fit(p, t, a, b, c, d) => { root.fit(p, t, a, b, c, d); }
+            bin := MediaBin {
+                // A 768 px laptop screen keeps more than one row of slides above the library.
+                body-height: root.short ? 150px : 220px;
+                // Room for the thumbnail size slider beside the tabs, search and Import.
+                roomy: !root.places[2].tight && root.places[2].w >= 876px;
+                // Too narrow for the tabs in a row (a 1024 px window): a drop-down instead.
+                narrow: root.places[2].tight;
+                open: LibraryPane.bin-open;
+                fold(on) => { LibraryPane.bin-fold(on); }
+                rows: LibraryPane.bin-rows;
+                folders: LibraryPane.bin-folders;
+                tab: LibraryPane.bin-tab;
+                has-pick: LibraryPane.bin-has-pick;
+                pick-name: LibraryPane.bin-pick-name;
+                pick-hint: LibraryPane.bin-pick-hint;
+                can-use: LibraryPane.bin-can-use;
+                can-delete-folder: LibraryPane.bin-can-delete-folder;
+                songs: LibraryPane.bin-songs;
+                song-placeholder: LibraryPane.bin-song-placeholder;
+                song-empty: LibraryPane.bin-song-empty;
+                set-tab(t) => { root.focus-keys(); LibraryPane.bin-set-tab(t); }
+                set-folder(f) => { root.focus-keys(); LibraryPane.bin-set-folder(f); }
+                search(q) => { LibraryPane.bin-search(q); }
+                pick(id) => { root.focus-keys(); LibraryPane.bin-pick(id); }
+                use-picked => { root.focus-keys(); LibraryPane.bin-use-picked(); }
+                add-picked => { root.focus-keys(); LibraryPane.bin-add-picked(); }
+                move-picked => { LibraryPane.bin-move-picked(); }
+                import => { root.focus-keys(); LibraryPane.bin-import(); }
+                new-folder => { LibraryPane.bin-new-folder(); }
+                delete-folder => { LibraryPane.bin-delete-folder(); }
+                song-search(q) => { LibraryPane.bin-song-search(q); }
+                add-song(id) => { root.focus-keys(); LibraryPane.bin-add-song(id); }
+                edit-song(id) => { root.focus-keys(); LibraryPane.bin-edit-song(id); }
+                new-song => { root.focus-keys(); LibraryPane.bin-new-song(); }
+            }
+        }
+
+        if root.places[3].here: bible-col := DockSlot {
+            panel: 3;
+            place: root.places[3];
+            fit(p, t, a, b, c, d) => { root.fit(p, t, a, b, c, d); }
+            property <bool> focused: bible-box.bible-focused;
+            changed focused => { root.bible-focused = self.focused; }
+            bible-box := BibleBox {
+                covered: root.covered;
+                compact: root.places[3].tight;
+                verses-shown: !root.places[3].tight;
+                focus-keys => { root.focus-keys(); }
+            }
+        }
+
+        if root.places[4].here: live-col := DockSlot {
+            panel: 4;
+            place: root.places[4];
+            fit(p, t, a, b, c, d) => { root.fit(p, t, a, b, c, d); }
+            live := LiveColumn {
+                vertical-stretch: 1;
+                up-next-shown: !DockShared.up-next-apart;
+                follow-shown: !DockShared.follow-apart;
+                pending: LivePane.live-pending;
+                live-what: LivePane.live-what;
+                notice: LivePane.live-notice;
+                notes: LivePane.live-notes;
+                song: LivePane.live-song;
+                song-action(a) => { root.focus-keys(); LivePane.live-song-action(a); }
+                logo-on: LivePane.logo-on;
+                up-next-title: LivePane.up-next-title;
+                up-next-body: LivePane.up-next-body;
+                transport: LivePane.transport;
+                monitor-bg: LivePane.monitor-bg;
+                monitor-bg-visible: LivePane.monitor-bg-visible;
+                monitor-media: LivePane.monitor-media;
+                monitor-slide: LivePane.monitor-slide;
+                monitor-slide-old: LivePane.monitor-slide-old;
+                monitor-slide-op: LivePane.monitor-slide-op;
+                monitor-slide-old-op: LivePane.monitor-slide-old-op;
+                monitor-slide-geo: LivePane.monitor-slide-geo;
+                monitor-slide-old-geo: LivePane.monitor-slide-old-geo;
+                monitor-sprites: LivePane.monitor-sprites;
+                monitor-logo: LivePane.monitor-logo;
+                monitor-drawing: LivePane.monitor-drawing;
+                drawing-on: LivePane.drawing-on;
+                monitor-video: LivePane.monitor-video;
+                monitor-video-frame: LivePane.monitor-video-frame;
+                monitor-video-cover: LivePane.monitor-video-cover;
+                monitor-black: LivePane.monitor-black;
+                monitor-room-off: LivePane.monitor-room-off;
+                next => { root.focus-keys(); LivePane.live-next(); }
+                prev => { root.focus-keys(); LivePane.live-prev(); }
+                clear(cmd) => { root.focus-keys(); LivePane.live-clear(cmd); }
+                transport-toggle(i) => { root.focus-keys(); LivePane.transport-toggle(i); }
+                transport-seek(i, which) => { root.focus-keys(); LivePane.transport-seek(i, which); }
+                monitor-resized(w) => { LivePane.monitor-resized(w); }
+            }
+            // Live with cameras: the Live and Next pictures, Switch and Fade (`src/ui/operator/record.rs`).
+            if !DockShared.cameras-apart: camera-strip := CameraStrip { }
+            // FEAT-2: Message, the Auto chip, timers and macros (`src/ui/operator/automation.rs`).
+            if !DockShared.automation-apart: auto-strip := AutomationStrip { }
+        }
+
+        if root.places[5].here: up-next-col := DockSlot {
+            panel: 5;
+            place: root.places[5];
+            fit(p, t, a, b, c, d) => { root.fit(p, t, a, b, c, d); }
+            VerticalLayout {
+                padding: 12px;
+                spacing: 10px;
+                alignment: start;
+                if LivePane.live-notes != "": panel-notes := Text {
+                    text: @tr("Notes: {}", LivePane.live-notes);
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    wrap: word-wrap;
+                    accessible-role: text;
+                    accessible-label: self.text;
+                }
+                panel-up-next := UpNextBox {
+                    title: LivePane.up-next-title;
+                    body: LivePane.up-next-body;
+                    body-max: 100000px;
+                }
+            }
+        }
+
+        if root.places[6].here: cameras-col := DockSlot {
+            panel: 6;
+            place: root.places[6];
+            fit(p, t, a, b, c, d) => { root.fit(p, t, a, b, c, d); }
+            PanelHead { title: @tr("Cameras"); }
+            CameraStrip { }
+            if !CameraSwitch.shown: Text {
+                x: 16px;
+                text: @tr("The cameras show here while you are live with cameras.");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                wrap: word-wrap;
+            }
+            Rectangle { vertical-stretch: 1; }
+        }
+
+        if root.places[7].here: automation-col := DockSlot {
+            panel: 7;
+            place: root.places[7];
+            fit(p, t, a, b, c, d) => { root.fit(p, t, a, b, c, d); }
+            AutomationStrip { }
+            Rectangle { vertical-stretch: 1; }
+        }
+
+        if root.places[8].here: livestream-col := DockSlot {
+            panel: 8;
+            place: root.places[8];
+            fit(p, t, a, b, c, d) => { root.fit(p, t, a, b, c, d); }
+            LivestreamPanel { focus-keys => { root.focus-keys(); } }
+            Rectangle { vertical-stretch: 1; }
+        }
+
+        if root.places[9].here: stage-col := DockSlot {
+            panel: 9;
+            place: root.places[9];
+            fit(p, t, a, b, c, d) => { root.fit(p, t, a, b, c, d); }
+            PanelHead { title: @tr("Stage screen"); }
+            Rectangle {
+                vertical-stretch: 1;
+                min-height: 80px;
+                stage-picture := Image {
+                    x: 12px;
+                    y: 0;
+                    width: parent.width - 24px;
+                    height: parent.height - 12px;
+                    source: OutputsState.stage-frame;
+                    image-fit: contain;
+                }
+                if OutputsState.stage-off: stage-panel-off := Text {
+                    x: 12px;
+                    width: parent.width - 24px;
+                    text: @tr("The stage screen is not open.");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 13px;
+                    wrap: word-wrap;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+        }
+
+        if root.places[10].here: follow-col := DockSlot {
+            panel: 10;
+            place: root.places[10];
+            fit(p, t, a, b, c, d) => { root.fit(p, t, a, b, c, d); }
+            VerticalLayout {
+                padding: 12px;
+                alignment: start;
+                if FollowUi.shown: FollowRow { }
+                if !FollowUi.shown: Text {
+                    text: @tr("Auto-follow shows here while a song is live.");
+                    color: Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    wrap: word-wrap;
+                }
+            }
+        }
+
+        // The strips between panels: drag to resize. Each keeps where its drag began in window terms, since the
+        // strip itself moves while it is dragged.
+        for bar[i] in root.bars: divider := Rectangle {
+            x: bar.x;
+            y: bar.y;
+            width: bar.w;
+            height: bar.h;
+            property <length> start;
+            background: bar-ta.pressed || bar-ta.has-hover ? Theme.line : transparent;
+            bar-ta := TouchArea {
+                mouse-cursor: bar.across ? MouseCursor.col-resize : MouseCursor.row-resize;
+                pointer-event(e) => {
+                    if e.kind == PointerEventKind.down {
+                        parent.start = bar.across ? self.absolute-position.x + self.mouse-x : self.absolute-position.y + self.mouse-y;
+                    }
+                    if e.kind == PointerEventKind.up { root.bar-done(i); }
+                }
+                moved => {
+                    root.bar-moved(i, (bar.across ? self.absolute-position.x + self.mouse-x : self.absolute-position.y + self.mouse-y) - parent.start);
+                }
+            }
+        }
+
+        // Tab bars, and in arrange mode the title bars.
+        for head in root.heads: head-bar := Rectangle {
+            x: head.x;
+            y: head.y;
+            width: head.w;
+            height: 30px;
+            background: Theme.panel-2;
+            border-radius: 7px;
+            property <bool> moving;
+            HorizontalLayout {
+                padding-left: 6px;
+                padding-right: 4px;
+                spacing: 4px;
+                // The grip: drag the panel onto another.
+                if root.arrange: VerticalLayout {
+                    alignment: center;
+                    grip := Rectangle {
+                        width: 22px;
+                        height: 22px;
+                        border-radius: 5px;
+                        background: grip-ta.has-hover || grip-ta.pressed ? Theme.raise : transparent;
+                        accessible-role: button;
+                        accessible-label: @tr("Move {}", DockText.name(head.active));
+                        Text {
+                            text: "⠿";
+                            color: Theme.muted;
+                            font-size: 16px;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+                        grip-ta := TouchArea {
+                            mouse-cursor: MouseCursor.move;
+                            moved => {
+                                head-bar.moving = true;
+                                root.dragging = head.active;
+                                root.drag-x = self.absolute-position.x + self.mouse-x - flick.absolute-position.x - flick.content-x;
+                                root.drag-y = self.absolute-position.y + self.mouse-y - flick.absolute-position.y - flick.content-y;
+                                root.drag-moved(head.active, root.drag-x, root.drag-y);
+                            }
+                            pointer-event(e) => {
+                                if e.kind == PointerEventKind.up && head-bar.moving {
+                                    head-bar.moving = false;
+                                    root.dragging = -1;
+                                    root.drag-done(head.active, root.drag-x, root.drag-y);
+                                }
+                            }
+                        }
+                        TipArea { text: @tr("Drag onto another panel: beside it, or in its middle to share its place as a tab"); hover: grip-ta.has-hover; pressed: grip-ta.pressed; pointer-x: grip-ta.mouse-x; }
+                    }
+                }
+                for t in head.tabs: VerticalLayout {
+                    alignment: center;
+                    min-width: 0px;
+                    tab-chip := Rectangle {
+                        height: 24px;
+                        min-width: 0px;
+                        border-radius: 6px;
+                        background: t.active ? Theme.panel : tab-ta.has-hover ? Theme.raise : transparent;
+                        accessible-role: tab;
+                        accessible-label: DockText.name(t.panel);
+                        accessible-checked: t.active;
+                        accessible-action-default => { root.tab-picked(t.panel); }
+                        HorizontalLayout {
+                            padding-left: 9px;
+                            padding-right: 9px;
+                            tab-text := Text {
+                                text: DockText.name(t.panel);
+                                color: t.active ? Theme.text : Theme.muted;
+                                font-family: Theme.font;
+                                font-size: 12.5px;
+                                font-weight: t.active ? 700 : 500;
+                                vertical-alignment: center;
+                                overflow: elide;
+                                min-width: 0px;
+                            }
+                        }
+                        tab-ta := TouchArea {
+                            mouse-cursor: pointer;
+                            clicked => { root.tab-picked(t.panel); }
+                        }
+                        TipArea { text: DockText.name(t.panel); hover: tab-ta.has-hover && tab-text.preferred-width > tab-text.width + 0.5px; pressed: tab-ta.pressed; pointer-x: tab-ta.mouse-x; }
+                    }
+                }
+                Rectangle { horizontal-stretch: 1; }
+                if root.arrange: VerticalLayout {
+                    alignment: center;
+                    panel-menu-btn := Rectangle {
+                        width: 26px;
+                        height: 24px;
+                        border-radius: 6px;
+                        background: menu-ta.has-hover ? Theme.raise : transparent;
+                        accessible-role: button;
+                        accessible-label: @tr("{} options", DockText.name(head.active));
+                        accessible-action-default => { panel-menu.show(); }
+                        Icon {
+                            x: (parent.width - self.width) / 2;
+                            y: (parent.height - self.height) / 2;
+                            name: "dots";
+                            color: Theme.muted;
+                        }
+                        menu-ta := TouchArea {
+                            mouse-cursor: pointer;
+                            clicked => { panel-menu.show(); }
+                        }
+                        panel-menu := PopupWindow {
+                            // Inside the window, under the button, never over a preview.
+                            property <length> ay: panel-menu-btn.absolute-position.y + panel-menu-btn.height + 2px;
+                            property <length> h: (3 + (head.tabs.length > 1 ? 1 : 0) + root.windows.length + (root.popout ? 1 : 0)) * 33px + 10px;
+                            x: DockGuard.place-x(panel-menu-btn.absolute-position.x + panel-menu-btn.width - 260px, self.ay, 260px, self.h) - panel-menu-btn.absolute-position.x;
+                            y: panel-menu-btn.height + 2px;
+                            width: 260px;
+                            close-policy: close-on-click-outside;
+                            Rectangle {
+                                background: Theme.panel;
+                                border-color: Theme.line;
+                                border-width: 1px;
+                                border-radius: 9px;
+                                drop-shadow-blur: 24px;
+                                drop-shadow-offset-y: 8px;
+                                drop-shadow-color: Theme.shadow-dialog;
+                                VerticalLayout {
+                                    padding: 5px;
+                                    spacing: 1px;
+                                    menu-close := MenuLine {
+                                        text: @tr("Close panel");
+                                        clicked => { panel-menu.close(); root.panel-action(head.active, "close"); }
+                                    }
+                                    menu-new-window := MenuLine {
+                                        text: @tr("Move to a new window");
+                                        clicked => { panel-menu.close(); root.panel-action(head.active, "new-window"); }
+                                    }
+                                    if head.tabs.length > 1: MenuLine {
+                                        text: @tr("Move these tabs to a new window");
+                                        clicked => { panel-menu.close(); root.panel-action(head.active, "group-window"); }
+                                    }
+                                    for w in root.windows: MenuLine {
+                                        text: @tr("Move to {}", w.name);
+                                        clicked => { panel-menu.close(); root.panel-action(head.active, "window:" + w.index); }
+                                    }
+                                    if root.popout: menu-main := MenuLine {
+                                        text: @tr("Move back to the main window");
+                                        clicked => { panel-menu.close(); root.panel-action(head.active, "main"); }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Where the dragged panel would go, and its name at the pointer.
+        if root.lit-shown: drop-lit := Rectangle {
+            x: root.lit.x;
+            y: root.lit.y;
+            width: root.lit.w;
+            height: root.lit.h;
+            background: Theme.accent.with-alpha(0.18);
+            border-color: Theme.accent;
+            border-width: 2px;
+            border-radius: Theme.radius;
+        }
+        if root.dragging >= 0: Rectangle {
+            x: root.drag-x + 12px;
+            y: root.drag-y + 8px;
+            width: drag-name.preferred-width + 20px;
+            height: 26px;
+            border-radius: 13px;
+            background: Theme.accent;
+            drag-name := Text {
+                text: DockText.name(root.dragging);
+                color: Theme.accent-ink;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                font-weight: 700;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+        }
+    }
+}

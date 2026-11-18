@@ -1,17 +1,44 @@
 //! SongSelect lyric `.txt` export → Song. (Not a SongSelect login.)
 //! Observed layout: title, blank, section blocks, then credits:
 //! writers line, `CCLI Song # N`, `© …`, terms line, `CCLI License # N`.
+//!
+//! The app never signs in to SongSelect, never reads or fetches its pages and never downloads for the church: it
+//! opens SongSelect in the person's own web browser and reads the song files they download themselves (`inbox`,
+//! `watch`; see docs/superpowers/specs/2026-11-17-songselect-inbox-design.md).
 use crate::{model::Song, slides::section_label};
 use uuid::Uuid;
 
+pub mod inbox;
+pub mod usr;
+pub mod watch;
+
+/// SongSelect's home page, opened in the person's own web browser.
+pub const HOME: &str = "https://songselect.ccli.com/";
+
+/// Opens SongSelect in the computer's web browser. Tests open nothing and note it instead.
+pub fn open_in_browser() -> Result<(), String> {
+    #[cfg(test)]
+    { testing::OPENED.with(|o| o.set(o.get() + 1)); Ok(()) }
+    #[cfg(not(test))]
+    { crate::usage::open::open_file(std::path::Path::new(HOME)) }
+}
+
+#[cfg(test)]
+pub(crate) mod testing {
+    thread_local! {
+        /// How many times SongSelect was opened in the browser on this thread.
+        pub(crate) static OPENED: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+    }
+}
+
 pub fn import_txt(text: &str) -> Result<Song, String> {
-    if text.len() > 256_000 { return Err("That file is too big to be a lyric file.".into()); }
+    if text.len() > 256_000 { return Err(crate::tr!("That file is too big to be a song file.")); }
     let normalized = text.trim_start_matches('\u{feff}').replace("\r\n", "\n").replace('\r', "\n");
     let lines: Vec<&str> = normalized.lines().map(str::trim_end).collect();
-    let title_i = lines.iter().position(|l| !l.trim().is_empty()).ok_or("The lyric file is empty.")?;
+    let title_i = lines.iter().position(|l| !l.trim().is_empty()).ok_or_else(|| crate::tr!("The song file is empty."))?;
     let title = lines[title_i].trim().trim_matches('"').to_string();
     let first_section = (title_i + 1..lines.len()).find(|&i| section_label(lines[i]).is_some())
-        .ok_or("This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download.")?;
+        .ok_or_else(|| crate::tr!("This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."))?;
 
     let ccli_i = (first_section..lines.len()).find(|&i| lines[i].trim().to_ascii_lowercase().starts_with("ccli song"));
     let mut writers = String::new();
@@ -39,8 +66,8 @@ pub fn import_txt(text: &str) -> Result<Song, String> {
         else if t.starts_with('©') || lower.starts_with("copyright") { copyright = t.to_string(); }
     }
     let lyrics = lines[first_section..lyrics_end].join("\n").trim().to_string();
-    if lyrics.is_empty() { return Err("No lyrics were found in this file.".into()); }
-    Ok(Song { id: Uuid::new_v4(), title, writers, ccli, copyright, lyrics, arrangement: vec![] })
+    if lyrics.is_empty() { return Err(crate::tr!("No song words were found in this file.")); }
+    Ok(Song { id: Uuid::new_v4(), title, writers, ccli, copyright, lyrics, arrangement: vec![], ..Default::default() })
 }
 
 #[cfg(test)]

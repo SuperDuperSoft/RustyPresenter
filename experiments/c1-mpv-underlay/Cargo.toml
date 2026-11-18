@@ -1,0 +1,12 @@
+[package]
+name = "c1-mpv-underlay"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+# Throwaway check C1: libmpv drawn under a Slint scene (FemtoVG/OpenGL), plus the software fallback.
+# libmpv is loaded at runtime with libloading; nothing links it at build time.
+[dependencies]
+slint = { version = "1.18", features = ["unstable-winit-030"] }
+libloading = "0.8"
+glow = "0.18"

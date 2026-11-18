@@ -1,0 +1,12 @@
+[package]
+name = "c4-ui-testing"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+# Throwaway check C4: can Slint's testing backend drive a component headless?
+[dependencies]
+slint = { version = "1.18", default-features = false, features = ["std", "compat-1-2"] }
+
+[dev-dependencies]
+i-slint-backend-testing = "1.18"

@@ -1,0 +1,216 @@
+// Find a verse (FEAT-5 §3.1): search the Bibles on this computer by words, see the whole chapter of a result, pick
+// one verse or a range, and add it to the service.
+import { Theme } from "../theme.slint";
+import { Btn, Segmented, ScrollBox } from "../widgets.slint";
+import { DialogFoot } from "shell.slint";
+import { TextField, Select } from "form.slint";
+
+export struct FindVerseHit { reference: string, snippet: string }
+export struct FindVerseLine { number: string, text: string, picked: bool }
+
+/// Set and answered by `src/ui/dialogs/find_verse.rs`.
+export global FindVerseDlg {
+    in-out property <string> query;
+    /// The Bibles stored on this computer, as "KJV — King James Version".
+    in property <[string]> bibles;
+    in-out property <int> bible;
+    /// 0 whole Bible, 1 Old Testament, 2 New Testament.
+    in-out property <int> scope;
+    /// 0 best match, 1 Bible order.
+    in-out property <int> order;
+    /// "3 verses found in KJV", "Getting KJV ready to search…", or what went wrong.
+    in property <string> header;
+    /// "Search isn't available for NIV, so this searches KJV."
+    in property <string> note;
+    in property <[FindVerseHit]> hits;
+    in-out property <int> current: -1;
+    in property <[FindVerseLine]> lines;
+    in property <string> chapter-title;
+    in property <string> add-label;
+    in property <bool> can-add;
+    callback edited();
+    callback search-now();
+    callback bible-picked(int);
+    callback scope-picked(int);
+    callback order-picked(int);
+    callback hit-picked(int);
+    callback line-clicked(int, bool);
+    callback add();
+}
+
+component Muted inherits Text {
+    color: Theme.muted;
+    font-family: Theme.font;
+    font-size: 13px;
+    wrap: word-wrap;
+    accessible-role: text;
+    accessible-label: self.text;
+}
+
+export component FindVerseDialog inherits VerticalLayout {
+
+    VerticalLayout {
+        padding-top: 8px;
+        padding-bottom: 14px;
+        padding-left: 22px;
+        padding-right: 22px;
+        spacing: 10px;
+        search := TextField {
+            search: true;
+            label: @tr("Words to find");
+            placeholder: @tr("Type words from the verse, like be still and know");
+            text <=> FindVerseDlg.query;
+            init => { self.focus(); }
+            edited => { FindVerseDlg.edited(); }
+            accepted => { FindVerseDlg.search-now(); }
+        }
+        HorizontalLayout {
+            spacing: 10px;
+            bible := Select {
+                width: 260px;
+                options: FindVerseDlg.bibles;
+                index <=> FindVerseDlg.bible;
+                changed(i) => { FindVerseDlg.bible-picked(i); }
+            }
+            scope := Segmented {
+                labels: [@tr("Whole Bible"), @tr("Old Testament"), @tr("New Testament")];
+                index <=> FindVerseDlg.scope;
+                changed(i) => { FindVerseDlg.scope-picked(i); }
+            }
+            Rectangle { horizontal-stretch: 1; }
+            order := Segmented {
+                labels: [@tr("Best match"), @tr("Bible order")];
+                index <=> FindVerseDlg.order;
+                changed(i) => { FindVerseDlg.order-picked(i); }
+            }
+        }
+        if FindVerseDlg.note != "": note := Muted { text: FindVerseDlg.note; }
+        header := Text {
+            text: FindVerseDlg.header;
+            color: Theme.text;
+            font-family: Theme.font;
+            font-size: Theme.base-size;
+            font-weight: 600;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+        HorizontalLayout {
+            spacing: 14px;
+            // Takes the dialog's spare height.
+            vertical-stretch: 1;
+            min-height: 200px;
+            // The results, best first.
+            ScrollBox {
+                horizontal-stretch: 1;
+                track-edge: Theme.panel;
+                VerticalLayout {
+                    alignment: start;
+                    spacing: 4px;
+                    for h[i] in FindVerseDlg.hits: hit := Rectangle {
+                        background: i == FindVerseDlg.current ? Theme.raise : Theme.panel-2;
+                        border-radius: 10px;
+                        border-width: 1.5px;
+                        border-color: i == FindVerseDlg.current ? Theme.accent : hit-ta.has-hover ? Theme.line : transparent;
+                        accessible-role: list-item;
+                        accessible-label: h.reference;
+                        accessible-description: h.snippet;
+                        accessible-action-default => { FindVerseDlg.hit-picked(i); }
+                        hit-ta := TouchArea { clicked => { FindVerseDlg.hit-picked(i); } }
+                        VerticalLayout {
+                            padding: 9px;
+                            padding-left: 12px;
+                            padding-right: 14px;
+                            spacing: 3px;
+                            Text {
+                                text: h.reference;
+                                color: Theme.text;
+                                font-family: Theme.font;
+                                font-size: Theme.base-size;
+                                font-weight: 700;
+                            }
+                            Text {
+                                text: h.snippet;
+                                color: Theme.muted;
+                                font-family: Theme.font;
+                                font-size: 13px;
+                                wrap: word-wrap;
+                            }
+                        }
+                    }
+                }
+            }
+            // The whole chapter of the picked result: click a verse, Shift+click to widen.
+            Rectangle {
+                horizontal-stretch: 1;
+                background: Theme.panel-2;
+                border-radius: 10px;
+                VerticalLayout {
+                    padding: 10px;
+                    spacing: 6px;
+                    Text {
+                        text: FindVerseDlg.chapter-title;
+                        color: Theme.muted;
+                        font-family: Theme.font;
+                        font-size: 12px;
+                        font-weight: 700;
+                    }
+                    if FindVerseDlg.lines.length == 0: Muted {
+                        text: @tr("Pick a result to see its chapter. Click a verse, or Shift+click to add a range.");
+                    }
+                    ScrollBox {
+                        track-edge: Theme.panel-2;
+                        VerticalLayout {
+                            alignment: start;
+                            spacing: 2px;
+                            for l[i] in FindVerseDlg.lines: line := Rectangle {
+                                background: l.picked ? Theme.accent.with-alpha(0.22) : line-ta.has-hover ? Theme.raise : transparent;
+                                border-radius: 7px;
+                                accessible-role: list-item;
+                                accessible-label: l.number + " " + l.text;
+                                accessible-item-selected: l.picked;
+                                accessible-action-default => { FindVerseDlg.line-clicked(i, false); }
+                                line-ta := TouchArea {
+                                    pointer-event(e) => {
+                                        if e.kind == PointerEventKind.down && e.button == PointerEventButton.left {
+                                            FindVerseDlg.line-clicked(i, e.modifiers.shift);
+                                        }
+                                    }
+                                }
+                                HorizontalLayout {
+                                    padding: 6px;
+                                    spacing: 8px;
+                                    Text {
+                                        width: 26px;
+                                        text: l.number;
+                                        color: Theme.accent;
+                                        font-family: Theme.font;
+                                        font-size: 12px;
+                                        font-weight: 700;
+                                        horizontal-alignment: right;
+                                    }
+                                    Text {
+                                        horizontal-stretch: 1;
+                                        text: l.text;
+                                        color: Theme.text;
+                                        font-family: Theme.font;
+                                        font-size: 14px;
+                                        wrap: word-wrap;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    DialogFoot {
+        add := Btn {
+            primary: true;
+            enabled: FindVerseDlg.can-add;
+            text: FindVerseDlg.add-label;
+            clicked => { if FindVerseDlg.can-add { FindVerseDlg.add(); } }
+        }
+    }
+}
