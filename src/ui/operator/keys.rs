@@ -229,6 +229,11 @@ impl Operator {
 
     /// One key press from the window's key scope; true when it was used (the scope then accepts it).
     pub(crate) fn key(self: &Rc<Self>, text: &str, ctrl_or_cmd: bool, alt: bool, shift: bool, in_text_field: bool, in_bible_box: bool) -> bool {
+        // Esc while a panel is dragged stops the drag (and does not clear the screens).
+        if text == "\u{1b}" && self.dock_dragging() {
+            self.dock_drag_cancel();
+            return true;
+        }
         let pressed = Chord::new(key_name(text).unwrap_or(text), ctrl_or_cmd, alt, shift);
         // Settings → Help is waiting for a new key (N28): it gets every key, and nothing else runs.
         if crate::ui::dialogs::settings_keys::capturing() {

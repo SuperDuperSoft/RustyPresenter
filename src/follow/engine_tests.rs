@@ -444,7 +444,7 @@ fn an_instrumental_slide_put_up_by_hand_leaves_on_the_first_sure_word() {
 }
 
 #[test]
-fn a_new_song_on_its_intro_slide_waits_for_singing_to_start() {
+fn a_new_song_on_its_intro_slide_waits_for_the_first_lyric() {
     let host = Fake::song(Mode::Auto);
     let mut e = Engine::new();
     let mut t = 0.0;
@@ -460,7 +460,7 @@ fn a_new_song_on_its_intro_slide_waits_for_singing_to_start() {
         e.step(host.as_ref(), t, Some(FollowEvent::Voice(Voice::Singing, t)));
     }
     assert_eq!(host.shown(), Vec::<String>::new(), "Auto left the intro slide the operator had just put up");
-    // The note ends and the band plays the intro: nothing. The singers come in: the first words go up.
+    // The note ends and the band plays the intro. A note that sounds sung still gives no lyric evidence.
     for _ in 0..50 {
         t += 0.1;
         e.step(host.as_ref(), t, Some(FollowEvent::Voice(Voice::Music, t)));
@@ -468,6 +468,99 @@ fn a_new_song_on_its_intro_slide_waits_for_singing_to_start() {
     assert_eq!(host.shown(), Vec::<String>::new());
     t += 0.1;
     e.step(host.as_ref(), t, Some(FollowEvent::Voice(Voice::Singing, t)));
+    assert!(host.shown().is_empty());
+    sing(&mut e, host.as_ref(), "I once", &mut t);
+    assert_eq!(host.shown(), ["show 1"]);
+}
+
+#[test]
+fn a_delayed_spoken_quote_is_ignored_after_singing_starts() {
+    let host = Fake::song(Mode::Auto);
+    let mut e = Engine::new();
+    for i in 0..15 {
+        let t = i as f64 / 10.0;
+        let voice = if i < 10 { Voice::Speaking } else { Voice::Singing };
+        e.step(host.as_ref(), t, Some(FollowEvent::Audio { voice, onsets: 2.0, at: t, held_since: None }));
+    }
+    for (w, at) in [("amazing", 0.2), ("grace", 0.5), ("how", 0.8)] {
+        e.step(host.as_ref(), 1.4, Some(FollowEvent::Heard(Heard { key: sound_key(w), at, conf: 1.0 })));
+    }
+    assert_eq!(e.state().line, None);
+    assert!(host.shown().is_empty());
+
+    let mut t = 1.4;
+    sing(&mut e, host.as_ref(), VERSE_1, &mut t);
+    assert_eq!(host.shown(), ["show 1"]);
+}
+
+#[test]
+fn late_audio_cannot_align_a_new_song_or_an_edit_of_the_same_length() {
+    let host = Fake::song(Mode::Auto);
+    let mut e = Engine::new();
+    let mut t = 0.0;
+    sing(&mut e, host.as_ref(), "amazing grace", &mut t);
+    host.change(|l| l.slides[0] = text(&SONG[0].replace("amazing", "awesome")));
+    e.step(host.as_ref(), 1.0, Some(FollowEvent::Voice(Voice::Singing, 1.0)));
+    assert_eq!(e.state().line, None);
+    assert!(e.run.as_ref().unwrap().text.words[0].text == "awesome");
+
+    host.change(|l| l.item_id = Uuid::new_v4());
+    e.step(host.as_ref(), 2.0, Some(FollowEvent::Voice(Voice::Singing, 2.0)));
+    for (w, at) in [("awesome", 1.4), ("grace", 1.6)] {
+        e.step(host.as_ref(), 2.1, Some(FollowEvent::Heard(Heard { key: sound_key(w), at, conf: 1.0 })));
+    }
+    assert_eq!(e.state().line, None);
+    e.step(host.as_ref(), 2.2, Some(FollowEvent::Heard(Heard { key: sound_key("awesome"), at: 2.15, conf: 1.0 })));
+    assert!(e.state().line.is_some());
+}
+
+#[test]
+fn stalled_capture_never_blanks_or_uses_queued_words() {
+    let host = Fake::song(Mode::Auto);
+    host.change(|l| l.settings.blank_after_s = Some(2.0));
+    let mut e = Engine::new();
+    e.step(host.as_ref(), 0.0, Some(FollowEvent::Listening { words: true }));
+    e.step(host.as_ref(), 0.1, Some(FollowEvent::Audio { voice: Voice::Silence, onsets: 0.0, at: 0.1, held_since: None }));
+    e.step(host.as_ref(), 1.0, Some(FollowEvent::Heard(Heard { key: sound_key("amazing"), at: 0.1, conf: 1.0 })));
+    e.step(host.as_ref(), 5.0, None);
+    assert_eq!(e.state().light, Light::Holding);
+    assert_eq!(e.state().line, None);
+    assert!(host.shown().is_empty());
+}
+
+#[test]
+fn brief_pitch_plateaus_cannot_arm_live_following_of_a_spoken_lyric() {
+    let host = Fake::song(Mode::Auto);
+    let mut engine = Engine::new();
+    engine.step(host.as_ref(), 0.0, Some(FollowEvent::Listening { words: true }));
+    for (i, word) in VERSE_1.split_whitespace().enumerate() {
+        for j in 0..=3 {
+            let t = (4 * i + j + 1) as f64 / 10.0;
+            let voice = if j < 2 { Voice::Singing } else { Voice::Music };
+            engine.step(host.as_ref(), t, Some(FollowEvent::Audio { voice, onsets: 2.0, at: t, held_since: None }));
+        }
+        let now = (4 * i + 4) as f64 / 10.0;
+        engine.step(host.as_ref(), now, Some(FollowEvent::Heard(Heard { key: sound_key(word), at: now - 0.2, conf: 1.0 })));
+    }
+    assert_eq!(engine.state().light, Light::Listening);
+    assert!(host.shown().is_empty());
+}
+
+#[test]
+fn the_live_audio_path_holds_through_a_melody_then_follows_the_first_lyric() {
+    use crate::follow::audio::Listener;
+    use crate::follow::voice::{FRAME, RATE, tests::singing};
+
+    let host = Fake::song(Mode::Auto);
+    host.change(|l| l.slides = vec![text("{Instrumental}"), text(SONG[0])]);
+    let mut engine = Engine::new();
+    let mut listener = Listener::new(Box::new(FakeEar::sings(2.4, "amazing grace")));
+    engine.step(host.as_ref(), 0.0, Some(listener.hello()));
+    for (i, pcm) in singing(3.0).chunks_exact(FRAME).enumerate() {
+        let at = (i * FRAME) as f64 / RATE as f64;
+        for ev in listener.frame(pcm, at) { engine.step(host.as_ref(), at, Some(ev)); }
+        if at < 2.38 { assert!(host.shown().is_empty(), "an instrumental note moved the slide"); }
+    }
     assert_eq!(host.shown(), ["show 1"]);
 }
 

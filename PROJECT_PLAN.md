@@ -1806,3 +1806,71 @@ found: `docs/superpowers/specs/2026-11-17-dock-panels-design.md` ("As built").
 - **Test run:** all 3,609 library tests pass on the merged branch (follow-sunday at 2ed0e1c), and `i18n_catalogs`,
   `cleanup`, `words` and `ui_operator_flows`. Earlier runs had the known timing-sensitive `record::run` FFmpeg tests
   fail while other agents built; they passed when run again.
+
+### November 18, 2026 — Chords above the words (branch `chord-sheet`)
+
+Jake imported SongSelect's ChordPro download of a song and compared the stage screen with SongSelect's chord sheet
+PDF: "We want the chords to appear more like the PDF. That is much more readable." Design:
+`docs/superpowers/specs/2026-11-18-chord-sheet-design.md`.
+
+- **Chord sheet** (`src/stage/chords.rs`, pure and tested): a stage box with "Show chords" (the Band layout's
+  current and next slide) now shows each line as the chords on top, each starting over its own letter, and the
+  words below without brackets. Chords are bold, 90 % of the words' size, in their own colour (gold on a dark
+  screen, blue when the words are gold, darker colours on a light background). Chords close together never overlap
+  (the words get room instead). A line of chords alone is a chord row alone, spaced as written; a line without
+  chords has no chord row; "(1st Ending)", "(To Verse 2)" stay words; `[*Softly]` sits with the chords and is no
+  longer shown in the room. The sheet shrinks to fit its box (both rows count), wraps long lines between words with
+  each chord kept with its word, never cut off. Key −/+ still moves the chords; the room never shows them.
+- **Data:** `stage::view::CellContent::Chords { lines, caption, chord_color }` (lines of `(chord, words)`
+  segments) instead of bracketed text.
+- **Stage window:** Rust measures each piece once with a hidden Text in the window and places every chord at the
+  same x as the words under it (`ChordPieceVm` in `ui/stage.slint`); pieces are cached so the clock's redraw
+  doesn't rebuild them. The dock's Stage preview panel is a picture of this window, so it shows the same.
+- **Phone stage page:** cells of kind `"chords"` carry `lines` and `chord_color`; `web/stage-view.js` draws them
+  as inline columns in wrapping rows. The cell keeps `text` (the chords in brackets), so an older page still draws
+  it as words.
+- **Picture:** `examples/chord_shots.rs` saves the stage screen with a song file's slide live on the Band layout.
+- **The real sample** ("Sometimes By Step") is not in the code (its words are not ours to publish): the test
+  `stage::view::tests::the_songselect_sample_shows_as_a_chord_sheet` is `#[ignore]` and runs with
+  `RP_CHORD_SAMPLE=<file>`; an always-run test uses a SongSelect-shaped file with public-domain words.
+- **Not verified by a person:** the chord sheet on a real stage monitor and on a real phone/tablet (the phone page
+  was not opened in a browser here), and the colour choice on church-made layouts with unusual colours.
+- **Test run:** 3,619 of 3,622 library tests passed; the 3 failures were the timing-sensitive `record::run` FFmpeg
+  go-live tests, which passed when run again alone (10 of 10). The real-sample test passes (15 slides, all chord
+  sheets). `i18n_catalogs`, `cleanup` and `words` pass. No new on-screen texts, so nothing to translate.
+
+### November 18, 2026 — Drag panels between windows (branch `dock-drag`)
+
+Design: `docs/superpowers/specs/2026-11-18-drag-panels-between-windows-design.md`.
+
+- **Like browser tabs**: in arrange mode a panel dragged by its grip follows the pointer out of its window. The
+  window under the pointer (main or a window of its own) lights up its drop zones and shows the panel's name at the
+  pointer. Let go on a panel of another window: it moves there; back in its own window: an ordinary drop; over no
+  window of the app (desktop, or another program in front): a new window of its own opens at the pointer, as large as
+  the panel was, wholly on the monitor under the pointer (a panel alone in its window just moves that window). A
+  window left empty closes; the main window keeps a panel. Esc, a right click or another program taking the keyboard
+  stops it; nothing changes before the release. The ⋯ menu's "Move to …" stays.
+- **How the pointer is followed**: no polling. winit 0.30.13 on Windows calls `SetCapture` on each press and keeps
+  sending moves outside the window; Slint 1.18.1 ignores `CursorLeft` while a button is down and its pressed
+  `TouchArea` keeps the mouse, so the grip's `moved` reports the whole drag (read in both sources; the testing
+  backend runs the same Slint path in the tests). Screen places from winit (`inner_position`, `scale_factor`), the
+  window in front from Win32 `WindowFromPoint` (elsewhere: the window brought to the front last). macOS and X11 send
+  the moves the same way (winit sources), so the same code is built there; Wayland cannot tell where windows are,
+  so there a drag stays in its window and the ⋯ menu moves panels.
+- **Layouts remembered**: every drag, tear-off and window move is saved for next time as before; "Save this layout
+  as…" saves the windows too; View → Layouts shows "Sunday (changed)" when the saved layout in use was changed, with
+  **Update “Sunday”** to save the changes into it.
+- **Tests**: `ui::dock::drag::tests` (screen point → window and place, the front window, what Windows says is in
+  front, tear-off placement and monitor), `ui::dock::tests` (`same_arrangement`, drops across windows), and
+  `ui::operator::docking::tests` driving the windows with the mouse (onto a window of its own, back to the main
+  window closing the empty one, onto the desktop, a lone panel's window moved, out and back, Esc / right click /
+  focus loss, a tear-off and a cross-window drop surviving a restart and saved by "Save this layout as…",
+  "(changed)" and Update).
+- **Not verified by a person:** all of it with a real mouse: dragging out of a window and over another (one and two
+  monitors, mixed 100 % / 150 % scaling), letting go on the desktop and where the new window lands, a window of
+  another program in front of ours, Esc and right click mid-drag, Alt+Tab mid-drag, and the look of the name at the
+  pointer. No name follows the pointer over the desktop (only in the app's windows). macOS and Linux (X11) are built
+  but need a real Mac / Linux PC to try; on Wayland only the ⋯ menu moves panels between windows.
+- **Test run** (merged with follow-sunday at bfe6e72): 3,643 of 3,643 library tests pass (two `record::run` FFmpeg
+  tests failed in the full run while other agents built and passed run alone), and `i18n_catalogs`, `cleanup`,
+  `words`. The three new texts are in all 13 languages.

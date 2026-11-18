@@ -5072,8 +5072,8 @@ msgid "Move {}"
 msgstr "Mover {}"
 
 #: ui/operator/dock.slint
-msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
-msgstr "Arrástralo sobre otro panel: a su lado, o en su centro para compartir su lugar como pestaña"
+msgid "Drag onto a panel, in this window or another: beside it, or in its middle to share its place as a tab. Let go outside the app's windows to open it in a window of its own."
+msgstr "Arrástralo sobre un panel, en esta ventana o en otra: a su lado, o en su centro para compartir su lugar como pestaña. Suéltalo fuera de las ventanas de la app para abrirlo en una ventana propia."
 
 #: ui/operator/dock.slint
 msgid "{} options"
@@ -9801,6 +9801,14 @@ msgid "Layout “{name}” saved"
 msgstr "Diseño «{name}» guardado"
 
 #: src/strings/operator.rs
+msgid "{name} (changed)"
+msgstr "{name} (cambiado)"
+
+#: src/strings/operator.rs
+msgid "Update “{name}”"
+msgstr "Actualizar «{name}»"
+
+#: src/strings/operator.rs
 msgid "Delete the layout “{name}”? The window goes back to Standard."
 msgstr "¿Eliminar el diseño «{name}»? La ventana vuelve a Estándar."
 
@@ -13526,6 +13534,9 @@ msgstr "yt-dlp no guardó ningún video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "no es un archivo multimedia"
+
+#~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
+#~ msgstr "Arrástralo sobre otro panel: a su lado, o en su centro para compartir su lugar como pestaña"
 
 #~ msgid "{n} phone"
 #~ msgid_plural "{n} phones"

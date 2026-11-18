@@ -25,6 +25,8 @@ pub trait Ear: Send {
     fn words(&self) -> bool;
     /// One 20 ms frame starting at `at` seconds; the words it finished hearing.
     fn frames(&mut self, pcm: &[i16], at: f64) -> Vec<Heard>;
+    /// Flush the final buffered words when a Practice recording ends.
+    fn finish(&mut self) -> Vec<Heard> { vec![] }
 }
 
 /// No model downloaded (or none fast enough here): hears no words.
@@ -53,16 +55,20 @@ impl Listener {
 
     pub fn frame(&mut self, pcm: &[i16], at: f64) -> Vec<FollowEvent> {
         let (voice, onsets) = self.tracker.frame(pcm, at);
-        let mut out: Vec<FollowEvent> = self.ear.frames(pcm, at).into_iter().map(FollowEvent::Heard).collect();
         self.frames += 1;
+        let mut out = Vec::new();
         if self.frames % LABEL_EVERY == 0 {
-            out.push(FollowEvent::Voice(voice, at));
-            out.push(FollowEvent::Onsets(onsets, at));
+            out.push(FollowEvent::Audio { voice, onsets, at, held_since: self.tracker.held_since(at) });
         }
+        out.extend(self.ear.frames(pcm, at).into_iter().map(FollowEvent::Heard));
         out
     }
 
     pub fn level(&self) -> f32 { self.tracker.level() }
+
+    pub(crate) fn finish(&mut self) -> impl Iterator<Item = FollowEvent> {
+        self.ear.finish().into_iter().map(FollowEvent::Heard)
+    }
 }
 
 /// The FFmpeg arguments for live sound from input `device`: 16 kHz mono 16-bit samples on its output.

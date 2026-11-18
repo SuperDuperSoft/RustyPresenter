@@ -156,5 +156,9 @@ pub fn main_keeps_a_panel() -> String { tr!("The main window keeps at least one 
 pub fn layout_name_prompt() -> String { tr!("Name for this layout") }
 pub fn layout_rename_prompt() -> String { tr!("New name for this layout") }
 pub fn layout_saved(name: &str) -> String { tr!("Layout “{name}” saved", name = name) }
+/// View → Layouts: the church's layout in use, changed since it was chosen ("Sunday (changed)").
+pub fn layout_changed(name: &str) -> String { tr!("{name} (changed)", name = name) }
+/// View → Layouts: saves the changes into the layout in use.
+pub fn layout_update(name: &str) -> String { tr!("Update “{name}”", name = name) }
 pub fn layout_delete_question(name: &str) -> String { tr!("Delete the layout “{name}”? The window goes back to Standard.", name = name) }
 pub fn delete_layout_button() -> String { tr!("Delete layout") }

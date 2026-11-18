@@ -166,6 +166,11 @@ pub fn stage_json(app: &App, state: &mut StageState) -> Value {
             CellContent::Message { text } => ("message", json!({ "text": text })),
             CellContent::NextPicture { caption } => ("picture", json!({ "caption": caption, "src": "next" })),
             CellContent::Shape { shape } => ("shape", json!({ "shape": shape })),
+            // A chord sheet: `lines` of [chord, words] for this page; `text` (the chords in brackets) for a phone
+            // still showing an older page, which draws it as words.
+            CellContent::Chords { lines, caption, chord_color } => ("chords", json!({
+                "text": stage::chords::plain(lines), "lines": lines, "chord_color": chord_color, "caption": caption,
+            })),
         };
         cell["kind"] = kind.into();
         if let (Value::Object(c), Value::Object(e)) = (&mut cell, extra) { c.extend(e) }
@@ -354,6 +359,23 @@ mod tests {
         let app = test_app();
         show(&app, crate::model::ItemKind::Text { title: "T".into(), body: "Hello".into(), layout: Default::default() });
         assert_eq!(slide_boxes(&app)[0], ("text".into(), "Hello".into()));
+    }
+
+    #[test]
+    fn a_song_with_chords_is_sent_to_the_phone_as_a_chord_sheet() {
+        let app = test_app();
+        let song = crate::model::Song { title: "T".into(), key: "D".into(), lyrics: "Verse 1\n[D]  Sometimes the [A/D]night is beautiful\nYou could [A7]touch it".into(), ..Default::default() };
+        let song_id = song.id;
+        app.data.lock().unwrap().songs.push(song);
+        show(&app, crate::model::ItemKind::Song { song_id, arrangement: None });
+        app.data.lock().unwrap().settings.stage.layout = stage::presets::BAND;
+        let v = stage_json(&app, &mut StageState::default());
+        let cell = v["cells"].as_array().unwrap().iter().find(|c| c["kind"] == "chords" && c["y"].as_f64() == Some(13.0)).expect("the current slide as a chord sheet");
+        assert_eq!(cell["lines"], json!([[["D", "  Sometimes the "], ["A/D", "night is beautiful"]], [["", "You could "], ["A7", "touch it"]]]));
+        assert_eq!(cell["chord_color"], "#f5c66b");
+        // An older phone page draws `text` as words: the chords as written, as before.
+        assert_eq!(cell["text"], "[D]  Sometimes the [A/D]night is beautiful\nYou could [A7]touch it");
+        assert!(cell["max"].as_f64().is_some() && cell["align"].is_string());
     }
 
     #[tokio::test]

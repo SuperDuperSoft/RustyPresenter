@@ -2,6 +2,10 @@
 // Sizes follow the web page's vh/vw units, so the screen scales with the monitor.
 import { Sprite, SpriteLayer } from "room.slint";
 
+/// One piece of a chord sheet (`stage::chords`): a chord or some words, placed by Rust in pixels from the
+/// sheet's top left.
+export struct ChordPieceVm { x: float, y: float, text: string, chord: bool }
+
 /// One box of a stage layout (`stage::view::Cell`), placed in % of the window. Rust picks `size` so the words fit.
 export struct StageCellVm {
     x: float, y: float, w: float, h: float,
@@ -28,6 +32,15 @@ export struct StageCellVm {
     picture: image,
     /// The live designed slide: its click group plays over the picture (`anim-*` on the window).
     anim: bool,
+    /// A chord sheet instead of `text` (which then holds the chords in brackets, for screen readers): `pieces`
+    /// placed in a block `sheet-w` × `sheet-h` pixels, put in the box by `align` and `valign`. Chords are bold, in
+    /// `chord-color`, `chord-size` (% of the window height).
+    sheet: bool,
+    sheet-w: float,
+    sheet-h: float,
+    pieces: [ChordPieceVm],
+    chord-color: color,
+    chord-size: float,
 }
 
 export component StageWindow inherits Window {
@@ -83,6 +96,12 @@ export component StageWindow inherits Window {
     in property <bool> probe-bold;
     out property <length> probe-height: probe.preferred-height;
     out property <length> probe-min-width: probe.min-width;
+    /// One line of text Rust measures for chord sheets: how wide and high it is drawn.
+    in property <string> measure-text;
+    in property <length> measure-size: 100px;
+    in property <int> measure-weight: 500;
+    out property <length> measure-width: measure.preferred-width;
+    out property <length> measure-height: measure.preferred-height;
     out property <length> window-width: root.width;
     out property <length> window-height: root.height;
 
@@ -103,6 +122,15 @@ export component StageWindow inherits Window {
         font-size: root.probe-size * vh;
         font-weight: root.probe-bold ? 650 : 500;
         wrap: word-wrap;
+    }
+
+    measure := Text {
+        x: 0;
+        y: 0;
+        opacity: 0;
+        text: root.measure-text;
+        font-size: root.measure-size;
+        font-weight: root.measure-weight;
     }
 
     // Placed explicitly (x, y), so the window does not take its size constraints from text sized by the window.
@@ -327,7 +355,27 @@ export component StageWindow inherits Window {
                         }
                     }
                 }
-                if !c.has-picture: cell-t := Text {
+                // A chord sheet: the chords above the words, placed by Rust (`src/ui/stage.rs`, `stage::chords`).
+                if !c.has-picture && c.sheet: Rectangle {
+                    vertical-stretch: 1;
+                    sheet-t := Rectangle {
+                        width: c.sheet-w * 1px;
+                        height: c.sheet-h * 1px;
+                        x: c.align == 0 ? 0 : c.align == 2 ? parent.width - self.width : (parent.width - self.width) / 2;
+                        y: c.valign == 0 ? 0 : c.valign == 2 ? parent.height - self.height : (parent.height - self.height) / 2;
+                        accessible-role: text;
+                        accessible-label: c.text;
+                        for p in c.pieces: Text {
+                            x: p.x * 1px;
+                            y: p.y * 1px;
+                            text: p.text;
+                            color: p.chord ? c.chord-color : c.color;
+                            font-size: (p.chord ? c.chord-size : c.size) * vh;
+                            font-weight: p.chord ? 800 : c.bold ? 650 : 500;
+                        }
+                    }
+                }
+                if !c.has-picture && !c.sheet: cell-t := Text {
                     vertical-stretch: 1;
                     text: c.text;
                     color: c.red ? #ff4f55 : c.message ? #1a1405 : c.color;

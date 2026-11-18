@@ -31,6 +31,11 @@ export component PanelWindow inherits Window {
     in property <length> dock-area-height;
     in property <bool> dock-lit-shown;
     in property <DockRect> dock-lit;
+    in property <int> dock-ghost: -1;
+    in property <length> dock-ghost-x;
+    in property <length> dock-ghost-y;
+    out property <length> dock-origin-x: dock.origin-x;
+    out property <length> dock-origin-y: dock.origin-y;
     callback dock-area-resized(length, length);
     callback dock-fit(int, bool, length, length, length, length);
     callback dock-bar-moved(int, length);
@@ -38,6 +43,7 @@ export component PanelWindow inherits Window {
     callback dock-tab-picked(int);
     callback dock-drag-moved(int, length, length);
     callback dock-drag-done(int, length, length);
+    callback dock-drag-cancel(int);
     callback dock-panel-action(int, string);
 
     /// A key, as in the operator window (`OperatorWindow.key`): Rust runs it the same way.
@@ -83,6 +89,9 @@ export component PanelWindow inherits Window {
             area-height: root.dock-area-height;
             lit-shown: root.dock-lit-shown;
             lit: root.dock-lit;
+            ghost: root.dock-ghost;
+            ghost-x: root.dock-ghost-x;
+            ghost-y: root.dock-ghost-y;
             focus-keys => { root.focus-keys(); }
             area-resized(w, h) => { root.dock-area-resized(w, h); }
             fit(p, t, a, b, c, d) => { root.dock-fit(p, t, a, b, c, d); }
@@ -91,6 +100,7 @@ export component PanelWindow inherits Window {
             tab-picked(p) => { root.dock-tab-picked(p); }
             drag-moved(p, x, y) => { root.dock-drag-moved(p, x, y); }
             drag-done(p, x, y) => { root.dock-drag-done(p, x, y); }
+            drag-cancel(p) => { root.dock-drag-cancel(p); }
             panel-action(p, a) => { root.dock-panel-action(p, a); }
         }
     }

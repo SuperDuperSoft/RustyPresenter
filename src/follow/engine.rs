@@ -11,18 +11,21 @@ use super::rules::{FollowAction, Mode, Rules, Settings, Voice};
 use crate::app::App;
 use crate::live::{Command, Envelope, MediaLayer};
 use crate::model::{Slide, SlideContent};
+use std::collections::VecDeque;
+use std::hash::{DefaultHasher, Hash, Hasher};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::{Receiver, RecvTimeoutError, Sender, channel};
 use std::sync::{Arc, Mutex, Weak};
 use std::time::{Duration, Instant};
 use uuid::Uuid;
 
-/// What the audio side tells the follower. The times of `Heard`, `Voice` and `Onsets` are the sound input's own
+/// What the audio side tells the follower. Audio times are on the sound input's own
 /// clock (seconds of sound since it started), not `Follower::now`: the engine lines the two up from the voice
 /// labels, so a word is timed by when it was sung, not by when the ear delivered it.
 #[derive(Clone, Debug, PartialEq)]
 pub enum FollowEvent {
     Heard(Heard),
+    Audio { voice: Voice, onsets: f32, at: f64, held_since: Option<f64> },
     Voice(Voice, f64),
     /// Note onsets a second (the beat tracker).
     Onsets(f32, f64),
@@ -100,8 +103,12 @@ pub trait Host: Send + Sync {
 /// The live song being followed.
 struct Run {
     item: Uuid,
-    /// Slide count and text length: a change rebuilds the run (the song was edited).
-    sig: (usize, usize),
+    /// A change in the lyrics or slide order rebuilds the run.
+    sig: u64,
+    /// Discard queued words from before this song or the operator's last move.
+    audio_from: Option<f64>,
+    /// Lyric decoding also recognizes spoken quotes. Hear a melodic phrase before using lyric evidence.
+    vocals_confirmed: bool,
     text: SongText,
     aligner: Aligner,
     rules: Rules,
@@ -130,8 +137,16 @@ struct Run {
     off_at: Option<u64>,
 }
 
-fn sig(slides: &[Slide]) -> (usize, usize) {
-    (slides.len(), slides.iter().map(|s| match &s.content { SlideContent::Text { text, .. } => text.len(), _ => 0 }).sum())
+fn sig(slides: &[Slide]) -> u64 {
+    let mut hasher = DefaultHasher::new();
+    slides.len().hash(&mut hasher);
+    for slide in slides {
+        match &slide.content {
+            SlideContent::Text { text, .. } => Some(text.as_str()).hash(&mut hasher),
+            _ => Option::<&str>::None.hash(&mut hasher),
+        }
+    }
+    hasher.finish()
 }
 
 /// The decision core of the follower, without the thread: tests drive it with a fake host and clock.
@@ -156,11 +171,20 @@ pub struct Engine {
     /// second, almost as the sound does): added to the time a word was sung, it gives that time on the
     /// follower's clock. `None` until a label has come.
     skew: Option<f64>,
+    voice_labels: VecDeque<(f64, Voice)>,
+    /// The last live report on the follower's clock. An input can stall without closing its pipe.
+    audio_reported: Option<f64>,
+    audio_expected: bool,
+    held_since: Option<f64>,
 }
 
-/// A word is never taken as sung longer ago than this. The ear's half-second hop, the model's run time and the
-/// word spotter's wait are well inside it; anything older is a fault of the clocks.
+/// Discard words older than this instead of giving them a new timestamp and moving on stale evidence.
 const MAX_EAR_LAG: f64 = 5.0;
+const AUDIO_STALL: f64 = 0.5;
+/// Reports come every 100 ms. Allow for fractional frame timestamps and scheduling jitter.
+const LABEL_SLOP: f64 = 0.13;
+/// Brief pitch plateaus occur in spoken syllables, too. Ask for a continuous span within the phrase.
+const VOCAL_PROOF: f64 = 0.39;
 /// The most lines of the listening log kept while nobody takes them (Practice): the oldest half goes.
 const TRACE_MAX: usize = 4096;
 /// The most words kept in `Run::tail`. What a slide still has to come is far fewer; more only pile up over many
@@ -170,7 +194,8 @@ const TAIL_MAX: usize = 64;
 impl Default for Engine {
     fn default() -> Self {
         Engine { run: None, hold: false, lost: false, voice: Voice::Silence, onsets: 0.0, state: FollowState::default(), words: true, fresh: vec![],
-            trace: vec![], lexicon: Lexicon::default(), skew: None }
+            trace: vec![], lexicon: Lexicon::default(), skew: None, voice_labels: VecDeque::new(),
+            audio_reported: None, audio_expected: false, held_since: None }
     }
 }
 
@@ -193,12 +218,58 @@ impl Engine {
 
     fn note(&mut self, now: f64, line: String) { note(&mut self.trace, now, line) }
 
+    fn voice_at(&mut self, voice: Voice, at: f64, now: f64) {
+        self.voice = voice;
+        self.skew = Some(now - at);
+        self.voice_labels.push_back((at, voice));
+        while self.voice_labels.len() > 64 || self.voice_labels.front().is_some_and(|&(t, _)| at - t > MAX_EAR_LAG + LABEL_SLOP) {
+            self.voice_labels.pop_front();
+        }
+    }
+
+    fn heard_voice(&self, at: f64) -> Option<Voice> {
+        self.voice_labels.iter().rev()
+            .filter(|&&(t, _)| (t - at).abs() <= LABEL_SLOP)
+            .min_by(|&&(a, _), &&(b, _)| (a - at).abs().total_cmp(&(b - at).abs()))
+            .map(|&(_, voice)| voice)
+    }
+
+    fn melody_near(labels: &VecDeque<(f64, Voice)>, at: f64, from: Option<f64>) -> bool {
+        let mut start = at;
+        let mut last = f64::NEG_INFINITY;
+        let earliest = (at - 0.75).max(from.unwrap_or(f64::NEG_INFINITY));
+        for &(t, voice) in labels {
+            if t < earliest || t > at + LABEL_SLOP { continue }
+            if voice != Voice::Singing {
+                last = f64::NEG_INFINITY;
+                continue;
+            }
+            if t - last > 0.15 { start = t; }
+            if t - start >= VOCAL_PROOF { return true }
+            last = t;
+        }
+        false
+    }
+
     /// One step at `now`: take `ev` (or just look, on a timer), then act on the live song.
     pub fn step(&mut self, host: &dyn Host, now: f64, ev: Option<FollowEvent>) {
         let mut heard = None;
         match ev {
             Some(FollowEvent::Heard(h)) => heard = Some(h),
-            Some(FollowEvent::Voice(v, at)) => { self.voice = v; self.skew = Some(now - at) }
+            Some(FollowEvent::Audio { voice, onsets, at, held_since }) => {
+                if self.audio_reported.is_some_and(|last| now - last > AUDIO_STALL) {
+                    self.voice_labels.clear();
+                    if let Some(run) = self.run.as_mut() { run.recover_audio(Some(at)); }
+                }
+                self.voice_at(voice, at, now);
+                self.onsets = onsets;
+                self.audio_reported = Some(now);
+                self.held_since = held_since.map(|start| now - (at - start).max(0.0));
+                if self.voice_labels.iter().rev().take(3).filter(|(_, v)| *v == Voice::Speaking).count() == 3 {
+                    if let Some(run) = self.run.as_mut() { run.vocals_confirmed = false; }
+                }
+            }
+            Some(FollowEvent::Voice(v, at)) => { self.voice_at(v, at, now); self.audio_reported = Some(now) }
             Some(FollowEvent::Onsets(r, _)) => self.onsets = r,
             Some(FollowEvent::InputLost(why)) => {
                 if !self.lost { self.note(now, format!("the sound input is gone: {why}")) }
@@ -211,13 +282,22 @@ impl Engine {
                 self.lost = false;
                 self.words = words;
                 self.skew = None;
+                self.voice = Voice::Silence;
+                self.onsets = 0.0;
+                self.voice_labels.clear();
+                self.audio_reported = None;
+                self.audio_expected = true;
+                self.held_since = None;
+                if let Some(run) = self.run.as_mut() {
+                    // The new device's sample clock starts over.
+                    run.recover_audio(None);
+                }
             }
             None => {}
         }
-        // When the word just heard was sung, on the follower's clock: never in the future, never long ago. On a
-        // look without a heard word (and before the first voice label) it is `now`.
+        // Place acoustic evidence on the follower's clock. A stale word never gets a fresh timestamp.
         let sung = match (&heard, self.skew) {
-            (Some(h), Some(skew)) => (h.at + skew).max(now - MAX_EAR_LAG).min(now),
+            (Some(h), Some(skew)) => (h.at + skew).min(now),
             _ => now,
         };
         self.state.holding = self.hold;
@@ -230,8 +310,14 @@ impl Engine {
         let mode = if self.lost { Mode::Manual } else { live.mode };
         self.state.mode = mode;
         let s = sig(&live.slides);
+        let audio_now = self.voice_labels.back().map(|&(at, _)| at);
         if self.run.as_ref().is_none_or(|r| r.item != live.item_id || r.sig != s) {
-            let run = Run::new(&live, s);
+            let audio_from = if self.run.is_some() || self.audio_expected {
+                audio_now
+            } else {
+                None
+            };
+            let run = Run::new(&live, s, audio_from);
             self.lexicon.set_song(&run.text);
             if mode != Mode::Manual {
                 note(&mut self.trace, now, format!("song: {} slides, {} words, {mode:?}, on slide {}", live.slides.len(), run.text.words.len(), live.slide + 1));
@@ -239,6 +325,19 @@ impl Engine {
             self.run = Some(run);
             self.state.suggest = None;
         }
+        let audio_stalled = self.audio_expected && self.audio_reported.is_none_or(|at| now - at > AUDIO_STALL);
+        let require_vocals = self.audio_expected && self.words;
+        let ignored = heard.as_ref().and_then(|h| {
+            if !h.at.is_finite() || !h.conf.is_finite() || now - sung > MAX_EAR_LAG {
+                Some("expired or invalid audio")
+            } else if audio_stalled {
+                Some("waiting for live audio")
+            } else if self.heard_voice(h.at).unwrap_or(self.voice) == Voice::Speaking {
+                Some("speech at the time the word was heard")
+            } else {
+                None
+            }
+        });
         let Some(run) = self.run.as_mut() else { return };
         run.rules.set_settings(Settings { mode, ..live.settings.clone() });
 
@@ -263,6 +362,7 @@ impl Engine {
             let over = run.tail.len().saturating_sub(TAIL_MAX);
             if over > 0 { run.tail = run.tail.split_off(over) }
             run.seen = (live.slide, live.words_up);
+            run.audio_from = audio_now;
             run.off_at = None;
             run.aligner.reset_to(live.slide);
             // The operator may have gone back into the middle of a slide: the first word heard may be anywhere on it.
@@ -278,9 +378,24 @@ impl Engine {
         }
         if mode != Mode::Suggest || self.state.suggest == Some(live.slide) { self.state.suggest = None }
 
+        let before_cue = heard.as_ref().zip(run.audio_from)
+            .is_some_and(|(word, at)| word.at < at - LABEL_SLOP);
+        let melody = heard.as_ref().is_some_and(|h| Self::melody_near(&self.voice_labels, h.at, run.audio_from));
+        let ignored = ignored.or(before_cue.then_some("audio from before the current cue"));
+        let waiting = require_vocals && !run.vocals_confirmed && !melody;
+        if let Some((h, why)) = heard.as_ref().zip(ignored.or(waiting.then_some("waiting for a sung phrase"))) {
+            if mode != Mode::Manual {
+                note(&mut self.trace, now, format!("ignored lyric evidence {:<10} {:>3.0}%: {why}", h.key, h.conf * 100.0));
+            }
+            heard = None;
+        }
         if let Some(h) = heard {
             let before = run.pos.word;
             run.pos = run.aligner.push(&h);
+            if melody && run.pos.word.is_some() && run.pos.word != before
+                && run.pos.confidence >= live.settings.min_conf && !run.pos.off_script {
+                run.vocals_confirmed = true;
+            }
             if let Some(from) = run.paused {
                 if let Some(i) = run.tail.iter().position(|(slide, key)| *slide < from && *key == h.key) {
                     // A word a slide before the operator's still had to come (the ear may have missed some
@@ -329,7 +444,9 @@ impl Engine {
             }
         }
 
-        let blocked = self.hold || live.video_playing || run.paused.is_some() || run.cleared;
+        let unconfirmed = require_vocals && !run.vocals_confirmed;
+        if unconfirmed { self.state.suggest = None; }
+        let blocked = self.hold || live.video_playing || run.paused.is_some() || run.cleared || audio_stalled;
         self.state.line = run.pos.word.and_then(|w| run.text.line_text(w));
         self.state.light = if mode == Mode::Manual {
             Light::Off
@@ -337,7 +454,7 @@ impl Engine {
             Light::Holding
         } else if run.rules.blanked() {
             Light::Blank
-        } else if run.pos.word.is_none() {
+        } else if unconfirmed || run.pos.word.is_none() {
             Light::Listening
         } else if run.pos.confidence >= live.settings.min_conf && !run.pos.off_script {
             Light::Sure
@@ -351,7 +468,13 @@ impl Engine {
             return;
         }
 
-        let Some(action) = run.rules.tick_sung(now, sung, &run.pos, self.voice, self.onsets, live.slide) else { return };
+        let Some(action) = run.rules.tick_audio(now, sung, &run.pos, self.voice, self.onsets, live.slide, self.held_since) else { return };
+        if unconfirmed && matches!(action,
+            FollowAction::Show(n) | FollowAction::Suggest(n) | FollowAction::Unblank(n) if n != live.slide
+        ) {
+            if matches!(action, FollowAction::Unblank(_)) { run.rules.set_blanked(true); }
+            return;
+        }
         let said = match run.pos.word {
             Some(w) => crate::tr!("heard \"{words}\"", words = run.text.words[w.saturating_sub(3)..=w].iter().map(|x| x.text.as_str()).collect::<Vec<_>>().join(" ")),
             None => crate::tr!("singing again"),
@@ -411,13 +534,25 @@ fn note(trace: &mut Vec<String>, now: f64, line: String) {
 }
 
 impl Run {
-    fn new(live: &LiveSong, sig: (usize, usize)) -> Run {
+    fn recover_audio(&mut self, from: Option<f64>) {
+        self.audio_from = from;
+        self.vocals_confirmed = false;
+        self.aligner.reset_to(self.seen.0);
+        self.aligner.seat_anywhere();
+        self.pos = self.aligner.position().clone();
+        self.relock = 0;
+        let blanked = self.rules.blanked();
+        self.rules.reset();
+        self.rules.set_blanked(blanked);
+    }
+
+    fn new(live: &LiveSong, sig: u64, audio_from: Option<f64>) -> Run {
         let text = SongText::from_slides(&live.slides);
         let plan: Vec<usize> = (0..live.slides.len()).collect();
         let mut aligner = Aligner::new(&text, &plan).with_jump_words(live.settings.jump());
         aligner.reset_to(live.slide);
         let rules = Rules::new(live.settings.clone(), &text);
-        Run { item: live.item_id, sig, pos: aligner.position().clone(), text, aligner, rules, seen: (live.slide, live.words_up), paused: None, relock: 0,
+        Run { item: live.item_id, sig, audio_from, vocals_confirmed: false, pos: aligner.position().clone(), text, aligner, rules, seen: (live.slide, live.words_up), paused: None, relock: 0,
             cleared: !live.words_up, tail: vec![], off_at: None }
     }
 }

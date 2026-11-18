@@ -5063,7 +5063,7 @@ msgid "Move {}"
 msgstr ""
 
 #: ui/operator/dock.slint
-msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
+msgid "Drag onto a panel, in this window or another: beside it, or in its middle to share its place as a tab. Let go outside the app's windows to open it in a window of its own."
 msgstr ""
 
 #: ui/operator/dock.slint
@@ -9789,6 +9789,14 @@ msgstr ""
 
 #: src/strings/operator.rs
 msgid "Layout “{name}” saved"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "{name} (changed)"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "Update “{name}”"
 msgstr ""
 
 #: src/strings/operator.rs

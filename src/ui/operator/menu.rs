@@ -423,7 +423,9 @@ mod tests {
             // `file`: Open recent's file names, which are not words to translate.
             // `g.name`: the church's own clear group names.
             // `row.name`: View → Panels and Layouts, translated in Rust (`docking`), or a layout the church named.
-            assert!(t.starts_with("@tr(") || t.contains("? @tr(") || t == "file;" || t == "g.name;" || t == "row.name;", "{t:?} is not translatable");
+            // `root.dock-update-title`: "Update “Sunday”", translated in Rust (`docking`).
+            assert!(t.starts_with("@tr(") || t.contains("? @tr(") || t == "file;" || t == "g.name;" || t == "row.name;"
+                || t == "root.dock-update-title;", "{t:?} is not translatable");
         }
     }
 

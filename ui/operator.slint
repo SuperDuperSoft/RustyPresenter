@@ -102,11 +102,18 @@ export component OperatorWindow inherits Window {
     in property <length> dock-area-height;
     in property <bool> dock-lit-shown;
     in property <DockRect> dock-lit;
+    in property <int> dock-ghost: -1;
+    in property <length> dock-ghost-x;
+    in property <length> dock-ghost-y;
+    out property <length> dock-origin-x: dock.origin-x;
+    out property <length> dock-origin-y: dock.origin-y;
     /// View → Panels and View → Layouts: one row each (Rust replaces the lists when they change).
     in property <[DockMenuRow]> dock-panel-rows;
     in property <[DockMenuRow]> dock-layout-rows;
     /// The layout in use is one the church saved (Rename and Delete apply to it).
     in property <bool> dock-saved-chosen;
+    /// The saved layout in use was changed since it was chosen: "Update “Sunday”" (empty: not shown).
+    in property <string> dock-update-title;
     callback dock-area-resized(length, length);
     callback dock-fit(int, bool, length, length, length, length);
     callback dock-bar-moved(int, length);
@@ -114,9 +121,10 @@ export component OperatorWindow inherits Window {
     callback dock-tab-picked(int);
     callback dock-drag-moved(int, length, length);
     callback dock-drag-done(int, length, length);
+    callback dock-drag-cancel(int);
     callback dock-panel-action(int, string);
-    /// View → Panels, View → Layouts: "arrange", "panel:<index>", "layout:<key>", "save-as", "rename", "delete",
-    /// "reset".
+    /// View → Panels, View → Layouts: "arrange", "panel:<index>", "layout:<key>", "update", "save-as", "rename",
+    /// "delete", "reset".
     callback dock-menu(string);
 
     // Toasts and the jobs box (see `overlays.slint`).
@@ -614,6 +622,10 @@ export component OperatorWindow inherits Window {
                     title: root.dock-arrange ? @tr("Stop arranging panels") : @tr("Arrange panels");
                     activated => { root.dock-menu("arrange"); }
                 }
+                if root.dock-update-title != "": MenuItem {
+                    title: root.dock-update-title;
+                    activated => { root.dock-menu("update"); }
+                }
                 MenuItem {
                     title: @tr("Save this layout as…");
                     activated => { root.dock-menu("save-as"); }
@@ -872,6 +884,9 @@ export component OperatorWindow inherits Window {
                 area-height: root.dock-area-height;
                 lit-shown: root.dock-lit-shown;
                 lit: root.dock-lit;
+                ghost: root.dock-ghost;
+                ghost-x: root.dock-ghost-x;
+                ghost-y: root.dock-ghost-y;
                 covered: root.covered;
                 focus-keys => { root.focus-keys(); }
                 area-resized(w, h) => { root.dock-area-resized(w, h); }
@@ -881,6 +896,7 @@ export component OperatorWindow inherits Window {
                 tab-picked(p) => { root.dock-tab-picked(p); }
                 drag-moved(p, x, y) => { root.dock-drag-moved(p, x, y); }
                 drag-done(p, x, y) => { root.dock-drag-done(p, x, y); }
+                drag-cancel(p) => { root.dock-drag-cancel(p); }
                 panel-action(p, a) => { root.dock-panel-action(p, a); }
             }
         }

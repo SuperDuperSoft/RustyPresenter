@@ -17,6 +17,14 @@
   #screen { container-type: size; }
   .cell .cap { flex: none; color: #8b93a7; font-size: 2.2cqh; letter-spacing: .12em; text-transform: uppercase; margin: 1.2cqh 1.2cqh 0; }
   .cell .words { flex: 1; min-height: 0; margin: 1.2cqh; white-space: pre-wrap; overflow-wrap: anywhere; display: flex; flex-direction: column; }
+  /* A chord sheet: the chords above the words, each chord over its letter (src/stage/chords.rs). */
+  .cell .sheet { max-width: 100%; text-align: left; white-space: pre; }
+  .sheet .cl { display: flex; flex-wrap: wrap; }
+  .sheet .ci { display: inline-flex; }
+  .sheet .cp { display: inline-flex; flex-direction: column; }
+  .sheet .ch { display: block; height: 1.25em; line-height: 1.25; font-size: .9em; font-weight: 800; padding-right: .45em; }
+  .sheet .cw { display: block; }
+  .sheet .alone .cw { height: 0; visibility: hidden; }
   .cell img { flex: 1; min-height: 0; width: calc(100% - 2.4cqh); margin: 1.2cqh; object-fit: contain; }
   .cell.message { background: #f5c66b !important; color: #1a1405 !important; font-weight: 650; }
   #follow { position: absolute; left: 1.5cqw; bottom: 1.5cqh; padding: 0.8cqh 1.6cqh; border-radius: 3cqh; background: #000000b0; color: #3ccf91; font-weight: 700; font-size: 2.8cqh; display: none; }

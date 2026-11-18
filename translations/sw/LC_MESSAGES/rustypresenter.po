@@ -5072,8 +5072,8 @@ msgid "Move {}"
 msgstr "Hamisha {}"
 
 #: ui/operator/dock.slint
-msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
-msgstr "Buruta juu ya paneli nyingine: kando yake, au katikati yake ili kushiriki nafasi yake kama kichupo"
+msgid "Drag onto a panel, in this window or another: beside it, or in its middle to share its place as a tab. Let go outside the app's windows to open it in a window of its own."
+msgstr "Buruta juu ya paneli, katika dirisha hili au jingine: kando yake, au katikati yake ili kushiriki nafasi yake kama kichupo. Achilia nje ya madirisha ya programu ili kuifungua katika dirisha lake lenyewe."
 
 #: ui/operator/dock.slint
 msgid "{} options"
@@ -9801,6 +9801,14 @@ msgid "Layout “{name}” saved"
 msgstr "Mpangilio “{name}” umehifadhiwa"
 
 #: src/strings/operator.rs
+msgid "{name} (changed)"
+msgstr "{name} (imebadilishwa)"
+
+#: src/strings/operator.rs
+msgid "Update “{name}”"
+msgstr "Sasisha “{name}”"
+
+#: src/strings/operator.rs
 msgid "Delete the layout “{name}”? The window goes back to Standard."
 msgstr "Futa mpangilio “{name}”? Dirisha linarudi kwenye Kawaida."
 
@@ -13526,6 +13534,9 @@ msgstr "yt-dlp haikuhifadhi video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "si faili ya midia"
+
+#~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
+#~ msgstr "Buruta juu ya paneli nyingine: kando yake, au katikati yake ili kushiriki nafasi yake kama kichupo"
 
 #~ msgid "{n} phone"
 #~ msgid_plural "{n} phones"

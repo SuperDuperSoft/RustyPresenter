@@ -8,7 +8,7 @@
 use super::{strings as tr, window::Operator};
 use crate::ui::{
     DockBar, DockHead, DockMenuRow, DockPlace, DockRect, DockTab, DockWin, OperatorWindow, PanelWindow,
-    dock::{self, Builtin, Chosen, Dir, Divider, DockPrefs, Layout, Node, PanelId, Placement, WinRect},
+    dock::{self, Builtin, Chosen, Dir, Divider, DockPrefs, Layout, Node, PanelId, Placement, WinRect, drag::{self, Drag, OnScreen, Under}},
 };
 use slint::{ComponentHandle, Model, ModelRc, VecModel};
 use std::{cell::{Cell, RefCell}, rc::Rc};
@@ -60,6 +60,13 @@ pub(crate) struct Dock {
     save_timer: slint::Timer,
     /// While windows of their own are open: notices when one was moved, to remember where it is.
     watch_timer: slint::Timer,
+    /// A panel's title bar being dragged (between windows too).
+    drag: Cell<Option<Drag>>,
+    /// The windows' ids, the one brought to the front last first (which is in front where they overlap).
+    recent: RefCell<Vec<u32>>,
+    /// Tests: where each window is on the screen (window id, its inside), as the testing backend has no screen.
+    #[cfg(test)]
+    pub(crate) fake_screen: RefCell<Vec<(u32, WinRect)>>,
 }
 
 impl Default for Dock {
@@ -67,7 +74,10 @@ impl Default for Dock {
         Dock {
             prefs: RefCell::default(), arrange: Cell::new(false), content: RefCell::default(), tight: RefCell::default(),
             wins: RefCell::new(vec![Win::new(0, None)]), next_id: Cell::new(1), bar_drag: RefCell::default(),
-            save_timer: slint::Timer::default(), watch_timer: slint::Timer::default(),
+            save_timer: slint::Timer::default(), watch_timer: slint::Timer::default(), drag: Cell::new(None),
+            recent: RefCell::default(),
+            #[cfg(test)]
+            fake_screen: RefCell::default(),
         }
     }
 }
@@ -129,6 +139,16 @@ impl Operator {
 
 
     fn win_index(&self, id: u32) -> Option<usize> { self.dock.wins.borrow().iter().position(|w| w.id == id) }
+
+    /// What `f` gives for window `i`, if it is open.
+    fn host_get<R>(&self, i: usize, f: impl Fn(Host) -> R) -> Option<R> {
+        let pop = self.dock.wins.borrow().get(i).and_then(|w| w.window.as_ref().map(|p| p.clone_strong()));
+        match (i, pop) {
+            (0, _) => Some(f(Host::Main(&self.ui))),
+            (_, Some(p)) => Some(f(Host::Pop(&p))),
+            _ => None,
+        }
+    }
 
     fn host_do(&self, i: usize, f: impl Fn(Host)) {
         let pop = self.dock.wins.borrow().get(i).and_then(|w| w.window.as_ref().map(|p| p.clone_strong()));
@@ -207,10 +227,7 @@ impl Operator {
 
     /// The Live panel and the top bar leave out what is a panel of its own; View → Panels and Layouts follow.
     fn dock_shared(&self) {
-        let (l, chosen, saved) = {
-            let p = self.dock.prefs.borrow();
-            (p.current.clone(), p.chosen.clone(), p.saved.iter().map(|s| s.name.clone()).collect::<Vec<_>>())
-        };
+        let l = self.dock.prefs.borrow().current.clone();
         let ui = &self.ui;
         ui.set_up_next_apart(l.is_shown(PanelId::UpNext));
         ui.set_follow_apart(l.is_shown(PanelId::Follow));
@@ -220,13 +237,8 @@ impl Operator {
         let panels: Vec<DockMenuRow> = PanelId::ALL.iter().map(|p| DockMenuRow {
             key: format!("panel:{}", p.index()).into(), name: panel_name(*p).into(), checked: l.is_shown(*p),
         }).collect();
-        let mut layouts: Vec<DockMenuRow> = Builtin::ALL.iter().map(|b| DockMenuRow {
-            key: format!("layout:builtin:{}", builtin_key(*b)).into(), name: builtin_name(*b).into(), checked: chosen == Chosen::Builtin(*b),
-        }).collect();
-        layouts.extend(saved.iter().map(|n| DockMenuRow { key: format!("layout:saved:{n}").into(), name: n.into(), checked: chosen == Chosen::Saved(n.clone()) }));
         ui.set_dock_panel_rows(ModelRc::new(VecModel::from(panels)));
-        ui.set_dock_layout_rows(ModelRc::new(VecModel::from(layouts)));
-        ui.set_dock_saved_chosen(matches!(chosen, Chosen::Saved(_)));
+        self.dock_layout_menu();
         // "Move to …" in each window's ⋯ menu: the other windows.
         let names: Vec<(u32, String)> = l.windows.iter().map(|w| (w.id, window_title_of(&w.root))).collect();
         let n = self.dock.wins.borrow().len();
@@ -239,10 +251,37 @@ impl Operator {
         }
     }
 
+    /// View → Layouts: the layouts, the one in use ticked, "(changed)" after it when the arrangement is no longer
+    /// the church's saved layout it came from, and then "Update “…”" to save the changes into it.
+    fn dock_layout_menu(&self) {
+        let (chosen, saved, changed) = {
+            let p = self.dock.prefs.borrow();
+            let changed = match &p.chosen {
+                Chosen::Saved(n) => p.saved.iter().find(|s| &s.name == n).is_some_and(|s| !p.current.same_arrangement(s)),
+                Chosen::Builtin(_) => false,
+            };
+            (p.chosen.clone(), p.saved.iter().map(|s| s.name.clone()).collect::<Vec<_>>(), changed)
+        };
+        let mut layouts: Vec<DockMenuRow> = Builtin::ALL.iter().map(|b| DockMenuRow {
+            key: format!("layout:builtin:{}", builtin_key(*b)).into(), name: builtin_name(*b).into(), checked: chosen == Chosen::Builtin(*b),
+        }).collect();
+        layouts.extend(saved.iter().map(|n| {
+            let this = chosen == Chosen::Saved(n.clone());
+            let name = if this && changed { tr::layout_changed(n) } else { n.clone() };
+            DockMenuRow { key: format!("layout:saved:{n}").into(), name: name.into(), checked: this }
+        }));
+        let ui = &self.ui;
+        ui.set_dock_layout_rows(ModelRc::new(VecModel::from(layouts)));
+        ui.set_dock_saved_chosen(matches!(chosen, Chosen::Saved(_)));
+        let update = match &chosen { Chosen::Saved(n) if changed => tr::layout_update(n), _ => String::new() };
+        if ui.get_dock_update_title() != update.as_str() { ui.set_dock_update_title(update.into()) }
+    }
+
     /// Saves the panels in Settings: at once in tests, else a moment after the last change (a divider drag or
     /// several tab clicks make one save).
     fn dock_save(&self) {
         self.dock_remember_places();
+        self.dock_layout_menu();
         let me = self.me.clone();
         let save = move || {
             let Some(op) = me.upgrade() else { return };
@@ -304,6 +343,7 @@ impl Operator {
         if self.dock.wins.borrow().len() > 1 && !self.ops.is_inline() {
             let me = self.me.clone();
             self.dock.watch_timer.start(slint::TimerMode::Repeated, std::time::Duration::from_secs(3), move || {
+                // `dock_save` also says "(changed)" in View → Layouts when a saved layout's window was moved.
                 if let Some(op) = me.upgrade() && op.dock_remember_places() { op.dock_save() }
             });
         } else {
@@ -329,6 +369,11 @@ impl Operator {
         self.dock_wire(Host::Pop(&pw), id);
         let me = self.me.clone();
         pw.on_key(move |text, ctrl, alt, shift, in_text, in_bible| me.upgrade().is_some_and(|op| op.key(&text, ctrl, alt, shift, in_text, in_bible)));
+        // Which window is in front (where windows overlap), and a drag stops when the window loses the keyboard.
+        let events = crate::platform::winit_events::Dispatcher::default();
+        crate::platform::winit_events::attach(pw.window(), events.clone());
+        let me = self.me.clone();
+        events.add(move |e| if let (Some(op), crate::platform::winit_events::WindowEvent::Focused(on)) = (me.upgrade(), e) { op.dock_window_focus(id, *on) });
         let me = self.me.clone();
         pw.window().on_close_requested(move || {
             if let Some(op) = me.upgrade() { op.dock_close_window(id) }
@@ -407,6 +452,8 @@ impl Operator {
         let me = self.me.clone();
         let drag_done = move |p: i32, x: f32, y: f32| if let Some(op) = me.upgrade() && let Some(i) = op.win_index(id) { op.dock_drag_done(i, p, x, y) };
         let me = self.me.clone();
+        let drag_cancel = move |_p: i32| if let Some(op) = me.upgrade() { op.dock_drag_stop() };
+        let me = self.me.clone();
         let action = move |p: i32, a: slint::SharedString| if let Some(op) = me.upgrade() && let Some(p) = usize::try_from(p).ok().and_then(PanelId::from_index) { op.dock_panel_action(p, &a) };
         on_host!(host, |w| {
             w.on_dock_area_resized(resized.clone());
@@ -416,6 +463,7 @@ impl Operator {
             w.on_dock_tab_picked(tab.clone());
             w.on_dock_drag_moved(drag_moved.clone());
             w.on_dock_drag_done(drag_done.clone());
+            w.on_dock_drag_cancel(drag_cancel.clone());
             w.on_dock_panel_action(action.clone());
         });
     }
@@ -442,19 +490,197 @@ impl Operator {
         self.dock_relayout(i);
     }
 
-    fn dock_drag_moved(&self, i: usize, _p: i32, x: f32, y: f32) {
-        let target = self.dock.wins.borrow()[i].placed.drop_target(x, y);
-        self.host_do(i, |h| on_host!(h, |w| {
-            w.set_dock_lit_shown(target.is_some());
-            if let Some((_, _, r)) = &target { w.set_dock_lit(rect(r)) }
-        }));
+    /// A title bar dragged to (`x`, `y`) of window `i`'s dock area, which may be outside that window: the window
+    /// keeps the mouse while its button is held (Windows, macOS and X11 all send it the moves), so the drag follows
+    /// the pointer over the other windows of the app. The window under the pointer lights up where the panel would
+    /// go and shows its name at the pointer; nothing changes until the button is let go.
+    fn dock_drag_moved(&self, i: usize, p: i32, x: f32, y: f32) {
+        let Some(panel) = usize::try_from(p).ok().and_then(PanelId::from_index) else { return };
+        let Some(from) = self.dock.wins.borrow().get(i).map(|w| w.id) else { return };
+        let d = match self.dock.drag.get() {
+            Some(d) if d.panel == panel && d.from == from => d,
+            _ => { let d = Drag { panel, from, cancelled: false }; self.dock.drag.set(Some(d)); d }
+        };
+        if d.cancelled { return }
+        let (under, _) = self.dock_drag_under(i, x, y);
+        self.dock_drag_show(Some(panel), under);
     }
 
+    /// Let go: on a panel of any window of the app, it goes there (beside it or as a tab with it); over no window
+    /// of the app, it opens in a window of its own there. A window left with no panels closes.
     fn dock_drag_done(self: &Rc<Self>, i: usize, p: i32, x: f32, y: f32) {
-        self.host_do(i, |h| on_host!(h, |w| w.set_dock_lit_shown(false)));
-        let Some(p) = usize::try_from(p).ok().and_then(PanelId::from_index) else { return };
-        let Some((target, zone, _)) = self.dock.wins.borrow()[i].placed.drop_target(x, y) else { return };
-        if self.dock.prefs.borrow_mut().current.drop_on(p, target, zone) { self.dock_changed() }
+        let d = self.dock.drag.take();
+        self.dock_drag_show(None, Under::Outside);
+        let Some(panel) = usize::try_from(p).ok().and_then(PanelId::from_index) else { return };
+        // Stopped with Esc or by the window losing the keyboard, or never begun: nothing moves.
+        if !d.is_some_and(|d| d.panel == panel && !d.cancelled) { return }
+        match self.dock_drag_under(i, x, y) {
+            (Under::Window { win, x, y }, _) => {
+                let target = self.dock.wins.borrow().get(win).and_then(|w| w.placed.drop_target(x, y));
+                let Some((target, zone, _)) = target else { return };
+                if self.dock.prefs.borrow_mut().current.drop_on(panel, target, zone) { self.dock_changed_soon() }
+            }
+            (Under::Outside, Some(at)) => self.dock_tear_off(panel, i, at),
+            (Under::Outside, None) => {}
+        }
+    }
+
+    /// Esc, or the window losing the keyboard, while a panel is dragged: nothing moves, and the rest of that drag
+    /// is ignored until the button is let go.
+    pub(crate) fn dock_drag_cancel(&self) {
+        let Some(mut d) = self.dock.drag.get() else { return };
+        if d.cancelled { return }
+        d.cancelled = true;
+        self.dock.drag.set(Some(d));
+        self.dock_drag_show(None, Under::Outside);
+    }
+
+    /// The title bar let the drag go (a right click, or the window lost the mouse): it is over.
+    fn dock_drag_stop(&self) {
+        self.dock.drag.set(None);
+        self.dock_drag_show(None, Under::Outside);
+    }
+
+    /// A panel is being dragged (and was not stopped).
+    pub(crate) fn dock_dragging(&self) -> bool { self.dock.drag.get().is_some_and(|d| !d.cancelled) }
+
+    /// A window of the app came to the front (`on`) or lost the keyboard.
+    pub(crate) fn dock_window_focus(&self, id: u32, on: bool) {
+        if on {
+            {
+                let mut recent = self.dock.recent.borrow_mut();
+                recent.retain(|r| *r != id);
+                recent.insert(0, id);
+            }
+            // A drag stopped by another program taking the keyboard never saw its button let go.
+            if self.dock.drag.get().is_some_and(|d| d.cancelled) { self.dock.drag.set(None) }
+        } else {
+            self.dock_drag_cancel();
+        }
+    }
+
+    /// What is under the pointer at (`x`, `y`) of window `i`'s dock area, and that point on the screen. When the
+    /// system cannot say where the windows are (Wayland), the drag stays in its window, as before.
+    fn dock_drag_under(&self, i: usize, x: f32, y: f32) -> (Under, Option<(f32, f32)>) {
+        let wins = self.dock_on_screen();
+        let Some(src) = wins.iter().find(|w| w.win == i) else { return (Under::Window { win: i, x, y }, None) };
+        let (sx, sy) = src.to_screen(x, y);
+        (drag::under(&wins, sx, sy, self.dock_front_at(sx, sy, &wins)), Some((sx, sy)))
+    }
+
+    /// Lights up where the panel would go in the window under the pointer, with its name at the pointer; every
+    /// other window shows nothing (`None`: no window does).
+    fn dock_drag_show(&self, panel: Option<PanelId>, under: Under) {
+        let n = self.dock.wins.borrow().len();
+        for k in 0..n {
+            let at = match (panel, under) { (Some(p), Under::Window { win, x, y }) if win == k => Some((p, x, y)), _ => None };
+            let lit = at.and_then(|(_, x, y)| self.dock.wins.borrow()[k].placed.drop_target(x, y)).map(|t| rect(&t.2));
+            self.host_do(k, |h| on_host!(h, |w| {
+                w.set_dock_lit_shown(lit.is_some());
+                if let Some(r) = &lit { w.set_dock_lit(r.clone()) }
+                match at {
+                    Some((p, x, y)) => { w.set_dock_ghost_x(x); w.set_dock_ghost_y(y); w.set_dock_ghost(p.index() as i32); }
+                    None => w.set_dock_ghost(-1),
+                }
+            }));
+        }
+    }
+
+    /// The open windows on the screen, front to back. Empty when the system cannot say where they are.
+    fn dock_on_screen(&self) -> Vec<OnScreen> {
+        let ids: Vec<u32> = self.dock.wins.borrow().iter().map(|w| w.id).collect();
+        let order = drag::front_to_back(&ids, &self.dock.recent.borrow());
+        order.into_iter().filter_map(|id| {
+            let i = self.win_index(id)?;
+            let (inner, scale) = self.dock_inner(i, id)?;
+            let origin = self.host_get(i, |h| on_host!(h, |w| (w.get_dock_origin_x(), w.get_dock_origin_y())))?;
+            Some(OnScreen { win: i, inner, scale, origin })
+        }).collect()
+    }
+
+    /// Window `i`'s inside on the screen (physical pixels) and its scale.
+    fn dock_inner(&self, i: usize, id: u32) -> Option<(WinRect, f32)> {
+        #[cfg(test)]
+        if let Some((_, r)) = self.dock.fake_screen.borrow().iter().find(|(f, _)| *f == id).copied() {
+            return self.host_get(i, |h| on_host!(h, |w| (r, w.window().scale_factor())));
+        }
+        let _ = id;
+        use slint::winit_030::WinitWindowAccessor;
+        self.host_get(i, |h| on_host!(h, |w| w.window().with_winit_window(|ww| {
+            let p = ww.inner_position().ok()?;
+            let s = ww.inner_size();
+            Some((WinRect { x: p.x, y: p.y, w: s.width, h: s.height }, ww.scale_factor() as f32))
+        }).flatten())).flatten()
+    }
+
+    /// Which window is in front at a screen point, as Windows says: one of ours, or something else (another
+    /// program, the desktop). Elsewhere the order the windows were last brought to the front decides.
+    #[cfg(windows)]
+    fn dock_front_at(&self, x: f32, y: f32, wins: &[OnScreen]) -> Option<Option<usize>> {
+        use windows_sys::Win32::{Foundation::POINT, UI::WindowsAndMessaging::{GA_ROOT, GetAncestor, WindowFromPoint}};
+        if self.ops.is_inline() { return None }
+        let handles: Vec<(usize, isize)> = wins.iter().filter_map(|w| Some((w.win, self.dock_hwnd(w.win)?))).collect();
+        if handles.len() != wins.len() { return None }
+        // SAFETY: plain Win32 questions about a point and the window handle the first one gives.
+        let top = unsafe { GetAncestor(WindowFromPoint(POINT { x: x.floor() as i32, y: y.floor() as i32 }), GA_ROOT) };
+        Some(handles.iter().find(|(_, h)| *h == top as isize).map(|(w, _)| *w))
+    }
+
+    #[cfg(not(windows))]
+    fn dock_front_at(&self, _x: f32, _y: f32, _wins: &[OnScreen]) -> Option<Option<usize>> { None }
+
+    /// Window `i`'s Win32 handle.
+    #[cfg(windows)]
+    fn dock_hwnd(&self, i: usize) -> Option<isize> {
+        use slint::winit_030::{WinitWindowAccessor, winit::raw_window_handle::{HasWindowHandle, RawWindowHandle}};
+        self.host_get(i, |h| on_host!(h, |w| w.window().with_winit_window(|ww| match ww.window_handle().ok()?.as_raw() {
+            RawWindowHandle::Win32(h) => Some(h.hwnd.get()),
+            _ => None,
+        }).flatten())).flatten()
+    }
+
+    /// The monitors, for a window torn off at the pointer.
+    fn dock_monitors(&self) -> Vec<drag::Monitor> {
+        use slint::winit_030::WinitWindowAccessor;
+        self.ui.window().with_winit_window(|w| w.available_monitors().map(|m| {
+            let (p, s) = (m.position(), m.size());
+            drag::Monitor { name: m.name().unwrap_or_default(), rect: WinRect { x: p.x, y: p.y, w: s.width, h: s.height } }
+        }).collect()).unwrap_or_default()
+    }
+
+    /// A panel let go over no window of the app (`at`, on the screen): a window of its own opens there, as large as
+    /// the panel was. A panel alone in a window of its own moves that window there instead.
+    fn dock_tear_off(self: &Rc<Self>, p: PanelId, from: usize, at: (f32, f32)) {
+        let size = self.dock.wins.borrow().get(from).and_then(|w| w.placed.panel(p).map(|pp| (pp.rect.w, pp.rect.h))).unwrap_or(p.min_size());
+        let scale = self.host_get(from, |h| on_host!(h, |w| w.window().scale_factor())).unwrap_or(1.0);
+        let (monitor, place) = drag::tear_off_place(at.0.round() as i32, at.1.round() as i32, size, scale, &self.dock_monitors());
+        let alone = {
+            let mut prefs = self.dock.prefs.borrow_mut();
+            let l = &mut prefs.current;
+            match l.window_of(p) {
+                Some(w) if w > 0 && l.windows[w].root.panels() == [p] => {
+                    l.windows[w].place = Some(place);
+                    l.windows[w].monitor = monitor.clone();
+                    Some(w)
+                }
+                _ => None,
+            }
+        };
+        if let Some(w) = alone {
+            let pw = self.dock.wins.borrow().get(w).and_then(|w| w.window.as_ref().map(|p| p.clone_strong()));
+            if let Some(pw) = pw { self.dock_position(&pw, Some(place), &monitor) }
+            return self.dock_save();
+        }
+        let done = self.dock.prefs.borrow_mut().current.pop_out(&[p], Some(place), &monitor).is_some();
+        if done { self.dock_changed_soon() } else { self.toast(tr::main_keeps_a_panel(), false) }
+    }
+
+    /// `dock_changed` once the event that asked for it is over: a drag let go in a window of its own may close
+    /// that window, which must not happen while it is still handling the release. At once in tests.
+    fn dock_changed_soon(self: &Rc<Self>) {
+        if self.ops.is_inline() { return self.dock_changed() }
+        let me = self.me.clone();
+        slint::Timer::single_shot(std::time::Duration::ZERO, move || if let Some(op) = me.upgrade() { op.dock_changed() });
     }
 
     /// The ⋯ menu of a panel's title bar.
@@ -521,6 +747,10 @@ impl Operator {
             return self.dock_choose(Chosen::Saved(name.to_string()), l);
         }
         match key {
+            "update" => {
+                let chosen = self.dock.prefs.borrow().chosen.clone();
+                if let Chosen::Saved(name) = chosen { self.dock_store_as(&name) }
+            }
             "reset" => self.dock_choose(Chosen::Builtin(Builtin::Standard), Layout::builtin(Builtin::Standard)),
             "save-as" => self.dock_save_as(),
             "rename" => self.dock_rename(),
@@ -671,6 +901,8 @@ pub fn wire(op: &Rc<Operator>) {
         op.ui.set_dock_bars(ModelRc::from(wins[0].bars.clone()));
     }
     op.dock_wire(Host::Main(&op.ui), 0);
+    let me = op.me.clone();
+    op.window_events().add(move |e| if let (Some(op), crate::platform::winit_events::WindowEvent::Focused(on)) = (me.upgrade(), e) { op.dock_window_focus(0, *on) });
     let me = op.me.clone();
     op.ui.on_top_need_changed(move || if let Some(op) = me.upgrade() { op.fit_top_bar() });
     let me = op.me.clone();

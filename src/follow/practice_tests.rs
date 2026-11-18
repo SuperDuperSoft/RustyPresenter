@@ -1,11 +1,16 @@
 use super::*;
+#[cfg(unix)]
 use crate::follow::audio::NoEar;
+#[cfg(unix)]
 use crate::follow::testing::{FakeEar, VERSE_1, VERSE_2};
+#[cfg(unix)]
 use crate::follow::log::LogAction;
 use crate::follow::testing::{SONG, text};
+#[cfg(unix)]
 use crate::follow::voice::tests::{silence, singing};
 
 /// A 16 kHz mono 16-bit WAV file.
+#[cfg(unix)]
 fn wav(pcm: &[i16]) -> Vec<u8> {
     let data = (pcm.len() * 2) as u32;
     let mut b = Vec::with_capacity(44 + data as usize);
@@ -91,7 +96,7 @@ fn the_last_runs_listening_log_is_kept() {
 /// The real ear on real sound: the speech model on this computer (`fetch::deps_dir`) hears a recording of the
 /// test song's words (`RP_REAL_WAV`: 16 kHz, mono, 16-bit WAV) and the follower's listening log is printed. Not
 /// run by itself: `cargo test real_ear -- --ignored --nocapture`. Spoken words are talk to the rules, so no slide
-/// is expected to change; what is checked is that words are heard and placed.
+/// is expected to change. The trace includes words recognized by the model and rejected as speech.
 #[cfg(feature = "follow-model")]
 #[test]
 #[ignore]
@@ -114,7 +119,8 @@ fn real_ear_hears_the_songs_words() {
     }
     for l in &lines { println!("REAL {l}") }
     let secs = pcm.len() as f64 / 16000.0;
-    println!("REAL {secs:.1} s of sound heard in {:.1} s; {} words heard", began.elapsed().as_secs_f64(), lines.iter().filter(|l| l.contains("heard ")).count());
+    let recognized = lines.iter().filter(|l| l.contains("  heard ") || l.contains("  ignored lyric evidence ")).count();
+    println!("REAL {secs:.1} s of sound heard in {:.1} s; {recognized} words recognized", began.elapsed().as_secs_f64());
     assert!(lines.iter().any(|l| l.contains("the ear hears words: yes")), "no speech model on this computer");
-    assert!(lines.iter().filter(|l| l.contains("heard ")).count() >= 10, "hardly a word was heard");
+    assert!(recognized >= 10, "hardly a word was heard");
 }
