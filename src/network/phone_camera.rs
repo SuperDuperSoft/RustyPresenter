@@ -39,9 +39,9 @@ pub fn page_address(app: &App) -> Option<String> { app.lan_url.as_deref().map(ca
 /// The camera page beside the phone remote's address.
 fn camera_address(remote: &str) -> String { remote.strip_suffix("/remote").unwrap_or(remote).to_string() + "/camera" }
 
-/// Settings → Media → Livestream → "Phone as a camera".
+/// Settings → Remote and network → Phone camera and microphone: the address to open on the phone.
 pub fn settings_help(app: &App) -> String {
-    match page_address(app) { Some(a) => cam::tr::settings_help(&a), None => cam::tr::no_network() }
+    page_address(app).unwrap_or_else(cam::tr::no_network)
 }
 
 /// What the page needs: its words, whether this phone is paired (and a password is asked when pairing), the private

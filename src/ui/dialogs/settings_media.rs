@@ -1,4 +1,4 @@
-//! Settings → Media (N21, N24): the form's fields, the headphones list, and "Clean up unused media…" (N23), which
+//! Settings → General → Screens and graphics and media (N21, N24): the form's fields, the headphones list, and "Clean up unused media…" (N23), which
 //! File → Clean up unused media… opens too.
 use super::{ask::notice, confirm, settings_audio, strings as dlg};
 use crate::{
@@ -35,7 +35,7 @@ pub(super) fn read_form(g: &SettingsDlg, m: &mut MediaPrefs) {
     m.listen_device = read_listen(g);
 }
 
-/// The headphones list: the sound outputs as Settings → Video lists them, with "None" first instead of the default.
+/// The headphones list: the sound outputs as Settings → General → Screens and graphics lists them, with "None" first instead of the default.
 pub(super) fn fill_listen(g: &SettingsDlg, devices: &[AudioDevice], saved: &str) {
     let mut c = settings_audio::choices(devices, saved);
     c.labels[0] = crate::tr!("None");
@@ -106,7 +106,7 @@ mod tests {
         let op = open_window(&app);
         refresh(&op);
         settings::open(&op, SettingsTab::Media);
-        let g = op.ui.global::<SettingsDlg>();
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
         assert_eq!(g.get_tab(), settings::tab_index(SettingsTab::Media));
         assert_eq!((g.get_media_scale(), g.get_picture_secs(), g.get_video_end(), g.get_channels()), (2, 3, 3, 3));
         assert_eq!(g.get_delay_ms(), "120");
@@ -125,7 +125,7 @@ mod tests {
         crate::ui::ui_test_init();
         let app = test_app();
         let op = open_window(&app);
-        let g = op.ui.global::<SettingsDlg>();
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
         fill_listen(&g, &[dev("wasapi/{a}", "Speakers"), dev("wasapi/{b}", "Headphones")], "wasapi/{b}");
         let labels: Vec<String> = g.get_listen_labels().iter().map(Into::into).collect();
         assert_eq!(labels, ["None", "Speakers", "Headphones"]);

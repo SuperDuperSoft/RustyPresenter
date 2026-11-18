@@ -1,4 +1,4 @@
-//! Settings → Video → Graphics: which Slint renderer draws the windows (`choose_backend`), which choices this build
+//! Settings → General → Screens and graphics → Graphics: which Slint renderer draws the windows (`choose_backend`), which choices this build
 //! offers, and what is tried when the chosen one cannot be used (Auto, then Software).
 //!
 //! OpenGL is FemtoVG, which draws video under the scene through OpenGL (`DrawMode::OpenGl`). Vulkan, Direct3D (12)
@@ -271,7 +271,7 @@ pub fn fell_back(wanted: Graphics, used: Graphics) -> String {
 }
 
 pub fn safe_mode_notice() -> String {
-    tr!("RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video.")
+    tr!("RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → General → Screens and graphics.")
 }
 
 #[cfg(test)]
@@ -385,6 +385,6 @@ mod tests {
         assert_eq!(in_use(OpenGl), "In use now: OpenGL");
         assert_eq!(fell_back(Vulkan, Auto), "The Vulkan graphics mode could not be used on this computer, so RustyPresenter is using Automatic.");
         assert_eq!(restart_to_use(), "Restart RustyPresenter to use the new graphics setting.");
-        assert_eq!(safe_mode_notice(), "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → Video.");
+        assert_eq!(safe_mode_notice(), "RustyPresenter had trouble with the graphics card, so it started in safe mode. You can change this in Settings → General → Screens and graphics.");
     }
 }

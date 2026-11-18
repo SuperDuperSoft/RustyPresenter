@@ -49,7 +49,7 @@ fn run_headless(app: &Arc<App>, rt: &tokio::runtime::Runtime) {
 
 fn main() {
     rustypresenter::import::libreoffice::fake_soffice_main();
-    // Settings → Video → "Test which is fastest" runs this program once per graphics choice.
+    // Settings → General → Screens and graphics → "Test which is fastest" runs this program once per graphics choice.
     if let Some(test) = video::bench::child_args(std::env::args_os().skip(1)) { std::process::exit(rustypresenter::ui::graphics_test::run(test)); }
     let args = supervisor::parse_args(std::env::args_os().skip(1));
     // The computer's language until the church's saved one is read, so a problem at start is in it too.
@@ -114,7 +114,7 @@ fn main() {
     }
     rt.spawn(async { if tokio::signal::ctrl_c().await.is_ok() { let _ = slint::quit_event_loop(); } });
 
-    // Settings → Video → Graphics, or software after two failed starts or with `--safe-mode`.
+    // Settings → General → Screens and graphics → Graphics, or software after two failed starts or with `--safe-mode`.
     let graphics = safe_mode::start(&app, &root, args.safe_mode);
     let mode = graphics.chosen.draw;
     let mpv = match video::ffi::Mpv::load() {

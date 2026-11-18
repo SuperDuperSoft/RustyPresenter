@@ -8,7 +8,7 @@ pub fn new_song() -> String { tr!("New song") }
 pub fn edit_song() -> String { tr!("Edit song") }
 pub fn services() -> String { tr!("Services") }
 pub fn screens() -> String { tr!("Screens") }
-pub fn phone() -> String { tr!("Phone remote") }
+pub fn phone() -> String { tr!("Remote") }
 pub fn settings() -> String { tr!("Settings") }
 
 /// The buttons of the browser's `confirm()` and `prompt()`, which these overlays replace.

@@ -263,8 +263,8 @@ fn dialog_blocks_presentation_keys() {
     row.mock_single_click(PointerEventButton::Left);
     row.mock_single_click(PointerEventButton::Left);
     f.sync();
-    f.click("TopBar::settings-btn");
-    assert!(matches!(f.op.dialog(), Some(DialogKind::Settings(_))), "Settings is open: {:?}", f.op.dialog());
+    f.click("TopBar::screens-btn");
+    assert!(matches!(f.op.dialog(), Some(DialogKind::Screens)), "Screens is open: {:?}", f.op.dialog());
     let version = f.app.live_view().version;
     f.key(Key::RightArrow);
     assert_eq!(f.app.live_view().version, version, "→ does nothing while a dialog is open");

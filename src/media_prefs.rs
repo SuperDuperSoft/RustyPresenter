@@ -1,4 +1,4 @@
-//! Settings → Media (N21, N24): what new pictures and videos do, and where the sound goes. Turned into libmpv
+//! Settings → General → Screens and graphics and media (N21, N24): what new pictures and videos do, and where the sound goes. Turned into libmpv
 //! options here, so the room and the tests read the same thing.
 use crate::model::EndAction;
 use crate::video::Role;
@@ -42,7 +42,7 @@ pub const PICTURE_SECS: [u16; 8] = [0, 5, 8, 10, 15, 20, 30, 60];
 /// The longest main output delay.
 pub const MAX_DELAY_MS: u32 = 2000;
 
-/// Settings → Media.
+/// Settings → General → Screens and graphics and media.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 #[serde(default)]
 pub struct MediaPrefs {

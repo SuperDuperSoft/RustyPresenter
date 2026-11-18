@@ -15,7 +15,7 @@ pub mod strings {
     use crate::tr;
     pub fn no_service() -> String { tr!("No service is open.") }
     pub fn no_songs() -> String { tr!("This service has no songs.") }
-    pub fn no_themes() -> String { tr!("There are no saved themes to export. Make one in Settings → Themes.") }
+    pub fn no_themes() -> String { tr!("There are no saved themes to export. Make one in Settings → Look → Themes and backgrounds.") }
     pub fn not_a_theme_pack() -> String { tr!("This is not a RustyPresenter theme pack.") }
     pub fn newer_pack() -> String { tr!("This theme pack was made by a newer RustyPresenter. Update to open it.") }
     pub fn clipboard_empty() -> String { tr!("The clipboard has no text. Copy the words first.") }

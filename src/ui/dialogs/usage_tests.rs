@@ -1,9 +1,10 @@
 use super::*;
+use crate::ui::dialogs::settings::testing::{find_any as find, find_all_any as find_all};
 use crate::{
     app::{App, test_app},
     ui::{
         dialogs::{SettingsTab, ask, settings},
-        operator::{files::testing::will_pick, window::testing::{find, find_all, open as open_window, refresh}},
+        operator::{files::testing::will_pick, window::testing::{open as open_window, refresh}},
     },
     usage::UsageEntry,
 };
@@ -34,7 +35,11 @@ fn toasts(op: &Operator) -> Vec<String> {
     find_all(op, "ToastStack::toast").iter().map(|t| t.accessible_label().unwrap_or_default().to_string()).collect()
 }
 
-fn asked(op: &Operator) -> Option<String> { slint::Model::row_data(&op.ui.get_ask(), 0).map(|a| a.text.to_string()) }
+/// The question over the operator window, or over Settings.
+fn asked(op: &Operator) -> Option<String> {
+    let ask = slint::Model::row_data(&op.ui.get_ask(), 0).or_else(|| slint::Model::row_data(&crate::ui::dialogs::settings_window::win(op).get_ask(), 0));
+    ask.map(|a| a.text.to_string())
+}
 
 /// A logged use today of a song with this CCLI number.
 fn log_today(app: &App, title: &str, ccli: &str) -> Uuid {
@@ -151,7 +156,7 @@ fn settings_link_opens_the_report_at_once_without_changes() {
     let op = opened(&app);
     settings::open(&op, SettingsTab::Songs);
     settle();
-    click(&op, "SettingsSongsGeneral::usage-report");
+    click(&op, "SongsPage::usage-report");
     assert_eq!(asked(&op), None);
     assert_eq!(op.dialog(), Some(DialogKind::Usage));
 }
@@ -162,10 +167,10 @@ fn settings_edits_survive_opening_usage_report() {
     let op = opened(&app);
     settings::open(&op, SettingsTab::Songs);
     settle();
-    op.ui.global::<crate::ui::SettingsDlg>().set_ccli("998877".into());
-    click(&op, "SettingsSongsGeneral::usage-report");
+    crate::ui::dialogs::settings_window::win(&op).global::<crate::ui::SettingsDlg>().set_ccli("998877".into());
+    click(&op, "SongsPage::usage-report");
     assert_eq!(asked(&op).as_deref(), Some(strings::save_first().as_str()));
-    ask::answer(&op, true, String::new());
+    ask::answer_settings(&op, true, String::new());
     settle();
     assert_eq!(app.data.lock().unwrap().settings.church_ccli, "998877");
     assert_eq!(op.dialog(), Some(DialogKind::Usage));

@@ -106,10 +106,10 @@ pub mod tr {
     pub fn start() -> String { tr!("Start sending sound") }
     pub fn stop() -> String { tr!("Stop") }
     pub fn sending() -> String { tr!("Sending to the stream. Keep this page open and the phone awake.") }
-    pub fn not_taken() -> String { tr!("Sending, but the stream is not using this phone yet. Choose \"Phone microphone\" in Settings → Media → Livestream, then go live.") }
+    pub fn not_taken() -> String { tr!("Sending, but the stream is not using this phone yet. Choose \"Phone microphone\" in Settings → Livestream → Sound, then go live.") }
     pub fn needs_secure() -> String { tr!("The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it.") }
     pub fn no_microphone() -> String { tr!("The phone did not let the page use its microphone. Allow it in the browser's settings for this page, then try again.") }
-    pub fn needs_stage_view() -> String { tr!("Turn on the stage screen for phones in RustyPresenter (Settings → Network…), and sign in to it on this phone first.") }
+    pub fn needs_stage_view() -> String { tr!("Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first.") }
 }
 
 #[cfg(test)]

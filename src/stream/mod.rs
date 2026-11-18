@@ -139,21 +139,67 @@ pub struct Quality {
     /// kbit/s; 0: the main stream's (or, with a size of its own, that size's own).
     #[serde(skip_serializing_if = "is_zero")]
     pub kbps: u32,
+    /// The largest picture the destination's service takes (`Service::max_size`), set as Go Live starts; never saved.
+    #[serde(skip)]
+    pub cap: Option<(u32, u32)>,
 }
 
 fn is_zero(v: &u32) -> bool { *v == 0 }
 
+impl Service {
+    /// The largest wide picture the service takes for a live stream (`None`: no limit the app knows of). YouTube
+    /// takes 4K; Facebook, Twitch, Instagram, X and TikTok stop at 1080p.
+    pub fn max_size(self) -> Option<(u32, u32)> {
+        match self {
+            Service::YouTube => Some((3840, 2160)),
+            Service::Custom => None,
+            Service::Facebook | Service::Twitch | Service::Instagram | Service::X | Service::TikTok => Some((1920, 1080)),
+        }
+    }
+}
+
+/// `size` made to fit inside `cap`, keeping its shape and even sides; `size` itself when it fits.
+pub fn fit_inside(size: (u32, u32), cap: (u32, u32)) -> (u32, u32) {
+    if size.0 <= cap.0 && size.1 <= cap.1 { return size }
+    let k = (f64::from(cap.0) / f64::from(size.0)).min(f64::from(cap.1) / f64::from(size.1));
+    (((f64::from(size.0) * k) as u32) & !1, ((f64::from(size.1) * k) as u32) & !1)
+}
+
+/// What Settings says about destinations that are on and take less than the picture size `main`: each gets a smaller
+/// copy, made by the computer while live (one line each; empty when none).
+pub fn cap_notes(main: crate::record::Preset, destinations: &[Destination]) -> Vec<String> {
+    let (w, h) = main.size();
+    destinations.iter().filter(|d| d.on && d.quality.size.is_none()).filter_map(|d| {
+        let cap = d.service.max_size()?;
+        (w > cap.0 || h > cap.1).then(|| tr::capped(d.title(), &format!("{}p", cap.1)))
+    }).collect()
+}
+
 impl Quality {
     pub fn is_same(&self) -> bool { self.size.is_none() && self.kbps == 0 }
 
+    /// This quality as Go Live uses it for `service`: with the service's largest picture size.
+    pub fn for_service(self, service: Service) -> Quality { Quality { cap: service.max_size(), ..self } }
+
     /// How its sender encodes the picture again (`send::Own`), for a main stream of `main` at `main_kbps`, made by
     /// `encoder` at `fps`; `None` when it is the main stream's (copied, no second encode). A tall destination gets
-    /// the size turned on its side.
+    /// the size turned on its side. A main stream bigger than the service takes is made smaller for it.
     pub fn own(&self, tall: bool, main: crate::record::Preset, main_kbps: u32, encoder: &'static str, fps: u32) -> Option<send::Own> {
         let size = self.size.filter(|s| *s != main);
-        let kbps = if self.kbps > 0 { self.kbps } else { size.map_or(main_kbps, |s| s.max_kbps()) };
+        let kbps = if self.kbps > 0 { self.kbps } else { size.map_or(main_kbps, |s| s.kbps_at(fps)) };
+        let mut size = size.map(|s| s.size());
+        // The service's limit, for the main size or the destination's own.
+        if let Some(cap) = self.cap {
+            let wanted = size.unwrap_or(main.size());
+            let fitted = fit_inside(wanted, cap);
+            if fitted != wanted { size = Some(fitted) }
+        }
+        let kbps = match (size, self.kbps) {
+            (Some((w, h)), 0) if self.size.is_none() => crate::record::Preset::custom(w, h).kbps_at(fps).min(main_kbps),
+            _ => kbps,
+        };
         if size.is_none() && kbps == main_kbps { return None }
-        let size = size.map(|s| if tall { crate::record::args::tall_size(s.size()) } else { s.size() });
+        let size = size.map(|s| if tall { crate::record::args::tall_size(s) } else { s });
         Some(send::Own { size, kbps, encoder, fps })
     }
 }
@@ -273,6 +319,10 @@ pub fn redact(line: &str, addresses: &[String]) -> String {
 /// What the operator is told about streaming.
 pub mod tr {
     use crate::tr;
+    /// Settings → Livestream: a destination that takes a smaller picture than the one chosen.
+    pub fn capped(name: &str, most: &str) -> String {
+        tr!("{name} takes at most {most}: it gets a smaller copy, made by this computer while live.", name = name, most = most)
+    }
     /// After a stream: how long it ran, and how each destination did (`(name, drops, ever connected)`).
     pub fn summary(secs: u64, rows: &[(String, u32, bool)]) -> String {
         let mut parts = vec![tr!("The stream ran {time}.", time = crate::record::clock(secs))];
@@ -290,10 +340,10 @@ pub mod tr {
     pub fn live_ndi_only() -> String { tr!("Live over NDI only: no destinations are switched on. Recording too.") }
     pub fn live_on(names: &str) -> String { tr!("Going live on {names}. Recording too.", names = names) }
     pub fn connected(name: &str) -> String { tr!("{name}: the stream is going out.", name = name) }
-    pub fn never_connected(name: &str) -> String { tr!("{name} has not connected after several tries. Check the stream key in Settings → Media → Livestream, and the internet. Still trying; the recording goes on.", name = name) }
+    pub fn never_connected(name: &str) -> String { tr!("{name} has not connected after several tries. Check the stream key in Settings → Livestream → Where to stream, and the internet. Still trying; the recording goes on.", name = name) }
     pub fn lost(name: &str) -> String { tr!("{name} lost its connection. Trying again by itself; the recording goes on.", name = name) }
     pub fn ndi_missing() -> String { tr!("Nothing goes out over NDI: it needs the free NDI Tools from ndi.video on this computer. The livestream goes on without it.") }
-    pub fn nothing_ready() -> String { tr!("Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Media → Livestream.") }
+    pub fn nothing_ready() -> String { tr!("Go Live needs a destination that is switched on and has its stream key. Set one up in Settings → Livestream → Where to stream.") }
     pub fn not_ready(name: &str, why: &str) -> String { tr!("{name} is not streamed to: {why}", name = name, why = why) }
     pub fn no_key() -> String { tr!("it has no stream key") }
     pub fn no_address() -> String { tr!("it has no address") }
@@ -310,7 +360,7 @@ pub mod tr {
     pub fn camera_never() -> String { tr!("The camera is not sending pictures, so the stream shows the slides. Check that it is plugged in and that no other program is using it; it is tried again by itself.") }
     pub fn camera_back() -> String { tr!("The camera is back in the stream.") }
     pub fn too_slow(name: &str) -> String {
-        tr!("{name}: the internet is not fast enough, so the stream skips. Choose 720p in Settings → Media → Recording, or switch a destination off.", name = name)
+        tr!("{name}: the internet is not fast enough, so the stream skips. Choose a smaller picture size in Settings → Livestream → Picture and quality, or switch a destination off.", name = name)
     }
     pub fn licence_note() -> String {
         tr!("You are live. Streaming worship songs needs a streaming licence (for example CCLI's Streaming License) as well as your church's usual copyright licence, and videos or music in the stream need their owners' permission too. This note is shown once.")
@@ -395,18 +445,30 @@ mod tests {
     #[test]
     fn a_second_encode_only_when_a_destination_differs_from_the_main_stream() {
         use crate::record::Preset;
-        let q = |size, kbps| Quality { size, kbps };
+        let q = |size, kbps| Quality { size, kbps, cap: None };
         assert_eq!(q(None, 0).own(false, Preset::P1080, 6000, "libx264", 30), None);
         assert_eq!(q(Some(Preset::P1080), 0).own(false, Preset::P1080, 6000, "libx264", 30), None, "the same size: copied");
         assert_eq!(q(None, 6000).own(false, Preset::P1080, 6000, "libx264", 30), None, "the same bitrate: copied");
         assert_eq!(q(Some(Preset::P720), 0).own(false, Preset::P1080, 6000, "libx264", 30), Some(send::Own { size: Some((1280, 720)), kbps: 3000, encoder: "libx264", fps: 30 }));
         assert_eq!(q(Some(Preset::P720), 2000).own(true, Preset::P1080, 6000, "h264_nvenc", 60), Some(send::Own { size: Some((720, 1280)), kbps: 2000, encoder: "h264_nvenc", fps: 60 }));
         assert_eq!(q(None, 2500).own(false, Preset::P1080, 6000, "libx264", 30), Some(send::Own { size: None, kbps: 2500, encoder: "libx264", fps: 30 }));
+        // A 4K stream: YouTube takes it as it is; Facebook gets a 1080p copy at 1080p's bitrate, not a silent failure.
+        let main = Preset::P2160;
+        let full = main.kbps_at(30);
+        assert_eq!(q(None, 0).for_service(Service::YouTube).own(false, main, full, "libx264", 30), None);
+        assert_eq!(q(None, 0).for_service(Service::Facebook).own(false, main, full, "libx264", 30), Some(send::Own { size: Some((1920, 1080)), kbps: 6000, encoder: "libx264", fps: 30 }));
+        assert_eq!(q(None, 0).for_service(Service::Custom).own(false, main, full, "libx264", 30), None, "a server of the church's own: no limit");
+        assert_eq!(fit_inside((2560, 1600), (1920, 1080)), (1728, 1080));
+        let fb = Destination { on: true, ..dest(Service::Facebook, "", "k") };
+        let yt = Destination { on: true, ..dest(Service::YouTube, "", "k") };
+        assert_eq!(cap_notes(main, &[fb.clone(), yt.clone()]).len(), 1);
+        assert!(cap_notes(main, &[fb.clone()])[0].starts_with("Facebook takes at most 1080p"));
+        assert!(cap_notes(Preset::P1080, &[fb, yt]).is_empty());
     }
 
     #[test]
     fn a_destination_keeps_its_own_quality() {
-        let d = Destination { quality: Quality { size: Some(crate::record::Preset::P720), kbps: 2500 }, ..dest(Service::Twitch, "", "k") };
+        let d = Destination { quality: Quality { size: Some(crate::record::Preset::P720), kbps: 2500, cap: None }, ..dest(Service::Twitch, "", "k") };
         let json = serde_json::to_string(&d).unwrap();
         assert_eq!(serde_json::from_str::<Destination>(&json).unwrap().quality, d.quality);
         let same = serde_json::to_string(&dest(Service::Twitch, "", "k")).unwrap();

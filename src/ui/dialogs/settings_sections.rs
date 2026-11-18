@@ -40,7 +40,7 @@ fn kind_name(l: &SectionLook, k: SectionKind) -> String { l.name(k).unwrap_or_el
 
 /// Fills the page and points its callbacks at this dialog.
 pub fn open(op: &Rc<Operator>, edit: &Rc<Edit>) {
-    let g = op.ui.global::<SectionsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SectionsDlg>();
     g.set_picking(-1);
     g.set_new_section(SharedString::new());
     g.set_new_family(0);
@@ -56,7 +56,7 @@ pub fn open(op: &Rc<Operator>, edit: &Rc<Edit>) {
 
 /// The page from the edited look.
 fn fill(op: &Operator, edit: &Edit) {
-    let g = op.ui.global::<SectionsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SectionsDlg>();
     let s = edit.settings.borrow();
     let l = &s.sections;
     let kinds: Vec<SectionKindRow> = KINDS.iter().map(|k| {
@@ -86,7 +86,7 @@ fn change(op: &Operator, edit: &Edit, redraw: bool, f: impl FnOnce(&mut SectionL
 }
 
 fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
-    let g = op.ui.global::<SectionsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SectionsDlg>();
     let ctx = |op: &Rc<Operator>, edit: &Rc<Edit>| -> (Weak<Operator>, Rc<Edit>) { (Rc::downgrade(op), edit.clone()) };
     let (me, e) = ctx(op, edit);
     g.on_name_edited(move |i, t| if let (Some(op), Some(k)) = (me.upgrade(), KINDS.get(i.max(0) as usize)) {
@@ -99,8 +99,8 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     let (me, e) = ctx(op, edit);
     g.on_pick(move |hex| {
         let Some(op) = me.upgrade() else { return };
-        let at = op.ui.global::<SectionsDlg>().get_picking();
-        op.ui.global::<SectionsDlg>().set_picking(-1);
+        let at = crate::ui::dialogs::settings_window::win(&op).global::<SectionsDlg>().get_picking();
+        crate::ui::dialogs::settings_window::win(&op).global::<SectionsDlg>().set_picking(-1);
         change(&op, &e, true, |l| match at {
             i if (0..LABEL_PICK).contains(&i) => if let Some(k) = KINDS.get(i as usize) { kind_mut(l, *k).color = hex.to_string() },
             i if i >= LABEL_PICK => if let Some(x) = labels_mut(l).get_mut((i - LABEL_PICK) as usize) { x.color = hex.to_string() },
@@ -110,7 +110,7 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     let (me, e) = ctx(op, edit);
     g.on_add_section(move || {
         let Some(op) = me.upgrade() else { return };
-        let g = op.ui.global::<SectionsDlg>();
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SectionsDlg>();
         let name = g.get_new_section().trim().to_string();
         let Some(kind) = KINDS.get(g.get_new_family().max(0) as usize).copied() else { return };
         if name.is_empty() { return }
@@ -127,7 +127,7 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     let (me, e) = ctx(op, edit);
     g.on_add_label(move || {
         let Some(op) = me.upgrade() else { return };
-        let g = op.ui.global::<SectionsDlg>();
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SectionsDlg>();
         let name = g.get_new_label().trim().to_string();
         if name.is_empty() { return }
         g.set_new_label(SharedString::new());
@@ -146,7 +146,7 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     });
     let (me, e) = ctx(op, edit);
     g.on_reset(move || if let Some(op) = me.upgrade() {
-        op.ui.global::<SectionsDlg>().set_picking(-1);
+        crate::ui::dialogs::settings_window::win(&op).global::<SectionsDlg>().set_picking(-1);
         change(&op, &e, true, |l| *l = SectionLook::default())
     });
 }

@@ -1,20 +1,19 @@
 // Settings → Look (`operator.js:893-917`): the slide text's font, sizes, colour, position, shadow and caps, the
 // logo, and on the right a live preview and the default background.
 import { Theme } from "../theme.slint";
-import { Btn, Field, Segmented } from "../widgets.slint";
+import { Btn, Segmented } from "../widgets.slint";
 import { Check, RangeSlider, Select, Lbl } from "form.slint";
 import { SettingsDlg } from "settings-state.slint";
 import { BackgroundPicker, ColorPicker } from "background-picker.slint";
+import { SetRow, Hint } from "settings-row.slint";
 
-export component SettingsLook inherits HorizontalLayout {
-    spacing: 20px;
-
-    // Left column (1fr).
-    VerticalLayout {
+/// The text's rows (the left column when the page is wide).
+component LookText inherits VerticalLayout {
         horizontal-stretch: 1;
         min-width: 0px;
         alignment: start;
-        Field {
+        font-row := SetRow {
+            key: "font";
             label: @tr("Font");
             font := Select {
                 options: SettingsDlg.fonts;
@@ -32,7 +31,8 @@ export component SettingsLook inherits HorizontalLayout {
                 accessible-label: self.text;
             }
         }
-        Field {
+        size-row := SetRow {
+            key: "song-size";
             label: @tr("Song text size");
             help: @tr("(biggest; long lines shrink to fit)");
             size := RangeSlider {
@@ -42,51 +42,22 @@ export component SettingsLook inherits HorizontalLayout {
                 changed => { SettingsDlg.look-changed(); }
             }
         }
-        // Bible verses: how many go on a slide and how big they may be, side by side.
-        bible-group := Rectangle {
-            background: Theme.panel-2;
-            border-radius: 10px;
-            VerticalLayout {
-                padding-top: 12px;
-                padding-left: 12px;
-                padding-right: 12px;
-                Lbl { label: @tr("Bible verses"); }
-                Rectangle { height: 10px; }
-                Field {
-                    label: @tr("Verses per slide");
-                    help: @tr("(for new passages)");
-                    HorizontalLayout {
-                        alignment: start;
-                        bible-per-slide := Segmented {
-                            labels: [@tr("Automatic"), "1", "2", "3", "4"];
-                            index <=> SettingsDlg.bible-per-slide;
-                        }
-                    }
-                }
-                Field {
-                    label: @tr("Bible text size");
-                    help: @tr("(biggest)");
-                    scripture-size := RangeSlider {
-                        minimum: 36;
-                        maximum: 120;
-                        value <=> SettingsDlg.scripture-size;
-                        changed => { SettingsDlg.look-changed(); }
-                    }
-                    scripture-help := Text {
-                        text: @tr("Text shrinks automatically when a slide holds more words.");
-                        color: Theme.faint;
-                        font-family: Theme.font;
-                        font-size: 12px;
-                        wrap: word-wrap;
-                    }
-                }
+        scripture-row := SetRow {
+            key: "bible-size";
+            label: @tr("Bible text size");
+            help: @tr("Text shrinks automatically when a slide holds more words.");
+            scripture-size := RangeSlider {
+                minimum: 36;
+                maximum: 120;
+                value <=> SettingsDlg.scripture-size;
+                changed => { SettingsDlg.look-changed(); }
             }
         }
-        Rectangle { height: 12px; }
         // `.cols`
         HorizontalLayout {
             spacing: 14px;
-            Field {
+            color-row := SetRow {
+                key: "text-colour";
                 horizontal-stretch: 1;
                 label: @tr("Text colour");
                 color := ColorPicker {
@@ -96,7 +67,8 @@ export component SettingsLook inherits HorizontalLayout {
                     hex(t) => { SettingsDlg.text-hex(t); }
                 }
             }
-            Field {
+            position-row := SetRow {
+                key: "text-position";
                 horizontal-stretch: 1;
                 label: @tr("Text position");
                 HorizontalLayout {
@@ -109,27 +81,42 @@ export component SettingsLook inherits HorizontalLayout {
                 }
             }
         }
-        shadow := Check {
-            text: @tr("Shadow behind text (easier to read on pictures)");
-            checked <=> SettingsDlg.shadow;
-            toggled => { SettingsDlg.look-changed(); }
-        }
-        caps := Check {
-            text: @tr("ALL CAPS song words");
-            checked <=> SettingsDlg.uppercase;
-            toggled => { SettingsDlg.look-changed(); }
-        }
-        // N9: a theme change on screen fades for this long instead of cutting.
-        Field {
-            label: @tr("Fade when the theme changes");
-            help: SettingsDlg.look-fade == 0 ? @tr("(no fade)") : @tr("({} s)", SettingsDlg.look-fade / 10);
-            look-fade := RangeSlider {
-                minimum: 0;
-                maximum: 50;
-                value <=> SettingsDlg.look-fade;
+        style-row := SetRow {
+            key: "text-style";
+            label: @tr("Text style");
+            shadow := Check {
+                text: @tr("Shadow behind text (easier to read on pictures)");
+                checked <=> SettingsDlg.shadow;
+                toggled => { SettingsDlg.look-changed(); }
+            }
+            caps := Check {
+                text: @tr("ALL CAPS song words");
+                checked <=> SettingsDlg.uppercase;
+                toggled => { SettingsDlg.look-changed(); }
             }
         }
-        Field {
+        // N9: a theme change on screen fades for this long instead of cutting.
+        if SettingsDlg.advanced: fade-row := SetRow {
+            key: "look-fade";
+            label: @tr("Fade when the theme changes");
+            advanced: true;
+            HorizontalLayout {
+                spacing: 10px;
+                look-fade := RangeSlider {
+                    horizontal-stretch: 1;
+                    minimum: 0;
+                    maximum: 50;
+                    value <=> SettingsDlg.look-fade;
+                }
+                Hint {
+                    text: SettingsDlg.look-fade == 0 ? @tr("(no fade)") : @tr("({} s)", SettingsDlg.look-fade / 10);
+                    vertical-alignment: center;
+                    min-width: 70px;
+                }
+            }
+        }
+        logo-row := SetRow {
+            key: "logo";
             label: @tr("Logo");
             HorizontalLayout {
                 spacing: 8px;
@@ -170,8 +157,8 @@ export component SettingsLook inherits HorizontalLayout {
         }
     }
 
-    // Right column (1.1fr).
-    VerticalLayout {
+/// The preview and the default background (the right column when the page is wide).
+component LookPicture inherits VerticalLayout {
         horizontal-stretch: 1.1;
         min-width: 0px;
         alignment: start;
@@ -194,7 +181,8 @@ export component SettingsLook inherits HorizontalLayout {
             }
         }
         Rectangle { height: 14px; }
-        Field {
+        background-row := SetRow {
+            key: "default-background";
             label: @tr("Default background");
             backgrounds := BackgroundPicker {
                 choices: SettingsDlg.backgrounds;
@@ -205,5 +193,19 @@ export component SettingsLook inherits HorizontalLayout {
                 upload => { SettingsDlg.upload-background(); }
             }
         }
+    }
+
+/// Look → Text and logo: two columns side by side when the page is wide, one above the other when narrow.
+export component SettingsLook inherits VerticalLayout {
+    alignment: start;
+    if SettingsDlg.content-width >= 760px: HorizontalLayout {
+        spacing: 20px;
+        LookText {}
+        LookPicture {}
+    }
+    if SettingsDlg.content-width < 760px: VerticalLayout {
+        spacing: 12px;
+        LookText {}
+        LookPicture {}
     }
 }

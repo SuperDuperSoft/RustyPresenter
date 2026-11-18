@@ -7,7 +7,6 @@ use crate::{
     render::Fonts,
     ui::{
         AlsoChip, SettingsBibleRow, SettingsCatalogRow, SettingsCreditRow, SettingsDlg, SettingsProviderRow,
-        dialogs::DialogKind,
         operator::{file_input::Filter, files, view::{BibleProvider, BibleSource, JobRow, OperatorSnapshot}, window::Operator},
     },
 };
@@ -200,7 +199,7 @@ pub(super) fn reset(g: &SettingsDlg) {
 
 /// Puts `query` in the library's search box and redraws the list (the picker's "Find more Bibles…").
 pub(super) fn search_for(op: &Operator, query: &str) {
-    op.ui.global::<SettingsDlg>().set_catalog_search(query.trim().into());
+    crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().set_catalog_search(query.trim().into());
     if let Some(edit) = OPEN.with(|o| o.borrow().upgrade()) { render(op, &edit) }
 }
 
@@ -228,7 +227,7 @@ pub(super) fn load_catalog(op: &Rc<Operator>, edit: &Rc<super::settings::Edit>) 
                 *c.langs.borrow_mut() = codes;
                 let mut options: Vec<SharedString> = vec![cat::all_languages().into()];
                 options.extend(labels.into_iter().map(SharedString::from));
-                let g = op.ui.global::<SettingsDlg>();
+                let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
                 g.set_catalog_languages(ModelRc::new(VecModel::from(options)));
                 g.set_catalog_language(0);
             }
@@ -240,7 +239,7 @@ pub(super) fn load_catalog(op: &Rc<Operator>, edit: &Rc<super::settings::Edit>) 
 
 /// Draws the library list from the state, the form's search, filter and language, and the jobs.
 pub(super) fn render(op: &Operator, edit: &super::settings::Edit) {
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     let c = &edit.bible.catalog;
     g.set_catalog_loading(c.loading.get());
     if c.loading.get() {
@@ -284,7 +283,7 @@ pub(super) fn render(op: &Operator, edit: &super::settings::Edit) {
 
 /// A job's progress or end reached the window: redraw the list if Settings is open and has one.
 pub fn jobs_changed(op: &Operator) {
-    if !matches!(op.state.borrow().dialog, Some(DialogKind::Settings(_))) { return }
+    if !super::settings::is_open(op) { return }
     let Some(edit) = OPEN.with(|o| o.borrow().upgrade()) else { return };
     if edit.bible.catalog.loaded.get() { render(op, &edit) }
 }
@@ -494,7 +493,7 @@ pub(crate) fn import_files(op: &Rc<Operator>, edit: &Rc<Edit>, mut paths: Vec<Pa
     if paths.is_empty() { return redraw_on_next_read(op, edit) }
     let path = paths.remove(0);
     // The web box has `maxlength: 10`.
-    let short: String = op.ui.global::<SettingsDlg>().get_bible_short().trim().chars().take(10).collect::<String>().to_uppercase();
+    let short: String = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().get_bible_short().trim().chars().take(10).collect::<String>().to_uppercase();
     let name = if short.is_empty() { "-".to_string() } else { short };
     #[derive(serde::Deserialize)]
     struct Added { abbreviation: String, verses: u64 }

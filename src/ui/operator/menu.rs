@@ -89,6 +89,7 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "settings-bible" => Settings(SettingsTab::Bible),
         "settings-video" => Settings(SettingsTab::Video),
         "settings-media" => Settings(SettingsTab::Media),
+        "settings-recording" => Settings(SettingsTab::Recording),
         "media-cleanup" => MenuAction::CleanUpMedia,
         "listen" => MenuAction::Listen,
         "settings-backups" => Settings(SettingsTab::Backups),
@@ -175,7 +176,7 @@ impl Operator {
             Some(MenuAction::Translations) => crate::ui::dialogs::translation_editor::open(self, None),
             Some(MenuAction::Transfer(t)) => self.transfer(t),
             Some(MenuAction::Record) => self.toggle_recording(),
-            Some(MenuAction::Network) => crate::ui::dialogs::network::open(self),
+            Some(MenuAction::Network) => settings::open(self, SettingsTab::Remote),
             Some(MenuAction::AddDesign) => crate::ui::dialogs::design_editor::open(self, None),
             Some(MenuAction::ActionPalette) => super::action_palette::toggle(self),
             Some(MenuAction::StartPreService) => self.start_preservice(),
@@ -518,10 +519,10 @@ mod window_tests {
         let op = open(&app);
         refresh(&op);
         op.ui.invoke_menu("settings-about".into());
-        assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::About)));
+        assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::About));
         op.close_dialog();
         op.ui.invoke_menu("settings-help".into());
-        assert_eq!(op.dialog(), Some(DialogKind::Settings(SettingsTab::Help)));
+        assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Help));
     }
 
     #[test]
@@ -555,7 +556,7 @@ mod window_tests {
         app.data.lock().unwrap().services[0].items.push(item);
         refresh(&op);
         assert!(op.ui.get_menu_can_edit(), "the new item is selected");
-        op.ui.invoke_settings();
+        op.ui.invoke_menu("print".into());
         assert!(!op.ui.get_menu_ready() && !op.ui.get_menu_can_edit() && !op.ui.get_menu_can_save(), "a dialog covers the window");
         op.close_dialog();
         assert!(op.ui.get_menu_ready());

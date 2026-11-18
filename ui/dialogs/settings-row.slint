@@ -1,0 +1,129 @@
+// The parts every Settings page is made of (November 17, 2026 reorganisation, design
+// `docs/superpowers/specs/2026-11-17-settings-design.md`): a row for each setting with its name, a small (?) that
+// shows its help, and its controls under them; headings; and links that jump to a setting on another page.
+// A row's `key` is its name in the search (`src/ui/dialogs/settings_find.rs`): the label and help here must match
+// the ones there (a test checks).
+import { Theme } from "../theme.slint";
+import { Btn } from "../widgets.slint";
+import { SettingsDlg } from "settings-state.slint";
+
+/// A group's title on a page.
+export component Heading inherits Text {
+    color: Theme.text;
+    font-family: Theme.font;
+    font-size: 15px;
+    font-weight: 700;
+    accessible-role: text;
+    accessible-label: self.text;
+}
+
+/// A short muted line under a row's controls.
+export component Hint inherits Text {
+    color: Theme.muted;
+    font-family: Theme.font;
+    font-size: 12.5px;
+    wrap: word-wrap;
+    accessible-role: text;
+    accessible-label: self.text;
+}
+
+/// One setting: its name, "Advanced" when it shows only with Show advanced settings, a (?) for its help, then its
+/// controls. Found by the search, it lights up for a moment and the page scrolls to it.
+export component SetRow inherits Rectangle {
+    in property <string> key;
+    in property <string> label;
+    in property <string> help;
+    in property <bool> advanced;
+    property <bool> show-help;
+    property <bool> lit: root.key != "" && SettingsDlg.highlight == root.key;
+
+    accessible-role: groupbox;
+    accessible-id: root.key;
+    accessible-label: root.label;
+    accessible-description: root.help;
+    border-radius: 10px;
+    border-width: root.lit ? 1px : 0px;
+    border-color: Theme.accent;
+    background: root.lit ? Theme.add-hover : transparent;
+    animate background { duration: 250ms; }
+
+    function reveal() {
+        SettingsDlg.reveal-y = self.absolute-position.y;
+        SettingsDlg.reveal-serial += 1;
+    }
+    init => { if root.lit { root.reveal(); } }
+    changed lit => { if root.lit { root.reveal(); } }
+
+    VerticalLayout {
+        padding-top: 8px;
+        padding-bottom: 12px;
+        padding-left: 10px;
+        padding-right: 10px;
+        spacing: 6px;
+        HorizontalLayout {
+            spacing: 8px;
+            row-label := Text {
+                text: root.label;
+                color: Theme.text;
+                font-family: Theme.font;
+                font-size: 13.5px;
+                font-weight: 600;
+                vertical-alignment: center;
+                wrap: word-wrap;
+            }
+            if root.advanced: Text {
+                text: @tr("Advanced");
+                color: Theme.faint;
+                font-family: Theme.font;
+                font-size: 11px;
+                vertical-alignment: center;
+            }
+            if root.help != "": help-btn := Rectangle {
+                width: 20px;
+                height: 20px;
+                border-radius: 10px;
+                border-width: 1px;
+                border-color: root.show-help ? Theme.accent : Theme.line;
+                background: help-ta.has-hover ? Theme.raise : transparent;
+                accessible-role: button;
+                accessible-label: root.show-help ? @tr("Hide help") : @tr("Help");
+                accessible-action-default => { root.show-help = !root.show-help; }
+                Text {
+                    text: "?";
+                    color: root.show-help ? Theme.accent : Theme.muted;
+                    font-family: Theme.font;
+                    font-size: 12px;
+                    font-weight: 700;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+                help-ta := TouchArea {
+                    mouse-cursor: pointer;
+                    clicked => { root.show-help = !root.show-help; }
+                }
+            }
+            Rectangle { horizontal-stretch: 1; }
+        }
+        if root.show-help: help-text := Hint { text: root.help; }
+        @children
+    }
+}
+
+/// "Change it in Settings → …": jumps to that page and lights up the row `key` there.
+export component SetLink inherits HorizontalLayout {
+    in property <string> text;
+    in property <int> page;
+    in property <string> key;
+    alignment: start;
+    link := Btn {
+        small: true;
+        icon: "chevron-right";
+        text: root.text;
+        clicked => { SettingsDlg.go(root.page, root.key); }
+    }
+}
+
+/// A page's space between groups.
+export component Gap inherits Rectangle {
+    height: 10px;
+}

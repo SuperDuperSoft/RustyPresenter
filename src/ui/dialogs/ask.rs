@@ -6,10 +6,25 @@ use crate::ui::{AskRow, operator::window::Operator};
 use slint::{ModelRc, VecModel};
 use std::rc::Rc;
 
-/// A question waiting to be answered.
+/// A question waiting to be answered, over the operator window or (`in_settings`) over the Settings window.
 pub struct Ask {
     row: AskRow,
     done: Done,
+    in_settings: bool,
+}
+
+thread_local! {
+    /// Questions asked now go over the Settings window (`in_settings`).
+    static IN_SETTINGS: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+/// Runs `ask` (a `confirm`, `choose`, `prompt`…) so its question shows over the Settings window, where the person
+/// is looking, instead of over the operator window behind it.
+pub fn in_settings<R>(_op: &Operator, ask: impl FnOnce() -> R) -> R {
+    let before = IN_SETTINGS.with(|f| f.replace(true));
+    let r = ask();
+    IN_SETTINGS.with(|f| f.set(before));
+    r
 }
 
 enum Done {
@@ -23,7 +38,7 @@ enum Done {
 /// danger colour (a delete).
 pub fn confirm(op: &Rc<Operator>, text: &str, ok_label: &str, cancel_label: &str, danger: bool, done: impl FnOnce(bool) + 'static) {
     let row = AskRow { prompt: false, text: text.into(), value: "".into(), ok_label: ok_label.into(), cancel_label: cancel_label.into(), other_label: "".into(), danger, ..AskRow::default() };
-    push(op, Ask { row, done: Done::Confirm(Box::new(done)) });
+    push(op, Ask { row, done: Done::Confirm(Box::new(done)), in_settings: false });
 }
 
 /// Shows a report with one button; nothing depends on the answer.
@@ -38,7 +53,7 @@ pub fn choose(op: &Rc<Operator>, text: &str, first: &str, second: &str, done: im
         prompt: false, text: text.into(), value: "".into(), ok_label: first.into(), other_label: second.into(),
         cancel_label: super::strings::cancel().into(), danger: false, ..AskRow::default()
     };
-    push(op, Ask { row, done: Done::Choose(Box::new(done)) });
+    push(op, Ask { row, done: Done::Choose(Box::new(done)), in_settings: false });
 }
 
 /// Asks which of three things to do, with Cancel as the way out (1.2). `done(Some(0))` on the first (or Enter),
@@ -50,7 +65,7 @@ pub fn choose3(op: &Rc<Operator>, text: &str, [first, second, third]: [&str; 3],
         cancel_label: super::strings::cancel().into(), danger: false, third_label: third.into(), third_enabled: third_why.is_none(),
         third_note: third_why.unwrap_or_default().into(),
     };
-    push(op, Ask { row, done: Done::Choose3(Box::new(done)) });
+    push(op, Ask { row, done: Done::Choose3(Box::new(done)), in_settings: false });
 }
 
 /// Asks for a line of text, starting from `initial` (selected, so typing replaces it). `done(Some(text))` on OK
@@ -61,22 +76,32 @@ pub fn prompt(op: &Rc<Operator>, title: &str, initial: &str, done: impl FnOnce(O
         ok_label: super::strings::ok().into(), cancel_label: super::strings::cancel().into(), other_label: "".into(), danger: false,
         ..AskRow::default()
     };
-    push(op, Ask { row, done: Done::Prompt(Box::new(done)) });
+    push(op, Ask { row, done: Done::Prompt(Box::new(done)), in_settings: false });
 }
 
-fn push(op: &Operator, ask: Ask) {
-    {
-        let mut st = op.state.borrow_mut();
-        st.dialogs.asks.push(ask);
-        st.asks = st.dialogs.asks.len();
-    }
+fn push(op: &Operator, mut ask: Ask) {
+    // Over Settings when Settings asks, or when its window has the keyboard (the person is looking at it).
+    ask.in_settings = super::settings::is_open(op) && (IN_SETTINGS.with(std::cell::Cell::get) || super::settings_window::has_focus(op));
+    op.state.borrow_mut().dialogs.asks.push(ask);
+    count(op);
     show_top(op);
 }
 
-/// The answer to the top question (from `AskOverlay`). The question is gone and the keyboard handed back before
-/// `done` runs, so `done` may ask again, open a dialog or close one.
-pub(crate) fn answer(op: &Operator, ok: bool, text: String) {
-    let Some(ask) = take(op) else { return };
+/// `OpState.asks`: the questions over the operator window (one over Settings leaves the operator's keys on).
+fn count(op: &Operator) {
+    let mut st = op.state.borrow_mut();
+    st.asks = st.dialogs.asks.iter().filter(|a| !a.in_settings).count();
+}
+
+/// The answer to the operator window's top question (from `AskOverlay`). The question is gone and the keyboard
+/// handed back before `done` runs, so `done` may ask again, open a dialog or close one.
+pub(crate) fn answer(op: &Operator, ok: bool, text: String) { answer_in(op, false, ok, text) }
+
+/// The answer to the Settings window's top question.
+pub(crate) fn answer_settings(op: &Operator, ok: bool, text: String) { answer_in(op, true, ok, text) }
+
+fn answer_in(op: &Operator, settings: bool, ok: bool, text: String) {
+    let Some(ask) = take(op, settings) else { return };
     match ask.done {
         Done::Confirm(done) => done(ok),
         Done::Prompt(done) => done(ok.then_some(text)),
@@ -86,8 +111,11 @@ pub(crate) fn answer(op: &Operator, ok: bool, text: String) {
 }
 
 /// The second answer to a `choose`, from its third button.
-pub(crate) fn answer_other(op: &Operator) {
-    match take(op) {
+pub(crate) fn answer_other(op: &Operator) { other_in(op, false) }
+pub(crate) fn answer_other_settings(op: &Operator) { other_in(op, true) }
+
+fn other_in(op: &Operator, settings: bool) {
+    match take(op, settings) {
         Some(Ask { done: Done::Choose(done), .. }) => done(Some(false)),
         Some(Ask { done: Done::Choose3(done), .. }) => done(Some(1)),
         _ => {}
@@ -95,29 +123,41 @@ pub(crate) fn answer_other(op: &Operator) {
 }
 
 /// The third answer to a `choose3`. A greyed button never sends it.
-pub(crate) fn answer_third(op: &Operator) {
-    let enabled = op.state.borrow().dialogs.asks.last().is_some_and(|a| a.row.third_enabled);
+pub(crate) fn answer_third(op: &Operator) { third_in(op, false) }
+pub(crate) fn answer_third_settings(op: &Operator) { third_in(op, true) }
+
+fn third_in(op: &Operator, settings: bool) {
+    let enabled = op.state.borrow().dialogs.asks.iter().rev().find(|a| a.in_settings == settings).is_some_and(|a| a.row.third_enabled);
     if !enabled { return }
-    if let Some(Ask { done: Done::Choose3(done), .. }) = take(op) { done(Some(2)) }
+    if let Some(Ask { done: Done::Choose3(done), .. }) = take(op, settings) { done(Some(2)) }
 }
 
-fn take(op: &Operator) -> Option<Ask> {
+/// The newest question over the operator window (`settings` false) or over Settings.
+fn take(op: &Operator, settings: bool) -> Option<Ask> {
     let ask = {
         let mut st = op.state.borrow_mut();
-        let ask = st.dialogs.asks.pop();
-        st.asks = st.dialogs.asks.len();
-        ask
+        let at = st.dialogs.asks.iter().rposition(|a| a.in_settings == settings);
+        at.map(|i| st.dialogs.asks.remove(i))
     };
+    count(op);
     if ask.is_some() { show_top(op); }
     ask
 }
 
-/// Shows the newest waiting question, or gives the keyboard back to the dialog (or the window's keys).
+/// The Settings window closed: its questions go unanswered (as Cancel would, without running anything).
+pub(crate) fn clear_settings(op: &Operator) {
+    op.state.borrow_mut().dialogs.asks.retain(|a| !a.in_settings);
+    count(op);
+    show_top(op);
+}
+
+/// Shows each window's newest waiting question, or gives the keyboard back to the dialog (or the window's keys).
 /// A fresh one-row model makes a new overlay each time, whose `init` takes the keyboard.
 fn show_top(op: &Operator) {
-    let (top, dialog) = {
+    let (top, top_settings, dialog) = {
         let st = op.state.borrow();
-        (st.dialogs.asks.last().map(|a| a.row.clone()), st.dialog.is_some())
+        let last = |s: bool| st.dialogs.asks.iter().rev().find(|a| a.in_settings == s).map(|a| a.row.clone());
+        (last(false), last(true), st.dialog.is_some())
     };
     match top {
         Some(row) => op.ui.set_ask(ModelRc::new(VecModel::from(vec![row]))),
@@ -126,4 +166,12 @@ fn show_top(op: &Operator) {
             if dialog { op.ui.invoke_focus_dialog() } else { op.ui.invoke_focus_keys() }
         }
     }
+    if super::settings::is_open(op) || top_settings.is_some() {
+        let w = super::settings_window::win(op);
+        match top_settings {
+            Some(row) => w.set_ask(ModelRc::new(VecModel::from(vec![row]))),
+            None => { w.set_ask(ModelRc::default()); w.invoke_focus_keys() }
+        }
+    }
 }
+

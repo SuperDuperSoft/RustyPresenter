@@ -638,37 +638,37 @@ pub struct Settings {
     pub section_keys: bool,
     /// Service files opened lately, newest first, at most `RECENT_FILES_MAX` (File → Open recent).
     pub recent_files: Vec<std::path::PathBuf>,
-    /// Settings → Video → Graphics, used from the next start. Changed only by `settings/graphics`. A value this
+    /// Settings → General → Screens and graphics → Graphics, used from the next start. Changed only by `settings/graphics`. A value this
     /// version can't read loads as Auto.
     #[serde(deserialize_with = "crate::lenient::or_default")]
     pub graphics: Graphics,
     /// Settings → Songs → Sections (N19): the church's section names, colours, keys and slide labels.
     #[serde(deserialize_with = "crate::lenient::or_default")]
     pub sections: crate::sections::SectionLook,
-    /// Settings → Help: the changed keyboard shortcuts and the clear groups (N18, N28). A value this version can't
+    /// Settings → Keys: the changed keyboard shortcuts and the clear groups (N18, N28). A value this version can't
     /// read loads as the defaults.
     #[serde(deserialize_with = "crate::lenient::or_default")]
     pub keys: crate::shortcuts::KeySettings,
-    /// Settings → Media: new media's defaults and the sound outputs (N21, N24).
+    /// Settings → General → Screens and graphics and media: new media's defaults and the sound outputs (N21, N24).
     #[serde(deserialize_with = "crate::lenient::or_default")]
     pub media: crate::media_prefs::MediaPrefs,
-    /// Settings → Media → Recording (N22): picture size, folder and sound of File → Start recording.
+    /// Settings → Livestream → Recording (N22): picture size, folder and sound of File → Start recording.
     #[serde(deserialize_with = "crate::lenient::or_default")]
     pub record: crate::record::RecordPrefs,
     /// N33: the frames-a-second and video memory line under the live preview.
     pub show_performance: bool,
     /// N33: the room and stage screens that were on come back on at start; off, they wait for the switch.
     pub screens_at_start: bool,
-    /// Settings → Video: lines drawn from a phone stay when the slide changes (off: each slide starts clean).
+    /// Settings → General → Screens and graphics: lines drawn from a phone stay when the slide changes (off: each slide starts clean).
     pub keep_drawings: bool,
-    /// Settings → Video: the stage screen shows the live slide with its drawing while one is up.
+    /// Settings → General → Screens and graphics: the stage screen shows the live slide with its drawing while one is up.
     pub stage_drawings: bool,
-    /// Settings → Video → "Limit phone drawing" (off: no limits), with the most lines on the slide at once and
+    /// Settings → General → Screens and graphics → "Limit phone drawing" (off: no limits), with the most lines on the slide at once and
     /// the most drawing updates a second from one phone.
     pub drawing_limit: bool,
     pub drawing_max_strokes: u32,
     pub drawing_max_per_second: u32,
-    /// Settings → Video → "Fading ink disappears after: N seconds" (1–30).
+    /// Settings → General → Screens and graphics → "Fading ink disappears after: N seconds" (1–30).
     pub fade_secs: u32,
     /// N9: how long the room fades when only the look (theme) of what is up changes, in ms; 0 = cut.
     pub look_fade_ms: u32,

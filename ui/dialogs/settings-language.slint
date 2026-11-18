@@ -5,9 +5,13 @@ import { Theme } from "../theme.slint";
 import { Btn, Chip } from "../widgets.slint";
 import { Note, ListRow, RowMain } from "form.slint";
 import { SettingsDlg } from "settings-state.slint";
+import { SetRow } from "settings-row.slint";
 
 export component SettingsLanguage inherits VerticalLayout {
-    spacing: 4px;
+    alignment: start;
+    language-set := SetRow {
+    key: "language";
+    label: @tr("Language");
     for row[i] in SettingsDlg.languages: language-row := ListRow {
         accessible-role: list-item;
         accessible-label: row.title;
@@ -36,6 +40,7 @@ export component SettingsLanguage inherits VerticalLayout {
             text: @tr("Use");
             clicked => { SettingsDlg.choose-language(i); }
         }
+    }
     }
     Rectangle { height: 12px; }
     Note {

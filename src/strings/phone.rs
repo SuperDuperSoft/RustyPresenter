@@ -6,4 +6,4 @@ use crate::{tr, trn};
 pub fn code_works_for(seconds: i64) -> String {
     trn!("Code works for {n} more seconds", "Code works for {n} more seconds", seconds.max(0))
 }
-pub fn code_expired() -> String { tr!("Code expired — click Pair a phone again.") }
+pub fn code_expired() -> String { tr!("Code expired — click Pair a phone or tablet again.") }

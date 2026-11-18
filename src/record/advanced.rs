@@ -1,4 +1,4 @@
-//! Settings → Media → Livestream → More settings (design `docs/superpowers/specs/2026-11-17-livestream-output-design.md`):
+//! Settings → Livestream (its advanced rows) (design `docs/superpowers/specs/2026-11-17-livestream-output-design.md`):
 //! what the easy page leaves at its best guess. How the picture is made (pictures a second, video format, how the
 //! bitrate is kept, how often a whole picture comes, how hard the encoder works, profile, B-frames), the sound
 //! (rate, bitrate, channels), the network (which network card sends, SRT's safer send) and the recording (MP4 or

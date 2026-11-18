@@ -171,7 +171,7 @@ impl Operator {
             if good.is_empty() && signed.is_empty() && !ndi_only { return self.toast(stream::tr::nothing_ready(), true) }
             titles = keyed.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.title().to_string()).collect();
             talls = keyed.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.tall).collect();
-            qualities = keyed.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.quality).collect();
+            qualities = keyed.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.quality.for_service(d.service)).collect();
             services = keyed.iter().filter(|d| d.on && d.address().is_ok()).map(|d| d.service).chain(signed.iter().map(|(d, _)| d.service)).collect();
             self.record.slow_told.borrow_mut().clear();
             self.record.never_told.borrow_mut().clear();
@@ -189,7 +189,7 @@ impl Operator {
             thumbnail: prefs.stream_thumbnail.clone(),
             scheduled: if service == stream::Service::YouTube { prefs.stream_scheduled.clone() } else { String::new() },
         };
-        let signed_tall: Vec<(String, bool, stream::Quality)> = signed.iter().map(|(d, _)| (d.title().to_string(), d.tall, d.quality)).collect();
+        let signed_tall: Vec<(String, bool, stream::Quality)> = signed.iter().map(|(d, _)| (d.title().to_string(), d.tall, d.quality.for_service(d.service))).collect();
         let signed: Vec<(stream::Destination, String, stream::accounts::Details)> = signed.into_iter().map(|(d, t)| { let x = details(d.service); (d, t, x) }).collect();
         self.record.starting.set(true);
         let prefs_pc = prefs.pc_sound(&app_output);
@@ -284,7 +284,7 @@ impl Operator {
             match plan {
                 Ok(mut plan) => {
                     // Each destination that differs from the main stream gets its own picture from its sender.
-                    let full = if plan.kbps > 0 { plan.kbps } else { plan.preset.max_kbps() };
+                    let full = if plan.kbps > 0 { plan.kbps } else { plan.preset.kbps_at(plan.more.fps()) };
                     plan.ways = qualities.iter().zip(talls.iter().chain(std::iter::repeat(&false)))
                         .map(|(q, tall)| stream::send::Way { own: q.own(*tall, plan.preset, full, plan.encoder, plan.more.fps()), ..Default::default() }).collect();
                     *op.record.encoder.borrow_mut() = plan.encoder.to_string();

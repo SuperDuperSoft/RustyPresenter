@@ -1,6 +1,6 @@
 // The first-time Go Live helper: Go Live pressed with nowhere to stream to opens these few steps instead of a
 // message. Where to stream (paste the key), which camera, which sound, a check, done. The same choices as
-// Settings → Media → Livestream. Filled and answered by `src/ui/dialogs/go_live_helper.rs`.
+// Settings → Livestream. Filled and answered by `src/ui/dialogs/go_live_helper.rs`.
 import { Theme } from "../theme.slint";
 import { Btn, Segmented } from "../widgets.slint";
 import { DialogBody, DialogFoot } from "shell.slint";
@@ -123,7 +123,7 @@ export component GoLiveHelperDialog inherits VerticalLayout {
             if GoLiveHelperDlg.step == 4: VerticalLayout {
                 spacing: 10px;
                 Big { text: @tr("Ready to go live"); }
-                Muted { text: @tr("Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Media → Livestream."); }
+                Muted { text: @tr("Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Livestream."); }
             }
             if GoLiveHelperDlg.error != "": helper-error := Text {
                 text: GoLiveHelperDlg.error;

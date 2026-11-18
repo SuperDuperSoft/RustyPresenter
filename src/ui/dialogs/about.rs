@@ -66,7 +66,7 @@ fn libreoffice(c: &ConverterInfo) -> String {
 pub(super) fn fill(op: &Rc<Operator>, snap: &OperatorSnapshot) {
     let info = op.screens().video_info();
     let a = about_info(snap, &info, None);
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     g.set_about_version(a.version.into());
     g.set_about_data_folder(a.data_folder.into());
     g.set_about_video(a.video.into());
@@ -81,7 +81,7 @@ pub(super) fn fill(op: &Rc<Operator>, snap: &OperatorSnapshot) {
         let Some(op) = me.upgrade() else { return };
         let Some(conv) = conv else { return };
         let a = about_info(&snap, &info, Some(&conv));
-        let g = op.ui.global::<SettingsDlg>();
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
         g.set_about_pdfium(strings::pdfium_line(&a.pdfium).into());
         g.set_about_libreoffice(strings::libreoffice_line(&a.libreoffice).into());
         g.set_about_powerpoint(strings::powerpoint_line(a.powerpoint).into());
@@ -97,7 +97,7 @@ pub fn video_lines(info: &VideoInfo) -> (String, String) {
 
 /// Show licenses / Back: the licence text replaces the tab's body while shown.
 pub(super) fn show_licences(op: &Operator, show: bool) {
-    let g = op.ui.global::<SettingsDlg>();
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
     g.set_licences(if show { licences().into() } else { Default::default() });
     g.set_licences_open(show);
 }
@@ -109,7 +109,8 @@ mod tests {
         app::test_app,
         ui::{
             dialogs::{SettingsTab, settings},
-            operator::window::{MpvInfo, testing::{find, open, refresh}},
+            operator::window::{MpvInfo, testing::{open, refresh}},
+            dialogs::settings::testing::find_any as find,
         },
     };
     use crate::import::deck::ConverterStatus;
@@ -127,8 +128,8 @@ mod tests {
         refresh(&op);
         settings::open(&op, SettingsTab::About);
         slint::platform::update_timers_and_animations();
-        assert_eq!(ElementHandle::find_by_element_type_name(&op.ui, "AboutSlint").count(), 1);
-        let g = op.ui.global::<SettingsDlg>();
+        assert_eq!(ElementHandle::find_by_element_type_name(crate::ui::dialogs::settings_window::win(&op), "AboutSlint").count(), 1);
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
         assert_eq!(g.get_tab(), settings::tab_index(SettingsTab::About));
         assert_eq!(g.get_about_version(), format!("RustyPresenter {}", env!("CARGO_PKG_VERSION")).as_str());
         assert_eq!(g.get_about_data_folder(), app.store.root.display().to_string().as_str());
@@ -223,7 +224,7 @@ mod tests {
         let op = open(&app);
         refresh(&op);
         settings::open(&op, SettingsTab::About);
-        let g = op.ui.global::<SettingsDlg>();
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
         assert_eq!(g.get_about_pdfium(), "pdfium: missing");
         assert_eq!(g.get_about_libreoffice(), format!("LibreOffice: {path}").as_str());
         assert_eq!(g.get_about_powerpoint(), "PowerPoint: not found");

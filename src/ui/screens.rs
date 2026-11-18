@@ -451,7 +451,7 @@ impl Screens for NativeScreens {
     }
 }
 
-/// The windows to open at start. With Settings → Video → "Turn the screens on at start" off, the room and stage
+/// The windows to open at start. With Settings → General → Screens and graphics → "Turn the screens on at start" off, the room and stage
 /// switches are turned off instead (saved, so the top bar shows it), and nothing opens until the operator switches
 /// them on. After a crash (`restored`) what was open always comes back.
 pub fn start_windows(app: &App, restored: bool) -> Vec<crate::model::ScreenWindow> {

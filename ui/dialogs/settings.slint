@@ -1,417 +1,303 @@
-// Settings (`operator.js:877-1007`): the tabs, the Songs, Video, Backups and Help pages, and the footer. Look and
-// Bible have files of their own. Everything shown comes from the `SettingsDlg` global (`settings-state.slint`).
+// Settings (November 17, 2026 reorganisation, design `docs/superpowers/specs/2026-11-17-settings-design.md`): a window
+// of its own that can be any size. On the left, "Find a setting" and the categories with their short pages; on the
+// right, the page, which scrolls; at the bottom, Cancel and Save. Everything shown comes from this window's own
+// `SettingsDlg` global (`settings-state.slint`), set from `src/ui/dialogs/settings.rs`.
 import { Theme } from "../theme.slint";
-import { Btn, Field, Segmented, CopyText } from "../widgets.slint";
-import { DialogBody, DialogFoot } from "shell.slint";
-import { TextField, Tabs, Note, Lbl, ListRow, RowMain, Check, Select } from "form.slint";
+import { Btn, ScrollBox, TipLayer } from "../widgets.slint";
+import { DialogFoot } from "shell.slint";
+import { TextField, Check } from "form.slint";
+import { AskOverlay, AskRow } from "ask.slint";
 import { SettingsDlg } from "settings-state.slint";
 import { SettingsLook } from "settings-look.slint";
-import { SettingsBible } from "settings-bible.slint";
+import { BiblePage, BibleOnlinePage } from "settings-bible.slint";
 import { SettingsAbout } from "settings-about.slint";
 import { SettingsLanguage } from "settings-language.slint";
 import { SettingsThemes, ThemesDlg } from "settings-themes.slint";
 import { SettingsSections } from "settings-sections.slint";
-import { SettingsHelp } from "settings-keys.slint";
-import { SettingsMedia, Heading } from "settings-media.slint";
-import { SettingsFollow } from "settings-follow.slint";
+import { KeysPage, ClearGroupsPage, KeysDlg } from "settings-keys.slint";
+import { FollowListenPage, FollowModelPage, FollowPracticePage, FollowReviewPage } from "settings-follow.slint";
+import { ScreensPage, SongsPage, SongSelectPage, MediaPage, RoomSoundPage, StagePage, BackupsPage } from "settings-general.slint";
+import { RemotePage, PhoneStagePage, PhoneCamMicPage, OtherGearPage } from "settings-remote.slint";
+import { StreamWherePage, StreamPicturePage, StreamCamerasPage, StreamScenesPage, RecordingPage, StreamCaptionsPage, StreamNdiPage, StreamSetupsPage } from "settings-stream.slint";
+import { StreamSoundPage } from "settings-sound.slint";
 
 export { SettingsDlg }
 
-component SettingsSongsGeneral inherits VerticalLayout {
-    Field {
-        label: @tr("Lines per slide");
-        HorizontalLayout {
-            alignment: start;
-            lines := Segmented {
-                labels: ["1", "2", "3", "4", "5", "6"];
-                index <=> SettingsDlg.lines;
-            }
-        }
+/// The page shown, by `SettingsDlg.tab` (the order of `SettingsTab` in `src/ui/dialogs/mod.rs`).
+component Pages inherits VerticalLayout {
+    alignment: start;
+    if SettingsDlg.tab == 0: language := SettingsLanguage {}
+    if SettingsDlg.tab == 1: screens := ScreensPage {}
+    if SettingsDlg.tab == 2: look := SettingsLook {}
+    if SettingsDlg.tab == 3: themes := SettingsThemes {}
+    if SettingsDlg.tab == 4: songs := SongsPage {}
+    if SettingsDlg.tab == 5: sections := SettingsSections {}
+    if SettingsDlg.tab == 6: songselect := SongSelectPage {}
+    if SettingsDlg.tab == 7: bible := BiblePage {}
+    if SettingsDlg.tab == 8: bible-online := BibleOnlinePage {}
+    if SettingsDlg.tab == 9: media := MediaPage {}
+    if SettingsDlg.tab == 10: room-sound := RoomSoundPage {}
+    if SettingsDlg.tab == 11: stage := StagePage {}
+    if SettingsDlg.tab == 12: remote := RemotePage {}
+    if SettingsDlg.tab == 13: phone-stage := PhoneStagePage {}
+    if SettingsDlg.tab == 14: phone-cam-mic := PhoneCamMicPage {}
+    if SettingsDlg.tab == 15: other-gear := OtherGearPage {}
+    if SettingsDlg.tab == 16: keys := KeysPage {}
+    if SettingsDlg.tab == 17: clear-groups := ClearGroupsPage {}
+    if SettingsDlg.tab == 18: follow := FollowListenPage {}
+    if SettingsDlg.tab == 19: follow-model := FollowModelPage {}
+    if SettingsDlg.tab == 20: follow-practice := FollowPracticePage {}
+    if SettingsDlg.tab == 21: follow-review := FollowReviewPage {}
+    if SettingsDlg.tab == 22: stream-where := StreamWherePage {}
+    if SettingsDlg.tab == 23: stream-picture := StreamPicturePage {}
+    if SettingsDlg.tab == 24: stream-cameras := StreamCamerasPage {}
+    if SettingsDlg.tab == 25: stream-sound := StreamSoundPage {}
+    if SettingsDlg.tab == 26: stream-scenes := StreamScenesPage {}
+    if SettingsDlg.tab == 27: recording := RecordingPage {}
+    if SettingsDlg.tab == 28: stream-captions := StreamCaptionsPage {}
+    if SettingsDlg.tab == 29: stream-ndi := StreamNdiPage {}
+    if SettingsDlg.tab == 30: stream-setups := StreamSetupsPage {}
+    if SettingsDlg.tab == 31: backups := BackupsPage {}
+    if SettingsDlg.tab == 32: about := SettingsAbout {}
+}
+
+/// A line of the sidebar: a category's name, or a page (lit when it is the one shown).
+component NavLine inherits Rectangle {
+    in property <string> title;
+    in property <bool> heading;
+    in property <bool> on;
+    in property <string> sub;
+    callback clicked();
+    min-height: root.heading ? 28px : 30px;
+    border-radius: 7px;
+    background: root.on ? Theme.raise : ta.has-hover && !root.heading ? Theme.panel-2 : transparent;
+    accessible-role: list-item;
+    accessible-label: root.title;
+    accessible-description: root.sub;
+    accessible-item-selectable: !root.heading;
+    accessible-item-selected: root.on;
+    accessible-action-default => { if !root.heading { root.clicked(); } }
+    if root.on: Rectangle {
+        x: 0;
+        width: 3px;
+        height: parent.height - 10px;
+        y: 5px;
+        border-radius: 2px;
+        background: Theme.accent;
     }
-    Field {
-        label: @tr("Credits");
-        // Bible library spec §10: the setting covers scripture too; a Bible that requires its credit always shows it.
-        help: @tr("Songs and Bible passages. Some Bibles require their credit to be shown; it appears once per passage.");
-        credits-on := Check {
-            text: @tr("Show the copyright line");
-            checked <=> SettingsDlg.credits-on;
+    VerticalLayout {
+        padding-left: root.heading ? 8px : 16px;
+        padding-right: 8px;
+        padding-top: root.heading ? 10px : 5px;
+        padding-bottom: 5px;
+        alignment: center;
+        Text {
+            text: root.heading ? root.title.to-uppercase() : root.title;
+            color: root.heading ? Theme.muted : root.on ? Theme.text : Theme.text;
+            font-family: Theme.font;
+            font-size: root.heading ? 11.5px : 13.5px;
+            font-weight: root.heading ? 700 : root.on ? 600 : 400;
+            letter-spacing: root.heading ? 0.4px : 0px;
+            overflow: elide;
         }
-        if SettingsDlg.credits-on: HorizontalLayout {
-            alignment: start;
-            credits := Segmented {
-                labels: [@tr("On first and last slide"), @tr("On first slide"), @tr("On last slide")];
-                index <=> SettingsDlg.credits;
-            }
-        }
-    }
-    if SettingsDlg.credits-on: Field {
-        label: @tr("Copyright line");
-        help: @tr("Use {{title}}, {{artist}}, {{author}}, {{publisher}}, {{year}}, {{copyright}}, {{ccli}} and {{license}}. Parts between · with nothing in them are left out. Empty: the usual line.");
-        credit-template := TextField {
-            text <=> SettingsDlg.credit-template;
-            placeholder: SettingsDlg.credit-usual;
-            edited => { SettingsDlg.credit-template-edited(); }
-        }
-        credit-sample := Text {
-            text: SettingsDlg.credit-sample;
+        if root.sub != "": Text {
+            text: root.sub;
             color: Theme.muted;
             font-family: Theme.font;
-            font-size: 12px;
-            wrap: word-wrap;
+            font-size: 11.5px;
+            overflow: elide;
         }
     }
-    Field {
-        label: @tr("Church CCLI licence #");
-        ccli := TextField { text <=> SettingsDlg.ccli; }
-    }
-    Field {
-        label: @tr("Section keys (C, B, 1–9…)");
-        help: @tr("Turn off if letters typed by mistake move the screen.");
-        section-keys := Check {
-            text: @tr("Letters and numbers jump the live song to a section");
-            checked <=> SettingsDlg.section-keys;
-        }
-    }
-    Field {
-        label: "SongSelect";
-        help: @tr("Songs you download from SongSelect in your web browser come into the song library by themselves. Only SongSelect song files are read; nothing in Downloads is moved or deleted.");
-        songselect-inbox := Check {
-            text: @tr("Bring in SongSelect downloads whenever RustyPresenter is open");
-            checked <=> SettingsDlg.songselect-inbox;
-        }
-        HorizontalLayout {
-            alignment: start;
-            songselect-open := Btn {
-                small: true;
-                text: @tr("Songs from SongSelect…");
-                clicked => { SettingsDlg.open-songselect(); }
-            }
-        }
-    }
-    HorizontalLayout {
-        alignment: start;
-        usage-report := Btn {
-            small: true;
-            text: @tr("Song use report…");
-            clicked => { SettingsDlg.usage-report(); }
-        }
+    ta := TouchArea {
+        enabled: !root.heading;
+        mouse-cursor: root.heading ? default : pointer;
+        clicked => { root.clicked(); }
     }
 }
 
-component SettingsSongs inherits VerticalLayout {
-    // N19: the songs' general settings, or their sections and slide labels.
-    HorizontalLayout {
-        alignment: start;
-        padding-bottom: 12px;
-        songs-page := Segmented {
-            labels: [@tr("General"), @tr("Sections and labels")];
-            index <=> SettingsDlg.songs-page;
-        }
-    }
-    if SettingsDlg.songs-page == 1: sections := SettingsSections {}
-    if SettingsDlg.songs-page == 0: SettingsSongsGeneral {}
-}
+/// The Settings window. Esc and the window's close button are Cancel (it asks first when something changed).
+export component SettingsWindow inherits Window {
+    title: @tr("Settings");
+    min-width: 640px;
+    min-height: 440px;
+    preferred-width: 1040px;
+    preferred-height: 760px;
+    background: Theme.panel;
+    default-font-family: Theme.font;
 
-component SettingsVideo inherits VerticalLayout {
-    spacing: 8px;
-    Heading { text: @tr("Video and graphics"); }
-    player := Text {
-        text: SettingsDlg.video-player;
-        color: Theme.text;
-        wrap: word-wrap;
-        accessible-role: text;
-        accessible-label: self.text;
-    }
-    drawing := Text {
-        text: SettingsDlg.video-drawing;
-        color: Theme.muted;
-        wrap: word-wrap;
-        accessible-role: text;
-        accessible-label: self.text;
-    }
-    Rectangle { height: 10px; }
-    Field {
-        label: @tr("Sound goes to");
-        audio := Select {
-            options: SettingsDlg.audio-labels;
-            index <=> SettingsDlg.audio-index;
-        }
-    }
-    Field {
-        label: @tr("Graphics");
-        help: @tr("Change this only if the screens flicker, stay black or RustyPresenter crashes. Used from the next start.");
-        graphics := Select {
-            options: SettingsDlg.graphics-labels;
-            index <=> SettingsDlg.graphics-index;
-            changed(i) => { SettingsDlg.graphics-changed(i); }
-        }
-        graphics-now := Text {
-            text: SettingsDlg.graphics-now;
-            color: Theme.muted;
-            wrap: word-wrap;
-            accessible-role: text;
-            accessible-label: self.text;
-        }
-        HorizontalLayout {
-            alignment: start;
-            spacing: 10px;
-            graphics-test := Btn {
-                small: true;
-                text: @tr("Test which is fastest");
-                enabled: !SettingsDlg.graphics-testing;
-                clicked => { SettingsDlg.graphics-test(); }
+    /// The question shown over the window (`ask::confirm` from Settings), if any.
+    in property <[AskRow]> ask;
+    callback ask-answer(bool, string);
+    callback ask-other();
+    callback ask-third();
+    /// Gives the keyboard back to the window (after a question).
+    callback focus-keys();
+    focus-keys => { keys.focus(); }
+
+    keys := FocusScope {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.height;
+        // While a key is being changed (Keys → Keyboard shortcuts), every key goes to it.
+        capture-key-pressed(event) => {
+            if KeysDlg.capturing >= 0 {
+                KeysDlg.key-captured(event.text, event.modifiers.control || event.modifiers.meta, event.modifiers.alt, event.modifiers.shift);
+                return accept;
             }
-            graphics-test-status := Text {
-                text: SettingsDlg.graphics-test-status != "" ? SettingsDlg.graphics-test-status : @tr("About a minute. Test windows open and close while it runs, on the projector too when nothing is showing there.");
-                color: Theme.muted;
-                wrap: word-wrap;
-                vertical-alignment: center;
-                horizontal-stretch: 1;
-                accessible-role: text;
-                accessible-label: self.text;
-            }
+            reject
         }
-        for r[i] in SettingsDlg.graphics-test-rows: graphics-test-row := Rectangle {
-            min-height: 30px;
-            border-radius: 6px;
-            background: SettingsDlg.graphics-test-pick == i ? Theme.raise : transparent;
-            accessible-role: list-item;
-            accessible-label: (r.best ? "★ " : "") + r.name + ": " + r.word + ". " + r.details;
-            accessible-item-selectable: true;
-            accessible-item-selected: SettingsDlg.graphics-test-pick == i;
-            accessible-action-default => { SettingsDlg.graphics-test-pick = i; }
-            TouchArea {
-                enabled: r.works;
-                mouse-cursor: r.works ? pointer : default;
-                clicked => { SettingsDlg.graphics-test-pick = i; }
+        key-pressed(event) => {
+            if event.text == Key.Escape {
+                SettingsDlg.cancel();
+                return accept;
             }
+            reject
+        }
+
+        VerticalLayout {
             HorizontalLayout {
-                padding-left: 6px;
-                padding-right: 6px;
-                spacing: 10px;
-                Text {
-                    width: 16px;
-                    text: r.best ? "★" : "";
-                    color: Theme.accent;
-                    vertical-alignment: center;
-                }
-                Text {
-                    width: 90px;
-                    text: r.name;
-                    color: Theme.text;
-                    vertical-alignment: center;
-                }
-                VerticalLayout {
-                    alignment: center;
-                    Rectangle {
-                        width: 180px;
-                        height: 8px;
-                        border-radius: 4px;
-                        background: Theme.line;
-                        Rectangle {
-                            x: 0;
-                            width: parent.width * clamp(r.bar, 0, 1);
-                            border-radius: 4px;
-                            background: r.best ? Theme.accent : Theme.muted;
+                vertical-stretch: 1;
+                // The sidebar: the search, the categories and their pages, and Show advanced settings.
+                sidebar := Rectangle {
+                    width: 236px;
+                    background: Theme.bg;
+                    VerticalLayout {
+                        padding: 12px;
+                        spacing: 8px;
+                        find := TextField {
+                            search: true;
+                            placeholder: @tr("Find a setting");
+                            text <=> SettingsDlg.find-text;
+                            edited(t) => { SettingsDlg.find-edited(t); }
+                            accepted => { if SettingsDlg.find-rows.length > 0 { SettingsDlg.find-pick(0); } }
+                        }
+                        ScrollBox {
+                            vertical-stretch: 1;
+                            track-edge: Theme.bg;
+                            VerticalLayout {
+                                alignment: start;
+                                padding-right: 6px;
+                                if SettingsDlg.find-text == "": VerticalLayout {
+                                    for n in SettingsDlg.nav: nav-row := NavLine {
+                                        title: n.title;
+                                        heading: n.heading;
+                                        on: !n.heading && n.page == SettingsDlg.tab;
+                                        clicked => { SettingsDlg.nav-pick(n.page); }
+                                    }
+                                }
+                                if SettingsDlg.find-text != "": VerticalLayout {
+                                    spacing: 2px;
+                                    for f[i] in SettingsDlg.find-rows: find-row := NavLine {
+                                        title: f.title;
+                                        sub: f.path;
+                                        on: SettingsDlg.highlight == f.key && f.key != "";
+                                        clicked => { SettingsDlg.find-pick(i); }
+                                    }
+                                    if SettingsDlg.find-rows.length == 0: no-match := Text {
+                                        text: @tr("No setting has those words.");
+                                        color: Theme.muted;
+                                        font-family: Theme.font;
+                                        font-size: 12.5px;
+                                        wrap: word-wrap;
+                                    }
+                                }
+                            }
+                        }
+                        advanced := Check {
+                            padding-bottom: 0px;
+                            text: @tr("Show advanced settings");
+                            checked <=> SettingsDlg.advanced;
+                            toggled(on) => { SettingsDlg.advanced-changed(on); }
                         }
                     }
                 }
-                Text {
-                    width: 80px;
-                    text: r.word;
-                    color: r.works ? Theme.text : Theme.muted;
-                    vertical-alignment: center;
+                Rectangle {
+                    width: 1px;
+                    background: Theme.line;
                 }
-                graphics-test-details := Text {
-                    text: r.details;
-                    color: Theme.muted;
-                    font-size: 12px;
-                    wrap: word-wrap;
-                    vertical-alignment: center;
+                // The page: its title, then its rows, which scroll.
+                VerticalLayout {
                     horizontal-stretch: 1;
-                    accessible-role: text;
-                    accessible-label: self.text;
+                    HorizontalLayout {
+                        vertical-stretch: 0;
+                        padding-left: 22px;
+                        padding-right: 22px;
+                        min-height: 58px;
+                        page-title := Text {
+                            text: SettingsDlg.page-title;
+                            color: Theme.text;
+                            font-family: Theme.display;
+                            font-size: 20px;
+                            font-weight: 600;
+                            overflow: elide;
+                            vertical-alignment: center;
+                            accessible-role: text;
+                            accessible-label: self.text;
+                        }
+                    }
+                    body := ScrollBox {
+                        vertical-stretch: 1;
+                        property <int> serial: SettingsDlg.reveal-serial;
+                        // A row found by the search or a link: scrolled to, a little below the top.
+                        changed serial => {
+                            self.content-y = clamp(self.content-y - (SettingsDlg.reveal-y - self.absolute-position.y) + 16px,
+                                min(0px, self.height - self.content-height), 0px);
+                        }
+                        changed width => { SettingsDlg.content-width = self.width - 44px; }
+                        init => { SettingsDlg.content-width = self.width - 44px; }
+                        VerticalLayout {
+                            alignment: start;
+                            padding-top: 4px;
+                            padding-bottom: 22px;
+                            padding-left: 12px;
+                            padding-right: 22px;
+                            pages := Pages {}
+                        }
+                    }
+                }
+            }
+            // While a theme is being edited, the footer saves the theme instead of the settings.
+            if SettingsDlg.tab == 3 && ThemesDlg.editing: DialogFoot {
+                theme-cancel := Btn {
+                    text: @tr("Cancel");
+                    clicked => { ThemesDlg.cancel-edit(); }
+                }
+                theme-save := Btn {
+                    primary: true;
+                    text: @tr("Save theme");
+                    clicked => { ThemesDlg.save-theme(); }
+                }
+            }
+            if !(SettingsDlg.tab == 3 && ThemesDlg.editing): DialogFoot {
+                cancel := Btn {
+                    text: @tr("Cancel");
+                    clicked => { SettingsDlg.cancel(); }
+                }
+                save := Btn {
+                    primary: true;
+                    text: @tr("Save settings");
+                    clicked => { SettingsDlg.save(); }
                 }
             }
         }
-        if (SettingsDlg.graphics-test-rows.length > 0 && !SettingsDlg.graphics-testing) || SettingsDlg.graphics-restart: HorizontalLayout {
-            alignment: start;
-            spacing: 10px;
-            if SettingsDlg.graphics-test-rows.length > 0 && !SettingsDlg.graphics-testing: graphics-test-use := Btn {
-                small: true;
-                primary: !SettingsDlg.graphics-restart;
-                text: @tr("Use this");
-                clicked => { SettingsDlg.graphics-test-use(SettingsDlg.graphics-test-pick); }
-            }
-            if SettingsDlg.graphics-restart: graphics-restart := Btn {
-                small: true;
-                primary: true;
-                text: @tr("Restart now");
-                clicked => { SettingsDlg.restart-now(); }
-            }
-        }
     }
-    Field {
-        label: @tr("Performance");
-        help: @tr("Shows under the live preview how many frames a second the screens draw, and the free video memory when the graphics card says. Low numbers mean the computer is struggling.");
-        show-performance := Check {
-            text: @tr("Show performance");
-            checked <=> SettingsDlg.show-performance;
-        }
-    }
-    Rectangle { height: 10px; }
-    Heading { text: @tr("Screens"); }
-    Field {
-        label: @tr("Audience screen");
-        room-on-top := Check {
-            text: @tr("Keep the audience screen in front when it has its own monitor (smoother fades)");
-            checked <=> SettingsDlg.room-on-top;
-        }
-    }
-    Field {
-        label: @tr("At start");
-        screens-at-start := Check {
-            text: @tr("Turn the screens on when RustyPresenter starts");
-            checked <=> SettingsDlg.screens-at-start;
-        }
-    }
-    Field {
-        label: @tr("Stage layout");
-        help: @tr("What the stage screen shows. Window → Stage layouts… makes your own.");
-        stage-layout := Select {
-            options: SettingsDlg.stage-layout-names;
-            index <=> SettingsDlg.stage-layout;
-        }
-    }
-    Rectangle { height: 10px; }
-    Heading { text: @tr("Phone drawing"); }
-    Field {
-        label: @tr("Drawing from a phone");
-        VerticalLayout {
-            keep-drawings := Check {
-                text: @tr("Keep drawings when the slide changes");
-                checked <=> SettingsDlg.keep-drawings;
-            }
-            stage-drawings := Check {
-                text: @tr("Show drawings on the stage screen");
-                checked <=> SettingsDlg.stage-drawings;
-            }
-        }
-    }
-    Field {
-        label: @tr("Fading ink disappears after (seconds, 1–30)");
-        help: @tr("On the phone, “Fades” ink works like a laser pointer: it goes away by itself.");
-        fade-secs := TextField { text <=> SettingsDlg.fade-secs; }
-    }
-    Field {
-        label: @tr("Limits");
-        VerticalLayout {
-            drawing-limit := Check {
-                text: @tr("Limit phone drawing");
-                checked <=> SettingsDlg.drawing-limit;
-            }
-            if SettingsDlg.drawing-limit: Field {
-                label: @tr("Most lines on the screen at once");
-                drawing-max-strokes := TextField { text <=> SettingsDlg.drawing-max-strokes; }
-            }
-            if SettingsDlg.drawing-limit: Field {
-                label: @tr("Most drawing updates a second from one phone");
-                drawing-max-per-second := TextField { text <=> SettingsDlg.drawing-max-per-second; }
-            }
-        }
-    }
-}
 
-component SettingsBackups inherits VerticalLayout {
-    Note {
-        text: @tr("A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in");
-        HorizontalLayout {
-            alignment: start;
-            padding-top: 4px;
-            spacing: 2px;
-            folder := CopyText { text: SettingsDlg.backups-folder; }
-            Text {
-                text: ".";
-                color: Theme.muted;
-                vertical-alignment: center;
-            }
-        }
+    for a in root.ask: AskOverlay {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.height;
+        ask: a;
+        answer(ok, text) => { root.ask-answer(ok, text); }
+        other => { root.ask-other(); }
+        third => { root.ask-third(); }
     }
-    Rectangle { height: 12px; }
-    HorizontalLayout {
-        alignment: start;
-        backup-now := Btn {
-            primary: true;
-            text: @tr("Back up now");
-            clicked => { SettingsDlg.backup-now(); }
-        }
-    }
-    Rectangle { height: 12px; }
-    VerticalLayout {
-        spacing: 4px;
-        for b[i] in SettingsDlg.backups: backup-row := ListRow {
-            accessible-role: list-item;
-            accessible-label: b.label;
-            accessible-value: b.counts;
-            RowMain {
-                title: b.label;
-                sub: b.counts;
-            }
-            restore := Btn {
-                small: true;
-                text: @tr("Restore");
-                clicked => { SettingsDlg.restore(i); }
-            }
-        }
-        if SettingsDlg.backups.length == 0: no-backups := Text {
-            text: @tr("No backups yet.");
-            color: Theme.muted;
-        }
-    }
-}
-
-/// The Settings dialog's content: put inside a `DialogShell`.
-export component SettingsDialog inherits VerticalLayout {
-    DialogBody {
-        tabs := Tabs {
-            labels: [@tr("Look"), @tr("Themes"), @tr("Language"), @tr("Songs"), @tr("Auto-follow"), @tr("Bible"), @tr("Video"), @tr("Media"), @tr("Backups"), @tr("Help"), @tr("About")];
-            index <=> SettingsDlg.tab;
-            changed(i) => { SettingsDlg.tab-changed(i); }
-        }
-        Rectangle { height: 14px; }
-        if SettingsDlg.tab == 0: look := SettingsLook {}
-        if SettingsDlg.tab == 1: themes := SettingsThemes {}
-        if SettingsDlg.tab == 2: language := SettingsLanguage {}
-        if SettingsDlg.tab == 3: songs := SettingsSongs {}
-        if SettingsDlg.tab == 4: follow := SettingsFollow {}
-        if SettingsDlg.tab == 5: bible := SettingsBible {}
-        if SettingsDlg.tab == 6: video := SettingsVideo {}
-        if SettingsDlg.tab == 7: media := SettingsMedia {}
-        if SettingsDlg.tab == 8: backups := SettingsBackups {}
-        if SettingsDlg.tab == 9: help := SettingsHelp {}
-        if SettingsDlg.tab == 10: about := SettingsAbout {}
-    }
-    // While a theme is being edited, the footer saves the theme instead of the settings.
-    if SettingsDlg.tab == 1 && ThemesDlg.editing: DialogFoot {
-        theme-cancel := Btn {
-            text: @tr("Cancel");
-            clicked => { ThemesDlg.cancel-edit(); }
-        }
-        theme-save := Btn {
-            primary: true;
-            text: @tr("Save theme");
-            clicked => { ThemesDlg.save-theme(); }
-        }
-    }
-    if !(SettingsDlg.tab == 1 && ThemesDlg.editing): DialogFoot {
-        cancel := Btn {
-            text: @tr("Cancel");
-            clicked => { SettingsDlg.cancel(); }
-        }
-        save := Btn {
-            primary: true;
-            text: @tr("Save settings");
-            clicked => { SettingsDlg.save(); }
-        }
+    // The hover tooltip of every widget in the window, over everything.
+    TipLayer {
+        x: 0px;
+        y: 0px;
+        width: root.width;
+        height: root.height;
     }
 }

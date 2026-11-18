@@ -171,7 +171,7 @@ const LAYERS: [Kind; 5] = [Kind::Background, Kind::Media, Kind::Slide, Kind::Log
 
 fn index(kind: Kind) -> Option<usize> { LAYERS.iter().position(|k| *k == kind) }
 
-/// How a picture on the media layer fills the room (Settings → Media, N24): `media-fit` in `room.slint`.
+/// How a picture on the media layer fills the room (Settings → General → Screens and graphics and media, N24): `media-fit` in `room.slint`.
 fn media_fit(scale: Scale) -> i32 {
     match scale { Scale::Fit => 0, Scale::Fill => 1, Scale::Stretch => 2 }
 }

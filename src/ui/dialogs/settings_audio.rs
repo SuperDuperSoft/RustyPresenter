@@ -1,4 +1,4 @@
-//! Settings → Video: where sound goes (spec §6.4). The list comes from libmpv; the saved choice stays even when its
+//! Settings → General → Screens and graphics: where sound goes (spec §6.4). The list comes from libmpv; the saved choice stays even when its
 //! device is unplugged, so that plugging it back in is all it takes.
 use super::settings::strings as tr;
 use crate::{ui::{SettingsDlg, operator::window::Operator}, video::ffi::AudioDevice};
@@ -40,7 +40,7 @@ pub(super) fn load(op: &Rc<Operator>) {
     let me = Rc::downgrade(op);
     op.ops().audio_devices(move |devices| {
         let Some(op) = me.upgrade() else { return };
-        let g = op.ui.global::<SettingsDlg>();
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
         fill(&g, &devices, &read(&g));
         super::settings_media::fill_listen(&g, &devices, &super::settings_media::read_listen(&g));
         super::settings_record::fill_stream_sound(&g, &devices, &super::settings_record::read_stream_sound(&g));

@@ -6,11 +6,11 @@ pub fn empty_service() -> String { tr!("This service has no items yet.") }
 pub fn no_room() -> String { tr!("No audience screen is chosen. Choose one in Screens.") }
 pub fn room_gone() -> String { tr!("The audience screen is not connected. Check its cable, or choose another in Screens.") }
 pub fn stage_gone() -> String { tr!("The stage screen is not connected. The service can run without it.") }
-pub fn audio_gone() -> String { tr!("The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Video.") }
+pub fn audio_gone() -> String { tr!("The sound output chosen in Settings is not connected. Plug it in, or choose another in Settings → Sound.") }
 /// On the live column, when the output goes away during the service (spec §6.4).
-pub fn sound_gone() -> String { tr!("The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Video, then press play.") }
-pub fn logo_missing() -> String { tr!("The logo's file is missing. Choose it again in Settings → Look.") }
-pub fn background_missing() -> String { tr!("The default background's file is missing. Choose it again in Settings → Look.") }
+pub fn sound_gone() -> String { tr!("The sound output is not connected, so the video or audio was paused. Plug it in, or choose another in Settings → Sound, then press play.") }
+pub fn logo_missing() -> String { tr!("The logo's file is missing. Choose it again in Settings → Look → Text and logo.") }
+pub fn background_missing() -> String { tr!("The default background's file is missing. Choose it again in Settings → Look → Text and logo.") }
 pub fn song_missing() -> String { tr!("the song is no longer in the library") }
 pub fn song_empty() -> String { tr!("the song has no words") }
 pub fn no_verses() -> String { tr!("there is no verse text") }

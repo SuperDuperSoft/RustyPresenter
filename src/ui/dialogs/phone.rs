@@ -163,15 +163,15 @@ mod tests {
     fn phone_dialog_title_and_address_text() {
         let app = app_with_lan();
         let op = open_phone(&app);
-        assert_eq!(op.ui.get_dialog_title(), "Phone remote");
-        assert_eq!(label(&op, "PhoneDialog::note"), "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer.");
+        assert_eq!(op.ui.get_dialog_title(), "Remote");
+        assert_eq!(label(&op, "PhoneDialog::note"), "Use your phone or tablet as a remote: it runs the slides from anywhere on the church Wi-Fi. It must be on the same network as this computer.");
         assert_eq!(label(&op, "PhoneDialog::address"), "http://192.168.1.20:7878/remote");
         assert!(find(&op, "PhoneDialog::none-yet").is_some(), "None yet.");
         assert!(find(&op, "PhoneDialog::pin").is_none(), "no code until Pair a phone");
 
         let app = test_app();
         let op = open_phone(&app);
-        assert_eq!(label(&op, "PhoneDialog::note"), "Control the slides from any phone on the church Wi-Fi. The phone must be on the same network as this computer. (No network found — connect this computer to Wi-Fi.)");
+        assert_eq!(label(&op, "PhoneDialog::note"), "Use your phone or tablet as a remote: it runs the slides from anywhere on the church Wi-Fi. It must be on the same network as this computer. (No network found — connect this computer to Wi-Fi.)");
         assert!(find(&op, "PhoneDialog::address").is_none());
     }
 
@@ -247,9 +247,9 @@ mod tests {
         for _ in 1..119 { i_slint_backend_testing::mock_elapsed_time(Duration::from_secs(1)) }
         assert_eq!(g.get_countdown(), "Code works for 1 more seconds", "as the web words it");
         i_slint_backend_testing::mock_elapsed_time(Duration::from_secs(1));
-        assert_eq!(g.get_countdown(), "Code expired — click Pair a phone again.");
+        assert_eq!(g.get_countdown(), "Code expired — click Pair a phone or tablet again.");
         for _ in 0..5 { i_slint_backend_testing::mock_elapsed_time(Duration::from_secs(1)) }
-        assert_eq!(g.get_countdown(), "Code expired — click Pair a phone again.");
+        assert_eq!(g.get_countdown(), "Code expired — click Pair a phone or tablet again.");
     }
 
     #[test]
