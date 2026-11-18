@@ -1,6 +1,7 @@
 //! FEAT-3 stage layouts, the pure core (no UI): boxes on the stage screen, what each can show,
 //! the built-in layouts (`presets`) and the compositor that fills the boxes from live state (`view`).
 pub mod actions;
+pub mod chords;
 pub mod geom;
 pub mod lossless;
 pub mod presets;

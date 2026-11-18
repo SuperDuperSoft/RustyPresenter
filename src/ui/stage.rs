@@ -1,12 +1,12 @@
 //! The stage screen for the people on the platform: what is live, what comes next, notes,
 //! the clock and the time left on a video (same content as `web/stage.html`).
 //! Classic (the default) draws today's fixed screen; any other stage layout draws its boxes (`stage::view`).
-use super::{StageCellVm, StageWindow};
+use super::{ChordPieceVm, StageCellVm, StageWindow};
 use crate::{
     app::{App, LiveUpdate, LiveView, Update},
     model::{Slide, SlideContent},
     platform::monitors::{self, MonitorId},
-    stage::{self, presets, strings as s, view::{self, CellContent, StageInputs}, Align, StageLayout, StageState, VAlign},
+    stage::{self, chords, presets, strings as s, view::{self, CellContent, StageInputs}, Align, StageLayout, StageState, VAlign},
     timers::TimersView,
 };
 use slint::{ComponentHandle, Model, Timer, TimerMode, VecModel};
@@ -180,6 +180,8 @@ impl SlidePictures {
 /// The window's own state: the last thing drawn (redrawn by the clock and on resize) and fitted sizes.
 #[derive(Default)]
 struct StageScreen { last: Mutex<Option<Shown>>, fits: Mutex<HashMap<FitKey, f32>>, state: Mutex<StageState>, pictures: NextPictures,
+    /// Text measured for chord sheets: (text, weight) → width and height at `MEASURE_AT` pixels.
+    measures: Mutex<HashMap<(String, i32), (f32, f32)>>,
     slide_pictures: SlidePictures, live_pictures: LivePictures,
     /// The live version whose click group was last made, so each plays once.
     group_made: Mutex<Option<u64>> }
@@ -327,6 +329,7 @@ fn cell_vm(ui: &StageWindow, screen: &StageScreen, c: &view::Cell, next_picture:
             caption: caption.clone().unwrap_or_default().to_uppercase().into(), has_picture: true, anim: !next,
             picture: if *next { next_picture.clone() } else { live_picture.clone() }, ..base()
         }),
+        CellContent::Chords { lines, caption, chord_color } => return Some(chord_cell(ui, screen, c, lines, caption.as_deref().unwrap_or_default(), chord_color, base())),
         CellContent::Text { text, dim, caption, red } => (text.clone(), caption.clone().unwrap_or_default(), *dim, *red, false),
         // The slide itself (a PowerPoint/PDF slide); its name only while the picture can't be read.
         CellContent::Picture { asset, caption } => match screen.slide_pictures.get(asset) {
@@ -372,6 +375,86 @@ fn fit_cell(ui: &StageWindow, screen: &StageScreen, text: &str, c: &view::Cell, 
     if fits.len() > 512 { fits.clear() }
     fits.insert(key, size);
     size
+}
+
+/// Chords are drawn a little smaller than the words, and bold.
+const CHORD_SCALE: f32 = 0.9;
+const CHORD_WEIGHT: i32 = 800;
+/// The size text is measured at (in pixels); other sizes are worked out from it.
+const MEASURE_AT: f32 = 100.0;
+
+thread_local! {
+    /// The last chord sheets drawn, so a redraw (the clock, every second) hands the window the same pieces and
+    /// it does not build them again.
+    static SHEETS: std::cell::RefCell<Vec<(SheetKey, slint::ModelRc<ChordPieceVm>)>> = std::cell::RefCell::default();
+}
+
+#[derive(PartialEq, Clone)]
+struct SheetKey { text: String, w: i32, size: i32, bold: bool }
+
+/// How wide and high `text` is drawn at `MEASURE_AT` pixels in `weight`, measured once by the window.
+fn measured(ui: &StageWindow, screen: &StageScreen, text: &str, weight: i32) -> (f32, f32) {
+    let key = (text.to_string(), weight);
+    if let Some(m) = screen.measures.lock().unwrap().get(&key) { return *m }
+    ui.set_measure_size(MEASURE_AT);
+    ui.set_measure_weight(weight);
+    let at = |t: String| { ui.set_measure_text(t.into()); (ui.get_measure_width(), ui.get_measure_height()) };
+    // Between two bars, so spaces at either end count.
+    let (with, h) = at(format!("|{text}|"));
+    let (bars, _) = at("||".into());
+    let m = ((with - bars).max(0.0), h);
+    let mut all = screen.measures.lock().unwrap();
+    if all.len() > 4096 { all.clear() }
+    all.insert(key, m);
+    m
+}
+
+/// A chord sheet box: the chords above the words (`stage::chords`), at the biggest size from the box's own down
+/// at which the whole sheet fits (both rows of every line count); never cut off, as `fit_between` says.
+fn chord_cell(ui: &StageWindow, screen: &StageScreen, c: &view::Cell, lines: &[chords::ChordLine], caption: &str, chord_color: &str, base: StageCellVm) -> StageCellVm {
+    let st = &c.style;
+    let (ww, wh) = (ui.get_window_width(), ui.get_window_height());
+    let vh = wh / 100.0;
+    let aw = c.rect.w * ww / 100.0 - 2.0 * PAD * vh;
+    let ah = c.rect.h * vh - 2.0 * PAD * vh - if caption.is_empty() { 0.0 } else { CAPTION * vh };
+    let words_weight = if st.bold { 650 } else { 500 };
+    let text = chords::plain(lines);
+    let lay = |size: f32| {
+        let (px, cpx) = (size * vh, size * CHORD_SCALE * vh);
+        let line_h = |weight| measured(ui, screen, "Ag", weight).1 / MEASURE_AT;
+        let m = chords::Metrics { chord_h: line_h(CHORD_WEIGHT) * cpx, words_h: line_h(words_weight) * px, gap: 0.4 * px };
+        chords::lay_out(lines, aw, m, |t, chord| if chord { measured(ui, screen, t, CHORD_WEIGHT).0 * cpx } else { measured(ui, screen, t, words_weight).0 * px } / MEASURE_AT)
+    };
+    let (max, min) = (st.max_size, st.min_size);
+    let key = FitKey { text: format!("\u{1}chords\u{1}{text}"), w: aw.round() as i32, h: ah.round() as i32, bold: st.bold, max: (max * 100.0) as i32, min: (min * 100.0) as i32 };
+    let cached = screen.fits.lock().unwrap().get(&key).copied();
+    let size = cached.unwrap_or_else(|| {
+        let size = fit_between(max, min, |s| { let l = lay(s); l.w <= aw + 0.5 && l.h <= ah });
+        let mut fits = screen.fits.lock().unwrap();
+        if fits.len() > 512 { fits.clear() }
+        fits.insert(key, size);
+        size
+    });
+    let laid = lay(size);
+    let skey = SheetKey { text: text.clone(), w: aw.round() as i32, size: (size * 100.0) as i32, bold: st.bold };
+    let pieces = SHEETS.with_borrow_mut(|all| {
+        if let Some((_, m)) = all.iter().find(|(k, _)| *k == skey) { return m.clone() }
+        let rows: Vec<ChordPieceVm> = laid.pieces.iter().map(|p| ChordPieceVm { x: p.x, y: p.y, text: p.text.as_str().into(), chord: p.chord }).collect();
+        let m: slint::ModelRc<ChordPieceVm> = Rc::new(VecModel::from(rows)).into();
+        all.push((skey, m.clone()));
+        if all.len() > 8 { all.remove(0); }
+        m
+    });
+    StageCellVm {
+        text: text.into(),
+        caption: caption.to_uppercase().into(),
+        size,
+        align: match st.align { Align::Left => 0, Align::Center => 1, Align::Right => 2 },
+        valign: match st.valign { VAlign::Top => 0, VAlign::Middle => 1, VAlign::Bottom => 2 },
+        bold: st.bold,
+        sheet: true, sheet_w: laid.w, sheet_h: laid.h, pieces, chord_color: color(chord_color), chord_size: size * CHORD_SCALE,
+        ..base
+    }
 }
 
 /// This window's screen fix and test pattern (N20).
@@ -833,6 +916,74 @@ mod tests {
         let clock = stage.ui.get_cells().iter().next().expect("clock box");
         assert_eq!((clock.x, clock.y, clock.w, clock.h), (5.0, 8.0, 90.0, 40.0));
         assert!(clock.text.ends_with("AM") || clock.text.ends_with("PM"), "{}", clock.text);
+        stage.ui.hide().unwrap();
+    }
+
+    /// The Band layout with a slide of chords live (`chords` as typed in the song), at 1280 × 720.
+    fn band_with_chords(chords: &str) -> (std::rc::Rc<Stage>, Vec<StageCellVm>) {
+        let app = app_with_layout(crate::stage::presets::BAND);
+        let stage = Stage::open(app.clone(), None).unwrap();
+        stage.ui.window().set_size(slint::LogicalSize::new(1280.0, 720.0));
+        let mut v = app.live_view();
+        let slide = v.slide.as_mut().unwrap();
+        slide.chords = Some(chords.into());
+        slide.content = SlideContent::Text { text: crate::slides::strip_chords(chords).unwrap(), footer: None, reference: None, size: 0, parallel: None };
+        let screen = StageScreen::default();
+        show(&stage.ui, &screen, Shown { live: LiveUpdate::new(v), layout: crate::stage::presets::by_id(crate::stage::presets::BAND).unwrap().clone(), slides: vec![], timers: Default::default(), next_picture: None, live_picture: None, group: None });
+        let cells = stage.ui.get_cells().iter().collect();
+        (stage, cells)
+    }
+
+    #[test]
+    fn the_band_layout_shows_chords_above_the_words() {
+        i_slint_backend_testing::init_no_event_loop();
+        let verse = "[D]  Sometimes the [A/D]night is beautiful\n[G/B]  Sometimes it seemed to stoop so [Asus]close\nYou could [A7]touch it, but your heart would [F#m]break\n[D]      [G/D]    [A/D]";
+        let (stage, cells) = band_with_chords(verse);
+        let cell = cells.iter().find(|c| c.sheet).expect("the current slide's box is a chord sheet");
+        assert_eq!(cell.text, verse, "the chords as written, for screen readers");
+        let pieces: Vec<ChordPieceVm> = cell.pieces.iter().collect();
+        let at = |t: &str| pieces.iter().find(|p| p.text == t).unwrap_or_else(|| panic!("no {t:?} in {pieces:?}")).clone();
+        // Each chord starts exactly over its letter, on the row above.
+        for (chord, word) in [("A/D", "night "), ("Asus", "close"), ("A7", "touch "), ("F#m", "break")] {
+            let (c, w) = (at(chord), at(word));
+            assert!(c.chord && !w.chord);
+            assert_eq!(c.x, w.x, "{chord} over {word}");
+            assert!(c.y < w.y, "{chord} above {word}");
+        }
+        assert!(pieces.iter().all(|p| !p.text.contains('[')), "no brackets");
+        // The intro line of chords alone: three chords on one row, left to right, and no words.
+        let alone: Vec<&ChordPieceVm> = pieces.iter().filter(|p| ["G/D", "A/D"].contains(&p.text.as_str()) && p.y == at("G/D").y).collect();
+        assert_eq!(alone.len(), 2);
+        assert!(alone[0].x < alone[1].x);
+        // Chords never overlap: on each row, a chord starts after the one before it ends.
+        let mut chords: Vec<&ChordPieceVm> = pieces.iter().filter(|p| p.chord).collect();
+        chords.sort_by(|a, b| (a.y, a.x).partial_cmp(&(b.y, b.x)).unwrap());
+        for pair in chords.windows(2) { if pair[0].y == pair[1].y { assert!(pair[1].x > pair[0].x, "{pair:?}") } }
+        // The whole sheet fits the box.
+        let (ww, wh) = (stage.ui.get_window_width(), stage.ui.get_window_height());
+        let vh = wh / 100.0;
+        assert!(cell.sheet_w <= cell.w * ww / 100.0 - 2.0 * PAD * vh + 0.5, "{} wide", cell.sheet_w);
+        assert!(cell.sheet_h <= cell.h * vh - 2.0 * PAD * vh, "{} high", cell.sheet_h);
+        assert_eq!(cell.chord_color, slint::Color::from_rgb_u8(0xf5, 0xc6, 0x6b), "gold chords over white words");
+        assert!((cell.chord_size - cell.size * CHORD_SCALE).abs() < 1e-4);
+        let drawn: Vec<String> = i_slint_backend_testing::ElementHandle::find_by_element_id(&stage.ui, "StageWindow::sheet-t")
+            .map(|e| e.accessible_label().unwrap_or_default().to_string()).collect();
+        assert_eq!(drawn.len(), 1, "drawn as a sheet, not as text: {drawn:?}");
+        stage.ui.hide().unwrap();
+    }
+
+    #[test]
+    fn a_long_chord_sheet_gets_smaller_and_wraps_rather_than_being_cut_off() {
+        i_slint_backend_testing::init_no_event_loop();
+        let line = "[G]Amazing grace how [C]sweet the sound that [G]saved a wretch like me, I [D]once was lost but now am found, was [G]blind but now I see";
+        let long = [line; 8].join("\n");
+        let (stage, cells) = band_with_chords(&long);
+        let cell = cells.iter().find(|c| c.sheet).unwrap();
+        assert!(cell.size < 10.0, "smaller: {}", cell.size);
+        let (ww, wh) = (stage.ui.get_window_width(), stage.ui.get_window_height());
+        let vh = wh / 100.0;
+        assert!(cell.sheet_w <= cell.w * ww / 100.0 - 2.0 * PAD * vh + 0.5);
+        assert!(cell.sheet_h <= cell.h * vh - 2.0 * PAD * vh);
         stage.ui.hide().unwrap();
     }
 
