@@ -130,6 +130,8 @@ pub struct Rules {
     pace: Option<f64>,
     /// The last word heard and when it was sung (the ear delivers it later: see `arrived`).
     last_word: Option<(usize, f64)>,
+    /// A held note stopped the pace prediction here. A breath after it still needs fresh lyric evidence.
+    coast_frozen_at: Option<f64>,
     /// When the last word reached the rules. "Heard just now" is counted from here, not from when it was sung:
     /// a slow ear must not make every word look old.
     arrived: f64,
@@ -168,7 +170,7 @@ pub struct Rules {
     /// The screen went back to this slide, into its last line (a tag): it is left on its last word, not early
     /// again.
     came_back: Option<usize>,
-    /// The live slide at the last look.
+    /// The live slide at the last look, for remembering a tag or repeat.
     last_live: Option<usize>,
     /// The words came off because the song ended (not by one of Settings' timers).
     ended: bool,
@@ -177,22 +179,12 @@ pub struct Rules {
     talk_since_word: bool,
     /// When the room's label last said talking.
     last_talk: Option<f64>,
-    /// Since the live slide went live, the room has stopped singing while the rules looked: for `STILL_SINGING`
-    /// every look in a row found its label saying something other than singing, and no word was surely sung.
-    /// Only then can singing "start" on a slide with no words: the last note of the song before, still held
-    /// when the operator puts the next song's intro slide up, is not a start. One such look is not enough: the
-    /// label flickers in the middle of a held note.
-    not_singing_here: bool,
-    /// When the looks in a row that found no singing began, on the live slide; `None` while the label says
-    /// singing, and after a time the rules were not looking.
-    not_singing_since: Option<f64>,
 }
 
 impl Rules {
     pub fn new(settings: Settings, song: &SongText) -> Rules {
-        Rules { settings, song: song.clone(), pace: None, last_word: None, arrived: 0.0, started: None, last_singing: None, speaking_since: None, blanked: false, blank_word: None, beat: None, blank_why: (false, 0.0), finished: None, sung: None, sung_run: 0, word_spoken: false, pace_from: None, quiet_from: None, restart_quiet: false,
-            run: None, tag: None, came_back: None, last_live: None, ended: false, talk_since_word: false, last_talk: None,
-            not_singing_here: false, not_singing_since: None }
+        Rules { settings, song: song.clone(), pace: None, last_word: None, coast_frozen_at: None, arrived: 0.0, started: None, last_singing: None, speaking_since: None, blanked: false, blank_word: None, beat: None, blank_why: (false, 0.0), finished: None, sung: None, sung_run: 0, word_spoken: false, pace_from: None, quiet_from: None, restart_quiet: false,
+            run: None, tag: None, came_back: None, last_live: None, ended: false, talk_since_word: false, last_talk: None }
     }
 
     /// The singers' pace in syllables a second, once heard.
@@ -208,6 +200,7 @@ impl Rules {
     /// The quiet clocks start again from the operator's move, so a timer never undoes it at once.
     pub fn reset(&mut self) {
         self.last_word = None;
+        self.coast_frozen_at = None;
         self.pace_from = None;
         self.blanked = false;
         self.blank_word = None;
@@ -228,8 +221,6 @@ impl Rules {
         self.speaking_since = None;
         // Someone may have talked meanwhile.
         self.talk_since_word = true;
-        // And someone may have sung: looks "in a row" that found no singing start again.
-        self.not_singing_since = None;
     }
 
     /// The rules are not looking (Hold, a video, Manual, waiting for the singers after a hand move) but the ear
@@ -259,8 +250,8 @@ impl Rules {
     ///
     /// The next words go up as the slide's last line is sung and then wait there, however long the pause. No
     /// timer takes words off unless Settings asks for one: they come off when the song's last word has been
-    /// sung and it stays quiet, and where the song has an instrumental slide. The room's sound alone (no heard
-    /// word) only leaves an instrumental slide as singing starts, and brings blanked words back.
+    /// sung and it stays quiet, and where the song has an instrumental slide. A pitched sound can bring
+    /// blanked words back in place. Leaving an instrumental slide requires evidence from the lyrics.
     ///
     /// The lead is counted back from the next slide's first word, as if the singers go straight on at their
     /// pace. The clock alone carries them at most `COAST_S` past the last word heard; then the change waits for
@@ -273,15 +264,16 @@ impl Rules {
     /// `now`. The ear delivers words late and several at once, so the pace and the lead are counted from when
     /// words were sung, not from when they arrived. On a look without a new word `sung` is not used.
     pub fn tick_sung(&mut self, now: f64, sung: f64, pos: &Position, voice: Voice, onsets_per_s: f32, live_slide: usize) -> Option<FollowAction> {
+        self.tick_audio(now, sung, pos, voice, onsets_per_s, live_slide, None)
+    }
+
+    pub(crate) fn tick_audio(&mut self, now: f64, sung: f64, pos: &Position, voice: Voice, onsets_per_s: f32, live_slide: usize, held_since: Option<f64>) -> Option<FollowAction> {
         let started = *self.started.get_or_insert(now);
-        // Another slide is live than at the last look: a tag was about the old one, "came back" only holds for
-        // the slide the screen came back to, and nothing but singing has been heard on the new one yet.
+        // A tag was about the old slide. "Came back" only holds for the slide the screen came back to.
         if self.last_live != Some(live_slide) {
             self.last_live = Some(live_slide);
             self.tag = None;
             if self.came_back != Some(live_slide) { self.came_back = None }
-            self.not_singing_here = false;
-            self.not_singing_since = None;
         }
         if std::mem::take(&mut self.restart_quiet) { self.quiet_from = Some(now) }
         match voice {
@@ -301,6 +293,9 @@ impl Rules {
         let sure = pos.confidence >= self.settings.min_conf && !pos.off_script;
         // A new word of the song is singing, whatever the room's label says (a loud band hides the voice from it).
         let new = self.note_word(now, sung.min(now), pos);
+        if voice == Voice::Singing && self.last_word.is_some() && self.coast_frozen_at.is_none() {
+            self.coast_frozen_at = held_since;
+        }
         if let Some(w) = pos.word.filter(|&w| w < self.song.words.len()) {
             if new {
                 self.word_spoken = voice == Voice::Speaking;
@@ -310,8 +305,12 @@ impl Rules {
             let just_heard = self.last_word.is_some() && now - self.arrived <= STILL_SINGING;
             if sure && voice != Voice::Speaking && !self.word_spoken && just_heard && self.sung.is_none_or(|(s, _)| s != w) {
                 self.last_singing = Some(now);
+                self.sung_run = if self.sung.is_some_and(|(_, at)| now - at <= FRESH_S) {
+                    self.sung_run.saturating_add(1)
+                } else {
+                    1
+                };
                 self.sung = Some((w, now));
-                self.sung_run = self.sung_run.saturating_add(1);
             } else if new {
                 // A spoken or unsure word breaks the run of sung words.
                 self.sung = None;
@@ -322,19 +321,6 @@ impl Rules {
                 let slide = self.song.words[w].slide;
                 self.finished = (w + 1 == self.song.slides[slide].end_word).then_some((slide, w));
             }
-        }
-        // Has the room stopped singing on this slide (`not_singing_here`)? Only after a full `STILL_SINGING` of
-        // looks in a row that found no singing, with no word surely sung in that time either (a loud band
-        // hides the voice from the label). A single look is the label flickering in a held note: taken as a
-        // stop, the note's next look would be singing "starting", and the intro slide the operator has just put
-        // up would be left. (Only at a look of the rules, not in `missed`: it can only make the next words wait
-        // for a heard word.)
-        if voice == Voice::Singing {
-            self.not_singing_since = None;
-        } else {
-            let since = *self.not_singing_since.get_or_insert(now);
-            let no_word_sung = self.last_singing.is_none_or(|t| now - t >= STILL_SINGING);
-            if no_word_sung && now - since >= STILL_SINGING { self.not_singing_here = true }
         }
         // Quiet: since anyone sang (or the operator's move); for "the last word was sung, then quiet", also
         // since that word was heard, whatever the room's label said at the time.
@@ -413,16 +399,6 @@ impl Rules {
         // Where the singers surely are: (word, its slide). Talk, an ad-lib or an unsure place gives none.
         let placed = pos.word.filter(|_| sure && voice != Voice::Speaking).and_then(|w| Some((w, self.song.words.get(w)?.slide)));
 
-        // An instrumental slide is live (an intro, a break): as singing starts the next words come up, unless
-        // the singers are already heard somewhere else. Starts: the room's label was something else on this
-        // slide first. Singing that was already going on when the slide went live (the last note of the song
-        // before, as the operator takes the next song's intro live) leaves it alone; a sure word heard on
-        // another slide still moves the screen, further down.
-        if !live_has_words && voice == Voice::Singing && self.not_singing_here
-            && !placed.is_some_and(|(w, at)| at != live_slide && !self.trailing(w, at, live_slide)) {
-            if let Some(n) = (live_slide + 1..self.song.slides.len()).find(|&s| !self.song.slides[s].instrumental) { return act(n) }
-        }
-
         // An instrumental slide after the live one would take the words off: only once the live slide's last
         // word is sung and it is quiet (talk holds).
         if finished_here.is_some() && self.song.slides.get(live_slide + 1).is_some_and(|s| s.instrumental)
@@ -446,6 +422,9 @@ impl Rules {
             let sung_on_next = at > live_slide && (live_slide + 1..at).all(|s| self.song.slides[s].instrumental)
                 && !self.talk_since_word && self.sung.is_some_and(|(s, _)| s == w);
             if !fresh && !sung_on_next { return None }
+            // Pitch alone can't distinguish a lead vocal from a guitar or keyboard. A lone vowel
+            // ("I", "Oh") also comes from a held note. Wait for a more distinctive lyric or two words.
+            if !live_has_words && at > live_slide && self.song.words[w].key.len() == 1 && self.sung_run < 2 { return None }
             // Back to the slide just before the live one: one ad-lib or misheard word must not flip the screen
             // back and forward again. A real repeat or tag gives several words in a row; a place that came back
             // from the live slide has given them to the aligner already. The same when the live slide is an
@@ -502,7 +481,7 @@ impl Rules {
         let pace = self.pace.or(self.beat).unwrap_or(DEFAULT_PACE);
         // The clock stands in for words not heard yet, but only for `COAST_S`: when the leader holds or
         // stretches a word, or sings something else over it, the unsung line stays up until a word is heard.
-        let coasted = (now - heard_at).clamp(0.0, COAST_S);
+        let coasted = (self.coast_frozen_at.unwrap_or(now) - heard_at).clamp(0.0, COAST_S);
         // Seconds to the next slide's first word.
         let to_go = left as f64 / pace - coasted;
         if to_go <= self.settings.lead() as f64 + 1e-6 { act(next) } else { None }
@@ -563,6 +542,7 @@ impl Rules {
         // back from the middle of a line is more likely one misheard word.)
         if before.is_some_and(|(s, last, _, _)| s == slide && w < last && last + 2 >= end) { self.tag = Some(slide) }
         self.last_word = Some((w, sung));
+        self.coast_frozen_at = None;
         self.arrived = now;
         true
     }

@@ -73,6 +73,44 @@ fn voice_tracker_labels_clips() {
 }
 
 #[test]
+fn wide_vibrato_over_a_band_is_still_singing() {
+    let vocal = tone(2.0, |t| 180.0 * 2f64.powf((2.0 * PI * 6.0 * t).sin() / 12.0), |_| 1.0);
+    let pcm: Vec<_> = vocal.into_iter().enumerate().map(|(i, sample)| {
+        let t = i as f64 / RATE as f64;
+        let chord: f64 = [110.0, 164.81, 220.0].iter().map(|hz| (2.0 * PI * hz * t).sin()).sum();
+        (f64::from(sample) + 980.0 * chord) as i16
+    }).collect();
+    let (labels, _) = track(&mut VoiceTracker::new(), &pcm, 0.0);
+    let sung = labels.iter().filter(|&&v| v == Voice::Singing).count();
+    assert!(sung * 10 >= labels.len() * 8, "{sung}/{}: {labels:?}", labels.len());
+}
+
+#[test]
+fn a_straight_tail_stays_sung_and_a_new_instrument_stays_music() {
+    let pcm = tone(2.0, |t| {
+        let vibrato = if t < 1.0 { 0.35 * (2.0 * PI * 6.0 * t).sin() } else { 0.0 };
+        220.0 * 2f64.powf(vibrato / 12.0)
+    }, |_| 1.0);
+    let mut tracker = VoiceTracker::new();
+    let (labels, _) = track(&mut tracker, &pcm, 0.0);
+    assert_eq!(labels.last(), Some(&Voice::Singing));
+    assert!(tracker.held_since(1.98).is_some());
+    track(&mut tracker, &silence(0.5), 2.0);
+    let (labels, _) = track(&mut tracker, &tone(1.5, |_| 220.0, |_| 1.0), 2.5);
+    assert_eq!(labels.last(), Some(&Voice::Music));
+    assert!(tracker.held_since(3.98).is_none());
+}
+
+#[test]
+fn bass_pitch_and_mixer_dc_offset() {
+    let pcm = tone(0.04, |_| 70.0, |_| 1.0);
+    let window: Vec<_> = pcm.iter().map(|&s| f32::from(s) / 32768.0).collect();
+    assert!((pitch_hz(&window).unwrap() - 70.0).abs() < 1.0);
+    let (labels, _) = track(&mut VoiceTracker::new(), &vec![1000; RATE], 0.0);
+    assert!(labels.iter().all(|&label| label == Voice::Silence));
+}
+
+#[test]
 fn onset_rate_from_clicks() {
     // A short click every half second (2 a second) for 10 s.
     let pcm: Vec<i16> = (0..10 * RATE).map(|i| if (i + RATE / 4) % (RATE / 2) < 80 { 12_000 } else { 0 }).collect();

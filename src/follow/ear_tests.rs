@@ -424,6 +424,48 @@ fn stream_hears_each_word_once() {
 }
 
 #[test]
+fn practice_finishes_a_word_without_a_final_pause() {
+    let vocab = letters_vocab();
+    let model = Fake { vocab: vocab.clone(), units: Units::Letters, calls: Arc::new(Mutex::new(0)) };
+    let mut stream = Stream::new(Box::new(model), Lexicon::default());
+    let mut pcm = vec![0; RATE * 2 / 5];
+    pcm.extend(say(&vocab, &["G", "R", "A", "C", "E"], 1, 0.12));
+    let mut heard = vec![];
+    for (i, frame) in pcm.chunks_exact(FRAME).enumerate() {
+        heard.extend(stream.feed(frame, i as f64 * STEP_S));
+    }
+    assert!(heard.is_empty());
+    assert_eq!(keys(&stream.finish()), [sound_key("grace")]);
+    assert!(stream.finish().is_empty());
+}
+
+#[test]
+fn discontinuous_audio_does_not_collapse_the_first_repeated_token() {
+    let vocab = letters_vocab();
+    let model = Fake { vocab: vocab.clone(), units: Units::Letters, calls: Arc::new(Mutex::new(0)) };
+    let mut stream = Stream::new(Box::new(model), Lexicon::default());
+    assert!(stream.feed(&say(&vocab, &["G"], 25, 0.5), 0.0).is_empty());
+    let next = say(&vocab, &["G", "R", "A", "C", "E", "|"], 2, 0.6);
+    assert_eq!(keys(&stream.feed(&next, 4.0)), [sound_key("grace")]);
+}
+
+#[test]
+fn an_overloaded_ear_retains_only_the_latest_audio_window() {
+    // Leave the consumer idle to simulate inference that falls behind the live input.
+    let (tx, wake) = sync_channel(1);
+    let (_heard, rx) = channel();
+    let pending = Arc::new(Mutex::new(VecDeque::new()));
+    let mut ear = CtcEar { tx: Some(tx), pending: pending.clone(), rx, thread: None };
+    for i in 0..3 * MAX_QUEUED_FRAMES {
+        ear.frames(&[0; FRAME], i as f64 * STEP_S);
+    }
+    assert_eq!(wake.try_iter().count(), 1);
+    let pending = pending.lock().unwrap();
+    assert_eq!(pending.len(), MAX_QUEUED_FRAMES);
+    assert_eq!(pending.front().unwrap().1, 2.0 * WINDOW_S);
+}
+
+#[test]
 fn speed_check_picks_model() {
     let ms = Duration::from_millis;
     // The big model is fast enough: the small one isn't even tried.
