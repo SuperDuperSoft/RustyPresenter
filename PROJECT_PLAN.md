@@ -1799,3 +1799,10 @@ found: `docs/superpowers/specs/2026-11-17-dock-panels-design.md` ("As built").
   small laptop and a 4K monitor, the look of title bars, tabs and drop highlights, and how fast it feels with video
   playing in a Live panel in a window of its own (the preview's frames go to every window). Dragging a panel from
   one window into another is not possible (a drag stays in its window); the ⋯ menu moves it.
+- **Also:** the song Key control (`ui/song-key.slint`, songs-folder branch) is placed in the Slides panel's header
+  and mirrored to windows of their own. `crates/rp-ui` has a do-nothing feature `dock-panels` the app turns on: the
+  worktrees share one build folder and Cargo files `rp-ui` by its place in the workspace, so another worktree's build
+  script could run for this one (seen in this work); the lead can drop it once every worktree has the dock panels.
+- **Test run:** all 3,609 library tests pass on the merged branch (follow-sunday at 2ed0e1c), and `i18n_catalogs`,
+  `cleanup`, `words` and `ui_operator_flows`. Earlier runs had the known timing-sensitive `record::run` FFmpeg tests
+  fail while other agents built; they passed when run again.
