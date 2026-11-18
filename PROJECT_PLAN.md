@@ -1916,3 +1916,48 @@ Jake: "All releases should have one for each [Windows, Mac, Linux] and a portabl
   Linux packages have never been built. Not tried by a person: the warning boxes, a real locked USB stick, a
   translocated Mac app (and whether dragging the app out and back clears it on current macOS), the Linux launcher on
   a real distro.
+
+### November 18, 2026 — Android app (branch `android-app`)
+
+Jake: "I want a custom APK written in Rust for this. I think the browser works great — don't remove it. But an APK
+would work a little cleaner." Design: `docs/superpowers/specs/2026-11-18-android-app-design.md`.
+
+- **What it is:** `apps/android/`, its own Cargo project (own `[workspace]` and `Cargo.lock`, crates from crates.io
+  only; the desktop's `Cargo.toml`/`Cargo.lock` are unchanged and the desktop build needs no network). Rust + Slint
+  (the desktop's colours), a `NativeActivity` with no Java of our own. Talks to the computer exactly as the browser
+  pages do; the browser pages are unchanged and keep working beside it.
+- **Screens:** choosing the computer (found on the Wi-Fi and listed by name, QR code scanned with the app's camera,
+  or typed; remembered), pairing (6-digit code or the QR code's one-time secret, plus the remote password), and five
+  tabs: Remote (on screen with the picture for picture slides, sections, presenter notes, Back/Next, video pause,
+  Up next, the clears, the service list and its slides), Stage (the stage layout with the chord sheet, a tap for the
+  whole screen, screen kept on), On air (the chosen camera's light, screen kept on), Microphone (AAudio, 16-bit mono
+  to `/stage-view/mic/sound`), Camera (Camera2 from the NDK, YUV turned upright in Rust, JPEG by Android's
+  `YuvImage`, over `/camera/ws` with `/camera/frame` as fallback, back/front, preview with the light). Permissions
+  are asked only on Start / Scan, after a sentence saying why. Back button closes what is open.
+- **Server addition (backward compatible):** `/remote/status` also says `app`, `computer` (its name) and `version`
+  (`server::computer_name`), for finding and listing the computer. Finding also works with older computers.
+- **Words:** 79 texts, all in the 13 languages (`apps/android/translations/<lang>/LC_MESSAGES/rustypresenter-remote.po`):
+  49 are the desktop's own texts with the desktop's translations, 30 new ones translated here (glossary words: remote,
+  stage screen, livestream, "On air" for the tally tab). The app picks the phone's language. These `.po` files are the
+  app's own; the desktop's extractor does not read `apps/`.
+- **Build:** `apps/android/build-apk.ps1` (SDK tools only, no Gradle): arm64 and 32-bit arm, signed. Slint's Android
+  backend is patched (`apps/android/patches/i-slint-backend-android-activity/PATCHED.md`): software renderer instead
+  of Skia (whose build downloads a prebuilt library from GitHub), and its Java helper built with JDK 21+ and
+  build-tools 34. CI: job `android` in `package.yml` (tests, APK, `aapt2`/`apksigner` checks), the release lists
+  `RustyPresenter-<v>-android-remote.apk`; signing from the `ANDROID_KEYSTORE_BASE64` secret, else a fresh debug key.
+  Pins in `packaging/pins.env`; `packaging/README.md` has "The Android remote".
+- **Tests:** 40 in `apps/android` (`cargo test`): HTTP client (cookies, chunked bodies, events, quiet and stopped
+  streams), WebSocket against a fake computer, every page's JSON incl. chord lines, commands, pairing answers, typed
+  addresses and QR links, finding (a fake RustyPresenter among dead addresses), remembered settings, word sizes and
+  chord rows, camera pictures turned upright, language choice, every screen word in every language. Desktop:
+  `server::tests::the_status_says_what_answers` (also checks the app's version is the desktop's). `cargo run --example
+  preview --features preview [-- ja]` draws every screen to PNGs; they were looked at in English and Japanese.
+- **Built:** `RustyPresenter-Remote-1.4.0.apk` on the Desktop (12.7 MB, arm64-v8a + armeabi-v7a, minSdk 26,
+  targetSdk 34), `aapt2 dump badging` and `apksigner verify` (v2+v3) pass.
+- **Not verified by a person:** nothing has run on a phone (none was plugged in, `adb devices` empty, no emulator
+  installed). To check: install, find/pair (list, QR, typed, password), Remote taps, Stage with chords and a picture
+  slide, On air while live, microphone and camera into the stream (back/front, held both ways), Back button, another
+  language, how quick the software renderer feels on an older phone. `package.yml`'s new job has not run.
+- **Note:** the first local build of this app, before the patch, let Slint's Skia build download its prebuilt library
+  from GitHub into `%LOCALAPPDATA%\RustyPresenter\build-android`; that download was deleted and nothing built from
+  it is used.

@@ -1,0 +1,244 @@
+# The Android remote's words (apps/android/ui). Where a text is the same as the desktop app's, its translation
+# is the desktop's (translations/vi); the rest were translated for the app (November 18, 2026).
+msgid ""
+msgstr ""
+"Language: vi\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Remote"
+msgstr "Điều khiển từ xa"
+
+msgid "Stage"
+msgstr "Sân khấu"
+
+msgid "On air"
+msgstr "Đang phát"
+
+msgid "Microphone"
+msgstr "Micrô"
+
+msgid "Camera"
+msgstr "Camera"
+
+msgid "Cancel"
+msgstr "Hủy"
+
+msgid "Continue"
+msgstr "Tiếp tục"
+
+msgid "Choose the presentation computer. It needs RustyPresenter open and this phone on the same Wi-Fi."
+msgstr "Chọn máy tính trình chiếu. Máy đó cần mở RustyPresenter và điện thoại này phải cùng mạng Wi-Fi."
+
+msgid "Looking for RustyPresenter on this Wi-Fi…"
+msgstr "Đang tìm RustyPresenter trên Wi-Fi này…"
+
+msgid "On this Wi-Fi"
+msgstr "Trên Wi-Fi này"
+
+msgid "Search again"
+msgstr "Tìm lại"
+
+msgid "Or scan the QR code"
+msgstr "Hoặc quét mã QR"
+
+msgid "On the computer, click Phone → Pair a phone or tablet, then scan the code it shows."
+msgstr "Trên máy tính, bấm Điện thoại → Ghép nối điện thoại hoặc máy tính bảng, rồi quét mã hiện ra."
+
+msgid "Scan the QR code"
+msgstr "Quét mã QR"
+
+msgid "Or type the address"
+msgstr "Hoặc gõ địa chỉ"
+
+msgid "Connect"
+msgstr "Kết nối"
+
+msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "Trên máy tính trình chiếu, bấm Điện thoại, rồi Ghép nối điện thoại hoặc máy tính bảng, và gõ mã 6 số vào đây."
+
+msgid "This remote needs a password too."
+msgstr "Điều khiển từ xa này cũng cần mật khẩu."
+
+msgid "Password"
+msgstr "Mật khẩu"
+
+msgid "Choose another computer"
+msgstr "Chọn máy tính khác"
+
+msgid "Connecting…"
+msgstr "Đang kết nối…"
+
+msgid "On screen"
+msgstr "Trên màn hình"
+
+msgid "Hide presenter notes"
+msgstr "Ẩn ghi chú người trình bày"
+
+msgid "Show presenter notes"
+msgstr "Hiện ghi chú người trình bày"
+
+msgid "Back"
+msgstr "Quay lại"
+
+msgid "Next"
+msgstr "Tiếp"
+
+msgid "Play video"
+msgstr "Phát video"
+
+msgid "Pause video"
+msgstr "Tạm dừng video"
+
+msgid "Up next"
+msgstr "Kế tiếp"
+
+msgid "Clear all"
+msgstr "Xóa tất cả"
+
+msgid "Text"
+msgstr "Văn bản"
+
+msgid "Media"
+msgstr "Đa phương tiện"
+
+msgid "Audio"
+msgstr "Âm thanh"
+
+msgid "Logo"
+msgstr "Logo"
+
+msgid "Service"
+msgstr "Buổi lễ"
+
+msgid "Tap a slide to put it on the screen."
+msgstr "Chạm vào trang chiếu để đưa lên màn hình."
+
+msgid "Stage screen"
+msgstr "Màn hình sân khấu"
+
+msgid "Not connected"
+msgstr "Chưa kết nối"
+
+msgid "This stage screen needs a password."
+msgstr "Màn hình sân khấu này cần mật khẩu."
+
+msgid "Open"
+msgstr "Mở"
+
+msgid "Camera {}"
+msgstr "Camera {}"
+
+msgid "Phone microphone"
+msgstr "Micrô điện thoại"
+
+msgid "Sends this phone's microphone to the livestream."
+msgstr "Gửi micrô của điện thoại này vào buổi phát trực tiếp."
+
+msgid "Stop"
+msgstr "Dừng"
+
+msgid "Start sending sound"
+msgstr "Bắt đầu gửi âm thanh"
+
+msgid "Keep this screen open while it sends."
+msgstr "Giữ màn hình này mở trong khi gửi."
+
+msgid "Phone camera"
+msgstr "Camera điện thoại"
+
+msgid "Camera name"
+msgstr "Tên camera"
+
+msgid "Back camera"
+msgstr "Máy ảnh sau"
+
+msgid "Front camera"
+msgstr "Máy ảnh trước"
+
+msgid "Start the camera"
+msgstr "Bật camera"
+
+msgid "Turn the phone sideways for a full picture."
+msgstr "Xoay ngang điện thoại để có hình đầy đủ."
+
+msgid "On the computer, choose this phone in Settings → Livestream → Cameras."
+msgstr "Trên máy tính, chọn điện thoại này trong Cài đặt → Phát trực tiếp → Camera."
+
+msgid "No computer found yet. Check that RustyPresenter is open on the presentation computer and that this phone is on the same Wi-Fi."
+msgstr "Chưa tìm thấy máy tính nào. Hãy kiểm tra RustyPresenter đang mở trên máy tính trình chiếu và điện thoại này đang cùng mạng Wi-Fi."
+
+msgid "This phone is not on a Wi-Fi network. Connect to the church's Wi-Fi, then search again."
+msgstr "Điện thoại này chưa kết nối Wi-Fi. Hãy kết nối Wi-Fi của nhà thờ rồi tìm lại."
+
+msgid "That address isn't right. It looks like 192.168.1.20 — the computer shows it under Pair a phone or tablet."
+msgstr "Địa chỉ đó không đúng. Nó có dạng 192.168.1.20 — máy tính hiển thị nó trong Ghép nối điện thoại hoặc máy tính bảng."
+
+msgid "Could not reach {}. Check that RustyPresenter is open there and that this phone is on the same Wi-Fi."
+msgstr "Không kết nối được {}. Hãy kiểm tra RustyPresenter đang mở ở đó và điện thoại này đang cùng mạng Wi-Fi."
+
+msgid "{} is not a RustyPresenter computer."
+msgstr "{} không phải là máy tính RustyPresenter."
+
+msgid "Connected"
+msgstr "Đã kết nối"
+
+msgid "Could not connect."
+msgstr "Không kết nối được."
+
+msgid "(Logo)"
+msgstr "(Logo)"
+
+msgid "(Clear)"
+msgstr "(Trống)"
+
+msgid "(Music playing)"
+msgstr "(Đang phát nhạc)"
+
+msgid "End of service"
+msgstr "Kết thúc buổi lễ"
+
+msgid "The screen changed just now — tap the slide again."
+msgstr "Màn hình vừa thay đổi — hãy chạm lại vào trang chiếu."
+
+msgid "Android phone"
+msgstr "Điện thoại Android"
+
+msgid "To send this phone's microphone to the livestream, the app needs to use the microphone. Android will ask you next."
+msgstr "Để gửi micrô của điện thoại này vào buổi phát trực tiếp, ứng dụng cần dùng micrô. Android sẽ hỏi bạn ngay sau đây."
+
+msgid "To send this phone's camera to the livestream, the app needs to use the camera. Android will ask you next."
+msgstr "Để gửi camera của điện thoại này vào buổi phát trực tiếp, ứng dụng cần dùng camera. Android sẽ hỏi bạn ngay sau đây."
+
+msgid "To read the QR code, the app needs to use the camera. Android will ask you next."
+msgstr "Để đọc mã QR, ứng dụng cần dùng camera. Android sẽ hỏi bạn ngay sau đây."
+
+msgid "The microphone is not allowed. Allow it in the phone's Settings → Apps → RustyPresenter → Permissions."
+msgstr "Micrô chưa được cho phép. Hãy cho phép trong Cài đặt của điện thoại → Ứng dụng → RustyPresenter → Quyền."
+
+msgid "The camera is not allowed. Allow it in the phone's Settings → Apps → RustyPresenter → Permissions."
+msgstr "Camera chưa được cho phép. Hãy cho phép trong Cài đặt của điện thoại → Ứng dụng → RustyPresenter → Quyền."
+
+msgid "The camera could not start. Close other apps that use it and try again."
+msgstr "Không khởi động được camera. Hãy đóng các ứng dụng khác đang dùng nó rồi thử lại."
+
+msgid "The microphone could not start. Close other apps that use it and try again."
+msgstr "Không khởi động được micrô. Hãy đóng các ứng dụng khác đang dùng nó rồi thử lại."
+
+msgid "Point the camera at the QR code on the presentation computer."
+msgstr "Hướng camera vào mã QR trên máy tính trình chiếu."
+
+msgid "That QR code is not from RustyPresenter. On the computer, click Phone → Pair a phone or tablet."
+msgstr "Mã QR đó không phải của RustyPresenter. Trên máy tính, bấm Điện thoại → Ghép nối điện thoại hoặc máy tính bảng."
+
+msgid "Connecting to the computer…"
+msgstr "Đang kết nối với máy tính…"
+
+msgid "Sending to the computer"
+msgstr "Đang gửi tới máy tính"
+
+msgid "The computer cannot be reached. Trying again…"
+msgstr "Không kết nối được với máy tính. Đang thử lại…"
+
+msgid "This phone is no longer paired. Pair it again."
+msgstr "Điện thoại này không còn được ghép nối. Hãy ghép nối lại."

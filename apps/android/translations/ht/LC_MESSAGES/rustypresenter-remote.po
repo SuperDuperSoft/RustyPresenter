@@ -1,0 +1,244 @@
+# The Android remote's words (apps/android/ui). Where a text is the same as the desktop app's, its translation
+# is the desktop's (translations/ht); the rest were translated for the app (November 18, 2026).
+msgid ""
+msgstr ""
+"Language: ht\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Remote"
+msgstr "Telekòmand"
+
+msgid "Stage"
+msgstr "Sèn"
+
+msgid "On air"
+msgstr "An ond"
+
+msgid "Microphone"
+msgstr "Mikwo"
+
+msgid "Camera"
+msgstr "Kamera"
+
+msgid "Cancel"
+msgstr "Anile"
+
+msgid "Continue"
+msgstr "Kontinye"
+
+msgid "Choose the presentation computer. It needs RustyPresenter open and this phone on the same Wi-Fi."
+msgstr "Chwazi òdinatè prezantasyon an. RustyPresenter dwe louvri ladan l, e telefòn sa a dwe sou menm Wi-Fi a."
+
+msgid "Looking for RustyPresenter on this Wi-Fi…"
+msgstr "N ap chèche RustyPresenter sou Wi-Fi sa a…"
+
+msgid "On this Wi-Fi"
+msgstr "Sou Wi-Fi sa a"
+
+msgid "Search again"
+msgstr "Chèche ankò"
+
+msgid "Or scan the QR code"
+msgstr "Oswa eskane kòd QR la"
+
+msgid "On the computer, click Phone → Pair a phone or tablet, then scan the code it shows."
+msgstr "Sou òdinatè a, klike sou Telefòn → Konekte yon telefòn oswa yon tablèt, apre sa eskane kòd li montre a."
+
+msgid "Scan the QR code"
+msgstr "Eskane kòd QR la"
+
+msgid "Or type the address"
+msgstr "Oswa tape adrès la"
+
+msgid "Connect"
+msgstr "Konekte"
+
+msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "Sou òdinatè prezantasyon an, klike sou Telefòn, apre sa sou Konekte yon telefòn oswa yon tablèt, epi tape kòd 6 chif la isit la."
+
+msgid "This remote needs a password too."
+msgstr "Telekòmand sa a bezwen yon modpas tou."
+
+msgid "Password"
+msgstr "Modpas"
+
+msgid "Choose another computer"
+msgstr "Chwazi yon lòt òdinatè"
+
+msgid "Connecting…"
+msgstr "Ap konekte…"
+
+msgid "On screen"
+msgstr "Sou ekran"
+
+msgid "Hide presenter notes"
+msgstr "Kache nòt prezantatè yo"
+
+msgid "Show presenter notes"
+msgstr "Montre nòt prezantatè yo"
+
+msgid "Back"
+msgstr "Retounen"
+
+msgid "Next"
+msgstr "Pwochen"
+
+msgid "Play video"
+msgstr "Jwe videyo"
+
+msgid "Pause video"
+msgstr "Poz videyo"
+
+msgid "Up next"
+msgstr "Apre sa"
+
+msgid "Clear all"
+msgstr "Efase tout"
+
+msgid "Text"
+msgstr "Tèks"
+
+msgid "Media"
+msgstr "Medya"
+
+msgid "Audio"
+msgstr "Odyo"
+
+msgid "Logo"
+msgstr "Logo"
+
+msgid "Service"
+msgstr "Sèvis"
+
+msgid "Tap a slide to put it on the screen."
+msgstr "Tape sou yon diapo pou mete l sou ekran an."
+
+msgid "Stage screen"
+msgstr "Ekran sèn"
+
+msgid "Not connected"
+msgstr "Pa konekte"
+
+msgid "This stage screen needs a password."
+msgstr "Ekran sèn sa a bezwen yon modpas."
+
+msgid "Open"
+msgstr "Louvri"
+
+msgid "Camera {}"
+msgstr "Kamera {}"
+
+msgid "Phone microphone"
+msgstr "Mikwo telefòn"
+
+msgid "Sends this phone's microphone to the livestream."
+msgstr "Voye mikwo telefòn sa a nan emisyon an dirèk la."
+
+msgid "Stop"
+msgstr "Kanpe"
+
+msgid "Start sending sound"
+msgstr "Kòmanse voye son"
+
+msgid "Keep this screen open while it sends."
+msgstr "Kite ekran sa a louvri pandan l ap voye."
+
+msgid "Phone camera"
+msgstr "Kamera telefòn"
+
+msgid "Camera name"
+msgstr "Non kamera a"
+
+msgid "Back camera"
+msgstr "Kamera dèyè"
+
+msgid "Front camera"
+msgstr "Kamera devan"
+
+msgid "Start the camera"
+msgstr "Kòmanse kamera a"
+
+msgid "Turn the phone sideways for a full picture."
+msgstr "Vire telefòn nan sou kote pou yon imaj konplè."
+
+msgid "On the computer, choose this phone in Settings → Livestream → Cameras."
+msgstr "Sou òdinatè a, chwazi telefòn sa a nan Paramèt → Emisyon an dirèk → Kamera."
+
+msgid "No computer found yet. Check that RustyPresenter is open on the presentation computer and that this phone is on the same Wi-Fi."
+msgstr "Pa jwenn okenn òdinatè toujou. Verifye RustyPresenter louvri sou òdinatè prezantasyon an e telefòn sa a sou menm Wi-Fi a."
+
+msgid "This phone is not on a Wi-Fi network. Connect to the church's Wi-Fi, then search again."
+msgstr "Telefòn sa a pa sou okenn rezo Wi-Fi. Konekte l sou Wi-Fi legliz la, apre sa chèche ankò."
+
+msgid "That address isn't right. It looks like 192.168.1.20 — the computer shows it under Pair a phone or tablet."
+msgstr "Adrès sa a pa bon. Li sanble ak 192.168.1.20 — òdinatè a montre l anba Konekte yon telefòn oswa yon tablèt."
+
+msgid "Could not reach {}. Check that RustyPresenter is open there and that this phone is on the same Wi-Fi."
+msgstr "Pa ka rive jwenn {}. Verifye RustyPresenter louvri la e telefòn sa a sou menm Wi-Fi a."
+
+msgid "{} is not a RustyPresenter computer."
+msgstr "{} se pa yon òdinatè RustyPresenter."
+
+msgid "Connected"
+msgstr "Konekte"
+
+msgid "Could not connect."
+msgstr "Pa t ka konekte."
+
+msgid "(Logo)"
+msgstr "(Logo)"
+
+msgid "(Clear)"
+msgstr "(Vid)"
+
+msgid "(Music playing)"
+msgstr "(Mizik ap jwe)"
+
+msgid "End of service"
+msgstr "Fen sèvis la"
+
+msgid "The screen changed just now — tap the slide again."
+msgstr "Ekran an fèk chanje — tape sou diapo a ankò."
+
+msgid "Android phone"
+msgstr "Telefòn Android"
+
+msgid "To send this phone's microphone to the livestream, the app needs to use the microphone. Android will ask you next."
+msgstr "Pou voye mikwo telefòn sa a nan emisyon an dirèk la, aplikasyon an bezwen sèvi ak mikwo a. Android pral mande w sa apre."
+
+msgid "To send this phone's camera to the livestream, the app needs to use the camera. Android will ask you next."
+msgstr "Pou voye kamera telefòn sa a nan emisyon an dirèk la, aplikasyon an bezwen sèvi ak kamera a. Android pral mande w sa apre."
+
+msgid "To read the QR code, the app needs to use the camera. Android will ask you next."
+msgstr "Pou li kòd QR la, aplikasyon an bezwen sèvi ak kamera a. Android pral mande w sa apre."
+
+msgid "The microphone is not allowed. Allow it in the phone's Settings → Apps → RustyPresenter → Permissions."
+msgstr "Mikwo a pa otorize. Otorize l nan Paramèt telefòn nan → Aplikasyon → RustyPresenter → Pèmisyon."
+
+msgid "The camera is not allowed. Allow it in the phone's Settings → Apps → RustyPresenter → Permissions."
+msgstr "Kamera a pa otorize. Otorize l nan Paramèt telefòn nan → Aplikasyon → RustyPresenter → Pèmisyon."
+
+msgid "The camera could not start. Close other apps that use it and try again."
+msgstr "Kamera a pa t ka demare. Fèmen lòt aplikasyon k ap sèvi ak li epi eseye ankò."
+
+msgid "The microphone could not start. Close other apps that use it and try again."
+msgstr "Mikwo a pa t ka demare. Fèmen lòt aplikasyon k ap sèvi ak li epi eseye ankò."
+
+msgid "Point the camera at the QR code on the presentation computer."
+msgstr "Vize kamera a sou kòd QR ki sou òdinatè prezantasyon an."
+
+msgid "That QR code is not from RustyPresenter. On the computer, click Phone → Pair a phone or tablet."
+msgstr "Kòd QR sa a pa soti nan RustyPresenter. Sou òdinatè a, klike sou Telefòn → Konekte yon telefòn oswa yon tablèt."
+
+msgid "Connecting to the computer…"
+msgstr "Ap konekte ak òdinatè a…"
+
+msgid "Sending to the computer"
+msgstr "Ap voye bay òdinatè a"
+
+msgid "The computer cannot be reached. Trying again…"
+msgstr "Pa ka jwenn òdinatè a. N ap eseye ankò…"
+
+msgid "This phone is no longer paired. Pair it again."
+msgstr "Telefòn sa a pa konekte ankò. Konekte l ankò."

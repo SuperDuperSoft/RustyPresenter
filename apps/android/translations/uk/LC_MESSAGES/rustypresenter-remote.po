@@ -1,0 +1,244 @@
+# The Android remote's words (apps/android/ui). Where a text is the same as the desktop app's, its translation
+# is the desktop's (translations/uk); the rest were translated for the app (November 18, 2026).
+msgid ""
+msgstr ""
+"Language: uk\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+msgid "Remote"
+msgstr "Пульт"
+
+msgid "Stage"
+msgstr "Сцена"
+
+msgid "On air"
+msgstr "В ефірі"
+
+msgid "Microphone"
+msgstr "Мікрофон"
+
+msgid "Camera"
+msgstr "Камера"
+
+msgid "Cancel"
+msgstr "Скасувати"
+
+msgid "Continue"
+msgstr "Продовжити"
+
+msgid "Choose the presentation computer. It needs RustyPresenter open and this phone on the same Wi-Fi."
+msgstr "Виберіть комп’ютер із презентацією. На ньому має бути відкритий RustyPresenter, а цей телефон — у тій самій мережі Wi-Fi."
+
+msgid "Looking for RustyPresenter on this Wi-Fi…"
+msgstr "Шукаємо RustyPresenter у цій мережі Wi-Fi…"
+
+msgid "On this Wi-Fi"
+msgstr "У цій мережі Wi-Fi"
+
+msgid "Search again"
+msgstr "Шукати знову"
+
+msgid "Or scan the QR code"
+msgstr "Або відскануйте QR-код"
+
+msgid "On the computer, click Phone → Pair a phone or tablet, then scan the code it shows."
+msgstr "На комп’ютері натисніть «Телефон» → «Під’єднати телефон чи планшет», потім відскануйте показаний код."
+
+msgid "Scan the QR code"
+msgstr "Сканувати QR-код"
+
+msgid "Or type the address"
+msgstr "Або введіть адресу"
+
+msgid "Connect"
+msgstr "Під’єднати"
+
+msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "На комп’ютері з презентацією натисніть «Телефон», потім «Під’єднати телефон чи планшет» і введіть тут 6-значний код."
+
+msgid "This remote needs a password too."
+msgstr "Цьому пульту теж потрібен пароль."
+
+msgid "Password"
+msgstr "Пароль"
+
+msgid "Choose another computer"
+msgstr "Вибрати інший комп’ютер"
+
+msgid "Connecting…"
+msgstr "Під’єднання…"
+
+msgid "On screen"
+msgstr "На екрані"
+
+msgid "Hide presenter notes"
+msgstr "Сховати нотатки доповідача"
+
+msgid "Show presenter notes"
+msgstr "Показати нотатки доповідача"
+
+msgid "Back"
+msgstr "Назад"
+
+msgid "Next"
+msgstr "Далі"
+
+msgid "Play video"
+msgstr "Відтворити відео"
+
+msgid "Pause video"
+msgstr "Призупинити відео"
+
+msgid "Up next"
+msgstr "Наступне"
+
+msgid "Clear all"
+msgstr "Очистити все"
+
+msgid "Text"
+msgstr "Текст"
+
+msgid "Media"
+msgstr "Медіа"
+
+msgid "Audio"
+msgstr "Аудіо"
+
+msgid "Logo"
+msgstr "Логотип"
+
+msgid "Service"
+msgstr "Служіння"
+
+msgid "Tap a slide to put it on the screen."
+msgstr "Торкніться слайда, щоб вивести його на екран."
+
+msgid "Stage screen"
+msgstr "Сценічний екран"
+
+msgid "Not connected"
+msgstr "Не під’єднано"
+
+msgid "This stage screen needs a password."
+msgstr "Цей сценічний екран потребує пароля."
+
+msgid "Open"
+msgstr "Відкрити"
+
+msgid "Camera {}"
+msgstr "Камера {}"
+
+msgid "Phone microphone"
+msgstr "Мікрофон телефона"
+
+msgid "Sends this phone's microphone to the livestream."
+msgstr "Передає звук із мікрофона цього телефона в трансляцію."
+
+msgid "Stop"
+msgstr "Стоп"
+
+msgid "Start sending sound"
+msgstr "Почати передавати звук"
+
+msgid "Keep this screen open while it sends."
+msgstr "Не закривайте цей екран, поки йде передавання."
+
+msgid "Phone camera"
+msgstr "Камера телефона"
+
+msgid "Camera name"
+msgstr "Назва камери"
+
+msgid "Back camera"
+msgstr "Задня камера"
+
+msgid "Front camera"
+msgstr "Передня камера"
+
+msgid "Start the camera"
+msgstr "Увімкнути камеру"
+
+msgid "Turn the phone sideways for a full picture."
+msgstr "Поверніть телефон боком, щоб зображення було повним."
+
+msgid "On the computer, choose this phone in Settings → Livestream → Cameras."
+msgstr "На комп’ютері виберіть цей телефон у Налаштування → Трансляція → Камери."
+
+msgid "No computer found yet. Check that RustyPresenter is open on the presentation computer and that this phone is on the same Wi-Fi."
+msgstr "Комп’ютер поки не знайдено. Перевірте, що RustyPresenter відкритий на комп’ютері з презентацією і що цей телефон у тій самій мережі Wi-Fi."
+
+msgid "This phone is not on a Wi-Fi network. Connect to the church's Wi-Fi, then search again."
+msgstr "Цей телефон не під’єднано до Wi-Fi. Під’єднайтеся до Wi-Fi церкви й пошукайте знову."
+
+msgid "That address isn't right. It looks like 192.168.1.20 — the computer shows it under Pair a phone or tablet."
+msgstr "Адреса неправильна. Вона має вигляд 192.168.1.20 — комп’ютер показує її у вікні «Під’єднати телефон чи планшет»."
+
+msgid "Could not reach {}. Check that RustyPresenter is open there and that this phone is on the same Wi-Fi."
+msgstr "Не вдалося зв’язатися з {}. Перевірте, що там відкритий RustyPresenter і що цей телефон у тій самій мережі Wi-Fi."
+
+msgid "{} is not a RustyPresenter computer."
+msgstr "{} — це не комп’ютер із RustyPresenter."
+
+msgid "Connected"
+msgstr "Під’єднано"
+
+msgid "Could not connect."
+msgstr "Не вдалося під’єднатися."
+
+msgid "(Logo)"
+msgstr "(Логотип)"
+
+msgid "(Clear)"
+msgstr "(Порожньо)"
+
+msgid "(Music playing)"
+msgstr "(Грає музика)"
+
+msgid "End of service"
+msgstr "Кінець служіння"
+
+msgid "The screen changed just now — tap the slide again."
+msgstr "Екран щойно змінився — торкніться слайда ще раз."
+
+msgid "Android phone"
+msgstr "Телефон Android"
+
+msgid "To send this phone's microphone to the livestream, the app needs to use the microphone. Android will ask you next."
+msgstr "Щоб передавати звук із мікрофона цього телефона в трансляцію, застосунку потрібен доступ до мікрофона. Зараз Android запитає про це."
+
+msgid "To send this phone's camera to the livestream, the app needs to use the camera. Android will ask you next."
+msgstr "Щоб передавати зображення з камери цього телефона в трансляцію, застосунку потрібен доступ до камери. Зараз Android запитає про це."
+
+msgid "To read the QR code, the app needs to use the camera. Android will ask you next."
+msgstr "Щоб прочитати QR-код, застосунку потрібен доступ до камери. Зараз Android запитає про це."
+
+msgid "The microphone is not allowed. Allow it in the phone's Settings → Apps → RustyPresenter → Permissions."
+msgstr "Доступ до мікрофона не дозволено. Дозвольте його в Налаштуваннях телефона → Додатки → RustyPresenter → Дозволи."
+
+msgid "The camera is not allowed. Allow it in the phone's Settings → Apps → RustyPresenter → Permissions."
+msgstr "Доступ до камери не дозволено. Дозвольте його в Налаштуваннях телефона → Додатки → RustyPresenter → Дозволи."
+
+msgid "The camera could not start. Close other apps that use it and try again."
+msgstr "Не вдалося ввімкнути камеру. Закрийте інші застосунки, які її використовують, і спробуйте знову."
+
+msgid "The microphone could not start. Close other apps that use it and try again."
+msgstr "Не вдалося ввімкнути мікрофон. Закрийте інші застосунки, які його використовують, і спробуйте знову."
+
+msgid "Point the camera at the QR code on the presentation computer."
+msgstr "Наведіть камеру на QR-код на комп’ютері з презентацією."
+
+msgid "That QR code is not from RustyPresenter. On the computer, click Phone → Pair a phone or tablet."
+msgstr "Цей QR-код не від RustyPresenter. На комп’ютері натисніть «Телефон» → «Під’єднати телефон чи планшет»."
+
+msgid "Connecting to the computer…"
+msgstr "Підключення до комп’ютера…"
+
+msgid "Sending to the computer"
+msgstr "Передається на комп’ютер"
+
+msgid "The computer cannot be reached. Trying again…"
+msgstr "Не вдається зв’язатися з комп’ютером. Пробуємо знову…"
+
+msgid "This phone is no longer paired. Pair it again."
+msgstr "Цей телефон більше не під’єднано. Під’єднайте його знову."

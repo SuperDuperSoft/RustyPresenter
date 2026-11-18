@@ -1,0 +1,244 @@
+# The Android remote's words (apps/android/ui). Where a text is the same as the desktop app's, its translation
+# is the desktop's (translations/es); the rest were translated for the app (November 18, 2026).
+msgid ""
+msgstr ""
+"Language: es\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Remote"
+msgstr "Control remoto"
+
+msgid "Stage"
+msgstr "Escenario"
+
+msgid "On air"
+msgstr "Al aire"
+
+msgid "Microphone"
+msgstr "Micrófono"
+
+msgid "Camera"
+msgstr "Cámara"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Continue"
+msgstr "Continuar"
+
+msgid "Choose the presentation computer. It needs RustyPresenter open and this phone on the same Wi-Fi."
+msgstr "Elige la computadora de la presentación. Debe tener RustyPresenter abierto y este teléfono debe estar en la misma red Wi-Fi."
+
+msgid "Looking for RustyPresenter on this Wi-Fi…"
+msgstr "Buscando RustyPresenter en esta red Wi-Fi…"
+
+msgid "On this Wi-Fi"
+msgstr "En esta red Wi-Fi"
+
+msgid "Search again"
+msgstr "Buscar de nuevo"
+
+msgid "Or scan the QR code"
+msgstr "O escanea el código QR"
+
+msgid "On the computer, click Phone → Pair a phone or tablet, then scan the code it shows."
+msgstr "En la computadora, haz clic en Teléfono → Vincular un teléfono o tableta y luego escanea el código que aparece."
+
+msgid "Scan the QR code"
+msgstr "Escanear el código QR"
+
+msgid "Or type the address"
+msgstr "O escribe la dirección"
+
+msgid "Connect"
+msgstr "Conectar"
+
+msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "En la computadora de la presentación, haz clic en Teléfono, luego en Vincular un teléfono o tableta, y escribe aquí el código de 6 dígitos."
+
+msgid "This remote needs a password too."
+msgstr "Este control remoto también necesita contraseña."
+
+msgid "Password"
+msgstr "Contraseña"
+
+msgid "Choose another computer"
+msgstr "Elegir otra computadora"
+
+msgid "Connecting…"
+msgstr "Conectando…"
+
+msgid "On screen"
+msgstr "En pantalla"
+
+msgid "Hide presenter notes"
+msgstr "Ocultar notas del presentador"
+
+msgid "Show presenter notes"
+msgstr "Mostrar notas del presentador"
+
+msgid "Back"
+msgstr "Atrás"
+
+msgid "Next"
+msgstr "Siguiente"
+
+msgid "Play video"
+msgstr "Reproducir video"
+
+msgid "Pause video"
+msgstr "Pausar video"
+
+msgid "Up next"
+msgstr "A continuación"
+
+msgid "Clear all"
+msgstr "Limpiar todo"
+
+msgid "Text"
+msgstr "Texto"
+
+msgid "Media"
+msgstr "Multimedia"
+
+msgid "Audio"
+msgstr "Audio"
+
+msgid "Logo"
+msgstr "Logo"
+
+msgid "Service"
+msgstr "Culto"
+
+msgid "Tap a slide to put it on the screen."
+msgstr "Toca una diapositiva para ponerla en pantalla."
+
+msgid "Stage screen"
+msgstr "Pantalla del escenario"
+
+msgid "Not connected"
+msgstr "Sin conexión"
+
+msgid "This stage screen needs a password."
+msgstr "Esta pantalla del escenario necesita una contraseña."
+
+msgid "Open"
+msgstr "Abrir"
+
+msgid "Camera {}"
+msgstr "Cámara {}"
+
+msgid "Phone microphone"
+msgstr "Micrófono del teléfono"
+
+msgid "Sends this phone's microphone to the livestream."
+msgstr "Envía el micrófono de este teléfono a la transmisión en vivo."
+
+msgid "Stop"
+msgstr "Detener"
+
+msgid "Start sending sound"
+msgstr "Empezar a enviar sonido"
+
+msgid "Keep this screen open while it sends."
+msgstr "Deja esta pantalla abierta mientras envía."
+
+msgid "Phone camera"
+msgstr "Cámara del teléfono"
+
+msgid "Camera name"
+msgstr "Nombre de la cámara"
+
+msgid "Back camera"
+msgstr "Cámara trasera"
+
+msgid "Front camera"
+msgstr "Cámara frontal"
+
+msgid "Start the camera"
+msgstr "Iniciar la cámara"
+
+msgid "Turn the phone sideways for a full picture."
+msgstr "Pon el teléfono de lado para una imagen completa."
+
+msgid "On the computer, choose this phone in Settings → Livestream → Cameras."
+msgstr "En la computadora, elige este teléfono en Configuración → Transmisión en vivo → Cámaras."
+
+msgid "No computer found yet. Check that RustyPresenter is open on the presentation computer and that this phone is on the same Wi-Fi."
+msgstr "Todavía no se encontró ninguna computadora. Comprueba que RustyPresenter esté abierto en la computadora de la presentación y que este teléfono esté en la misma red Wi-Fi."
+
+msgid "This phone is not on a Wi-Fi network. Connect to the church's Wi-Fi, then search again."
+msgstr "Este teléfono no está en una red Wi-Fi. Conéctalo al Wi-Fi de la iglesia y busca de nuevo."
+
+msgid "That address isn't right. It looks like 192.168.1.20 — the computer shows it under Pair a phone or tablet."
+msgstr "Esa dirección no es correcta. Se parece a 192.168.1.20: la computadora la muestra en Vincular un teléfono o tableta."
+
+msgid "Could not reach {}. Check that RustyPresenter is open there and that this phone is on the same Wi-Fi."
+msgstr "No se pudo llegar a {}. Comprueba que RustyPresenter esté abierto allí y que este teléfono esté en la misma red Wi-Fi."
+
+msgid "{} is not a RustyPresenter computer."
+msgstr "{} no es una computadora con RustyPresenter."
+
+msgid "Connected"
+msgstr "Conectado"
+
+msgid "Could not connect."
+msgstr "No se pudo conectar."
+
+msgid "(Logo)"
+msgstr "(Logo)"
+
+msgid "(Clear)"
+msgstr "(Pantalla vacía)"
+
+msgid "(Music playing)"
+msgstr "(Música sonando)"
+
+msgid "End of service"
+msgstr "Fin del culto"
+
+msgid "The screen changed just now — tap the slide again."
+msgstr "La pantalla acaba de cambiar: toca la diapositiva otra vez."
+
+msgid "Android phone"
+msgstr "Teléfono Android"
+
+msgid "To send this phone's microphone to the livestream, the app needs to use the microphone. Android will ask you next."
+msgstr "Para enviar el micrófono de este teléfono a la transmisión en vivo, la app necesita usar el micrófono. Android te lo preguntará a continuación."
+
+msgid "To send this phone's camera to the livestream, the app needs to use the camera. Android will ask you next."
+msgstr "Para enviar la cámara de este teléfono a la transmisión en vivo, la app necesita usar la cámara. Android te lo preguntará a continuación."
+
+msgid "To read the QR code, the app needs to use the camera. Android will ask you next."
+msgstr "Para leer el código QR, la app necesita usar la cámara. Android te lo preguntará a continuación."
+
+msgid "The microphone is not allowed. Allow it in the phone's Settings → Apps → RustyPresenter → Permissions."
+msgstr "El micrófono no está permitido. Permítelo en Ajustes del teléfono → Aplicaciones → RustyPresenter → Permisos."
+
+msgid "The camera is not allowed. Allow it in the phone's Settings → Apps → RustyPresenter → Permissions."
+msgstr "La cámara no está permitida. Permítela en Ajustes del teléfono → Aplicaciones → RustyPresenter → Permisos."
+
+msgid "The camera could not start. Close other apps that use it and try again."
+msgstr "La cámara no pudo iniciarse. Cierra otras apps que la usen e inténtalo de nuevo."
+
+msgid "The microphone could not start. Close other apps that use it and try again."
+msgstr "El micrófono no pudo iniciarse. Cierra otras apps que lo usen e inténtalo de nuevo."
+
+msgid "Point the camera at the QR code on the presentation computer."
+msgstr "Apunta la cámara al código QR de la computadora de la presentación."
+
+msgid "That QR code is not from RustyPresenter. On the computer, click Phone → Pair a phone or tablet."
+msgstr "Ese código QR no es de RustyPresenter. En la computadora, haz clic en Teléfono → Vincular un teléfono o tableta."
+
+msgid "Connecting to the computer…"
+msgstr "Conectando con la computadora…"
+
+msgid "Sending to the computer"
+msgstr "Enviando a la computadora"
+
+msgid "The computer cannot be reached. Trying again…"
+msgstr "No se puede llegar a la computadora. Intentando de nuevo…"
+
+msgid "This phone is no longer paired. Pair it again."
+msgstr "Este teléfono ya no está vinculado. Vincúlalo de nuevo."

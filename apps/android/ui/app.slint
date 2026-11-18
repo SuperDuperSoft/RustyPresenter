@@ -1,0 +1,115 @@
+// The Android remote's one window: choosing and pairing the computer, then five tabs along the bottom.
+import { Theme } from "theme.slint";
+import { Btn, Words } from "widgets.slint";
+import { S, Say, Found, ItemRow, SlideRow, SectionChip, StageCell, ChordRow, ChordCol } from "state.slint";
+import { FindPage, PairPage, ScanPage } from "connect.slint";
+import { RemotePage } from "remote.slint";
+import { StagePage, TallyPage, MicPage, CameraPage } from "stage.slint";
+
+export { S, Say, Found, ItemRow, SlideRow, SectionChip, StageCell, ChordRow, ChordCol }
+
+component Tab inherits Rectangle {
+    in property <string> text;
+    in property <int> index;
+    background: S.tab == root.index ? Theme.raise : transparent;
+    border-radius: 10px;
+    accessible-role: tab;
+    accessible-label: root.text;
+    Text {
+        text: root.text;
+        font-size: 13px;
+        font-weight: S.tab == root.index ? 700 : 500;
+        color: S.tab == root.index ? Theme.accent : Theme.muted;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        wrap: word-wrap;
+        width: parent.width - 4px;
+    }
+    TouchArea { clicked => { S.tab = root.index; S.tab-chosen(root.index); } }
+}
+
+export component AppWindow inherits Window {
+    title: "RustyPresenter";
+    background: Theme.bg;
+    default-font-size: Theme.body;
+
+    // Room for the phone's own bars (the clock at the top, the gesture bar at the bottom); the stage screen with
+    // its tabs hidden uses the whole screen.
+    property <bool> whole: S.page == "main" && S.tab == 1 && !S.stage-bar;
+    full-screen: root.whole;
+
+    // The phone's Back button: closes what is open, else goes back a step (`S.back-key`).
+    keys := FocusScope {
+        key-pressed(e) => {
+            if e.text == Key.Back { return S.back-key() ? EventResult.accept : EventResult.reject; }
+            EventResult.reject
+        }
+        init => { self.focus(); }
+
+    VerticalLayout {
+        padding-top: root.whole ? 0px : root.safe-area-insets.top;
+        padding-bottom: root.whole ? 0px : max(root.safe-area-insets.bottom, root.virtual-keyboard-size.height);
+        padding-left: root.safe-area-insets.left;
+        padding-right: root.safe-area-insets.right;
+        if S.page == "find": FindPage { vertical-stretch: 1; }
+        if S.page == "pair": PairPage { vertical-stretch: 1; }
+        if S.page == "scan": ScanPage { vertical-stretch: 1; }
+        if S.page == "main": Rectangle {
+            vertical-stretch: 1;
+            if S.tab == 0: RemotePage { width: 100%; height: 100%; }
+            if S.tab == 1: StagePage { width: 100%; height: 100%; }
+            if S.tab == 2: TallyPage { width: 100%; height: 100%; }
+            if S.tab == 3: MicPage { width: 100%; height: 100%; }
+            if S.tab == 4: CameraPage { width: 100%; height: 100%; }
+        }
+        if S.page == "main" && (S.tab != 1 || S.stage-bar): Rectangle {
+            height: 60px;
+            background: Theme.panel;
+            HorizontalLayout {
+                padding: 4px;
+                spacing: 4px;
+                Tab { text: @tr("Remote"); index: 0; }
+                Tab { text: @tr("Stage"); index: 1; }
+                Tab { text: @tr("On air"); index: 2; }
+                Tab { text: @tr("Microphone"); index: 3; }
+                Tab { text: @tr("Camera"); index: 4; }
+            }
+        }
+    }
+
+    // Why a permission is needed, before Android asks.
+    if S.ask-why != "": Rectangle {
+        background: Theme.scrim;
+        TouchArea {}
+        Rectangle {
+            x: Theme.pad; width: parent.width - 2 * Theme.pad;
+            y: (parent.height - self.height) / 2;
+            height: ask.preferred-height;
+            background: Theme.panel;
+            border-radius: 16px;
+            ask := VerticalLayout {
+                padding: 20px;
+                spacing: Theme.gap;
+                Words { text: S.ask-why; }
+                HorizontalLayout {
+                    spacing: Theme.gap;
+                    Btn { text: @tr("Cancel"); horizontal-stretch: 1; clicked => { S.ask-cancel(); } }
+                    Btn { text: @tr("Continue"); kind: "go"; horizontal-stretch: 1; clicked => { S.ask-go(); } }
+                }
+            }
+        }
+    }
+
+    if S.toast != "": Rectangle {
+        x: Theme.pad; width: parent.width - 2 * Theme.pad;
+        y: parent.height - self.height - 80px - root.safe-area-insets.bottom;
+        height: toast-text.preferred-height + 24px;
+        background: Theme.toast-bg;
+        border-radius: 10px;
+        toast-text := Text {
+            x: 12px; width: parent.width - 24px;
+            text: S.toast; color: Theme.text; wrap: word-wrap; font-size: Theme.body;
+        }
+    }
+    }
+}

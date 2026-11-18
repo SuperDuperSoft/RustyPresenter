@@ -1,0 +1,214 @@
+// The Stage, Tally, Microphone and Camera tabs.
+import { LineEdit } from "std-widgets.slint";
+import { Theme } from "theme.slint";
+import { Btn, Box, Words, Note } from "widgets.slint";
+import { S, StageCell } from "state.slint";
+
+// When the stage screen on phones is off, or needs its password (Settings → Remote and network on the computer).
+// Stage, Tally and Microphone all use it, as their browser pages do.
+export component Gate inherits Rectangle {
+    background: Theme.bg;
+    VerticalLayout {
+        padding: Theme.pad;
+        padding-top: 28px;
+        spacing: Theme.gap;
+        alignment: start;
+        Text { text: @tr("Stage screen"); font-size: Theme.title; font-weight: 700; color: Theme.text; }
+        if S.gate == "off": Words { text: S.gate-text; }
+        if S.gate == "lost": Words { text: @tr("Not connected"); color: Theme.danger-text; }
+        if S.gate == "password": VerticalLayout {
+            spacing: Theme.gap;
+            Words { text: @tr("This stage screen needs a password."); }
+            pw := LineEdit {
+                placeholder-text: @tr("Password");
+                input-type: InputType.password;
+                accepted => { S.stage-login(self.text); }
+            }
+            Btn { text: @tr("Open"); kind: "go"; clicked => { S.stage-login(pw.text); } }
+        }
+        if S.gate-error != "": Note { text: S.gate-error; problem: true; }
+    }
+}
+
+component Cell inherits Rectangle {
+    in property <StageCell> c;
+    x: c.x; y: c.y; width: c.w; height: c.h;
+    background: c.kind == "shape" && c.shape == "line" ? transparent : c.fill;
+    border-radius: c.kind == "shape" ? (c.shape == "ellipse" ? min(self.width, self.height) / 2 : c.shape == "rounded" ? self.height * 0.08 : 0px) : 0px;
+    clip: true;
+    if c.kind == "shape" && c.shape == "line": Rectangle {
+        y: (parent.height - self.height) / 2;
+        height: max(2px, parent.height * 0.06);
+        background: c.color;
+    }
+    if c.kind != "shape": VerticalLayout {
+        spacing: 2px;
+        if c.caption != "": Text {
+            text: c.caption;
+            font-size: c.caption-size;
+            color: c.color.transparentize(40%);
+            horizontal-alignment: c.halign;
+        }
+        if c.kind == "picture": Image {
+            source: c.picture;
+            image-fit: contain;
+            vertical-stretch: 1;
+        }
+        if c.kind == "text" || c.kind == "message": Text {
+            text: c.text;
+            font-size: c.size;
+            font-weight: c.bold || c.kind == "message" ? 650 : 500;
+            color: c.kind == "message" ? Theme.accent-ink : c.color;
+            opacity: c.dim ? 0.35 : 1;
+            wrap: word-wrap;
+            horizontal-alignment: c.halign;
+            vertical-alignment: c.valign;
+            vertical-stretch: 1;
+        }
+        // A chord sheet: each row as columns, the chord over its own words.
+        if c.kind == "chords": VerticalLayout {
+            vertical-stretch: 1;
+            alignment: c.valign == TextVerticalAlignment.top ? LayoutAlignment.start : c.valign == TextVerticalAlignment.bottom ? LayoutAlignment.end : LayoutAlignment.center;
+            for row in c.rows: HorizontalLayout {
+                alignment: c.halign == TextHorizontalAlignment.left ? LayoutAlignment.start : c.halign == TextHorizontalAlignment.right ? LayoutAlignment.end : LayoutAlignment.center;
+                spacing: 0px;
+                for col in row.cols: VerticalLayout {
+                    spacing: 0px;
+                    if row.chords: Text { text: col.chord; font-size: c.size; font-weight: 700; color: c.chord-color; }
+                    if row.words: Text { text: col.words == "" ? " " : col.words; font-size: c.size; font-weight: c.bold ? 650 : 500; color: c.color; }
+                }
+            }
+        }
+    }
+}
+
+export component StagePage inherits Rectangle {
+    background: S.gate == "" ? S.stage-bg : Theme.bg;
+    changed width => { S.stage-size(self.width, self.height); }
+    changed height => { S.stage-size(self.width, self.height); }
+    init => { S.stage-size(self.width, self.height); }
+    if S.gate == "": Rectangle {
+        for c in S.cells: Cell { c: c; }
+        if S.follow != "": Rectangle {
+            x: 8px; y: parent.height - self.height - 8px;
+            width: follow-text.preferred-width + 20px; height: follow-text.preferred-height + 10px;
+            background: #000000b3;
+            border-radius: 6px;
+            follow-text := Text { text: S.follow; color: Theme.accent; font-size: Theme.small; }
+        }
+        if S.banner != "": Rectangle {
+            y: 0; height: parent.height * 0.18;
+            background: Theme.accent;
+            Text {
+                text: S.banner; color: Theme.accent-ink; font-size: parent.height * 0.4; font-weight: 700;
+                wrap: word-wrap; horizontal-alignment: center; vertical-alignment: center;
+                width: parent.width - 24px;
+            }
+        }
+        // A tap shows or hides the tabs.
+        TouchArea { clicked => { S.stage-bar = !S.stage-bar; } }
+    }
+    if S.gate != "": Gate {}
+}
+
+export component TallyPage inherits Rectangle {
+    background: S.gate != "" ? Theme.bg : S.light == "on_air" ? Theme.on-air : S.light == "next" ? Theme.next : Theme.off;
+    if S.gate != "": Gate {}
+    if S.gate == "": VerticalLayout {
+        padding: Theme.pad;
+        spacing: Theme.gap;
+        Rectangle { vertical-stretch: 1; }
+        Text {
+            text: S.light-text;
+            font-size: min(root.width * 0.11, 64px); font-weight: 800; color: Theme.white;
+            horizontal-alignment: center; wrap: word-wrap;
+        }
+        Text { text: S.light-sub; font-size: Theme.body; color: #ffffffcc; horizontal-alignment: center; wrap: word-wrap; }
+        Rectangle { vertical-stretch: 1; }
+        HorizontalLayout {
+            spacing: Theme.gap;
+            alignment: center;
+            Btn { text: "−"; font-size: Theme.title; width: 64px; enabled: S.tally-camera > 1; clicked => { S.tally-camera-chosen(S.tally-camera - 1); } }
+            Text { text: @tr("Camera {}", S.tally-camera); font-size: Theme.big; font-weight: 700; color: Theme.white; vertical-alignment: center; }
+            Btn { text: "+"; font-size: Theme.title; width: 64px; enabled: S.tally-camera < 9; clicked => { S.tally-camera-chosen(S.tally-camera + 1); } }
+        }
+    }
+}
+
+export component MicPage inherits Rectangle {
+    background: Theme.bg;
+    if S.gate != "" && !S.mic-on: Gate {}
+    if S.gate == "" || S.mic-on: VerticalLayout {
+        padding: Theme.pad;
+        padding-top: 28px;
+        spacing: Theme.gap;
+        alignment: start;
+        Text { text: @tr("Phone microphone"); font-size: Theme.title; font-weight: 700; color: Theme.text; }
+        Words { text: @tr("Sends this phone's microphone to the livestream."); color: Theme.muted; }
+        Btn {
+            text: S.mic-on ? @tr("Stop") : @tr("Start sending sound");
+            kind: S.mic-on ? "danger" : "go";
+            tall: 72px; font-size: Theme.big;
+            clicked => { S.mic-toggle(); }
+        }
+        Rectangle {
+            height: 14px;
+            border-radius: 7px;
+            background: Theme.raise;
+            Rectangle {
+                x: 0; width: parent.width * min(1, S.mic-level); height: 100%;
+                border-radius: 7px;
+                background: S.mic-level > 0.9 ? Theme.live : Theme.ok;
+            }
+        }
+        if S.mic-note != "": Note { text: S.mic-note; }
+        if S.mic-on: Note { text: @tr("Keep this screen open while it sends."); }
+    }
+}
+
+export component CameraPage inherits Rectangle {
+    background: Theme.bg;
+    VerticalLayout {
+        padding: Theme.pad;
+        spacing: Theme.gap;
+        Rectangle {
+            vertical-stretch: 1;
+            background: Theme.black;
+            border-radius: Theme.radius;
+            border-width: S.cam-on && S.cam-light != "off" && S.cam-light != "" ? 6px : 1px;
+            border-color: S.cam-light == "on_air" ? Theme.on-air : S.cam-light == "next" ? Theme.next : Theme.line;
+            clip: true;
+            Image { source: S.cam-preview; width: parent.width - 12px; height: parent.height - 12px; image-fit: contain; }
+            if !S.cam-on: Text {
+                text: @tr("Phone camera");
+                font-size: Theme.big; color: Theme.faint;
+            }
+            if S.cam-on: Rectangle {
+                x: 12px; y: 12px;
+                width: state.preferred-width + 20px; height: state.preferred-height + 10px;
+                border-radius: 6px;
+                background: S.cam-light == "on_air" ? Theme.on-air : S.cam-light == "next" ? Theme.next : #000000b3;
+                state := Text { text: S.cam-text; color: Theme.white; font-weight: 700; font-size: Theme.body; }
+            }
+        }
+        if !S.cam-on: HorizontalLayout {
+            spacing: 8px;
+            Text { text: @tr("Camera name"); color: Theme.muted; font-size: Theme.small; vertical-alignment: center; }
+            name := LineEdit { text <=> S.cam-name; horizontal-stretch: 1; }
+        }
+        HorizontalLayout {
+            spacing: 8px;
+            Btn { text: @tr("Back camera"); kind: S.cam-back ? "on" : ""; horizontal-stretch: 1; clicked => { S.cam-flip(true); } }
+            Btn { text: @tr("Front camera"); kind: S.cam-back ? "" : "on"; horizontal-stretch: 1; clicked => { S.cam-flip(false); } }
+        }
+        Btn {
+            text: S.cam-on ? @tr("Stop") : @tr("Start the camera");
+            kind: S.cam-on ? "danger" : "go";
+            tall: 64px; font-size: Theme.big;
+            clicked => { S.cam-toggle(S.cam-name); }
+        }
+        if S.cam-note != "": Note { text: S.cam-note; }
+        if !S.cam-on: Note { text: @tr("Turn the phone sideways for a full picture."); }
+        if !S.cam-on: Note { text: @tr("On the computer, choose this phone in Settings → Livestream → Cameras."); }
+    }
+}

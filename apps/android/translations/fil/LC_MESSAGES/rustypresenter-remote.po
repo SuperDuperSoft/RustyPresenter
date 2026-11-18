@@ -1,0 +1,244 @@
+# The Android remote's words (apps/android/ui). Where a text is the same as the desktop app's, its translation
+# is the desktop's (translations/fil); the rest were translated for the app (November 18, 2026).
+msgid ""
+msgstr ""
+"Language: fil\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1 && n != 2 && n != 3 && (n % 10 == 4 || n % 10 == 6 || n % 10 == 9));\n"
+
+msgid "Remote"
+msgstr "Remote"
+
+msgid "Stage"
+msgstr "Stage"
+
+msgid "On air"
+msgstr "On air"
+
+msgid "Microphone"
+msgstr "Mikropono"
+
+msgid "Camera"
+msgstr "Camera"
+
+msgid "Cancel"
+msgstr "Kanselahin"
+
+msgid "Continue"
+msgstr "Magpatuloy"
+
+msgid "Choose the presentation computer. It needs RustyPresenter open and this phone on the same Wi-Fi."
+msgstr "Piliin ang presentation computer. Dapat bukas doon ang RustyPresenter at nasa parehong Wi-Fi ang phone na ito."
+
+msgid "Looking for RustyPresenter on this Wi-Fi…"
+msgstr "Hinahanap ang RustyPresenter sa Wi-Fi na ito…"
+
+msgid "On this Wi-Fi"
+msgstr "Sa Wi-Fi na ito"
+
+msgid "Search again"
+msgstr "Hanapin muli"
+
+msgid "Or scan the QR code"
+msgstr "O i-scan ang QR code"
+
+msgid "On the computer, click Phone → Pair a phone or tablet, then scan the code it shows."
+msgstr "Sa computer, i-click ang Phone → Mag-pair ng phone o tablet, saka i-scan ang code na ipinapakita nito."
+
+msgid "Scan the QR code"
+msgstr "I-scan ang QR code"
+
+msgid "Or type the address"
+msgstr "O i-type ang address"
+
+msgid "Connect"
+msgstr "Kumonekta"
+
+msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "Sa presentation computer, i-click ang Phone, saka ang Mag-pair ng phone o tablet, at i-type dito ang 6-digit na code."
+
+msgid "This remote needs a password too."
+msgstr "Kailangan din ng password ng remote na ito."
+
+msgid "Password"
+msgstr "Password"
+
+msgid "Choose another computer"
+msgstr "Pumili ng ibang computer"
+
+msgid "Connecting…"
+msgstr "Kumokonekta…"
+
+msgid "On screen"
+msgstr "Nasa screen"
+
+msgid "Hide presenter notes"
+msgstr "Itago ang presenter notes"
+
+msgid "Show presenter notes"
+msgstr "Ipakita ang presenter notes"
+
+msgid "Back"
+msgstr "Bumalik"
+
+msgid "Next"
+msgstr "Susunod"
+
+msgid "Play video"
+msgstr "I-play ang video"
+
+msgid "Pause video"
+msgstr "I-pause ang video"
+
+msgid "Up next"
+msgstr "Kasunod"
+
+msgid "Clear all"
+msgstr "I-clear lahat"
+
+msgid "Text"
+msgstr "Teksto"
+
+msgid "Media"
+msgstr "Media"
+
+msgid "Audio"
+msgstr "Audio"
+
+msgid "Logo"
+msgstr "Logo"
+
+msgid "Service"
+msgstr "Service"
+
+msgid "Tap a slide to put it on the screen."
+msgstr "I-tap ang isang slide para ilabas ito sa screen."
+
+msgid "Stage screen"
+msgstr "Stage screen"
+
+msgid "Not connected"
+msgstr "Hindi nakakonekta"
+
+msgid "This stage screen needs a password."
+msgstr "Kailangan ng password ng stage screen na ito."
+
+msgid "Open"
+msgstr "Buksan"
+
+msgid "Camera {}"
+msgstr "Camera {}"
+
+msgid "Phone microphone"
+msgstr "Mikropono ng phone"
+
+msgid "Sends this phone's microphone to the livestream."
+msgstr "Ipinapadala ang mikropono ng phone na ito sa livestream."
+
+msgid "Stop"
+msgstr "Ihinto"
+
+msgid "Start sending sound"
+msgstr "Simulang magpadala ng tunog"
+
+msgid "Keep this screen open while it sends."
+msgstr "Panatilihing bukas ang screen na ito habang nagpapadala."
+
+msgid "Phone camera"
+msgstr "Camera ng phone"
+
+msgid "Camera name"
+msgstr "Pangalan ng camera"
+
+msgid "Back camera"
+msgstr "Camera sa likod"
+
+msgid "Front camera"
+msgstr "Camera sa harap"
+
+msgid "Start the camera"
+msgstr "Simulan ang camera"
+
+msgid "Turn the phone sideways for a full picture."
+msgstr "Ipatagilid ang phone para sa buong larawan."
+
+msgid "On the computer, choose this phone in Settings → Livestream → Cameras."
+msgstr "Sa computer, piliin ang phone na ito sa Settings → Livestream → Mga camera."
+
+msgid "No computer found yet. Check that RustyPresenter is open on the presentation computer and that this phone is on the same Wi-Fi."
+msgstr "Wala pang nahanap na computer. Tingnan kung bukas ang RustyPresenter sa presentation computer at kung nasa parehong Wi-Fi ang phone na ito."
+
+msgid "This phone is not on a Wi-Fi network. Connect to the church's Wi-Fi, then search again."
+msgstr "Hindi nakakonekta sa Wi-Fi ang phone na ito. Kumonekta sa Wi-Fi ng simbahan, saka hanapin muli."
+
+msgid "That address isn't right. It looks like 192.168.1.20 — the computer shows it under Pair a phone or tablet."
+msgstr "Mali ang address na iyan. Ganito ang itsura nito: 192.168.1.20 — ipinapakita ito ng computer sa Mag-pair ng phone o tablet."
+
+msgid "Could not reach {}. Check that RustyPresenter is open there and that this phone is on the same Wi-Fi."
+msgstr "Hindi maabot ang {}. Tingnan kung bukas doon ang RustyPresenter at kung nasa parehong Wi-Fi ang phone na ito."
+
+msgid "{} is not a RustyPresenter computer."
+msgstr "Hindi RustyPresenter computer ang {}."
+
+msgid "Connected"
+msgstr "Nakakonekta"
+
+msgid "Could not connect."
+msgstr "Hindi makakonekta."
+
+msgid "(Logo)"
+msgstr "(Logo)"
+
+msgid "(Clear)"
+msgstr "(Blangko)"
+
+msgid "(Music playing)"
+msgstr "(May tumutugtog na musika)"
+
+msgid "End of service"
+msgstr "Katapusan ng service"
+
+msgid "The screen changed just now — tap the slide again."
+msgstr "Kababago lang ng screen — i-tap muli ang slide."
+
+msgid "Android phone"
+msgstr "Android phone"
+
+msgid "To send this phone's microphone to the livestream, the app needs to use the microphone. Android will ask you next."
+msgstr "Para maipadala ang mikropono ng phone na ito sa livestream, kailangang gamitin ng app ang mikropono. Tatanungin ka ng Android pagkatapos nito."
+
+msgid "To send this phone's camera to the livestream, the app needs to use the camera. Android will ask you next."
+msgstr "Para maipadala ang camera ng phone na ito sa livestream, kailangang gamitin ng app ang camera. Tatanungin ka ng Android pagkatapos nito."
+
+msgid "To read the QR code, the app needs to use the camera. Android will ask you next."
+msgstr "Para mabasa ang QR code, kailangang gamitin ng app ang camera. Tatanungin ka ng Android pagkatapos nito."
+
+msgid "The microphone is not allowed. Allow it in the phone's Settings → Apps → RustyPresenter → Permissions."
+msgstr "Hindi pinapayagan ang mikropono. Payagan ito sa Settings ng phone → Apps → RustyPresenter → Permissions."
+
+msgid "The camera is not allowed. Allow it in the phone's Settings → Apps → RustyPresenter → Permissions."
+msgstr "Hindi pinapayagan ang camera. Payagan ito sa Settings ng phone → Apps → RustyPresenter → Permissions."
+
+msgid "The camera could not start. Close other apps that use it and try again."
+msgstr "Hindi nakapagsimula ang camera. Isara ang ibang app na gumagamit nito at subukang muli."
+
+msgid "The microphone could not start. Close other apps that use it and try again."
+msgstr "Hindi nakapagsimula ang mikropono. Isara ang ibang app na gumagamit nito at subukang muli."
+
+msgid "Point the camera at the QR code on the presentation computer."
+msgstr "Itutok ang camera sa QR code sa presentation computer."
+
+msgid "That QR code is not from RustyPresenter. On the computer, click Phone → Pair a phone or tablet."
+msgstr "Hindi galing sa RustyPresenter ang QR code na iyan. Sa computer, i-click ang Phone → Mag-pair ng phone o tablet."
+
+msgid "Connecting to the computer…"
+msgstr "Kumokonekta sa computer…"
+
+msgid "Sending to the computer"
+msgstr "Ipinapadala sa computer"
+
+msgid "The computer cannot be reached. Trying again…"
+msgstr "Hindi maabot ang computer. Sinusubukan ulit…"
+
+msgid "This phone is no longer paired. Pair it again."
+msgstr "Hindi na naka-pair ang phone na ito. I-pair itong muli."

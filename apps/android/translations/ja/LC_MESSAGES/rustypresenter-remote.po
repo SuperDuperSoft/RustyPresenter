@@ -1,0 +1,244 @@
+# The Android remote's words (apps/android/ui). Where a text is the same as the desktop app's, its translation
+# is the desktop's (translations/ja); the rest were translated for the app (November 18, 2026).
+msgid ""
+msgstr ""
+"Language: ja\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Remote"
+msgstr "リモコン"
+
+msgid "Stage"
+msgstr "ステージ"
+
+msgid "On air"
+msgstr "オンエア"
+
+msgid "Microphone"
+msgstr "マイク"
+
+msgid "Camera"
+msgstr "カメラ"
+
+msgid "Cancel"
+msgstr "キャンセル"
+
+msgid "Continue"
+msgstr "続ける"
+
+msgid "Choose the presentation computer. It needs RustyPresenter open and this phone on the same Wi-Fi."
+msgstr "発表用コンピューターを選んでください。そのコンピューターで RustyPresenter を開き、このスマホを同じ Wi-Fi につないでおきます。"
+
+msgid "Looking for RustyPresenter on this Wi-Fi…"
+msgstr "この Wi-Fi で RustyPresenter を探しています…"
+
+msgid "On this Wi-Fi"
+msgstr "この Wi-Fi 上"
+
+msgid "Search again"
+msgstr "もう一度探す"
+
+msgid "Or scan the QR code"
+msgstr "または QR コードを読み取る"
+
+msgid "On the computer, click Phone → Pair a phone or tablet, then scan the code it shows."
+msgstr "コンピューターで「スマホ → スマホやタブレットをつなぐ」を押し、表示されたコードを読み取ってください。"
+
+msgid "Scan the QR code"
+msgstr "QR コードを読み取る"
+
+msgid "Or type the address"
+msgstr "またはアドレスを入力"
+
+msgid "Connect"
+msgstr "接続"
+
+msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "発表用コンピューターで「スマホ」、次に「スマホやタブレットをつなぐ」を押し、ここに6桁のコードを入力してください。"
+
+msgid "This remote needs a password too."
+msgstr "このリモコンにもパスワードが必要です。"
+
+msgid "Password"
+msgstr "パスワード"
+
+msgid "Choose another computer"
+msgstr "別のコンピューターを選ぶ"
+
+msgid "Connecting…"
+msgstr "接続中…"
+
+msgid "On screen"
+msgstr "表示中"
+
+msgid "Hide presenter notes"
+msgstr "発表者メモを隠す"
+
+msgid "Show presenter notes"
+msgstr "発表者メモを表示"
+
+msgid "Back"
+msgstr "戻る"
+
+msgid "Next"
+msgstr "次へ"
+
+msgid "Play video"
+msgstr "動画を再生"
+
+msgid "Pause video"
+msgstr "動画を一時停止"
+
+msgid "Up next"
+msgstr "次の項目"
+
+msgid "Clear all"
+msgstr "すべてクリア"
+
+msgid "Text"
+msgstr "テキスト"
+
+msgid "Media"
+msgstr "メディア"
+
+msgid "Audio"
+msgstr "音声"
+
+msgid "Logo"
+msgstr "ロゴ"
+
+msgid "Service"
+msgstr "礼拝"
+
+msgid "Tap a slide to put it on the screen."
+msgstr "スライドをタップすると画面に表示されます。"
+
+msgid "Stage screen"
+msgstr "ステージ画面"
+
+msgid "Not connected"
+msgstr "未接続"
+
+msgid "This stage screen needs a password."
+msgstr "このステージ画面にはパスワードが必要です。"
+
+msgid "Open"
+msgstr "開く"
+
+msgid "Camera {}"
+msgstr "カメラ {}"
+
+msgid "Phone microphone"
+msgstr "スマホのマイク"
+
+msgid "Sends this phone's microphone to the livestream."
+msgstr "このスマホのマイクの音をライブ配信に送ります。"
+
+msgid "Stop"
+msgstr "停止"
+
+msgid "Start sending sound"
+msgstr "音声の送信を開始"
+
+msgid "Keep this screen open while it sends."
+msgstr "送っている間はこの画面を開いたままにしてください。"
+
+msgid "Phone camera"
+msgstr "スマホのカメラ"
+
+msgid "Camera name"
+msgstr "カメラ名"
+
+msgid "Back camera"
+msgstr "背面カメラ"
+
+msgid "Front camera"
+msgstr "前面カメラ"
+
+msgid "Start the camera"
+msgstr "カメラを開始"
+
+msgid "Turn the phone sideways for a full picture."
+msgstr "スマホを横向きにすると全体が映ります。"
+
+msgid "On the computer, choose this phone in Settings → Livestream → Cameras."
+msgstr "コンピューターの「設定 → ライブ配信 → カメラ」でこのスマホを選んでください。"
+
+msgid "No computer found yet. Check that RustyPresenter is open on the presentation computer and that this phone is on the same Wi-Fi."
+msgstr "まだコンピューターが見つかりません。発表用コンピューターで RustyPresenter が開いていて、このスマホが同じ Wi-Fi につながっているか確かめてください。"
+
+msgid "This phone is not on a Wi-Fi network. Connect to the church's Wi-Fi, then search again."
+msgstr "このスマホは Wi-Fi につながっていません。教会の Wi-Fi につないでから、もう一度探してください。"
+
+msgid "That address isn't right. It looks like 192.168.1.20 — the computer shows it under Pair a phone or tablet."
+msgstr "そのアドレスは正しくありません。192.168.1.20 のような形で、コンピューターの「スマホやタブレットをつなぐ」に表示されています。"
+
+msgid "Could not reach {}. Check that RustyPresenter is open there and that this phone is on the same Wi-Fi."
+msgstr "{} に接続できませんでした。そこで RustyPresenter が開いていて、このスマホが同じ Wi-Fi につながっているか確かめてください。"
+
+msgid "{} is not a RustyPresenter computer."
+msgstr "{} は RustyPresenter のコンピューターではありません。"
+
+msgid "Connected"
+msgstr "接続済み"
+
+msgid "Could not connect."
+msgstr "接続できませんでした。"
+
+msgid "(Logo)"
+msgstr "（ロゴ）"
+
+msgid "(Clear)"
+msgstr "（クリア）"
+
+msgid "(Music playing)"
+msgstr "（音楽再生中）"
+
+msgid "End of service"
+msgstr "礼拝の終わり"
+
+msgid "The screen changed just now — tap the slide again."
+msgstr "ちょうど画面が変わりました — もう一度スライドをタップしてください。"
+
+msgid "Android phone"
+msgstr "Android スマホ"
+
+msgid "To send this phone's microphone to the livestream, the app needs to use the microphone. Android will ask you next."
+msgstr "このスマホのマイクの音をライブ配信に送るには、アプリがマイクを使う必要があります。このあと Android が確認します。"
+
+msgid "To send this phone's camera to the livestream, the app needs to use the camera. Android will ask you next."
+msgstr "このスマホのカメラの映像をライブ配信に送るには、アプリがカメラを使う必要があります。このあと Android が確認します。"
+
+msgid "To read the QR code, the app needs to use the camera. Android will ask you next."
+msgstr "QR コードを読み取るには、アプリがカメラを使う必要があります。このあと Android が確認します。"
+
+msgid "The microphone is not allowed. Allow it in the phone's Settings → Apps → RustyPresenter → Permissions."
+msgstr "マイクが許可されていません。スマホの「設定 → アプリ → RustyPresenter → 権限」で許可してください。"
+
+msgid "The camera is not allowed. Allow it in the phone's Settings → Apps → RustyPresenter → Permissions."
+msgstr "カメラが許可されていません。スマホの「設定 → アプリ → RustyPresenter → 権限」で許可してください。"
+
+msgid "The camera could not start. Close other apps that use it and try again."
+msgstr "カメラを起動できませんでした。カメラを使っているほかのアプリを閉じて、もう一度試してください。"
+
+msgid "The microphone could not start. Close other apps that use it and try again."
+msgstr "マイクを起動できませんでした。マイクを使っているほかのアプリを閉じて、もう一度試してください。"
+
+msgid "Point the camera at the QR code on the presentation computer."
+msgstr "発表用コンピューターに表示された QR コードにカメラを向けてください。"
+
+msgid "That QR code is not from RustyPresenter. On the computer, click Phone → Pair a phone or tablet."
+msgstr "その QR コードは RustyPresenter のものではありません。コンピューターで「スマホ → スマホやタブレットをつなぐ」を押してください。"
+
+msgid "Connecting to the computer…"
+msgstr "コンピューターに接続中…"
+
+msgid "Sending to the computer"
+msgstr "コンピューターに送信中"
+
+msgid "The computer cannot be reached. Trying again…"
+msgstr "コンピューターに接続できません。再試行中…"
+
+msgid "This phone is no longer paired. Pair it again."
+msgstr "このスマホはもうつながっていません。もう一度つないでください。"

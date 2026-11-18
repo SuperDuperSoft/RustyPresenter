@@ -174,6 +174,31 @@ Windows: `packaging/windows/test-make-installer.sh` runs the script with fake do
 and `python3 packaging/windows/check-nsi.py` checks the `.nsi` statically (blocks, calls, `un.` functions, labels,
 defines, variables). Only `makensis` on the PC compiles it for real.
 
+## The Android remote
+
+`apps/android/` is the remote as an Android app (Rust and Slint, `docs/superpowers/specs/2026-11-18-android-app-design.md`).
+It is its own Cargo project with its own `Cargo.lock`: the desktop build never compiles it. Releases carry it as
+`RustyPresenter-<version>-android-remote.apk` (the `android` job of `package.yml`); its version is the app's
+(`apps/android/Cargo.toml`, checked by CI and by a test in `src/server.rs`).
+
+- **Build:** `apps/android/build-apk.ps1 [-Out file.apk] [-Abis arm64-v8a,armeabi-v7a] [-Debug]` (Windows PowerShell
+  or pwsh). It needs the Android SDK (`ANDROID_HOME`, else `.tools/android/sdk` of the main checkout) with
+  `platforms;android-34`, `build-tools;34.0.0` and `ndk;27.2.12479018` (pinned in `pins.env`), a JDK (`keytool`, and
+  `javac` for Slint's small Java helper), and the Rust targets `aarch64-linux-android` and `armv7-linux-androideabi`.
+  No Gradle: `cargo build` per kind of phone with the NDK's clang as linker, then `aapt2 link`, the libraries added
+  as `lib/<abi>/libremote.so`, `zipalign`, `apksigner`. On the PC it builds in
+  `%LOCALAPPDATA%\RustyPresenter\build-android`.
+- **Signing:** with `ANDROID_KEYSTORE`, `ANDROID_KEYSTORE_PASSWORD` and `ANDROID_KEY_ALIAS` when set (CI: the secrets
+  `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`), else with a debug key made once in
+  `%LOCALAPPDATA%\RustyPresenter\remote-debug.keystore`. A phone only updates an app signed with the same key, so
+  releases need the secret set: without it each release is signed by a fresh key and must be uninstalled first.
+- **Test:** `cargo test` in `apps/android` (everything that needs no phone), and
+  `cargo run --example preview --features preview [-- <language>]` to draw every screen to PNGs. On a phone:
+  `adb install -r RustyPresenter-…apk`.
+- **Slint patch:** `apps/android/patches/i-slint-backend-android-activity` (see its `PATCHED.md`): drawn with Slint's
+  software renderer instead of Skia (whose build downloads a prebuilt library from GitHub), and its Java helper
+  buildable with JDK 21+ and build-tools 34. Recheck it when Slint is updated.
+
 ## Bumping a pin
 
 - **pdfium:** pick a `chromium/<build>` tag of `bblanchon/pdfium-binaries`, then copy the

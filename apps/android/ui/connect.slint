@@ -1,0 +1,124 @@
+// Choosing the computer (found on the Wi-Fi, typed, or from the QR code) and pairing with it.
+import { LineEdit, ScrollView } from "std-widgets.slint";
+import { Theme } from "theme.slint";
+import { Btn, Box, Words, Note } from "widgets.slint";
+import { S } from "state.slint";
+
+export component FindPage inherits Rectangle {
+    background: Theme.bg;
+    sv := ScrollView {
+        // As wide as the screen, as tall as its contents: words wrap, the page scrolls.
+        content-width: sv.visible-width;
+        content-height: lay.preferred-height;
+        lay := VerticalLayout {
+            width: sv.visible-width;
+            padding: Theme.pad;
+            padding-top: 28px;
+            spacing: Theme.gap;
+            Text { text: @tr("Remote"); font-size: Theme.title; font-weight: 700; color: Theme.text; }
+            Words { text: @tr("Choose the presentation computer. It needs RustyPresenter open and this phone on the same Wi-Fi."); color: Theme.muted; }
+
+            Box {
+                heading: S.searching ? @tr("Looking for RustyPresenter on this Wi-Fi…") : @tr("On this Wi-Fi");
+                for f[i] in S.found: Btn {
+                    text: f.name == "" ? f.address : f.name + " · " + f.address;
+                    kind: "go";
+                    clicked => { S.choose(i); }
+                }
+                if S.found.length == 0 && !S.searching: Note { text: S.find-note; problem: S.find-problem; }
+                if S.found.length > 0 && S.find-note != "": Note { text: S.find-note; problem: S.find-problem; }
+                Btn {
+                    text: @tr("Search again");
+                    enabled: !S.searching;
+                    clicked => { S.search-again(); }
+                }
+            }
+
+            Box {
+                heading: @tr("Or scan the QR code");
+                Words { text: @tr("On the computer, click Phone → Pair a phone or tablet, then scan the code it shows."); color: Theme.muted; font-size: Theme.small; }
+                Btn { text: @tr("Scan the QR code"); clicked => { S.scan-qr(); } }
+            }
+
+            Box {
+                heading: @tr("Or type the address");
+                address := LineEdit {
+                    text <=> S.typed;
+                    placeholder-text: "192.168.1.20";
+                    input-type: InputType.text;
+                    accepted => { S.connect-typed(self.text); }
+                }
+                Btn {
+                    text: @tr("Connect");
+                    enabled: !S.busy;
+                    clicked => { S.connect-typed(address.text); }
+                }
+            }
+            Rectangle { vertical-stretch: 1; }
+        }
+    }
+}
+
+export component PairPage inherits Rectangle {
+    background: Theme.bg;
+    sv := ScrollView {
+        // As wide as the screen, as tall as its contents: words wrap, the page scrolls.
+        content-width: sv.visible-width;
+        content-height: lay.preferred-height;
+        lay := VerticalLayout {
+            width: sv.visible-width;
+            padding: Theme.pad;
+            padding-top: 28px;
+            spacing: Theme.gap;
+            Text { text: @tr("Remote"); font-size: Theme.title; font-weight: 700; color: Theme.text; }
+            Words { text: S.computer; color: Theme.accent; font-weight: 600; }
+            if !S.has-secret: Words {
+                text: @tr("On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here.");
+            }
+            code := LineEdit {
+                visible: !S.has-secret;
+                height: S.has-secret ? 0px : 56px;
+                placeholder-text: "••••••";
+                input-type: InputType.number;
+                accepted => { if !S.needs-password { S.pair(code.text, ""); } }
+            }
+            if S.needs-password: Words { text: @tr("This remote needs a password too."); color: Theme.muted; }
+            password := LineEdit {
+                visible: S.needs-password;
+                height: S.needs-password ? 56px : 0px;
+                placeholder-text: @tr("Password");
+                input-type: InputType.password;
+                accepted => { S.pair(code.text, password.text); }
+            }
+            Btn {
+                text: @tr("Connect");
+                kind: "go";
+                enabled: !S.busy;
+                clicked => { S.pair(code.text, password.text); }
+            }
+            if S.pair-error != "": Note { text: S.pair-error; problem: true; }
+            Btn { text: @tr("Choose another computer"); clicked => { S.other-computer(); } }
+            Rectangle { vertical-stretch: 1; }
+        }
+    }
+}
+
+// The camera looking for the QR code on the computer's screen.
+export component ScanPage inherits Rectangle {
+    background: Theme.bg;
+    VerticalLayout {
+        padding: Theme.pad;
+        padding-top: 28px;
+        spacing: Theme.gap;
+        Text { text: @tr("Scan the QR code"); font-size: Theme.title; font-weight: 700; color: Theme.text; }
+        Words { text: S.scan-note; color: Theme.muted; }
+        Rectangle {
+            vertical-stretch: 1;
+            background: Theme.black;
+            border-radius: Theme.radius;
+            clip: true;
+            Image { source: S.scan-preview; width: 100%; height: 100%; image-fit: contain; }
+        }
+        Btn { text: @tr("Cancel"); clicked => { S.scan-cancel(); } }
+    }
+}

@@ -1,0 +1,65 @@
+# The Android remote (Jake, November 18, 2026: "I want a custom APK written in Rust for this. I think the browser
+# works great — don't remove it. But an APK would work a little cleaner."). Its own Cargo project, not part of the
+# desktop app's build: `build-apk.ps1` builds it into an APK. The parts that do not need a phone (talking to the
+# computer, finding it, the stage screen's words and chords) are tested on any computer with `cargo test`.
+[package]
+name = "rustypresenter-remote"
+version = "1.4.0"
+edition = "2024"
+publish = false
+license = "MIT OR Apache-2.0"
+description = "RustyPresenter's remote for Android phones and tablets"
+
+# Its own workspace: never a member of the desktop app's.
+[workspace]
+
+[lib]
+name = "remote"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[features]
+# The phone app itself (`build-apk.ps1`): the screens are compiled from `ui/`.
+phone = ["dep:slint-build"]
+# Pictures of the screens drawn on a computer, to check them without a phone: `cargo run --example preview
+# --features preview` writes PNGs to target/preview/.
+preview = ["dep:slint-build", "dep:slint", "dep:image", "dep:i-slint-core"]
+
+[target.'cfg(not(target_os = "android"))'.dependencies]
+slint = { version = "=1.18.1", optional = true, default-features = false, features = ["std", "compat-1-2", "renderer-software"] }
+image = { version = "0.25", optional = true, default-features = false, features = ["png"] }
+# The pictures in the screens (as the phone's Slint has them).
+i-slint-core = { version = "=1.18.1", optional = true, default-features = false, features = ["svg", "image-decoders"] }
+
+# The phone's own network addresses (finding the computer).
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[target.'cfg(target_os = "android")'.dependencies]
+slint = { version = "=1.18.1", default-features = false, features = ["std", "compat-1-2", "backend-android-activity-06"] }
+ndk = { version = "0.9", features = ["audio", "media", "api-level-26"] }
+ndk-sys = "0.6"
+jni = "0.21"
+image = { version = "0.25", default-features = false, features = ["jpeg"] }
+rqrr = "0.10"
+
+[build-dependencies]
+slint-build = { version = "=1.18.1", optional = true }
+
+[[example]]
+name = "preview"
+required-features = ["preview"]
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 4
+strip = true
+panic = "unwind"
+
+# Slint's Android backend with its Java helper buildable by JDK 21+ and build-tools 34 (patches/…/PATCHED.md).
+[patch.crates-io]
+i-slint-backend-android-activity = { path = "patches/i-slint-backend-android-activity" }
