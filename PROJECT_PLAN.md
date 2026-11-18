@@ -1806,3 +1806,32 @@ found: `docs/superpowers/specs/2026-11-17-dock-panels-design.md` ("As built").
 - **Test run:** all 3,609 library tests pass on the merged branch (follow-sunday at 2ed0e1c), and `i18n_catalogs`,
   `cleanup`, `words` and `ui_operator_flows`. Earlier runs had the known timing-sensitive `record::run` FFmpeg tests
   fail while other agents built; they passed when run again.
+
+### November 18, 2026 — Chords above the words (branch `chord-sheet`)
+
+Jake imported SongSelect's ChordPro download of a song and compared the stage screen with SongSelect's chord sheet
+PDF: "We want the chords to appear more like the PDF. That is much more readable." Design:
+`docs/superpowers/specs/2026-11-18-chord-sheet-design.md`.
+
+- **Chord sheet** (`src/stage/chords.rs`, pure and tested): a stage box with "Show chords" (the Band layout's
+  current and next slide) now shows each line as the chords on top, each starting over its own letter, and the
+  words below without brackets. Chords are bold, 90 % of the words' size, in their own colour (gold on a dark
+  screen, blue when the words are gold, darker colours on a light background). Chords close together never overlap
+  (the words get room instead). A line of chords alone is a chord row alone, spaced as written; a line without
+  chords has no chord row; "(1st Ending)", "(To Verse 2)" stay words; `[*Softly]` sits with the chords and is no
+  longer shown in the room. The sheet shrinks to fit its box (both rows count), wraps long lines between words with
+  each chord kept with its word, never cut off. Key −/+ still moves the chords; the room never shows them.
+- **Data:** `stage::view::CellContent::Chords { lines, caption, chord_color }` (lines of `(chord, words)`
+  segments) instead of bracketed text.
+- **Stage window:** Rust measures each piece once with a hidden Text in the window and places every chord at the
+  same x as the words under it (`ChordPieceVm` in `ui/stage.slint`); pieces are cached so the clock's redraw
+  doesn't rebuild them. The dock's Stage preview panel is a picture of this window, so it shows the same.
+- **Phone stage page:** cells of kind `"chords"` carry `lines` and `chord_color`; `web/stage-view.js` draws them
+  as inline columns in wrapping rows. The cell keeps `text` (the chords in brackets), so an older page still draws
+  it as words.
+- **Picture:** `examples/chord_shots.rs` saves the stage screen with a song file's slide live on the Band layout.
+- **The real sample** ("Sometimes By Step") is not in the code (its words are not ours to publish): the test
+  `stage::view::tests::the_songselect_sample_shows_as_a_chord_sheet` is `#[ignore]` and runs with
+  `RP_CHORD_SAMPLE=<file>`; an always-run test uses a SongSelect-shaped file with public-domain words.
+- **Not verified by a person:** the chord sheet on a real stage monitor and on a real phone/tablet (the phone page
+  was not opened in a browser here), and the colour choice on church-made layouts with unusual colours.

@@ -79,7 +79,7 @@ pub fn is_chord(s: &str) -> bool {
     bass.is_none_or(|b| root(b).is_some_and(str::is_empty))
 }
 
-/// N10: `text` without its `[chord]`s, or None when it has none. Other brackets (`[x2]`) stay. Lines that held only
+/// N10: `text` without its `[chord]`s (and `[*notes]` for the band), or None when it has none. Other brackets (`[x2]`) stay. Lines that held only
 /// chords go, and the spaces chords leave are tidied.
 pub fn strip_chords(text: &str) -> Option<String> {
     let mut found = false;
@@ -89,7 +89,8 @@ pub fn strip_chords(text: &str) -> Option<String> {
             out.push_str(&rest[..i]);
             let tail = &rest[i + 1..];
             match tail.find(']') {
-                Some(e) if is_chord(&tail[..e]) => { had = true; rest = &tail[e + 1..]; }
+                // A chord, or a note for the band (`[*Softly]`, ChordPro): the stage shows it, the room never does.
+                Some(e) if is_chord(&tail[..e]) || tail[..e].starts_with('*') => { had = true; rest = &tail[e + 1..]; }
                 _ => { out.push('['); rest = tail; }
             }
         }
@@ -484,6 +485,7 @@ mod tests {
         for c in ["x2", "Chorus", "Bridge", "H", "G/x", "", "Repeat", "Ab Cd"] { assert!(!is_chord(c), "{c}"); }
         assert_eq!(strip_chords("[G]Amazing [C]grace, how [G]sweet\nThe sound"), Some("Amazing grace, how sweet\nThe sound".into()));
         assert_eq!(strip_chords("Sing it [x2]"), None, "not a chord");
+        assert_eq!(strip_chords("[*Softly]Amazing [G]grace"), Some("Amazing grace".into()), "a note for the band is not sung");
         assert_eq!(strip_chords("[G] [D]\nWords"), Some("Words".into()), "a line of chords only goes");
         assert_eq!(section_label("[G]"), None);
         assert_eq!(section_label("[Chorus]").as_deref(), Some("Chorus"));

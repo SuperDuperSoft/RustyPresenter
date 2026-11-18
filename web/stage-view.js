@@ -82,7 +82,8 @@ function cell(c, ver) {
   }
   const w = document.createElement('div');
   w.className = 'words';
-  w.textContent = c.text;
+  if (c.kind === 'chords' && Array.isArray(c.lines)) w.append(sheet(c));
+  else w.textContent = c.text;
   Object.assign(w.style, {
     color: c.red ? '#ff4f55' : c.kind === 'message' ? '#1a1405' : c.color, opacity: c.dim ? .35 : 1,
     fontWeight: c.bold || c.kind === 'message' ? 650 : 500, textAlign: c.align, justifyContent: VALIGN[c.valign] || 'center',
@@ -90,6 +91,55 @@ function cell(c, ver) {
   w.dataset.max = c.max; w.dataset.min = c.min;
   el.append(w);
   return el;
+}
+
+const SELF = { left: 'flex-start', center: 'center', right: 'flex-end' };
+
+// A chord sheet (src/stage/chords.rs): each line of [chord, words] segments as little columns, the chord on top,
+// so a chord starts over its own letter. Lines wrap between words; a chord stays with the word under it.
+function sheet(c) {
+  const box = document.createElement('div');
+  box.className = 'sheet';
+  box.style.alignSelf = SELF[c.align] || 'center';
+  for (const line of c.lines) {
+    const chords = line.some(([ch]) => ch), words = line.some(([, t]) => t.trim());
+    const row = document.createElement('div');
+    row.className = 'cl' + (chords && !words ? ' alone' : '');
+    if (!line.length) row.textContent = ' ';
+    for (const item of items(line)) {
+      const it = document.createElement('span');
+      it.className = 'ci';
+      for (const [ch, t] of item) {
+        const p = document.createElement('span');
+        p.className = 'cp';
+        if (chords) { const b = document.createElement('b'); b.className = 'ch'; b.textContent = ch; b.style.color = c.chord_color; p.append(b); }
+        const s = document.createElement('span');
+        s.className = 'cw';
+        s.textContent = t;
+        p.append(s);
+        it.append(p);
+      }
+      row.append(it);
+    }
+    box.append(row);
+  }
+  return box;
+}
+
+// The pieces of a line that stay together when it wraps: each word with its chord (`chords::items` in Rust).
+function items(line) {
+  const pieces = [];
+  for (const [ch, t] of line) {
+    const tokens = t.match(/^\s*\S+\s*|\S+\s*|^\s+$/g) || [];
+    if (!tokens.length) pieces.push([ch, '']);
+    tokens.forEach((tok, i) => pieces.push([i ? '' : ch, tok]));
+  }
+  const out = [];
+  for (const p of pieces) {
+    const prev = out.length ? out[out.length - 1].at(-1)[1] : '';
+    if (prev && !/\s$/.test(prev)) out[out.length - 1].push(p); else out.push([p]);
+  }
+  return out;
 }
 
 // The smallest words, in % of the screen's height: below a box's own smallest size, but all the words are seen

@@ -43,6 +43,9 @@ pub enum CellContent {
     NextPicture { caption: Option<String> },
     /// N10: a plain shape.
     Shape { shape: super::ShapeKind },
+    /// A slide's chords as a chord sheet (`super::chords`): each line as segments, a chord and the words after it.
+    /// `chord_color`: the chords' own colour, set by `build` from the box's colour and the background.
+    Chords { lines: Vec<super::chords::ChordLine>, caption: Option<String>, chord_color: String },
 }
 
 impl CellContent {
@@ -52,7 +55,8 @@ impl CellContent {
 pub fn build(inp: &StageInputs, layout: &StageLayout) -> StageView {
     let mut cells: Vec<Cell> = layout.elements.iter().filter_map(|e| e.known()).filter(|e| !e.hidden).map(|e| {
         let mut style = resolve_style(&e.kind, &e.style);
-        let content = content(inp, &e.kind, &style);
+        let mut content = content(inp, &e.kind, &style);
+        if let CellContent::Chords { chord_color, .. } = &mut content { *chord_color = super::chords::chord_color(&style.color, &layout.background); }
         if e.style.color.is_none() && matches!(e.kind, ElementKind::SectionName | ElementKind::NextSection) {
             if let CellContent::Text { text, .. } = &content { style.color = section_color(text); }
         }
@@ -116,16 +120,21 @@ fn slide_content(slide: &Slide, pictures: bool, chords: bool, caption: Option<St
         SlideContent::Text { text, .. } if text.trim().is_empty() && slide.chords.is_some() => {
             let name = format!("{} ♪", section_of(&slide.label));
             match slide.chords.as_ref().filter(|_| chords) {
-                Some(with) => CellContent::text(format!("{name}
+                Some(with) => chord_sheet(&format!("{name}
 {with}"), caption),
                 None => CellContent::text(name, caption),
             }
         }
         _ => match slide.chords.as_ref().filter(|_| chords) {
-            Some(with) => CellContent::text(with.clone(), caption),
+            Some(with) => chord_sheet(with, caption),
             None => CellContent::text(label(slide), caption),
         },
     }
+}
+
+/// A slide's chords (`[D]  Sometimes the [A/D]night`) as a chord sheet: the chords above the words.
+fn chord_sheet(with: &str, caption: Option<String>) -> CellContent {
+    CellContent::Chords { lines: super::chords::sheet(with), caption, chord_color: String::new() }
 }
 
 /// A song slide's section: its label without the page count ("Verse 1 (1/2)" → "Verse 1").
@@ -293,6 +302,10 @@ mod tests {
     fn only(live: &LiveView, slides: &[Slide], kind: ElementKind) -> CellContent { view_of(live, slides, &one(kind)).cells.remove(0).content }
     fn words(c: &CellContent) -> (&str, bool) {
         match c { CellContent::Text { text, dim, .. } => (text.as_str(), *dim), other => panic!("not text: {other:?}") }
+    }
+    /// A chord sheet box's chords, written back with brackets.
+    fn sheet_of(c: &CellContent) -> String {
+        match c { CellContent::Chords { lines, .. } => crate::stage::chords::plain(lines), other => panic!("not a chord sheet: {other:?}") }
     }
     fn cell_of<'a>(v: &'a StageView, kind: &ElementKind, layout: &StageLayout) -> &'a CellContent {
         // The same kind of box, whatever its settings (the Band layout shows chords).
@@ -615,8 +628,8 @@ mod tests {
         s[0].chords = Some("[C]Amazing grace".into());
         let v = song_view(&s, 0);
         assert_eq!(words(&only(&v, &s, ElementKind::NextSlide { pictures: false, chords: false })).0, "That saved a wretch");
-        assert_eq!(words(&only(&v, &s, ElementKind::NextSlide { pictures: false, chords: true })).0, "[G]That saved a [D]wretch");
-        assert_eq!(words(&only(&v, &s, ElementKind::CurrentSlide { pictures: false, keep_after_clear: false, chords: true })).0, "[C]Amazing grace");
+        assert_eq!(sheet_of(&only(&v, &s, ElementKind::NextSlide { pictures: false, chords: true })), "[G]That saved a [D]wretch");
+        assert_eq!(sheet_of(&only(&v, &s, ElementKind::CurrentSlide { pictures: false, keep_after_clear: false, chords: true })), "[C]Amazing grace");
         // A slide without chords shows its words.
         let v = song_view(&s, 2);
         assert_eq!(words(&only(&v, &s, ElementKind::CurrentSlide { pictures: false, keep_after_clear: false, chords: true })).0, "My chains are gone");
@@ -633,11 +646,11 @@ Verse 1
         assert!(matches!(&s[0].content, SlideContent::Text { text, .. } if text.is_empty()), "the room shows no words");
         let v = song_view(&s, 0);
         let cur = |chords| ElementKind::CurrentSlide { pictures: false, keep_after_clear: false, chords };
-        assert_eq!(words(&only(&v, &s, cur(true))).0, "Intro ♪
+        assert_eq!(sheet_of(&only(&v, &s, cur(true))), "Intro ♪
 [A] [E] [F#m] [D]", "moved up 2, as the band plays it");
         assert_eq!(words(&only(&v, &s, cur(false))).0, "Intro ♪");
         assert_eq!(words(&only(&v, &s, ElementKind::NextSlide { pictures: false, chords: false })).0, "Amazing grace", "the first sung line is next");
-        assert_eq!(words(&only(&v, &s, ElementKind::NextSlide { pictures: false, chords: true })).0, "[A]Amazing [D]grace");
+        assert_eq!(sheet_of(&only(&v, &s, ElementKind::NextSlide { pictures: false, chords: true })), "[A]Amazing [D]grace");
     }
 
     #[test]
@@ -664,5 +677,80 @@ Verse 1
         assert_eq!(out.background, "#07080a");
         let title = &out.cells[0];
         assert_eq!((title.style.color.as_str(), title.style.align), ("#9aa3b5", Align::Left));
+    }
+
+
+    /// A SongSelect ChordPro download, laid out as SongSelect writes them (the header, `{comment: …}` sections,
+    /// chords before indented words, a chord inside a word, a line of chords alone, endings and the credit lines),
+    /// with public-domain words so the file can live in the code.
+    const SONGSELECT_LIKE: &str = "{title: Amazing Grace}\n{artist: John Newton}\n{key: G}\n{tempo: 80}\n{time: 3/4 }\n\
+        {ccli_license: 1234567}\n{ccli: 22025}\n{copyright: Public Domain}\n\
+        {footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}\n\n\
+        {comment: Verse 1}\n[G]  A - mazing [G/B]grace how [C]sweet the [G]sound \nThat saved a [Em7]wretch like [D]me \n\
+        [G]I once was [G7]lost but [C]now am [G]found \nWas [Em]blind but [D]now I [G]see \n\n\
+        {comment: Ending}\n[G]      [C/G]    [D/G]\n\
+        (1st Ending)    Was [G/B]blind but [Dsus]now I [D]see  [G]      [C/G]    [D/G]     (To Verse 2)\n\
+        And on this (the) [C]road to right - [D]eous - ness \n\n\n\
+        CCLI Song # 22025\nPublic Domain\nFor use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com\nCCLI License # 1234567\n";
+
+    /// The song imported as the SongSelect inbox does, its slides built, and each slide's Band layout boxes: the
+    /// slide's own chord sheet and the room's words.
+    fn band_sheets(file: &[u8], transpose: i8) -> Vec<(String, Vec<crate::stage::chords::ChordLine>, String)> {
+        let mut song = crate::songselect::inbox::read_song_file("song-chordpro.txt", file).expect("a song");
+        song.transpose = transpose;
+        let slides = crate::slides::song_slides(&song, &crate::model::Settings { credits: "none".into(), ..Default::default() });
+        let band = crate::stage::presets::by_id(crate::stage::presets::BAND).unwrap();
+        let cur = ElementKind::CurrentSlide { pictures: false, keep_after_clear: false, chords: true };
+        (0..slides.len()).map(|i| {
+            let v = view_of(&song_view(&slides, i), &slides, band);
+            let lines = match cell_of(&v, &cur, band) { CellContent::Chords { lines, .. } => lines.clone(), other => panic!("{}: not a chord sheet: {other:?}", slides[i].label) };
+            let words = match &slides[i].content { SlideContent::Text { text, .. } => text.clone(), _ => String::new() };
+            (slides[i].label.clone(), lines, words)
+        }).collect()
+    }
+
+    fn segs(list: &[(&str, &str)]) -> crate::stage::chords::ChordLine { list.iter().map(|(c, w)| (c.to_string(), w.to_string())).collect() }
+
+    #[test]
+    fn a_songselect_chordpro_song_shows_as_a_chord_sheet_on_the_band_layout() {
+        let all = band_sheets(SONGSELECT_LIKE.as_bytes(), 0);
+        let (label, lines, words) = &all[0];
+        assert!(label.starts_with("Verse 1"), "{label}");
+        assert_eq!(lines[0], segs(&[("G", "  A - mazing "), ("G/B", "grace how "), ("C", "sweet the "), ("G", "sound")]));
+        assert_eq!(lines[1], segs(&[("", "That saved a "), ("Em7", "wretch like "), ("D", "me")]), "words before the first chord");
+        assert!(!words.contains('[') && words.starts_with("A - mazing grace"), "the room has the words alone: {words}");
+        let ending: Vec<_> = all.iter().filter(|(l, ..)| l.starts_with("Ending")).flat_map(|(_, lines, _)| lines.clone()).collect();
+        assert_eq!(ending[0], segs(&[("G", "      "), ("C/G", "    "), ("D/G", "")]), "a line of chords alone, spaced as written");
+        assert_eq!(ending[1], segs(&[("", "(1st Ending)    Was "), ("G/B", "blind but "), ("Dsus", "now I "), ("D", "see  "), ("G", "      "),
+            ("C/G", "    "), ("D/G", "     (To Verse 2)")]), "the ending's notes stay words");
+        assert_eq!(ending[2], segs(&[("", "And on this (the) "), ("C", "road to right - "), ("D", "eous - ness")]), "a chord inside a word");
+        // Moved up 2 (the song's Key +): the sheet shows the chords as the band plays them.
+        let up = band_sheets(SONGSELECT_LIKE.as_bytes(), 2);
+        assert_eq!(up[0].1[0], segs(&[("A", "  A - mazing "), ("A/C#", "grace how "), ("D", "sweet the "), ("A", "sound")]));
+    }
+
+    /// The real SongSelect download Jake compared with the PDF ("Sometimes By Step"). Its words are not ours to
+    /// keep in the code: run with `RP_CHORD_SAMPLE=<the .txt file>` and `--ignored`.
+    #[test]
+    #[ignore]
+    fn the_songselect_sample_shows_as_a_chord_sheet() {
+        let path = std::env::var("RP_CHORD_SAMPLE").expect("RP_CHORD_SAMPLE names the sample file");
+        let all = band_sheets(&std::fs::read(path).unwrap(), 0);
+        let first = &all[0];
+        assert!(first.0.starts_with("Verse 1"), "{}", first.0);
+        assert_eq!(first.1[0], segs(&[("D", "  Sometimes the "), ("A/D", "night is beautiful")]));
+        let lines: Vec<_> = all.iter().flat_map(|(_, l, _)| l.clone()).collect();
+        let find = |start: &str| lines.iter().find(|l| l.first().is_some_and(|(_, w)| w.starts_with(start))).cloned().unwrap_or_else(|| panic!("no line starting {start}"));
+        assert_eq!(find("  Sometimes it seemed"), segs(&[("G/B", "  Sometimes it seemed to stoop so "), ("Asus", "close")]));
+        assert_eq!(find("You could "), segs(&[("", "You could "), ("A7", "touch it, but your heart would "), ("F#m", "break")]));
+        assert_eq!(find("(1st Ending)"), segs(&[("", "(1st Ending)    And I will "), ("G/B", "follow You "), ("Asus", "all of "), ("A", "my  "), ("D", "days      "),
+            ("G/D", "    "), ("A/D", "     (To Verse 2)")]));
+        assert_eq!(find("And on this (the) "), segs(&[("", "And on this (the) "), ("G", "road to righteous - "), ("F#m", "ness")]));
+        assert!(lines.contains(&segs(&[("A", "Oh,  "), ("D", "God, You are my "), ("A/C#", "God    "), ("A", "")])));
+        for (label, sheet, words) in &all {
+            assert!(!words.contains('['), "{label}: the room never shows chords");
+            assert!(sheet.iter().all(|l| !l.is_empty() || sheet.len() == 1), "{label}: no empty lines");
+        }
+        eprintln!("{} slides, all chord sheets", all.len());
     }
 }
