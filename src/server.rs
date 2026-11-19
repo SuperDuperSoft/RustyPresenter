@@ -175,10 +175,16 @@ async fn remote_pair(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo
     }
     *pairing = None;
     drop(pairing);
+    add_phone(&app, Some(req.name.as_str()))
+}
+
+/// A newly paired phone named `name` (or "Phone 3"): kept in the list of paired phones, and its sign-in cookie set
+/// on the answer. Also for the phone camera and microphone's QR codes (`network::phone_link`).
+pub(crate) fn add_phone(app: &App, name: Option<&str>) -> Response {
     let token = random_token();
     let mut phones = app.phones.lock().unwrap();
     if phones.len() >= MAX_PHONES { phones.sort_by_key(|p| p.last_seen); phones.remove(0); }
-    let name = if req.name.trim().is_empty() { crate::tr!("Phone {number}", number = phones.len() + 1) } else { req.name.trim().chars().take(40).collect() };
+    let name = match name.map(str::trim).filter(|n| !n.is_empty()) { Some(n) => n.chars().take(40).collect(), None => crate::tr!("Phone {number}", number = phones.len() + 1) };
     phones.push(Phone { id: Uuid::new_v4(), name, hash: hash_token(&token), last_seen: now_secs(), may_draw: true });
     app.save_phones(&phones);
     drop(phones);
@@ -197,9 +203,19 @@ fn i18n_map() -> Value {
     Value::Object(crate::i18n::remote_strings::remote_strings().into_iter().map(|(en, shown)| (en.to_string(), Value::String(shown))).collect())
 }
 
+/// Whether this phone is paired and a password is asked. Also says what it is (`app`, `computer`, `version`), so
+/// the Android remote can find this computer on the Wi-Fi and list it by name (`apps/android/src/discovery.rs`).
 async fn remote_status(State(app): State<Arc<App>>, headers: HeaderMap) -> Response {
     let password = app.data.lock().unwrap().settings.network.remote_password.is_some();
-    ok(json!({ "paired": phone_for(&app, &headers).is_some(), "password": password }))
+    ok(json!({ "paired": phone_for(&app, &headers).is_some(), "password": password,
+        "app": "RustyPresenter", "computer": computer_name(), "version": env!("CARGO_PKG_VERSION") }))
+}
+
+/// This computer's name as the network knows it ("CHURCH-PC"); empty when it cannot be told.
+fn computer_name() -> String {
+    let from_env = ["COMPUTERNAME", "HOSTNAME"].iter().find_map(|k| std::env::var(k).ok().filter(|v| !v.trim().is_empty()));
+    let name = from_env.or_else(|| std::fs::read_to_string("/etc/hostname").ok()).unwrap_or_default();
+    name.trim().chars().filter(|c| !c.is_control()).take(40).collect()
 }
 
 fn same_origin(headers: &HeaderMap) -> bool {
@@ -489,12 +505,14 @@ pub fn router(app: Arc<App>) -> Router {
         .merge(crate::network::guest::routes())
         // A phone as a livestream camera.
         .merge(crate::network::phone_camera::routes())
+        // One scan pairs a phone camera or microphone (`network::phone_link`).
+        .merge(crate::network::phone_link::routes())
         .with_state(app)
 }
 
-pub fn data_dir() -> Option<PathBuf> {
-    std::env::var_os("RUSTYPRESENTER_DATA").map(PathBuf::from).or_else(|| dirs::data_local_dir().map(|p| p.join("RustyPresenter")))
-}
+/// The data folder: `RUSTYPRESENTER_DATA`, a portable copy's folder beside the app, or the person's own folder
+/// (`platform::data_folder`).
+pub fn data_dir() -> Option<PathBuf> { crate::platform::data_folder::data_dir() }
 
 #[cfg(test)]
 mod tests {
@@ -749,6 +767,23 @@ msgstr[1] "{n} Folien"
         }
         assert!(asked.len() > 20, "found {}", asked.len());
         for w in &asked { assert!(m.get(w).is_some(), "“{w}” is not in src/i18n/remote_strings.rs"); }
+    }
+
+    /// The Android remote finds the computer by asking `/remote/status`: it says it is RustyPresenter and its name,
+    /// with the fields older pages read unchanged.
+    #[tokio::test]
+    async fn the_status_says_what_answers() {
+        let app = test_app();
+        let r = remote_status(State(app), HeaderMap::new()).await;
+        let v: Value = serde_json::from_slice(&axum::body::to_bytes(r.into_body(), usize::MAX).await.unwrap()).unwrap();
+        assert_eq!((v["paired"].as_bool(), v["password"].as_bool()), (Some(false), Some(false)));
+        assert_eq!((v["app"].as_str(), v["version"].as_str()), (Some("RustyPresenter"), Some(env!("CARGO_PKG_VERSION"))));
+        assert!(v["computer"].is_string());
+        assert!(computer_name().chars().count() <= 40);
+        // The Android remote (`apps/android`) is released with the app, at the same version.
+        let remote = include_str!("../apps/android/Cargo.toml");
+        let version = remote.lines().map(str::trim).find(|l| l.starts_with("version = ")).unwrap_or_default();
+        assert_eq!(version, format!("version = \"{}\"", env!("CARGO_PKG_VERSION")), "apps/android/Cargo.toml's version is the app's");
     }
 
     #[tokio::test]

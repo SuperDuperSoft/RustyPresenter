@@ -1874,3 +1874,187 @@ Design: `docs/superpowers/specs/2026-11-18-drag-panels-between-windows-design.md
 - **Test run** (merged with follow-sunday at bfe6e72): 3,643 of 3,643 library tests pass (two `record::run` FFmpeg
   tests failed in the full run while other agents built and passed run alone), and `i18n_catalogs`, `cleanup`,
   `words`. The three new texts are in all 13 languages.
+
+### November 18, 2026 — Portable versions on every platform (branch `portable-release`)
+
+Jake: "All releases should have one for each [Windows, Mac, Linux] and a portable version." Design:
+`docs/superpowers/specs/2026-11-18-portable-versions-design.md`.
+
+- **Portable mode in the app** (`src/platform/data_folder.rs`): a file `portable.txt` beside the program (beside
+  `rustypresenter.exe`, beside `RustyPresenter.app`, beside the AppImage file via `$APPIMAGE`) makes the app keep
+  all its data in `RustyPresenter Data` beside it. `server::data_dir()` (which everything already used: store,
+  backups, logs, deps/FFmpeg/models/LibreOffice profile, Bibles, translations, `settings-window.json`, recovery state,
+  the supervisor's log) now asks it; the answer is worked out once per run. `RUSTYPRESENTER_DATA` still wins (an
+  empty value is now ignored). The Songs folder's default moves into the data folder in a portable copy. Settings →
+  About shows "(a portable copy: the data is kept beside the app)" after the folder.
+- **When it cannot be used**, the per-user folder is used for that run and a warning box says why and what to do:
+  macOS translocation (path has `AppTranslocation`: drag the app out of its folder and back, or into Applications),
+  opened from inside a zip (`.zip` in the folder's path, as Windows' `Temp1_*.zip`: Extract All first), the folder
+  cannot be made or written (locked stick, CD: copy the folder somewhere that can be changed).
+- **Release files** (`packaging/release-files.sh rename|portable <os>`, run by `package.yml` after cargo-packager):
+  `RustyPresenter-<v>-windows-setup.exe`, `-windows-portable.zip`, `-macos.dmg`, `-macos-portable.zip` (ditto
+  `--keepParent`, marker beside the .app), `-linux.AppImage`, `-linux.deb`, `-linux-portable.tar.gz` (binary,
+  LGPL `libmpv.so.2`, `libpdfium.so`, launcher `RustyPresenter.sh` setting `LD_LIBRARY_PATH`). All uploaded as
+  artifacts; the release job checks all seven are there and the tag equals the version before the draft release.
+  Texts beside the app: `packaging/portable/` (`portable.txt`, `HOW-TO-START-<os>.txt`, which say stream keys and
+  recordings stay on each computer). `packaging/README.md` has a "Release files" section.
+- **On the PC:** `packaging/windows/make-portable.cmd` (replaces the untracked `make-portable.cmd` in the main
+  checkout, which can be deleted after merging) adds the marker and the readme and names the zip
+  `RustyPresenter-<version>-windows-portable.zip` on the Desktop; `--no-pause`, `RP_SRC`.
+- **Tests:** `platform::data_folder::tests` (with and without the marker, a folder named like the marker, read-only
+  fallback with a real folder that cannot be made, env wins, inside a zip, beside the .app and the AppImage,
+  translocation, this test run not portable), `about_says_when_the_data_is_beside_the_app`, and
+  `packaging/test-release-files.sh` (fake builds, zip and ditto; added to the CI `packaging` job).
+- **Checked on this PC:** a release build of this branch zipped by `make-portable.cmd`, unzipped and started
+  headless on another port: `data.json`, `assets`, `backups`, `logs`, `deps` appeared in `RustyPresenter Data`
+  beside the exe.
+- **Test run:** 3,666 of 3,666 library tests pass (`record::run::tests::go_live_sends_the_churchs_tall_scene_to_a_tall_destination`
+  failed in the full run and passed run alone: FFmpeg timing), and `i18n_catalogs`, `cleanup`, `words`. The four new
+  texts are in all 13 languages.
+- **Not verified:** none of `package.yml` has run (GitHub Actions does not start jobs because of the account's
+  billing); the YAML was checked by reading and a structure script only, since PyYAML is not installed here. Mac and
+  Linux packages have never been built. Not tried by a person: the warning boxes, a real locked USB stick, a
+  translocated Mac app (and whether dragging the app out and back clears it on current macOS), the Linux launcher on
+  a real distro.
+
+### November 18, 2026 — Android app (branch `android-app`)
+
+Jake: "I want a custom APK written in Rust for this. I think the browser works great — don't remove it. But an APK
+would work a little cleaner." Design: `docs/superpowers/specs/2026-11-18-android-app-design.md`.
+
+- **What it is:** `apps/android/`, its own Cargo project (own `[workspace]` and `Cargo.lock`, crates from crates.io
+  only; the desktop's `Cargo.toml`/`Cargo.lock` are unchanged and the desktop build needs no network). Rust + Slint
+  (the desktop's colours), a `NativeActivity` with no Java of our own. Talks to the computer exactly as the browser
+  pages do; the browser pages are unchanged and keep working beside it.
+- **Screens:** choosing the computer (found on the Wi-Fi and listed by name, QR code scanned with the app's camera,
+  or typed; remembered), pairing (6-digit code or the QR code's one-time secret, plus the remote password), and five
+  tabs: Remote (on screen with the picture for picture slides, sections, presenter notes, Back/Next, video pause,
+  Up next, the clears, the service list and its slides), Stage (the stage layout with the chord sheet, a tap for the
+  whole screen, screen kept on), On air (the chosen camera's light, screen kept on), Microphone (AAudio, 16-bit mono
+  to `/stage-view/mic/sound`), Camera (Camera2 from the NDK, YUV turned upright in Rust, JPEG by Android's
+  `YuvImage`, over `/camera/ws` with `/camera/frame` as fallback, back/front, preview with the light). Permissions
+  are asked only on Start / Scan, after a sentence saying why. Back button closes what is open.
+- **Server addition (backward compatible):** `/remote/status` also says `app`, `computer` (its name) and `version`
+  (`server::computer_name`), for finding and listing the computer. Finding also works with older computers.
+- **Words:** 79 texts, all in the 13 languages (`apps/android/translations/<lang>/LC_MESSAGES/rustypresenter-remote.po`):
+  49 are the desktop's own texts with the desktop's translations, 30 new ones translated here (glossary words: remote,
+  stage screen, livestream, "On air" for the tally tab). The app picks the phone's language. These `.po` files are the
+  app's own; the desktop's extractor does not read `apps/`.
+- **Build:** `apps/android/build-apk.ps1` (SDK tools only, no Gradle): arm64 and 32-bit arm, signed. Slint's Android
+  backend is patched (`apps/android/patches/i-slint-backend-android-activity/PATCHED.md`): software renderer instead
+  of Skia (whose build downloads a prebuilt library from GitHub), and its Java helper built with JDK 21+ and
+  build-tools 34. CI: job `android` in `package.yml` (tests, APK, `aapt2`/`apksigner` checks), the release lists
+  `RustyPresenter-<v>-android-remote.apk`; signing from the `ANDROID_KEYSTORE_BASE64` secret, else a fresh debug key.
+  Pins in `packaging/pins.env`; `packaging/README.md` has "The Android remote".
+- **Tests:** 40 in `apps/android` (`cargo test`): HTTP client (cookies, chunked bodies, events, quiet and stopped
+  streams), WebSocket against a fake computer, every page's JSON incl. chord lines, commands, pairing answers, typed
+  addresses and QR links, finding (a fake RustyPresenter among dead addresses), remembered settings, word sizes and
+  chord rows, camera pictures turned upright, language choice, every screen word in every language. Desktop:
+  `server::tests::the_status_says_what_answers` (also checks the app's version is the desktop's). `cargo run --example
+  preview --features preview [-- ja]` draws every screen to PNGs; they were looked at in English and Japanese.
+- **Built:** `RustyPresenter-Remote-1.4.0.apk` on the Desktop (12.7 MB, arm64-v8a + armeabi-v7a, minSdk 26,
+  targetSdk 34), `aapt2 dump badging` and `apksigner verify` (v2+v3) pass.
+- **Not verified by a person:** nothing has run on a phone (none was plugged in, `adb devices` empty, no emulator
+  installed). To check: install, find/pair (list, QR, typed, password), Remote taps, Stage with chords and a picture
+  slide, On air while live, microphone and camera into the stream (back/front, held both ways), Back button, another
+  language, how quick the software renderer feels on an older phone. `package.yml`'s new job has not run.
+- **Note:** the first local build of this app, before the patch, let Slint's Skia build download its prebuilt library
+  from GitHub into `%LOCALAPPDATA%\RustyPresenter\build-android`; that download was deleted and nothing built from
+  it is used.
+
+### November 18, 2026 — Phone camera and microphone made easy (branch `phone-qr2`)
+
+Jake: "I can't get the phone as a microphone or phone as a camera to work. Can you add a QR code to that as well?"
+Design and the causes found: `docs/superpowers/specs/2026-11-18-phone-camera-mic-qr-design.md`.
+
+- **Causes found and fixed:** Windows Firewall rules for the installed app allowed it on Private networks only (on
+  this PC too; church Wi-Fi is often Public), with nothing saying so; Settings showed the camera's plain http page
+  (an extra hop); the camera needed the 6-digit code from another dialog; the microphone needed "Show the stage
+  screen to phones" (off by default, a dead end when off); the microphone page started its sound after waiting
+  (iPhones stay silent) and asked for 48 kHz (Firefox refuses), and never resumed after an iPhone interruption; the
+  secure server's failures went to a hidden console and it gave up when its port was taken; only 5 phones stayed
+  paired (now 16). The hand-made certificate was checked strictly (openssl, live handshake, Chromium says the
+  bypassable `ERR_CERT_AUTHORITY_INVALID`) and is fine.
+- **Built:** `src/network/phone_link.rs` (QR links `https://<ip>:4320/camera#pair=…` and `/stage-view/mic#pair=…`,
+  one-time secrets, `POST /phone/pair`, the health lines), `src/platform/firewall.rs` (Windows Firewall check through
+  INetFwMgr::IsPortAllowed, "Let phones in" through netsh as administrator), `src/ui/dialogs/settings_phone.rs` +
+  `ui/dialogs/settings-phone.slint` (QR codes, live lines, "Let phones in", the big "Show the QR code" window),
+  the phone pages (`web/camera.html`, `web/phone-mic.html`: read and wipe `#pair=`, pair, iPhone sound fixes,
+  Android/iPhone "not private" steps and the Chrome flag fallback), the https server's retry and plain problems,
+  and the installer's finish page box "Let phones on the Wi-Fi reach RustyPresenter" (`rustypresenter.nsi`).
+- **Edits in shared files (for the merge):** `src/server.rs`: the end of `remote_pair` moved into
+  `pub(crate) fn add_phone(app, name)` (same behaviour), and one `.merge(crate::network::phone_link::routes())` in
+  `router`. `src/network/mod.rs`: `pub mod phone_link;` and three fields at the end of `NetState` (`https_problem`,
+  `links`, `seen`). `src/network/https.rs`: `serve` retries and reports; `Kept::cert_der` is `pub(crate)`.
+  `src/network/phone_mic.rs`: `may_send` (paired phone or stage view), more fields in `/stage-view/mic/status`.
+  `src/network/phone_camera.rs`: the Settings address is the https one; records what the page sent. `src/app.rs`:
+  `MAX_PHONES` 5 → 16. `Cargo.toml`: features only (windows `Win32_NetworkManagement_WindowsFirewall`,
+  `Win32_System_Ole`; windows-sys `Win32_UI_Shell`), no new crate. `ui/app.slint`: one export line.
+  `ui/dialogs/settings-remote.slint`: the Phone camera and microphone page. Endpoints unchanged for phones already
+  paired and the Android app; `/phone/pair` is new.
+- **Tests:** a phone played over the app's real https server and certificate: the camera's QR link, its page,
+  one-scan pairing, the code used up and replaced, a JPEG over wss reaching the camera feed's pictures; the
+  microphone paired by its code with the stage view off and its sound reaching the input; the remote's password with
+  a code; the health lines in order; a taken https port reported in plain words and tried again until free; the
+  Settings page's codes, lines and big window; the firewall command and Windows' answer. Full run: 3,675 of 3,676
+  library tests pass; `record::run::tests::hold_keeps_the_picture_until_it_is_let_go` failed under load and passed
+  run alone (FFmpeg timing); `i18n_catalogs`, `cleanup`, `words` pass. The 39 new texts are in all 13 languages.
+- **Not verified by a person (needs a real phone):** the warning pages and their words on real Android Chrome and
+  iPhone Safari, Allow for the camera and microphone, wss after Proceed on a phone, the iPhone microphone after a
+  screen lock, the Chrome flag fallback, and "Let phones in" / the installer box with a real administrator OK on a
+  public network.
+
+### November 18, 2026 — Syllables and slide editing (branch `song-editing`)
+
+Jake, with a screenshot of "You've Already Won" from SongSelect's ChordPro: "notice there's a hyphen in 'defense'.
+There should not be." Then "Editing a song should be MUCH easier. There should be a way to just edit slides." and
+"It should be as easy as humanly possible to rearrange the song in any order you like." Design:
+`docs/superpowers/specs/2026-11-18-song-editing-design.md`.
+
+- **Split words joined** (`src/import/syllables.rs`): SongSelect's ` - ` syllable breaks (`de - [Db]fense`,
+  `righteous - [F#m]ness`, `a - gain`) are one word again when ChordPro is read (importer, SongSelect inbox, songs
+  folder), the chord kept where it falls (`de[Db]fense`). Real dashes stay (a capital or a non-letter after it, en/em
+  dashes, no spaces, a dash at a line's start or end). Songs already in the library are tidied at load only when they
+  still show SongSelect's sign (chords in the words and a break with a chord at it); each changed line is logged; a
+  song the church typed is never touched. The stage chord sheet keeps a word whole with the chord over its part
+  (`stage::chords::lay_out`; the phone's stage page the same way, `web/stage-view.js`).
+- **Slides edited in place** (`src/song_edit`, `src/ui/operator/slide_edit.rs`, `ui/operator/slide-editor.slint`):
+  double-click a song slide (or its pencil) and a small editor opens over the slides: the words without chords (the
+  chords go back over the same letters on Save; "Edit chords too" shows them as `[G]` marks; a chords-only slide
+  always shows them), the chords over the words as the band sees them, "Chorus plays 3 times… shows every time" for
+  repeats. Enter saves, Shift+Enter is a new line, Esc cancels. Right-click or ⋯: Edit words, Split here…, Join with
+  next, Add a slide after, Duplicate, Delete slide (asks first for a repeated part), Change section… (the names in
+  their colours; from this slide on the part is the chosen one: renamed on its first slide, split further in, the
+  orders follow), Move this part earlier/later, Edit the whole song… (the song editor at that slide). Edit words in
+  the Live panel opens the live slide the same way, with Save and show now. Each change is one `song/slides` step, so
+  Undo takes it back in one go.
+- **The order on the Slides panel**: chips to drag (onto a chip, End, ✕ Remove), ⧉ or D plays a part twice, `+ <part>`
+  buttons drag in between chips, Quick order ▾ (Chorus after every verse, Chorus again at the end), and a slide
+  dragged onto another moves its part. Changes are this service's own order; "Save as the usual order" and "Reset to the song's order".
+  The song editor and Item edit use the same chips. While the song is live the room never changes and the live part
+  stays live where it went (`Live::order_hint`, `sections::map_moved`); Next follows the new order.
+- **Song editor**: Add a part buttons (Verse, Chorus, Pre-chorus, Bridge, Tag, Ending, Intro (chords only)) put the
+  next free name after the part the cursor is in; a click on a preview slide puts the cursor at its words; the order's
+  `+ <part>` buttons are on the chips (drag them in); typing the order is still there.
+- **Tests:** `import::syllables` (both samples' lines, real dashes kept, the library tidy only for SongSelect-style
+  songs), `import::chordpro::songselect_syllable_breaks_become_whole_words` (the room's words and the stage segments),
+  `model::…songs_from_songselect_get_their_split_words_joined_once_at_load`, `stage::chords` (a word kept whole),
+  `song_edit::tests` (every slide finds its lines at 1, 2 and 4 lines a slide; edit, split, join, add, delete, duplicate,
+  change section, repeated parts, chords kept, chord-only and labelled slides), `song_edit::words` (chords put back),
+  `song_edit::order` (move, remove, repeat, step, patterns, where each part went), `live::song` (a new order keeps the
+  live part live), and the window driven inline (`ui::operator::slide_edit::tests`: double-click → type → Enter, Esc,
+  Edit chords too, a repeated part, the whole slide menu, Change section by clicking a name, the order strip, Save as
+  the usual order and Reset, a slide dropped on a slide, rearranging while live, Edit words in the Live panel, Undo for
+  each change), and the song editor's Add a part, preview click and chip drags.
+- **Build note:** `crates/rp-ui` has a second do-nothing feature, `song-editing`, turned on by the app, for the same
+  reason as `dock-panels` (another worktree's build script overwrote this one's screens in the shared build folder
+  during this work). The lead can drop both after merging.
+- **Not verified by a person:** all of it on a real screen: double-click and right-click on real slides, the slide
+  menu's pop-up, dragging chips, `+ <part>` buttons and slides with a real mouse (the tests call what a drop calls),
+  the editor's look on a small laptop screen, Enter/Shift+Enter in the words box, and the phone's stage page with
+  in-word chords (`web/stage-view.js` was not opened in a browser). The real "You've Already Won" file was not
+  available here (only the screenshot's lines); "Sometimes By Step" passes `stage::view`'s sample test.
+- **Test run:** 3,700 of 3,703 library tests pass; the 3 failures were the timing-sensitive `record::run` FFmpeg
+  go-live tests, which passed run again alone, one at a time (10 of 10). The real "Sometimes By Step" sample test
+  (`RP_CHORD_SAMPLE`, `--ignored`) passes with whole words. `i18n_catalogs`, `cleanup` and `words` pass. The 58 new
+  texts are in all 13 languages (machine-drafted like the rest; they need a native speaker's look).

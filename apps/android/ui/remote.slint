@@ -1,0 +1,163 @@
+// The Remote tab, as the browser remote (`web/remote.html`): what is on screen and up next, Back and Next, the
+// clear buttons, the live song's sections and the service list.
+import { ScrollView, ListView } from "std-widgets.slint";
+import { Theme } from "theme.slint";
+import { Btn, Box, Words, Note } from "widgets.slint";
+import { S } from "state.slint";
+
+export component RemotePage inherits Rectangle {
+    background: Theme.bg;
+    sv := ScrollView {
+        // As wide as the screen, as tall as its contents: words wrap, the page scrolls.
+        content-width: sv.visible-width;
+        content-height: lay.preferred-height;
+        lay := VerticalLayout {
+            width: sv.visible-width;
+            padding: Theme.pad;
+            spacing: Theme.gap;
+            HorizontalLayout {
+                spacing: 8px;
+                Rectangle {
+                    width: 10px; height: 10px; y: (parent.height - self.height) / 2;
+                    border-radius: 5px;
+                    background: S.connected ? Theme.ok : Theme.live;
+                }
+                Text {
+                    text: S.connected ? S.service : @tr("Connecting…");
+                    font-size: Theme.big; font-weight: 700; color: Theme.text;
+                    overflow: elide; horizontal-stretch: 1;
+                }
+            }
+
+            Box {
+                heading: S.now-label == "" ? @tr("On screen") : @tr("On screen") + " · " + S.now-label;
+                heading-color: Theme.live;
+                if S.now-picture: Rectangle {
+                    height: self.width * 9 / 16;
+                    background: Theme.black;
+                    border-radius: 8px;
+                    clip: true;
+                    Image { source: S.now-image; width: 100%; height: 100%; image-fit: contain; }
+                }
+                if !S.now-picture || S.now-text != "": Words { text: S.now-text; font-size: Theme.big; }
+                if S.sections.length > 0: Flickable {
+                  height: 44px;
+                  content-width: max(self.width, chips.preferred-width);
+                  chips := HorizontalLayout {
+                    spacing: 6px;
+                    alignment: start;
+                    for s[i] in S.sections: Rectangle {
+                        min-width: 44px; height: 44px;
+                        border-radius: 8px;
+                        background: s.live ? s.color : s.color.transparentize(70%);
+                        border-width: s.live ? 2px : 0px;
+                        border-color: Theme.white;
+                        accessible-role: button;
+                        accessible-label: s.label;
+                        Text { text: s.short; font-weight: 700; font-size: Theme.body; color: s.live ? #0d0f13 : Theme.text; }
+                        TouchArea { clicked => { S.jump(i); } }
+                    }
+                  }
+                }
+                if S.notes != "": HorizontalLayout {
+                    Btn {
+                        text: S.notes-on ? @tr("Hide presenter notes") : @tr("Show presenter notes");
+                        tall: 40px; font-size: Theme.small;
+                        clicked => { S.notes-on = !S.notes-on; S.notes-toggled(S.notes-on); }
+                    }
+                    Rectangle { horizontal-stretch: 1; }
+                }
+                if S.notes != "" && S.notes-on: Words { text: S.notes; color: Theme.upnext-text; font-size: Theme.body; }
+            }
+
+            HorizontalLayout {
+                spacing: Theme.gap;
+                Btn { text: "‹ " + @tr("Back"); tall: 72px; font-size: Theme.big; horizontal-stretch: 1; clicked => { S.back(); } }
+                Btn { text: @tr("Next") + " ›"; kind: "go"; tall: 72px; font-size: Theme.big; horizontal-stretch: 2; clicked => { S.next(); } }
+            }
+            if S.has-media: Btn {
+                text: S.media-paused ? "▶ " + @tr("Play video") : "❚❚ " + @tr("Pause video");
+                clicked => { S.media-toggle(); }
+            }
+
+            Box {
+                heading: S.next-label == "" ? @tr("Up next") : @tr("Up next") + " · " + S.next-label;
+                heading-color: Theme.upnext-text;
+                Words { text: S.next-text; color: Theme.muted; }
+            }
+
+            VerticalLayout {
+                spacing: 8px;
+                Btn { text: @tr("Clear all"); kind: "danger"; clicked => { S.clear("clear_all"); } }
+                HorizontalLayout {
+                    spacing: 8px;
+                    Btn { text: @tr("Text"); horizontal-stretch: 1; clicked => { S.clear("clear_slide"); } }
+                    Btn { text: @tr("Media"); horizontal-stretch: 1; clicked => { S.clear("clear_media"); } }
+                    Btn { text: @tr("Audio"); horizontal-stretch: 1; clicked => { S.clear("clear_audio"); } }
+                    Btn { text: @tr("Logo"); kind: S.logo-on ? "on" : ""; horizontal-stretch: 1; clicked => { S.clear("logo"); } }
+                }
+            }
+
+            Box {
+                heading: @tr("Service");
+                for it[i] in S.items: Rectangle {
+                    min-height: 52px;
+                    border-radius: 8px;
+                    background: it.live ? Theme.live.transparentize(85%) : touch.pressed ? Theme.raise : transparent;
+                    border-width: it.live ? 1px : 0px;
+                    border-color: Theme.live.transparentize(40%);
+                    accessible-role: button;
+                    accessible-label: it.title;
+                    HorizontalLayout {
+                        padding: 10px;
+                        spacing: 10px;
+                        Text { text: i + 1; color: Theme.faint; font-size: Theme.small; vertical-alignment: center; min-width: 22px; }
+                        Text { text: it.title; color: Theme.text; font-size: Theme.body; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
+                        Text { text: it.count; color: Theme.muted; font-size: Theme.small; vertical-alignment: center; }
+                    }
+                    touch := TouchArea { clicked => { S.open-item(i); } }
+                }
+            }
+            Btn { text: @tr("Choose another computer"); tall: 44px; font-size: Theme.small; clicked => { S.other-computer(); } }
+            Rectangle { height: 8px; }
+        }
+    }
+
+    // An item's slides: a tap puts that slide on the screen.
+    if S.sheet-open: Rectangle {
+        background: Theme.scrim;
+        TouchArea { clicked => { S.sheet-open = false; } }
+        Rectangle {
+            x: 0; y: parent.height * 0.15;
+            width: parent.width; height: parent.height * 0.85;
+            background: Theme.panel;
+            border-radius: 16px;
+            TouchArea {}
+            VerticalLayout {
+                padding: Theme.pad;
+                spacing: 8px;
+                Text { text: S.sheet-title; font-size: Theme.big; font-weight: 700; color: Theme.text; overflow: elide; }
+                Note { text: @tr("Tap a slide to put it on the screen."); }
+                ListView {
+                    vertical-stretch: 1;
+                    for sl[i] in S.sheet-slides: Rectangle {
+                        height: max(56px, slide-words.preferred-height + 20px);
+                        Rectangle {
+                            x: 0; y: 4px; width: parent.width; height: parent.height - 8px;
+                            border-radius: 8px;
+                            background: sl.live ? Theme.live.transparentize(85%) : t.pressed ? Theme.line : Theme.raise;
+                            slide-words := VerticalLayout {
+                                padding: 10px;
+                                spacing: 2px;
+                                Text { text: sl.label; font-size: 12px; color: Theme.muted; }
+                                Text { text: sl.text; font-size: Theme.body; color: Theme.text; wrap: word-wrap; }
+                            }
+                            t := TouchArea { clicked => { S.show-slide(i); } }
+                        }
+                    }
+                }
+                Btn { text: @tr("Cancel"); clicked => { S.sheet-open = false; } }
+            }
+        }
+    }
+}

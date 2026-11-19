@@ -321,7 +321,9 @@ fn song_of(data: &Data, item_id: Uuid) -> Option<Uuid> {
 }
 
 pub(crate) const SESSION_DAYS: u64 = 30;
-pub(crate) const MAX_PHONES: usize = 5;
+/// Phones paired at once; one more pushes out the one unseen longest. Room for remotes, phone cameras and
+/// microphones together (it was 5: a church with two cameras, a microphone and two remotes lost one).
+pub(crate) const MAX_PHONES: usize = 16;
 
 pub(crate) fn now_secs() -> u64 { std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0) }
 
@@ -1848,6 +1850,7 @@ impl App {
         a if crate::transfer::handles(a) => crate::transfer::run(app, a, body).await,
         a if crate::media_care::handles(a) => crate::media_care::run(app, a, body).await,
         a if crate::network::actions::handles(a) => crate::network::actions::run(app, a, body).await,
+        a if crate::song_edit::actions::handles(a) => crate::song_edit::actions::run(app, a, body).await,
         // Themes, backgrounds, overlays and the logo (FEAT-1): `theme::actions` lists them.
         a => match crate::theme::actions::run(app, a, body).await {
             Some(r) => r,

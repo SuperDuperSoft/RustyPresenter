@@ -231,6 +231,10 @@ msgstr "Eigener Text"
 msgid "Not in the words — it is skipped"
 msgstr "Nicht im Liedtext – wird übersprungen"
 
+#: ui/dialogs/arrangement.slint
+msgid "Play it twice"
+msgstr "Zweimal spielen"
+
 #: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "Entfernen"
@@ -239,6 +243,14 @@ msgstr "Entfernen"
 msgid "End"
 msgstr "Ende"
 
+#: ui/dialogs/arrangement.slint
+msgid "Drop here to remove"
+msgstr "Hier ablegen zum Entfernen"
+
+#: ui/dialogs/arrangement.slint
+msgid "✕ Remove"
+msgstr "✕ Entfernen"
+
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr "Textreihenfolge – zum Ändern ziehen"
@@ -246,6 +258,10 @@ msgstr "Textreihenfolge – zum Ändern ziehen"
 #: ui/dialogs/arrangement.slint
 msgid "⟲ Use written order"
 msgstr "⟲ Textreihenfolge verwenden"
+
+#: ui/dialogs/arrangement.slint
+msgid "Click to play it at the end, or drag it in between the parts"
+msgstr "Klicken: am Ende spielen; oder zwischen die Teile ziehen"
 
 #: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
 msgid "Name"
@@ -615,7 +631,7 @@ msgstr "Start"
 msgid "Delete"
 msgstr "Löschen"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings.rs
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint src/ui/dialogs/settings.rs
 msgid "Save"
 msgstr "Speichern"
 
@@ -643,7 +659,7 @@ msgstr "Ende des Animationspfads"
 msgid "{} · {} builds"
 msgstr "{} · {} Aufbauschritte"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint src/strings/song_edit.rs
 msgid "New slide"
 msgstr "Neue Folie"
 
@@ -659,7 +675,7 @@ msgstr "Nach vorn verschieben"
 msgid "Move later"
 msgstr "Nach hinten verschieben"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint ui/operator/slide-editor.slint src/strings/song_edit.rs
 msgid "Delete slide"
 msgstr "Folie löschen"
 
@@ -1028,7 +1044,7 @@ msgstr "In den Vordergrund"
 msgid "To back"
 msgstr "In den Hintergrund"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator/slide-editor.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "Duplizieren"
 
@@ -1060,11 +1076,11 @@ msgstr "Ziehen verschiebt, Ziehen an einer Ecke ändert die Größe, Pfeiltasten
 msgid "Video: {}"
 msgstr "Video: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint ui/operator/slide-editor.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Save and show now"
 msgstr "Speichern und jetzt zeigen"
 
@@ -1196,7 +1212,7 @@ msgstr "Zurück"
 msgid "Next"
 msgstr "Weiter"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/settings-phone.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "Schließen"
 
@@ -1611,7 +1627,7 @@ msgstr "Adresse: "
 msgid "Pair a phone or tablet"
 msgstr "Handy oder Tablet koppeln"
 
-#: ui/dialogs/phone.slint
+#: ui/dialogs/phone.slint ui/dialogs/settings-phone.slint
 msgid "QR code"
 msgstr "QR-Code"
 
@@ -2583,6 +2599,22 @@ msgstr "Logo wählen"
 msgid "Default background"
 msgstr "Standardhintergrund"
 
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow. Or open:"
+msgstr "Mit der Handykamera scannen, dann auf „Zulassen“ tippen. Oder öffnen:"
+
+#: ui/dialogs/settings-phone.slint
+msgid "The first time, the phone warns the page is not private (it comes from this computer): on Android tap Advanced → Proceed; on an iPhone tap Show Details → visit this website."
+msgstr "Beim ersten Mal warnt das Handy, die Seite sei nicht privat (sie kommt von diesem Computer): unter Android „Erweitert“ → „Weiter“ tippen; auf dem iPhone „Details einblenden“ → „diese Website besuchen“."
+
+#: ui/dialogs/settings-phone.slint
+msgid "Show the QR code"
+msgstr "QR-Code zeigen"
+
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow."
+msgstr "Mit der Handykamera scannen, dann auf „Zulassen“ tippen."
+
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Use your phone or tablet as a remote"
 msgstr "Handy oder Tablet als Fernbedienung nutzen"
@@ -2676,44 +2708,48 @@ msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this compu
 msgstr "Öffnen Sie diese Adresse auf dem iPad oder Handy der Sänger (im selben WLAN wie dieser Computer)."
 
 #: ui/dialogs/settings-remote.slint
-msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
-msgstr "Ein Handy im WLAN der Gemeinde kann Kamera oder Mikrofon für den Livestream sein. Beim ersten Mal warnt das Handy, die Seite sei nicht privat: Das ist zu erwarten, denn die Seite kommt von diesem Computer. Tippen Sie auf Erweitert (auf dem iPhone: Details einblenden) und gehen Sie dann weiter zur Seite. Halten Sie das Handy wach und am Ladekabel."
+msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. Scan its code with the phone's camera: that opens the page and connects the phone, with no code to type. Keep the phone awake and plugged in."
+msgstr "Ein Handy im WLAN der Gemeinde kann Kamera oder Mikrofon für den Livestream sein. Scannen Sie seinen Code mit der Handykamera: Das öffnet die Seite und verbindet das Handy, ohne Code zum Tippen. Das Handy wach halten und ans Ladekabel hängen."
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a camera"
 msgstr "Handy als Kamera"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
-msgstr "Koppeln Sie das Handy zuerst mit „Handy oder Tablet koppeln“. Sobald es sein Bild sendet, heißt es in den Kameralisten Handy-Kamera."
+msgid "Scanning the code connects the phone. Once it sends its picture, the camera lists call it Phone camera."
+msgstr "Das Scannen des Codes verbindet das Handy. Sobald es sein Bild sendet, heißt es in den Kameralisten Handy-Kamera."
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open:"
-msgstr "Öffnen Sie auf dem Handy:"
+msgid "The phone camera's QR code"
+msgstr "QR-Code der Handy-Kamera"
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose it in Settings → Livestream → Cameras"
 msgstr "Wählen Sie es dann in Einstellungen → Livestream → Kameras"
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a microphone"
 msgstr "Handy als Mikrofon"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
-msgstr "Für ein Ansteckmikrofon des Pastors oder ein Raummikrofon ohne Kabel. Schalten Sie zuerst den Bühnenbildschirm auf Handys ein: Die Seite des Handys kommt von dort."
+msgid "For a pastor's lapel or a room microphone without cables. Scanning the code connects the phone; then press Start on it."
+msgstr "Für das Ansteckmikrofon des Pastors oder ein Raummikrofon ohne Kabel. Das Scannen des Codes verbindet das Handy; dann dort auf Start tippen."
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open this page and press Start:"
-msgstr "Öffnen Sie diese Seite auf dem Handy und tippen Sie auf Start:"
-
-#: ui/dialogs/settings-remote.slint
-msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
-msgstr "Der Bühnenbildschirm auf Handys ist aus, daher kann das Handy diese Seite noch nicht erreichen."
+msgid "The phone microphone's QR code"
+msgstr "QR-Code des Handy-Mikrofons"
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose Phone in Settings → Livestream → Sound"
 msgstr "Wählen Sie dann Handy in Einstellungen → Livestream → Ton"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Let phones in"
+msgstr "Handys hereinlassen"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Windows asks for an administrator's OK, then lets RustyPresenter in on private and public networks."
+msgstr "Windows fragt nach dem OK eines Administrators und lässt RustyPresenter dann in privaten und öffentlichen Netzwerken herein."
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Control from other gear (TCP)"
@@ -3615,7 +3651,7 @@ msgstr "„Es geht gleich los“ kommt vor dem Gottesdienst, mit dem Countdown u
 msgid "Starting soon"
 msgstr "Es geht gleich los"
 
-#: ui/dialogs/settings-stream.slint src/stream/scene.rs src/strings/song.rs
+#: ui/dialogs/settings-stream.slint ui/dialogs/song-editor.slint src/stream/scene.rs src/strings/song.rs
 msgid "Ending"
 msgstr "Schluss"
 
@@ -4120,6 +4156,42 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "– Abschnittsnamen in eigener Zeile; eine Leerzeile im Abschnitt beginnt eine neue Folie"
 
 #: ui/dialogs/song-editor.slint
+msgid "Add a part:"
+msgstr "Teil hinzufügen:"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Verse"
+msgstr "Strophe"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs src/strings/stage.rs
+msgid "Chorus"
+msgstr "Refrain"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Pre-chorus"
+msgstr "Pre-Chorus"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Bridge"
+msgstr "Bridge"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Tag"
+msgstr "Tag"
+
+#: ui/dialogs/song-editor.slint
+msgid "Intro (chords only)"
+msgstr "Intro (nur Akkorde)"
+
+#: ui/dialogs/song-editor.slint
+msgid "A part the band plays with no words: type its chords like [G] [D]"
+msgstr "Ein Teil, den die Band ohne Text spielt: Akkorde so eingeben: [G] [D]"
+
+#: ui/dialogs/song-editor.slint
+msgid "Adds this part after the one the cursor is in"
+msgstr "Fügt diesen Teil nach dem Teil ein, in dem der Cursor steht"
+
+#: ui/dialogs/song-editor.slint
 msgid "Insert slide break"
 msgstr "Folienumbruch einfügen"
 
@@ -4143,7 +4215,7 @@ msgstr ""
 "Refrain\n"
 "My chains are gone…"
 
-#: ui/dialogs/song-editor.slint
+#: ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Order"
 msgstr "Reihenfolge"
 
@@ -4152,8 +4224,8 @@ msgid "(optional)"
 msgstr "(optional)"
 
 #: ui/dialogs/song-editor.slint
-msgid "Leave empty to use the written order"
-msgstr "Leer lassen für Textreihenfolge"
+msgid "Or type the order here. Leave it empty to use the written order"
+msgstr "Oder die Reihenfolge hier eintippen. Leer lassen für die Textreihenfolge"
 
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Fewer lines on each slide of this song"
@@ -4214,6 +4286,10 @@ msgstr "Akkorde so zeigen, wie sie geschrieben sind"
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
 msgstr "Folien erscheinen hier beim Tippen. Schreiben Sie Abschnittsnamen wie „Strophe 1“ oder „Refrain“ in eine eigene Zeile."
+
+#: ui/dialogs/song-editor.slint
+msgid "Click to go to its words"
+msgstr "Klicken, um zu seinem Text zu gehen"
 
 #: ui/dialogs/song-editor.slint
 msgid "Delete song"
@@ -5183,7 +5259,7 @@ msgstr "Letzte 10 s"
 msgid "Jump to 10 seconds before the end, to check how it finishes"
 msgstr "Zu 10 Sekunden vor dem Ende springen, um den Schluss zu prüfen"
 
-#: ui/operator/live.slint
+#: ui/operator/live.slint ui/operator/slide-editor.slint ui/operator/slides.slint
 msgid "Edit words"
 msgstr "Text bearbeiten"
 
@@ -5527,6 +5603,106 @@ msgstr "Fügen Sie Lieder, Videos und Folien hinzu, tippen Sie oben einen Bibelv
 msgid "Filter the service"
 msgstr "Gottesdienst filtern"
 
+#: ui/operator/slide-editor.slint
+msgid "Split here…"
+msgstr "Hier teilen…"
+
+#: ui/operator/slide-editor.slint
+msgid "Join with next"
+msgstr "Mit der nächsten verbinden"
+
+#: ui/operator/slide-editor.slint
+msgid "Add a slide after"
+msgstr "Folie danach hinzufügen"
+
+#: ui/operator/slide-editor.slint
+msgid "Change section…"
+msgstr "Teil ändern…"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part earlier"
+msgstr "Diesen Teil früher"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part later"
+msgstr "Diesen Teil später"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit the whole song…"
+msgstr "Ganzes Lied bearbeiten…"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit chords too"
+msgstr "Auch Akkorde bearbeiten"
+
+#: ui/operator/slide-editor.slint
+msgid "The slide’s words"
+msgstr "Der Text der Folie"
+
+#: ui/operator/slide-editor.slint
+msgid "Type the words for this slide"
+msgstr "Text für diese Folie eingeben"
+
+#: ui/operator/slide-editor.slint
+msgid "Chords"
+msgstr "Akkorde"
+
+#: ui/operator/slide-editor.slint
+msgid "Enter saves · Shift+Enter starts a new line · Esc cancels"
+msgstr "Enter speichert · Umschalt+Enter beginnt eine neue Zeile · Esc bricht ab"
+
+#: ui/operator/slide-editor.slint
+msgid "Split here"
+msgstr "Hier teilen"
+
+#: ui/operator/slide-editor.slint
+msgid "A new slide starts at the line the cursor is on"
+msgstr "Eine neue Folie beginnt in der Zeile mit dem Cursor"
+
+#: ui/operator/slide-editor.slint
+msgid "Add slide"
+msgstr "Folie hinzufügen"
+
+#: ui/operator/slide-editor.slint
+msgid "From this slide on, this part is:"
+msgstr "Ab dieser Folie ist dieser Teil:"
+
+#: ui/operator/slide-editor.slint
+msgid "Quick order ▾"
+msgstr "Schnelle Reihenfolge ▾"
+
+#: ui/operator/slide-editor.slint
+msgid "Ready-made orders for this song"
+msgstr "Fertige Reihenfolgen für dieses Lied"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus after every verse"
+msgstr "Refrain nach jeder Strophe"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus again at the end"
+msgstr "Refrain am Ende noch einmal"
+
+#: ui/operator/slide-editor.slint
+msgid "Just for this service"
+msgstr "Nur für diesen Gottesdienst"
+
+#: ui/operator/slide-editor.slint
+msgid "Save as the usual order"
+msgstr "Als übliche Reihenfolge speichern"
+
+#: ui/operator/slide-editor.slint
+msgid "Every service plays the song in this order from now on"
+msgstr "Ab jetzt spielt jeder Gottesdienst das Lied in dieser Reihenfolge"
+
+#: ui/operator/slide-editor.slint
+msgid "Reset to the song’s order"
+msgstr "Zurück zur Reihenfolge des Liedes"
+
+#: ui/operator/slide-editor.slint
+msgid "This service plays the song in its usual order again"
+msgstr "Dieser Gottesdienst spielt das Lied wieder in der üblichen Reihenfolge"
+
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
 msgstr "Gottesdienst für diesen Sonntag vorbereiten"
@@ -5554,6 +5730,10 @@ msgstr "Nutzen Sie im Gottesdienst die große Weiter-Schaltfläche (oder die Tas
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "Bildschirme"
+
+#: ui/operator/slides.slint
+msgid "More for this slide"
+msgstr "Mehr für diese Folie"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
@@ -6175,7 +6355,7 @@ msgstr "{name} – importierte Datei"
 msgid "Give the song a title."
 msgstr "Geben Sie dem Lied einen Titel."
 
-#: src/app.rs
+#: src/app.rs src/song_edit/actions.rs
 msgid "That song is not in the library any more."
 msgstr "Dieses Lied ist nicht mehr in der Bibliothek."
 
@@ -7350,6 +7530,94 @@ msgstr[1] "{n} Dateien aus der Medienbibliothek entfernt, {size} frei."
 msgid "Sunday Service"
 msgstr "Sonntagsgottesdienst"
 
+#: src/network/phone_link.rs
+msgid "Waiting for a phone"
+msgstr "Warte auf ein Handy"
+
+#: src/network/phone_link.rs
+msgid "Phone connected: {name}"
+msgstr "Handy verbunden: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is connected"
+msgstr "Ein Handy ist verbunden"
+
+#: src/network/phone_link.rs
+msgid "Sending pictures: {name}"
+msgstr "Sendet Bilder: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is sending pictures"
+msgstr "Ein Handy sendet Bilder"
+
+#: src/network/phone_link.rs
+msgid "Sending sound: {name}"
+msgstr "Sendet Ton: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is sending sound"
+msgstr "Ein Handy sendet Ton"
+
+#: src/network/phone_link.rs
+msgid "The secure server is starting…"
+msgstr "Der sichere Server startet…"
+
+#: src/network/phone_link.rs
+msgid "The secure server isn't running: {why}"
+msgstr "Der sichere Server läuft nicht: {why}"
+
+#: src/network/phone_link.rs
+msgid "port {port} is in use by another program. Close that program, or restart this computer."
+msgstr "Port {port} wird von einem anderen Programm benutzt. Schließen Sie dieses Programm oder starten Sie den Computer neu."
+
+#: src/network/phone_link.rs
+msgid "Windows keeps port {port} for itself. Restart this computer and try again."
+msgstr "Windows hält Port {port} für sich frei. Starten Sie den Computer neu und versuchen Sie es noch einmal."
+
+#: src/network/phone_link.rs
+msgid "port {port} cannot be used ({error})."
+msgstr "Port {port} kann nicht benutzt werden ({error})."
+
+#: src/network/phone_link.rs
+msgid "it could not make its certificate ({error})."
+msgstr "er konnte sein Zertifikat nicht erstellen ({error})."
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out on this network (Windows calls it a public network). Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter on public networks (port {port})."
+msgstr "Die Firewall dieses Computers blockiert vielleicht Handys: Die Windows-Firewall lässt sie in diesem Netzwerk nicht herein (Windows nennt es öffentlich). Klicken Sie auf „Handys hereinlassen“ oder erlauben Sie RustyPresenter in Windows-Sicherheit → Firewall für öffentliche Netzwerke (Port {port})."
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out. Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter (port {port})."
+msgstr "Die Firewall dieses Computers blockiert vielleicht Handys: Die Windows-Firewall lässt sie nicht herein. Klicken Sie auf „Handys hereinlassen“ oder erlauben Sie RustyPresenter in Windows-Sicherheit → Firewall (Port {port})."
+
+#: src/network/phone_link.rs
+msgid "This QR code was already used or is too old. Scan the code in RustyPresenter again (Settings → Remote and network → Phone camera and microphone)."
+msgstr "Dieser QR-Code wurde schon benutzt oder ist zu alt. Scannen Sie den Code in RustyPresenter noch einmal (Einstellungen → Fernbedienung und Netzwerk → Handy-Kamera und -Mikrofon)."
+
+#: src/network/phone_link.rs
+msgid "Type the remote's password (set in RustyPresenter's Settings → Remote and network)."
+msgstr "Geben Sie das Passwort der Fernbedienung ein (festgelegt in RustyPresenter unter Einstellungen → Fernbedienung und Netzwerk)."
+
+#: src/platform/data_folder.rs
+msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
+msgstr "Diese Kopie von RustyPresenter bewahrt ihre Daten neben sich auf, in {wanted}, aber dieser Ordner kann nicht geändert werden (vielleicht ein gesperrter USB-Stick oder eine CD). Vorerst wird Ihre Arbeit auf diesem Computer aufbewahrt, in {here}. Damit sie neben der App bleibt, kopieren Sie den ganzen RustyPresenter-Ordner an einen Ort, der geändert werden kann, und öffnen Sie sie von dort."
+
+#: src/platform/data_folder.rs
+msgid "RustyPresenter was opened from inside the zip file, so it cannot keep its data beside it. For now your work is kept on this computer, in {here}. Close RustyPresenter, unzip the whole file first (on Windows: right-click it, then Extract All), and open RustyPresenter from the folder that makes."
+msgstr "RustyPresenter wurde direkt aus der ZIP-Datei geöffnet und kann seine Daten deshalb nicht neben sich aufbewahren. Vorerst wird Ihre Arbeit auf diesem Computer aufbewahrt, in {here}. Schließen Sie RustyPresenter, entpacken Sie zuerst die ganze Datei (unter Windows: Rechtsklick darauf, dann „Alle extrahieren“) und öffnen Sie RustyPresenter aus dem neuen Ordner."
+
+#: src/platform/data_folder.rs
+msgid "macOS opened a locked copy of RustyPresenter, because it has not been moved since it was downloaded. For now your work is kept on this computer, in {here}. Close RustyPresenter. In Finder, drag RustyPresenter out of its folder (onto the Desktop, say) and back in again, or into Applications if it came from the .dmg file. Then open it again."
+msgstr "macOS hat eine gesperrte Kopie von RustyPresenter geöffnet, weil die App seit dem Herunterladen nicht verschoben wurde. Vorerst wird Ihre Arbeit auf diesem Computer aufbewahrt, in {here}. Schließen Sie RustyPresenter. Ziehen Sie RustyPresenter im Finder aus seinem Ordner (zum Beispiel auf den Schreibtisch) und wieder zurück, oder in „Programme“, wenn es aus der .dmg-Datei stammt. Öffnen Sie es dann erneut."
+
+#: src/platform/firewall.rs
+msgid "Windows was not given the OK, so nothing changed."
+msgstr "Windows hat kein OK bekommen, also hat sich nichts geändert."
+
+#: src/platform/firewall.rs
+msgid "Windows Firewall could not be changed. Ask whoever looks after this computer to let RustyPresenter in for private and public networks."
+msgstr "Die Windows-Firewall konnte nicht geändert werden. Bitten Sie die Person, die sich um diesen Computer kümmert, RustyPresenter für private und öffentliche Netzwerke hereinzulassen."
+
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
 msgstr "Die Bildschirme laufen nicht."
@@ -8367,10 +8635,6 @@ msgid "A phone only lets a page use its camera when the page is private. Tap the
 msgstr "Ein Handy lässt eine Seite nur dann die Kamera nutzen, wenn die Seite privat ist. Tippen Sie unten auf den Knopf. Das Handy warnt dann, dass die Verbindung nicht privat ist: Das ist zu erwarten, denn die Seite kommt vom eigenen Computer Ihrer Gemeinde, nicht aus dem Internet."
 
 #: src/stream/phone_camera.rs
-msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
-msgstr "Tippen Sie auf „Erweitert“ (oder „Details einblenden“) und dann auf „Weiter“ (oder „Diese Website besuchen“). Das Handy merkt sich das, also ist es nur einmal nötig."
-
-#: src/stream/phone_camera.rs
 msgid "Open the camera page"
 msgstr "Kamera-Seite öffnen"
 
@@ -8383,12 +8647,12 @@ msgid "Connect this phone"
 msgstr "Dieses Handy verbinden"
 
 #: src/stream/phone_camera.rs
-msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
-msgstr "Klicken Sie am Präsentationscomputer auf Handy, dann auf „Handy oder Tablet koppeln“, und tippen Sie hier den 6-stelligen Code ein."
+msgid "Scan the camera's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone). Or, on the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "Scannen Sie den QR-Code der Kamera in RustyPresenter (Einstellungen → Fernbedienung und Netzwerk → Handy-Kamera und -Mikrofon). Oder klicken Sie am Präsentationscomputer auf Handy, dann auf Handy oder Tablet koppeln, und tippen Sie den 6-stelligen Code hier ein."
 
 #: src/stream/phone_camera.rs
-msgid "6-digit code"
-msgstr "6-stelliger Code"
+msgid "Connecting this phone…"
+msgstr "Dieses Handy wird verbunden…"
 
 #: src/stream/phone_camera.rs
 msgid "Like Balcony or Side. The computer lists this phone by this name."
@@ -8418,7 +8682,7 @@ msgstr "Sendet an den Computer"
 msgid "Connecting to the computer…"
 msgstr "Verbindung zum Computer…"
 
-#: src/stream/phone_camera.rs
+#: src/stream/phone_camera.rs src/stream/phone_mic.rs
 msgid "The computer cannot be reached. Trying again…"
 msgstr "Der Computer ist nicht erreichbar. Neuer Versuch…"
 
@@ -8446,6 +8710,18 @@ msgstr "Wählen Sie dieses Handy am Computer in Einstellungen → Livestream →
 msgid "This computer is not on a network, so no phone can reach it."
 msgstr "Dieser Computer ist in keinem Netzwerk, darum kann ihn kein Handy erreichen."
 
+#: src/stream/phone_camera.rs
+msgid "Android (Chrome): tap Advanced, then Proceed. iPhone (Safari): tap Show Details, then visit this website, then Visit Website. The phone remembers it, so this is only needed once."
+msgstr "Android (Chrome): „Erweitert“ tippen, dann „Weiter“. iPhone (Safari): „Details einblenden“ tippen, dann „diese Website besuchen“, dann „Website besuchen“. Das Handy merkt sich das, also ist es nur einmal nötig."
+
+#: src/stream/phone_camera.rs
+msgid "No Proceed button? In Chrome on Android, open chrome://flags, search for \"insecure origins\", turn on \"Insecure origins treated as secure\", type {address} in its box, tap Relaunch, then open this page again."
+msgstr "Kein „Weiter“? In Chrome unter Android chrome://flags öffnen, nach „insecure origins“ suchen, „Insecure origins treated as secure“ einschalten, {address} in das Feld tippen, auf „Relaunch“ tippen und diese Seite neu öffnen."
+
+#: src/stream/phone_camera.rs
+msgid "6-digit code"
+msgstr "6-stelliger Code"
+
 #: src/stream/phone_mic.rs
 msgid "Phone microphone (open its page on the phone)"
 msgstr "Handy-Mikrofon (seine Seite auf dem Handy öffnen)"
@@ -8467,16 +8743,20 @@ msgid "Sending, but the stream is not using this phone yet. Choose \"Phone micro
 msgstr "Sendet, aber der Stream nutzt dieses Handy noch nicht. Wählen Sie \"Handy-Mikrofon\" in Einstellungen → Livestream → Ton und gehen Sie dann live."
 
 #: src/stream/phone_mic.rs
-msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
-msgstr "Das Handy lässt nur eine sichere Seite das Mikrofon nutzen. Öffnen Sie unten die sichere Seite; beim ersten Mal warnt das Handy, dass sie nicht privat ist: Tippen Sie auf „Erweitert“ (oder „Details einblenden“) und gehen Sie weiter zur Seite."
+msgid "The phone only lets a secure page use its microphone. Open the secure page below. The first time, the phone warns that the connection is not private: that is expected, because the page comes from your church's own computer."
+msgstr "Das Handy erlaubt sein Mikrofon nur einer sicheren Seite. Öffnen Sie unten die sichere Seite. Beim ersten Mal warnt das Handy, die Verbindung sei nicht privat: Das ist normal, denn die Seite kommt vom Computer Ihrer eigenen Gemeinde."
 
 #: src/stream/phone_mic.rs
 msgid "The phone did not let the page use its microphone. Allow it in the browser's settings for this page, then try again."
 msgstr "Das Handy hat der Seite das Mikrofon nicht erlaubt. Erlauben Sie es in den Browser-Einstellungen für diese Seite und versuchen Sie es dann erneut."
 
 #: src/stream/phone_mic.rs
-msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
-msgstr "Schalten Sie in RustyPresenter den Bühnenbildschirm auf Handys ein (Einstellungen → Fernbedienung und Netzwerk) und melden Sie sich auf diesem Handy zuerst dort an."
+msgid "Connect this phone first: scan the microphone's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone), or type the 6-digit code from Phone → Pair a phone or tablet."
+msgstr "Verbinden Sie zuerst dieses Handy: Scannen Sie den QR-Code des Mikrofons in RustyPresenter (Einstellungen → Fernbedienung und Netzwerk → Handy-Kamera und -Mikrofon) oder tippen Sie den 6-stelligen Code aus Handy → Handy oder Tablet koppeln ein."
+
+#: src/stream/phone_mic.rs
+msgid "Connected. Tap Start, then Allow when the phone asks for the microphone."
+msgstr "Verbunden. Auf Start tippen, dann „Zulassen“, wenn das Handy nach dem Mikrofon fragt."
 
 #: src/stream/preflight.rs
 msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Livestream → Cameras. The stream shows the slides in its place."
@@ -11000,26 +11280,6 @@ msgid "The saved sound output (not connected)"
 msgstr "Gespeicherte Tonausgabe (nicht verbunden)"
 
 #: src/strings/song.rs
-msgid "Verse"
-msgstr "Strophe"
-
-#: src/strings/song.rs src/strings/stage.rs
-msgid "Chorus"
-msgstr "Refrain"
-
-#: src/strings/song.rs
-msgid "Pre-chorus"
-msgstr "Pre-Chorus"
-
-#: src/strings/song.rs
-msgid "Bridge"
-msgstr "Bridge"
-
-#: src/strings/song.rs
-msgid "Tag"
-msgstr "Tag"
-
-#: src/strings/song.rs
 msgid "Intro"
 msgstr "Intro"
 
@@ -11130,6 +11390,94 @@ msgstr "{section} – Taste {key}"
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
 msgstr "{section} · Folie {page} von {pages}"
+
+#: src/strings/song_edit.rs
+msgid "That slide is not in the song any more. Try again."
+msgstr "Diese Folie ist nicht mehr im Lied. Bitte noch einmal versuchen."
+
+#: src/strings/song_edit.rs
+msgid "These two slides are one part shown {lines} lines at a time. Use Lines + to show more lines on each slide."
+msgstr "Diese zwei Folien sind ein Teil, der {lines} Zeilen auf einmal zeigt. Mit Zeilen + mehr Zeilen pro Folie zeigen."
+
+#: src/strings/song_edit.rs
+msgid "This is the last slide of its part, so there is nothing to join it with."
+msgstr "Das ist die letzte Folie dieses Teils, es gibt nichts zum Verbinden."
+
+#: src/strings/song_edit.rs
+msgid "Put the cursor on the line that should start the new slide."
+msgstr "Setze den Cursor in die Zeile, mit der die neue Folie beginnen soll."
+
+#: src/strings/song_edit.rs
+msgid "This is the song’s only slide. Delete the song in the library instead."
+msgstr "Das ist die einzige Folie des Liedes. Lösche stattdessen das Lied in der Bibliothek."
+
+#: src/strings/song_edit.rs
+msgid "{part} · slide {n} of {count}"
+msgstr "{part} · Folie {n} von {count}"
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Your change shows every time."
+msgstr "{part} kommt {times}-mal in diesem Lied vor. Deine Änderung erscheint jedes Mal."
+
+#: src/strings/song_edit.rs
+msgid "This slide is chords only. Type the chords in square brackets, like [G] [D]."
+msgstr "Diese Folie hat nur Akkorde. Akkorde in eckigen Klammern eingeben, wie [G] [D]."
+
+#: src/strings/song_edit.rs
+msgid "The chords stay over the same words. To change them, tick Edit chords too."
+msgstr "Die Akkorde bleiben über denselben Wörtern. Zum Ändern „Auch Akkorde bearbeiten“ ankreuzen."
+
+#: src/strings/song_edit.rs
+msgid "Slide saved"
+msgstr "Folie gespeichert"
+
+#: src/strings/song_edit.rs
+msgid "Split into two slides"
+msgstr "In zwei Folien geteilt"
+
+#: src/strings/song_edit.rs
+msgid "Joined with the next slide"
+msgstr "Mit der nächsten Folie verbunden"
+
+#: src/strings/song_edit.rs
+msgid "Slide added"
+msgstr "Folie hinzugefügt"
+
+#: src/strings/song_edit.rs
+msgid "Slide deleted"
+msgstr "Folie gelöscht"
+
+#: src/strings/song_edit.rs
+msgid "Slide copied"
+msgstr "Folie kopiert"
+
+#: src/strings/song_edit.rs
+msgid "This part is now {part}"
+msgstr "Dieser Teil ist jetzt {part}"
+
+#: src/strings/song_edit.rs
+msgid "Order changed for this service"
+msgstr "Reihenfolge für diesen Gottesdienst geändert"
+
+#: src/strings/song_edit.rs
+msgid "This is now the song’s usual order"
+msgstr "Das ist jetzt die übliche Reihenfolge des Liedes"
+
+#: src/strings/song_edit.rs
+msgid "Back to the song’s usual order"
+msgstr "Zurück zur üblichen Reihenfolge des Liedes"
+
+#: src/strings/song_edit.rs
+msgid "This song has no chorus."
+msgstr "Dieses Lied hat keinen Refrain."
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Delete this slide every time it plays?"
+msgstr "{part} kommt {times}-mal in diesem Lied vor. Diese Folie überall löschen?"
+
+#: src/strings/song_edit.rs
+msgid "Only song slides can be edited here. Use Edit for this item."
+msgstr "Nur Liedfolien lassen sich hier bearbeiten. Für dieses Element „Bearbeiten“ verwenden."
 
 #: src/strings/stage.rs
 msgid "Classic"
@@ -12158,6 +12506,10 @@ msgstr "Kapodaster im {fret}. Bund, um {key}-Griffe zu spielen"
 msgid "Capo {fret} to play the chords as written"
 msgstr "Kapodaster im {fret}. Bund, um die Akkorde wie geschrieben zu spielen"
 
+#: src/ui/dialogs/about.rs
+msgid "{folder} (a portable copy: the data is kept beside the app)"
+msgstr "{folder} (eine portable Kopie: die Daten liegen neben der App)"
+
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
 msgstr "Element des Gottesdienstes anzeigen"
@@ -12653,6 +13005,14 @@ msgstr "Auto-Folgen braucht ein Sprachmodell ({size}). Jetzt herunterladen?"
 #: src/ui/dialogs/settings_model.rs src/ui/operator/record.rs src/video/bench.rs
 msgid "Not now"
 msgstr "Nicht jetzt"
+
+#: src/ui/dialogs/settings_phone.rs
+msgid "Waiting for Windows…"
+msgstr "Warte auf Windows…"
+
+#: src/ui/dialogs/settings_phone.rs
+msgid "Done: phones can now reach RustyPresenter through Windows Firewall."
+msgstr "Fertig: Handys erreichen RustyPresenter jetzt durch die Windows-Firewall."
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The output the app plays its sound to"
@@ -13534,6 +13894,39 @@ msgstr "yt-dlp hat kein Video gespeichert"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "keine Mediendatei"
+
+#~ msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+#~ msgstr "Ein Handy im WLAN der Gemeinde kann Kamera oder Mikrofon für den Livestream sein. Beim ersten Mal warnt das Handy, die Seite sei nicht privat: Das ist zu erwarten, denn die Seite kommt von diesem Computer. Tippen Sie auf Erweitert (auf dem iPhone: Details einblenden) und gehen Sie dann weiter zur Seite. Halten Sie das Handy wach und am Ladekabel."
+
+#~ msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
+#~ msgstr "Koppeln Sie das Handy zuerst mit „Handy oder Tablet koppeln“. Sobald es sein Bild sendet, heißt es in den Kameralisten Handy-Kamera."
+
+#~ msgid "On the phone, open:"
+#~ msgstr "Öffnen Sie auf dem Handy:"
+
+#~ msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
+#~ msgstr "Für ein Ansteckmikrofon des Pastors oder ein Raummikrofon ohne Kabel. Schalten Sie zuerst den Bühnenbildschirm auf Handys ein: Die Seite des Handys kommt von dort."
+
+#~ msgid "On the phone, open this page and press Start:"
+#~ msgstr "Öffnen Sie diese Seite auf dem Handy und tippen Sie auf Start:"
+
+#~ msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
+#~ msgstr "Der Bühnenbildschirm auf Handys ist aus, daher kann das Handy diese Seite noch nicht erreichen."
+
+#~ msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
+#~ msgstr "Tippen Sie auf „Erweitert“ (oder „Details einblenden“) und dann auf „Weiter“ (oder „Diese Website besuchen“). Das Handy merkt sich das, also ist es nur einmal nötig."
+
+#~ msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+#~ msgstr "Klicken Sie am Präsentationscomputer auf Handy, dann auf „Handy oder Tablet koppeln“, und tippen Sie hier den 6-stelligen Code ein."
+
+#~ msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
+#~ msgstr "Das Handy lässt nur eine sichere Seite das Mikrofon nutzen. Öffnen Sie unten die sichere Seite; beim ersten Mal warnt das Handy, dass sie nicht privat ist: Tippen Sie auf „Erweitert“ (oder „Details einblenden“) und gehen Sie weiter zur Seite."
+
+#~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
+#~ msgstr "Schalten Sie in RustyPresenter den Bühnenbildschirm auf Handys ein (Einstellungen → Fernbedienung und Netzwerk) und melden Sie sich auf diesem Handy zuerst dort an."
+
+#~ msgid "Leave empty to use the written order"
+#~ msgstr "Leer lassen für Textreihenfolge"
 
 #~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
 #~ msgstr "Auf einen anderen Bereich ziehen: daneben, oder in seine Mitte, um seinen Platz als Reiter zu teilen"

@@ -177,6 +177,7 @@ impl Operator {
         ui.set_slides_custom_order(item.is_some_and(|i| matches!(i.item.kind, crate::model::ItemKind::Song { arrangement: Some(_), .. })));
         self.render_text_size();
         super::bible_extras::render(self);
+        super::slide_edit::render(self);
         let key = item.map(|it| GridKey {
             id: it.id, kind: it.kind.clone(), slides: it.slides.clone(), background: None, settings: thumbs::item_settings(&snap.data, &it.item),
             media: snap.data.media.iter().filter(|m| m.thumb.is_some()).cloned().collect(),
@@ -344,6 +345,7 @@ impl Operator {
             text: slide_text(slide).into(),
             actions: s.acts.get(idx).map_or(0, |a| a.0),
             actions_tip: s.acts.get(idx).map(|a| a.1.as_str()).unwrap_or("").into(),
+            song: k.kind == "song" && slide.section.is_some(),
         }
     }
 

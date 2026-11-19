@@ -231,6 +231,10 @@ msgstr "Văn bản của bạn"
 msgid "Not in the words — it is skipped"
 msgstr "Không có trong lời — sẽ bị bỏ qua"
 
+#: ui/dialogs/arrangement.slint
+msgid "Play it twice"
+msgstr "Chơi hai lần"
+
 #: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "Gỡ bỏ"
@@ -239,6 +243,14 @@ msgstr "Gỡ bỏ"
 msgid "End"
 msgstr "Kết"
 
+#: ui/dialogs/arrangement.slint
+msgid "Drop here to remove"
+msgstr "Thả vào đây để bỏ"
+
+#: ui/dialogs/arrangement.slint
+msgid "✕ Remove"
+msgstr "✕ Bỏ"
+
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr "Thứ tự như đã viết — kéo để đổi"
@@ -246,6 +258,10 @@ msgstr "Thứ tự như đã viết — kéo để đổi"
 #: ui/dialogs/arrangement.slint
 msgid "⟲ Use written order"
 msgstr "⟲ Dùng thứ tự đã viết"
+
+#: ui/dialogs/arrangement.slint
+msgid "Click to play it at the end, or drag it in between the parts"
+msgstr "Bấm để chơi ở cuối, hoặc kéo vào giữa các đoạn"
 
 #: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
 msgid "Name"
@@ -615,7 +631,7 @@ msgstr "Bắt đầu"
 msgid "Delete"
 msgstr "Xóa"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings.rs
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint src/ui/dialogs/settings.rs
 msgid "Save"
 msgstr "Lưu"
 
@@ -643,7 +659,7 @@ msgstr "Điểm cuối của đường chuyển động"
 msgid "{} · {} builds"
 msgstr "{} · {} bước hiện"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint src/strings/song_edit.rs
 msgid "New slide"
 msgstr "Trang chiếu mới"
 
@@ -659,7 +675,7 @@ msgstr "Lên trước"
 msgid "Move later"
 msgstr "Ra sau"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint ui/operator/slide-editor.slint src/strings/song_edit.rs
 msgid "Delete slide"
 msgstr "Xóa trang"
 
@@ -1028,7 +1044,7 @@ msgstr "Lên trên cùng"
 msgid "To back"
 msgstr "Xuống dưới cùng"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator/slide-editor.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "Nhân bản"
 
@@ -1060,11 +1076,11 @@ msgstr "Kéo để di chuyển, kéo góc để đổi cỡ, phím mũi tên đ�
 msgid "Video: {}"
 msgstr "Video: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint ui/operator/slide-editor.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Hủy"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Save and show now"
 msgstr "Lưu và chiếu ngay"
 
@@ -1196,7 +1212,7 @@ msgstr "Quay lại"
 msgid "Next"
 msgstr "Tiếp"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/settings-phone.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "Đóng"
 
@@ -1611,7 +1627,7 @@ msgstr "Địa chỉ: "
 msgid "Pair a phone or tablet"
 msgstr "Ghép nối điện thoại hoặc máy tính bảng"
 
-#: ui/dialogs/phone.slint
+#: ui/dialogs/phone.slint ui/dialogs/settings-phone.slint
 msgid "QR code"
 msgstr "Mã QR"
 
@@ -2583,6 +2599,22 @@ msgstr "Chọn logo"
 msgid "Default background"
 msgstr "Nền mặc định"
 
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow. Or open:"
+msgstr "Quét bằng camera điện thoại, rồi chạm Cho phép. Hoặc mở:"
+
+#: ui/dialogs/settings-phone.slint
+msgid "The first time, the phone warns the page is not private (it comes from this computer): on Android tap Advanced → Proceed; on an iPhone tap Show Details → visit this website."
+msgstr "Lần đầu, điện thoại cảnh báo trang không riêng tư (trang đến từ máy tính này): trên Android chạm Nâng cao → Tiếp tục; trên iPhone chạm Hiện chi tiết → truy cập trang web này."
+
+#: ui/dialogs/settings-phone.slint
+msgid "Show the QR code"
+msgstr "Hiện mã QR"
+
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow."
+msgstr "Quét bằng camera điện thoại, rồi chạm Cho phép."
+
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Use your phone or tablet as a remote"
 msgstr "Dùng điện thoại hoặc máy tính bảng làm điều khiển từ xa"
@@ -2676,44 +2708,48 @@ msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this compu
 msgstr "Mở địa chỉ này trên iPad hoặc điện thoại của người hát (cùng Wi-Fi với máy tính này)."
 
 #: ui/dialogs/settings-remote.slint
-msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
-msgstr "Điện thoại dùng Wi-Fi của hội thánh có thể làm camera hoặc micrô cho buổi phát. Lần đầu, điện thoại cảnh báo trang không riêng tư: điều này là bình thường, vì trang đến từ máy tính này. Chạm Nâng cao (trên iPhone: Hiện chi tiết), rồi tiếp tục vào trang. Giữ điện thoại luôn sáng và cắm sạc."
+msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. Scan its code with the phone's camera: that opens the page and connects the phone, with no code to type. Keep the phone awake and plugged in."
+msgstr "Điện thoại trong Wi-Fi của hội thánh có thể làm camera hoặc micrô cho buổi phát trực tiếp. Quét mã của nó bằng camera điện thoại: trang sẽ mở và điện thoại được kết nối, không cần gõ mã. Giữ điện thoại luôn sáng màn hình và cắm sạc."
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a camera"
 msgstr "Điện thoại làm camera"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
-msgstr "Hãy ghép nối điện thoại trước bằng Ghép nối điện thoại hoặc máy tính bảng. Khi nó gửi hình, danh sách camera gọi nó là Camera điện thoại."
+msgid "Scanning the code connects the phone. Once it sends its picture, the camera lists call it Phone camera."
+msgstr "Quét mã là điện thoại được kết nối. Khi nó gửi hình, danh sách camera gọi nó là Camera điện thoại."
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open:"
-msgstr "Trên điện thoại, mở:"
+msgid "The phone camera's QR code"
+msgstr "Mã QR của camera điện thoại"
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose it in Settings → Livestream → Cameras"
 msgstr "Rồi chọn nó trong Cài đặt → Phát trực tiếp → Camera"
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a microphone"
 msgstr "Điện thoại làm micrô"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
-msgstr "Cho micrô cài áo của mục sư hoặc micrô phòng không dây. Hãy bật màn hình sân khấu trên điện thoại trước: trang của điện thoại đến từ đó."
+msgid "For a pastor's lapel or a room microphone without cables. Scanning the code connects the phone; then press Start on it."
+msgstr "Cho micrô cài áo của mục sư hoặc micrô trong phòng không cần dây. Quét mã là điện thoại được kết nối; rồi bấm Bắt đầu trên đó."
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open this page and press Start:"
-msgstr "Trên điện thoại, mở trang này và bấm Bắt đầu:"
-
-#: ui/dialogs/settings-remote.slint
-msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
-msgstr "Màn hình sân khấu trên điện thoại đang tắt, nên điện thoại chưa mở được trang này."
+msgid "The phone microphone's QR code"
+msgstr "Mã QR của micrô điện thoại"
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose Phone in Settings → Livestream → Sound"
 msgstr "Rồi chọn Điện thoại trong Cài đặt → Phát trực tiếp → Âm thanh"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Let phones in"
+msgstr "Cho điện thoại vào"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Windows asks for an administrator's OK, then lets RustyPresenter in on private and public networks."
+msgstr "Windows hỏi sự đồng ý của quản trị viên, rồi cho RustyPresenter vào trên mạng riêng và mạng công cộng."
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Control from other gear (TCP)"
@@ -3615,7 +3651,7 @@ msgstr "Sắp bắt đầu hiện trước buổi nhóm, có đồng hồ đếm
 msgid "Starting soon"
 msgstr "Sắp bắt đầu"
 
-#: ui/dialogs/settings-stream.slint src/stream/scene.rs src/strings/song.rs
+#: ui/dialogs/settings-stream.slint ui/dialogs/song-editor.slint src/stream/scene.rs src/strings/song.rs
 msgid "Ending"
 msgstr "Kết thúc"
 
@@ -4120,6 +4156,42 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— tên đoạn nằm trên một dòng riêng; một dòng trống trong đoạn sẽ bắt đầu trang chiếu mới"
 
 #: ui/dialogs/song-editor.slint
+msgid "Add a part:"
+msgstr "Thêm đoạn:"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Verse"
+msgstr "Phiên khúc"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs src/strings/stage.rs
+msgid "Chorus"
+msgstr "Điệp khúc"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Pre-chorus"
+msgstr "Tiền điệp khúc"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Bridge"
+msgstr "Chuyển đoạn"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Tag"
+msgstr "Đoạn lặp"
+
+#: ui/dialogs/song-editor.slint
+msgid "Intro (chords only)"
+msgstr "Dạo đầu (chỉ hợp âm)"
+
+#: ui/dialogs/song-editor.slint
+msgid "A part the band plays with no words: type its chords like [G] [D]"
+msgstr "Đoạn ban nhạc chơi không lời: gõ hợp âm như [G] [D]"
+
+#: ui/dialogs/song-editor.slint
+msgid "Adds this part after the one the cursor is in"
+msgstr "Thêm đoạn này sau đoạn có con trỏ"
+
+#: ui/dialogs/song-editor.slint
 msgid "Insert slide break"
 msgstr "Chèn ngắt trang"
 
@@ -4143,7 +4215,7 @@ msgstr ""
 "Chorus\n"
 "Xiềng xích tôi đã rơi…"
 
-#: ui/dialogs/song-editor.slint
+#: ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Order"
 msgstr "Thứ tự"
 
@@ -4152,8 +4224,8 @@ msgid "(optional)"
 msgstr "(không bắt buộc)"
 
 #: ui/dialogs/song-editor.slint
-msgid "Leave empty to use the written order"
-msgstr "Để trống để dùng thứ tự đã viết"
+msgid "Or type the order here. Leave it empty to use the written order"
+msgstr "Hoặc gõ thứ tự ở đây. Để trống để dùng thứ tự đã viết"
 
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Fewer lines on each slide of this song"
@@ -4214,6 +4286,10 @@ msgstr "Hiện hợp âm như đã viết"
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
 msgstr "Trang chiếu hiện ở đây khi bạn gõ. Đặt tên đoạn như “Verse 1” hoặc “Chorus” trên một dòng riêng."
+
+#: ui/dialogs/song-editor.slint
+msgid "Click to go to its words"
+msgstr "Bấm để đến lời của nó"
 
 #: ui/dialogs/song-editor.slint
 msgid "Delete song"
@@ -5183,7 +5259,7 @@ msgstr "10 giây cuối"
 msgid "Jump to 10 seconds before the end, to check how it finishes"
 msgstr "Nhảy tới 10 giây trước khi hết, để kiểm tra phần kết thúc"
 
-#: ui/operator/live.slint
+#: ui/operator/live.slint ui/operator/slide-editor.slint ui/operator/slides.slint
 msgid "Edit words"
 msgstr "Sửa lời"
 
@@ -5527,6 +5603,106 @@ msgstr "Thêm bài hát, video và trang chiếu, gõ câu Kinh Thánh ở trên
 msgid "Filter the service"
 msgstr "Lọc buổi lễ"
 
+#: ui/operator/slide-editor.slint
+msgid "Split here…"
+msgstr "Tách ở đây…"
+
+#: ui/operator/slide-editor.slint
+msgid "Join with next"
+msgstr "Gộp với trang sau"
+
+#: ui/operator/slide-editor.slint
+msgid "Add a slide after"
+msgstr "Thêm trang sau"
+
+#: ui/operator/slide-editor.slint
+msgid "Change section…"
+msgstr "Đổi đoạn…"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part earlier"
+msgstr "Đưa đoạn này lên trước"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part later"
+msgstr "Đưa đoạn này ra sau"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit the whole song…"
+msgstr "Sửa cả bài…"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit chords too"
+msgstr "Sửa cả hợp âm"
+
+#: ui/operator/slide-editor.slint
+msgid "The slide’s words"
+msgstr "Lời của trang"
+
+#: ui/operator/slide-editor.slint
+msgid "Type the words for this slide"
+msgstr "Gõ lời cho trang này"
+
+#: ui/operator/slide-editor.slint
+msgid "Chords"
+msgstr "Hợp âm"
+
+#: ui/operator/slide-editor.slint
+msgid "Enter saves · Shift+Enter starts a new line · Esc cancels"
+msgstr "Enter để lưu · Shift+Enter xuống dòng · Esc để hủy"
+
+#: ui/operator/slide-editor.slint
+msgid "Split here"
+msgstr "Tách ở đây"
+
+#: ui/operator/slide-editor.slint
+msgid "A new slide starts at the line the cursor is on"
+msgstr "Trang mới bắt đầu ở dòng có con trỏ"
+
+#: ui/operator/slide-editor.slint
+msgid "Add slide"
+msgstr "Thêm trang"
+
+#: ui/operator/slide-editor.slint
+msgid "From this slide on, this part is:"
+msgstr "Từ trang này, đoạn này là:"
+
+#: ui/operator/slide-editor.slint
+msgid "Quick order ▾"
+msgstr "Thứ tự nhanh ▾"
+
+#: ui/operator/slide-editor.slint
+msgid "Ready-made orders for this song"
+msgstr "Thứ tự soạn sẵn cho bài này"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus after every verse"
+msgstr "Điệp khúc sau mỗi phiên khúc"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus again at the end"
+msgstr "Điệp khúc lần nữa ở cuối"
+
+#: ui/operator/slide-editor.slint
+msgid "Just for this service"
+msgstr "Chỉ cho buổi lễ này"
+
+#: ui/operator/slide-editor.slint
+msgid "Save as the usual order"
+msgstr "Lưu làm thứ tự thường lệ"
+
+#: ui/operator/slide-editor.slint
+msgid "Every service plays the song in this order from now on"
+msgstr "Từ nay mọi buổi lễ đều hát bài theo thứ tự này"
+
+#: ui/operator/slide-editor.slint
+msgid "Reset to the song’s order"
+msgstr "Về thứ tự của bài"
+
+#: ui/operator/slide-editor.slint
+msgid "This service plays the song in its usual order again"
+msgstr "Buổi lễ này hát bài theo thứ tự thường lệ trở lại"
+
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
 msgstr "Cùng soạn buổi lễ Chúa Nhật này"
@@ -5554,6 +5730,10 @@ msgstr "Trong buổi lễ, dùng nút Tiếp lớn (hoặc phím →)."
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "Màn hình"
+
+#: ui/operator/slides.slint
+msgid "More for this slide"
+msgstr "Thêm cho trang này"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
@@ -6175,7 +6355,7 @@ msgstr "{name} — tệp đã nhập"
 msgid "Give the song a title."
 msgstr "Hãy đặt tên cho bài hát."
 
-#: src/app.rs
+#: src/app.rs src/song_edit/actions.rs
 msgid "That song is not in the library any more."
 msgstr "Bài hát đó không còn trong thư viện nữa."
 
@@ -7346,6 +7526,94 @@ msgstr[0] "Đã gỡ {n} tệp khỏi thư viện đa phương tiện và giải
 msgid "Sunday Service"
 msgstr "Buổi lễ Chúa Nhật"
 
+#: src/network/phone_link.rs
+msgid "Waiting for a phone"
+msgstr "Đang chờ điện thoại"
+
+#: src/network/phone_link.rs
+msgid "Phone connected: {name}"
+msgstr "Điện thoại đã kết nối: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is connected"
+msgstr "Có điện thoại đã kết nối"
+
+#: src/network/phone_link.rs
+msgid "Sending pictures: {name}"
+msgstr "Đang gửi hình: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is sending pictures"
+msgstr "Một điện thoại đang gửi hình"
+
+#: src/network/phone_link.rs
+msgid "Sending sound: {name}"
+msgstr "Đang gửi âm thanh: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is sending sound"
+msgstr "Một điện thoại đang gửi âm thanh"
+
+#: src/network/phone_link.rs
+msgid "The secure server is starting…"
+msgstr "Máy chủ bảo mật đang khởi động…"
+
+#: src/network/phone_link.rs
+msgid "The secure server isn't running: {why}"
+msgstr "Máy chủ bảo mật không chạy: {why}"
+
+#: src/network/phone_link.rs
+msgid "port {port} is in use by another program. Close that program, or restart this computer."
+msgstr "cổng {port} đang bị chương trình khác dùng. Hãy đóng chương trình đó, hoặc khởi động lại máy tính này."
+
+#: src/network/phone_link.rs
+msgid "Windows keeps port {port} for itself. Restart this computer and try again."
+msgstr "Windows giữ cổng {port} cho riêng nó. Hãy khởi động lại máy tính này rồi thử lại."
+
+#: src/network/phone_link.rs
+msgid "port {port} cannot be used ({error})."
+msgstr "không dùng được cổng {port} ({error})."
+
+#: src/network/phone_link.rs
+msgid "it could not make its certificate ({error})."
+msgstr "nó không tạo được chứng chỉ ({error})."
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out on this network (Windows calls it a public network). Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter on public networks (port {port})."
+msgstr "Tường lửa của máy tính này có thể đang chặn điện thoại: Tường lửa Windows không cho chúng vào trên mạng này (Windows gọi đây là mạng công cộng). Bấm “Cho điện thoại vào”, hoặc trong Bảo mật Windows → Tường lửa, cho phép RustyPresenter trên mạng công cộng (cổng {port})."
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out. Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter (port {port})."
+msgstr "Tường lửa của máy tính này có thể đang chặn điện thoại: Tường lửa Windows không cho chúng vào. Bấm “Cho điện thoại vào”, hoặc trong Bảo mật Windows → Tường lửa, cho phép RustyPresenter (cổng {port})."
+
+#: src/network/phone_link.rs
+msgid "This QR code was already used or is too old. Scan the code in RustyPresenter again (Settings → Remote and network → Phone camera and microphone)."
+msgstr "Mã QR này đã dùng rồi hoặc quá cũ. Hãy quét lại mã trong RustyPresenter (Cài đặt → Điều khiển từ xa và mạng → Camera và micrô điện thoại)."
+
+#: src/network/phone_link.rs
+msgid "Type the remote's password (set in RustyPresenter's Settings → Remote and network)."
+msgstr "Nhập mật khẩu của điều khiển từ xa (đặt trong RustyPresenter, Cài đặt → Điều khiển từ xa và mạng)."
+
+#: src/platform/data_folder.rs
+msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
+msgstr "Bản RustyPresenter này lưu dữ liệu ngay bên cạnh nó, trong {wanted}, nhưng không thể thay đổi thư mục đó (có thể là USB bị khóa hoặc đĩa CD). Tạm thời công việc của bạn được lưu trên máy tính này, trong {here}. Để lưu bên cạnh ứng dụng, hãy sao chép cả thư mục RustyPresenter đến nơi có thể thay đổi và mở nó từ đó."
+
+#: src/platform/data_folder.rs
+msgid "RustyPresenter was opened from inside the zip file, so it cannot keep its data beside it. For now your work is kept on this computer, in {here}. Close RustyPresenter, unzip the whole file first (on Windows: right-click it, then Extract All), and open RustyPresenter from the folder that makes."
+msgstr "RustyPresenter được mở ngay bên trong tệp zip nên không thể lưu dữ liệu bên cạnh nó. Tạm thời công việc của bạn được lưu trên máy tính này, trong {here}. Hãy đóng RustyPresenter, giải nén cả tệp trước (trên Windows: bấm chuột phải vào tệp, rồi chọn Giải nén Tất cả) và mở RustyPresenter từ thư mục vừa tạo."
+
+#: src/platform/data_folder.rs
+msgid "macOS opened a locked copy of RustyPresenter, because it has not been moved since it was downloaded. For now your work is kept on this computer, in {here}. Close RustyPresenter. In Finder, drag RustyPresenter out of its folder (onto the Desktop, say) and back in again, or into Applications if it came from the .dmg file. Then open it again."
+msgstr "macOS đã mở một bản RustyPresenter bị khóa vì ứng dụng chưa được di chuyển kể từ khi tải về. Tạm thời công việc của bạn được lưu trên máy tính này, trong {here}. Hãy đóng RustyPresenter. Trong Finder, kéo RustyPresenter ra khỏi thư mục của nó (ví dụ ra Màn hình nền) rồi kéo lại vào, hoặc kéo vào Ứng dụng nếu nó lấy từ tệp .dmg. Sau đó mở lại."
+
+#: src/platform/firewall.rs
+msgid "Windows was not given the OK, so nothing changed."
+msgstr "Windows không nhận được sự đồng ý, nên không có gì thay đổi."
+
+#: src/platform/firewall.rs
+msgid "Windows Firewall could not be changed. Ask whoever looks after this computer to let RustyPresenter in for private and public networks."
+msgstr "Không đổi được Tường lửa Windows. Hãy nhờ người trông coi máy tính này cho RustyPresenter vào trên mạng riêng và mạng công cộng."
+
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
 msgstr "Các màn hình không hoạt động."
@@ -8357,10 +8625,6 @@ msgid "A phone only lets a page use its camera when the page is private. Tap the
 msgstr "Điện thoại chỉ cho một trang dùng máy ảnh khi trang đó là riêng tư. Hãy chạm vào nút bên dưới. Sau đó điện thoại sẽ cảnh báo kết nối không riêng tư: điều này là bình thường, vì trang đến từ máy tính của chính hội thánh bạn, không phải từ internet."
 
 #: src/stream/phone_camera.rs
-msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
-msgstr "Chạm Nâng cao (hoặc Hiện chi tiết), rồi Tiếp tục (hoặc Truy cập trang web này). Điện thoại sẽ ghi nhớ, nên chỉ cần làm một lần."
-
-#: src/stream/phone_camera.rs
 msgid "Open the camera page"
 msgstr "Mở trang camera"
 
@@ -8373,12 +8637,12 @@ msgid "Connect this phone"
 msgstr "Kết nối điện thoại này"
 
 #: src/stream/phone_camera.rs
-msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
-msgstr "Trên máy tính trình chiếu, bấm Điện thoại, rồi Ghép nối điện thoại hoặc máy tính bảng, và gõ mã 6 số vào đây."
+msgid "Scan the camera's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone). Or, on the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "Quét mã QR của camera trong RustyPresenter (Cài đặt → Điều khiển từ xa và mạng → Camera và micrô điện thoại). Hoặc, trên máy tính trình chiếu, bấm Điện thoại, rồi Ghép nối điện thoại hoặc máy tính bảng, và nhập mã 6 chữ số vào đây."
 
 #: src/stream/phone_camera.rs
-msgid "6-digit code"
-msgstr "Mã 6 chữ số"
+msgid "Connecting this phone…"
+msgstr "Đang kết nối điện thoại này…"
 
 #: src/stream/phone_camera.rs
 msgid "Like Balcony or Side. The computer lists this phone by this name."
@@ -8408,7 +8672,7 @@ msgstr "Đang gửi tới máy tính"
 msgid "Connecting to the computer…"
 msgstr "Đang kết nối với máy tính…"
 
-#: src/stream/phone_camera.rs
+#: src/stream/phone_camera.rs src/stream/phone_mic.rs
 msgid "The computer cannot be reached. Trying again…"
 msgstr "Không kết nối được với máy tính. Đang thử lại…"
 
@@ -8436,6 +8700,18 @@ msgstr "Trên máy tính, chọn điện thoại này trong Cài đặt → Phá
 msgid "This computer is not on a network, so no phone can reach it."
 msgstr "Máy tính này không kết nối mạng nên không điện thoại nào kết nối tới được."
 
+#: src/stream/phone_camera.rs
+msgid "Android (Chrome): tap Advanced, then Proceed. iPhone (Safari): tap Show Details, then visit this website, then Visit Website. The phone remembers it, so this is only needed once."
+msgstr "Android (Chrome): chạm Nâng cao, rồi Tiếp tục. iPhone (Safari): chạm Hiện chi tiết, rồi truy cập trang web này, rồi Truy cập trang web. Điện thoại sẽ ghi nhớ, nên chỉ cần làm một lần."
+
+#: src/stream/phone_camera.rs
+msgid "No Proceed button? In Chrome on Android, open chrome://flags, search for \"insecure origins\", turn on \"Insecure origins treated as secure\", type {address} in its box, tap Relaunch, then open this page again."
+msgstr "Không thấy nút Tiếp tục? Trong Chrome trên Android, mở chrome://flags, tìm \"insecure origins\", bật \"Insecure origins treated as secure\", nhập {address} vào ô của nó, chạm Relaunch, rồi mở lại trang này."
+
+#: src/stream/phone_camera.rs
+msgid "6-digit code"
+msgstr "Mã 6 chữ số"
+
 #: src/stream/phone_mic.rs
 msgid "Phone microphone (open its page on the phone)"
 msgstr "Micrô điện thoại (mở trang của nó trên điện thoại)"
@@ -8457,16 +8733,20 @@ msgid "Sending, but the stream is not using this phone yet. Choose \"Phone micro
 msgstr "Đang gửi, nhưng buổi phát chưa dùng điện thoại này. Chọn \"Micrô điện thoại\" trong Cài đặt → Phát trực tiếp → Âm thanh, rồi phát trực tiếp."
 
 #: src/stream/phone_mic.rs
-msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
-msgstr "Điện thoại chỉ cho trang bảo mật dùng micrô. Hãy mở trang bảo mật bên dưới; lần đầu, điện thoại sẽ cảnh báo trang không riêng tư: chạm Nâng cao (hoặc Hiện chi tiết) và tiếp tục vào trang."
+msgid "The phone only lets a secure page use its microphone. Open the secure page below. The first time, the phone warns that the connection is not private: that is expected, because the page comes from your church's own computer."
+msgstr "Điện thoại chỉ cho trang bảo mật dùng micrô. Hãy mở trang bảo mật bên dưới. Lần đầu, điện thoại cảnh báo kết nối không riêng tư: điều đó bình thường, vì trang đến từ chính máy tính của hội thánh bạn."
 
 #: src/stream/phone_mic.rs
 msgid "The phone did not let the page use its microphone. Allow it in the browser's settings for this page, then try again."
 msgstr "Điện thoại không cho trang dùng micrô. Hãy cho phép trong cài đặt trình duyệt cho trang này, rồi thử lại."
 
 #: src/stream/phone_mic.rs
-msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
-msgstr "Bật màn hình sân khấu trên điện thoại trong RustyPresenter (Cài đặt → Điều khiển từ xa và mạng), và đăng nhập vào đó trên điện thoại này trước."
+msgid "Connect this phone first: scan the microphone's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone), or type the 6-digit code from Phone → Pair a phone or tablet."
+msgstr "Hãy kết nối điện thoại này trước: quét mã QR của micrô trong RustyPresenter (Cài đặt → Điều khiển từ xa và mạng → Camera và micrô điện thoại), hoặc nhập mã 6 chữ số từ Điện thoại → Ghép nối điện thoại hoặc máy tính bảng."
+
+#: src/stream/phone_mic.rs
+msgid "Connected. Tap Start, then Allow when the phone asks for the microphone."
+msgstr "Đã kết nối. Chạm Bắt đầu, rồi Cho phép khi điện thoại hỏi dùng micrô."
 
 #: src/stream/preflight.rs
 msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Livestream → Cameras. The stream shows the slides in its place."
@@ -10964,26 +11244,6 @@ msgid "The saved sound output (not connected)"
 msgstr "Đầu ra âm thanh đã lưu (chưa kết nối)"
 
 #: src/strings/song.rs
-msgid "Verse"
-msgstr "Phiên khúc"
-
-#: src/strings/song.rs src/strings/stage.rs
-msgid "Chorus"
-msgstr "Điệp khúc"
-
-#: src/strings/song.rs
-msgid "Pre-chorus"
-msgstr "Tiền điệp khúc"
-
-#: src/strings/song.rs
-msgid "Bridge"
-msgstr "Chuyển đoạn"
-
-#: src/strings/song.rs
-msgid "Tag"
-msgstr "Đoạn lặp"
-
-#: src/strings/song.rs
 msgid "Intro"
 msgstr "Dạo đầu"
 
@@ -11094,6 +11354,94 @@ msgstr "{section} — nhấn {key}"
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
 msgstr "{section} · trang {page}/{pages}"
+
+#: src/strings/song_edit.rs
+msgid "That slide is not in the song any more. Try again."
+msgstr "Trang đó không còn trong bài. Hãy thử lại."
+
+#: src/strings/song_edit.rs
+msgid "These two slides are one part shown {lines} lines at a time. Use Lines + to show more lines on each slide."
+msgstr "Hai trang này là một đoạn hiện {lines} dòng mỗi lần. Dùng Số dòng + để hiện nhiều dòng hơn mỗi trang."
+
+#: src/strings/song_edit.rs
+msgid "This is the last slide of its part, so there is nothing to join it with."
+msgstr "Đây là trang cuối của đoạn, không có gì để gộp."
+
+#: src/strings/song_edit.rs
+msgid "Put the cursor on the line that should start the new slide."
+msgstr "Đặt con trỏ ở dòng sẽ bắt đầu trang mới."
+
+#: src/strings/song_edit.rs
+msgid "This is the song’s only slide. Delete the song in the library instead."
+msgstr "Đây là trang duy nhất của bài. Hãy xóa bài trong thư viện."
+
+#: src/strings/song_edit.rs
+msgid "{part} · slide {n} of {count}"
+msgstr "{part} · trang {n}/{count}"
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Your change shows every time."
+msgstr "{part} được hát {times} lần trong bài. Thay đổi của bạn hiện ở mọi lần."
+
+#: src/strings/song_edit.rs
+msgid "This slide is chords only. Type the chords in square brackets, like [G] [D]."
+msgstr "Trang này chỉ có hợp âm. Gõ hợp âm trong ngoặc vuông, như [G] [D]."
+
+#: src/strings/song_edit.rs
+msgid "The chords stay over the same words. To change them, tick Edit chords too."
+msgstr "Hợp âm vẫn ở trên các chữ cũ. Để đổi, hãy đánh dấu Sửa cả hợp âm."
+
+#: src/strings/song_edit.rs
+msgid "Slide saved"
+msgstr "Đã lưu trang"
+
+#: src/strings/song_edit.rs
+msgid "Split into two slides"
+msgstr "Đã tách thành hai trang"
+
+#: src/strings/song_edit.rs
+msgid "Joined with the next slide"
+msgstr "Đã gộp với trang sau"
+
+#: src/strings/song_edit.rs
+msgid "Slide added"
+msgstr "Đã thêm trang"
+
+#: src/strings/song_edit.rs
+msgid "Slide deleted"
+msgstr "Đã xóa trang"
+
+#: src/strings/song_edit.rs
+msgid "Slide copied"
+msgstr "Đã nhân bản trang"
+
+#: src/strings/song_edit.rs
+msgid "This part is now {part}"
+msgstr "Đoạn này giờ là {part}"
+
+#: src/strings/song_edit.rs
+msgid "Order changed for this service"
+msgstr "Đã đổi thứ tự cho buổi lễ này"
+
+#: src/strings/song_edit.rs
+msgid "This is now the song’s usual order"
+msgstr "Giờ đây là thứ tự thường lệ của bài"
+
+#: src/strings/song_edit.rs
+msgid "Back to the song’s usual order"
+msgstr "Đã về thứ tự thường lệ của bài"
+
+#: src/strings/song_edit.rs
+msgid "This song has no chorus."
+msgstr "Bài này không có điệp khúc."
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Delete this slide every time it plays?"
+msgstr "{part} được hát {times} lần trong bài. Xóa trang này ở mọi lần?"
+
+#: src/strings/song_edit.rs
+msgid "Only song slides can be edited here. Use Edit for this item."
+msgstr "Ở đây chỉ sửa được trang của bài hát. Hãy dùng Sửa cho mục này."
 
 #: src/strings/stage.rs
 msgid "Classic"
@@ -12113,6 +12461,10 @@ msgstr "Capo phím {fret} để chơi thế bấm {key}"
 msgid "Capo {fret} to play the chords as written"
 msgstr "Capo phím {fret} để chơi hợp âm như đã viết"
 
+#: src/ui/dialogs/about.rs
+msgid "{folder} (a portable copy: the data is kept beside the app)"
+msgstr "{folder} (bản di động: dữ liệu được lưu bên cạnh ứng dụng)"
+
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
 msgstr "Chiếu một mục của buổi lễ"
@@ -12606,6 +12958,14 @@ msgstr "Tự động theo cần một mô hình giọng nói ({size}). Tải xu�
 #: src/ui/dialogs/settings_model.rs src/ui/operator/record.rs src/video/bench.rs
 msgid "Not now"
 msgstr "Để sau"
+
+#: src/ui/dialogs/settings_phone.rs
+msgid "Waiting for Windows…"
+msgstr "Đang chờ Windows…"
+
+#: src/ui/dialogs/settings_phone.rs
+msgid "Done: phones can now reach RustyPresenter through Windows Firewall."
+msgstr "Xong: giờ điện thoại có thể tới RustyPresenter qua Tường lửa Windows."
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The output the app plays its sound to"
@@ -13482,6 +13842,39 @@ msgstr "yt-dlp không lưu được video nào"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "không phải tệp đa phương tiện"
+
+#~ msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+#~ msgstr "Điện thoại dùng Wi-Fi của hội thánh có thể làm camera hoặc micrô cho buổi phát. Lần đầu, điện thoại cảnh báo trang không riêng tư: điều này là bình thường, vì trang đến từ máy tính này. Chạm Nâng cao (trên iPhone: Hiện chi tiết), rồi tiếp tục vào trang. Giữ điện thoại luôn sáng và cắm sạc."
+
+#~ msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
+#~ msgstr "Hãy ghép nối điện thoại trước bằng Ghép nối điện thoại hoặc máy tính bảng. Khi nó gửi hình, danh sách camera gọi nó là Camera điện thoại."
+
+#~ msgid "On the phone, open:"
+#~ msgstr "Trên điện thoại, mở:"
+
+#~ msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
+#~ msgstr "Cho micrô cài áo của mục sư hoặc micrô phòng không dây. Hãy bật màn hình sân khấu trên điện thoại trước: trang của điện thoại đến từ đó."
+
+#~ msgid "On the phone, open this page and press Start:"
+#~ msgstr "Trên điện thoại, mở trang này và bấm Bắt đầu:"
+
+#~ msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
+#~ msgstr "Màn hình sân khấu trên điện thoại đang tắt, nên điện thoại chưa mở được trang này."
+
+#~ msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
+#~ msgstr "Chạm Nâng cao (hoặc Hiện chi tiết), rồi Tiếp tục (hoặc Truy cập trang web này). Điện thoại sẽ ghi nhớ, nên chỉ cần làm một lần."
+
+#~ msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+#~ msgstr "Trên máy tính trình chiếu, bấm Điện thoại, rồi Ghép nối điện thoại hoặc máy tính bảng, và gõ mã 6 số vào đây."
+
+#~ msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
+#~ msgstr "Điện thoại chỉ cho trang bảo mật dùng micrô. Hãy mở trang bảo mật bên dưới; lần đầu, điện thoại sẽ cảnh báo trang không riêng tư: chạm Nâng cao (hoặc Hiện chi tiết) và tiếp tục vào trang."
+
+#~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
+#~ msgstr "Bật màn hình sân khấu trên điện thoại trong RustyPresenter (Cài đặt → Điều khiển từ xa và mạng), và đăng nhập vào đó trên điện thoại này trước."
+
+#~ msgid "Leave empty to use the written order"
+#~ msgstr "Để trống để dùng thứ tự đã viết"
 
 #~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
 #~ msgstr "Kéo lên một bảng khác: đặt bên cạnh, hoặc vào giữa để dùng chung chỗ như một thẻ"

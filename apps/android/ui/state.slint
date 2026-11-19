@@ -1,0 +1,175 @@
+// Everything the screens show and every tap they pass on, shared with the Rust side (`src/android/ui.rs`).
+
+export struct Found { name: string, address: string }
+export struct ItemRow { title: string, count: string, live: bool }
+export struct SlideRow { label: string, text: string, live: bool }
+export struct SectionChip { short: string, label: string, color: color, live: bool }
+export struct ChordCol { chord: string, words: string }
+export struct ChordRow { cols: [ChordCol], chords: bool, words: bool }
+
+// One box of the stage layout, placed and sized by `src/fit.rs` in pixels.
+export struct StageCell {
+    x: length, y: length, w: length, h: length,
+    // text, chords, message, picture or shape.
+    kind: string,
+    text: string,
+    caption: string,
+    color: color,
+    fill: color,
+    size: length,
+    caption-size: length,
+    bold: bool,
+    halign: TextHorizontalAlignment,
+    valign: TextVerticalAlignment,
+    dim: bool,
+    picture: image,
+    shape: string,
+    rows: [ChordRow],
+    chord-color: color,
+}
+
+export global S {
+    // "find" (choose the computer), "pair", "main" (the tabs) or "scan" (the QR code).
+    in-out property <string> page: "find";
+    // 0 Remote, 1 Stage, 2 Tally, 3 Microphone, 4 Camera.
+    in-out property <int> tab: 0;
+    callback tab-chosen(int);
+
+    // ---- choosing the computer ----
+    in property <[Found]> found;
+    in property <bool> searching;
+    // Shown under the list: "No computer found yet", "Not on Wi-Fi", a problem connecting.
+    in property <string> find-note;
+    in property <bool> find-problem;
+    in-out property <string> typed;
+    callback choose(int);
+    callback connect-typed(string);
+    callback search-again();
+    callback scan-qr();
+
+    // ---- pairing ----
+    in property <string> computer;
+    in property <bool> needs-password;
+    // The QR code gave the one-time secret: no code to type.
+    in property <bool> has-secret;
+    in property <string> pair-error;
+    in property <bool> busy;
+    callback pair(string, string);
+    callback other-computer();
+
+    // ---- Remote ----
+    in property <bool> connected;
+    in property <string> service;
+    in property <string> now-label;
+    in property <string> now-text;
+    in property <bool> now-picture;
+    in property <image> now-image;
+    in property <string> notes;
+    in-out property <bool> notes-on: true;
+    callback notes-toggled(bool);
+    in property <[SectionChip]> sections;
+    in property <string> next-label;
+    in property <string> next-text;
+    in property <bool> logo-on;
+    in property <bool> has-media;
+    in property <bool> media-paused;
+    in property <[ItemRow]> items;
+    in property <string> sheet-title;
+    in property <[SlideRow]> sheet-slides;
+    in-out property <bool> sheet-open;
+    callback next();
+    callback back();
+    callback clear(string);
+    callback jump(int);
+    callback open-item(int);
+    callback show-slide(int);
+    callback media-toggle();
+
+    // ---- the stage screen's access, shared by Stage, Tally and Microphone ----
+    // "" (allowed), "off" (turned off on the computer), "password" or "lost".
+    in property <string> gate;
+    in property <string> gate-text;
+    in property <string> gate-error;
+    callback stage-login(string);
+
+    // ---- Stage ----
+    in property <[StageCell]> cells;
+    in property <color> stage-bg: #000;
+    in property <string> banner;
+    in property <string> follow;
+    in-out property <bool> stage-bar: true;
+    callback stage-size(length, length);
+
+    // ---- Tally ----
+    // on_air, next or off.
+    in property <string> light;
+    in property <string> light-text;
+    in property <string> light-sub;
+    in property <int> tally-camera: 1;
+    callback tally-camera-chosen(int);
+
+    // ---- Microphone ----
+    in property <bool> mic-on;
+    in property <float> mic-level;
+    in property <string> mic-note;
+    callback mic-toggle();
+
+    // ---- Camera ----
+    in property <bool> cam-on;
+    in property <image> cam-preview;
+    in property <string> cam-light;
+    in property <string> cam-text;
+    in property <string> cam-note;
+    in-out property <string> cam-name;
+    in property <bool> cam-back: true;
+    callback cam-toggle(string);
+    callback cam-flip(bool);
+
+    // ---- the QR code ----
+    in property <image> scan-preview;
+    in property <string> scan-note;
+    callback scan-cancel();
+
+    // ---- asking for a permission: why, before Android asks ----
+    in property <string> ask-why;
+    callback ask-go();
+    callback ask-cancel();
+
+    in property <string> toast;
+    // The phone's Back button: true when it closed something or went back a step.
+    callback back-key() -> bool;
+}
+
+// Words the Rust side shows, so they are translated with the rest (`@tr`).
+export global Say {
+    public pure function searching() -> string { return @tr("Looking for RustyPresenter on this Wi-Fi…"); }
+    public pure function none-found() -> string { return @tr("No computer found yet. Check that RustyPresenter is open on the presentation computer and that this phone is on the same Wi-Fi."); }
+    public pure function no-wifi() -> string { return @tr("This phone is not on a Wi-Fi network. Connect to the church's Wi-Fi, then search again."); }
+    public pure function bad-address() -> string { return @tr("That address isn't right. It looks like 192.168.1.20 — the computer shows it under Pair a phone or tablet."); }
+    public pure function cannot-reach(address: string) -> string { return @tr("Could not reach {}. Check that RustyPresenter is open there and that this phone is on the same Wi-Fi.", address); }
+    public pure function not-rustypresenter(address: string) -> string { return @tr("{} is not a RustyPresenter computer.", address); }
+    public pure function not-connected() -> string { return @tr("Not connected"); }
+    public pure function connected() -> string { return @tr("Connected"); }
+    public pure function could-not-connect() -> string { return @tr("Could not connect."); }
+    public pure function logo() -> string { return @tr("(Logo)"); }
+    public pure function clear() -> string { return @tr("(Clear)"); }
+    public pure function music() -> string { return @tr("(Music playing)"); }
+    public pure function end-of-service() -> string { return @tr("End of service"); }
+    public pure function service() -> string { return @tr("Service"); }
+    public pure function screen-changed() -> string { return @tr("The screen changed just now — tap the slide again."); }
+    public pure function phone-name() -> string { return @tr("Android phone"); }
+    public pure function camera-name() -> string { return @tr("Phone camera"); }
+    public pure function why-microphone() -> string { return @tr("To send this phone's microphone to the livestream, the app needs to use the microphone. Android will ask you next."); }
+    public pure function why-camera() -> string { return @tr("To send this phone's camera to the livestream, the app needs to use the camera. Android will ask you next."); }
+    public pure function why-scan() -> string { return @tr("To read the QR code, the app needs to use the camera. Android will ask you next."); }
+    public pure function no-microphone() -> string { return @tr("The microphone is not allowed. Allow it in the phone's Settings → Apps → RustyPresenter → Permissions."); }
+    public pure function no-camera() -> string { return @tr("The camera is not allowed. Allow it in the phone's Settings → Apps → RustyPresenter → Permissions."); }
+    public pure function camera-failed() -> string { return @tr("The camera could not start. Close other apps that use it and try again."); }
+    public pure function microphone-failed() -> string { return @tr("The microphone could not start. Close other apps that use it and try again."); }
+    public pure function point-at-qr() -> string { return @tr("Point the camera at the QR code on the presentation computer."); }
+    public pure function not-a-pair-code() -> string { return @tr("That QR code is not from RustyPresenter. On the computer, click Phone → Pair a phone or tablet."); }
+    public pure function waiting() -> string { return @tr("Connecting to the computer…"); }
+    public pure function sending() -> string { return @tr("Sending to the computer"); }
+    public pure function lost() -> string { return @tr("The computer cannot be reached. Trying again…"); }
+    public pure function pair-again() -> string { return @tr("This phone is no longer paired. Pair it again."); }
+}

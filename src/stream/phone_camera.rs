@@ -124,14 +124,16 @@ pub mod tr {
             "title": tr!("Phone camera"),
             "secure_title": tr!("One step the first time"),
             "secure_body": tr!("A phone only lets a page use its camera when the page is private. Tap the button below. The phone then warns that the connection is not private: that is expected, because the page comes from your church's own computer, not from the internet."),
-            "secure_how": tr!("Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."),
+            "secure_how": secure_how(),
+            "no_proceed": no_proceed(),
             "secure_go": tr!("Open the camera page"),
             "secure_off": tr!("The private camera page is not running on the computer. Close the app and open it again; if it still does not start, another program is using its port."),
             "pair_title": tr!("Connect this phone"),
-            "pair_body": tr!("On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."),
-            "code": tr!("6-digit code"),
-            "password": tr!("Password"),
-            "connect": tr!("Connect"),
+            "pair_body": tr!("Scan the camera's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone). Or, on the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."),
+            "code": code(),
+            "password": password(),
+            "connect": connect(),
+            "pairing": tr!("Connecting this phone…"),
             "name": tr!("Camera name"),
             "name_hint": tr!("Like Balcony or Side. The computer lists this phone by this name."),
             "start": tr!("Start the camera"),
@@ -152,6 +154,14 @@ pub mod tr {
 
     /// When the computer has no network address for phones.
     pub fn no_network() -> String { tr!("This computer is not on a network, so no phone can reach it.") }
+    /// The one-time "not private" step, for Android and iPhone (the phone pages and Settings).
+    pub fn secure_how() -> String { tr!("Android (Chrome): tap Advanced, then Proceed. iPhone (Safari): tap Show Details, then visit this website, then Visit Website. The phone remembers it, so this is only needed once.") }
+    /// When an Android phone shows no way to go on: Chrome's own setting that treats this computer's plain page as
+    /// secure. `{address}` is filled in by the page with this computer's plain address.
+    pub fn no_proceed() -> String { tr!("No Proceed button? In Chrome on Android, open chrome://flags, search for \"insecure origins\", turn on \"Insecure origins treated as secure\", type {address} in its box, tap Relaunch, then open this page again.") }
+    pub fn code() -> String { tr!("6-digit code") }
+    pub fn password() -> String { tr!("Password") }
+    pub fn connect() -> String { tr!("Connect") }
 }
 
 #[cfg(test)]

@@ -1,9 +1,41 @@
 # Packaging
 
 RustyPresenter ships as a Windows NSIS installer, a macOS `.app` in a `.dmg` (Apple
-silicon only), a Linux AppImage and a Linux `.deb`. [cargo-packager] 0.11.8 builds all of
-them from the root `Packager.toml`. `packaging/stage.sh` puts the native libraries where
-that file expects them first.
+silicon only), a Linux AppImage and a Linux `.deb`, plus a portable copy for each OS.
+[cargo-packager] 0.11.8 builds the installers from the root `Packager.toml`.
+`packaging/stage.sh` puts the native libraries where that file expects them first, and
+`packaging/release-files.sh` names the files and makes the portable copies.
+
+## Release files
+
+Every release (`v*` tag, `.github/workflows/package.yml`) has these, `<version>` being `Packager.toml`'s:
+
+| File | What it is |
+|---|---|
+| `RustyPresenter-<version>-windows-setup.exe` | Windows 10/11 installer, per user, no administrator password. Data in `%LOCALAPPDATA%\RustyPresenter` |
+| `RustyPresenter-<version>-windows-portable.zip` | Windows, no install: a `RustyPresenter` folder with `rustypresenter.exe`, `libmpv-2.dll`, `pdfium.dll`, the licences, `portable.txt` and `HOW-TO-START.txt`. Unzip, double-click the exe |
+| `RustyPresenter-<version>-macos.dmg` | Mac with Apple silicon, macOS 12 or later: drag RustyPresenter into Applications. Data in `~/Library/Application Support/RustyPresenter` |
+| `RustyPresenter-<version>-macos-portable.zip` | Mac, no install: a `RustyPresenter` folder with `RustyPresenter.app`, `portable.txt` beside it, `HOW-TO-START.txt` and the licences (made with `ditto -c -k --keepParent`, so the signed bundle stays whole) |
+| `RustyPresenter-<version>-linux.AppImage` | Linux (64-bit PC): one file, nothing to install (make it executable, double-click). Data in `~/.local/share/RustyPresenter`, or beside it with a `portable.txt` beside the AppImage |
+| `RustyPresenter-<version>-linux.deb` | Ubuntu/Debian package (uses the distro's `libmpv2`) |
+| `RustyPresenter-<version>-linux-portable.tar.gz` | Linux, no install: a `RustyPresenter` folder with `rustypresenter`, `libmpv.so.2` (our LGPL build), `libpdfium.so`, the launcher `RustyPresenter.sh` (puts the folder on `LD_LIBRARY_PATH`), `portable.txt`, `HOW-TO-START.txt` and the licences |
+| `THIRD-PARTY-LICENSES.txt`, `libmpv-sources-r<N>.tar.xz` | the licences, and the libmpv/FFmpeg source (LGPL-2.1 §6(d)) |
+
+**Portable copies.** A file `portable.txt` beside the program (beside `rustypresenter.exe`, beside
+`RustyPresenter.app`, beside the AppImage) makes the app keep all its data (songs, services, settings,
+`settings-window.json`, logs, backups, assets, downloaded models, FFmpeg and Bibles) in the folder
+`RustyPresenter Data` beside it (`src/platform/data_folder.rs`, which every part of the app asks through
+`server::data_dir`). `RUSTYPRESENTER_DATA` still wins. When that folder cannot be written to, when the app runs from
+inside a zip (Windows' `Temp1_*.zip` folder), or when macOS runs a translocated copy (a downloaded app Finder has
+not moved, run from `.../AppTranslocation/...`, where the folder beside it cannot be seen), the data goes to the
+per-user folder for that run and a message box says why and what to do. Stream keys stay in each computer's
+password store (Credential Manager, Keychain, Secret Service), and recordings go to the computer's Videos folder
+unless Settings names another, as the `HOW-TO-START` texts say. The texts are in `packaging/portable/`.
+
+`packaging/test-release-files.sh` tests `release-files.sh` with fake builds, `zip` and `ditto` (CI `packaging`
+job). `packaging/windows/make-portable.cmd` makes the same Windows zip on a PC from try-latest's build
+(`%LOCALAPPDATA%\RustyPresenter\build-check\release`) and the PC's own libmpv and pdfium in
+`%LOCALAPPDATA%\RustyPresenter\deps`, onto the Desktop.
 
 The packaged binary is `rustypresenter`.
 
@@ -18,6 +50,9 @@ The packaged binary is `rustypresenter`.
 | `packaging/libmpv/` | the LGPL libmpv build scripts (Plan 4 Task 16) |
 | `packaging/windows/installer.nsi` | cargo-packager 0.11.8's NSIS template with the per-user install folder moved (see below) |
 | `make-installer.cmd` (repo root) | builds the setup file on a Windows PC with MinGW, no cargo-packager (see "Windows installer on a PC") |
+| `packaging/release-files.sh` | the release names of the packages, and the portable zip/tar.gz for one OS (see "Release files") |
+| `packaging/portable/` | `portable.txt` (the marker), `HOW-TO-START-<os>.txt` and the Linux launcher `RustyPresenter.sh` |
+| `packaging/windows/make-portable.cmd` | the Windows portable zip on a PC, from try-latest's build |
 | `packaging/windows/make-installer.sh` | what `make-installer.cmd` runs in Git Bash: downloads, checks, licences, staging, makensis |
 | `packaging/windows/rustypresenter.nsi` | the plain NSIS script it compiles |
 | `packaging/windows/test-make-installer.sh`, `check-nsi.py` | tests of both that run without Windows (CI `packaging` job) |
@@ -138,6 +173,31 @@ folder.
 Windows: `packaging/windows/test-make-installer.sh` runs the script with fake downloads, `makensis` and `objdump`,
 and `python3 packaging/windows/check-nsi.py` checks the `.nsi` statically (blocks, calls, `un.` functions, labels,
 defines, variables). Only `makensis` on the PC compiles it for real.
+
+## The Android remote
+
+`apps/android/` is the remote as an Android app (Rust and Slint, `docs/superpowers/specs/2026-11-18-android-app-design.md`).
+It is its own Cargo project with its own `Cargo.lock`: the desktop build never compiles it. Releases carry it as
+`RustyPresenter-<version>-android-remote.apk` (the `android` job of `package.yml`); its version is the app's
+(`apps/android/Cargo.toml`, checked by CI and by a test in `src/server.rs`).
+
+- **Build:** `apps/android/build-apk.ps1 [-Out file.apk] [-Abis arm64-v8a,armeabi-v7a] [-Debug]` (Windows PowerShell
+  or pwsh). It needs the Android SDK (`ANDROID_HOME`, else `.tools/android/sdk` of the main checkout) with
+  `platforms;android-34`, `build-tools;34.0.0` and `ndk;27.2.12479018` (pinned in `pins.env`), a JDK (`keytool`, and
+  `javac` for Slint's small Java helper), and the Rust targets `aarch64-linux-android` and `armv7-linux-androideabi`.
+  No Gradle: `cargo build` per kind of phone with the NDK's clang as linker, then `aapt2 link`, the libraries added
+  as `lib/<abi>/libremote.so`, `zipalign`, `apksigner`. On the PC it builds in
+  `%LOCALAPPDATA%\RustyPresenter\build-android`.
+- **Signing:** with `ANDROID_KEYSTORE`, `ANDROID_KEYSTORE_PASSWORD` and `ANDROID_KEY_ALIAS` when set (CI: the secrets
+  `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`), else with a debug key made once in
+  `%LOCALAPPDATA%\RustyPresenter\remote-debug.keystore`. A phone only updates an app signed with the same key, so
+  releases need the secret set: without it each release is signed by a fresh key and must be uninstalled first.
+- **Test:** `cargo test` in `apps/android` (everything that needs no phone), and
+  `cargo run --example preview --features preview [-- <language>]` to draw every screen to PNGs. On a phone:
+  `adb install -r RustyPresenter-…apk`.
+- **Slint patch:** `apps/android/patches/i-slint-backend-android-activity` (see its `PATCHED.md`): drawn with Slint's
+  software renderer instead of Skia (whose build downloads a prebuilt library from GitHub), and its Java helper
+  buildable with JDK 21+ and build-tools 34. Recheck it when Slint is updated.
 
 ## Bumping a pin
 

@@ -43,7 +43,7 @@ pub fn about_info(snap: &OperatorSnapshot, info: &VideoInfo, conv: Option<&Conve
     let lgpl = info.mpv.as_ref().is_some_and(|m| is_lgpl(&m.configuration));
     AboutInfo {
         version: strings::about_version(&snap.version),
-        data_folder: snap.data_folder.clone(),
+        data_folder: about_folder(&snap.data_folder, crate::platform::data_folder::portable_dir().is_some()),
         video: video.into(),
         mpv: info.mpv.as_ref().map(|m| strings::mpv_line(&m.mpv_version, lgpl, m.api, &m.path)).unwrap_or_default(),
         ffmpeg: info.mpv.as_ref().map(|m| m.ffmpeg_version.clone()).unwrap_or_default(),
@@ -52,6 +52,11 @@ pub fn about_info(snap: &OperatorSnapshot, info: &VideoInfo, conv: Option<&Conve
         libreoffice: conv.map(libreoffice).unwrap_or_default(),
         powerpoint: conv.is_some_and(|c| c.status.powerpoint),
     }
+}
+
+/// The data folder as About shows it; a portable copy says its data is kept beside the app.
+pub fn about_folder(folder: &str, portable: bool) -> String {
+    if portable { crate::tr!("{folder} (a portable copy: the data is kept beside the app)", folder = folder) } else { folder.into() }
 }
 
 fn libreoffice(c: &ConverterInfo) -> String {
@@ -160,6 +165,13 @@ mod tests {
         assert_eq!(a.data_folder, snap.data_folder);
         let gpu = about_info(&snap, &VideoInfo { draw_mode: DrawMode::OpenGl, ..info }, None);
         assert_eq!(gpu.video, "Video: GPU (OpenGL)");
+    }
+
+    #[test]
+    fn about_says_when_the_data_is_beside_the_app() {
+        assert_eq!(about_folder("C:/Data", false), "C:/Data");
+        let p = about_folder("E:/RustyPresenter/RustyPresenter Data", true);
+        assert!(p.starts_with("E:/RustyPresenter/RustyPresenter Data") && p.contains("portable"), "{p}");
     }
 
     #[test]

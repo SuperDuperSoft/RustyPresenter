@@ -47,6 +47,9 @@ jobs:
       # make-installer.cmd's script, with fake downloads, makensis and objdump (no network, no Windows).
       - name: Windows installer script
         run: packaging/windows/test-make-installer.sh
+      # release-files.sh (release names, portable packages), with fake builds, zip and ditto.
+      - name: Release files script
+        run: packaging/test-release-files.sh
       # makensis is not on this runner; the PC runs the real compile.
       - name: Windows installer script (NSIS) checks
         run: python3 packaging/windows/check-nsi.py

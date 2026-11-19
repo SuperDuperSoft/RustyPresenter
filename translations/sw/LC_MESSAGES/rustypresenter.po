@@ -231,6 +231,10 @@ msgstr "Maandishi yako mwenyewe"
 msgid "Not in the words — it is skipped"
 msgstr "Haipo kwenye maneno — inarukwa"
 
+#: ui/dialogs/arrangement.slint
+msgid "Play it twice"
+msgstr "Ipige mara mbili"
+
 #: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "Ondoa"
@@ -239,6 +243,14 @@ msgstr "Ondoa"
 msgid "End"
 msgstr "Mwisho"
 
+#: ui/dialogs/arrangement.slint
+msgid "Drop here to remove"
+msgstr "Dondosha hapa kuondoa"
+
+#: ui/dialogs/arrangement.slint
+msgid "✕ Remove"
+msgstr "✕ Ondoa"
+
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr "Mpangilio ulioandikwa — buruta kubadilisha"
@@ -246,6 +258,10 @@ msgstr "Mpangilio ulioandikwa — buruta kubadilisha"
 #: ui/dialogs/arrangement.slint
 msgid "⟲ Use written order"
 msgstr "⟲ Tumia mpangilio ulioandikwa"
+
+#: ui/dialogs/arrangement.slint
+msgid "Click to play it at the end, or drag it in between the parts"
+msgstr "Bofya ili ipigwe mwishoni, au iburute kati ya sehemu"
 
 #: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
 msgid "Name"
@@ -615,7 +631,7 @@ msgstr "Anza"
 msgid "Delete"
 msgstr "Futa"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings.rs
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint src/ui/dialogs/settings.rs
 msgid "Save"
 msgstr "Hifadhi"
 
@@ -643,7 +659,7 @@ msgstr "Mwisho wa njia ya mwendo"
 msgid "{} · {} builds"
 msgstr "{} · hatua {}"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint src/strings/song_edit.rs
 msgid "New slide"
 msgstr "Slaidi mpya"
 
@@ -659,7 +675,7 @@ msgstr "Sogeza mapema"
 msgid "Move later"
 msgstr "Sogeza baadaye"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint ui/operator/slide-editor.slint src/strings/song_edit.rs
 msgid "Delete slide"
 msgstr "Futa slaidi"
 
@@ -1028,7 +1044,7 @@ msgstr "Mbele kabisa"
 msgid "To back"
 msgstr "Nyuma kabisa"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator/slide-editor.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "Rudufu"
 
@@ -1060,11 +1076,11 @@ msgstr "Buruta ili kusogeza, buruta pembe ili kubadilisha ukubwa, mishale husoge
 msgid "Video: {}"
 msgstr "Video: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint ui/operator/slide-editor.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Ghairi"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Save and show now"
 msgstr "Hifadhi na uonyeshe sasa"
 
@@ -1196,7 +1212,7 @@ msgstr "Rudi"
 msgid "Next"
 msgstr "Ifuatayo"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/settings-phone.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "Funga"
 
@@ -1611,7 +1627,7 @@ msgstr "Anwani: "
 msgid "Pair a phone or tablet"
 msgstr "Unganisha simu au tableti"
 
-#: ui/dialogs/phone.slint
+#: ui/dialogs/phone.slint ui/dialogs/settings-phone.slint
 msgid "QR code"
 msgstr "Msimbo wa QR"
 
@@ -2583,6 +2599,22 @@ msgstr "Chagua nembo"
 msgid "Default background"
 msgstr "Mandharinyuma chaguo-msingi"
 
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow. Or open:"
+msgstr "Changanua kwa kamera ya simu, kisha gusa Ruhusu. Au fungua:"
+
+#: ui/dialogs/settings-phone.slint
+msgid "The first time, the phone warns the page is not private (it comes from this computer): on Android tap Advanced → Proceed; on an iPhone tap Show Details → visit this website."
+msgstr "Mara ya kwanza, simu itaonya kwamba ukurasa si wa faragha (unatoka kwenye kompyuta hii): kwenye Android gusa Advanced → Proceed; kwenye iPhone gusa Show Details → visit this website."
+
+#: ui/dialogs/settings-phone.slint
+msgid "Show the QR code"
+msgstr "Onyesha msimbo wa QR"
+
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow."
+msgstr "Changanua kwa kamera ya simu, kisha gusa Ruhusu."
+
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Use your phone or tablet as a remote"
 msgstr "Tumia simu au tableti yako kama rimoti"
@@ -2676,44 +2708,48 @@ msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this compu
 msgstr "Fungua anwani hii kwenye iPad au simu ya mwimbaji (Wi-Fi ileile ya kompyuta hii)."
 
 #: ui/dialogs/settings-remote.slint
-msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
-msgstr "Simu iliyo kwenye Wi-Fi ya kanisa inaweza kuwa kamera au maikrofoni ya matangazo. Mara ya kwanza, simu inaonya kwamba ukurasa si wa faragha: hilo linatarajiwa, kwa sababu ukurasa unatoka kwenye kompyuta hii. Gusa Advanced (kwenye iPhone, Show Details), kisha endelea kwenye ukurasa. Weka simu ikiwa macho na imechomekwa kwenye chaji."
+msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. Scan its code with the phone's camera: that opens the page and connects the phone, with no code to type. Keep the phone awake and plugged in."
+msgstr "Simu iliyo kwenye Wi-Fi ya kanisa inaweza kuwa kamera au maikrofoni ya matangazo ya moja kwa moja. Changanua msimbo wake kwa kamera ya simu: hufungua ukurasa na kuunganisha simu, bila msimbo wa kuandika. Weka simu iwe macho na imechomekwa kwenye chaji."
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a camera"
 msgstr "Simu kama kamera"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
-msgstr "Kwanza unganisha simu kwa Unganisha simu au tableti. Ikituma picha yake, orodha za kamera huiita Kamera ya simu."
+msgid "Scanning the code connects the phone. Once it sends its picture, the camera lists call it Phone camera."
+msgstr "Kuchanganua msimbo huunganisha simu. Ikishatuma picha yake, orodha za kamera huiita Kamera ya simu."
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open:"
-msgstr "Kwenye simu, fungua:"
+msgid "The phone camera's QR code"
+msgstr "Msimbo wa QR wa kamera ya simu"
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose it in Settings → Livestream → Cameras"
 msgstr "Kisha ichague katika Mipangilio → Matangazo ya moja kwa moja → Kamera"
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a microphone"
 msgstr "Simu kama maikrofoni"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
-msgstr "Kwa maikrofoni ya kubana ya mchungaji au maikrofoni ya ukumbi bila waya. Washa skrini ya jukwaa kwenye simu kwanza: ukurasa wa simu unatoka hapo."
+msgid "For a pastor's lapel or a room microphone without cables. Scanning the code connects the phone; then press Start on it."
+msgstr "Kwa maikrofoni ya kubana ya mchungaji au maikrofoni ya ukumbi bila nyaya. Kuchanganua msimbo huunganisha simu; kisha bonyeza Anza kwenye simu."
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open this page and press Start:"
-msgstr "Kwenye simu, fungua ukurasa huu na ubonyeze Anza:"
-
-#: ui/dialogs/settings-remote.slint
-msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
-msgstr "Skrini ya jukwaa kwenye simu imezimwa, kwa hiyo simu bado haiwezi kufikia ukurasa huu."
+msgid "The phone microphone's QR code"
+msgstr "Msimbo wa QR wa maikrofoni ya simu"
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose Phone in Settings → Livestream → Sound"
 msgstr "Kisha chagua Simu katika Mipangilio → Matangazo ya moja kwa moja → Sauti"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Let phones in"
+msgstr "Ruhusu simu ziingie"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Windows asks for an administrator's OK, then lets RustyPresenter in on private and public networks."
+msgstr "Windows huomba idhini ya msimamizi, kisha huiruhusu RustyPresenter kwenye mitandao ya binafsi na ya umma."
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Control from other gear (TCP)"
@@ -3615,7 +3651,7 @@ msgstr "Tunaanza hivi karibuni huonekana kabla ya ibada, pamoja na muda unaohesa
 msgid "Starting soon"
 msgstr "Tunaanza hivi karibuni"
 
-#: ui/dialogs/settings-stream.slint src/stream/scene.rs src/strings/song.rs
+#: ui/dialogs/settings-stream.slint ui/dialogs/song-editor.slint src/stream/scene.rs src/strings/song.rs
 msgid "Ending"
 msgstr "Mwisho"
 
@@ -4120,6 +4156,42 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— majina ya sehemu kwenye mstari wake; mstari mtupu ndani ya sehemu huanza slaidi mpya"
 
 #: ui/dialogs/song-editor.slint
+msgid "Add a part:"
+msgstr "Ongeza sehemu:"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Verse"
+msgstr "Ubeti"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs src/strings/stage.rs
+msgid "Chorus"
+msgstr "Kiitikio"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Pre-chorus"
+msgstr "Kabla ya kiitikio"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Bridge"
+msgstr "Daraja"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Tag"
+msgstr "Kiambatisho"
+
+#: ui/dialogs/song-editor.slint
+msgid "Intro (chords only)"
+msgstr "Utangulizi (chodi pekee)"
+
+#: ui/dialogs/song-editor.slint
+msgid "A part the band plays with no words: type its chords like [G] [D]"
+msgstr "Sehemu ambayo bendi inapiga bila maneno: andika chodi zake kama [G] [D]"
+
+#: ui/dialogs/song-editor.slint
+msgid "Adds this part after the one the cursor is in"
+msgstr "Huongeza sehemu hii baada ya ile kishale kilipo"
+
+#: ui/dialogs/song-editor.slint
 msgid "Insert slide break"
 msgstr "Weka mgawanyiko wa slaidi"
 
@@ -4143,7 +4215,7 @@ msgstr ""
 "[Kiitikio]\n"
 "Minyororo imekatika…"
 
-#: ui/dialogs/song-editor.slint
+#: ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Order"
 msgstr "Mpangilio"
 
@@ -4152,8 +4224,8 @@ msgid "(optional)"
 msgstr "(si lazima)"
 
 #: ui/dialogs/song-editor.slint
-msgid "Leave empty to use the written order"
-msgstr "Acha tupu ili kutumia mpangilio ulioandikwa"
+msgid "Or type the order here. Leave it empty to use the written order"
+msgstr "Au andika mpangilio hapa. Acha wazi kutumia mpangilio ulioandikwa"
 
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Fewer lines on each slide of this song"
@@ -4214,6 +4286,10 @@ msgstr "Onyesha chodi kama zilivyoandikwa"
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
 msgstr "Slaidi huonekana hapa unapoandika. Weka majina ya sehemu kama “[Ubeti 1]” au “[Kiitikio]” kwenye mstari wake."
+
+#: ui/dialogs/song-editor.slint
+msgid "Click to go to its words"
+msgstr "Bofya kwenda kwenye maneno yake"
 
 #: ui/dialogs/song-editor.slint
 msgid "Delete song"
@@ -5183,7 +5259,7 @@ msgstr "Sek 10 za mwisho"
 msgid "Jump to 10 seconds before the end, to check how it finishes"
 msgstr "Ruka hadi sekunde 10 kabla ya mwisho, ili kuona jinsi inavyoisha"
 
-#: ui/operator/live.slint
+#: ui/operator/live.slint ui/operator/slide-editor.slint ui/operator/slides.slint
 msgid "Edit words"
 msgstr "Hariri maneno"
 
@@ -5527,6 +5603,106 @@ msgstr "Ongeza nyimbo, video na slaidi, andika mstari wa Biblia juu, au buruta f
 msgid "Filter the service"
 msgstr "Chuja ibada"
 
+#: ui/operator/slide-editor.slint
+msgid "Split here…"
+msgstr "Gawanya hapa…"
+
+#: ui/operator/slide-editor.slint
+msgid "Join with next"
+msgstr "Unganisha na inayofuata"
+
+#: ui/operator/slide-editor.slint
+msgid "Add a slide after"
+msgstr "Ongeza slaidi baada yake"
+
+#: ui/operator/slide-editor.slint
+msgid "Change section…"
+msgstr "Badilisha sehemu…"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part earlier"
+msgstr "Sogeza sehemu hii mbele"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part later"
+msgstr "Sogeza sehemu hii nyuma"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit the whole song…"
+msgstr "Hariri wimbo wote…"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit chords too"
+msgstr "Hariri chodi pia"
+
+#: ui/operator/slide-editor.slint
+msgid "The slide’s words"
+msgstr "Maneno ya slaidi"
+
+#: ui/operator/slide-editor.slint
+msgid "Type the words for this slide"
+msgstr "Andika maneno ya slaidi hii"
+
+#: ui/operator/slide-editor.slint
+msgid "Chords"
+msgstr "Chodi"
+
+#: ui/operator/slide-editor.slint
+msgid "Enter saves · Shift+Enter starts a new line · Esc cancels"
+msgstr "Enter huhifadhi · Shift+Enter huanza mstari mpya · Esc hughairi"
+
+#: ui/operator/slide-editor.slint
+msgid "Split here"
+msgstr "Gawanya hapa"
+
+#: ui/operator/slide-editor.slint
+msgid "A new slide starts at the line the cursor is on"
+msgstr "Slaidi mpya inaanza kwenye mstari wa kishale"
+
+#: ui/operator/slide-editor.slint
+msgid "Add slide"
+msgstr "Ongeza slaidi"
+
+#: ui/operator/slide-editor.slint
+msgid "From this slide on, this part is:"
+msgstr "Kuanzia slaidi hii, sehemu hii ni:"
+
+#: ui/operator/slide-editor.slint
+msgid "Quick order ▾"
+msgstr "Mpangilio wa haraka ▾"
+
+#: ui/operator/slide-editor.slint
+msgid "Ready-made orders for this song"
+msgstr "Mipangilio iliyo tayari kwa wimbo huu"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus after every verse"
+msgstr "Kiitikio baada ya kila ubeti"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus again at the end"
+msgstr "Kiitikio tena mwishoni"
+
+#: ui/operator/slide-editor.slint
+msgid "Just for this service"
+msgstr "Kwa ibada hii tu"
+
+#: ui/operator/slide-editor.slint
+msgid "Save as the usual order"
+msgstr "Hifadhi kama mpangilio wa kawaida"
+
+#: ui/operator/slide-editor.slint
+msgid "Every service plays the song in this order from now on"
+msgstr "Kuanzia sasa kila ibada itapiga wimbo kwa mpangilio huu"
+
+#: ui/operator/slide-editor.slint
+msgid "Reset to the song’s order"
+msgstr "Rudi kwenye mpangilio wa wimbo"
+
+#: ui/operator/slide-editor.slint
+msgid "This service plays the song in its usual order again"
+msgstr "Ibada hii itapiga wimbo kwa mpangilio wake wa kawaida tena"
+
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
 msgstr "Tuandae ibada ya Jumapili hii"
@@ -5554,6 +5730,10 @@ msgstr "Tumia kitufe kikubwa cha Ifuatayo (au kitufe →) wakati wa ibada."
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "Skrini"
+
+#: ui/operator/slides.slint
+msgid "More for this slide"
+msgstr "Zaidi kwa slaidi hii"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
@@ -6175,7 +6355,7 @@ msgstr "{name} — faili iliyoletwa"
 msgid "Give the song a title."
 msgstr "Upe wimbo kichwa."
 
-#: src/app.rs
+#: src/app.rs src/song_edit/actions.rs
 msgid "That song is not in the library any more."
 msgstr "Wimbo huo haupo tena kwenye maktaba."
 
@@ -7350,6 +7530,94 @@ msgstr[1] "Faili {n} zimeondolewa kwenye maktaba ya midia na {size} zimeachiliwa
 msgid "Sunday Service"
 msgstr "Ibada ya Jumapili"
 
+#: src/network/phone_link.rs
+msgid "Waiting for a phone"
+msgstr "Inasubiri simu"
+
+#: src/network/phone_link.rs
+msgid "Phone connected: {name}"
+msgstr "Simu imeunganishwa: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is connected"
+msgstr "Simu imeunganishwa"
+
+#: src/network/phone_link.rs
+msgid "Sending pictures: {name}"
+msgstr "Inatuma picha: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is sending pictures"
+msgstr "Simu inatuma picha"
+
+#: src/network/phone_link.rs
+msgid "Sending sound: {name}"
+msgstr "Inatuma sauti: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is sending sound"
+msgstr "Simu inatuma sauti"
+
+#: src/network/phone_link.rs
+msgid "The secure server is starting…"
+msgstr "Seva salama inaanza…"
+
+#: src/network/phone_link.rs
+msgid "The secure server isn't running: {why}"
+msgstr "Seva salama haifanyi kazi: {why}"
+
+#: src/network/phone_link.rs
+msgid "port {port} is in use by another program. Close that program, or restart this computer."
+msgstr "mlango {port} unatumiwa na programu nyingine. Funga programu hiyo, au washa upya kompyuta hii."
+
+#: src/network/phone_link.rs
+msgid "Windows keeps port {port} for itself. Restart this computer and try again."
+msgstr "Windows huuhifadhi mlango {port} kwa ajili yake yenyewe. Washa upya kompyuta hii na ujaribu tena."
+
+#: src/network/phone_link.rs
+msgid "port {port} cannot be used ({error})."
+msgstr "mlango {port} hauwezi kutumika ({error})."
+
+#: src/network/phone_link.rs
+msgid "it could not make its certificate ({error})."
+msgstr "haikuweza kutengeneza cheti chake ({error})."
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out on this network (Windows calls it a public network). Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter on public networks (port {port})."
+msgstr "Huenda firewall ya kompyuta hii inazuia simu: Windows Firewall haiziruhusu kwenye mtandao huu (Windows huuita mtandao wa umma). Bofya “Ruhusu simu ziingie”, au katika Windows Security → Firewall, ruhusu RustyPresenter kwenye mitandao ya umma (mlango {port})."
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out. Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter (port {port})."
+msgstr "Huenda firewall ya kompyuta hii inazuia simu: Windows Firewall haiziruhusu. Bofya “Ruhusu simu ziingie”, au katika Windows Security → Firewall, ruhusu RustyPresenter (mlango {port})."
+
+#: src/network/phone_link.rs
+msgid "This QR code was already used or is too old. Scan the code in RustyPresenter again (Settings → Remote and network → Phone camera and microphone)."
+msgstr "Msimbo huu wa QR umeshatumika au ni wa zamani sana. Changanua msimbo katika RustyPresenter tena (Mipangilio → Rimoti na mtandao → Kamera na maikrofoni ya simu)."
+
+#: src/network/phone_link.rs
+msgid "Type the remote's password (set in RustyPresenter's Settings → Remote and network)."
+msgstr "Andika nenosiri la rimoti (lililowekwa katika RustyPresenter, Mipangilio → Rimoti na mtandao)."
+
+#: src/platform/data_folder.rs
+msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
+msgstr "Nakala hii ya RustyPresenter huhifadhi data yake kando yake, katika {wanted}, lakini folda hiyo haiwezi kubadilishwa (huenda ni USB iliyofungwa au CD). Kwa sasa kazi yako inahifadhiwa kwenye kompyuta hii, katika {here}. Ili kuihifadhi kando ya programu, nakili folda nzima ya RustyPresenter mahali panapoweza kubadilishwa na uifungue kutoka hapo."
+
+#: src/platform/data_folder.rs
+msgid "RustyPresenter was opened from inside the zip file, so it cannot keep its data beside it. For now your work is kept on this computer, in {here}. Close RustyPresenter, unzip the whole file first (on Windows: right-click it, then Extract All), and open RustyPresenter from the folder that makes."
+msgstr "RustyPresenter ilifunguliwa kutoka ndani ya faili la zip, kwa hiyo haiwezi kuhifadhi data yake kando yake. Kwa sasa kazi yako inahifadhiwa kwenye kompyuta hii, katika {here}. Funga RustyPresenter, fungua zip ya faili zima kwanza (kwenye Windows: bofya kulia juu yake, kisha Extract All), na ufungue RustyPresenter kutoka kwenye folda itakayotokea."
+
+#: src/platform/data_folder.rs
+msgid "macOS opened a locked copy of RustyPresenter, because it has not been moved since it was downloaded. For now your work is kept on this computer, in {here}. Close RustyPresenter. In Finder, drag RustyPresenter out of its folder (onto the Desktop, say) and back in again, or into Applications if it came from the .dmg file. Then open it again."
+msgstr "macOS ilifungua nakala iliyofungwa ya RustyPresenter, kwa sababu haijahamishwa tangu ilipopakuliwa. Kwa sasa kazi yako inahifadhiwa kwenye kompyuta hii, katika {here}. Funga RustyPresenter. Katika Finder, buruta RustyPresenter nje ya folda yake (kwenye Desktop, kwa mfano) na uirudishe tena, au kwenye Applications ikiwa ilitoka kwenye faili la .dmg. Kisha uifungue tena."
+
+#: src/platform/firewall.rs
+msgid "Windows was not given the OK, so nothing changed."
+msgstr "Windows haikupewa idhini, kwa hiyo hakuna kilichobadilika."
+
+#: src/platform/firewall.rs
+msgid "Windows Firewall could not be changed. Ask whoever looks after this computer to let RustyPresenter in for private and public networks."
+msgstr "Windows Firewall haikuweza kubadilishwa. Mwombe anayeishughulikia kompyuta hii airuhusu RustyPresenter kwenye mitandao ya binafsi na ya umma."
+
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
 msgstr "Skrini hazifanyi kazi."
@@ -8367,10 +8635,6 @@ msgid "A phone only lets a page use its camera when the page is private. Tap the
 msgstr "Simu huruhusu ukurasa kutumia kamera yake tu wakati ukurasa ni wa faragha. Gusa kitufe hapa chini. Kisha simu itaonya kwamba muunganisho si wa faragha: hilo linatarajiwa, kwa sababu ukurasa unatoka kwenye kompyuta ya kanisa lako, si kutoka intaneti."
 
 #: src/stream/phone_camera.rs
-msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
-msgstr "Gusa Advanced (au Show Details), kisha Proceed (au Visit this website). Simu huikumbuka, kwa hiyo hii inahitajika mara moja tu."
-
-#: src/stream/phone_camera.rs
 msgid "Open the camera page"
 msgstr "Fungua ukurasa wa kamera"
 
@@ -8383,12 +8647,12 @@ msgid "Connect this phone"
 msgstr "Unganisha simu hii"
 
 #: src/stream/phone_camera.rs
-msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
-msgstr "Kwenye kompyuta ya maonyesho, bofya Simu, kisha Unganisha simu au tableti, na uandike hapa msimbo wa tarakimu 6."
+msgid "Scan the camera's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone). Or, on the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "Changanua msimbo wa QR wa kamera katika RustyPresenter (Mipangilio → Rimoti na mtandao → Kamera na maikrofoni ya simu). Au, kwenye kompyuta ya maonyesho, bofya Simu, kisha Unganisha simu au tableti, na uandike msimbo wa tarakimu 6 hapa."
 
 #: src/stream/phone_camera.rs
-msgid "6-digit code"
-msgstr "Msimbo wa tarakimu 6"
+msgid "Connecting this phone…"
+msgstr "Inaunganisha simu hii…"
 
 #: src/stream/phone_camera.rs
 msgid "Like Balcony or Side. The computer lists this phone by this name."
@@ -8418,7 +8682,7 @@ msgstr "Inatuma kwa kompyuta"
 msgid "Connecting to the computer…"
 msgstr "Inaunganisha na kompyuta…"
 
-#: src/stream/phone_camera.rs
+#: src/stream/phone_camera.rs src/stream/phone_mic.rs
 msgid "The computer cannot be reached. Trying again…"
 msgstr "Kompyuta haifikiki. Inajaribu tena…"
 
@@ -8446,6 +8710,18 @@ msgstr "Kwenye kompyuta, chagua simu hii katika Mipangilio → Matangazo ya moja
 msgid "This computer is not on a network, so no phone can reach it."
 msgstr "Kompyuta hii haiko kwenye mtandao, kwa hiyo hakuna simu inayoweza kuifikia."
 
+#: src/stream/phone_camera.rs
+msgid "Android (Chrome): tap Advanced, then Proceed. iPhone (Safari): tap Show Details, then visit this website, then Visit Website. The phone remembers it, so this is only needed once."
+msgstr "Android (Chrome): gusa Advanced, kisha Proceed. iPhone (Safari): gusa Show Details, kisha visit this website, kisha Visit Website. Simu huikumbuka, kwa hiyo hii inahitajika mara moja tu."
+
+#: src/stream/phone_camera.rs
+msgid "No Proceed button? In Chrome on Android, open chrome://flags, search for \"insecure origins\", turn on \"Insecure origins treated as secure\", type {address} in its box, tap Relaunch, then open this page again."
+msgstr "Hakuna kitufe cha Proceed? Katika Chrome kwenye Android, fungua chrome://flags, tafuta \"insecure origins\", washa \"Insecure origins treated as secure\", andika {address} kwenye kisanduku chake, gusa Relaunch, kisha fungua ukurasa huu tena."
+
+#: src/stream/phone_camera.rs
+msgid "6-digit code"
+msgstr "Msimbo wa tarakimu 6"
+
 #: src/stream/phone_mic.rs
 msgid "Phone microphone (open its page on the phone)"
 msgstr "Maikrofoni ya simu (fungua ukurasa wake kwenye simu)"
@@ -8467,16 +8743,20 @@ msgid "Sending, but the stream is not using this phone yet. Choose \"Phone micro
 msgstr "Inatuma, lakini matangazo bado hayatumii simu hii. Chagua \"Maikrofoni ya simu\" katika Mipangilio → Matangazo ya moja kwa moja → Sauti, kisha rusha moja kwa moja."
 
 #: src/stream/phone_mic.rs
-msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
-msgstr "Simu huruhusu ukurasa salama tu kutumia maikrofoni yake. Fungua ukurasa salama hapa chini; mara ya kwanza, simu huonya kwamba si wa faragha: gusa Advanced (au Show Details) na uendelee hadi huko."
+msgid "The phone only lets a secure page use its microphone. Open the secure page below. The first time, the phone warns that the connection is not private: that is expected, because the page comes from your church's own computer."
+msgstr "Simu huruhusu ukurasa salama tu kutumia maikrofoni yake. Fungua ukurasa salama ulio hapa chini. Mara ya kwanza, simu itaonya kwamba muunganisho si wa faragha: hilo ni kawaida, kwa sababu ukurasa unatoka kwenye kompyuta ya kanisa lako lenyewe."
 
 #: src/stream/phone_mic.rs
 msgid "The phone did not let the page use its microphone. Allow it in the browser's settings for this page, then try again."
 msgstr "Simu haikuruhusu ukurasa kutumia maikrofoni yake. Iruhusu katika mipangilio ya kivinjari kwa ukurasa huu, kisha ujaribu tena."
 
 #: src/stream/phone_mic.rs
-msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
-msgstr "Washa skrini ya jukwaa kwenye simu katika RustyPresenter (Mipangilio → Rimoti na mtandao), na uingie humo kwanza kwenye simu hii."
+msgid "Connect this phone first: scan the microphone's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone), or type the 6-digit code from Phone → Pair a phone or tablet."
+msgstr "Unganisha simu hii kwanza: changanua msimbo wa QR wa maikrofoni katika RustyPresenter (Mipangilio → Rimoti na mtandao → Kamera na maikrofoni ya simu), au andika msimbo wa tarakimu 6 kutoka Simu → Unganisha simu au tableti."
+
+#: src/stream/phone_mic.rs
+msgid "Connected. Tap Start, then Allow when the phone asks for the microphone."
+msgstr "Imeunganishwa. Gusa Anza, kisha Ruhusu simu ikiomba maikrofoni."
 
 #: src/stream/preflight.rs
 msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Livestream → Cameras. The stream shows the slides in its place."
@@ -11000,26 +11280,6 @@ msgid "The saved sound output (not connected)"
 msgstr "Kifaa cha sauti kilichohifadhiwa (hakijaunganishwa)"
 
 #: src/strings/song.rs
-msgid "Verse"
-msgstr "Ubeti"
-
-#: src/strings/song.rs src/strings/stage.rs
-msgid "Chorus"
-msgstr "Kiitikio"
-
-#: src/strings/song.rs
-msgid "Pre-chorus"
-msgstr "Kabla ya kiitikio"
-
-#: src/strings/song.rs
-msgid "Bridge"
-msgstr "Daraja"
-
-#: src/strings/song.rs
-msgid "Tag"
-msgstr "Kiambatisho"
-
-#: src/strings/song.rs
 msgid "Intro"
 msgstr "Utangulizi"
 
@@ -11130,6 +11390,94 @@ msgstr "{section} — bonyeza {key}"
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
 msgstr "{section} · slaidi {page} kati ya {pages}"
+
+#: src/strings/song_edit.rs
+msgid "That slide is not in the song any more. Try again."
+msgstr "Slaidi hiyo haipo tena kwenye wimbo. Jaribu tena."
+
+#: src/strings/song_edit.rs
+msgid "These two slides are one part shown {lines} lines at a time. Use Lines + to show more lines on each slide."
+msgstr "Slaidi hizi mbili ni sehemu moja inayoonyeshwa mistari {lines} kwa wakati. Tumia Mistari + kuonyesha mistari zaidi."
+
+#: src/strings/song_edit.rs
+msgid "This is the last slide of its part, so there is nothing to join it with."
+msgstr "Hii ni slaidi ya mwisho ya sehemu yake, hivyo hakuna cha kuunganisha."
+
+#: src/strings/song_edit.rs
+msgid "Put the cursor on the line that should start the new slide."
+msgstr "Weka kishale kwenye mstari unaopaswa kuanza slaidi mpya."
+
+#: src/strings/song_edit.rs
+msgid "This is the song’s only slide. Delete the song in the library instead."
+msgstr "Hii ndiyo slaidi pekee ya wimbo. Futa wimbo kwenye maktaba badala yake."
+
+#: src/strings/song_edit.rs
+msgid "{part} · slide {n} of {count}"
+msgstr "{part} · slaidi {n} kati ya {count}"
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Your change shows every time."
+msgstr "{part} inapigwa mara {times} katika wimbo huu. Badiliko lako litaonekana kila mara."
+
+#: src/strings/song_edit.rs
+msgid "This slide is chords only. Type the chords in square brackets, like [G] [D]."
+msgstr "Slaidi hii ina chodi pekee. Andika chodi ndani ya mabano mraba, kama [G] [D]."
+
+#: src/strings/song_edit.rs
+msgid "The chords stay over the same words. To change them, tick Edit chords too."
+msgstr "Chodi zinabaki juu ya maneno yale yale. Kuzibadilisha, weka alama kwenye Hariri chodi pia."
+
+#: src/strings/song_edit.rs
+msgid "Slide saved"
+msgstr "Slaidi imehifadhiwa"
+
+#: src/strings/song_edit.rs
+msgid "Split into two slides"
+msgstr "Imegawanywa kuwa slaidi mbili"
+
+#: src/strings/song_edit.rs
+msgid "Joined with the next slide"
+msgstr "Imeunganishwa na slaidi inayofuata"
+
+#: src/strings/song_edit.rs
+msgid "Slide added"
+msgstr "Slaidi imeongezwa"
+
+#: src/strings/song_edit.rs
+msgid "Slide deleted"
+msgstr "Slaidi imefutwa"
+
+#: src/strings/song_edit.rs
+msgid "Slide copied"
+msgstr "Slaidi imenakiliwa"
+
+#: src/strings/song_edit.rs
+msgid "This part is now {part}"
+msgstr "Sehemu hii sasa ni {part}"
+
+#: src/strings/song_edit.rs
+msgid "Order changed for this service"
+msgstr "Mpangilio umebadilishwa kwa ibada hii"
+
+#: src/strings/song_edit.rs
+msgid "This is now the song’s usual order"
+msgstr "Huu sasa ni mpangilio wa kawaida wa wimbo"
+
+#: src/strings/song_edit.rs
+msgid "Back to the song’s usual order"
+msgstr "Imerudi kwenye mpangilio wa kawaida wa wimbo"
+
+#: src/strings/song_edit.rs
+msgid "This song has no chorus."
+msgstr "Wimbo huu hauna kiitikio."
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Delete this slide every time it plays?"
+msgstr "{part} inapigwa mara {times} katika wimbo huu. Futa slaidi hii kila inapopigwa?"
+
+#: src/strings/song_edit.rs
+msgid "Only song slides can be edited here. Use Edit for this item."
+msgstr "Slaidi za nyimbo pekee zinaweza kuhaririwa hapa. Tumia Hariri kwa kipengee hiki."
 
 #: src/strings/stage.rs
 msgid "Classic"
@@ -12158,6 +12506,10 @@ msgstr "Kapo kwenye fret {fret} ili kupiga maumbo ya {key}"
 msgid "Capo {fret} to play the chords as written"
 msgstr "Kapo kwenye fret {fret} ili kupiga chodi kama zilivyoandikwa"
 
+#: src/ui/dialogs/about.rs
+msgid "{folder} (a portable copy: the data is kept beside the app)"
+msgstr "{folder} (nakala ya kubeba: data inahifadhiwa kando ya programu)"
+
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
 msgstr "Weka kipengele cha ibada kwenye skrini"
@@ -12653,6 +13005,14 @@ msgstr "Kufuata kiotomatiki kunahitaji modeli ya sauti ({size}). Ipakue sasa?"
 #: src/ui/dialogs/settings_model.rs src/ui/operator/record.rs src/video/bench.rs
 msgid "Not now"
 msgstr "Si sasa"
+
+#: src/ui/dialogs/settings_phone.rs
+msgid "Waiting for Windows…"
+msgstr "Inasubiri Windows…"
+
+#: src/ui/dialogs/settings_phone.rs
+msgid "Done: phones can now reach RustyPresenter through Windows Firewall."
+msgstr "Imekamilika: sasa simu zinafikia RustyPresenter kupitia Windows Firewall."
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The output the app plays its sound to"
@@ -13534,6 +13894,39 @@ msgstr "yt-dlp haikuhifadhi video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "si faili ya midia"
+
+#~ msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+#~ msgstr "Simu iliyo kwenye Wi-Fi ya kanisa inaweza kuwa kamera au maikrofoni ya matangazo. Mara ya kwanza, simu inaonya kwamba ukurasa si wa faragha: hilo linatarajiwa, kwa sababu ukurasa unatoka kwenye kompyuta hii. Gusa Advanced (kwenye iPhone, Show Details), kisha endelea kwenye ukurasa. Weka simu ikiwa macho na imechomekwa kwenye chaji."
+
+#~ msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
+#~ msgstr "Kwanza unganisha simu kwa Unganisha simu au tableti. Ikituma picha yake, orodha za kamera huiita Kamera ya simu."
+
+#~ msgid "On the phone, open:"
+#~ msgstr "Kwenye simu, fungua:"
+
+#~ msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
+#~ msgstr "Kwa maikrofoni ya kubana ya mchungaji au maikrofoni ya ukumbi bila waya. Washa skrini ya jukwaa kwenye simu kwanza: ukurasa wa simu unatoka hapo."
+
+#~ msgid "On the phone, open this page and press Start:"
+#~ msgstr "Kwenye simu, fungua ukurasa huu na ubonyeze Anza:"
+
+#~ msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
+#~ msgstr "Skrini ya jukwaa kwenye simu imezimwa, kwa hiyo simu bado haiwezi kufikia ukurasa huu."
+
+#~ msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
+#~ msgstr "Gusa Advanced (au Show Details), kisha Proceed (au Visit this website). Simu huikumbuka, kwa hiyo hii inahitajika mara moja tu."
+
+#~ msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+#~ msgstr "Kwenye kompyuta ya maonyesho, bofya Simu, kisha Unganisha simu au tableti, na uandike hapa msimbo wa tarakimu 6."
+
+#~ msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
+#~ msgstr "Simu huruhusu ukurasa salama tu kutumia maikrofoni yake. Fungua ukurasa salama hapa chini; mara ya kwanza, simu huonya kwamba si wa faragha: gusa Advanced (au Show Details) na uendelee hadi huko."
+
+#~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
+#~ msgstr "Washa skrini ya jukwaa kwenye simu katika RustyPresenter (Mipangilio → Rimoti na mtandao), na uingie humo kwanza kwenye simu hii."
+
+#~ msgid "Leave empty to use the written order"
+#~ msgstr "Acha tupu ili kutumia mpangilio ulioandikwa"
 
 #~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
 #~ msgstr "Buruta juu ya paneli nyingine: kando yake, au katikati yake ili kushiriki nafasi yake kama kichupo"

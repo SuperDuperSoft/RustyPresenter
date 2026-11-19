@@ -1,0 +1,24 @@
+RustyPresenter (portable copy for Linux, 64-bit PC)
+
+To start
+  1. Unpack it: tar -xzf RustyPresenter-<version>-linux-portable.tar.gz (or right-click it, Extract Here).
+  2. Double-click RustyPresenter.sh (choose "Run" if asked), or run ./RustyPresenter.sh in a terminal.
+     It starts rustypresenter with the video and PDF libraries in this folder.
+  3. If videos do not play, install the system's video player library (on Ubuntu or Debian:
+     sudo apt install libmpv2) and start it again.
+
+Where your work is kept
+  Everything RustyPresenter saves goes in the folder "RustyPresenter Data" beside it, because of the file
+  portable.txt. Copy the whole RustyPresenter folder to a USB stick and it works on other Linux PCs.
+  Close RustyPresenter before you unplug the stick. If the folder cannot be changed (a locked stick),
+  RustyPresenter says so when it starts and keeps your work on that computer for that time.
+
+The AppImage is portable too: put a file named portable.txt beside the .AppImage file and it keeps its data in
+"RustyPresenter Data" beside it.
+
+What stays on each computer
+  Stream keys are kept in the desktop's password store (GNOME Keyring, KWallet...), never in the data folder:
+  type them once on each computer. Recordings go to the computer's Videos folder unless you choose another
+  folder in Settings.
+
+To keep the data on the computer instead (in ~/.local/share/RustyPresenter), delete portable.txt.

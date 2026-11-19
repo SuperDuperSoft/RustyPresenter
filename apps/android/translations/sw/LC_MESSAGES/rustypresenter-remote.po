@@ -1,0 +1,244 @@
+# The Android remote's words (apps/android/ui). Where a text is the same as the desktop app's, its translation
+# is the desktop's (translations/sw); the rest were translated for the app (November 18, 2026).
+msgid ""
+msgstr ""
+"Language: sw\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Remote"
+msgstr "Rimoti"
+
+msgid "Stage"
+msgstr "Jukwaa"
+
+msgid "On air"
+msgstr "Hewani"
+
+msgid "Microphone"
+msgstr "Maikrofoni"
+
+msgid "Camera"
+msgstr "Kamera"
+
+msgid "Cancel"
+msgstr "Ghairi"
+
+msgid "Continue"
+msgstr "Endelea"
+
+msgid "Choose the presentation computer. It needs RustyPresenter open and this phone on the same Wi-Fi."
+msgstr "Chagua kompyuta ya maonyesho. Inahitaji RustyPresenter iwe wazi, na simu hii iwe kwenye Wi-Fi ileile."
+
+msgid "Looking for RustyPresenter on this Wi-Fi…"
+msgstr "Inatafuta RustyPresenter kwenye Wi-Fi hii…"
+
+msgid "On this Wi-Fi"
+msgstr "Kwenye Wi-Fi hii"
+
+msgid "Search again"
+msgstr "Tafuta tena"
+
+msgid "Or scan the QR code"
+msgstr "Au changanua msimbo wa QR"
+
+msgid "On the computer, click Phone → Pair a phone or tablet, then scan the code it shows."
+msgstr "Kwenye kompyuta, bofya Simu → Unganisha simu au tableti, kisha changanua msimbo unaoonyeshwa."
+
+msgid "Scan the QR code"
+msgstr "Changanua msimbo wa QR"
+
+msgid "Or type the address"
+msgstr "Au andika anwani"
+
+msgid "Connect"
+msgstr "Unganisha"
+
+msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "Kwenye kompyuta ya maonyesho, bofya Simu, kisha Unganisha simu au tableti, na uandike hapa msimbo wa tarakimu 6."
+
+msgid "This remote needs a password too."
+msgstr "Rimoti hii pia inahitaji nenosiri."
+
+msgid "Password"
+msgstr "Nenosiri"
+
+msgid "Choose another computer"
+msgstr "Chagua kompyuta nyingine"
+
+msgid "Connecting…"
+msgstr "Inaunganisha…"
+
+msgid "On screen"
+msgstr "Kwenye skrini"
+
+msgid "Hide presenter notes"
+msgstr "Ficha maelezo ya mwasilishaji"
+
+msgid "Show presenter notes"
+msgstr "Onyesha maelezo ya mwasilishaji"
+
+msgid "Back"
+msgstr "Rudi"
+
+msgid "Next"
+msgstr "Ifuatayo"
+
+msgid "Play video"
+msgstr "Cheza video"
+
+msgid "Pause video"
+msgstr "Sitisha video"
+
+msgid "Up next"
+msgstr "Kinachofuata"
+
+msgid "Clear all"
+msgstr "Safisha zote"
+
+msgid "Text"
+msgstr "Maandishi"
+
+msgid "Media"
+msgstr "Midia"
+
+msgid "Audio"
+msgstr "Sauti"
+
+msgid "Logo"
+msgstr "Nembo"
+
+msgid "Service"
+msgstr "Ibada"
+
+msgid "Tap a slide to put it on the screen."
+msgstr "Gusa slaidi ili kuiweka kwenye skrini."
+
+msgid "Stage screen"
+msgstr "Skrini ya jukwaa"
+
+msgid "Not connected"
+msgstr "Haijaunganishwa"
+
+msgid "This stage screen needs a password."
+msgstr "Skrini hii ya jukwaa inahitaji nenosiri."
+
+msgid "Open"
+msgstr "Fungua"
+
+msgid "Camera {}"
+msgstr "Kamera {}"
+
+msgid "Phone microphone"
+msgstr "Maikrofoni ya simu"
+
+msgid "Sends this phone's microphone to the livestream."
+msgstr "Hutuma maikrofoni ya simu hii kwenye matangazo ya moja kwa moja."
+
+msgid "Stop"
+msgstr "Simamisha"
+
+msgid "Start sending sound"
+msgstr "Anza kutuma sauti"
+
+msgid "Keep this screen open while it sends."
+msgstr "Acha skrini hii wazi wakati inatuma."
+
+msgid "Phone camera"
+msgstr "Kamera ya simu"
+
+msgid "Camera name"
+msgstr "Jina la kamera"
+
+msgid "Back camera"
+msgstr "Kamera ya nyuma"
+
+msgid "Front camera"
+msgstr "Kamera ya mbele"
+
+msgid "Start the camera"
+msgstr "Anzisha kamera"
+
+msgid "Turn the phone sideways for a full picture."
+msgstr "Geuza simu kwa ubavu kwa picha kamili."
+
+msgid "On the computer, choose this phone in Settings → Livestream → Cameras."
+msgstr "Kwenye kompyuta, chagua simu hii katika Mipangilio → Matangazo ya moja kwa moja → Kamera."
+
+msgid "No computer found yet. Check that RustyPresenter is open on the presentation computer and that this phone is on the same Wi-Fi."
+msgstr "Bado hakuna kompyuta iliyopatikana. Hakikisha RustyPresenter iko wazi kwenye kompyuta ya maonyesho na kwamba simu hii iko kwenye Wi-Fi ileile."
+
+msgid "This phone is not on a Wi-Fi network. Connect to the church's Wi-Fi, then search again."
+msgstr "Simu hii haiko kwenye mtandao wa Wi-Fi. Unganisha kwenye Wi-Fi ya kanisa, kisha tafuta tena."
+
+msgid "That address isn't right. It looks like 192.168.1.20 — the computer shows it under Pair a phone or tablet."
+msgstr "Anwani hiyo si sahihi. Inaonekana kama 192.168.1.20 — kompyuta inaionyesha chini ya Unganisha simu au tableti."
+
+msgid "Could not reach {}. Check that RustyPresenter is open there and that this phone is on the same Wi-Fi."
+msgstr "Imeshindwa kufikia {}. Hakikisha RustyPresenter iko wazi huko na kwamba simu hii iko kwenye Wi-Fi ileile."
+
+msgid "{} is not a RustyPresenter computer."
+msgstr "{} si kompyuta ya RustyPresenter."
+
+msgid "Connected"
+msgstr "Imeunganishwa"
+
+msgid "Could not connect."
+msgstr "Imeshindwa kuunganisha."
+
+msgid "(Logo)"
+msgstr "(Nembo)"
+
+msgid "(Clear)"
+msgstr "(Tupu)"
+
+msgid "(Music playing)"
+msgstr "(Muziki unacheza)"
+
+msgid "End of service"
+msgstr "Mwisho wa ibada"
+
+msgid "The screen changed just now — tap the slide again."
+msgstr "Skrini imebadilika sasa hivi — gusa slaidi tena."
+
+msgid "Android phone"
+msgstr "Simu ya Android"
+
+msgid "To send this phone's microphone to the livestream, the app needs to use the microphone. Android will ask you next."
+msgstr "Ili kutuma maikrofoni ya simu hii kwenye matangazo ya moja kwa moja, programu inahitaji kutumia maikrofoni. Android itakuuliza baadaye."
+
+msgid "To send this phone's camera to the livestream, the app needs to use the camera. Android will ask you next."
+msgstr "Ili kutuma kamera ya simu hii kwenye matangazo ya moja kwa moja, programu inahitaji kutumia kamera. Android itakuuliza baadaye."
+
+msgid "To read the QR code, the app needs to use the camera. Android will ask you next."
+msgstr "Ili kusoma msimbo wa QR, programu inahitaji kutumia kamera. Android itakuuliza baadaye."
+
+msgid "The microphone is not allowed. Allow it in the phone's Settings → Apps → RustyPresenter → Permissions."
+msgstr "Maikrofoni hairuhusiwi. Iruhusu katika Mipangilio ya simu → Programu → RustyPresenter → Ruhusa."
+
+msgid "The camera is not allowed. Allow it in the phone's Settings → Apps → RustyPresenter → Permissions."
+msgstr "Kamera hairuhusiwi. Iruhusu katika Mipangilio ya simu → Programu → RustyPresenter → Ruhusa."
+
+msgid "The camera could not start. Close other apps that use it and try again."
+msgstr "Kamera imeshindwa kuanza. Funga programu nyingine zinazoitumia kisha ujaribu tena."
+
+msgid "The microphone could not start. Close other apps that use it and try again."
+msgstr "Maikrofoni imeshindwa kuanza. Funga programu nyingine zinazoitumia kisha ujaribu tena."
+
+msgid "Point the camera at the QR code on the presentation computer."
+msgstr "Elekeza kamera kwenye msimbo wa QR ulio kwenye kompyuta ya maonyesho."
+
+msgid "That QR code is not from RustyPresenter. On the computer, click Phone → Pair a phone or tablet."
+msgstr "Msimbo huo wa QR si wa RustyPresenter. Kwenye kompyuta, bofya Simu → Unganisha simu au tableti."
+
+msgid "Connecting to the computer…"
+msgstr "Inaunganisha na kompyuta…"
+
+msgid "Sending to the computer"
+msgstr "Inatuma kwa kompyuta"
+
+msgid "The computer cannot be reached. Trying again…"
+msgstr "Kompyuta haifikiki. Inajaribu tena…"
+
+msgid "This phone is no longer paired. Pair it again."
+msgstr "Simu hii haijaunganishwa tena. Iunganishe upya."

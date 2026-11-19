@@ -46,6 +46,17 @@ pub fn map_position(old: &[Slide], old_index: usize, new: &[Slide]) -> Mapped {
     Mapped::Lost
 }
 
+/// `map_position` when it is known where each played part went (the order changed from the Slides panel):
+/// `moved[old occurrence]` is its new occurrence. The same page of that part, else its last page; a part taken out
+/// is lost.
+pub fn map_moved(old: &[Slide], old_index: usize, new: &[Slide], moved: &[Option<usize>]) -> Mapped {
+    let Some(r) = old.get(old_index).and_then(|s| s.section.as_ref()) else { return map_position(old, old_index, new) };
+    let Some(Some(to)) = moved.get(usize::from(r.occurrence)) else { return Mapped::Lost };
+    let Some(q) = occurrences(new).into_iter().find(|o| usize::from(o.occurrence) == *to) else { return Mapped::Lost };
+    let page = usize::from(r.page);
+    if page < q.slides { Mapped::Exact(q.first_slide + page) } else { Mapped::Moved(q.first_slide + q.slides - 1) }
+}
+
 /// LCS pairing walked from the front, preferring the earliest matches.
 fn align_forward(a: &[String], b: &[String]) -> Vec<Option<usize>> {
     let (n, m) = (a.len(), b.len());

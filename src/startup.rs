@@ -39,7 +39,8 @@ pub fn open(listener: TcpListener, root: PathBuf, port: u16) -> Result<Started, 
 pub fn banner(s: &Started, quit: &str) {
     println!("\n  RustyPresenter {}\n", env!("CARGO_PKG_VERSION"));
     if let Some(u) = &s.app.lan_url { println!("  Remote:        {u}"); }
-    println!("  Your data:     {}", s.root.display());
+    let portable = if crate::platform::data_folder::portable_dir().is_some() { "  (portable: beside the app)" } else { "" };
+    println!("  Your data:     {}{portable}", s.root.display());
     println!("\n  {quit}\n");
 }
 

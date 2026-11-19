@@ -231,6 +231,10 @@ msgstr "Ваш власний текст"
 msgid "Not in the words — it is skipped"
 msgstr "Немає в словах — буде пропущено"
 
+#: ui/dialogs/arrangement.slint
+msgid "Play it twice"
+msgstr "Зіграти двічі"
+
 #: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "Вилучити"
@@ -239,6 +243,14 @@ msgstr "Вилучити"
 msgid "End"
 msgstr "Кінець"
 
+#: ui/dialogs/arrangement.slint
+msgid "Drop here to remove"
+msgstr "Перетягніть сюди, щоб прибрати"
+
+#: ui/dialogs/arrangement.slint
+msgid "✕ Remove"
+msgstr "✕ Прибрати"
+
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr "Порядок як у тексті — перетягніть, щоб змінити"
@@ -246,6 +258,10 @@ msgstr "Порядок як у тексті — перетягніть, щоб �
 #: ui/dialogs/arrangement.slint
 msgid "⟲ Use written order"
 msgstr "⟲ Порядок як у тексті"
+
+#: ui/dialogs/arrangement.slint
+msgid "Click to play it at the end, or drag it in between the parts"
+msgstr "Натисніть, щоб зіграти в кінці, або перетягніть між частинами"
 
 #: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
 msgid "Name"
@@ -615,7 +631,7 @@ msgstr "Почати"
 msgid "Delete"
 msgstr "Видалити"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings.rs
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint src/ui/dialogs/settings.rs
 msgid "Save"
 msgstr "Зберегти"
 
@@ -643,7 +659,7 @@ msgstr "Кінець шляху переміщення"
 msgid "{} · {} builds"
 msgstr "{} · появ: {}"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint src/strings/song_edit.rs
 msgid "New slide"
 msgstr "Новий слайд"
 
@@ -659,7 +675,7 @@ msgstr "Пересунути вище"
 msgid "Move later"
 msgstr "Пересунути нижче"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint ui/operator/slide-editor.slint src/strings/song_edit.rs
 msgid "Delete slide"
 msgstr "Видалити слайд"
 
@@ -1028,7 +1044,7 @@ msgstr "На передній план"
 msgid "To back"
 msgstr "На задній план"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator/slide-editor.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "Дублювати"
 
@@ -1060,11 +1076,11 @@ msgstr "Перетягніть, щоб перемістити; тягніть з
 msgid "Video: {}"
 msgstr "Відео: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint ui/operator/slide-editor.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Скасувати"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Save and show now"
 msgstr "Зберегти й показати"
 
@@ -1196,7 +1212,7 @@ msgstr "Назад"
 msgid "Next"
 msgstr "Далі"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/settings-phone.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "Закрити"
 
@@ -1611,7 +1627,7 @@ msgstr "Адреса: "
 msgid "Pair a phone or tablet"
 msgstr "Під’єднати телефон чи планшет"
 
-#: ui/dialogs/phone.slint
+#: ui/dialogs/phone.slint ui/dialogs/settings-phone.slint
 msgid "QR code"
 msgstr "QR-код"
 
@@ -2583,6 +2599,22 @@ msgstr "Вибрати логотип"
 msgid "Default background"
 msgstr "Тло за замовчуванням"
 
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow. Or open:"
+msgstr "Відскануйте камерою телефона й натисніть «Дозволити». Або відкрийте:"
+
+#: ui/dialogs/settings-phone.slint
+msgid "The first time, the phone warns the page is not private (it comes from this computer): on Android tap Advanced → Proceed; on an iPhone tap Show Details → visit this website."
+msgstr "Першого разу телефон попередить, що сторінка не захищена (вона з цього комп’ютера): на Android натисніть «Додатково» → «Перейти»; на iPhone — «Докладніше» → «відкрити цей сайт»."
+
+#: ui/dialogs/settings-phone.slint
+msgid "Show the QR code"
+msgstr "Показати QR-код"
+
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow."
+msgstr "Відскануйте камерою телефона й натисніть «Дозволити»."
+
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Use your phone or tablet as a remote"
 msgstr "Використовувати телефон чи планшет як пульт"
@@ -2676,44 +2708,48 @@ msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this compu
 msgstr "Відкрийте цю адресу на iPad або телефоні співака (у тій самій мережі Wi-Fi, що й цей комп’ютер)."
 
 #: ui/dialogs/settings-remote.slint
-msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
-msgstr "Телефон у Wi-Fi церкви може бути камерою або мікрофоном для трансляції. Першого разу телефон попередить, що сторінка не захищена: так і має бути, бо сторінка йде з цього комп’ютера. Торкніться «Додатково» (на iPhone — «Показати деталі») і перейдіть на сторінку. Тримайте телефон увімкненим і на зарядці."
+msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. Scan its code with the phone's camera: that opens the page and connects the phone, with no code to type. Keep the phone awake and plugged in."
+msgstr "Телефон у Wi-Fi церкви може бути камерою чи мікрофоном для трансляції. Відскануйте його код камерою телефона: відкриється сторінка й телефон під’єднається, нічого вводити не треба. Не давайте телефону заснути й тримайте його на зарядці."
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a camera"
 msgstr "Телефон як камера"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
-msgstr "Спершу під’єднайте телефон через «Під’єднати телефон чи планшет». Коли він почне надсилати зображення, у списках камер він зветься «Камера телефона»."
+msgid "Scanning the code connects the phone. Once it sends its picture, the camera lists call it Phone camera."
+msgstr "Сканування коду під’єднує телефон. Щойно він передасть картинку, у списках камер він зветься «Камера телефона»."
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open:"
-msgstr "На телефоні відкрийте:"
+msgid "The phone camera's QR code"
+msgstr "QR-код камери телефона"
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose it in Settings → Livestream → Cameras"
 msgstr "Потім виберіть його в Налаштування → Трансляція → Камери"
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a microphone"
 msgstr "Телефон як мікрофон"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
-msgstr "Для петлички пастора чи мікрофона в залі без дротів. Спершу ввімкніть сценічний екран на телефонах: сторінка телефона йде звідти."
+msgid "For a pastor's lapel or a room microphone without cables. Scanning the code connects the phone; then press Start on it."
+msgstr "Для петлички пастора чи мікрофона в залі без кабелів. Сканування коду під’єднує телефон; потім натисніть на ньому «Почати»."
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open this page and press Start:"
-msgstr "На телефоні відкрийте цю сторінку й натисніть «Старт»:"
-
-#: ui/dialogs/settings-remote.slint
-msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
-msgstr "Сценічний екран на телефонах вимкнено, тож телефон поки не може відкрити цю сторінку."
+msgid "The phone microphone's QR code"
+msgstr "QR-код мікрофона телефона"
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose Phone in Settings → Livestream → Sound"
 msgstr "Потім виберіть «Телефон» у Налаштування → Трансляція → Звук"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Let phones in"
+msgstr "Впустити телефони"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Windows asks for an administrator's OK, then lets RustyPresenter in on private and public networks."
+msgstr "Windows попросить згоди адміністратора, а тоді впустить RustyPresenter у приватних і загальнодоступних мережах."
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Control from other gear (TCP)"
@@ -3615,7 +3651,7 @@ msgstr "«Скоро почнемо» показується перед служ
 msgid "Starting soon"
 msgstr "Скоро почнемо"
 
-#: ui/dialogs/settings-stream.slint src/stream/scene.rs src/strings/song.rs
+#: ui/dialogs/settings-stream.slint ui/dialogs/song-editor.slint src/stream/scene.rs src/strings/song.rs
 msgid "Ending"
 msgstr "Закінчення"
 
@@ -4120,6 +4156,42 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— назви частин в окремому рядку; порожній рядок усередині частини починає новий слайд"
 
 #: ui/dialogs/song-editor.slint
+msgid "Add a part:"
+msgstr "Додати частину:"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Verse"
+msgstr "Куплет"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs src/strings/stage.rs
+msgid "Chorus"
+msgstr "Приспів"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Pre-chorus"
+msgstr "Передприспів"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Bridge"
+msgstr "Брідж"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Tag"
+msgstr "Тег"
+
+#: ui/dialogs/song-editor.slint
+msgid "Intro (chords only)"
+msgstr "Вступ (лише акорди)"
+
+#: ui/dialogs/song-editor.slint
+msgid "A part the band plays with no words: type its chords like [G] [D]"
+msgstr "Частина, яку гурт грає без слів: введіть акорди так: [G] [D]"
+
+#: ui/dialogs/song-editor.slint
+msgid "Adds this part after the one the cursor is in"
+msgstr "Додає цю частину після тієї, де стоїть курсор"
+
+#: ui/dialogs/song-editor.slint
 msgid "Insert slide break"
 msgstr "Вставити розрив слайда"
 
@@ -4143,7 +4215,7 @@ msgstr ""
 "[Приспів]\n"
 "Кайдани впали…"
 
-#: ui/dialogs/song-editor.slint
+#: ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Order"
 msgstr "Порядок"
 
@@ -4152,8 +4224,8 @@ msgid "(optional)"
 msgstr "(необов’язково)"
 
 #: ui/dialogs/song-editor.slint
-msgid "Leave empty to use the written order"
-msgstr "Залиште порожнім, щоб використати порядок як у тексті"
+msgid "Or type the order here. Leave it empty to use the written order"
+msgstr "Або введіть порядок тут. Порожньо — порядок як написано"
 
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Fewer lines on each slide of this song"
@@ -4214,6 +4286,10 @@ msgstr "Показувати акорди як написано"
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
 msgstr "Слайди з’являються тут, поки ви вводите текст. Пишіть назви частин, як-от «[Куплет 1]» чи «[Приспів]», в окремому рядку."
+
+#: ui/dialogs/song-editor.slint
+msgid "Click to go to its words"
+msgstr "Натисніть, щоб перейти до слів"
 
 #: ui/dialogs/song-editor.slint
 msgid "Delete song"
@@ -5183,7 +5259,7 @@ msgstr "Ост. 10 с"
 msgid "Jump to 10 seconds before the end, to check how it finishes"
 msgstr "Перейти за 10 секунд до кінця, щоб перевірити, як воно завершується"
 
-#: ui/operator/live.slint
+#: ui/operator/live.slint ui/operator/slide-editor.slint ui/operator/slides.slint
 msgid "Edit words"
 msgstr "Змінити слова"
 
@@ -5527,6 +5603,106 @@ msgstr "Додайте пісні, відео й слайди, введіть б
 msgid "Filter the service"
 msgstr "Фільтр служіння"
 
+#: ui/operator/slide-editor.slint
+msgid "Split here…"
+msgstr "Розділити тут…"
+
+#: ui/operator/slide-editor.slint
+msgid "Join with next"
+msgstr "Об’єднати з наступним"
+
+#: ui/operator/slide-editor.slint
+msgid "Add a slide after"
+msgstr "Додати слайд після"
+
+#: ui/operator/slide-editor.slint
+msgid "Change section…"
+msgstr "Змінити частину…"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part earlier"
+msgstr "Посунути цю частину раніше"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part later"
+msgstr "Посунути цю частину пізніше"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit the whole song…"
+msgstr "Змінити всю пісню…"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit chords too"
+msgstr "Змінювати й акорди"
+
+#: ui/operator/slide-editor.slint
+msgid "The slide’s words"
+msgstr "Слова слайда"
+
+#: ui/operator/slide-editor.slint
+msgid "Type the words for this slide"
+msgstr "Введіть слова для цього слайда"
+
+#: ui/operator/slide-editor.slint
+msgid "Chords"
+msgstr "Акорди"
+
+#: ui/operator/slide-editor.slint
+msgid "Enter saves · Shift+Enter starts a new line · Esc cancels"
+msgstr "Enter — зберегти · Shift+Enter — новий рядок · Esc — скасувати"
+
+#: ui/operator/slide-editor.slint
+msgid "Split here"
+msgstr "Розділити тут"
+
+#: ui/operator/slide-editor.slint
+msgid "A new slide starts at the line the cursor is on"
+msgstr "Новий слайд починається з рядка з курсором"
+
+#: ui/operator/slide-editor.slint
+msgid "Add slide"
+msgstr "Додати слайд"
+
+#: ui/operator/slide-editor.slint
+msgid "From this slide on, this part is:"
+msgstr "З цього слайда ця частина —"
+
+#: ui/operator/slide-editor.slint
+msgid "Quick order ▾"
+msgstr "Швидкий порядок ▾"
+
+#: ui/operator/slide-editor.slint
+msgid "Ready-made orders for this song"
+msgstr "Готові порядки для цієї пісні"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus after every verse"
+msgstr "Приспів після кожного куплету"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus again at the end"
+msgstr "Приспів ще раз у кінці"
+
+#: ui/operator/slide-editor.slint
+msgid "Just for this service"
+msgstr "Лише для цього служіння"
+
+#: ui/operator/slide-editor.slint
+msgid "Save as the usual order"
+msgstr "Зберегти як звичайний порядок"
+
+#: ui/operator/slide-editor.slint
+msgid "Every service plays the song in this order from now on"
+msgstr "Відтепер кожне служіння буде в цьому порядку"
+
+#: ui/operator/slide-editor.slint
+msgid "Reset to the song’s order"
+msgstr "Повернути порядок пісні"
+
+#: ui/operator/slide-editor.slint
+msgid "This service plays the song in its usual order again"
+msgstr "Це служіння знову в звичайному порядку пісні"
+
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
 msgstr "Підготуймо недільне служіння"
@@ -5554,6 +5730,10 @@ msgstr "Під час служіння користуйтеся великою �
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "Екрани"
+
+#: ui/operator/slides.slint
+msgid "More for this slide"
+msgstr "Ще для цього слайда"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
@@ -6175,7 +6355,7 @@ msgstr "{name} — імпортований файл"
 msgid "Give the song a title."
 msgstr "Дайте пісні назву."
 
-#: src/app.rs
+#: src/app.rs src/song_edit/actions.rs
 msgid "That song is not in the library any more."
 msgstr "Цієї пісні більше немає в бібліотеці."
 
@@ -7354,6 +7534,94 @@ msgstr[2] "Прибрано {n} файлів із медіатеки, звіль
 msgid "Sunday Service"
 msgstr "Недільне служіння"
 
+#: src/network/phone_link.rs
+msgid "Waiting for a phone"
+msgstr "Чекаємо на телефон"
+
+#: src/network/phone_link.rs
+msgid "Phone connected: {name}"
+msgstr "Телефон під’єднано: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is connected"
+msgstr "Телефон під’єднано"
+
+#: src/network/phone_link.rs
+msgid "Sending pictures: {name}"
+msgstr "Передає картинку: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is sending pictures"
+msgstr "Телефон передає картинку"
+
+#: src/network/phone_link.rs
+msgid "Sending sound: {name}"
+msgstr "Передає звук: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is sending sound"
+msgstr "Телефон передає звук"
+
+#: src/network/phone_link.rs
+msgid "The secure server is starting…"
+msgstr "Захищений сервер запускається…"
+
+#: src/network/phone_link.rs
+msgid "The secure server isn't running: {why}"
+msgstr "Захищений сервер не працює: {why}"
+
+#: src/network/phone_link.rs
+msgid "port {port} is in use by another program. Close that program, or restart this computer."
+msgstr "порт {port} зайнятий іншою програмою. Закрийте її або перезапустіть комп’ютер."
+
+#: src/network/phone_link.rs
+msgid "Windows keeps port {port} for itself. Restart this computer and try again."
+msgstr "Windows залишає порт {port} за собою. Перезапустіть комп’ютер і спробуйте знову."
+
+#: src/network/phone_link.rs
+msgid "port {port} cannot be used ({error})."
+msgstr "порт {port} не можна використати ({error})."
+
+#: src/network/phone_link.rs
+msgid "it could not make its certificate ({error})."
+msgstr "не вдалося створити його сертифікат ({error})."
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out on this network (Windows calls it a public network). Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter on public networks (port {port})."
+msgstr "Можливо, брандмауер цього комп’ютера не пускає телефони: брандмауер Windows не пускає їх у цій мережі (Windows вважає її загальнодоступною). Натисніть «Впустити телефони» або в «Безпека Windows» → «Брандмауер» дозвольте RustyPresenter у загальнодоступних мережах (порт {port})."
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out. Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter (port {port})."
+msgstr "Можливо, брандмауер цього комп’ютера не пускає телефони: брандмауер Windows їх не пускає. Натисніть «Впустити телефони» або в «Безпека Windows» → «Брандмауер» дозвольте RustyPresenter (порт {port})."
+
+#: src/network/phone_link.rs
+msgid "This QR code was already used or is too old. Scan the code in RustyPresenter again (Settings → Remote and network → Phone camera and microphone)."
+msgstr "Цей QR-код уже використано або він застарів. Відскануйте код у RustyPresenter ще раз (Налаштування → Пульт і мережа → Камера й мікрофон телефона)."
+
+#: src/network/phone_link.rs
+msgid "Type the remote's password (set in RustyPresenter's Settings → Remote and network)."
+msgstr "Введіть пароль пульта (задається в RustyPresenter: Налаштування → Пульт і мережа)."
+
+#: src/platform/data_folder.rs
+msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
+msgstr "Ця копія RustyPresenter зберігає дані поруч із собою, у {wanted}, але цю папку не можна змінити (можливо, це заблокована флешка або CD). Поки що ваша робота зберігається на цьому комп’ютері, у {here}. Щоб зберігати її поруч із програмою, скопіюйте всю папку RustyPresenter туди, де її можна змінювати, і відкрийте програму звідти."
+
+#: src/platform/data_folder.rs
+msgid "RustyPresenter was opened from inside the zip file, so it cannot keep its data beside it. For now your work is kept on this computer, in {here}. Close RustyPresenter, unzip the whole file first (on Windows: right-click it, then Extract All), and open RustyPresenter from the folder that makes."
+msgstr "RustyPresenter відкрито просто з zip-файлу, тому він не може зберігати дані поруч із собою. Поки що ваша робота зберігається на цьому комп’ютері, у {here}. Закрийте RustyPresenter, спершу розпакуйте весь файл (у Windows: клацніть його правою кнопкою, потім «Видобути все») і відкрийте RustyPresenter з утвореної папки."
+
+#: src/platform/data_folder.rs
+msgid "macOS opened a locked copy of RustyPresenter, because it has not been moved since it was downloaded. For now your work is kept on this computer, in {here}. Close RustyPresenter. In Finder, drag RustyPresenter out of its folder (onto the Desktop, say) and back in again, or into Applications if it came from the .dmg file. Then open it again."
+msgstr "macOS відкрила заблоковану копію RustyPresenter, бо програму не переміщували після завантаження. Поки що ваша робота зберігається на цьому комп’ютері, у {here}. Закрийте RustyPresenter. У Finder перетягніть RustyPresenter з його папки (наприклад, на Робочий стіл) і назад або в «Програми», якщо він із файлу .dmg. Потім відкрийте його знову."
+
+#: src/platform/firewall.rs
+msgid "Windows was not given the OK, so nothing changed."
+msgstr "Windows не отримала згоди, тож нічого не змінилося."
+
+#: src/platform/firewall.rs
+msgid "Windows Firewall could not be changed. Ask whoever looks after this computer to let RustyPresenter in for private and public networks."
+msgstr "Не вдалося змінити брандмауер Windows. Попросіть того, хто доглядає за цим комп’ютером, впустити RustyPresenter у приватних і загальнодоступних мережах."
+
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
 msgstr "Екрани не працюють."
@@ -8377,10 +8645,6 @@ msgid "A phone only lets a page use its camera when the page is private. Tap the
 msgstr "Телефон дозволяє сторінці користуватися камерою, лише якщо сторінка захищена. Натисніть кнопку нижче. Телефон попередить, що з’єднання не захищене: так і має бути, бо сторінка йде з власного комп’ютера вашої церкви, а не з інтернету."
 
 #: src/stream/phone_camera.rs
-msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
-msgstr "Натисніть «Додатково» (або «Докладніше»), потім «Перейти» (або «Відкрити цей сайт»). Телефон це запам’ятає, тож це потрібно лише раз."
-
-#: src/stream/phone_camera.rs
 msgid "Open the camera page"
 msgstr "Відкрити сторінку камери"
 
@@ -8393,12 +8657,12 @@ msgid "Connect this phone"
 msgstr "Під’єднати цей телефон"
 
 #: src/stream/phone_camera.rs
-msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
-msgstr "На комп’ютері з презентацією натисніть «Телефон», потім «Під’єднати телефон чи планшет» і введіть тут 6-значний код."
+msgid "Scan the camera's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone). Or, on the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "Відскануйте QR-код камери в RustyPresenter (Налаштування → Пульт і мережа → Камера й мікрофон телефона). Або на комп’ютері для показу натисніть «Телефон», потім «Під’єднати телефон чи планшет» і введіть тут 6-значний код."
 
 #: src/stream/phone_camera.rs
-msgid "6-digit code"
-msgstr "6-значний код"
+msgid "Connecting this phone…"
+msgstr "Під’єднуємо цей телефон…"
 
 #: src/stream/phone_camera.rs
 msgid "Like Balcony or Side. The computer lists this phone by this name."
@@ -8428,7 +8692,7 @@ msgstr "Передається на комп’ютер"
 msgid "Connecting to the computer…"
 msgstr "Підключення до комп’ютера…"
 
-#: src/stream/phone_camera.rs
+#: src/stream/phone_camera.rs src/stream/phone_mic.rs
 msgid "The computer cannot be reached. Trying again…"
 msgstr "Не вдається зв’язатися з комп’ютером. Пробуємо знову…"
 
@@ -8456,6 +8720,18 @@ msgstr "На комп’ютері виберіть цей телефон у Н�
 msgid "This computer is not on a network, so no phone can reach it."
 msgstr "Цей комп’ютер не під’єднано до мережі, тож жоден телефон не може з ним зв’язатися."
 
+#: src/stream/phone_camera.rs
+msgid "Android (Chrome): tap Advanced, then Proceed. iPhone (Safari): tap Show Details, then visit this website, then Visit Website. The phone remembers it, so this is only needed once."
+msgstr "Android (Chrome): натисніть «Додатково», потім «Перейти». iPhone (Safari): натисніть «Докладніше», потім «відкрити цей сайт», потім «Відкрити сайт». Телефон це запам’ятає, тож це потрібно лише раз."
+
+#: src/stream/phone_camera.rs
+msgid "No Proceed button? In Chrome on Android, open chrome://flags, search for \"insecure origins\", turn on \"Insecure origins treated as secure\", type {address} in its box, tap Relaunch, then open this page again."
+msgstr "Немає кнопки «Перейти»? У Chrome на Android відкрийте chrome://flags, знайдіть \"insecure origins\", увімкніть \"Insecure origins treated as secure\", введіть {address} у поле, натисніть Relaunch і знову відкрийте цю сторінку."
+
+#: src/stream/phone_camera.rs
+msgid "6-digit code"
+msgstr "6-значний код"
+
 #: src/stream/phone_mic.rs
 msgid "Phone microphone (open its page on the phone)"
 msgstr "Мікрофон телефона (відкрийте його сторінку на телефоні)"
@@ -8477,16 +8753,20 @@ msgid "Sending, but the stream is not using this phone yet. Choose \"Phone micro
 msgstr "Надсилання йде, але трансляція ще не використовує цей телефон. Виберіть \"Мікрофон телефона\" в Налаштування → Трансляція → Звук і вийдіть в ефір."
 
 #: src/stream/phone_mic.rs
-msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
-msgstr "Телефон дозволяє користуватися мікрофоном лише захищеній сторінці. Відкрийте захищену сторінку нижче; першого разу телефон попередить, що вона не захищена: натисніть «Додатково» (або «Докладніше») і перейдіть на неї."
+msgid "The phone only lets a secure page use its microphone. Open the secure page below. The first time, the phone warns that the connection is not private: that is expected, because the page comes from your church's own computer."
+msgstr "Телефон дає мікрофон лише захищеній сторінці. Відкрийте захищену сторінку нижче. Першого разу телефон попередить, що з’єднання не захищене: так і має бути, бо сторінка йде з комп’ютера вашої церкви."
 
 #: src/stream/phone_mic.rs
 msgid "The phone did not let the page use its microphone. Allow it in the browser's settings for this page, then try again."
 msgstr "Телефон не дозволив сторінці користуватися мікрофоном. Дозвольте це в налаштуваннях браузера для цієї сторінки й спробуйте знову."
 
 #: src/stream/phone_mic.rs
-msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
-msgstr "Увімкніть сценічний екран на телефонах у RustyPresenter (Налаштування → Пульт і мережа) і спершу увійдіть у нього на цьому телефоні."
+msgid "Connect this phone first: scan the microphone's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone), or type the 6-digit code from Phone → Pair a phone or tablet."
+msgstr "Спершу під’єднайте цей телефон: відскануйте QR-код мікрофона в RustyPresenter (Налаштування → Пульт і мережа → Камера й мікрофон телефона) або введіть 6-значний код із «Телефон» → «Під’єднати телефон чи планшет»."
+
+#: src/stream/phone_mic.rs
+msgid "Connected. Tap Start, then Allow when the phone asks for the microphone."
+msgstr "Під’єднано. Натисніть «Почати», потім «Дозволити», коли телефон спитає про мікрофон."
 
 #: src/stream/preflight.rs
 msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Livestream → Cameras. The stream shows the slides in its place."
@@ -11036,26 +11316,6 @@ msgid "The saved sound output (not connected)"
 msgstr "Збережений вивід звуку (не під’єднано)"
 
 #: src/strings/song.rs
-msgid "Verse"
-msgstr "Куплет"
-
-#: src/strings/song.rs src/strings/stage.rs
-msgid "Chorus"
-msgstr "Приспів"
-
-#: src/strings/song.rs
-msgid "Pre-chorus"
-msgstr "Передприспів"
-
-#: src/strings/song.rs
-msgid "Bridge"
-msgstr "Брідж"
-
-#: src/strings/song.rs
-msgid "Tag"
-msgstr "Тег"
-
-#: src/strings/song.rs
 msgid "Intro"
 msgstr "Вступ"
 
@@ -11166,6 +11426,94 @@ msgstr "{section} — натисніть {key}"
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
 msgstr "{section} · слайд {page} з {pages}"
+
+#: src/strings/song_edit.rs
+msgid "That slide is not in the song any more. Try again."
+msgstr "Цього слайда вже немає в пісні. Спробуйте ще раз."
+
+#: src/strings/song_edit.rs
+msgid "These two slides are one part shown {lines} lines at a time. Use Lines + to show more lines on each slide."
+msgstr "Ці два слайди — одна частина, показана по {lines} рядки. Натисніть «Рядки +», щоб показувати більше рядків."
+
+#: src/strings/song_edit.rs
+msgid "This is the last slide of its part, so there is nothing to join it with."
+msgstr "Це останній слайд частини, об’єднувати нема з чим."
+
+#: src/strings/song_edit.rs
+msgid "Put the cursor on the line that should start the new slide."
+msgstr "Поставте курсор на рядок, з якого почнеться новий слайд."
+
+#: src/strings/song_edit.rs
+msgid "This is the song’s only slide. Delete the song in the library instead."
+msgstr "Це єдиний слайд пісні. Видаліть пісню в бібліотеці."
+
+#: src/strings/song_edit.rs
+msgid "{part} · slide {n} of {count}"
+msgstr "{part} · слайд {n} з {count}"
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Your change shows every time."
+msgstr "{part} звучить у цій пісні {times} рази. Зміна буде видна щоразу."
+
+#: src/strings/song_edit.rs
+msgid "This slide is chords only. Type the chords in square brackets, like [G] [D]."
+msgstr "На цьому слайді лише акорди. Вводьте їх у квадратних дужках, наприклад [G] [D]."
+
+#: src/strings/song_edit.rs
+msgid "The chords stay over the same words. To change them, tick Edit chords too."
+msgstr "Акорди лишаються над тими самими словами. Щоб їх змінити, позначте «Змінювати й акорди»."
+
+#: src/strings/song_edit.rs
+msgid "Slide saved"
+msgstr "Слайд збережено"
+
+#: src/strings/song_edit.rs
+msgid "Split into two slides"
+msgstr "Розділено на два слайди"
+
+#: src/strings/song_edit.rs
+msgid "Joined with the next slide"
+msgstr "Об’єднано з наступним слайдом"
+
+#: src/strings/song_edit.rs
+msgid "Slide added"
+msgstr "Слайд додано"
+
+#: src/strings/song_edit.rs
+msgid "Slide deleted"
+msgstr "Слайд видалено"
+
+#: src/strings/song_edit.rs
+msgid "Slide copied"
+msgstr "Слайд скопійовано"
+
+#: src/strings/song_edit.rs
+msgid "This part is now {part}"
+msgstr "Тепер ця частина — {part}"
+
+#: src/strings/song_edit.rs
+msgid "Order changed for this service"
+msgstr "Порядок змінено для цього служіння"
+
+#: src/strings/song_edit.rs
+msgid "This is now the song’s usual order"
+msgstr "Тепер це звичайний порядок пісні"
+
+#: src/strings/song_edit.rs
+msgid "Back to the song’s usual order"
+msgstr "Знову звичайний порядок пісні"
+
+#: src/strings/song_edit.rs
+msgid "This song has no chorus."
+msgstr "У цій пісні немає приспіву."
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Delete this slide every time it plays?"
+msgstr "{part} звучить у цій пісні {times} рази. Видалити цей слайд скрізь?"
+
+#: src/strings/song_edit.rs
+msgid "Only song slides can be edited here. Use Edit for this item."
+msgstr "Тут можна змінювати лише слайди пісень. Для цього елемента натисніть «Змінити»."
 
 #: src/strings/stage.rs
 msgid "Classic"
@@ -12203,6 +12551,10 @@ msgstr "Каподастр на {fret}-му ладу, щоб грати аплі
 msgid "Capo {fret} to play the chords as written"
 msgstr "Каподастр на {fret}-му ладу, щоб грати акорди як написано"
 
+#: src/ui/dialogs/about.rs
+msgid "{folder} (a portable copy: the data is kept beside the app)"
+msgstr "{folder} (переносна копія: дані зберігаються поруч із програмою)"
+
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
 msgstr "Вивести пункт служіння на екран"
@@ -12700,6 +13052,14 @@ msgstr "Для автостеження потрібна модель мовле
 #: src/ui/dialogs/settings_model.rs src/ui/operator/record.rs src/video/bench.rs
 msgid "Not now"
 msgstr "Не зараз"
+
+#: src/ui/dialogs/settings_phone.rs
+msgid "Waiting for Windows…"
+msgstr "Чекаємо на Windows…"
+
+#: src/ui/dialogs/settings_phone.rs
+msgid "Done: phones can now reach RustyPresenter through Windows Firewall."
+msgstr "Готово: тепер телефони проходять до RustyPresenter крізь брандмауер Windows."
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The output the app plays its sound to"
@@ -13586,6 +13946,39 @@ msgstr "yt-dlp не зберіг відео"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "не медіафайл"
+
+#~ msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+#~ msgstr "Телефон у Wi-Fi церкви може бути камерою або мікрофоном для трансляції. Першого разу телефон попередить, що сторінка не захищена: так і має бути, бо сторінка йде з цього комп’ютера. Торкніться «Додатково» (на iPhone — «Показати деталі») і перейдіть на сторінку. Тримайте телефон увімкненим і на зарядці."
+
+#~ msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
+#~ msgstr "Спершу під’єднайте телефон через «Під’єднати телефон чи планшет». Коли він почне надсилати зображення, у списках камер він зветься «Камера телефона»."
+
+#~ msgid "On the phone, open:"
+#~ msgstr "На телефоні відкрийте:"
+
+#~ msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
+#~ msgstr "Для петлички пастора чи мікрофона в залі без дротів. Спершу ввімкніть сценічний екран на телефонах: сторінка телефона йде звідти."
+
+#~ msgid "On the phone, open this page and press Start:"
+#~ msgstr "На телефоні відкрийте цю сторінку й натисніть «Старт»:"
+
+#~ msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
+#~ msgstr "Сценічний екран на телефонах вимкнено, тож телефон поки не може відкрити цю сторінку."
+
+#~ msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
+#~ msgstr "Натисніть «Додатково» (або «Докладніше»), потім «Перейти» (або «Відкрити цей сайт»). Телефон це запам’ятає, тож це потрібно лише раз."
+
+#~ msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+#~ msgstr "На комп’ютері з презентацією натисніть «Телефон», потім «Під’єднати телефон чи планшет» і введіть тут 6-значний код."
+
+#~ msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
+#~ msgstr "Телефон дозволяє користуватися мікрофоном лише захищеній сторінці. Відкрийте захищену сторінку нижче; першого разу телефон попередить, що вона не захищена: натисніть «Додатково» (або «Докладніше») і перейдіть на неї."
+
+#~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
+#~ msgstr "Увімкніть сценічний екран на телефонах у RustyPresenter (Налаштування → Пульт і мережа) і спершу увійдіть у нього на цьому телефоні."
+
+#~ msgid "Leave empty to use the written order"
+#~ msgstr "Залиште порожнім, щоб використати порядок як у тексті"
 
 #~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
 #~ msgstr "Перетягніть на іншу панель: поруч із нею або в її середину, щоб ділити місце як вкладка"

@@ -347,6 +347,9 @@ impl Draft {
     }
 
     fn lyric(&mut self, raw: &str) {
+        // SongSelect breaks a word where a chord falls in it ("de - [Db]fense"): one word again (`syllables`).
+        let joined = super::syllables::join_line(raw);
+        let raw = joined.as_str();
         let (line, chord) = strip_chords(raw);
         let line = strip_tags(&line);
         // A "Verse 1" or "[Chorus]" line names a section, like `{c: Chorus}`. Inside `{start_of_…}` the section
@@ -855,6 +858,39 @@ And grace my fears relieved;
         assert!(read_chordpro(&empty.0).unwrap_err().contains("No ChordPro files"));
         // Files are only read.
         assert_eq!(std::fs::read_to_string(d.join("Amazing Grace.cho")).unwrap(), GRACE);
+    }
+
+    #[test]
+    fn songselect_syllable_breaks_become_whole_words() {
+        // As SongSelect writes "You've Already Won" (two lines of it) and "Sometimes By Step".
+        let s = parse_str("{title: Split}
+{key: Db}
+
+{comment: Verse 1}
+You're my [Db]Savior, my [Dbsus]de - [Db]fense
+We will be with You a - [Db]gain
+And on this (the) [G]road to righteous - [F#m]ness
+And never be - [Em7]yond Your [G/A]reach
+Holy - [G]Lord, we sing – and we bow
+").songs.remove(0);
+        assert_eq!(s.lyrics, "Verse 1
+You're my [Db]Savior, my [Dbsus]de[Db]fense
+We will be with You a[Db]gain
+And on this (the) [G]road to righteous[F#m]ness
+And never be[Em7]yond Your [G/A]reach
+Holy - [G]Lord, we sing – and we bow");
+        assert_eq!(room(&s.lyrics), "Verse 1
+You're my Savior, my defense
+We will be with You again
+And on this (the) road to righteousness
+And never beyond Your reach
+Holy - Lord, we sing – and we bow", "the room shows whole words; real dashes stay");
+        let slides = crate::slides::song_slides(&s, &crate::model::Settings { lines_per_slide: 8, credits: "none".into(), ..Default::default() });
+        let crate::model::SlideContent::Text { text, .. } = &slides[0].content else { panic!() };
+        assert!(text.contains("my defense") && !text.contains(" - fense"), "{text}");
+        // The stage screen: the chord over "fense" inside the word, no space added.
+        let sheet = crate::stage::chords::sheet(slides[0].chords.as_deref().unwrap());
+        assert_eq!(sheet[0][2..], [("Dbsus".to_string(), "de".to_string()), ("Db".to_string(), "fense".to_string())]);
     }
 
     #[test]

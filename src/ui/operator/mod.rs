@@ -30,6 +30,7 @@ pub mod stream_extras;
 pub mod service;
 pub mod service_theme;
 pub mod slides;
+pub mod slide_edit;
 pub mod stage_only;
 #[cfg(test)]
 mod song_flows;

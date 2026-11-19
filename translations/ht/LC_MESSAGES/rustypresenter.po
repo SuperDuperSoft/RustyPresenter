@@ -231,6 +231,10 @@ msgstr "Pwòp tèks ou"
 msgid "Not in the words — it is skipped"
 msgstr "Pa nan pawòl yo — y ap sote l"
 
+#: ui/dialogs/arrangement.slint
+msgid "Play it twice"
+msgstr "Jwe l de fwa"
+
 #: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "Retire"
@@ -239,6 +243,14 @@ msgstr "Retire"
 msgid "End"
 msgstr "Fen"
 
+#: ui/dialogs/arrangement.slint
+msgid "Drop here to remove"
+msgstr "Lage l isit la pou retire l"
+
+#: ui/dialogs/arrangement.slint
+msgid "✕ Remove"
+msgstr "✕ Retire"
+
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr "Lòd jan l ekri a — trennen pou chanje"
@@ -246,6 +258,10 @@ msgstr "Lòd jan l ekri a — trennen pou chanje"
 #: ui/dialogs/arrangement.slint
 msgid "⟲ Use written order"
 msgstr "⟲ Itilize lòd jan l ekri a"
+
+#: ui/dialogs/arrangement.slint
+msgid "Click to play it at the end, or drag it in between the parts"
+msgstr "Klike pou jwe l nan fen an, oswa trennen l ant pati yo"
 
 #: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
 msgid "Name"
@@ -615,7 +631,7 @@ msgstr "Kòmanse"
 msgid "Delete"
 msgstr "Efase"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings.rs
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint src/ui/dialogs/settings.rs
 msgid "Save"
 msgstr "Anrejistre"
 
@@ -643,7 +659,7 @@ msgstr "Bout chemen mouvman an"
 msgid "{} · {} builds"
 msgstr "{} · {} etap"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint src/strings/song_edit.rs
 msgid "New slide"
 msgstr "Nouvo diapo"
 
@@ -659,7 +675,7 @@ msgstr "Mete pi bonè"
 msgid "Move later"
 msgstr "Mete pi ta"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint ui/operator/slide-editor.slint src/strings/song_edit.rs
 msgid "Delete slide"
 msgstr "Efase diapo"
 
@@ -1028,7 +1044,7 @@ msgstr "Devan"
 msgid "To back"
 msgstr "Dèyè"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator/slide-editor.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "Fè yon kopi"
 
@@ -1060,11 +1076,11 @@ msgstr "Rale pou deplase, rale yon kwen pou chanje gwosè, flèch yo deplase ti 
 msgid "Video: {}"
 msgstr "Videyo: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint ui/operator/slide-editor.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Anile"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Save and show now"
 msgstr "Anrejistre epi montre kounye a"
 
@@ -1196,7 +1212,7 @@ msgstr "Retounen"
 msgid "Next"
 msgstr "Pwochen"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/settings-phone.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "Fèmen"
 
@@ -1611,7 +1627,7 @@ msgstr "Adrès: "
 msgid "Pair a phone or tablet"
 msgstr "Konekte yon telefòn oswa yon tablèt"
 
-#: ui/dialogs/phone.slint
+#: ui/dialogs/phone.slint ui/dialogs/settings-phone.slint
 msgid "QR code"
 msgstr "Kòd QR"
 
@@ -2583,6 +2599,22 @@ msgstr "Chwazi logo"
 msgid "Default background"
 msgstr "Fon pa defo"
 
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow. Or open:"
+msgstr "Eskane l ak kamera telefòn nan, apre sa tape Pèmèt. Oswa louvri:"
+
+#: ui/dialogs/settings-phone.slint
+msgid "The first time, the phone warns the page is not private (it comes from this computer): on Android tap Advanced → Proceed; on an iPhone tap Show Details → visit this website."
+msgstr "Premye fwa a, telefòn nan avèti paj la pa prive (li soti nan òdinatè sa a): sou Android tape Avanse → Kontinye; sou yon iPhone tape Montre detay → vizite sit sa a."
+
+#: ui/dialogs/settings-phone.slint
+msgid "Show the QR code"
+msgstr "Montre kòd QR la"
+
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow."
+msgstr "Eskane l ak kamera telefòn nan, apre sa tape Pèmèt."
+
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Use your phone or tablet as a remote"
 msgstr "Sèvi ak telefòn oswa tablèt ou kòm telekòmand"
@@ -2676,44 +2708,48 @@ msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this compu
 msgstr "Louvri adrès sa a sou iPad oswa telefòn chantè a (menm Wi-Fi ak òdinatè sa a)."
 
 #: ui/dialogs/settings-remote.slint
-msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
-msgstr "Yon telefòn sou Wi-Fi legliz la ka sèvi kòm kamera oswa mikwo pou emisyon an. Premye fwa a, telefòn nan avèti paj la pa prive: se nòmal, paske paj la soti nan òdinatè sa a. Peze Avanse (sou iPhone, Montre detay), epi kontinye sou paj la. Kenbe telefòn nan limen epi branche."
+msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. Scan its code with the phone's camera: that opens the page and connects the phone, with no code to type. Keep the phone awake and plugged in."
+msgstr "Yon telefòn sou Wi-Fi legliz la ka sèvi kòm kamera oswa mikwo pou emisyon an dirèk la. Eskane kòd li a ak kamera telefòn nan: sa louvri paj la epi konekte telefòn nan, san okenn kòd pou tape. Kenbe telefòn nan limen epi branche."
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a camera"
 msgstr "Telefòn kòm kamera"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
-msgstr "Konekte telefòn nan anvan ak Konekte yon telefòn oswa yon tablèt. Depi li voye imaj li, lis kamera yo rele l Kamera telefòn."
+msgid "Scanning the code connects the phone. Once it sends its picture, the camera lists call it Phone camera."
+msgstr "Lè ou eskane kòd la, telefòn nan konekte. Depi li voye imaj li, lis kamera yo rele l Kamera telefòn."
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open:"
-msgstr "Sou telefòn nan, louvri:"
+msgid "The phone camera's QR code"
+msgstr "Kòd QR kamera telefòn nan"
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose it in Settings → Livestream → Cameras"
 msgstr "Apre sa chwazi l nan Paramèt → Emisyon an dirèk → Kamera"
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a microphone"
 msgstr "Telefòn kòm mikwo"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
-msgstr "Pou mikwo kòl pastè a oswa yon mikwo sal san fil. Limen ekran sèn sou telefòn anvan: paj telefòn nan soti la."
+msgid "For a pastor's lapel or a room microphone without cables. Scanning the code connects the phone; then press Start on it."
+msgstr "Pou mikwo lapèl pastè a oswa yon mikwo nan sal la san fil. Lè ou eskane kòd la, telefòn nan konekte; apre sa peze Kòmanse sou li."
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open this page and press Start:"
-msgstr "Sou telefòn nan, louvri paj sa a epi peze Kòmanse:"
-
-#: ui/dialogs/settings-remote.slint
-msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
-msgstr "Ekran sèn sou telefòn fèmen, kidonk telefòn nan poko ka rive sou paj sa a."
+msgid "The phone microphone's QR code"
+msgstr "Kòd QR mikwo telefòn nan"
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose Phone in Settings → Livestream → Sound"
 msgstr "Apre sa chwazi Telefòn nan Paramèt → Emisyon an dirèk → Son"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Let phones in"
+msgstr "Kite telefòn yo antre"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Windows asks for an administrator's OK, then lets RustyPresenter in on private and public networks."
+msgstr "Windows mande dakò yon administratè, apre sa li kite RustyPresenter antre sou rezo prive ak rezo piblik."
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Control from other gear (TCP)"
@@ -3615,7 +3651,7 @@ msgstr "N ap kòmanse talè parèt anvan sèvis la, ak kontrebous la anba mo yo 
 msgid "Starting soon"
 msgstr "N ap kòmanse talè"
 
-#: ui/dialogs/settings-stream.slint src/stream/scene.rs src/strings/song.rs
+#: ui/dialogs/settings-stream.slint ui/dialogs/song-editor.slint src/stream/scene.rs src/strings/song.rs
 msgid "Ending"
 msgstr "Final"
 
@@ -4120,6 +4156,42 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— non seksyon yo sou pwòp liy pa yo; yon liy vid nan mitan yon seksyon kòmanse yon nouvo diapo"
 
 #: ui/dialogs/song-editor.slint
+msgid "Add a part:"
+msgstr "Ajoute yon pati:"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Verse"
+msgstr "Kouplè"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs src/strings/stage.rs
+msgid "Chorus"
+msgstr "Koral"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Pre-chorus"
+msgstr "Pre-koral"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Bridge"
+msgstr "Pon"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Tag"
+msgstr "Repriz"
+
+#: ui/dialogs/song-editor.slint
+msgid "Intro (chords only)"
+msgstr "Entwodiksyon (sèlman akò)"
+
+#: ui/dialogs/song-editor.slint
+msgid "A part the band plays with no words: type its chords like [G] [D]"
+msgstr "Yon pati mizisyen yo jwe san pawòl: tape akò li yo konsa [G] [D]"
+
+#: ui/dialogs/song-editor.slint
+msgid "Adds this part after the one the cursor is in"
+msgstr "Ajoute pati sa a apre pati kote kurseur la ye"
+
+#: ui/dialogs/song-editor.slint
 msgid "Insert slide break"
 msgstr "Mete koupi diapo"
 
@@ -4143,7 +4215,7 @@ msgstr ""
 "[Koral]\n"
 "My chains are gone…"
 
-#: ui/dialogs/song-editor.slint
+#: ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Order"
 msgstr "Lòd"
 
@@ -4152,8 +4224,8 @@ msgid "(optional)"
 msgstr "(si ou vle)"
 
 #: ui/dialogs/song-editor.slint
-msgid "Leave empty to use the written order"
-msgstr "Kite l vid pou itilize lòd jan l ekri a"
+msgid "Or type the order here. Leave it empty to use the written order"
+msgstr "Oswa tape lòd la isit la. Kite l vid pou sèvi ak lòd ki ekri a"
 
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Fewer lines on each slide of this song"
@@ -4214,6 +4286,10 @@ msgstr "Montre akò yo jan yo ekri a"
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
 msgstr "Diapo yo parèt la a pandan w ap tape. Mete non seksyon tankou “[Kouplè 1]” oswa “[Koral]” sou pwòp liy pa yo."
+
+#: ui/dialogs/song-editor.slint
+msgid "Click to go to its words"
+msgstr "Klike pou ale nan pawòl li"
 
 #: ui/dialogs/song-editor.slint
 msgid "Delete song"
@@ -5183,7 +5259,7 @@ msgstr "Dènye 10 s"
 msgid "Jump to 10 seconds before the end, to check how it finishes"
 msgstr "Sote 10 segonn anvan fen an, pou tcheke kijan li fini"
 
-#: ui/operator/live.slint
+#: ui/operator/live.slint ui/operator/slide-editor.slint ui/operator/slides.slint
 msgid "Edit words"
 msgstr "Modifye pawòl yo"
 
@@ -5527,6 +5603,106 @@ msgstr "Ajoute chante, videyo ak diapo, tape yon vèsè Bib anwo a, oswa rale fi
 msgid "Filter the service"
 msgstr "Filtre sèvis la"
 
+#: ui/operator/slide-editor.slint
+msgid "Split here…"
+msgstr "Separe isit la…"
+
+#: ui/operator/slide-editor.slint
+msgid "Join with next"
+msgstr "Mete l ansanm ak pwochen an"
+
+#: ui/operator/slide-editor.slint
+msgid "Add a slide after"
+msgstr "Ajoute yon diapo apre"
+
+#: ui/operator/slide-editor.slint
+msgid "Change section…"
+msgstr "Chanje pati a…"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part earlier"
+msgstr "Mete pati sa a pi bonè"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part later"
+msgstr "Mete pati sa a pi ta"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit the whole song…"
+msgstr "Modifye tout chante a…"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit chords too"
+msgstr "Modifye akò yo tou"
+
+#: ui/operator/slide-editor.slint
+msgid "The slide’s words"
+msgstr "Pawòl diapo a"
+
+#: ui/operator/slide-editor.slint
+msgid "Type the words for this slide"
+msgstr "Tape pawòl pou diapo sa a"
+
+#: ui/operator/slide-editor.slint
+msgid "Chords"
+msgstr "Akò"
+
+#: ui/operator/slide-editor.slint
+msgid "Enter saves · Shift+Enter starts a new line · Esc cancels"
+msgstr "Enter anrejistre · Shift+Enter kòmanse yon nouvo liy · Esc anile"
+
+#: ui/operator/slide-editor.slint
+msgid "Split here"
+msgstr "Separe isit la"
+
+#: ui/operator/slide-editor.slint
+msgid "A new slide starts at the line the cursor is on"
+msgstr "Yon nouvo diapo kòmanse nan liy kote kurseur la ye"
+
+#: ui/operator/slide-editor.slint
+msgid "Add slide"
+msgstr "Ajoute diapo"
+
+#: ui/operator/slide-editor.slint
+msgid "From this slide on, this part is:"
+msgstr "Apati diapo sa a, pati sa a se:"
+
+#: ui/operator/slide-editor.slint
+msgid "Quick order ▾"
+msgstr "Lòd rapid ▾"
+
+#: ui/operator/slide-editor.slint
+msgid "Ready-made orders for this song"
+msgstr "Lòd ki tou pare pou chante sa a"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus after every verse"
+msgstr "Koral apre chak kouplè"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus again at the end"
+msgstr "Koral ankò nan fen an"
+
+#: ui/operator/slide-editor.slint
+msgid "Just for this service"
+msgstr "Sèlman pou sèvis sa a"
+
+#: ui/operator/slide-editor.slint
+msgid "Save as the usual order"
+msgstr "Anrejistre kòm lòd abityèl"
+
+#: ui/operator/slide-editor.slint
+msgid "Every service plays the song in this order from now on"
+msgstr "Depi kounye a tout sèvis jwe chante a nan lòd sa a"
+
+#: ui/operator/slide-editor.slint
+msgid "Reset to the song’s order"
+msgstr "Retounen nan lòd chante a"
+
+#: ui/operator/slide-editor.slint
+msgid "This service plays the song in its usual order again"
+msgstr "Sèvis sa a jwe chante a nan lòd abityèl li ankò"
+
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
 msgstr "Ann prepare sèvis dimanch sa a"
@@ -5554,6 +5730,10 @@ msgstr "Itilize gwo bouton Pwochen an (oswa kle →) pandan sèvis la."
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "Ekran"
+
+#: ui/operator/slides.slint
+msgid "More for this slide"
+msgstr "Plis pou diapo sa a"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
@@ -6175,7 +6355,7 @@ msgstr "{name} — fichye enpòte"
 msgid "Give the song a title."
 msgstr "Bay chante a yon tit."
 
-#: src/app.rs
+#: src/app.rs src/song_edit/actions.rs
 msgid "That song is not in the library any more."
 msgstr "Chante sa a pa nan bibliyotèk la ankò."
 
@@ -7350,6 +7530,94 @@ msgstr[1] "Retire {n} fichye nan bibliyotèk medya a epi libere {size}."
 msgid "Sunday Service"
 msgstr "Sèvis Dimanch"
 
+#: src/network/phone_link.rs
+msgid "Waiting for a phone"
+msgstr "N ap tann yon telefòn"
+
+#: src/network/phone_link.rs
+msgid "Phone connected: {name}"
+msgstr "Telefòn konekte: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is connected"
+msgstr "Gen yon telefòn ki konekte"
+
+#: src/network/phone_link.rs
+msgid "Sending pictures: {name}"
+msgstr "Ap voye imaj: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is sending pictures"
+msgstr "Yon telefòn ap voye imaj"
+
+#: src/network/phone_link.rs
+msgid "Sending sound: {name}"
+msgstr "Ap voye son: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is sending sound"
+msgstr "Yon telefòn ap voye son"
+
+#: src/network/phone_link.rs
+msgid "The secure server is starting…"
+msgstr "Sèvè sekirize a ap demare…"
+
+#: src/network/phone_link.rs
+msgid "The secure server isn't running: {why}"
+msgstr "Sèvè sekirize a pa mache: {why}"
+
+#: src/network/phone_link.rs
+msgid "port {port} is in use by another program. Close that program, or restart this computer."
+msgstr "yon lòt pwogram ap sèvi ak pò {port}. Fèmen pwogram sa a, oswa rekòmanse òdinatè a."
+
+#: src/network/phone_link.rs
+msgid "Windows keeps port {port} for itself. Restart this computer and try again."
+msgstr "Windows kenbe pò {port} pou tèt li. Rekòmanse òdinatè a epi eseye ankò."
+
+#: src/network/phone_link.rs
+msgid "port {port} cannot be used ({error})."
+msgstr "pa ka sèvi ak pò {port} ({error})."
+
+#: src/network/phone_link.rs
+msgid "it could not make its certificate ({error})."
+msgstr "li pa t ka fè sètifika li ({error})."
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out on this network (Windows calls it a public network). Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter on public networks (port {port})."
+msgstr "Firewall òdinatè sa a ka ap bloke telefòn yo: Firewall Windows pa kite yo antre sou rezo sa a (Windows rele l yon rezo piblik). Klike sou “Kite telefòn yo antre”, oswa nan Sekirite Windows → Firewall, pèmèt RustyPresenter sou rezo piblik (pò {port})."
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out. Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter (port {port})."
+msgstr "Firewall òdinatè sa a ka ap bloke telefòn yo: Firewall Windows pa kite yo antre. Klike sou “Kite telefòn yo antre”, oswa nan Sekirite Windows → Firewall, pèmèt RustyPresenter (pò {port})."
+
+#: src/network/phone_link.rs
+msgid "This QR code was already used or is too old. Scan the code in RustyPresenter again (Settings → Remote and network → Phone camera and microphone)."
+msgstr "Kòd QR sa a te deja sèvi oswa li twò ansyen. Eskane kòd la nan RustyPresenter ankò (Paramèt → Telekòmand ak rezo → Kamera ak mikwo telefòn)."
+
+#: src/network/phone_link.rs
+msgid "Type the remote's password (set in RustyPresenter's Settings → Remote and network)."
+msgstr "Tape modpas telekòmand lan (ou mete l nan RustyPresenter, Paramèt → Telekòmand ak rezo)."
+
+#: src/platform/data_folder.rs
+msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
+msgstr "Kopi RustyPresenter sa a kenbe done li bò kote l, nan {wanted}, men yo pa ka chanje dosye sa a (petèt se yon kle USB ki bloke oswa yon CD). Pou kounye a, travay ou kenbe sou òdinatè sa a, nan {here}. Pou kenbe l bò kote aplikasyon an, kopye tout dosye RustyPresenter la yon kote yo ka chanje epi louvri l la."
+
+#: src/platform/data_folder.rs
+msgid "RustyPresenter was opened from inside the zip file, so it cannot keep its data beside it. For now your work is kept on this computer, in {here}. Close RustyPresenter, unzip the whole file first (on Windows: right-click it, then Extract All), and open RustyPresenter from the folder that makes."
+msgstr "Yo louvri RustyPresenter andedan fichye zip la, kidonk li pa ka kenbe done li bò kote l. Pou kounye a, travay ou kenbe sou òdinatè sa a, nan {here}. Fèmen RustyPresenter, dezipe tout fichye a anvan (sou Windows: klike adwat sou li, apre sa Extract All), epi louvri RustyPresenter nan dosye sa fè a."
+
+#: src/platform/data_folder.rs
+msgid "macOS opened a locked copy of RustyPresenter, because it has not been moved since it was downloaded. For now your work is kept on this computer, in {here}. Close RustyPresenter. In Finder, drag RustyPresenter out of its folder (onto the Desktop, say) and back in again, or into Applications if it came from the .dmg file. Then open it again."
+msgstr "macOS louvri yon kopi RustyPresenter ki bloke, paske yo pa t deplase l depi yo telechaje l. Pou kounye a, travay ou kenbe sou òdinatè sa a, nan {here}. Fèmen RustyPresenter. Nan Finder, trennen RustyPresenter soti nan dosye li (sou Desktop la, pa egzanp) epi remete l ankò, oswa nan Applications si li soti nan fichye .dmg la. Apre sa louvri l ankò."
+
+#: src/platform/firewall.rs
+msgid "Windows was not given the OK, so nothing changed."
+msgstr "Windows pa t resevwa dakò a, kidonk anyen pa chanje."
+
+#: src/platform/firewall.rs
+msgid "Windows Firewall could not be changed. Ask whoever looks after this computer to let RustyPresenter in for private and public networks."
+msgstr "Pa t ka chanje Firewall Windows la. Mande moun ki okipe òdinatè sa a pou l kite RustyPresenter antre sou rezo prive ak rezo piblik."
+
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
 msgstr "Ekran yo pa mache."
@@ -8367,10 +8635,6 @@ msgid "A phone only lets a page use its camera when the page is private. Tap the
 msgstr "Yon telefòn kite yon paj sèvi ak kamera li sèlman lè paj la prive. Tape bouton anba a. Apre sa telefòn nan avèti koneksyon an pa prive: se nòmal, paske paj la soti nan pwòp òdinatè legliz ou, pa sou entènèt."
 
 #: src/stream/phone_camera.rs
-msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
-msgstr "Tape Avanse (oswa Montre detay), apre sa Kontinye (oswa Vizite sit sa a). Telefòn nan sonje sa, kidonk se yon sèl fwa ou bezwen fè l."
-
-#: src/stream/phone_camera.rs
 msgid "Open the camera page"
 msgstr "Louvri paj kamera a"
 
@@ -8383,12 +8647,12 @@ msgid "Connect this phone"
 msgstr "Konekte telefòn sa a"
 
 #: src/stream/phone_camera.rs
-msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
-msgstr "Sou òdinatè prezantasyon an, klike sou Telefòn, apre sa sou Konekte yon telefòn oswa yon tablèt, epi tape kòd 6 chif la isit la."
+msgid "Scan the camera's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone). Or, on the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "Eskane kòd QR kamera a nan RustyPresenter (Paramèt → Telekòmand ak rezo → Kamera ak mikwo telefòn). Oswa, sou òdinatè prezantasyon an, klike sou Telefòn, apre sa Konekte yon telefòn oswa yon tablèt, epi tape kòd 6 chif la isit la."
 
 #: src/stream/phone_camera.rs
-msgid "6-digit code"
-msgstr "Kòd 6 chif"
+msgid "Connecting this phone…"
+msgstr "N ap konekte telefòn sa a…"
 
 #: src/stream/phone_camera.rs
 msgid "Like Balcony or Side. The computer lists this phone by this name."
@@ -8418,7 +8682,7 @@ msgstr "Ap voye bay òdinatè a"
 msgid "Connecting to the computer…"
 msgstr "Ap konekte ak òdinatè a…"
 
-#: src/stream/phone_camera.rs
+#: src/stream/phone_camera.rs src/stream/phone_mic.rs
 msgid "The computer cannot be reached. Trying again…"
 msgstr "Pa ka jwenn òdinatè a. N ap eseye ankò…"
 
@@ -8446,6 +8710,18 @@ msgstr "Sou òdinatè a, chwazi telefòn sa a nan Paramèt → Emisyon an dirèk
 msgid "This computer is not on a network, so no phone can reach it."
 msgstr "Òdinatè sa a pa sou okenn rezo, kidonk okenn telefòn pa ka jwenn li."
 
+#: src/stream/phone_camera.rs
+msgid "Android (Chrome): tap Advanced, then Proceed. iPhone (Safari): tap Show Details, then visit this website, then Visit Website. The phone remembers it, so this is only needed once."
+msgstr "Android (Chrome): tape Avanse, apre sa Kontinye. iPhone (Safari): tape Montre detay, apre sa vizite sit sa a, apre sa Vizite sit la. Telefòn nan sonje sa, kidonk se yon sèl fwa ou bezwen fè l."
+
+#: src/stream/phone_camera.rs
+msgid "No Proceed button? In Chrome on Android, open chrome://flags, search for \"insecure origins\", turn on \"Insecure origins treated as secure\", type {address} in its box, tap Relaunch, then open this page again."
+msgstr "Pa gen bouton Kontinye? Nan Chrome sou Android, louvri chrome://flags, chèche \"insecure origins\", limen \"Insecure origins treated as secure\", tape {address} nan bwat li a, tape Relaunch, apre sa louvri paj sa a ankò."
+
+#: src/stream/phone_camera.rs
+msgid "6-digit code"
+msgstr "Kòd 6 chif"
+
 #: src/stream/phone_mic.rs
 msgid "Phone microphone (open its page on the phone)"
 msgstr "Mikwo telefòn (louvri paj li sou telefòn nan)"
@@ -8467,16 +8743,20 @@ msgid "Sending, but the stream is not using this phone yet. Choose \"Phone micro
 msgstr "L ap voye, men emisyon an poko sèvi ak telefòn sa a. Chwazi \"Mikwo telefòn\" nan Paramèt → Emisyon an dirèk → Son, epi ale an dirèk."
 
 #: src/stream/phone_mic.rs
-msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
-msgstr "Telefòn nan kite sèlman yon paj ki an sekirite sèvi ak mikwo li. Louvri paj an sekirite a anba a; premye fwa a, telefòn nan avèti li pa prive: tape Avanse (oswa Montre detay) epi kontinye sou li."
+msgid "The phone only lets a secure page use its microphone. Open the secure page below. The first time, the phone warns that the connection is not private: that is expected, because the page comes from your church's own computer."
+msgstr "Telefòn nan kite sèlman yon paj sekirize sèvi ak mikwo li. Louvri paj sekirize ki anba a. Premye fwa a, telefòn nan avèti koneksyon an pa prive: se nòmal, paske paj la soti nan pwòp òdinatè legliz ou."
 
 #: src/stream/phone_mic.rs
 msgid "The phone did not let the page use its microphone. Allow it in the browser's settings for this page, then try again."
 msgstr "Telefòn nan pa t kite paj la sèvi ak mikwo li. Pèmèt li nan paramèt navigatè a pou paj sa a, apre sa eseye ankò."
 
 #: src/stream/phone_mic.rs
-msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
-msgstr "Limen ekran sèn sou telefòn nan RustyPresenter (Paramèt → Telekòmand ak rezo), epi konekte sou li anvan sou telefòn sa a."
+msgid "Connect this phone first: scan the microphone's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone), or type the 6-digit code from Phone → Pair a phone or tablet."
+msgstr "Konekte telefòn sa a anvan: eskane kòd QR mikwo a nan RustyPresenter (Paramèt → Telekòmand ak rezo → Kamera ak mikwo telefòn), oswa tape kòd 6 chif ki nan Telefòn → Konekte yon telefòn oswa yon tablèt."
+
+#: src/stream/phone_mic.rs
+msgid "Connected. Tap Start, then Allow when the phone asks for the microphone."
+msgstr "Konekte. Tape Kòmanse, apre sa Pèmèt lè telefòn nan mande pou mikwo a."
 
 #: src/stream/preflight.rs
 msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Livestream → Cameras. The stream shows the slides in its place."
@@ -11000,26 +11280,6 @@ msgid "The saved sound output (not connected)"
 msgstr "Sòti son ki anrejistre a (pa konekte)"
 
 #: src/strings/song.rs
-msgid "Verse"
-msgstr "Kouplè"
-
-#: src/strings/song.rs src/strings/stage.rs
-msgid "Chorus"
-msgstr "Koral"
-
-#: src/strings/song.rs
-msgid "Pre-chorus"
-msgstr "Pre-koral"
-
-#: src/strings/song.rs
-msgid "Bridge"
-msgstr "Pon"
-
-#: src/strings/song.rs
-msgid "Tag"
-msgstr "Repriz"
-
-#: src/strings/song.rs
 msgid "Intro"
 msgstr "Entwo"
 
@@ -11130,6 +11390,94 @@ msgstr "{section} — peze {key}"
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
 msgstr "{section} · diapo {page} sou {pages}"
+
+#: src/strings/song_edit.rs
+msgid "That slide is not in the song any more. Try again."
+msgstr "Diapo sa a pa nan chante a ankò. Eseye ankò."
+
+#: src/strings/song_edit.rs
+msgid "These two slides are one part shown {lines} lines at a time. Use Lines + to show more lines on each slide."
+msgstr "De diapo sa yo se yon sèl pati ki montre {lines} liy alafwa. Sèvi ak Liy + pou montre plis liy sou chak diapo."
+
+#: src/strings/song_edit.rs
+msgid "This is the last slide of its part, so there is nothing to join it with."
+msgstr "Se dènye diapo pati li, kidonk pa gen anyen pou mete ansanm avè l."
+
+#: src/strings/song_edit.rs
+msgid "Put the cursor on the line that should start the new slide."
+msgstr "Mete kurseur la sou liy ki dwe kòmanse nouvo diapo a."
+
+#: src/strings/song_edit.rs
+msgid "This is the song’s only slide. Delete the song in the library instead."
+msgstr "Se sèl diapo chante a. Efase chante a nan bibliyotèk la pito."
+
+#: src/strings/song_edit.rs
+msgid "{part} · slide {n} of {count}"
+msgstr "{part} · diapo {n} sou {count}"
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Your change shows every time."
+msgstr "{part} jwe {times} fwa nan chante sa a. Chanjman ou parèt chak fwa."
+
+#: src/strings/song_edit.rs
+msgid "This slide is chords only. Type the chords in square brackets, like [G] [D]."
+msgstr "Diapo sa a se sèlman akò. Tape akò yo nan kwochè, konsa [G] [D]."
+
+#: src/strings/song_edit.rs
+msgid "The chords stay over the same words. To change them, tick Edit chords too."
+msgstr "Akò yo rete sou menm mo yo. Pou chanje yo, tcheke Modifye akò yo tou."
+
+#: src/strings/song_edit.rs
+msgid "Slide saved"
+msgstr "Diapo anrejistre"
+
+#: src/strings/song_edit.rs
+msgid "Split into two slides"
+msgstr "Separe an de diapo"
+
+#: src/strings/song_edit.rs
+msgid "Joined with the next slide"
+msgstr "Mete ansanm ak pwochen diapo a"
+
+#: src/strings/song_edit.rs
+msgid "Slide added"
+msgstr "Diapo ajoute"
+
+#: src/strings/song_edit.rs
+msgid "Slide deleted"
+msgstr "Diapo efase"
+
+#: src/strings/song_edit.rs
+msgid "Slide copied"
+msgstr "Diapo kopye"
+
+#: src/strings/song_edit.rs
+msgid "This part is now {part}"
+msgstr "Pati sa a se {part} kounye a"
+
+#: src/strings/song_edit.rs
+msgid "Order changed for this service"
+msgstr "Lòd chanje pou sèvis sa a"
+
+#: src/strings/song_edit.rs
+msgid "This is now the song’s usual order"
+msgstr "Sa se lòd abityèl chante a kounye a"
+
+#: src/strings/song_edit.rs
+msgid "Back to the song’s usual order"
+msgstr "Retounen nan lòd abityèl chante a"
+
+#: src/strings/song_edit.rs
+msgid "This song has no chorus."
+msgstr "Chante sa a pa gen koral."
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Delete this slide every time it plays?"
+msgstr "{part} jwe {times} fwa nan chante sa a. Efase diapo sa a chak fwa li jwe?"
+
+#: src/strings/song_edit.rs
+msgid "Only song slides can be edited here. Use Edit for this item."
+msgstr "Se sèlman diapo chante ki ka modifye isit la. Sèvi ak Modifye pou eleman sa a."
 
 #: src/strings/stage.rs
 msgid "Classic"
@@ -12158,6 +12506,10 @@ msgstr "Kapo nan fret {fret} pou jwe fòm {key} yo"
 msgid "Capo {fret} to play the chords as written"
 msgstr "Kapo nan fret {fret} pou jwe akò yo jan yo ekri a"
 
+#: src/ui/dialogs/about.rs
+msgid "{folder} (a portable copy: the data is kept beside the app)"
+msgstr "{folder} (yon kopi pòtab: done yo kenbe bò kote aplikasyon an)"
+
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
 msgstr "Mete yon eleman sèvis sou ekran an"
@@ -12653,6 +13005,14 @@ msgstr "Swiv otomatik bezwen yon modèl vwa ({size}). Telechaje l kounye a?"
 #: src/ui/dialogs/settings_model.rs src/ui/operator/record.rs src/video/bench.rs
 msgid "Not now"
 msgstr "Pa kounye a"
+
+#: src/ui/dialogs/settings_phone.rs
+msgid "Waiting for Windows…"
+msgstr "N ap tann Windows…"
+
+#: src/ui/dialogs/settings_phone.rs
+msgid "Done: phones can now reach RustyPresenter through Windows Firewall."
+msgstr "Fini: kounye a telefòn yo ka rive jwenn RustyPresenter atravè Firewall Windows."
 
 #: src/ui/dialogs/settings_record.rs
 msgid "The output the app plays its sound to"
@@ -13534,6 +13894,39 @@ msgstr "yt-dlp pa anrejistre okenn videyo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "se pa yon fichye medya"
+
+#~ msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+#~ msgstr "Yon telefòn sou Wi-Fi legliz la ka sèvi kòm kamera oswa mikwo pou emisyon an. Premye fwa a, telefòn nan avèti paj la pa prive: se nòmal, paske paj la soti nan òdinatè sa a. Peze Avanse (sou iPhone, Montre detay), epi kontinye sou paj la. Kenbe telefòn nan limen epi branche."
+
+#~ msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
+#~ msgstr "Konekte telefòn nan anvan ak Konekte yon telefòn oswa yon tablèt. Depi li voye imaj li, lis kamera yo rele l Kamera telefòn."
+
+#~ msgid "On the phone, open:"
+#~ msgstr "Sou telefòn nan, louvri:"
+
+#~ msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
+#~ msgstr "Pou mikwo kòl pastè a oswa yon mikwo sal san fil. Limen ekran sèn sou telefòn anvan: paj telefòn nan soti la."
+
+#~ msgid "On the phone, open this page and press Start:"
+#~ msgstr "Sou telefòn nan, louvri paj sa a epi peze Kòmanse:"
+
+#~ msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
+#~ msgstr "Ekran sèn sou telefòn fèmen, kidonk telefòn nan poko ka rive sou paj sa a."
+
+#~ msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
+#~ msgstr "Tape Avanse (oswa Montre detay), apre sa Kontinye (oswa Vizite sit sa a). Telefòn nan sonje sa, kidonk se yon sèl fwa ou bezwen fè l."
+
+#~ msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+#~ msgstr "Sou òdinatè prezantasyon an, klike sou Telefòn, apre sa sou Konekte yon telefòn oswa yon tablèt, epi tape kòd 6 chif la isit la."
+
+#~ msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
+#~ msgstr "Telefòn nan kite sèlman yon paj ki an sekirite sèvi ak mikwo li. Louvri paj an sekirite a anba a; premye fwa a, telefòn nan avèti li pa prive: tape Avanse (oswa Montre detay) epi kontinye sou li."
+
+#~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
+#~ msgstr "Limen ekran sèn sou telefòn nan RustyPresenter (Paramèt → Telekòmand ak rezo), epi konekte sou li anvan sou telefòn sa a."
+
+#~ msgid "Leave empty to use the written order"
+#~ msgstr "Kite l vid pou itilize lòd jan l ekri a"
 
 #~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
 #~ msgstr "Trennen l sou yon lòt panno: bò kote l, oswa nan mitan l pou pataje plas li kòm onglè"

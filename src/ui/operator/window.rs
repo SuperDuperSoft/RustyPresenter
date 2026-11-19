@@ -97,6 +97,8 @@ pub struct Operator {
     /// The slide grid's rows; one model for the window's life (see `slides`).
     pub(super) slide_rows: Rc<VecModel<SlideRowCells>>,
     pub(super) slides: RefCell<SlidesState>,
+    /// Editing a song from its slides (see `slide_edit`).
+    pub(crate) slide_edit: RefCell<super::slide_edit::EditState>,
     pub(super) thumbs: Thumbs,
     /// The live column between updates (see `live`), and its monitor's drawing.
     pub(super) live: RefCell<LiveState>,
@@ -150,7 +152,7 @@ impl Operator {
             Operator {
                 ui, app, ops, screens, state: RefCell::default(), service_rows: Rc::default(), slide_rows: Rc::default(),
                 bin: RefCell::default(), bin_rows: Rc::default(), bin_folders: Rc::default(), bin_thumbs,
-                slides: RefCell::default(), thumbs, live: RefCell::default(), preview, overlays: Overlays::default(), files: FilesState::default(), check_timer: slint::Timer::default(), outputs_ui: RefCell::default(), record: Default::default(), songselect: Default::default(), dock: Default::default(), me: me.clone(), feed: listening.then(|| feed.clone()),
+                slides: RefCell::default(), slide_edit: RefCell::default(), thumbs, live: RefCell::default(), preview, overlays: Overlays::default(), files: FilesState::default(), check_timer: slint::Timer::default(), outputs_ui: RefCell::default(), record: Default::default(), songselect: Default::default(), dock: Default::default(), me: me.clone(), feed: listening.then(|| feed.clone()),
                 #[cfg(test)]
                 raises: Default::default(),
             }
@@ -180,6 +182,7 @@ impl Operator {
         super::record::wire(&op);
         super::docking::wire(&op);
         crate::ui::song_key::connect(&op);
+        super::slide_edit::wire(&op);
         op.ui.show().map_err(tr::open_failed)?;
         op.auto_zoom();
         // User translation files that could not be read at start (`i18n::load_user_folder`).

@@ -1,0 +1,244 @@
+# The Android remote's words (apps/android/ui). Where a text is the same as the desktop app's, its translation
+# is the desktop's (translations/zh-CN); the rest were translated for the app (November 18, 2026).
+msgid ""
+msgstr ""
+"Language: zh-CN\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Remote"
+msgstr "遥控器"
+
+msgid "Stage"
+msgstr "舞台"
+
+msgid "On air"
+msgstr "直播中"
+
+msgid "Microphone"
+msgstr "麦克风"
+
+msgid "Camera"
+msgstr "摄像头"
+
+msgid "Cancel"
+msgstr "取消"
+
+msgid "Continue"
+msgstr "继续"
+
+msgid "Choose the presentation computer. It needs RustyPresenter open and this phone on the same Wi-Fi."
+msgstr "选择演示电脑。它需要打开 RustyPresenter，并且这部手机要连在同一个 Wi-Fi 上。"
+
+msgid "Looking for RustyPresenter on this Wi-Fi…"
+msgstr "正在这个 Wi-Fi 上寻找 RustyPresenter…"
+
+msgid "On this Wi-Fi"
+msgstr "在这个 Wi-Fi 上"
+
+msgid "Search again"
+msgstr "重新搜索"
+
+msgid "Or scan the QR code"
+msgstr "或者扫描二维码"
+
+msgid "On the computer, click Phone → Pair a phone or tablet, then scan the code it shows."
+msgstr "在电脑上点“手机 → 配对手机或平板”，然后扫描显示的代码。"
+
+msgid "Scan the QR code"
+msgstr "扫描二维码"
+
+msgid "Or type the address"
+msgstr "或者输入地址"
+
+msgid "Connect"
+msgstr "连接"
+
+msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "在演示电脑上点“手机”，再点“配对手机或平板”，然后在这里输入 6 位代码。"
+
+msgid "This remote needs a password too."
+msgstr "这个遥控器也需要密码。"
+
+msgid "Password"
+msgstr "密码"
+
+msgid "Choose another computer"
+msgstr "选择另一台电脑"
+
+msgid "Connecting…"
+msgstr "正在连接…"
+
+msgid "On screen"
+msgstr "屏幕上"
+
+msgid "Hide presenter notes"
+msgstr "隐藏演示者备注"
+
+msgid "Show presenter notes"
+msgstr "显示演示者备注"
+
+msgid "Back"
+msgstr "返回"
+
+msgid "Next"
+msgstr "下一张"
+
+msgid "Play video"
+msgstr "播放视频"
+
+msgid "Pause video"
+msgstr "暂停视频"
+
+msgid "Up next"
+msgstr "接下来"
+
+msgid "Clear all"
+msgstr "全部清空"
+
+msgid "Text"
+msgstr "文本"
+
+msgid "Media"
+msgstr "媒体"
+
+msgid "Audio"
+msgstr "音频"
+
+msgid "Logo"
+msgstr "标志"
+
+msgid "Service"
+msgstr "聚会"
+
+msgid "Tap a slide to put it on the screen."
+msgstr "点击幻灯片即可将其显示到屏幕上。"
+
+msgid "Stage screen"
+msgstr "舞台屏幕"
+
+msgid "Not connected"
+msgstr "未连接"
+
+msgid "This stage screen needs a password."
+msgstr "此舞台屏幕需要密码。"
+
+msgid "Open"
+msgstr "打开"
+
+msgid "Camera {}"
+msgstr "摄像头 {}"
+
+msgid "Phone microphone"
+msgstr "手机麦克风"
+
+msgid "Sends this phone's microphone to the livestream."
+msgstr "把这部手机的麦克风声音送到直播。"
+
+msgid "Stop"
+msgstr "停止"
+
+msgid "Start sending sound"
+msgstr "开始发送声音"
+
+msgid "Keep this screen open while it sends."
+msgstr "发送时请保持这个画面打开。"
+
+msgid "Phone camera"
+msgstr "手机摄像头"
+
+msgid "Camera name"
+msgstr "摄像头名称"
+
+msgid "Back camera"
+msgstr "后置摄像头"
+
+msgid "Front camera"
+msgstr "前置摄像头"
+
+msgid "Start the camera"
+msgstr "启动摄像头"
+
+msgid "Turn the phone sideways for a full picture."
+msgstr "横置手机即可得到完整画面。"
+
+msgid "On the computer, choose this phone in Settings → Livestream → Cameras."
+msgstr "请在电脑的“设置 → 直播 → 摄像头”中选择这部手机。"
+
+msgid "No computer found yet. Check that RustyPresenter is open on the presentation computer and that this phone is on the same Wi-Fi."
+msgstr "还没有找到电脑。请确认演示电脑上已打开 RustyPresenter，并且这部手机连在同一个 Wi-Fi 上。"
+
+msgid "This phone is not on a Wi-Fi network. Connect to the church's Wi-Fi, then search again."
+msgstr "这部手机没有连上 Wi-Fi。请连上教会的 Wi-Fi，然后重新搜索。"
+
+msgid "That address isn't right. It looks like 192.168.1.20 — the computer shows it under Pair a phone or tablet."
+msgstr "这个地址不对。它看起来像 192.168.1.20——电脑在“配对手机或平板”里会显示它。"
+
+msgid "Could not reach {}. Check that RustyPresenter is open there and that this phone is on the same Wi-Fi."
+msgstr "无法连接到 {}。请确认那里已打开 RustyPresenter，并且这部手机连在同一个 Wi-Fi 上。"
+
+msgid "{} is not a RustyPresenter computer."
+msgstr "{} 不是 RustyPresenter 电脑。"
+
+msgid "Connected"
+msgstr "已连接"
+
+msgid "Could not connect."
+msgstr "无法连接。"
+
+msgid "(Logo)"
+msgstr "（标志）"
+
+msgid "(Clear)"
+msgstr "（已清空）"
+
+msgid "(Music playing)"
+msgstr "（正在播放音乐）"
+
+msgid "End of service"
+msgstr "聚会结束"
+
+msgid "The screen changed just now — tap the slide again."
+msgstr "屏幕刚刚变化 — 请再次点击该幻灯片。"
+
+msgid "Android phone"
+msgstr "Android 手机"
+
+msgid "To send this phone's microphone to the livestream, the app needs to use the microphone. Android will ask you next."
+msgstr "要把这部手机的麦克风声音送到直播，应用需要使用麦克风。接下来 Android 会询问你。"
+
+msgid "To send this phone's camera to the livestream, the app needs to use the camera. Android will ask you next."
+msgstr "要把这部手机的摄像头画面送到直播，应用需要使用摄像头。接下来 Android 会询问你。"
+
+msgid "To read the QR code, the app needs to use the camera. Android will ask you next."
+msgstr "要读取二维码，应用需要使用摄像头。接下来 Android 会询问你。"
+
+msgid "The microphone is not allowed. Allow it in the phone's Settings → Apps → RustyPresenter → Permissions."
+msgstr "麦克风未获允许。请在手机的“设置 → 应用 → RustyPresenter → 权限”中允许。"
+
+msgid "The camera is not allowed. Allow it in the phone's Settings → Apps → RustyPresenter → Permissions."
+msgstr "摄像头未获允许。请在手机的“设置 → 应用 → RustyPresenter → 权限”中允许。"
+
+msgid "The camera could not start. Close other apps that use it and try again."
+msgstr "摄像头无法启动。请关闭正在使用它的其他应用，然后再试一次。"
+
+msgid "The microphone could not start. Close other apps that use it and try again."
+msgstr "麦克风无法启动。请关闭正在使用它的其他应用，然后再试一次。"
+
+msgid "Point the camera at the QR code on the presentation computer."
+msgstr "把摄像头对准演示电脑上的二维码。"
+
+msgid "That QR code is not from RustyPresenter. On the computer, click Phone → Pair a phone or tablet."
+msgstr "这个二维码不是 RustyPresenter 的。请在电脑上点“手机 → 配对手机或平板”。"
+
+msgid "Connecting to the computer…"
+msgstr "正在连接电脑…"
+
+msgid "Sending to the computer"
+msgstr "正在发送到电脑"
+
+msgid "The computer cannot be reached. Trying again…"
+msgstr "无法连接到电脑。正在重试…"
+
+msgid "This phone is no longer paired. Pair it again."
+msgstr "这部手机已不再配对。请重新配对。"

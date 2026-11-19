@@ -109,16 +109,18 @@ function sheet(c) {
     for (const item of items(line)) {
       const it = document.createElement('span');
       it.className = 'ci';
-      for (const [ch, t] of item) {
+      item.forEach(([ch, t], k) => {
         const p = document.createElement('span');
         p.className = 'cp';
-        if (chords) { const b = document.createElement('b'); b.className = 'ch'; b.textContent = ch; b.style.color = c.chord_color; p.append(b); }
+        // Inside a word ("de[Db]fense") a chord does not widen its part, so the word stays whole (`spaceChords`).
+        const inWord = k + 1 < item.length;
+        if (chords) { const b = document.createElement('b'); b.className = 'ch' + (inWord ? ' in' : ''); b.textContent = ch; b.style.color = c.chord_color; p.append(b); }
         const s = document.createElement('span');
         s.className = 'cw';
         s.textContent = t;
         p.append(s);
         it.append(p);
-      }
+      });
       row.append(it);
     }
     box.append(row);
@@ -148,7 +150,27 @@ const FLOOR = 1.2;
 
 // The biggest size from the box's top size down to its smallest, in 0.4 % steps, at which the words fit; when none
 // does, on down in 0.2 % steps to FLOOR, so long words (notes) are made smaller rather than cut off.
+// Chords inside one word never run into each other: a chord that would start before the one before it ends moves
+// right, and the word's item makes room after it. In em, so it scales with the size `fitAll` picks.
+function spaceChords() {
+  for (const it of document.querySelectorAll('.sheet .ci')) {
+    const bs = [...it.querySelectorAll('.ch')];
+    if (bs.length < 2 || !it.querySelector('.ch.in')) continue;
+    let end = null, last = 0;
+    for (const b of bs) {
+      b.style.left = '0';
+      const r = b.getBoundingClientRect(), fs = parseFloat(getComputedStyle(b).fontSize) || 16;
+      let x = r.left;
+      if (b.textContent && end !== null && x < end + 0.3 * fs) { b.style.left = (end + 0.3 * fs - x) / fs + 'em'; x = end + 0.3 * fs; }
+      if (b.textContent) { end = x + b.scrollWidth; last = end; }
+    }
+    const room = last - it.getBoundingClientRect().right, fs = parseFloat(getComputedStyle(it).fontSize) || 16;
+    it.style.paddingRight = room > 0 ? room / fs + 'em' : '';
+  }
+}
+
 function fitAll() {
+  spaceChords();
   const over = w => w.scrollHeight > w.clientHeight + 1 || w.scrollWidth > w.clientWidth + 1;
   for (const w of document.querySelectorAll('.words')) {
     const max = +w.dataset.max, min = +w.dataset.min;

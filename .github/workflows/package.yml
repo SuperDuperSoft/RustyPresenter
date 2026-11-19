@@ -1,9 +1,12 @@
 name: Packages
 
 # Installers for Windows (NSIS), macOS (app + dmg, Apple silicon) and Linux (AppImage +
-# deb), built with cargo-packager from Packager.toml after packaging/stage.sh. A `v*` tag
-# also publishes them on a GitHub Release, together with THIRD-PARTY-LICENSES.txt and the
-# libmpv source tarball (LGPL-2.1 §6(d): the source sits next to the download).
+# deb), built with cargo-packager from Packager.toml after packaging/stage.sh, and a
+# portable copy for each (Jake, November 18, 2026: "one for each and a portable version"),
+# made by packaging/release-files.sh, which also gives every file its release name
+# (packaging/README.md, "Release files"). A `v*` tag also publishes them on a GitHub
+# Release, together with THIRD-PARTY-LICENSES.txt and the libmpv source tarball
+# (LGPL-2.1 §6(d): the source sits next to the download), and the Android remote's APK (job `android`).
 on:
   push:
     tags: ["v*"]
@@ -84,20 +87,104 @@ jobs:
         if: runner.os == 'macOS'
         run: codesign --verify --deep --strict -v dist/RustyPresenter.app
 
+      # RustyPresenter-<version>-windows-setup.exe, -macos.dmg, -linux.AppImage, -linux.deb.
+      - name: Release names
+        run: packaging/release-files.sh rename ${{ matrix.stage }}
+
+      # The same program and libraries with portable.txt beside them, so the data stays in the folder
+      # (src/platform/data_folder.rs): -windows-portable.zip, -macos-portable.zip, -linux-portable.tar.gz.
+      - name: Portable package
+        run: packaging/release-files.sh portable ${{ matrix.stage }}
+
       - name: Upload packages
         uses: actions/upload-artifact@v4
         with:
           name: packages-${{ matrix.stage }}
           path: |
-            dist/*.exe
-            dist/*.dmg
-            dist/*.AppImage
-            dist/*.deb
+            dist/RustyPresenter-*-setup.exe
+            dist/RustyPresenter-*.dmg
+            dist/RustyPresenter-*.AppImage
+            dist/RustyPresenter-*.deb
+            dist/RustyPresenter-*-portable.zip
+            dist/RustyPresenter-*-portable.tar.gz
+          if-no-files-found: error
+
+  # The Android remote (apps/android): its own Cargo project, built into an APK with the SDK's own tools by
+  # apps/android/build-apk.ps1 (no Gradle). Signed with the key in the ANDROID_KEYSTORE_BASE64 secret when it is
+  # set (then phones update in place from one release to the next), else with a fresh debug key.
+  android:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/android
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Pins
+        run: grep -E '^[A-Z0-9_]+=' packaging/pins.env >> "$GITHUB_ENV"
+
+      - name: Android SDK packages
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;$ANDROID_PLATFORM" \
+            "build-tools;$ANDROID_BUILD_TOOLS" "ndk;$ANDROID_NDK_VERSION"
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$ANDROID_NDK_VERSION" >> "$GITHUB_ENV"
+
+      - name: Same version as the app
+        run: |
+          v="$(sed -n 's/^version *= *"\([^"]*\)".*/\1/p' Packager.toml | head -n 1)"
+          a="$(sed -n 's/^version *= *"\([^"]*\)".*/\1/p' apps/android/Cargo.toml | head -n 1)"
+          [ "$v" = "$a" ] || { echo "::error::apps/android/Cargo.toml is $a, Packager.toml is $v"; exit 1; }
+          echo "RP_VERSION=$v" >> "$GITHUB_ENV"
+
+      - name: Tests (the parts that need no phone)
+        working-directory: apps/android
+        run: cargo test --locked
+
+      - name: Signing key
+        env:
+          KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          if [ -n "$KEYSTORE" ]; then
+            echo "$KEYSTORE" | base64 -d > "$RUNNER_TEMP/remote.keystore"
+            { echo "ANDROID_KEYSTORE=$RUNNER_TEMP/remote.keystore"; echo "ANDROID_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"; echo "ANDROID_KEY_ALIAS=$KEY_ALIAS"; } >> "$GITHUB_ENV"
+          else
+            echo "::warning::no ANDROID_KEYSTORE_BASE64 secret: the APK is signed with a fresh debug key"
+          fi
+
+      - name: APK
+        shell: pwsh
+        run: ./apps/android/build-apk.ps1 -Out "dist/RustyPresenter-$env:RP_VERSION-android-remote.apk"
+
+      - name: Check the APK
+        run: |
+          bt="$ANDROID_HOME/build-tools/$ANDROID_BUILD_TOOLS"
+          "$bt/aapt2" dump badging dist/RustyPresenter-*-android-remote.apk | head -n 3
+          "$bt/apksigner" verify dist/RustyPresenter-*-android-remote.apk
+          unzip -l dist/RustyPresenter-*-android-remote.apk | grep -E 'lib/(arm64-v8a|armeabi-v7a)/libremote.so'
+
+      - name: Upload the APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-android
+          path: dist/RustyPresenter-*-android-remote.apk
           if-no-files-found: error
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: package
+    needs: [package, android]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -114,6 +201,17 @@ jobs:
           pattern: packages-*
           path: release
           merge-multiple: true
+
+      # Every OS's installer and portable copy must be here before anything is published.
+      - name: Check the release files
+        run: |
+          v="$(sed -n 's/^version *= *"\([^"]*\)".*/\1/p' Packager.toml | head -n 1)"
+          [ "v$v" = "$GITHUB_REF_NAME" ] || { echo "::error::tag $GITHUB_REF_NAME is not Packager.toml's version $v"; exit 1; }
+          for f in windows-setup.exe windows-portable.zip macos.dmg macos-portable.zip \
+            linux.AppImage linux.deb linux-portable.tar.gz android-remote.apk; do
+            [ -f "release/RustyPresenter-$v-$f" ] || { echo "::error::RustyPresenter-$v-$f is missing"; exit 1; }
+          done
+          ls -l release
 
       - name: libmpv sources
         run: |

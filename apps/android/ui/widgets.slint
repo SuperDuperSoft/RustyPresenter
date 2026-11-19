@@ -1,0 +1,79 @@
+// Buttons and boxes in the desktop app's look.
+import { Theme } from "theme.slint";
+
+// A button: `kind` is "" (plain), "go" (the main one, amber), "danger" (Clear all) or "on" (a chip that is on).
+export component Btn inherits Rectangle {
+    in property <string> text;
+    in property <string> kind;
+    in property <bool> enabled: true;
+    in property <length> font-size: Theme.body;
+    in property <length> tall: 52px;
+    callback clicked();
+    // As tall as `tall` (or its words, when they wrap), never stretched.
+    min-height: max(root.tall, label.preferred-height + 16px);
+    max-height: self.min-height;
+    min-width: min(label.preferred-width + 24px, 160px);
+    border-radius: Theme.radius;
+    border-width: root.kind == "danger" ? 1px : 0px;
+    border-color: Theme.clear-all-border;
+    background: !root.enabled ? Theme.panel-2
+        : root.kind == "go" ? (touch.pressed ? Theme.accent.darker(20%) : Theme.accent)
+        : root.kind == "danger" ? (touch.pressed ? Theme.clear-all-bg.brighter(40%) : Theme.clear-all-bg)
+        : root.kind == "on" ? (touch.pressed ? Theme.accent.darker(30%) : Theme.accent.darker(10%))
+        : (touch.pressed ? Theme.line : Theme.raise);
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-action-default => { root.clicked(); }
+    label := Text {
+        text: root.text;
+        font-size: root.font-size;
+        font-weight: 600;
+        color: !root.enabled ? Theme.faint : root.kind == "go" || root.kind == "on" ? Theme.accent-ink
+            : root.kind == "danger" ? Theme.clear-all-text : Theme.text;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        wrap: word-wrap;
+        x: 8px;
+        width: parent.width - 16px;
+    }
+    touch := TouchArea {
+        enabled: root.enabled;
+        clicked => { root.clicked(); }
+    }
+}
+
+// A box with a small heading.
+export component Box inherits Rectangle {
+    in property <string> heading;
+    in property <color> heading-color: Theme.muted;
+    background: Theme.panel;
+    border-radius: Theme.radius;
+    border-width: 1px;
+    border-color: Theme.line;
+    VerticalLayout {
+        padding: Theme.pad;
+        spacing: 8px;
+        if root.heading != "": Text {
+            text: root.heading;
+            font-size: Theme.small;
+            font-weight: 600;
+            color: root.heading-color;
+        }
+        @children
+    }
+}
+
+// A line of words that wraps.
+export component Words inherits Text {
+    wrap: word-wrap;
+    color: Theme.text;
+    font-size: Theme.body;
+}
+
+// A short note under a control: grey, or red for a problem.
+export component Note inherits Text {
+    in property <bool> problem;
+    wrap: word-wrap;
+    color: root.problem ? Theme.danger-text : Theme.muted;
+    font-size: Theme.small;
+}

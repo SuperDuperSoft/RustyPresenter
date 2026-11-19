@@ -7,13 +7,16 @@ import { FollowUi } from "follow.slint";
 import { PanelExtras } from "extras.slint";
 import { SlideActs, ActionPalette } from "action-palette.slint";
 import { SongKeyControl } from "../song-key.slint";
+import { SlideEdit, SlideMenuCard, SlideContextMenu, SlideEditor, SectionChooser, OrderBar } from "slide-editor.slint";
 
 /// One thumbnail. `image` is empty until it is drawn (the cell shows black); `play` marks video and audio.
 /// `section` is the slide's section kind ("verse", "chorus", "pre_chorus"…, see `SectionKind::id`) or "" (no colour).
 /// `tag` is the slide's label ("Instrumental", N19) or "", shown on the picture in `tag-color`.
 /// `text` is what the slide says (or what kind of file it shows), for the Easy and Table views (N37).
 /// `actions`: how many things the slide does when it goes live (N15), and `actions-tip` lists them.
-export struct SlideCell { idx: int, label: string, image: image, live: bool, play: bool, section: string, tag: string, tag-color: color, text: string, actions: int, actions-tip: string }
+/// `song`: a song's slide, which can be edited right here (double-click, the pencil, right-click or the dots) and
+/// dragged onto another slide to move its part there.
+export struct SlideCell { idx: int, label: string, image: image, live: bool, play: bool, section: string, tag: string, tag-color: color, text: string, actions: int, actions-tip: string, song: bool }
 /// A section bar chip, one per section as the song plays: `short` is "V1", "C"... `live`: the live slide is in it.
 export struct SlideJump { idx: int, short: string, section: string, live: bool, tooltip: string }
 /// One row of the grid (`columns()` cells; the last may have fewer).
@@ -259,16 +262,66 @@ component Thumb inherits Rectangle {
         border-color: Theme.accent;
         background: Theme.accent.with-alpha(0.15);
     }
+    // N15: a palette tile; or another song slide, whose part then plays here (the order changes).
     drop := DropArea {
-        can-drop(e) => { return SlideActs.can-drop(e.data) ? DragAction.copy : DragAction.none; }
+        can-drop(e) => {
+            if SlideActs.can-drop(e.data) { return DragAction.copy; }
+            let j = SlideEdit.drag-index(e.data);
+            return root.cell.song && j >= 0 && j != root.cell.idx ? DragAction.move : DragAction.none;
+        }
         dropped(e) => {
-            SlideActs.dropped(root.cell.idx, e.data);
+            let j = SlideEdit.drag-index(e.data);
+            if j >= 0 { SlideEdit.dropped(j, root.cell.idx); } else { SlideActs.dropped(root.cell.idx, e.data); }
             return e.proposed-action;
         }
     }
-    ta := TouchArea {
-        mouse-cursor: pointer;
-        clicked => { root.clicked(); }
+    DragArea {
+        enabled: root.cell.song;
+        allow-move: true;
+        data: SlideEdit.drag-data(root.cell.idx);
+        ta := TouchArea {
+            mouse-cursor: pointer;
+            clicked => { root.clicked(); }
+            double-clicked => { if root.cell.song { SlideEdit.act(root.cell.idx, "edit"); } }
+            if root.cell.song: SlideContextMenu { idx: root.cell.idx; }
+        }
+    }
+    // A song slide's words can be changed right here.
+    thumb-tools := HorizontalLayout {
+        visible: root.cell.song && (ta.has-hover || edit-ta.has-hover || more-ta.has-hover);
+        x: parent.width - self.preferred-width - 6px;
+        y: screen.height - 30px;
+        spacing: 4px;
+        thumb-edit := Rectangle {
+            width: 24px;
+            height: 24px;
+            border-radius: 12px;
+            background: Theme.panel.with-alpha(0.92);
+            accessible-role: button;
+            accessible-label: @tr("Edit words");
+            accessible-action-default => { SlideEdit.act(root.cell.idx, "edit"); }
+            Icon { width: 14px; height: 14px; name: "edit"; color: Theme.text; }
+            edit-ta := TouchArea { mouse-cursor: pointer; clicked => { SlideEdit.act(root.cell.idx, "edit"); } }
+        }
+        thumb-more := Rectangle {
+            width: 24px;
+            height: 24px;
+            border-radius: 12px;
+            background: Theme.panel.with-alpha(0.92);
+            accessible-role: button;
+            accessible-label: @tr("More for this slide");
+            accessible-action-default => { slide-menu.show(); }
+            Icon { width: 14px; height: 14px; name: "dots"; color: Theme.text; }
+            more-ta := TouchArea { mouse-cursor: pointer; clicked => { slide-menu.show(); } }
+        }
+    }
+    slide-menu := PopupWindow {
+        x: root.width - 230px;
+        y: screen.height;
+        width: 230px;
+        height: 10 * 31px + 12px;
+        close-policy: close-on-click-outside;
+        SlideMenuCard { idx: root.cell.idx; picked => { slide-menu.close(); } }
     }
     // N15: what the slide does when it goes live. A click opens the action palette on it.
     if root.cell.actions > 0: actions-badge := Rectangle {
@@ -366,6 +419,8 @@ component EasyRow inherits Rectangle {
     ta := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
+        double-clicked => { if root.cell.song { SlideEdit.act(root.cell.idx, "edit"); } }
+        if root.cell.song: SlideContextMenu { idx: root.cell.idx; }
     }
 }
 
@@ -448,6 +503,8 @@ component TableRow inherits Rectangle {
     ta := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
+        double-clicked => { if root.cell.song { SlideEdit.act(root.cell.idx, "edit"); } }
+        if root.cell.song: SlideContextMenu { idx: root.cell.idx; }
     }
 }
 
@@ -536,6 +593,8 @@ export component SlidesPanel inherits VerticalLayout {
     /// The Welcome panel's buttons (N7).
     callback welcome-add();
     callback welcome-screens();
+    /// The slide editor or the section chooser closed: the window takes the keyboard back.
+    callback editor-done();
 
     /// `.grid`: 16 px side padding and 14 px gaps; cells share the width like `repeat(auto-fill, minmax(230px, 1fr))`.
     property <length> cell-w: max(1px, (grid.width - 32px - 14px * (root.columns - 1)) / max(1, root.columns));
@@ -817,6 +876,14 @@ export component SlidesPanel inherits VerticalLayout {
         }
     }
 
+    // The song's order, to drag into any order (Jake: "as easy as humanly possible to rearrange the song").
+    if SlideEdit.order-shown && root.has-selection: HorizontalLayout {
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-bottom: 8px;
+        order-bar := OrderBar { horizontal-stretch: 1; }
+    }
+
     if SlideActs.open && root.has-selection && root.slide-count > 0: HorizontalLayout {
         padding-left: 16px;
         padding-right: 16px;
@@ -908,6 +975,17 @@ export component SlidesPanel inherits VerticalLayout {
                     }
                 }
             }
+        }
+
+        if SlideEdit.open: slide-editor := SlideEditor {
+            width: parent.width;
+            height: parent.height;
+            done => { root.editor-done(); }
+        }
+        if SlideEdit.choosing: section-chooser := SectionChooser {
+            width: parent.width;
+            height: parent.height;
+            done => { root.editor-done(); }
         }
 
         if root.loaded && root.item-count == 0: welcome := Welcome {

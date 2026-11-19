@@ -15,56 +15,126 @@
   button:disabled { opacity: .5; }
   #meter { height: 14px; border-radius: 7px; background: #2a2d35; overflow: hidden; }
   #bar { height: 100%; width: 0; background: #1d8f4e; transition: width .08s; }
-  #note { color: #c8ccd6; }
+  #note, #how, #no_proceed { color: #c8ccd6; }
+  #how, #no_proceed { font-size: 15px; }
   a { color: #8ab4ff; word-break: break-all; }
+  label { display: block; font-size: 14px; color: #9aa0ad; margin: 0 0 4px; }
+  input { width: 100%; box-sizing: border-box; padding: 12px; border-radius: 8px; border: 1px solid #3a3e48; background: #1b1d22; color: #eceef3; font: inherit; }
+  #pair { display: flex; flex-direction: column; gap: 10px; }
+  #pair_error { color: #ff8a8a; }
+  [hidden] { display: none !important; }
 </style>
 </head>
 <body>
 <main>
   <h1 id="title">Phone microphone</h1>
   <div id="note"></div>
+  <div id="how" hidden></div>
   <a id="secure" hidden></a>
+  <div id="no_proceed" hidden></div>
+  <!-- Not paired yet (no QR code scanned): the 6-digit code, as for the phone remote; the remote's password when set. -->
+  <section id="pair" hidden>
+    <div id="pin_box"><label for="pin" id="code_label"></label><input id="pin" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div>
+    <div id="password_box" hidden><label for="password" id="password_label"></label><input id="password" type="password" autocomplete="current-password"></div>
+    <button id="connect"></button>
+    <div id="pair_error" hidden></div>
+  </section>
   <button id="go" disabled>Start sending sound</button>
   <div id="meter"><div id="bar"></div></div>
 </main>
 <script>
   // The phone's microphone, sent to RustyPresenter a tenth of a second at a time as 16-bit mono numbers
-  // (POST /stage-view/mic/sound?rate=…). Same access as the stage view.
+  // (POST /stage-view/mic/sound?rate=…). A paired phone may send: the QR code in Settings opens this page with a
+  // one-time secret after `#pair=` that pairs it in the same scan. Phones allowed to see the stage view may too.
   const $ = id => document.getElementById(id);
-  let words = {}, running = null, wake = null;
+  let words = {}, status = null, running = null, wake = null;
+  let secret = '';
+  { const m = /[#&]pair=([^&]+)/.exec(location.hash || ''); if (m) { secret = decodeURIComponent(m[1]); try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} } }
+
   async function keepAwake() { try { if (!wake && navigator.wakeLock) { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => { wake = null; }); } } catch (e) {} }
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && running) keepAwake(); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || !running) return;
+    keepAwake();
+    // iPhones stop ("interrupt") the sound when the screen locks or a call comes: start it again.
+    if (running.ctx.state !== 'running') running.ctx.resume().catch(() => {});
+  });
+
+  function deviceName() {
+    const ua = navigator.userAgent || '';
+    return /iPad/.test(ua) ? 'iPad' : /iPhone/.test(ua) ? 'iPhone' : /Android/.test(ua) ? 'Android' : (words.title || 'Phone microphone');
+  }
+
+  function showPair(withPin) {
+    $('pair').hidden = false;
+    $('pin_box').hidden = !withPin;
+    $('password_box').hidden = !(status && status.password);
+    $('go').hidden = true;
+  }
+  function pairError(t) { $('pair_error').textContent = t; $('pair_error').hidden = !t; }
+
+  async function pair() {
+    pairError('');
+    const viaCode = !!secret;
+    try {
+      const r = viaCode
+        ? await fetch('/phone/pair', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pair: secret, name: deviceName(), password: $('password').value }) })
+        : await fetch('/remote/pair', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pin: $('pin').value.trim(), password: $('password').value, name: deviceName() }) });
+      const j = await r.json().catch(() => ({}));
+      if (r.ok && j.ok) { secret = ''; $('pair').hidden = true; $('go').hidden = false; load(); return; }
+      if (viaCode && !j.password) secret = '';
+      showPair(!secret);
+      if (j.password) $('password_box').hidden = false;
+      pairError(j.error || ('' + r.status));
+    } catch (e) { pairError(words.lost || '…'); }
+  }
+  $('connect').addEventListener('click', pair);
 
   async function load() {
     try {
-      const j = await (await fetch('/stage-view/mic/status', { cache: 'no-store' })).json();
-      words = j.words || {};
+      status = await (await fetch('/stage-view/mic/status', { cache: 'no-store' })).json();
+      words = status.words || {};
       $('title').textContent = words.title || $('title').textContent;
       document.title = $('title').textContent;
-      $('go').textContent = words.start || $('go').textContent;
-      if (!window.isSecureContext || !navigator.mediaDevices) {
+      if (!running) $('go').textContent = words.start || $('go').textContent;
+      $('code_label').textContent = words.code || '';
+      $('password_label').textContent = words.password || '';
+      $('connect').textContent = words.connect || 'Connect';
+      if (!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         $('note').textContent = words.needs_secure || '';
-        if (j.secure_url) { $('secure').href = j.secure_url; $('secure').textContent = j.secure_url; $('secure').hidden = false; }
+        $('how').textContent = words.secure_how || ''; $('how').hidden = false;
+        if (/Android/.test(navigator.userAgent || '') && words.no_proceed) { $('no_proceed').textContent = words.no_proceed.replace('{address}', location.origin); $('no_proceed').hidden = false; }
+        if (status.secure_url) {
+          const to = status.secure_url + (secret ? '#pair=' + encodeURIComponent(secret) : '');
+          $('secure').href = to; $('secure').textContent = status.secure_url; $('secure').hidden = false;
+        }
         return;
       }
-      if (!j.allowed) {
-        $('note').textContent = words.needs_stage_view || '';
-        $('secure').href = '/stage-view'; $('secure').textContent = location.origin + '/stage-view'; $('secure').hidden = false;
+      if (!status.allowed) {
+        if (secret) { $('note').textContent = ''; showPair(false); pair(); return; }
+        $('note').textContent = words.needs_pairing || words.needs_stage_view || '';
+        showPair(true);
         return;
       }
       $('go').disabled = false;
-    } catch (e) { $('note').textContent = '…'; setTimeout(load, 2000); }
+      if (!running) $('note').textContent = words.tap_start || '';
+    } catch (e) { $('note').textContent = words.lost || '…'; setTimeout(load, 2000); }
   }
 
-  async function start() {
-    let stream;
-    try {
-      // The sound as it is: the stream's own filters clean it up.
-      stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
-    } catch (e) { $('note').textContent = words.no_microphone || String(e); return; }
+  // Called straight from the tap: phones (iPhones above all) start sound only from a tap, so the sound is set going
+  // here before anything is waited for.
+  function start() {
     let ctx;
-    try { ctx = new AudioContext({ sampleRate: 48000 }); } catch (e) { ctx = new AudioContext(); }
-    await ctx.resume();
+    // The phone's own rate (asking for one it does not use fails on some phones); the computer converts it.
+    try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { $('note').textContent = words.no_microphone || String(e); return; }
+    const resumed = ctx.resume().catch(() => {});
+    $('go').disabled = true;
+    navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } })
+      .then(async stream => { await resumed; begin(ctx, stream); })
+      .catch(e => { ctx.close().catch(() => {}); $('go').disabled = false; $('note').textContent = words.no_microphone || String(e); });
+  }
+
+  function begin(ctx, stream) {
+    // The sound as it is: the stream's own filters clean it up.
     const source = ctx.createMediaStreamSource(stream);
     const proc = ctx.createScriptProcessor(2048, 1, 1);
     // Heard by nobody here (no echo), but connected so the browser keeps it running.
@@ -79,20 +149,24 @@
     };
     const send = async () => {
       if (!running) return;
+      if (ctx.state === 'suspended' || ctx.state === 'interrupted') ctx.resume().catch(() => {});
       if (pendingLen > 0) {
         const all = new Int16Array(pendingLen); let at = 0;
         for (const p of pending) { all.set(p, at); at += p.length; }
         pending = []; pendingLen = 0;
         $('bar').style.width = Math.round(Math.min(1, peak) * 100) + '%'; peak = 0;
         try {
-          const r = await fetch('/stage-view/mic/sound?rate=' + ctx.sampleRate, { method: 'POST', body: all.buffer, headers: { 'Content-Type': 'application/octet-stream' } });
-          const j = await r.json();
+          const r = await fetch('/stage-view/mic/sound?rate=' + Math.round(ctx.sampleRate), { method: 'POST', body: all.buffer, headers: { 'Content-Type': 'application/octet-stream' } });
+          const j = await r.json().catch(() => ({}));
           $('note').textContent = j.text || '';
-        } catch (e) { $('note').textContent = '…'; }
+          // Unpaired on the computer meanwhile: stop, and say how to connect again.
+          if (r.status === 403) { stop(); $('note').textContent = j.text || words.needs_pairing || ''; showPair(true); return; }
+        } catch (e) { $('note').textContent = words.lost || '…'; }
       }
-      running.timer = setTimeout(send, 100);
+      if (running) running.timer = setTimeout(send, 100);
     };
     running = { stream, ctx, proc, timer: null };
+    $('go').disabled = false;
     $('go').textContent = words.stop || 'Stop'; $('go').className = 'stop';
     keepAwake();
     send();
@@ -103,7 +177,7 @@
     clearTimeout(running.timer);
     running.proc.disconnect();
     running.stream.getTracks().forEach(t => t.stop());
-    running.ctx.close();
+    running.ctx.close().catch(() => {});
     running = null;
     $('go').textContent = words.start || 'Start'; $('go').className = '';
     $('bar').style.width = '0';
@@ -112,6 +186,8 @@
   }
 
   $('go').addEventListener('click', () => running ? stop() : start());
+  // While the page is open and not sending, it says so every few seconds: Settings then shows "Phone connected".
+  setInterval(() => { if (!running && status && status.allowed && document.visibilityState === 'visible') fetch('/stage-view/mic/status', { cache: 'no-store' }).catch(() => {}); }, 5000);
   load();
 </script>
 </body>

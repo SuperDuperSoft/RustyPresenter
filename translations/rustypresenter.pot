@@ -228,6 +228,10 @@ msgstr ""
 msgid "Not in the words — it is skipped"
 msgstr ""
 
+#: ui/dialogs/arrangement.slint
+msgid "Play it twice"
+msgstr ""
+
 #: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr ""
@@ -236,12 +240,24 @@ msgstr ""
 msgid "End"
 msgstr ""
 
+#: ui/dialogs/arrangement.slint
+msgid "Drop here to remove"
+msgstr ""
+
+#: ui/dialogs/arrangement.slint
+msgid "✕ Remove"
+msgstr ""
+
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr ""
 
 #: ui/dialogs/arrangement.slint
 msgid "⟲ Use written order"
+msgstr ""
+
+#: ui/dialogs/arrangement.slint
+msgid "Click to play it at the end, or drag it in between the parts"
 msgstr ""
 
 #: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
@@ -612,7 +628,7 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings.rs
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint src/ui/dialogs/settings.rs
 msgid "Save"
 msgstr ""
 
@@ -640,7 +656,7 @@ msgstr ""
 msgid "{} · {} builds"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint src/strings/song_edit.rs
 msgid "New slide"
 msgstr ""
 
@@ -656,7 +672,7 @@ msgstr ""
 msgid "Move later"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint ui/operator/slide-editor.slint src/strings/song_edit.rs
 msgid "Delete slide"
 msgstr ""
 
@@ -1025,7 +1041,7 @@ msgstr ""
 msgid "To back"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator/slide-editor.slint ui/operator.slint
 msgid "Duplicate"
 msgstr ""
 
@@ -1057,11 +1073,11 @@ msgstr ""
 msgid "Video: {}"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint ui/operator/slide-editor.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Save and show now"
 msgstr ""
 
@@ -1193,7 +1209,7 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/settings-phone.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr ""
 
@@ -1608,7 +1624,7 @@ msgstr ""
 msgid "Pair a phone or tablet"
 msgstr ""
 
-#: ui/dialogs/phone.slint
+#: ui/dialogs/phone.slint ui/dialogs/settings-phone.slint
 msgid "QR code"
 msgstr ""
 
@@ -2580,6 +2596,22 @@ msgstr ""
 msgid "Default background"
 msgstr ""
 
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow. Or open:"
+msgstr ""
+
+#: ui/dialogs/settings-phone.slint
+msgid "The first time, the phone warns the page is not private (it comes from this computer): on Android tap Advanced → Proceed; on an iPhone tap Show Details → visit this website."
+msgstr ""
+
+#: ui/dialogs/settings-phone.slint
+msgid "Show the QR code"
+msgstr ""
+
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow."
+msgstr ""
+
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Use your phone or tablet as a remote"
 msgstr ""
@@ -2673,43 +2705,47 @@ msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this compu
 msgstr ""
 
 #: ui/dialogs/settings-remote.slint
-msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. Scan its code with the phone's camera: that opens the page and connects the phone, with no code to type. Keep the phone awake and plugged in."
 msgstr ""
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a camera"
 msgstr ""
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
+msgid "Scanning the code connects the phone. Once it sends its picture, the camera lists call it Phone camera."
 msgstr ""
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open:"
+msgid "The phone camera's QR code"
 msgstr ""
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose it in Settings → Livestream → Cameras"
 msgstr ""
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a microphone"
 msgstr ""
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
+msgid "For a pastor's lapel or a room microphone without cables. Scanning the code connects the phone; then press Start on it."
 msgstr ""
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open this page and press Start:"
-msgstr ""
-
-#: ui/dialogs/settings-remote.slint
-msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
+msgid "The phone microphone's QR code"
 msgstr ""
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose Phone in Settings → Livestream → Sound"
+msgstr ""
+
+#: ui/dialogs/settings-remote.slint
+msgid "Let phones in"
+msgstr ""
+
+#: ui/dialogs/settings-remote.slint
+msgid "Windows asks for an administrator's OK, then lets RustyPresenter in on private and public networks."
 msgstr ""
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
@@ -3612,7 +3648,7 @@ msgstr ""
 msgid "Starting soon"
 msgstr ""
 
-#: ui/dialogs/settings-stream.slint src/stream/scene.rs src/strings/song.rs
+#: ui/dialogs/settings-stream.slint ui/dialogs/song-editor.slint src/stream/scene.rs src/strings/song.rs
 msgid "Ending"
 msgstr ""
 
@@ -4117,6 +4153,42 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr ""
 
 #: ui/dialogs/song-editor.slint
+msgid "Add a part:"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Verse"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs src/strings/stage.rs
+msgid "Chorus"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Pre-chorus"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Bridge"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Tag"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Intro (chords only)"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "A part the band plays with no words: type its chords like [G] [D]"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Adds this part after the one the cursor is in"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
 msgid "Insert slide break"
 msgstr ""
 
@@ -4134,7 +4206,7 @@ msgid ""
 "My chains are gone…"
 msgstr ""
 
-#: ui/dialogs/song-editor.slint
+#: ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Order"
 msgstr ""
 
@@ -4143,7 +4215,7 @@ msgid "(optional)"
 msgstr ""
 
 #: ui/dialogs/song-editor.slint
-msgid "Leave empty to use the written order"
+msgid "Or type the order here. Leave it empty to use the written order"
 msgstr ""
 
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
@@ -4204,6 +4276,10 @@ msgstr ""
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Click to go to its words"
 msgstr ""
 
 #: ui/dialogs/song-editor.slint
@@ -5174,7 +5250,7 @@ msgstr ""
 msgid "Jump to 10 seconds before the end, to check how it finishes"
 msgstr ""
 
-#: ui/operator/live.slint
+#: ui/operator/live.slint ui/operator/slide-editor.slint ui/operator/slides.slint
 msgid "Edit words"
 msgstr ""
 
@@ -5518,6 +5594,106 @@ msgstr ""
 msgid "Filter the service"
 msgstr ""
 
+#: ui/operator/slide-editor.slint
+msgid "Split here…"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Join with next"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Add a slide after"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Change section…"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part earlier"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part later"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Edit the whole song…"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Edit chords too"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "The slide’s words"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Type the words for this slide"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Chords"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Enter saves · Shift+Enter starts a new line · Esc cancels"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Split here"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "A new slide starts at the line the cursor is on"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Add slide"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "From this slide on, this part is:"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Quick order ▾"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Ready-made orders for this song"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus after every verse"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus again at the end"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Just for this service"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Save as the usual order"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Every service plays the song in this order from now on"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Reset to the song’s order"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "This service plays the song in its usual order again"
+msgstr ""
+
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
 msgstr ""
@@ -5544,6 +5720,10 @@ msgstr ""
 
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "More for this slide"
 msgstr ""
 
 #: ui/operator/slides.slint
@@ -6166,7 +6346,7 @@ msgstr ""
 msgid "Give the song a title."
 msgstr ""
 
-#: src/app.rs
+#: src/app.rs src/song_edit/actions.rs
 msgid "That song is not in the library any more."
 msgstr ""
 
@@ -7341,6 +7521,94 @@ msgstr[1] ""
 msgid "Sunday Service"
 msgstr ""
 
+#: src/network/phone_link.rs
+msgid "Waiting for a phone"
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "Phone connected: {name}"
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "A phone is connected"
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "Sending pictures: {name}"
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "A phone is sending pictures"
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "Sending sound: {name}"
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "A phone is sending sound"
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "The secure server is starting…"
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "The secure server isn't running: {why}"
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "port {port} is in use by another program. Close that program, or restart this computer."
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "Windows keeps port {port} for itself. Restart this computer and try again."
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "port {port} cannot be used ({error})."
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "it could not make its certificate ({error})."
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out on this network (Windows calls it a public network). Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter on public networks (port {port})."
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out. Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter (port {port})."
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "This QR code was already used or is too old. Scan the code in RustyPresenter again (Settings → Remote and network → Phone camera and microphone)."
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "Type the remote's password (set in RustyPresenter's Settings → Remote and network)."
+msgstr ""
+
+#: src/platform/data_folder.rs
+msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
+msgstr ""
+
+#: src/platform/data_folder.rs
+msgid "RustyPresenter was opened from inside the zip file, so it cannot keep its data beside it. For now your work is kept on this computer, in {here}. Close RustyPresenter, unzip the whole file first (on Windows: right-click it, then Extract All), and open RustyPresenter from the folder that makes."
+msgstr ""
+
+#: src/platform/data_folder.rs
+msgid "macOS opened a locked copy of RustyPresenter, because it has not been moved since it was downloaded. For now your work is kept on this computer, in {here}. Close RustyPresenter. In Finder, drag RustyPresenter out of its folder (onto the Desktop, say) and back in again, or into Applications if it came from the .dmg file. Then open it again."
+msgstr ""
+
+#: src/platform/firewall.rs
+msgid "Windows was not given the OK, so nothing changed."
+msgstr ""
+
+#: src/platform/firewall.rs
+msgid "Windows Firewall could not be changed. Ask whoever looks after this computer to let RustyPresenter in for private and public networks."
+msgstr ""
+
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
 msgstr ""
@@ -8358,10 +8626,6 @@ msgid "A phone only lets a page use its camera when the page is private. Tap the
 msgstr ""
 
 #: src/stream/phone_camera.rs
-msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
-msgstr ""
-
-#: src/stream/phone_camera.rs
 msgid "Open the camera page"
 msgstr ""
 
@@ -8374,11 +8638,11 @@ msgid "Connect this phone"
 msgstr ""
 
 #: src/stream/phone_camera.rs
-msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgid "Scan the camera's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone). Or, on the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
 msgstr ""
 
 #: src/stream/phone_camera.rs
-msgid "6-digit code"
+msgid "Connecting this phone…"
 msgstr ""
 
 #: src/stream/phone_camera.rs
@@ -8409,7 +8673,7 @@ msgstr ""
 msgid "Connecting to the computer…"
 msgstr ""
 
-#: src/stream/phone_camera.rs
+#: src/stream/phone_camera.rs src/stream/phone_mic.rs
 msgid "The computer cannot be reached. Trying again…"
 msgstr ""
 
@@ -8437,6 +8701,18 @@ msgstr ""
 msgid "This computer is not on a network, so no phone can reach it."
 msgstr ""
 
+#: src/stream/phone_camera.rs
+msgid "Android (Chrome): tap Advanced, then Proceed. iPhone (Safari): tap Show Details, then visit this website, then Visit Website. The phone remembers it, so this is only needed once."
+msgstr ""
+
+#: src/stream/phone_camera.rs
+msgid "No Proceed button? In Chrome on Android, open chrome://flags, search for \"insecure origins\", turn on \"Insecure origins treated as secure\", type {address} in its box, tap Relaunch, then open this page again."
+msgstr ""
+
+#: src/stream/phone_camera.rs
+msgid "6-digit code"
+msgstr ""
+
 #: src/stream/phone_mic.rs
 msgid "Phone microphone (open its page on the phone)"
 msgstr ""
@@ -8458,7 +8734,7 @@ msgid "Sending, but the stream is not using this phone yet. Choose \"Phone micro
 msgstr ""
 
 #: src/stream/phone_mic.rs
-msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
+msgid "The phone only lets a secure page use its microphone. Open the secure page below. The first time, the phone warns that the connection is not private: that is expected, because the page comes from your church's own computer."
 msgstr ""
 
 #: src/stream/phone_mic.rs
@@ -8466,7 +8742,11 @@ msgid "The phone did not let the page use its microphone. Allow it in the browse
 msgstr ""
 
 #: src/stream/phone_mic.rs
-msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
+msgid "Connect this phone first: scan the microphone's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone), or type the 6-digit code from Phone → Pair a phone or tablet."
+msgstr ""
+
+#: src/stream/phone_mic.rs
+msgid "Connected. Tap Start, then Allow when the phone asks for the microphone."
 msgstr ""
 
 #: src/stream/preflight.rs
@@ -10989,26 +11269,6 @@ msgid "The saved sound output (not connected)"
 msgstr ""
 
 #: src/strings/song.rs
-msgid "Verse"
-msgstr ""
-
-#: src/strings/song.rs src/strings/stage.rs
-msgid "Chorus"
-msgstr ""
-
-#: src/strings/song.rs
-msgid "Pre-chorus"
-msgstr ""
-
-#: src/strings/song.rs
-msgid "Bridge"
-msgstr ""
-
-#: src/strings/song.rs
-msgid "Tag"
-msgstr ""
-
-#: src/strings/song.rs
 msgid "Intro"
 msgstr ""
 
@@ -11118,6 +11378,94 @@ msgstr ""
 
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "That slide is not in the song any more. Try again."
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "These two slides are one part shown {lines} lines at a time. Use Lines + to show more lines on each slide."
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "This is the last slide of its part, so there is nothing to join it with."
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Put the cursor on the line that should start the new slide."
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "This is the song’s only slide. Delete the song in the library instead."
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "{part} · slide {n} of {count}"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Your change shows every time."
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "This slide is chords only. Type the chords in square brackets, like [G] [D]."
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "The chords stay over the same words. To change them, tick Edit chords too."
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Slide saved"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Split into two slides"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Joined with the next slide"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Slide added"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Slide deleted"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Slide copied"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "This part is now {part}"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Order changed for this service"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "This is now the song’s usual order"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Back to the song’s usual order"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "This song has no chorus."
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Delete this slide every time it plays?"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Only song slides can be edited here. Use Edit for this item."
 msgstr ""
 
 #: src/strings/stage.rs
@@ -12147,6 +12495,10 @@ msgstr ""
 msgid "Capo {fret} to play the chords as written"
 msgstr ""
 
+#: src/ui/dialogs/about.rs
+msgid "{folder} (a portable copy: the data is kept beside the app)"
+msgstr ""
+
 #: src/ui/dialogs/automation.rs
 msgid "Put a service item on the screen"
 msgstr ""
@@ -12641,6 +12993,14 @@ msgstr ""
 
 #: src/ui/dialogs/settings_model.rs src/ui/operator/record.rs src/video/bench.rs
 msgid "Not now"
+msgstr ""
+
+#: src/ui/dialogs/settings_phone.rs
+msgid "Waiting for Windows…"
+msgstr ""
+
+#: src/ui/dialogs/settings_phone.rs
+msgid "Done: phones can now reach RustyPresenter through Windows Firewall."
 msgstr ""
 
 #: src/ui/dialogs/settings_record.rs

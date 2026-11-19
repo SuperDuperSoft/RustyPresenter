@@ -1,6 +1,7 @@
-// A song's order as coloured chips (FEAT-4 §3.5), in the song editor and in Item edit: drag a chip onto another to
-// move it there or onto End, × removes one, and with a chip selected Ctrl+←/→ move it, ←/→ choose another and
-// Delete or Backspace removes it. The logic is in Rust (`src/sections/arrangement.rs` and the dialogs' glue).
+// A song's order as coloured chips (FEAT-4 §3.5), in the song editor, in Item edit and on the Slides panel: drag a
+// chip onto another to move it there or onto End, drag it onto Remove (or ×) to take it out, ⧉ plays it twice, drag
+// a `+ <part>` button in between the chips to play that part there (a click puts it at the end), and with a chip
+// selected Ctrl+←/→ move it, ←/→ choose another, Delete or Backspace removes it and D plays it again. The logic is in Rust (`src/sections/arrangement.rs` and the dialogs' glue).
 import { Theme } from "../theme.slint";
 import { Btn, TipArea } from "../widgets.slint";
 
@@ -31,11 +32,18 @@ export component ArrangementStrip inherits FocusScope {
     callback move(int, int);
     callback remove(int);
     callback add(string);
+    /// Part `label` played at place `at` (a `+ <part>` button dropped on a chip).
+    callback insert(string, int);
+    /// Entry `i` played again right after itself.
+    callback duplicate(int);
     /// Use written order: the order becomes empty.
     callback reset();
     /// A chip's drag payload, and the index in one (-1 when it is not an order chip).
     pure callback drag-data(int) -> data-transfer;
     pure callback drag-index(data-transfer) -> int;
+    /// A `+ <part>` button's drag payload, and the part in one ("" when it is not one).
+    pure callback add-drag-data(string) -> data-transfer;
+    pure callback drag-label(data-transfer) -> string;
 
     enabled: root.active;
     changed has-focus => {
@@ -54,6 +62,11 @@ export component ArrangementStrip inherits FocusScope {
         if e.text == Key.Delete || e.text == Key.Backspace {
             root.remove(root.selected);
             root.selected = min(root.selected, root.count - 1);
+            return accept;
+        }
+        if (e.text == "d" || e.text == "D") && !e.modifiers.control && !e.modifiers.alt {
+            root.duplicate(root.selected);
+            root.selected = root.selected + 1;
             return accept;
         }
         reject
@@ -79,7 +92,7 @@ export component ArrangementStrip inherits FocusScope {
                 accessible-description: c.missing ? @tr("Not in the words — it is skipped") : "";
                 accessible-item-selected: self.chosen;
                 HorizontalLayout {
-                    padding-left: 7px;
+                    padding-left: root.active && arr-ta.has-hover && arr-chip.chosen && !c.faded ? 16px : 7px;
                     padding-right: arr-ta.has-hover ? 2px : 7px;
                     spacing: 2px;
                     Text {
@@ -99,10 +112,13 @@ export component ArrangementStrip inherits FocusScope {
                 arr-drop := DropArea {
                     enabled: root.active;
                     can-drop(e) => {
+                        if root.drag-label(e.data) != "" { return DragAction.copy; }
                         let j = root.drag-index(e.data);
                         return j >= 0 && j != c.index ? DragAction.move : DragAction.none;
                     }
                     dropped(e) => {
+                        let l = root.drag-label(e.data);
+                        if l != "" { root.insert(l, c.index); return e.proposed-action; }
                         let j = root.drag-index(e.data);
                         if j >= 0 && j != c.index { root.move(j, c.index); }
                         return e.proposed-action;
@@ -121,9 +137,26 @@ export component ArrangementStrip inherits FocusScope {
                         }
                     }
                 }
+                // ⧉ (on the chosen chip): this part played twice in a row.
+                if root.active && arr-ta.has-hover && arr-chip.chosen && !c.faded: arr-dup := Rectangle {
+                    x: 2px;
+                    width: 14px;
+                    z: 1;
+                    accessible-role: button;
+                    accessible-label: @tr("Play it twice");
+                    accessible-action-default => { root.duplicate(c.index); }
+                    Text {
+                        text: "⧉";
+                        color: Theme.sec-ink;
+                        font-size: 12px;
+                        vertical-alignment: center;
+                    }
+                    TouchArea { clicked => { root.duplicate(c.index); } }
+                }
                 if root.active && arr-ta.has-hover && !c.faded: arr-remove := Rectangle {
                     x: parent.width - 14px;
                     width: 14px;
+                    z: 1;
                     accessible-role: button;
                     accessible-label: @tr("Remove");
                     accessible-action-default => { root.remove(c.index); }
@@ -138,7 +171,10 @@ export component ArrangementStrip inherits FocusScope {
                 TipArea { text: c.missing ? @tr("Not in the words — it is skipped") : ""; hover: arr-ta.has-hover; pressed: arr-ta.pressed; pointer-x: arr-ta.mouse-x; }
             }
         }
-        if root.rows.length > 0: HorizontalLayout {
+        // Not an `if`: it holds `@children`. Hidden (and no taller than nothing) while there are no chips.
+        HorizontalLayout {
+            visible: root.rows.length > 0;
+            max-height: root.rows.length > 0 ? 1000px : 0px;
             spacing: 8px;
             alignment: start;
             // Drop here to move a chip to the end.
@@ -158,10 +194,42 @@ export component ArrangementStrip inherits FocusScope {
                 }
                 end-drop := DropArea {
                     enabled: root.active;
+                    can-drop(e) => {
+                        if root.drag-label(e.data) != "" { return DragAction.copy; }
+                        return root.drag-index(e.data) >= 0 ? DragAction.move : DragAction.none;
+                    }
+                    dropped(e) => {
+                        let l = root.drag-label(e.data);
+                        if l != "" { root.add(l); return e.proposed-action; }
+                        let j = root.drag-index(e.data);
+                        if j >= 0 { root.move(j, 9999); }
+                        return e.proposed-action;
+                    }
+                }
+            }
+            // Drop a chip here to take it out of the order.
+            arr-bin := Rectangle {
+                width: 74px;
+                height: 22px;
+                border-radius: 6px;
+                border-width: 1px;
+                border-color: bin-drop.has-drag ? Theme.danger-text : Theme.line;
+                accessible-role: text;
+                accessible-label: @tr("Drop here to remove");
+                Text {
+                    text: @tr("✕ Remove");
+                    color: bin-drop.has-drag ? Theme.danger-text : Theme.faint;
+                    font-family: Theme.font;
+                    font-size: 11px;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+                bin-drop := DropArea {
+                    enabled: root.active;
                     can-drop(e) => { return root.drag-index(e.data) >= 0 ? DragAction.move : DragAction.none; }
                     dropped(e) => {
                         let j = root.drag-index(e.data);
-                        if j >= 0 { root.move(j, 9999); }
+                        if j >= 0 { root.remove(j); }
                         return e.proposed-action;
                     }
                 }
@@ -179,17 +247,28 @@ export component ArrangementStrip inherits FocusScope {
                 text: @tr("⟲ Use written order");
                 clicked => { root.reset(); }
             }
+            // More buttons from where the strip is used (the Slides panel's quick patterns), on the same row.
+            @children
         }
         for row in root.adds: HorizontalLayout {
             spacing: 6px;
             alignment: start;
-            for label in row.labels: arr-add := Btn {
-                text: "+ " + label;
-                small: true;
+            // Click: played at the end. Drag onto a chip: played there.
+            for label in row.labels: DragArea {
                 enabled: root.active;
-                accessible-role: button;
-                accessible-label: label;
-                clicked => { root.add(label); }
+                allow-copy: true;
+                data: root.add-drag-data(label);
+                width: arr-add.preferred-width;
+                height: arr-add.preferred-height;
+                arr-add := Btn {
+                    text: "+ " + label;
+                    small: true;
+                    enabled: root.active;
+                    tooltip: @tr("Click to play it at the end, or drag it in between the parts");
+                    accessible-role: button;
+                    accessible-label: label;
+                    clicked => { root.add(label); }
+                }
             }
         }
     }

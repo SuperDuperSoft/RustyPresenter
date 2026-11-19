@@ -79,6 +79,12 @@ Var DeleteData
 !insertmacro MUI_PAGE_INSTFILES
 !define MUI_FINISHPAGE_RUN "$INSTDIR\${EXE}"
 !define MUI_FINISHPAGE_RUN_TEXT "Start ${PRODUCT} now"
+; Phones (the remote, a phone camera or microphone) reach the app over the church's Wi-Fi. Windows' own question the
+; first time the app runs lets it in on private networks only, and church Wi-Fi is often "public": this lets it in on
+; both (Windows asks for an administrator's OK; without one, nothing changes and Settings offers it again).
+!define MUI_FINISHPAGE_SHOWREADME ""
+!define MUI_FINISHPAGE_SHOWREADME_TEXT "Let phones on the Wi-Fi reach ${PRODUCT} (Windows asks for an administrator's OK)"
+!define MUI_FINISHPAGE_SHOWREADME_FUNCTION LetPhonesIn
 !insertmacro MUI_PAGE_FINISH
 
 !insertmacro MUI_UNPAGE_CONFIRM
@@ -106,6 +112,13 @@ FunctionEnd
 
 Function .onInit
   SetShellVarContext current
+FunctionEnd
+
+; The same rule as Settings → Remote and network → "Let phones in" (src/platform/firewall.rs `command`): the
+; program's own rules go (a "keep out" rule Windows made when its question was cancelled wins over any other), then
+; it is let in on private and public networks.
+Function LetPhonesIn
+  ExecShell "runas" "$SYSDIR\cmd.exe" '/c "netsh advfirewall firewall delete rule name=all program="$INSTDIR\${EXE}" dir=in & netsh advfirewall firewall add rule name="${PRODUCT}" dir=in action=allow program="$INSTDIR\${EXE}" enable=yes profile=private,public protocol=TCP & netsh advfirewall firewall add rule name="${PRODUCT}" dir=in action=allow program="$INSTDIR\${EXE}" enable=yes profile=private,public protocol=UDP"' SW_HIDE
 FunctionEnd
 
 ; The program must never go into the data folder: the uninstaller would then share it.

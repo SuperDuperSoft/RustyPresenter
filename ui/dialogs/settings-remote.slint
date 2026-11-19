@@ -1,6 +1,6 @@
 // Settings → Remote and network (November 17, 2026; was Settings → Network…): the remote (a phone or tablet that
 // runs the slides), drawing from it, the stage screen on phones and tablets, a phone as a camera or a microphone
-// (the one-time "not private" step is explained here, once), and control from other gear (TCP). The network rows
+// (each with a QR code that connects the phone in one scan), and control from other gear (TCP). The network rows
 // are `NetworkDlg`'s, saved with `network/save` when Settings is saved (`src/ui/dialogs/network.rs`).
 import { Theme } from "../theme.slint";
 import { Btn } from "../widgets.slint";
@@ -8,6 +8,7 @@ import { TextField, Note, Check } from "form.slint";
 import { SettingsDlg } from "settings-state.slint";
 import { NetworkDlg } from "network.slint";
 import { SetRow, SetLink, Hint, Gap } from "settings-row.slint";
+import { PhoneLinkDlg, PhoneQrBlock } from "settings-phone.slint";
 
 /// Remote and network → Remote.
 export component RemotePage inherits VerticalLayout {
@@ -120,27 +121,27 @@ export component PhoneStagePage inherits VerticalLayout {
     }
 }
 
-/// Remote and network → Phone camera and microphone: how to connect a phone, said once for both.
+/// Remote and network → Phone camera and microphone: a QR code for each that opens the phone's page and connects the
+/// phone in one scan, with a live line under it (`settings-phone.slint`, `src/ui/dialogs/settings_phone.rs`).
 export component PhoneCamMicPage inherits VerticalLayout {
     alignment: start;
     spacing: 4px;
     Note {
-        text: @tr("A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in.");
+        text: @tr("A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. Scan its code with the phone's camera: that opens the page and connects the phone, with no code to type. Keep the phone awake and plugged in.");
     }
     Gap {}
     camera-row := SetRow {
         key: "phone-camera";
         label: @tr("Phone as a camera");
-        help: @tr("Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera.");
-        Hint { text: @tr("On the phone, open:"); }
-        phone-camera-address := Text {
-            text: SettingsDlg.phone-camera-help;
-            color: Theme.text;
-            font-family: Theme.font;
-            font-weight: 600;
-            wrap: word-wrap;
-            accessible-role: text;
-            accessible-label: self.text;
+        help: @tr("Scanning the code connects the phone. Once it sends its picture, the camera lists call it Phone camera.");
+        camera-qr := PhoneQrBlock {
+            qr: PhoneLinkDlg.camera-qr;
+            has-qr: PhoneLinkDlg.camera-has-qr;
+            address: PhoneLinkDlg.camera-address;
+            health: PhoneLinkDlg.camera-health;
+            problem: PhoneLinkDlg.camera-problem;
+            qr-label: @tr("The phone camera's QR code");
+            show-big => { PhoneLinkDlg.show-big(false); }
         }
         SetLink {
             text: @tr("Then choose it in Settings → Livestream → Cameras");
@@ -151,23 +152,36 @@ export component PhoneCamMicPage inherits VerticalLayout {
     mic-row := SetRow {
         key: "phone-mic";
         label: @tr("Phone as a microphone");
-        help: @tr("For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there.");
-        Hint { text: @tr("On the phone, open this page and press Start:"); }
-        phone-mic-address := Text {
-            text: SettingsDlg.stream-phone-secure-address != "" ? SettingsDlg.stream-phone-secure-address : SettingsDlg.stream-phone-address;
-            color: Theme.text;
-            font-family: Theme.font;
-            font-weight: 600;
-            wrap: word-wrap;
-            accessible-role: text;
-            accessible-label: self.text;
+        help: @tr("For a pastor's lapel or a room microphone without cables. Scanning the code connects the phone; then press Start on it.");
+        mic-qr := PhoneQrBlock {
+            qr: PhoneLinkDlg.mic-qr;
+            has-qr: PhoneLinkDlg.mic-has-qr;
+            address: PhoneLinkDlg.mic-address;
+            health: PhoneLinkDlg.mic-health;
+            problem: PhoneLinkDlg.mic-problem;
+            qr-label: @tr("The phone microphone's QR code");
+            show-big => { PhoneLinkDlg.show-big(true); }
         }
-        if !NetworkDlg.stage-on: phone-mic-off := Hint { text: @tr("The stage screen on phones is off, so the phone cannot reach this page yet."); }
         SetLink {
             text: @tr("Then choose Phone in Settings → Livestream → Sound");
             page: 26;
             key: "stream-mics";
         }
+    }
+    if PhoneLinkDlg.firewall-blocked || PhoneLinkDlg.firewall-note != "": firewall-row := VerticalLayout {
+        spacing: 6px;
+        padding-top: 6px;
+        if PhoneLinkDlg.firewall-blocked: HorizontalLayout {
+            alignment: start;
+            let-in := Btn {
+                icon: "phone";
+                text: @tr("Let phones in");
+                enabled: !PhoneLinkDlg.firewall-busy;
+                clicked => { PhoneLinkDlg.let-phones-in(); }
+            }
+        }
+        if PhoneLinkDlg.firewall-blocked: Hint { text: @tr("Windows asks for an administrator's OK, then lets RustyPresenter in on private and public networks."); }
+        if PhoneLinkDlg.firewall-note != "": firewall-note := Hint { text: PhoneLinkDlg.firewall-note; }
     }
 }
 
