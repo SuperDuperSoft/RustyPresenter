@@ -43,7 +43,8 @@ export global SongEditorState {
     /// Where the song is now ("G → A, +2"), and the capo that plays the written shapes ("Capo 2 to play G shapes").
     in property <string> key-text;
     in property <string> capo-text;
-    in property <[SectionChipRow]> chips;
+    /// The `+ <part>` buttons under the order: each part once (click: played at the end; drag: played there).
+    in property <[ArrAddRow]> chips;
     in property <[PreviewSlide]> previews;
     /// "Not in the lyrics: X, Y", or empty.
     in property <string> warning;
@@ -68,6 +69,16 @@ export global SongEditorState {
     /// A field the preview follows (title, lyrics, order) changed by typing.
     callback edited();
     callback chip(string);
+    /// A `+ <part>` button dropped on chip `at`, and ⧉ (or D) on a chip.
+    callback arr-insert(string, int);
+    callback arr-duplicate(int);
+    pure callback arr-add-drag-data(string) -> data-transfer;
+    pure callback arr-drag-label(data-transfer) -> string;
+    /// Add a part: a new section of kind `kind` (0 Verse, 1 Chorus, 2 Pre-chorus, 3 Bridge, 4 Tag, 5 Ending,
+    /// 6 Intro with chords only) after the part the caret (a byte offset) is in; gives the caret's new place.
+    callback insert-section(int, int) -> int;
+    /// A slide of the preview clicked: the caret goes to its words; gives the caret's place.
+    callback preview-clicked(int) -> int;
     /// Move entry `from` to `to` (`to` = the number of entries: the end).
     callback arr-move(int, int);
     callback arr-remove(int);
@@ -206,6 +217,26 @@ export component SongEditor inherits VerticalLayout {
                 Field {
                     label: @tr("Words");
                     help: @tr("— section names on their own line; an empty line inside a section starts a new slide");
+                    // Add a part with one click: its name goes in after the part the cursor is in.
+                    HorizontalLayout {
+                        spacing: 4px;
+                        alignment: start;
+                        VerticalLayout {
+                            alignment: center;
+                            Text { text: @tr("Add a part:"); color: Theme.muted; font-family: Theme.font; font-size: 12.5px; }
+                        }
+                        for name[k] in [@tr("Verse"), @tr("Chorus"), @tr("Pre-chorus"), @tr("Bridge"), @tr("Tag"), @tr("Ending"), @tr("Intro (chords only)")]: add-part := Btn {
+                            small: true;
+                            text: "+ " + name;
+                            tooltip: k == 6 ? @tr("A part the band plays with no words: type its chords like [G] [D]") : @tr("Adds this part after the one the cursor is in");
+                            accessible-role: button;
+                            accessible-label: name;
+                            clicked => {
+                                lyrics.set-caret(SongEditorState.insert-section(k, lyrics.caret));
+                                lyrics.focus();
+                            }
+                        }
+                    }
                     HorizontalLayout {
                         spacing: 8px;
                         alignment: start;
@@ -254,16 +285,23 @@ export component SongEditor inherits VerticalLayout {
                         rows: SongEditorState.arr-rows;
                         count: SongEditorState.arr-count;
                         written: SongEditorState.arr-written;
+                        adds: SongEditorState.chips;
                         selected <=> SongEditorState.arr-selected;
                         move(from, to) => { SongEditorState.arr-move(from, to); }
                         remove(i) => { SongEditorState.arr-remove(i); }
+                        add(label) => { SongEditorState.chip(label); }
+                        insert(label, at) => { SongEditorState.arr-insert(label, at); }
+                        duplicate(i) => { SongEditorState.arr-duplicate(i); }
                         reset => { SongEditorState.arr-reset(); }
                         drag-data(i) => { return SongEditorState.arr-drag-data(i); }
                         drag-index(d) => { return SongEditorState.arr-drag-index(d); }
+                        add-drag-data(l) => { return SongEditorState.arr-add-drag-data(l); }
+                        drag-label(d) => { return SongEditorState.arr-drag-label(d); }
                     }
                     order := TextField {
                         text <=> SongEditorState.order;
-                        placeholder: @tr("Leave empty to use the written order");
+                        placeholder: @tr("Or type the order here. Leave it empty to use the written order");
+                        label: @tr("Order");
                         edited => { SongEditorState.edited(); }
                     }
                     if SongEditorState.warning != "": warning := Text {
@@ -272,17 +310,6 @@ export component SongEditor inherits VerticalLayout {
                         font-family: Theme.font;
                         font-size: 12px;
                         wrap: word-wrap;
-                    }
-                    for row in SongEditorState.chips: HorizontalLayout {
-                        spacing: 6px;
-                        alignment: start;
-                        for label in row.labels: chip := Btn {
-                            text: "+ " + label;
-                            small: true;
-                            accessible-role: button;
-                            accessible-label: label;
-                            clicked => { SongEditorState.chip(label); }
-                        }
                     }
                 }
                 // How this song fits its slides: lines on each slide and the text size. 0 = Settings' ("Auto").
@@ -469,8 +496,14 @@ export component SongEditor inherits VerticalLayout {
                             y: floor(i / 2) * (preview-box.cell-h + 8px);
                             width: preview-box.cell-w;
                             height: preview-box.cell-h;
-                            accessible-role: image;
+                            accessible-role: button;
                             accessible-label: p.label;
+                            accessible-description: @tr("Click to go to its words");
+                            accessible-action-default => { lyrics.set-caret(SongEditorState.preview-clicked(i)); lyrics.focus(); }
+                            TouchArea {
+                                mouse-cursor: pointer;
+                                clicked => { lyrics.set-caret(SongEditorState.preview-clicked(i)); lyrics.focus(); }
+                            }
                             Rectangle {
                                 y: 0;
                                 height: preview-box.cell-w * 9 / 16;

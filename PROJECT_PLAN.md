@@ -2003,3 +2003,58 @@ Design and the causes found: `docs/superpowers/specs/2026-11-18-phone-camera-mic
   iPhone Safari, Allow for the camera and microphone, wss after Proceed on a phone, the iPhone microphone after a
   screen lock, the Chrome flag fallback, and "Let phones in" / the installer box with a real administrator OK on a
   public network.
+
+### November 18, 2026 — Syllables and slide editing (branch `song-editing`)
+
+Jake, with a screenshot of "You've Already Won" from SongSelect's ChordPro: "notice there's a hyphen in 'defense'.
+There should not be." Then "Editing a song should be MUCH easier. There should be a way to just edit slides." and
+"It should be as easy as humanly possible to rearrange the song in any order you like." Design:
+`docs/superpowers/specs/2026-11-18-song-editing-design.md`.
+
+- **Split words joined** (`src/import/syllables.rs`): SongSelect's ` - ` syllable breaks (`de - [Db]fense`,
+  `righteous - [F#m]ness`, `a - gain`) are one word again when ChordPro is read (importer, SongSelect inbox, songs
+  folder), the chord kept where it falls (`de[Db]fense`). Real dashes stay (a capital or a non-letter after it, en/em
+  dashes, no spaces, a dash at a line's start or end). Songs already in the library are tidied at load only when they
+  still show SongSelect's sign (chords in the words and a break with a chord at it); each changed line is logged; a
+  song the church typed is never touched. The stage chord sheet keeps a word whole with the chord over its part
+  (`stage::chords::lay_out`; the phone's stage page the same way, `web/stage-view.js`).
+- **Slides edited in place** (`src/song_edit`, `src/ui/operator/slide_edit.rs`, `ui/operator/slide-editor.slint`):
+  double-click a song slide (or its pencil) and a small editor opens over the slides: the words without chords (the
+  chords go back over the same letters on Save; "Edit chords too" shows them as `[G]` marks; a chords-only slide
+  always shows them), the chords over the words as the band sees them, "Chorus plays 3 times… shows every time" for
+  repeats. Enter saves, Shift+Enter is a new line, Esc cancels. Right-click or ⋯: Edit words, Split here…, Join with
+  next, Add a slide after, Duplicate, Delete slide (asks first for a repeated part), Change section… (the names in
+  their colours; from this slide on the part is the chosen one: renamed on its first slide, split further in, the
+  orders follow), Move this part earlier/later, Edit the whole song… (the song editor at that slide). Edit words in
+  the Live panel opens the live slide the same way, with Save and show now. Each change is one `song/slides` step, so
+  Undo takes it back in one go.
+- **The order on the Slides panel**: chips to drag (onto a chip, End, ✕ Remove), ⧉ or D plays a part twice, `+ <part>`
+  buttons drag in between chips, Quick order ▾ (Chorus after every verse, Chorus again at the end), and a slide
+  dragged onto another moves its part. Changes are this service's own order; "Save as the usual order" and "Reset to the song's order".
+  The song editor and Item edit use the same chips. While the song is live the room never changes and the live part
+  stays live where it went (`Live::order_hint`, `sections::map_moved`); Next follows the new order.
+- **Song editor**: Add a part buttons (Verse, Chorus, Pre-chorus, Bridge, Tag, Ending, Intro (chords only)) put the
+  next free name after the part the cursor is in; a click on a preview slide puts the cursor at its words; the order's
+  `+ <part>` buttons are on the chips (drag them in); typing the order is still there.
+- **Tests:** `import::syllables` (both samples' lines, real dashes kept, the library tidy only for SongSelect-style
+  songs), `import::chordpro::songselect_syllable_breaks_become_whole_words` (the room's words and the stage segments),
+  `model::…songs_from_songselect_get_their_split_words_joined_once_at_load`, `stage::chords` (a word kept whole),
+  `song_edit::tests` (every slide finds its lines at 1, 2 and 4 lines a slide; edit, split, join, add, delete, duplicate,
+  change section, repeated parts, chords kept, chord-only and labelled slides), `song_edit::words` (chords put back),
+  `song_edit::order` (move, remove, repeat, step, patterns, where each part went), `live::song` (a new order keeps the
+  live part live), and the window driven inline (`ui::operator::slide_edit::tests`: double-click → type → Enter, Esc,
+  Edit chords too, a repeated part, the whole slide menu, Change section by clicking a name, the order strip, Save as
+  the usual order and Reset, a slide dropped on a slide, rearranging while live, Edit words in the Live panel, Undo for
+  each change), and the song editor's Add a part, preview click and chip drags.
+- **Build note:** `crates/rp-ui` has a second do-nothing feature, `song-editing`, turned on by the app, for the same
+  reason as `dock-panels` (another worktree's build script overwrote this one's screens in the shared build folder
+  during this work). The lead can drop both after merging.
+- **Not verified by a person:** all of it on a real screen: double-click and right-click on real slides, the slide
+  menu's pop-up, dragging chips, `+ <part>` buttons and slides with a real mouse (the tests call what a drop calls),
+  the editor's look on a small laptop screen, Enter/Shift+Enter in the words box, and the phone's stage page with
+  in-word chords (`web/stage-view.js` was not opened in a browser). The real "You've Already Won" file was not
+  available here (only the screenshot's lines); "Sometimes By Step" passes `stage::view`'s sample test.
+- **Test run:** 3,700 of 3,703 library tests pass; the 3 failures were the timing-sensitive `record::run` FFmpeg
+  go-live tests, which passed run again alone, one at a time (10 of 10). The real "Sometimes By Step" sample test
+  (`RP_CHORD_SAMPLE`, `--ignored`) passes with whole words. `i18n_catalogs`, `cleanup` and `words` pass. The 58 new
+  texts are in all 13 languages (machine-drafted like the rest; they need a native speaker's look).

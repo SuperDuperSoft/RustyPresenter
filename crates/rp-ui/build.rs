@@ -33,7 +33,7 @@ mod panes {
     pub const MIRRORED: &[&str] = &[
         "ServicePane", "SlidesPane", "LibraryPane", "BiblePane", "LivePane", "StreamPane", "DockShared",
         "Theme", "MenuKeys", "ListFilter", "SlideActs", "AutoStrip", "CameraSwitch", "PanelExtras", "FollowUi",
-        "LiveStatus", "VideoInputs", "OutputsState", "OverlayStrip", "ServicePlanning", "SongKeyState",
+        "LiveStatus", "VideoInputs", "OutputsState", "OverlayStrip", "ServicePlanning", "SongKeyState", "SlideEdit",
     ];
 
     struct Fun { name: String, sig: String, args: Vec<String> }

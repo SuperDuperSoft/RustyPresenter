@@ -6,7 +6,7 @@
 //! "Also show" pickers choose up to two more Bibles for this passage only (Nov 5 spec §3); a newly picked one is
 //! looked up on Save with the rest, and one that can't be is left out with a toast. A song gets "Order for this
 //! service" (FEAT-4 §3.5): untick "Use the song's usual order" to give this service its own order.
-use super::{DialogKind, background::{self, Picker, strings}, song_editor::{arr_chips, arr_drag_data, arr_drag_index, arr_rows}};
+use super::{DialogKind, background::{self, Picker, strings}, song_editor::{arr_add_drag_data, arr_chips, arr_drag_data, arr_drag_index, arr_drag_label, arr_rows}};
 use crate::{
     model::{ItemKind, MediaStatus, ServiceItem, Song, VerseText},
     scripture::{AlsoShow, MAX_ALSO, ParallelLayout, strings as bible_tr},
@@ -220,6 +220,14 @@ fn wire(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
     g.on_order_remove(move |i| if let (Some(op), Some(e), Ok(i)) = (me.upgrade(), e.upgrade(), usize::try_from(i)) { change_order(&op, &e, |v| arrangement::remove(v, i)) });
     let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
     g.on_order_add(move |label| if let (Some(op), Some(e)) = (me.upgrade(), e.upgrade()) { change_order(&op, &e, |v| v.push(label.into())) });
+    let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
+    g.on_order_insert(move |label, at| if let (Some(op), Some(e), Ok(at)) = (me.upgrade(), e.upgrade(), usize::try_from(at)) {
+        change_order(&op, &e, |v| v.insert(at.min(v.len()), label.into()))
+    });
+    let (me, e) = (Rc::downgrade(op), Rc::downgrade(edit));
+    g.on_order_duplicate(move |i| if let (Some(op), Some(e), Ok(i)) = (me.upgrade(), e.upgrade(), usize::try_from(i)) {
+        change_order(&op, &e, |v| if let Some(x) = v.get(i).cloned() { v.insert(i + 1, x) })
+    });
     let e = Rc::downgrade(edit);
     g.on_deck_note_edited(move |i, text| if let (Some(e), Ok(i)) = (e.upgrade(), usize::try_from(i)) {
         if let Some((_, _, _, _, rows)) = &e.borrow().deck_notes && let Some(mut row) = rows.row_data(i) {
@@ -249,6 +257,8 @@ fn wire(op: &Rc<Operator>, edit: &Rc<RefCell<Edit>>) {
     });
     g.on_order_drag_data(arr_drag_data);
     g.on_order_drag_index(|d| arr_drag_index(&d));
+    g.on_order_add_drag_data(arr_add_drag_data);
+    g.on_order_drag_label(|d| arr_drag_label(&d));
     g.on_upload(with(|op, edit| {
         let (me, edit) = (op.me.clone(), Rc::downgrade(edit));
         background::upload(op, move |files| {

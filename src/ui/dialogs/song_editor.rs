@@ -7,7 +7,7 @@ use crate::{
     sections::arrangement,
     slides::{parse_sections, song_slides},
     ui::{
-        ArrChip, ArrChipRow, PreviewSlide, SectionChipRow, SongEditorState,
+        ArrAddRow, ArrChip, ArrChipRow, PreviewSlide, SongEditorState,
         operator::{add_item::add_item_then, window::Operator},
         thumbs::{Thumbs, thumb, thumb_size},
     },
@@ -26,8 +26,9 @@ const PREVIEW_W: f32 = 256.0;
 const CHIPS_PER_ROW: usize = 4;
 /// Order chips per row.
 const ARR_PER_ROW: usize = 8;
-/// What a dragged order chip carries: plain text `arr:<index>`.
+/// What a dragged order chip carries: plain text `arr:<index>`; a dragged `+ <part>` button: `part:<label>`.
 const ARR_DRAG: &str = "arr:";
+const PART_DRAG: &str = "part:";
 
 /// The open editor: which song, what Save does, the preview's timer and pictures.
 struct EditorCtx {
@@ -68,7 +69,7 @@ pub fn edit_live_words(op: &Rc<Operator>, item_id: Uuid, song_id: Uuid, occurren
 fn live_song(op: &Operator) -> Option<Uuid> { op.shown_live().and_then(|l| l.view().item.as_ref()?.song_id) }
 
 /// `caret`: where the lyrics' caret goes (a byte offset), for Edit words.
-fn open_song_editor_at(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool, caret: Option<usize>, fill: Option<crate::model::Song>) {
+pub(crate) fn open_song_editor_at(op: &Rc<Operator>, song_id: Option<Uuid>, add_after: bool, caret: Option<usize>, fill: Option<crate::model::Song>) {
     let song = song_id.and_then(|id| op.state.borrow().snap.as_ref()?.data.songs.iter().find(|s| s.id == id).cloned());
     let song_id = song.as_ref().map(|s| s.id);
     op.open_dialog(DialogKind::SongEditor { song_id, add_after });
@@ -214,8 +215,8 @@ fn draw(op: &Operator, ctx: &EditorCtx) {
     for s in parse_sections(&song.lyrics) {
         if !labels.iter().any(|l| l == s.label.as_str()) { labels.push(s.label.into()) }
     }
-    let chips: Vec<SectionChipRow> = labels.chunks(CHIPS_PER_ROW)
-        .map(|c| SectionChipRow { labels: ModelRc::new(VecModel::from(c.to_vec())) }).collect();
+    let chips: Vec<ArrAddRow> = labels.chunks(CHIPS_PER_ROW)
+        .map(|c| ArrAddRow { labels: ModelRc::new(VecModel::from(c.to_vec())) }).collect();
     st.set_chips(ModelRc::new(VecModel::from(chips)));
     let warnings = order_warnings(&song.lyrics, &st.get_order());
     st.set_warning(if warnings.is_empty() { String::new() } else { tr::not_in_lyrics(&warnings) }.into());
@@ -297,6 +298,44 @@ pub(crate) fn arr_drag_index(d: &slint::DataTransfer) -> i32 {
     d.plain_text().ok().and_then(|t| t.strip_prefix(ARR_DRAG).and_then(|i| i.parse().ok())).unwrap_or(-1)
 }
 
+/// A `+ <part>` button's drag payload, and the part in one ("" when it is not one).
+pub(crate) fn arr_add_drag_data(label: SharedString) -> slint::DataTransfer {
+    let mut d = slint::DataTransfer::default();
+    d.set_plain_text(format!("{PART_DRAG}{label}").into());
+    d
+}
+
+pub(crate) fn arr_drag_label(d: &slint::DataTransfer) -> SharedString {
+    d.plain_text().ok().and_then(|t| t.strip_prefix(PART_DRAG).map(SharedString::from)).unwrap_or_default()
+}
+
+/// The names Add a part puts in, by button: Verse, Chorus, Pre-chorus, Bridge, Tag, Ending and Intro, as
+/// `Doc::section_choices` lists them (with the next number nobody has used: "Verse 3", "Chorus 2").
+const ADD_PART: [usize; 7] = [0, 1, 2, 3, 4, 8, 5];
+
+/// Add a part (`kind`, see `ADD_PART`): its name on a line of its own after the part the caret is in, a blank line
+/// before it; the caret goes on the line under it, ready for its words (or an Intro's chords).
+pub fn insert_section(text: &str, caret: usize, kind: usize) -> (String, usize) {
+    let doc = crate::song_edit::Doc::read(text);
+    let Some(name) = ADD_PART.get(kind).and_then(|&k| doc.section_choices(0).into_iter().nth(k)) else { return (text.to_string(), caret) };
+    let heading = crate::song_edit::Doc::heading_line(&name);
+    let caret = at_char(text, caret);
+    // The next section name after the caret's line, or the end.
+    let line_end = text[caret..].find('\n').map_or(text.len(), |i| caret + i + 1);
+    let mut at = text.len();
+    let mut offset = line_end;
+    for l in text[line_end..].split_inclusive('\n') {
+        if crate::slides::section_label(l.trim()).is_some() { at = offset; break }
+        offset += l.len();
+    }
+    let before = &text[..at];
+    let pre = if before.trim().is_empty() || before.ends_with("\n\n") { "" } else if before.ends_with('\n') { "\n" } else { "\n\n" };
+    let mut insert = format!("{pre}{heading}\n");
+    let new_caret = at + insert.len();
+    if at < text.len() { insert.push_str("\n\n") }
+    (format!("{before}{insert}{}", &text[at..]), new_caret)
+}
+
 #[derive(Deserialize)]
 struct Saved { id: Uuid }
 
@@ -365,6 +404,32 @@ fn wire(op: &Rc<Operator>, ctx: &Rc<EditorCtx>) {
     st.on_edited(move || later(&c));
     let c = ctx.clone();
     st.on_chip(move |label| if let Some(op) = c.op.upgrade() { add_to_order(&op, &c, &label) });
+    let c = ctx.clone();
+    st.on_arr_insert(move |label, at| if let (Some(op), Ok(at)) = (c.op.upgrade(), usize::try_from(at)) {
+        change_order(&op, &c, |v| v.insert(at.min(v.len()), label.to_string()))
+    });
+    let c = ctx.clone();
+    st.on_arr_duplicate(move |i| if let (Some(op), Ok(i)) = (c.op.upgrade(), usize::try_from(i)) {
+        change_order(&op, &c, |v| if let Some(e) = v.get(i).cloned() { v.insert(i + 1, e) })
+    });
+    st.on_arr_add_drag_data(arr_add_drag_data);
+    st.on_arr_drag_label(|d| arr_drag_label(&d));
+    let c = ctx.clone();
+    st.on_insert_section(move |kind, caret| edit_lyrics(&c, caret, |t, at| insert_section(t, at, usize::try_from(kind).unwrap_or(usize::MAX))));
+    let c = ctx.clone();
+    st.on_preview_clicked(move |i| {
+        let Some(op) = c.op.upgrade() else { return 0 };
+        let st = op.ui.global::<SongEditorState>();
+        let song = song_from_fields(&st, c.song_id, false);
+        let Some(settings) = op.state.borrow().snap.as_ref().map(|s| s.settings.clone()) else { return 0 };
+        let caret = usize::try_from(i).ok().and_then(|i| song_slides(&song, &settings).into_iter().nth(i)?.section).and_then(|r| {
+            let doc = crate::song_edit::Doc::read(&song.lyrics);
+            let at = doc.find(&song.arrangement, &r, song.lines(&settings))?;
+            let line = at.tag.unwrap_or(at.lines.start);
+            Some(song.lyrics.split_inclusive('\n').take(line).map(str::len).sum::<usize>())
+        });
+        i32::try_from(caret.unwrap_or(0)).unwrap_or(0)
+    });
     let c = ctx.clone();
     st.on_arr_move(move |from, to| if let (Some(op), Ok(from), Ok(to)) = (c.op.upgrade(), usize::try_from(from), usize::try_from(to)) {
         change_order(&op, &c, |v| arrangement::move_entry(v, from, to))
@@ -657,9 +722,55 @@ Verse 1
         assert_eq!(st(&op).get_order(), "Chorus");
         assert_eq!(labels(&op), ["Chorus"], "the preview follows at once");
         settle(&op);
-        find_all(&op, "SongEditor::chip")[0].mock_single_click(PointerEventButton::Left);
+        find_all(&op, "ArrangementStrip::arr-add")[0].mock_single_click(PointerEventButton::Left);
         assert_eq!(st(&op).get_order(), "Chorus, Verse 1");
         assert_eq!(labels(&op), ["Chorus", "Verse 1"]);
+    }
+
+    #[test]
+    fn add_a_part_puts_its_name_after_the_part_the_cursor_is_in() {
+        let t = "Verse 1\na\n\nChorus\nb";
+        // In Verse 1: Verse 2 goes before the chorus, the caret on the line for its words.
+        let (out, at) = insert_section(t, 3, 0);
+        assert_eq!(out, "Verse 1\na\n\nVerse 2\n\n\nChorus\nb");
+        assert_eq!(&out[..at], "Verse 1\na\n\nVerse 2\n");
+        // At the end: a chorus there already, so "Chorus 2"; an Intro of chords.
+        assert_eq!(insert_section(t, t.len(), 1).0, "Verse 1\na\n\nChorus\nb\n\nChorus 2\n");
+        assert_eq!(insert_section("", 0, 6), ("Intro\n".into(), 6));
+        assert_eq!(insert_section(t, t.len(), 2).0, "Verse 1\na\n\nChorus\nb\n\nPre-Chorus\n");
+    }
+
+    #[test]
+    fn the_part_buttons_and_a_click_on_the_preview_move_the_cursor() {
+        let app = test_app();
+        let op = opened(&app);
+        open_song_editor(&op, None, false);
+        settle(&op);
+        st(&op).set_lyrics("Verse 1\na".into());
+        let caret = st(&op).invoke_insert_section(1, 0);
+        assert_eq!(st(&op).get_lyrics(), "Verse 1\na\n\nChorus\n");
+        assert_eq!(caret as usize, "Verse 1\na\n\nChorus\n".len());
+        assert_eq!(labels(&op), ["Verse 1"], "an empty chorus has no slide yet");
+        assert_eq!(find_all(&op, "SongEditor::add-part").len(), 7);
+        st(&op).set_lyrics("Verse 1\na\n\nChorus\nb".into());
+        st(&op).invoke_edited();
+        mock_elapsed_time(PREVIEW_AFTER + Duration::from_millis(10));
+        assert_eq!(st(&op).invoke_preview_clicked(1) as usize, "Verse 1\na\n\nChorus\n".len(), "the chorus's words");
+    }
+
+    #[test]
+    fn order_chips_can_repeat_a_part_and_be_dragged_in() {
+        let app = test_app();
+        let id = song(&app, "Grace", "", "", "Verse 1\na\n\nChorus\nb");
+        let op = opened(&app);
+        open_song_editor(&op, Some(id), false);
+        settle(&op);
+        st(&op).invoke_arr_duplicate(1);
+        assert_eq!(st(&op).get_order(), "Verse 1, Chorus, Chorus");
+        st(&op).invoke_arr_insert("Chorus".into(), 0);
+        assert_eq!(st(&op).get_order(), "Chorus, Verse 1, Chorus, Chorus");
+        assert_eq!(arr_drag_label(&arr_add_drag_data("Chorus".into())), "Chorus");
+        assert_eq!(arr_drag_label(&arr_drag_data(2)), "", "an order chip is not a part button");
     }
 
     #[test]

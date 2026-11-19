@@ -4,6 +4,15 @@ use super::{Cursor, Live, Plan};
 use crate::sections::{self, Decision, JumpTarget, LiveChange, strings};
 use uuid::Uuid;
 
+/// Two slides that show the same words (their credit lines aside).
+fn same_words(a: &crate::model::Slide, b: &crate::model::Slide) -> bool {
+    use crate::model::SlideContent::Text;
+    match (&a.content, &b.content) {
+        (Text { text: x, reference: r, .. }, Text { text: y, reference: s, .. }) => x == y && r == s,
+        _ => false,
+    }
+}
+
 impl Live {
     /// Jump the live song to a section. Walks the snapshot, like Next; errors change nothing.
     pub(super) fn jump(&mut self, item_id: Uuid, t: JumpTarget) -> Result<(), String> {
@@ -45,7 +54,20 @@ impl Live {
         };
         if cursor.slide >= old.slides.len() { return false }
         let look_equal = new.background == old.background;
-        match sections::decide(&old.slides, cursor.slide, &new.slides, look_equal, |i| sections::map_position(&old.slides, i, &new.slides)) {
+        // The order changed from the Slides panel: each part is followed to where it went.
+        let hint = self.order_hint.take().filter(|(id, _)| *id == cursor.item_id).map(|(_, moved)| moved);
+        let mapper = |i: usize| match &hint {
+            Some(moved) => sections::map_moved(&old.slides, i, &new.slides, moved),
+            None => sections::map_position(&old.slides, i, &new.slides),
+        };
+        let mut decision = sections::decide(&old.slides, cursor.slide, &new.slides, look_equal, &mapper);
+        // Only the order changed: the live words are the same, though the credit line may now sit on another slide
+        // (it goes on the first and last). The room keeps what it shows; Next follows the new order.
+        if hint.is_some() && look_equal && let Decision::Banner(_) = decision && let Some(slide) = mapper(cursor.slide).index()
+            && same_words(&old.slides[cursor.slide], &new.slides[slide]) {
+            decision = Decision::Adopt { slide, map: (0..old.slides.len()).map(|k| mapper(k).index()).collect() };
+        }
+        match decision {
             Decision::Same => self.changed = None,
             Decision::NotesOnly => {
                 if let Some(item) = self.item.as_mut() { item.slides = new.slides }
@@ -207,6 +229,29 @@ mod tests {
         run(&mut l, &p, Command::Next).unwrap();
         run(&mut l, &p, Command::Next).unwrap();
         assert_eq!(shown(&l).as_deref(), Some("v2 fixed"));
+    }
+
+    #[test]
+    fn a_new_order_keeps_the_live_part_live_and_next_follows_the_new_order() {
+        // The second chorus is live; it is dragged to just after Verse 1 on the Slides panel.
+        let (mut l, p, id) = live_song(&["Verse 1", "Chorus", "Verse 2", "Chorus"], 3);
+        let frame = l.frame.clone();
+        p.set_slides(id, song_slides(L, &["Verse 1", "Chorus", "Chorus", "Verse 2"]));
+        l.order_hint = Some((id, vec![Some(0), Some(2), Some(3), Some(1)]));
+        assert!(l.reconcile(&p));
+        assert_eq!(l.frame, frame, "the room never changes");
+        assert_eq!(l.cursor.as_ref().unwrap().slide, 1, "the chorus that was live is still the live one, where it went");
+        assert_eq!(l.order_hint, None, "used once");
+        run(&mut l, &p, Command::Next).unwrap();
+        assert_eq!(l.cursor.as_ref().unwrap().slide, 2, "Next plays the new order");
+        run(&mut l, &p, Command::Next).unwrap();
+        assert_eq!(shown(&l).as_deref(), Some("v2"));
+        // A hint for another item is not used.
+        let (mut l, p, id) = live_song(&[], 1);
+        p.set_slides(id, song_slides(L, &["Chorus", "Verse 1"]));
+        l.order_hint = Some((uuid::Uuid::new_v4(), vec![Some(5)]));
+        l.reconcile(&p);
+        assert_eq!(l.cursor.as_ref().unwrap().slide, 0, "followed as before");
     }
 
     #[test]

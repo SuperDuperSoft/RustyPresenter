@@ -269,6 +269,7 @@ export component DockArea inherits Rectangle {
                 thumb-size-changed(v) => { SlidesPane.slides-thumb-size-changed(v); }
                 welcome-add => { root.focus-keys(); ServicePane.service-add(); }
                 welcome-screens => { root.focus-keys(); SlidesPane.slides-welcome-screens(); }
+                editor-done => { root.focus-keys(); }
             }
         }
 

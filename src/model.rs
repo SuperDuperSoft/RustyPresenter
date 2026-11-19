@@ -923,6 +923,13 @@ impl Data {
         changed |= crate::automation::seed(&mut self.automation);
         // November 17, 2026 (one word for each thing): screens still named as older versions named them.
         changed |= self.settings.screens.rename_old_defaults();
+        // November 18, 2026: words SongSelect's ChordPro split where a chord falls ("de - [Db]fense") made whole
+        // again, only in songs that still show SongSelect's sign (`import::syllables::repair`). Each change is logged.
+        for s in &mut self.songs {
+            let lines = crate::import::syllables::repair(s);
+            for (was, now) in &lines { eprintln!("Joined split words in \"{}\": \"{was}\" → \"{now}\"", s.title) }
+            changed |= !lines.is_empty();
+        }
         changed
     }
 
@@ -1209,6 +1216,19 @@ mod feat1_tests {
         assert!(d.after_load());
         let OverlaySource::Text { styles, .. } = &d.overlays[0].source else { panic!() };
         assert_eq!((styles[0].start, styles[0].end), (2, 5));
+        assert!(!d.after_load(), "once");
+    }
+
+    #[test]
+    fn songs_from_songselect_get_their_split_words_joined_once_at_load() {
+        let mut d = Data::default();
+        let lyrics = "Verse 1\nYou're my [Db]Savior, my [Dbsus]de - [Db]fense\nWe will be with You a - gain";
+        let typed = "Verse 1\n[G]Lord, we come - and we bow";
+        d.songs.push(Song { id: Uuid::new_v4(), title: "Won".into(), lyrics: lyrics.into(), ..Default::default() });
+        d.songs.push(Song { id: Uuid::new_v4(), title: "Ours".into(), lyrics: typed.into(), ..Default::default() });
+        assert!(d.after_load());
+        assert_eq!(d.songs[0].lyrics, "Verse 1\nYou're my [Db]Savior, my [Dbsus]de[Db]fense\nWe will be with You again");
+        assert_eq!(d.songs[1].lyrics, typed, "a song the church typed is left alone");
         assert!(!d.after_load(), "once");
     }
 

@@ -1,5 +1,5 @@
 //! FEAT-4 in the operator window: section keys, the section bar, Edit words, the change banner and Update screen.
-use super::window::{Operator, testing::{find, find_all, open, refresh}};
+use super::window::{Operator, testing::{find, open, refresh}};
 use crate::{
     app::{App, LiveUpdate, test_app},
     live::Command,
@@ -165,7 +165,7 @@ fn section_bar_marks_the_live_section_and_jumps_on_the_live_song() {
     op.ui.invoke_slides_pick_section(1);
     live(&op);
     assert_eq!(cursor(&app), Some((id, 1)));
-    assert_eq!(find_all(&op, "SlidesPanel::thumb").len(), 4);
+    assert_eq!(op.ui.get_slide_rows().iter().map(|r| r.cells.row_count()).sum::<usize>(), 4, "the grid keeps its slides");
 }
 
 #[test]
@@ -187,6 +187,8 @@ fn live_column_shows_the_section_and_edit_words_opens_the_editor_there() {
     let s = op.ui.get_live_song();
     assert_eq!((s.line.as_str(), s.kind.as_str(), s.edit), ("Verse 2 · slide 1 of 1", "verse", true));
     click(&op, "LiveColumn::live-edit-words");
+    assert!(op.ui.slide_edit_all().get_open(), "the live slide opens in the Slides panel's editor");
+    click(&op, "SlideEditor::editor-song");
     assert_eq!(op.dialog(), Some(DialogKind::SongEditor { song_id: Some(song_id), add_after: false }));
     let st = op.ui.global::<SongEditorState>();
     assert_eq!(st.get_caret() as usize, LYRICS.find("v2").unwrap(), "the caret at Verse 2's first line");
@@ -204,6 +206,7 @@ fn edit_words_caret_follows_item_override() {
     show(&op, id, 0);
     assert_eq!(op.ui.get_live_song().line.as_str(), "Verse 2 · slide 1 of 1", "this service starts with Verse 2");
     click(&op, "LiveColumn::live-edit-words");
+    click(&op, "SlideEditor::editor-song");
     assert_eq!(op.ui.global::<SongEditorState>().get_caret() as usize, LYRICS.find("v2").unwrap());
 }
 

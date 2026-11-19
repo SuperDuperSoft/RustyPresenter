@@ -231,6 +231,10 @@ msgstr "你自己的文字"
 msgid "Not in the words — it is skipped"
 msgstr "歌词中没有 — 将被跳过"
 
+#: ui/dialogs/arrangement.slint
+msgid "Play it twice"
+msgstr "演奏两次"
+
 #: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "移除"
@@ -239,6 +243,14 @@ msgstr "移除"
 msgid "End"
 msgstr "结尾"
 
+#: ui/dialogs/arrangement.slint
+msgid "Drop here to remove"
+msgstr "拖到这里移除"
+
+#: ui/dialogs/arrangement.slint
+msgid "✕ Remove"
+msgstr "✕ 移除"
+
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr "书写顺序 — 拖动可更改"
@@ -246,6 +258,10 @@ msgstr "书写顺序 — 拖动可更改"
 #: ui/dialogs/arrangement.slint
 msgid "⟲ Use written order"
 msgstr "⟲ 使用书写顺序"
+
+#: ui/dialogs/arrangement.slint
+msgid "Click to play it at the end, or drag it in between the parts"
+msgstr "点击放到最后，或拖到各部分之间"
 
 #: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
 msgid "Name"
@@ -615,7 +631,7 @@ msgstr "开始"
 msgid "Delete"
 msgstr "删除"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings.rs
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint src/ui/dialogs/settings.rs
 msgid "Save"
 msgstr "保存"
 
@@ -643,7 +659,7 @@ msgstr "动作路径的终点"
 msgid "{} · {} builds"
 msgstr "{} · {} 个分步动画"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint src/strings/song_edit.rs
 msgid "New slide"
 msgstr "新建幻灯片"
 
@@ -659,7 +675,7 @@ msgstr "前移"
 msgid "Move later"
 msgstr "后移"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint ui/operator/slide-editor.slint src/strings/song_edit.rs
 msgid "Delete slide"
 msgstr "删除幻灯片"
 
@@ -1028,7 +1044,7 @@ msgstr "置于顶层"
 msgid "To back"
 msgstr "置于底层"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator/slide-editor.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "复制一份"
 
@@ -1060,11 +1076,11 @@ msgstr "拖动可移动，拖动角可调整大小，方向键微调，按住 Al
 msgid "Video: {}"
 msgstr "视频：{}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint ui/operator/slide-editor.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "取消"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Save and show now"
 msgstr "保存并立即显示"
 
@@ -3635,7 +3651,7 @@ msgstr "“即将开始”在聚会前显示，倒计时进行时在文字下方
 msgid "Starting soon"
 msgstr "即将开始"
 
-#: ui/dialogs/settings-stream.slint src/stream/scene.rs src/strings/song.rs
+#: ui/dialogs/settings-stream.slint ui/dialogs/song-editor.slint src/stream/scene.rs src/strings/song.rs
 msgid "Ending"
 msgstr "结尾"
 
@@ -4140,6 +4156,42 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— 段落名称单独占一行；段落内空一行即开始新的幻灯片"
 
 #: ui/dialogs/song-editor.slint
+msgid "Add a part:"
+msgstr "添加部分："
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Verse"
+msgstr "主歌"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs src/strings/stage.rs
+msgid "Chorus"
+msgstr "副歌"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Pre-chorus"
+msgstr "导歌"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Bridge"
+msgstr "桥段"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Tag"
+msgstr "尾句"
+
+#: ui/dialogs/song-editor.slint
+msgid "Intro (chords only)"
+msgstr "前奏（只有和弦）"
+
+#: ui/dialogs/song-editor.slint
+msgid "A part the band plays with no words: type its chords like [G] [D]"
+msgstr "乐队没有歌词演奏的部分：像这样输入和弦 [G] [D]"
+
+#: ui/dialogs/song-editor.slint
+msgid "Adds this part after the one the cursor is in"
+msgstr "在光标所在部分之后添加这一部分"
+
+#: ui/dialogs/song-editor.slint
 msgid "Insert slide break"
 msgstr "插入幻灯片分页"
 
@@ -4163,7 +4215,7 @@ msgstr ""
 "Chorus\n"
 "我的锁链已断开…"
 
-#: ui/dialogs/song-editor.slint
+#: ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Order"
 msgstr "顺序"
 
@@ -4172,8 +4224,8 @@ msgid "(optional)"
 msgstr "（可选）"
 
 #: ui/dialogs/song-editor.slint
-msgid "Leave empty to use the written order"
-msgstr "留空则使用书写顺序"
+msgid "Or type the order here. Leave it empty to use the written order"
+msgstr "或在此输入顺序。留空则按书写顺序"
 
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Fewer lines on each slide of this song"
@@ -4234,6 +4286,10 @@ msgstr "按原样显示和弦"
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
 msgstr "输入时幻灯片会显示在这里。将“Verse 1”或“Chorus”等段落名称单独放在一行。"
+
+#: ui/dialogs/song-editor.slint
+msgid "Click to go to its words"
+msgstr "点击转到它的歌词"
 
 #: ui/dialogs/song-editor.slint
 msgid "Delete song"
@@ -5203,7 +5259,7 @@ msgstr "最后 10 秒"
 msgid "Jump to 10 seconds before the end, to check how it finishes"
 msgstr "跳到结束前 10 秒，检查结尾效果"
 
-#: ui/operator/live.slint
+#: ui/operator/live.slint ui/operator/slide-editor.slint ui/operator/slides.slint
 msgid "Edit words"
 msgstr "编辑歌词"
 
@@ -5547,6 +5603,106 @@ msgstr "添加诗歌、视频和幻灯片，在顶部输入经文，或把文件
 msgid "Filter the service"
 msgstr "筛选聚会"
 
+#: ui/operator/slide-editor.slint
+msgid "Split here…"
+msgstr "在此拆分…"
+
+#: ui/operator/slide-editor.slint
+msgid "Join with next"
+msgstr "与下一张合并"
+
+#: ui/operator/slide-editor.slint
+msgid "Add a slide after"
+msgstr "在后面添加幻灯片"
+
+#: ui/operator/slide-editor.slint
+msgid "Change section…"
+msgstr "更改部分…"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part earlier"
+msgstr "将此部分前移"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part later"
+msgstr "将此部分后移"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit the whole song…"
+msgstr "编辑整首诗歌…"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit chords too"
+msgstr "同时编辑和弦"
+
+#: ui/operator/slide-editor.slint
+msgid "The slide’s words"
+msgstr "幻灯片的歌词"
+
+#: ui/operator/slide-editor.slint
+msgid "Type the words for this slide"
+msgstr "输入这张幻灯片的歌词"
+
+#: ui/operator/slide-editor.slint
+msgid "Chords"
+msgstr "和弦"
+
+#: ui/operator/slide-editor.slint
+msgid "Enter saves · Shift+Enter starts a new line · Esc cancels"
+msgstr "Enter 保存 · Shift+Enter 换行 · Esc 取消"
+
+#: ui/operator/slide-editor.slint
+msgid "Split here"
+msgstr "在此拆分"
+
+#: ui/operator/slide-editor.slint
+msgid "A new slide starts at the line the cursor is on"
+msgstr "从光标所在行开始新的幻灯片"
+
+#: ui/operator/slide-editor.slint
+msgid "Add slide"
+msgstr "添加幻灯片"
+
+#: ui/operator/slide-editor.slint
+msgid "From this slide on, this part is:"
+msgstr "从这张幻灯片起，这部分是："
+
+#: ui/operator/slide-editor.slint
+msgid "Quick order ▾"
+msgstr "快速顺序 ▾"
+
+#: ui/operator/slide-editor.slint
+msgid "Ready-made orders for this song"
+msgstr "这首诗歌的现成顺序"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus after every verse"
+msgstr "每段主歌后接副歌"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus again at the end"
+msgstr "最后再唱一次副歌"
+
+#: ui/operator/slide-editor.slint
+msgid "Just for this service"
+msgstr "仅限本次聚会"
+
+#: ui/operator/slide-editor.slint
+msgid "Save as the usual order"
+msgstr "保存为常用顺序"
+
+#: ui/operator/slide-editor.slint
+msgid "Every service plays the song in this order from now on"
+msgstr "从现在起每次聚会都按此顺序"
+
+#: ui/operator/slide-editor.slint
+msgid "Reset to the song’s order"
+msgstr "恢复诗歌的顺序"
+
+#: ui/operator/slide-editor.slint
+msgid "This service plays the song in its usual order again"
+msgstr "本次聚会恢复诗歌的常用顺序"
+
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
 msgstr "一起来准备这个主日的聚会吧"
@@ -5574,6 +5730,10 @@ msgstr "聚会期间使用大大的“下一张”按钮（或 → 键）。"
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "屏幕"
+
+#: ui/operator/slides.slint
+msgid "More for this slide"
+msgstr "此幻灯片的更多操作"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
@@ -6195,7 +6355,7 @@ msgstr "{name} — 导入的文件"
 msgid "Give the song a title."
 msgstr "请为诗歌输入标题。"
 
-#: src/app.rs
+#: src/app.rs src/song_edit/actions.rs
 msgid "That song is not in the library any more."
 msgstr "那首诗歌已不在曲库中。"
 
@@ -11084,26 +11244,6 @@ msgid "The saved sound output (not connected)"
 msgstr "已保存的声音输出（未连接）"
 
 #: src/strings/song.rs
-msgid "Verse"
-msgstr "主歌"
-
-#: src/strings/song.rs src/strings/stage.rs
-msgid "Chorus"
-msgstr "副歌"
-
-#: src/strings/song.rs
-msgid "Pre-chorus"
-msgstr "导歌"
-
-#: src/strings/song.rs
-msgid "Bridge"
-msgstr "桥段"
-
-#: src/strings/song.rs
-msgid "Tag"
-msgstr "尾句"
-
-#: src/strings/song.rs
 msgid "Intro"
 msgstr "前奏"
 
@@ -11214,6 +11354,94 @@ msgstr "{section} — 按 {key}"
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
 msgstr "{section} · 第 {page}/{pages} 张"
+
+#: src/strings/song_edit.rs
+msgid "That slide is not in the song any more. Try again."
+msgstr "这张幻灯片已不在诗歌中。请重试。"
+
+#: src/strings/song_edit.rs
+msgid "These two slides are one part shown {lines} lines at a time. Use Lines + to show more lines on each slide."
+msgstr "这两张是同一部分，每次显示 {lines} 行。用行数 + 让每张显示更多行。"
+
+#: src/strings/song_edit.rs
+msgid "This is the last slide of its part, so there is nothing to join it with."
+msgstr "这是该部分的最后一张，没有可合并的。"
+
+#: src/strings/song_edit.rs
+msgid "Put the cursor on the line that should start the new slide."
+msgstr "把光标放在新幻灯片开始的那一行。"
+
+#: src/strings/song_edit.rs
+msgid "This is the song’s only slide. Delete the song in the library instead."
+msgstr "这是诗歌唯一的幻灯片。请在诗歌库中删除这首诗歌。"
+
+#: src/strings/song_edit.rs
+msgid "{part} · slide {n} of {count}"
+msgstr "{part} · 第 {n} 张，共 {count} 张"
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Your change shows every time."
+msgstr "{part} 在这首诗歌里唱 {times} 次。你的修改每次都会显示。"
+
+#: src/strings/song_edit.rs
+msgid "This slide is chords only. Type the chords in square brackets, like [G] [D]."
+msgstr "这张只有和弦。请把和弦写在方括号里，例如 [G] [D]。"
+
+#: src/strings/song_edit.rs
+msgid "The chords stay over the same words. To change them, tick Edit chords too."
+msgstr "和弦保持在原来的字上方。要修改，请勾选同时编辑和弦。"
+
+#: src/strings/song_edit.rs
+msgid "Slide saved"
+msgstr "已保存幻灯片"
+
+#: src/strings/song_edit.rs
+msgid "Split into two slides"
+msgstr "已拆分为两张幻灯片"
+
+#: src/strings/song_edit.rs
+msgid "Joined with the next slide"
+msgstr "已与下一张合并"
+
+#: src/strings/song_edit.rs
+msgid "Slide added"
+msgstr "已添加幻灯片"
+
+#: src/strings/song_edit.rs
+msgid "Slide deleted"
+msgstr "已删除幻灯片"
+
+#: src/strings/song_edit.rs
+msgid "Slide copied"
+msgstr "已复制幻灯片"
+
+#: src/strings/song_edit.rs
+msgid "This part is now {part}"
+msgstr "这部分现在是 {part}"
+
+#: src/strings/song_edit.rs
+msgid "Order changed for this service"
+msgstr "已更改本次聚会的顺序"
+
+#: src/strings/song_edit.rs
+msgid "This is now the song’s usual order"
+msgstr "这已是诗歌的常用顺序"
+
+#: src/strings/song_edit.rs
+msgid "Back to the song’s usual order"
+msgstr "已恢复诗歌的常用顺序"
+
+#: src/strings/song_edit.rs
+msgid "This song has no chorus."
+msgstr "这首诗歌没有副歌。"
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Delete this slide every time it plays?"
+msgstr "{part} 在这首诗歌里唱 {times} 次。每次都删除这张幻灯片吗？"
+
+#: src/strings/song_edit.rs
+msgid "Only song slides can be edited here. Use Edit for this item."
+msgstr "这里只能编辑诗歌的幻灯片。此项目请使用编辑。"
 
 #: src/strings/stage.rs
 msgid "Classic"
@@ -13644,6 +13872,8 @@ msgstr "不是媒体文件"
 
 #~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
 #~ msgstr "请在 RustyPresenter 中打开“手机上的舞台屏幕”（设置 → 遥控器和网络），并先在这部手机上登录。"
+#~ msgid "Leave empty to use the written order"
+#~ msgstr "留空则使用书写顺序"
 
 #~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
 #~ msgstr "拖到另一个面板上：放在它旁边，或放在它中间，作为标签页共用它的位置"

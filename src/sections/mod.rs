@@ -18,7 +18,7 @@ pub use look::{SectionLook, label_line};
 pub(crate) use kind::translated_head;
 #[cfg(test)]
 pub(crate) fn kind_tests_es() -> &'static str { kind::tests::ES }
-pub use map::{Mapped, map_position, same_on_screen};
+pub use map::{Mapped, map_moved, map_position, same_on_screen};
 pub use occurrences::{Occurrence, OccurrenceView, key_hint, live_section_line, numbered_verses, occurrence_views, occurrences};
 pub use reconcile::{ChangeReason, Decision, LiveChange, decide, refresh_slide, words};
 pub use refs::{SectionRef, resolve_order, song_refs};

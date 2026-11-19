@@ -18,3 +18,5 @@ slint-build = "1.18"
 # this on so the dock panels' screens (and the code build.rs writes for them) get a place of their own. The lead can
 # drop it once every worktree has the dock panels.
 dock-panels = []
+# The same for the song-editing branch (the slide editor's screens and `SlideEdit`): the lead can drop it after merging.
+song-editing = []

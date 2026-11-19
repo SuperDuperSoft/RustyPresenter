@@ -231,6 +231,10 @@ msgstr "Văn bản của bạn"
 msgid "Not in the words — it is skipped"
 msgstr "Không có trong lời — sẽ bị bỏ qua"
 
+#: ui/dialogs/arrangement.slint
+msgid "Play it twice"
+msgstr "Chơi hai lần"
+
 #: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "Gỡ bỏ"
@@ -239,6 +243,14 @@ msgstr "Gỡ bỏ"
 msgid "End"
 msgstr "Kết"
 
+#: ui/dialogs/arrangement.slint
+msgid "Drop here to remove"
+msgstr "Thả vào đây để bỏ"
+
+#: ui/dialogs/arrangement.slint
+msgid "✕ Remove"
+msgstr "✕ Bỏ"
+
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr "Thứ tự như đã viết — kéo để đổi"
@@ -246,6 +258,10 @@ msgstr "Thứ tự như đã viết — kéo để đổi"
 #: ui/dialogs/arrangement.slint
 msgid "⟲ Use written order"
 msgstr "⟲ Dùng thứ tự đã viết"
+
+#: ui/dialogs/arrangement.slint
+msgid "Click to play it at the end, or drag it in between the parts"
+msgstr "Bấm để chơi ở cuối, hoặc kéo vào giữa các đoạn"
 
 #: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
 msgid "Name"
@@ -615,7 +631,7 @@ msgstr "Bắt đầu"
 msgid "Delete"
 msgstr "Xóa"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings.rs
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint src/ui/dialogs/settings.rs
 msgid "Save"
 msgstr "Lưu"
 
@@ -643,7 +659,7 @@ msgstr "Điểm cuối của đường chuyển động"
 msgid "{} · {} builds"
 msgstr "{} · {} bước hiện"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint src/strings/song_edit.rs
 msgid "New slide"
 msgstr "Trang chiếu mới"
 
@@ -659,7 +675,7 @@ msgstr "Lên trước"
 msgid "Move later"
 msgstr "Ra sau"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint ui/operator/slide-editor.slint src/strings/song_edit.rs
 msgid "Delete slide"
 msgstr "Xóa trang"
 
@@ -1028,7 +1044,7 @@ msgstr "Lên trên cùng"
 msgid "To back"
 msgstr "Xuống dưới cùng"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator/slide-editor.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "Nhân bản"
 
@@ -1060,11 +1076,11 @@ msgstr "Kéo để di chuyển, kéo góc để đổi cỡ, phím mũi tên đ�
 msgid "Video: {}"
 msgstr "Video: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint ui/operator/slide-editor.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Hủy"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Save and show now"
 msgstr "Lưu và chiếu ngay"
 
@@ -3635,7 +3651,7 @@ msgstr "Sắp bắt đầu hiện trước buổi nhóm, có đồng hồ đếm
 msgid "Starting soon"
 msgstr "Sắp bắt đầu"
 
-#: ui/dialogs/settings-stream.slint src/stream/scene.rs src/strings/song.rs
+#: ui/dialogs/settings-stream.slint ui/dialogs/song-editor.slint src/stream/scene.rs src/strings/song.rs
 msgid "Ending"
 msgstr "Kết thúc"
 
@@ -4140,6 +4156,42 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— tên đoạn nằm trên một dòng riêng; một dòng trống trong đoạn sẽ bắt đầu trang chiếu mới"
 
 #: ui/dialogs/song-editor.slint
+msgid "Add a part:"
+msgstr "Thêm đoạn:"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Verse"
+msgstr "Phiên khúc"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs src/strings/stage.rs
+msgid "Chorus"
+msgstr "Điệp khúc"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Pre-chorus"
+msgstr "Tiền điệp khúc"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Bridge"
+msgstr "Chuyển đoạn"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Tag"
+msgstr "Đoạn lặp"
+
+#: ui/dialogs/song-editor.slint
+msgid "Intro (chords only)"
+msgstr "Dạo đầu (chỉ hợp âm)"
+
+#: ui/dialogs/song-editor.slint
+msgid "A part the band plays with no words: type its chords like [G] [D]"
+msgstr "Đoạn ban nhạc chơi không lời: gõ hợp âm như [G] [D]"
+
+#: ui/dialogs/song-editor.slint
+msgid "Adds this part after the one the cursor is in"
+msgstr "Thêm đoạn này sau đoạn có con trỏ"
+
+#: ui/dialogs/song-editor.slint
 msgid "Insert slide break"
 msgstr "Chèn ngắt trang"
 
@@ -4163,7 +4215,7 @@ msgstr ""
 "Chorus\n"
 "Xiềng xích tôi đã rơi…"
 
-#: ui/dialogs/song-editor.slint
+#: ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Order"
 msgstr "Thứ tự"
 
@@ -4172,8 +4224,8 @@ msgid "(optional)"
 msgstr "(không bắt buộc)"
 
 #: ui/dialogs/song-editor.slint
-msgid "Leave empty to use the written order"
-msgstr "Để trống để dùng thứ tự đã viết"
+msgid "Or type the order here. Leave it empty to use the written order"
+msgstr "Hoặc gõ thứ tự ở đây. Để trống để dùng thứ tự đã viết"
 
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Fewer lines on each slide of this song"
@@ -4234,6 +4286,10 @@ msgstr "Hiện hợp âm như đã viết"
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
 msgstr "Trang chiếu hiện ở đây khi bạn gõ. Đặt tên đoạn như “Verse 1” hoặc “Chorus” trên một dòng riêng."
+
+#: ui/dialogs/song-editor.slint
+msgid "Click to go to its words"
+msgstr "Bấm để đến lời của nó"
 
 #: ui/dialogs/song-editor.slint
 msgid "Delete song"
@@ -5203,7 +5259,7 @@ msgstr "10 giây cuối"
 msgid "Jump to 10 seconds before the end, to check how it finishes"
 msgstr "Nhảy tới 10 giây trước khi hết, để kiểm tra phần kết thúc"
 
-#: ui/operator/live.slint
+#: ui/operator/live.slint ui/operator/slide-editor.slint ui/operator/slides.slint
 msgid "Edit words"
 msgstr "Sửa lời"
 
@@ -5547,6 +5603,106 @@ msgstr "Thêm bài hát, video và trang chiếu, gõ câu Kinh Thánh ở trên
 msgid "Filter the service"
 msgstr "Lọc buổi lễ"
 
+#: ui/operator/slide-editor.slint
+msgid "Split here…"
+msgstr "Tách ở đây…"
+
+#: ui/operator/slide-editor.slint
+msgid "Join with next"
+msgstr "Gộp với trang sau"
+
+#: ui/operator/slide-editor.slint
+msgid "Add a slide after"
+msgstr "Thêm trang sau"
+
+#: ui/operator/slide-editor.slint
+msgid "Change section…"
+msgstr "Đổi đoạn…"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part earlier"
+msgstr "Đưa đoạn này lên trước"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part later"
+msgstr "Đưa đoạn này ra sau"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit the whole song…"
+msgstr "Sửa cả bài…"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit chords too"
+msgstr "Sửa cả hợp âm"
+
+#: ui/operator/slide-editor.slint
+msgid "The slide’s words"
+msgstr "Lời của trang"
+
+#: ui/operator/slide-editor.slint
+msgid "Type the words for this slide"
+msgstr "Gõ lời cho trang này"
+
+#: ui/operator/slide-editor.slint
+msgid "Chords"
+msgstr "Hợp âm"
+
+#: ui/operator/slide-editor.slint
+msgid "Enter saves · Shift+Enter starts a new line · Esc cancels"
+msgstr "Enter để lưu · Shift+Enter xuống dòng · Esc để hủy"
+
+#: ui/operator/slide-editor.slint
+msgid "Split here"
+msgstr "Tách ở đây"
+
+#: ui/operator/slide-editor.slint
+msgid "A new slide starts at the line the cursor is on"
+msgstr "Trang mới bắt đầu ở dòng có con trỏ"
+
+#: ui/operator/slide-editor.slint
+msgid "Add slide"
+msgstr "Thêm trang"
+
+#: ui/operator/slide-editor.slint
+msgid "From this slide on, this part is:"
+msgstr "Từ trang này, đoạn này là:"
+
+#: ui/operator/slide-editor.slint
+msgid "Quick order ▾"
+msgstr "Thứ tự nhanh ▾"
+
+#: ui/operator/slide-editor.slint
+msgid "Ready-made orders for this song"
+msgstr "Thứ tự soạn sẵn cho bài này"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus after every verse"
+msgstr "Điệp khúc sau mỗi phiên khúc"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus again at the end"
+msgstr "Điệp khúc lần nữa ở cuối"
+
+#: ui/operator/slide-editor.slint
+msgid "Just for this service"
+msgstr "Chỉ cho buổi lễ này"
+
+#: ui/operator/slide-editor.slint
+msgid "Save as the usual order"
+msgstr "Lưu làm thứ tự thường lệ"
+
+#: ui/operator/slide-editor.slint
+msgid "Every service plays the song in this order from now on"
+msgstr "Từ nay mọi buổi lễ đều hát bài theo thứ tự này"
+
+#: ui/operator/slide-editor.slint
+msgid "Reset to the song’s order"
+msgstr "Về thứ tự của bài"
+
+#: ui/operator/slide-editor.slint
+msgid "This service plays the song in its usual order again"
+msgstr "Buổi lễ này hát bài theo thứ tự thường lệ trở lại"
+
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
 msgstr "Cùng soạn buổi lễ Chúa Nhật này"
@@ -5574,6 +5730,10 @@ msgstr "Trong buổi lễ, dùng nút Tiếp lớn (hoặc phím →)."
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "Màn hình"
+
+#: ui/operator/slides.slint
+msgid "More for this slide"
+msgstr "Thêm cho trang này"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
@@ -6195,7 +6355,7 @@ msgstr "{name} — tệp đã nhập"
 msgid "Give the song a title."
 msgstr "Hãy đặt tên cho bài hát."
 
-#: src/app.rs
+#: src/app.rs src/song_edit/actions.rs
 msgid "That song is not in the library any more."
 msgstr "Bài hát đó không còn trong thư viện nữa."
 
@@ -11084,26 +11244,6 @@ msgid "The saved sound output (not connected)"
 msgstr "Đầu ra âm thanh đã lưu (chưa kết nối)"
 
 #: src/strings/song.rs
-msgid "Verse"
-msgstr "Phiên khúc"
-
-#: src/strings/song.rs src/strings/stage.rs
-msgid "Chorus"
-msgstr "Điệp khúc"
-
-#: src/strings/song.rs
-msgid "Pre-chorus"
-msgstr "Tiền điệp khúc"
-
-#: src/strings/song.rs
-msgid "Bridge"
-msgstr "Chuyển đoạn"
-
-#: src/strings/song.rs
-msgid "Tag"
-msgstr "Đoạn lặp"
-
-#: src/strings/song.rs
 msgid "Intro"
 msgstr "Dạo đầu"
 
@@ -11214,6 +11354,94 @@ msgstr "{section} — nhấn {key}"
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
 msgstr "{section} · trang {page}/{pages}"
+
+#: src/strings/song_edit.rs
+msgid "That slide is not in the song any more. Try again."
+msgstr "Trang đó không còn trong bài. Hãy thử lại."
+
+#: src/strings/song_edit.rs
+msgid "These two slides are one part shown {lines} lines at a time. Use Lines + to show more lines on each slide."
+msgstr "Hai trang này là một đoạn hiện {lines} dòng mỗi lần. Dùng Số dòng + để hiện nhiều dòng hơn mỗi trang."
+
+#: src/strings/song_edit.rs
+msgid "This is the last slide of its part, so there is nothing to join it with."
+msgstr "Đây là trang cuối của đoạn, không có gì để gộp."
+
+#: src/strings/song_edit.rs
+msgid "Put the cursor on the line that should start the new slide."
+msgstr "Đặt con trỏ ở dòng sẽ bắt đầu trang mới."
+
+#: src/strings/song_edit.rs
+msgid "This is the song’s only slide. Delete the song in the library instead."
+msgstr "Đây là trang duy nhất của bài. Hãy xóa bài trong thư viện."
+
+#: src/strings/song_edit.rs
+msgid "{part} · slide {n} of {count}"
+msgstr "{part} · trang {n}/{count}"
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Your change shows every time."
+msgstr "{part} được hát {times} lần trong bài. Thay đổi của bạn hiện ở mọi lần."
+
+#: src/strings/song_edit.rs
+msgid "This slide is chords only. Type the chords in square brackets, like [G] [D]."
+msgstr "Trang này chỉ có hợp âm. Gõ hợp âm trong ngoặc vuông, như [G] [D]."
+
+#: src/strings/song_edit.rs
+msgid "The chords stay over the same words. To change them, tick Edit chords too."
+msgstr "Hợp âm vẫn ở trên các chữ cũ. Để đổi, hãy đánh dấu Sửa cả hợp âm."
+
+#: src/strings/song_edit.rs
+msgid "Slide saved"
+msgstr "Đã lưu trang"
+
+#: src/strings/song_edit.rs
+msgid "Split into two slides"
+msgstr "Đã tách thành hai trang"
+
+#: src/strings/song_edit.rs
+msgid "Joined with the next slide"
+msgstr "Đã gộp với trang sau"
+
+#: src/strings/song_edit.rs
+msgid "Slide added"
+msgstr "Đã thêm trang"
+
+#: src/strings/song_edit.rs
+msgid "Slide deleted"
+msgstr "Đã xóa trang"
+
+#: src/strings/song_edit.rs
+msgid "Slide copied"
+msgstr "Đã nhân bản trang"
+
+#: src/strings/song_edit.rs
+msgid "This part is now {part}"
+msgstr "Đoạn này giờ là {part}"
+
+#: src/strings/song_edit.rs
+msgid "Order changed for this service"
+msgstr "Đã đổi thứ tự cho buổi lễ này"
+
+#: src/strings/song_edit.rs
+msgid "This is now the song’s usual order"
+msgstr "Giờ đây là thứ tự thường lệ của bài"
+
+#: src/strings/song_edit.rs
+msgid "Back to the song’s usual order"
+msgstr "Đã về thứ tự thường lệ của bài"
+
+#: src/strings/song_edit.rs
+msgid "This song has no chorus."
+msgstr "Bài này không có điệp khúc."
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Delete this slide every time it plays?"
+msgstr "{part} được hát {times} lần trong bài. Xóa trang này ở mọi lần?"
+
+#: src/strings/song_edit.rs
+msgid "Only song slides can be edited here. Use Edit for this item."
+msgstr "Ở đây chỉ sửa được trang của bài hát. Hãy dùng Sửa cho mục này."
 
 #: src/strings/stage.rs
 msgid "Classic"
@@ -13644,6 +13872,8 @@ msgstr "không phải tệp đa phương tiện"
 
 #~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
 #~ msgstr "Bật màn hình sân khấu trên điện thoại trong RustyPresenter (Cài đặt → Điều khiển từ xa và mạng), và đăng nhập vào đó trên điện thoại này trước."
+#~ msgid "Leave empty to use the written order"
+#~ msgstr "Để trống để dùng thứ tự đã viết"
 
 #~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
 #~ msgstr "Kéo lên một bảng khác: đặt bên cạnh, hoặc vào giữa để dùng chung chỗ như một thẻ"

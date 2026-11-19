@@ -118,21 +118,26 @@ pub fn lay_out(lines: &[ChordLine], max_w: f32, m: Metrics, width: impl Fn(&str,
         let mut started = false;
         for (k, item) in items.into_iter().enumerate() {
             let last_item = k + 1 == n_items;
-            let n = item.len();
-            let ws: Vec<f32> = item.iter().enumerate().map(|(j, (c, w))| {
-                let ww = width(w, false);
-                if c.is_empty() { return ww }
-                let cw = width(c, true) + if last_item && j + 1 == n { 0.0 } else { m.gap };
-                ww.max(cw)
-            }).collect();
-            let item_w: f32 = ws.iter().sum();
+            // Inside one word the parts sit side by side, so the word stays whole ("de" then "fense"): a chord
+            // starts over its part, or just after the chord before it when that one is wider than its part. The
+            // word and its chords together set how much room the item takes.
+            let mut wx = 0.0f32;
+            let mut chord_end: Option<f32> = None;
+            let mut placed: Vec<(f32, f32)> = Vec::with_capacity(item.len());
+            for (c, w) in &item {
+                let cx = if c.is_empty() { wx } else { chord_end.map_or(wx, |e| wx.max(e + m.gap)) };
+                if !c.is_empty() { chord_end = Some(cx + width(c, true)) }
+                placed.push((wx, cx));
+                wx += width(w, false);
+            }
+            let item_w = wx.max(chord_end.map_or(0.0, |e| e + if last_item { 0.0 } else { m.gap }));
             if started && x + item_w > max_w + 0.5 { y += row_h; x = 0.0; }
             started = true;
-            for ((c, w), pw) in item.into_iter().zip(ws) {
-                if !c.is_empty() { out.pieces.push(Placed { x, y, text: c, chord: true }) }
-                if words && !w.trim().is_empty() { out.pieces.push(Placed { x, y: y + if chords { m.chord_h } else { 0.0 }, text: w, chord: false }) }
-                x += pw;
+            for ((c, w), (px, cx)) in item.into_iter().zip(placed) {
+                if !c.is_empty() { out.pieces.push(Placed { x: x + cx, y, text: c, chord: true }) }
+                if words && !w.trim().is_empty() { out.pieces.push(Placed { x: x + px, y: y + if chords { m.chord_h } else { 0.0 }, text: w, chord: false }) }
             }
+            x += item_w;
             out.w = out.w.max(x);
         }
         y += row_h;
@@ -228,6 +233,20 @@ mod tests {
         let laid = lay_out(&[split_line("[Asus][A]praise")], 10_000.0, M, w);
         let xs: Vec<f32> = laid.pieces.iter().filter(|p| p.chord).map(|p| p.x).collect();
         assert_eq!(xs, vec![0.0, 4.0 * 12.0 + 5.0], "the second chord starts after the first and a gap");
+    }
+
+    #[test]
+    fn a_chord_inside_a_word_keeps_the_word_whole() {
+        // SongSelect's "de - [Db]fense", joined on import (`import::syllables`).
+        let laid = lay_out(&[split_line("my [Dbsus]de[Db]fense")], 10_000.0, M, w);
+        let at = |t: &str| laid.pieces.iter().find(|p| p.text == t).map(|p| p.x).unwrap();
+        assert_eq!(at("de") + 20.0, at("fense"), "no room added inside the word");
+        assert_eq!(at("Dbsus"), at("de"), "the first chord over its part");
+        assert_eq!(at("Db"), at("Dbsus") + 5.0 * 12.0 + 5.0, "the next chord clears the wider one before it");
+        // A short chord sits right over its part.
+        let laid = lay_out(&[split_line("beau[G]tiful")], 10_000.0, M, w);
+        let at = |t: &str| laid.pieces.iter().find(|p| p.text == t).map(|p| p.x).unwrap();
+        assert_eq!((at("G"), at("tiful")), (40.0, 40.0));
     }
 
     #[test]

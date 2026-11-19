@@ -231,6 +231,10 @@ msgstr "Sariling teksto"
 msgid "Not in the words — it is skipped"
 msgstr "Wala sa mga salita — nilalaktawan ito"
 
+#: ui/dialogs/arrangement.slint
+msgid "Play it twice"
+msgstr "Tugtugin nang dalawang beses"
+
 #: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "Alisin"
@@ -239,6 +243,14 @@ msgstr "Alisin"
 msgid "End"
 msgstr "Wakas"
 
+#: ui/dialogs/arrangement.slint
+msgid "Drop here to remove"
+msgstr "I-drop dito para alisin"
+
+#: ui/dialogs/arrangement.slint
+msgid "✕ Remove"
+msgstr "✕ Alisin"
+
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr "Nakasulat na ayos — i-drag para baguhin"
@@ -246,6 +258,10 @@ msgstr "Nakasulat na ayos — i-drag para baguhin"
 #: ui/dialogs/arrangement.slint
 msgid "⟲ Use written order"
 msgstr "⟲ Gamitin ang nakasulat na ayos"
+
+#: ui/dialogs/arrangement.slint
+msgid "Click to play it at the end, or drag it in between the parts"
+msgstr "I-click para tugtugin sa dulo, o i-drag sa pagitan ng mga bahagi"
 
 #: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
 msgid "Name"
@@ -615,7 +631,7 @@ msgstr "Simulan"
 msgid "Delete"
 msgstr "Burahin"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings.rs
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint src/ui/dialogs/settings.rs
 msgid "Save"
 msgstr "I-save"
 
@@ -643,7 +659,7 @@ msgstr "Dulo ng motion path"
 msgid "{} · {} builds"
 msgstr "{} · {} build"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint src/strings/song_edit.rs
 msgid "New slide"
 msgstr "Bagong slide"
 
@@ -659,7 +675,7 @@ msgstr "Iusog pauna"
 msgid "Move later"
 msgstr "Iusog pahuli"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint ui/operator/slide-editor.slint src/strings/song_edit.rs
 msgid "Delete slide"
 msgstr "Burahin ang slide"
 
@@ -1028,7 +1044,7 @@ msgstr "Sa harap"
 msgid "To back"
 msgstr "Sa likod"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator/slide-editor.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "I-duplicate"
 
@@ -1060,11 +1076,11 @@ msgstr "I-drag para ilipat, i-drag ang sulok para baguhin ang laki, iusog nang k
 msgid "Video: {}"
 msgstr "Video: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint ui/operator/slide-editor.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Kanselahin"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Save and show now"
 msgstr "I-save at ipakita ngayon"
 
@@ -3635,7 +3651,7 @@ msgstr "Lumalabas ang Magsisimula na bago ang service, kasama ang countdown sa i
 msgid "Starting soon"
 msgstr "Magsisimula na"
 
-#: ui/dialogs/settings-stream.slint src/stream/scene.rs src/strings/song.rs
+#: ui/dialogs/settings-stream.slint ui/dialogs/song-editor.slint src/stream/scene.rs src/strings/song.rs
 msgid "Ending"
 msgstr "Ending"
 
@@ -4140,6 +4156,42 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— mga pangalan ng section sa sariling linya; nagsisimula ng bagong slide ang blangkong linya sa loob ng section"
 
 #: ui/dialogs/song-editor.slint
+msgid "Add a part:"
+msgstr "Magdagdag ng bahagi:"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Verse"
+msgstr "Verse"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs src/strings/stage.rs
+msgid "Chorus"
+msgstr "Chorus"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Pre-chorus"
+msgstr "Pre-chorus"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Bridge"
+msgstr "Bridge"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Tag"
+msgstr "Tag"
+
+#: ui/dialogs/song-editor.slint
+msgid "Intro (chords only)"
+msgstr "Intro (chord lang)"
+
+#: ui/dialogs/song-editor.slint
+msgid "A part the band plays with no words: type its chords like [G] [D]"
+msgstr "Bahaging tinutugtog ng banda nang walang salita: i-type ang chord nito gaya ng [G] [D]"
+
+#: ui/dialogs/song-editor.slint
+msgid "Adds this part after the one the cursor is in"
+msgstr "Idinadagdag ang bahaging ito pagkatapos ng bahaging may cursor"
+
+#: ui/dialogs/song-editor.slint
 msgid "Insert slide break"
 msgstr "Maglagay ng slide break"
 
@@ -4163,7 +4215,7 @@ msgstr ""
 "Chorus\n"
 "My chains are gone…"
 
-#: ui/dialogs/song-editor.slint
+#: ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Order"
 msgstr "Ayos"
 
@@ -4172,8 +4224,8 @@ msgid "(optional)"
 msgstr "(opsyonal)"
 
 #: ui/dialogs/song-editor.slint
-msgid "Leave empty to use the written order"
-msgstr "Iwanang blangko para gamitin ang nakasulat na ayos"
+msgid "Or type the order here. Leave it empty to use the written order"
+msgstr "O i-type ang ayos dito. Iwanang blangko para gamitin ang nakasulat na ayos"
 
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Fewer lines on each slide of this song"
@@ -4234,6 +4286,10 @@ msgstr "Ipakita ang mga chord gaya ng pagkakasulat"
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
 msgstr "Lumalabas dito ang slides habang nagta-type ka. Ilagay sa sariling linya ang mga pangalan ng section tulad ng “Verse 1” o “Chorus”."
+
+#: ui/dialogs/song-editor.slint
+msgid "Click to go to its words"
+msgstr "I-click para pumunta sa mga salita nito"
 
 #: ui/dialogs/song-editor.slint
 msgid "Delete song"
@@ -5203,7 +5259,7 @@ msgstr "Huling 10 s"
 msgid "Jump to 10 seconds before the end, to check how it finishes"
 msgstr "Tumalon sa 10 segundo bago matapos, para tingnan kung paano ito nagtatapos"
 
-#: ui/operator/live.slint
+#: ui/operator/live.slint ui/operator/slide-editor.slint ui/operator/slides.slint
 msgid "Edit words"
 msgstr "I-edit ang salita"
 
@@ -5547,6 +5603,106 @@ msgstr "Magdagdag ng mga kanta, video at slides, mag-type ng talata sa Bibliya s
 msgid "Filter the service"
 msgstr "I-filter ang service"
 
+#: ui/operator/slide-editor.slint
+msgid "Split here…"
+msgstr "Hatiin dito…"
+
+#: ui/operator/slide-editor.slint
+msgid "Join with next"
+msgstr "Pagsamahin sa susunod"
+
+#: ui/operator/slide-editor.slint
+msgid "Add a slide after"
+msgstr "Magdagdag ng slide pagkatapos"
+
+#: ui/operator/slide-editor.slint
+msgid "Change section…"
+msgstr "Palitan ang bahagi…"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part earlier"
+msgstr "Ilipat nang mas maaga ang bahaging ito"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part later"
+msgstr "Ilipat nang mas huli ang bahaging ito"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit the whole song…"
+msgstr "I-edit ang buong kanta…"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit chords too"
+msgstr "I-edit din ang mga chord"
+
+#: ui/operator/slide-editor.slint
+msgid "The slide’s words"
+msgstr "Ang mga salita ng slide"
+
+#: ui/operator/slide-editor.slint
+msgid "Type the words for this slide"
+msgstr "I-type ang mga salita para sa slide na ito"
+
+#: ui/operator/slide-editor.slint
+msgid "Chords"
+msgstr "Mga chord"
+
+#: ui/operator/slide-editor.slint
+msgid "Enter saves · Shift+Enter starts a new line · Esc cancels"
+msgstr "Enter para i-save · Shift+Enter para bagong linya · Esc para kanselahin"
+
+#: ui/operator/slide-editor.slint
+msgid "Split here"
+msgstr "Hatiin dito"
+
+#: ui/operator/slide-editor.slint
+msgid "A new slide starts at the line the cursor is on"
+msgstr "Magsisimula ang bagong slide sa linyang may cursor"
+
+#: ui/operator/slide-editor.slint
+msgid "Add slide"
+msgstr "Idagdag ang slide"
+
+#: ui/operator/slide-editor.slint
+msgid "From this slide on, this part is:"
+msgstr "Mula sa slide na ito, ang bahaging ito ay:"
+
+#: ui/operator/slide-editor.slint
+msgid "Quick order ▾"
+msgstr "Mabilis na ayos ▾"
+
+#: ui/operator/slide-editor.slint
+msgid "Ready-made orders for this song"
+msgstr "Mga handang ayos para sa kantang ito"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus after every verse"
+msgstr "Chorus pagkatapos ng bawat verse"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus again at the end"
+msgstr "Chorus ulit sa dulo"
+
+#: ui/operator/slide-editor.slint
+msgid "Just for this service"
+msgstr "Para sa service na ito lang"
+
+#: ui/operator/slide-editor.slint
+msgid "Save as the usual order"
+msgstr "I-save bilang karaniwang ayos"
+
+#: ui/operator/slide-editor.slint
+msgid "Every service plays the song in this order from now on"
+msgstr "Mula ngayon, ganitong ayos ang kanta sa bawat service"
+
+#: ui/operator/slide-editor.slint
+msgid "Reset to the song’s order"
+msgstr "Ibalik sa ayos ng kanta"
+
+#: ui/operator/slide-editor.slint
+msgid "This service plays the song in its usual order again"
+msgstr "Babalik sa karaniwang ayos ng kanta ang service na ito"
+
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
 msgstr "Buuin natin ang service ngayong Linggo"
@@ -5574,6 +5730,10 @@ msgstr "Gamitin ang malaking Susunod na button (o ang → key) habang may servic
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "Mga screen"
+
+#: ui/operator/slides.slint
+msgid "More for this slide"
+msgstr "Higit pa para sa slide na ito"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
@@ -6195,7 +6355,7 @@ msgstr "{name} — na-import na file"
 msgid "Give the song a title."
 msgstr "Bigyan ng pamagat ang kanta."
 
-#: src/app.rs
+#: src/app.rs src/song_edit/actions.rs
 msgid "That song is not in the library any more."
 msgstr "Wala na sa library ang kantang iyon."
 
@@ -11120,26 +11280,6 @@ msgid "The saved sound output (not connected)"
 msgstr "Ang naka-save na sound output (hindi nakakonekta)"
 
 #: src/strings/song.rs
-msgid "Verse"
-msgstr "Verse"
-
-#: src/strings/song.rs src/strings/stage.rs
-msgid "Chorus"
-msgstr "Chorus"
-
-#: src/strings/song.rs
-msgid "Pre-chorus"
-msgstr "Pre-chorus"
-
-#: src/strings/song.rs
-msgid "Bridge"
-msgstr "Bridge"
-
-#: src/strings/song.rs
-msgid "Tag"
-msgstr "Tag"
-
-#: src/strings/song.rs
 msgid "Intro"
 msgstr "Intro"
 
@@ -11250,6 +11390,94 @@ msgstr "{section} — pindutin ang {key}"
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
 msgstr "{section} · slide {page} sa {pages}"
+
+#: src/strings/song_edit.rs
+msgid "That slide is not in the song any more. Try again."
+msgstr "Wala na ang slide na iyon sa kanta. Subukan ulit."
+
+#: src/strings/song_edit.rs
+msgid "These two slides are one part shown {lines} lines at a time. Use Lines + to show more lines on each slide."
+msgstr "Iisang bahagi ang dalawang slide na ito na ipinapakita nang {lines} linya bawat isa. Gamitin ang Mga linya + para magpakita ng mas maraming linya."
+
+#: src/strings/song_edit.rs
+msgid "This is the last slide of its part, so there is nothing to join it with."
+msgstr "Ito ang huling slide ng bahagi nito, kaya walang maisasama."
+
+#: src/strings/song_edit.rs
+msgid "Put the cursor on the line that should start the new slide."
+msgstr "Ilagay ang cursor sa linyang dapat simulan ng bagong slide."
+
+#: src/strings/song_edit.rs
+msgid "This is the song’s only slide. Delete the song in the library instead."
+msgstr "Ito lang ang slide ng kanta. Burahin na lang ang kanta sa library."
+
+#: src/strings/song_edit.rs
+msgid "{part} · slide {n} of {count}"
+msgstr "{part} · slide {n} sa {count}"
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Your change shows every time."
+msgstr "Tinutugtog ang {part} nang {times} beses sa kantang ito. Lalabas ang pagbabago mo sa bawat pagkakataon."
+
+#: src/strings/song_edit.rs
+msgid "This slide is chords only. Type the chords in square brackets, like [G] [D]."
+msgstr "Chord lang ang slide na ito. I-type ang mga chord sa loob ng square bracket, gaya ng [G] [D]."
+
+#: src/strings/song_edit.rs
+msgid "The chords stay over the same words. To change them, tick Edit chords too."
+msgstr "Mananatili ang mga chord sa ibabaw ng parehong salita. Para palitan, i-tick ang I-edit din ang mga chord."
+
+#: src/strings/song_edit.rs
+msgid "Slide saved"
+msgstr "Na-save ang slide"
+
+#: src/strings/song_edit.rs
+msgid "Split into two slides"
+msgstr "Hinati sa dalawang slide"
+
+#: src/strings/song_edit.rs
+msgid "Joined with the next slide"
+msgstr "Pinagsama sa susunod na slide"
+
+#: src/strings/song_edit.rs
+msgid "Slide added"
+msgstr "Naidagdag ang slide"
+
+#: src/strings/song_edit.rs
+msgid "Slide deleted"
+msgstr "Nabura ang slide"
+
+#: src/strings/song_edit.rs
+msgid "Slide copied"
+msgstr "Nakopya ang slide"
+
+#: src/strings/song_edit.rs
+msgid "This part is now {part}"
+msgstr "{part} na ngayon ang bahaging ito"
+
+#: src/strings/song_edit.rs
+msgid "Order changed for this service"
+msgstr "Binago ang ayos para sa service na ito"
+
+#: src/strings/song_edit.rs
+msgid "This is now the song’s usual order"
+msgstr "Ito na ngayon ang karaniwang ayos ng kanta"
+
+#: src/strings/song_edit.rs
+msgid "Back to the song’s usual order"
+msgstr "Bumalik sa karaniwang ayos ng kanta"
+
+#: src/strings/song_edit.rs
+msgid "This song has no chorus."
+msgstr "Walang chorus ang kantang ito."
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Delete this slide every time it plays?"
+msgstr "Tinutugtog ang {part} nang {times} beses sa kantang ito. Burahin ang slide na ito sa bawat pagtugtog?"
+
+#: src/strings/song_edit.rs
+msgid "Only song slides can be edited here. Use Edit for this item."
+msgstr "Slide ng kanta lang ang puwedeng i-edit dito. Gamitin ang I-edit para sa item na ito."
 
 #: src/strings/stage.rs
 msgid "Classic"
@@ -13696,6 +13924,8 @@ msgstr "hindi media file"
 
 #~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
 #~ msgstr "I-on ang stage screen sa mga phone sa RustyPresenter (Settings → Remote at network), at mag-sign in muna roon sa phone na ito."
+#~ msgid "Leave empty to use the written order"
+#~ msgstr "Iwanang blangko para gamitin ang nakasulat na ayos"
 
 #~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
 #~ msgstr "I-drag sa ibang panel: sa tabi nito, o sa gitna nito para makihati sa puwesto nito bilang tab"
