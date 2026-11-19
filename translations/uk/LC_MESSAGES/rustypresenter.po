@@ -231,6 +231,10 @@ msgstr "Ваш власний текст"
 msgid "Not in the words — it is skipped"
 msgstr "Немає в словах — буде пропущено"
 
+#: ui/dialogs/arrangement.slint
+msgid "Play it twice"
+msgstr "Зіграти двічі"
+
 #: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "Вилучити"
@@ -239,6 +243,14 @@ msgstr "Вилучити"
 msgid "End"
 msgstr "Кінець"
 
+#: ui/dialogs/arrangement.slint
+msgid "Drop here to remove"
+msgstr "Перетягніть сюди, щоб прибрати"
+
+#: ui/dialogs/arrangement.slint
+msgid "✕ Remove"
+msgstr "✕ Прибрати"
+
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr "Порядок як у тексті — перетягніть, щоб змінити"
@@ -246,6 +258,10 @@ msgstr "Порядок як у тексті — перетягніть, щоб �
 #: ui/dialogs/arrangement.slint
 msgid "⟲ Use written order"
 msgstr "⟲ Порядок як у тексті"
+
+#: ui/dialogs/arrangement.slint
+msgid "Click to play it at the end, or drag it in between the parts"
+msgstr "Натисніть, щоб зіграти в кінці, або перетягніть між частинами"
 
 #: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
 msgid "Name"
@@ -615,7 +631,7 @@ msgstr "Почати"
 msgid "Delete"
 msgstr "Видалити"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings.rs
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint src/ui/dialogs/settings.rs
 msgid "Save"
 msgstr "Зберегти"
 
@@ -643,7 +659,7 @@ msgstr "Кінець шляху переміщення"
 msgid "{} · {} builds"
 msgstr "{} · появ: {}"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint src/strings/song_edit.rs
 msgid "New slide"
 msgstr "Новий слайд"
 
@@ -659,7 +675,7 @@ msgstr "Пересунути вище"
 msgid "Move later"
 msgstr "Пересунути нижче"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint ui/operator/slide-editor.slint src/strings/song_edit.rs
 msgid "Delete slide"
 msgstr "Видалити слайд"
 
@@ -1028,7 +1044,7 @@ msgstr "На передній план"
 msgid "To back"
 msgstr "На задній план"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator/slide-editor.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "Дублювати"
 
@@ -1060,11 +1076,11 @@ msgstr "Перетягніть, щоб перемістити; тягніть з
 msgid "Video: {}"
 msgstr "Відео: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint ui/operator/slide-editor.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Скасувати"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Save and show now"
 msgstr "Зберегти й показати"
 
@@ -3615,7 +3631,7 @@ msgstr "«Скоро почнемо» показується перед служ
 msgid "Starting soon"
 msgstr "Скоро почнемо"
 
-#: ui/dialogs/settings-stream.slint src/stream/scene.rs src/strings/song.rs
+#: ui/dialogs/settings-stream.slint ui/dialogs/song-editor.slint src/stream/scene.rs src/strings/song.rs
 msgid "Ending"
 msgstr "Закінчення"
 
@@ -4120,6 +4136,42 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— назви частин в окремому рядку; порожній рядок усередині частини починає новий слайд"
 
 #: ui/dialogs/song-editor.slint
+msgid "Add a part:"
+msgstr "Додати частину:"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Verse"
+msgstr "Куплет"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs src/strings/stage.rs
+msgid "Chorus"
+msgstr "Приспів"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Pre-chorus"
+msgstr "Передприспів"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Bridge"
+msgstr "Брідж"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Tag"
+msgstr "Тег"
+
+#: ui/dialogs/song-editor.slint
+msgid "Intro (chords only)"
+msgstr "Вступ (лише акорди)"
+
+#: ui/dialogs/song-editor.slint
+msgid "A part the band plays with no words: type its chords like [G] [D]"
+msgstr "Частина, яку гурт грає без слів: введіть акорди так: [G] [D]"
+
+#: ui/dialogs/song-editor.slint
+msgid "Adds this part after the one the cursor is in"
+msgstr "Додає цю частину після тієї, де стоїть курсор"
+
+#: ui/dialogs/song-editor.slint
 msgid "Insert slide break"
 msgstr "Вставити розрив слайда"
 
@@ -4143,7 +4195,7 @@ msgstr ""
 "[Приспів]\n"
 "Кайдани впали…"
 
-#: ui/dialogs/song-editor.slint
+#: ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Order"
 msgstr "Порядок"
 
@@ -4152,8 +4204,8 @@ msgid "(optional)"
 msgstr "(необов’язково)"
 
 #: ui/dialogs/song-editor.slint
-msgid "Leave empty to use the written order"
-msgstr "Залиште порожнім, щоб використати порядок як у тексті"
+msgid "Or type the order here. Leave it empty to use the written order"
+msgstr "Або введіть порядок тут. Порожньо — порядок як написано"
 
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Fewer lines on each slide of this song"
@@ -4214,6 +4266,10 @@ msgstr "Показувати акорди як написано"
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
 msgstr "Слайди з’являються тут, поки ви вводите текст. Пишіть назви частин, як-от «[Куплет 1]» чи «[Приспів]», в окремому рядку."
+
+#: ui/dialogs/song-editor.slint
+msgid "Click to go to its words"
+msgstr "Натисніть, щоб перейти до слів"
 
 #: ui/dialogs/song-editor.slint
 msgid "Delete song"
@@ -5183,7 +5239,7 @@ msgstr "Ост. 10 с"
 msgid "Jump to 10 seconds before the end, to check how it finishes"
 msgstr "Перейти за 10 секунд до кінця, щоб перевірити, як воно завершується"
 
-#: ui/operator/live.slint
+#: ui/operator/live.slint ui/operator/slide-editor.slint ui/operator/slides.slint
 msgid "Edit words"
 msgstr "Змінити слова"
 
@@ -5527,6 +5583,106 @@ msgstr "Додайте пісні, відео й слайди, введіть б
 msgid "Filter the service"
 msgstr "Фільтр служіння"
 
+#: ui/operator/slide-editor.slint
+msgid "Split here…"
+msgstr "Розділити тут…"
+
+#: ui/operator/slide-editor.slint
+msgid "Join with next"
+msgstr "Об’єднати з наступним"
+
+#: ui/operator/slide-editor.slint
+msgid "Add a slide after"
+msgstr "Додати слайд після"
+
+#: ui/operator/slide-editor.slint
+msgid "Change section…"
+msgstr "Змінити частину…"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part earlier"
+msgstr "Посунути цю частину раніше"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part later"
+msgstr "Посунути цю частину пізніше"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit the whole song…"
+msgstr "Змінити всю пісню…"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit chords too"
+msgstr "Змінювати й акорди"
+
+#: ui/operator/slide-editor.slint
+msgid "The slide’s words"
+msgstr "Слова слайда"
+
+#: ui/operator/slide-editor.slint
+msgid "Type the words for this slide"
+msgstr "Введіть слова для цього слайда"
+
+#: ui/operator/slide-editor.slint
+msgid "Chords"
+msgstr "Акорди"
+
+#: ui/operator/slide-editor.slint
+msgid "Enter saves · Shift+Enter starts a new line · Esc cancels"
+msgstr "Enter — зберегти · Shift+Enter — новий рядок · Esc — скасувати"
+
+#: ui/operator/slide-editor.slint
+msgid "Split here"
+msgstr "Розділити тут"
+
+#: ui/operator/slide-editor.slint
+msgid "A new slide starts at the line the cursor is on"
+msgstr "Новий слайд починається з рядка з курсором"
+
+#: ui/operator/slide-editor.slint
+msgid "Add slide"
+msgstr "Додати слайд"
+
+#: ui/operator/slide-editor.slint
+msgid "From this slide on, this part is:"
+msgstr "З цього слайда ця частина —"
+
+#: ui/operator/slide-editor.slint
+msgid "Quick order ▾"
+msgstr "Швидкий порядок ▾"
+
+#: ui/operator/slide-editor.slint
+msgid "Ready-made orders for this song"
+msgstr "Готові порядки для цієї пісні"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus after every verse"
+msgstr "Приспів після кожного куплету"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus again at the end"
+msgstr "Приспів ще раз у кінці"
+
+#: ui/operator/slide-editor.slint
+msgid "Just for this service"
+msgstr "Лише для цього служіння"
+
+#: ui/operator/slide-editor.slint
+msgid "Save as the usual order"
+msgstr "Зберегти як звичайний порядок"
+
+#: ui/operator/slide-editor.slint
+msgid "Every service plays the song in this order from now on"
+msgstr "Відтепер кожне служіння буде в цьому порядку"
+
+#: ui/operator/slide-editor.slint
+msgid "Reset to the song’s order"
+msgstr "Повернути порядок пісні"
+
+#: ui/operator/slide-editor.slint
+msgid "This service plays the song in its usual order again"
+msgstr "Це служіння знову в звичайному порядку пісні"
+
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
 msgstr "Підготуймо недільне служіння"
@@ -5554,6 +5710,10 @@ msgstr "Під час служіння користуйтеся великою �
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "Екрани"
+
+#: ui/operator/slides.slint
+msgid "More for this slide"
+msgstr "Ще для цього слайда"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
@@ -6175,7 +6335,7 @@ msgstr "{name} — імпортований файл"
 msgid "Give the song a title."
 msgstr "Дайте пісні назву."
 
-#: src/app.rs
+#: src/app.rs src/song_edit/actions.rs
 msgid "That song is not in the library any more."
 msgstr "Цієї пісні більше немає в бібліотеці."
 
@@ -11048,26 +11208,6 @@ msgid "The saved sound output (not connected)"
 msgstr "Збережений вивід звуку (не під’єднано)"
 
 #: src/strings/song.rs
-msgid "Verse"
-msgstr "Куплет"
-
-#: src/strings/song.rs src/strings/stage.rs
-msgid "Chorus"
-msgstr "Приспів"
-
-#: src/strings/song.rs
-msgid "Pre-chorus"
-msgstr "Передприспів"
-
-#: src/strings/song.rs
-msgid "Bridge"
-msgstr "Брідж"
-
-#: src/strings/song.rs
-msgid "Tag"
-msgstr "Тег"
-
-#: src/strings/song.rs
 msgid "Intro"
 msgstr "Вступ"
 
@@ -11178,6 +11318,94 @@ msgstr "{section} — натисніть {key}"
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
 msgstr "{section} · слайд {page} з {pages}"
+
+#: src/strings/song_edit.rs
+msgid "That slide is not in the song any more. Try again."
+msgstr "Цього слайда вже немає в пісні. Спробуйте ще раз."
+
+#: src/strings/song_edit.rs
+msgid "These two slides are one part shown {lines} lines at a time. Use Lines + to show more lines on each slide."
+msgstr "Ці два слайди — одна частина, показана по {lines} рядки. Натисніть «Рядки +», щоб показувати більше рядків."
+
+#: src/strings/song_edit.rs
+msgid "This is the last slide of its part, so there is nothing to join it with."
+msgstr "Це останній слайд частини, об’єднувати нема з чим."
+
+#: src/strings/song_edit.rs
+msgid "Put the cursor on the line that should start the new slide."
+msgstr "Поставте курсор на рядок, з якого почнеться новий слайд."
+
+#: src/strings/song_edit.rs
+msgid "This is the song’s only slide. Delete the song in the library instead."
+msgstr "Це єдиний слайд пісні. Видаліть пісню в бібліотеці."
+
+#: src/strings/song_edit.rs
+msgid "{part} · slide {n} of {count}"
+msgstr "{part} · слайд {n} з {count}"
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Your change shows every time."
+msgstr "{part} звучить у цій пісні {times} рази. Зміна буде видна щоразу."
+
+#: src/strings/song_edit.rs
+msgid "This slide is chords only. Type the chords in square brackets, like [G] [D]."
+msgstr "На цьому слайді лише акорди. Вводьте їх у квадратних дужках, наприклад [G] [D]."
+
+#: src/strings/song_edit.rs
+msgid "The chords stay over the same words. To change them, tick Edit chords too."
+msgstr "Акорди лишаються над тими самими словами. Щоб їх змінити, позначте «Змінювати й акорди»."
+
+#: src/strings/song_edit.rs
+msgid "Slide saved"
+msgstr "Слайд збережено"
+
+#: src/strings/song_edit.rs
+msgid "Split into two slides"
+msgstr "Розділено на два слайди"
+
+#: src/strings/song_edit.rs
+msgid "Joined with the next slide"
+msgstr "Об’єднано з наступним слайдом"
+
+#: src/strings/song_edit.rs
+msgid "Slide added"
+msgstr "Слайд додано"
+
+#: src/strings/song_edit.rs
+msgid "Slide deleted"
+msgstr "Слайд видалено"
+
+#: src/strings/song_edit.rs
+msgid "Slide copied"
+msgstr "Слайд скопійовано"
+
+#: src/strings/song_edit.rs
+msgid "This part is now {part}"
+msgstr "Тепер ця частина — {part}"
+
+#: src/strings/song_edit.rs
+msgid "Order changed for this service"
+msgstr "Порядок змінено для цього служіння"
+
+#: src/strings/song_edit.rs
+msgid "This is now the song’s usual order"
+msgstr "Тепер це звичайний порядок пісні"
+
+#: src/strings/song_edit.rs
+msgid "Back to the song’s usual order"
+msgstr "Знову звичайний порядок пісні"
+
+#: src/strings/song_edit.rs
+msgid "This song has no chorus."
+msgstr "У цій пісні немає приспіву."
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Delete this slide every time it plays?"
+msgstr "{part} звучить у цій пісні {times} рази. Видалити цей слайд скрізь?"
+
+#: src/strings/song_edit.rs
+msgid "Only song slides can be edited here. Use Edit for this item."
+msgstr "Тут можна змінювати лише слайди пісень. Для цього елемента натисніть «Змінити»."
 
 #: src/strings/stage.rs
 msgid "Classic"
@@ -13602,6 +13830,9 @@ msgstr "yt-dlp не зберіг відео"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "не медіафайл"
+
+#~ msgid "Leave empty to use the written order"
+#~ msgstr "Залиште порожнім, щоб використати порядок як у тексті"
 
 #~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
 #~ msgstr "Перетягніть на іншу панель: поруч із нею або в її середину, щоб ділити місце як вкладка"

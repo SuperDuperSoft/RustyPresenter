@@ -231,6 +231,10 @@ msgstr "自由なテキスト"
 msgid "Not in the words — it is skipped"
 msgstr "歌詞にありません — スキップされます"
 
+#: ui/dialogs/arrangement.slint
+msgid "Play it twice"
+msgstr "2回演奏"
+
 #: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "削除"
@@ -239,6 +243,14 @@ msgstr "削除"
 msgid "End"
 msgstr "終了"
 
+#: ui/dialogs/arrangement.slint
+msgid "Drop here to remove"
+msgstr "ここにドロップして削除"
+
+#: ui/dialogs/arrangement.slint
+msgid "✕ Remove"
+msgstr "✕ 削除"
+
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr "記載順 — ドラッグで変更"
@@ -246,6 +258,10 @@ msgstr "記載順 — ドラッグで変更"
 #: ui/dialogs/arrangement.slint
 msgid "⟲ Use written order"
 msgstr "⟲ 記載順を使う"
+
+#: ui/dialogs/arrangement.slint
+msgid "Click to play it at the end, or drag it in between the parts"
+msgstr "クリックで最後に追加、またはパートの間にドラッグ"
 
 #: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
 msgid "Name"
@@ -615,7 +631,7 @@ msgstr "開始"
 msgid "Delete"
 msgstr "削除"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings.rs
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint src/ui/dialogs/settings.rs
 msgid "Save"
 msgstr "保存"
 
@@ -643,7 +659,7 @@ msgstr "軌跡の終点"
 msgid "{} · {} builds"
 msgstr "{} · ビルド {} 個"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint src/strings/song_edit.rs
 msgid "New slide"
 msgstr "新しいスライド"
 
@@ -659,7 +675,7 @@ msgstr "前へ移動"
 msgid "Move later"
 msgstr "後ろへ移動"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint ui/operator/slide-editor.slint src/strings/song_edit.rs
 msgid "Delete slide"
 msgstr "スライドを削除"
 
@@ -1028,7 +1044,7 @@ msgstr "最前面へ"
 msgid "To back"
 msgstr "最背面へ"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator/slide-editor.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "複製"
 
@@ -1060,11 +1076,11 @@ msgstr "ドラッグで移動、角をドラッグでサイズ変更、矢印キ
 msgid "Video: {}"
 msgstr "動画: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint ui/operator/slide-editor.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "キャンセル"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Save and show now"
 msgstr "保存して今すぐ表示"
 
@@ -3615,7 +3631,7 @@ msgstr "「まもなく始まります」は礼拝の前に出て、カウント
 msgid "Starting soon"
 msgstr "まもなく始まります"
 
-#: ui/dialogs/settings-stream.slint src/stream/scene.rs src/strings/song.rs
+#: ui/dialogs/settings-stream.slint ui/dialogs/song-editor.slint src/stream/scene.rs src/strings/song.rs
 msgid "Ending"
 msgstr "エンディング"
 
@@ -4120,6 +4136,42 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— セクション名はそれぞれ独立した行に。セクション内の空行で新しいスライドになります"
 
 #: ui/dialogs/song-editor.slint
+msgid "Add a part:"
+msgstr "パートを追加："
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Verse"
+msgstr "バース"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs src/strings/stage.rs
+msgid "Chorus"
+msgstr "サビ"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Pre-chorus"
+msgstr "Bメロ"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Bridge"
+msgstr "ブリッジ"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Tag"
+msgstr "タグ"
+
+#: ui/dialogs/song-editor.slint
+msgid "Intro (chords only)"
+msgstr "イントロ（コードのみ）"
+
+#: ui/dialogs/song-editor.slint
+msgid "A part the band plays with no words: type its chords like [G] [D]"
+msgstr "歌詞なしでバンドが演奏するパート：コードを [G] [D] のように入力"
+
+#: ui/dialogs/song-editor.slint
+msgid "Adds this part after the one the cursor is in"
+msgstr "カーソルのあるパートの後にこのパートを追加します"
+
+#: ui/dialogs/song-editor.slint
 msgid "Insert slide break"
 msgstr "スライド区切りを挿入"
 
@@ -4143,7 +4195,7 @@ msgstr ""
 "サビ\n"
 "鎖は解かれ…"
 
-#: ui/dialogs/song-editor.slint
+#: ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Order"
 msgstr "順序"
 
@@ -4152,8 +4204,8 @@ msgid "(optional)"
 msgstr "（省略可）"
 
 #: ui/dialogs/song-editor.slint
-msgid "Leave empty to use the written order"
-msgstr "空欄の場合は記載順を使います"
+msgid "Or type the order here. Leave it empty to use the written order"
+msgstr "または順序をここに入力。空欄なら書かれた順序"
 
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Fewer lines on each slide of this song"
@@ -4214,6 +4266,10 @@ msgstr "コードを書かれたとおりに表示"
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
 msgstr "入力するとここにスライドが表示されます。「バース 1」や「サビ」などのセクション名はそれぞれ独立した行に入力してください。"
+
+#: ui/dialogs/song-editor.slint
+msgid "Click to go to its words"
+msgstr "クリックするとその歌詞へ移動"
 
 #: ui/dialogs/song-editor.slint
 msgid "Delete song"
@@ -5183,7 +5239,7 @@ msgstr "最後の10秒"
 msgid "Jump to 10 seconds before the end, to check how it finishes"
 msgstr "終了10秒前に移動し、終わり方を確認します"
 
-#: ui/operator/live.slint
+#: ui/operator/live.slint ui/operator/slide-editor.slint ui/operator/slides.slint
 msgid "Edit words"
 msgstr "歌詞を編集"
 
@@ -5527,6 +5583,106 @@ msgstr "曲、動画、スライドを追加するか、上部に聖句を入力
 msgid "Filter the service"
 msgstr "礼拝を絞り込む"
 
+#: ui/operator/slide-editor.slint
+msgid "Split here…"
+msgstr "ここで分割…"
+
+#: ui/operator/slide-editor.slint
+msgid "Join with next"
+msgstr "次と結合"
+
+#: ui/operator/slide-editor.slint
+msgid "Add a slide after"
+msgstr "後にスライドを追加"
+
+#: ui/operator/slide-editor.slint
+msgid "Change section…"
+msgstr "パートを変更…"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part earlier"
+msgstr "このパートを前へ"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part later"
+msgstr "このパートを後ろへ"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit the whole song…"
+msgstr "曲全体を編集…"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit chords too"
+msgstr "コードも編集"
+
+#: ui/operator/slide-editor.slint
+msgid "The slide’s words"
+msgstr "スライドの歌詞"
+
+#: ui/operator/slide-editor.slint
+msgid "Type the words for this slide"
+msgstr "このスライドの歌詞を入力"
+
+#: ui/operator/slide-editor.slint
+msgid "Chords"
+msgstr "コード"
+
+#: ui/operator/slide-editor.slint
+msgid "Enter saves · Shift+Enter starts a new line · Esc cancels"
+msgstr "Enterで保存 · Shift+Enterで改行 · Escで取り消し"
+
+#: ui/operator/slide-editor.slint
+msgid "Split here"
+msgstr "ここで分割"
+
+#: ui/operator/slide-editor.slint
+msgid "A new slide starts at the line the cursor is on"
+msgstr "カーソルのある行から新しいスライドになります"
+
+#: ui/operator/slide-editor.slint
+msgid "Add slide"
+msgstr "スライドを追加"
+
+#: ui/operator/slide-editor.slint
+msgid "From this slide on, this part is:"
+msgstr "このスライドから、このパートは："
+
+#: ui/operator/slide-editor.slint
+msgid "Quick order ▾"
+msgstr "おすすめの順序 ▾"
+
+#: ui/operator/slide-editor.slint
+msgid "Ready-made orders for this song"
+msgstr "この曲のための既成の順序"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus after every verse"
+msgstr "各バースの後にサビ"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus again at the end"
+msgstr "最後にもう一度サビ"
+
+#: ui/operator/slide-editor.slint
+msgid "Just for this service"
+msgstr "この礼拝だけ"
+
+#: ui/operator/slide-editor.slint
+msgid "Save as the usual order"
+msgstr "通常の順序として保存"
+
+#: ui/operator/slide-editor.slint
+msgid "Every service plays the song in this order from now on"
+msgstr "これからはどの礼拝でもこの順序で演奏します"
+
+#: ui/operator/slide-editor.slint
+msgid "Reset to the song’s order"
+msgstr "曲の順序に戻す"
+
+#: ui/operator/slide-editor.slint
+msgid "This service plays the song in its usual order again"
+msgstr "この礼拝は曲を通常の順序に戻します"
+
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
 msgstr "今週の礼拝を準備しましょう"
@@ -5554,6 +5710,10 @@ msgstr "礼拝中は大きな「次へ」ボタン（または → キー）を�
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "画面"
+
+#: ui/operator/slides.slint
+msgid "More for this slide"
+msgstr "このスライドのその他"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
@@ -6175,7 +6335,7 @@ msgstr "{name} — 取り込んだファイル"
 msgid "Give the song a title."
 msgstr "曲にタイトルを付けてください。"
 
-#: src/app.rs
+#: src/app.rs src/song_edit/actions.rs
 msgid "That song is not in the library any more."
 msgstr "その曲はもうライブラリにありません。"
 
@@ -10976,26 +11136,6 @@ msgid "The saved sound output (not connected)"
 msgstr "保存された音声出力（未接続）"
 
 #: src/strings/song.rs
-msgid "Verse"
-msgstr "バース"
-
-#: src/strings/song.rs src/strings/stage.rs
-msgid "Chorus"
-msgstr "サビ"
-
-#: src/strings/song.rs
-msgid "Pre-chorus"
-msgstr "Bメロ"
-
-#: src/strings/song.rs
-msgid "Bridge"
-msgstr "ブリッジ"
-
-#: src/strings/song.rs
-msgid "Tag"
-msgstr "タグ"
-
-#: src/strings/song.rs
 msgid "Intro"
 msgstr "イントロ"
 
@@ -11106,6 +11246,94 @@ msgstr "{section} — {key} を押す"
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
 msgstr "{section} · スライド {page}/{pages}"
+
+#: src/strings/song_edit.rs
+msgid "That slide is not in the song any more. Try again."
+msgstr "そのスライドはもう曲にありません。もう一度お試しください。"
+
+#: src/strings/song_edit.rs
+msgid "These two slides are one part shown {lines} lines at a time. Use Lines + to show more lines on each slide."
+msgstr "この2枚は{lines}行ずつ表示される1つのパートです。「行数 +」で1枚の行を増やせます。"
+
+#: src/strings/song_edit.rs
+msgid "This is the last slide of its part, so there is nothing to join it with."
+msgstr "このパートの最後のスライドなので、結合するものがありません。"
+
+#: src/strings/song_edit.rs
+msgid "Put the cursor on the line that should start the new slide."
+msgstr "新しいスライドを始める行にカーソルを置いてください。"
+
+#: src/strings/song_edit.rs
+msgid "This is the song’s only slide. Delete the song in the library instead."
+msgstr "これは曲の唯一のスライドです。代わりにライブラリで曲を削除してください。"
+
+#: src/strings/song_edit.rs
+msgid "{part} · slide {n} of {count}"
+msgstr "{part} · スライド {n}/{count}"
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Your change shows every time."
+msgstr "{part} はこの曲で{times}回演奏されます。変更は毎回反映されます。"
+
+#: src/strings/song_edit.rs
+msgid "This slide is chords only. Type the chords in square brackets, like [G] [D]."
+msgstr "このスライドはコードのみです。コードは [G] [D] のように角かっこで入力します。"
+
+#: src/strings/song_edit.rs
+msgid "The chords stay over the same words. To change them, tick Edit chords too."
+msgstr "コードは同じ言葉の上に残ります。変えるには「コードも編集」にチェック。"
+
+#: src/strings/song_edit.rs
+msgid "Slide saved"
+msgstr "スライドを保存しました"
+
+#: src/strings/song_edit.rs
+msgid "Split into two slides"
+msgstr "2枚のスライドに分割しました"
+
+#: src/strings/song_edit.rs
+msgid "Joined with the next slide"
+msgstr "次のスライドと結合しました"
+
+#: src/strings/song_edit.rs
+msgid "Slide added"
+msgstr "スライドを追加しました"
+
+#: src/strings/song_edit.rs
+msgid "Slide deleted"
+msgstr "スライドを削除しました"
+
+#: src/strings/song_edit.rs
+msgid "Slide copied"
+msgstr "スライドを複製しました"
+
+#: src/strings/song_edit.rs
+msgid "This part is now {part}"
+msgstr "このパートは {part} になりました"
+
+#: src/strings/song_edit.rs
+msgid "Order changed for this service"
+msgstr "この礼拝の順序を変更しました"
+
+#: src/strings/song_edit.rs
+msgid "This is now the song’s usual order"
+msgstr "これが曲の通常の順序になりました"
+
+#: src/strings/song_edit.rs
+msgid "Back to the song’s usual order"
+msgstr "曲の通常の順序に戻りました"
+
+#: src/strings/song_edit.rs
+msgid "This song has no chorus."
+msgstr "この曲にはサビがありません。"
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Delete this slide every time it plays?"
+msgstr "{part} はこの曲で{times}回演奏されます。毎回このスライドを削除しますか？"
+
+#: src/strings/song_edit.rs
+msgid "Only song slides can be edited here. Use Edit for this item."
+msgstr "ここで編集できるのは曲のスライドだけです。この項目は「編集」を使ってください。"
 
 #: src/strings/stage.rs
 msgid "Classic"
@@ -13498,6 +13726,9 @@ msgstr "yt-dlp は動画を保存しませんでした"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "メディアファイルではありません"
+
+#~ msgid "Leave empty to use the written order"
+#~ msgstr "空欄の場合は記載順を使います"
 
 #~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
 #~ msgstr "別のパネルにドラッグ：その横に置くか、真ん中に置いてタブとして場所を分け合います"

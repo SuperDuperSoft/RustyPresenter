@@ -228,6 +228,10 @@ msgstr ""
 msgid "Not in the words — it is skipped"
 msgstr ""
 
+#: ui/dialogs/arrangement.slint
+msgid "Play it twice"
+msgstr ""
+
 #: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr ""
@@ -236,12 +240,24 @@ msgstr ""
 msgid "End"
 msgstr ""
 
+#: ui/dialogs/arrangement.slint
+msgid "Drop here to remove"
+msgstr ""
+
+#: ui/dialogs/arrangement.slint
+msgid "✕ Remove"
+msgstr ""
+
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr ""
 
 #: ui/dialogs/arrangement.slint
 msgid "⟲ Use written order"
+msgstr ""
+
+#: ui/dialogs/arrangement.slint
+msgid "Click to play it at the end, or drag it in between the parts"
 msgstr ""
 
 #: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
@@ -612,7 +628,7 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings.rs
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint src/ui/dialogs/settings.rs
 msgid "Save"
 msgstr ""
 
@@ -640,7 +656,7 @@ msgstr ""
 msgid "{} · {} builds"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint src/strings/song_edit.rs
 msgid "New slide"
 msgstr ""
 
@@ -656,7 +672,7 @@ msgstr ""
 msgid "Move later"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint ui/operator/slide-editor.slint src/strings/song_edit.rs
 msgid "Delete slide"
 msgstr ""
 
@@ -1025,7 +1041,7 @@ msgstr ""
 msgid "To back"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator/slide-editor.slint ui/operator.slint
 msgid "Duplicate"
 msgstr ""
 
@@ -1057,11 +1073,11 @@ msgstr ""
 msgid "Video: {}"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint ui/operator/slide-editor.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr ""
 
-#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Save and show now"
 msgstr ""
 
@@ -3612,7 +3628,7 @@ msgstr ""
 msgid "Starting soon"
 msgstr ""
 
-#: ui/dialogs/settings-stream.slint src/stream/scene.rs src/strings/song.rs
+#: ui/dialogs/settings-stream.slint ui/dialogs/song-editor.slint src/stream/scene.rs src/strings/song.rs
 msgid "Ending"
 msgstr ""
 
@@ -4117,6 +4133,42 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr ""
 
 #: ui/dialogs/song-editor.slint
+msgid "Add a part:"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Verse"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs src/strings/stage.rs
+msgid "Chorus"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Pre-chorus"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Bridge"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Tag"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Intro (chords only)"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "A part the band plays with no words: type its chords like [G] [D]"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Adds this part after the one the cursor is in"
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
 msgid "Insert slide break"
 msgstr ""
 
@@ -4134,7 +4186,7 @@ msgid ""
 "My chains are gone…"
 msgstr ""
 
-#: ui/dialogs/song-editor.slint
+#: ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Order"
 msgstr ""
 
@@ -4143,7 +4195,7 @@ msgid "(optional)"
 msgstr ""
 
 #: ui/dialogs/song-editor.slint
-msgid "Leave empty to use the written order"
+msgid "Or type the order here. Leave it empty to use the written order"
 msgstr ""
 
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
@@ -4204,6 +4256,10 @@ msgstr ""
 
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
+msgstr ""
+
+#: ui/dialogs/song-editor.slint
+msgid "Click to go to its words"
 msgstr ""
 
 #: ui/dialogs/song-editor.slint
@@ -5174,7 +5230,7 @@ msgstr ""
 msgid "Jump to 10 seconds before the end, to check how it finishes"
 msgstr ""
 
-#: ui/operator/live.slint
+#: ui/operator/live.slint ui/operator/slide-editor.slint ui/operator/slides.slint
 msgid "Edit words"
 msgstr ""
 
@@ -5518,6 +5574,106 @@ msgstr ""
 msgid "Filter the service"
 msgstr ""
 
+#: ui/operator/slide-editor.slint
+msgid "Split here…"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Join with next"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Add a slide after"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Change section…"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part earlier"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part later"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Edit the whole song…"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Edit chords too"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "The slide’s words"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Type the words for this slide"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Chords"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Enter saves · Shift+Enter starts a new line · Esc cancels"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Split here"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "A new slide starts at the line the cursor is on"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Add slide"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "From this slide on, this part is:"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Quick order ▾"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Ready-made orders for this song"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus after every verse"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus again at the end"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Just for this service"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Save as the usual order"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Every service plays the song in this order from now on"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "Reset to the song’s order"
+msgstr ""
+
+#: ui/operator/slide-editor.slint
+msgid "This service plays the song in its usual order again"
+msgstr ""
+
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
 msgstr ""
@@ -5544,6 +5700,10 @@ msgstr ""
 
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "More for this slide"
 msgstr ""
 
 #: ui/operator/slides.slint
@@ -6166,7 +6326,7 @@ msgstr ""
 msgid "Give the song a title."
 msgstr ""
 
-#: src/app.rs
+#: src/app.rs src/song_edit/actions.rs
 msgid "That song is not in the library any more."
 msgstr ""
 
@@ -11001,26 +11161,6 @@ msgid "The saved sound output (not connected)"
 msgstr ""
 
 #: src/strings/song.rs
-msgid "Verse"
-msgstr ""
-
-#: src/strings/song.rs src/strings/stage.rs
-msgid "Chorus"
-msgstr ""
-
-#: src/strings/song.rs
-msgid "Pre-chorus"
-msgstr ""
-
-#: src/strings/song.rs
-msgid "Bridge"
-msgstr ""
-
-#: src/strings/song.rs
-msgid "Tag"
-msgstr ""
-
-#: src/strings/song.rs
 msgid "Intro"
 msgstr ""
 
@@ -11130,6 +11270,94 @@ msgstr ""
 
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "That slide is not in the song any more. Try again."
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "These two slides are one part shown {lines} lines at a time. Use Lines + to show more lines on each slide."
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "This is the last slide of its part, so there is nothing to join it with."
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Put the cursor on the line that should start the new slide."
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "This is the song’s only slide. Delete the song in the library instead."
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "{part} · slide {n} of {count}"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Your change shows every time."
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "This slide is chords only. Type the chords in square brackets, like [G] [D]."
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "The chords stay over the same words. To change them, tick Edit chords too."
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Slide saved"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Split into two slides"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Joined with the next slide"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Slide added"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Slide deleted"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Slide copied"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "This part is now {part}"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Order changed for this service"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "This is now the song’s usual order"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Back to the song’s usual order"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "This song has no chorus."
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Delete this slide every time it plays?"
+msgstr ""
+
+#: src/strings/song_edit.rs
+msgid "Only song slides can be edited here. Use Edit for this item."
 msgstr ""
 
 #: src/strings/stage.rs

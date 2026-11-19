@@ -231,6 +231,10 @@ msgstr "Pwòp tèks ou"
 msgid "Not in the words — it is skipped"
 msgstr "Pa nan pawòl yo — y ap sote l"
 
+#: ui/dialogs/arrangement.slint
+msgid "Play it twice"
+msgstr "Jwe l de fwa"
+
 #: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "Retire"
@@ -239,6 +243,14 @@ msgstr "Retire"
 msgid "End"
 msgstr "Fen"
 
+#: ui/dialogs/arrangement.slint
+msgid "Drop here to remove"
+msgstr "Lage l isit la pou retire l"
+
+#: ui/dialogs/arrangement.slint
+msgid "✕ Remove"
+msgstr "✕ Retire"
+
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr "Lòd jan l ekri a — trennen pou chanje"
@@ -246,6 +258,10 @@ msgstr "Lòd jan l ekri a — trennen pou chanje"
 #: ui/dialogs/arrangement.slint
 msgid "⟲ Use written order"
 msgstr "⟲ Itilize lòd jan l ekri a"
+
+#: ui/dialogs/arrangement.slint
+msgid "Click to play it at the end, or drag it in between the parts"
+msgstr "Klike pou jwe l nan fen an, oswa trennen l ant pati yo"
 
 #: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
 msgid "Name"
@@ -615,7 +631,7 @@ msgstr "Kòmanse"
 msgid "Delete"
 msgstr "Efase"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings.rs
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint src/ui/dialogs/settings.rs
 msgid "Save"
 msgstr "Anrejistre"
 
@@ -643,7 +659,7 @@ msgstr "Bout chemen mouvman an"
 msgid "{} · {} builds"
 msgstr "{} · {} etap"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint src/strings/song_edit.rs
 msgid "New slide"
 msgstr "Nouvo diapo"
 
@@ -659,7 +675,7 @@ msgstr "Mete pi bonè"
 msgid "Move later"
 msgstr "Mete pi ta"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint ui/operator/slide-editor.slint src/strings/song_edit.rs
 msgid "Delete slide"
 msgstr "Efase diapo"
 
@@ -1028,7 +1044,7 @@ msgstr "Devan"
 msgid "To back"
 msgstr "Dèyè"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator/slide-editor.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "Fè yon kopi"
 
@@ -1060,11 +1076,11 @@ msgstr "Rale pou deplase, rale yon kwen pou chanje gwosè, flèch yo deplase ti 
 msgid "Video: {}"
 msgstr "Videyo: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint ui/operator/slide-editor.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Anile"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Save and show now"
 msgstr "Anrejistre epi montre kounye a"
 
@@ -3615,7 +3631,7 @@ msgstr "N ap kòmanse talè parèt anvan sèvis la, ak kontrebous la anba mo yo 
 msgid "Starting soon"
 msgstr "N ap kòmanse talè"
 
-#: ui/dialogs/settings-stream.slint src/stream/scene.rs src/strings/song.rs
+#: ui/dialogs/settings-stream.slint ui/dialogs/song-editor.slint src/stream/scene.rs src/strings/song.rs
 msgid "Ending"
 msgstr "Final"
 
@@ -4120,6 +4136,42 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— non seksyon yo sou pwòp liy pa yo; yon liy vid nan mitan yon seksyon kòmanse yon nouvo diapo"
 
 #: ui/dialogs/song-editor.slint
+msgid "Add a part:"
+msgstr "Ajoute yon pati:"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Verse"
+msgstr "Kouplè"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs src/strings/stage.rs
+msgid "Chorus"
+msgstr "Koral"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Pre-chorus"
+msgstr "Pre-koral"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Bridge"
+msgstr "Pon"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Tag"
+msgstr "Repriz"
+
+#: ui/dialogs/song-editor.slint
+msgid "Intro (chords only)"
+msgstr "Entwodiksyon (sèlman akò)"
+
+#: ui/dialogs/song-editor.slint
+msgid "A part the band plays with no words: type its chords like [G] [D]"
+msgstr "Yon pati mizisyen yo jwe san pawòl: tape akò li yo konsa [G] [D]"
+
+#: ui/dialogs/song-editor.slint
+msgid "Adds this part after the one the cursor is in"
+msgstr "Ajoute pati sa a apre pati kote kurseur la ye"
+
+#: ui/dialogs/song-editor.slint
 msgid "Insert slide break"
 msgstr "Mete koupi diapo"
 
@@ -4143,7 +4195,7 @@ msgstr ""
 "[Koral]\n"
 "My chains are gone…"
 
-#: ui/dialogs/song-editor.slint
+#: ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Order"
 msgstr "Lòd"
 
@@ -4152,8 +4204,8 @@ msgid "(optional)"
 msgstr "(si ou vle)"
 
 #: ui/dialogs/song-editor.slint
-msgid "Leave empty to use the written order"
-msgstr "Kite l vid pou itilize lòd jan l ekri a"
+msgid "Or type the order here. Leave it empty to use the written order"
+msgstr "Oswa tape lòd la isit la. Kite l vid pou sèvi ak lòd ki ekri a"
 
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Fewer lines on each slide of this song"
@@ -4214,6 +4266,10 @@ msgstr "Montre akò yo jan yo ekri a"
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
 msgstr "Diapo yo parèt la a pandan w ap tape. Mete non seksyon tankou “[Kouplè 1]” oswa “[Koral]” sou pwòp liy pa yo."
+
+#: ui/dialogs/song-editor.slint
+msgid "Click to go to its words"
+msgstr "Klike pou ale nan pawòl li"
 
 #: ui/dialogs/song-editor.slint
 msgid "Delete song"
@@ -5183,7 +5239,7 @@ msgstr "Dènye 10 s"
 msgid "Jump to 10 seconds before the end, to check how it finishes"
 msgstr "Sote 10 segonn anvan fen an, pou tcheke kijan li fini"
 
-#: ui/operator/live.slint
+#: ui/operator/live.slint ui/operator/slide-editor.slint ui/operator/slides.slint
 msgid "Edit words"
 msgstr "Modifye pawòl yo"
 
@@ -5527,6 +5583,106 @@ msgstr "Ajoute chante, videyo ak diapo, tape yon vèsè Bib anwo a, oswa rale fi
 msgid "Filter the service"
 msgstr "Filtre sèvis la"
 
+#: ui/operator/slide-editor.slint
+msgid "Split here…"
+msgstr "Separe isit la…"
+
+#: ui/operator/slide-editor.slint
+msgid "Join with next"
+msgstr "Mete l ansanm ak pwochen an"
+
+#: ui/operator/slide-editor.slint
+msgid "Add a slide after"
+msgstr "Ajoute yon diapo apre"
+
+#: ui/operator/slide-editor.slint
+msgid "Change section…"
+msgstr "Chanje pati a…"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part earlier"
+msgstr "Mete pati sa a pi bonè"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part later"
+msgstr "Mete pati sa a pi ta"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit the whole song…"
+msgstr "Modifye tout chante a…"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit chords too"
+msgstr "Modifye akò yo tou"
+
+#: ui/operator/slide-editor.slint
+msgid "The slide’s words"
+msgstr "Pawòl diapo a"
+
+#: ui/operator/slide-editor.slint
+msgid "Type the words for this slide"
+msgstr "Tape pawòl pou diapo sa a"
+
+#: ui/operator/slide-editor.slint
+msgid "Chords"
+msgstr "Akò"
+
+#: ui/operator/slide-editor.slint
+msgid "Enter saves · Shift+Enter starts a new line · Esc cancels"
+msgstr "Enter anrejistre · Shift+Enter kòmanse yon nouvo liy · Esc anile"
+
+#: ui/operator/slide-editor.slint
+msgid "Split here"
+msgstr "Separe isit la"
+
+#: ui/operator/slide-editor.slint
+msgid "A new slide starts at the line the cursor is on"
+msgstr "Yon nouvo diapo kòmanse nan liy kote kurseur la ye"
+
+#: ui/operator/slide-editor.slint
+msgid "Add slide"
+msgstr "Ajoute diapo"
+
+#: ui/operator/slide-editor.slint
+msgid "From this slide on, this part is:"
+msgstr "Apati diapo sa a, pati sa a se:"
+
+#: ui/operator/slide-editor.slint
+msgid "Quick order ▾"
+msgstr "Lòd rapid ▾"
+
+#: ui/operator/slide-editor.slint
+msgid "Ready-made orders for this song"
+msgstr "Lòd ki tou pare pou chante sa a"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus after every verse"
+msgstr "Koral apre chak kouplè"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus again at the end"
+msgstr "Koral ankò nan fen an"
+
+#: ui/operator/slide-editor.slint
+msgid "Just for this service"
+msgstr "Sèlman pou sèvis sa a"
+
+#: ui/operator/slide-editor.slint
+msgid "Save as the usual order"
+msgstr "Anrejistre kòm lòd abityèl"
+
+#: ui/operator/slide-editor.slint
+msgid "Every service plays the song in this order from now on"
+msgstr "Depi kounye a tout sèvis jwe chante a nan lòd sa a"
+
+#: ui/operator/slide-editor.slint
+msgid "Reset to the song’s order"
+msgstr "Retounen nan lòd chante a"
+
+#: ui/operator/slide-editor.slint
+msgid "This service plays the song in its usual order again"
+msgstr "Sèvis sa a jwe chante a nan lòd abityèl li ankò"
+
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
 msgstr "Ann prepare sèvis dimanch sa a"
@@ -5554,6 +5710,10 @@ msgstr "Itilize gwo bouton Pwochen an (oswa kle →) pandan sèvis la."
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "Ekran"
+
+#: ui/operator/slides.slint
+msgid "More for this slide"
+msgstr "Plis pou diapo sa a"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
@@ -6175,7 +6335,7 @@ msgstr "{name} — fichye enpòte"
 msgid "Give the song a title."
 msgstr "Bay chante a yon tit."
 
-#: src/app.rs
+#: src/app.rs src/song_edit/actions.rs
 msgid "That song is not in the library any more."
 msgstr "Chante sa a pa nan bibliyotèk la ankò."
 
@@ -11012,26 +11172,6 @@ msgid "The saved sound output (not connected)"
 msgstr "Sòti son ki anrejistre a (pa konekte)"
 
 #: src/strings/song.rs
-msgid "Verse"
-msgstr "Kouplè"
-
-#: src/strings/song.rs src/strings/stage.rs
-msgid "Chorus"
-msgstr "Koral"
-
-#: src/strings/song.rs
-msgid "Pre-chorus"
-msgstr "Pre-koral"
-
-#: src/strings/song.rs
-msgid "Bridge"
-msgstr "Pon"
-
-#: src/strings/song.rs
-msgid "Tag"
-msgstr "Repriz"
-
-#: src/strings/song.rs
 msgid "Intro"
 msgstr "Entwo"
 
@@ -11142,6 +11282,94 @@ msgstr "{section} — peze {key}"
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
 msgstr "{section} · diapo {page} sou {pages}"
+
+#: src/strings/song_edit.rs
+msgid "That slide is not in the song any more. Try again."
+msgstr "Diapo sa a pa nan chante a ankò. Eseye ankò."
+
+#: src/strings/song_edit.rs
+msgid "These two slides are one part shown {lines} lines at a time. Use Lines + to show more lines on each slide."
+msgstr "De diapo sa yo se yon sèl pati ki montre {lines} liy alafwa. Sèvi ak Liy + pou montre plis liy sou chak diapo."
+
+#: src/strings/song_edit.rs
+msgid "This is the last slide of its part, so there is nothing to join it with."
+msgstr "Se dènye diapo pati li, kidonk pa gen anyen pou mete ansanm avè l."
+
+#: src/strings/song_edit.rs
+msgid "Put the cursor on the line that should start the new slide."
+msgstr "Mete kurseur la sou liy ki dwe kòmanse nouvo diapo a."
+
+#: src/strings/song_edit.rs
+msgid "This is the song’s only slide. Delete the song in the library instead."
+msgstr "Se sèl diapo chante a. Efase chante a nan bibliyotèk la pito."
+
+#: src/strings/song_edit.rs
+msgid "{part} · slide {n} of {count}"
+msgstr "{part} · diapo {n} sou {count}"
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Your change shows every time."
+msgstr "{part} jwe {times} fwa nan chante sa a. Chanjman ou parèt chak fwa."
+
+#: src/strings/song_edit.rs
+msgid "This slide is chords only. Type the chords in square brackets, like [G] [D]."
+msgstr "Diapo sa a se sèlman akò. Tape akò yo nan kwochè, konsa [G] [D]."
+
+#: src/strings/song_edit.rs
+msgid "The chords stay over the same words. To change them, tick Edit chords too."
+msgstr "Akò yo rete sou menm mo yo. Pou chanje yo, tcheke Modifye akò yo tou."
+
+#: src/strings/song_edit.rs
+msgid "Slide saved"
+msgstr "Diapo anrejistre"
+
+#: src/strings/song_edit.rs
+msgid "Split into two slides"
+msgstr "Separe an de diapo"
+
+#: src/strings/song_edit.rs
+msgid "Joined with the next slide"
+msgstr "Mete ansanm ak pwochen diapo a"
+
+#: src/strings/song_edit.rs
+msgid "Slide added"
+msgstr "Diapo ajoute"
+
+#: src/strings/song_edit.rs
+msgid "Slide deleted"
+msgstr "Diapo efase"
+
+#: src/strings/song_edit.rs
+msgid "Slide copied"
+msgstr "Diapo kopye"
+
+#: src/strings/song_edit.rs
+msgid "This part is now {part}"
+msgstr "Pati sa a se {part} kounye a"
+
+#: src/strings/song_edit.rs
+msgid "Order changed for this service"
+msgstr "Lòd chanje pou sèvis sa a"
+
+#: src/strings/song_edit.rs
+msgid "This is now the song’s usual order"
+msgstr "Sa se lòd abityèl chante a kounye a"
+
+#: src/strings/song_edit.rs
+msgid "Back to the song’s usual order"
+msgstr "Retounen nan lòd abityèl chante a"
+
+#: src/strings/song_edit.rs
+msgid "This song has no chorus."
+msgstr "Chante sa a pa gen koral."
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Delete this slide every time it plays?"
+msgstr "{part} jwe {times} fwa nan chante sa a. Efase diapo sa a chak fwa li jwe?"
+
+#: src/strings/song_edit.rs
+msgid "Only song slides can be edited here. Use Edit for this item."
+msgstr "Se sèlman diapo chante ki ka modifye isit la. Sèvi ak Modifye pou eleman sa a."
 
 #: src/strings/stage.rs
 msgid "Classic"
@@ -13550,6 +13778,9 @@ msgstr "yt-dlp pa anrejistre okenn videyo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "se pa yon fichye medya"
+
+#~ msgid "Leave empty to use the written order"
+#~ msgstr "Kite l vid pou itilize lòd jan l ekri a"
 
 #~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
 #~ msgstr "Trennen l sou yon lòt panno: bò kote l, oswa nan mitan l pou pataje plas li kòm onglè"

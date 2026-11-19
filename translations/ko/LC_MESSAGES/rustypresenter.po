@@ -231,6 +231,10 @@ msgstr "직접 입력한 텍스트"
 msgid "Not in the words — it is skipped"
 msgstr "가사에 없어서 건너뛰어요"
 
+#: ui/dialogs/arrangement.slint
+msgid "Play it twice"
+msgstr "두 번 연주"
+
 #: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "제거"
@@ -239,6 +243,14 @@ msgstr "제거"
 msgid "End"
 msgstr "끝"
 
+#: ui/dialogs/arrangement.slint
+msgid "Drop here to remove"
+msgstr "여기에 놓으면 빼요"
+
+#: ui/dialogs/arrangement.slint
+msgid "✕ Remove"
+msgstr "✕ 빼기"
+
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr "작성 순서 — 끌어서 변경"
@@ -246,6 +258,10 @@ msgstr "작성 순서 — 끌어서 변경"
 #: ui/dialogs/arrangement.slint
 msgid "⟲ Use written order"
 msgstr "⟲ 작성 순서 사용"
+
+#: ui/dialogs/arrangement.slint
+msgid "Click to play it at the end, or drag it in between the parts"
+msgstr "클릭하면 끝에 넣고, 부분 사이로 끌어다 놓을 수도 있어요"
 
 #: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
 msgid "Name"
@@ -615,7 +631,7 @@ msgstr "시작"
 msgid "Delete"
 msgstr "삭제"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings.rs
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint src/ui/dialogs/settings.rs
 msgid "Save"
 msgstr "저장"
 
@@ -643,7 +659,7 @@ msgstr "이동 경로의 끝"
 msgid "{} · {} builds"
 msgstr "{} · 빌드 {}개"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint src/strings/song_edit.rs
 msgid "New slide"
 msgstr "새 슬라이드"
 
@@ -659,7 +675,7 @@ msgstr "앞으로 이동"
 msgid "Move later"
 msgstr "뒤로 이동"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint ui/operator/slide-editor.slint src/strings/song_edit.rs
 msgid "Delete slide"
 msgstr "슬라이드 삭제"
 
@@ -1028,7 +1044,7 @@ msgstr "맨 앞으로"
 msgid "To back"
 msgstr "맨 뒤로"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator/slide-editor.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "복제"
 
@@ -1060,11 +1076,11 @@ msgstr "드래그하면 이동, 모서리를 드래그하면 크기 조절, 화�
 msgid "Video: {}"
 msgstr "동영상: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint ui/operator/slide-editor.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "취소"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Save and show now"
 msgstr "저장 후 바로 표시"
 
@@ -3615,7 +3631,7 @@ msgstr "곧 시작합니다는 예배 전에 나오고, 카운트다운이 진�
 msgid "Starting soon"
 msgstr "곧 시작합니다"
 
-#: ui/dialogs/settings-stream.slint src/stream/scene.rs src/strings/song.rs
+#: ui/dialogs/settings-stream.slint ui/dialogs/song-editor.slint src/stream/scene.rs src/strings/song.rs
 msgid "Ending"
 msgstr "엔딩"
 
@@ -4120,6 +4136,42 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— 섹션 이름은 한 줄에 따로 쓰고, 섹션 안의 빈 줄은 새 슬라이드를 시작해요"
 
 #: ui/dialogs/song-editor.slint
+msgid "Add a part:"
+msgstr "부분 추가:"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Verse"
+msgstr "절"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs src/strings/stage.rs
+msgid "Chorus"
+msgstr "후렴"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Pre-chorus"
+msgstr "프리코러스"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Bridge"
+msgstr "브리지"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Tag"
+msgstr "태그"
+
+#: ui/dialogs/song-editor.slint
+msgid "Intro (chords only)"
+msgstr "인트로 (코드만)"
+
+#: ui/dialogs/song-editor.slint
+msgid "A part the band plays with no words: type its chords like [G] [D]"
+msgstr "가사 없이 밴드가 연주하는 부분: 코드를 [G] [D]처럼 입력해요"
+
+#: ui/dialogs/song-editor.slint
+msgid "Adds this part after the one the cursor is in"
+msgstr "커서가 있는 부분 다음에 이 부분을 추가해요"
+
+#: ui/dialogs/song-editor.slint
 msgid "Insert slide break"
 msgstr "슬라이드 나누기 삽입"
 
@@ -4143,7 +4195,7 @@ msgstr ""
 "Chorus\n"
 "잃었던 생명 찾았고…"
 
-#: ui/dialogs/song-editor.slint
+#: ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Order"
 msgstr "순서"
 
@@ -4152,8 +4204,8 @@ msgid "(optional)"
 msgstr "(선택 사항)"
 
 #: ui/dialogs/song-editor.slint
-msgid "Leave empty to use the written order"
-msgstr "비워 두면 작성 순서를 사용해요"
+msgid "Or type the order here. Leave it empty to use the written order"
+msgstr "또는 여기에 순서를 입력하세요. 비워 두면 적힌 순서대로예요"
 
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Fewer lines on each slide of this song"
@@ -4214,6 +4266,10 @@ msgstr "코드를 쓰인 그대로 보이기"
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
 msgstr "입력하는 대로 여기에 슬라이드가 나타나요. “Verse 1”이나 “Chorus” 같은 섹션 이름은 한 줄에 따로 쓰세요."
+
+#: ui/dialogs/song-editor.slint
+msgid "Click to go to its words"
+msgstr "클릭하면 그 가사로 이동해요"
 
 #: ui/dialogs/song-editor.slint
 msgid "Delete song"
@@ -5183,7 +5239,7 @@ msgstr "마지막 10초"
 msgid "Jump to 10 seconds before the end, to check how it finishes"
 msgstr "끝나기 10초 전으로 이동해서 어떻게 끝나는지 확인해요"
 
-#: ui/operator/live.slint
+#: ui/operator/live.slint ui/operator/slide-editor.slint ui/operator/slides.slint
 msgid "Edit words"
 msgstr "가사 편집"
 
@@ -5527,6 +5583,106 @@ msgstr "찬양, 동영상, 슬라이드를 추가하거나, 맨 위에 성경 �
 msgid "Filter the service"
 msgstr "예배 필터"
 
+#: ui/operator/slide-editor.slint
+msgid "Split here…"
+msgstr "여기서 나누기…"
+
+#: ui/operator/slide-editor.slint
+msgid "Join with next"
+msgstr "다음과 합치기"
+
+#: ui/operator/slide-editor.slint
+msgid "Add a slide after"
+msgstr "뒤에 슬라이드 추가"
+
+#: ui/operator/slide-editor.slint
+msgid "Change section…"
+msgstr "부분 바꾸기…"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part earlier"
+msgstr "이 부분을 앞으로"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part later"
+msgstr "이 부분을 뒤로"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit the whole song…"
+msgstr "찬양 전체 편집…"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit chords too"
+msgstr "코드도 편집"
+
+#: ui/operator/slide-editor.slint
+msgid "The slide’s words"
+msgstr "슬라이드 가사"
+
+#: ui/operator/slide-editor.slint
+msgid "Type the words for this slide"
+msgstr "이 슬라이드의 가사를 입력하세요"
+
+#: ui/operator/slide-editor.slint
+msgid "Chords"
+msgstr "코드"
+
+#: ui/operator/slide-editor.slint
+msgid "Enter saves · Shift+Enter starts a new line · Esc cancels"
+msgstr "Enter 저장 · Shift+Enter 줄 바꿈 · Esc 취소"
+
+#: ui/operator/slide-editor.slint
+msgid "Split here"
+msgstr "여기서 나누기"
+
+#: ui/operator/slide-editor.slint
+msgid "A new slide starts at the line the cursor is on"
+msgstr "커서가 있는 줄부터 새 슬라이드가 시작돼요"
+
+#: ui/operator/slide-editor.slint
+msgid "Add slide"
+msgstr "슬라이드 추가"
+
+#: ui/operator/slide-editor.slint
+msgid "From this slide on, this part is:"
+msgstr "이 슬라이드부터 이 부분은:"
+
+#: ui/operator/slide-editor.slint
+msgid "Quick order ▾"
+msgstr "빠른 순서 ▾"
+
+#: ui/operator/slide-editor.slint
+msgid "Ready-made orders for this song"
+msgstr "이 찬양을 위한 준비된 순서"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus after every verse"
+msgstr "절마다 후렴"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus again at the end"
+msgstr "마지막에 후렴 한 번 더"
+
+#: ui/operator/slide-editor.slint
+msgid "Just for this service"
+msgstr "이 예배에만"
+
+#: ui/operator/slide-editor.slint
+msgid "Save as the usual order"
+msgstr "기본 순서로 저장"
+
+#: ui/operator/slide-editor.slint
+msgid "Every service plays the song in this order from now on"
+msgstr "이제부터 모든 예배에서 이 순서로 불러요"
+
+#: ui/operator/slide-editor.slint
+msgid "Reset to the song’s order"
+msgstr "찬양의 순서로 되돌리기"
+
+#: ui/operator/slide-editor.slint
+msgid "This service plays the song in its usual order again"
+msgstr "이 예배는 다시 기본 순서로 불러요"
+
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
 msgstr "이번 주일 예배를 준비해 볼까요"
@@ -5554,6 +5710,10 @@ msgstr "예배 중에는 큰 다음 버튼(또는 → 키)을 사용하세요."
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "화면"
+
+#: ui/operator/slides.slint
+msgid "More for this slide"
+msgstr "이 슬라이드 더보기"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
@@ -6175,7 +6335,7 @@ msgstr "{name} — 가져온 파일"
 msgid "Give the song a title."
 msgstr "찬양 제목을 입력하세요."
 
-#: src/app.rs
+#: src/app.rs src/song_edit/actions.rs
 msgid "That song is not in the library any more."
 msgstr "그 찬양은 더 이상 라이브러리에 없습니다."
 
@@ -10976,26 +11136,6 @@ msgid "The saved sound output (not connected)"
 msgstr "저장된 소리 출력 장치(연결 안 됨)"
 
 #: src/strings/song.rs
-msgid "Verse"
-msgstr "절"
-
-#: src/strings/song.rs src/strings/stage.rs
-msgid "Chorus"
-msgstr "후렴"
-
-#: src/strings/song.rs
-msgid "Pre-chorus"
-msgstr "프리코러스"
-
-#: src/strings/song.rs
-msgid "Bridge"
-msgstr "브리지"
-
-#: src/strings/song.rs
-msgid "Tag"
-msgstr "태그"
-
-#: src/strings/song.rs
 msgid "Intro"
 msgstr "전주"
 
@@ -11106,6 +11246,94 @@ msgstr "{section} — {key} 누르기"
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
 msgstr "{section} · 슬라이드 {page}/{pages}"
+
+#: src/strings/song_edit.rs
+msgid "That slide is not in the song any more. Try again."
+msgstr "그 슬라이드는 이제 찬양에 없어요. 다시 해 보세요."
+
+#: src/strings/song_edit.rs
+msgid "These two slides are one part shown {lines} lines at a time. Use Lines + to show more lines on each slide."
+msgstr "이 두 슬라이드는 {lines}줄씩 보여 주는 한 부분이에요. 줄 +로 슬라이드마다 줄을 늘리세요."
+
+#: src/strings/song_edit.rs
+msgid "This is the last slide of its part, so there is nothing to join it with."
+msgstr "이 부분의 마지막 슬라이드라 합칠 것이 없어요."
+
+#: src/strings/song_edit.rs
+msgid "Put the cursor on the line that should start the new slide."
+msgstr "새 슬라이드가 시작될 줄에 커서를 두세요."
+
+#: src/strings/song_edit.rs
+msgid "This is the song’s only slide. Delete the song in the library instead."
+msgstr "찬양의 유일한 슬라이드예요. 대신 라이브러리에서 찬양을 삭제하세요."
+
+#: src/strings/song_edit.rs
+msgid "{part} · slide {n} of {count}"
+msgstr "{part} · 슬라이드 {n}/{count}"
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Your change shows every time."
+msgstr "{part}은(는) 이 찬양에서 {times}번 나와요. 바꾼 내용이 매번 보여요."
+
+#: src/strings/song_edit.rs
+msgid "This slide is chords only. Type the chords in square brackets, like [G] [D]."
+msgstr "이 슬라이드는 코드만 있어요. 코드는 [G] [D]처럼 대괄호 안에 입력하세요."
+
+#: src/strings/song_edit.rs
+msgid "The chords stay over the same words. To change them, tick Edit chords too."
+msgstr "코드는 같은 단어 위에 그대로 있어요. 바꾸려면 코드도 편집을 체크하세요."
+
+#: src/strings/song_edit.rs
+msgid "Slide saved"
+msgstr "슬라이드를 저장했어요"
+
+#: src/strings/song_edit.rs
+msgid "Split into two slides"
+msgstr "슬라이드 두 개로 나눴어요"
+
+#: src/strings/song_edit.rs
+msgid "Joined with the next slide"
+msgstr "다음 슬라이드와 합쳤어요"
+
+#: src/strings/song_edit.rs
+msgid "Slide added"
+msgstr "슬라이드를 추가했어요"
+
+#: src/strings/song_edit.rs
+msgid "Slide deleted"
+msgstr "슬라이드를 삭제했어요"
+
+#: src/strings/song_edit.rs
+msgid "Slide copied"
+msgstr "슬라이드를 복제했어요"
+
+#: src/strings/song_edit.rs
+msgid "This part is now {part}"
+msgstr "이 부분은 이제 {part}예요"
+
+#: src/strings/song_edit.rs
+msgid "Order changed for this service"
+msgstr "이 예배의 순서를 바꿨어요"
+
+#: src/strings/song_edit.rs
+msgid "This is now the song’s usual order"
+msgstr "이제 이것이 찬양의 기본 순서예요"
+
+#: src/strings/song_edit.rs
+msgid "Back to the song’s usual order"
+msgstr "찬양의 기본 순서로 돌아갔어요"
+
+#: src/strings/song_edit.rs
+msgid "This song has no chorus."
+msgstr "이 찬양에는 후렴이 없어요."
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Delete this slide every time it plays?"
+msgstr "{part}은(는) 이 찬양에서 {times}번 나와요. 나올 때마다 이 슬라이드를 삭제할까요?"
+
+#: src/strings/song_edit.rs
+msgid "Only song slides can be edited here. Use Edit for this item."
+msgstr "여기서는 찬양 슬라이드만 편집할 수 있어요. 이 항목은 편집을 사용하세요."
 
 #: src/strings/stage.rs
 msgid "Classic"
@@ -13498,6 +13726,9 @@ msgstr "yt-dlp가 동영상을 저장하지 않았어요"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "미디어 파일 아님"
+
+#~ msgid "Leave empty to use the written order"
+#~ msgstr "비워 두면 작성 순서를 사용해요"
 
 #~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
 #~ msgstr "다른 패널 위로 끌어 놓으세요: 옆에 놓거나, 가운데에 놓으면 탭으로 자리를 함께 씁니다"

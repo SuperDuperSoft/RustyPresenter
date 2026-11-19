@@ -231,6 +231,10 @@ msgstr "Maandishi yako mwenyewe"
 msgid "Not in the words — it is skipped"
 msgstr "Haipo kwenye maneno — inarukwa"
 
+#: ui/dialogs/arrangement.slint
+msgid "Play it twice"
+msgstr "Ipige mara mbili"
+
 #: ui/dialogs/arrangement.slint ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/music.slint ui/dialogs/phone.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-look.slint ui/dialogs/settings-sections.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/dialogs/usage.slint ui/operator/media.slint src/strings/catalog.rs src/strings/screens.rs src/strings/themes.rs src/strings/usage.rs src/ui/operator/video_inputs.rs
 msgid "Remove"
 msgstr "Ondoa"
@@ -239,6 +243,14 @@ msgstr "Ondoa"
 msgid "End"
 msgstr "Mwisho"
 
+#: ui/dialogs/arrangement.slint
+msgid "Drop here to remove"
+msgstr "Dondosha hapa kuondoa"
+
+#: ui/dialogs/arrangement.slint
+msgid "✕ Remove"
+msgstr "✕ Ondoa"
+
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr "Mpangilio ulioandikwa — buruta kubadilisha"
@@ -246,6 +258,10 @@ msgstr "Mpangilio ulioandikwa — buruta kubadilisha"
 #: ui/dialogs/arrangement.slint
 msgid "⟲ Use written order"
 msgstr "⟲ Tumia mpangilio ulioandikwa"
+
+#: ui/dialogs/arrangement.slint
+msgid "Click to play it at the end, or drag it in between the parts"
+msgstr "Bofya ili ipigwe mwishoni, au iburute kati ya sehemu"
 
 #: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/screens.slint ui/dialogs/settings-themes.slint
 msgid "Name"
@@ -615,7 +631,7 @@ msgstr "Anza"
 msgid "Delete"
 msgstr "Futa"
 
-#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint src/ui/dialogs/settings.rs
+#: ui/dialogs/automation.slint ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/slide-breaks.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint src/ui/dialogs/settings.rs
 msgid "Save"
 msgstr "Hifadhi"
 
@@ -643,7 +659,7 @@ msgstr "Mwisho wa njia ya mwendo"
 msgid "{} · {} builds"
 msgstr "{} · hatua {}"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint src/strings/song_edit.rs
 msgid "New slide"
 msgstr "Slaidi mpya"
 
@@ -659,7 +675,7 @@ msgstr "Sogeza mapema"
 msgid "Move later"
 msgstr "Sogeza baadaye"
 
-#: ui/dialogs/design-editor.slint
+#: ui/dialogs/design-editor.slint ui/operator/slide-editor.slint src/strings/song_edit.rs
 msgid "Delete slide"
 msgstr "Futa slaidi"
 
@@ -1028,7 +1044,7 @@ msgstr "Mbele kabisa"
 msgid "To back"
 msgstr "Nyuma kabisa"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/overlays.slint ui/dialogs/settings-themes.slint ui/dialogs/stage-layouts.slint ui/operator/slide-editor.slint ui/operator.slint
 msgid "Duplicate"
 msgstr "Rudufu"
 
@@ -1060,11 +1076,11 @@ msgstr "Buruta ili kusogeza, buruta pembe ili kubadilisha ukubwa, mishale husoge
 msgid "Video: {}"
 msgstr "Video: {}"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
+#: ui/dialogs/design-editor.slint ui/dialogs/item-edit.slint ui/dialogs/settings-follow.slint ui/dialogs/settings-keys.slint ui/dialogs/settings.slint ui/dialogs/show-message.slint ui/dialogs/slide-breaks.slint ui/dialogs/song-editor.slint ui/dialogs/stage-layouts.slint ui/dialogs/stream-scenes.slint ui/operator/cameras.slint ui/operator/overlays.slint ui/operator/slide-editor.slint src/i18n/remote_strings.rs src/strings/add.rs src/strings/catalog.rs src/strings/dialogs.rs src/strings/operator.rs
 msgid "Cancel"
 msgstr "Ghairi"
 
-#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint
+#: ui/dialogs/design-editor.slint ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Save and show now"
 msgstr "Hifadhi na uonyeshe sasa"
 
@@ -3615,7 +3631,7 @@ msgstr "Tunaanza hivi karibuni huonekana kabla ya ibada, pamoja na muda unaohesa
 msgid "Starting soon"
 msgstr "Tunaanza hivi karibuni"
 
-#: ui/dialogs/settings-stream.slint src/stream/scene.rs src/strings/song.rs
+#: ui/dialogs/settings-stream.slint ui/dialogs/song-editor.slint src/stream/scene.rs src/strings/song.rs
 msgid "Ending"
 msgstr "Mwisho"
 
@@ -4120,6 +4136,42 @@ msgid "— section names on their own line; an empty line inside a section start
 msgstr "— majina ya sehemu kwenye mstari wake; mstari mtupu ndani ya sehemu huanza slaidi mpya"
 
 #: ui/dialogs/song-editor.slint
+msgid "Add a part:"
+msgstr "Ongeza sehemu:"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Verse"
+msgstr "Ubeti"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs src/strings/stage.rs
+msgid "Chorus"
+msgstr "Kiitikio"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Pre-chorus"
+msgstr "Kabla ya kiitikio"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Bridge"
+msgstr "Daraja"
+
+#: ui/dialogs/song-editor.slint src/strings/song.rs
+msgid "Tag"
+msgstr "Kiambatisho"
+
+#: ui/dialogs/song-editor.slint
+msgid "Intro (chords only)"
+msgstr "Utangulizi (chodi pekee)"
+
+#: ui/dialogs/song-editor.slint
+msgid "A part the band plays with no words: type its chords like [G] [D]"
+msgstr "Sehemu ambayo bendi inapiga bila maneno: andika chodi zake kama [G] [D]"
+
+#: ui/dialogs/song-editor.slint
+msgid "Adds this part after the one the cursor is in"
+msgstr "Huongeza sehemu hii baada ya ile kishale kilipo"
+
+#: ui/dialogs/song-editor.slint
 msgid "Insert slide break"
 msgstr "Weka mgawanyiko wa slaidi"
 
@@ -4143,7 +4195,7 @@ msgstr ""
 "[Kiitikio]\n"
 "Minyororo imekatika…"
 
-#: ui/dialogs/song-editor.slint
+#: ui/dialogs/song-editor.slint ui/operator/slide-editor.slint
 msgid "Order"
 msgstr "Mpangilio"
 
@@ -4152,8 +4204,8 @@ msgid "(optional)"
 msgstr "(si lazima)"
 
 #: ui/dialogs/song-editor.slint
-msgid "Leave empty to use the written order"
-msgstr "Acha tupu ili kutumia mpangilio ulioandikwa"
+msgid "Or type the order here. Leave it empty to use the written order"
+msgstr "Au andika mpangilio hapa. Acha wazi kutumia mpangilio ulioandikwa"
 
 #: ui/dialogs/song-editor.slint ui/operator/slides.slint
 msgid "Fewer lines on each slide of this song"
@@ -4214,6 +4266,10 @@ msgstr "Onyesha chodi kama zilivyoandikwa"
 #: ui/dialogs/song-editor.slint
 msgid "Slides appear here as you type. Put section names like “Verse 1” or “Chorus” on their own line."
 msgstr "Slaidi huonekana hapa unapoandika. Weka majina ya sehemu kama “[Ubeti 1]” au “[Kiitikio]” kwenye mstari wake."
+
+#: ui/dialogs/song-editor.slint
+msgid "Click to go to its words"
+msgstr "Bofya kwenda kwenye maneno yake"
 
 #: ui/dialogs/song-editor.slint
 msgid "Delete song"
@@ -5183,7 +5239,7 @@ msgstr "Sek 10 za mwisho"
 msgid "Jump to 10 seconds before the end, to check how it finishes"
 msgstr "Ruka hadi sekunde 10 kabla ya mwisho, ili kuona jinsi inavyoisha"
 
-#: ui/operator/live.slint
+#: ui/operator/live.slint ui/operator/slide-editor.slint ui/operator/slides.slint
 msgid "Edit words"
 msgstr "Hariri maneno"
 
@@ -5527,6 +5583,106 @@ msgstr "Ongeza nyimbo, video na slaidi, andika mstari wa Biblia juu, au buruta f
 msgid "Filter the service"
 msgstr "Chuja ibada"
 
+#: ui/operator/slide-editor.slint
+msgid "Split here…"
+msgstr "Gawanya hapa…"
+
+#: ui/operator/slide-editor.slint
+msgid "Join with next"
+msgstr "Unganisha na inayofuata"
+
+#: ui/operator/slide-editor.slint
+msgid "Add a slide after"
+msgstr "Ongeza slaidi baada yake"
+
+#: ui/operator/slide-editor.slint
+msgid "Change section…"
+msgstr "Badilisha sehemu…"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part earlier"
+msgstr "Sogeza sehemu hii mbele"
+
+#: ui/operator/slide-editor.slint
+msgid "Move this part later"
+msgstr "Sogeza sehemu hii nyuma"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit the whole song…"
+msgstr "Hariri wimbo wote…"
+
+#: ui/operator/slide-editor.slint
+msgid "Edit chords too"
+msgstr "Hariri chodi pia"
+
+#: ui/operator/slide-editor.slint
+msgid "The slide’s words"
+msgstr "Maneno ya slaidi"
+
+#: ui/operator/slide-editor.slint
+msgid "Type the words for this slide"
+msgstr "Andika maneno ya slaidi hii"
+
+#: ui/operator/slide-editor.slint
+msgid "Chords"
+msgstr "Chodi"
+
+#: ui/operator/slide-editor.slint
+msgid "Enter saves · Shift+Enter starts a new line · Esc cancels"
+msgstr "Enter huhifadhi · Shift+Enter huanza mstari mpya · Esc hughairi"
+
+#: ui/operator/slide-editor.slint
+msgid "Split here"
+msgstr "Gawanya hapa"
+
+#: ui/operator/slide-editor.slint
+msgid "A new slide starts at the line the cursor is on"
+msgstr "Slaidi mpya inaanza kwenye mstari wa kishale"
+
+#: ui/operator/slide-editor.slint
+msgid "Add slide"
+msgstr "Ongeza slaidi"
+
+#: ui/operator/slide-editor.slint
+msgid "From this slide on, this part is:"
+msgstr "Kuanzia slaidi hii, sehemu hii ni:"
+
+#: ui/operator/slide-editor.slint
+msgid "Quick order ▾"
+msgstr "Mpangilio wa haraka ▾"
+
+#: ui/operator/slide-editor.slint
+msgid "Ready-made orders for this song"
+msgstr "Mipangilio iliyo tayari kwa wimbo huu"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus after every verse"
+msgstr "Kiitikio baada ya kila ubeti"
+
+#: ui/operator/slide-editor.slint
+msgid "Chorus again at the end"
+msgstr "Kiitikio tena mwishoni"
+
+#: ui/operator/slide-editor.slint
+msgid "Just for this service"
+msgstr "Kwa ibada hii tu"
+
+#: ui/operator/slide-editor.slint
+msgid "Save as the usual order"
+msgstr "Hifadhi kama mpangilio wa kawaida"
+
+#: ui/operator/slide-editor.slint
+msgid "Every service plays the song in this order from now on"
+msgstr "Kuanzia sasa kila ibada itapiga wimbo kwa mpangilio huu"
+
+#: ui/operator/slide-editor.slint
+msgid "Reset to the song’s order"
+msgstr "Rudi kwenye mpangilio wa wimbo"
+
+#: ui/operator/slide-editor.slint
+msgid "This service plays the song in its usual order again"
+msgstr "Ibada hii itapiga wimbo kwa mpangilio wake wa kawaida tena"
+
 #: ui/operator/slides.slint
 msgid "Let’s build this Sunday’s service"
 msgstr "Tuandae ibada ya Jumapili hii"
@@ -5554,6 +5710,10 @@ msgstr "Tumia kitufe kikubwa cha Ifuatayo (au kitufe →) wakati wa ibada."
 #: ui/operator/slides.slint ui/operator/topbar.slint src/strings/dialogs.rs
 msgid "Screens"
 msgstr "Skrini"
+
+#: ui/operator/slides.slint
+msgid "More for this slide"
+msgstr "Zaidi kwa slaidi hii"
 
 #: ui/operator/slides.slint
 msgid "Smaller text for this passage"
@@ -6175,7 +6335,7 @@ msgstr "{name} — faili iliyoletwa"
 msgid "Give the song a title."
 msgstr "Upe wimbo kichwa."
 
-#: src/app.rs
+#: src/app.rs src/song_edit/actions.rs
 msgid "That song is not in the library any more."
 msgstr "Wimbo huo haupo tena kwenye maktaba."
 
@@ -11012,26 +11172,6 @@ msgid "The saved sound output (not connected)"
 msgstr "Kifaa cha sauti kilichohifadhiwa (hakijaunganishwa)"
 
 #: src/strings/song.rs
-msgid "Verse"
-msgstr "Ubeti"
-
-#: src/strings/song.rs src/strings/stage.rs
-msgid "Chorus"
-msgstr "Kiitikio"
-
-#: src/strings/song.rs
-msgid "Pre-chorus"
-msgstr "Kabla ya kiitikio"
-
-#: src/strings/song.rs
-msgid "Bridge"
-msgstr "Daraja"
-
-#: src/strings/song.rs
-msgid "Tag"
-msgstr "Kiambatisho"
-
-#: src/strings/song.rs
 msgid "Intro"
 msgstr "Utangulizi"
 
@@ -11142,6 +11282,94 @@ msgstr "{section} — bonyeza {key}"
 #: src/strings/song.rs
 msgid "{section} · slide {page} of {pages}"
 msgstr "{section} · slaidi {page} kati ya {pages}"
+
+#: src/strings/song_edit.rs
+msgid "That slide is not in the song any more. Try again."
+msgstr "Slaidi hiyo haipo tena kwenye wimbo. Jaribu tena."
+
+#: src/strings/song_edit.rs
+msgid "These two slides are one part shown {lines} lines at a time. Use Lines + to show more lines on each slide."
+msgstr "Slaidi hizi mbili ni sehemu moja inayoonyeshwa mistari {lines} kwa wakati. Tumia Mistari + kuonyesha mistari zaidi."
+
+#: src/strings/song_edit.rs
+msgid "This is the last slide of its part, so there is nothing to join it with."
+msgstr "Hii ni slaidi ya mwisho ya sehemu yake, hivyo hakuna cha kuunganisha."
+
+#: src/strings/song_edit.rs
+msgid "Put the cursor on the line that should start the new slide."
+msgstr "Weka kishale kwenye mstari unaopaswa kuanza slaidi mpya."
+
+#: src/strings/song_edit.rs
+msgid "This is the song’s only slide. Delete the song in the library instead."
+msgstr "Hii ndiyo slaidi pekee ya wimbo. Futa wimbo kwenye maktaba badala yake."
+
+#: src/strings/song_edit.rs
+msgid "{part} · slide {n} of {count}"
+msgstr "{part} · slaidi {n} kati ya {count}"
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Your change shows every time."
+msgstr "{part} inapigwa mara {times} katika wimbo huu. Badiliko lako litaonekana kila mara."
+
+#: src/strings/song_edit.rs
+msgid "This slide is chords only. Type the chords in square brackets, like [G] [D]."
+msgstr "Slaidi hii ina chodi pekee. Andika chodi ndani ya mabano mraba, kama [G] [D]."
+
+#: src/strings/song_edit.rs
+msgid "The chords stay over the same words. To change them, tick Edit chords too."
+msgstr "Chodi zinabaki juu ya maneno yale yale. Kuzibadilisha, weka alama kwenye Hariri chodi pia."
+
+#: src/strings/song_edit.rs
+msgid "Slide saved"
+msgstr "Slaidi imehifadhiwa"
+
+#: src/strings/song_edit.rs
+msgid "Split into two slides"
+msgstr "Imegawanywa kuwa slaidi mbili"
+
+#: src/strings/song_edit.rs
+msgid "Joined with the next slide"
+msgstr "Imeunganishwa na slaidi inayofuata"
+
+#: src/strings/song_edit.rs
+msgid "Slide added"
+msgstr "Slaidi imeongezwa"
+
+#: src/strings/song_edit.rs
+msgid "Slide deleted"
+msgstr "Slaidi imefutwa"
+
+#: src/strings/song_edit.rs
+msgid "Slide copied"
+msgstr "Slaidi imenakiliwa"
+
+#: src/strings/song_edit.rs
+msgid "This part is now {part}"
+msgstr "Sehemu hii sasa ni {part}"
+
+#: src/strings/song_edit.rs
+msgid "Order changed for this service"
+msgstr "Mpangilio umebadilishwa kwa ibada hii"
+
+#: src/strings/song_edit.rs
+msgid "This is now the song’s usual order"
+msgstr "Huu sasa ni mpangilio wa kawaida wa wimbo"
+
+#: src/strings/song_edit.rs
+msgid "Back to the song’s usual order"
+msgstr "Imerudi kwenye mpangilio wa kawaida wa wimbo"
+
+#: src/strings/song_edit.rs
+msgid "This song has no chorus."
+msgstr "Wimbo huu hauna kiitikio."
+
+#: src/strings/song_edit.rs
+msgid "{part} plays {times} times in this song. Delete this slide every time it plays?"
+msgstr "{part} inapigwa mara {times} katika wimbo huu. Futa slaidi hii kila inapopigwa?"
+
+#: src/strings/song_edit.rs
+msgid "Only song slides can be edited here. Use Edit for this item."
+msgstr "Slaidi za nyimbo pekee zinaweza kuhaririwa hapa. Tumia Hariri kwa kipengee hiki."
 
 #: src/strings/stage.rs
 msgid "Classic"
@@ -13550,6 +13778,9 @@ msgstr "yt-dlp haikuhifadhi video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "si faili ya midia"
+
+#~ msgid "Leave empty to use the written order"
+#~ msgstr "Acha tupu ili kutumia mpangilio ulioandikwa"
 
 #~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
 #~ msgstr "Buruta juu ya paneli nyingine: kando yake, au katikati yake ili kushiriki nafasi yake kama kichupo"
