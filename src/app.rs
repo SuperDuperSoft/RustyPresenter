@@ -555,12 +555,18 @@ impl App {
         let r = {
             let mut data = self.data.lock().unwrap();
             let before = data.clone();
-            let r = f(&mut data).and_then(|r| self.encode_save(&data).map(|s| (r, s)));
+            let r = match f(&mut data).and_then(|r| self.encode_save(&data).map(|s| (r, s))) {
+                Ok(r) => r,
+                Err(e) => {
+                    *data = before;
+                    return Err(e);
+                }
+            };
             let mut history = self.history.lock().unwrap();
             if step { history.record(&before, &data) } else { history.carry(&before, &data) }
             r
         };
-        let r = r.and_then(|(r, s)| self.write_save(s).map(|()| r));
+        let r = self.write_save(r.1).map(|()| r.0);
         self.after_edit(r.is_ok());
         r
     }
@@ -1945,9 +1951,10 @@ impl App {
     /// the HTTP upload). `name` is the original file name and `sha` the file's hash. Takes ownership of `tmp`.
     pub async fn import_staged(self: &Arc<Self>, tmp: PathBuf, name: &str, sha: &str, purpose: ImportPurpose) -> Result<Imported, ActionError> {
         let app = self;
-        let ext = crate::store::sanitize_ext(name.rsplit('.').next().unwrap_or(""));
         let base_name = name.rsplit(['/', '\\']).next().unwrap_or(name);
-        let display = base_name.rsplit_once('.').map(|(a, _)| a).unwrap_or(base_name).to_string();
+        let file_name = std::path::Path::new(base_name);
+        let ext = crate::store::sanitize_ext(file_name.extension().and_then(|s| s.to_str()).unwrap_or(""));
+        let display = file_name.file_stem().and_then(|s| s.to_str()).unwrap_or(base_name).to_string();
 
         // Anything else dropped on the Media tab goes to the probe, which decides what it is.
         let song_file = ext == "txt" || ["usr", "chordpro", "cho", "chopro"].contains(&ext.as_str());

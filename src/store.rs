@@ -112,7 +112,14 @@ impl Store {
     pub fn publish(&self, tmp: &Path, sha: &str, ext: &str) -> io::Result<AssetId> {
         let id = format!("{sha}.{}", sanitize_ext(ext));
         let dest = self.asset_path(&id);
-        if dest.exists() { let _ = fs::remove_file(tmp); } else { fs::rename(tmp, &dest)?; }
+        if dest.is_file() {
+            let _ = fs::remove_file(tmp);
+        } else if let Err(e) = fs::rename(tmp, &dest) {
+            let _ = fs::remove_file(tmp);
+            if !dest.is_file() {
+                return Err(e);
+            }
+        }
         Ok(id)
     }
 

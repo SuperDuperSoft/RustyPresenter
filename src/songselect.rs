@@ -31,42 +31,49 @@ pub(crate) mod testing {
     }
 }
 
+fn is_copyright(line: &str) -> bool {
+    let line = line.trim();
+    line.starts_with('©')
+        || line.to_ascii_lowercase().starts_with("copyright")
+        || line.strip_prefix("c ").is_some_and(|rest| {
+            rest.as_bytes().get(..4).is_some_and(|year| year.iter().all(u8::is_ascii_digit))
+        })
+}
+
 pub fn import_txt(text: &str) -> Result<Song, String> {
     if text.len() > 256_000 { return Err(crate::tr!("That file is too big to be a song file.")); }
     let normalized = text.trim_start_matches('\u{feff}').replace("\r\n", "\n").replace('\r', "\n");
     let lines: Vec<&str> = normalized.lines().map(str::trim_end).collect();
     let title_i = lines.iter().position(|l| !l.trim().is_empty()).ok_or_else(|| crate::tr!("The song file is empty."))?;
-    let title = lines[title_i].trim().trim_matches('"').to_string();
+    let title = lines[title_i].trim().trim_matches('"').trim().to_string();
+    if title.is_empty() { return Err(crate::tr!("Give the song a title.")); }
     let first_section = (title_i + 1..lines.len()).find(|&i| section_label(lines[i]).is_some())
         .ok_or_else(|| crate::tr!("This file has no Verse/Chorus headings. Use SongSelect's \"Lyrics (.txt)\" download."))?;
 
     let ccli_i = (first_section..lines.len()).find(|&i| lines[i].trim().to_ascii_lowercase().starts_with("ccli song"));
+    let copyright_i = (first_section..lines.len()).find(|&i| is_copyright(lines[i]));
+    let mut lyrics_end = ccli_i.into_iter().chain(copyright_i).min().unwrap_or(lines.len());
     let mut writers = String::new();
-    let mut lyrics_end = lines.len();
-    if let Some(ci) = ccli_i {
-        lyrics_end = ci;
-        // Writers: the single non-empty line right before "CCLI Song #", sitting in its own block.
-        if let Some(wi) = (first_section + 1..ci).rev().find(|&i| !lines[i].trim().is_empty()) {
-            let own_block = wi == 0 || lines[wi - 1].trim().is_empty();
-            if own_block && section_label(lines[wi]).is_none() { writers = lines[wi].trim().to_string(); lyrics_end = wi; }
+    if ccli_i == Some(lyrics_end) {
+        // Writers sit in their own block immediately before the CCLI song number.
+        if let Some(wi) = (first_section + 1..lyrics_end).rev().find(|&i| !lines[i].trim().is_empty()) {
+            if lines[wi - 1].trim().is_empty() && section_label(lines[wi]).is_none() {
+                writers = lines[wi].trim().to_string();
+                lyrics_end = wi;
+            }
         }
-    } else if let Some(fi) = (first_section..lines.len()).find(|&i| { let l = lines[i].trim(); l.starts_with('©') || l.to_ascii_lowercase().starts_with("copyright") }) {
-        lyrics_end = fi;
     }
     // Some older exports put writers right under the title.
     if writers.is_empty() {
         if let Some(w) = lines[title_i + 1..first_section].iter().map(|l| l.trim()).find(|l| !l.is_empty()) { writers = w.to_string(); }
     }
-    let mut ccli = String::new();
-    let mut copyright = String::new();
-    for l in &lines[lyrics_end..] {
-        let t = l.trim();
-        let lower = t.to_ascii_lowercase();
-        if lower.starts_with("ccli song") { ccli = t.chars().filter(|c| c.is_ascii_digit()).collect(); }
-        else if t.starts_with('©') || lower.starts_with("copyright") { copyright = t.to_string(); }
+    let lyric_lines = &lines[first_section..lyrics_end];
+    if !lyric_lines.iter().any(|line| !line.trim().is_empty() && section_label(line).is_none()) {
+        return Err(crate::tr!("No song words were found in this file."));
     }
-    let lyrics = lines[first_section..lyrics_end].join("\n").trim().to_string();
-    if lyrics.is_empty() { return Err(crate::tr!("No song words were found in this file.")); }
+    let lyrics = lyric_lines.join("\n").trim().to_string();
+    let ccli = ccli_i.map(|i| lines[i].chars().filter(char::is_ascii_digit).collect()).unwrap_or_default();
+    let copyright = copyright_i.map(|i| lines[i].trim().to_string()).unwrap_or_default();
     Ok(Song { id: Uuid::new_v4(), title, writers, ccli, copyright, lyrics, arrangement: vec![], ..Default::default() })
 }
 
@@ -91,5 +98,23 @@ mod tests {
     fn rejects_non_lyric_files() {
         assert!(import_txt("Song Title\nA writer\nCopyright text").is_err());
         assert!(import_txt("").is_err());
+        assert!(import_txt("Song Title\n\nVerse 1\n\nChorus").is_err());
+        assert!(import_txt("\"  \"\n\nVerse 1\nWords").is_err());
+    }
+
+    #[test]
+    fn separates_copyright_before_ccli_from_the_words() {
+        let s = import_txt("Song\nOld Writer\n\nVerse 1\ncome and sing\n\n\u{a9} Test Music\nCCLI Song # 42").unwrap();
+        assert_eq!(s.lyrics, "Verse 1\ncome and sing");
+        assert_eq!(s.writers, "Old Writer");
+        assert_eq!(s.copyright, "\u{a9} Test Music");
+        assert_eq!(s.ccli, "42");
+    }
+
+    #[test]
+    fn keeps_words_beginning_with_c_when_there_is_no_ccli_number() {
+        let s = import_txt("Song\n\nVerse 1\ncome and sing\n\nc 2026 Test Music").unwrap();
+        assert_eq!(s.lyrics, "Verse 1\ncome and sing");
+        assert_eq!(s.copyright, "c 2026 Test Music");
     }
 }
