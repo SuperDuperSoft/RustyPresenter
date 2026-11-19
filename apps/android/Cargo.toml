@@ -4,7 +4,7 @@
 # computer, finding it, the stage screen's words and chords) are tested on any computer with `cargo test`.
 [package]
 name = "rustypresenter-remote"
-version = "1.4.0"
+version = "1.4.1"
 edition = "2024"
 publish = false
 license = "MIT OR Apache-2.0"
