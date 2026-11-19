@@ -1196,7 +1196,7 @@ msgstr "Rudi"
 msgid "Next"
 msgstr "Ifuatayo"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/settings-phone.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "Funga"
 
@@ -1611,7 +1611,7 @@ msgstr "Anwani: "
 msgid "Pair a phone or tablet"
 msgstr "Unganisha simu au tableti"
 
-#: ui/dialogs/phone.slint
+#: ui/dialogs/phone.slint ui/dialogs/settings-phone.slint
 msgid "QR code"
 msgstr "Msimbo wa QR"
 
@@ -2583,6 +2583,22 @@ msgstr "Chagua nembo"
 msgid "Default background"
 msgstr "Mandharinyuma chaguo-msingi"
 
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow. Or open:"
+msgstr "Changanua kwa kamera ya simu, kisha gusa Ruhusu. Au fungua:"
+
+#: ui/dialogs/settings-phone.slint
+msgid "The first time, the phone warns the page is not private (it comes from this computer): on Android tap Advanced → Proceed; on an iPhone tap Show Details → visit this website."
+msgstr "Mara ya kwanza, simu itaonya kwamba ukurasa si wa faragha (unatoka kwenye kompyuta hii): kwenye Android gusa Advanced → Proceed; kwenye iPhone gusa Show Details → visit this website."
+
+#: ui/dialogs/settings-phone.slint
+msgid "Show the QR code"
+msgstr "Onyesha msimbo wa QR"
+
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow."
+msgstr "Changanua kwa kamera ya simu, kisha gusa Ruhusu."
+
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Use your phone or tablet as a remote"
 msgstr "Tumia simu au tableti yako kama rimoti"
@@ -2676,44 +2692,48 @@ msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this compu
 msgstr "Fungua anwani hii kwenye iPad au simu ya mwimbaji (Wi-Fi ileile ya kompyuta hii)."
 
 #: ui/dialogs/settings-remote.slint
-msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
-msgstr "Simu iliyo kwenye Wi-Fi ya kanisa inaweza kuwa kamera au maikrofoni ya matangazo. Mara ya kwanza, simu inaonya kwamba ukurasa si wa faragha: hilo linatarajiwa, kwa sababu ukurasa unatoka kwenye kompyuta hii. Gusa Advanced (kwenye iPhone, Show Details), kisha endelea kwenye ukurasa. Weka simu ikiwa macho na imechomekwa kwenye chaji."
+msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. Scan its code with the phone's camera: that opens the page and connects the phone, with no code to type. Keep the phone awake and plugged in."
+msgstr "Simu iliyo kwenye Wi-Fi ya kanisa inaweza kuwa kamera au maikrofoni ya matangazo ya moja kwa moja. Changanua msimbo wake kwa kamera ya simu: hufungua ukurasa na kuunganisha simu, bila msimbo wa kuandika. Weka simu iwe macho na imechomekwa kwenye chaji."
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a camera"
 msgstr "Simu kama kamera"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
-msgstr "Kwanza unganisha simu kwa Unganisha simu au tableti. Ikituma picha yake, orodha za kamera huiita Kamera ya simu."
+msgid "Scanning the code connects the phone. Once it sends its picture, the camera lists call it Phone camera."
+msgstr "Kuchanganua msimbo huunganisha simu. Ikishatuma picha yake, orodha za kamera huiita Kamera ya simu."
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open:"
-msgstr "Kwenye simu, fungua:"
+msgid "The phone camera's QR code"
+msgstr "Msimbo wa QR wa kamera ya simu"
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose it in Settings → Livestream → Cameras"
 msgstr "Kisha ichague katika Mipangilio → Matangazo ya moja kwa moja → Kamera"
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a microphone"
 msgstr "Simu kama maikrofoni"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
-msgstr "Kwa maikrofoni ya kubana ya mchungaji au maikrofoni ya ukumbi bila waya. Washa skrini ya jukwaa kwenye simu kwanza: ukurasa wa simu unatoka hapo."
+msgid "For a pastor's lapel or a room microphone without cables. Scanning the code connects the phone; then press Start on it."
+msgstr "Kwa maikrofoni ya kubana ya mchungaji au maikrofoni ya ukumbi bila nyaya. Kuchanganua msimbo huunganisha simu; kisha bonyeza Anza kwenye simu."
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open this page and press Start:"
-msgstr "Kwenye simu, fungua ukurasa huu na ubonyeze Anza:"
-
-#: ui/dialogs/settings-remote.slint
-msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
-msgstr "Skrini ya jukwaa kwenye simu imezimwa, kwa hiyo simu bado haiwezi kufikia ukurasa huu."
+msgid "The phone microphone's QR code"
+msgstr "Msimbo wa QR wa maikrofoni ya simu"
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose Phone in Settings → Livestream → Sound"
 msgstr "Kisha chagua Simu katika Mipangilio → Matangazo ya moja kwa moja → Sauti"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Let phones in"
+msgstr "Ruhusu simu ziingie"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Windows asks for an administrator's OK, then lets RustyPresenter in on private and public networks."
+msgstr "Windows huomba idhini ya msimamizi, kisha huiruhusu RustyPresenter kwenye mitandao ya binafsi na ya umma."
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Control from other gear (TCP)"
@@ -7350,6 +7370,74 @@ msgstr[1] "Faili {n} zimeondolewa kwenye maktaba ya midia na {size} zimeachiliwa
 msgid "Sunday Service"
 msgstr "Ibada ya Jumapili"
 
+#: src/network/phone_link.rs
+msgid "Waiting for a phone"
+msgstr "Inasubiri simu"
+
+#: src/network/phone_link.rs
+msgid "Phone connected: {name}"
+msgstr "Simu imeunganishwa: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is connected"
+msgstr "Simu imeunganishwa"
+
+#: src/network/phone_link.rs
+msgid "Sending pictures: {name}"
+msgstr "Inatuma picha: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is sending pictures"
+msgstr "Simu inatuma picha"
+
+#: src/network/phone_link.rs
+msgid "Sending sound: {name}"
+msgstr "Inatuma sauti: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is sending sound"
+msgstr "Simu inatuma sauti"
+
+#: src/network/phone_link.rs
+msgid "The secure server is starting…"
+msgstr "Seva salama inaanza…"
+
+#: src/network/phone_link.rs
+msgid "The secure server isn't running: {why}"
+msgstr "Seva salama haifanyi kazi: {why}"
+
+#: src/network/phone_link.rs
+msgid "port {port} is in use by another program. Close that program, or restart this computer."
+msgstr "mlango {port} unatumiwa na programu nyingine. Funga programu hiyo, au washa upya kompyuta hii."
+
+#: src/network/phone_link.rs
+msgid "Windows keeps port {port} for itself. Restart this computer and try again."
+msgstr "Windows huuhifadhi mlango {port} kwa ajili yake yenyewe. Washa upya kompyuta hii na ujaribu tena."
+
+#: src/network/phone_link.rs
+msgid "port {port} cannot be used ({error})."
+msgstr "mlango {port} hauwezi kutumika ({error})."
+
+#: src/network/phone_link.rs
+msgid "it could not make its certificate ({error})."
+msgstr "haikuweza kutengeneza cheti chake ({error})."
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out on this network (Windows calls it a public network). Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter on public networks (port {port})."
+msgstr "Huenda firewall ya kompyuta hii inazuia simu: Windows Firewall haiziruhusu kwenye mtandao huu (Windows huuita mtandao wa umma). Bofya “Ruhusu simu ziingie”, au katika Windows Security → Firewall, ruhusu RustyPresenter kwenye mitandao ya umma (mlango {port})."
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out. Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter (port {port})."
+msgstr "Huenda firewall ya kompyuta hii inazuia simu: Windows Firewall haiziruhusu. Bofya “Ruhusu simu ziingie”, au katika Windows Security → Firewall, ruhusu RustyPresenter (mlango {port})."
+
+#: src/network/phone_link.rs
+msgid "This QR code was already used or is too old. Scan the code in RustyPresenter again (Settings → Remote and network → Phone camera and microphone)."
+msgstr "Msimbo huu wa QR umeshatumika au ni wa zamani sana. Changanua msimbo katika RustyPresenter tena (Mipangilio → Rimoti na mtandao → Kamera na maikrofoni ya simu)."
+
+#: src/network/phone_link.rs
+msgid "Type the remote's password (set in RustyPresenter's Settings → Remote and network)."
+msgstr "Andika nenosiri la rimoti (lililowekwa katika RustyPresenter, Mipangilio → Rimoti na mtandao)."
+
 #: src/platform/data_folder.rs
 msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
 msgstr "Nakala hii ya RustyPresenter huhifadhi data yake kando yake, katika {wanted}, lakini folda hiyo haiwezi kubadilishwa (huenda ni USB iliyofungwa au CD). Kwa sasa kazi yako inahifadhiwa kwenye kompyuta hii, katika {here}. Ili kuihifadhi kando ya programu, nakili folda nzima ya RustyPresenter mahali panapoweza kubadilishwa na uifungue kutoka hapo."
@@ -7361,6 +7449,14 @@ msgstr "RustyPresenter ilifunguliwa kutoka ndani ya faili la zip, kwa hiyo haiwe
 #: src/platform/data_folder.rs
 msgid "macOS opened a locked copy of RustyPresenter, because it has not been moved since it was downloaded. For now your work is kept on this computer, in {here}. Close RustyPresenter. In Finder, drag RustyPresenter out of its folder (onto the Desktop, say) and back in again, or into Applications if it came from the .dmg file. Then open it again."
 msgstr "macOS ilifungua nakala iliyofungwa ya RustyPresenter, kwa sababu haijahamishwa tangu ilipopakuliwa. Kwa sasa kazi yako inahifadhiwa kwenye kompyuta hii, katika {here}. Funga RustyPresenter. Katika Finder, buruta RustyPresenter nje ya folda yake (kwenye Desktop, kwa mfano) na uirudishe tena, au kwenye Applications ikiwa ilitoka kwenye faili la .dmg. Kisha uifungue tena."
+
+#: src/platform/firewall.rs
+msgid "Windows was not given the OK, so nothing changed."
+msgstr "Windows haikupewa idhini, kwa hiyo hakuna kilichobadilika."
+
+#: src/platform/firewall.rs
+msgid "Windows Firewall could not be changed. Ask whoever looks after this computer to let RustyPresenter in for private and public networks."
+msgstr "Windows Firewall haikuweza kubadilishwa. Mwombe anayeishughulikia kompyuta hii airuhusu RustyPresenter kwenye mitandao ya binafsi na ya umma."
 
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
@@ -8379,10 +8475,6 @@ msgid "A phone only lets a page use its camera when the page is private. Tap the
 msgstr "Simu huruhusu ukurasa kutumia kamera yake tu wakati ukurasa ni wa faragha. Gusa kitufe hapa chini. Kisha simu itaonya kwamba muunganisho si wa faragha: hilo linatarajiwa, kwa sababu ukurasa unatoka kwenye kompyuta ya kanisa lako, si kutoka intaneti."
 
 #: src/stream/phone_camera.rs
-msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
-msgstr "Gusa Advanced (au Show Details), kisha Proceed (au Visit this website). Simu huikumbuka, kwa hiyo hii inahitajika mara moja tu."
-
-#: src/stream/phone_camera.rs
 msgid "Open the camera page"
 msgstr "Fungua ukurasa wa kamera"
 
@@ -8395,12 +8487,12 @@ msgid "Connect this phone"
 msgstr "Unganisha simu hii"
 
 #: src/stream/phone_camera.rs
-msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
-msgstr "Kwenye kompyuta ya maonyesho, bofya Simu, kisha Unganisha simu au tableti, na uandike hapa msimbo wa tarakimu 6."
+msgid "Scan the camera's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone). Or, on the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "Changanua msimbo wa QR wa kamera katika RustyPresenter (Mipangilio → Rimoti na mtandao → Kamera na maikrofoni ya simu). Au, kwenye kompyuta ya maonyesho, bofya Simu, kisha Unganisha simu au tableti, na uandike msimbo wa tarakimu 6 hapa."
 
 #: src/stream/phone_camera.rs
-msgid "6-digit code"
-msgstr "Msimbo wa tarakimu 6"
+msgid "Connecting this phone…"
+msgstr "Inaunganisha simu hii…"
 
 #: src/stream/phone_camera.rs
 msgid "Like Balcony or Side. The computer lists this phone by this name."
@@ -8430,7 +8522,7 @@ msgstr "Inatuma kwa kompyuta"
 msgid "Connecting to the computer…"
 msgstr "Inaunganisha na kompyuta…"
 
-#: src/stream/phone_camera.rs
+#: src/stream/phone_camera.rs src/stream/phone_mic.rs
 msgid "The computer cannot be reached. Trying again…"
 msgstr "Kompyuta haifikiki. Inajaribu tena…"
 
@@ -8458,6 +8550,18 @@ msgstr "Kwenye kompyuta, chagua simu hii katika Mipangilio → Matangazo ya moja
 msgid "This computer is not on a network, so no phone can reach it."
 msgstr "Kompyuta hii haiko kwenye mtandao, kwa hiyo hakuna simu inayoweza kuifikia."
 
+#: src/stream/phone_camera.rs
+msgid "Android (Chrome): tap Advanced, then Proceed. iPhone (Safari): tap Show Details, then visit this website, then Visit Website. The phone remembers it, so this is only needed once."
+msgstr "Android (Chrome): gusa Advanced, kisha Proceed. iPhone (Safari): gusa Show Details, kisha visit this website, kisha Visit Website. Simu huikumbuka, kwa hiyo hii inahitajika mara moja tu."
+
+#: src/stream/phone_camera.rs
+msgid "No Proceed button? In Chrome on Android, open chrome://flags, search for \"insecure origins\", turn on \"Insecure origins treated as secure\", type {address} in its box, tap Relaunch, then open this page again."
+msgstr "Hakuna kitufe cha Proceed? Katika Chrome kwenye Android, fungua chrome://flags, tafuta \"insecure origins\", washa \"Insecure origins treated as secure\", andika {address} kwenye kisanduku chake, gusa Relaunch, kisha fungua ukurasa huu tena."
+
+#: src/stream/phone_camera.rs
+msgid "6-digit code"
+msgstr "Msimbo wa tarakimu 6"
+
 #: src/stream/phone_mic.rs
 msgid "Phone microphone (open its page on the phone)"
 msgstr "Maikrofoni ya simu (fungua ukurasa wake kwenye simu)"
@@ -8479,16 +8583,20 @@ msgid "Sending, but the stream is not using this phone yet. Choose \"Phone micro
 msgstr "Inatuma, lakini matangazo bado hayatumii simu hii. Chagua \"Maikrofoni ya simu\" katika Mipangilio → Matangazo ya moja kwa moja → Sauti, kisha rusha moja kwa moja."
 
 #: src/stream/phone_mic.rs
-msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
-msgstr "Simu huruhusu ukurasa salama tu kutumia maikrofoni yake. Fungua ukurasa salama hapa chini; mara ya kwanza, simu huonya kwamba si wa faragha: gusa Advanced (au Show Details) na uendelee hadi huko."
+msgid "The phone only lets a secure page use its microphone. Open the secure page below. The first time, the phone warns that the connection is not private: that is expected, because the page comes from your church's own computer."
+msgstr "Simu huruhusu ukurasa salama tu kutumia maikrofoni yake. Fungua ukurasa salama ulio hapa chini. Mara ya kwanza, simu itaonya kwamba muunganisho si wa faragha: hilo ni kawaida, kwa sababu ukurasa unatoka kwenye kompyuta ya kanisa lako lenyewe."
 
 #: src/stream/phone_mic.rs
 msgid "The phone did not let the page use its microphone. Allow it in the browser's settings for this page, then try again."
 msgstr "Simu haikuruhusu ukurasa kutumia maikrofoni yake. Iruhusu katika mipangilio ya kivinjari kwa ukurasa huu, kisha ujaribu tena."
 
 #: src/stream/phone_mic.rs
-msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
-msgstr "Washa skrini ya jukwaa kwenye simu katika RustyPresenter (Mipangilio → Rimoti na mtandao), na uingie humo kwanza kwenye simu hii."
+msgid "Connect this phone first: scan the microphone's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone), or type the 6-digit code from Phone → Pair a phone or tablet."
+msgstr "Unganisha simu hii kwanza: changanua msimbo wa QR wa maikrofoni katika RustyPresenter (Mipangilio → Rimoti na mtandao → Kamera na maikrofoni ya simu), au andika msimbo wa tarakimu 6 kutoka Simu → Unganisha simu au tableti."
+
+#: src/stream/phone_mic.rs
+msgid "Connected. Tap Start, then Allow when the phone asks for the microphone."
+msgstr "Imeunganishwa. Gusa Anza, kisha Ruhusu simu ikiomba maikrofoni."
 
 #: src/stream/preflight.rs
 msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Livestream → Cameras. The stream shows the slides in its place."
@@ -12670,6 +12778,14 @@ msgstr "Kufuata kiotomatiki kunahitaji modeli ya sauti ({size}). Ipakue sasa?"
 msgid "Not now"
 msgstr "Si sasa"
 
+#: src/ui/dialogs/settings_phone.rs
+msgid "Waiting for Windows…"
+msgstr "Inasubiri Windows…"
+
+#: src/ui/dialogs/settings_phone.rs
+msgid "Done: phones can now reach RustyPresenter through Windows Firewall."
+msgstr "Imekamilika: sasa simu zinafikia RustyPresenter kupitia Windows Firewall."
+
 #: src/ui/dialogs/settings_record.rs
 msgid "The output the app plays its sound to"
 msgstr "Toleo ambapo programu hucheza sauti yake"
@@ -13550,6 +13666,36 @@ msgstr "yt-dlp haikuhifadhi video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "si faili ya midia"
+
+#~ msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+#~ msgstr "Simu iliyo kwenye Wi-Fi ya kanisa inaweza kuwa kamera au maikrofoni ya matangazo. Mara ya kwanza, simu inaonya kwamba ukurasa si wa faragha: hilo linatarajiwa, kwa sababu ukurasa unatoka kwenye kompyuta hii. Gusa Advanced (kwenye iPhone, Show Details), kisha endelea kwenye ukurasa. Weka simu ikiwa macho na imechomekwa kwenye chaji."
+
+#~ msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
+#~ msgstr "Kwanza unganisha simu kwa Unganisha simu au tableti. Ikituma picha yake, orodha za kamera huiita Kamera ya simu."
+
+#~ msgid "On the phone, open:"
+#~ msgstr "Kwenye simu, fungua:"
+
+#~ msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
+#~ msgstr "Kwa maikrofoni ya kubana ya mchungaji au maikrofoni ya ukumbi bila waya. Washa skrini ya jukwaa kwenye simu kwanza: ukurasa wa simu unatoka hapo."
+
+#~ msgid "On the phone, open this page and press Start:"
+#~ msgstr "Kwenye simu, fungua ukurasa huu na ubonyeze Anza:"
+
+#~ msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
+#~ msgstr "Skrini ya jukwaa kwenye simu imezimwa, kwa hiyo simu bado haiwezi kufikia ukurasa huu."
+
+#~ msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
+#~ msgstr "Gusa Advanced (au Show Details), kisha Proceed (au Visit this website). Simu huikumbuka, kwa hiyo hii inahitajika mara moja tu."
+
+#~ msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+#~ msgstr "Kwenye kompyuta ya maonyesho, bofya Simu, kisha Unganisha simu au tableti, na uandike hapa msimbo wa tarakimu 6."
+
+#~ msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
+#~ msgstr "Simu huruhusu ukurasa salama tu kutumia maikrofoni yake. Fungua ukurasa salama hapa chini; mara ya kwanza, simu huonya kwamba si wa faragha: gusa Advanced (au Show Details) na uendelee hadi huko."
+
+#~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
+#~ msgstr "Washa skrini ya jukwaa kwenye simu katika RustyPresenter (Mipangilio → Rimoti na mtandao), na uingie humo kwanza kwenye simu hii."
 
 #~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
 #~ msgstr "Buruta juu ya paneli nyingine: kando yake, au katikati yake ili kushiriki nafasi yake kama kichupo"

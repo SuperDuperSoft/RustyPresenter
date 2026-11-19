@@ -116,6 +116,7 @@ fn open_at(op: &Rc<Operator>, tab: Option<SettingsTab>) {
     settings_follow::load(op);
     super::settings_model::load(op);
     super::network::load(op);
+    super::settings_phone::load(op);
     super::stream_more::load(op, &edit);
     super::settings_record::size_notes(op);
     settings_window::set_open(true);

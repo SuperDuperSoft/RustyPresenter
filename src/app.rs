@@ -321,7 +321,9 @@ fn song_of(data: &Data, item_id: Uuid) -> Option<Uuid> {
 }
 
 pub(crate) const SESSION_DAYS: u64 = 30;
-pub(crate) const MAX_PHONES: usize = 5;
+/// Phones paired at once; one more pushes out the one unseen longest. Room for remotes, phone cameras and
+/// microphones together (it was 5: a church with two cameras, a microphone and two remotes lost one).
+pub(crate) const MAX_PHONES: usize = 16;
 
 pub(crate) fn now_secs() -> u64 { std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0) }
 

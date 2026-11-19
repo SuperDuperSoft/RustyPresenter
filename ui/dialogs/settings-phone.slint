@@ -1,0 +1,189 @@
+// Settings → Remote and network → Phone camera and microphone (November 18, 2026: Jake, "I can't get the phone as a
+// microphone or phone as a camera to work. Can you add a QR code to that as well?"): beside each address a QR code
+// that opens the phone's page and connects the phone in the same scan, the one-time "not private" step in one line,
+// a live line saying how it stands, and a big window of the code for scanning from across the room. Set and
+// answered by `src/ui/dialogs/settings_phone.rs`.
+import { Theme } from "../theme.slint";
+import { Btn } from "../widgets.slint";
+import { Hint } from "settings-row.slint";
+
+export global PhoneLinkDlg {
+    /// The camera's secure page (empty off the network), its QR code, and the live line (red when it is a problem).
+    in property <string> camera-address;
+    in property <image> camera-qr;
+    in property <bool> camera-has-qr;
+    in property <string> camera-health;
+    in property <bool> camera-problem;
+    in property <string> mic-address;
+    in property <image> mic-qr;
+    in property <bool> mic-has-qr;
+    in property <string> mic-health;
+    in property <bool> mic-problem;
+    /// Windows Firewall keeps phones out: "Let phones in" shows. `firewall-note`: what letting them in did.
+    in property <bool> firewall-blocked;
+    in property <string> firewall-note;
+    in property <bool> firewall-busy;
+    callback let-phones-in();
+    /// The big window of a code: `mic` false for the camera's.
+    callback show-big(bool);
+}
+
+/// One QR code on a white card (phones read dark on light).
+component QrCard inherits Rectangle {
+    in property <image> qr;
+    in property <bool> has-qr;
+    in property <string> label;
+    background: Theme.white;
+    border-radius: 10px;
+    accessible-role: image;
+    accessible-label: root.label;
+    accessible-value: root.has-qr ? "qr" : "";
+    if root.has-qr: Image {
+        x: 8px;
+        y: 8px;
+        width: parent.width - 16px;
+        height: parent.height - 16px;
+        source: root.qr;
+        image-fit: contain;
+    }
+}
+
+/// A code beside its address, the "not private" line, the live line and "Show the QR code".
+export component PhoneQrBlock inherits HorizontalLayout {
+    in property <image> qr;
+    in property <bool> has-qr;
+    in property <string> address;
+    in property <string> health;
+    in property <bool> problem;
+    in property <string> qr-label;
+    callback show-big();
+    spacing: 14px;
+    alignment: start;
+    if root.has-qr: card := QrCard {
+        width: 150px;
+        height: 150px;
+        qr: root.qr;
+        has-qr: root.has-qr;
+        label: root.qr-label;
+    }
+    VerticalLayout {
+        spacing: 5px;
+        alignment: start;
+        horizontal-stretch: 1;
+        if root.has-qr: scan := Text {
+            text: @tr("Scan this with the phone's camera, then tap Allow. Or open:");
+            color: Theme.text;
+            font-family: Theme.font;
+            font-weight: 600;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+        address := Text {
+            text: root.address;
+            color: Theme.text;
+            font-family: Theme.font;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+        if root.has-qr: cert := Hint {
+            text: @tr("The first time, the phone warns the page is not private (it comes from this computer): on Android tap Advanced → Proceed; on an iPhone tap Show Details → visit this website.");
+        }
+        health := Text {
+            text: root.health;
+            color: root.problem ? Theme.danger-text : Theme.ok;
+            font-family: Theme.font;
+            font-weight: 600;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+        if root.has-qr: HorizontalLayout {
+            alignment: start;
+            big := Btn {
+                small: true;
+                text: @tr("Show the QR code");
+                clicked => { root.show-big(); }
+            }
+        }
+    }
+}
+
+/// The big code, a window of its own, for scanning from across the room.
+export component PhoneQrWindow inherits Window {
+    title: root.heading;
+    min-width: 420px;
+    min-height: 520px;
+    preferred-width: 640px;
+    preferred-height: 820px;
+    background: Theme.panel;
+    default-font-family: Theme.font;
+    in property <string> heading;
+    in property <image> qr;
+    in property <string> address;
+    in property <string> health;
+    in property <bool> problem;
+    callback close-window();
+    VerticalLayout {
+        padding: 24px;
+        spacing: 12px;
+        heading := Text {
+            text: root.heading;
+            color: Theme.text;
+            font-size: 26px;
+            font-weight: 700;
+            horizontal-alignment: center;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+        Rectangle {
+            vertical-stretch: 1;
+            big-qr := QrCard {
+                width: min(parent.width, parent.height);
+                height: self.width;
+                qr: root.qr;
+                has-qr: true;
+                label: @tr("QR code");
+            }
+        }
+        Text {
+            text: @tr("Scan this with the phone's camera, then tap Allow.");
+            color: Theme.text;
+            font-size: 18px;
+            font-weight: 700;
+            horizontal-alignment: center;
+            wrap: word-wrap;
+        }
+        Text {
+            text: root.address;
+            color: Theme.muted;
+            horizontal-alignment: center;
+            wrap: word-wrap;
+        }
+        Text {
+            text: @tr("The first time, the phone warns the page is not private (it comes from this computer): on Android tap Advanced → Proceed; on an iPhone tap Show Details → visit this website.");
+            color: Theme.muted;
+            horizontal-alignment: center;
+            wrap: word-wrap;
+        }
+        big-health := Text {
+            text: root.health;
+            color: root.problem ? Theme.danger-text : Theme.ok;
+            font-size: 16px;
+            font-weight: 600;
+            horizontal-alignment: center;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+        HorizontalLayout {
+            alignment: center;
+            close := Btn {
+                text: @tr("Close");
+                clicked => { root.close-window(); }
+            }
+        }
+    }
+}

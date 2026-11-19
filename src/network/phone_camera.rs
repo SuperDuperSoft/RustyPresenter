@@ -5,7 +5,8 @@
 //! when a WebSocket cannot connect, the page sends one picture a request instead (`/camera/frame`).
 //!
 //! A browser opens the camera only on a private (https) page, so on the church's network the page is used over
-//! https (`super::https`); the plain page explains the one-time step and links there.
+//! https (`super::https`); the plain page explains the one-time step and links there. Settings shows the https page
+//! with a QR code that also pairs the phone (`super::phone_link`).
 use super::websocket::{self, Message, Socket};
 use crate::{app::App, stream::phone_camera as cam};
 use axum::{
@@ -33,11 +34,9 @@ async fn page() -> Response {
     ([(header::CONTENT_TYPE, "text/html; charset=utf-8"), (header::CACHE_CONTROL, "no-store")], include_str!("../../web/camera.html")).into_response()
 }
 
-/// The phone camera page on this computer, for Settings: `http://192.168.1.20:4318/camera`.
-pub fn page_address(app: &App) -> Option<String> { app.lan_url.as_deref().map(camera_address) }
-
-/// The camera page beside the phone remote's address.
-fn camera_address(remote: &str) -> String { remote.strip_suffix("/remote").unwrap_or(remote).to_string() + "/camera" }
+/// The phone camera page on this computer, for Settings: the secure one, `https://192.168.1.20:4320/camera` (the
+/// plain one, on the remote's port, can only point there).
+pub fn page_address(app: &App) -> Option<String> { super::phone_link::address(app, super::phone_link::Kind::Camera) }
 
 /// Settings → Remote and network → Phone camera and microphone: the address to open on the phone.
 pub fn settings_help(app: &App) -> String {
@@ -49,6 +48,8 @@ pub fn settings_help(app: &App) -> String {
 async fn info(State(app): State<Arc<App>>, headers: HeaderMap) -> Response {
     let phone = crate::server::phone_for(&app, &headers);
     let name = phone.and_then(|id| app.phones.lock().unwrap().iter().find(|p| p.id == id).map(|p| p.name.clone()));
+    // The page asks every few seconds while it is open: Settings shows the phone connected.
+    if phone.is_some() { super::phone_link::saw(&app, super::phone_link::Kind::Camera, name.clone()) }
     let (password, size) = { let d = app.data.lock().unwrap(); (d.settings.network.remote_password.is_some(), d.settings.record.size.size()) };
     let secure = *app.net.https.lock().unwrap();
     ([(header::CACHE_CONTROL, "no-store")], Json(json!({
@@ -95,6 +96,7 @@ async fn frame(State(app): State<Arc<App>>, headers: HeaderMap, Query(q): Query<
     if crate::server::phone_for(&app, &headers).is_none() { return (StatusCode::UNAUTHORIZED, Json(json!({ "error": "pair first" }))).into_response() }
     let Some(name) = cam::clean_name(&q.name) else { return (StatusCode::BAD_REQUEST, Json(json!({ "error": "no name" }))).into_response() };
     if !is_jpeg(&body) { return (StatusCode::BAD_REQUEST, Json(json!({ "error": "not a picture" }))).into_response() }
+    super::phone_link::sent(&app, super::phone_link::Kind::Camera, Some(name.clone()));
     cam::put(&name, body.to_vec());
     ([(header::CACHE_CONTROL, "no-store")], Json(light(&app, &name))).into_response()
 }
@@ -107,12 +109,17 @@ async fn socket(State(app): State<Arc<App>>, Query(q): Query<Named>, mut req: Re
     let Some(name) = cam::clean_name(&q.name) else { return (StatusCode::BAD_REQUEST, "no name").into_response() };
     let Some(key) = websocket::wants_websocket(&headers) else { return (StatusCode::BAD_REQUEST, "a WebSocket is needed").into_response() };
     let upgrade = hyper::upgrade::on(&mut req);
+    let phone_name = super::phone_link::phone_name(&app, &headers);
     tokio::spawn(async move {
         let Ok(io) = upgrade.await else { return };
         let mut s = Socket::new(hyper_util::rt::TokioIo::new(io), cam::MAX_PICTURE);
         let mut count = 0u32;
+        super::phone_link::saw(&app, super::phone_link::Kind::Camera, phone_name);
         while let Some(m) = s.recv().await {
-            if let Message::Binary(jpeg) = m && is_jpeg(&jpeg) { cam::put(&name, jpeg) }
+            if let Message::Binary(jpeg) = m && is_jpeg(&jpeg) {
+                cam::put(&name, jpeg);
+                super::phone_link::sent(&app, super::phone_link::Kind::Camera, Some(name.clone()));
+            }
             count = count.wrapping_add(1);
             if count.is_multiple_of(30) && !still_paired(&app, phone) { let _ = s.close().await; return }
             if s.send(&light(&app, &name).to_string()).await.is_err() { return }
@@ -247,6 +254,5 @@ mod tests {
         assert_eq!(body["name"], "Pastor's phone");
         assert_eq!((body["width"].as_u64(), body["fps"].as_u64()), (Some(1920), Some(30)));
         assert!(body["words"]["secure_body"].as_str().is_some_and(|t| t.contains("not private")));
-        assert_eq!(camera_address("http://192.168.1.20:4318/remote"), "http://192.168.1.20:4318/camera");
     }
 }

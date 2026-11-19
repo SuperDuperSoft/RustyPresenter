@@ -22,7 +22,7 @@ INSTRUCTIONS = {
     "VIAddVersionKey", "Var", "UninstPage", "Page", "Function", "FunctionEnd", "Section", "SectionEnd", "SectionIn",
     "Call", "SetOutPath", "File", "WriteUninstaller", "CreateShortCut", "WriteRegStr", "WriteRegDWORD",
     "DeleteRegKey", "Delete", "RMDir", "IntFmt", "Pop", "Push", "Abort", "ClearErrors", "MessageBox",
-    "SetShellVarContext", "DetailPrint", "Exec", "Goto", "Quit",
+    "SetShellVarContext", "DetailPrint", "Exec", "ExecShell", "Goto", "Quit",
 }
 # Plugins that come with NSIS.
 PLUGIN_CALLS = {"nsDialogs::Create", "nsDialogs::Show"}
@@ -33,7 +33,7 @@ HEADER_DEFINES = {
     "NSD_SetState", "NSD_GetState", "BST_CHECKED", "BST_UNCHECKED",
 }
 PASSED = {"VERSION", "VIVERSION", "FILES_NSH", "UNFILES_NSH", "OUTFILE", "ICON"}
-BUILTIN_VARS = {"INSTDIR", "LOCALAPPDATA", "SMPROGRAMS", "DESKTOP", "TEMP", "PROGRAMFILES", "APPDATA", "EXEDIR",
+BUILTIN_VARS = {"INSTDIR", "SYSDIR", "LOCALAPPDATA", "SMPROGRAMS", "DESKTOP", "TEMP", "PROGRAMFILES", "APPDATA", "EXEDIR",
                 "PLUGINSDIR", "OUTDIR", "\\r", "\\n", "\\t", "\\\""} | {str(i) for i in range(10)} | {f"R{i}" for i in range(10)}
 MB_FLAGS = {"MB_OK", "MB_OKCANCEL", "MB_RETRYCANCEL", "MB_YESNO", "MB_YESNOCANCEL", "MB_ABORTRETRYIGNORE",
             "MB_ICONEXCLAMATION", "MB_ICONINFORMATION", "MB_ICONQUESTION", "MB_ICONSTOP", "MB_TOPMOST",

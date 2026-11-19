@@ -1193,7 +1193,7 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/settings-phone.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr ""
 
@@ -1608,7 +1608,7 @@ msgstr ""
 msgid "Pair a phone or tablet"
 msgstr ""
 
-#: ui/dialogs/phone.slint
+#: ui/dialogs/phone.slint ui/dialogs/settings-phone.slint
 msgid "QR code"
 msgstr ""
 
@@ -2580,6 +2580,22 @@ msgstr ""
 msgid "Default background"
 msgstr ""
 
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow. Or open:"
+msgstr ""
+
+#: ui/dialogs/settings-phone.slint
+msgid "The first time, the phone warns the page is not private (it comes from this computer): on Android tap Advanced → Proceed; on an iPhone tap Show Details → visit this website."
+msgstr ""
+
+#: ui/dialogs/settings-phone.slint
+msgid "Show the QR code"
+msgstr ""
+
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow."
+msgstr ""
+
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Use your phone or tablet as a remote"
 msgstr ""
@@ -2673,43 +2689,47 @@ msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this compu
 msgstr ""
 
 #: ui/dialogs/settings-remote.slint
-msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. Scan its code with the phone's camera: that opens the page and connects the phone, with no code to type. Keep the phone awake and plugged in."
 msgstr ""
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a camera"
 msgstr ""
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
+msgid "Scanning the code connects the phone. Once it sends its picture, the camera lists call it Phone camera."
 msgstr ""
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open:"
+msgid "The phone camera's QR code"
 msgstr ""
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose it in Settings → Livestream → Cameras"
 msgstr ""
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a microphone"
 msgstr ""
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
+msgid "For a pastor's lapel or a room microphone without cables. Scanning the code connects the phone; then press Start on it."
 msgstr ""
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open this page and press Start:"
-msgstr ""
-
-#: ui/dialogs/settings-remote.slint
-msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
+msgid "The phone microphone's QR code"
 msgstr ""
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose Phone in Settings → Livestream → Sound"
+msgstr ""
+
+#: ui/dialogs/settings-remote.slint
+msgid "Let phones in"
+msgstr ""
+
+#: ui/dialogs/settings-remote.slint
+msgid "Windows asks for an administrator's OK, then lets RustyPresenter in on private and public networks."
 msgstr ""
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
@@ -7341,6 +7361,74 @@ msgstr[1] ""
 msgid "Sunday Service"
 msgstr ""
 
+#: src/network/phone_link.rs
+msgid "Waiting for a phone"
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "Phone connected: {name}"
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "A phone is connected"
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "Sending pictures: {name}"
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "A phone is sending pictures"
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "Sending sound: {name}"
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "A phone is sending sound"
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "The secure server is starting…"
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "The secure server isn't running: {why}"
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "port {port} is in use by another program. Close that program, or restart this computer."
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "Windows keeps port {port} for itself. Restart this computer and try again."
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "port {port} cannot be used ({error})."
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "it could not make its certificate ({error})."
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out on this network (Windows calls it a public network). Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter on public networks (port {port})."
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out. Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter (port {port})."
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "This QR code was already used or is too old. Scan the code in RustyPresenter again (Settings → Remote and network → Phone camera and microphone)."
+msgstr ""
+
+#: src/network/phone_link.rs
+msgid "Type the remote's password (set in RustyPresenter's Settings → Remote and network)."
+msgstr ""
+
 #: src/platform/data_folder.rs
 msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
 msgstr ""
@@ -7351,6 +7439,14 @@ msgstr ""
 
 #: src/platform/data_folder.rs
 msgid "macOS opened a locked copy of RustyPresenter, because it has not been moved since it was downloaded. For now your work is kept on this computer, in {here}. Close RustyPresenter. In Finder, drag RustyPresenter out of its folder (onto the Desktop, say) and back in again, or into Applications if it came from the .dmg file. Then open it again."
+msgstr ""
+
+#: src/platform/firewall.rs
+msgid "Windows was not given the OK, so nothing changed."
+msgstr ""
+
+#: src/platform/firewall.rs
+msgid "Windows Firewall could not be changed. Ask whoever looks after this computer to let RustyPresenter in for private and public networks."
 msgstr ""
 
 #: src/platform/instance.rs src/ui/screens.rs
@@ -8370,10 +8466,6 @@ msgid "A phone only lets a page use its camera when the page is private. Tap the
 msgstr ""
 
 #: src/stream/phone_camera.rs
-msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
-msgstr ""
-
-#: src/stream/phone_camera.rs
 msgid "Open the camera page"
 msgstr ""
 
@@ -8386,11 +8478,11 @@ msgid "Connect this phone"
 msgstr ""
 
 #: src/stream/phone_camera.rs
-msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgid "Scan the camera's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone). Or, on the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
 msgstr ""
 
 #: src/stream/phone_camera.rs
-msgid "6-digit code"
+msgid "Connecting this phone…"
 msgstr ""
 
 #: src/stream/phone_camera.rs
@@ -8421,7 +8513,7 @@ msgstr ""
 msgid "Connecting to the computer…"
 msgstr ""
 
-#: src/stream/phone_camera.rs
+#: src/stream/phone_camera.rs src/stream/phone_mic.rs
 msgid "The computer cannot be reached. Trying again…"
 msgstr ""
 
@@ -8449,6 +8541,18 @@ msgstr ""
 msgid "This computer is not on a network, so no phone can reach it."
 msgstr ""
 
+#: src/stream/phone_camera.rs
+msgid "Android (Chrome): tap Advanced, then Proceed. iPhone (Safari): tap Show Details, then visit this website, then Visit Website. The phone remembers it, so this is only needed once."
+msgstr ""
+
+#: src/stream/phone_camera.rs
+msgid "No Proceed button? In Chrome on Android, open chrome://flags, search for \"insecure origins\", turn on \"Insecure origins treated as secure\", type {address} in its box, tap Relaunch, then open this page again."
+msgstr ""
+
+#: src/stream/phone_camera.rs
+msgid "6-digit code"
+msgstr ""
+
 #: src/stream/phone_mic.rs
 msgid "Phone microphone (open its page on the phone)"
 msgstr ""
@@ -8470,7 +8574,7 @@ msgid "Sending, but the stream is not using this phone yet. Choose \"Phone micro
 msgstr ""
 
 #: src/stream/phone_mic.rs
-msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
+msgid "The phone only lets a secure page use its microphone. Open the secure page below. The first time, the phone warns that the connection is not private: that is expected, because the page comes from your church's own computer."
 msgstr ""
 
 #: src/stream/phone_mic.rs
@@ -8478,7 +8582,11 @@ msgid "The phone did not let the page use its microphone. Allow it in the browse
 msgstr ""
 
 #: src/stream/phone_mic.rs
-msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
+msgid "Connect this phone first: scan the microphone's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone), or type the 6-digit code from Phone → Pair a phone or tablet."
+msgstr ""
+
+#: src/stream/phone_mic.rs
+msgid "Connected. Tap Start, then Allow when the phone asks for the microphone."
 msgstr ""
 
 #: src/stream/preflight.rs
@@ -12657,6 +12765,14 @@ msgstr ""
 
 #: src/ui/dialogs/settings_model.rs src/ui/operator/record.rs src/video/bench.rs
 msgid "Not now"
+msgstr ""
+
+#: src/ui/dialogs/settings_phone.rs
+msgid "Waiting for Windows…"
+msgstr ""
+
+#: src/ui/dialogs/settings_phone.rs
+msgid "Done: phones can now reach RustyPresenter through Windows Firewall."
 msgstr ""
 
 #: src/ui/dialogs/settings_record.rs

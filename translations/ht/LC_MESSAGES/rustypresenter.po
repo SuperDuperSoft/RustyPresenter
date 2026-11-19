@@ -1196,7 +1196,7 @@ msgstr "Retounen"
 msgid "Next"
 msgstr "Pwochen"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/settings-phone.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "Fèmen"
 
@@ -1611,7 +1611,7 @@ msgstr "Adrès: "
 msgid "Pair a phone or tablet"
 msgstr "Konekte yon telefòn oswa yon tablèt"
 
-#: ui/dialogs/phone.slint
+#: ui/dialogs/phone.slint ui/dialogs/settings-phone.slint
 msgid "QR code"
 msgstr "Kòd QR"
 
@@ -2583,6 +2583,22 @@ msgstr "Chwazi logo"
 msgid "Default background"
 msgstr "Fon pa defo"
 
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow. Or open:"
+msgstr "Eskane l ak kamera telefòn nan, apre sa tape Pèmèt. Oswa louvri:"
+
+#: ui/dialogs/settings-phone.slint
+msgid "The first time, the phone warns the page is not private (it comes from this computer): on Android tap Advanced → Proceed; on an iPhone tap Show Details → visit this website."
+msgstr "Premye fwa a, telefòn nan avèti paj la pa prive (li soti nan òdinatè sa a): sou Android tape Avanse → Kontinye; sou yon iPhone tape Montre detay → vizite sit sa a."
+
+#: ui/dialogs/settings-phone.slint
+msgid "Show the QR code"
+msgstr "Montre kòd QR la"
+
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow."
+msgstr "Eskane l ak kamera telefòn nan, apre sa tape Pèmèt."
+
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Use your phone or tablet as a remote"
 msgstr "Sèvi ak telefòn oswa tablèt ou kòm telekòmand"
@@ -2676,44 +2692,48 @@ msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this compu
 msgstr "Louvri adrès sa a sou iPad oswa telefòn chantè a (menm Wi-Fi ak òdinatè sa a)."
 
 #: ui/dialogs/settings-remote.slint
-msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
-msgstr "Yon telefòn sou Wi-Fi legliz la ka sèvi kòm kamera oswa mikwo pou emisyon an. Premye fwa a, telefòn nan avèti paj la pa prive: se nòmal, paske paj la soti nan òdinatè sa a. Peze Avanse (sou iPhone, Montre detay), epi kontinye sou paj la. Kenbe telefòn nan limen epi branche."
+msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. Scan its code with the phone's camera: that opens the page and connects the phone, with no code to type. Keep the phone awake and plugged in."
+msgstr "Yon telefòn sou Wi-Fi legliz la ka sèvi kòm kamera oswa mikwo pou emisyon an dirèk la. Eskane kòd li a ak kamera telefòn nan: sa louvri paj la epi konekte telefòn nan, san okenn kòd pou tape. Kenbe telefòn nan limen epi branche."
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a camera"
 msgstr "Telefòn kòm kamera"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
-msgstr "Konekte telefòn nan anvan ak Konekte yon telefòn oswa yon tablèt. Depi li voye imaj li, lis kamera yo rele l Kamera telefòn."
+msgid "Scanning the code connects the phone. Once it sends its picture, the camera lists call it Phone camera."
+msgstr "Lè ou eskane kòd la, telefòn nan konekte. Depi li voye imaj li, lis kamera yo rele l Kamera telefòn."
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open:"
-msgstr "Sou telefòn nan, louvri:"
+msgid "The phone camera's QR code"
+msgstr "Kòd QR kamera telefòn nan"
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose it in Settings → Livestream → Cameras"
 msgstr "Apre sa chwazi l nan Paramèt → Emisyon an dirèk → Kamera"
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a microphone"
 msgstr "Telefòn kòm mikwo"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
-msgstr "Pou mikwo kòl pastè a oswa yon mikwo sal san fil. Limen ekran sèn sou telefòn anvan: paj telefòn nan soti la."
+msgid "For a pastor's lapel or a room microphone without cables. Scanning the code connects the phone; then press Start on it."
+msgstr "Pou mikwo lapèl pastè a oswa yon mikwo nan sal la san fil. Lè ou eskane kòd la, telefòn nan konekte; apre sa peze Kòmanse sou li."
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open this page and press Start:"
-msgstr "Sou telefòn nan, louvri paj sa a epi peze Kòmanse:"
-
-#: ui/dialogs/settings-remote.slint
-msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
-msgstr "Ekran sèn sou telefòn fèmen, kidonk telefòn nan poko ka rive sou paj sa a."
+msgid "The phone microphone's QR code"
+msgstr "Kòd QR mikwo telefòn nan"
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose Phone in Settings → Livestream → Sound"
 msgstr "Apre sa chwazi Telefòn nan Paramèt → Emisyon an dirèk → Son"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Let phones in"
+msgstr "Kite telefòn yo antre"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Windows asks for an administrator's OK, then lets RustyPresenter in on private and public networks."
+msgstr "Windows mande dakò yon administratè, apre sa li kite RustyPresenter antre sou rezo prive ak rezo piblik."
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Control from other gear (TCP)"
@@ -7350,6 +7370,74 @@ msgstr[1] "Retire {n} fichye nan bibliyotèk medya a epi libere {size}."
 msgid "Sunday Service"
 msgstr "Sèvis Dimanch"
 
+#: src/network/phone_link.rs
+msgid "Waiting for a phone"
+msgstr "N ap tann yon telefòn"
+
+#: src/network/phone_link.rs
+msgid "Phone connected: {name}"
+msgstr "Telefòn konekte: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is connected"
+msgstr "Gen yon telefòn ki konekte"
+
+#: src/network/phone_link.rs
+msgid "Sending pictures: {name}"
+msgstr "Ap voye imaj: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is sending pictures"
+msgstr "Yon telefòn ap voye imaj"
+
+#: src/network/phone_link.rs
+msgid "Sending sound: {name}"
+msgstr "Ap voye son: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is sending sound"
+msgstr "Yon telefòn ap voye son"
+
+#: src/network/phone_link.rs
+msgid "The secure server is starting…"
+msgstr "Sèvè sekirize a ap demare…"
+
+#: src/network/phone_link.rs
+msgid "The secure server isn't running: {why}"
+msgstr "Sèvè sekirize a pa mache: {why}"
+
+#: src/network/phone_link.rs
+msgid "port {port} is in use by another program. Close that program, or restart this computer."
+msgstr "yon lòt pwogram ap sèvi ak pò {port}. Fèmen pwogram sa a, oswa rekòmanse òdinatè a."
+
+#: src/network/phone_link.rs
+msgid "Windows keeps port {port} for itself. Restart this computer and try again."
+msgstr "Windows kenbe pò {port} pou tèt li. Rekòmanse òdinatè a epi eseye ankò."
+
+#: src/network/phone_link.rs
+msgid "port {port} cannot be used ({error})."
+msgstr "pa ka sèvi ak pò {port} ({error})."
+
+#: src/network/phone_link.rs
+msgid "it could not make its certificate ({error})."
+msgstr "li pa t ka fè sètifika li ({error})."
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out on this network (Windows calls it a public network). Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter on public networks (port {port})."
+msgstr "Firewall òdinatè sa a ka ap bloke telefòn yo: Firewall Windows pa kite yo antre sou rezo sa a (Windows rele l yon rezo piblik). Klike sou “Kite telefòn yo antre”, oswa nan Sekirite Windows → Firewall, pèmèt RustyPresenter sou rezo piblik (pò {port})."
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out. Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter (port {port})."
+msgstr "Firewall òdinatè sa a ka ap bloke telefòn yo: Firewall Windows pa kite yo antre. Klike sou “Kite telefòn yo antre”, oswa nan Sekirite Windows → Firewall, pèmèt RustyPresenter (pò {port})."
+
+#: src/network/phone_link.rs
+msgid "This QR code was already used or is too old. Scan the code in RustyPresenter again (Settings → Remote and network → Phone camera and microphone)."
+msgstr "Kòd QR sa a te deja sèvi oswa li twò ansyen. Eskane kòd la nan RustyPresenter ankò (Paramèt → Telekòmand ak rezo → Kamera ak mikwo telefòn)."
+
+#: src/network/phone_link.rs
+msgid "Type the remote's password (set in RustyPresenter's Settings → Remote and network)."
+msgstr "Tape modpas telekòmand lan (ou mete l nan RustyPresenter, Paramèt → Telekòmand ak rezo)."
+
 #: src/platform/data_folder.rs
 msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
 msgstr "Kopi RustyPresenter sa a kenbe done li bò kote l, nan {wanted}, men yo pa ka chanje dosye sa a (petèt se yon kle USB ki bloke oswa yon CD). Pou kounye a, travay ou kenbe sou òdinatè sa a, nan {here}. Pou kenbe l bò kote aplikasyon an, kopye tout dosye RustyPresenter la yon kote yo ka chanje epi louvri l la."
@@ -7361,6 +7449,14 @@ msgstr "Yo louvri RustyPresenter andedan fichye zip la, kidonk li pa ka kenbe do
 #: src/platform/data_folder.rs
 msgid "macOS opened a locked copy of RustyPresenter, because it has not been moved since it was downloaded. For now your work is kept on this computer, in {here}. Close RustyPresenter. In Finder, drag RustyPresenter out of its folder (onto the Desktop, say) and back in again, or into Applications if it came from the .dmg file. Then open it again."
 msgstr "macOS louvri yon kopi RustyPresenter ki bloke, paske yo pa t deplase l depi yo telechaje l. Pou kounye a, travay ou kenbe sou òdinatè sa a, nan {here}. Fèmen RustyPresenter. Nan Finder, trennen RustyPresenter soti nan dosye li (sou Desktop la, pa egzanp) epi remete l ankò, oswa nan Applications si li soti nan fichye .dmg la. Apre sa louvri l ankò."
+
+#: src/platform/firewall.rs
+msgid "Windows was not given the OK, so nothing changed."
+msgstr "Windows pa t resevwa dakò a, kidonk anyen pa chanje."
+
+#: src/platform/firewall.rs
+msgid "Windows Firewall could not be changed. Ask whoever looks after this computer to let RustyPresenter in for private and public networks."
+msgstr "Pa t ka chanje Firewall Windows la. Mande moun ki okipe òdinatè sa a pou l kite RustyPresenter antre sou rezo prive ak rezo piblik."
 
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
@@ -8379,10 +8475,6 @@ msgid "A phone only lets a page use its camera when the page is private. Tap the
 msgstr "Yon telefòn kite yon paj sèvi ak kamera li sèlman lè paj la prive. Tape bouton anba a. Apre sa telefòn nan avèti koneksyon an pa prive: se nòmal, paske paj la soti nan pwòp òdinatè legliz ou, pa sou entènèt."
 
 #: src/stream/phone_camera.rs
-msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
-msgstr "Tape Avanse (oswa Montre detay), apre sa Kontinye (oswa Vizite sit sa a). Telefòn nan sonje sa, kidonk se yon sèl fwa ou bezwen fè l."
-
-#: src/stream/phone_camera.rs
 msgid "Open the camera page"
 msgstr "Louvri paj kamera a"
 
@@ -8395,12 +8487,12 @@ msgid "Connect this phone"
 msgstr "Konekte telefòn sa a"
 
 #: src/stream/phone_camera.rs
-msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
-msgstr "Sou òdinatè prezantasyon an, klike sou Telefòn, apre sa sou Konekte yon telefòn oswa yon tablèt, epi tape kòd 6 chif la isit la."
+msgid "Scan the camera's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone). Or, on the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "Eskane kòd QR kamera a nan RustyPresenter (Paramèt → Telekòmand ak rezo → Kamera ak mikwo telefòn). Oswa, sou òdinatè prezantasyon an, klike sou Telefòn, apre sa Konekte yon telefòn oswa yon tablèt, epi tape kòd 6 chif la isit la."
 
 #: src/stream/phone_camera.rs
-msgid "6-digit code"
-msgstr "Kòd 6 chif"
+msgid "Connecting this phone…"
+msgstr "N ap konekte telefòn sa a…"
 
 #: src/stream/phone_camera.rs
 msgid "Like Balcony or Side. The computer lists this phone by this name."
@@ -8430,7 +8522,7 @@ msgstr "Ap voye bay òdinatè a"
 msgid "Connecting to the computer…"
 msgstr "Ap konekte ak òdinatè a…"
 
-#: src/stream/phone_camera.rs
+#: src/stream/phone_camera.rs src/stream/phone_mic.rs
 msgid "The computer cannot be reached. Trying again…"
 msgstr "Pa ka jwenn òdinatè a. N ap eseye ankò…"
 
@@ -8458,6 +8550,18 @@ msgstr "Sou òdinatè a, chwazi telefòn sa a nan Paramèt → Emisyon an dirèk
 msgid "This computer is not on a network, so no phone can reach it."
 msgstr "Òdinatè sa a pa sou okenn rezo, kidonk okenn telefòn pa ka jwenn li."
 
+#: src/stream/phone_camera.rs
+msgid "Android (Chrome): tap Advanced, then Proceed. iPhone (Safari): tap Show Details, then visit this website, then Visit Website. The phone remembers it, so this is only needed once."
+msgstr "Android (Chrome): tape Avanse, apre sa Kontinye. iPhone (Safari): tape Montre detay, apre sa vizite sit sa a, apre sa Vizite sit la. Telefòn nan sonje sa, kidonk se yon sèl fwa ou bezwen fè l."
+
+#: src/stream/phone_camera.rs
+msgid "No Proceed button? In Chrome on Android, open chrome://flags, search for \"insecure origins\", turn on \"Insecure origins treated as secure\", type {address} in its box, tap Relaunch, then open this page again."
+msgstr "Pa gen bouton Kontinye? Nan Chrome sou Android, louvri chrome://flags, chèche \"insecure origins\", limen \"Insecure origins treated as secure\", tape {address} nan bwat li a, tape Relaunch, apre sa louvri paj sa a ankò."
+
+#: src/stream/phone_camera.rs
+msgid "6-digit code"
+msgstr "Kòd 6 chif"
+
 #: src/stream/phone_mic.rs
 msgid "Phone microphone (open its page on the phone)"
 msgstr "Mikwo telefòn (louvri paj li sou telefòn nan)"
@@ -8479,16 +8583,20 @@ msgid "Sending, but the stream is not using this phone yet. Choose \"Phone micro
 msgstr "L ap voye, men emisyon an poko sèvi ak telefòn sa a. Chwazi \"Mikwo telefòn\" nan Paramèt → Emisyon an dirèk → Son, epi ale an dirèk."
 
 #: src/stream/phone_mic.rs
-msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
-msgstr "Telefòn nan kite sèlman yon paj ki an sekirite sèvi ak mikwo li. Louvri paj an sekirite a anba a; premye fwa a, telefòn nan avèti li pa prive: tape Avanse (oswa Montre detay) epi kontinye sou li."
+msgid "The phone only lets a secure page use its microphone. Open the secure page below. The first time, the phone warns that the connection is not private: that is expected, because the page comes from your church's own computer."
+msgstr "Telefòn nan kite sèlman yon paj sekirize sèvi ak mikwo li. Louvri paj sekirize ki anba a. Premye fwa a, telefòn nan avèti koneksyon an pa prive: se nòmal, paske paj la soti nan pwòp òdinatè legliz ou."
 
 #: src/stream/phone_mic.rs
 msgid "The phone did not let the page use its microphone. Allow it in the browser's settings for this page, then try again."
 msgstr "Telefòn nan pa t kite paj la sèvi ak mikwo li. Pèmèt li nan paramèt navigatè a pou paj sa a, apre sa eseye ankò."
 
 #: src/stream/phone_mic.rs
-msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
-msgstr "Limen ekran sèn sou telefòn nan RustyPresenter (Paramèt → Telekòmand ak rezo), epi konekte sou li anvan sou telefòn sa a."
+msgid "Connect this phone first: scan the microphone's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone), or type the 6-digit code from Phone → Pair a phone or tablet."
+msgstr "Konekte telefòn sa a anvan: eskane kòd QR mikwo a nan RustyPresenter (Paramèt → Telekòmand ak rezo → Kamera ak mikwo telefòn), oswa tape kòd 6 chif ki nan Telefòn → Konekte yon telefòn oswa yon tablèt."
+
+#: src/stream/phone_mic.rs
+msgid "Connected. Tap Start, then Allow when the phone asks for the microphone."
+msgstr "Konekte. Tape Kòmanse, apre sa Pèmèt lè telefòn nan mande pou mikwo a."
 
 #: src/stream/preflight.rs
 msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Livestream → Cameras. The stream shows the slides in its place."
@@ -12670,6 +12778,14 @@ msgstr "Swiv otomatik bezwen yon modèl vwa ({size}). Telechaje l kounye a?"
 msgid "Not now"
 msgstr "Pa kounye a"
 
+#: src/ui/dialogs/settings_phone.rs
+msgid "Waiting for Windows…"
+msgstr "N ap tann Windows…"
+
+#: src/ui/dialogs/settings_phone.rs
+msgid "Done: phones can now reach RustyPresenter through Windows Firewall."
+msgstr "Fini: kounye a telefòn yo ka rive jwenn RustyPresenter atravè Firewall Windows."
+
 #: src/ui/dialogs/settings_record.rs
 msgid "The output the app plays its sound to"
 msgstr "Sòti kote aplikasyon an jwe son li"
@@ -13550,6 +13666,36 @@ msgstr "yt-dlp pa anrejistre okenn videyo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "se pa yon fichye medya"
+
+#~ msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+#~ msgstr "Yon telefòn sou Wi-Fi legliz la ka sèvi kòm kamera oswa mikwo pou emisyon an. Premye fwa a, telefòn nan avèti paj la pa prive: se nòmal, paske paj la soti nan òdinatè sa a. Peze Avanse (sou iPhone, Montre detay), epi kontinye sou paj la. Kenbe telefòn nan limen epi branche."
+
+#~ msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
+#~ msgstr "Konekte telefòn nan anvan ak Konekte yon telefòn oswa yon tablèt. Depi li voye imaj li, lis kamera yo rele l Kamera telefòn."
+
+#~ msgid "On the phone, open:"
+#~ msgstr "Sou telefòn nan, louvri:"
+
+#~ msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
+#~ msgstr "Pou mikwo kòl pastè a oswa yon mikwo sal san fil. Limen ekran sèn sou telefòn anvan: paj telefòn nan soti la."
+
+#~ msgid "On the phone, open this page and press Start:"
+#~ msgstr "Sou telefòn nan, louvri paj sa a epi peze Kòmanse:"
+
+#~ msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
+#~ msgstr "Ekran sèn sou telefòn fèmen, kidonk telefòn nan poko ka rive sou paj sa a."
+
+#~ msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
+#~ msgstr "Tape Avanse (oswa Montre detay), apre sa Kontinye (oswa Vizite sit sa a). Telefòn nan sonje sa, kidonk se yon sèl fwa ou bezwen fè l."
+
+#~ msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+#~ msgstr "Sou òdinatè prezantasyon an, klike sou Telefòn, apre sa sou Konekte yon telefòn oswa yon tablèt, epi tape kòd 6 chif la isit la."
+
+#~ msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
+#~ msgstr "Telefòn nan kite sèlman yon paj ki an sekirite sèvi ak mikwo li. Louvri paj an sekirite a anba a; premye fwa a, telefòn nan avèti li pa prive: tape Avanse (oswa Montre detay) epi kontinye sou li."
+
+#~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
+#~ msgstr "Limen ekran sèn sou telefòn nan RustyPresenter (Paramèt → Telekòmand ak rezo), epi konekte sou li anvan sou telefòn sa a."
 
 #~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
 #~ msgstr "Trennen l sou yon lòt panno: bò kote l, oswa nan mitan l pou pataje plas li kòm onglè"

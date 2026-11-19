@@ -1196,7 +1196,7 @@ msgstr "返回"
 msgid "Next"
 msgstr "下一张"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/settings-phone.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "关闭"
 
@@ -1611,7 +1611,7 @@ msgstr "地址："
 msgid "Pair a phone or tablet"
 msgstr "配对手机或平板"
 
-#: ui/dialogs/phone.slint
+#: ui/dialogs/phone.slint ui/dialogs/settings-phone.slint
 msgid "QR code"
 msgstr "二维码"
 
@@ -2583,6 +2583,22 @@ msgstr "选择标志"
 msgid "Default background"
 msgstr "默认背景"
 
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow. Or open:"
+msgstr "用手机相机扫描，然后点“允许”。或者打开："
+
+#: ui/dialogs/settings-phone.slint
+msgid "The first time, the phone warns the page is not private (it comes from this computer): on Android tap Advanced → Proceed; on an iPhone tap Show Details → visit this website."
+msgstr "第一次时，手机会警告页面不是私密的（因为页面来自这台电脑）：在 Android 上点“高级”→“继续前往”；在 iPhone 上点“显示详细信息”→“访问此网站”。"
+
+#: ui/dialogs/settings-phone.slint
+msgid "Show the QR code"
+msgstr "显示二维码"
+
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow."
+msgstr "用手机相机扫描，然后点“允许”。"
+
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Use your phone or tablet as a remote"
 msgstr "把手机或平板当遥控器"
@@ -2676,44 +2692,48 @@ msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this compu
 msgstr "在歌手的 iPad 或手机上打开此地址（需与这台电脑连接同一 Wi-Fi）。"
 
 #: ui/dialogs/settings-remote.slint
-msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
-msgstr "连上教会 Wi-Fi 的手机可以做直播的摄像头或麦克风。第一次时，手机会提示网页不安全：这是正常的，因为网页来自这台电脑。点“高级”（iPhone 上点“显示详细信息”），然后继续进入网页。让手机保持亮屏并接上充电器。"
+msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. Scan its code with the phone's camera: that opens the page and connects the phone, with no code to type. Keep the phone awake and plugged in."
+msgstr "连在教会 Wi-Fi 上的手机可以当直播的摄像头或麦克风。用手机相机扫描它的二维码：页面会打开，手机也会连上，不用输入代码。让手机保持亮屏并插上充电器。"
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a camera"
 msgstr "用手机当摄像头"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
-msgstr "先用“配对手机或平板”配对手机。它开始发送画面后，摄像头列表里会叫它“手机摄像头”。"
+msgid "Scanning the code connects the phone. Once it sends its picture, the camera lists call it Phone camera."
+msgstr "扫描二维码就会连上手机。手机开始发送画面后，摄像头列表里会叫它“手机摄像头”。"
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open:"
-msgstr "在手机上打开："
+msgid "The phone camera's QR code"
+msgstr "手机摄像头的二维码"
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose it in Settings → Livestream → Cameras"
 msgstr "然后在“设置 → 直播 → 摄像头”中选它"
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a microphone"
 msgstr "用手机当麦克风"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
-msgstr "适合牧师的领夹麦或不用线的会场麦克风。请先打开“手机上的舞台屏幕”：手机的页面来自那里。"
+msgid "For a pastor's lapel or a room microphone without cables. Scanning the code connects the phone; then press Start on it."
+msgstr "用于牧师的领夹麦克风或不用线的会场麦克风。扫描二维码就会连上手机；然后在手机上按“开始”。"
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open this page and press Start:"
-msgstr "在手机上打开这个页面，然后点“开始”："
-
-#: ui/dialogs/settings-remote.slint
-msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
-msgstr "手机上的舞台屏幕已关闭，所以手机还打不开这个页面。"
+msgid "The phone microphone's QR code"
+msgstr "手机麦克风的二维码"
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose Phone in Settings → Livestream → Sound"
 msgstr "然后在“设置 → 直播 → 声音”中选“手机”"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Let phones in"
+msgstr "放行手机"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Windows asks for an administrator's OK, then lets RustyPresenter in on private and public networks."
+msgstr "Windows 会请管理员同意，然后在专用网络和公用网络上放行 RustyPresenter。"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Control from other gear (TCP)"
@@ -7346,6 +7366,74 @@ msgstr[0] "已从媒体库中移除 {n} 个文件，释放了 {size}。"
 msgid "Sunday Service"
 msgstr "主日聚会"
 
+#: src/network/phone_link.rs
+msgid "Waiting for a phone"
+msgstr "正在等手机"
+
+#: src/network/phone_link.rs
+msgid "Phone connected: {name}"
+msgstr "手机已连接：{name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is connected"
+msgstr "有手机已连接"
+
+#: src/network/phone_link.rs
+msgid "Sending pictures: {name}"
+msgstr "正在发送画面：{name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is sending pictures"
+msgstr "有手机正在发送画面"
+
+#: src/network/phone_link.rs
+msgid "Sending sound: {name}"
+msgstr "正在发送声音：{name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is sending sound"
+msgstr "有手机正在发送声音"
+
+#: src/network/phone_link.rs
+msgid "The secure server is starting…"
+msgstr "安全服务器正在启动…"
+
+#: src/network/phone_link.rs
+msgid "The secure server isn't running: {why}"
+msgstr "安全服务器没有运行：{why}"
+
+#: src/network/phone_link.rs
+msgid "port {port} is in use by another program. Close that program, or restart this computer."
+msgstr "端口 {port} 被另一个程序占用了。关闭那个程序，或重启这台电脑。"
+
+#: src/network/phone_link.rs
+msgid "Windows keeps port {port} for itself. Restart this computer and try again."
+msgstr "Windows 把端口 {port} 留给了自己。重启这台电脑后再试。"
+
+#: src/network/phone_link.rs
+msgid "port {port} cannot be used ({error})."
+msgstr "端口 {port} 无法使用（{error}）。"
+
+#: src/network/phone_link.rs
+msgid "it could not make its certificate ({error})."
+msgstr "无法生成它的证书（{error}）。"
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out on this network (Windows calls it a public network). Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter on public networks (port {port})."
+msgstr "这台电脑的防火墙可能挡住了手机：在这个网络上（Windows 称之为公用网络），Windows 防火墙不让手机进来。点“放行手机”，或在 Windows 安全中心 → 防火墙中，允许 RustyPresenter 使用公用网络（端口 {port}）。"
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out. Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter (port {port})."
+msgstr "这台电脑的防火墙可能挡住了手机：Windows 防火墙不让手机进来。点“放行手机”，或在 Windows 安全中心 → 防火墙中允许 RustyPresenter（端口 {port}）。"
+
+#: src/network/phone_link.rs
+msgid "This QR code was already used or is too old. Scan the code in RustyPresenter again (Settings → Remote and network → Phone camera and microphone)."
+msgstr "这个二维码已经用过或太旧了。请在 RustyPresenter 中重新扫描二维码（设置 → 遥控器和网络 → 手机摄像头和麦克风）。"
+
+#: src/network/phone_link.rs
+msgid "Type the remote's password (set in RustyPresenter's Settings → Remote and network)."
+msgstr "输入遥控器密码（在 RustyPresenter 的 设置 → 遥控器和网络 中设定）。"
+
 #: src/platform/data_folder.rs
 msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
 msgstr "此 RustyPresenter 副本把数据保存在它旁边的 {wanted} 中，但该文件夹无法更改（可能是锁定的 U 盘或光盘）。目前您的工作保存在这台电脑的 {here} 中。要把它保存在应用旁边，请把整个 RustyPresenter 文件夹复制到可以更改的位置，然后从那里打开。"
@@ -7357,6 +7445,14 @@ msgstr "RustyPresenter 是直接从 zip 文件里打开的，所以无法把数�
 #: src/platform/data_folder.rs
 msgid "macOS opened a locked copy of RustyPresenter, because it has not been moved since it was downloaded. For now your work is kept on this computer, in {here}. Close RustyPresenter. In Finder, drag RustyPresenter out of its folder (onto the Desktop, say) and back in again, or into Applications if it came from the .dmg file. Then open it again."
 msgstr "RustyPresenter 下载后没有移动过，所以 macOS 打开了一个锁定的副本。目前您的工作保存在这台电脑的 {here} 中。请关闭 RustyPresenter。在访达中把 RustyPresenter 拖出它的文件夹（例如拖到桌面）再拖回去；如果它来自 .dmg 文件，就拖到“应用程序”中。然后再次打开它。"
+
+#: src/platform/firewall.rs
+msgid "Windows was not given the OK, so nothing changed."
+msgstr "Windows 没有得到同意，所以什么都没改变。"
+
+#: src/platform/firewall.rs
+msgid "Windows Firewall could not be changed. Ask whoever looks after this computer to let RustyPresenter in for private and public networks."
+msgstr "无法更改 Windows 防火墙。请让负责这台电脑的人在专用网络和公用网络上放行 RustyPresenter。"
 
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
@@ -8369,10 +8465,6 @@ msgid "A phone only lets a page use its camera when the page is private. Tap the
 msgstr "手机只允许私密（安全）页面使用摄像头。请点下面的按钮。手机随后会警告连接不是私密连接：这是正常的，因为页面来自教会自己的电脑，而不是来自互联网。"
 
 #: src/stream/phone_camera.rs
-msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
-msgstr "点“高级”（或“显示详细信息”），然后点“继续前往”（或“访问此网站”）。手机会记住，所以只需做一次。"
-
-#: src/stream/phone_camera.rs
 msgid "Open the camera page"
 msgstr "打开摄像头页面"
 
@@ -8385,12 +8477,12 @@ msgid "Connect this phone"
 msgstr "连接这部手机"
 
 #: src/stream/phone_camera.rs
-msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
-msgstr "在演示电脑上点“手机”，再点“配对手机或平板”，然后在这里输入 6 位代码。"
+msgid "Scan the camera's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone). Or, on the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "在 RustyPresenter 中扫描摄像头的二维码（设置 → 遥控器和网络 → 手机摄像头和麦克风）。或者在演示电脑上点“手机”，再点“配对手机或平板”，然后在这里输入 6 位数代码。"
 
 #: src/stream/phone_camera.rs
-msgid "6-digit code"
-msgstr "6 位数代码"
+msgid "Connecting this phone…"
+msgstr "正在连接这部手机…"
 
 #: src/stream/phone_camera.rs
 msgid "Like Balcony or Side. The computer lists this phone by this name."
@@ -8420,7 +8512,7 @@ msgstr "正在发送到电脑"
 msgid "Connecting to the computer…"
 msgstr "正在连接电脑…"
 
-#: src/stream/phone_camera.rs
+#: src/stream/phone_camera.rs src/stream/phone_mic.rs
 msgid "The computer cannot be reached. Trying again…"
 msgstr "无法连接到电脑。正在重试…"
 
@@ -8448,6 +8540,18 @@ msgstr "请在电脑的“设置 → 直播 → 摄像头”中选择这部手�
 msgid "This computer is not on a network, so no phone can reach it."
 msgstr "这台电脑没有连接网络，所以手机无法连接它。"
 
+#: src/stream/phone_camera.rs
+msgid "Android (Chrome): tap Advanced, then Proceed. iPhone (Safari): tap Show Details, then visit this website, then Visit Website. The phone remembers it, so this is only needed once."
+msgstr "Android（Chrome）：点“高级”，再点“继续前往”。iPhone（Safari）：点“显示详细信息”，再点“访问此网站”，再点“访问网站”。手机会记住，所以只需做一次。"
+
+#: src/stream/phone_camera.rs
+msgid "No Proceed button? In Chrome on Android, open chrome://flags, search for \"insecure origins\", turn on \"Insecure origins treated as secure\", type {address} in its box, tap Relaunch, then open this page again."
+msgstr "没有“继续前往”按钮？在 Android 的 Chrome 中打开 chrome://flags，搜索 \"insecure origins\"，打开 \"Insecure origins treated as secure\"，在框里输入 {address}，点 Relaunch，然后重新打开这个页面。"
+
+#: src/stream/phone_camera.rs
+msgid "6-digit code"
+msgstr "6 位数代码"
+
 #: src/stream/phone_mic.rs
 msgid "Phone microphone (open its page on the phone)"
 msgstr "手机麦克风（在手机上打开其页面）"
@@ -8469,16 +8573,20 @@ msgid "Sending, but the stream is not using this phone yet. Choose \"Phone micro
 msgstr "正在发送，但直播还没有使用这部手机。请在“设置 → 直播 → 声音”中选择\"手机麦克风\"，然后开始直播。"
 
 #: src/stream/phone_mic.rs
-msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
-msgstr "手机只允许安全页面使用麦克风。请打开下面的安全页面；第一次时，手机会警告连接不是私密连接：点“高级”（或“显示详细信息”），然后继续前往。"
+msgid "The phone only lets a secure page use its microphone. Open the secure page below. The first time, the phone warns that the connection is not private: that is expected, because the page comes from your church's own computer."
+msgstr "手机只让安全页面使用麦克风。请打开下面的安全页面。第一次时，手机会警告连接不是私密的：这很正常，因为页面来自你们教会自己的电脑。"
 
 #: src/stream/phone_mic.rs
 msgid "The phone did not let the page use its microphone. Allow it in the browser's settings for this page, then try again."
 msgstr "手机没有允许此页面使用麦克风。请在浏览器设置中允许此页面，然后再试一次。"
 
 #: src/stream/phone_mic.rs
-msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
-msgstr "请在 RustyPresenter 中打开“手机上的舞台屏幕”（设置 → 遥控器和网络），并先在这部手机上登录。"
+msgid "Connect this phone first: scan the microphone's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone), or type the 6-digit code from Phone → Pair a phone or tablet."
+msgstr "请先连接这部手机：在 RustyPresenter 中扫描麦克风的二维码（设置 → 遥控器和网络 → 手机摄像头和麦克风），或输入“手机”→“配对手机或平板”中的 6 位数代码。"
+
+#: src/stream/phone_mic.rs
+msgid "Connected. Tap Start, then Allow when the phone asks for the microphone."
+msgstr "已连接。点“开始”，手机询问麦克风时点“允许”。"
 
 #: src/stream/preflight.rs
 msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Livestream → Cameras. The stream shows the slides in its place."
@@ -12623,6 +12731,14 @@ msgstr "自动跟随需要语音模型（{size}）。现在下载吗？"
 msgid "Not now"
 msgstr "以后再说"
 
+#: src/ui/dialogs/settings_phone.rs
+msgid "Waiting for Windows…"
+msgstr "正在等 Windows…"
+
+#: src/ui/dialogs/settings_phone.rs
+msgid "Done: phones can now reach RustyPresenter through Windows Firewall."
+msgstr "完成：手机现在可以穿过 Windows 防火墙连到 RustyPresenter 了。"
+
 #: src/ui/dialogs/settings_record.rs
 msgid "The output the app plays its sound to"
 msgstr "软件播放声音所用的输出"
@@ -13498,6 +13614,36 @@ msgstr "yt-dlp 没有保存视频"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "不是媒体文件"
+
+#~ msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+#~ msgstr "连上教会 Wi-Fi 的手机可以做直播的摄像头或麦克风。第一次时，手机会提示网页不安全：这是正常的，因为网页来自这台电脑。点“高级”（iPhone 上点“显示详细信息”），然后继续进入网页。让手机保持亮屏并接上充电器。"
+
+#~ msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
+#~ msgstr "先用“配对手机或平板”配对手机。它开始发送画面后，摄像头列表里会叫它“手机摄像头”。"
+
+#~ msgid "On the phone, open:"
+#~ msgstr "在手机上打开："
+
+#~ msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
+#~ msgstr "适合牧师的领夹麦或不用线的会场麦克风。请先打开“手机上的舞台屏幕”：手机的页面来自那里。"
+
+#~ msgid "On the phone, open this page and press Start:"
+#~ msgstr "在手机上打开这个页面，然后点“开始”："
+
+#~ msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
+#~ msgstr "手机上的舞台屏幕已关闭，所以手机还打不开这个页面。"
+
+#~ msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
+#~ msgstr "点“高级”（或“显示详细信息”），然后点“继续前往”（或“访问此网站”）。手机会记住，所以只需做一次。"
+
+#~ msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+#~ msgstr "在演示电脑上点“手机”，再点“配对手机或平板”，然后在这里输入 6 位代码。"
+
+#~ msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
+#~ msgstr "手机只允许安全页面使用麦克风。请打开下面的安全页面；第一次时，手机会警告连接不是私密连接：点“高级”（或“显示详细信息”），然后继续前往。"
+
+#~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
+#~ msgstr "请在 RustyPresenter 中打开“手机上的舞台屏幕”（设置 → 遥控器和网络），并先在这部手机上登录。"
 
 #~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
 #~ msgstr "拖到另一个面板上：放在它旁边，或放在它中间，作为标签页共用它的位置"
