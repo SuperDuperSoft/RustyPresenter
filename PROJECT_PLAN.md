@@ -1949,3 +1949,25 @@ There should not be." Then "Editing a song should be MUCH easier. There should b
 - **Song editor**: Add a part buttons (Verse, Chorus, Pre-chorus, Bridge, Tag, Ending, Intro (chords only)) put the
   next free name after the part the cursor is in; a click on a preview slide puts the cursor at its words; the order's
   `+ <part>` buttons are on the chips (drag them in); typing the order is still there.
+- **Tests:** `import::syllables` (both samples' lines, real dashes kept, the library tidy only for SongSelect-style
+  songs), `import::chordpro::songselect_syllable_breaks_become_whole_words` (the room's words and the stage segments),
+  `model::…songs_from_songselect_get_their_split_words_joined_once_at_load`, `stage::chords` (a word kept whole),
+  `song_edit::tests` (every slide finds its lines at 1, 2 and 4 lines a slide; edit, split, join, add, delete, duplicate,
+  change section, repeated parts, chords kept, chord-only and labelled slides), `song_edit::words` (chords put back),
+  `song_edit::order` (move, remove, repeat, step, patterns, where each part went), `live::song` (a new order keeps the
+  live part live), and the window driven inline (`ui::operator::slide_edit::tests`: double-click → type → Enter, Esc,
+  Edit chords too, a repeated part, the whole slide menu, Change section by clicking a name, the order strip, Save as
+  the usual order and Reset, a slide dropped on a slide, rearranging while live, Edit words in the Live panel, Undo for
+  each change), and the song editor's Add a part, preview click and chip drags.
+- **Build note:** `crates/rp-ui` has a second do-nothing feature, `song-editing`, turned on by the app, for the same
+  reason as `dock-panels` (another worktree's build script overwrote this one's screens in the shared build folder
+  during this work). The lead can drop both after merging.
+- **Not verified by a person:** all of it on a real screen: double-click and right-click on real slides, the slide
+  menu's pop-up, dragging chips, `+ <part>` buttons and slides with a real mouse (the tests call what a drop calls),
+  the editor's look on a small laptop screen, Enter/Shift+Enter in the words box, and the phone's stage page with
+  in-word chords (`web/stage-view.js` was not opened in a browser). The real "You've Already Won" file was not
+  available here (only the screenshot's lines); "Sometimes By Step" passes `stage::view`'s sample test.
+- **Test run:** 3,700 of 3,703 library tests pass; the 3 failures were the timing-sensitive `record::run` FFmpeg
+  go-live tests, which passed run again alone, one at a time (10 of 10). The real "Sometimes By Step" sample test
+  (`RP_CHORD_SAMPLE`, `--ignored`) passes with whole words. `i18n_catalogs`, `cleanup` and `words` pass. The 58 new
+  texts are in all 13 languages (machine-drafted like the rest; they need a native speaker's look).

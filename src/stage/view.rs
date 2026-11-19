@@ -746,7 +746,10 @@ Verse 1
         assert_eq!(find("You could "), segs(&[("", "You could "), ("A7", "touch it, but your heart would "), ("F#m", "break")]));
         assert_eq!(find("(1st Ending)"), segs(&[("", "(1st Ending)    And I will "), ("G/B", "follow You "), ("Asus", "all of "), ("A", "my  "), ("D", "days      "),
             ("G/D", "    "), ("A/D", "     (To Verse 2)")]));
-        assert_eq!(find("And on this (the) "), segs(&[("", "And on this (the) "), ("G", "road to righteous - "), ("F#m", "ness")]));
+        // SongSelect's "righteous - [F#m]ness" and "be - [Em7]yond" are whole words (`import::syllables`).
+        assert_eq!(find("And on this (the) "), segs(&[("", "And on this (the) "), ("G", "road to righteous"), ("F#m", "ness")]));
+        assert_eq!(find("And never be"), segs(&[("", "And never be"), ("Em7", "yond Your "), ("G/A", "reach")]));
+        assert!(all.iter().all(|(_, _, w)| !w.contains(" - ")), "no split words in the room");
         assert!(lines.contains(&segs(&[("A", "Oh,  "), ("D", "God, You are my "), ("A/C#", "God    "), ("A", "")])));
         for (label, sheet, words) in &all {
             assert!(!words.contains('['), "{label}: the room never shows chords");
