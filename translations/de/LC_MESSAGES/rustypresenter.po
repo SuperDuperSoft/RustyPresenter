@@ -13924,6 +13924,7 @@ msgstr "keine Mediendatei"
 
 #~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
 #~ msgstr "Schalten Sie in RustyPresenter den Bühnenbildschirm auf Handys ein (Einstellungen → Fernbedienung und Netzwerk) und melden Sie sich auf diesem Handy zuerst dort an."
+
 #~ msgid "Leave empty to use the written order"
 #~ msgstr "Leer lassen für Textreihenfolge"
 

@@ -13924,6 +13924,7 @@ msgstr "não é um arquivo de mídia"
 
 #~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
 #~ msgstr "Ligue a tela do palco em celulares no RustyPresenter (Configurações → Controle remoto e rede) e entre nela primeiro neste celular."
+
 #~ msgid "Leave empty to use the written order"
 #~ msgstr "Deixe vazio para usar a ordem escrita"
 

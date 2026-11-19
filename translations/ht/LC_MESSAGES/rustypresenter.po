@@ -13924,6 +13924,7 @@ msgstr "se pa yon fichye medya"
 
 #~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
 #~ msgstr "Limen ekran sèn sou telefòn nan RustyPresenter (Paramèt → Telekòmand ak rezo), epi konekte sou li anvan sou telefòn sa a."
+
 #~ msgid "Leave empty to use the written order"
 #~ msgstr "Kite l vid pou itilize lòd jan l ekri a"
 

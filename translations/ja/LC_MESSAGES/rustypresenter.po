@@ -13872,6 +13872,7 @@ msgstr "メディアファイルではありません"
 
 #~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
 #~ msgstr "RustyPresenterでスマホのステージ画面をオンにして（設定 → リモコンとネットワーク）、先にこのスマホでそこにログインしてください。"
+
 #~ msgid "Leave empty to use the written order"
 #~ msgstr "空欄の場合は記載順を使います"
 

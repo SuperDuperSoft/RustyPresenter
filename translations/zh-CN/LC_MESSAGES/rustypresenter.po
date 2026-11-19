@@ -13872,6 +13872,7 @@ msgstr "不是媒体文件"
 
 #~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
 #~ msgstr "请在 RustyPresenter 中打开“手机上的舞台屏幕”（设置 → 遥控器和网络），并先在这部手机上登录。"
+
 #~ msgid "Leave empty to use the written order"
 #~ msgstr "留空则使用书写顺序"
 

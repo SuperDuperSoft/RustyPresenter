@@ -13976,6 +13976,7 @@ msgstr "не медиафайл"
 
 #~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
 #~ msgstr "Включите экран сцены на телефонах в RustyPresenter (Настройки → Пульт и сеть) и сначала войдите в него на этом телефоне."
+
 #~ msgid "Leave empty to use the written order"
 #~ msgstr "Оставьте пустым, чтобы использовать порядок как в тексте"
 

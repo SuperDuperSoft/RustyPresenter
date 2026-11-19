@@ -13924,6 +13924,7 @@ msgstr "si faili ya midia"
 
 #~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
 #~ msgstr "Washa skrini ya jukwaa kwenye simu katika RustyPresenter (Mipangilio → Rimoti na mtandao), na uingie humo kwanza kwenye simu hii."
+
 #~ msgid "Leave empty to use the written order"
 #~ msgstr "Acha tupu ili kutumia mpangilio ulioandikwa"
 

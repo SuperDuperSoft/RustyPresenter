@@ -13872,6 +13872,7 @@ msgstr "không phải tệp đa phương tiện"
 
 #~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
 #~ msgstr "Bật màn hình sân khấu trên điện thoại trong RustyPresenter (Cài đặt → Điều khiển từ xa và mạng), và đăng nhập vào đó trên điện thoại này trước."
+
 #~ msgid "Leave empty to use the written order"
 #~ msgstr "Để trống để dùng thứ tự đã viết"
 

@@ -13924,6 +13924,7 @@ msgstr "hindi media file"
 
 #~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
 #~ msgstr "I-on ang stage screen sa mga phone sa RustyPresenter (Settings → Remote at network), at mag-sign in muna roon sa phone na ito."
+
 #~ msgid "Leave empty to use the written order"
 #~ msgstr "Iwanang blangko para gamitin ang nakasulat na ayos"
 
