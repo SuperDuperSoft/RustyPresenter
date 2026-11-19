@@ -1809,24 +1809,27 @@ impl App {
             #[derive(Deserialize)] struct B { name: String }
             let B { name } = parse(body)?;
             if app.read_only() { return Err(ActionError::bad(crate::theme::strings::newer_data())); }
-            let mut restored = tryr!(app.store.restore(&name));
-            let removed = bible::blocklist::strip(&mut restored);
-            if removed > 0 { app.live.lock().unwrap().notice = Some(passages_removed(removed)); }
-            // Saved again through the numbered saves, so an edit's save still on its way to the disk can't put the
-            // replaced data back over the restored file.
-            let save = {
-                let mut data = app.data.lock().unwrap();
-                *data = restored;
-                app.encode_save(&data)
-            };
-            let saved = save.and_then(|s| app.write_save(s));
-            app.reconcile_live();
-            app.refresh_bible_credits();
-            app.online_text_from_cache();
-            app.broadcast_data();
-            app.broadcast_live();
-            tryr!(saved);
-            Ok(json!({}))
+            let app = app.clone();
+            tokio::task::spawn_blocking(move || {
+                let mut restored = tryr!(app.store.restore(&name));
+                let removed = bible::blocklist::strip(&mut restored);
+                if removed > 0 { app.live.lock().unwrap().notice = Some(passages_removed(removed)); }
+                // Saved again through the numbered saves, so an edit's save still on its way to the disk can't put the
+                // replaced data back over the restored file.
+                let save = {
+                    let mut data = app.data.lock().unwrap();
+                    *data = restored;
+                    app.encode_save(&data)
+                };
+                let saved = save.and_then(|s| app.write_save(s));
+                app.reconcile_live();
+                app.refresh_bible_credits();
+                app.online_text_from_cache();
+                app.broadcast_data();
+                app.broadcast_live();
+                tryr!(saved);
+                Ok(json!({}))
+            }).await.map_err(|_| ActionError { status: 500, message: tr!("Backup failed.") })?
         }
         // ---- phone remote ----
         "pair/start" => {

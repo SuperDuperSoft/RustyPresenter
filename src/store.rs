@@ -23,6 +23,7 @@ pub struct BackupInfo {
 struct Manifest { created: String, assets: Vec<AssetId> }
 
 const KEEP_BACKUPS: usize = 10;
+static BACKUP_IO: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
 /// The data format this build reads and writes (`Data.format`): the only format number in the code (FEAT-1 spec
 /// §4.7). Older data is brought up to it once, at load, by the steps in `upgrade_format`; newer data opens read-only.
@@ -150,6 +151,8 @@ impl Store {
     pub fn backup_labeled(&self, data: &Data, label: &str) -> io::Result<String> { self.backup_named(data, Some(label)) }
 
     fn backup_named(&self, data: &Data, label: Option<&str>) -> io::Result<String> {
+        // Backup snapshots share the same asset pool. Keep pruning out of another backup or restore.
+        let _guard = BACKUP_IO.lock().unwrap_or_else(|e| e.into_inner());
         // Names carry the time to the second. Two backups in one second (a restore right after a backup) would
         // collide and the second would fail, so it waits for the clock instead.
         let named = |created: &str| match label { Some(l) => format!("backup-{created}-{l}"), None => format!("backup-{created}") };
@@ -168,11 +171,9 @@ impl Store {
         for a in &assets {
             let src = self.asset_path(a);
             let dst = store.join(a);
-            if dst.exists() { continue; }
-            if !src.exists() { return Err(io::Error::other(format!("asset {a} is missing; backup not completed"))); }
-            let tmp = store.join(format!("{a}.part"));
-            if fs::hard_link(&src, &tmp).is_err() { fs::copy(&src, &tmp)?; }
-            fs::rename(&tmp, &dst)?;
+            if dst.is_file() { continue; }
+            if !src.is_file() { return Err(io::Error::other(format!("asset {a} is missing; backup not completed"))); }
+            if fs::hard_link(&src, &dst).is_err() { copy_atomic(&src, &dst)?; }
         }
         let data = crate::scripture::online::without_online_text(data, &self.root);
         // Each file reaches the disk before the marker is written, so a power cut can never leave a backup that is
@@ -217,6 +218,7 @@ impl Store {
 
     /// Restore a backup using only the backup set (works into an empty data folder).
     pub fn restore(&self, name: &str) -> Result<Data, String> {
+        let _guard = BACKUP_IO.lock().unwrap_or_else(|e| e.into_inner());
         if name.contains(['/', '\\', '.']) || !name.starts_with("backup-") { return Err(crate::tr!("Unknown backup.")); }
         let dir = self.root.join("backups").join(name);
         if !dir.join("COMPLETE").exists() { return Err(crate::tr!("That backup is incomplete and cannot be restored.")); }
@@ -237,15 +239,12 @@ impl Store {
             let dst = self.asset_path(a);
             if dst.is_file() { continue; }
             let src = store.join(a);
-            write_atomic_with(&dst, |out| {
-                io::copy(&mut fs::File::open(src)?, out)?;
-                Ok(())
-            }).map_err(|e| format!("Could not restore backup asset {a}: {e}"))?;
+            copy_atomic(&src, &dst).map_err(|e| format!("Could not restore backup asset {a}: {e}"))?;
         }
         // Keep the data we are replacing, just in case.
         if self.data_path().exists() {
             let previous = self.root.join(format!("data.before-restore-{}-{}.json", now_stamp(), uuid::Uuid::new_v4()));
-            fs::copy(self.data_path(), previous).map_err(|e| e.to_string())?;
+            copy_atomic(&self.data_path(), &previous).map_err(|e| e.to_string())?;
         }
         self.save(&data).map_err(|e| e.to_string())?;
         Ok(data)
@@ -328,6 +327,11 @@ fn write_synced(path: &Path, bytes: &[u8]) -> io::Result<()> {
 
 pub fn write_atomic(path: &Path, bytes: &[u8]) -> io::Result<()> {
     write_atomic_with(path, |file| file.write_all(bytes))
+}
+
+fn copy_atomic(source: &Path, destination: &Path) -> io::Result<()> {
+    let mut source = fs::File::open(source)?;
+    write_atomic_with(destination, |out| io::copy(&mut source, out).map(|_| ()))
 }
 
 fn write_atomic_with(path: &Path, write: impl FnOnce(&mut fs::File) -> io::Result<()>) -> io::Result<()> {
@@ -429,6 +433,24 @@ mod tests {
         store.backup(&Data::default()).unwrap();
         assert!(copies.join("cc.png").exists() && copies.join("aa.png").exists());
         assert_eq!(store.backups().len(), 2, "two backups in the same second both exist");
+    }
+
+    #[test]
+    fn simultaneous_backups_get_distinct_complete_snapshots() {
+        let store = Store::open(test_dir()).unwrap();
+        let start = std::sync::Barrier::new(2);
+        let backup = || {
+            let data = Data::default();
+            start.wait();
+            store.backup(&data).unwrap()
+        };
+        let (first, second) = std::thread::scope(|scope| {
+            let first = scope.spawn(backup);
+            let second = scope.spawn(backup);
+            (first.join().unwrap(), second.join().unwrap())
+        });
+        assert_ne!(first, second);
+        assert_eq!(store.backups().len(), 2);
     }
 
     #[test]
