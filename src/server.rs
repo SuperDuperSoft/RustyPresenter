@@ -175,10 +175,16 @@ async fn remote_pair(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo
     }
     *pairing = None;
     drop(pairing);
+    add_phone(&app, Some(req.name.as_str()))
+}
+
+/// A newly paired phone named `name` (or "Phone 3"): kept in the list of paired phones, and its sign-in cookie set
+/// on the answer. Also for the phone camera and microphone's QR codes (`network::phone_link`).
+pub(crate) fn add_phone(app: &App, name: Option<&str>) -> Response {
     let token = random_token();
     let mut phones = app.phones.lock().unwrap();
     if phones.len() >= MAX_PHONES { phones.sort_by_key(|p| p.last_seen); phones.remove(0); }
-    let name = if req.name.trim().is_empty() { crate::tr!("Phone {number}", number = phones.len() + 1) } else { req.name.trim().chars().take(40).collect() };
+    let name = match name.map(str::trim).filter(|n| !n.is_empty()) { Some(n) => n.chars().take(40).collect(), None => crate::tr!("Phone {number}", number = phones.len() + 1) };
     phones.push(Phone { id: Uuid::new_v4(), name, hash: hash_token(&token), last_seen: now_secs(), may_draw: true });
     app.save_phones(&phones);
     drop(phones);
@@ -489,6 +495,8 @@ pub fn router(app: Arc<App>) -> Router {
         .merge(crate::network::guest::routes())
         // A phone as a livestream camera.
         .merge(crate::network::phone_camera::routes())
+        // One scan pairs a phone camera or microphone (`network::phone_link`).
+        .merge(crate::network::phone_link::routes())
         .with_state(app)
 }
 

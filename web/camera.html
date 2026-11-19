@@ -43,14 +43,17 @@
     <p id="secure_how"></p>
     <a id="secure_go" class="btn" href="#"></a>
     <p id="secure_off" class="hidden"></p>
+    <p id="no_proceed" class="hint"></p>
   </section>
 
   <!-- Not paired yet: the 6-digit code, as for the phone remote. -->
   <section id="pair" class="hidden">
     <h1 id="pair_title"></h1>
     <p id="pair_body"></p>
-    <label for="pin" id="code_label"></label>
-    <input id="pin" inputmode="numeric" autocomplete="one-time-code" maxlength="6">
+    <div id="pin_box">
+      <label for="pin" id="code_label"></label>
+      <input id="pin" inputmode="numeric" autocomplete="one-time-code" maxlength="6">
+    </div>
     <div id="password_box" class="hidden">
       <label for="password" id="password_label"></label>
       <input id="password" type="password" autocomplete="current-password">
@@ -95,18 +98,53 @@
     document.title = W.title || document.title;
   }
 
+  // The QR code in Settings opens this page with a one-time secret after `#pair=`: read once, wiped from the
+  // address bar (so it is not kept or shared), and posted to pair this phone in the same scan.
+  let secret = '';
+  { const m = /[#&]pair=([^&]+)/.exec(location.hash || ''); if (m) { secret = decodeURIComponent(m[1]); try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} } }
+
+  // The phone's kind, as its first name in the list of paired phones.
+  function deviceName() {
+    const ua = navigator.userAgent || '';
+    return /iPad/.test(ua) ? 'iPad' : /iPhone/.test(ua) ? 'iPhone' : /Android/.test(ua) ? 'Android' : (W.title || 'Phone camera');
+  }
+
+  function pairError(text) { $('pair_error').textContent = text; $('pair_error').classList.remove('hidden'); }
+
+  // Pairs with the code's secret; true when paired. A password the church set is asked for here.
+  async function pairWithSecret() {
+    try {
+      const r = await fetch('/phone/pair', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pair: secret, name: deviceName(), password: $('password').value }) });
+      const j = await r.json().catch(() => ({}));
+      if (r.ok && j.ok) { secret = ''; return true; }
+      show('pair');
+      if (j.password) { $('password_box').classList.remove('hidden'); $('pin_box').classList.add('hidden'); }
+      else { secret = ''; $('pin_box').classList.remove('hidden'); }
+      pairError(j.error || ('' + r.status));
+    } catch (e) { show('pair'); pairError(W.lost || '…'); }
+    return false;
+  }
+
   async function load() {
     try { info = await (await fetch('/camera/info', { cache: 'no-store' })).json(); } catch (e) { setTimeout(load, 2000); return; }
     W = info.words || {};
     words();
     if (!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       show('secure');
+      if (/Android/.test(navigator.userAgent || '')) $('no_proceed').textContent = (W.no_proceed || '').replace('{address}', location.origin);
       if (info.secure_port) {
-        $('secure_go').href = 'https://' + location.hostname + ':' + info.secure_port + '/camera';
+        $('secure_go').href = 'https://' + location.hostname + ':' + info.secure_port + '/camera' + (secret ? '#pair=' + encodeURIComponent(secret) : '');
       } else {
         $('secure_go').classList.add('hidden');
         $('secure_off').classList.remove('hidden');
       }
+      return;
+    }
+    if (!info.paired && secret) {
+      show('pair');
+      $('pair_body').textContent = W.pairing || '';
+      if (await pairWithSecret()) { load(); }
       return;
     }
     if (!info.paired) {
@@ -120,15 +158,18 @@
 
   $('connect').onclick = async () => {
     $('pair_error').classList.add('hidden');
+    if (secret) { if (await pairWithSecret()) load(); return; }
     try {
       const r = await fetch('/remote/pair', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin: $('pin').value.trim(), password: $('password').value, name: W.title || 'Phone camera' }) });
+        body: JSON.stringify({ pin: $('pin').value.trim(), password: $('password').value, name: deviceName() }) });
       const j = await r.json().catch(() => ({}));
       if (r.ok && j.ok) { load(); return; }
-      $('pair_error').textContent = j.error || ('' + r.status);
-    } catch (e) { $('pair_error').textContent = W.lost || '…'; }
-    $('pair_error').classList.remove('hidden');
+      pairError(j.error || ('' + r.status));
+    } catch (e) { pairError(W.lost || '…'); }
   };
+
+  // While the page is open and not sending, it says so every few seconds: Settings then shows "Phone connected".
+  setInterval(() => { if (info && info.paired && !running && document.visibilityState === 'visible') fetch('/camera/info', { cache: 'no-store' }).catch(() => {}); }, 5000);
 
   function cameraName() {
     const n = $('name').value.trim().slice(0, 40) || W.title || 'Phone camera';

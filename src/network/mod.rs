@@ -9,6 +9,7 @@ pub mod websocket;
 pub mod password;
 pub mod stage_view;
 pub mod phone_mic;
+pub mod phone_link;
 pub mod live_anim;
 pub mod tcp;
 #[path = "../strings/network.rs"]
@@ -54,6 +55,12 @@ pub struct NetState {
     pub(crate) tries: Mutex<HashMap<IpAddr, Instant>>,
     /// The port the phone pages are served on over https (`https`, for the phone camera), once they are.
     pub(crate) https: Mutex<Option<u16>>,
+    /// Why the https server is not running, once it tried (`phone_link::Health`).
+    pub(crate) https_problem: Mutex<Option<String>>,
+    /// The one-time codes Settings shows for the phone camera and microphone (`phone_link`), and what each page last
+    /// heard from a phone.
+    pub(crate) links: Mutex<[Option<phone_link::Link>; 2]>,
+    pub(crate) seen: Mutex<[Option<phone_link::Seen>; 2]>,
 }
 
 impl NetState {

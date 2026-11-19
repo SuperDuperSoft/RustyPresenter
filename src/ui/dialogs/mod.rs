@@ -32,6 +32,7 @@ pub mod settings_look;
 pub mod settings_media;
 pub mod settings_record;
 pub mod settings_sound;
+pub mod settings_phone;
 pub mod settings_sections;
 pub mod settings_themes;
 pub mod settings_find;

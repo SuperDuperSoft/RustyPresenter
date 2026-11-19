@@ -1196,7 +1196,7 @@ msgstr "戻る"
 msgid "Next"
 msgstr "次へ"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/songselect.slint ui/widgets.slint
+#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/settings-phone.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "閉じる"
 
@@ -1611,7 +1611,7 @@ msgstr "アドレス: "
 msgid "Pair a phone or tablet"
 msgstr "スマホやタブレットをつなぐ"
 
-#: ui/dialogs/phone.slint
+#: ui/dialogs/phone.slint ui/dialogs/settings-phone.slint
 msgid "QR code"
 msgstr "QR コード"
 
@@ -2583,6 +2583,22 @@ msgstr "ロゴを選択"
 msgid "Default background"
 msgstr "既定の背景"
 
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow. Or open:"
+msgstr "スマホのカメラで読み取り、「許可」をタップします。または次を開きます:"
+
+#: ui/dialogs/settings-phone.slint
+msgid "The first time, the phone warns the page is not private (it comes from this computer): on Android tap Advanced → Proceed; on an iPhone tap Show Details → visit this website."
+msgstr "初回は、ページが安全ではないとスマホが警告します（このコンピューターから来るページのためです）。Android では「詳細設定」→「アクセスする」、iPhone では「詳細を表示」→「この Web サイトを閲覧」をタップします。"
+
+#: ui/dialogs/settings-phone.slint
+msgid "Show the QR code"
+msgstr "QR コードを表示"
+
+#: ui/dialogs/settings-phone.slint
+msgid "Scan this with the phone's camera, then tap Allow."
+msgstr "スマホのカメラで読み取り、「許可」をタップします。"
+
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Use your phone or tablet as a remote"
 msgstr "スマホやタブレットをリモコンとして使う"
@@ -2676,44 +2692,48 @@ msgid "Open this address on the singer's iPad or phone (same Wi-Fi as this compu
 msgstr "歌い手の iPad やスマホでこのアドレスを開いてください（このコンピューターと同じ Wi-Fi に接続）。"
 
 #: ui/dialogs/settings-remote.slint
-msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
-msgstr "教会のWi-Fiにつないだスマホを、配信のカメラやマイクにできます。初めてのとき、スマホに「このページは安全ではありません」と出ますが、ページがこのコンピューターから来ているためで、問題ありません。「詳細設定」（iPhoneでは「詳細を表示」）を押してページに進んでください。スマホは画面をつけたまま、充電しながら使ってください。"
+msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. Scan its code with the phone's camera: that opens the page and connects the phone, with no code to type. Keep the phone awake and plugged in."
+msgstr "教会の Wi-Fi につながったスマホを、ライブ配信のカメラやマイクにできます。スマホのカメラでコードを読み取るだけで、ページが開いてスマホがつながります。コードを打つ必要はありません。スマホは画面を消さず、充電につないでおいてください。"
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a camera"
 msgstr "スマホをカメラに"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
-msgstr "先に「スマホやタブレットをつなぐ」でスマホをつないでください。映像を送り始めると、カメラの一覧に「スマホのカメラ」と出ます。"
+msgid "Scanning the code connects the phone. Once it sends its picture, the camera lists call it Phone camera."
+msgstr "コードを読み取るとスマホがつながります。映像を送り始めると、カメラの一覧では「スマホのカメラ」と表示されます。"
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open:"
-msgstr "スマホで次を開きます:"
+msgid "The phone camera's QR code"
+msgstr "スマホのカメラの QR コード"
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose it in Settings → Livestream → Cameras"
 msgstr "そのあと「設定 → ライブ配信 → カメラ」で選びます"
 
-#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs src/ui/dialogs/settings_phone.rs
 msgid "Phone as a microphone"
 msgstr "スマホをマイクに"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
-msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
-msgstr "牧師のピンマイクや、ケーブルなしの会場マイクに。先に「スマホのステージ画面」をオンにしてください。スマホのページはそこから来ます。"
+msgid "For a pastor's lapel or a room microphone without cables. Scanning the code connects the phone; then press Start on it."
+msgstr "牧師のピンマイクや、ケーブルなしの会場マイクに。コードを読み取るとスマホがつながります。そのあとスマホで「開始」を押します。"
 
 #: ui/dialogs/settings-remote.slint
-msgid "On the phone, open this page and press Start:"
-msgstr "スマホでこのページを開き、「開始」を押します:"
-
-#: ui/dialogs/settings-remote.slint
-msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
-msgstr "スマホのステージ画面がオフなので、スマホはまだこのページを開けません。"
+msgid "The phone microphone's QR code"
+msgstr "スマホのマイクの QR コード"
 
 #: ui/dialogs/settings-remote.slint
 msgid "Then choose Phone in Settings → Livestream → Sound"
 msgstr "そのあと「設定 → ライブ配信 → サウンド」で「スマホ」を選びます"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Let phones in"
+msgstr "スマホを通す"
+
+#: ui/dialogs/settings-remote.slint
+msgid "Windows asks for an administrator's OK, then lets RustyPresenter in on private and public networks."
+msgstr "Windows が管理者の許可を求め、そのあとプライベートとパブリックのネットワークで RustyPresenter を通します。"
 
 #: ui/dialogs/settings-remote.slint src/ui/dialogs/settings_find.rs
 msgid "Control from other gear (TCP)"
@@ -7346,6 +7366,74 @@ msgstr[0] "メディアライブラリから {n} 個のファイルを削除し�
 msgid "Sunday Service"
 msgstr "主日礼拝"
 
+#: src/network/phone_link.rs
+msgid "Waiting for a phone"
+msgstr "スマホを待っています"
+
+#: src/network/phone_link.rs
+msgid "Phone connected: {name}"
+msgstr "スマホがつながりました: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is connected"
+msgstr "スマホがつながっています"
+
+#: src/network/phone_link.rs
+msgid "Sending pictures: {name}"
+msgstr "映像を送信中: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is sending pictures"
+msgstr "スマホが映像を送信中"
+
+#: src/network/phone_link.rs
+msgid "Sending sound: {name}"
+msgstr "音声を送信中: {name}"
+
+#: src/network/phone_link.rs
+msgid "A phone is sending sound"
+msgstr "スマホが音声を送信中"
+
+#: src/network/phone_link.rs
+msgid "The secure server is starting…"
+msgstr "安全なサーバーを起動中…"
+
+#: src/network/phone_link.rs
+msgid "The secure server isn't running: {why}"
+msgstr "安全なサーバーが動いていません: {why}"
+
+#: src/network/phone_link.rs
+msgid "port {port} is in use by another program. Close that program, or restart this computer."
+msgstr "ポート {port} がほかのプログラムに使われています。そのプログラムを閉じるか、このコンピューターを再起動してください。"
+
+#: src/network/phone_link.rs
+msgid "Windows keeps port {port} for itself. Restart this computer and try again."
+msgstr "Windows がポート {port} を自分用に確保しています。このコンピューターを再起動して、もう一度お試しください。"
+
+#: src/network/phone_link.rs
+msgid "port {port} cannot be used ({error})."
+msgstr "ポート {port} を使えません（{error}）。"
+
+#: src/network/phone_link.rs
+msgid "it could not make its certificate ({error})."
+msgstr "証明書を作れませんでした（{error}）。"
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out on this network (Windows calls it a public network). Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter on public networks (port {port})."
+msgstr "このコンピューターのファイアウォールがスマホを止めているかもしれません: このネットワーク（Windows はパブリック ネットワークと呼びます）では Windows ファイアウォールがスマホを入れません。「スマホを通す」をクリックするか、Windows セキュリティ → ファイアウォールで、パブリック ネットワークの RustyPresenter を許可してください（ポート {port}）。"
+
+#: src/network/phone_link.rs
+msgid "This computer's firewall may be blocking phones: Windows Firewall keeps them out. Click “Let phones in”, or in Windows Security → Firewall, allow RustyPresenter (port {port})."
+msgstr "このコンピューターのファイアウォールがスマホを止めているかもしれません: Windows ファイアウォールがスマホを入れません。「スマホを通す」をクリックするか、Windows セキュリティ → ファイアウォールで RustyPresenter を許可してください（ポート {port}）。"
+
+#: src/network/phone_link.rs
+msgid "This QR code was already used or is too old. Scan the code in RustyPresenter again (Settings → Remote and network → Phone camera and microphone)."
+msgstr "この QR コードは使用済みか、古すぎます。RustyPresenter でもう一度コードを読み取ってください（設定 → リモコンとネットワーク → スマホのカメラとマイク）。"
+
+#: src/network/phone_link.rs
+msgid "Type the remote's password (set in RustyPresenter's Settings → Remote and network)."
+msgstr "リモコンのパスワードを入力してください（RustyPresenter の 設定 → リモコンとネットワーク で設定したもの）。"
+
 #: src/platform/data_folder.rs
 msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
 msgstr "この RustyPresenter のコピーはデータを自分の隣の {wanted} に保存しますが、そのフォルダーは変更できません（ロックされた USB メモリーや CD かもしれません）。今は作業をこのコンピューターの {here} に保存します。アプリの隣に保存するには、RustyPresenter フォルダー全体を変更できる場所にコピーして、そこから開いてください。"
@@ -7357,6 +7445,14 @@ msgstr "RustyPresenter が zip ファイルの中から開かれたため、デ�
 #: src/platform/data_folder.rs
 msgid "macOS opened a locked copy of RustyPresenter, because it has not been moved since it was downloaded. For now your work is kept on this computer, in {here}. Close RustyPresenter. In Finder, drag RustyPresenter out of its folder (onto the Desktop, say) and back in again, or into Applications if it came from the .dmg file. Then open it again."
 msgstr "RustyPresenter はダウンロード後に移動されていないため、macOS がロックされたコピーを開きました。今は作業をこのコンピューターの {here} に保存します。RustyPresenter を閉じてください。Finder で RustyPresenter をフォルダーの外（デスクトップなど）にドラッグしてから元に戻すか、.dmg ファイルから入れた場合は「アプリケーション」にドラッグしてください。それからもう一度開いてください。"
+
+#: src/platform/firewall.rs
+msgid "Windows was not given the OK, so nothing changed."
+msgstr "Windows の許可が得られなかったため、何も変わっていません。"
+
+#: src/platform/firewall.rs
+msgid "Windows Firewall could not be changed. Ask whoever looks after this computer to let RustyPresenter in for private and public networks."
+msgstr "Windows ファイアウォールを変更できませんでした。このコンピューターの管理者に、プライベートとパブリックのネットワークで RustyPresenter を通すよう頼んでください。"
 
 #: src/platform/instance.rs src/ui/screens.rs
 msgid "The screens are not running."
@@ -8369,10 +8465,6 @@ msgid "A phone only lets a page use its camera when the page is private. Tap the
 msgstr "スマホでは、ページが安全な接続のときしかカメラを使えません。下のボタンをタップしてください。スマホに「この接続ではプライバシーが保護されません」と警告が出ますが、問題ありません。ページはインターネットからではなく、教会のコンピューターから来ているためです。"
 
 #: src/stream/phone_camera.rs
-msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
-msgstr "「詳細設定」（または「詳細を表示」）をタップし、「アクセスする」（または「この Web サイトを閲覧」）をタップしてください。スマホが覚えるので、これは一度だけで済みます。"
-
-#: src/stream/phone_camera.rs
 msgid "Open the camera page"
 msgstr "カメラのページを開く"
 
@@ -8385,12 +8477,12 @@ msgid "Connect this phone"
 msgstr "このスマホを接続"
 
 #: src/stream/phone_camera.rs
-msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
-msgstr "発表用コンピューターで「スマホ」、次に「スマホやタブレットをつなぐ」を押し、ここに6桁のコードを入力してください。"
+msgid "Scan the camera's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone). Or, on the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+msgstr "RustyPresenter でカメラの QR コードを読み取ってください（設定 → リモコンとネットワーク → スマホのカメラとマイク）。または、発表用コンピューターで「スマホ」→「スマホやタブレットをつなぐ」をクリックし、ここに 6桁のコードを入力します。"
 
 #: src/stream/phone_camera.rs
-msgid "6-digit code"
-msgstr "6桁のコード"
+msgid "Connecting this phone…"
+msgstr "このスマホをつないでいます…"
 
 #: src/stream/phone_camera.rs
 msgid "Like Balcony or Side. The computer lists this phone by this name."
@@ -8420,7 +8512,7 @@ msgstr "コンピューターに送信中"
 msgid "Connecting to the computer…"
 msgstr "コンピューターに接続中…"
 
-#: src/stream/phone_camera.rs
+#: src/stream/phone_camera.rs src/stream/phone_mic.rs
 msgid "The computer cannot be reached. Trying again…"
 msgstr "コンピューターに接続できません。再試行中…"
 
@@ -8448,6 +8540,18 @@ msgstr "コンピューターの「設定 → ライブ配信 → カメラ」�
 msgid "This computer is not on a network, so no phone can reach it."
 msgstr "このコンピューターはネットワークにつながっていないため、スマホから接続できません。"
 
+#: src/stream/phone_camera.rs
+msgid "Android (Chrome): tap Advanced, then Proceed. iPhone (Safari): tap Show Details, then visit this website, then Visit Website. The phone remembers it, so this is only needed once."
+msgstr "Android（Chrome）:「詳細設定」→「アクセスする」をタップします。iPhone（Safari）:「詳細を表示」→「この Web サイトを閲覧」→「Web サイトを閲覧」をタップします。スマホが覚えるので、これは一度だけで済みます。"
+
+#: src/stream/phone_camera.rs
+msgid "No Proceed button? In Chrome on Android, open chrome://flags, search for \"insecure origins\", turn on \"Insecure origins treated as secure\", type {address} in its box, tap Relaunch, then open this page again."
+msgstr "「アクセスする」がない場合: Android の Chrome で chrome://flags を開き、\"insecure origins\" を検索して \"Insecure origins treated as secure\" をオンにし、欄に {address} と入力して Relaunch をタップし、このページを開き直します。"
+
+#: src/stream/phone_camera.rs
+msgid "6-digit code"
+msgstr "6桁のコード"
+
 #: src/stream/phone_mic.rs
 msgid "Phone microphone (open its page on the phone)"
 msgstr "スマホのマイク（スマホでそのページを開いてください）"
@@ -8469,16 +8573,20 @@ msgid "Sending, but the stream is not using this phone yet. Choose \"Phone micro
 msgstr "送信中ですが、配信はまだこのスマホを使っていません。「設定 → ライブ配信 → サウンド」で\"スマホのマイク\"を選んでから配信を始めてください。"
 
 #: src/stream/phone_mic.rs
-msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
-msgstr "スマホでは、安全なページでしかマイクを使えません。下の安全なページを開いてください。初回は「この接続ではプライバシーが保護されません」と警告が出るので、「詳細設定」（または「詳細を表示」）をタップしてページへ進んでください。"
+msgid "The phone only lets a secure page use its microphone. Open the secure page below. The first time, the phone warns that the connection is not private: that is expected, because the page comes from your church's own computer."
+msgstr "スマホは安全なページにしかマイクを使わせません。下の安全なページを開いてください。初回は、接続が安全ではないとスマホが警告します。ページが教会のコンピューターから来ているためで、問題ありません。"
 
 #: src/stream/phone_mic.rs
 msgid "The phone did not let the page use its microphone. Allow it in the browser's settings for this page, then try again."
 msgstr "スマホがこのページにマイクの使用を許可しませんでした。ブラウザーの設定でこのページに許可してから、もう一度お試しください。"
 
 #: src/stream/phone_mic.rs
-msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
-msgstr "RustyPresenterでスマホのステージ画面をオンにして（設定 → リモコンとネットワーク）、先にこのスマホでそこにログインしてください。"
+msgid "Connect this phone first: scan the microphone's QR code in RustyPresenter (Settings → Remote and network → Phone camera and microphone), or type the 6-digit code from Phone → Pair a phone or tablet."
+msgstr "まずこのスマホをつないでください: RustyPresenter でマイクの QR コードを読み取るか（設定 → リモコンとネットワーク → スマホのカメラとマイク）、「スマホ」→「スマホやタブレットをつなぐ」の 6桁のコードを入力します。"
+
+#: src/stream/phone_mic.rs
+msgid "Connected. Tap Start, then Allow when the phone asks for the microphone."
+msgstr "つながりました。「開始」をタップし、スマホがマイクについて聞いてきたら「許可」をタップします。"
 
 #: src/stream/preflight.rs
 msgid "Camera {n} ({camera}) is not connected. Check its cable, or choose it again in Settings → Livestream → Cameras. The stream shows the slides in its place."
@@ -12623,6 +12731,14 @@ msgstr "自動追従には音声モデル ({size}) が必要です。今すぐ�
 msgid "Not now"
 msgstr "後で"
 
+#: src/ui/dialogs/settings_phone.rs
+msgid "Waiting for Windows…"
+msgstr "Windows を待っています…"
+
+#: src/ui/dialogs/settings_phone.rs
+msgid "Done: phones can now reach RustyPresenter through Windows Firewall."
+msgstr "完了: スマホが Windows ファイアウォールを通って RustyPresenter に届くようになりました。"
+
 #: src/ui/dialogs/settings_record.rs
 msgid "The output the app plays its sound to"
 msgstr "アプリが音を鳴らしている出力"
@@ -13498,6 +13614,36 @@ msgstr "yt-dlp は動画を保存しませんでした"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "メディアファイルではありません"
+
+#~ msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
+#~ msgstr "教会のWi-Fiにつないだスマホを、配信のカメラやマイクにできます。初めてのとき、スマホに「このページは安全ではありません」と出ますが、ページがこのコンピューターから来ているためで、問題ありません。「詳細設定」（iPhoneでは「詳細を表示」）を押してページに進んでください。スマホは画面をつけたまま、充電しながら使ってください。"
+
+#~ msgid "Pair the phone with Pair a phone or tablet first. Once it sends its picture, the camera lists call it Phone camera."
+#~ msgstr "先に「スマホやタブレットをつなぐ」でスマホをつないでください。映像を送り始めると、カメラの一覧に「スマホのカメラ」と出ます。"
+
+#~ msgid "On the phone, open:"
+#~ msgstr "スマホで次を開きます:"
+
+#~ msgid "For a pastor's lapel or a room microphone without cables. Turn on the stage screen on phones first: the phone's page comes from there."
+#~ msgstr "牧師のピンマイクや、ケーブルなしの会場マイクに。先に「スマホのステージ画面」をオンにしてください。スマホのページはそこから来ます。"
+
+#~ msgid "On the phone, open this page and press Start:"
+#~ msgstr "スマホでこのページを開き、「開始」を押します:"
+
+#~ msgid "The stage screen on phones is off, so the phone cannot reach this page yet."
+#~ msgstr "スマホのステージ画面がオフなので、スマホはまだこのページを開けません。"
+
+#~ msgid "Tap Advanced (or Show Details), then Proceed (or Visit this website). The phone remembers it, so this is only needed once."
+#~ msgstr "「詳細設定」（または「詳細を表示」）をタップし、「アクセスする」（または「この Web サイトを閲覧」）をタップしてください。スマホが覚えるので、これは一度だけで済みます。"
+
+#~ msgid "On the presentation computer, click Phone, then Pair a phone or tablet, and type the 6-digit code here."
+#~ msgstr "発表用コンピューターで「スマホ」、次に「スマホやタブレットをつなぐ」を押し、ここに6桁のコードを入力してください。"
+
+#~ msgid "The phone only lets a secure page use its microphone. Open the secure page below; the first time, the phone warns that it is not private: tap Advanced (or Show Details) and go on to it."
+#~ msgstr "スマホでは、安全なページでしかマイクを使えません。下の安全なページを開いてください。初回は「この接続ではプライバシーが保護されません」と警告が出るので、「詳細設定」（または「詳細を表示」）をタップしてページへ進んでください。"
+
+#~ msgid "Turn on the stage screen on phones in RustyPresenter (Settings → Remote and network), and sign in to it on this phone first."
+#~ msgstr "RustyPresenterでスマホのステージ画面をオンにして（設定 → リモコンとネットワーク）、先にこのスマホでそこにログインしてください。"
 
 #~ msgid "Drag onto another panel: beside it, or in its middle to share its place as a tab"
 #~ msgstr "別のパネルにドラッグ：その横に置くか、真ん中に置いてタブとして場所を分け合います"

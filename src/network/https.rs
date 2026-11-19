@@ -30,7 +30,7 @@ pub struct Kept {
 }
 
 impl Kept {
-    fn cert_der(&self) -> Option<Vec<u8>> { unhex(&self.cert) }
+    pub(crate) fn cert_der(&self) -> Option<Vec<u8>> { unhex(&self.cert) }
     fn key_der(&self) -> Option<Vec<u8>> { unhex(&self.key) }
 }
 
@@ -177,14 +177,34 @@ pub fn lan_ip() -> Option<IpAddr> {
     s.local_addr().ok().map(|a| a.ip()).filter(|ip| !ip.is_unspecified())
 }
 
-/// Serves the phone pages over https on `port` until the app ends; says why when it cannot. Runs on a tokio runtime.
-pub async fn serve(app: Arc<App>, port: u16) {
+/// How often the port is tried again while another program holds it.
+const RETRY: Duration = Duration::from_secs(5);
+
+/// Serves the phone pages over https on `port` until the app ends. When it cannot, it says why where Settings shows
+/// it (`phone_link::Health`) and, while the port is taken, tries again every few seconds. Runs on a tokio runtime.
+pub async fn serve(app: Arc<App>, port: u16) { serve_trying(app, port, RETRY).await }
+
+async fn serve_trying(app: Arc<App>, port: u16, retry: Duration) {
+    use super::phone_link::{port_problem, set_secure_problem, tr};
     let ips: Vec<IpAddr> = std::iter::once(IpAddr::from([127, 0, 0, 1])).chain(lan_ip()).collect();
     let dir = app.store.root.clone();
     let made = tokio::task::spawn_blocking(move || certificate(&dir, &ips, chrono::Utc::now().timestamp()).and_then(|k| tls_config(&k))).await;
-    let config = match made { Ok(Ok(c)) => c, Ok(Err(e)) => return eprintln!("https: no certificate: {e}"), Err(e) => return eprintln!("https: {e}") };
-    let tcp = match tokio::net::TcpListener::bind(("0.0.0.0", port)).await { Ok(t) => t, Err(e) => return eprintln!("https: port {port} cannot be used: {e}") };
-    let listener = match TlsListener::new(tcp, config) { Ok(l) => l, Err(e) => return eprintln!("https: {e}") };
+    let config = match made.map_err(|e| e.to_string()).and_then(|r| r) {
+        Ok(c) => c,
+        Err(e) => { eprintln!("https: no certificate: {e}"); return set_secure_problem(&app, Some(tr::no_certificate(&e))) }
+    };
+    let tcp = loop {
+        match tokio::net::TcpListener::bind(("0.0.0.0", port)).await {
+            Ok(t) => break t,
+            Err(e) => {
+                eprintln!("https: port {port} cannot be used: {e}");
+                set_secure_problem(&app, Some(port_problem(port, &e)));
+                tokio::time::sleep(retry).await;
+            }
+        }
+    };
+    let listener = match TlsListener::new(tcp, config) { Ok(l) => l, Err(e) => { eprintln!("https: {e}"); return set_secure_problem(&app, Some(port_problem(port, &e))) } };
+    set_secure_problem(&app, None);
     *app.net.https.lock().unwrap() = Some(port);
     let svc = crate::server::router(app.clone()).into_make_service_with_connect_info::<SocketAddr>();
     if let Err(e) = axum::serve(listener.tap_io(|_| {}), svc).await { eprintln!("https stopped: {e}") }
@@ -228,6 +248,31 @@ mod tests {
         let again = certificate(&dir, &[a], now).unwrap();
         assert_ne!(certificate(&dir, &[a], now + (LASTS_DAYS - RENEW_DAYS + 1) * 86400).unwrap(), again, "about to run out");
         assert!(LASTS_DAYS <= 825, "Apple phones refuse longer");
+    }
+
+    /// Another program holds the secure port: Settings says so in plain words, and the server starts by itself once
+    /// the port is free.
+    #[tokio::test]
+    async fn a_taken_port_is_reported_and_tried_again() {
+        use crate::network::phone_link::{Kind, health};
+        use crate::platform::firewall::Firewall;
+        let app = crate::network::phone_link::tests::app_on_network();
+        let blocker = std::net::TcpListener::bind(("0.0.0.0", 0)).unwrap();
+        let port = blocker.local_addr().unwrap().port();
+        tokio::spawn(serve_trying(app.clone(), port, Duration::from_millis(200)));
+        let began = std::time::Instant::now();
+        let mut seen = String::new();
+        while began.elapsed() < Duration::from_secs(20) {
+            seen = health(&app, Kind::Camera, Firewall::Open).text(Kind::Camera, port);
+            if seen.contains("in use") { break }
+            tokio::time::sleep(Duration::from_millis(50)).await;
+        }
+        assert_eq!(seen, format!("The secure server isn't running: port {port} is in use by another program. Close that program, or restart this computer."));
+        assert!(health(&app, Kind::Mic, Firewall::Open).problem());
+        drop(blocker);
+        while app.net.https.lock().unwrap().is_none() && began.elapsed() < Duration::from_secs(20) { tokio::time::sleep(Duration::from_millis(50)).await }
+        assert_eq!(*app.net.https.lock().unwrap(), Some(port), "running once the port is free");
+        assert!(!health(&app, Kind::Camera, Firewall::Open).problem());
     }
 
     #[tokio::test]

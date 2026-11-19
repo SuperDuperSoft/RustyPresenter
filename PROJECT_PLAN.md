@@ -1916,3 +1916,45 @@ Jake: "All releases should have one for each [Windows, Mac, Linux] and a portabl
   Linux packages have never been built. Not tried by a person: the warning boxes, a real locked USB stick, a
   translocated Mac app (and whether dragging the app out and back clears it on current macOS), the Linux launcher on
   a real distro.
+
+### November 18, 2026 — Phone camera and microphone made easy (branch `phone-qr2`)
+
+Jake: "I can't get the phone as a microphone or phone as a camera to work. Can you add a QR code to that as well?"
+Design and the causes found: `docs/superpowers/specs/2026-11-18-phone-camera-mic-qr-design.md`.
+
+- **Causes found and fixed:** Windows Firewall rules for the installed app allowed it on Private networks only (on
+  this PC too; church Wi-Fi is often Public), with nothing saying so; Settings showed the camera's plain http page
+  (an extra hop); the camera needed the 6-digit code from another dialog; the microphone needed "Show the stage
+  screen to phones" (off by default, a dead end when off); the microphone page started its sound after waiting
+  (iPhones stay silent) and asked for 48 kHz (Firefox refuses), and never resumed after an iPhone interruption; the
+  secure server's failures went to a hidden console and it gave up when its port was taken; only 5 phones stayed
+  paired (now 16). The hand-made certificate was checked strictly (openssl, live handshake, Chromium says the
+  bypassable `ERR_CERT_AUTHORITY_INVALID`) and is fine.
+- **Built:** `src/network/phone_link.rs` (QR links `https://<ip>:4320/camera#pair=…` and `/stage-view/mic#pair=…`,
+  one-time secrets, `POST /phone/pair`, the health lines), `src/platform/firewall.rs` (Windows Firewall check through
+  INetFwMgr::IsPortAllowed, "Let phones in" through netsh as administrator), `src/ui/dialogs/settings_phone.rs` +
+  `ui/dialogs/settings-phone.slint` (QR codes, live lines, "Let phones in", the big "Show the QR code" window),
+  the phone pages (`web/camera.html`, `web/phone-mic.html`: read and wipe `#pair=`, pair, iPhone sound fixes,
+  Android/iPhone "not private" steps and the Chrome flag fallback), the https server's retry and plain problems,
+  and the installer's finish page box "Let phones on the Wi-Fi reach RustyPresenter" (`rustypresenter.nsi`).
+- **Edits in shared files (for the merge):** `src/server.rs`: the end of `remote_pair` moved into
+  `pub(crate) fn add_phone(app, name)` (same behaviour), and one `.merge(crate::network::phone_link::routes())` in
+  `router`. `src/network/mod.rs`: `pub mod phone_link;` and three fields at the end of `NetState` (`https_problem`,
+  `links`, `seen`). `src/network/https.rs`: `serve` retries and reports; `Kept::cert_der` is `pub(crate)`.
+  `src/network/phone_mic.rs`: `may_send` (paired phone or stage view), more fields in `/stage-view/mic/status`.
+  `src/network/phone_camera.rs`: the Settings address is the https one; records what the page sent. `src/app.rs`:
+  `MAX_PHONES` 5 → 16. `Cargo.toml`: features only (windows `Win32_NetworkManagement_WindowsFirewall`,
+  `Win32_System_Ole`; windows-sys `Win32_UI_Shell`), no new crate. `ui/app.slint`: one export line.
+  `ui/dialogs/settings-remote.slint`: the Phone camera and microphone page. Endpoints unchanged for phones already
+  paired and the Android app; `/phone/pair` is new.
+- **Tests:** a phone played over the app's real https server and certificate: the camera's QR link, its page,
+  one-scan pairing, the code used up and replaced, a JPEG over wss reaching the camera feed's pictures; the
+  microphone paired by its code with the stage view off and its sound reaching the input; the remote's password with
+  a code; the health lines in order; a taken https port reported in plain words and tried again until free; the
+  Settings page's codes, lines and big window; the firewall command and Windows' answer. Full run: 3,675 of 3,676
+  library tests pass; `record::run::tests::hold_keeps_the_picture_until_it_is_let_go` failed under load and passed
+  run alone (FFmpeg timing); `i18n_catalogs`, `cleanup`, `words` pass. The 39 new texts are in all 13 languages.
+- **Not verified by a person (needs a real phone):** the warning pages and their words on real Android Chrome and
+  iPhone Safari, Allow for the camera and microphone, wss after Proceed on a phone, the iPhone microphone after a
+  screen lock, the Chrome flag fallback, and "Let phones in" / the installer box with a real administrator OK on a
+  public network.

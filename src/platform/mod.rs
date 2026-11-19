@@ -3,6 +3,7 @@ pub mod awake;
 pub mod data_folder;
 pub mod dialog;
 pub mod disk;
+pub mod firewall;
 pub mod instance;
 pub mod monitors;
 pub mod ports;

@@ -1,5 +1,6 @@
 //! The phone as a microphone for the stream (`stream::phone_mic`): its page at `/stage-view/mic`, and where the
-//! page sends its sound. Same access and password as the stage view (and the camera tally page).
+//! page sends its sound. A paired phone may send (scanning the QR code in Settings pairs it, `phone_link`), and so may
+//! a phone allowed to see the stage view (as before November 18).
 use super::stage_view::allowed;
 use crate::{app::App, stream::phone_mic::{self, tr}};
 use axum::{
@@ -28,15 +29,26 @@ async fn page() -> Response {
     ([(header::CONTENT_TYPE, "text/html; charset=utf-8"), (header::CACHE_CONTROL, "no-store")], include_str!("../../web/phone-mic.html")).into_response()
 }
 
-/// The page's words, whether this phone may send, and the secure address of the page (for the microphone).
+/// Whether this phone may send sound: it is paired, or it may see the stage view.
+pub fn may_send(app: &App, headers: &HeaderMap) -> bool { crate::server::phone_for(app, headers).is_some() || allowed(app, headers) }
+
+/// The page's words, whether this phone may send (and whether pairing asks for the remote's password), and the
+/// secure address of the page (for the microphone). The page asks every few seconds: Settings shows it connected.
 async fn status(State(app): State<Arc<App>>, headers: HeaderMap) -> Response {
     let host = headers.get(header::HOST).and_then(|h| h.to_str().ok()).unwrap_or("");
-    let secure = Some(super::https::port_for(app.port)).map(|p| secure_url(host, p)).unwrap_or_default();
-    Json(json!({
-        "allowed": allowed(&app, &headers), "taken": phone_mic::taken(), "secure_url": secure,
+    let secure = secure_url(host, super::phone_link::secure_port(&app));
+    let may = may_send(&app, &headers);
+    if may { super::phone_link::saw(&app, super::phone_link::Kind::Mic, super::phone_link::phone_name(&app, &headers)) }
+    let password = app.data.lock().unwrap().settings.network.remote_password.is_some();
+    ([(header::CACHE_CONTROL, "no-store")], Json(json!({
+        "allowed": may, "paired": crate::server::phone_for(&app, &headers).is_some(), "password": password,
+        "taken": phone_mic::taken(), "secure_url": secure,
         "words": { "title": tr::title(), "start": tr::start(), "stop": tr::stop(), "sending": tr::sending(), "not_taken": tr::not_taken(),
-            "needs_secure": tr::needs_secure(), "no_microphone": tr::no_microphone(), "needs_stage_view": tr::needs_stage_view() },
-    })).into_response()
+            "needs_secure": tr::needs_secure(), "secure_how": crate::stream::phone_camera::tr::secure_how(), "no_proceed": crate::stream::phone_camera::tr::no_proceed(), "no_microphone": tr::no_microphone(),
+            "needs_stage_view": tr::needs_pairing(), "needs_pairing": tr::needs_pairing(), "code": crate::stream::phone_camera::tr::code(),
+            "password": crate::stream::phone_camera::tr::password(), "connect": crate::stream::phone_camera::tr::connect(), "lost": tr::lost(),
+            "tap_start": tr::tap_start() },
+    }))).into_response()
 }
 
 /// `https://<host>:<port>/stage-view/mic` for the host the phone typed (its port left out).
@@ -51,7 +63,8 @@ struct Ask { rate: Option<u32> }
 /// A piece of the phone's sound: 16-bit mono numbers at `rate`.
 async fn sound(State(app): State<Arc<App>>, headers: HeaderMap, Query(q): Query<Ask>, body: Bytes) -> Response {
     if !super::stage_view::same_origin(&headers) { return StatusCode::FORBIDDEN.into_response() }
-    if !allowed(&app, &headers) { return (StatusCode::FORBIDDEN, Json(json!({ "allowed": false, "text": tr::needs_stage_view() }))).into_response() }
+    if !may_send(&app, &headers) { return (StatusCode::FORBIDDEN, Json(json!({ "allowed": false, "text": tr::needs_pairing() }))).into_response() }
+    super::phone_link::sent(&app, super::phone_link::Kind::Mic, super::phone_link::phone_name(&app, &headers));
     let taken = phone_mic::hand_in(q.rate.unwrap_or(48_000), &body);
     Json(json!({ "allowed": true, "taken": taken, "text": if taken { tr::sending() } else { tr::not_taken() } })).into_response()
 }
@@ -74,7 +87,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn only_a_phone_allowed_to_see_the_stage_view_may_send_sound() {
+    async fn only_a_paired_phone_or_one_allowed_to_see_the_stage_view_may_send_sound() {
         let _turn = phone_mic::TEST_TURN.lock().unwrap_or_else(|e| e.into_inner());
         let app = test_app();
         let pcm: Vec<u8> = [100i16, -100].iter().flat_map(|s| s.to_le_bytes()).collect();
