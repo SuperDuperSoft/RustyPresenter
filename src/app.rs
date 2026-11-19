@@ -1848,6 +1848,7 @@ impl App {
         a if crate::transfer::handles(a) => crate::transfer::run(app, a, body).await,
         a if crate::media_care::handles(a) => crate::media_care::run(app, a, body).await,
         a if crate::network::actions::handles(a) => crate::network::actions::run(app, a, body).await,
+        a if crate::song_edit::actions::handles(a) => crate::song_edit::actions::run(app, a, body).await,
         // Themes, backgrounds, overlays and the logo (FEAT-1): `theme::actions` lists them.
         a => match crate::theme::actions::run(app, a, body).await {
             Some(r) => r,

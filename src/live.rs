@@ -372,6 +372,9 @@ pub struct Live {
     next_inst: u64,
     history: VecDeque<Snapshot>,
     seen: VecDeque<(String, Outcome)>,
+    /// A song's order changed from the Slides panel (`song_edit`): the item and where each part as it played went
+    /// (old played place → new), so `reconcile` keeps the live part live. Used once.
+    pub order_hint: Option<(Uuid, Vec<Option<usize>>)>,
 }
 
 const HISTORY: usize = 32;
@@ -385,7 +388,7 @@ impl Live {
     pub fn new() -> Self {
         let mut l = Self { version: 0, frame: Frame::default(), cursor: None, item: None, committed_version: 0, media_status: None,
             audio_status: None, notice: None, restored_version: None, clear_epoch: 0, audio_clears: 0, changed: None, visual_version: 0, manual_version: 0,
-            origin: Origin::User, adopted: None, batch: None, drawing: Default::default(), keep_drawing: false, went: 0, theme_for: None, next_inst: 1, history: VecDeque::new(), seen: VecDeque::new() };
+            origin: Origin::User, adopted: None, batch: None, drawing: Default::default(), keep_drawing: false, went: 0, theme_for: None, next_inst: 1, history: VecDeque::new(), seen: VecDeque::new(), order_hint: None };
         l.remember();
         l
     }

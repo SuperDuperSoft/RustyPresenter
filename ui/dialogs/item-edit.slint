@@ -101,6 +101,11 @@ export global ItemEdit {
     callback order-reset();
     pure callback order-drag-data(int) -> data-transfer;
     pure callback order-drag-index(data-transfer) -> int;
+    /// A `+ <part>` button dropped on chip `at`, ⧉ on a chip, and the `+ <part>` buttons' drag payloads.
+    callback order-insert(string, int);
+    callback order-duplicate(int);
+    pure callback order-add-drag-data(string) -> data-transfer;
+    pure callback order-drag-label(data-transfer) -> string;
     /// Saves the strip as the song's usual order and drops this service's own.
     callback make-usual();
 
@@ -192,6 +197,10 @@ export component ItemEditDialog inherits VerticalLayout {
                 reset => { ItemEdit.order-reset(); }
                 drag-data(i) => { return ItemEdit.order-drag-data(i); }
                 drag-index(d) => { return ItemEdit.order-drag-index(d); }
+                insert(label, at) => { ItemEdit.order-insert(label, at); }
+                duplicate(i) => { ItemEdit.order-duplicate(i); }
+                add-drag-data(l) => { return ItemEdit.order-add-drag-data(l); }
+                drag-label(d) => { return ItemEdit.order-drag-label(d); }
             }
             if !ItemEdit.usual-order: HorizontalLayout {
                 alignment: start;

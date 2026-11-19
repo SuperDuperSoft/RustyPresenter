@@ -362,16 +362,6 @@ pub fn live_song(v: &LiveView) -> LiveSong {
     }
 }
 
-/// Edit words: the live song in the editor, the caret at the live section.
-fn edit_live_words(op: &Rc<Operator>) {
-    let Some((item_id, song_id, occurrence)) = op.state.borrow().live.as_ref().and_then(|l| {
-        let v = l.view();
-        let item = v.item.as_ref()?;
-        Some((item.item_id, item.song_id?, v.slide.as_ref().and_then(|s| s.section.as_ref()).map(|r| r.occurrence)))
-    }) else { return };
-    crate::ui::dialogs::song_editor::edit_live_words(op, item_id, song_id, occurrence);
-}
-
 /// Puts `cells` in `model` in place: rows that changed get their new data, and only a different number of rows
 /// resets it (the web rebuilds the rows every time, `renderTransport()`).
 fn put_cells(model: &VecModel<TransportCell>, cells: Vec<TransportCell>) {
@@ -419,7 +409,7 @@ pub(super) fn wire(op: &Rc<Operator>) {
     ui.on_live_song_action(move |a| {
         let Some(op) = me.upgrade() else { return };
         match a.as_str() {
-            "edit" => edit_live_words(&op),
+            "edit" => super::slide_edit::edit_live(&op),
             "update" => crate::ui::dialogs::song_editor::refresh_live(&op),
             _ => {}
         }

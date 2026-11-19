@@ -1916,3 +1916,36 @@ Jake: "All releases should have one for each [Windows, Mac, Linux] and a portabl
   Linux packages have never been built. Not tried by a person: the warning boxes, a real locked USB stick, a
   translocated Mac app (and whether dragging the app out and back clears it on current macOS), the Linux launcher on
   a real distro.
+
+### November 18, 2026 — Syllables and slide editing (branch `song-editing`)
+
+Jake, with a screenshot of "You've Already Won" from SongSelect's ChordPro: "notice there's a hyphen in 'defense'.
+There should not be." Then "Editing a song should be MUCH easier. There should be a way to just edit slides." and
+"It should be as easy as humanly possible to rearrange the song in any order you like." Design:
+`docs/superpowers/specs/2026-11-18-song-editing-design.md`.
+
+- **Split words joined** (`src/import/syllables.rs`): SongSelect's ` - ` syllable breaks (`de - [Db]fense`,
+  `righteous - [F#m]ness`, `a - gain`) are one word again when ChordPro is read (importer, SongSelect inbox, songs
+  folder), the chord kept where it falls (`de[Db]fense`). Real dashes stay (a capital or a non-letter after it, en/em
+  dashes, no spaces, a dash at a line's start or end). Songs already in the library are tidied at load only when they
+  still show SongSelect's sign (chords in the words and a break with a chord at it); each changed line is logged; a
+  song the church typed is never touched. The stage chord sheet keeps a word whole with the chord over its part
+  (`stage::chords::lay_out`; the phone's stage page the same way, `web/stage-view.js`).
+- **Slides edited in place** (`src/song_edit`, `src/ui/operator/slide_edit.rs`, `ui/operator/slide-editor.slint`):
+  double-click a song slide (or its pencil) and a small editor opens over the slides: the words without chords (the
+  chords go back over the same letters on Save; "Edit chords too" shows them as `[G]` marks; a chords-only slide
+  always shows them), the chords over the words as the band sees them, "Chorus plays 3 times… shows every time" for
+  repeats. Enter saves, Shift+Enter is a new line, Esc cancels. Right-click or ⋯: Edit words, Split here…, Join with
+  next, Add a slide after, Duplicate, Delete slide (asks first for a repeated part), Change section… (the names in
+  their colours; from this slide on the part is the chosen one: renamed on its first slide, split further in, the
+  orders follow), Move this part earlier/later, Edit the whole song… (the song editor at that slide). Edit words in
+  the Live panel opens the live slide the same way, with Save and show now. Each change is one `song/slides` step, so
+  Undo takes it back in one go.
+- **The order on the Slides panel**: chips to drag (onto a chip, End, ✕ Remove), ⧉ or D plays a part twice, `+ <part>`
+  buttons drag in between chips, Quick order ▾ (Chorus after every verse, Chorus again at the end), and a slide
+  dragged onto another moves its part. Changes are this service's own order; "Save as the usual order" and "Reset to the song's order".
+  The song editor and Item edit use the same chips. While the song is live the room never changes and the live part
+  stays live where it went (`Live::order_hint`, `sections::map_moved`); Next follows the new order.
+- **Song editor**: Add a part buttons (Verse, Chorus, Pre-chorus, Bridge, Tag, Ending, Intro (chords only)) put the
+  next free name after the part the cursor is in; a click on a preview slide puts the cursor at its words; the order's
+  `+ <part>` buttons are on the chips (drag them in); typing the order is still there.

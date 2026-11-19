@@ -1,0 +1,461 @@
+// Editing a song from its slides (November 18, 2026): the small editor that opens over the Slides panel when a slide
+// is double-clicked (or ✎, or Edit words in the Live panel), the slide's menu (right-click or ⋯), the section
+// chooser, and the song's order as chips right on the panel. The logic is in Rust (`src/ui/operator/slide_edit.rs`,
+// `src/song_edit`).
+import { Theme } from "../theme.slint";
+import { Btn, Icon } from "../widgets.slint";
+import { TextArea, Check } from "../dialogs/form.slint";
+import { ArrangementStrip, ArrChipRow, ArrAddRow } from "../dialogs/arrangement.slint";
+
+/// A name "Change section" offers, with its section kind for the colour.
+export struct SectionPick { name: string, kind: string }
+
+/// What the slide editor, the slide menu and the panel's order strip show, and what they ask Rust for. Written to
+/// every window (a panel can sit in a window of its own).
+export global SlideEdit {
+    // ---- the editor ----
+    in property <bool> open;
+    /// "Verse 1 · slide 2 of 3", and the part's section kind for its colour.
+    in property <string> heading;
+    in property <string> kind;
+    /// "Chorus plays 3 times in this song. Your change shows every time.", or "".
+    in property <string> note;
+    /// What the text box starts with; a new `serial` puts it in again (another slide, the chords shown or not).
+    in property <string> start-text;
+    in property <int> serial;
+    /// The slide has chords; they are shown as [G] marks to edit (else kept by themselves over the same words).
+    in property <bool> has-chords;
+    in property <bool> chords-mode;
+    /// The chords over the words, as the band sees them (words mode only).
+    in property <string> chord-view;
+    /// A line under the text box ("The chords stay over the same words…").
+    in property <string> hint;
+    /// A new slide (Add a slide after) rather than one already there.
+    in property <bool> adding;
+    /// The song is on screen: Save and show now.
+    in property <bool> live;
+    callback save(string, bool);
+    callback cancel();
+    /// Edit chords too ticked or not: Rust gives the text box's new text.
+    callback chords-toggled(bool, string) -> string;
+    /// Split here: the text and the caret (a byte offset).
+    callback split-at(string, int);
+    callback whole-song();
+
+    // ---- the slide menu ----
+    /// `action` on slide `idx`: "edit", "split", "join", "add", "delete", "duplicate", "section", "earlier",
+    /// "later", "song".
+    callback act(int, string);
+    /// Dragging a slide onto another moves its part there in the order.
+    pure callback drag-data(int) -> data-transfer;
+    pure callback drag-index(data-transfer) -> int;
+    callback dropped(int, int);
+
+    // ---- Change section ----
+    in property <bool> choosing;
+    in property <[SectionPick]> choices;
+    callback chose(string);
+    callback choose-cancel();
+
+    // ---- the order on the panel ----
+    in property <bool> order-shown;
+    in property <[ArrChipRow]> order-rows;
+    in property <int> order-count;
+    in property <bool> order-written;
+    in property <[ArrAddRow]> order-adds;
+    in-out property <int> order-selected: -1;
+    /// This service plays the song in its own order (not the song's usual one).
+    in property <bool> order-own;
+    in property <bool> has-chorus;
+    callback order-move(int, int);
+    callback order-remove(int);
+    callback order-add(string);
+    callback order-insert(string, int);
+    callback order-duplicate(int);
+    callback order-reset();
+    /// Save as the song's usual order / back to the song's usual order.
+    callback order-usual();
+    callback order-back();
+    /// 0: Chorus after every verse; 1: Chorus again at the end.
+    callback order-pattern(int);
+    pure callback order-drag-data(int) -> data-transfer;
+    pure callback order-drag-index(data-transfer) -> int;
+    pure callback order-add-drag-data(string) -> data-transfer;
+    pure callback order-drag-label(data-transfer) -> string;
+}
+
+/// The menu of a song slide, for a right-click (`ContextMenuArea` around it) and the ⋯ button.
+export component SlideMenuLine inherits Rectangle {
+    in property <string> text;
+    callback clicked();
+    height: 30px;
+    border-radius: 6px;
+    background: ta.has-hover ? Theme.raise : transparent;
+    accessible-role: button;
+    accessible-label: root.text;
+    accessible-action-default => { root.clicked(); }
+    ta := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+    Text {
+        x: 10px;
+        width: parent.width - 20px;
+        text: root.text;
+        color: Theme.text;
+        font-family: Theme.font;
+        font-size: 13px;
+        vertical-alignment: center;
+        overflow: elide;
+    }
+}
+
+/// The slide menu's lines, in a card (the ⋯ button's pop-up).
+export component SlideMenuCard inherits Rectangle {
+    in property <int> idx;
+    callback picked();
+    background: Theme.panel;
+    border-color: Theme.line;
+    border-width: 1px;
+    border-radius: 9px;
+    drop-shadow-blur: 24px;
+    drop-shadow-offset-y: 8px;
+    drop-shadow-color: Theme.shadow-dialog;
+    function go(a: string) { root.picked(); SlideEdit.act(root.idx, a); }
+    VerticalLayout {
+        padding: 5px;
+        spacing: 1px;
+        menu-edit := SlideMenuLine { text: @tr("Edit words"); clicked => { root.go("edit"); } }
+        menu-split := SlideMenuLine { text: @tr("Split here…"); clicked => { root.go("split"); } }
+        menu-join := SlideMenuLine { text: @tr("Join with next"); clicked => { root.go("join"); } }
+        menu-add := SlideMenuLine { text: @tr("Add a slide after"); clicked => { root.go("add"); } }
+        menu-duplicate := SlideMenuLine { text: @tr("Duplicate"); clicked => { root.go("duplicate"); } }
+        menu-delete := SlideMenuLine { text: @tr("Delete slide"); clicked => { root.go("delete"); } }
+        menu-section := SlideMenuLine { text: @tr("Change section…"); clicked => { root.go("section"); } }
+        menu-earlier := SlideMenuLine { text: @tr("Move this part earlier"); clicked => { root.go("earlier"); } }
+        menu-later := SlideMenuLine { text: @tr("Move this part later"); clicked => { root.go("later"); } }
+        menu-song := SlideMenuLine { text: @tr("Edit the whole song…"); clicked => { root.go("song"); } }
+    }
+}
+
+/// The same menu for a right-click on a slide: put it inside the slide's TouchArea.
+export component SlideContextMenu inherits Rectangle {
+    in property <int> idx;
+    ContextMenuArea {
+        Menu {
+            MenuItem { title: @tr("Edit words"); activated => { SlideEdit.act(root.idx, "edit"); } }
+            MenuItem { title: @tr("Split here…"); activated => { SlideEdit.act(root.idx, "split"); } }
+            MenuItem { title: @tr("Join with next"); activated => { SlideEdit.act(root.idx, "join"); } }
+            MenuItem { title: @tr("Add a slide after"); activated => { SlideEdit.act(root.idx, "add"); } }
+            MenuItem { title: @tr("Duplicate"); activated => { SlideEdit.act(root.idx, "duplicate"); } }
+            MenuItem { title: @tr("Delete slide"); activated => { SlideEdit.act(root.idx, "delete"); } }
+            MenuItem { title: @tr("Change section…"); activated => { SlideEdit.act(root.idx, "section"); } }
+            MenuItem { title: @tr("Move this part earlier"); activated => { SlideEdit.act(root.idx, "earlier"); } }
+            MenuItem { title: @tr("Move this part later"); activated => { SlideEdit.act(root.idx, "later"); } }
+            MenuItem { title: @tr("Edit the whole song…"); activated => { SlideEdit.act(root.idx, "song"); } }
+        }
+    }
+}
+
+/// The small editor over the slides: the slide's words (Enter saves, Shift+Enter starts a new line, Esc cancels).
+export component SlideEditor inherits Rectangle {
+    /// The editor closed (saved or not): the window takes the keyboard back.
+    callback done();
+    background: Theme.bg.with-alpha(0.82);
+
+    function save(show: bool) { SlideEdit.save(area.text, show); root.done(); }
+    function cancel() { SlideEdit.cancel(); root.done(); }
+
+    // Clicks beside the card do nothing (the slides under it stay as they are).
+    TouchArea { }
+    function fill() { area.text = SlideEdit.start-text; area.focus(); area.set-caret(0); }
+    init => { root.fill(); }
+    property <int> serial: SlideEdit.serial;
+    changed serial => { root.fill(); }
+
+    keys := FocusScope {
+        capture-key-pressed(e) => {
+            if e.text == Key.Escape { root.cancel(); return accept; }
+            if e.text == Key.Return && !e.modifiers.shift && !e.modifiers.control { root.save(false); return accept; }
+            reject
+        }
+        card := Rectangle {
+            x: 12px;
+            y: 8px;
+            width: parent.width - 24px;
+            // The whole height the slides have: the words box takes what the rest leaves, so the buttons always show.
+            height: parent.height - 16px;
+            background: Theme.panel;
+            border-color: Theme.line;
+            border-width: 1px;
+            border-radius: 12px;
+            drop-shadow-blur: 24px;
+            drop-shadow-offset-y: 8px;
+            drop-shadow-color: Theme.shadow-dialog;
+            lay := VerticalLayout {
+                padding: 14px;
+                spacing: 8px;
+                HorizontalLayout {
+                    spacing: 8px;
+                    Rectangle {
+                        width: self.preferred-width;
+                        border-radius: 6px;
+                        background: Theme.section-color(SlideEdit.kind);
+                        HorizontalLayout {
+                            padding-left: 8px;
+                            padding-right: 8px;
+                            editor-heading := Text {
+                                text: SlideEdit.heading;
+                                color: SlideEdit.kind != "" ? Theme.sec-ink : Theme.text;
+                                font-family: Theme.font;
+                                font-size: 13px;
+                                font-weight: 700;
+                                vertical-alignment: center;
+                            }
+                        }
+                    }
+                    Rectangle { horizontal-stretch: 1; }
+                    if SlideEdit.has-chords: chords-mode := Check {
+                        padding-bottom: 0px;
+                        text: @tr("Edit chords too");
+                        checked: SlideEdit.chords-mode;
+                        toggled(on) => { area.text = SlideEdit.chords-toggled(on, area.text); area.focus(); }
+                    }
+                }
+                if SlideEdit.note != "": editor-note := Text {
+                    text: SlideEdit.note;
+                    color: Theme.notice-text;
+                    font-family: Theme.font;
+                    font-size: 12.5px;
+                    wrap: word-wrap;
+                }
+                area := TextArea {
+                    min-height: 48px;
+                    vertical-stretch: 1;
+                    font-size: 17px;
+                    label: @tr("The slide’s words");
+                    placeholder: @tr("Type the words for this slide");
+                }
+                // The chords over the words, as the band reads them (cut short when it is long).
+                if !SlideEdit.chords-mode && SlideEdit.chord-view != "": Rectangle {
+                    height: min(chord-view.preferred-height + 16px, 120px);
+                    clip: true;
+                    border-radius: 8px;
+                    background: Theme.panel-2;
+                    chord-view := Text {
+                        x: 8px;
+                        y: 8px;
+                        width: parent.width - 16px;
+                        text: SlideEdit.chord-view;
+                        color: Theme.muted;
+                        font-family: "monospace";
+                        font-size: 12.5px;
+                        accessible-role: text;
+                        accessible-label: @tr("Chords");
+                    }
+                }
+                editor-hint := Text {
+                    text: SlideEdit.hint != "" ? SlideEdit.hint : @tr("Enter saves · Shift+Enter starts a new line · Esc cancels");
+                    color: Theme.faint;
+                    font-family: Theme.font;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    if !SlideEdit.adding: editor-split := Btn {
+                        small: true;
+                        text: @tr("Split here");
+                        tooltip: @tr("A new slide starts at the line the cursor is on");
+                        clicked => { SlideEdit.split-at(area.text, area.caret); root.done(); }
+                    }
+                    editor-song := Btn {
+                        small: true;
+                        text: @tr("Edit the whole song…");
+                        clicked => { SlideEdit.whole-song(); root.done(); }
+                    }
+                    Rectangle { horizontal-stretch: 1; }
+                    editor-cancel := Btn {
+                        text: @tr("Cancel");
+                        clicked => { root.cancel(); }
+                    }
+                    editor-save := Btn {
+                        text: SlideEdit.adding ? @tr("Add slide") : @tr("Save");
+                        primary: !SlideEdit.live;
+                        clicked => { root.save(false); }
+                    }
+                    if SlideEdit.live: editor-save-show := Btn {
+                        text: @tr("Save and show now");
+                        primary: true;
+                        clicked => { root.save(true); }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Change section: the names to choose from, each in its colour.
+export component SectionChooser inherits Rectangle {
+    callback done();
+    background: Theme.bg.with-alpha(0.82);
+    TouchArea { clicked => { SlideEdit.choose-cancel(); root.done(); } }
+    FocusScope {
+        init => { self.focus(); }
+        key-pressed(e) => {
+            if e.text == Key.Escape { SlideEdit.choose-cancel(); root.done(); return accept; }
+            reject
+        }
+        Rectangle {
+            x: 12px;
+            y: 8px;
+            width: min(parent.width - 24px, 360px);
+            height: col.preferred-height;
+            background: Theme.panel;
+            border-color: Theme.line;
+            border-width: 1px;
+            border-radius: 12px;
+            drop-shadow-blur: 24px;
+            drop-shadow-color: Theme.shadow-dialog;
+            TouchArea { }
+            col := VerticalLayout {
+                padding: 12px;
+                spacing: 6px;
+                Text {
+                    text: @tr("From this slide on, this part is:");
+                    color: Theme.text;
+                    font-family: Theme.font;
+                    font-size: 13px;
+                    font-weight: 600;
+                    wrap: word-wrap;
+                }
+                for c in SlideEdit.choices: choice := Rectangle {
+                    height: 30px;
+                    border-radius: 7px;
+                    background: Theme.section-color(c.kind);
+                    opacity: cta.has-hover ? 0.85 : 1;
+                    accessible-role: button;
+                    accessible-label: c.name;
+                    accessible-action-default => { SlideEdit.chose(c.name); root.done(); }
+                    Text {
+                        x: 10px;
+                        text: c.name;
+                        color: Theme.sec-ink;
+                        font-family: Theme.font;
+                        font-size: 13px;
+                        font-weight: 700;
+                        vertical-alignment: center;
+                    }
+                    cta := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { SlideEdit.chose(c.name); root.done(); }
+                    }
+                }
+                choose-cancel := Btn {
+                    small: true;
+                    text: @tr("Cancel");
+                    clicked => { SlideEdit.choose-cancel(); root.done(); }
+                }
+            }
+        }
+    }
+}
+
+/// The song's order right on the Slides panel: drag the chips, + a part to play it again, the quick patterns, and
+/// whether this service has its own order.
+export component OrderBar inherits VerticalLayout {
+    spacing: 6px;
+    HorizontalLayout {
+        spacing: 8px;
+        VerticalLayout {
+            alignment: start;
+            padding-top: 4px;
+            Text {
+                text: @tr("Order");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 12.5px;
+                font-weight: 600;
+            }
+        }
+        order-strip := ArrangementStrip {
+            horizontal-stretch: 1;
+            rows: SlideEdit.order-rows;
+            count: SlideEdit.order-count;
+            written: SlideEdit.order-written;
+            adds: SlideEdit.order-adds;
+            selected <=> SlideEdit.order-selected;
+            move(from, to) => { SlideEdit.order-move(from, to); }
+            remove(i) => { SlideEdit.order-remove(i); }
+            add(label) => { SlideEdit.order-add(label); }
+            insert(label, at) => { SlideEdit.order-insert(label, at); }
+            duplicate(i) => { SlideEdit.order-duplicate(i); }
+            reset => { SlideEdit.order-reset(); }
+            drag-data(i) => { return SlideEdit.order-drag-data(i); }
+            drag-index(d) => { return SlideEdit.order-drag-index(d); }
+            add-drag-data(l) => { return SlideEdit.order-add-drag-data(l); }
+            drag-label(d) => { return SlideEdit.order-drag-label(d); }
+            // On the strip's own row of buttons, so the order takes little room above the slides: the quick
+            // patterns are behind one button.
+            if SlideEdit.has-chorus: order-quick := Btn {
+                small: true;
+                text: @tr("Quick order ▾");
+                tooltip: @tr("Ready-made orders for this song");
+                clicked => { quick-menu.show(); }
+            }
+            quick-menu := PopupWindow {
+                y: 28px;
+                width: 250px;
+                height: 2 * 31px + 12px;
+                close-policy: close-on-click-outside;
+                Rectangle {
+                    background: Theme.panel;
+                    border-color: Theme.line;
+                    border-width: 1px;
+                    border-radius: 9px;
+                    drop-shadow-blur: 24px;
+                    drop-shadow-offset-y: 8px;
+                    drop-shadow-color: Theme.shadow-dialog;
+                    VerticalLayout {
+                        padding: 5px;
+                        spacing: 1px;
+                        order-chorus-verses := SlideMenuLine {
+                            text: @tr("Chorus after every verse");
+                            clicked => { quick-menu.close(); SlideEdit.order-pattern(0); }
+                        }
+                        order-chorus-end := SlideMenuLine {
+                            text: @tr("Chorus again at the end");
+                            clicked => { quick-menu.close(); SlideEdit.order-pattern(1); }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // Only while this service plays the song in an order of its own.
+    if SlideEdit.order-own: HorizontalLayout {
+        spacing: 6px;
+        alignment: start;
+        VerticalLayout {
+            alignment: center;
+            order-own := Text {
+                text: @tr("Just for this service");
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 12px;
+            }
+        }
+        order-usual := Btn {
+            small: true;
+            text: @tr("Save as the usual order");
+            tooltip: @tr("Every service plays the song in this order from now on");
+            clicked => { SlideEdit.order-usual(); }
+        }
+        order-back := Btn {
+            small: true;
+            text: @tr("Reset to the song’s order");
+            tooltip: @tr("This service plays the song in its usual order again");
+            clicked => { SlideEdit.order-back(); }
+        }
+    }
+}

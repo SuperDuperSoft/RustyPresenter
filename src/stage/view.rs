@@ -716,17 +716,18 @@ Verse 1
         let all = band_sheets(SONGSELECT_LIKE.as_bytes(), 0);
         let (label, lines, words) = &all[0];
         assert!(label.starts_with("Verse 1"), "{label}");
-        assert_eq!(lines[0], segs(&[("G", "  A - mazing "), ("G/B", "grace how "), ("C", "sweet the "), ("G", "sound")]));
+        // SongSelect's "A - mazing" is one word again (`import::syllables`).
+        assert_eq!(lines[0], segs(&[("G", "  Amazing "), ("G/B", "grace how "), ("C", "sweet the "), ("G", "sound")]));
         assert_eq!(lines[1], segs(&[("", "That saved a "), ("Em7", "wretch like "), ("D", "me")]), "words before the first chord");
-        assert!(!words.contains('[') && words.starts_with("A - mazing grace"), "the room has the words alone: {words}");
+        assert!(!words.contains('[') && words.starts_with("Amazing grace"), "the room has the words alone: {words}");
         let ending: Vec<_> = all.iter().filter(|(l, ..)| l.starts_with("Ending")).flat_map(|(_, lines, _)| lines.clone()).collect();
         assert_eq!(ending[0], segs(&[("G", "      "), ("C/G", "    "), ("D/G", "")]), "a line of chords alone, spaced as written");
         assert_eq!(ending[1], segs(&[("", "(1st Ending)    Was "), ("G/B", "blind but "), ("Dsus", "now I "), ("D", "see  "), ("G", "      "),
             ("C/G", "    "), ("D/G", "     (To Verse 2)")]), "the ending's notes stay words");
-        assert_eq!(ending[2], segs(&[("", "And on this (the) "), ("C", "road to right - "), ("D", "eous - ness")]), "a chord inside a word");
+        assert_eq!(ending[2], segs(&[("", "And on this (the) "), ("C", "road to right"), ("D", "eousness")]), "a chord inside a word, the word whole");
         // Moved up 2 (the song's Key +): the sheet shows the chords as the band plays them.
         let up = band_sheets(SONGSELECT_LIKE.as_bytes(), 2);
-        assert_eq!(up[0].1[0], segs(&[("A", "  A - mazing "), ("A/C#", "grace how "), ("D", "sweet the "), ("A", "sound")]));
+        assert_eq!(up[0].1[0], segs(&[("A", "  Amazing "), ("A/C#", "grace how "), ("D", "sweet the "), ("A", "sound")]));
     }
 
     /// The real SongSelect download Jake compared with the PDF ("Sometimes By Step"). Its words are not ours to

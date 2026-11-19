@@ -24,6 +24,8 @@
   .sheet .cp { display: inline-flex; flex-direction: column; }
   .sheet .ch { display: block; height: 1.25em; line-height: 1.25; font-size: .9em; font-weight: 800; padding-right: .45em; }
   .sheet .cw { display: block; }
+  .sheet .ch { position: relative; }
+  .sheet .ch.in { width: 0; padding-right: 0; white-space: nowrap; overflow: visible; }
   .sheet .alone .cw { height: 0; visibility: hidden; }
   .cell img { flex: 1; min-height: 0; width: calc(100% - 2.4cqh); margin: 1.2cqh; object-fit: contain; }
   .cell.message { background: #f5c66b !important; color: #1a1405 !important; font-weight: 650; }

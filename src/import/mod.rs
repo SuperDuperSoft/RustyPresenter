@@ -25,6 +25,7 @@ pub mod pptx_text;
 pub mod probe;
 pub mod propresenter;
 pub mod sniff;
+pub mod syllables;
 pub mod transitions;
 
 #[path = "../strings/import.rs"]
