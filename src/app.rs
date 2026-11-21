@@ -1180,7 +1180,7 @@ impl App {
             "label": p.label(),
             "signup_url": p.signup_url(),
             "note": p.setup_note(),
-            "key_set": secrets.key(*p).is_some(),
+            "key_set": secrets.own_key(*p).is_some(),
             "translations": bible::sources::SOURCES.iter().filter(|s| s.provider == *p).map(|s| s.translation).collect::<Vec<_>>(),
         })).collect()
     }

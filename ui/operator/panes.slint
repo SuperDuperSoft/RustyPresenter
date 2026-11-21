@@ -148,6 +148,10 @@ export global BiblePane {
     callback toggle-favourite(string);
     callback find-more-bibles(string);
     callback cycle-per-slide();
+    // The Bibles shown side by side with every new passage ("NIV · RVR1909"); empty with none. The chip opens
+    // Settings → Bible at "Also show with every new passage".
+    in property <string> also-label;
+    callback open-also();
     /// Bumped to focus the box (Ctrl+B), open Recent verses, open the picker (`bible.rs`).
     in property <int> bible-focus-serial;
     in property <int> bible-history-serial;

@@ -141,6 +141,7 @@ pub(super) fn render_chips(ui: &crate::ui::OperatorWindow, s: &view::OperatorSna
     ui.set_translation(chips.first().map(|c| c.name.clone()).unwrap_or_default());
     ui.set_quick_chips(ModelRc::new(VecModel::from(chips.iter().skip(1).cloned().collect::<Vec<_>>())));
     ui.set_translations(ModelRc::new(VecModel::from(chips)));
+    ui.set_also_label(also_label(s).into());
     fill_picker(ui, s, &ui.get_picker_search());
 }
 
@@ -193,6 +194,21 @@ impl Operator {
     }
 }
 
+/// The Side by side chip's words: the short names of the Bibles every new passage is also shown in ("NIV · RVR1909"),
+/// empty with none.
+pub fn also_label(s: &view::OperatorSnapshot) -> String {
+    s.settings.also_show.iter().map(|id| {
+        s.bible_sources.iter().find(|b| crate::bible::id::same_id(&b.translation, id)).map_or_else(|| id.clone(), |b| b.label().to_string())
+    }).collect::<Vec<_>>().join(" · ")
+}
+
+/// The Side by side chip: Settings → Bible, at the Bibles shown with every new passage.
+pub fn open_also(op: &Rc<Operator>) {
+    use crate::ui::dialogs::{SettingsTab, settings};
+    settings::open(op, SettingsTab::Bible);
+    settings::go(op, SettingsTab::Bible, "also-show");
+}
+
 /// The Verses chip: Automatic → 1 → 2 → 3 → 4 → Automatic.
 pub fn cycle_per_slide(op: &Operator) { op.set_bible_per_slide((op.bible_per_slide() + 1) % 5) }
 
@@ -220,6 +236,8 @@ pub(super) fn wire(op: &Rc<Operator>) {
     op.ui.on_find_more_bibles(move |q| if let Some(op) = me.upgrade() { crate::ui::dialogs::settings::open_bible_search(&op, &q) });
     let me: Weak<Operator> = Rc::downgrade(op);
     op.ui.on_cycle_per_slide(move || if let Some(op) = me.upgrade() { cycle_per_slide(&op) });
+    let me: Weak<Operator> = Rc::downgrade(op);
+    op.ui.on_open_also(move || if let Some(op) = me.upgrade() { open_also(&op) });
 }
 
 #[cfg(test)]
@@ -410,6 +428,28 @@ mod tests {
             .and_then(|c| c.accessible_description()).unwrap_or_default().to_string();
         assert_eq!(tip("WEB"), "World English Bible");
         assert_eq!(tip("NIV"), "NIV isn't connected yet (Settings → Bible). You can still paste its verses with Add → Bible.");
+    }
+
+    /// The Side by side chip names the Bibles shown with every passage, and opens the place to choose them: any
+    /// Bible in the list, one that is not connected yet too.
+    #[test]
+    fn the_side_by_side_chip_names_the_bibles_and_opens_their_setting() {
+        let app = test_app();
+        let op = open(&app);
+        refresh(&op);
+        assert_eq!(op.ui.get_also_label(), "", "none: the chip says Off");
+        app.data.lock().unwrap().settings.also_show = vec!["WEB".into(), "KJV".into()];
+        refresh(&op);
+        assert_eq!(op.ui.get_also_label(), "WEB · KJV");
+        use slint::ComponentHandle as _;
+        op.ui.invoke_open_also();
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<crate::ui::SettingsDlg>();
+        assert_eq!(g.get_tab(), crate::ui::dialogs::settings::tab_index(crate::ui::dialogs::SettingsTab::Bible));
+        assert_eq!(g.get_highlight(), "also-show");
+        let snap = op.state.borrow().snap.clone().unwrap();
+        let chips: Vec<String> = crate::ui::dialogs::settings_bible::also_chips(&snap).into_iter().map(|c| c.0).collect();
+        for id in ["ESV", "NIV", "KJV", "WEB"].into_iter().filter(|id| *id != snap.translation) { assert!(chips.iter().any(|c| c == id), "{id} can be picked: {chips:?}") }
+        assert!(!chips.iter().any(|c| *c == snap.translation), "but not the Bible it already is");
     }
 
     #[test]

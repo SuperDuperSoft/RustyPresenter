@@ -1,6 +1,6 @@
 [package]
 name = "rustypresenter"
-version = "1.4.6"
+version = "0.5.0"
 edition = "2024"
 description = "Church presentation app: lyrics, scripture, slides, video, phone remote"
 publish = false

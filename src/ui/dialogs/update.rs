@@ -204,7 +204,7 @@ mod tests {
         settings::open(&op, SettingsTab::About);
         check_now(&op);
         assert_eq!(dlg(&op).get_update_status(), format!("No version has been published for download yet. You have {CURRENT}.").as_str());
-        web.point(LATEST, "/SuperDuperSoft/RustyPresenter/releases/tag/v0.9.0");
+        web.point(LATEST, "/SuperDuperSoft/RustyPresenter/releases/tag/v0.1.0");
         check_now(&op);
         assert_eq!(dlg(&op).get_update_status(), format!("You have the newest version ({CURRENT}).").as_str());
         assert_eq!(dlg(&op).get_update_get(), "");

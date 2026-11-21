@@ -167,6 +167,7 @@ mod tests {
         assert!(!newer("v1.4.6", "1.4.6"));
         assert!(!newer("v1.5", "1.5.0"), "the same version");
         assert!(!newer("v1.4.5", "1.4.6"), "GitHub is behind: nothing to offer");
+        assert!(newer("v0.5.1", "0.5.0") && !newer("v0.5.0", "0.5.0") && newer("v0.6", "0.5.9"));
         for odd in ["v1.5.0-beta", "latest", "", "v", "1", "1..2", "v1.2.3.4.5", "1.x", "v999999.0", "1.5.0/../x"] {
             assert_eq!(numbers(odd), None, "{odd}");
             assert!(!newer(odd, "1.0.0"), "{odd}");

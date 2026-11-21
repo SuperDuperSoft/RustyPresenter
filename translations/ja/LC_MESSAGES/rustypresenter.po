@@ -1256,7 +1256,7 @@ msgstr "なし"
 msgid "Stop showing this Bible"
 msgstr "この聖書の表示をやめる"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/operator/bible-box.slint
 msgid "Side by side"
 msgstr "左右に並べる"
 
@@ -1372,7 +1372,7 @@ msgstr "すべてのスライドに適用"
 msgid "Auto-advance after (s)"
 msgstr "自動で進むまで（秒）"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint ui/operator/bible-box.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr "オフ"
 
@@ -5076,6 +5076,14 @@ msgid "Verses: {}"
 msgstr "節数: {}"
 
 #: ui/operator/bible-box.slint
+msgid "Show two or three Bibles side by side, in any languages. Click to choose them."
+msgstr "2つまたは3つの聖書を、どの言語でも並べて表示します。クリックして選びます。"
+
+#: ui/operator/bible-box.slint
+msgid "Side by side: {}"
+msgstr "並べて表示：{}"
+
+#: ui/operator/bible-box.slint
 msgid "Ctrl B"
 msgstr "Ctrl B"
 
@@ -6788,8 +6796,12 @@ msgid "The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (
 msgstr "無料の Starter プランでは著作権のある聖書を3つ使えます。「Plan」で CSB（必要なら NIV や NLT も）を選んでください。"
 
 #: src/bible/sources.rs
-msgid "Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."
-msgstr "アプリを作成し、ポータルで各聖書のライセンスに同意してください（NIV は Biblica、HCSB は提供されていれば）。"
+msgid "Works without a key: RustyPresenter comes with one. For your church's own, create an app, then accept each Bible’s licence in the portal."
+msgstr "キーなしで使えます。RustyPresenter にキーが付属しています。教会独自のキーを使う場合は、アプリを作成し、ポータルで各聖書のライセンスに同意してください。"
+
+#: src/bible/sources.rs
+msgid "{translation} is not available with the key that comes with RustyPresenter yet. Add your church's own free key from {service} in Settings → Bible, or paste the verses with Add → Bible."
+msgstr "{translation} は、RustyPresenter に付属のキーではまだ利用できません。「設定 → 聖書」で {service} から取得した教会独自の無料キーを追加するか、「追加 → 聖書」で節を貼り付けてください。"
 
 #: src/bible/sources.rs
 msgid "the service answered {status}"
@@ -14002,6 +14014,9 @@ msgstr "yt-dlp は動画を保存しませんでした"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "メディアファイルではありません"
+
+#~ msgid "Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."
+#~ msgstr "アプリを作成し、ポータルで各聖書のライセンスに同意してください（NIV は Biblica、HCSB は提供されていれば）。"
 
 #~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
 #~ msgstr "RustyPresenter {version} があります。現在は {current} です。今すぐ入手しますか？ウェブブラウザでダウンロードページが開きます。あとで「設定 → ヘルプと情報」から入手することもできます。"

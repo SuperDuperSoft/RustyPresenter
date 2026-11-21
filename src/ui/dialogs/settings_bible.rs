@@ -388,9 +388,10 @@ pub(super) fn default_bible(op: &Rc<Operator>, edit: &Rc<Edit>, i: usize) {
     });
 }
 
-/// The Also show chips: every Bible usable now but the default one, ids and labels, and which are picked.
+/// The Also show chips: every Bible but the default one, ids and labels, and which are picked. One that cannot be
+/// read yet (its key is missing) can be picked all the same; a passage leaves it out, and says so, until it can.
 pub fn also_chips(snap: &OperatorSnapshot) -> Vec<(String, String, bool)> {
-    snap.available.iter().filter(|id| !crate::bible::id::same_id(id, &snap.translation)).map(|id| {
+    snap.translations.iter().filter(|id| !crate::bible::id::same_id(id, &snap.translation)).map(|id| {
         let label = snap.bible_sources.iter().find(|b| b.translation == *id).map_or_else(|| id.clone(), |b| b.label().to_string());
         let on = snap.settings.also_show.iter().any(|t| crate::bible::id::same_id(t, id));
         (id.clone(), label, on)

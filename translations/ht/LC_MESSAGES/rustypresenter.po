@@ -1256,7 +1256,7 @@ msgstr "okenn"
 msgid "Stop showing this Bible"
 msgstr "Sispann montre Bib sa a"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/operator/bible-box.slint
 msgid "Side by side"
 msgstr "Kòt a kòt"
 
@@ -1372,7 +1372,7 @@ msgstr "Sèvi pou tout diapo yo"
 msgid "Auto-advance after (s)"
 msgstr "Avanse pou kont li apre (s)"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint ui/operator/bible-box.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr "Etenn"
 
@@ -5076,6 +5076,14 @@ msgid "Verses: {}"
 msgstr "Vèsè: {}"
 
 #: ui/operator/bible-box.slint
+msgid "Show two or three Bibles side by side, in any languages. Click to choose them."
+msgstr "Montre de oswa twa Bib kòt a kòt, nan nenpòt lang. Klike pou chwazi yo."
+
+#: ui/operator/bible-box.slint
+msgid "Side by side: {}"
+msgstr "Kòt a kòt: {}"
+
+#: ui/operator/bible-box.slint
 msgid "Ctrl B"
 msgstr "Ctrl B"
 
@@ -6788,8 +6796,12 @@ msgid "The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (
 msgstr "Plan gratis Starter la pèmèt 3 Bib ki gen dwa otè: anba Plan, chwazi CSB (ak NIV oswa NLT si ou vle yo soti la)."
 
 #: src/bible/sources.rs
-msgid "Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."
-msgstr "Kreye yon app, epi aksepte lisans chak Bib nan pòtay la (NIV soti nan Biblica; HCSB si yo ofri l)."
+msgid "Works without a key: RustyPresenter comes with one. For your church's own, create an app, then accept each Bible’s licence in the portal."
+msgstr "Li mache san kle: RustyPresenter vini ak youn. Pou kle pa legliz ou a, kreye yon aplikasyon, epi aksepte lisans chak Bib nan pòtay la."
+
+#: src/bible/sources.rs
+msgid "{translation} is not available with the key that comes with RustyPresenter yet. Add your church's own free key from {service} in Settings → Bible, or paste the verses with Add → Bible."
+msgstr "{translation} poko disponib ak kle ki vini ak RustyPresenter a. Ajoute kle gratis pa legliz ou a ki soti nan {service} nan Paramèt → Bib, oswa kole vèsè yo ak Ajoute → Bib."
 
 #: src/bible/sources.rs
 msgid "the service answered {status}"
@@ -14054,6 +14066,9 @@ msgstr "yt-dlp pa anrejistre okenn videyo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "se pa yon fichye medya"
+
+#~ msgid "Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."
+#~ msgstr "Kreye yon app, epi aksepte lisans chak Bib nan pòtay la (NIV soti nan Biblica; HCSB si yo ofri l)."
 
 #~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
 #~ msgstr "RustyPresenter {version} disponib. Ou gen {current}. Pran li kounye a? Navigatè wèb ou a ap louvri paj telechajman li. Ou ka pran li pita tou nan Paramèt → Èd ak konsènan."

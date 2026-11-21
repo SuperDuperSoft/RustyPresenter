@@ -1253,7 +1253,7 @@ msgstr ""
 msgid "Stop showing this Bible"
 msgstr ""
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/operator/bible-box.slint
 msgid "Side by side"
 msgstr ""
 
@@ -1369,7 +1369,7 @@ msgstr ""
 msgid "Auto-advance after (s)"
 msgstr ""
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint ui/operator/bible-box.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr ""
 
@@ -5067,6 +5067,14 @@ msgid "Verses: {}"
 msgstr ""
 
 #: ui/operator/bible-box.slint
+msgid "Show two or three Bibles side by side, in any languages. Click to choose them."
+msgstr ""
+
+#: ui/operator/bible-box.slint
+msgid "Side by side: {}"
+msgstr ""
+
+#: ui/operator/bible-box.slint
 msgid "Ctrl B"
 msgstr ""
 
@@ -6779,7 +6787,11 @@ msgid "The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (
 msgstr ""
 
 #: src/bible/sources.rs
-msgid "Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."
+msgid "Works without a key: RustyPresenter comes with one. For your church's own, create an app, then accept each Bible’s licence in the portal."
+msgstr ""
+
+#: src/bible/sources.rs
+msgid "{translation} is not available with the key that comes with RustyPresenter yet. Add your church's own free key from {service} in Settings → Bible, or paste the verses with Add → Bible."
 msgstr ""
 
 #: src/bible/sources.rs

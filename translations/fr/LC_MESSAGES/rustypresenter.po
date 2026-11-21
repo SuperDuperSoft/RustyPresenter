@@ -1256,7 +1256,7 @@ msgstr "aucune"
 msgid "Stop showing this Bible"
 msgstr "Ne plus afficher cette Bible"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/operator/bible-box.slint
 msgid "Side by side"
 msgstr "Côte à côte"
 
@@ -1372,7 +1372,7 @@ msgstr "Utiliser pour toutes les diapos"
 msgid "Auto-advance after (s)"
 msgstr "Avancer seul après (s)"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint ui/operator/bible-box.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr "Désactivé"
 
@@ -5076,6 +5076,14 @@ msgid "Verses: {}"
 msgstr "Versets : {}"
 
 #: ui/operator/bible-box.slint
+msgid "Show two or three Bibles side by side, in any languages. Click to choose them."
+msgstr "Affichez deux ou trois Bibles côte à côte, dans n'importe quelles langues. Cliquez pour les choisir."
+
+#: ui/operator/bible-box.slint
+msgid "Side by side: {}"
+msgstr "Côte à côte : {}"
+
+#: ui/operator/bible-box.slint
 msgid "Ctrl B"
 msgstr "Ctrl B"
 
@@ -6788,8 +6796,12 @@ msgid "The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (
 msgstr "Le forfait gratuit Starter permet 3 Bibles protégées : sous Plan, choisissez CSB (et NIV ou NLT si vous les voulez d’ici)."
 
 #: src/bible/sources.rs
-msgid "Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."
-msgstr "Créez une app, puis acceptez la licence de chaque Bible dans le portail (NIV de Biblica ; HCSB si elle est proposée)."
+msgid "Works without a key: RustyPresenter comes with one. For your church's own, create an app, then accept each Bible’s licence in the portal."
+msgstr "Fonctionne sans clé : RustyPresenter en fournit une. Pour la clé de votre église, créez une application, puis acceptez la licence de chaque Bible dans le portail."
+
+#: src/bible/sources.rs
+msgid "{translation} is not available with the key that comes with RustyPresenter yet. Add your church's own free key from {service} in Settings → Bible, or paste the verses with Add → Bible."
+msgstr "{translation} n'est pas encore disponible avec la clé fournie avec RustyPresenter. Ajoutez la clé gratuite de votre église obtenue auprès de {service} dans Paramètres → Bible, ou collez les versets avec Ajouter → Bible."
 
 #: src/bible/sources.rs
 msgid "the service answered {status}"
@@ -14054,6 +14066,9 @@ msgstr "yt-dlp n’a enregistré aucune vidéo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "pas un fichier média"
+
+#~ msgid "Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."
+#~ msgstr "Créez une app, puis acceptez la licence de chaque Bible dans le portail (NIV de Biblica ; HCSB si elle est proposée)."
 
 #~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
 #~ msgstr "RustyPresenter {version} est disponible. Vous avez la {current}. L'obtenir maintenant ? Votre navigateur web ouvre sa page de téléchargement. Vous pouvez aussi l'obtenir plus tard dans Paramètres → Aide et à propos."

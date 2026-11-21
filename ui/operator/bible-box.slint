@@ -386,6 +386,42 @@ export component BibleBox inherits Rectangle {
                         TipArea { text: @tr("Verses per slide for the next passage. Click to change."); hover: per-slide-ta.has-hover; pressed: per-slide-ta.pressed; pointer-x: per-slide-ta.mouse-x; }
                     }
                 }
+                // Side by side: the Bibles every new passage is also shown in; a click opens the place to choose them.
+                if root.verses-shown && !root.compact: VerticalLayout {
+                    alignment: center;
+                    also-chip := Rectangle {
+                        property <string> value: BiblePane.also-label == "" ? @tr("Off") : BiblePane.also-label;
+                        border-radius: 6px;
+                        border-width: 1px;
+                        border-color: also-ta.has-hover || BiblePane.also-label != "" ? Theme.accent : Theme.line;
+                        accessible-role: button;
+                        accessible-label: @tr("Side by side");
+                        accessible-value: self.value;
+                        accessible-description: @tr("Show two or three Bibles side by side, in any languages. Click to choose them.");
+                        accessible-action-default => { BiblePane.open-also(); }
+                        HorizontalLayout {
+                            padding-top: 4px;
+                            padding-bottom: 4px;
+                            padding-left: 7px;
+                            padding-right: 7px;
+                            Text {
+                                text: @tr("Side by side: {}", also-chip.value);
+                                // Gives way first when the box is narrow: the dock measures the box by its smallest width.
+                                overflow: elide;
+                                color: Theme.muted;
+                                font-family: Theme.font;
+                                font-size: 11.5px;
+                                font-weight: 700;
+                                vertical-alignment: center;
+                            }
+                        }
+                        also-ta := TouchArea {
+                            mouse-cursor: pointer;
+                            clicked => { BiblePane.open-also(); }
+                        }
+                        TipArea { text: @tr("Show two or three Bibles side by side, in any languages. Click to choose them."); hover: also-ta.has-hover; pressed: also-ta.pressed; pointer-x: also-ta.mouse-x; }
+                    }
+                }
                 VerticalLayout {
                     alignment: center;
                     Kbd { text: @tr("Ctrl B"); }

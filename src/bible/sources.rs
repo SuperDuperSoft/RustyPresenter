@@ -1,6 +1,8 @@
 //! Copyrighted translations from licensed online sources (spec §8.5, F5).
-//! Each church registers its own free key with the provider; nothing is bundled or published.
-//! Keys live in `secrets.json` beside `data.json`: never in backups, the app state or the repo.
+//! Each church registers its own free key with the provider. One key comes with the app (0.5): RustyPresenter's own
+//! YouVersion Platform app key (`BUILT_IN_YOUVERSION`), so the Bibles its app is licensed for work for every church
+//! without a sign-up; a church's own YouVersion key, when saved, is used instead.
+//! A church's keys live in `secrets.json` beside `data.json`: never in backups, the app state or the repo.
 //! Fetched passages go into a small cache per provider and translation whose size and age follow each provider's terms.
 use super::{Part, Reference, api_bible, blocklist, canonical, display_name, esv, kjv, nlt, parse_reference, youversion};
 use crate::{model::VerseText, scripture::strings::blocked};
@@ -55,7 +57,17 @@ pub struct CachePolicy {
     pub max_age_days: Option<u64>,
 }
 
+/// RustyPresenter's YouVersion Platform app key (Jake, November 21, 2026: "permanently integrate this API key from
+/// YouVersion for everyone"). An app key names the app to YouVersion, as the key inside any phone app does; it is
+/// not a church's secret. Every church shares its request allowance, so a busy church can still save its own.
+const BUILT_IN_YOUVERSION: &str = "2aUAZQ3F4xohafgwsrt37fcgpGuOxmYcZJgcaKilLcSTQGy7";
+
 impl Provider {
+    /// The key that comes with the app, for a provider that has one.
+    pub fn built_in_key(self) -> Option<&'static str> {
+        match self { Provider::YouVersion => Some(BUILT_IN_YOUVERSION), _ => None }
+    }
+
     /// Name of the key in `secrets.json`.
     pub fn key_name(self) -> &'static str {
         match self { Provider::Esv => "esv", Provider::Nlt => "nlt", Provider::ApiBible => "api_bible", Provider::YouVersion => "youversion" }
@@ -87,7 +99,7 @@ impl Provider {
             Provider::Esv => tr!("Free for churches. Create an “API application”, then copy its key."),
             Provider::Nlt => tr!("Free for non-commercial use. Register, then copy the key from your account."),
             Provider::ApiBible => tr!("The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (and NIV or NLT if you want them from here)."),
-            Provider::YouVersion => tr!("Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."),
+            Provider::YouVersion => tr!("Works without a key: RustyPresenter comes with one. For your church's own, create an app, then accept each Bible’s licence in the portal."),
         }
     }
 
@@ -129,6 +141,11 @@ impl Provider {
     }
 }
 
+/// What a lookup says when the key that comes with the app may not read this Bible.
+pub fn not_with_built_in(translation: &str, provider: Provider) -> String {
+    tr!("{translation} is not available with the key that comes with RustyPresenter yet. Add your church's own free key from {service} in Settings → Bible, or paste the verses with Add → Bible.", translation = translation, service = provider.label())
+}
+
 /// Every source for a translation, best first.
 pub fn sources(translation: &str) -> impl Iterator<Item = &'static Source> { SOURCES.iter().filter(move |s| s.translation == translation) }
 
@@ -140,9 +157,12 @@ pub fn is_online(translation: &str) -> bool {
     t.starts_with("yv:") || t.starts_with("ab:") || SOURCES.iter().any(|s| super::id::same_id(s.translation, t))
 }
 
-/// The source that will be used: the first with a saved key, else the first listed.
+/// The source that will be used: the first whose key the church saved, else the first with the key that comes with
+/// the app, else the first listed.
 pub fn source_with(translation: &str, secrets: &Secrets) -> Option<&'static Source> {
-    sources(translation).find(|s| secrets.key(s.provider).is_some()).or_else(|| sources(translation).next())
+    sources(translation).find(|s| secrets.own_key(s.provider).is_some())
+        .or_else(|| sources(translation).find(|s| secrets.key(s.provider).is_some()))
+        .or_else(|| sources(translation).next())
 }
 
 #[derive(Debug, PartialEq)]
@@ -209,7 +229,14 @@ impl Secrets {
         crate::store::write_atomic(&root.join("secrets.json"), &serde_json::to_vec_pretty(self).map_err(io::Error::other)?)
     }
 
+    /// The key to ask the provider with: the church's own, else the one that comes with the app.
     pub fn key(&self, provider: Provider) -> Option<&str> {
+        // Tests never ask a real provider: without a saved key there is none.
+        self.own_key(provider).or_else(|| if cfg!(test) { None } else { provider.built_in_key() })
+    }
+
+    /// The key the church saved itself.
+    pub fn own_key(&self, provider: Provider) -> Option<&str> {
         self.keys.get(provider.key_name()).map(|k| k.trim()).filter(|k| !k.is_empty())
     }
 }
@@ -230,7 +257,7 @@ pub async fn set_key(root: &Path, provider: Provider, key: &str) -> Result<(), S
 fn save_key(root: &Path, provider: Provider, key: &str) -> io::Result<()> {
     let _guard = FILES.lock().unwrap();
     let mut s = Secrets::load(root);
-    let old = s.key(provider).map(str::to_string);
+    let old = s.own_key(provider).map(str::to_string);
     if key.is_empty() { s.keys.remove(provider.key_name()); } else { s.keys.insert(provider.key_name().into(), key.into()); }
     s.save(root)?;
     if key.is_empty() || old.as_deref() != Some(key) { clear_cache(root, provider); }
@@ -374,6 +401,11 @@ pub async fn lookup(root: &Path, translation: &str, input: &str) -> Result<(Stri
                     Err(e) => {
                         // A refused key: what it fetched may no longer be kept (API.Bible terms §10).
                         if e == FetchError::BadKey { let _g = FILES.lock().unwrap(); clear_cache(root, provider); }
+                        // Asked with the key that comes with the app, and the provider will not give this Bible
+                        // to it: the church's own key is the way, not a look at a key it never typed.
+                        if secrets.own_key(provider).is_none() && !matches!(e, FetchError::Network | FetchError::RateLimited) {
+                            return Err(not_with_built_in(translation, provider));
+                        }
                         return Err(e.message(translation, provider));
                     }
                 };
@@ -682,6 +714,15 @@ mod tests {
 
     #[test]
     fn online_bibles() {
+        // The key that comes with the app: YouVersion only, and a church's own key goes first.
+        assert!(Provider::YouVersion.built_in_key().is_some_and(|k| k.len() > 20 && !k.contains(' ')));
+        for p in [Provider::Esv, Provider::Nlt, Provider::ApiBible] { assert_eq!(p.built_in_key(), None) }
+        let mut own = Secrets::default();
+        assert_eq!(own.own_key(Provider::YouVersion), None);
+        own.keys.insert("api_bible".into(), "church-key".into());
+        assert_eq!(source_with("NIV", &own).map(|s| s.provider), Some(Provider::ApiBible), "the church's own key before the app's");
+        assert_eq!(source_with("NIV", &Secrets::default()).map(|s| s.provider), Some(Provider::YouVersion));
+        assert!(not_with_built_in("NIV", Provider::YouVersion).starts_with("NIV is not available with the key that comes with RustyPresenter yet."));
         assert!(is_online("NIV") && is_online("esv") && is_online("yv:111") && is_online("ab:de4e12af7f28f599-02"));
         assert!(!is_online("KJV") && !is_online("ebible:spaRV1909"));
     }
