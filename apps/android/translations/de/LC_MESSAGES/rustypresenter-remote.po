@@ -242,3 +242,30 @@ msgstr "Der Computer ist nicht erreichbar. Neuer Versuch…"
 
 msgid "This phone is no longer paired. Pair it again."
 msgstr "Dieses Handy ist nicht mehr gekoppelt. Koppeln Sie es erneut."
+
+msgid "Draw"
+msgstr "Zeichnen"
+
+msgid "Draw on the slide"
+msgstr "Auf die Folie zeichnen"
+
+msgid "Ink fades"
+msgstr "Tinte verblasst"
+
+msgid "Ink stays"
+msgstr "Tinte bleibt"
+
+msgid "Undo"
+msgstr "Rückgängig"
+
+msgid "Clear"
+msgstr "Löschen"
+
+msgid "Done"
+msgstr "Fertig"
+
+msgid "Drawing from this phone is turned off on the computer."
+msgstr "Das Zeichnen von diesem Telefon ist am Computer ausgeschaltet."
+
+msgid "The app closed by itself last time. Please pass this on:"
+msgstr "Die App hat sich beim letzten Mal von selbst geschlossen. Bitte gib das weiter:"

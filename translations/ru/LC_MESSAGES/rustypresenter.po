@@ -247,17 +247,13 @@ msgstr "Конец"
 msgid "Drop here to remove"
 msgstr "Перетащите сюда, чтобы убрать"
 
-#: ui/dialogs/arrangement.slint
-msgid "✕ Remove"
-msgstr "✕ Убрать"
-
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr "Порядок в тексте — перетащите, чтобы изменить"
 
 #: ui/dialogs/arrangement.slint
-msgid "⟲ Use written order"
-msgstr "⟲ Порядок как в тексте"
+msgid "Use written order"
+msgstr "Порядок как в тексте"
 
 #: ui/dialogs/arrangement.slint
 msgid "Click to play it at the end, or drag it in between the parts"
@@ -1184,7 +1180,7 @@ msgstr "Проверить"
 msgid "The check measures the internet, takes a picture from the camera and listens to the sound for a moment. Nothing is sent to viewers."
 msgstr "Проверка измеряет интернет, делает снимок с камеры и недолго слушает звук. Зрителям ничего не отправляется."
 
-#: ui/dialogs/go-live-helper.slint
+#: ui/dialogs/go-live-helper.slint src/ui/dialogs/update.rs
 msgid "Checking…"
 msgstr "Проверка…"
 
@@ -1911,6 +1907,22 @@ msgstr "День…"
 msgid "Your data:"
 msgstr "Ваши данные:"
 
+#: ui/dialogs/settings-about.slint src/ui/dialogs/settings_find.rs
+msgid "New versions"
+msgstr "Новые версии"
+
+#: ui/dialogs/settings-about.slint src/ui/dialogs/settings_find.rs
+msgid "Once a day RustyPresenter asks GitHub which version is the newest, and tells you when there is a newer one. Nothing about your church is sent, and nothing is downloaded or installed until you choose to."
+msgstr "Раз в день RustyPresenter спрашивает у GitHub, какая версия самая новая, и сообщает, когда появляется более новая. О вашей церкви ничего не отправляется, и ничего не скачивается и не устанавливается, пока вы сами не решите."
+
+#: ui/dialogs/settings-about.slint
+msgid "Check for a new version when RustyPresenter starts"
+msgstr "Проверять наличие новой версии при запуске RustyPresenter"
+
+#: ui/dialogs/settings-about.slint
+msgid "Check now"
+msgstr "Проверить сейчас"
+
 #: ui/dialogs/settings-about.slint
 msgid "Show licences"
 msgstr "Лицензии"
@@ -2108,8 +2120,8 @@ msgid "Best (all languages)"
 msgstr "Лучшая (все языки)"
 
 #: ui/dialogs/settings-follow.slint
-msgid "Installed ✓ ({})"
-msgstr "Установлена ✓ ({})"
+msgid "Installed ({})"
+msgstr "Установлена ({})"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Download ({})"
@@ -2122,6 +2134,50 @@ msgstr "Проверить скорость"
 #: ui/dialogs/settings-follow.slint
 msgid "Tries the downloaded models on this computer and says which one suits it."
 msgstr "Пробует скачанные модели на этом компьютере и говорит, какая ему подходит."
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Record a practice"
+msgstr "Записать репетицию"
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Keeps the sound auto-follow hears and every slide change, on this computer only. Move the slides by hand as on a Sunday, then check how auto-follow would have done."
+msgstr "Сохраняет звук, который слышит автоследование, и каждую смену слайда — только на этом компьютере. Переключайте слайды вручную, как в воскресенье, а затем проверьте, как справилось бы автоследование."
+
+#: ui/dialogs/settings-follow.slint ui/operator/record.slint ui/operator.slint
+msgid "Stop recording"
+msgstr "Остановить запись"
+
+#: ui/dialogs/settings-follow.slint ui/operator.slint
+msgid "Start recording"
+msgstr "Начать запись"
+
+#: ui/dialogs/settings-follow.slint
+msgid "Check the last recording"
+msgstr "Проверить последнюю запись"
+
+#: ui/dialogs/settings-follow.slint
+msgid "Plays the last practice through auto-follow as it is now and compares it with your slide changes."
+msgstr "Проигрывает последнюю репетицию через автоследование в его нынешнем виде и сравнивает с вашими сменами слайдов."
+
+#: ui/dialogs/settings-follow.slint
+msgid "Open folder"
+msgstr "Открыть папку"
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Song order from practice"
+msgstr "Порядок песен с репетиции"
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Auto-follow learns from the recorded practice the order each song was really sung in (the chorus after every verse, the bridge twice) and how long each slide was up. On Sunday it expects that order, and when it cannot make out the words it goes by those times. Your slides stay as they are."
+msgstr "Автоследование запоминает по записанной репетиции, в каком порядке каждая песня на самом деле пелась (припев после каждого куплета, бридж дважды) и сколько времени был показан каждый слайд. В воскресенье оно ожидает этот порядок, а когда не может разобрать слова, ориентируется на это время. Ваши слайды остаются как есть."
+
+#: ui/dialogs/settings-follow.slint
+msgid "Learn from the last recording"
+msgstr "Запомнить по последней записи"
+
+#: ui/dialogs/settings-follow.slint
+msgid "Forget"
+msgstr "Забыть"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
@@ -5495,10 +5551,6 @@ msgstr "{} из 5"
 msgid "How loud the stream's sound is. No bars: nothing is going out"
 msgstr "Насколько громкий звук трансляции. Нет полосок — ничего не выходит"
 
-#: ui/operator/record.slint ui/operator.slint
-msgid "Stop recording"
-msgstr "Остановить запись"
-
 #: ui/operator/record.slint
 msgid "Record"
 msgstr "Запись"
@@ -5578,6 +5630,14 @@ msgstr "Свой порядок"
 #: ui/operator/service.slint ui/operator/slides.slint
 msgid "Custom order for this service"
 msgstr "Свой порядок для этого служения"
+
+#: ui/operator/service.slint
+msgid "Hide the slides"
+msgstr "Скрыть слайды"
+
+#: ui/operator/service.slint
+msgid "Show the slides"
+msgstr "Показать слайды"
 
 #: ui/operator/service.slint
 msgid "Choose what goes here"
@@ -5668,8 +5728,8 @@ msgid "From this slide on, this part is:"
 msgstr "С этого слайда эта часть —"
 
 #: ui/operator/slide-editor.slint
-msgid "Quick order ▾"
-msgstr "Быстрый порядок ▾"
+msgid "Quick order"
+msgstr "Быстрый порядок"
 
 #: ui/operator/slide-editor.slint
 msgid "Ready-made orders for this song"
@@ -5746,6 +5806,18 @@ msgstr "Больше текст для этого отрывка"
 #: ui/operator/slides.slint
 msgid "Back to the size in Settings"
 msgstr "Вернуть размер из настроек"
+
+#: ui/operator/slides.slint
+msgid "Tools"
+msgstr "Инструменты"
+
+#: ui/operator/slides.slint
+msgid "Hide the tools for these slides"
+msgstr "Скрыть инструменты для этих слайдов"
+
+#: ui/operator/slides.slint
+msgid "Lines, text size, key, song order and slide actions"
+msgstr "Строки, размер текста, тональность, порядок песни и действия слайдов"
 
 #: ui/operator/slides.slint
 msgid "‹ Verse"
@@ -5986,10 +6058,6 @@ msgstr "Импорт медиа…"
 #: ui/operator.slint
 msgid "Video inputs…"
 msgstr "Видеовходы…"
-
-#: ui/operator.slint
-msgid "Start recording"
-msgstr "Начать запись"
 
 #: ui/operator.slint
 msgid "Recording settings…"
@@ -6311,6 +6379,10 @@ msgstr "Слайд с рисунком"
 msgid "Select all"
 msgstr "Выделить всё"
 
+#: src/app.rs
+msgid "No sound input to record. Choose one in Settings → Auto-follow."
+msgstr "Нет звукового входа для записи. Выберите его в Настройки → Автоследование."
+
 #: src/app.rs src/ui/dialogs/settings_follow.rs
 msgid "no microphone or line-in found"
 msgstr "микрофон или линейный вход не найден"
@@ -6351,7 +6423,7 @@ msgstr "{name} — встроенная, общественное достоян
 msgid "{name} — imported file"
 msgstr "{name} — импортированный файл"
 
-#: src/app.rs
+#: src/app.rs src/songselect.rs
 msgid "Give the song a title."
 msgstr "Укажите название песни."
 
@@ -6802,6 +6874,10 @@ msgstr "FFmpeg остановлен"
 #: src/follow/engine.rs
 msgid "Auto-follow stopped: the sound input is gone ({error}). Move the slides by hand."
 msgstr "Автоследование остановлено: звуковой вход пропал ({error}). Листайте слайды вручную."
+
+#: src/follow/engine.rs
+msgid "as long as it took at practice"
+msgstr "столько же, сколько на репетиции"
 
 #: src/follow/engine.rs
 msgid "heard \"{words}\""
@@ -10088,6 +10164,14 @@ msgid "Two monitors"
 msgstr "Два монитора"
 
 #: src/strings/operator.rs
+msgid "ProPresenter style"
+msgstr "Стиль ProPresenter"
+
+#: src/strings/operator.rs
+msgid "EasyWorship style"
+msgstr "Стиль EasyWorship"
+
+#: src/strings/operator.rs
 msgid "RustyPresenter — {panels}"
 msgstr "RustyPresenter — {panels}"
 
@@ -12883,6 +12967,42 @@ msgid "Review log copied"
 msgstr "Журнал скопирован"
 
 #: src/ui/dialogs/settings_follow.rs
+msgid "Forgotten. Auto-follow expects every song in the order of its slides."
+msgstr "Забыто. Автоследование ожидает каждую песню в порядке её слайдов."
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Recording… {time}"
+msgstr "Идёт запись… {time}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Recording stopped."
+msgstr "Запись остановлена."
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Songs with a learned order: {count}"
+msgstr "Песен с запомненным порядком: {count}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Nothing to learn: no song on the recording was sung over two slides or more."
+msgstr "Запоминать нечего: ни одна песня в записи не пелась на двух или более слайдах."
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Learned: {songs}"
+msgstr "Запомнено: {songs}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Can't read the recording: {error}"
+msgstr "Не удаётся прочитать запись: {error}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Saved: {folder}"
+msgstr "Сохранено: {folder}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Can't record: {error}"
+msgstr "Не удаётся записать: {error}"
+
+#: src/ui/dialogs/settings_follow.rs
 msgid "{title} (in this service)"
 msgstr "{title} (в этом служении)"
 
@@ -13337,6 +13457,46 @@ msgstr "Выберите язык из списка или отметьте «М
 #: src/ui/dialogs/translation_editor.rs
 msgid "{language} added. Type your words, then pick it in Settings → Language."
 msgstr "Язык {language} добавлен. Введите переводы, затем выберите его в разделе «Настройки → Язык»."
+
+#: src/ui/dialogs/update.rs
+msgid "Version {version} is available. You have {current}."
+msgstr "Доступна версия {version}. У вас {current}."
+
+#: src/ui/dialogs/update.rs
+msgid "You have the newest version ({current})."
+msgstr "У вас самая новая версия ({current})."
+
+#: src/ui/dialogs/update.rs
+msgid "No version has been published for download yet. You have {current}."
+msgstr "Для скачивания пока не опубликовано ни одной версии. У вас {current}."
+
+#: src/ui/dialogs/update.rs
+msgid "Could not check: no internet connection."
+msgstr "Не удалось проверить: нет подключения к интернету."
+
+#: src/ui/dialogs/update.rs
+msgid "Could not check: {reason}"
+msgstr "Не удалось проверить: {reason}"
+
+#: src/ui/dialogs/update.rs
+msgid "Get version {version}…"
+msgstr "Получить версию {version}…"
+
+#: src/ui/dialogs/update.rs
+msgid "Your web browser is opening the download page. Install it when no service is running."
+msgstr "Ваш браузер открывает страницу загрузки. Установите её, когда не идёт служение."
+
+#: src/ui/dialogs/update.rs
+msgid "Could not open your web browser: {reason}"
+msgstr "Не удалось открыть браузер: {reason}"
+
+#: src/ui/dialogs/update.rs
+msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page."
+msgstr "Доступен RustyPresenter {version}. У вас {current}. Получить сейчас? Ваш браузер откроет страницу загрузки."
+
+#: src/ui/dialogs/update.rs
+msgid "Get it"
+msgstr "Получить"
 
 #: src/ui/operator/automation.rs
 msgid "Auto · {time}"
@@ -13946,6 +14106,15 @@ msgstr "yt-dlp не сохранил видео"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "не медиафайл"
+
+#~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
+#~ msgstr "Доступен RustyPresenter {version}. У вас {current}. Получить сейчас? Ваш браузер откроет страницу загрузки. Её можно получить и позже в разделе Настройки → Справка и о программе."
+
+#~ msgid "Auto-follow learns the order each song was really sung in at the recorded practice (the chorus after every verse, the bridge twice) and expects it on Sunday. Your slides stay as they are."
+#~ msgstr "Автоследование запоминает, в каком порядке каждая песня на самом деле пелась на записанной репетиции (припев после каждого куплета, бридж дважды), и ожидает его в воскресенье. Ваши слайды остаются как есть."
+
+#~ msgid "Nothing to learn: every song was sung in the order of its slides."
+#~ msgstr "Запоминать нечего: каждая песня пелась в порядке своих слайдов."
 
 #~ msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
 #~ msgstr "Телефон в Wi-Fi церкви может быть камерой или микрофоном для трансляции. В первый раз телефон предупредит, что страница не защищена: так и должно быть, ведь страница идёт с этого компьютера. Нажмите «Дополнительно» (на iPhone — «Подробнее») и перейдите на страницу. Держите телефон включённым и на зарядке."

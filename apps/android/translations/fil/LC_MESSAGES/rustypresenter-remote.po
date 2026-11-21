@@ -242,3 +242,30 @@ msgstr "Hindi maabot ang computer. Sinusubukan ulit…"
 
 msgid "This phone is no longer paired. Pair it again."
 msgstr "Hindi na naka-pair ang phone na ito. I-pair itong muli."
+
+msgid "Draw"
+msgstr "Gumuhit"
+
+msgid "Draw on the slide"
+msgstr "Gumuhit sa slide"
+
+msgid "Ink fades"
+msgstr "Naglalaho ang tinta"
+
+msgid "Ink stays"
+msgstr "Nananatili ang tinta"
+
+msgid "Undo"
+msgstr "I-undo"
+
+msgid "Clear"
+msgstr "Burahin"
+
+msgid "Done"
+msgstr "Tapos"
+
+msgid "Drawing from this phone is turned off on the computer."
+msgstr "Naka-off sa computer ang pagguhit mula sa teleponong ito."
+
+msgid "The app closed by itself last time. Please pass this on:"
+msgstr "Kusang nagsara ang app noong huli. Pakipasa ito:"

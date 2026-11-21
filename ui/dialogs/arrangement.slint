@@ -146,7 +146,7 @@ export component ArrangementStrip inherits FocusScope {
                     accessible-label: @tr("Play it twice");
                     accessible-action-default => { root.duplicate(c.index); }
                     Text {
-                        text: "⧉";
+                        text: "×2";
                         color: Theme.sec-ink;
                         font-size: 12px;
                         vertical-alignment: center;
@@ -217,7 +217,7 @@ export component ArrangementStrip inherits FocusScope {
                 accessible-role: text;
                 accessible-label: @tr("Drop here to remove");
                 Text {
-                    text: @tr("✕ Remove");
+                    text: @tr("Remove");
                     color: bin-drop.has-drag ? Theme.danger-text : Theme.faint;
                     font-family: Theme.font;
                     font-size: 11px;
@@ -244,7 +244,8 @@ export component ArrangementStrip inherits FocusScope {
             if !root.written: arr-reset := Btn {
                 small: true;
                 enabled: root.active;
-                text: @tr("⟲ Use written order");
+                icon: "restart";
+                text: @tr("Use written order");
                 clicked => { root.reset(); }
             }
             // More buttons from where the strip is used (the Slides panel's quick patterns), on the same row.

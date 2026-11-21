@@ -399,7 +399,8 @@ export component OrderBar inherits VerticalLayout {
             // patterns are behind one button.
             if SlideEdit.has-chorus: order-quick := Btn {
                 small: true;
-                text: @tr("Quick order ▾");
+                icon: "chevron-down";
+                text: @tr("Quick order");
                 tooltip: @tr("Ready-made orders for this song");
                 clicked => { quick-menu.show(); }
             }

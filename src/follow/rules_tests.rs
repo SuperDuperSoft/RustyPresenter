@@ -262,7 +262,7 @@ fn on_an_instrumental_slide_one_stray_word_does_not_bring_the_verse_back() {
 
 #[test]
 fn an_intro_slide_ignores_a_held_vowel() {
-    let s = song(&["{Instrumental}", "oh grace", "how sweet the sound"]);
+    let s = song(&["{Instrumental}", "oh grace divine", "how sweet the sound"]);
     let mut r = Rules::new(auto(2.0), &s);
     for i in 0..300 { assert_eq!(r.tick(i as f64 * 0.1, &nowhere(), Voice::Music, 4.0, 0), None) }
     assert_eq!(r.tick(30.0, &nowhere(), Voice::Speaking, 3.0, 0), None, "a welcome is not singing");
@@ -272,6 +272,18 @@ fn an_intro_slide_ignores_a_held_vowel() {
     // The singers are heard somewhere else: that wins.
     let mut r = Rules::new(auto(2.0), &s);
     assert_eq!(r.tick(1.0, &at(3), Voice::Singing, 2.0, 0), Some(Show(2)));
+    // Found on a later slide's last word (the ear lost the rest of it): that slide is over, so the one after it
+    // goes up, not the finished one for a blink.
+    let s = song(&["amazing grace", "how sweet the sound", "that saved a wretch", "like me"]);
+    let mut r = Rules::new(auto(2.0), &s);
+    assert_eq!(r.tick(1.0, &at(5), Voice::Singing, 2.0, 0), Some(Show(2)), "\"sound\" ends slide 2: slide 3");
+    let mut r = Rules::new(auto(2.0), &s);
+    assert_eq!(r.tick(1.0, &at(4), Voice::Singing, 2.0, 0), Some(Show(1)), "\"the\" is not its last word");
+    let mut r = Rules::new(auto(2.0), &s);
+    assert_eq!(r.tick(1.0, &at(11), Voice::Singing, 2.0, 0), Some(Show(3)), "the song's last word: its own slide, there is none after");
+    // The same going back: found on slide 1's last word from slide 4, slide 2 goes up.
+    let mut r = Rules::new(auto(2.0), &s);
+    assert_eq!(r.tick(1.0, &at(1), Voice::Singing, 2.0, 3), Some(Show(1)));
     // Manual: nothing.
     let mut r = Rules::new(Settings { mode: Mode::Manual, ..auto(2.0) }, &s);
     assert_eq!(r.tick(1.0, &nowhere(), Voice::Singing, 2.0, 0), None);
@@ -924,7 +936,8 @@ fn a_place_heard_while_not_looking_is_old_when_they_look_again() {
         let t = 1.0 + w as f64 * 0.3;
         r.missed(t, t, &at(w), Voice::Singing);
     }
-    assert_eq!(r.tick(2.5, &at(3), Voice::Singing, 2.0, 2), Some(Show(0)));
+    // (Its last word was that slide's last: the slide after it goes up.)
+    assert_eq!(r.tick(2.5, &at(3), Voice::Singing, 2.0, 2), Some(Show(1)));
 }
 
 #[test]

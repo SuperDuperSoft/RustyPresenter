@@ -242,3 +242,30 @@ msgstr "无法连接到电脑。正在重试…"
 
 msgid "This phone is no longer paired. Pair it again."
 msgstr "这部手机已不再配对。请重新配对。"
+
+msgid "Draw"
+msgstr "绘图"
+
+msgid "Draw on the slide"
+msgstr "在幻灯片上绘图"
+
+msgid "Ink fades"
+msgstr "墨迹会消失"
+
+msgid "Ink stays"
+msgstr "墨迹保留"
+
+msgid "Undo"
+msgstr "撤销"
+
+msgid "Clear"
+msgstr "清除"
+
+msgid "Done"
+msgstr "完成"
+
+msgid "Drawing from this phone is turned off on the computer."
+msgstr "此手机的绘图功能已在电脑上关闭。"
+
+msgid "The app closed by itself last time. Please pass this on:"
+msgstr "上次应用自行关闭了。请转告以下内容："

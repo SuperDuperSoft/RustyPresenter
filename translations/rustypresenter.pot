@@ -244,16 +244,12 @@ msgstr ""
 msgid "Drop here to remove"
 msgstr ""
 
-#: ui/dialogs/arrangement.slint
-msgid "✕ Remove"
-msgstr ""
-
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr ""
 
 #: ui/dialogs/arrangement.slint
-msgid "⟲ Use written order"
+msgid "Use written order"
 msgstr ""
 
 #: ui/dialogs/arrangement.slint
@@ -1181,7 +1177,7 @@ msgstr ""
 msgid "The check measures the internet, takes a picture from the camera and listens to the sound for a moment. Nothing is sent to viewers."
 msgstr ""
 
-#: ui/dialogs/go-live-helper.slint
+#: ui/dialogs/go-live-helper.slint src/ui/dialogs/update.rs
 msgid "Checking…"
 msgstr ""
 
@@ -1908,6 +1904,22 @@ msgstr ""
 msgid "Your data:"
 msgstr ""
 
+#: ui/dialogs/settings-about.slint src/ui/dialogs/settings_find.rs
+msgid "New versions"
+msgstr ""
+
+#: ui/dialogs/settings-about.slint src/ui/dialogs/settings_find.rs
+msgid "Once a day RustyPresenter asks GitHub which version is the newest, and tells you when there is a newer one. Nothing about your church is sent, and nothing is downloaded or installed until you choose to."
+msgstr ""
+
+#: ui/dialogs/settings-about.slint
+msgid "Check for a new version when RustyPresenter starts"
+msgstr ""
+
+#: ui/dialogs/settings-about.slint
+msgid "Check now"
+msgstr ""
+
 #: ui/dialogs/settings-about.slint
 msgid "Show licences"
 msgstr ""
@@ -2105,7 +2117,7 @@ msgid "Best (all languages)"
 msgstr ""
 
 #: ui/dialogs/settings-follow.slint
-msgid "Installed ✓ ({})"
+msgid "Installed ({})"
 msgstr ""
 
 #: ui/dialogs/settings-follow.slint
@@ -2118,6 +2130,50 @@ msgstr ""
 
 #: ui/dialogs/settings-follow.slint
 msgid "Tries the downloaded models on this computer and says which one suits it."
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Record a practice"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Keeps the sound auto-follow hears and every slide change, on this computer only. Move the slides by hand as on a Sunday, then check how auto-follow would have done."
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint ui/operator/record.slint ui/operator.slint
+msgid "Stop recording"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint ui/operator.slint
+msgid "Start recording"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Check the last recording"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Plays the last practice through auto-follow as it is now and compares it with your slide changes."
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Open folder"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Song order from practice"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Auto-follow learns from the recorded practice the order each song was really sung in (the chorus after every verse, the bridge twice) and how long each slide was up. On Sunday it expects that order, and when it cannot make out the words it goes by those times. Your slides stay as they are."
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Learn from the last recording"
+msgstr ""
+
+#: ui/dialogs/settings-follow.slint
+msgid "Forget"
 msgstr ""
 
 #: ui/dialogs/settings-follow.slint
@@ -5486,10 +5542,6 @@ msgstr ""
 msgid "How loud the stream's sound is. No bars: nothing is going out"
 msgstr ""
 
-#: ui/operator/record.slint ui/operator.slint
-msgid "Stop recording"
-msgstr ""
-
 #: ui/operator/record.slint
 msgid "Record"
 msgstr ""
@@ -5568,6 +5620,14 @@ msgstr ""
 
 #: ui/operator/service.slint ui/operator/slides.slint
 msgid "Custom order for this service"
+msgstr ""
+
+#: ui/operator/service.slint
+msgid "Hide the slides"
+msgstr ""
+
+#: ui/operator/service.slint
+msgid "Show the slides"
 msgstr ""
 
 #: ui/operator/service.slint
@@ -5659,7 +5719,7 @@ msgid "From this slide on, this part is:"
 msgstr ""
 
 #: ui/operator/slide-editor.slint
-msgid "Quick order ▾"
+msgid "Quick order"
 msgstr ""
 
 #: ui/operator/slide-editor.slint
@@ -5736,6 +5796,18 @@ msgstr ""
 
 #: ui/operator/slides.slint
 msgid "Back to the size in Settings"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Tools"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Hide the tools for these slides"
+msgstr ""
+
+#: ui/operator/slides.slint
+msgid "Lines, text size, key, song order and slide actions"
 msgstr ""
 
 #: ui/operator/slides.slint
@@ -5976,10 +6048,6 @@ msgstr ""
 
 #: ui/operator.slint
 msgid "Video inputs…"
-msgstr ""
-
-#: ui/operator.slint
-msgid "Start recording"
 msgstr ""
 
 #: ui/operator.slint
@@ -6302,6 +6370,10 @@ msgstr ""
 msgid "Select all"
 msgstr ""
 
+#: src/app.rs
+msgid "No sound input to record. Choose one in Settings → Auto-follow."
+msgstr ""
+
 #: src/app.rs src/ui/dialogs/settings_follow.rs
 msgid "no microphone or line-in found"
 msgstr ""
@@ -6342,7 +6414,7 @@ msgstr ""
 msgid "{name} — imported file"
 msgstr ""
 
-#: src/app.rs
+#: src/app.rs src/songselect.rs
 msgid "Give the song a title."
 msgstr ""
 
@@ -6792,6 +6864,10 @@ msgstr ""
 
 #: src/follow/engine.rs
 msgid "Auto-follow stopped: the sound input is gone ({error}). Move the slides by hand."
+msgstr ""
+
+#: src/follow/engine.rs
+msgid "as long as it took at practice"
 msgstr ""
 
 #: src/follow/engine.rs
@@ -10052,6 +10128,14 @@ msgid "Two monitors"
 msgstr ""
 
 #: src/strings/operator.rs
+msgid "ProPresenter style"
+msgstr ""
+
+#: src/strings/operator.rs
+msgid "EasyWorship style"
+msgstr ""
+
+#: src/strings/operator.rs
 msgid "RustyPresenter — {panels}"
 msgstr ""
 
@@ -12826,6 +12910,42 @@ msgid "Review log copied"
 msgstr ""
 
 #: src/ui/dialogs/settings_follow.rs
+msgid "Forgotten. Auto-follow expects every song in the order of its slides."
+msgstr ""
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Recording… {time}"
+msgstr ""
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Recording stopped."
+msgstr ""
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Songs with a learned order: {count}"
+msgstr ""
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Nothing to learn: no song on the recording was sung over two slides or more."
+msgstr ""
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Learned: {songs}"
+msgstr ""
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Can't read the recording: {error}"
+msgstr ""
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Saved: {folder}"
+msgstr ""
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Can't record: {error}"
+msgstr ""
+
+#: src/ui/dialogs/settings_follow.rs
 msgid "{title} (in this service)"
 msgstr ""
 
@@ -13270,6 +13390,46 @@ msgstr ""
 
 #: src/ui/dialogs/translation_editor.rs
 msgid "{language} added. Type your words, then pick it in Settings → Language."
+msgstr ""
+
+#: src/ui/dialogs/update.rs
+msgid "Version {version} is available. You have {current}."
+msgstr ""
+
+#: src/ui/dialogs/update.rs
+msgid "You have the newest version ({current})."
+msgstr ""
+
+#: src/ui/dialogs/update.rs
+msgid "No version has been published for download yet. You have {current}."
+msgstr ""
+
+#: src/ui/dialogs/update.rs
+msgid "Could not check: no internet connection."
+msgstr ""
+
+#: src/ui/dialogs/update.rs
+msgid "Could not check: {reason}"
+msgstr ""
+
+#: src/ui/dialogs/update.rs
+msgid "Get version {version}…"
+msgstr ""
+
+#: src/ui/dialogs/update.rs
+msgid "Your web browser is opening the download page. Install it when no service is running."
+msgstr ""
+
+#: src/ui/dialogs/update.rs
+msgid "Could not open your web browser: {reason}"
+msgstr ""
+
+#: src/ui/dialogs/update.rs
+msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page."
+msgstr ""
+
+#: src/ui/dialogs/update.rs
+msgid "Get it"
 msgstr ""
 
 #: src/ui/operator/automation.rs

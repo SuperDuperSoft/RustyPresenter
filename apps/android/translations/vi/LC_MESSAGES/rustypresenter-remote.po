@@ -242,3 +242,30 @@ msgstr "Không kết nối được với máy tính. Đang thử lại…"
 
 msgid "This phone is no longer paired. Pair it again."
 msgstr "Điện thoại này không còn được ghép nối. Hãy ghép nối lại."
+
+msgid "Draw"
+msgstr "Vẽ"
+
+msgid "Draw on the slide"
+msgstr "Vẽ lên trang chiếu"
+
+msgid "Ink fades"
+msgstr "Mực mờ dần"
+
+msgid "Ink stays"
+msgstr "Mực giữ nguyên"
+
+msgid "Undo"
+msgstr "Hoàn tác"
+
+msgid "Clear"
+msgstr "Xóa"
+
+msgid "Done"
+msgstr "Xong"
+
+msgid "Drawing from this phone is turned off on the computer."
+msgstr "Tính năng vẽ từ điện thoại này đang tắt trên máy tính."
+
+msgid "The app closed by itself last time. Please pass this on:"
+msgstr "Lần trước ứng dụng đã tự đóng. Vui lòng chuyển thông tin này:"

@@ -28,6 +28,10 @@ export global ServicePane {
     in property <[ServiceRow]> service-rows;
     in property <string> service-count;
     in property <string> service-count-short;
+    /// The picture list (the EasyWorship-style layout): see `ServiceColumn.pictures`.
+    in property <bool> service-pictures;
+    callback service-toggle-expand(string);
+    callback service-show-slide(string, int);
     callback service-select(string);
     callback service-show-first(string);
     callback service-edit(string);
@@ -61,6 +65,9 @@ export global SlidesPane {
     /// N37: 0 grid, 1 Easy, 2 Table; N8: the grid's picture size. Both stay for this session (`slides.rs`).
     in-out property <int> slides-view;
     in-out property <int> slides-thumb-size: 230;
+    /// The tools over the slides (lines, size, key, order, actions) are unfolded. Folded, the slides get the room.
+    in-out property <bool> slides-tools-open;
+    callback slides-tools-toggled(bool);
     callback slides-view-picked(int);
     callback slides-thumb-size-changed(int);
     /// A Bible passage is selected: its text size ("Auto" or pixels) with A− / A+ / Auto.

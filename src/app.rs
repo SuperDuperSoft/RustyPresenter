@@ -294,6 +294,8 @@ pub struct App {
     follower: OnceLock<crate::follow::Follower>,
     /// The sound input auto-follow listens to (`start_follow_if_wanted`).
     listen: Mutex<Option<crate::follow::Capture>>,
+    /// The practice tape (`follow::tape`): off until Settings → Auto-follow → Practice starts one.
+    pub(crate) tape: Arc<crate::follow::tape::Tape>,
 }
 
 pub struct DataPlan<'a>(pub &'a Data);
@@ -356,7 +358,7 @@ impl App {
             history: Mutex::default(), save_seq: AtomicU64::new(0), saved_seq: Mutex::new(0),
             automation: Mutex::default(), ticker_wake: tokio::sync::Notify::new(), automation_watching: AtomicBool::new(false), stream_choice: Mutex::default(), tally: Mutex::default(), clip_request: Mutex::default(),
             listening: AtomicBool::new(false), room_canvas: AtomicU64::new(1920 << 32 | 1080), pplive: Default::default(), follower: OnceLock::new(),
-            listen: Mutex::default(),
+            listen: Mutex::default(), tape: Default::default(),
         });
         crate::sections::look::set_look(&app.data.lock().unwrap().settings.sections);
         {
@@ -474,6 +476,83 @@ impl App {
         }
         // Whatever moved the live slide (a click, a phone, a macro, an edit), auto-follow looks again.
         if let Some(f) = self.follower.get() { f.on_live_change() }
+        self.tape_screen();
+    }
+
+    /// The screen as a practice tape keeps it, while one runs.
+    fn tape_screen(&self) {
+        if !self.tape.on() { return }
+        let screen = {
+            let data = self.data.lock().unwrap();
+            let live = self.live.lock().unwrap();
+            let (Some(item), Some(cursor)) = (live.item.as_ref(), live.cursor.as_ref()) else { return };
+            let song = item.kind == "song";
+            let words = |s: &crate::model::Slide| match &s.content { crate::model::SlideContent::Text { text, .. } => text.clone(), _ => String::new() };
+            crate::follow::tape::Screen {
+                item: item.item_id, title: item.title.clone(), song,
+                slides: if song { item.slides.iter().map(words).collect() } else { vec![] },
+                slide: cursor.slide, words_up: live.frame.slide.is_some(),
+                mode: data.automation.follow.get(&item.item_id).copied().unwrap_or(data.settings.follow.mode),
+                hand: live.manual_version,
+                video: live.frame.media.as_ref().is_some_and(|m| matches!(m.v, crate::live::MediaLayer::Video { .. })),
+                hold: self.follower.get().is_some_and(|f| f.holding()),
+            }
+        };
+        self.tape.screen(&screen);
+    }
+
+    /// Starts a practice tape (`follow::tape`) and the listening it needs, whatever mode the songs are in. The
+    /// tape's folder. Runs FFmpeg, so not on the UI thread.
+    pub fn start_tape(self: &Arc<Self>) -> Result<std::path::PathBuf, String> {
+        let about = {
+            let d = self.data.lock().unwrap();
+            serde_json::json!({ "app": env!("CARGO_PKG_VERSION"), "follow": d.settings.follow, "lines_per_slide": d.settings.lines_per_slide })
+        };
+        let dir = self.tape.start(&self.store.root.join(crate::follow::tape::FOLDER), chrono::Local::now().naive_local(), about)?;
+        self.start_follow_if_wanted();
+        if !self.listen.lock().unwrap().as_ref().is_some_and(|c| c.running()) {
+            self.tape.stop();
+            let _ = std::fs::remove_dir_all(&dir);
+            return Err(crate::tr!("No sound input to record. Choose one in Settings → Auto-follow."));
+        }
+        self.tape_screen();
+        Ok(dir)
+    }
+
+    /// Ends the practice tape. Its folder, when one was running. Listening stops with it when no song follows.
+    pub fn stop_tape(&self) -> Option<std::path::PathBuf> {
+        let dir = self.tape.stop();
+        if !self.follow_wanted() { self.listen.lock().unwrap().take(); }
+        dir
+    }
+
+    /// Learns the order each song was sung in from the practice tape in `dir`, and how long each slide was up
+    /// (`follow::order`), for the songs that are still in a service: each one's title and order. A song the tape
+    /// has for a minute or more with nothing to learn from (one slide) loses what it had. Orders of items that
+    /// are gone are dropped.
+    pub fn learn_orders(&self, dir: &std::path::Path) -> Result<Vec<(String, Vec<usize>)>, String> {
+        use crate::follow::order;
+        let takes = crate::follow::review::read(dir)?;
+        let lessons = order::lessons(&takes);
+        self.edit_untracked(|d| {
+            let items: std::collections::BTreeSet<Uuid> = d.services.iter().flat_map(|s| s.items.iter().map(|i| i.id)).collect();
+            d.automation.follow_order.retain(|id, _| items.contains(id));
+            for take in takes.iter().filter(|t| t.until - t.from >= 60.0) {
+                if let Some(item) = take.item.filter(|i| !lessons.iter().any(|l| l.0 == *i)) { d.automation.follow_order.remove(&item); }
+            }
+            let mut out = vec![];
+            for (item, title, lesson) in lessons {
+                if !items.contains(&item) { continue }
+                out.push((title, lesson.slides.clone()));
+                d.automation.follow_order.insert(item, lesson);
+            }
+            Ok(out)
+        })
+    }
+
+    /// Forgets every learned song order. How many there were.
+    pub fn forget_orders(&self) -> Result<usize, String> {
+        self.edit_untracked(|d| Ok(std::mem::take(&mut d.automation.follow_order).len()))
     }
 
     /// Starts song auto-follow's worker (once).
@@ -486,6 +565,8 @@ impl App {
 
     /// Auto-follow is wanted: Settings → Auto-follow or a song item is set to Suggest or Automatic.
     pub fn follow_wanted(&self) -> bool {
+        // A practice tape records the room whatever mode the songs are in.
+        if self.tape.on() { return true }
         let d = self.data.lock().unwrap();
         d.settings.follow.mode != crate::follow::Mode::Manual || d.automation.follow.values().any(|m| *m != crate::follow::Mode::Manual)
     }
@@ -501,7 +582,7 @@ impl App {
         let chosen = self.data.lock().unwrap().settings.follow.input.clone();
         let device = chosen.filter(|d| !d.is_empty()).or_else(|| crate::follow::input_devices().into_iter().next());
         let started = match device {
-            Some(d) => crate::follow::Capture::start(&d, crate::follow::room_ear(f.lexicon()), f.sender()),
+            Some(d) => crate::follow::Capture::start_tapped(&d, crate::follow::room_ear(f.lexicon()), f.sender(), Some(self.tape.clone())),
             None => Err(crate::tr!("no microphone or line-in found")),
         };
         match started {

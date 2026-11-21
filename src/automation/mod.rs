@@ -60,6 +60,9 @@ pub struct Automation {
     /// 1.3: each song item's own auto-follow mode, by item id (else Settings → Auto-follow's).
     #[serde(skip_serializing_if = "BTreeMap::is_empty", deserialize_with = "good_entries")]
     pub follow: BTreeMap<Uuid, crate::follow::Mode>,
+    /// 1.4.4: the order each song item was sung in at practice, by item id (`follow::order`).
+    #[serde(skip_serializing_if = "BTreeMap::is_empty", deserialize_with = "good_entries")]
+    pub follow_order: BTreeMap<Uuid, crate::follow::order::SungOrder>,
 }
 
 /// A map whose entries this version can't read are left out instead of failing the load (spec §4.1).
@@ -69,6 +72,22 @@ fn good_entries<'de, D: serde::Deserializer<'de>, V: serde::de::DeserializeOwned
 }
 
 impl Automation {
+    /// The order `item` was sung in at practice, while its slides are still the ones it was learned for.
+    pub fn sung_order(&self, item: Uuid, slides: &[crate::model::Slide]) -> Vec<usize> {
+        match self.follow_order.get(&item) {
+            Some(o) if o.mark == crate::follow::order::mark_of(slides) => o.slides.clone(),
+            _ => vec![],
+        }
+    }
+
+    /// How long each entry of `sung_order` was up at practice (empty when not known).
+    pub fn sung_secs(&self, item: Uuid, slides: &[crate::model::Slide]) -> Vec<f32> {
+        match self.follow_order.get(&item) {
+            Some(o) if o.mark == crate::follow::order::mark_of(slides) => o.secs.clone(),
+            _ => vec![],
+        }
+    }
+
     /// A new install: the built-ins are already there.
     pub fn seeded() -> Self {
         let mut a = Automation::default();

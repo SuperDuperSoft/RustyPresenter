@@ -22,6 +22,10 @@ thread_local! {
     static INLINE: tokio::runtime::Runtime = tokio::runtime::Builder::new_current_thread().enable_all().build().expect("test runtime");
 }
 
+/// Runs `work` on the runtime `Ops::inline` uses, so what it spawns (a stand-in web server) lives on between calls.
+#[cfg(test)]
+pub(crate) fn block_on_inline<F: Future>(work: F) -> F::Output { INLINE.with(|rt| rt.block_on(work)) }
+
 impl Ops {
     /// Core calls run on `rt`; answers come back through `slint::spawn_local` (needs a running event loop).
     pub fn new(app: Arc<App>, rt: tokio::runtime::Handle) -> Self { Self { app, rt: Some(rt) } }
@@ -71,6 +75,18 @@ impl Ops {
             tokio::task::spawn_blocking(look).await.unwrap_or(None)
         };
         self.run(work, |r| done(r.unwrap_or(None)));
+    }
+
+    /// Asks GitHub for the newest version (`crate::update::check`) and keeps the answer. With nowhere to look
+    /// (tests without a stand-in server) it answers as without internet.
+    pub fn update_check(&self, done: impl FnOnce(Result<crate::update::State, crate::youtube::fetch::FetchError>) + 'static) {
+        use crate::youtube::fetch::FetchError;
+        let (root, base) = (self.app.store.root.clone(), crate::update::base());
+        let work = async move {
+            let Some(base) = base else { return Err(FetchError::Offline(String::new())) };
+            crate::update::check(&root, &base, chrono::Utc::now()).await
+        };
+        self.run(work, |r| done(r.unwrap_or_else(|e| Err(FetchError::Other(e)))));
     }
 
     /// The same for About, which also names the LibreOffice it found.

@@ -8,11 +8,16 @@ export component Btn inherits Rectangle {
     in property <bool> enabled: true;
     in property <length> font-size: Theme.body;
     in property <length> tall: 52px;
+    // Exactly `tall` high whatever its words: they stay on one line and are cut with "…" when too long. For
+    // buttons that must not move or grow (the Remote tab).
+    in property <bool> fixed;
     callback clicked();
     // As tall as `tall` (or its words, when they wrap), never stretched.
-    min-height: max(root.tall, label.preferred-height + 16px);
+    min-height: root.fixed ? root.tall : max(root.tall, label.preferred-height + 16px);
     max-height: self.min-height;
-    min-width: min(label.preferred-width + 24px, 160px);
+    min-width: root.fixed ? 0px : min(label.preferred-width + 24px, 160px);
+    // Fixed buttons in a row share it equally, whatever their words.
+    preferred-width: root.fixed ? 0px : label.preferred-width + 24px;
     border-radius: Theme.radius;
     border-width: root.kind == "danger" ? 1px : 0px;
     border-color: Theme.clear-all-border;
@@ -32,9 +37,11 @@ export component Btn inherits Rectangle {
             : root.kind == "danger" ? Theme.clear-all-text : Theme.text;
         horizontal-alignment: center;
         vertical-alignment: center;
-        wrap: word-wrap;
+        wrap: root.fixed ? no-wrap : word-wrap;
+        overflow: root.fixed ? elide : clip;
         x: 8px;
         width: parent.width - 16px;
+        height: parent.height;
     }
     touch := TouchArea {
         enabled: root.enabled;

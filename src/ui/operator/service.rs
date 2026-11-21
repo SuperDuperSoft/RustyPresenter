@@ -5,11 +5,25 @@
 use super::{view::{self, OperatorSnapshot}, window::Operator};
 use crate::{
     live::Command,
-    ui::{ServiceRow, ops::outcome_toast},
+    model::passage,
+    ui::{ServiceRow, ServiceSlide, ops::outcome_toast, thumbs::{self, Pixels}},
 };
-use slint::{DataTransfer, Model, ModelRc};
+use slint::{DataTransfer, Image, Model, ModelRc, VecModel};
+use std::collections::HashSet;
 use std::rc::{Rc, Weak};
 use uuid::Uuid;
+
+/// The picture list (the EasyWorship-style layout, `Layout::service_pictures`): each item shows its first slide,
+/// and an arrow unfolds the rest under it. Which items are unfolded is kept for this session.
+#[derive(Default)]
+pub(super) struct Pics {
+    expanded: HashSet<Uuid>,
+    /// Bumped whenever the pictures are asked for again, so a late one for an older list is dropped.
+    generation: u64,
+}
+
+/// The size the list's pictures are drawn at: the row's 96 px picture at up to 2x.
+const PIC_SIZE: (u32, u32) = (192, 108);
 
 /// What a dragged row carries: plain text `svc:<id>`, the web's `text/x-rp-item` (`operator.js:136`).
 const DRAG_PREFIX: &str = "svc:";
@@ -47,6 +61,10 @@ pub fn rows(snap: &OperatorSnapshot, selected: Option<Uuid>, live_item: Option<U
             header: header.is_some(),
             color: header.and_then(crate::ui::dialogs::services::parse_color).unwrap_or_default(),
             custom_order: matches!(it.item.kind, crate::model::ItemKind::Song { arrangement: Some(_), .. }),
+            thumb: Image::default(),
+            expanded: false,
+            slide_count: it.slides.len() as i32,
+            slides: ModelRc::default(),
         }
     }).collect()
 }
@@ -69,13 +87,96 @@ fn drag_id(d: &DataTransfer) -> String {
 impl Operator {
     /// Rebuilds the list from the current snapshot (a new `Data`), keeping the same model.
     pub(super) fn render_service(&self) {
-        let st = self.state.borrow();
-        let Some(snap) = st.snap.as_ref() else { return };
-        self.service_rows.set_vec(rows(snap, st.selected, self.live_item()));
+        let (snap, selected) = { let st = self.state.borrow(); (st.snap.clone(), st.selected) };
+        let Some(snap) = snap else { return };
+        let mut list = rows(&snap, selected, self.live_item());
+        let pictures = self.ui.get_service_pictures();
+        if pictures { self.unfold_rows(&snap, &mut list) }
+        self.service_rows.set_vec(list);
         self.ui.set_service_count(view::count_label(snap.items.len()).into());
         self.ui.set_service_count_short(snap.items.len().to_string().into());
-        drop(st);
         self.render_service_theme();
+        if pictures { self.draw_pictures(&snap) }
+    }
+
+    /// The live item and slide, if any.
+    fn live_place(&self) -> Option<(Uuid, usize)> {
+        self.state.borrow().live.as_ref().and_then(|l| l.view().cursor.as_ref().map(|c| (c.item_id, c.slide)))
+    }
+
+    /// The picture list: the unfolded items get their slides (the pictures arrive from `draw_pictures`).
+    fn unfold_rows(&self, snap: &OperatorSnapshot, list: &mut [ServiceRow]) {
+        let live = self.live_place();
+        let pics = self.service_pics.borrow();
+        for (row, it) in list.iter_mut().zip(&snap.items) {
+            if row.header || it.slides.len() < 2 || !pics.expanded.contains(&it.id) { continue }
+            row.expanded = true;
+            let slides: Vec<ServiceSlide> = it.slides.iter().enumerate().map(|(i, s)| ServiceSlide {
+                idx: i as i32,
+                image: Image::default(),
+                label: s.label.as_str().into(),
+                text: super::slides::slide_text(s).replace('\n', " / ").into(),
+                live: live == Some((it.id, i)),
+            }).collect();
+            row.slides = ModelRc::new(VecModel::from(slides));
+        }
+    }
+
+    /// Asks for the list's pictures: every item's first slide, and all the slides of the unfolded ones. One that
+    /// was drawn before comes back at once from the thumbnails' own cache.
+    fn draw_pictures(&self, snap: &OperatorSnapshot) {
+        let (generation, expanded) = {
+            let mut pics = self.service_pics.borrow_mut();
+            pics.generation += 1;
+            (pics.generation, pics.expanded.clone())
+        };
+        let media: Vec<_> = snap.data.media.iter().filter(|m| m.thumb.is_some()).cloned().collect();
+        for (row, it) in snap.items.iter().enumerate() {
+            if it.slides.is_empty() || matches!(it.item.kind, crate::model::ItemKind::Header { .. }) { continue }
+            let settings = thumbs::item_settings(&snap.data, &it.item);
+            let verses = passage(&it.kind, &it.slides);
+            let count = if expanded.contains(&it.id) { it.slides.len() } else { 1 };
+            for (idx, slide) in it.slides.iter().take(count).enumerate() {
+                let (key, job) = thumbs::thumb(slide, &it.kind, &verses, None, &settings, &media, PIC_SIZE);
+                let (me, id) = (self.me.clone(), it.id);
+                self.service_thumbs.request(key, job, move |px| if let Some(op) = me.upgrade() { op.picture_drawn(generation, row, id, idx, px) });
+            }
+        }
+    }
+
+    /// A picture for the list arrived: slide `idx` of the item in row `row`.
+    fn picture_drawn(&self, generation: u64, row: usize, id: Uuid, idx: usize, px: Pixels) {
+        if self.service_pics.borrow().generation != generation { return }
+        let Some(mut r) = self.service_rows.row_data(row) else { return };
+        if r.id != id.to_string().as_str() { return }
+        let image = Image::from_rgba8(px);
+        if r.expanded && let Some(mut s) = r.slides.row_data(idx) {
+            s.image = image.clone();
+            r.slides.set_row_data(idx, s);
+        }
+        if idx == 0 {
+            r.thumb = image;
+            self.service_rows.set_row_data(row, r);
+        }
+    }
+
+    /// The arrow on a row of the picture list: unfolds the item's slides, or folds them away.
+    fn toggle_expand(self: &Rc<Self>, id: Uuid) {
+        {
+            let mut pics = self.service_pics.borrow_mut();
+            if !pics.expanded.remove(&id) { pics.expanded.insert(id); }
+        }
+        self.render_service();
+    }
+
+    /// A click on a slide of an unfolded item: the item is selected and that slide goes live.
+    fn show_item_slide(self: &Rc<Self>, id: Uuid, slide: usize) {
+        self.select_item(id);
+        self.state.borrow_mut().list = super::window::ListFocus::Live;
+        let me = Rc::downgrade(self);
+        self.ops.cmd(Command::Show { item_id: id, slide }, None, move |o| {
+            if let (Some(op), Some((msg, err))) = (me.upgrade(), outcome_toast(&o)) { op.toast(&msg, err); }
+        });
     }
 
     /// Moves the selected and live marks without rebuilding the rows (a click or a `Live` update).
@@ -85,6 +186,18 @@ impl Operator {
         for i in 0..self.service_rows.row_count() {
             let Some(mut row) = self.service_rows.row_data(i) else { continue };
             let (s, l) = (is(selected, &row), is(live, &row));
+            // The picture list, unfolded: the live slide's mark moves with the screen.
+            if row.expanded {
+                let place = self.live_place();
+                for k in 0..row.slides.row_count() {
+                    let Some(mut slide) = row.slides.row_data(k) else { continue };
+                    let on = l && place.is_some_and(|(_, at)| at == k);
+                    if slide.live != on {
+                        slide.live = on;
+                        row.slides.set_row_data(k, slide);
+                    }
+                }
+            }
             if row.selected != s || row.live != l {
                 row.selected = s;
                 row.live = l;
@@ -149,6 +262,11 @@ pub(super) fn wire(op: &Rc<Operator>) {
         }
     };
     ui.on_service_select(on(|op, id| op.select_item(id)));
+    ui.on_service_toggle_expand(on(|op, id| op.toggle_expand(id)));
+    let me = Rc::downgrade(op);
+    ui.on_service_show_slide(move |id, slide| {
+        if let (Some(op), Ok(id), Ok(slide)) = (me.upgrade(), Uuid::parse_str(&id), usize::try_from(slide)) { op.show_item_slide(id, slide) }
+    });
     ui.on_service_show_first(on(|op, id| op.show_first(id)));
     ui.on_service_remove(on(|op, id| op.service_action("service/remove", serde_json::json!({ "id": id }))));
     // Edit opens Item edit (Task 18) and Add opens the Add dialog on the Song tab (Task 16).
@@ -207,6 +325,60 @@ mod tests {
     }
 
     fn row(op: &Operator, i: usize) -> ElementHandle { find_all(op, "ServiceColumn::row").swap_remove(i) }
+
+    #[test]
+    fn the_easyworship_layout_lists_pictures_and_unfolds_an_items_slides() {
+        use crate::model::Song;
+        let app = test_app();
+        let song = Song { id: Uuid::new_v4(), title: "Amazing Grace".into(), lyrics: "Verse 1
+Amazing grace
+
+Verse 2
+I once was lost
+
+Verse 3
+Through many dangers".into(), ..Default::default() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None };
+        let id = item.id;
+        {
+            let mut d = app.data.lock().unwrap();
+            d.songs.push(song);
+            d.services[0].items.push(item);
+        }
+        add_texts(&app, &["Welcome"]);
+        let op = opened(&app);
+        assert!(model(&op).iter().all(|r| r.thumb.size().width == 0 && !r.expanded), "the other layouts keep the plain list");
+        assert!(find(&op, "ServiceColumn::expand").is_none());
+
+        op.dock_menu("layout:builtin:easyworship");
+        let rows = model(&op);
+        assert!(rows.iter().all(|r| r.thumb.size().width > 0), "every item shows its first slide");
+        assert_eq!(rows.iter().map(|r| r.slide_count).collect::<Vec<_>>(), [3, 1]);
+        assert_eq!(find_all(&op, "ServiceColumn::expand").len(), 1, "only an item with more slides than one has the arrow");
+
+        // The arrow unfolds the song's slides under it, each with its picture.
+        op.ui.invoke_service_toggle_expand(id.to_string().into());
+        let song_row = &model(&op)[0];
+        assert!(song_row.expanded);
+        let slides: Vec<ServiceSlide> = song_row.slides.iter().collect();
+        assert_eq!(slides.len(), 3);
+        assert!(slides.iter().all(|s| s.image.size().width > 0 && !s.live));
+        assert!(slides[1].text.contains("I once was lost"), "{:?}", slides[1].text);
+
+        // A click on one of them takes it live, and the mark follows.
+        op.ui.invoke_service_show_slide(id.to_string().into(), 2);
+        op.apply_live(crate::app::LiveUpdate::new(op.app().live_view()));
+        let cursor = app.live.lock().unwrap().cursor.clone().unwrap();
+        assert_eq!((cursor.item_id, cursor.slide), (id, 2));
+        let slides: Vec<ServiceSlide> = model(&op)[0].slides.iter().collect();
+        assert_eq!(slides.iter().map(|s| s.live).collect::<Vec<_>>(), [false, false, true]);
+
+        // Folded again, and back in Standard the plain list returns.
+        op.ui.invoke_service_toggle_expand(id.to_string().into());
+        assert!(!model(&op)[0].expanded);
+        op.dock_menu("layout:builtin:standard");
+        assert!(find(&op, "ServiceColumn::expand").is_none());
+    }
 
     /// Presses on `from` and moves far enough to start a drag, without dropping.
     fn start_drag(op: &Operator, from: LogicalPosition) {

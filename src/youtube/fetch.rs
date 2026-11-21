@@ -563,7 +563,7 @@ pub(crate) fn client() -> Result<&'static reqwest::Client, FetchError> {
 }
 
 /// The same, but stopping at the first redirect (see `latest_tag`).
-fn first_hop_client() -> Result<&'static reqwest::Client, FetchError> {
+pub(crate) fn first_hop_client() -> Result<&'static reqwest::Client, FetchError> {
     static CLIENT: OnceLock<Result<reqwest::Client, String>> = OnceLock::new();
     CLIENT.get_or_init(|| build_client(reqwest::redirect::Policy::none())).as_ref().map_err(|e| FetchError::Other(e.clone()))
 }

@@ -19,6 +19,14 @@ pub struct RemoteView {
     pub on_air: OnAir,
     pub media: Option<Media>,
     pub lang: Option<String>,
+    /// This phone may draw on the slides (the computer's list of phones says so).
+    pub may_draw: bool,
+    /// Fading ink disappears after this many seconds (the computer's setting).
+    pub fade_secs: u64,
+    /// The audience screen's shape: width and height.
+    pub aspect: Vec<f64>,
+    /// This phone's lines that are still on the slide.
+    pub my_strokes: Vec<u32>,
 }
 
 #[derive(Deserialize, Debug, Clone, Default, PartialEq)]
@@ -88,6 +96,11 @@ pub fn remote_msg(data: &str) -> RemoteMsg {
 pub enum NowShowing { Logo, Clear, Music, Slide { label: String, text: String, picture: bool, notes: String } }
 
 impl RemoteView {
+    /// The audience screen's width over its height (16:9 until the computer says).
+    pub fn shape(&self) -> f32 {
+        match self.aspect.as_slice() { [w, h] if *w > 0.0 && *h > 0.0 => (*w / *h) as f32, _ => 16.0 / 9.0 }
+    }
+
     pub fn now_showing(&self) -> NowShowing {
         let air = &self.on_air;
         if air.logo { return NowShowing::Logo }

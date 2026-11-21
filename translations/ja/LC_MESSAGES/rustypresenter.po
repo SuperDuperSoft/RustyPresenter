@@ -247,17 +247,13 @@ msgstr "終了"
 msgid "Drop here to remove"
 msgstr "ここにドロップして削除"
 
-#: ui/dialogs/arrangement.slint
-msgid "✕ Remove"
-msgstr "✕ 削除"
-
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr "記載順 — ドラッグで変更"
 
 #: ui/dialogs/arrangement.slint
-msgid "⟲ Use written order"
-msgstr "⟲ 記載順を使う"
+msgid "Use written order"
+msgstr "記載順を使う"
 
 #: ui/dialogs/arrangement.slint
 msgid "Click to play it at the end, or drag it in between the parts"
@@ -1184,7 +1180,7 @@ msgstr "確認"
 msgid "The check measures the internet, takes a picture from the camera and listens to the sound for a moment. Nothing is sent to viewers."
 msgstr "確認では、インターネットの速度を測り、カメラから1枚撮影し、少しの間音声を聞きます。視聴者には何も送られません。"
 
-#: ui/dialogs/go-live-helper.slint
+#: ui/dialogs/go-live-helper.slint src/ui/dialogs/update.rs
 msgid "Checking…"
 msgstr "確認中…"
 
@@ -1911,6 +1907,22 @@ msgstr "日…"
 msgid "Your data:"
 msgstr "データの場所:"
 
+#: ui/dialogs/settings-about.slint src/ui/dialogs/settings_find.rs
+msgid "New versions"
+msgstr "新しいバージョン"
+
+#: ui/dialogs/settings-about.slint src/ui/dialogs/settings_find.rs
+msgid "Once a day RustyPresenter asks GitHub which version is the newest, and tells you when there is a newer one. Nothing about your church is sent, and nothing is downloaded or installed until you choose to."
+msgstr "RustyPresenter は1日に1回、最新のバージョンを GitHub に問い合わせ、新しいものがあればお知らせします。教会についての情報は何も送信されず、あなたが選ぶまで何もダウンロードもインストールもされません。"
+
+#: ui/dialogs/settings-about.slint
+msgid "Check for a new version when RustyPresenter starts"
+msgstr "RustyPresenter の起動時に新しいバージョンを確認する"
+
+#: ui/dialogs/settings-about.slint
+msgid "Check now"
+msgstr "今すぐ確認"
+
 #: ui/dialogs/settings-about.slint
 msgid "Show licences"
 msgstr "ライセンスを表示"
@@ -2108,8 +2120,8 @@ msgid "Best (all languages)"
 msgstr "高精度 (全言語)"
 
 #: ui/dialogs/settings-follow.slint
-msgid "Installed ✓ ({})"
-msgstr "インストール済み ✓ ({})"
+msgid "Installed ({})"
+msgstr "インストール済み ({})"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Download ({})"
@@ -2122,6 +2134,50 @@ msgstr "速度をテスト"
 #: ui/dialogs/settings-follow.slint
 msgid "Tries the downloaded models on this computer and says which one suits it."
 msgstr "ダウンロードしたモデルをこのコンピューターで試し、どれが合うかを表示します。"
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Record a practice"
+msgstr "練習を録音する"
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Keeps the sound auto-follow hears and every slide change, on this computer only. Move the slides by hand as on a Sunday, then check how auto-follow would have done."
+msgstr "自動追従が聞いた音とすべてのスライド切り替えを、このコンピューターにだけ保存します。日曜と同じように手でスライドを切り替えてから、自動追従ならどうだったかを確認できます。"
+
+#: ui/dialogs/settings-follow.slint ui/operator/record.slint ui/operator.slint
+msgid "Stop recording"
+msgstr "録画を停止"
+
+#: ui/dialogs/settings-follow.slint ui/operator.slint
+msgid "Start recording"
+msgstr "録画を開始"
+
+#: ui/dialogs/settings-follow.slint
+msgid "Check the last recording"
+msgstr "最後の録音を確認"
+
+#: ui/dialogs/settings-follow.slint
+msgid "Plays the last practice through auto-follow as it is now and compares it with your slide changes."
+msgstr "最後の練習を今の自動追従に通し、あなたのスライド切り替えと比べます。"
+
+#: ui/dialogs/settings-follow.slint
+msgid "Open folder"
+msgstr "フォルダーを開く"
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Song order from practice"
+msgstr "練習から覚えた曲の順番"
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Auto-follow learns from the recorded practice the order each song was really sung in (the chorus after every verse, the bridge twice) and how long each slide was up. On Sunday it expects that order, and when it cannot make out the words it goes by those times. Your slides stay as they are."
+msgstr "自動追従は、録音した練習から、各曲が実際に歌われた順番（各節のあとのコーラス、2回のブリッジなど）と、各スライドが表示されていた時間を覚えます。日曜にはその順番を想定し、歌詞が聞き取れないときはその時間を目安にします。スライドはそのままです。"
+
+#: ui/dialogs/settings-follow.slint
+msgid "Learn from the last recording"
+msgstr "最後の録音から覚える"
+
+#: ui/dialogs/settings-follow.slint
+msgid "Forget"
+msgstr "忘れる"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
@@ -5495,10 +5551,6 @@ msgstr "5段階中{}"
 msgid "How loud the stream's sound is. No bars: nothing is going out"
 msgstr "配信の音の大きさ。バーが無いときは何も出ていません"
 
-#: ui/operator/record.slint ui/operator.slint
-msgid "Stop recording"
-msgstr "録画を停止"
-
 #: ui/operator/record.slint
 msgid "Record"
 msgstr "録画"
@@ -5578,6 +5630,14 @@ msgstr "カスタム順序"
 #: ui/operator/service.slint ui/operator/slides.slint
 msgid "Custom order for this service"
 msgstr "この礼拝用のカスタム順序"
+
+#: ui/operator/service.slint
+msgid "Hide the slides"
+msgstr "スライドを隠す"
+
+#: ui/operator/service.slint
+msgid "Show the slides"
+msgstr "スライドを表示"
 
 #: ui/operator/service.slint
 msgid "Choose what goes here"
@@ -5668,8 +5728,8 @@ msgid "From this slide on, this part is:"
 msgstr "このスライドから、このパートは："
 
 #: ui/operator/slide-editor.slint
-msgid "Quick order ▾"
-msgstr "おすすめの順序 ▾"
+msgid "Quick order"
+msgstr "おすすめの順序"
 
 #: ui/operator/slide-editor.slint
 msgid "Ready-made orders for this song"
@@ -5746,6 +5806,18 @@ msgstr "この聖書箇所の文字を大きく"
 #: ui/operator/slides.slint
 msgid "Back to the size in Settings"
 msgstr "設定のサイズに戻す"
+
+#: ui/operator/slides.slint
+msgid "Tools"
+msgstr "ツール"
+
+#: ui/operator/slides.slint
+msgid "Hide the tools for these slides"
+msgstr "このスライドのツールを隠す"
+
+#: ui/operator/slides.slint
+msgid "Lines, text size, key, song order and slide actions"
+msgstr "行数、文字サイズ、キー、曲順、スライドのアクション"
 
 #: ui/operator/slides.slint
 msgid "‹ Verse"
@@ -5986,10 +6058,6 @@ msgstr "メディアを取り込む…"
 #: ui/operator.slint
 msgid "Video inputs…"
 msgstr "映像入力…"
-
-#: ui/operator.slint
-msgid "Start recording"
-msgstr "録画を開始"
 
 #: ui/operator.slint
 msgid "Recording settings…"
@@ -6311,6 +6379,10 @@ msgstr "書き込み付きのスライド"
 msgid "Select all"
 msgstr "すべて選択"
 
+#: src/app.rs
+msgid "No sound input to record. Choose one in Settings → Auto-follow."
+msgstr "録音できる音声入力がありません。設定 → 自動追従で選んでください。"
+
 #: src/app.rs src/ui/dialogs/settings_follow.rs
 msgid "no microphone or line-in found"
 msgstr "マイクやライン入力が見つかりません"
@@ -6351,7 +6423,7 @@ msgstr "{name} — 内蔵、パブリックドメイン"
 msgid "{name} — imported file"
 msgstr "{name} — 取り込んだファイル"
 
-#: src/app.rs
+#: src/app.rs src/songselect.rs
 msgid "Give the song a title."
 msgstr "曲にタイトルを付けてください。"
 
@@ -6802,6 +6874,10 @@ msgstr "FFmpeg が停止しました"
 #: src/follow/engine.rs
 msgid "Auto-follow stopped: the sound input is gone ({error}). Move the slides by hand."
 msgstr "自動追従が停止しました: 音声入力がなくなりました ({error})。スライドは手動で進めてください。"
+
+#: src/follow/engine.rs
+msgid "as long as it took at practice"
+msgstr "練習のときと同じ時間がたったため"
 
 #: src/follow/engine.rs
 msgid "heard \"{words}\""
@@ -10034,6 +10110,14 @@ msgid "Two monitors"
 msgstr "2 台のモニター"
 
 #: src/strings/operator.rs
+msgid "ProPresenter style"
+msgstr "ProPresenter 風"
+
+#: src/strings/operator.rs
+msgid "EasyWorship style"
+msgstr "EasyWorship 風"
+
+#: src/strings/operator.rs
 msgid "RustyPresenter — {panels}"
 msgstr "RustyPresenter — {panels}"
 
@@ -12791,6 +12875,42 @@ msgid "Review log copied"
 msgstr "記録をコピーしました"
 
 #: src/ui/dialogs/settings_follow.rs
+msgid "Forgotten. Auto-follow expects every song in the order of its slides."
+msgstr "忘れました。自動追従はどの曲もスライドの順番どおりに想定します。"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Recording… {time}"
+msgstr "録音中… {time}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Recording stopped."
+msgstr "録音を停止しました。"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Songs with a learned order: {count}"
+msgstr "順番を覚えた曲: {count}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Nothing to learn: no song on the recording was sung over two slides or more."
+msgstr "覚えることはありません。録音には、2枚以上のスライドにわたって歌われた曲がありません。"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Learned: {songs}"
+msgstr "覚えました: {songs}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Can't read the recording: {error}"
+msgstr "録音を読み込めません: {error}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Saved: {folder}"
+msgstr "保存しました: {folder}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Can't record: {error}"
+msgstr "録音できません: {error}"
+
+#: src/ui/dialogs/settings_follow.rs
 msgid "{title} (in this service)"
 msgstr "{title} (この礼拝内)"
 
@@ -13241,6 +13361,46 @@ msgstr "一覧から言語を選ぶか、「自分の言語が一覧にない」
 #: src/ui/dialogs/translation_editor.rs
 msgid "{language} added. Type your words, then pick it in Settings → Language."
 msgstr "{language} を追加しました。訳語を入力してから、「設定 → 言語」で選んでください。"
+
+#: src/ui/dialogs/update.rs
+msgid "Version {version} is available. You have {current}."
+msgstr "バージョン {version} があります。現在は {current} です。"
+
+#: src/ui/dialogs/update.rs
+msgid "You have the newest version ({current})."
+msgstr "最新のバージョンです（{current}）。"
+
+#: src/ui/dialogs/update.rs
+msgid "No version has been published for download yet. You have {current}."
+msgstr "ダウンロードできるバージョンはまだ公開されていません。現在は {current} です。"
+
+#: src/ui/dialogs/update.rs
+msgid "Could not check: no internet connection."
+msgstr "確認できません：インターネットに接続されていません。"
+
+#: src/ui/dialogs/update.rs
+msgid "Could not check: {reason}"
+msgstr "確認できません：{reason}"
+
+#: src/ui/dialogs/update.rs
+msgid "Get version {version}…"
+msgstr "バージョン {version} を入手…"
+
+#: src/ui/dialogs/update.rs
+msgid "Your web browser is opening the download page. Install it when no service is running."
+msgstr "ウェブブラウザでダウンロードページを開いています。礼拝が行われていないときにインストールしてください。"
+
+#: src/ui/dialogs/update.rs
+msgid "Could not open your web browser: {reason}"
+msgstr "ウェブブラウザを開けません：{reason}"
+
+#: src/ui/dialogs/update.rs
+msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page."
+msgstr "RustyPresenter {version} があります。現在は {current} です。今すぐ入手しますか？ウェブブラウザでダウンロードページが開きます。"
+
+#: src/ui/dialogs/update.rs
+msgid "Get it"
+msgstr "入手する"
 
 #: src/ui/operator/automation.rs
 msgid "Auto · {time}"
@@ -13842,6 +14002,15 @@ msgstr "yt-dlp は動画を保存しませんでした"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "メディアファイルではありません"
+
+#~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
+#~ msgstr "RustyPresenter {version} があります。現在は {current} です。今すぐ入手しますか？ウェブブラウザでダウンロードページが開きます。あとで「設定 → ヘルプと情報」から入手することもできます。"
+
+#~ msgid "Auto-follow learns the order each song was really sung in at the recorded practice (the chorus after every verse, the bridge twice) and expects it on Sunday. Your slides stay as they are."
+#~ msgstr "自動追従は、録音した練習で各曲が実際に歌われた順番（各節のあとのコーラス、2回のブリッジなど）を覚え、日曜にはその順番を想定します。スライドはそのままです。"
+
+#~ msgid "Nothing to learn: every song was sung in the order of its slides."
+#~ msgstr "覚えることはありません。どの曲もスライドの順番どおりに歌われました。"
 
 #~ msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
 #~ msgstr "教会のWi-Fiにつないだスマホを、配信のカメラやマイクにできます。初めてのとき、スマホに「このページは安全ではありません」と出ますが、ページがこのコンピューターから来ているためで、問題ありません。「詳細設定」（iPhoneでは「詳細を表示」）を押してページに進んでください。スマホは画面をつけたまま、充電しながら使ってください。"

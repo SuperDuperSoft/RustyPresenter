@@ -115,11 +115,14 @@ fn builtin_name(b: Builtin) -> String {
         Builtin::BigSlides => tr::layout_big_slides(),
         Builtin::Livestream => tr::layout_livestream(),
         Builtin::TwoMonitors => tr::layout_two_monitors(),
+        Builtin::ProPresenter => tr::layout_propresenter(),
+        Builtin::EasyWorship => tr::layout_easyworship(),
     }
 }
 
 fn builtin_key(b: Builtin) -> &'static str {
-    match b { Builtin::Standard => "standard", Builtin::BigSlides => "big-slides", Builtin::Livestream => "livestream", Builtin::TwoMonitors => "two-monitors" }
+    match b { Builtin::Standard => "standard", Builtin::BigSlides => "big-slides", Builtin::Livestream => "livestream", Builtin::TwoMonitors => "two-monitors",
+        Builtin::ProPresenter => "propresenter", Builtin::EasyWorship => "easyworship" }
 }
 
 fn rect(r: &dock::Rect) -> DockRect { DockRect { x: r.x, y: r.y, w: r.w, h: r.h } }
@@ -234,6 +237,11 @@ impl Operator {
         ui.set_cameras_apart(l.is_shown(PanelId::Cameras));
         ui.set_automation_apart(l.is_shown(PanelId::Automation));
         ui.set_livestream_apart(l.is_shown(PanelId::Livestream));
+        // The EasyWorship-style list: a picture of each item, and an arrow that unfolds its slides.
+        if ui.get_service_pictures() != l.service_pictures {
+            ui.set_service_pictures(l.service_pictures);
+            self.render_service();
+        }
         let panels: Vec<DockMenuRow> = PanelId::ALL.iter().map(|p| DockMenuRow {
             key: format!("panel:{}", p.index()).into(), name: panel_name(*p).into(), checked: l.is_shown(*p),
         }).collect();
@@ -740,6 +748,11 @@ impl Operator {
             return self.dock_show(p);
         }
         if let Some(b) = key.strip_prefix("layout:builtin:").and_then(|k| Builtin::ALL.into_iter().find(|b| builtin_key(*b) == k)) {
+            // A layout brings its own look with it: ProPresenter's grid of many small slides, EasyWorship's songs
+            // and media open along the bottom (folded again when another layout is chosen after it).
+            if b == Builtin::ProPresenter { self.set_slide_view(super::slides::SlideView::Grid, Some(180)) }
+            let was_easy = self.dock.prefs.borrow().chosen == Chosen::Builtin(Builtin::EasyWorship);
+            if b == Builtin::EasyWorship { self.ui.set_bin_open(true) } else if was_easy { self.ui.set_bin_open(false) }
             return self.dock_choose(Chosen::Builtin(b), Layout::builtin(b));
         }
         if let Some(name) = key.strip_prefix("layout:saved:") {

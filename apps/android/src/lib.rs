@@ -7,6 +7,7 @@
 //! the screens (Slint), the microphone, the camera, permissions.
 pub mod address;
 pub mod discovery;
+pub mod draw;
 pub mod fit;
 pub mod frames;
 pub mod http;

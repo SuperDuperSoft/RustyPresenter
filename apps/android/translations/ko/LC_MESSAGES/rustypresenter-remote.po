@@ -242,3 +242,30 @@ msgstr "컴퓨터에 연결할 수 없어요. 다시 시도하는 중…"
 
 msgid "This phone is no longer paired. Pair it again."
 msgstr "이 휴대폰은 더 이상 연결되어 있지 않습니다. 다시 연결하세요."
+
+msgid "Draw"
+msgstr "그리기"
+
+msgid "Draw on the slide"
+msgstr "슬라이드에 그리기"
+
+msgid "Ink fades"
+msgstr "잉크가 사라짐"
+
+msgid "Ink stays"
+msgstr "잉크가 남음"
+
+msgid "Undo"
+msgstr "실행 취소"
+
+msgid "Clear"
+msgstr "지우기"
+
+msgid "Done"
+msgstr "완료"
+
+msgid "Drawing from this phone is turned off on the computer."
+msgstr "이 휴대폰에서 그리기는 컴퓨터에서 꺼져 있습니다."
+
+msgid "The app closed by itself last time. Please pass this on:"
+msgstr "지난번에 앱이 저절로 닫혔습니다. 이 내용을 전달해 주세요:"

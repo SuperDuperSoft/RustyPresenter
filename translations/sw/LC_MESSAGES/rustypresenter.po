@@ -247,17 +247,13 @@ msgstr "Mwisho"
 msgid "Drop here to remove"
 msgstr "Dondosha hapa kuondoa"
 
-#: ui/dialogs/arrangement.slint
-msgid "✕ Remove"
-msgstr "✕ Ondoa"
-
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr "Mpangilio ulioandikwa — buruta kubadilisha"
 
 #: ui/dialogs/arrangement.slint
-msgid "⟲ Use written order"
-msgstr "⟲ Tumia mpangilio ulioandikwa"
+msgid "Use written order"
+msgstr "Tumia mpangilio ulioandikwa"
 
 #: ui/dialogs/arrangement.slint
 msgid "Click to play it at the end, or drag it in between the parts"
@@ -1184,7 +1180,7 @@ msgstr "Ikague"
 msgid "The check measures the internet, takes a picture from the camera and listens to the sound for a moment. Nothing is sent to viewers."
 msgstr "Ukaguzi hupima intaneti, huchukua picha kutoka kwa kamera na husikiliza sauti kwa muda mfupi. Hakuna kinachotumwa kwa watazamaji."
 
-#: ui/dialogs/go-live-helper.slint
+#: ui/dialogs/go-live-helper.slint src/ui/dialogs/update.rs
 msgid "Checking…"
 msgstr "Inakagua…"
 
@@ -1911,6 +1907,22 @@ msgstr "Siku…"
 msgid "Your data:"
 msgstr "Data yako:"
 
+#: ui/dialogs/settings-about.slint src/ui/dialogs/settings_find.rs
+msgid "New versions"
+msgstr "Matoleo mapya"
+
+#: ui/dialogs/settings-about.slint src/ui/dialogs/settings_find.rs
+msgid "Once a day RustyPresenter asks GitHub which version is the newest, and tells you when there is a newer one. Nothing about your church is sent, and nothing is downloaded or installed until you choose to."
+msgstr "Mara moja kwa siku RustyPresenter huuliza GitHub ni toleo lipi lililo jipya zaidi, na hukuambia kunapokuwa na jipya zaidi. Hakuna chochote kuhusu kanisa lako kinachotumwa, na hakuna kinachopakuliwa wala kusakinishwa hadi uchague."
+
+#: ui/dialogs/settings-about.slint
+msgid "Check for a new version when RustyPresenter starts"
+msgstr "Angalia toleo jipya RustyPresenter inapoanza"
+
+#: ui/dialogs/settings-about.slint
+msgid "Check now"
+msgstr "Angalia sasa"
+
 #: ui/dialogs/settings-about.slint
 msgid "Show licences"
 msgstr "Onyesha leseni"
@@ -2108,8 +2120,8 @@ msgid "Best (all languages)"
 msgstr "Bora (lugha zote)"
 
 #: ui/dialogs/settings-follow.slint
-msgid "Installed ✓ ({})"
-msgstr "Imesakinishwa ✓ ({})"
+msgid "Installed ({})"
+msgstr "Imesakinishwa ({})"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Download ({})"
@@ -2122,6 +2134,50 @@ msgstr "Jaribu kasi"
 #: ui/dialogs/settings-follow.slint
 msgid "Tries the downloaded models on this computer and says which one suits it."
 msgstr "Inajaribu modeli zilizopakuliwa kwenye kompyuta hii na kusema ipi inaifaa."
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Record a practice"
+msgstr "Rekodi mazoezi"
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Keeps the sound auto-follow hears and every slide change, on this computer only. Move the slides by hand as on a Sunday, then check how auto-follow would have done."
+msgstr "Huhifadhi sauti ambayo ufuatiliaji wa kiotomatiki husikia na kila badiliko la slaidi, kwenye kompyuta hii pekee. Badilisha slaidi kwa mkono kama Jumapili, kisha angalia jinsi ufuatiliaji wa kiotomatiki ungefanya."
+
+#: ui/dialogs/settings-follow.slint ui/operator/record.slint ui/operator.slint
+msgid "Stop recording"
+msgstr "Acha kurekodi"
+
+#: ui/dialogs/settings-follow.slint ui/operator.slint
+msgid "Start recording"
+msgstr "Anza kurekodi"
+
+#: ui/dialogs/settings-follow.slint
+msgid "Check the last recording"
+msgstr "Kagua rekodi ya mwisho"
+
+#: ui/dialogs/settings-follow.slint
+msgid "Plays the last practice through auto-follow as it is now and compares it with your slide changes."
+msgstr "Hupitisha mazoezi ya mwisho kwenye ufuatiliaji wa kiotomatiki jinsi ulivyo sasa na kuyalinganisha na mabadiliko yako ya slaidi."
+
+#: ui/dialogs/settings-follow.slint
+msgid "Open folder"
+msgstr "Fungua folda"
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Song order from practice"
+msgstr "Mpangilio wa nyimbo kutoka mazoezi"
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Auto-follow learns from the recorded practice the order each song was really sung in (the chorus after every verse, the bridge twice) and how long each slide was up. On Sunday it expects that order, and when it cannot make out the words it goes by those times. Your slides stay as they are."
+msgstr "Ufuatiliaji wa kiotomatiki hujifunza kutoka mazoezi yaliyorekodiwa mpangilio ambao kila wimbo uliimbwa kweli (kiitikio baada ya kila ubeti, daraja mara mbili) na muda ambao kila slaidi ilionyeshwa. Jumapili hutarajia mpangilio huo, na usipoweza kuyatambua maneno, hufuata muda huo. Slaidi zako hubaki zilivyo."
+
+#: ui/dialogs/settings-follow.slint
+msgid "Learn from the last recording"
+msgstr "Jifunze kutoka rekodi ya mwisho"
+
+#: ui/dialogs/settings-follow.slint
+msgid "Forget"
+msgstr "Sahau"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
@@ -5495,10 +5551,6 @@ msgstr "{} kati ya 5"
 msgid "How loud the stream's sound is. No bars: nothing is going out"
 msgstr "Sauti ya matangazo ina nguvu kiasi gani. Hakuna vipau: hakuna kinachotoka"
 
-#: ui/operator/record.slint ui/operator.slint
-msgid "Stop recording"
-msgstr "Acha kurekodi"
-
 #: ui/operator/record.slint
 msgid "Record"
 msgstr "Rekodi"
@@ -5578,6 +5630,14 @@ msgstr "Mpangilio maalum"
 #: ui/operator/service.slint ui/operator/slides.slint
 msgid "Custom order for this service"
 msgstr "Mpangilio maalum wa ibada hii"
+
+#: ui/operator/service.slint
+msgid "Hide the slides"
+msgstr "Ficha slaidi"
+
+#: ui/operator/service.slint
+msgid "Show the slides"
+msgstr "Onyesha slaidi"
 
 #: ui/operator/service.slint
 msgid "Choose what goes here"
@@ -5668,8 +5728,8 @@ msgid "From this slide on, this part is:"
 msgstr "Kuanzia slaidi hii, sehemu hii ni:"
 
 #: ui/operator/slide-editor.slint
-msgid "Quick order ▾"
-msgstr "Mpangilio wa haraka ▾"
+msgid "Quick order"
+msgstr "Mpangilio wa haraka"
 
 #: ui/operator/slide-editor.slint
 msgid "Ready-made orders for this song"
@@ -5746,6 +5806,18 @@ msgstr "Maandishi makubwa zaidi kwa kifungu hiki"
 #: ui/operator/slides.slint
 msgid "Back to the size in Settings"
 msgstr "Rudi kwenye ukubwa ulio katika Mipangilio"
+
+#: ui/operator/slides.slint
+msgid "Tools"
+msgstr "Zana"
+
+#: ui/operator/slides.slint
+msgid "Hide the tools for these slides"
+msgstr "Ficha zana za slaidi hizi"
+
+#: ui/operator/slides.slint
+msgid "Lines, text size, key, song order and slide actions"
+msgstr "Mistari, ukubwa wa maandishi, ufunguo, mpangilio wa wimbo na vitendo vya slaidi"
 
 #: ui/operator/slides.slint
 msgid "‹ Verse"
@@ -5986,10 +6058,6 @@ msgstr "Leta midia…"
 #: ui/operator.slint
 msgid "Video inputs…"
 msgstr "Viingizo vya video…"
-
-#: ui/operator.slint
-msgid "Start recording"
-msgstr "Anza kurekodi"
 
 #: ui/operator.slint
 msgid "Recording settings…"
@@ -6311,6 +6379,10 @@ msgstr "Slaidi pamoja na mchoro wake"
 msgid "Select all"
 msgstr "Chagua zote"
 
+#: src/app.rs
+msgid "No sound input to record. Choose one in Settings → Auto-follow."
+msgstr "Hakuna ingizo la sauti la kurekodi. Chagua moja kwenye Mipangilio → Ufuatiliaji wa kiotomatiki."
+
 #: src/app.rs src/ui/dialogs/settings_follow.rs
 msgid "no microphone or line-in found"
 msgstr "hakuna maikrofoni wala ingizo la laini lililopatikana"
@@ -6351,7 +6423,7 @@ msgstr "{name} — imejengwa ndani, haina hakimiliki"
 msgid "{name} — imported file"
 msgstr "{name} — faili iliyoletwa"
 
-#: src/app.rs
+#: src/app.rs src/songselect.rs
 msgid "Give the song a title."
 msgstr "Upe wimbo kichwa."
 
@@ -6802,6 +6874,10 @@ msgstr "FFmpeg imesimama"
 #: src/follow/engine.rs
 msgid "Auto-follow stopped: the sound input is gone ({error}). Move the slides by hand."
 msgstr "Kufuata kiotomatiki kumesimama: ingizo la sauti limetoweka ({error}). Sogeza slaidi kwa mkono."
+
+#: src/follow/engine.rs
+msgid "as long as it took at practice"
+msgstr "muda uleule uliotumika kwenye mazoezi"
 
 #: src/follow/engine.rs
 msgid "heard \"{words}\""
@@ -10061,6 +10137,14 @@ msgid "Two monitors"
 msgstr "Skrini mbili"
 
 #: src/strings/operator.rs
+msgid "ProPresenter style"
+msgstr "Mtindo wa ProPresenter"
+
+#: src/strings/operator.rs
+msgid "EasyWorship style"
+msgstr "Mtindo wa EasyWorship"
+
+#: src/strings/operator.rs
 msgid "RustyPresenter — {panels}"
 msgstr "RustyPresenter — {panels}"
 
@@ -12837,6 +12921,42 @@ msgid "Review log copied"
 msgstr "Kumbukumbu imenakiliwa"
 
 #: src/ui/dialogs/settings_follow.rs
+msgid "Forgotten. Auto-follow expects every song in the order of its slides."
+msgstr "Imesahauliwa. Ufuatiliaji wa kiotomatiki hutarajia kila wimbo kwa mpangilio wa slaidi zake."
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Recording… {time}"
+msgstr "Inarekodi… {time}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Recording stopped."
+msgstr "Kurekodi kumesimama."
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Songs with a learned order: {count}"
+msgstr "Nyimbo zenye mpangilio uliojifunzwa: {count}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Nothing to learn: no song on the recording was sung over two slides or more."
+msgstr "Hakuna cha kujifunza: hakuna wimbo kwenye rekodi ulioimbwa kwa slaidi mbili au zaidi."
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Learned: {songs}"
+msgstr "Imejifunza: {songs}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Can't read the recording: {error}"
+msgstr "Haiwezi kusoma rekodi: {error}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Saved: {folder}"
+msgstr "Imehifadhiwa: {folder}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Can't record: {error}"
+msgstr "Haiwezi kurekodi: {error}"
+
+#: src/ui/dialogs/settings_follow.rs
 msgid "{title} (in this service)"
 msgstr "{title} (katika ibada hii)"
 
@@ -13289,6 +13409,46 @@ msgstr "Chagua lugha kwenye orodha, au weka tiki kwenye “Lugha yangu haimo kwe
 #: src/ui/dialogs/translation_editor.rs
 msgid "{language} added. Type your words, then pick it in Settings → Language."
 msgstr "{language} imeongezwa. Andika maneno yako, kisha uichague katika Mipangilio → Lugha."
+
+#: src/ui/dialogs/update.rs
+msgid "Version {version} is available. You have {current}."
+msgstr "Toleo {version} linapatikana. Una {current}."
+
+#: src/ui/dialogs/update.rs
+msgid "You have the newest version ({current})."
+msgstr "Una toleo jipya zaidi ({current})."
+
+#: src/ui/dialogs/update.rs
+msgid "No version has been published for download yet. You have {current}."
+msgstr "Bado hakuna toleo lililochapishwa kwa ajili ya kupakua. Una {current}."
+
+#: src/ui/dialogs/update.rs
+msgid "Could not check: no internet connection."
+msgstr "Imeshindwa kuangalia: hakuna muunganisho wa intaneti."
+
+#: src/ui/dialogs/update.rs
+msgid "Could not check: {reason}"
+msgstr "Imeshindwa kuangalia: {reason}"
+
+#: src/ui/dialogs/update.rs
+msgid "Get version {version}…"
+msgstr "Pata toleo {version}…"
+
+#: src/ui/dialogs/update.rs
+msgid "Your web browser is opening the download page. Install it when no service is running."
+msgstr "Kivinjari chako kinafungua ukurasa wa kupakua. Lisakinishe wakati hakuna ibada inayoendelea."
+
+#: src/ui/dialogs/update.rs
+msgid "Could not open your web browser: {reason}"
+msgstr "Imeshindwa kufungua kivinjari chako: {reason}"
+
+#: src/ui/dialogs/update.rs
+msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page."
+msgstr "RustyPresenter {version} inapatikana. Una {current}. Ulipate sasa? Kivinjari chako hufungua ukurasa wake wa kupakua."
+
+#: src/ui/dialogs/update.rs
+msgid "Get it"
+msgstr "Lipate"
 
 #: src/ui/operator/automation.rs
 msgid "Auto · {time}"
@@ -13894,6 +14054,15 @@ msgstr "yt-dlp haikuhifadhi video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "si faili ya midia"
+
+#~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
+#~ msgstr "RustyPresenter {version} inapatikana. Una {current}. Ulipate sasa? Kivinjari chako hufungua ukurasa wake wa kupakua. Unaweza pia kulipata baadaye kwenye Mipangilio → Msaada na kuhusu."
+
+#~ msgid "Auto-follow learns the order each song was really sung in at the recorded practice (the chorus after every verse, the bridge twice) and expects it on Sunday. Your slides stay as they are."
+#~ msgstr "Ufuatiliaji wa kiotomatiki hujifunza mpangilio ambao kila wimbo uliimbwa kweli kwenye mazoezi yaliyorekodiwa (kiitikio baada ya kila ubeti, daraja mara mbili) na huutarajia Jumapili. Slaidi zako hubaki zilivyo."
+
+#~ msgid "Nothing to learn: every song was sung in the order of its slides."
+#~ msgstr "Hakuna cha kujifunza: kila wimbo uliimbwa kwa mpangilio wa slaidi zake."
 
 #~ msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
 #~ msgstr "Simu iliyo kwenye Wi-Fi ya kanisa inaweza kuwa kamera au maikrofoni ya matangazo. Mara ya kwanza, simu inaonya kwamba ukurasa si wa faragha: hilo linatarajiwa, kwa sababu ukurasa unatoka kwenye kompyuta hii. Gusa Advanced (kwenye iPhone, Show Details), kisha endelea kwenye ukurasa. Weka simu ikiwa macho na imechomekwa kwenye chaji."

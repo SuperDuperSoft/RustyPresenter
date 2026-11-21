@@ -242,3 +242,30 @@ msgstr "Pa ka jwenn òdinatè a. N ap eseye ankò…"
 
 msgid "This phone is no longer paired. Pair it again."
 msgstr "Telefòn sa a pa konekte ankò. Konekte l ankò."
+
+msgid "Draw"
+msgstr "Desinen"
+
+msgid "Draw on the slide"
+msgstr "Desinen sou diapozitiv la"
+
+msgid "Ink fades"
+msgstr "Lank la disparèt"
+
+msgid "Ink stays"
+msgstr "Lank la rete"
+
+msgid "Undo"
+msgstr "Defèt"
+
+msgid "Clear"
+msgstr "Efase"
+
+msgid "Done"
+msgstr "Fini"
+
+msgid "Drawing from this phone is turned off on the computer."
+msgstr "Desen apati telefòn sa a etenn sou òdinatè a."
+
+msgid "The app closed by itself last time. Please pass this on:"
+msgstr "Aplikasyon an te fèmen poukont li dènye fwa a. Tanpri pase sa a:"

@@ -62,6 +62,12 @@ impl FakeReleases {
         self.pages.lock().unwrap().replies.insert(path.into(), Reply::Body(body));
     }
 
+    /// An address on this server.
+    pub(crate) fn base(&self, path: &str) -> String { format!("{}{path}", self.base) }
+
+    /// `path` redirects to `to`.
+    pub(crate) fn point(&self, path: &str, to: &str) { self.redirect(path, to) }
+
     fn redirect(&self, path: &str, to: &str) {
         self.pages.lock().unwrap().replies.insert(path.into(), Reply::Redirect(to.into()));
     }

@@ -150,6 +150,8 @@ pub fn layout_standard() -> String { tr!("Standard") }
 pub fn layout_big_slides() -> String { tr!("Big slides") }
 pub fn layout_livestream() -> String { tr!("Livestream") }
 pub fn layout_two_monitors() -> String { tr!("Two monitors") }
+pub fn layout_propresenter() -> String { tr!("ProPresenter style") }
+pub fn layout_easyworship() -> String { tr!("EasyWorship style") }
 /// A window of panels of its own: "RustyPresenter — Live, Cameras".
 pub fn popout_title(panels: &str) -> String { tr!("RustyPresenter — {panels}", panels = panels) }
 pub fn main_keeps_a_panel() -> String { tr!("The main window keeps at least one panel.") }

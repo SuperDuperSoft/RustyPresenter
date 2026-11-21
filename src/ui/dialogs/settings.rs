@@ -245,6 +245,7 @@ fn fill_form(g: &SettingsDlg, s: &Settings) {
     g.set_fade_secs(s.fade_secs.to_string().into());
     g.set_section_keys(s.section_keys);
     g.set_songselect_inbox(s.songselect_inbox);
+    g.set_check_updates(s.check_updates);
     settings_audio::fill(g, &[], &s.audio_device);
     settings_graphics::fill(g, s.graphics);
     settings_media::fill_form(g, &s.media, &[]);
@@ -274,6 +275,7 @@ pub(crate) fn read_form(g: &SettingsDlg, s: &mut Settings) {
     s.fade_secs = num(g.get_fade_secs(), FADE_SECS_RANGE, s.fade_secs);
     s.section_keys = g.get_section_keys();
     s.songselect_inbox = g.get_songselect_inbox();
+    s.check_updates = g.get_check_updates();
     s.audio_device = settings_audio::read(g);
     settings_media::read_form(g, &mut s.media);
     super::settings_record::read_form(g, &mut s.record);
@@ -297,6 +299,7 @@ pub(crate) fn fill_pages(op: &Rc<Operator>, edit: &Rc<Edit>, snap: &OperatorSnap
     *edit.backups.borrow_mut() = snap.backups.clone();
     super::settings_keys::fill(op, edit);
     about::fill(op, snap);
+    super::update::fill(op);
     settings_language::fill(op, edit);
 }
 
@@ -433,6 +436,8 @@ fn connect(op: &Rc<Operator>, edit: &Rc<Edit>) {
     g.on_restore(with_i(restore));
     let me = Rc::downgrade(op);
     g.on_show_licences(move |show| if let Some(op) = me.upgrade() { about::show_licences(&op, show) });
+    g.on_update_check(with(|op, _| super::update::check_now(op)));
+    g.on_update_download(with(|op, _| super::update::download(op)));
     g.on_cancel(with(cancel));
     g.on_save(with(save));
     g.on_usage_report(with(usage_report));

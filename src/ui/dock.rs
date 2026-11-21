@@ -151,15 +151,20 @@ pub struct Layout {
     /// The panels closed in this layout (View → Panels brings them back).
     #[serde(default, deserialize_with = "known_panels")]
     pub closed: Vec<PanelId>,
+    /// The service list shows a picture of each item, with an arrow that unfolds the rest of its slides (the
+    /// EasyWorship-style layout). Kept with the layout, so a church's saved copy of it keeps the look.
+    #[serde(default)]
+    pub service_pictures: bool,
 }
 
 /// The layouts that come with the app.
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub enum Builtin { Standard, BigSlides, Livestream, TwoMonitors }
+pub enum Builtin { Standard, BigSlides, Livestream, TwoMonitors, ProPresenter, EasyWorship }
 
 impl Builtin {
-    pub const ALL: [Builtin; 4] = [Builtin::Standard, Builtin::BigSlides, Builtin::Livestream, Builtin::TwoMonitors];
+    pub const ALL: [Builtin; 6] = [Builtin::Standard, Builtin::BigSlides, Builtin::ProPresenter, Builtin::EasyWorship, Builtin::Livestream,
+        Builtin::TwoMonitors];
 }
 
 /// Which layout the operator chose last (View → Layouts ticks it).
@@ -273,8 +278,36 @@ impl Layout {
                 ],
                 vec![UpNext, Stage, Follow],
             ),
+            // Like ProPresenter: the playlist down the left, the slide grid in the middle with the media under it,
+            // the live picture on the right with the timers and actions under it.
+            Builtin::ProPresenter => (
+                vec![main(row(vec![
+                    child(tabs(&[Service]), Size::Px(264.0)),
+                    child(column(vec![
+                        child(tabs(&[Bible]), Size::Fit),
+                        child(tabs(&[Slides]), Size::Weight(1.0)),
+                        child(tabs(&[Library]), Size::Fit),
+                    ]), Size::Weight(1.0)),
+                    child(column(vec![child(tabs(&[Live]), Size::Weight(1.0)), child(tabs(&[Automation]), Size::Fit)]), Size::Px(400.0)),
+                ]))],
+                vec![UpNext, Cameras, Livestream, Stage, Follow],
+            ),
+            // Like EasyWorship: the schedule on the left with a picture of each item (an arrow unfolds its slides),
+            // the slides and the live picture side by side, and the songs, verses and media along the bottom.
+            Builtin::EasyWorship => (
+                vec![main(column(vec![
+                    child(row(vec![
+                        child(tabs(&[Service]), Size::Px(320.0)),
+                        child(tabs(&[Slides]), Size::Weight(1.0)),
+                        child(tabs(&[Live]), Size::Px(420.0)),
+                    ]), Size::Weight(1.0)),
+                    child(tabs(&[Bible]), Size::Fit),
+                    child(tabs(&[Library]), Size::Fit),
+                ]))],
+                vec![UpNext, Cameras, Automation, Livestream, Stage, Follow],
+            ),
         };
-        Layout { name: String::new(), windows, closed }
+        Layout { name: String::new(), windows, closed, service_pictures: b == Builtin::EasyWorship }
     }
 
     /// The same arrangement as `other`: the same panels in the same places and sizes, the same panels closed, the
@@ -289,7 +322,7 @@ impl Layout {
             _ => true,
         };
         let sorted = |c: &[PanelId]| { let mut c = c.to_vec(); c.sort(); c };
-        sorted(&self.closed) == sorted(&other.closed) && self.windows.len() == other.windows.len()
+        self.service_pictures == other.service_pictures && sorted(&self.closed) == sorted(&other.closed) && self.windows.len() == other.windows.len()
             && self.windows.iter().zip(&other.windows).all(|(a, b)| a.root == b.root && near(&a.place, &b.place))
     }
 

@@ -242,3 +242,30 @@ msgstr "コンピューターに接続できません。再試行中…"
 
 msgid "This phone is no longer paired. Pair it again."
 msgstr "このスマホはもうつながっていません。もう一度つないでください。"
+
+msgid "Draw"
+msgstr "描く"
+
+msgid "Draw on the slide"
+msgstr "スライドに描く"
+
+msgid "Ink fades"
+msgstr "インクは消える"
+
+msgid "Ink stays"
+msgstr "インクは残る"
+
+msgid "Undo"
+msgstr "元に戻す"
+
+msgid "Clear"
+msgstr "消去"
+
+msgid "Done"
+msgstr "完了"
+
+msgid "Drawing from this phone is turned off on the computer."
+msgstr "この電話からの描画はコンピューターでオフになっています。"
+
+msgid "The app closed by itself last time. Please pass this on:"
+msgstr "前回、アプリがひとりでに終了しました。次の内容を担当者に伝えてください:"

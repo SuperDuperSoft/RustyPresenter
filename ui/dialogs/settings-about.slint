@@ -3,7 +3,8 @@
 import { AboutSlint, TextEdit } from "std-widgets.slint";
 import { Theme } from "../theme.slint";
 import { Btn, CopyText } from "../widgets.slint";
-import { Note } from "form.slint";
+import { Note, Check } from "form.slint";
+import { SetRow, Hint } from "settings-row.slint";
 import { SettingsDlg } from "settings-state.slint";
 
 export component SettingsAbout inherits VerticalLayout {
@@ -64,6 +65,34 @@ export component SettingsAbout inherits VerticalLayout {
                     text: SettingsDlg.about-licence;
                     color: Theme.muted;
                     wrap: word-wrap;
+                }
+            }
+        }
+        updates-row := SetRow {
+            key: "updates";
+            label: @tr("New versions");
+            help: @tr("Once a day RustyPresenter asks GitHub which version is the newest, and tells you when there is a newer one. Nothing about your church is sent, and nothing is downloaded or installed until you choose to.");
+            check-updates := Check {
+                text: @tr("Check for a new version when RustyPresenter starts");
+                checked <=> SettingsDlg.check-updates;
+            }
+            if SettingsDlg.update-status != "": update-status := Hint {
+                text: SettingsDlg.update-status;
+            }
+            HorizontalLayout {
+                alignment: start;
+                spacing: 8px;
+                update-check := Btn {
+                    small: true;
+                    text: @tr("Check now");
+                    enabled: !SettingsDlg.update-busy;
+                    clicked => { SettingsDlg.update-check(); }
+                }
+                if SettingsDlg.update-get != "": update-download := Btn {
+                    small: true;
+                    primary: true;
+                    text: SettingsDlg.update-get;
+                    clicked => { SettingsDlg.update-download(); }
                 }
             }
         }

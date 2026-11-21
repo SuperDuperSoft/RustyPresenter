@@ -4,6 +4,7 @@
 //! follower is told (`InputLost`) and goes back to Manual.
 use super::align::Heard;
 use super::engine::FollowEvent;
+use super::tape::Tap;
 use super::voice::{FRAME, RATE, VoiceTracker};
 use crate::platform::proc::spawn_tree;
 use crate::platform::tools::{self, Os};
@@ -182,13 +183,20 @@ pub struct Capture {
 
 impl Capture {
     /// Starts listening to `device` (a name from `input_devices`) with `ear` (`ear::room_ear`).
-    pub fn start(device: &str, ear: Box<dyn Ear>, tx: Sender<FollowEvent>) -> Result<Capture, String> {
+    pub fn start(device: &str, ear: Box<dyn Ear>, tx: Sender<FollowEvent>) -> Result<Capture, String> { Capture::start_tapped(device, ear, tx, None) }
+
+    /// `start`, with `tap` hearing every frame beside the follower (a practice tape, `tape::Tape`).
+    pub fn start_tapped(device: &str, ear: Box<dyn Ear>, tx: Sender<FollowEvent>, tap: Option<Arc<dyn Tap>>) -> Result<Capture, String> {
         let (program, args) = listen_with(&ffmpeg()?, tools::OS, device);
-        Capture::run(program, args, ear, tx)
+        Capture::run_tapped(program, args, ear, tx, tap)
     }
 
     /// Starts `program` with `args` (FFmpeg, or a stand-in in tests) and listens to its output with `ear`.
     pub fn run(program: PathBuf, args: Vec<OsString>, ear: Box<dyn Ear>, tx: Sender<FollowEvent>) -> Result<Capture, String> {
+        Capture::run_tapped(program, args, ear, tx, None)
+    }
+
+    pub fn run_tapped(program: PathBuf, args: Vec<OsString>, ear: Box<dyn Ear>, tx: Sender<FollowEvent>, tap: Option<Arc<dyn Tap>>) -> Result<Capture, String> {
         let cancel = CancellationToken::new();
         let level = Arc::new(AtomicU32::new(0));
         let (started_tx, started_rx) = channel();
@@ -206,7 +214,9 @@ impl Capture {
                 if r.is_ok() { let _ = sent.send(hello); }
                 let _ = started_tx.send(r);
             }, |pcm, at| {
-                for ev in listener.frame(pcm, at) { if sent.send(ev).is_err() { stop.cancel() } }
+                let events = listener.frame(pcm, at);
+                if let Some(tap) = &tap { tap.frame(pcm, at, &events) }
+                for ev in events { if sent.send(ev).is_err() { stop.cancel() } }
                 lv.store(listener.level().to_bits(), Ordering::Relaxed);
             }));
             lv.store(0, Ordering::Relaxed);

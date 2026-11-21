@@ -211,6 +211,9 @@ export component DockArea inherits Rectangle {
                 count: ServicePane.service-count;
                 count-short: ServicePane.service-count-short;
                 loaded: DockShared.loaded;
+                pictures: ServicePane.service-pictures;
+                toggle-expand(id) => { root.focus-keys(); ServicePane.service-toggle-expand(id); }
+                show-slide(id, idx) => { root.focus-keys(); ServicePane.service-show-slide(id, idx); }
                 select(id) => { root.focus-keys(); ServicePane.service-select(id); }
                 show-first(id) => { root.focus-keys(); ServicePane.service-show-first(id); }
                 edit(id) => { root.focus-keys(); ServicePane.service-edit(id); }
@@ -265,6 +268,8 @@ export component DockArea inherits Rectangle {
                 grid-resized(w) => { SlidesPane.slides-grid-resized(w); }
                 view <=> SlidesPane.slides-view;
                 thumb-size <=> SlidesPane.slides-thumb-size;
+                tools-open <=> SlidesPane.slides-tools-open;
+                tools-toggled(on) => { root.focus-keys(); SlidesPane.slides-tools-toggled(on); }
                 view-picked(i) => { root.focus-keys(); SlidesPane.slides-view-picked(i); }
                 thumb-size-changed(v) => { SlidesPane.slides-thumb-size-changed(v); }
                 welcome-add => { root.focus-keys(); ServicePane.service-add(); }
@@ -279,7 +284,9 @@ export component DockArea inherits Rectangle {
             fit(p, t, a, b, c, d) => { root.fit(p, t, a, b, c, d); }
             bin := MediaBin {
                 // A 768 px laptop screen keeps more than one row of slides above the library.
-                body-height: root.short ? 150px : 220px;
+                // (The EasyWorship-style layout has the library across the whole bottom: lower still, so the schedule
+                // and the slides above it keep their room.)
+                body-height: ServicePane.service-pictures ? (root.short ? 120px : 180px) : root.short ? 150px : 220px;
                 // Room for the thumbnail size slider beside the tabs, search and Import.
                 roomy: !root.places[2].tight && root.places[2].w >= 876px;
                 // Too narrow for the tabs in a row (a 1024 px window): a drop-down instead.
@@ -530,7 +537,7 @@ export component DockArea inherits Rectangle {
                         accessible-role: button;
                         accessible-label: @tr("Move {}", DockText.name(head.active));
                         Text {
-                            text: "⠿";
+                            text: "::";
                             color: Theme.muted;
                             font-size: 16px;
                             horizontal-alignment: center;

@@ -21,7 +21,7 @@ pub struct Fake { pub live: Mutex<Option<LiveSong>>, pub shown: Mutex<Vec<String
 impl Fake {
     pub fn song(mode: Mode) -> Arc<Fake> {
         let live = LiveSong { item_id: Uuid::new_v4(), is_song: true, slides: SONG.iter().map(|t| text(t)).collect(), slide: 0, words_up: true,
-            video_playing: false, version: 1, mode, settings: Settings::default() };
+            video_playing: false, version: 1, order: vec![], secs: vec![], mode, settings: Settings::default() };
         Arc::new(Fake { live: Mutex::new(Some(live)), shown: Mutex::default(), notices: Mutex::default(), modes: Mutex::default() })
     }
     pub fn change(&self, f: impl FnOnce(&mut LiveSong)) {

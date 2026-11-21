@@ -1,126 +1,344 @@
 // The Remote tab, as the browser remote (`web/remote.html`): what is on screen and up next, Back and Next, the
 // clear buttons, the live song's sections and the service list.
+//
+// Nothing a thumb aims at ever moves: the page is fixed parts stacked top to bottom, each with a height of its own
+// that does not depend on the words in it. Long words are cut with "…" inside their own box; only the service list
+// in the middle scrolls. Back, Next and the clear buttons are pinned to the bottom, always in the same place.
 import { ScrollView, ListView } from "std-widgets.slint";
 import { Theme } from "theme.slint";
-import { Btn, Box, Words, Note } from "widgets.slint";
+import { Btn, Words, Note } from "widgets.slint";
 import { S } from "state.slint";
+
+// A panel with a one-line heading and a body that keeps to the panel's height.
+component Card inherits Rectangle {
+    in property <string> heading;
+    in property <color> heading-color: Theme.muted;
+    // Kept free at the right of the heading.
+    in property <length> heading-room;
+    background: Theme.panel;
+    border-radius: Theme.radius;
+    border-width: 1px;
+    border-color: Theme.line;
+    clip: true;
+    VerticalLayout {
+        padding: 12px;
+        spacing: 6px;
+        Text {
+            height: 18px;
+            width: parent.width - 24px - root.heading-room;
+            text: root.heading;
+            font-size: Theme.small;
+            font-weight: 600;
+            color: root.heading-color;
+            overflow: elide;
+            vertical-alignment: center;
+        }
+        Rectangle {
+            vertical-stretch: 1;
+            clip: true;
+            @children
+        }
+    }
+}
 
 export component RemotePage inherits Rectangle {
     background: Theme.bg;
-    sv := ScrollView {
-        // As wide as the screen, as tall as its contents: words wrap, the page scrolls.
-        content-width: sv.visible-width;
-        content-height: lay.preferred-height;
-        lay := VerticalLayout {
-            width: sv.visible-width;
-            padding: Theme.pad;
-            spacing: Theme.gap;
-            HorizontalLayout {
-                spacing: 8px;
+    // The space the fixed parts leave decides nothing: these are the same on every slide.
+    property <length> now-h: clamp(root.height * 0.24, 112px, 210px);
+    property <length> next-h: 72px;
+
+    VerticalLayout {
+        padding-left: Theme.pad;
+        padding-right: Theme.pad;
+        padding-top: 10px;
+        padding-bottom: 8px;
+        spacing: 8px;
+
+        // The computer and whether it is reached.
+        HorizontalLayout {
+            height: 28px;
+            spacing: 8px;
+            VerticalLayout {
+                alignment: center;
                 Rectangle {
-                    width: 10px; height: 10px; y: (parent.height - self.height) / 2;
+                    width: 10px;
+                    height: 10px;
                     border-radius: 5px;
                     background: S.connected ? Theme.ok : Theme.live;
                 }
-                Text {
-                    text: S.connected ? S.service : @tr("Connecting…");
-                    font-size: Theme.big; font-weight: 700; color: Theme.text;
-                    overflow: elide; horizontal-stretch: 1;
+            }
+            Text {
+                text: S.connected ? S.service : @tr("Connecting…");
+                font-size: Theme.big;
+                font-weight: 700;
+                color: Theme.text;
+                overflow: elide;
+                vertical-alignment: center;
+                horizontal-stretch: 1;
+            }
+        }
+
+        // On screen: always this tall, whatever is on it.
+        Card {
+            height: root.now-h;
+            heading: S.now-label == "" ? @tr("On screen") : @tr("On screen") + " · " + S.now-label;
+            heading-color: Theme.live;
+            // Room for the Draw button in the corner.
+            heading-room: 92px;
+            if S.now-picture: Rectangle {
+                width: 100%;
+                height: 100%;
+                background: Theme.black;
+                border-radius: 6px;
+                clip: true;
+                Image {
+                    source: S.now-image;
+                    width: 100%;
+                    height: 100%;
+                    image-fit: contain;
                 }
             }
+            if !S.now-picture: Text {
+                width: 100%;
+                height: 100%;
+                text: S.now-text;
+                font-size: Theme.big;
+                color: Theme.text;
+                wrap: word-wrap;
+                overflow: elide;
+                vertical-alignment: top;
+            }
+        }
 
-            Box {
-                heading: S.now-label == "" ? @tr("On screen") : @tr("On screen") + " · " + S.now-label;
-                heading-color: Theme.live;
-                if S.now-picture: Rectangle {
-                    height: self.width * 9 / 16;
-                    background: Theme.black;
-                    border-radius: 8px;
-                    clip: true;
-                    Image { source: S.now-image; width: 100%; height: 100%; image-fit: contain; }
-                }
-                if !S.now-picture || S.now-text != "": Words { text: S.now-text; font-size: Theme.big; }
-                if S.sections.length > 0: Flickable {
-                  height: 44px;
-                  content-width: max(self.width, chips.preferred-width);
-                  chips := HorizontalLayout {
+        // Up next: two lines at most.
+        Card {
+            height: root.next-h;
+            heading: S.next-label == "" ? @tr("Up next") : @tr("Up next") + " · " + S.next-label;
+            heading-color: Theme.upnext-text;
+            Text {
+                width: 100%;
+                height: 100%;
+                text: S.next-text;
+                font-size: Theme.small;
+                color: Theme.muted;
+                wrap: word-wrap;
+                overflow: elide;
+                vertical-alignment: top;
+            }
+        }
+
+        // The middle: the only part that scrolls. Presenter notes, the video's play button and the service list.
+        Rectangle {
+            vertical-stretch: 1;
+            min-height: 0px;
+            background: Theme.panel;
+            border-radius: Theme.radius;
+            border-width: 1px;
+            border-color: Theme.line;
+            clip: true;
+            sv := ScrollView {
+                width: parent.width;
+                height: parent.height;
+                content-width: sv.visible-width;
+                content-height: lay.preferred-height;
+                lay := VerticalLayout {
+                    width: sv.visible-width;
+                    padding: 10px;
                     spacing: 6px;
                     alignment: start;
-                    for s[i] in S.sections: Rectangle {
-                        min-width: 44px; height: 44px;
-                        border-radius: 8px;
-                        background: s.live ? s.color : s.color.transparentize(70%);
-                        border-width: s.live ? 2px : 0px;
-                        border-color: Theme.white;
-                        accessible-role: button;
-                        accessible-label: s.label;
-                        Text { text: s.short; font-weight: 700; font-size: Theme.body; color: s.live ? #0d0f13 : Theme.text; }
-                        TouchArea { clicked => { S.jump(i); } }
+                    if S.has-media: Btn {
+                        fixed: true;
+                        tall: 48px;
+                        text: S.media-paused ? @tr("Play video") : @tr("Pause video");
+                        clicked => { S.media-toggle(); }
                     }
-                  }
-                }
-                if S.notes != "": HorizontalLayout {
-                    Btn {
+                    if S.notes != "": Btn {
+                        fixed: true;
+                        tall: 40px;
+                        font-size: Theme.small;
                         text: S.notes-on ? @tr("Hide presenter notes") : @tr("Show presenter notes");
-                        tall: 40px; font-size: Theme.small;
                         clicked => { S.notes-on = !S.notes-on; S.notes-toggled(S.notes-on); }
                     }
-                    Rectangle { horizontal-stretch: 1; }
-                }
-                if S.notes != "" && S.notes-on: Words { text: S.notes; color: Theme.upnext-text; font-size: Theme.body; }
-            }
-
-            HorizontalLayout {
-                spacing: Theme.gap;
-                Btn { text: "‹ " + @tr("Back"); tall: 72px; font-size: Theme.big; horizontal-stretch: 1; clicked => { S.back(); } }
-                Btn { text: @tr("Next") + " ›"; kind: "go"; tall: 72px; font-size: Theme.big; horizontal-stretch: 2; clicked => { S.next(); } }
-            }
-            if S.has-media: Btn {
-                text: S.media-paused ? "▶ " + @tr("Play video") : "❚❚ " + @tr("Pause video");
-                clicked => { S.media-toggle(); }
-            }
-
-            Box {
-                heading: S.next-label == "" ? @tr("Up next") : @tr("Up next") + " · " + S.next-label;
-                heading-color: Theme.upnext-text;
-                Words { text: S.next-text; color: Theme.muted; }
-            }
-
-            VerticalLayout {
-                spacing: 8px;
-                Btn { text: @tr("Clear all"); kind: "danger"; clicked => { S.clear("clear_all"); } }
-                HorizontalLayout {
-                    spacing: 8px;
-                    Btn { text: @tr("Text"); horizontal-stretch: 1; clicked => { S.clear("clear_slide"); } }
-                    Btn { text: @tr("Media"); horizontal-stretch: 1; clicked => { S.clear("clear_media"); } }
-                    Btn { text: @tr("Audio"); horizontal-stretch: 1; clicked => { S.clear("clear_audio"); } }
-                    Btn { text: @tr("Logo"); kind: S.logo-on ? "on" : ""; horizontal-stretch: 1; clicked => { S.clear("logo"); } }
-                }
-            }
-
-            Box {
-                heading: @tr("Service");
-                for it[i] in S.items: Rectangle {
-                    min-height: 52px;
-                    border-radius: 8px;
-                    background: it.live ? Theme.live.transparentize(85%) : touch.pressed ? Theme.raise : transparent;
-                    border-width: it.live ? 1px : 0px;
-                    border-color: Theme.live.transparentize(40%);
-                    accessible-role: button;
-                    accessible-label: it.title;
-                    HorizontalLayout {
-                        padding: 10px;
-                        spacing: 10px;
-                        Text { text: i + 1; color: Theme.faint; font-size: Theme.small; vertical-alignment: center; min-width: 22px; }
-                        Text { text: it.title; color: Theme.text; font-size: Theme.body; vertical-alignment: center; overflow: elide; horizontal-stretch: 1; }
-                        Text { text: it.count; color: Theme.muted; font-size: Theme.small; vertical-alignment: center; }
+                    if S.notes != "" && S.notes-on: Words {
+                        text: S.notes;
+                        color: Theme.upnext-text;
+                        font-size: Theme.body;
                     }
-                    touch := TouchArea { clicked => { S.open-item(i); } }
+                    Text {
+                        height: 20px;
+                        text: @tr("Service");
+                        font-size: Theme.small;
+                        font-weight: 600;
+                        color: Theme.muted;
+                        vertical-alignment: center;
+                    }
+                    for it[i] in S.items: Rectangle {
+                        height: 50px;
+                        border-radius: 8px;
+                        background: it.live ? Theme.live.transparentize(85%) : touch.pressed ? Theme.raise : transparent;
+                        border-width: it.live ? 1px : 0px;
+                        border-color: Theme.live.transparentize(40%);
+                        accessible-role: button;
+                        accessible-label: it.title;
+                        HorizontalLayout {
+                            padding-left: 8px;
+                            padding-right: 8px;
+                            spacing: 8px;
+                            Text {
+                                width: 24px;
+                                text: i + 1;
+                                color: Theme.faint;
+                                font-size: Theme.small;
+                                vertical-alignment: center;
+                                horizontal-alignment: right;
+                            }
+                            Text {
+                                text: it.title;
+                                color: Theme.text;
+                                font-size: Theme.body;
+                                vertical-alignment: center;
+                                overflow: elide;
+                                horizontal-stretch: 1;
+                            }
+                            Text {
+                                width: 76px;
+                                text: it.count;
+                                color: Theme.muted;
+                                font-size: Theme.small;
+                                vertical-alignment: center;
+                                horizontal-alignment: right;
+                                overflow: elide;
+                            }
+                        }
+                        touch := TouchArea { clicked => { S.open-item(i); } }
+                    }
+                    Btn {
+                        fixed: true;
+                        tall: 44px;
+                        font-size: Theme.small;
+                        text: @tr("Choose another computer");
+                        clicked => { S.other-computer(); }
+                    }
+                    // What stopped the app last time, to tell whoever looks after it.
+                    if S.crash-note != "": Rectangle {
+                        height: crash.preferred-height + 16px;
+                        border-radius: 8px;
+                        background: Theme.raise;
+                        crash := VerticalLayout {
+                            padding: 8px;
+                            spacing: 4px;
+                            Note { text: @tr("The app closed by itself last time. Please pass this on:"); }
+                            Note { text: S.crash-note; problem: true; }
+                        }
+                        TouchArea { clicked => { S.crash-seen(); } }
+                    }
                 }
             }
-            Btn { text: @tr("Choose another computer"); tall: 44px; font-size: Theme.small; clicked => { S.other-computer(); } }
-            Rectangle { height: 8px; }
         }
+
+        // The live song's sections: one row that is always there (empty when the item has none), so the buttons
+        // under it never move. More sections than fit slide sideways.
+        Rectangle {
+            height: 44px;
+            clip: true;
+            Flickable {
+                width: parent.width;
+                height: parent.height;
+                content-width: max(self.width, chips.preferred-width);
+                content-height: self.height;
+                chips := HorizontalLayout {
+                    height: 44px;
+                    spacing: 6px;
+                    alignment: start;
+                    for sec[i] in S.sections: Rectangle {
+                        width: 52px;
+                        height: 44px;
+                        border-radius: 8px;
+                        background: sec.live ? sec.color : sec.color.transparentize(70%);
+                        border-width: sec.live ? 2px : 0px;
+                        border-color: Theme.white;
+                        accessible-role: button;
+                        accessible-label: sec.label;
+                        Text {
+                            width: parent.width - 6px;
+                            text: sec.short;
+                            font-weight: 700;
+                            font-size: Theme.body;
+                            color: sec.live ? #0d0f13 : Theme.text;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                            overflow: elide;
+                        }
+                        TouchArea { clicked => { S.jump(i); } }
+                    }
+                }
+            }
+        }
+
+        // Back and Next: the same place and size, always.
+        HorizontalLayout {
+            height: 76px;
+            spacing: Theme.gap;
+            Btn {
+                fixed: true;
+                tall: 76px;
+                font-size: Theme.big;
+                horizontal-stretch: 1;
+                text: @tr("Back");
+                clicked => { S.back(); }
+            }
+            Btn {
+                fixed: true;
+                tall: 76px;
+                font-size: Theme.big;
+                horizontal-stretch: 2;
+                kind: "go";
+                text: @tr("Next");
+                clicked => { S.next(); }
+            }
+        }
+
+        // The clear buttons: five equal boxes in two rows.
+        Btn {
+            fixed: true;
+            tall: 48px;
+            kind: "danger";
+            text: @tr("Clear all");
+            clicked => { S.clear("clear_all"); }
+        }
+        HorizontalLayout {
+            height: 48px;
+            spacing: 8px;
+            Btn { fixed: true; tall: 48px; horizontal-stretch: 1; text: @tr("Text"); clicked => { S.clear("clear_slide"); } }
+            Btn { fixed: true; tall: 48px; horizontal-stretch: 1; text: @tr("Media"); clicked => { S.clear("clear_media"); } }
+            Btn { fixed: true; tall: 48px; horizontal-stretch: 1; text: @tr("Audio"); clicked => { S.clear("clear_audio"); } }
+            Btn { fixed: true; tall: 48px; horizontal-stretch: 1; kind: S.logo-on ? "on" : ""; text: @tr("Logo"); clicked => { S.clear("logo"); } }
+        }
+    }
+
+    // Draw on the slide: in the corner of "On screen", where it takes no room and moves nothing.
+    Rectangle {
+        x: parent.width - self.width - Theme.pad - 8px;
+        y: 10px + 28px + 8px + 6px;
+        width: 84px;
+        height: 30px;
+        border-radius: 15px;
+        background: draw-touch.pressed ? Theme.accent.darker(20%) : Theme.accent;
+        opacity: S.connected ? 1 : 0.4;
+        accessible-role: button;
+        accessible-label: @tr("Draw on the slide");
+        Text {
+            width: parent.width - 8px;
+            x: 4px;
+            text: @tr("Draw");
+            color: Theme.accent-ink;
+            font-size: Theme.small;
+            font-weight: 700;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+        draw-touch := TouchArea { enabled: S.connected; clicked => { S.draw-start(); } }
     }
 
     // An item's slides: a tap puts that slide on the screen.
@@ -136,7 +354,7 @@ export component RemotePage inherits Rectangle {
             VerticalLayout {
                 padding: Theme.pad;
                 spacing: 8px;
-                Text { text: S.sheet-title; font-size: Theme.big; font-weight: 700; color: Theme.text; overflow: elide; }
+                Text { height: 28px; text: S.sheet-title; font-size: Theme.big; font-weight: 700; color: Theme.text; overflow: elide; }
                 Note { text: @tr("Tap a slide to put it on the screen."); }
                 ListView {
                     vertical-stretch: 1;
@@ -156,7 +374,7 @@ export component RemotePage inherits Rectangle {
                         }
                     }
                 }
-                Btn { text: @tr("Cancel"); clicked => { S.sheet-open = false; } }
+                Btn { fixed: true; text: @tr("Cancel"); clicked => { S.sheet-open = false; } }
             }
         }
     }

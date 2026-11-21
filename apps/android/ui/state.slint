@@ -85,6 +85,30 @@ export global S {
     callback show-slide(int);
     callback media-toggle();
 
+    // ---- Drawing on the live slide (`ui/draw.slint`) ----
+    // The computer lets this phone draw.
+    in property <bool> may-draw;
+    in property <bool> draw-open;
+    // The live slide and, over it, this phone's lines.
+    in property <image> draw-slide;
+    in property <image> draw-ink;
+    // The audience screen's width over its height.
+    in property <float> draw-aspect: 1.7778;
+    // The colour (0–5), the pen (0–2, 3 the highlighter) and whether the ink fades.
+    in-out property <int> draw-color: 0;
+    in-out property <int> draw-size: 1;
+    in-out property <bool> draw-fades;
+    callback draw-start();
+    callback draw-done();
+    // A finger down at x, y (0–1 of the slide, may be just outside it) on a slide box this many pixels big.
+    callback draw-down(float, float, float, float);
+    callback draw-move(float, float);
+    callback draw-up();
+    callback draw-undo();
+    callback draw-clear();
+    // The colour, pen or ink was chosen.
+    callback draw-tool();
+
     // ---- the stage screen's access, shared by Stage, Tally and Microphone ----
     // "" (allowed), "off" (turned off on the computer), "password" or "lost".
     in property <string> gate;
@@ -136,6 +160,9 @@ export global S {
     callback ask-cancel();
 
     in property <string> toast;
+    // What closed the app last time (a line for whoever looks after it), until it is tapped away.
+    in property <string> crash-note;
+    callback crash-seen();
     // The phone's Back button: true when it closed something or went back a step.
     callback back-key() -> bool;
 }
@@ -172,4 +199,5 @@ export global Say {
     public pure function sending() -> string { return @tr("Sending to the computer"); }
     public pure function lost() -> string { return @tr("The computer cannot be reached. Trying again…"); }
     public pure function pair-again() -> string { return @tr("This phone is no longer paired. Pair it again."); }
+    public pure function no-drawing() -> string { return @tr("Drawing from this phone is turned off on the computer."); }
 }

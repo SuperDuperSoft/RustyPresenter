@@ -703,3 +703,103 @@ fn a_last_line_of_one_letter_words_is_proved_by_the_next_slides_first_word() {
     assert_eq!((p.word, p.plan_index, p.off_script), (Some(index_of(&s, 1, "through")), 1, false));
     assert!(p.confidence >= 0.6, "{p:?}");
 }
+
+/// A chorus written out twice, one slide right after the other, then a verse.
+const DOUBLED: [&str; 4] = ["alpha bravo charlie delta", "echo foxtrot golf hotel
+india juliet kilo lima", "echo foxtrot golf hotel
+india juliet kilo lima",
+    "mike november oscar papa"];
+
+#[test]
+fn a_jump_into_a_chorus_written_out_twice_lands_on_its_first_slide_and_stays_sure() {
+    let s = song(&DOUBLED);
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    sing(&mut a, "alpha bravo", &mut t);
+    // The leader goes straight to the chorus. Both copies hold these words: the first is where it begins.
+    let p = sing(&mut a, "echo foxtrot golf hotel", &mut t);
+    assert_eq!((p.plan_index, p.word), (1, Some(index_of(&s, 1, "hotel"))));
+    // On its last line the next slide comes up by the lead: the place must be sure there.
+    let p = sing(&mut a, "india juliet", &mut t);
+    assert_eq!(p.plan_index, 1);
+    assert!(p.confidence >= 0.6, "{p:?}");
+    // The second time round is the second copy, and it is sure on its last line too: the verse comes up in time.
+    let p = sing(&mut a, "kilo lima echo foxtrot golf hotel india juliet", &mut t);
+    assert_eq!(p.plan_index, 2);
+    assert!(p.confidence >= 0.6, "{p:?}");
+    let p = sing(&mut a, "kilo lima mike", &mut t);
+    assert_eq!((p.plan_index, p.word), (3, Some(index_of(&s, 3, "mike"))));
+}
+
+/// Sings `words` as `sing` does, each `gap` seconds after the one before.
+fn sing_every(a: &mut Aligner, words: &str, at: &mut f64, gap: f64) -> Position {
+    let mut last = a.position().clone();
+    for w in words.split_whitespace() {
+        *at += gap;
+        last = a.push(&Heard { key: sound_key(w), at: *at, conf: 1.0 });
+    }
+    last
+}
+
+#[test]
+fn the_place_is_found_again_further_on_when_there_was_time_to_sing_what_lies_between() {
+    let s = song(&["amazing grace how sweet the sound
+that saved a wretch like me", "I once was lost but now am found"]);
+    // The ear loses "the sound that saved a wretch" (two seconds of singing), then hears the slide's last two words.
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    sing(&mut a, "amazing grace how sweet", &mut t);
+    t += 2.0;
+    let p = sing(&mut a, "like", &mut t);
+    assert_eq!(p.word, Some(index_of(&s, 0, "sweet")), "one word is not enough");
+    let p = sing(&mut a, "me", &mut t);
+    assert_eq!(p.word, Some(index_of(&s, 0, "me")), "two exact words in a row are");
+    assert!(p.confidence >= 0.6, "{p:?}");
+    // The same two words with no time to have sung what lies between: a stray, the place stays.
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    sing(&mut a, "amazing grace how sweet", &mut t);
+    let p = sing_every(&mut a, "like me", &mut t, 0.1);
+    assert_eq!(p.word, Some(index_of(&s, 0, "sweet")));
+    // The ear loses the whole last line and the breath after it: the next slide's first two words find the place.
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    sing(&mut a, "amazing grace how sweet the sound", &mut t);
+    t += 3.0;
+    let p = sing(&mut a, "once was", &mut t);
+    assert_eq!((p.plan_index, p.word), (1, Some(index_of(&s, 1, "was"))));
+}
+
+#[test]
+fn a_jump_is_believed_through_words_the_ear_lost() {
+    let s = song(&crate::follow::sim_tests::HYMN);
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    sing(&mut a, "amazing grace how sweet", &mut t);
+    // The leader goes to the third verse; of "through many dangers toils and snares I have already come" the ear
+    // delivers four words, with others lost between them and one misheard.
+    let p = sing_every(&mut a, "many dangers", &mut t, 0.4);
+    assert_eq!(p.plan_index, 0);
+    t += 0.6;
+    let p = sing_every(&mut a, "snares zzzq", &mut t, 0.4);
+    assert_eq!(p.plan_index, 0, "three words are not four");
+    t += 0.4;
+    let p = sing_every(&mut a, "already", &mut t, 0.4);
+    assert_eq!((p.plan_index, p.word), (4, Some(index_of(&s, 4, "already"))), "the fourth exact word, whatever was lost on the way");
+}
+
+#[test]
+fn a_place_a_short_word_left_unsure_is_proved_by_a_later_word_of_the_line() {
+    let s = song(&["step by step and day by day
+I will trust you all my life", "evening falls upon the hill"]);
+    let mut a = Aligner::new(&s, &plan(&s));
+    let mut t = 0.0;
+    sing(&mut a, "step by step and day by day", &mut t);
+    let p = sing(&mut a, "I", &mut t);
+    assert_eq!(p.confidence, 0.0, "a lone vowel onto the last line proves nothing");
+    // "will" is lost; "trust" is exact, and there was the time to sing "will".
+    t += 0.4;
+    let p = sing(&mut a, "trust", &mut t);
+    assert_eq!(p.word, Some(index_of(&s, 0, "trust")));
+    assert!(p.confidence >= 0.6, "{p:?}");
+}

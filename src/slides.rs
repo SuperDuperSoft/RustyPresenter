@@ -144,17 +144,42 @@ pub fn song_slides_in(song: &Song, order: &[String], settings: &Settings) -> Vec
     let mut slides = Vec::new();
     let credit = credit_line(song, settings);
     let order = order_of(order, &sections);
+    // Pages that show nothing because all they hold is directions for the band (`sections::directions`): they
+    // make no slide. They are still counted as written, so every slide keeps the place the song editor finds it by.
+    let mut hidden: Vec<bool> = Vec::new();
     for &idx in &order {
         let s = &sections[idx];
         for g in &s.groups {
             let (tag, pages) = group_pages(g, lps);
-            let n = pages.len();
-            for (p, text) in pages.into_iter().enumerate() {
-                let label = if n > 1 { format!("{} ({}/{})", s.label, p + 1, n) } else { s.label.clone() };
-                // N10: chords stay out of the room's words; the stage can show them.
-                // A song moved to another key shows its chords moved (`transpose`); the words never change.
-                let (text, chords) = match strip_chords(&text) { Some(plain) => (plain, Some(crate::transpose::for_stage(song, &text))), None => (text, None) };
-                // Chords and no words (an intro, a break): the room shows no words, the stage shows the chords.
+            let body = if tag.is_some() { &g[1..] } else { &g[..] };
+            let room = crate::sections::directions::room_lines(body);
+            let per = lps.max(1);
+            let lines_of = |p: usize| room.get(p * per..((p + 1) * per).min(room.len())).unwrap_or_default();
+            // Nothing but directions (a second ending with the first one's words, "(Repeat chorus)"). A break
+            // that is only chords is not one of these: every line of it still has its chords.
+            let hides = |p: usize| { let l = lines_of(p); !l.is_empty() && l.iter().all(|x| x.gone) && l.iter().any(|x| x.text.trim().is_empty()) };
+            let n = (0..pages.len()).filter(|&p| !hides(p)).count();
+            let mut nth = 0;
+            for (p, written) in pages.into_iter().enumerate() {
+                if !hides(p) { nth += 1 }
+                let label = if n > 1 { format!("{} ({}/{})", s.label, nth, n) } else { s.label.clone() };
+                let lines = lines_of(p);
+                // The room's words: each line without its directions.
+                let shown = lines.iter().filter(|l| !l.gone).map(|l| l.text.as_str()).collect::<Vec<_>>().join("\n");
+                // N10: chords stay out of the room's words; the stage can show them (with the directions: they
+                // are for the band). A song moved to another key shows its chords moved (`transpose`); the words
+                // never change.
+                let has_chords = strip_chords(&written).is_some();
+                let text = strip_chords(&shown).unwrap_or(shown);
+                let chords = has_chords.then(|| crate::transpose::for_stage(song, &written));
+                // No slide for a page of directions. The stage keeps its chords with the slide before it.
+                if hides(p) {
+                    if let (Some(more), Some(Slide { chords: Some(c), .. })) = (&chords, slides.last_mut().filter(|_| p > 0)) { *c = format!("{c}\n{more}") }
+                    hidden.push(true);
+                    slides.push(Slide::new(label, SlideContent::Text { text: String::new(), footer: None, reference: None, size: song.text_size, parallel: None }));
+                    continue;
+                }
+                hidden.push(false);
                 let wordless = chords.is_some() && text.trim().is_empty();
                 let mut slide = Slide::new(label, SlideContent::Text { text, footer: None, reference: None, size: song.text_size, parallel: None });
                 slide.chords = chords;
@@ -167,6 +192,11 @@ pub fn song_slides_in(song: &Song, order: &[String], settings: &Settings) -> Vec
     // Each slide's section (FEAT-4), counted across the section's blank-line groups.
     let counts: Vec<(&str, usize)> = sections.iter().map(|s| (s.label.as_str(), s.groups.iter().map(|g| group_pages(g, lps).1.len()).sum())).collect();
     for (slide, r) in slides.iter_mut().zip(crate::sections::song_refs(&counts, &order)) { slide.section = Some(r) }
+    // A song of nothing but directions keeps its slides: there is nothing better to show.
+    if hidden.iter().any(|h| !h) {
+        let mut keep = hidden.iter().map(|h| !h);
+        slides.retain(|_| keep.next().unwrap_or(true));
+    }
     if let Some(credit) = credit {
         // The credit goes on a slide with words: an intro of chords alone shows nothing in the room.
         let sung = |s: &Slide| !(s.chords.is_some() && matches!(&s.content, SlideContent::Text { text, .. } if text.trim().is_empty()));
@@ -495,6 +525,39 @@ mod tests {
         assert_eq!(text, "Amazing grace\nHow sweet");
         assert_eq!(slides[0].chords.as_deref(), Some("[G]Amazing [C]grace\nHow sweet"));
         assert_eq!(song_slides(&usual_song(), &Settings::default())[0].chords, None, "no chords, nothing kept");
+    }
+
+    /// Jake, November 20, 2026: "(1st ending) (to verse 3). That stuff is in the file but why would the audience need
+    /// to see that?" The chorus of a SongSelect chord chart, two lines to a slide.
+    #[test]
+    fn directions_for_the_band_are_not_on_the_slides() {
+        let lyrics = "Chorus\n[A]Oh,  [D]God, You are my [A/C#]God\nAnd [G/B]I will [Asus]ever   [A]praise [D]You\nAnd [D]step by step You'll [A/C#]lead me [A]\n\
+            (1st Ending)    And I will [G/B]follow You [Asus]all of [A]my  [D]days      [G/D]    [A/D]     (To Verse 2)\n\
+            (2nd Ending)   And I will [G/B]follow You [Asus]all of [A]my  [D]days      (To Ending)\n\nEnding\nAnd [D/A]step by step You'll [A]lead me\n\
+            And I will [G/B]follow You [G/A]all of my [D]days [A/D]      (Repeat and fade)\n(Repeat chorus)";
+        let song = Song { lyrics: lyrics.into(), ..Default::default() };
+        let slides = song_slides(&song, &Settings { lines_per_slide: 2, credits: "none".into(), ..Default::default() });
+        let words: Vec<&str> = slides.iter().map(|s| match &s.content { SlideContent::Text { text, .. } => text.as_str(), _ => "" }).collect();
+        assert_eq!(words, ["Oh, God, You are my God\nAnd I will ever praise You", "And step by step You'll lead me\nAnd I will follow You all of my days",
+            "And step by step You'll lead me\nAnd I will follow You all of my days"], "no directions, and the second ending is not a slide of its own");
+        assert_eq!(slides.iter().map(|s| s.label.as_str()).collect::<Vec<_>>(), ["Chorus (1/2)", "Chorus (2/2)", "Ending"]);
+        // Each slide is still found in the song's text by its section and page as written (the song editor).
+        let pages: Vec<(u16, u16)> = slides.iter().map(|s| s.section.as_ref().map(|r| (r.occurrence, r.page)).unwrap()).collect();
+        assert_eq!(pages, [(0, 0), (0, 1), (1, 0)]);
+        let doc = crate::song_edit::Doc::read(lyrics);
+        let at = doc.find(&[], slides[2].section.as_ref().unwrap(), 2).unwrap();
+        assert!(doc.slide_lines(&at)[1].ends_with("(Repeat and fade)"), "the song's own text keeps them");
+        // The band still has them, and the second ending's chords, on the stage's chord sheet.
+        let chords = slides[1].chords.as_deref().unwrap();
+        assert!(chords.contains("(1st Ending)") && chords.contains("(2nd Ending)") && chords.contains("(To Ending)"), "{chords}");
+        // Auto-follow does not wait for a direction to be sung.
+        let text = crate::follow::SongText::from_slides(&slides);
+        assert!(!text.words.iter().any(|w| ["1st", "Ending", "Verse", "fade"].contains(&w.text.as_str())));
+        // A break of chords alone is still a slide (the room shows no words, the stage the chords).
+        let song = Song { lyrics: "Verse 1\nAmen\n\n[G] [D] (Instrumental)\n\nVerse 2\nAmen".into(), ..Default::default() };
+        let slides = song_slides(&song, &Settings { credits: "none".into(), ..Default::default() });
+        assert_eq!(slides.len(), 3);
+        assert_eq!(slides[1].tag, Some(chords_only()));
     }
 
     #[test]

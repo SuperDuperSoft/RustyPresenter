@@ -22,11 +22,16 @@ pub struct Saved {
     pub back_camera: bool,
     /// Presenter notes shown on the Remote tab.
     pub notes: bool,
+    /// Drawing on the slide: the colour (0–5), the pen (0–2, 3 the highlighter) and whether the ink fades.
+    pub draw_color: u32,
+    pub draw_size: u32,
+    pub draw_fades: bool,
 }
 
 impl Default for Saved {
     fn default() -> Self {
-        Saved { host: String::new(), name: String::new(), session: None, stage: None, tally_camera: 1, camera_name: String::new(), back_camera: true, notes: true }
+        Saved { host: String::new(), name: String::new(), session: None, stage: None, tally_camera: 1, camera_name: String::new(), back_camera: true, notes: true,
+            draw_color: 0, draw_size: 1, draw_fades: false }
     }
 }
 

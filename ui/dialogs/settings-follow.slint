@@ -150,7 +150,7 @@ export component FollowModelPage inherits VerticalLayout {
             spacing: 10px;
             alignment: start;
             if SettingsDlg.model-installed: model-installed := Text {
-                text: @tr("Installed ✓ ({})", SettingsDlg.model-size);
+                text: @tr("Installed ({})", SettingsDlg.model-size);
                 color: Theme.ok;
                 font-family: Theme.font;
                 font-weight: 700;
@@ -257,6 +257,75 @@ component LogLines inherits Rectangle {
 export component FollowPracticePage inherits VerticalLayout {
     alignment: start;
     spacing: 4px;
+    tape-row := SetRow {
+        key: "follow-tape";
+        label: @tr("Record a practice");
+        help: @tr("Keeps the sound auto-follow hears and every slide change, on this computer only. Move the slides by hand as on a Sunday, then check how auto-follow would have done.");
+        HorizontalLayout {
+            spacing: 10px;
+            alignment: start;
+            tape-toggle := Btn {
+                small: true;
+                primary: !SettingsDlg.tape-on;
+                enabled: !SettingsDlg.tape-busy;
+                text: SettingsDlg.tape-on ? @tr("Stop recording") : @tr("Start recording");
+                clicked => { SettingsDlg.tape-toggle(); }
+            }
+            tape-check := Btn {
+                small: true;
+                enabled: SettingsDlg.tape-any && !SettingsDlg.tape-on && !SettingsDlg.tape-busy;
+                text: @tr("Check the last recording");
+                tooltip: @tr("Plays the last practice through auto-follow as it is now and compares it with your slide changes.");
+                clicked => { SettingsDlg.tape-check(); }
+            }
+            tape-folder := Btn {
+                small: true;
+                enabled: SettingsDlg.tape-any;
+                text: @tr("Open folder");
+                clicked => { SettingsDlg.tape-folder(); }
+            }
+        }
+        if SettingsDlg.tape-status != "": tape-status := Text {
+            text: SettingsDlg.tape-status;
+            color: SettingsDlg.tape-on ? Theme.live : Theme.muted;
+            font-family: Theme.font;
+            font-size: 12.5px;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+    order-row := SetRow {
+        key: "follow-order";
+        label: @tr("Song order from practice");
+        help: @tr("Auto-follow learns from the recorded practice the order each song was really sung in (the chorus after every verse, the bridge twice) and how long each slide was up. On Sunday it expects that order, and when it cannot make out the words it goes by those times. Your slides stay as they are.");
+        HorizontalLayout {
+            spacing: 10px;
+            alignment: start;
+            order-learn := Btn {
+                small: true;
+                enabled: SettingsDlg.tape-any && !SettingsDlg.tape-on && !SettingsDlg.tape-busy;
+                text: @tr("Learn from the last recording");
+                clicked => { SettingsDlg.order-learn(); }
+            }
+            order-forget := Btn {
+                small: true;
+                enabled: SettingsDlg.order-count > 0;
+                text: @tr("Forget");
+                clicked => { SettingsDlg.order-forget(); }
+            }
+        }
+        if SettingsDlg.order-status != "": order-status := Text {
+            text: SettingsDlg.order-status;
+            color: Theme.muted;
+            font-family: Theme.font;
+            font-size: 12.5px;
+            wrap: word-wrap;
+            accessible-role: text;
+            accessible-label: self.text;
+        }
+    }
+    }
+    Rectangle { height: 10px; }
     Note {
         text: @tr("Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens.");
     }

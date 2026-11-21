@@ -76,15 +76,40 @@ fn main() {
     let stage = protocol::stage_view(STAGE).unwrap();
     let out = std::path::PathBuf::from(std::env::var("CARGO_TARGET_DIR").unwrap_or_else(|_| "target".into())).join("preview");
     std::fs::create_dir_all(&out).unwrap();
-    let shots: &[(&str, &str, i32, bool)] = &[
-        ("1-find", "find", 0, false), ("2-pair", "pair", 0, false), ("3-remote", "main", 0, false), ("4-stage", "main", 1, true),
-        ("5-stage-full", "main", 1, false), ("6-tally", "main", 2, false), ("7-microphone", "main", 3, false), ("8-camera", "main", 4, false),
-        ("9-scan", "scan", 0, false),
+    // The last three: the stage screen for phones turned off on the computer, or behind a password (the Stage, On air
+    // and Microphone tabs then show why instead).
+    let shots: &[(&str, &str, i32, bool, &str)] = &[
+        ("1-find", "find", 0, false, ""), ("2-pair", "pair", 0, false, ""), ("3-remote", "main", 0, false, ""), ("4-stage", "main", 1, true, ""),
+        ("5-stage-full", "main", 1, false, ""), ("6-tally", "main", 2, false, ""), ("7-microphone", "main", 3, false, ""),
+        ("8-camera", "main", 4, false, ""), ("9-scan", "scan", 0, false, ""),
+        ("10-stage-off", "main", 1, true, "off"), ("11-tally-off", "main", 2, true, "off"), ("12-microphone-off", "main", 3, true, "off"),
+        ("13-stage-password", "main", 1, true, "password"), ("14-stage-lost", "main", 1, true, "lost"),
+        ("15-draw", "main", 0, true, "draw"),
     ];
-    for (name, page, tab, bar) in shots {
+    // Drawing on the slide: a made-up slide with two lines on it.
+    let slide: Vec<u8> = (0..320 * 180).flat_map(|i| { let y = (i / 320) as u8; [20, 40 + y / 3, 90 + y / 2, 255] }).collect();
+    st.set_draw_slide(slint::Image::from_rgba8(slint::SharedPixelBuffer::clone_from_slice(&slide, 320, 180)));
+    let mut pad = remote::draw::Pad::new(1);
+    pad.down([0.2, 0.3]);
+    for i in 0..=40 { let a = i as f32 / 40.0 * 6.283; pad.moved([0.5 + 0.3 * a.cos(), 0.5 + 0.3 * a.sin()], [0.0, 0.0]); }
+    pad.up(0.0);
+    pad.size = 3;
+    pad.color = 2;
+    pad.down([0.15, 0.85]);
+    pad.moved([0.85, 0.85], [0.0, 0.0]);
+    pad.up(0.0);
+    let ink = remote::draw::paint(&pad.strokes, 640, 360, 1.0, 3.0);
+    st.set_draw_ink(slint::Image::from_rgba8_premultiplied(slint::SharedPixelBuffer::clone_from_slice(&ink, 640, 360)));
+    st.set_may_draw(true);
+    for (name, page, tab, bar, gate) in shots {
         st.set_page(s(*page));
         st.set_tab(*tab);
         st.set_stage_bar(*bar);
+        st.set_draw_open(*gate == "draw");
+        let gate = &if *gate == "draw" { "" } else { *gate };
+        st.set_gate(s(*gate));
+        st.set_gate_text(s(if *gate == "off" { "The stage screen for phones is turned off on the presentation computer." } else { "" }));
+        st.set_mic_on(gate.is_empty());
         if *tab == 1 {
             // The stage tab's own size: the whole window without the tabs when they show.
             let sh = if *bar { h as f32 - 60.0 } else { h as f32 };

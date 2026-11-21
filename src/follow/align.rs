@@ -12,6 +12,12 @@
 //! slide, so the worst a false one can do is move the place a few words on along the slide that is already up.
 //! (Not on a slide whose words are in the plan again with a different slide after them: there the copies must
 //! stay level, so every copy keeps the full proof.)
+//!
+//! The clock helps too (`Aligner::had_time`). Singers do not stand still: when the ear has missed a whole line,
+//! or a slide's last line and the breath after it, they are further on in the plan, as far as they have had the
+//! time to sing. Two exact words in a row there, on the slide that is up or the one planned after it, find the
+//! place again whenever enough time has passed since the last word that was placed for the words between to have
+//! been sung. Without that time it stays an ordinary jump: a stray word cannot carry the place ahead.
 use super::g2p;
 use super::lyrics::SongText;
 use std::collections::HashMap;
@@ -67,9 +73,27 @@ const PRUNE: f32 = 15.0;
 /// The score margin that counts as fully sure.
 const SURE_MARGIN: f32 = 2.0;
 
+/// Nobody sings more syllables a second than this: the least time the words between two places take.
+const MAX_RATE: f64 = 5.0;
+/// Finding the place again further on, when there was time to sing what lies between (`Aligner::had_time`): this,
+/// and a little for each planned word passed over, at most `TIMED_MOST`. Cheap beside a jump: going on in the
+/// plan is what singers do.
+const TIMED: f32 = 0.5;
+const TIMED_WORD: f32 = 0.1;
+const TIMED_MOST: f32 = 1.5;
+/// On a plan that is the order the song was sung in at practice (`Aligner::sung_order`), a jump to words that are
+/// in it more than once (the chorus after every verse) goes to the nearest copy: the first one further on, else
+/// the last one before. Any other copy costs this much more (`SURE_MARGIN`: the nearest stays fully sure, on its
+/// last line too, and the slide after it comes up in time). When the singers are on another copy after all, its
+/// next words are in the plan there and soon say so. On a plan that is only the slide list no copy is likelier
+/// than another: there they stay level, and the next slide waits for its first word.
+const OTHER_COPY: f32 = 2.0;
+/// The longest run of planned words a jump being confirmed may pass over at once (about a line).
+const FAR: usize = 8;
+
 /// One planned word.
 #[derive(Clone, Debug)]
-struct Spot { plan_index: usize, word: usize, line_start: bool }
+struct Spot { plan_index: usize, word: usize, line_start: bool, syllables: u8 }
 
 /// One hypothesis of where the singers are.
 #[derive(Clone, Debug)]
@@ -94,6 +118,8 @@ struct Hyp {
     /// A place found again a little ahead on its own slide, still being confirmed by the cheaper proof (two
     /// exact words in a row instead of `jump_words`): it is only ever finished on that slide (`plan`).
     refind: bool,
+    /// When the last word placed here was sung (`Heard::at`); before any, long ago.
+    at: f64,
 }
 
 pub struct Aligner {
@@ -112,6 +138,8 @@ pub struct Aligner {
     silent: Vec<bool>,
     beam: Vec<Hyp>,
     jump_words: u8,
+    /// The plan is the order the song was sung in at practice (`OTHER_COPY`).
+    sung_order: bool,
     /// The operator just put this slide up (`seat_anywhere`): the first word heard may be anywhere on it.
     seat: bool,
     last: Position,
@@ -130,7 +158,7 @@ impl Aligner {
             let Some(span) = song.slides.get(slide) else { continue };
             for w in span.words() {
                 let line_start = w == span.first_word || song.words[w].line != song.words[w - 1].line;
-                track.push(Spot { plan_index: p, word: w, line_start });
+                track.push(Spot { plan_index: p, word: w, line_start, syllables: song.words[w].syllables });
                 keys.push(song.words[w].key.clone());
                 silent.push(undelivered(&song.words[w].text));
             }
@@ -140,7 +168,7 @@ impl Aligner {
         let twin: Vec<usize> = (0..starts.len())
             .map(|p| (0..p).find(|&q| !words_of(&keys, &starts, p).is_empty() && words_of(&keys, &starts, q) == words_of(&keys, &starts, p)).unwrap_or(p))
             .collect();
-        let mut a = Aligner { plan: plan.to_vec(), track, starts, twin, by_key, keys, silent, beam: vec![], jump_words: JUMP_WORDS, seat: false,
+        let mut a = Aligner { plan: plan.to_vec(), track, starts, twin, by_key, keys, silent, beam: vec![], jump_words: JUMP_WORDS, sung_order: false, seat: false,
             last: Position { word: None, plan_index: 0, confidence: 0.0, off_script: false } };
         a.restart(0);
         a
@@ -148,6 +176,9 @@ impl Aligner {
 
     /// Words needed to believe a jump outside the plan (Settings → jump strictness), at least 2.
     pub fn with_jump_words(mut self, n: u8) -> Aligner { self.jump_words = n.max(2); self }
+
+    /// The plan is the order the song was sung in at practice, not just the slide list (`OTHER_COPY`).
+    pub fn sung_order(mut self, known: bool) -> Aligner { self.sung_order = known; self }
 
     /// How often a jump being confirmed may fail to explain a word (`Hyp::slips`): one for every two words of
     /// its proof. Four words asked for: four good ones among six at most.
@@ -179,7 +210,7 @@ impl Aligner {
     fn restart(&mut self, plan_index: usize) {
         let p = plan_index.min(self.starts.len().saturating_sub(1));
         let next = self.starts.get(p).copied().unwrap_or(0);
-        self.beam = vec![Hyp { next, plan: p, heard: false, score: 0.0, pending: 0, slips: 0, misses: 0, seated: 0, refind: false }];
+        self.beam = vec![Hyp { next, plan: p, heard: false, score: 0.0, pending: 0, slips: 0, misses: 0, seated: 0, refind: false, at: f64::NEG_INFINITY }];
         self.last = Position { word: None, plan_index: p, confidence: 0.0, off_script: false };
         self.seat = false;
     }
@@ -194,6 +225,35 @@ impl Aligner {
     }
 
     fn plan_of(&self, h: &Hyp) -> usize { if h.heard { self.track[h.next - 1].plan_index } else { h.plan } }
+
+    /// The words of plan index `here` are in the plan again, and that copy goes on to a different slide (a chorus
+    /// that is in the list twice).
+    fn split(&self, here: usize) -> bool {
+        (0..self.twin.len()).any(|p| p != here && self.twin.get(p) == self.twin.get(here) && self.twin.get(p + 1) != self.twin.get(here + 1))
+    }
+
+    /// Plan indices `p` and `q` hold the same words, and so does every one between them.
+    fn in_a_row(&self, p: usize, q: usize) -> bool {
+        let (a, b) = (p.min(q), p.max(q));
+        (a..=b).all(|i| self.twin.get(i) == self.twin.get(a))
+    }
+
+    /// A jump from plan index `here` may go straight to `p`: not to a slide with the same words as the slide just
+    /// before it (see `push`).
+    fn open(&self, here: usize, p: usize) -> bool { p == here || p == 0 || self.twin[p] != self.twin[p - 1] }
+
+    /// The copy of plan index `to`'s words a jump from `here` goes to first (`OTHER_COPY`).
+    fn nearest_copy(&self, here: usize, to: usize) -> usize {
+        let copy = |p: &usize| self.twin[*p] == self.twin[to] && self.open(here, *p);
+        (here..self.twin.len()).find(copy).or_else(|| (0..here).rev().find(copy)).unwrap_or(to)
+    }
+
+    /// Since the last word placed at `h` there has been the time to sing every planned word from there up to
+    /// word `t` (`MAX_RATE`), as the word sung at `at` would have it.
+    fn had_time(&self, h: &Hyp, t: usize, at: f64) -> bool {
+        let syllables: u32 = self.track[h.next.min(t)..t].iter().map(|s| s.syllables as u32).sum();
+        at - h.at >= syllables as f64 / MAX_RATE
+    }
 
     /// A step from a place whose next word is `from` to word `t` comes onto the last line of `t`'s slide from
     /// outside it: a line starts on the way, and none starts after `t` on that slide.
@@ -235,28 +295,47 @@ impl Aligner {
                 if m <= 0.0 { continue }
                 // Planned words stepped over that the ear does deliver. (Some it never delivers, "a": stepping
                 // over those is free, and no proof either.) A jump being confirmed has a few to spare (`slips`),
-                // a cheaper proof none. Only the word heard counts, so the proof is as long as before.
+                // a cheaper proof none. Only the word heard counts, so the proof is as long as before. Words there
+                // was the time to sing since the jump's last word are the ear's loss, not a doubt about the jump:
+                // they take none of its spare (in a loud room the ear loses one word in four, and a jump that had
+                // to pay for each was never believed).
                 let missed = (h.next..t).filter(|&s| !self.silent[s]).count() as u8;
                 let mut slips = h.slips;
+                let sung = missed > 0 && h.pending > 0 && !h.refind && self.had_time(h, t, heard.at);
                 let pending = match h.pending {
                     0 => 0,
-                    _ if missed > 0 && (h.refind || missed > slips) => continue,
+                    _ if missed > 0 && (h.refind || !sung && missed > slips) => continue,
                     // The cheaper proof of a re-find is for its own slide: it is never finished on the next one.
                     _ if h.refind && self.track[t].plan_index != h.plan => continue,
                     p => {
-                        slips -= missed;
+                        if !sung { slips -= missed }
                         if m >= GOOD { p - 1 } else { p }
                     }
                 };
-                // A seated place is proved by the planned next word, heard exactly (as a jump is).
-                let mut seated = if k == 0 && m >= GOOD { h.seated.saturating_sub(1) } else { h.seated };
+                // A seated place is proved by the planned next word, heard exactly (as a jump is). Or by the word
+                // after one or two the ear lost, when it is exact, more than one letter, and there was the time
+                // to sing them: in a loud room the very next word is lost too often, and a place every later
+                // word agreed with stayed unsure to the end of its slide.
+                let proves = m >= GOOD && (k == 0 || !short && self.had_time(h, t, heard.at));
+                let mut seated = if proves { h.seated.saturating_sub(1) } else { h.seated };
                 // A one-letter word that carries the place onto a slide's last line proves nothing either: there the
                 // next slide would come up, and the vowel of a note held at the end of the line before ("to
                 // you——") is heard as just such a word ("Oh", "I"). The place moves on, but it is not sure until
                 // the planned next word is heard exactly: a word late at worst, never the next slide a line early.
                 if short && self.onto_last_line(h.next, t) { seated = seated.max(1) }
                 out.push(Hyp { next: t + 1, plan: h.plan, heard: true, score: h.score + m * weight - SKIP * k as f32, pending, slips,
-                    misses: if m >= GOOD { 0 } else { h.misses }, seated, refind: h.refind && pending > 0 });
+                    misses: if m >= GOOD { 0 } else { h.misses }, seated, refind: h.refind && pending > 0, at: heard.at });
+            }
+            // A jump being confirmed goes on past a longer run of words the ear lost (up to `FAR`), when there
+            // was the time to sing them and the word heard there is exact and more than one letter.
+            if h.pending > 0 && !h.refind && !short {
+                for k in AHEAD..=FAR {
+                    let t = h.next + k;
+                    if t >= self.track.len() { break }
+                    if self.score(key, t, false) < GOOD || !self.had_time(h, t, heard.at) { continue }
+                    out.push(Hyp { next: t + 1, plan: h.plan, heard: true, score: h.score + weight - (TIMED_WORD * k as f32).min(TIMED_MOST), pending: h.pending - 1,
+                        slips: h.slips, misses: 0, seated: h.seated, refind: false, at: heard.at });
+                }
             }
             // Seated by the operator and nothing heard yet: any later word of this slide, when it sounds exactly the
             // same. Shown as the place at once, but not sure until `jump_words` exact words in a row are heard.
@@ -266,7 +345,7 @@ impl Aligner {
                     let m = self.score(key, t, false);
                     if m >= GOOD {
                         out.push(Hyp { next: t + 1, plan: h.plan, heard: true, score: h.score + m * weight - SEAT, pending: 0, slips: 0, misses: 0,
-                            seated: self.jump_words - 1, refind: false });
+                            seated: self.jump_words - 1, refind: false, at: heard.at });
                     }
                 }
             }
@@ -280,7 +359,7 @@ impl Aligner {
                         let m = self.score(key, t, false);
                         if m > 0.0 {
                             out.push(Hyp { next: t + 1, plan: h.plan, heard: true, score: h.score + m * weight - REPEAT - SKIP * k as f32, pending: 0,
-                                slips: 0, misses: if m >= GOOD { 0 } else { h.misses }, seated: h.seated, refind: false });
+                                slips: 0, misses: if m >= GOOD { 0 } else { h.misses }, seated: h.seated, refind: false, at: heard.at });
                         }
                     }
                 }
@@ -301,14 +380,19 @@ impl Aligner {
             // in the list twice). Found again cheaply, this copy alone would move on and leave the other behind;
             // on the last line that makes a guessed copy sure (`report`) and brings its next slide up. Such a
             // slide keeps the full proof, which every copy gets alike, so the copies stay level.
-            let split = (0..self.twin.len())
-                .any(|p| p != here && self.twin.get(p) == self.twin.get(here) && self.twin.get(p + 1) != self.twin.get(here + 1));
+            let split = self.split(here);
             for &t in self.by_key.get(key).into_iter().flatten() {
                 let m = self.score(key, t, false);
                 if m < GOOD || near(t) { continue }
                 let to = self.track[t].plan_index;
-                // Nearer places first, ahead before behind.
+                // A slide with the same words as the slide just before it (a chorus written out twice): singers who
+                // go to those words begin with the first of the two, and reach the second by singing on. A jump
+                // straight to the second would stand level with the first, neither sure, and the slide after
+                // them would always come up late.
+                if !self.open(here, to) { continue }
+                // Nearer places first, ahead before behind; of the same words, the nearest copy well before the rest.
                 let far = if to >= here { (to - here) as f32 * 0.05 } else { 0.05 + (here - to) as f32 * 0.1 };
+                let far = if self.sung_order && self.nearest_copy(here, to) != to { far.min(1.0) + OTHER_COPY } else { far };
                 // Found again a little ahead on the SAME slide: two exact words in a row are enough (this one and
                 // the next), at the price of the words stepped over instead of a jump's. So the place found is
                 // sure at once and the next slide still comes up in time, where the full proof left the old slide
@@ -318,17 +402,31 @@ impl Aligner {
                 // never on a slide with a copy that goes on to a different slide (`split`).
                 let ahead = (best.next + AHEAD..=best.next + REFIND).contains(&t);
                 let second = (t + 1..self.track.len()).find(|&s| !self.silent[s]);
-                let refind = lost && !split && to == here && ahead && second.is_some_and(|s| self.track[s].plan_index == here);
-                let (cost, pending) = if refind { ((SKIP * (t - best.next) as f32).min(JUMP), 1) } else { (JUMP, self.jump_words - 1) };
+                let second_there = second.is_some_and(|s| self.track[s].plan_index == to);
+                let near_refind = lost && !split && to == here && ahead && second_there;
+                // Further on in the plan, on this slide or the one planned after it, with the time to have sung
+                // what lies between (see the top of this file): the same two exact words in a row, wherever on
+                // those slides it is. Not along a slide from a place on it that is itself unproved, not on a slide
+                // whose copies must stay level, and not by a word of one letter.
+                let timed = best.heard && (to == here && !split && best.seated == 0 || to == here + 1 && !self.split(to)) && t > best.next
+                    && second_there && !short && self.had_time(&best, t, heard.at);
+                let refind = near_refind || timed;
+                let over = t.saturating_sub(best.next) as f32;
+                let near_cost = (SKIP * over).min(JUMP);
+                let timed_cost = (TIMED + TIMED_WORD * over).min(TIMED_MOST);
+                let cost = match (near_refind, timed) { (true, true) => near_cost.min(timed_cost), (true, false) => near_cost, (false, true) => timed_cost, _ => JUMP };
+                let pending = if refind { 1 } else { self.jump_words - 1 };
                 // (`far` is 0 for a re-find: it is on this slide.)
-                out.push(Hyp { next: t + 1, plan: to, heard: true, score: best.score + m * weight - cost - far, pending,
-                    slips: if refind { 0 } else { self.slips() }, misses: 0, seated: 0, refind });
+                out.push(Hyp { next: t + 1, plan: to, heard: true, score: best.score + m * weight - cost - if refind { 0.0 } else { far }, pending,
+                    slips: if refind { 0 } else { self.slips() }, misses: 0, seated: 0, refind, at: heard.at });
             }
         }
-        // Keep the best per place; a jump being confirmed is kept apart from a believed place.
+        // Keep the best per place; a jump being confirmed is kept apart from a believed place, and one that can
+        // still fail to explain a word apart from one that cannot (a fresh jump to the same place must not be
+        // thrown away for an older one that scores a little better and ends at the next misheard word).
         out.sort_by(|a, b| b.score.total_cmp(&a.score));
         let mut seen = std::collections::HashSet::new();
-        out.retain(|h| seen.insert((h.next, h.heard, h.pending > 0)));
+        out.retain(|h| seen.insert((h.next, h.heard, h.pending > 0, h.pending > 0 && h.slips > 0)));
         let top = out.first().map(|h| h.score).unwrap_or(0.0);
         out.retain(|h| h.score >= top - PRUNE);
         out.truncate(BEAM);
@@ -350,7 +448,10 @@ impl Aligner {
         // only a copy that is followed by the same words too is the same place. (Unsure then means the next
         // slide waits for its own first word: a word late, never the wrong slide.)
         let next_same = |p: usize| self.twin.get(p + 1) == self.twin.get(here + 1);
-        let same = |p: usize| self.twin.get(p) == self.twin.get(here) && (!last_line || next_same(p));
+        // Copies that stand one right after the other in the plan (a chorus written out twice) are sung in that
+        // order: on the last line of the second, the thought that it is the first one again is no rival. (Sung a
+        // third time, its first words bring it back like any repeat.)
+        let same = |p: usize| self.twin.get(p) == self.twin.get(here) && (!last_line || next_same(p) || self.in_a_row(p, here));
         // Anything else, a jump being confirmed too, makes it less sure.
         let rival = self.beam.iter().filter(|h| !same(self.plan_of(h))).map(|h| h.score).fold(f32::NEG_INFINITY, f32::max);
         let off_script = best.misses >= OFF_SCRIPT;

@@ -160,7 +160,7 @@ fn layouts_saved_chosen_deleted_and_reset() {
     assert!(op.dock_layout().is_shown(PanelId::Cameras), "View → Panels → Cameras shows it");
     op.dock_store_as("Easter");
     let names = |op: &Operator| -> Vec<String> { op.ui.get_dock_layout_rows().iter().map(|r| r.name.to_string()).collect() };
-    assert_eq!(names(&op), ["Standard", "Big slides", "Livestream", "Two monitors", "Easter"]);
+    assert_eq!(names(&op), ["Standard", "Big slides", "ProPresenter style", "EasyWorship style", "Livestream", "Two monitors", "Easter"]);
     assert!(op.ui.get_dock_saved_chosen());
     assert_eq!(saved(&app).saved.len(), 1, "saved in Settings");
     op.dock_menu("layout:builtin:big-slides");
@@ -172,7 +172,7 @@ fn layouts_saved_chosen_deleted_and_reset() {
     op.dock_rename_to("Easter", "Holy week");
     assert_eq!(names(&op).last().unwrap(), "Holy week");
     op.dock_delete_saved("Holy week");
-    assert_eq!(names(&op).len(), 4);
+    assert_eq!(names(&op).len(), Builtin::ALL.len());
     assert_eq!(op.dock_layout(), Layout::builtin(Builtin::Standard));
     // Reset to Standard after changes.
     op.dock_menu(&format!("panel:{}", PanelId::Library.index()));

@@ -214,6 +214,19 @@ impl Rules {
         self.resume();
     }
 
+    /// The next slide came up by the practice clock (`clock`), not by a word: the words counted so far were
+    /// about the old slide. Should the singers still be on it after all, its words are counted afresh (the very
+    /// word last heard there too) and bring it back like any repeat. The blank, the quiet and the pace stay.
+    pub fn clocked(&mut self) {
+        self.last_word = None;
+        self.coast_frozen_at = None;
+        self.pace_from = None;
+        self.finished = None;
+        self.sung = None;
+        self.sung_run = 0;
+        self.run = None;
+    }
+
     /// The rules were not looking for a while (Hold, a video, Manual, waiting for the singers after a hand
     /// move): what they heard before is old, so the quiet and the talk are counted from the next look.
     pub fn resume(&mut self) {
@@ -450,6 +463,11 @@ impl Rules {
                     return None;
                 }
             }
+            // Found on the last word of another slide (the ear lost the rest of it, or the jump there was only
+            // believed at its end): that slide is over. The one after it goes up, not the finished one for a
+            // blink and then the next. (Going back to the slide just before the live one is settled above.)
+            let over = (at > live_slide || !just_before) && w + 1 == self.song.slides[at].end_word && at + 1 != live_slide;
+            if over && self.song.slides.get(at + 1).is_some_and(|s| !s.instrumental) { return act(at + 1) }
             return act(at);
         }
 

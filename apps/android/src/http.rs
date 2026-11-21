@@ -50,18 +50,18 @@ impl Client {
     }
 
     pub fn set_cookie(&self, name: &str, value: Option<&str>) {
-        let mut c = self.cookies.lock().unwrap();
+        let mut c = self.cookies.lock().unwrap_or_else(|e| e.into_inner());
         c.retain(|(n, _)| n != name);
         if let Some(v) = value.filter(|v| !v.is_empty()) { c.push((name.to_string(), v.to_string())) }
     }
 
     pub fn cookie(&self, name: &str) -> Option<String> {
-        self.cookies.lock().unwrap().iter().find(|(n, _)| n == name).map(|(_, v)| v.clone())
+        self.cookies.lock().unwrap_or_else(|e| e.into_inner()).iter().find(|(n, _)| n == name).map(|(_, v)| v.clone())
     }
 
     /// `Cookie: a=1; b=2`, or nothing.
     pub fn cookie_header(&self) -> Option<String> {
-        let c = self.cookies.lock().unwrap();
+        let c = self.cookies.lock().unwrap_or_else(|e| e.into_inner());
         (!c.is_empty()).then(|| c.iter().map(|(n, v)| format!("{n}={v}")).collect::<Vec<_>>().join("; "))
     }
 

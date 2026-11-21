@@ -5,6 +5,7 @@ import { S, Say, Found, ItemRow, SlideRow, SectionChip, StageCell, ChordRow, Cho
 import { FindPage, PairPage, ScanPage } from "connect.slint";
 import { RemotePage } from "remote.slint";
 import { StagePage, TallyPage, MicPage, CameraPage } from "stage.slint";
+import { DrawPage } from "draw.slint";
 
 export { S, Say, Found, ItemRow, SlideRow, SectionChip, StageCell, ChordRow, ChordCol }
 
@@ -13,6 +14,10 @@ component Tab inherits Rectangle {
     in property <int> index;
     background: S.tab == root.index ? Theme.raise : transparent;
     border-radius: 10px;
+    // Five equal boxes, whatever the words in them.
+    horizontal-stretch: 1;
+    min-width: 0px;
+    preferred-width: 0px;
     accessible-role: tab;
     accessible-label: root.text;
     Text {
@@ -22,8 +27,9 @@ component Tab inherits Rectangle {
         color: S.tab == root.index ? Theme.accent : Theme.muted;
         horizontal-alignment: center;
         vertical-alignment: center;
-        wrap: word-wrap;
+        overflow: elide;
         width: parent.width - 4px;
+        height: parent.height;
     }
     TouchArea { clicked => { S.tab = root.index; S.tab-chosen(root.index); } }
 }
@@ -75,6 +81,14 @@ export component AppWindow inherits Window {
                 Tab { text: @tr("Camera"); index: 4; }
             }
         }
+    }
+
+    // Drawing on the live slide: over everything, tabs too.
+    if S.draw-open && S.page == "main": DrawPage {
+        x: root.safe-area-insets.left;
+        y: root.safe-area-insets.top;
+        width: parent.width - root.safe-area-insets.left - root.safe-area-insets.right;
+        height: parent.height - root.safe-area-insets.top - root.safe-area-insets.bottom;
     }
 
     // Why a permission is needed, before Android asks.

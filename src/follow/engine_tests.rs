@@ -474,23 +474,38 @@ fn a_new_song_on_its_intro_slide_waits_for_the_first_lyric() {
 }
 
 #[test]
-fn a_delayed_spoken_quote_is_ignored_after_singing_starts() {
+fn song_words_under_a_talking_label_are_followed() {
+    // A real room: the pitch tracker calls the singing "talking" all the way through (a band over the voice, an
+    // untrained voice, a laptop microphone). The words of the song still come in order, and they decide.
     let host = Fake::song(Mode::Auto);
     let mut e = Engine::new();
-    for i in 0..15 {
-        let t = i as f64 / 10.0;
-        let voice = if i < 10 { Voice::Speaking } else { Voice::Singing };
-        e.step(host.as_ref(), t, Some(FollowEvent::Audio { voice, onsets: 2.0, at: t, held_since: None }));
+    e.step(host.as_ref(), 0.0, Some(FollowEvent::Listening { words: true }));
+    let mut t = 0.0;
+    for word in VERSE_1.split_whitespace() {
+        for _ in 0..4 {
+            t += 0.1;
+            e.step(host.as_ref(), t, Some(FollowEvent::Audio { voice: Voice::Speaking, onsets: 2.0, at: t, held_since: None }));
+        }
+        e.step(host.as_ref(), t, Some(FollowEvent::Heard(Heard { key: sound_key(word), at: t - 0.2, conf: 1.0 })));
     }
-    for (w, at) in [("amazing", 0.2), ("grace", 0.5), ("how", 0.8)] {
-        e.step(host.as_ref(), 1.4, Some(FollowEvent::Heard(Heard { key: sound_key(w), at, conf: 1.0 })));
-    }
-    assert_eq!(e.state().line, None);
-    assert!(host.shown().is_empty());
+    assert_eq!(host.shown(), ["show 1"], "{:?}", e.take_trace());
+    assert_eq!(e.state().light, Light::Sure);
+}
 
-    let mut t = 1.4;
-    sing(&mut e, host.as_ref(), VERSE_1, &mut t);
-    assert_eq!(host.shown(), ["show 1"]);
+#[test]
+fn talk_that_is_not_the_song_moves_nothing() {
+    let host = Fake::song(Mode::Auto);
+    let mut e = Engine::new();
+    e.step(host.as_ref(), 0.0, Some(FollowEvent::Listening { words: true }));
+    let mut t = 0.0;
+    for word in "good morning church please stand and greet the people near you before we sing together".split_whitespace() {
+        for _ in 0..4 {
+            t += 0.1;
+            e.step(host.as_ref(), t, Some(FollowEvent::Audio { voice: Voice::Speaking, onsets: 2.0, at: t, held_since: None }));
+        }
+        e.step(host.as_ref(), t, Some(FollowEvent::Heard(Heard { key: sound_key(word), at: t - 0.2, conf: 1.0 })));
+    }
+    assert!(host.shown().is_empty(), "{:?}", host.shown());
 }
 
 #[test]
@@ -525,24 +540,6 @@ fn stalled_capture_never_blanks_or_uses_queued_words() {
     e.step(host.as_ref(), 5.0, None);
     assert_eq!(e.state().light, Light::Holding);
     assert_eq!(e.state().line, None);
-    assert!(host.shown().is_empty());
-}
-
-#[test]
-fn brief_pitch_plateaus_cannot_arm_live_following_of_a_spoken_lyric() {
-    let host = Fake::song(Mode::Auto);
-    let mut engine = Engine::new();
-    engine.step(host.as_ref(), 0.0, Some(FollowEvent::Listening { words: true }));
-    for (i, word) in VERSE_1.split_whitespace().enumerate() {
-        for j in 0..=3 {
-            let t = (4 * i + j + 1) as f64 / 10.0;
-            let voice = if j < 2 { Voice::Singing } else { Voice::Music };
-            engine.step(host.as_ref(), t, Some(FollowEvent::Audio { voice, onsets: 2.0, at: t, held_since: None }));
-        }
-        let now = (4 * i + 4) as f64 / 10.0;
-        engine.step(host.as_ref(), now, Some(FollowEvent::Heard(Heard { key: sound_key(word), at: now - 0.2, conf: 1.0 })));
-    }
-    assert_eq!(engine.state().light, Light::Listening);
     assert!(host.shown().is_empty());
 }
 
@@ -750,4 +747,42 @@ fn the_listening_log_is_one_file_a_day_and_old_days_go() {
     assert_eq!((names[0].as_str(), names[TRACE_DAYS - 1].as_str()), ("follow-20261103.log", "follow-20261112.log"));
     assert_eq!(std::fs::read_to_string(dir.join("follow-20261112.log")).unwrap(), "10:30:05 line 12\n10:30:05 more\n");
     let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Replays a listening log (`RP_FOLLOW_LOG`) over a song's lyrics (`RP_FOLLOW_LYRICS`, a text file): every word
+/// the ear delivered, under a "talking" label throughout, with no hand moves. Prints what Automatic does.
+#[test]
+#[ignore]
+fn replay_a_listening_log() {
+    let (Ok(log), Ok(lyrics)) = (std::env::var("RP_FOLLOW_LOG"), std::env::var("RP_FOLLOW_LYRICS")) else { return };
+    let log = std::fs::read_to_string(log).unwrap();
+    let lyrics = std::fs::read_to_string(lyrics).unwrap();
+    let song = crate::model::Song { id: Uuid::new_v4(), title: "Replay".into(), lyrics, ..Default::default() };
+    let slides = crate::slides::song_slides(&song, &crate::model::Settings { lines_per_slide: 2, ..Default::default() });
+    let text = SongText::from_slides(&slides);
+    for (i, s) in text.slides.iter().enumerate() {
+        println!("slide {:>2}: {}", i + 1, text.words[s.first_word..s.end_word].iter().map(|w| w.text.as_str()).collect::<Vec<_>>().join(" "));
+    }
+    let host = Fake::song(Mode::Auto);
+    host.change(|l| l.slides = slides.clone());
+    let mut e = Engine::new();
+    let mut t = 0.0;
+    e.step(host.as_ref(), t, Some(FollowEvent::Listening { words: true }));
+    for line in log.lines() {
+        let mut parts = line.split_whitespace();
+        let (Some(_), Some(clock)) = (parts.next(), parts.next().and_then(|c| c.parse::<f64>().ok())) else { continue };
+        let rest: Vec<&str> = parts.collect();
+        let (key, conf) = match rest.as_slice() {
+            ["ignored", "lyric", "evidence", key, conf, ..] | ["heard", key, conf, ..] => (key.to_string(), conf.trim_end_matches(|c| c == '%' || c == ':').parse::<f32>().unwrap_or(90.0) / 100.0),
+            _ => continue,
+        };
+        if t == 0.0 { t = clock - 1.0 }
+        while t + 0.1 < clock {
+            t += 0.1;
+            e.step(host.as_ref(), t, Some(FollowEvent::Audio { voice: Voice::Speaking, onsets: 2.0, at: t, held_since: None }));
+        }
+        e.step(host.as_ref(), clock, Some(FollowEvent::Heard(Heard { key, at: clock - 0.6, conf })));
+        for l in e.take_trace() { println!("{l}") }
+    }
+    println!("shown: {:?}", host.shown());
 }

@@ -1,0 +1,128 @@
+// Drawing on the live slide, like a sports telestrator: the slide fills the screen at the audience screen's own
+// shape and the finger draws straight away; the line shows in the room as it is drawn. The tools sit under it, each
+// in a place and size of its own. Everything is kept and sent by the Rust side (`src/draw.rs`, `android::draw_*`).
+import { Theme } from "theme.slint";
+import { Btn } from "widgets.slint";
+import { S } from "state.slint";
+
+// A colour to draw with.
+component Swatch inherits Rectangle {
+    in property <color> ink;
+    in property <bool> chosen;
+    callback tapped();
+    horizontal-stretch: 1;
+    min-width: 0px;
+    preferred-width: 0px;
+    height: 44px;
+    border-radius: 10px;
+    background: root.chosen ? Theme.raise : transparent;
+    accessible-role: button;
+    Rectangle {
+        width: 26px; height: 26px;
+        x: (parent.width - self.width) / 2; y: (parent.height - self.height) / 2;
+        border-radius: 13px;
+        background: root.ink;
+        border-width: root.chosen ? 3px : 1px;
+        border-color: root.chosen ? Theme.white : Theme.faint;
+    }
+    TouchArea { clicked => { root.tapped(); } }
+}
+
+// A pen size (a dot) or the highlighter (a bar).
+component Nib inherits Rectangle {
+    in property <length> dot;
+    in property <bool> bar;
+    in property <bool> chosen;
+    in property <color> ink;
+    callback tapped();
+    horizontal-stretch: 1;
+    min-width: 0px;
+    preferred-width: 0px;
+    height: 44px;
+    border-radius: 10px;
+    background: root.chosen ? Theme.raise : transparent;
+    border-width: root.chosen ? 1px : 0px;
+    border-color: Theme.faint;
+    accessible-role: button;
+    Rectangle {
+        width: root.bar ? 30px : root.dot; height: root.bar ? 14px : root.dot;
+        x: (parent.width - self.width) / 2; y: (parent.height - self.height) / 2;
+        border-radius: root.bar ? 3px : root.dot / 2;
+        background: root.bar ? root.ink.with-alpha(0.45) : root.ink;
+    }
+    TouchArea { clicked => { root.tapped(); } }
+}
+
+export component DrawPage inherits Rectangle {
+    background: Theme.black;
+    property <[color]> palette: [#ffd60a, #ff3b30, #34c759, #0a84ff, #ffffff, #111111];
+    // Nothing under this page takes a touch.
+    TouchArea {}
+    VerticalLayout {
+        board := Rectangle {
+            vertical-stretch: 1;
+            min-height: 0px;
+            clip: true;
+            box := Rectangle {
+                width: min(board.width, board.height * S.draw-aspect);
+                height: self.width / S.draw-aspect;
+                x: (board.width - self.width) / 2;
+                y: (board.height - self.height) / 2;
+                background: #101216;
+                Image { source: S.draw-slide; width: 100%; height: 100%; image-fit: fill; }
+                Image { source: S.draw-ink; width: 100%; height: 100%; image-fit: fill; }
+            }
+            // The whole black area takes the finger, so a line that starts just off the slide still draws.
+            TouchArea {
+                pointer-event(e) => {
+                    if e.kind == PointerEventKind.down {
+                        S.draw-down((self.mouse-x - box.x) / box.width, (self.mouse-y - box.y) / box.height, box.width / 1px, box.height / 1px);
+                    } else if e.kind == PointerEventKind.up || e.kind == PointerEventKind.cancel {
+                        S.draw-up();
+                    }
+                }
+                moved => { S.draw-move((self.mouse-x - box.x) / box.width, (self.mouse-y - box.y) / box.height); }
+            }
+        }
+        Rectangle {
+            background: Theme.panel;
+            height: tools.preferred-height;
+            tools := VerticalLayout {
+                padding: 8px;
+                spacing: 6px;
+                HorizontalLayout {
+                    height: 44px;
+                    spacing: 4px;
+                    for c[i] in root.palette: Swatch {
+                        ink: c;
+                        chosen: S.draw-color == i;
+                        tapped => { S.draw-color = i; S.draw-tool(); }
+                    }
+                }
+                HorizontalLayout {
+                    height: 44px;
+                    spacing: 4px;
+                    Nib { dot: 8px; ink: root.palette[S.draw-color]; chosen: S.draw-size == 0; tapped => { S.draw-size = 0; S.draw-tool(); } }
+                    Nib { dot: 14px; ink: root.palette[S.draw-color]; chosen: S.draw-size == 1; tapped => { S.draw-size = 1; S.draw-tool(); } }
+                    Nib { dot: 22px; ink: root.palette[S.draw-color]; chosen: S.draw-size == 2; tapped => { S.draw-size = 2; S.draw-tool(); } }
+                    Nib { bar: true; ink: root.palette[S.draw-color]; chosen: S.draw-size == 3; tapped => { S.draw-size = 3; S.draw-tool(); } }
+                    Btn {
+                        fixed: true; tall: 44px; horizontal-stretch: 2; font-size: Theme.small;
+                        kind: S.draw-fades ? "on" : "";
+                        text: S.draw-fades ? @tr("Ink fades") : @tr("Ink stays");
+                        clicked => { S.draw-fades = !S.draw-fades; S.draw-tool(); }
+                    }
+                }
+                HorizontalLayout {
+                    height: 52px;
+                    spacing: 6px;
+                    Btn { fixed: true; tall: 52px; horizontal-stretch: 1; font-size: Theme.small; text: @tr("Undo"); clicked => { S.draw-undo(); } }
+                    Btn { fixed: true; tall: 52px; horizontal-stretch: 1; font-size: Theme.small; text: @tr("Clear"); clicked => { S.draw-clear(); } }
+                    Btn { fixed: true; tall: 52px; horizontal-stretch: 1; font-size: Theme.small; text: @tr("Back"); clicked => { S.back(); } }
+                    Btn { fixed: true; tall: 52px; horizontal-stretch: 1; font-size: Theme.small; text: @tr("Next"); clicked => { S.next(); } }
+                    Btn { fixed: true; tall: 52px; horizontal-stretch: 1; font-size: Theme.small; kind: "go"; text: @tr("Done"); clicked => { S.draw-done(); } }
+                }
+            }
+        }
+    }
+}

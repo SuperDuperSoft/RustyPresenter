@@ -257,7 +257,7 @@ export component LiveColumn inherits Rectangle {
                             padding-right: 4px;
                             spacing: 6px;
                             Text {
-                                text: "✎ " + @tr("Drawing");
+                                text: @tr("Drawing");
                                 color: Theme.accent;
                                 font-family: Theme.font;
                                 font-size: 12.5px;
@@ -274,7 +274,7 @@ export component LiveColumn inherits Rectangle {
                                 accessible-label: @tr("Clear drawing");
                                 accessible-action-default => { root.clear("clear_drawing"); }
                                 Text {
-                                    text: "✕";
+                                    text: "×";
                                     color: Theme.text;
                                     font-family: Theme.font;
                                     font-size: 12px;

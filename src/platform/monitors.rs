@@ -114,6 +114,7 @@ pub fn fullscreen_on<C: ComponentHandle + 'static>(ui: &C, id: &MonitorId) -> Re
 pub fn maximise<C: ComponentHandle + 'static>(ui: &C) {
     ui.window().set_maximized(true);
     if ui.window().with_winit_window(|w| w.set_maximized(true)).is_none() { retry_maximise(ui.as_weak(), 100) }
+    settle_maximised(ui.as_weak(), SETTLE_TRIES);
 }
 
 fn retry_maximise<C: ComponentHandle + 'static>(ui: slint::Weak<C>, tries: u32) {
@@ -122,6 +123,31 @@ fn retry_maximise<C: ComponentHandle + 'static>(ui: slint::Weak<C>, tries: u32) 
         if c.window().with_winit_window(|w| w.set_maximized(true)).is_none() && tries > 0 { retry_maximise(ui, tries - 1) }
     });
 }
+
+/// How often, 150 ms apart, a window just maximised is looked at again (`settle_maximised`): its first two seconds.
+const SETTLE_TRIES: u32 = 14;
+
+/// A window Windows calls maximised can still have the size it was created with (the component's preferred
+/// 1440 x 900, which at 125 % is taller than a 1920 x 1080 screen): its bottom edge, with the buttons there, is
+/// then off the screen behind the taskbar. Seen that way, it is restored and maximised again, which makes Windows
+/// work the size out afresh.
+fn settle_maximised<C: ComponentHandle + 'static>(ui: slint::Weak<C>, tries: u32) {
+    slint::Timer::single_shot(Duration::from_millis(150), move || {
+        let Some(c) = ui.upgrade() else { return };
+        c.window().with_winit_window(|w| {
+            let Some(screen) = w.current_monitor().map(|m| m.size()) else { return };
+            if w.is_maximized() && oversized((w.outer_size().width, w.outer_size().height), (screen.width, screen.height)) {
+                w.set_maximized(false);
+                w.set_maximized(true);
+            }
+        });
+        if tries > 0 { settle_maximised(ui, tries - 1) }
+    });
+}
+
+/// A maximised window's outer size is its monitor's work area plus its (hidden) frame: a few pixels each way. One
+/// that reaches well past the monitor is not really maximised.
+fn oversized(outer: (u32, u32), screen: (u32, u32)) -> bool { outer.0 > screen.0 + 48 || outer.1 > screen.1 + 48 }
 
 /// Where a window waiting for fullscreen on `id` goes: the monitor's own rectangle, wholly on it.
 fn placement(id: &MonitorId) -> ((i32, i32), (u32, u32)) { (id.position, id.size) }

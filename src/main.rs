@@ -17,6 +17,8 @@ thread_local! {
 
 /// How long after the operator opens the graphics test may be offered.
 const OFFER_TEST_AFTER: std::time::Duration = std::time::Duration::from_secs(4);
+/// The look for a newer version waits this long after the operator opens.
+const UPDATE_CHECK_AFTER: std::time::Duration = std::time::Duration::from_secs(12);
 
 /// Tests only: no windows, the core and the server with a stand-in room. A dialog would wait for nobody.
 fn headless_mode() -> bool { std::env::var_os("RUSTYPRESENTER_HEADLESS").is_some_and(|v| v == "1") }
@@ -159,6 +161,12 @@ fn main() {
         if offer_test {
             let me = Rc::downgrade(&operator);
             slint::Timer::single_shot(OFFER_TEST_AFTER, move || if let Some(op) = me.upgrade() { rustypresenter::ui::dialogs::settings_graphics::offer_at_start(&op) });
+        }
+        // Is there a newer version? Asked once the windows are up and the graphics test has had its say; never
+        // after a crash (the service comes first).
+        if offer_test {
+            let me = Rc::downgrade(&operator);
+            slint::Timer::single_shot(UPDATE_CHECK_AFTER, move || if let Some(op) = me.upgrade() { rustypresenter::ui::dialogs::update::at_start(&op) });
         }
         // Closing the operator asks nothing and quits (exit 0, so the supervisor stops too); the room
         // and stage close with it below.

@@ -1,7 +1,7 @@
 //! Settings → Auto-follow (1.3): the sound input with a level meter and Test, the songs' usual mode, the lead
 //! time, when the words go off, and how many words a jump needs. The inputs are asked for off the UI thread.
 use crate::{
-    follow::{LogEntry, Mode, Settings, audio, rules::{LEAD_MAX, LEAD_MIN}},
+    follow::{LogEntry, Mode, Settings, audio, rules::{LEAD_MAX, LEAD_MIN}, tape},
     model::{Data, ItemKind, ServiceItem, Slide},
     ui::{SettingsDlg, operator::window::Operator},
 };
@@ -24,6 +24,8 @@ thread_local! {
     static METER: slint::Timer = slint::Timer::default();
     /// Practice: the songs offered (as service items) and the recording chosen.
     static PRACTICE: RefCell<(Vec<ServiceItem>, Option<PathBuf>)> = const { RefCell::new((Vec::new(), None)) };
+    /// Moves the practice tape's clock while Settings is open.
+    static TAPE_CLOCK: slint::Timer = slint::Timer::default();
 }
 
 /// Runs Practice: `follow::practice::practice`, or a stand-in in tests.
@@ -135,8 +137,124 @@ pub(super) fn load(op: &Rc<Operator>) {
         let text = review_lines(&op).join("\n");
         super::settings::copy(&op, &text, &crate::tr!("Review log copied"));
     });
+    let me = Rc::downgrade(op);
+    g.on_tape_toggle(move || if let Some(op) = me.upgrade() { tape_toggle(&op) });
+    let me = Rc::downgrade(op);
+    g.on_tape_check(move || if let Some(op) = me.upgrade() { tape_check(&op) });
+    let me = Rc::downgrade(op);
+    g.on_tape_folder(move || if let Some(op) = me.upgrade() {
+        let root = tape_root(&op);
+        let _ = std::fs::create_dir_all(&root);
+        let dir = op.app().tape.running().map(|(d, _)| d).or_else(|| tape::tapes(&root).into_iter().next()).unwrap_or(root);
+        if let Err(e) = crate::usage::open::open_file(&dir) { op.toast(e, true) }
+    });
+    let me = Rc::downgrade(op);
+    g.on_order_learn(move || if let Some(op) = me.upgrade() { order_learn(&op) });
+    let me = Rc::downgrade(op);
+    g.on_order_forget(move || if let Some(op) = me.upgrade() {
+        let said = match op.app().forget_orders() { Ok(_) => crate::tr!("Forgotten. Auto-follow expects every song in the order of its slides."), Err(e) => e };
+        order_show(&op, Some(said));
+    });
+    order_show(op, None);
+    let me = Rc::downgrade(op);
+    TAPE_CLOCK.with(|t| t.start(slint::TimerMode::Repeated, std::time::Duration::from_secs(1), move || if let Some(op) = me.upgrade() { tape_show(&op, None) }));
+    tape_show(op, None);
     fill_practice(op);
     g.set_review_lines(strings(review_lines(op)));
+}
+
+fn tape_root(op: &Operator) -> PathBuf { op.app().store.root.join(tape::FOLDER) }
+
+/// Minutes and seconds: `12:05`.
+fn mins(secs: f64) -> String { format!("{}:{:02}", (secs / 60.0) as u64, (secs % 60.0) as u64) }
+
+/// The tape row as things stand: recording and for how long, or `said` (what just happened).
+fn tape_show(op: &Operator, said: Option<String>) {
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
+    let running = op.app().tape.running();
+    g.set_tape_on(running.is_some());
+    g.set_tape_any(running.is_some() || !tape::tapes(&tape_root(op)).is_empty());
+    match (running, said) {
+        (Some((_, secs)), _) => g.set_tape_status(crate::tr!("Recording… {time}", time = mins(secs)).into()),
+        (None, Some(text)) => g.set_tape_status(text.into()),
+        // A tape that stopped by itself (four hours): say so once.
+        (None, None) => if g.get_tape_status().starts_with(crate::tr!("Recording… {time}", time = "").as_str()) { g.set_tape_status(crate::tr!("Recording stopped.").into()) },
+    }
+}
+
+/// The song order row: how many songs have a learned order, or `said` (what just happened).
+fn order_show(op: &Operator, said: Option<String>) {
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
+    let n = op.app().data.lock().unwrap().automation.follow_order.len();
+    g.set_order_count(n as i32);
+    g.set_order_status(match said {
+        Some(text) => text,
+        None if n > 0 => crate::tr!("Songs with a learned order: {count}", count = n),
+        None => String::new(),
+    }.into());
+}
+
+/// "Learn from the last recording": the order each song on the newest tape was sung in (`App::learn_orders`).
+fn order_learn(op: &Rc<Operator>) {
+    let Some(dir) = tape::tapes(&tape_root(op)).into_iter().next() else { return };
+    let said = match op.app().learn_orders(&dir) {
+        Ok(songs) if songs.is_empty() => crate::tr!("Nothing to learn: no song on the recording was sung over two slides or more."),
+        Ok(songs) => {
+            let list = songs.iter().map(|(title, order)| format!("{title} ({})", crate::follow::order::spoken(order))).collect::<Vec<_>>().join("; ");
+            crate::tr!("Learned: {songs}", songs = list)
+        }
+        Err(e) => crate::tr!("Can't read the recording: {error}", error = e),
+    };
+    order_show(op, Some(said));
+}
+
+/// Start recording, or stop. Starting listens to the sound input (FFmpeg), so off the UI thread.
+fn tape_toggle(op: &Rc<Operator>) {
+    let app = op.app().clone();
+    if app.tape.on() {
+        let dir = app.stop_tape();
+        let said = dir.map(|d| crate::tr!("Saved: {folder}", folder = d.display().to_string()));
+        return tape_show(op, Some(said.unwrap_or_default()));
+    }
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
+    g.set_tape_busy(true);
+    let me = Rc::downgrade(op);
+    let done = move |r: Result<PathBuf, String>| {
+        let Some(op) = me.upgrade() else { return };
+        crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().set_tape_busy(false);
+        tape_show(&op, r.err().map(|e| crate::tr!("Can't record: {error}", error = e)));
+    };
+    if op.ops().is_inline() { return done(app.start_tape()) }
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    let _ = std::thread::Builder::new().name("follow-tape".into()).spawn(move || { let _ = tx.send(app.start_tape()); });
+    let _ = slint::spawn_local(async move { if let Ok(r) = rx.await { done(r) } });
+}
+
+/// "Check the last recording": the newest tape through auto-follow as it is now (`follow::review`), with the
+/// form's settings; the report shows in the log below.
+fn tape_check(op: &Rc<Operator>) {
+    let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
+    let Some(dir) = tape::tapes(&tape_root(op)).into_iter().next() else { return };
+    let Some(snap) = super::settings::snap(op) else { return };
+    let mut settings = snap.settings.follow.clone();
+    read_form(&g, &mut settings);
+    g.set_tape_busy(true);
+    g.set_practice_lines(strings(vec![]));
+    let me = Rc::downgrade(op);
+    let done = move |r: Result<Vec<String>, String>| {
+        let Some(op) = me.upgrade() else { return };
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
+        g.set_tape_busy(false);
+        match r {
+            Ok(lines) => { g.set_practice_status(SharedString::new()); g.set_practice_lines(strings(lines)) }
+            Err(e) => tape_show(&op, Some(crate::tr!("Can't read the recording: {error}", error = e))),
+        }
+    };
+    let work = move || crate::follow::review::report(&dir, &settings, None);
+    if op.ops().is_inline() { return done(work()) }
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    let _ = std::thread::Builder::new().name("follow-review".into()).spawn(move || { let _ = tx.send(work()); });
+    let _ = slint::spawn_local(async move { if let Ok(r) = rx.await { done(r) } });
 }
 
 /// Settings → Auto-follow on `page` (0 Listening, 1 Practice, 2 Review log): the Auto chip's menu.
@@ -261,6 +379,7 @@ fn test(op: &Rc<Operator>) {
 
 /// Stops Test's listening (the dialog closed).
 pub(super) fn stop() {
+    TAPE_CLOCK.with(|t| t.stop());
     METER.with(|m| m.stop());
     TEST.with(|t| t.borrow_mut().take());
 }
@@ -336,6 +455,107 @@ mod tests {
         assert!(!g.get_practice_running());
         assert_eq!(g.get_practice_status(), "Done: 1 change.");
         assert_eq!(g.get_practice_lines().row_data(0).unwrap(), "1:02.5  Slide 2  heard \"my chains are gone\" (92%)");
+    }
+
+    #[test]
+    fn the_last_practice_tape_is_checked_from_the_practice_page() {
+        crate::ui::ui_test_init();
+        let app = test_app();
+        let op = open(&app);
+        refresh(&op);
+        open_page(&op, 1);
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
+        assert!(!g.get_tape_on() && !g.get_tape_any(), "no tape yet: nothing to check");
+        assert!(crate::ui::dialogs::settings::testing::find(&op, "FollowPracticePage::tape-toggle").is_some());
+        // A tape from a practice: a song live, one click to its second slide, nothing heard.
+        let dir = app.store.root.join(tape::FOLDER).join("2026-11-20_19-30-00");
+        std::fs::create_dir_all(&dir).unwrap();
+        let lines = [r#"{"a":0,"tape":{}}"#, r#"{"a":1,"song":{"item":"x","title":"Grace","slides":["amazing grace","my chains are gone"]}}"#,
+            r#"{"a":1,"live":{"slide":0,"words":true,"mode":"manual","by":"hand"}}"#, r#"{"a":9,"live":{"slide":1,"words":true,"mode":"manual","by":"hand"}}"#,
+            r#"{"a":20,"end":true}"#];
+        std::fs::write(dir.join(tape::LINES_FILE), lines.join("
+")).unwrap();
+        tape_show(&op, None);
+        assert!(g.get_tape_any());
+        g.invoke_tape_check();
+        let report: Vec<String> = g.get_practice_lines().iter().map(|l| l.to_string()).collect();
+        assert_eq!(report[0], "Practice tape 2026-11-20_19-30-00");
+        assert_eq!(report[1], "0 of 1 slide changes made on time by auto-follow as it is now.");
+        assert!(report[2].starts_with("Grace") && report.iter().any(|l| l.contains("auto never")), "{report:?}");
+        assert!(!g.get_tape_busy());
+    }
+
+    /// The song order row: learned from the newest tape for a song that is in the service, told, kept with the
+    /// service, and forgotten again.
+    #[test]
+    fn the_sung_order_is_learned_from_the_last_tape_and_forgotten() {
+        use crate::model::{ItemKind, ServiceItem, Song};
+        crate::ui::ui_test_init();
+        let app = test_app();
+        let song = Song { id: Uuid::new_v4(), title: "Grace".into(), lyrics: "Verse 1
+amazing grace
+
+Chorus
+my chains are gone".into(), ..Default::default() };
+        let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None };
+        let id = item.id;
+        { let mut d = app.data.lock().unwrap(); d.songs.push(song); d.services[0].items.push(item); }
+        let op = open(&app);
+        refresh(&op);
+        open_page(&op, 1);
+        let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
+        assert!(crate::ui::dialogs::settings::testing::find(&op, "FollowPracticePage::order-learn").is_some());
+        assert_eq!((g.get_order_count(), g.get_order_status().as_str()), (0, ""));
+        // At practice: the verse, the chorus, and the verse again.
+        let dir = app.store.root.join(tape::FOLDER).join("2026-11-20_19-30-00");
+        std::fs::create_dir_all(&dir).unwrap();
+        let song_line = serde_json::json!({ "a": 1, "song": { "item": id.to_string(), "title": "Grace", "slides": ["amazing grace", "my chains are gone"] } }).to_string();
+        let lines = [r#"{"a":0,"tape":{}}"#, song_line.as_str(),
+            r#"{"a":1,"live":{"slide":0,"words":true,"mode":"manual","by":"hand"}}"#, r#"{"a":20,"live":{"slide":1,"words":true,"mode":"manual","by":"hand"}}"#,
+            r#"{"a":40,"live":{"slide":0,"words":true,"mode":"manual","by":"hand"}}"#, r#"{"a":70,"end":true}"#];
+        std::fs::write(dir.join(tape::LINES_FILE), lines.join("
+")).unwrap();
+        g.invoke_order_learn();
+        assert_eq!(g.get_order_status(), "Learned: Grace (1 2 1)");
+        assert_eq!(g.get_order_count(), 1);
+        let kept = app.data.lock().unwrap().automation.follow_order.get(&id).cloned().unwrap();
+        assert_eq!(kept.slides, [0, 1, 0]);
+        // The follower is handed it while the slides are the ones it was learned for.
+        let slides = |words: [&str; 2]| words.iter().map(|w| crate::follow::testing::text(w)).collect::<Vec<_>>();
+        let d = app.data.lock().unwrap();
+        assert_eq!(d.automation.sung_order(id, &slides(["amazing grace", "my chains are gone"])), [0, 1, 0]);
+        assert!(d.automation.sung_order(id, &slides(["amazing grace", "my chains are GONE"])).is_empty(), "the words changed: void");
+        drop(d);
+        assert_eq!(kept.secs, [19.0, 20.0, 30.0], "and how long each was up");
+        // A later practice sings it as listed: the old order goes, and the new times are kept.
+        let dir = app.store.root.join(tape::FOLDER).join("2026-11-27_19-30-00");
+        std::fs::create_dir_all(&dir).unwrap();
+        let lines = [r#"{"a":0,"tape":{}}"#, song_line.as_str(),
+            r#"{"a":1,"live":{"slide":0,"words":true,"mode":"manual","by":"hand"}}"#, r#"{"a":40,"live":{"slide":1,"words":true,"mode":"manual","by":"hand"}}"#, r#"{"a":70,"end":true}"#];
+        std::fs::write(dir.join(tape::LINES_FILE), lines.join("
+")).unwrap();
+        g.invoke_order_learn();
+        assert_eq!(g.get_order_status(), "Learned: Grace (1 2)");
+        assert_eq!(g.get_order_count(), 1);
+        {
+            let d = app.data.lock().unwrap();
+            assert_eq!(d.automation.sung_secs(id, &slides(["amazing grace", "my chains are gone"])), [39.0, 30.0]);
+            assert!(d.automation.sung_secs(id, &slides(["amazing grace", "my chains are GONE"])).is_empty());
+        }
+        // A recording with no song sung over two slides teaches nothing.
+        let dir = app.store.root.join(tape::FOLDER).join("2026-12-04_19-30-00");
+        std::fs::create_dir_all(&dir).unwrap();
+        let lines = [r#"{"a":0,"tape":{}}"#, song_line.as_str(), r#"{"a":1,"live":{"slide":0,"words":true,"mode":"manual","by":"hand"}}"#, r#"{"a":30,"end":true}"#];
+        std::fs::write(dir.join(tape::LINES_FILE), lines.join("\n")).unwrap();
+        g.invoke_order_learn();
+        assert_eq!(g.get_order_status(), "Nothing to learn: no song on the recording was sung over two slides or more.");
+        // Forget.
+        app.data.lock().unwrap().automation.follow_order.insert(id, kept);
+        order_show(&op, None);
+        assert_eq!((g.get_order_count(), g.get_order_status().as_str()), (1, "Songs with a learned order: 1"));
+        g.invoke_order_forget();
+        assert_eq!(g.get_order_count(), 0);
+        assert!(app.data.lock().unwrap().automation.follow_order.is_empty());
     }
 
     #[test]

@@ -103,7 +103,7 @@ export component FollowRow inherits HorizontalLayout {
     // The same menu as a right-click on the chip, for those who don't right-click.
     follow-more := Btn {
         small: true;
-        text: "⋯";
+        icon: "dots";
         tooltip: @tr("Auto-follow options");
         clicked => { follow-menu.show(); }
     }

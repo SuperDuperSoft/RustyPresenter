@@ -441,6 +441,9 @@ pub(super) fn wire(op: &Rc<Operator>) {
         op.ui.set_slides_grid_width(w);
         op.grid_resized(w)
     });
+    // The Tools button: every window's copy of the panel folds or unfolds with it.
+    let me = Rc::downgrade(op);
+    ui.on_slides_tools_toggled(move |on| if let Some(op) = me.upgrade() { op.ui.set_slides_tools_open(on) });
     let me = Rc::downgrade(op);
     ui.on_slides_view_picked(move |i| if let (Some(op), Some(v)) = (me.upgrade(), SlideView::at(i)) { op.set_slide_view(v, None) });
     let me = Rc::downgrade(op);

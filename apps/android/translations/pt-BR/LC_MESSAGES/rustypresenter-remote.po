@@ -242,3 +242,30 @@ msgstr "Não é possível alcançar o computador. Tentando de novo…"
 
 msgid "This phone is no longer paired. Pair it again."
 msgstr "Este celular não está mais pareado. Pareie de novo."
+
+msgid "Draw"
+msgstr "Desenhar"
+
+msgid "Draw on the slide"
+msgstr "Desenhar no slide"
+
+msgid "Ink fades"
+msgstr "A tinta some"
+
+msgid "Ink stays"
+msgstr "A tinta fica"
+
+msgid "Undo"
+msgstr "Desfazer"
+
+msgid "Clear"
+msgstr "Limpar"
+
+msgid "Done"
+msgstr "Concluído"
+
+msgid "Drawing from this phone is turned off on the computer."
+msgstr "O desenho a partir deste telefone está desativado no computador."
+
+msgid "The app closed by itself last time. Please pass this on:"
+msgstr "O aplicativo fechou sozinho da última vez. Por favor, repasse isto:"

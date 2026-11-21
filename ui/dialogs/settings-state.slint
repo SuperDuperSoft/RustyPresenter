@@ -75,6 +75,21 @@ export global SettingsDlg {
     in property <[string]> practice-lines;
     callback practice-choose();
     callback practice-run();
+    /// A practice tape (`follow::tape`): recording now, starting or checking (`tape-busy`), what it says, and
+    /// whether there is a tape to check or show.
+    in property <bool> tape-on;
+    in property <bool> tape-busy;
+    in property <string> tape-status;
+    in property <bool> tape-any;
+    callback tape-toggle();
+    callback tape-check();
+    callback tape-folder();
+    /// The order songs were sung in at practice (`follow::order`): how many songs have one, and what was just
+    /// learned or forgotten.
+    in property <int> order-count;
+    in property <string> order-status;
+    callback order-learn();
+    callback order-forget();
     /// The speech model: 0 Fast, 1 Best; its size; downloaded or downloading (`model-busy`: any download runs).
     in-out property <int> model-pick;
     in property <string> model-size;
@@ -395,6 +410,13 @@ export global SettingsDlg {
     in property <string> about-libreoffice;
     in property <string> about-powerpoint;
     in property <string> about-licence;
+    // Help and about → New versions (`src/ui/dialogs/update.rs`).
+    in-out property <bool> check-updates;
+    in property <string> update-status;
+    in property <string> update-get;
+    in property <bool> update-busy;
+    callback update-check();
+    callback update-download();
     in property <bool> licences-open;
     in property <string> licences;
 

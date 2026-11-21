@@ -5,6 +5,7 @@
 //! a CTC speech model run in Candle on a model downloaded on demand.
 pub mod align;
 pub mod audio;
+pub mod clock;
 pub mod ear;
 pub mod engine;
 pub mod fetch;
@@ -14,11 +15,18 @@ pub mod lyrics;
 #[cfg(feature = "follow-model")]
 pub mod model;
 pub mod practice;
+pub mod order;
+pub mod review;
 pub mod rules;
 pub mod strings;
+pub mod tape;
 pub mod voice;
 #[cfg(test)]
 pub(crate) mod testing;
+#[cfg(all(test, feature = "follow-model"))]
+mod lab_tests;
+#[cfg(test)]
+mod sim_tests;
 
 pub use audio::{Capture, input_devices};
 pub use ear::{Choice, Lexicon, room_ear};

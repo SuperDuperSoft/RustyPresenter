@@ -4,6 +4,7 @@
 pub mod strings;
 
 pub mod arrangement;
+pub mod directions;
 mod jump;
 mod kind;
 pub mod look;

@@ -72,7 +72,8 @@ impl WindowAdapter for AndroidWindowAdapter {
     fn update_window_properties(&self, properties: WindowProperties<'_>) {
         let f = properties.is_fullscreen();
         if self.fullscreen.replace(f) != f {
-            self.resize().unwrap();
+            // A resize that fails is tried again with the next window event: it must not close the app.
+            let _ = self.resize();
         }
     }
 
@@ -514,9 +515,19 @@ impl AndroidWindowAdapter {
         use ndk::hardware_buffer_format::HardwareBufferFormat as F;
         let Some(win) = self.app.native_window() else { return Ok(()) };
         let Ok(mut buf) = win.lock(None) else { return Ok(()) };
-        let (height, stride, format) = (buf.height(), buf.stride(), buf.format());
+        let (width, height, stride, format) = (buf.width(), buf.height(), buf.stride(), buf.format());
         let bits = buf.bits();
         if bits.is_null() {
+            return Ok(());
+        }
+        // The window has just changed size (turned, gone full screen, the keyboard) and Android's buffer and the
+        // size Slint draws at disagree for a frame: drawing would run past the end of the buffer. Skip this frame,
+        // take the new size, and draw the next one.
+        let want = self.window.size();
+        if (width as u32) < want.width || (height as u32) < want.height || stride < width {
+            drop(buf);
+            self.resize()?;
+            self.request_redraw();
             return Ok(());
         }
         match format {

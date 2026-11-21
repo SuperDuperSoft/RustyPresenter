@@ -242,3 +242,30 @@ msgstr "Не удаётся связаться с компьютером. Про
 
 msgid "This phone is no longer paired. Pair it again."
 msgstr "Этот телефон больше не подключён. Подключите его снова."
+
+msgid "Draw"
+msgstr "Рисовать"
+
+msgid "Draw on the slide"
+msgstr "Рисовать на слайде"
+
+msgid "Ink fades"
+msgstr "Чернила исчезают"
+
+msgid "Ink stays"
+msgstr "Чернила остаются"
+
+msgid "Undo"
+msgstr "Отменить"
+
+msgid "Clear"
+msgstr "Очистить"
+
+msgid "Done"
+msgstr "Готово"
+
+msgid "Drawing from this phone is turned off on the computer."
+msgstr "Рисование с этого телефона отключено на компьютере."
+
+msgid "The app closed by itself last time. Please pass this on:"
+msgstr "В прошлый раз приложение закрылось само. Пожалуйста, передайте это:"

@@ -242,3 +242,30 @@ msgstr "L’ordinateur est injoignable. Nouvel essai…"
 
 msgid "This phone is no longer paired. Pair it again."
 msgstr "Ce téléphone n’est plus associé. Associez-le à nouveau."
+
+msgid "Draw"
+msgstr "Dessiner"
+
+msgid "Draw on the slide"
+msgstr "Dessiner sur la diapositive"
+
+msgid "Ink fades"
+msgstr "L'encre s'efface"
+
+msgid "Ink stays"
+msgstr "L'encre reste"
+
+msgid "Undo"
+msgstr "Annuler"
+
+msgid "Clear"
+msgstr "Effacer"
+
+msgid "Done"
+msgstr "Terminé"
+
+msgid "Drawing from this phone is turned off on the computer."
+msgstr "Le dessin depuis ce téléphone est désactivé sur l'ordinateur."
+
+msgid "The app closed by itself last time. Please pass this on:"
+msgstr "L'application s'est fermée toute seule la dernière fois. Merci de transmettre ceci :"

@@ -247,17 +247,13 @@ msgstr "Wakas"
 msgid "Drop here to remove"
 msgstr "I-drop dito para alisin"
 
-#: ui/dialogs/arrangement.slint
-msgid "✕ Remove"
-msgstr "✕ Alisin"
-
 #: ui/dialogs/arrangement.slint src/strings/song.rs
 msgid "Written order — drag to change"
 msgstr "Nakasulat na ayos — i-drag para baguhin"
 
 #: ui/dialogs/arrangement.slint
-msgid "⟲ Use written order"
-msgstr "⟲ Gamitin ang nakasulat na ayos"
+msgid "Use written order"
+msgstr "Gamitin ang nakasulat na ayos"
 
 #: ui/dialogs/arrangement.slint
 msgid "Click to play it at the end, or drag it in between the parts"
@@ -1184,7 +1180,7 @@ msgstr "Subukan ito"
 msgid "The check measures the internet, takes a picture from the camera and listens to the sound for a moment. Nothing is sent to viewers."
 msgstr "Sinusukat ng pagsubok ang internet, kumukuha ng larawan mula sa camera at saglit na pinapakinggan ang tunog. Walang ipinapadala sa mga nanonood."
 
-#: ui/dialogs/go-live-helper.slint
+#: ui/dialogs/go-live-helper.slint src/ui/dialogs/update.rs
 msgid "Checking…"
 msgstr "Sinusubukan…"
 
@@ -1911,6 +1907,22 @@ msgstr "Araw…"
 msgid "Your data:"
 msgstr "Ang iyong data:"
 
+#: ui/dialogs/settings-about.slint src/ui/dialogs/settings_find.rs
+msgid "New versions"
+msgstr "Mga bagong bersyon"
+
+#: ui/dialogs/settings-about.slint src/ui/dialogs/settings_find.rs
+msgid "Once a day RustyPresenter asks GitHub which version is the newest, and tells you when there is a newer one. Nothing about your church is sent, and nothing is downloaded or installed until you choose to."
+msgstr "Minsan sa isang araw, tinatanong ng RustyPresenter ang GitHub kung alin ang pinakabagong bersyon, at sinasabi nito sa iyo kapag may mas bago. Walang ipinapadala tungkol sa iyong simbahan, at walang dina-download o ini-install hangga't hindi mo pinipili."
+
+#: ui/dialogs/settings-about.slint
+msgid "Check for a new version when RustyPresenter starts"
+msgstr "Tingnan kung may bagong bersyon kapag binuksan ang RustyPresenter"
+
+#: ui/dialogs/settings-about.slint
+msgid "Check now"
+msgstr "Tingnan ngayon"
+
 #: ui/dialogs/settings-about.slint
 msgid "Show licences"
 msgstr "Ipakita ang mga lisensya"
@@ -2108,8 +2120,8 @@ msgid "Best (all languages)"
 msgstr "Pinakamahusay (lahat ng wika)"
 
 #: ui/dialogs/settings-follow.slint
-msgid "Installed ✓ ({})"
-msgstr "Naka-install ✓ ({})"
+msgid "Installed ({})"
+msgstr "Naka-install ({})"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Download ({})"
@@ -2122,6 +2134,50 @@ msgstr "Subukan ang bilis"
 #: ui/dialogs/settings-follow.slint
 msgid "Tries the downloaded models on this computer and says which one suits it."
 msgstr "Sinusubukan ang mga na-download na modelo sa computer na ito at sinasabi kung alin ang bagay dito."
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Record a practice"
+msgstr "I-record ang isang ensayo"
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Keeps the sound auto-follow hears and every slide change, on this computer only. Move the slides by hand as on a Sunday, then check how auto-follow would have done."
+msgstr "Itinatago ang tunog na naririnig ng auto-follow at bawat palit ng slide, sa computer na ito lamang. Palitan ang mga slide nang mano-mano gaya ng Linggo, saka tingnan kung paano sana ginawa ng auto-follow."
+
+#: ui/dialogs/settings-follow.slint ui/operator/record.slint ui/operator.slint
+msgid "Stop recording"
+msgstr "Ihinto ang pag-record"
+
+#: ui/dialogs/settings-follow.slint ui/operator.slint
+msgid "Start recording"
+msgstr "Simulan ang pag-record"
+
+#: ui/dialogs/settings-follow.slint
+msgid "Check the last recording"
+msgstr "Suriin ang huling recording"
+
+#: ui/dialogs/settings-follow.slint
+msgid "Plays the last practice through auto-follow as it is now and compares it with your slide changes."
+msgstr "Pinatutugtog ang huling ensayo sa auto-follow kung ano ito ngayon at ikinukumpara sa mga palit mo ng slide."
+
+#: ui/dialogs/settings-follow.slint
+msgid "Open folder"
+msgstr "Buksan ang folder"
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Song order from practice"
+msgstr "Pagkakasunod ng kanta mula sa ensayo"
+
+#: ui/dialogs/settings-follow.slint src/ui/dialogs/settings_find.rs
+msgid "Auto-follow learns from the recorded practice the order each song was really sung in (the chorus after every verse, the bridge twice) and how long each slide was up. On Sunday it expects that order, and when it cannot make out the words it goes by those times. Your slides stay as they are."
+msgstr "Natututuhan ng auto-follow mula sa na-record na ensayo ang pagkakasunod na talagang inawit ang bawat kanta (ang koro pagkatapos ng bawat taludtod, ang bridge nang dalawang beses) at kung gaano katagal ipinakita ang bawat slide. Sa Linggo, inaasahan nito ang pagkakasunod na iyon, at kapag hindi nito marinig nang malinaw ang mga salita, sumusunod ito sa mga oras na iyon. Hindi nagbabago ang mga slide mo."
+
+#: ui/dialogs/settings-follow.slint
+msgid "Learn from the last recording"
+msgstr "Matuto mula sa huling recording"
+
+#: ui/dialogs/settings-follow.slint
+msgid "Forget"
+msgstr "Kalimutan"
 
 #: ui/dialogs/settings-follow.slint
 msgid "Play a recording (for example last Sunday's) through auto-follow to see what it would do. Nothing changes on the screens."
@@ -5495,10 +5551,6 @@ msgstr "{} sa 5"
 msgid "How loud the stream's sound is. No bars: nothing is going out"
 msgstr "Gaano kalakas ang tunog ng stream. Walang bar: walang lumalabas"
 
-#: ui/operator/record.slint ui/operator.slint
-msgid "Stop recording"
-msgstr "Ihinto ang pag-record"
-
 #: ui/operator/record.slint
 msgid "Record"
 msgstr "I-record"
@@ -5578,6 +5630,14 @@ msgstr "Sariling ayos"
 #: ui/operator/service.slint ui/operator/slides.slint
 msgid "Custom order for this service"
 msgstr "Sariling ayos para sa service na ito"
+
+#: ui/operator/service.slint
+msgid "Hide the slides"
+msgstr "Itago ang mga slide"
+
+#: ui/operator/service.slint
+msgid "Show the slides"
+msgstr "Ipakita ang mga slide"
 
 #: ui/operator/service.slint
 msgid "Choose what goes here"
@@ -5668,8 +5728,8 @@ msgid "From this slide on, this part is:"
 msgstr "Mula sa slide na ito, ang bahaging ito ay:"
 
 #: ui/operator/slide-editor.slint
-msgid "Quick order ▾"
-msgstr "Mabilis na ayos ▾"
+msgid "Quick order"
+msgstr "Mabilis na ayos"
 
 #: ui/operator/slide-editor.slint
 msgid "Ready-made orders for this song"
@@ -5746,6 +5806,18 @@ msgstr "Mas malaking teksto para sa passage na ito"
 #: ui/operator/slides.slint
 msgid "Back to the size in Settings"
 msgstr "Ibalik sa laki sa Settings"
+
+#: ui/operator/slides.slint
+msgid "Tools"
+msgstr "Mga tool"
+
+#: ui/operator/slides.slint
+msgid "Hide the tools for these slides"
+msgstr "Itago ang mga tool para sa mga slide na ito"
+
+#: ui/operator/slides.slint
+msgid "Lines, text size, key, song order and slide actions"
+msgstr "Mga linya, laki ng teksto, key, ayos ng awit at mga aksyon ng slide"
 
 #: ui/operator/slides.slint
 msgid "‹ Verse"
@@ -5986,10 +6058,6 @@ msgstr "Mag-import ng media…"
 #: ui/operator.slint
 msgid "Video inputs…"
 msgstr "Mga video input…"
-
-#: ui/operator.slint
-msgid "Start recording"
-msgstr "Simulan ang pag-record"
 
 #: ui/operator.slint
 msgid "Recording settings…"
@@ -6311,6 +6379,10 @@ msgstr "Ang slide kasama ang drawing nito"
 msgid "Select all"
 msgstr "Piliin lahat"
 
+#: src/app.rs
+msgid "No sound input to record. Choose one in Settings → Auto-follow."
+msgstr "Walang sound input na mare-record. Pumili ng isa sa Mga Setting → Auto-follow."
+
 #: src/app.rs src/ui/dialogs/settings_follow.rs
 msgid "no microphone or line-in found"
 msgstr "walang nakitang mikropono o line-in"
@@ -6351,7 +6423,7 @@ msgstr "{name} — built-in, public domain"
 msgid "{name} — imported file"
 msgstr "{name} — na-import na file"
 
-#: src/app.rs
+#: src/app.rs src/songselect.rs
 msgid "Give the song a title."
 msgstr "Bigyan ng pamagat ang kanta."
 
@@ -6802,6 +6874,10 @@ msgstr "Huminto ang FFmpeg"
 #: src/follow/engine.rs
 msgid "Auto-follow stopped: the sound input is gone ({error}). Move the slides by hand."
 msgstr "Huminto ang auto-sunod: nawala ang input ng tunog ({error}). Ilipat nang mano-mano ang mga slide."
+
+#: src/follow/engine.rs
+msgid "as long as it took at practice"
+msgstr "kasingtagal ng sa ensayo"
 
 #: src/follow/engine.rs
 msgid "heard \"{words}\""
@@ -10061,6 +10137,14 @@ msgid "Two monitors"
 msgstr "Dalawang monitor"
 
 #: src/strings/operator.rs
+msgid "ProPresenter style"
+msgstr "Estilong ProPresenter"
+
+#: src/strings/operator.rs
+msgid "EasyWorship style"
+msgstr "Estilong EasyWorship"
+
+#: src/strings/operator.rs
 msgid "RustyPresenter — {panels}"
 msgstr "RustyPresenter — {panels}"
 
@@ -12837,6 +12921,42 @@ msgid "Review log copied"
 msgstr "Nakopya ang log"
 
 #: src/ui/dialogs/settings_follow.rs
+msgid "Forgotten. Auto-follow expects every song in the order of its slides."
+msgstr "Nakalimutan na. Inaasahan ng auto-follow ang bawat kanta ayon sa pagkakasunod ng mga slide nito."
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Recording… {time}"
+msgstr "Nagre-record… {time}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Recording stopped."
+msgstr "Huminto ang pag-record."
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Songs with a learned order: {count}"
+msgstr "Mga kantang may natutuhang pagkakasunod: {count}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Nothing to learn: no song on the recording was sung over two slides or more."
+msgstr "Walang matututuhan: walang kanta sa recording na inawit sa dalawang slide o higit pa."
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Learned: {songs}"
+msgstr "Natutuhan: {songs}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Can't read the recording: {error}"
+msgstr "Hindi mabasa ang recording: {error}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Saved: {folder}"
+msgstr "Na-save: {folder}"
+
+#: src/ui/dialogs/settings_follow.rs
+msgid "Can't record: {error}"
+msgstr "Hindi makapag-record: {error}"
+
+#: src/ui/dialogs/settings_follow.rs
 msgid "{title} (in this service)"
 msgstr "{title} (nasa service na ito)"
 
@@ -13289,6 +13409,46 @@ msgstr "Pumili ng wika sa listahan, o i-tick ang “Wala sa listahan ang aking w
 #: src/ui/dialogs/translation_editor.rs
 msgid "{language} added. Type your words, then pick it in Settings → Language."
 msgstr "Naidagdag ang {language}. I-type ang iyong mga salita, saka piliin ito sa Settings → Wika."
+
+#: src/ui/dialogs/update.rs
+msgid "Version {version} is available. You have {current}."
+msgstr "May bersyon {version} na. Ang sa iyo ay {current}."
+
+#: src/ui/dialogs/update.rs
+msgid "You have the newest version ({current})."
+msgstr "Nasa iyo ang pinakabagong bersyon ({current})."
+
+#: src/ui/dialogs/update.rs
+msgid "No version has been published for download yet. You have {current}."
+msgstr "Wala pang bersyong nailalabas para i-download. Ang sa iyo ay {current}."
+
+#: src/ui/dialogs/update.rs
+msgid "Could not check: no internet connection."
+msgstr "Hindi matingnan: walang koneksyon sa internet."
+
+#: src/ui/dialogs/update.rs
+msgid "Could not check: {reason}"
+msgstr "Hindi matingnan: {reason}"
+
+#: src/ui/dialogs/update.rs
+msgid "Get version {version}…"
+msgstr "Kunin ang bersyon {version}…"
+
+#: src/ui/dialogs/update.rs
+msgid "Your web browser is opening the download page. Install it when no service is running."
+msgstr "Binubuksan ng web browser mo ang download page. I-install ito kapag walang serbisyong nagaganap."
+
+#: src/ui/dialogs/update.rs
+msgid "Could not open your web browser: {reason}"
+msgstr "Hindi mabuksan ang web browser mo: {reason}"
+
+#: src/ui/dialogs/update.rs
+msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page."
+msgstr "May RustyPresenter {version} na. Ang sa iyo ay {current}. Kunin na ngayon? Bubuksan ng web browser mo ang download page nito."
+
+#: src/ui/dialogs/update.rs
+msgid "Get it"
+msgstr "Kunin"
 
 #: src/ui/operator/automation.rs
 msgid "Auto · {time}"
@@ -13894,6 +14054,15 @@ msgstr "walang na-save na video ang yt-dlp"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "hindi media file"
+
+#~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
+#~ msgstr "May RustyPresenter {version} na. Ang sa iyo ay {current}. Kunin na ngayon? Bubuksan ng web browser mo ang download page nito. Makukuha mo rin ito mamaya sa Mga Setting → Tulong at tungkol dito."
+
+#~ msgid "Auto-follow learns the order each song was really sung in at the recorded practice (the chorus after every verse, the bridge twice) and expects it on Sunday. Your slides stay as they are."
+#~ msgstr "Natututuhan ng auto-follow ang pagkakasunod na talagang inawit ang bawat kanta sa na-record na ensayo (ang koro pagkatapos ng bawat taludtod, ang bridge nang dalawang beses) at inaasahan ito sa Linggo. Hindi nagbabago ang mga slide mo."
+
+#~ msgid "Nothing to learn: every song was sung in the order of its slides."
+#~ msgstr "Walang matututuhan: inawit ang bawat kanta ayon sa pagkakasunod ng mga slide nito."
 
 #~ msgid "A phone on the church's Wi-Fi can be a camera or a microphone for the livestream. The first time, the phone warns that the page is not private: that is expected, because the page comes from this computer. Tap Advanced (on an iPhone, Show Details), then go on to the page. Keep the phone awake and plugged in."
 #~ msgstr "Ang phone sa Wi-Fi ng simbahan ay puwedeng maging camera o mikropono ng livestream. Sa unang beses, babala ng phone na hindi private ang pahina: inaasahan iyon, dahil galing ang pahina sa computer na ito. I-tap ang Advanced (sa iPhone, Show Details), saka tumuloy sa pahina. Panatilihing gising ang phone at nakasaksak."

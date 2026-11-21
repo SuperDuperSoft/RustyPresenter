@@ -689,6 +689,9 @@ pub struct Settings {
     /// Settings → Songs: songs downloaded from SongSelect come into the library whenever the app is open
     /// (`ui::dialogs::songselect`). Off: only while the "Songs from SongSelect" window is open.
     pub songselect_inbox: bool,
+    /// Settings → Help and about → New versions: once a day, at start, ask GitHub for the newest version
+    /// (`crate::update`).
+    pub check_updates: bool,
     /// Settings → Songs → "Keep my songs in a folder": one ChordPro file per song (`crate::songs_folder`). Changed
     /// only by `songs-folder/set`. A value this version can't read loads as off.
     #[serde(deserialize_with = "crate::lenient::or_default")]
@@ -814,6 +817,7 @@ impl Default for Settings {
             bible_history: Vec::new(),
             follow: Default::default(),
             songselect_inbox: false,
+            check_updates: true,
             songs_folder: Default::default(),
             dock: Default::default(),
         }

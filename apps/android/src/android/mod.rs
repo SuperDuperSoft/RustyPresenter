@@ -7,6 +7,7 @@ mod mic;
 
 use crate::{
     address, discovery,
+    draw::{self, Pad},
     fit,
     http::{Client, StreamEnd},
     protocol::{self, CommandResult, NowShowing, PairCode, PairResult, RemoteMsg, RemoteView, StageView},
@@ -18,13 +19,45 @@ use slint::{ComponentHandle, Image, Model, ModelRc, Rgba8Pixel, SharedPixelBuffe
 use std::{
     collections::HashMap,
     path::PathBuf,
-    sync::{Arc, Mutex, atomic::{AtomicBool, AtomicU64, Ordering}},
+    sync::{Arc, Mutex, MutexGuard, OnceLock, atomic::{AtomicBool, AtomicU64, Ordering}},
     time::{Duration, Instant},
 };
 
 use crate::screens::*;
 
 type C = Arc<Ctx>;
+
+/// A lock is taken even after a thread stopped with a problem while holding it: what it guards is plain data, and
+/// one failed step must not make every later tap fail too.
+trait Lk<T> { fn lk(&self) -> MutexGuard<'_, T>; }
+impl<T> Lk<T> for Mutex<T> {
+    fn lk(&self) -> MutexGuard<'_, T> { self.lock().unwrap_or_else(|e| e.into_inner()) }
+}
+
+/// Where a problem that would have closed the app is written down (`crash.txt` in the app's own folder).
+static CRASH_FILE: OnceLock<PathBuf> = OnceLock::new();
+
+/// Runs `f`. A problem inside it (a Rust panic) stops that one step, not the app: the panic hook has written it
+/// down, and the next start shows it (`S.crash-note`).
+fn guard(f: impl FnOnce()) { let _ = std::panic::catch_unwind(std::panic::AssertUnwindSafe(f)); }
+
+/// Every panic is written to `crash.txt` with where it happened, newest last, so a problem on a Sunday can be
+/// passed on afterwards. Kept short: the file never grows past a few lines.
+fn note_panics() {
+    std::panic::set_hook(Box::new(|info| {
+        let Some(path) = CRASH_FILE.get() else { return };
+        let what = info.payload().downcast_ref::<&str>().map(|s| s.to_string())
+            .or_else(|| info.payload().downcast_ref::<String>().cloned()).unwrap_or_else(|| "a problem".into());
+        let at = info.location().map(|l| format!("{}:{}", l.file(), l.line())).unwrap_or_default();
+        let thread = std::thread::current().name().unwrap_or("?").to_string();
+        let old = std::fs::read_to_string(path).unwrap_or_default();
+        let mut lines: Vec<&str> = old.lines().rev().take(4).collect();
+        lines.reverse();
+        let line = format!("{} {what} ({at}, {thread})", env!("CARGO_PKG_VERSION"));
+        let text = lines.into_iter().chain([line.as_str()]).collect::<Vec<_>>().join("\n");
+        let _ = std::fs::write(path, text);
+    }));
+}
 
 /// What the threads share.
 pub struct Ctx {
@@ -54,6 +87,19 @@ pub struct Ctx {
     /// A permission being asked: which, what to do once given, and what when not.
     asking: Mutex<Option<Asking>>,
     toast_turn: AtomicU64,
+    /// Whether Android was last asked to keep the screen on (`keep_awake`).
+    awake: AtomicBool,
+    /// Drawing on the live slide: this phone's lines, where its messages to the computer go while the drawing
+    /// page is open, the slide box's size on the screen, and whether the lines must be drawn again.
+    pad: Mutex<Pad>,
+    draw_tx: Mutex<Option<std::sync::mpsc::Sender<serde_json::Value>>>,
+    draw_box: Mutex<(f32, f32)>,
+    draw_dirty: AtomicBool,
+    draw_turn: AtomicU64,
+    /// The slide picture the drawing page shows (its version).
+    draw_version: AtomicU64,
+    /// The app's own clock starts here.
+    born: Instant,
 }
 
 /// `since`: when Android was asked; `left`: Android's question took the screen (when it does not, Android said no
@@ -61,10 +107,10 @@ pub struct Ctx {
 struct Asking { permission: &'static str, then: Box<dyn FnOnce(&C) + Send>, denied: Box<dyn FnOnce(&C) + Send>, since: Option<Instant>, left: bool }
 
 /// Runs `f` on the window's thread.
-fn ui(c: &C, f: impl FnOnce(&AppWindow) + Send + 'static) { let _ = c.ui.upgrade_in_event_loop(move |w| f(&w)); }
+fn ui(c: &C, f: impl FnOnce(&AppWindow) + Send + 'static) { let _ = c.ui.upgrade_in_event_loop(move |w| guard(|| f(&w))); }
 
-
-fn spawn(f: impl FnOnce() + Send + 'static) { let _ = std::thread::Builder::new().stack_size(1 << 20).spawn(f); }
+/// A worker thread. Two megabytes of stack: JPEG pictures and the stage layout are worked out on these.
+fn spawn(f: impl FnOnce() + Send + 'static) { let _ = std::thread::Builder::new().name("work".into()).stack_size(2 << 20).spawn(move || guard(f)); }
 
 
 fn decode_jpeg(bytes: &[u8]) -> Option<SharedPixelBuffer<Rgba8Pixel>> {
@@ -74,20 +120,33 @@ fn decode_jpeg(bytes: &[u8]) -> Option<SharedPixelBuffer<Rgba8Pixel>> {
 
 #[unsafe(no_mangle)]
 fn android_main(app: slint::android::AndroidApp) {
+    if let Some(dir) = app.internal_data_path() { let _ = CRASH_FILE.set(dir.join("crash.txt")); }
+    note_panics();
     jni::set_app(app.clone());
     let pending: Arc<Mutex<Option<C>>> = Arc::new(Mutex::new(None));
     let p2 = pending.clone();
     // Back from Android's permission question: carry on with what asked.
     slint::android::init_with_event_listener(app.clone(), move |e| {
         use slint::android::android_activity::{MainEvent, PollEvent};
-        let Some(c) = p2.lock().unwrap().clone() else { return };
+        let Some(c) = p2.lk().clone() else { return };
         match e {
-            PollEvent::Main(MainEvent::LostFocus) => { if let Some(a) = c.asking.lock().unwrap().as_mut() && a.since.is_some() { a.left = true } }
+            PollEvent::Main(MainEvent::LostFocus) => { if let Some(a) = c.asking.lk().as_mut() && a.since.is_some() { a.left = true } }
             PollEvent::Main(MainEvent::GainedFocus) => permission_answered(&c),
             _ => {}
         }
     }).expect("Slint on Android");
     let w = AppWindow::new().expect("the window");
+    // What closed the app last time, if anything did: shown on the Remote tab until it is tapped away.
+    if let Some(note) = CRASH_FILE.get().and_then(|p| std::fs::read_to_string(p).ok()).filter(|t| !t.trim().is_empty()) {
+        w.global::<S>().set_crash_note(s(note));
+    }
+    w.global::<S>().on_crash_seen({
+        let weak = w.as_weak();
+        move || {
+            if let Some(p) = CRASH_FILE.get() { let _ = std::fs::remove_file(p); }
+            if let Some(w) = weak.upgrade() { w.global::<S>().set_crash_note(s("")) }
+        }
+    });
     // The words in the phone's language (after the window is made: its words are bundled with it).
     let config = app.config();
     if let Some(l) = crate::lang::pick(&config.language().unwrap_or_default(), &config.country().unwrap_or_default()) {
@@ -100,18 +159,30 @@ fn android_main(app: slint::android::AndroidApp) {
         main_turn: AtomicU64::new(0), tab_turn: AtomicU64::new(0), find_turn: AtomicU64::new(0), tab: AtomicU64::new(0),
         mic_on: Mutex::new(None), cam_on: Mutex::new(None), scan_on: Mutex::new(None), secret: Mutex::new(None),
         stage_size: Mutex::new((0.0, 0.0)), stage: Mutex::new(None), stage_pics: Mutex::new(HashMap::new()), picture_version: AtomicU64::new(u64::MAX),
-        asking: Mutex::new(None), toast_turn: AtomicU64::new(0),
+        asking: Mutex::new(None), toast_turn: AtomicU64::new(0), awake: AtomicBool::new(false),
+        // Stroke numbers that an earlier run of the app did not use.
+        pad: Mutex::new(Pad::new((std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(1, |d| d.as_millis()) % 1_000_000) as u32)),
+        draw_tx: Mutex::new(None), draw_box: Mutex::new((0.0, 0.0)), draw_dirty: AtomicBool::new(false), draw_turn: AtomicU64::new(0),
+        draw_version: AtomicU64::new(u64::MAX), born: Instant::now(),
     });
-    *pending.lock().unwrap() = Some(c.clone());
+    *pending.lk() = Some(c.clone());
     let st = w.global::<S>();
     st.set_notes_on(saved.notes);
     st.set_tally_camera(saved.tally_camera.clamp(1, 9) as i32);
     st.set_cam_back(saved.back_camera);
     st.set_cam_name(s(saved.camera_name.clone()));
+    st.set_draw_color(saved.draw_color.min(5) as i32);
+    st.set_draw_size(saved.draw_size.min(3) as i32);
+    st.set_draw_fades(saved.draw_fades);
+    { let mut pad = c.pad.lk(); (pad.color, pad.size, pad.fades) = (saved.draw_color.min(5) as usize, saved.draw_size.min(3) as usize, saved.draw_fades); }
     if !saved.host.is_empty() { st.set_typed(s(address::shown(&saved.host))) }
     wire(&w, &c);
     start(&c);
-    w.run().expect("the window runs");
+    // A window that ends with a problem is written down like any other, not left as a silent close.
+    if let Err(e) = w.run() { guard(|| panic!("the window stopped: {e}")) }
+    // Android may keep this process for the next start, and Slint can only be set up once in a process: end it
+    // here, so the next tap on the app's icon starts clean instead of closing at once.
+    std::process::exit(0);
 }
 
 // ---------- wiring the taps ----------
@@ -121,7 +192,7 @@ fn wire(w: &AppWindow, c: &C) {
     macro_rules! on {
         ($name:ident, |$c:ident $(, $a:ident : $t:ty)*| $body:block) => {{
             let cc = c.clone();
-            st.$name(move |$($a: $t),*| { let $c = &cc; $body });
+            st.$name(move |$($a: $t),*| { let $c = &cc; guard(|| $body) });
         }};
     }
     on!(on_choose, |c, i: i32| {
@@ -144,28 +215,56 @@ fn wire(w: &AppWindow, c: &C) {
     on!(on_back, |c| { let base = version(c); send(c, protocol::command("prev", json!({}), base)) });
     on!(on_clear, |c, which: SharedString| { send(c, protocol::command(&which, json!({}), None)) });
     on!(on_jump, |c, i: i32| {
-        let v = c.view.lock().unwrap().clone();
+        let v = c.view.lk().clone();
         if let Some(v) = v && let (Some(cur), Some(sec)) = (v.cursor.as_ref(), v.sections.get(i as usize)) {
             send(c, protocol::command("jump", json!({ "item_id": cur.item_id, "kind": sec.kind, "occurrence": sec.occurrence }), Some(v.version)));
         }
     });
     on!(on_open_item, |c, i: i32| { open_item(c, i as usize) });
     on!(on_show_slide, |c, i: i32| {
-        let v = c.view.lock().unwrap().clone();
-        let item = *c.sheet_item.lock().unwrap();
+        let v = c.view.lk().clone();
+        let item = *c.sheet_item.lk();
         if let (Some(v), Some(item)) = (v, item) && let Some(it) = v.items.get(item) {
             send(c, protocol::command("show", json!({ "item_id": it.id, "slide": i }), Some(v.version)));
         }
         ui(c, |w| w.global::<S>().set_sheet_open(false));
     });
     on!(on_media_toggle, |c| {
-        let m = c.view.lock().unwrap().as_ref().and_then(|v| v.media.clone());
+        let m = c.view.lk().as_ref().and_then(|v| v.media.clone());
         if let Some(m) = m { send(c, protocol::command("media_pause", json!({ "inst": m.inst, "paused": !m.paused }), None)) }
     });
     on!(on_notes_toggled, |c, on: bool| { remember(c, |s| s.notes = on) });
+    on!(on_draw_start, |c| { draw_open(c) });
+    on!(on_draw_done, |c| { draw_close(c) });
+    on!(on_draw_down, |c, x: f32, y: f32, w: f32, h: f32| {
+        if w < 1.0 || h < 1.0 { return }
+        *c.draw_box.lk() = (w, h);
+        // A line may start a finger's width outside the slide, kept on its edge; further out is a stray touch.
+        if let Some(p) = draw::on_slide(x, y, [28.0 / w, 28.0 / h]) {
+            c.pad.lk().down(p);
+            c.draw_dirty.store(true, Ordering::Relaxed);
+        }
+    });
+    on!(on_draw_move, |c, x: f32, y: f32| {
+        let (w, h) = *c.draw_box.lk();
+        if w < 1.0 || !x.is_finite() || !y.is_finite() { return }
+        if c.pad.lk().moved([x.clamp(0.0, 1.0), y.clamp(0.0, 1.0)], [1.2 / w, 1.2 / h]) { c.draw_dirty.store(true, Ordering::Relaxed) }
+    });
+    on!(on_draw_up, |c| { let cmds = c.pad.lk().up(clock(c)); draw_send(c, cmds); c.draw_dirty.store(true, Ordering::Relaxed); });
+    on!(on_draw_undo, |c| { let cmds = c.pad.lk().undo(clock(c)); draw_send(c, cmds); c.draw_dirty.store(true, Ordering::Relaxed); });
+    on!(on_draw_clear, |c| { let cmds = c.pad.lk().clear(clock(c)); draw_send(c, cmds); c.draw_dirty.store(true, Ordering::Relaxed); });
+    on!(on_draw_tool, |c| {
+        let Some(w) = c.ui.upgrade() else { return };
+        let st = w.global::<S>();
+        let (color, size, fades) = (st.get_draw_color().clamp(0, 5) as usize, st.get_draw_size().clamp(0, 3) as usize, st.get_draw_fades());
+        let mut pad = c.pad.lk();
+        (pad.color, pad.size, pad.fades) = (color, size, fades);
+        drop(pad);
+        remember(c, |s| { s.draw_color = color as u32; s.draw_size = size as u32; s.draw_fades = fades });
+    });
     on!(on_stage_login, |c, pw: SharedString| { stage_login(c, pw.to_string()) });
     on!(on_stage_size, |c, w: f32, h: f32| {
-        *c.stage_size.lock().unwrap() = (w, h);
+        *c.stage_size.lk() = (w, h);
         draw_stage(c);
     });
     on!(on_tally_camera_chosen, |c, n: i32| {
@@ -179,25 +278,25 @@ fn wire(w: &AppWindow, c: &C) {
         remember(c, |s| s.back_camera = back);
         ui(c, move |w| w.global::<S>().set_cam_back(back));
         // A running camera starts again with the other one.
-        let running = c.cam_on.lock().unwrap().clone();
+        let running = c.cam_on.lk().clone();
         if let Some(flag) = running {
             flag.store(false, Ordering::Relaxed);
             let c2 = c.clone();
-            spawn(move || { std::thread::sleep(Duration::from_millis(400)); let name = c2.saved.lock().unwrap().camera_name.clone(); cam_start(&c2, name) });
+            spawn(move || { std::thread::sleep(Duration::from_millis(400)); let name = c2.saved.lk().camera_name.clone(); cam_start(&c2, name) });
         }
     });
     on!(on_ask_go, |c| { ask_go(c) });
     on!(on_ask_cancel, |c| {
-        c.asking.lock().unwrap().take();
+        c.asking.lk().take();
         ui(c, |w| w.global::<S>().set_ask_why(s("")));
     });
     let cc = c.clone();
-    st.on_back_key(move || back_key(&cc));
+    st.on_back_key(move || std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| back_key(&cc))).unwrap_or(false));
 }
 
 /// A setting changed: kept on the phone.
 fn remember(c: &C, f: impl FnOnce(&mut Saved)) {
-    let mut sv = c.saved.lock().unwrap();
+    let mut sv = c.saved.lk();
     f(&mut sv);
     let _ = sv.save(&c.saved_path);
 }
@@ -221,7 +320,8 @@ fn say(c: &C, word: impl FnOnce(&Say) -> SharedString + Send + 'static, then: im
 fn back_key(c: &C) -> bool {
     let Some(w) = c.ui.upgrade() else { return false };
     let st = w.global::<S>();
-    if st.get_ask_why() != "" { c.asking.lock().unwrap().take(); st.set_ask_why(s("")); return true }
+    if st.get_ask_why() != "" { c.asking.lk().take(); st.set_ask_why(s("")); return true }
+    if st.get_draw_open() { draw_close(c); return true }
     if st.get_sheet_open() { st.set_sheet_open(false); return true }
     match st.get_page().as_str() {
         "scan" => { stop_scan(c); st.set_page(s("find")); true }
@@ -235,12 +335,12 @@ fn back_key(c: &C) -> bool {
 // ---------- finding and pairing the computer ----------
 
 fn start(c: &C) {
-    let saved = c.saved.lock().unwrap().clone();
+    let saved = c.saved.lk().clone();
     if saved.host.is_empty() { search(c); return }
     let client = Arc::new(Client::new(&saved.host));
     client.set_cookie("rp_session", saved.session.as_deref());
     client.set_cookie("rp_stage", saved.stage.as_deref());
-    *c.client.lock().unwrap() = Some(client.clone());
+    *c.client.lk() = Some(client.clone());
     let c = c.clone();
     spawn(move || {
         let name = if saved.name.is_empty() { address::shown(&saved.host) } else { saved.name.clone() };
@@ -299,10 +399,10 @@ fn connect(c: &C, t: address::Target) {
     ui(c, |w| w.global::<S>().set_busy(true));
     let c = c.clone();
     spawn(move || {
-        let same = c.saved.lock().unwrap().host == t.host;
+        let same = c.saved.lk().host == t.host;
         let client = Arc::new(Client::new(&t.host));
         if same {
-            let sv = c.saved.lock().unwrap().clone();
+            let sv = c.saved.lk().clone();
             client.set_cookie("rp_session", sv.session.as_deref());
             client.set_cookie("rp_stage", sv.stage.as_deref());
         }
@@ -321,10 +421,10 @@ fn connect(c: &C, t: address::Target) {
             return;
         };
         remember(&c, |sv| sv.choose(&t.host, &found.name));
-        *c.client.lock().unwrap() = Some(client);
+        *c.client.lk() = Some(client);
         let status: protocol::RemoteStatus = serde_json::from_slice(&r.body).unwrap_or_default();
         let name = if found.name.is_empty() { shown } else { format!("{} · {shown}", found.name) };
-        *c.secret.lock().unwrap() = t.secret.clone();
+        *c.secret.lk() = t.secret.clone();
         if status.paired && t.secret.is_none() { open_main(&c); return }
         show_pair(&c, name, status.password, t.secret.is_some());
         // The QR code without a password needs no typing at all.
@@ -344,8 +444,8 @@ fn show_pair(c: &C, name: String, password: bool, secret: bool) {
 }
 
 fn pair(c: &C, code: String, password: String) {
-    let Some(client) = c.client.lock().unwrap().clone() else { return };
-    let secret = c.secret.lock().unwrap().clone();
+    let Some(client) = c.client.lk().clone() else { return };
+    let secret = c.secret.lk().clone();
     let code = match secret { Some(sec) => PairCode::Secret(sec), None => PairCode::Pin(code) };
     ui(c, |w| { let st = w.global::<S>(); st.set_busy(true); st.set_pair_error(s("")); });
     let c2 = c.clone();
@@ -356,12 +456,12 @@ fn pair(c: &C, code: String, password: String) {
         ui(&c, |w| w.global::<S>().set_busy(false));
         match r.as_ref().map(protocol::pair_result) {
             Ok(PairResult::Paired(token)) => {
-                c.secret.lock().unwrap().take();
+                c.secret.lk().take();
                 remember(&c, |sv| sv.session = Some(token));
                 open_main(&c);
             }
             Ok(PairResult::Error { text, retry_with_pin }) => {
-                if retry_with_pin { c.secret.lock().unwrap().take(); }
+                if retry_with_pin { c.secret.lk().take(); }
                 ui(&c, move |w| {
                     let st = w.global::<S>();
                     if retry_with_pin { st.set_has_secret(false) }
@@ -378,14 +478,14 @@ fn other_computer(c: &C) {
     c.tab_turn.fetch_add(1, Ordering::Relaxed);
     stop_flag(&c.mic_on);
     stop_flag(&c.cam_on);
-    c.secret.lock().unwrap().take();
+    c.secret.lk().take();
     keep_awake(c);
     search(c);
 }
 
-fn stop_flag(m: &Mutex<Option<Arc<AtomicBool>>>) { if let Some(f) = m.lock().unwrap().take() { f.store(false, Ordering::Relaxed) } }
+fn stop_flag(m: &Mutex<Option<Arc<AtomicBool>>>) { if let Some(f) = m.lk().take() { f.store(false, Ordering::Relaxed) } }
 
-fn client(c: &C) -> Option<Arc<Client>> { c.client.lock().unwrap().clone() }
+fn client(c: &C) -> Option<Arc<Client>> { c.client.lk().clone() }
 
 /// Paired: the tabs, and the remote's live updates.
 fn open_main(c: &C) {
@@ -402,7 +502,7 @@ fn pair_again(c: &C) {
     c.main_turn.fetch_add(1, Ordering::Relaxed);
     remember(c, |sv| sv.session = None);
     if let Some(cl) = client(c) { cl.set_cookie("rp_session", None) }
-    let name = { let sv = c.saved.lock().unwrap(); if sv.name.is_empty() { address::shown(&sv.host) } else { sv.name.clone() } };
+    let name = { let sv = c.saved.lk(); if sv.name.is_empty() { address::shown(&sv.host) } else { sv.name.clone() } };
     show_pair(c, name, false, false);
     let c2 = c.clone();
     spawn(move || {
@@ -416,7 +516,7 @@ fn pair_again(c: &C) {
 
 // ---------- Remote ----------
 
-fn version(c: &C) -> Option<u64> { c.view.lock().unwrap().as_ref().map(|v| v.version) }
+fn version(c: &C) -> Option<u64> { c.view.lk().as_ref().map(|v| v.version) }
 
 fn remote_events(c: &C, turn: u64) {
     let mine = || c.main_turn.load(Ordering::Relaxed) == turn;
@@ -452,14 +552,21 @@ fn show_view(c: &C, v: RemoteView) {
             }
         });
     }
+    // Drawing: what the computer allows, the room's shape, and which of this phone's lines are still up. An open
+    // drawing page gets the new slide's picture.
+    let (may_draw, shape) = (v.may_draw, v.shape());
+    if c.pad.lk().keep_only(&v.my_strokes) { c.draw_dirty.store(true, Ordering::Relaxed) }
+    if c.draw_tx.lk().is_some() && c.draw_version.swap(version, Ordering::Relaxed) != version { draw_slide(c, version) }
     // The open sheet follows the live slide.
-    let sheet = c.sheet_item.lock().unwrap().and_then(|i| v.items.get(i).cloned());
+    let sheet = c.sheet_item.lk().and_then(|i| v.items.get(i).cloned());
     let cursor = v.cursor.clone();
-    *c.view.lock().unwrap() = Some(v);
+    *c.view.lk() = Some(v);
     ui(c, move |w| {
         let st = w.global::<S>();
         let say = w.global::<Say>();
         st.set_connected(true);
+        st.set_may_draw(may_draw);
+        st.set_draw_aspect(shape);
         st.set_service(service.map_or_else(|| say.invoke_service(), s));
         let (label, text, pic, notes) = match now {
             NowShowing::Logo => (String::new(), say.invoke_logo().to_string(), false, String::new()),
@@ -491,10 +598,10 @@ fn show_view(c: &C, v: RemoteView) {
 }
 
 fn open_item(c: &C, i: usize) {
-    let v = c.view.lock().unwrap().clone();
+    let v = c.view.lk().clone();
     let Some(v) = v else { return };
     let Some(it) = v.items.get(i).cloned() else { return };
-    *c.sheet_item.lock().unwrap() = Some(i);
+    *c.sheet_item.lk() = Some(i);
     let rows: Vec<SlideRow> = it.slides.iter().enumerate().map(|(n, sl)| SlideRow {
         label: s(sl.label.clone()), text: s(sl.text.clone()),
         live: v.cursor.as_ref().is_some_and(|cu| cu.item_id == it.id && cu.slide == n),
@@ -523,6 +630,103 @@ fn send(c: &C, env: serde_json::Value) {
     });
 }
 
+// ---------- drawing on the live slide ----------
+
+/// Seconds on the app's own clock.
+fn clock(c: &C) -> f64 { c.born.elapsed().as_secs_f64() }
+
+fn draw_send(c: &C, cmds: Vec<serde_json::Value>) {
+    if let Some(tx) = c.draw_tx.lk().as_ref() { for cmd in cmds { let _ = tx.send(cmd); } }
+}
+
+/// The live slide's picture for the drawing page.
+fn draw_slide(c: &C, version: u64) {
+    let c = c.clone();
+    spawn(move || {
+        let Some(cl) = client(&c) else { return };
+        if let Ok(r) = cl.get(&format!("/remote/live-slide?w=960&v={version}")) && r.ok() && let Some(px) = decode_jpeg(&r.body) {
+            ui(&c, move |w| w.global::<S>().set_draw_slide(Image::from_rgba8(px)));
+        }
+    });
+}
+
+/// Opens the drawing page: the slide's picture, a thread that sends the lines in order, and one that sends the
+/// points every 40 ms while the finger moves and draws the lines on this screen.
+fn draw_open(c: &C) {
+    let may = c.view.lk().as_ref().is_some_and(|v| v.may_draw);
+    if !may { say(c, |w| w.invoke_no_drawing(), |c, t| toast(c, t)); return }
+    if c.draw_tx.lk().is_some() { return }
+    let turn = c.draw_turn.fetch_add(1, Ordering::Relaxed) + 1;
+    let (tx, rx) = std::sync::mpsc::channel::<serde_json::Value>();
+    *c.draw_tx.lk() = Some(tx);
+    let version = version(c).unwrap_or(0);
+    c.draw_version.store(version, Ordering::Relaxed);
+    draw_slide(c, version);
+    c.draw_dirty.store(true, Ordering::Relaxed);
+    ui(c, |w| w.global::<S>().set_draw_open(true));
+    // The messages, one request at a time so they arrive in order. Points that pile up while one is on its way
+    // go together in the next.
+    let c2 = c.clone();
+    spawn(move || {
+        let mut waiting: Option<serde_json::Value> = None;
+        loop {
+            let Some(mut cmd) = waiting.take().or_else(|| rx.recv().ok()) else { return };
+            while cmd["op"] == "more" {
+                match rx.try_recv() {
+                    Ok(more) if more["op"] == "more" && more["stroke"] == cmd["stroke"] => {
+                        if let (Some(a), Some(b)) = (cmd["points"].as_array_mut(), more["points"].as_array()) { a.extend(b.iter().cloned()) }
+                    }
+                    Ok(other) => { waiting = Some(other); break }
+                    Err(_) => break,
+                }
+            }
+            let Some(cl) = client(&c2) else { return };
+            let start = (cmd["op"] == "start").then(|| cmd["stroke"].as_u64().unwrap_or(0) as u32);
+            match cl.post_json("/remote/draw", &cmd) {
+                Ok(r) if r.status == 401 => { draw_close(&c2); pair_again(&c2); return }
+                Ok(r) => {
+                    let out = r.json();
+                    let ok = out["ok"] == true;
+                    if let Some(id) = start {
+                        if ok { c2.pad.lk().taken(id) } else { c2.pad.lk().refused(id); c2.draw_dirty.store(true, Ordering::Relaxed) }
+                    }
+                    // A line the computer already took away (a new slide) is not worth a message.
+                    if !ok && cmd["op"] != "more" && cmd["op"] != "end" && let Some(e) = out["error"].as_str().filter(|e| !e.is_empty()) { toast(&c2, e.to_string()) }
+                }
+                Err(_) => say(&c2, |w| w.invoke_not_connected(), |c, t| toast(c, t)),
+            }
+        }
+    });
+    let c2 = c.clone();
+    spawn(move || {
+        while c2.draw_turn.load(Ordering::Relaxed) == turn {
+            std::thread::sleep(Duration::from_millis(40));
+            let fade_secs = c2.view.lk().as_ref().map_or(3, |v| v.fade_secs.max(1)) as f64;
+            let now = clock(&c2);
+            let (cmd, fading) = { let mut pad = c2.pad.lk(); (pad.flush(), pad.fade(now, fade_secs)) };
+            draw_send(&c2, cmd.into_iter().collect());
+            if !c2.draw_dirty.swap(false, Ordering::Relaxed) && !fading { continue }
+            // The picture of the lines, at the slide box's own size (no bigger than it needs to be).
+            let (bw, bh) = *c2.draw_box.lk();
+            let shape = c2.view.lk().as_ref().map_or(16.0 / 9.0, |v| v.shape());
+            let w = if bw >= 1.0 { (bw * 1.5).clamp(160.0, 720.0) } else { 480.0 } as u32;
+            let h = if bh >= 1.0 && bw >= 1.0 { (w as f32 * bh / bw).max(1.0) } else { (w as f32 / shape).max(1.0) } as u32;
+            let px = draw::paint(&c2.pad.lk().strokes, w, h, now, fade_secs);
+            let buf = SharedPixelBuffer::<Rgba8Pixel>::clone_from_slice(&px, w, h);
+            ui(&c2, move |win| win.global::<S>().set_draw_ink(Image::from_rgba8_premultiplied(buf)));
+        }
+    });
+}
+
+/// Closes the drawing page: the line under the finger is finished, and the threads stop.
+fn draw_close(c: &C) {
+    let cmds = c.pad.lk().up(clock(c));
+    draw_send(c, cmds);
+    c.draw_turn.fetch_add(1, Ordering::Relaxed);
+    c.draw_tx.lk().take();
+    ui(c, |w| w.global::<S>().set_draw_open(false));
+}
+
 // ---------- the tabs ----------
 
 fn tab_chosen(c: &C, t: i32) {
@@ -540,11 +744,20 @@ fn tab_chosen(c: &C, t: i32) {
 }
 
 /// The screen stays on while the stage screen or the tally light shows, and while the microphone or camera sends.
+///
+/// Android is only told when that changes, and from a worker thread: never from inside the tap that chose a tab
+/// (the window is in the middle of handling that touch), and not again for every tab that wants the same thing.
 fn keep_awake(c: &C) {
-    use slint::android::android_activity::WindowManagerFlags as F;
     let tab = c.tab.load(Ordering::Relaxed);
-    let on = tab == 1 || tab == 2 || c.mic_on.lock().unwrap().is_some() || c.cam_on.lock().unwrap().is_some() || c.scan_on.lock().unwrap().is_some();
-    if on { jni::app().set_window_flags(F::KEEP_SCREEN_ON, F::empty()) } else { jni::app().set_window_flags(F::empty(), F::KEEP_SCREEN_ON) }
+    let on = tab == 1 || tab == 2 || c.mic_on.lk().is_some() || c.cam_on.lk().is_some() || c.scan_on.lk().is_some();
+    if c.awake.swap(on, Ordering::Relaxed) == on { return }
+    let c = c.clone();
+    spawn(move || {
+        use slint::android::android_activity::WindowManagerFlags as F;
+        // The newest wish wins when several came close together.
+        let on = c.awake.load(Ordering::Relaxed);
+        if on { jni::app().set_window_flags(F::KEEP_SCREEN_ON, F::empty()) } else { jni::app().set_window_flags(F::empty(), F::KEEP_SCREEN_ON) }
+    });
 }
 
 /// Whether this phone may see the stage screen (and so the tally light and the microphone): "" yes, else why not.
@@ -583,7 +796,7 @@ fn stage_loop(c: &C, turn: u64) {
         let _ = cl.events("/stage-view/events", Duration::from_secs(25), &mine, |data| {
             if let Some(v) = protocol::stage_view(data) {
                 fetch_stage_pictures(c, &v);
-                *c.stage.lock().unwrap() = Some(v);
+                *c.stage.lk() = Some(v);
                 draw_stage(c);
             }
         });
@@ -595,15 +808,15 @@ fn stage_loop(c: &C, turn: u64) {
 fn fetch_stage_pictures(c: &C, v: &StageView) {
     for cell in v.cells.iter().filter(|x| x.kind == "picture") {
         let src = if cell.src == "live" { "live" } else { "next" }.to_string();
-        let have = c.stage_pics.lock().unwrap().get(&src).map(|(ver, _)| *ver);
+        let have = c.stage_pics.lk().get(&src).map(|(ver, _)| *ver);
         if have == Some(v.version) { continue }
         let (c2, version) = (c.clone(), v.version);
         // Marked as asked for, so it is asked once.
-        if let Some(e) = c.stage_pics.lock().unwrap().get_mut(&src) { e.0 = version }
+        if let Some(e) = c.stage_pics.lk().get_mut(&src) { e.0 = version }
         spawn(move || {
             let Some(cl) = client(&c2) else { return };
             if let Ok(r) = cl.get(&format!("/stage-view/{src}.jpg?w=640&v={version}")) && r.ok() && let Some(px) = decode_jpeg(&r.body) {
-                c2.stage_pics.lock().unwrap().insert(src, (version, px));
+                c2.stage_pics.lk().insert(src, (version, px));
                 draw_stage(&c2);
             }
         });
@@ -612,10 +825,10 @@ fn fetch_stage_pictures(c: &C, v: &StageView) {
 
 /// The stage view laid out for the tab's size (`fit`).
 fn draw_stage(c: &C) {
-    let (w, h) = *c.stage_size.lock().unwrap();
-    let Some(v) = c.stage.lock().unwrap().clone() else { return };
+    let (w, h) = *c.stage_size.lk();
+    let Some(v) = c.stage.lk().clone() else { return };
     if w < 10.0 || h < 10.0 { return }
-    let pics: HashMap<String, SharedPixelBuffer<Rgba8Pixel>> = c.stage_pics.lock().unwrap().iter().map(|(k, (_, p))| (k.clone(), p.clone())).collect();
+    let pics: HashMap<String, SharedPixelBuffer<Rgba8Pixel>> = c.stage_pics.lk().iter().map(|(k, (_, p))| (k.clone(), p.clone())).collect();
     let cells = fit::place(&v.cells, w, h);
     let bg = v.background.clone();
     let (banner, follow) = (v.banner.clone().unwrap_or_default(), v.follow.clone().unwrap_or_default());
@@ -649,7 +862,7 @@ fn tally_loop(c: &C, turn: u64) {
     loop {
         if c.tab_turn.load(Ordering::Relaxed) != turn { return }
         let Some(cl) = client(c) else { return };
-        let camera = c.saved.lock().unwrap().tally_camera.clamp(1, 9);
+        let camera = c.saved.lk().tally_camera.clamp(1, 9);
         match cl.get(&format!("/stage-view/tally.json?camera={camera}")) {
             Ok(r) if r.ok() => {
                 let t: protocol::Tally = serde_json::from_slice(&r.body).unwrap_or_default();
@@ -683,14 +896,14 @@ fn gate_loop(c: &C, turn: u64) {
 fn with_permission(c: &C, permission: &'static str, why: impl FnOnce(&Say) -> SharedString + Send + 'static,
     then: impl FnOnce(&C) + Send + 'static, denied: impl FnOnce(&C) + Send + 'static) {
     if jni::has_permission(permission) { then(c); return }
-    *c.asking.lock().unwrap() = Some(Asking { permission, then: Box::new(then), denied: Box::new(denied), since: None, left: false });
+    *c.asking.lk() = Some(Asking { permission, then: Box::new(then), denied: Box::new(denied), since: None, left: false });
     ui(c, move |w| { let t = why(&w.global::<Say>()); w.global::<S>().set_ask_why(t) });
 }
 
 fn ask_go(c: &C) {
     ui(c, |w| w.global::<S>().set_ask_why(s("")));
     let perm = {
-        let mut a = c.asking.lock().unwrap();
+        let mut a = c.asking.lk();
         let Some(a) = a.as_mut() else { return };
         a.since = Some(Instant::now());
         a.permission
@@ -700,8 +913,8 @@ fn ask_go(c: &C) {
     let c2 = c.clone();
     spawn(move || {
         std::thread::sleep(Duration::from_millis(1500));
-        let silent = c2.asking.lock().unwrap().as_ref().is_some_and(|a| !a.left);
-        if silent && let Some(a) = c2.asking.lock().unwrap().take() {
+        let silent = c2.asking.lk().as_ref().is_some_and(|a| !a.left);
+        if silent && let Some(a) = c2.asking.lk().take() {
             if jni::has_permission(a.permission) { (a.then)(&c2) } else { (a.denied)(&c2) }
         }
     });
@@ -709,9 +922,9 @@ fn ask_go(c: &C) {
 
 /// The app is back in front after Android's question: allowed or not.
 fn permission_answered(c: &C) {
-    let asked = c.asking.lock().unwrap().as_ref().is_some_and(|a| a.left);
+    let asked = c.asking.lk().as_ref().is_some_and(|a| a.left);
     if !asked { return }
-    let Some(a) = c.asking.lock().unwrap().take() else { return };
+    let Some(a) = c.asking.lk().take() else { return };
     let c = c.clone();
     spawn(move || if jni::has_permission(a.permission) { (a.then)(&c) } else { (a.denied)(&c) });
 }
@@ -719,7 +932,7 @@ fn permission_answered(c: &C) {
 // ---------- Microphone ----------
 
 fn mic_toggle(c: &C) {
-    if c.mic_on.lock().unwrap().is_some() { stop_flag(&c.mic_on); keep_awake(c); ui(c, |w| { let st = w.global::<S>(); st.set_mic_on(false); st.set_mic_level(0.0); }); return }
+    if c.mic_on.lk().is_some() { stop_flag(&c.mic_on); keep_awake(c); ui(c, |w| { let st = w.global::<S>(); st.set_mic_on(false); st.set_mic_level(0.0); }); return }
     with_permission(c, jni::MICROPHONE, |w| w.invoke_why_microphone(), |c| {
         let c = c.clone();
         spawn(move || mic_run(&c));
@@ -728,12 +941,12 @@ fn mic_toggle(c: &C) {
 
 fn mic_run(c: &C) {
     let flag = Arc::new(AtomicBool::new(true));
-    *c.mic_on.lock().unwrap() = Some(flag.clone());
+    *c.mic_on.lk() = Some(flag.clone());
     keep_awake(c);
     let m = match mic::Mic::open() {
         Ok(m) => m,
         Err(_) => {
-            c.mic_on.lock().unwrap().take();
+            c.mic_on.lk().take();
             keep_awake(c);
             ui(c, |w| { let st = w.global::<S>(); st.set_mic_on(false); st.set_mic_note(w.global::<Say>().invoke_microphone_failed()); });
             return;
@@ -758,7 +971,7 @@ fn mic_run(c: &C) {
         });
     }
     drop(m);
-    let mut cur = c.mic_on.lock().unwrap();
+    let mut cur = c.mic_on.lk();
     if cur.as_ref().is_some_and(|f| Arc::ptr_eq(f, &flag)) { cur.take(); }
     drop(cur);
     keep_awake(c);
@@ -768,7 +981,7 @@ fn mic_run(c: &C) {
 // ---------- Camera ----------
 
 fn cam_toggle(c: &C, name: String) {
-    if c.cam_on.lock().unwrap().is_some() { stop_flag(&c.cam_on); return }
+    if c.cam_on.lk().is_some() { stop_flag(&c.cam_on); return }
     with_permission(c, jni::CAMERA, |w| w.invoke_why_camera(), move |c| cam_start(c, name),
         |c| ui(c, |w| { let st = w.global::<S>(); st.set_cam_note(w.global::<Say>().invoke_no_camera()); }));
 }
@@ -791,13 +1004,13 @@ fn cam_start(c: &C, typed: String) {
 
 fn cam_run(c: &C, cl: &Client, name: String, want: (u32, u32), fps: u32) {
     let flag = Arc::new(AtomicBool::new(true));
-    *c.cam_on.lock().unwrap() = Some(flag.clone());
+    *c.cam_on.lk() = Some(flag.clone());
     keep_awake(c);
-    let back = c.saved.lock().unwrap().back_camera;
+    let back = c.saved.lk().back_camera;
     let cam = match camera::Camera::open(back, want) {
         Ok(cam) => cam,
         Err(_) => {
-            c.cam_on.lock().unwrap().take();
+            c.cam_on.lk().take();
             keep_awake(c);
             ui(c, |w| { let st = w.global::<S>(); st.set_cam_on(false); st.set_cam_note(w.global::<Say>().invoke_camera_failed()); });
             return;
@@ -855,7 +1068,7 @@ fn cam_run(c: &C, cl: &Client, name: String, want: (u32, u32), fps: u32) {
     if let Some(mut sk) = sock { sk.close() }
     let lost = cam.lost();
     drop(cam);
-    let mut cur = c.cam_on.lock().unwrap();
+    let mut cur = c.cam_on.lk();
     if cur.as_ref().is_some_and(|f| Arc::ptr_eq(f, &flag)) { cur.take(); }
     drop(cur);
     keep_awake(c);
@@ -879,7 +1092,7 @@ fn stop_scan(c: &C) { stop_flag(&c.scan_on); keep_awake(c); }
 
 fn scan_run(c: &C) {
     let flag = Arc::new(AtomicBool::new(true));
-    *c.scan_on.lock().unwrap() = Some(flag.clone());
+    *c.scan_on.lk() = Some(flag.clone());
     keep_awake(c);
     c.find_turn.fetch_add(1, Ordering::Relaxed);
     ui(c, |w| { let st = w.global::<S>(); st.set_scan_note(w.global::<Say>().invoke_point_at_qr()); st.set_page(s("scan")); });

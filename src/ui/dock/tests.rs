@@ -340,6 +340,7 @@ fn repair_removes_duplicates_and_empty_parts() {
             DockWindow { monitor: String::new(), place: None, id: 0, root: tabs(&[]) },
         ],
         closed: vec![Live, Bible],
+        service_pictures: false,
     };
     l.repair();
     assert_valid(&l);

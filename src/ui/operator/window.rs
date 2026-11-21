@@ -83,7 +83,7 @@ pub(crate) struct OpState {
     pub(crate) list: ListFocus,
     /// Every toast shown, for tests that check a message without finding it on screen.
     #[cfg(test)]
-    pub(super) toasts: Vec<(String, bool)>,
+    pub(crate) toasts: Vec<(String, bool)>,
 }
 
 pub struct Operator {
@@ -108,6 +108,9 @@ pub struct Operator {
     pub(super) bin_rows: Rc<VecModel<BinRow>>,
     pub(super) bin_folders: Rc<VecModel<BinFolder>>,
     pub(super) bin_thumbs: Thumbs,
+    /// The service list's pictures (the EasyWorship-style layout, see `service`), with a worker of their own.
+    pub(super) service_pics: RefCell<super::service::Pics>,
+    pub(super) service_thumbs: Thumbs,
     /// The toasts and the jobs box (see `overlays`).
     pub(super) overlays: Overlays,
     /// Adding files: PowerPoint imports waiting for their deck, the desktop drop, the window's event filter (see `files`).
@@ -149,9 +152,13 @@ impl Operator {
             let (thumbs, preview) = if ops.is_inline() { (Thumbs::inline(app.store.root.clone()), Preview::inline(app.store.root.clone())) }
                 else { (Thumbs::new(app.store.root.clone()), Preview::new(app.store.root.clone())) };
             let bin_thumbs = media_bin::new_thumbs(app.store.root.clone(), ops.is_inline());
+            let service_thumbs = media_bin::new_thumbs(app.store.root.clone(), ops.is_inline());
+            // For a person the media library starts folded to its title, so the slides get the room (View → Show
+            // media library, or its arrow, opens it). The tests, which run inline, look inside it.
+            if !ops.is_inline() { ui.set_bin_open(false) }
             Operator {
                 ui, app, ops, screens, state: RefCell::default(), service_rows: Rc::default(), slide_rows: Rc::default(),
-                bin: RefCell::default(), bin_rows: Rc::default(), bin_folders: Rc::default(), bin_thumbs,
+                bin: RefCell::default(), bin_rows: Rc::default(), bin_folders: Rc::default(), bin_thumbs, service_pics: RefCell::default(), service_thumbs,
                 slides: RefCell::default(), slide_edit: RefCell::default(), thumbs, live: RefCell::default(), preview, overlays: Overlays::default(), files: FilesState::default(), check_timer: slint::Timer::default(), outputs_ui: RefCell::default(), record: Default::default(), songselect: Default::default(), dock: Default::default(), me: me.clone(), feed: listening.then(|| feed.clone()),
                 #[cfg(test)]
                 raises: Default::default(),
@@ -469,7 +476,10 @@ pub(crate) mod testing {
 
     pub fn open(app: &Arc<App>) -> Rc<Operator> {
         ui_test_init();
-        Operator::open(app.clone(), Ops::inline(app.clone()), Rc::new(FakeScreens { missing: false })).unwrap()
+        let op = Operator::open(app.clone(), Ops::inline(app.clone()), Rc::new(FakeScreens { missing: false })).unwrap();
+        // The tests look at the tools over the slides and at the media library: both start folded for a person.
+        op.ui.set_slides_tools_open(true);
+        op
     }
 
     /// The follower's read, done here because the testing backend has no event loop to deliver it.

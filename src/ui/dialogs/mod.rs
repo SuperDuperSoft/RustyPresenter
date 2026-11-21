@@ -47,6 +47,7 @@ pub mod stream_scenes;
 pub mod go_live_helper;
 pub mod settings_stream_extras;
 pub mod translation_editor;
+pub mod update;
 pub mod usage;
 #[path = "../../strings/dialogs.rs"]
 pub mod strings;

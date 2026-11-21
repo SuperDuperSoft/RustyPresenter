@@ -242,3 +242,30 @@ msgstr "Kompyuta haifikiki. Inajaribu tena…"
 
 msgid "This phone is no longer paired. Pair it again."
 msgstr "Simu hii haijaunganishwa tena. Iunganishe upya."
+
+msgid "Draw"
+msgstr "Chora"
+
+msgid "Draw on the slide"
+msgstr "Chora kwenye slaidi"
+
+msgid "Ink fades"
+msgstr "Wino hufifia"
+
+msgid "Ink stays"
+msgstr "Wino hubaki"
+
+msgid "Undo"
+msgstr "Tendua"
+
+msgid "Clear"
+msgstr "Futa"
+
+msgid "Done"
+msgstr "Imekamilika"
+
+msgid "Drawing from this phone is turned off on the computer."
+msgstr "Kuchora kutoka kwa simu hii kumezimwa kwenye kompyuta."
+
+msgid "The app closed by itself last time. Please pass this on:"
+msgstr "Programu ilijifunga yenyewe mara ya mwisho. Tafadhali wasilisha hili:"

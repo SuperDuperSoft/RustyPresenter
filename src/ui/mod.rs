@@ -73,7 +73,10 @@ pub mod test_support {
     /// Opens the operator over `app`, its actions inline. There is no follower: the test hands it updates through
     /// `Operator::apply_snapshot` and `Operator::apply_live`.
     pub fn operator_for_tests(app: Arc<App>) -> Rc<Operator> {
-        Operator::open(app.clone(), Ops::inline(app), Rc::new(FakeScreens { missing: false })).expect("operator window opens")
+        let op = Operator::open(app.clone(), Ops::inline(app), Rc::new(FakeScreens { missing: false })).expect("operator window opens");
+        // The tests look at the tools over the slides and at the media library: both start folded for a person.
+        op.ui.set_slides_tools_open(true);
+        op
     }
 
     /// The Slint window, for `ElementHandle::find_by_element_id`.

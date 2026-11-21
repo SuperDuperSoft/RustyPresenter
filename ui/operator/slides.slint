@@ -574,6 +574,9 @@ export component SlidesPanel inherits VerticalLayout {
     in-out property <int> view;
     /// N8: how wide a picture in the grid may get at the least, in pixels (the size slider).
     in-out property <int> thumb-size: 230;
+    /// The tools rows (lines, size, key, the order, actions) are unfolded. Folded, the slides get their room.
+    in-out property <bool> tools-open;
+    callback tools-toggled(bool);
 
     callback show(int);
     /// A section bar chip, by its index in `jumps`.
@@ -731,6 +734,19 @@ export component SlidesPanel inherits VerticalLayout {
                 TipArea { text: j.tooltip; hover: ja.has-hover; pressed: ja.pressed; pointer-x: ja.mouse-x; }
             }
         }
+        // The tools for this item's slides are behind one button, so the slides themselves get the room.
+        if root.has-selection && root.slide-count > 0: tools-toggle := Btn {
+            horizontal-stretch: 0;
+            small: true;
+            primary: root.tools-open;
+            icon: "gear";
+            text: @tr("Tools");
+            tooltip: root.tools-open ? @tr("Hide the tools for these slides") : @tr("Lines, text size, key, song order and slide actions");
+            clicked => {
+                root.tools-open = !root.tools-open;
+                root.tools-toggled(root.tools-open);
+            }
+        }
         if root.has-selection: slides-edit := Btn {
             // Its own width: the title takes the spare room, so on a wide window this is not a 400 px button.
             horizontal-stretch: 0;
@@ -742,7 +758,7 @@ export component SlidesPanel inherits VerticalLayout {
     }
 
     // N6 and N29: tools for the selected item's slides, on their own row so the title keeps its room.
-    if root.has-selection && root.slide-count > 0: HorizontalLayout {
+    if root.tools-open && root.has-selection && root.slide-count > 0: HorizontalLayout {
         padding-left: 16px;
         padding-right: 16px;
         padding-bottom: 8px;
@@ -877,7 +893,7 @@ export component SlidesPanel inherits VerticalLayout {
     }
 
     // The song's order, to drag into any order (Jake: "as easy as humanly possible to rearrange the song").
-    if SlideEdit.order-shown && root.has-selection: HorizontalLayout {
+    if root.tools-open && SlideEdit.order-shown && root.has-selection: HorizontalLayout {
         padding-left: 16px;
         padding-right: 16px;
         padding-bottom: 8px;

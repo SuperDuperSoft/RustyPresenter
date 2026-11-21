@@ -66,9 +66,10 @@ fn cookie(headers: &HeaderMap) -> Option<String> {
         .find_map(|c| c.trim().strip_prefix("rp_stage=").map(str::to_string))
 }
 
-/// Whether this request may see the stage: the stage view is on, and there is no password or the cookie is a
-/// current sign-in.
+/// Whether this request may see the stage: it comes from a phone paired as a remote (`paired`), or the stage view
+/// is on and there is no password or the cookie is a current sign-in.
 pub fn allowed(app: &App, headers: &HeaderMap) -> bool {
+    if paired(app, headers) { return true }
     let data = app.data.lock().unwrap();
     let network = &data.settings.network;
     if !network.stage_view { return false }
@@ -80,9 +81,15 @@ pub fn allowed(app: &App, headers: &HeaderMap) -> bool {
     tokens.iter().any(|(t, _)| crate::app::ct_eq(t, &h))
 }
 
+/// A phone paired as a remote. It can already change every slide, so it may always see the stage screen (and with
+/// it the tally light and the microphone), whether or not the stage screen is switched on for other phones, and
+/// without the stage password: that switch and password are for phones that are not paired.
+fn paired(app: &App, headers: &HeaderMap) -> bool { crate::server::phone_for(app, headers).is_some() }
+
 async fn status(State(app): State<Arc<App>>, headers: HeaderMap) -> Response {
+    let remote = paired(&app, &headers);
     let (on, pw) = { let n = &app.data.lock().unwrap().settings.network; (n.stage_view, n.stage_password.is_some()) };
-    Json(json!({ "on": on, "password": pw, "allowed": allowed(&app, &headers), "off_text": s::stage_view_off() })).into_response()
+    Json(json!({ "on": on || remote, "password": pw && !remote, "allowed": allowed(&app, &headers), "off_text": s::stage_view_off() })).into_response()
 }
 
 #[derive(Deserialize)]
@@ -314,6 +321,28 @@ mod tests {
         // Turned off: even a signed-in tablet sees nothing.
         app.data.lock().unwrap().settings.network.stage_view = false;
         assert!(!allowed(&app, &with_cookie(&c)));
+    }
+
+    #[tokio::test]
+    async fn a_phone_paired_as_a_remote_always_sees_the_stage() {
+        use crate::app::{Phone, hash_token, now_secs};
+        let app = test_app();
+        app.phones.lock().unwrap().push(Phone { id: uuid::Uuid::new_v4(), name: "Pixel".into(), hash: hash_token("tok"), last_seen: now_secs(), may_draw: false });
+        let remote = with_cookie("rp_session=tok");
+        // The stage screen for phones is off, and a stranger sees nothing.
+        assert!(!allowed(&app, &HeaderMap::new()) && !allowed(&app, &with_cookie("rp_session=guess")));
+        assert!(allowed(&app, &remote), "the remote needs no switch");
+        let r = status(State(app.clone()), remote.clone()).await;
+        let v: Value = serde_json::from_slice(&axum::body::to_bytes(r.into_body(), 1 << 16).await.unwrap()).unwrap();
+        assert_eq!((v["on"].as_bool(), v["allowed"].as_bool(), v["password"].as_bool()), (Some(true), Some(true), Some(false)));
+        assert_eq!(events(State(app.clone()), remote.clone()).await.status(), StatusCode::OK);
+        // Nor the stage password: that is for phones that are not paired.
+        turn_on(&app, Some("altos"));
+        assert!(allowed(&app, &remote) && !allowed(&app, &HeaderMap::new()));
+        // Unpaired on the computer: it is a stranger again.
+        app.phones.lock().unwrap().clear();
+        app.data.lock().unwrap().settings.network.stage_view = false;
+        assert!(!allowed(&app, &remote));
     }
 
     #[test]

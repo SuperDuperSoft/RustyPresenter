@@ -105,7 +105,7 @@ fn real_ear_hears_the_songs_words() {
     let data = bytes.windows(4).position(|w| w == b"data").expect("a WAV file") + 8;
     let pcm: Vec<i16> = bytes[data..].chunks_exact(2).map(|b| i16::from_le_bytes([b[0], b[1]])).collect();
     let slides: Vec<Slide> = SONG.iter().map(|t| text(t)).collect();
-    let host = Practice(Mutex::new(LiveSong { item_id: Uuid::new_v4(), is_song: true, slides, slide: 0, words_up: true, video_playing: false, version: 1,
+    let host = Practice(Mutex::new(LiveSong { item_id: Uuid::new_v4(), is_song: true, slides, slide: 0, words_up: true, video_playing: false, version: 1, order: vec![], secs: vec![],
         mode: Mode::Auto, settings: Settings { mode: Mode::Auto, ..Settings::default() } }));
     let mut engine = Engine::new();
     let mut listener = Listener::new(file_ear(engine.lexicon()));

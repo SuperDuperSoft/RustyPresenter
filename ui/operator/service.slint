@@ -6,10 +6,17 @@ import { Select } from "../dialogs/form.slint";
 import { FilterBox, ListFilter } from "../filter.slint";
 import { Spinner } from "std-widgets.slint";
 
+/// One slide of an unfolded item in the picture list.
+export struct ServiceSlide { idx: int, image: image, label: string, text: string, live: bool }
+
 /// One row of the list. `kind` is the icon name (`I[it.kind] || I.text`). A blank (FEAT-6a) is drawn dashed with a
 /// Choose button; a header is a coloured band in `color`.
 /// `custom-order`: a song played in this service's own order (FEAT-4), shown as a "Custom order" badge.
-export struct ServiceRow { id: string, num: int, kind: string, title: string, subtitle: string, selected: bool, live: bool, blank: bool, header: bool, color: color, custom-order: bool }
+export struct ServiceRow { id: string, num: int, kind: string, title: string, subtitle: string, selected: bool, live: bool, blank: bool, header: bool, color: color, custom-order: bool,
+    // The picture list (the EasyWorship-style layout): the item's first slide, whether its slides are unfolded
+    // under it, and how many it has.
+    thumb: image, expanded: bool, slide-count: int, slides: [ServiceSlide] }
+
 
 /// A file on its way into the service, shown under the list from the drop or pick until it is added or fails.
 /// `percent`: how much is copied (0: not known yet).
@@ -40,6 +47,12 @@ export component ServiceColumn inherits VerticalLayout {
     in property <bool> loaded;
     /// N8: the words in the filter box under the list; rows without them are hidden.
     in-out property <string> filter;
+    /// The picture list: each item shows its first slide, and an arrow unfolds the rest (`service.rs`).
+    in property <bool> pictures;
+    /// The arrow on a row of the picture list.
+    callback toggle-expand(string);
+    /// A click on one slide of an unfolded item: it goes live.
+    callback show-slide(string, int);
 
     callback select(string);
     callback show-first(string);
@@ -160,10 +173,10 @@ export component ServiceColumn inherits VerticalLayout {
                     HorizontalLayout {
                         padding-top: (it.header ? 7px : 9px) + 1.5px;
                         padding-bottom: (it.header ? 7px : 9px) + 1.5px;
-                        padding-left: it.header ? 14px : 10px + 1.5px;
+                        padding-left: it.header ? 14px : root.pictures ? 26px : 10px + 1.5px;
                         padding-right: 10px + 1.5px;
                         spacing: 10px;
-                        if !it.header: Text {
+                        if !it.header && !root.pictures: Text {
                             width: 18px;
                             text: it.num;
                             color: Theme.faint;
@@ -172,7 +185,32 @@ export component ServiceColumn inherits VerticalLayout {
                             horizontal-alignment: right;
                             vertical-alignment: center;
                         }
-                        if !it.header: VerticalLayout {
+                        // The picture list: the item's first slide instead of the icon.
+                        if !it.header && root.pictures: VerticalLayout {
+                            alignment: center;
+                            Rectangle {
+                                width: 80px;
+                                height: 45px;
+                                border-radius: 5px;
+                                background: #000;
+                                border-width: it.live ? 2px : 1px;
+                                border-color: it.live ? Theme.live : Theme.line;
+                                clip: true;
+                                if it.thumb.width > 0: Image {
+                                    width: parent.width;
+                                    height: parent.height;
+                                    source: it.thumb;
+                                    image-fit: contain;
+                                }
+                                if it.thumb.width == 0: Icon {
+                                    x: (parent.width - self.width) / 2;
+                                    y: (parent.height - self.height) / 2;
+                                    name: it.kind;
+                                    color: Theme.muted;
+                                }
+                            }
+                        }
+                        if !it.header && !root.pictures: VerticalLayout {
                             alignment: center;
                             Rectangle {
                                 width: 30px;
@@ -257,6 +295,29 @@ export component ServiceColumn inherits VerticalLayout {
                             clicked => { root.select(it.id); }
                             double-clicked => { root.show-first(it.id); }
 
+                            // The picture list's arrow: unfolds the item's slides under it.
+                            if root.pictures && !it.header && it.slide-count > 1: expand := Rectangle {
+                                x: 2px;
+                                y: 0;
+                                width: 24px;
+                                height: parent.height;
+                                accessible-role: button;
+                                accessible-label: it.expanded ? @tr("Hide the slides") : @tr("Show the slides");
+                                accessible-action-default => { root.toggle-expand(it.id); }
+                                Icon {
+                                    x: (parent.width - self.width) / 2;
+                                    y: (parent.height - self.height) / 2;
+                                    width: 16px;
+                                    height: 16px;
+                                    name: it.expanded ? "chevron-down" : "chevron-right";
+                                    color: expand-ta.has-hover ? Theme.text : Theme.muted;
+                                }
+                                expand-ta := TouchArea {
+                                    mouse-cursor: pointer;
+                                    clicked => { root.toggle-expand(it.id); }
+                                }
+                            }
+
                             if it.blank: choose-btn := Btn {
                                 width: self.preferred-width;
                                 height: self.preferred-height;
@@ -287,6 +348,67 @@ export component ServiceColumn inherits VerticalLayout {
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+                // The picture list, unfolded: the item's slides, each a click away from the screen.
+                if root.pictures && it.expanded && ListFilter.shown(it.title + " " + it.subtitle, root.filter): VerticalLayout {
+                    padding-left: 26px;
+                    padding-top: 2px;
+                    padding-bottom: 6px;
+                    spacing: 2px;
+                    for s in it.slides: service-slide := Rectangle {
+                        height: 44px;
+                        border-radius: 7px;
+                        background: s.live ? Theme.live.with-alpha(0.16) : slide-ta.has-hover ? Theme.panel-2 : transparent;
+                        accessible-role: button;
+                        accessible-label: s.label != "" ? s.label : s.text;
+                        accessible-action-default => { root.show-slide(it.id, s.idx); }
+                        HorizontalLayout {
+                            padding-left: 6px;
+                            padding-right: 8px;
+                            padding-top: 4px;
+                            padding-bottom: 4px;
+                            spacing: 8px;
+                            Rectangle {
+                                width: 64px;
+                                height: 36px;
+                                border-radius: 4px;
+                                background: #000;
+                                border-width: s.live ? 2px : 1px;
+                                border-color: s.live ? Theme.live : Theme.line;
+                                clip: true;
+                                if s.image.width > 0: Image {
+                                    width: parent.width;
+                                    height: parent.height;
+                                    source: s.image;
+                                    image-fit: contain;
+                                }
+                            }
+                            VerticalLayout {
+                                horizontal-stretch: 1;
+                                min-width: 0px;
+                                alignment: center;
+                                if s.label != "": Text {
+                                    text: s.label;
+                                    color: s.live ? Theme.live : Theme.muted;
+                                    font-family: Theme.font;
+                                    font-size: 11px;
+                                    font-weight: 700;
+                                    overflow: elide;
+                                }
+                                Text {
+                                    text: s.text;
+                                    color: Theme.text;
+                                    font-family: Theme.font;
+                                    font-size: 12px;
+                                    overflow: elide;
+                                }
+                            }
+                        }
+                        slide-ta := TouchArea {
+                            mouse-cursor: pointer;
+                            clicked => { root.show-slide(it.id, s.idx); }
                         }
                     }
                 }
