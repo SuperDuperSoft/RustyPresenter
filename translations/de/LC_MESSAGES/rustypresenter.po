@@ -6800,6 +6800,10 @@ msgid "Works without a key: RustyPresenter comes with one. For your church's own
 msgstr "Funktioniert ohne Schlüssel: RustyPresenter bringt einen mit. Für einen eigenen Schlüssel deiner Gemeinde erstelle eine App und akzeptiere dann im Portal die Lizenz jeder Bibel."
 
 #: src/bible/sources.rs
+msgid "Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."
+msgstr "Erstellen Sie eine App und akzeptieren Sie dann im Portal die Lizenz jeder Bibel (NIV von Biblica; HCSB, falls angeboten)."
+
+#: src/bible/sources.rs
 msgid "{translation} is not available with the key that comes with RustyPresenter yet. Add your church's own free key from {service} in Settings → Bible, or paste the verses with Add → Bible."
 msgstr "{translation} ist mit dem Schlüssel, den RustyPresenter mitbringt, noch nicht verfügbar. Füge unter Einstellungen → Bibel den eigenen kostenlosen Schlüssel deiner Gemeinde von {service} hinzu oder füge die Verse über Hinzufügen → Bibel ein."
 
@@ -14066,9 +14070,6 @@ msgstr "yt-dlp hat kein Video gespeichert"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "keine Mediendatei"
-
-#~ msgid "Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."
-#~ msgstr "Erstellen Sie eine App und akzeptieren Sie dann im Portal die Lizenz jeder Bibel (NIV von Biblica; HCSB, falls angeboten)."
 
 #~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
 #~ msgstr "RustyPresenter {version} ist verfügbar. Du hast {current}. Jetzt holen? Dein Webbrowser öffnet die Download-Seite. Du kannst sie auch später unter Einstellungen → Hilfe und Info holen."

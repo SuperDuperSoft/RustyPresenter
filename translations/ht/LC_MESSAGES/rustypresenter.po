@@ -6800,6 +6800,10 @@ msgid "Works without a key: RustyPresenter comes with one. For your church's own
 msgstr "Li mache san kle: RustyPresenter vini ak youn. Pou kle pa legliz ou a, kreye yon aplikasyon, epi aksepte lisans chak Bib nan pòtay la."
 
 #: src/bible/sources.rs
+msgid "Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."
+msgstr "Kreye yon app, epi aksepte lisans chak Bib nan pòtay la (NIV soti nan Biblica; HCSB si yo ofri l)."
+
+#: src/bible/sources.rs
 msgid "{translation} is not available with the key that comes with RustyPresenter yet. Add your church's own free key from {service} in Settings → Bible, or paste the verses with Add → Bible."
 msgstr "{translation} poko disponib ak kle ki vini ak RustyPresenter a. Ajoute kle gratis pa legliz ou a ki soti nan {service} nan Paramèt → Bib, oswa kole vèsè yo ak Ajoute → Bib."
 
@@ -14066,9 +14070,6 @@ msgstr "yt-dlp pa anrejistre okenn videyo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "se pa yon fichye medya"
-
-#~ msgid "Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."
-#~ msgstr "Kreye yon app, epi aksepte lisans chak Bib nan pòtay la (NIV soti nan Biblica; HCSB si yo ofri l)."
 
 #~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
 #~ msgstr "RustyPresenter {version} disponib. Ou gen {current}. Pran li kounye a? Navigatè wèb ou a ap louvri paj telechajman li. Ou ka pran li pita tou nan Paramèt → Èd ak konsènan."

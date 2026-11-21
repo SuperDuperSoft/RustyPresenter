@@ -1,8 +1,23 @@
 fn main() {
     i18n_bundle();
+    youversion_key();
     // The screens (`ui/*.slint`) are compiled by `crates/rp-ui`.
     #[cfg(windows)]
     windows_resources();
+}
+
+/// The YouVersion key that comes with the app (`bible::sources::BUILT_IN_YOUVERSION`): from `RP_YOUVERSION_KEY`, else
+/// from `youversion.key` beside `Cargo.toml`. Neither is in the repo. Without one the app is built with no key.
+fn youversion_key() {
+    println!("cargo:rerun-if-env-changed=RP_YOUVERSION_KEY");
+    println!("cargo:rerun-if-changed=youversion.key");
+    let file = std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap()).join("youversion.key");
+    let key = std::env::var("RP_YOUVERSION_KEY").ok().or_else(|| std::fs::read_to_string(file).ok()).map(|k| k.trim().to_string()).filter(|k| !k.is_empty());
+    match key {
+        Some(k) => println!("cargo:rustc-env=RP_YOUVERSION_KEY={k}"),
+        None if std::env::var("PROFILE").as_deref() == Ok("release") => println!("cargo:warning=no YouVersion key (RP_YOUVERSION_KEY or youversion.key): this build asks each church for its own"),
+        None => {}
+    }
 }
 
 /// `$OUT_DIR/i18n_bundle.rs`: every `translations/<code>/LC_MESSAGES/rustypresenter.po` and the template, for

@@ -6800,6 +6800,10 @@ msgid "Works without a key: RustyPresenter comes with one. For your church's own
 msgstr "无需密钥即可使用：RustyPresenter 自带一个。如要使用你教会自己的密钥，请创建一个应用，然后在门户中接受每本圣经的许可。"
 
 #: src/bible/sources.rs
+msgid "Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."
+msgstr "创建一个应用，然后在门户网站中接受每本圣经的许可（NIV 来自 Biblica；如提供 HCSB 也一并接受）。"
+
+#: src/bible/sources.rs
 msgid "{translation} is not available with the key that comes with RustyPresenter yet. Add your church's own free key from {service} in Settings → Bible, or paste the verses with Add → Bible."
 msgstr "{translation} 暂时无法用 RustyPresenter 自带的密钥读取。请在“设置 → 圣经”中添加你教会自己从 {service} 获得的免费密钥，或通过“添加 → 圣经”粘贴经文。"
 
@@ -14014,9 +14018,6 @@ msgstr "yt-dlp 没有保存视频"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "不是媒体文件"
-
-#~ msgid "Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."
-#~ msgstr "创建一个应用，然后在门户网站中接受每本圣经的许可（NIV 来自 Biblica；如提供 HCSB 也一并接受）。"
 
 #~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
 #~ msgstr "RustyPresenter {version} 已可用。你现在是 {current}。现在获取吗？你的网页浏览器会打开它的下载页面。你也可以稍后在 设置 → 帮助和关于 中获取。"

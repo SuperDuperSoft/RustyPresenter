@@ -76,6 +76,9 @@ jobs:
           sudo ldconfig
 
       - name: Package
+        env:
+          # The YouVersion key that comes with the app; kept in the repo's secrets, not its source.
+          RP_YOUVERSION_KEY: ${{ secrets.RP_YOUVERSION_KEY }}
         run: cargo packager --release -c Packager.toml -f ${{ matrix.formats }}
 
       # cargo-packager has no Recommends field: pulseaudio-utils (parec, pactl, pacat) is added after.

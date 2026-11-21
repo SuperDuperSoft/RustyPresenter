@@ -60,12 +60,15 @@ pub struct CachePolicy {
 /// RustyPresenter's YouVersion Platform app key (Jake, November 21, 2026: "permanently integrate this API key from
 /// YouVersion for everyone"). An app key names the app to YouVersion, as the key inside any phone app does; it is
 /// not a church's secret. Every church shares its request allowance, so a busy church can still save its own.
-const BUILT_IN_YOUVERSION: &str = "2aUAZQ3F4xohafgwsrt37fcgpGuOxmYcZJgcaKilLcSTQGy7";
+/// The key is not in the repo: `build.rs` takes it from `RP_YOUVERSION_KEY`, or from `youversion.key` beside
+/// `Cargo.toml` (ignored by git), when the app is built. A build without it has no key of its own, and YouVersion
+/// then asks each church for its key like the other services.
+const BUILT_IN_YOUVERSION: Option<&str> = option_env!("RP_YOUVERSION_KEY");
 
 impl Provider {
     /// The key that comes with the app, for a provider that has one.
     pub fn built_in_key(self) -> Option<&'static str> {
-        match self { Provider::YouVersion => Some(BUILT_IN_YOUVERSION), _ => None }
+        match self { Provider::YouVersion => BUILT_IN_YOUVERSION.filter(|k| !k.trim().is_empty()), _ => None }
     }
 
     /// Name of the key in `secrets.json`.
@@ -99,7 +102,8 @@ impl Provider {
             Provider::Esv => tr!("Free for churches. Create an “API application”, then copy its key."),
             Provider::Nlt => tr!("Free for non-commercial use. Register, then copy the key from your account."),
             Provider::ApiBible => tr!("The free Starter plan allows 3 copyrighted Bibles: under Plan, pick CSB (and NIV or NLT if you want them from here)."),
-            Provider::YouVersion => tr!("Works without a key: RustyPresenter comes with one. For your church's own, create an app, then accept each Bible’s licence in the portal."),
+            Provider::YouVersion if self.built_in_key().is_some() => tr!("Works without a key: RustyPresenter comes with one. For your church's own, create an app, then accept each Bible’s licence in the portal."),
+            Provider::YouVersion => tr!("Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."),
         }
     }
 
@@ -715,7 +719,8 @@ mod tests {
     #[test]
     fn online_bibles() {
         // The key that comes with the app: YouVersion only, and a church's own key goes first.
-        assert!(Provider::YouVersion.built_in_key().is_some_and(|k| k.len() > 20 && !k.contains(' ')));
+        // Only a build that was given the key has one (`build.rs`); it is never in the source.
+        assert!(Provider::YouVersion.built_in_key().is_none_or(|k| k.len() > 20 && !k.contains(' ')));
         for p in [Provider::Esv, Provider::Nlt, Provider::ApiBible] { assert_eq!(p.built_in_key(), None) }
         let mut own = Secrets::default();
         assert_eq!(own.own_key(Provider::YouVersion), None);

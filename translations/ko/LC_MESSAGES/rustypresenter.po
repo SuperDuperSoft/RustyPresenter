@@ -6800,6 +6800,10 @@ msgid "Works without a key: RustyPresenter comes with one. For your church's own
 msgstr "키 없이 사용할 수 있습니다. RustyPresenter에 키가 포함되어 있습니다. 교회 자체 키를 쓰려면 앱을 만든 다음 포털에서 각 성경의 라이선스에 동의하세요."
 
 #: src/bible/sources.rs
+msgid "Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."
+msgstr "앱을 만든 다음 포털에서 각 성경의 라이선스에 동의하세요(Biblica의 NIV, 제공되는 경우 HCSB)."
+
+#: src/bible/sources.rs
 msgid "{translation} is not available with the key that comes with RustyPresenter yet. Add your church's own free key from {service} in Settings → Bible, or paste the verses with Add → Bible."
 msgstr "{translation}은(는) RustyPresenter에 포함된 키로는 아직 사용할 수 없습니다. 설정 → 성경에서 {service}의 교회 자체 무료 키를 추가하거나, 추가 → 성경에서 구절을 붙여 넣으세요."
 
@@ -14014,9 +14018,6 @@ msgstr "yt-dlp가 동영상을 저장하지 않았어요"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "미디어 파일 아님"
-
-#~ msgid "Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."
-#~ msgstr "앱을 만든 다음 포털에서 각 성경의 라이선스에 동의하세요(Biblica의 NIV, 제공되는 경우 HCSB)."
 
 #~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
 #~ msgstr "RustyPresenter {version}을(를) 받을 수 있습니다. 현재 버전은 {current}입니다. 지금 받으시겠습니까? 웹 브라우저에서 다운로드 페이지가 열립니다. 나중에 설정 → 도움말과 정보에서 받을 수도 있습니다."

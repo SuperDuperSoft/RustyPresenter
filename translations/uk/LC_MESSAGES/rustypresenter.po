@@ -6800,6 +6800,10 @@ msgid "Works without a key: RustyPresenter comes with one. For your church's own
 msgstr "Працює без ключа: RustyPresenter уже має ключ. Щоб використовувати власний ключ вашої церкви, створіть застосунок і прийміть ліцензію кожної Біблії на порталі."
 
 #: src/bible/sources.rs
+msgid "Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."
+msgstr "Створіть застосунок, а потім прийміть ліцензію кожної Біблії на порталі (NIV від Biblica; HCSB, якщо вона доступна)."
+
+#: src/bible/sources.rs
 msgid "{translation} is not available with the key that comes with RustyPresenter yet. Add your church's own free key from {service} in Settings → Bible, or paste the verses with Add → Bible."
 msgstr "{translation} поки недоступний із ключем, що входить до RustyPresenter. Додайте власний безкоштовний ключ вашої церкви від {service} в Налаштування → Біблія або вставте вірші через Додати → Біблія."
 
@@ -14118,9 +14122,6 @@ msgstr "yt-dlp не зберіг відео"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "не медіафайл"
-
-#~ msgid "Create an app, then accept each Bible’s licence in the portal (NIV from Biblica; HCSB if it is offered)."
-#~ msgstr "Створіть застосунок, а потім прийміть ліцензію кожної Біблії на порталі (NIV від Biblica; HCSB, якщо вона доступна)."
 
 #~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
 #~ msgstr "Доступний RustyPresenter {version}. У вас {current}. Отримати зараз? Ваш браузер відкриє сторінку завантаження. Її можна отримати й пізніше в розділі Налаштування → Довідка й про програму."
