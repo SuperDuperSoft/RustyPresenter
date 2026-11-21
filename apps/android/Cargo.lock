@@ -3415,7 +3415,7 @@ checksum = "cf54715a573b99ac80df0bc206da022bcd442c974952c7b9720069370852e21f"
 
 [[package]]
 name = "rustypresenter-remote"
-version = "0.5.2"
+version = "0.5.3"
 dependencies = [
  "i-slint-core",
  "image",

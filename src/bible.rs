@@ -13,6 +13,7 @@ pub mod library;
 pub mod nlt;
 pub mod online;
 pub mod sources;
+pub mod versify;
 pub mod youversion;
 pub use id::normalise_id;
 use std::{collections::BTreeMap, sync::OnceLock};

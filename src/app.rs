@@ -1070,13 +1070,47 @@ impl App {
         let mut ids = ids.to_vec();
         let mut left_out = crate::scripture::also::tidy_ids(main, &mut ids, &|t| bible::blocklist::blocked(t, &[], &[], &[t]));
         let mut found = vec![];
+        let numbering = |t: &str| bible::import::meta(&self.store.root, t).map_or(bible::library::Vsys::English, |m| m.versification);
+        let main_numbering = numbering(main);
         for t in ids {
-            match self.lookup_passage(&t, reference).await {
+            // A Bible numbered another way (the Hebrew Bible beside an English one) is asked for the same verses
+            // under its own numbers, so the two line up.
+            let its = numbering(&t);
+            let looked_up = if its == main_numbering { self.lookup_passage(&t, reference).await }
+                else { self.lookup_renumbered(main, main_numbering, &t, its, reference).await };
+            match looked_up {
                 Ok((_, verses)) if !bible::blocklist::blocked_passage(&t, &verses) => found.push(crate::scripture::AlsoShow { translation: t, verses }),
                 _ => left_out.push(t),
             }
         }
         (found, left_out)
+    }
+
+    /// `reference` (in `main`'s numbering) from a Bible that numbers its verses another way (spec §5.4): each of the
+    /// main Bible's verses is found under the other Bible's own number. The verse keeps its own label ("Malachi
+    /// 3:19") and takes the main verse's identity, which is what lines the columns up on the slide. A verse the
+    /// other Bible does not have (a psalm's title beside an English Bible) is left out, never shifted.
+    async fn lookup_renumbered(&self, main: &str, from: bible::library::Vsys, other: &str, to: bible::library::Vsys, reference: &str)
+        -> Result<(String, Vec<VerseText>), String> {
+        use crate::scripture::VerseId;
+        let (label, verses) = self.lookup_passage(main, reference).await?;
+        let pairs: Vec<(VerseId, VerseId)> = verses.iter().filter_map(|v| v.id)
+            .filter_map(|id| bible::versify::convert(id, from, to).map(|there| (id, there))).collect();
+        let (Some(first), Some(last)) = (pairs.iter().map(|p| p.1).min(), pairs.iter().map(|p| p.1).max()) else { return Err(tr!("No verses found.")) };
+        let book = bible::display_name(first.book());
+        let range = if first == last { format!("{book} {}:{}", first.chapter(), first.verse()) }
+            else if first.chapter() == last.chapter() { format!("{book} {}:{}-{}", first.chapter(), first.verse(), last.verse()) }
+            else { format!("{book} {}:{}-{}:{}", first.chapter(), first.verse(), last.chapter(), last.verse()) };
+        let (_, theirs) = self.lookup_passage(other, &range).await?;
+        let mut used = std::collections::BTreeSet::new();
+        let out: Vec<VerseText> = pairs.iter().filter_map(|&(id, there)| {
+            // Two of the main Bible's verses can be one verse there (Psalm 13:5–6): it shows once.
+            if !used.insert(there) { return None }
+            let v = theirs.iter().find(|v| v.id == Some(there))?;
+            Some(VerseText { id: Some(id), ..v.clone() })
+        }).collect();
+        if out.is_empty() { return Err(tr!("No verses found.")) }
+        Ok((label, out))
     }
 
     /// Gives a new passage the church's Also Bibles and layout. Returns the toast to show when some were left out.
@@ -2978,6 +3012,34 @@ mod tests {
         assert!(!app.translations().iter().any(|t| t == "yv:1849"));
         app.do_action("bible/import-remove", br#"{"translation":"yv:1588"}"#).await.unwrap();
         assert!(!app.translations().iter().any(|t| t == "yv:1588") && app.data.lock().unwrap().bible_credit("yv:1588").is_none());
+    }
+
+    /// A Hebrew-numbered Bible beside an English one (spec §5.4): Malachi 4:1 in English is 3:19 there. It is found
+    /// under its own number and lines up with the English verse; the other way round too.
+    #[tokio::test]
+    async fn a_hebrew_numbered_bible_lines_up_beside_an_english_one() {
+        use crate::scripture::VerseId;
+        let app = test_app();
+        let mut verses = bible::import::Verses::new();
+        for v in 1..=24u16 { verses.insert((38, 3, v), format!("heb 3:{v}")); }
+        for v in 1..=13u16 { verses.insert((37, 2, v), format!("zec 2:{v}")); }
+        let meta = bible::library::BibleMeta { id: "ebible:hboWLC".into(), abbr: "WLC".into(), name: "Westminster Leningrad Codex".into(), licence: bible::library::Licence::Pd, ..Default::default() };
+        let saved = bible::import::install(&app.store.root, bible::import::ImportedBible { abbreviation: meta.id.clone(), name: meta.name.clone(), copyright: "Public domain".into(), verses, meta: Some(meta) }).unwrap();
+        assert_eq!(saved.versification, bible::library::Vsys::Original, "read from its verses");
+        // English main, Hebrew beside it.
+        let (found, left_out) = app.lookup_also("KJV", &["ebible:hboWLC".to_string()], "Malachi 4:1-2").await;
+        assert!(left_out.is_empty(), "{left_out:?}");
+        let v = &found[0].verses;
+        assert_eq!(v.iter().map(|v| (v.text.as_str(), v.reference.as_str(), v.id)).collect::<Vec<_>>(),
+            [("heb 3:19", "Malachi 3:19", Some(VerseId(38, 4, 1))), ("heb 3:20", "Malachi 3:20", Some(VerseId(38, 4, 2)))]);
+        // Hebrew main (typed in its own numbering), English beside it.
+        let (found, _) = app.lookup_also("ebible:hboWLC", &["KJV".to_string()], "Malachi 3:19").await;
+        let v = &found[0].verses;
+        assert_eq!((v.len(), v[0].reference.as_str(), v[0].id), (1, "Malachi 4:1", Some(VerseId(38, 3, 19))));
+        assert!(v[0].text.starts_with("For, behold, the day cometh"), "{}", v[0].text);
+        // Where the numbers agree, nothing moves.
+        let (found, _) = app.lookup_also("KJV", &["ebible:hboWLC".to_string()], "Malachi 3:1").await;
+        assert_eq!((found[0].verses[0].text.as_str(), found[0].verses[0].id), ("heb 3:1", Some(VerseId(38, 3, 1))));
     }
 
     #[tokio::test]

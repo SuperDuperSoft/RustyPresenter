@@ -130,8 +130,7 @@ pub async fn ebible(ctx: &Ctx, row: &CatalogRow, cancel: &CancellationToken, pro
         lang: row.lang().to_string(), lang_name: row.lang_name().to_string(), lang_name_en: row.lang_name_en().to_string(),
         dir: row.dir(), script: row.script().to_string(), copyright: row.copyright().to_string(), licence,
         source: Source::Ebible { update_date: row.update_date().to_string() },
-        // Read from the text once versification is built (spec §5.4); every Bible offered in step 1 is English-style
-        // or its numbering matches closely enough to look verses up by their own numbers.
+        // How it numbers its verses is read from the text when it is saved (`import::listing`, spec §5.4).
         ..Default::default()
     };
     let bible = ImportedBible { abbreviation: meta.id.clone(), name: meta.name.clone(), copyright: meta.copyright.clone(), verses, meta: Some(meta) };

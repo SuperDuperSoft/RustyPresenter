@@ -196,6 +196,8 @@ fn read(p: &Path, abbr: &str) -> Option<ImportedBible> {
 fn listing(b: &ImportedBible, bytes: u64) -> BibleMeta {
     let mut m = b.meta.clone().unwrap_or_else(|| BibleMeta::of_import(&b.abbreviation, &b.name, &b.copyright));
     m.books = b.verses.keys().map(|k| k.0).collect::<BTreeSet<u8>>().into_iter().collect();
+    // How it numbers its verses is read from the verses themselves (spec §5.4), unless the file already says.
+    if m.versification == super::library::Vsys::English { m.versification = super::versify::detect(&|book, c, v| b.verses.contains_key(&(book, c, v))); }
     m.bytes = bytes;
     m
 }
