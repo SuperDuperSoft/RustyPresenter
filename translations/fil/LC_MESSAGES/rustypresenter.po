@@ -6731,6 +6731,10 @@ msgstr "walang laman na file"
 msgid "no {column} column"
 msgstr "walang column na {column}"
 
+#: src/bible/catalog/youversion.rs
+msgid "YouVersion answered {status}"
+msgstr "Sumagot ang YouVersion ng {status}"
+
 #: src/bible/esv.rs
 msgid "the ESV service returned a different book"
 msgstr "Ibang aklat ang ibinalik ng ESV service"
@@ -9527,6 +9531,10 @@ msgid "Offline"
 msgstr "Offline"
 
 #: src/strings/catalog.rs
+msgid "Online"
+msgstr "Online"
+
+#: src/strings/catalog.rs
 msgid "Update"
 msgstr "I-update"
 
@@ -9573,6 +9581,10 @@ msgstr "Naidagdag ang {bible}"
 #: src/strings/catalog.rs
 msgid "Removed {bible}"
 msgstr "Inalis ang {bible}"
+
+#: src/strings/catalog.rs
+msgid "{name} — online, from YouVersion"
+msgstr "{name} — online, mula sa YouVersion"
 
 #: src/strings/catalog.rs
 msgid "Also on {sources}"

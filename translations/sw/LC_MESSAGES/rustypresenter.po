@@ -6731,6 +6731,10 @@ msgstr "faili tupu"
 msgid "no {column} column"
 msgstr "hakuna safu wima ya {column}"
 
+#: src/bible/catalog/youversion.rs
+msgid "YouVersion answered {status}"
+msgstr "YouVersion ilijibu {status}"
+
 #: src/bible/esv.rs
 msgid "the ESV service returned a different book"
 msgstr "huduma ya ESV ilirudisha kitabu tofauti"
@@ -9527,6 +9531,10 @@ msgid "Offline"
 msgstr "Nje ya mtandao"
 
 #: src/strings/catalog.rs
+msgid "Online"
+msgstr "Mtandaoni"
+
+#: src/strings/catalog.rs
 msgid "Update"
 msgstr "Sasisha"
 
@@ -9573,6 +9581,10 @@ msgstr "{bible} imeongezwa"
 #: src/strings/catalog.rs
 msgid "Removed {bible}"
 msgstr "{bible} imeondolewa"
+
+#: src/strings/catalog.rs
+msgid "{name} — online, from YouVersion"
+msgstr "{name} — mtandaoni, kutoka YouVersion"
 
 #: src/strings/catalog.rs
 msgid "Also on {sources}"

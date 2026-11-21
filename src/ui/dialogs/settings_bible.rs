@@ -40,6 +40,8 @@ pub struct CatRow {
     pub licence_on_download: bool,
     pub installed: bool,
     pub update: bool,
+    /// Read over the internet (YouVersion), not downloaded.
+    pub online: bool,
 }
 
 #[derive(serde::Deserialize, Default)]
@@ -146,7 +148,7 @@ fn no_font(memo: &RefCell<HashMap<String, bool>>, r: &CatRow) -> bool {
 #[allow(clippy::too_many_arguments)]
 pub fn line(r: &CatRow, job: Option<&JobRow>, pending: bool, added: bool, failed: Option<&str>, offline: bool, same_abbr: bool,
     no_font: bool) -> SettingsCatalogRow {
-    let mut tag = vec![cat::tag_offline(), r.scope.clone()];
+    let mut tag = vec![if r.online { cat::tag_online() } else { cat::tag_offline() }, r.scope.clone()];
     if r.apocrypha { tag.push(cat::includes_apocrypha().into()) }
     if r.licence_on_download && !r.installed { tag.push(cat::licence_on_download().into()) }
     let abbr = if same_abbr { format!("{} · {}", r.abbr, r.lang) } else { r.abbr.clone() };

@@ -6731,6 +6731,10 @@ msgstr "tệp trống"
 msgid "no {column} column"
 msgstr "không có cột {column}"
 
+#: src/bible/catalog/youversion.rs
+msgid "YouVersion answered {status}"
+msgstr "YouVersion trả lời {status}"
+
 #: src/bible/esv.rs
 msgid "the ESV service returned a different book"
 msgstr "dịch vụ ESV trả về một sách khác"
@@ -9507,6 +9511,10 @@ msgid "Offline"
 msgstr "Ngoại tuyến"
 
 #: src/strings/catalog.rs
+msgid "Online"
+msgstr "Trực tuyến"
+
+#: src/strings/catalog.rs
 msgid "Update"
 msgstr "Cập nhật"
 
@@ -9553,6 +9561,10 @@ msgstr "Đã thêm {bible}"
 #: src/strings/catalog.rs
 msgid "Removed {bible}"
 msgstr "Đã gỡ {bible}"
+
+#: src/strings/catalog.rs
+msgid "{name} — online, from YouVersion"
+msgstr "{name} — trực tuyến, từ YouVersion"
 
 #: src/strings/catalog.rs
 msgid "Also on {sources}"

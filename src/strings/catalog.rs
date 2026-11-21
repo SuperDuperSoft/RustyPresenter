@@ -33,6 +33,7 @@ pub fn all_languages() -> String { tr!("All languages") }
 pub fn no_match() -> String { tr!("No Bibles match. Try fewer words, or All.") }
 pub fn none_installed() -> String { tr!("No Bibles added yet. Choose All to see the Bibles you can add.") }
 pub fn tag_offline() -> String { tr!("Offline") }
+pub fn tag_online() -> String { tr!("Online") }
 pub fn add() -> String { tr!("Add") }
 pub fn update() -> String { tr!("Update") }
 pub fn remove() -> String { tr!("Remove") }
@@ -69,5 +70,7 @@ pub fn language(name_en: &str, name: &str, code: &str) -> String {
 }
 /// A source's name in a row's tag.
 pub const EBIBLE: &str = "eBible.org";
+pub const YOUVERSION: &str = "YouVersion";
+pub fn from_youversion(name: &str) -> String { tr!("{name} — online, from YouVersion", name = name) }
 /// The row's tag when other libraries offer the same Bible; empty when none do.
 pub fn also_on(sources: &[&str]) -> String { if sources.is_empty() { String::new() } else { tr!("Also on {sources}", sources = sources.join(" · ")) } }

@@ -6731,6 +6731,10 @@ msgstr "빈 파일"
 msgid "no {column} column"
 msgstr "{column} 열 없음"
 
+#: src/bible/catalog/youversion.rs
+msgid "YouVersion answered {status}"
+msgstr "YouVersion 응답: {status}"
+
 #: src/bible/esv.rs
 msgid "the ESV service returned a different book"
 msgstr "ESV 서비스가 다른 책을 보냈어요"
@@ -9507,6 +9511,10 @@ msgid "Offline"
 msgstr "오프라인"
 
 #: src/strings/catalog.rs
+msgid "Online"
+msgstr "온라인"
+
+#: src/strings/catalog.rs
 msgid "Update"
 msgstr "업데이트"
 
@@ -9553,6 +9561,10 @@ msgstr "{bible} 추가됨"
 #: src/strings/catalog.rs
 msgid "Removed {bible}"
 msgstr "{bible} 제거됨"
+
+#: src/strings/catalog.rs
+msgid "{name} — online, from YouVersion"
+msgstr "{name} — 온라인, YouVersion 제공"
 
 #: src/strings/catalog.rs
 msgid "Also on {sources}"

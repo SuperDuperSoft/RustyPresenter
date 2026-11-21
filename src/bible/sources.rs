@@ -38,8 +38,11 @@ const NIV: &str = "Scripture quotations taken from The Holy Bible, New Internati
 /// Where each copyrighted translation can come from, best first. The first source whose key is saved is used.
 pub const SOURCES: &[Source] = &[
     Source { translation: "ESV", provider: Provider::Esv, copyright: ESV },
-    Source { translation: "NLT", provider: Provider::Nlt, copyright: NLT },
     Source { translation: "NLT", provider: Provider::ApiBible, copyright: NLT },
+    // Tyndale's own NLT API closes on January 1, 2027 (`Provider::closed`): only a church that already saved its
+    // key still uses it, until then.
+    Source { translation: "NLT", provider: Provider::Nlt, copyright: NLT },
+    Source { translation: "NLT", provider: Provider::YouVersion, copyright: NLT },
     Source { translation: "CSB", provider: Provider::ApiBible, copyright: CSB },
     Source { translation: "CSB", provider: Provider::YouVersion, copyright: CSB },
     Source { translation: "NIV", provider: Provider::YouVersion, copyright: NIV },
@@ -65,11 +68,18 @@ pub struct CachePolicy {
 /// then asks each church for its key like the other services.
 const BUILT_IN_YOUVERSION: Option<&str> = option_env!("RP_YOUVERSION_KEY");
 
+/// January 1, 2027, 00:00 UTC.
+const NLT_API_ENDS: u64 = 1_798_761_600;
+
 impl Provider {
     /// The key that comes with the app, for a provider that has one.
     pub fn built_in_key(self) -> Option<&'static str> {
         match self { Provider::YouVersion => BUILT_IN_YOUVERSION.filter(|k| !k.trim().is_empty()), _ => None }
     }
+
+    /// True once the service has shut down. Tyndale: "Public access to the NLT API ends on January 1, 2027. After
+    /// that date, API requests will no longer be answered, existing API keys will stop working".
+    pub fn closed(self, now: u64) -> bool { self == Provider::Nlt && now >= NLT_API_ENDS }
 
     /// Name of the key in `secrets.json`.
     pub fn key_name(self) -> &'static str {
@@ -163,10 +173,27 @@ pub fn is_online(translation: &str) -> bool {
 
 /// The source that will be used: the first whose key the church saved, else the first with the key that comes with
 /// the app, else the first listed.
-pub fn source_with(translation: &str, secrets: &Secrets) -> Option<&'static Source> {
-    sources(translation).find(|s| secrets.own_key(s.provider).is_some())
-        .or_else(|| sources(translation).find(|s| secrets.key(s.provider).is_some()))
-        .or_else(|| sources(translation).next())
+pub fn source_with(translation: &str, secrets: &Secrets) -> Option<&'static Source> { source_at(translation, secrets, crate::app::now_secs()) }
+
+/// `source_with` at a given time: a service that has shut down is passed over.
+pub fn source_at(translation: &str, secrets: &Secrets, now: u64) -> Option<&'static Source> {
+    let open = move || sources(translation).filter(move |s| !s.provider.closed(now));
+    open().find(|s| secrets.own_key(s.provider).is_some())
+        .or_else(|| open().find(|s| secrets.key(s.provider).is_some()))
+        .or_else(|| open().next())
+        .or_else(|| catalog_source(translation))
+}
+
+/// A YouVersion Bible added from its catalog (`yv:1588`) has no line in `SOURCES`: its source is made on first use
+/// and kept, one small entry per Bible ever asked for. Its notice is with the Bible (`bible::online`).
+fn catalog_source(translation: &str) -> Option<&'static Source> {
+    let t = translation.trim();
+    if !t.starts_with("yv:") || youversion::version_id(t).is_none() { return None; }
+    static MADE: Mutex<BTreeMap<String, &'static Source>> = Mutex::new(BTreeMap::new());
+    let mut made = MADE.lock().unwrap();
+    Some(*made.entry(t.to_string()).or_insert_with(|| {
+        Box::leak(Box::new(Source { translation: Box::leak(t.to_string().into_boxed_str()), provider: Provider::YouVersion, copyright: "" }))
+    }))
 }
 
 #[derive(Debug, PartialEq)]
@@ -489,6 +516,29 @@ pub fn tidy(text: &str) -> String { text.split_whitespace().collect::<Vec<_>>().
 
 #[cfg(test)]
 mod tests {
+    /// Asks YouVersion itself: `RP_LIVE_YV=<key> cargo test live_youversion -- --ignored`.
+    #[tokio::test]
+    #[ignore]
+    async fn live_youversion_reads_a_catalog_bible() {
+        let Ok(key) = std::env::var("RP_LIVE_YV") else { return };
+        let root = std::env::temp_dir().join(format!("rp-test-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir_all(&root).unwrap();
+        let mut s = Secrets::default();
+        s.keys.insert("youversion".into(), key);
+        s.save(&root).unwrap();
+        for (bible, reference) in [("yv:1588", "John 3:16-17"), ("yv:89", "John 3:16"), ("NIV", "John 3:16")] {
+            let r = lookup(&root, bible, reference).await;
+            println!("{bible}: {r:?}");
+            assert!(r.is_ok_and(|(_, v)| !v.is_empty() && v[0].text.len() > 20), "{bible}");
+        }
+        let mut ctx = crate::bible::catalog::Ctx::new(root.clone(), crate::bible::catalog::CatalogSource::YouVersion);
+        ctx.force = true;
+        let l = crate::bible::catalog::youversion::refresh(&ctx).await.unwrap();
+        println!("{} Bibles, offline {}", l.rows.len(), l.offline);
+        assert!(l.rows.len() > 1000 && !l.offline && !l.rows.iter().any(|r| r.id() == "yv:1849" || r.abbr().eq_ignore_ascii_case("tpt")));
+        let _ = std::fs::remove_dir_all(root);
+    }
+
     use super::*;
 
     fn part(s: &str) -> (u8, Part) { let r = parse_reference(s).unwrap(); (r.book, r.parts[0].clone()) }
@@ -728,6 +778,18 @@ mod tests {
         assert_eq!(source_with("NIV", &own).map(|s| s.provider), Some(Provider::ApiBible), "the church's own key before the app's");
         assert_eq!(source_with("NIV", &Secrets::default()).map(|s| s.provider), Some(Provider::YouVersion));
         assert!(not_with_built_in("NIV", Provider::YouVersion).starts_with("NIV is not available with the key that comes with RustyPresenter yet."));
+        // A Bible added from YouVersion's catalog is read with the YouVersion key; a blocked one has no source.
+        let yv = source_with("yv:1588", &Secrets::default()).unwrap();
+        assert_eq!((yv.translation, yv.provider), ("yv:1588", Provider::YouVersion));
+        assert!(std::ptr::eq(yv, source_with(" yv:1588 ", &Secrets::default()).unwrap()), "made once");
+        assert!(source_with("yv:1849", &Secrets::default()).is_none() && source_with("yv:x", &Secrets::default()).is_none());
+        assert_eq!(youversion::version_id("yv:1588"), Some(1588));
+        // Tyndale's NLT API: used by a church that saved its key, until it closes; never the one a church is sent to.
+        let mut nlt = Secrets::default();
+        assert_eq!(source_at("NLT", &nlt, 0).map(|s| s.provider), Some(Provider::ApiBible));
+        nlt.keys.insert("nlt".into(), "k".into());
+        assert_eq!(source_at("NLT", &nlt, NLT_API_ENDS - 1).map(|s| s.provider), Some(Provider::Nlt));
+        assert_eq!(source_at("NLT", &nlt, NLT_API_ENDS).map(|s| s.provider), Some(Provider::ApiBible));
         assert!(is_online("NIV") && is_online("esv") && is_online("yv:111") && is_online("ab:de4e12af7f28f599-02"));
         assert!(!is_online("KJV") && !is_online("ebible:spaRV1909"));
     }

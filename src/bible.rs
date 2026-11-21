@@ -11,6 +11,7 @@ pub mod id;
 pub mod import;
 pub mod library;
 pub mod nlt;
+pub mod online;
 pub mod sources;
 pub mod youversion;
 pub use id::normalise_id;
@@ -48,6 +49,10 @@ pub const USFM: [&str; 66] = [
 ];
 
 pub const TRANSLATIONS: &[&str] =&["NIV", "ESV", "CSB", "HCSB", "NLT", "KJV", "WEB", "BSB"];
+/// Of those, the Bibles no key that comes with the app can read (November 2026: Tyndale's NLT API is closing, and
+/// YouVersion has no self-serve licence for NLT, CSB or HCSB). They are listed only for a church whose own key can
+/// supply them; a file a church imported under one of these names is listed as any import is.
+pub const OWN_KEY_ONLY: &[&str] = &["CSB", "HCSB", "NLT"];
 
 /// Public-domain texts in the app (eBible.org verse-per-line files, see assets/bibles/SOURCE.html): they work offline with no setup.
 pub const BUILT_IN: &[(&str, &str)] = &[("KJV", "King James Version"), ("WEB", "World English Bible"), ("BSB", "Berean Standard Bible")];

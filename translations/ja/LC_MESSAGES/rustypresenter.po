@@ -6731,6 +6731,10 @@ msgstr "空のファイル"
 msgid "no {column} column"
 msgstr "{column} 列がありません"
 
+#: src/bible/catalog/youversion.rs
+msgid "YouVersion answered {status}"
+msgstr "YouVersion の応答: {status}"
+
 #: src/bible/esv.rs
 msgid "the ESV service returned a different book"
 msgstr "ESV サービスが別の書を返しました"
@@ -9507,6 +9511,10 @@ msgid "Offline"
 msgstr "オフライン"
 
 #: src/strings/catalog.rs
+msgid "Online"
+msgstr "オンライン"
+
+#: src/strings/catalog.rs
 msgid "Update"
 msgstr "更新"
 
@@ -9553,6 +9561,10 @@ msgstr "{bible} を追加しました"
 #: src/strings/catalog.rs
 msgid "Removed {bible}"
 msgstr "{bible} を削除しました"
+
+#: src/strings/catalog.rs
+msgid "{name} — online, from YouVersion"
+msgstr "{name} — オンライン（YouVersion）"
 
 #: src/strings/catalog.rs
 msgid "Also on {sources}"

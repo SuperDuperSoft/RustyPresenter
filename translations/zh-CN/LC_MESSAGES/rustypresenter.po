@@ -6731,6 +6731,10 @@ msgstr "空文件"
 msgid "no {column} column"
 msgstr "没有 {column} 列"
 
+#: src/bible/catalog/youversion.rs
+msgid "YouVersion answered {status}"
+msgstr "YouVersion 返回了 {status}"
+
 #: src/bible/esv.rs
 msgid "the ESV service returned a different book"
 msgstr "ESV 服务返回了不同的书卷"
@@ -9507,6 +9511,10 @@ msgid "Offline"
 msgstr "离线"
 
 #: src/strings/catalog.rs
+msgid "Online"
+msgstr "在线"
+
+#: src/strings/catalog.rs
 msgid "Update"
 msgstr "更新"
 
@@ -9553,6 +9561,10 @@ msgstr "已添加 {bible}"
 #: src/strings/catalog.rs
 msgid "Removed {bible}"
 msgstr "已移除 {bible}"
+
+#: src/strings/catalog.rs
+msgid "{name} — online, from YouVersion"
+msgstr "{name} — 在线，来自 YouVersion"
 
 #: src/strings/catalog.rs
 msgid "Also on {sources}"

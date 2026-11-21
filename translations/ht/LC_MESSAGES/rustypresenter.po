@@ -6731,6 +6731,10 @@ msgstr "fichye vid"
 msgid "no {column} column"
 msgstr "pa gen kolòn {column}"
 
+#: src/bible/catalog/youversion.rs
+msgid "YouVersion answered {status}"
+msgstr "YouVersion reponn {status}"
+
 #: src/bible/esv.rs
 msgid "the ESV service returned a different book"
 msgstr "sèvis ESV a voye yon lòt liv"
@@ -9527,6 +9531,10 @@ msgid "Offline"
 msgstr "San entènèt"
 
 #: src/strings/catalog.rs
+msgid "Online"
+msgstr "Sou entènèt"
+
+#: src/strings/catalog.rs
 msgid "Update"
 msgstr "Mete ajou"
 
@@ -9573,6 +9581,10 @@ msgstr "{bible} ajoute"
 #: src/strings/catalog.rs
 msgid "Removed {bible}"
 msgstr "{bible} retire"
+
+#: src/strings/catalog.rs
+msgid "{name} — online, from YouVersion"
+msgstr "{name} — sou entènèt, soti nan YouVersion"
 
 #: src/strings/catalog.rs
 msgid "Also on {sources}"

@@ -18,10 +18,12 @@ const MAX_REQUESTS: usize = 20;
 /// Whether a church's app may read one depends on the licenses it accepted, not on this table.
 pub const VERSIONS: &[(&str, u32)] = &[("NIV", 111), ("HCSB", 72), ("CSB", 1713), ("NLT", 116), ("BSB", 3034)];
 
-/// Known label, or a bare number for any other Bible the church's app is licensed for.
+/// Known label, or the number of any other Bible the key is licensed for (`yv:1588`, or bare).
 pub fn version_id(translation: &str) -> Option<u32> {
-    VERSIONS.iter().find(|(t, _)| t.eq_ignore_ascii_case(translation.trim())).map(|&(_, id)| id)
-        .or_else(|| translation.trim().parse().ok())
+    let t = translation.trim();
+    VERSIONS.iter().find(|(v, _)| v.eq_ignore_ascii_case(t)).map(|&(_, id)| id)
+        // A Bible added from YouVersion's catalog is `yv:{id}`.
+        .or_else(|| t.strip_prefix("yv:").unwrap_or(t).parse().ok())
         .filter(|id| !super::blocklist::blocked("", &[], &[], &[&format!("yv:{id}")]))
 }
 

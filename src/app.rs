@@ -1101,8 +1101,11 @@ impl App {
     }
 
     pub fn translations(&self) -> Vec<String> {
-        let mut out: Vec<String> = bible::TRANSLATIONS.iter().map(|t| t.to_string()).collect();
+        let (secrets, now) = (bible::sources::Secrets::load(&self.store.root), now_secs());
+        let own_key = |t: &str| bible::sources::sources(t).any(|s| !s.provider.closed(now) && secrets.own_key(s.provider).is_some());
+        let mut out: Vec<String> = bible::TRANSLATIONS.iter().filter(|t| !bible::OWN_KEY_ONLY.contains(t) || own_key(t)).map(|t| t.to_string()).collect();
         for b in bible::import::list(&self.store.root).iter() { if !out.contains(&b.id) { out.push(b.id.clone()); } }
+        for b in bible::online::list(&self.store.root) { if !out.contains(&b.id) { out.push(b.id); } }
         out
     }
 
@@ -1117,6 +1120,7 @@ impl App {
         use bible::sources::{Secrets, source_with};
         let root = &self.store.root;
         let secrets = Secrets::load(root);
+        let online = bible::online::list(root);
         self.translations().iter().map(|t| {
             if let Some((_, name)) = bible::BUILT_IN.iter().find(|b| b.0 == t) {
                 return json!({ "translation": t, "abbr": t, "name": name, "status": "offline", "provider": tr!("{name} — built in, public domain", name = name), "language": "English" });
@@ -1130,6 +1134,16 @@ impl App {
                     "translation": t, "abbr": abbr, "name": b.name, "status": "offline", "imported": true, "downloaded": downloaded,
                     "provider": provider, "copyright": b.copyright, "licence": b.licence.short(), "licence_url": b.licence.link(), "lang": b.lang,
                     "language": if b.lang.is_empty() || b.lang == "und" { String::new() } else { bible::catalog::strings::language(&b.lang_name_en, &b.lang_name, &b.lang) },
+                });
+            }
+            // Added from YouVersion's catalog: read over the internet with the YouVersion key.
+            if let Some(b) = online.iter().find(|b| b.id == *t) {
+                let has_key = secrets.key(bible::sources::Provider::YouVersion).is_some();
+                return json!({
+                    "translation": t, "abbr": if b.abbr.is_empty() { &b.id } else { &b.abbr }, "name": b.name,
+                    "status": if has_key { "online" } else { "needs_key" }, "provider": bible::catalog::strings::from_youversion(&b.name),
+                    "providers": [bible::sources::Provider::YouVersion.key_name()], "copyright": b.copyright, "lang": b.lang,
+                    "language": if b.lang.is_empty() { String::new() } else { bible::catalog::strings::language(&b.lang_name_en, &b.lang_name, &b.lang) },
                 });
             }
             match source_with(t, &secrets) {
@@ -1175,7 +1189,10 @@ impl App {
     /// The online services a church can connect, for Settings → Bible.
     pub(crate) fn bible_providers(&self) -> Vec<Value> {
         let secrets = bible::sources::Secrets::load(&self.store.root);
-        bible::sources::PROVIDERS.iter().map(|p| json!({
+        // Tyndale's NLT API takes no new churches and closes on January 1, 2027: it is shown only to a church that
+        // already saved its key, until then.
+        let now = now_secs();
+        bible::sources::PROVIDERS.iter().filter(|p| **p != bible::sources::Provider::Nlt || (secrets.own_key(**p).is_some() && !p.closed(now))).map(|p| json!({
             "id": p.key_name(),
             "label": p.label(),
             "signup_url": p.signup_url(),
@@ -1458,7 +1475,9 @@ impl App {
         }
         "bible/import-remove" => {
             let T { translation } = parse(body)?;
-            tryr!(bible::import::remove(&app.store.root, &translation).map_err(|e| e.to_string()));
+            // A Bible added from YouVersion's catalog has no file: it only leaves the list.
+            if translation.starts_with("yv:") { tryr!(bible::online::remove(&app.store.root, &translation).map_err(|e| e.to_string())); }
+            else { tryr!(bible::import::remove(&app.store.root, &translation).map_err(|e| e.to_string())); }
             app.refresh_bible_credits();
             app.broadcast_data();
             Ok(json!({}))
@@ -2111,20 +2130,35 @@ impl App {
         use bible::catalog::{CatalogSource, Ctx, LicenceState};
         let mut ctx = Ctx::new(self.store.root.clone(), CatalogSource::Ebible);
         ctx.force = force;
-        let listing = CatalogSource::Ebible.refresh(&ctx).await.map_err(|e| e.message())?;
+        let ebible = CatalogSource::Ebible.refresh(&ctx).await;
+        // Every Bible the YouVersion key may read, beside eBible's. Without a key, or offline with no saved list,
+        // there are none, and eBible's list shows alone.
+        let mut yv_ctx = Ctx::new(self.store.root.clone(), CatalogSource::YouVersion);
+        yv_ctx.force = force;
+        let youversion = CatalogSource::YouVersion.refresh(&yv_ctx).await.map(|l| l.rows).unwrap_or_default();
+        let mut listing = match ebible {
+            Ok(l) => l,
+            Err(e) if youversion.is_empty() => return Err(e.message()),
+            Err(_) => bible::catalog::Listing { rows: Vec::new(), offline: true },
+        };
+        listing.rows.extend(youversion);
         let installed = bible::import::list(&self.store.root);
+        let online = bible::online::list(&self.store.root);
+        let has_youversion = bible::sources::Secrets::load(&self.store.root).key(bible::sources::Provider::YouVersion).is_some();
         // Grouped by language, the church's first. There is no church language setting yet, so English.
-        // One row per Bible across sources (Nov 5 spec §4); eBible is the only source so far, and it has no key.
-        let merged = bible::catalog::merge(listing.rows, &|_| false);
+        // One row per Bible across sources (Nov 5 spec §4): a Bible eBible has too stays a download that works offline.
+        let merged = bible::catalog::merge(listing.rows, &|s| s == CatalogSource::YouVersion && has_youversion);
         let all: Vec<&bible::catalog::CatalogRow> = merged.iter().collect();
         let groups = bible::catalog::by_language(&all, "eng");
         let rows: Vec<serde_json::Value> = groups.iter().flat_map(|g| g.rows.iter().copied()).map(|r| {
+            let read_online = !r.source().offline();
             let have = installed.iter().find(|m| m.id == r.id());
-            let update = have.is_some_and(|m| !matches!(&m.source, bible::library::Source::Ebible { update_date } if update_date == r.update_date()));
+            let added = if read_online { online.iter().any(|b| b.id == r.id()) } else { have.is_some() };
+            let update = !read_online && have.is_some_and(|m| !matches!(&m.source, bible::library::Source::Ebible { update_date } if update_date == r.update_date()));
             json!({
                 "id": r.id(), "abbr": r.abbr(), "title": r.title(), "lang": r.lang(), "lang_name": r.lang_name(),
                 "lang_name_en": r.lang_name_en(), "scope": r.scope().label(), "apocrypha": r.has_dc(),
-                "licence_on_download": *r.licence() == LicenceState::OnDownload, "installed": have.is_some(), "update": update,
+                "licence_on_download": *r.licence() == LicenceState::OnDownload, "installed": added, "update": update, "online": read_online,
                 "also_on": bible::catalog::strings::also_on(&r.also_from().iter().map(|s| s.label()).collect::<Vec<_>>()),
             })
         }).collect();
@@ -2135,6 +2169,7 @@ impl App {
     /// wait their turn. A failed update leaves the installed copy working.
     pub async fn install_bible(self: &Arc<Self>, id: &str) -> Result<bible::library::BibleMeta, String> {
         use bible::catalog::{CatalogSource, Ctx, strings};
+        if id.starts_with("yv:") { return self.add_online_bible(id).await; }
         let ctx = Ctx::new(self.store.root.clone(), CatalogSource::Ebible);
         let listing = CatalogSource::Ebible.refresh(&ctx).await.map_err(|e| e.message())?;
         if listing.offline { return Err(strings::offline_no_add().into()); }
@@ -2155,6 +2190,32 @@ impl App {
         let r = self.job_finished(job, r);
         if r.is_ok() { self.refresh_bible_credits(); self.broadcast_data(); }
         r
+    }
+
+    /// Adds a Bible from YouVersion's catalog to the church's list. Nothing is downloaded: its passages are read
+    /// over the internet as they are looked up. Its notice comes from the Bible's own entry, as the list has none.
+    async fn add_online_bible(&self, id: &str) -> Result<bible::library::BibleMeta, String> {
+        use bible::catalog::{CatalogSource, Ctx, strings, youversion};
+        let root = &self.store.root;
+        let ctx = Ctx::new(root.clone(), CatalogSource::YouVersion);
+        let listing = CatalogSource::YouVersion.refresh(&ctx).await.map_err(|e| e.message())?;
+        let row = listing.rows.into_iter().find(|r| r.id() == id).ok_or(strings::not_in_list())?;
+        let key = bible::sources::Secrets::load(root).key(bible::sources::Provider::YouVersion).map(str::to_string);
+        let details = match key { Some(k) => youversion::details(&ctx.base, &k, row.source_id()).await, None => None };
+        let notice = details.and_then(|d| d.copyright).map(|c| bible::sources::tidy(&c)).filter(|c| !c.is_empty())
+            .unwrap_or_else(|| row.copyright().to_string());
+        let b = bible::online::OnlineBible {
+            id: row.id().into(), abbr: row.abbr().into(), name: row.title().into(), lang: row.lang().into(),
+            lang_name: row.lang_name().into(), lang_name_en: row.lang_name_en().into(), copyright: notice,
+        };
+        bible::online::add(root, b.clone()).map_err(|e| e.to_string())?;
+        self.refresh_bible_credits();
+        self.broadcast_data();
+        Ok(bible::library::BibleMeta {
+            id: b.id, abbr: b.abbr, name: b.name, name_en: row.title_en().into(), lang: b.lang, lang_name: b.lang_name,
+            lang_name_en: b.lang_name_en, copyright: b.copyright, licence: bible::library::Licence::Provider,
+            source: bible::library::Source::YouVersion, ..Default::default()
+        })
     }
 
     /// Ends a job the way its result says.
@@ -2890,6 +2951,35 @@ mod tests {
         assert!(esv.required && esv.line.contains("ESV"), "{esv:?}");
     }
 
+    /// A Bible from YouVersion's catalog: added to the list without a download, credited, and removed again. The
+    /// Passion Translation can't be added even when a saved list names it.
+    #[tokio::test]
+    async fn a_youversion_bible_is_added_listed_credited_and_removed() {
+        let app = test_app();
+        let dir = app.store.root.join("bibles/catalog");
+        std::fs::create_dir_all(&dir).unwrap();
+        let books: Vec<&str> = bible::USFM.to_vec();
+        let list = json!({ "checked_at": now_secs(), "rows": [
+            { "id": 1588, "abbreviation": "AMP", "title": "Amplified Bible", "language_tag": "en", "publisher_name": "The Lockman Foundation", "books": books },
+            { "id": 1849, "abbreviation": "TPT", "title": "The Passion Translation", "language_tag": "en", "books": books },
+        ] });
+        std::fs::write(dir.join("youversion.json"), list.to_string()).unwrap();
+        let added = app.do_action("bible/install", br#"{"translation":"yv:1588"}"#).await.unwrap();
+        assert_eq!((added["id"].as_str(), added["abbr"].as_str()), (Some("yv:1588"), Some("AMP")));
+        assert!(app.translations().contains(&"yv:1588".to_string()));
+        let sources = app.bible_sources();
+        let amp = sources.iter().find(|b| b["translation"] == "yv:1588").unwrap();
+        assert_eq!((amp["abbr"].as_str(), amp["name"].as_str(), amp["language"].as_str()), (Some("AMP"), Some("Amplified Bible"), Some("English")));
+        assert_eq!(amp["status"], "needs_key", "tests have no YouVersion key");
+        assert!(crate::scripture::online::online_only(&app.store.root, "yv:1588"), "its text is never saved with a service");
+        let credit = app.data.lock().unwrap().bible_credit("yv:1588").cloned().unwrap();
+        assert!(credit.abbr == "AMP" && credit.required && credit.line.contains("Lockman"), "{credit:?}");
+        assert!(app.do_action("bible/install", br#"{"translation":"yv:1849"}"#).await.is_err(), "blocked");
+        assert!(!app.translations().iter().any(|t| t == "yv:1849"));
+        app.do_action("bible/import-remove", br#"{"translation":"yv:1588"}"#).await.unwrap();
+        assert!(!app.translations().iter().any(|t| t == "yv:1588") && app.data.lock().unwrap().bible_credit("yv:1588").is_none());
+    }
+
     #[tokio::test]
     async fn removing_a_bible_drops_its_credit() {
         let app = test_app();
@@ -2912,6 +3002,12 @@ mod tests {
     #[tokio::test]
     async fn picking_a_bible_puts_it_first_in_recent() {
         let app = test_app();
+        // NLT, CSB and HCSB are listed only for a church whose own key can supply them.
+        for hidden in ["NLT", "CSB", "HCSB"] { assert!(!app.translations().iter().any(|t| t == hidden), "{hidden}") }
+        assert!(app.do_action("settings/translation", br#"{"translation":"NLT"}"#).await.is_err());
+        let mut keys = bible::sources::Secrets::default();
+        for service in ["api_bible", "youversion"] { keys.keys.insert(service.into(), "k".into()); }
+        keys.save(&app.store.root).unwrap();
         for t in ["NIV", "WEB", "NIV", "BSB", "ESV", "NLT", "CSB", "HCSB", "KJV", "WEB"] {
             app.do_action("settings/translation", json!({ "translation": t }).to_string().as_bytes()).await.unwrap();
         }

@@ -1,117 +1,79 @@
 # RustyPresenter
 
-Church presentation app: song lyrics, Bible verses, PowerPoint slides, videos, pictures, music, a stage display, and a phone remote.
+A free presentation app for churches. It shows song words, Bible verses, slides, videos and pictures on the screen in the room, with a second screen for the band and a phone as the remote.
+
+It is free for any church, with no account and no subscription.
+
+> **0.5 Beta.** It runs our own Sunday services, but it is new. Try it on a weekday before you rely on it, and tell us what breaks.
 
 [![Made with Slint](https://raw.githubusercontent.com/slint-ui/slint/master/logo/MadeWithSlint-logo-whitebg.png)](https://slint.dev)
 
-## Install
+## What it does
 
-Download the installer for your computer from the [releases page](https://github.com/SuperDuperSoft/RustyPresenter/releases). The releases are not signed yet, so the first start shows a warning.
+- **Songs:** type or paste the words, or bring them in from SongSelect or EasyWorship.
+- **Bible:** type `John 3:16` and press Enter. Three Bibles work with no internet, NIV works online, and over a thousand more in other languages can be added. Up to three can show side by side.
+- **Slides, videos, pictures and music:** PowerPoint, Keynote and PDF files, and almost any video or audio file.
+- **Two screens:** the audience screen for the room and a stage screen for the band and speaker.
+- **Remote:** run the slides from a phone or tablet on the church Wi-Fi.
+- **Livestream and recording:** send the service to YouTube or Facebook, or save it as a video.
+- **Auto-follow (new):** listens to the singing and moves the song slides for you.
+- **English and 13 other languages** for the app itself.
 
-**Windows:** double-click `RustyPresenter-Setup-<version>.exe`. It needs no administrator password.
+## Get it
 
-- It installs RustyPresenter for you only, in `%LOCALAPPDATA%\Programs\RustyPresenter` (for example `C:\Users\<you>\AppData\Local\Programs\RustyPresenter`), and adds it to the Start menu and the desktop.
-- A newer setup file updates it in place: run it, and your songs, services and settings stay. Close RustyPresenter first.
-- To remove it: **Settings → Apps → Installed apps → RustyPresenter → Uninstall**. Your songs, services, media, Bibles, settings and backups in `%LOCALAPPDATA%\RustyPresenter` are kept, unless you tick **Also delete that folder** on the uninstaller's second page.
-- If SmartScreen appears, click **More info**, then **Run anyway**. If Smart App Control is on, Windows blocks the app outright and these buttons do not appear.
-- On the first start Windows asks whether RustyPresenter may use the network. Tick **Private networks** and click **Allow**, or phones cannot connect. Do this before pairing a phone.
+1. Go to the [releases page](https://github.com/SuperDuperSoft/RustyPresenter/releases/latest).
+2. Download `RustyPresenter-Setup-<version>.exe` (Windows 10 or 11).
+3. Double-click it. It needs no administrator password.
 
-**macOS** (Apple silicon): open the `.dmg` and drag the app to Applications. On first start, go to **System Settings → Privacy & Security** and click **Open Anyway**, or run `xattr -dr com.apple.quarantine /Applications/RustyPresenter.app`.
+Windows may warn you the first time, because the installer is not signed yet. Click **More info**, then **Run anyway**.
 
-**Linux:** either run `sudo apt install ./rustypresenter_*.deb`, or make the AppImage runnable with `chmod +x` and start it. The AppImage needs `libfuse2`.
+On the first start Windows asks whether RustyPresenter may use the network. Tick **Private networks** and click **Allow**, or phones cannot connect later.
 
-### Make the Windows installer yourself
+Mac and Linux versions are not ready yet.
 
-On the PC that builds RustyPresenter, double-click **`make-installer.cmd`** in the RustyPresenter folder (the one with `.tools` in it). It builds the newest version the same way as `try-latest.cmd`, downloads the installer maker (NSIS) and the video and PDF libraries into `.tools\installer` the first time, checks every download against `packaging\pins.env`, and puts `RustyPresenter-Setup-<version>.exe` on your Desktop. It needs Git for Windows and the tools in `.tools`; no Visual Studio. The first run takes 10 to 15 minutes, later runs a few.
+## Your first service in five minutes
 
-- If it stops with "The installer was NOT made yet", a download is new and its fingerprint is not in the code yet: send `.tools\xfer\make-installer\hashes.txt` to whoever maintains the code, and run it again once they have added it.
-- Everything it did is written to `.tools\xfer\make-installer\installer.txt` (and the build to `build.txt` next to it).
-- `make-installer.cmd --dry-run` (typed in a Command Prompt in that folder) only lists the steps.
+1. **Plug in the projector or TV.** Press `Win + P` and choose **Extend**. Then open **Window → Screens…** and pick which monitor is the audience screen.
+2. **Make this week's service:** **File → New service…**
+3. **Add things:** **File → Add to service** for a song, a Bible passage, a video or slides. You can also drag files onto the window.
+4. **Show a slide:** click it. It is on the screen at once. The red outline shows what the room sees.
+5. **During the service:** press `→` or `Space` for the next slide and `←` to go back. `F1` clears the screen.
 
-To import PowerPoint and Keynote files without PowerPoint, install LibreOffice (free) from [libreoffice.org](https://www.libreoffice.org/download/download/):
+That is all you need for a Sunday. The guides below cover the rest.
 
-| Computer | Command |
+## Guides
+
+| Guide | What it covers |
 | --- | --- |
-| Windows | `winget install TheDocumentFoundation.LibreOffice` |
-| macOS | `brew install --cask libreoffice` |
-| Linux | `sudo apt install libreoffice-impress` |
+| [Your first Sunday](docs/guides/first-sunday.md) | Setting up from nothing, step by step |
+| [Songs](docs/guides/songs.md) | Adding, importing and editing songs |
+| [Bible](docs/guides/bible.md) | Passages, more Bibles, two or three side by side |
+| [Videos, pictures and slides](docs/guides/media.md) | PowerPoint, videos, backgrounds, music |
+| [Screens](docs/guides/screens.md) | The audience screen and the stage screen |
+| [Phone remote](docs/guides/remote.md) | Running the slides from a phone or tablet |
+| [Livestream and recording](docs/guides/livestream.md) | YouTube, Facebook and saving a video |
+| [Auto-follow](docs/guides/auto-follow.md) | Letting the app move the song slides |
+| [Keys](docs/guides/keys.md) | Every keyboard shortcut on one page |
+| [Updates and backups](docs/guides/updates-and-backups.md) | Getting new versions, keeping your work safe |
+| [When something goes wrong](docs/guides/troubleshooting.md) | Common problems and what to do |
 
-On Linux, the Snap package of LibreOffice cannot be used.
+The app also has its own short tutorials: **Help → Tutorials**.
 
-## Start it from the source code
+## Getting help
 
-Double-click **`RustyPresenter.cmd`**. The first start builds the app (a few minutes); after that it opens in a few seconds. Closing the main window quits RustyPresenter and turns off the room and stage screens.
+- **Help → Check the service** finds missing files and empty items before the service starts.
+- **Help → Report a problem…** writes a note to fill in and shows where the log files are.
+- Problems and ideas: [open an issue](https://github.com/SuperDuperSoft/RustyPresenter/issues).
 
-The window has four parts:
+## Helping out
 
-| Where | What |
-| --- | --- |
-| **Left** | **Service**: everything for this Sunday, in order |
-| **Middle** | **Slides** of the item you picked. Click a slide to show it. Songs have coloured sections and buttons (V1, C, B…) to jump to one |
-| **Bottom** | **Media library**: every video, picture and song file, in folders. Double-click one to make it the background of the item you picked, or click **Add to service** |
-| **Right** | **Live**: exactly what the room sees, with Next/Back, Up next, a message box for the stage screen and the Clear buttons |
+- **Translate it** into your language, with no programming: [docs/TRANSLATING.md](docs/TRANSLATING.md).
+- **Build it or change the code:** [docs/DEVELOPING.md](docs/DEVELOPING.md).
 
-## First time
+## Licences
 
-1. **Screens** (top right): flip the **Audience** switch on. It finds the projector/TV by itself; pick another under *Output* if you need to, and **Identify** shows which screen is which. Use **+** to add more screens. Windows must be set to *Extend* (press `Win + P`).
-2. **Add to service**: songs, Bible, videos/pictures/music, slides, announcements. You can also **drag files** onto the window.
-3. **Bible box** at the top: type `John 3:16` and press **Enter** to add it. Press **Enter** again to show it.
-4. During the service, press **→** or click the big **Next** button. Next keeps going into the next item.
+RustyPresenter's own code is under the MIT licence or the Apache License 2.0, whichever you prefer (`LICENSE-MIT`, `LICENSE-APACHE`).
 
-## Keys
+It uses libmpv and FFmpeg under the GNU Lesser General Public License. **Help → About RustyPresenter** lists every third-party licence, and the installer includes the same text.
 
-| Key | Does |
-| --- | --- |
-| `→` `Space` `Page Down` | Next |
-| `←` `Page Up` | Back |
-| `Enter` | Show the selected item |
-| `Ctrl + B` | Bible box |
-| `F1` | Clear all (black) |
-| `F2` | Clear text |
-| `F3` | Clear media and background |
-| `F4` | Stop audio |
-| `F5` | Logo |
-| `C` `B` `P` `E` | Jump to the chorus, bridge, pre-chorus or ending of the live song |
-| `1`–`9` | Jump to that verse of the live song |
-| `Ctrl + V` | Add a YouTube link you copied |
-
-## Songs from EasyWorship
-
-**Add → Song → Import from EasyWorship** copies every song (words, writers, copyright and CCLI number) from an EasyWorship library folder, once. EasyWorship itself is not changed. Songs already here are skipped.
-
-## Video
-
-Any video or audio format plays right away: MP4, MOV, MKV, AVI, WMV, HEVC, ProRes, MPEG, phone videos and more. There is nothing to install or convert.
-
-## Where your data lives
-
-`%LOCALAPPDATA%\RustyPresenter` (not OneDrive). A full backup (songs, services, settings, and every video, picture and slide) is made each time the app starts and once a day. The last 10 are kept. Restore from **Settings → Backups**.
-
-## Bible translations
-
-KJV, WEB and BSB are built in and work offline. Many more can be added from **Settings → Bible** (search by language or name). NIV, ESV, CSB, HCSB and NLT need the publisher's free key, or HCSB can be imported from a licensed file.
-
-## Troubleshooting
-
-**The screens flicker, stay black, or RustyPresenter crashes as it starts.** This is usually the graphics card. Go to **Settings → Video → Graphics**, pick another choice, and restart RustyPresenter. **Software (safe mode)** always works; video is smoother with the others.
-
-If RustyPresenter fails to start, or crashes in its first 20 seconds, twice in a row, it starts the next time in **safe mode** (software drawing) by itself and says so. To start in safe mode yourself for one run, add `--safe-mode`: for example `RustyPresenter.exe --safe-mode`, or add it to the end of a Windows shortcut's *Target*. This does not change Settings.
-
-## Licenses
-
-RustyPresenter's own code is under the MIT license or the Apache License 2.0, whichever you prefer (`LICENSE-MIT`, `LICENSE-APACHE`).
-
-RustyPresenter uses libmpv and FFmpeg under the GNU Lesser General Public License. **Settings → About → Show licenses** has every third-party license; the installers include the same text. The exact sources of the shipped library and the scripts that built it are on the [releases page](https://github.com/SuperDuperSoft/RustyPresenter/releases), next to each release.
-
-You may use your own build of libmpv: set `RP_LIBMPV` to its path, or replace the file next to the program (on macOS, in `Contents/Frameworks`).
-
-## For collaborators
-
-- The app is native: a Rust core with a local server for the phone remote, and Slint windows for the operator, room and stage, with video and sound through libmpv.
-- Building needs `.tools\cargo` + `.tools\rustup` (the `stable-x86_64-pc-windows-gnu` toolchain) and `.tools\mingw64` (WinLibs MinGW-w64 GCC 16.2.0 UCRT, from github.com/brechtsanders/winlibs_mingw). The scripts put MinGW first on PATH and use its `dlltool`.
-- `dev-build.cmd` builds the app and runs the tests, writing everything to `build.log`.
-- The app needs `libmpv-2.dll` next to the exe, in `%LOCALAPPDATA%\RustyPresenter\deps\mpv\`, or named by `RP_LIBMPV`; without it everything but video and audio works. `RP_FORCE_SOFTWARE=1` draws without the GPU, and `RP_RENDERER` names any Slint renderer; both beat Settings → Video → Graphics. Vulkan, Direct3D (12) and Metal are offered only in builds with the `gpu-apis` feature (FemtoVG on wgpu, pure Rust, builds with MinGW; not on by default yet) or `renderer-skia`. Crashes are written to `logs\native-YYYYMMDD.log` in the data folder.
-- `dev-watch.cmd` waits for `build.request`, `run.request` or `stop.request` files and acts on them. It lets a remote collaborator build on this PC. Close the window to stop it.
-- `scripts/licenses.sh` remakes `THIRD-PARTY-LICENSES.txt`. Run it after changing `Cargo.lock` or `packaging/licenses/`.
-- To add or fix a language (no programming needed), see [docs/TRANSLATING.md](docs/TRANSLATING.md).
-- The design is in `docs/superpowers/specs/`. The work board is `PROJECT_PLAN.md`.
+Bible texts belong to their publishers. Each Bible's notice is shown in **Settings → Bible** and on its slides where the publisher asks for it.

@@ -6731,6 +6731,10 @@ msgstr "arquivo vazio"
 msgid "no {column} column"
 msgstr "sem coluna {column}"
 
+#: src/bible/catalog/youversion.rs
+msgid "YouVersion answered {status}"
+msgstr "o YouVersion respondeu {status}"
+
 #: src/bible/esv.rs
 msgid "the ESV service returned a different book"
 msgstr "o serviço ESV retornou um livro diferente"
@@ -9527,6 +9531,10 @@ msgid "Offline"
 msgstr "Offline"
 
 #: src/strings/catalog.rs
+msgid "Online"
+msgstr "Online"
+
+#: src/strings/catalog.rs
 msgid "Update"
 msgstr "Atualizar"
 
@@ -9573,6 +9581,10 @@ msgstr "{bible} adicionada"
 #: src/strings/catalog.rs
 msgid "Removed {bible}"
 msgstr "{bible} removida"
+
+#: src/strings/catalog.rs
+msgid "{name} — online, from YouVersion"
+msgstr "{name} — online, do YouVersion"
 
 #: src/strings/catalog.rs
 msgid "Also on {sources}"

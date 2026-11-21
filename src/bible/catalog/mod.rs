@@ -7,6 +7,7 @@
 pub mod ebible;
 pub mod install;
 pub mod licence;
+pub mod youversion;
 #[path = "../../strings/catalog.rs"]
 pub mod strings;
 
@@ -18,6 +19,8 @@ use super::{blocklist, library::{BibleMeta, Dir, Licence}};
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum CatalogSource {
     Ebible,
+    /// Read over the internet with the YouVersion key; "adding" one only lists it (`bible::online`).
+    YouVersion,
     /// Online stand-ins for the sources still to come, so `merge` can be tested now.
     #[cfg(test)]
     Test(u8),
@@ -28,6 +31,7 @@ impl CatalogSource {
     pub fn id(self) -> &'static str {
         match self {
             CatalogSource::Ebible => "ebible",
+            CatalogSource::YouVersion => "yv",
             #[cfg(test)]
             CatalogSource::Test(_) => "test",
         }
@@ -37,6 +41,7 @@ impl CatalogSource {
     pub fn label(self) -> &'static str {
         match self {
             CatalogSource::Ebible => strings::EBIBLE,
+            CatalogSource::YouVersion => strings::YOUVERSION,
             #[cfg(test)]
             CatalogSource::Test(_) => "Test",
         }
@@ -46,6 +51,7 @@ impl CatalogSource {
     pub fn offline(self) -> bool {
         match self {
             CatalogSource::Ebible => true,
+            CatalogSource::YouVersion => false,
             #[cfg(test)]
             CatalogSource::Test(_) => false,
         }
@@ -55,6 +61,7 @@ impl CatalogSource {
     pub async fn refresh(self, ctx: &Ctx) -> Result<Listing, CatalogError> {
         match self {
             CatalogSource::Ebible => ebible::refresh(ctx).await,
+            CatalogSource::YouVersion => youversion::refresh(ctx).await,
             #[cfg(test)]
             CatalogSource::Test(_) => Ok(Listing::default()),
         }
@@ -65,6 +72,7 @@ impl CatalogSource {
         progress: &(dyn Fn(u8) + Send + Sync)) -> Result<BibleMeta, install::InstallError> {
         match self {
             CatalogSource::Ebible => install::ebible(ctx, row, cancel, progress).await,
+            CatalogSource::YouVersion => Err(install::InstallError::Unusable("a YouVersion Bible is read online, not downloaded".into())),
             #[cfg(test)]
             CatalogSource::Test(_) => Err(install::InstallError::Unusable("a test source installs nothing".into())),
         }
@@ -88,6 +96,7 @@ impl Ctx {
         let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs() as i64).unwrap_or(0);
         let base = match source {
             CatalogSource::Ebible => ebible::BASE.to_string(),
+            CatalogSource::YouVersion => youversion::BASE.to_string(),
             #[cfg(test)]
             CatalogSource::Test(_) => String::new(),
         };

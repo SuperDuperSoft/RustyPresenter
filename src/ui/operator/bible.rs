@@ -466,9 +466,9 @@ mod tests {
         refresh(&op);
         assert_eq!(chip_names(&op), ["BSB", "ESV", "NIV", "KJV", "WEB"], "the core agrees");
         assert_eq!(app.data.lock().unwrap().settings.recent, ["BSB", "NIV"]);
-        pick_id(&op, "NLT".into());
+        pick_id(&op, "WEB".into());
         assert_eq!(chip_names(&op).len(), 5, "at most four after the chosen one");
-        assert_eq!(chip_names(&op), ["NLT", "ESV", "BSB", "NIV", "KJV"]);
+        assert_eq!(chip_names(&op), ["WEB", "ESV", "BSB", "NIV", "KJV"]);
         // Alt+2 picks the second chip.
         find(&op, "BibleBox::bible-input").unwrap().mock_single_click(PointerEventButton::Left);
         chord(&op, Key::Alt, "2");
