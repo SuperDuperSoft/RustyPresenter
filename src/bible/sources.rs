@@ -531,6 +531,24 @@ mod tests {
             println!("{bible}: {r:?}");
             assert!(r.is_ok_and(|(_, v)| !v.is_empty() && v[0].text.len() > 20), "{bible}");
         }
+        // Right-to-left Bibles, drawn as the audience screen draws them, for a look (`RP_LIVE_OUT`, a folder).
+        for (bible, name) in [("yv:101", "arabic"), ("yv:187", "urdu"), ("yv:1619", "persian")] {
+            let (_, verses) = lookup(&root, bible, "John 3:16-17").await.unwrap_or_else(|e| panic!("{bible}: {e}"));
+            let text = verses.iter().map(|v| format!("{}\u{2009}{}", v.id.map_or(0, |i| i.verse()), v.text)).collect::<Vec<_>>().join(" ");
+            assert!(crate::render::layout::rtl(&text), "{bible}: {text}");
+            if let Ok(out) = std::env::var("RP_LIVE_OUT") {
+                let slide = crate::render::TextSlide { text: &text, footer: None, reference: Some("John 3:16-17"), scripture: true, size: 0, passage: &[], parallel: None };
+                let r = crate::render::render_text(&mut crate::render::Fonts::new(), &slide, &crate::model::Theme::default(), (1280, 720));
+                let px = r.rgba_premul.buffer();
+                let mut img = image::RgbaImage::from_pixel(r.width, r.height, image::Rgba([20, 24, 40, 255]));
+                for (o, p) in img.pixels_mut().zip(px.as_slice()) {
+                    let keep = 255 - u32::from(p.a);
+                    let mix = |top: u8, under: u8| (u32::from(top) + u32::from(under) * keep / 255).min(255) as u8;
+                    o.0 = [mix(p.r, o.0[0]), mix(p.g, o.0[1]), mix(p.b, o.0[2]), 255];
+                }
+                img.save(std::path::Path::new(&out).join(format!("rtl-{name}.png"))).unwrap();
+            }
+        }
         let mut ctx = crate::bible::catalog::Ctx::new(root.clone(), crate::bible::catalog::CatalogSource::YouVersion);
         ctx.force = true;
         let l = crate::bible::catalog::youversion::refresh(&ctx).await.unwrap();

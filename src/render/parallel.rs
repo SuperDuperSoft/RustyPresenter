@@ -2,7 +2,7 @@
 //! other, each headed by its Bible's code, all at one text size that the fullest column decides.
 use super::layout::{Fonts, Rect, fit_steps, max_line_width, text_height};
 use crate::scripture::{Parallel, ParallelLayout};
-use cosmic_text::{Align, Attrs, Buffer, Family, Metrics, Shaping, Weight, Wrap};
+use cosmic_text::{Attrs, Buffer, Family, Metrics, Shaping, Weight, Wrap};
 
 /// Gap between columns: 4 % of the canvas width (FEAT-5 spec §6).
 const GUTTER: f32 = 0.04;
@@ -88,14 +88,16 @@ pub fn columns(fonts: &mut Fonts, f: &Frame, texts: &[(&str, &str)], layout: Par
         let mut heading = Buffer::new(&mut fonts.sys, Metrics::new(heading_px, heading_px * 1.25));
         heading.set_size(Some(r.w), None);
         heading.set_wrap(Wrap::None);
-        heading.set_text(code, &heading_attrs, Shaping::Advanced, Some(Align::Left));
+        // A right-to-left Bible's column starts at its right edge, its heading with it.
+        let align = super::layout::scripture_align(text);
+        heading.set_text(code, &heading_attrs, Shaping::Advanced, Some(align));
         heading.shape_until_scroll(&mut fonts.sys, false);
         let hh = text_height(&heading) + 6.0 * s;
         let rect = Rect { x: r.x, y: r.y + hh, w: r.w, h: (r.h - hh).max(0.0) };
         let mut body = Buffer::new(&mut fonts.sys, Metrics::new(f.max_px * s, f.max_px * s * f.line));
         body.set_size(Some(rect.w), None);
         body.set_wrap(Wrap::WordOrGlyph);
-        body.set_text(text, &body_attrs, Shaping::Advanced, Some(Align::Left));
+        body.set_text(text, &body_attrs, Shaping::Advanced, Some(align));
         Column { heading, heading_at: (r.x, r.y), body, rect }
     }).collect();
 
@@ -123,6 +125,21 @@ mod tests {
             family: super::super::layout::BUNDLED_FAMILY, scale: 1.0, canvas: (1920.0, 1080.0),
             body_box: Rect { x: 110.0, y: 66.0, w: 1700.0, h: 860.0 }, max_px: 64.0, line: 1.32, reference_px: 44.0, lower,
         }
+    }
+
+    /// Side by side, a right-to-left Bible's column starts at its own right edge; the others at their left.
+    #[test]
+    fn a_right_to_left_column_starts_at_its_right() {
+        let hebrew = "בראשית ברא אלהים";
+        let cols = columns(&mut Fonts::new(), &frame(false), &[("KJV", "In the beginning God created"), ("WLC", hebrew)], ParallelLayout::SideBySide);
+        let edges = |c: &Column| {
+            let run = c.body.layout_runs().next().unwrap();
+            let (left, right) = run.glyphs.iter().fold((f32::MAX, 0f32), |(a, b), g| (a.min(g.x), b.max(g.x + g.w)));
+            (left, c.rect.w - right)
+        };
+        let (english, heb) = (edges(&cols.columns[0]), edges(&cols.columns[1]));
+        assert!(english.0 < 2.0 && english.1 > 50.0, "English: {english:?}");
+        assert!(heb.1 < 2.0 && heb.0 > 50.0, "Hebrew: {heb:?}");
     }
 
     fn three() -> Parallel {

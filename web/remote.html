@@ -8,6 +8,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <style>
   :root { color-scheme: dark; --bg:#0d0f13; --panel:#171a21; --raise:#232833; --line:#2a303b; --text:#eceef3; --muted:#8d95a8; --accent:#f5b94a; --live:#ff4f55; --ok:#3ccf91; }
+  /* Hebrew, Arabic and other right-to-left words read the right way round, whatever the page's language. */
+  p, div, li, span, button, h1, h2, h3 { unicode-bidi: plaintext; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.4 -apple-system, "Segoe UI", Roboto, system-ui, sans-serif; }
   body { padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); min-height: 100vh; }

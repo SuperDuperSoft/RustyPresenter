@@ -17,7 +17,7 @@ const DAY: i64 = 24 * 60 * 60;
 const CSV_FILE: &str = "ebible-translations.csv";
 const STATE_FILE: &str = "ebible.json";
 const LICENCE_FILE: &str = "licences.json";
-/// Scripts written right to left. Hidden until step 3 brings right-to-left layout and a Hebrew font.
+/// Scripts written right to left: their Bibles' lines start at the right (`render::layout::rtl`).
 const RTL_SCRIPTS: &[&str] = &["Hebr", "Arab", "Syrc", "Thaa"];
 const SEED: &str = include_str!("../../../assets/bibles/ebible-licences.json");
 
@@ -173,11 +173,10 @@ pub fn abbreviation(translation_id: &str, language_code: &str) -> String {
 }
 
 /// The row as the app offers it, or `None` when it may not be offered: not redistributable, not downloadable,
-/// right to left (until step 3), an id that can't be a file name, a licence already refused, or blocked.
+/// an id that can't be a file name, a licence already refused, or blocked.
 pub fn offer(r: &Row, licences: &Licences) -> Option<CatalogRow> {
     if !r.redistributable || !r.downloadable || !super::install::valid_source_id(&r.translation_id) { return None; }
     let rtl = r.text_direction.eq_ignore_ascii_case("rtl") || RTL_SCRIPTS.iter().any(|s| s.eq_ignore_ascii_case(&r.script));
-    if rtl { return None; }
     let scope = match (r.ot_books >= 39, r.nt_books >= 27) {
         (true, true) => Scope::Full,
         (false, true) => Scope::NewTestament,
@@ -193,7 +192,7 @@ pub fn offer(r: &Row, licences: &Licences) -> Option<CatalogRow> {
         // names come only from the language columns.
         title_en: title, description: r.description.clone(), copyright: r.copyright.clone(),
         lang: r.language_code.clone(), lang_name: r.language_name.clone(), lang_name_en: r.language_name_en.clone(),
-        dir: Dir::Ltr, script: r.script.clone(), update_date: r.update_date.clone(), has_dc: r.dc_books > 0,
+        dir: if rtl { Dir::Rtl } else { Dir::Ltr }, script: r.script.clone(), update_date: r.update_date.clone(), has_dc: r.dc_books > 0,
     };
     CatalogRow::checked(CatalogSource::Ebible, f, scope, licence)
 }

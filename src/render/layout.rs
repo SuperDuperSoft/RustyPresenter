@@ -223,7 +223,7 @@ pub fn layout(fonts: &mut Fonts, slide: &TextSlide, theme: &Theme, canvas: (u32,
     let text = if theme.bullets { bulleted(&text) } else { text };
     // Scripture keeps its own weight and alignment; songs and announcements take the theme's (FEAT-1 spec §4.1).
     let (weight, line, align, max) = if slide.scripture {
-        (500, 1.32, Align::Left, or_default(theme.scripture_size, DEFAULT_SCRIPTURE_SIZE))
+        (500, 1.32, scripture_align(&text), or_default(theme.scripture_size, DEFAULT_SCRIPTURE_SIZE))
     } else {
         let align = match theme.align { TextAlign::Left => Align::Left, TextAlign::Center => Align::Center, TextAlign::Right => Align::Right };
         (theme.weight.clamp(100, 900), 1.22, align, or_default(theme.size, DEFAULT_SIZE))
@@ -325,6 +325,17 @@ fn set_one_line(sys: &mut FontSystem, b: &mut Buffer, text: &str, attrs: &Attrs,
 /// Total height of all laid-out lines.
 pub fn text_height(b: &Buffer) -> f32 { b.layout_runs().map(|r| r.line_height).sum() }
 
+/// True for text written right to left (Hebrew, Arabic, Persian, Urdu, Syriac, Thaana, N'Ko): its first letter is
+/// of such a script. Digits, verse numbers and punctuation before it do not count, as in the Unicode rule for a
+/// paragraph's direction, which is how the shaper orders the words; this only picks the side the lines start on.
+pub fn rtl(text: &str) -> bool {
+    text.chars().find(|c| c.is_alphabetic()).is_some_and(|c| matches!(c as u32,
+        0x0590..=0x08FF | 0xFB1D..=0xFDFF | 0xFE70..=0xFEFF | 0x10800..=0x10FFF | 0x1E800..=0x1EFFF))
+}
+
+/// Where a Bible passage's lines start: the right for a right-to-left Bible, the left for the others.
+pub fn scripture_align(text: &str) -> Align { if rtl(text) { Align::Right } else { Align::Left } }
+
 /// Width of the widest laid-out line.
 pub fn max_line_width(b: &Buffer) -> f32 { b.layout_runs().map(|r| r.line_w).fold(0.0, f32::max) }
 
@@ -333,6 +344,24 @@ mod tests {
     use super::*;
 
     fn slide(text: &str) -> TextSlide<'_> { TextSlide { text, footer: None, reference: None, scripture: false, size: 0, passage: &[], parallel: None } }
+
+    /// A right-to-left Bible's lines start at the right edge of the text box; a left-to-right one's at the left.
+    #[test]
+    fn a_right_to_left_passage_starts_at_the_right() {
+        assert!(rtl("¹\u{2009}בְּרֵאשִׁית בָּרָא אֱלֹהִים") && rtl("١٦ لأَنَّهُ هكَذَا أَحَبَّ اللهُ الْعَالَمَ") && rtl("16 کیونکہ خدا نے"));
+        assert!(!rtl("¹⁶\u{2009}For God so loved") && !rtl("Ἐν ἀρχῇ ἦν ὁ λόγος") && !rtl("16 ") && !rtl(""));
+        let edges = |text: &str| {
+            let s = TextSlide { text, footer: None, reference: Some("John 3:16"), scripture: true, size: 0, passage: &[], parallel: None };
+            let l = layout(&mut Fonts::new(), &s, &Theme::default(), (1920, 1080));
+            let run = l.body.layout_runs().next().unwrap();
+            let (left, right) = run.glyphs.iter().fold((f32::MAX, 0f32), |(a, b), g| (a.min(g.x), b.max(g.x + g.w)));
+            (left, l.body_box.w - right, run.rtl)
+        };
+        let (left, right, is_rtl) = edges("¹\u{2009}בראשית ברא אלהים את השמים ואת הארץ");
+        assert!(is_rtl && right < 2.0 && left > 100.0, "Hebrew: {left} from the left, {right} from the right");
+        let (left, right, is_rtl) = edges("¹\u{2009}In the beginning God created the heaven and the earth");
+        assert!(!is_rtl && left < 2.0 && right > 100.0, "English: {left} from the left, {right} from the right");
+    }
 
     fn lay(text: &str) -> TextLayout {
         let mut t = Theme::default();

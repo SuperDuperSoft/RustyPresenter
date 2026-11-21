@@ -30,7 +30,7 @@ Each Bible has a tag:
 
 If Sunday's internet is not reliable, prefer an Offline Bible, or look your passages up before the service while you are connected.
 
-Bibles written right to left, such as Hebrew and Arabic, are not offered yet.
+Bibles written right to left, such as Arabic, Hebrew, Persian and Urdu, are in the list too. Their lines start at the right of the slide, as they should.
 
 ## Two or three Bibles side by side
 

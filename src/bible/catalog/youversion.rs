@@ -106,14 +106,13 @@ pub async fn details(base: &str, key: &str, id: &str) -> Option<Row> {
     res.json().await.ok()
 }
 
-/// The row to list, if the app may offer it. Left out: a Bible the app already has under its own name (NIV, BSB),
-/// one written right to left (the slides don't set that yet, as with eBible's), and anything blocked.
+/// The row to list, if the app may offer it. Left out: a Bible the app already has under its own name (NIV, BSB)
+/// and anything blocked.
 pub fn offer(r: &Row) -> Option<CatalogRow> {
     if r.id == 0 || VERSIONS.iter().any(|&(_, id)| id == r.id) { return None; }
     let text = |s: &Option<String>| s.as_deref().unwrap_or("").trim().to_string();
     let tag = text(&r.language_tag);
     let lang = language(&tag);
-    if lang.is_some_and(|l| l.rtl) { return None; }
     let (ot, nt) = (r.books.iter().filter(|b| USFM[..39].contains(&b.as_str())).count(), r.books.iter().filter(|b| USFM[39..].contains(&b.as_str())).count());
     let scope = match (ot >= 39, nt >= 27) {
         (true, true) => Scope::Full,
@@ -130,7 +129,7 @@ pub fn offer(r: &Row) -> Option<CatalogRow> {
         source_id: r.id.to_string(), abbr: or(abbr, r.id.to_string()), title, title_en, description: String::new(),
         copyright: or(text(&r.copyright), text(&r.publisher_name)),
         lang: lang.map_or(tag.clone(), |l| l.code.to_string()), lang_name: lang.map_or(tag.clone(), |l| l.name.to_string()),
-        lang_name_en: lang.map_or(tag, |l| l.name_en.to_string()), dir: Dir::Ltr, script: String::new(), update_date: String::new(),
+        lang_name_en: lang.map_or(tag, |l| l.name_en.to_string()), dir: if lang.is_some_and(|l| l.rtl) { Dir::Rtl } else { Dir::Ltr }, script: String::new(), update_date: String::new(),
         has_dc: r.books.len() > ot + nt,
     };
     CatalogRow::checked(CatalogSource::YouVersion, f, scope, LicenceState::Known(Licence::Provider))
@@ -156,13 +155,15 @@ mod tests {
     }
 
     #[test]
-    fn blocked_known_and_right_to_left_bibles_are_left_out() {
+    fn blocked_and_known_bibles_are_left_out() {
         assert!(offer(&row(1849, "TPT", "The Passion Translation", "en", &USFM)).is_none(), "by all three");
         assert!(offer(&row(1849, "X", "A Bible", "en", &USFM)).is_none(), "by its YouVersion id alone");
         assert!(offer(&row(9, "TPT", "A Bible", "en", &USFM)).is_none(), "by its abbreviation alone");
         assert!(offer(&row(9, "X", "The Passion Translation", "en", &USFM)).is_none(), "by its title alone");
         assert!(offer(&row(111, "NIV11", "New International Version 2011", "en", &USFM)).is_none(), "already in the app as NIV");
-        assert!(offer(&row(9, "X", "A Bible", "he", &USFM)).is_none(), "right to left");
+        // A right-to-left Bible is offered, and says which way it is written.
+        assert_eq!(offer(&row(9, "X", "A Bible", "he", &USFM)).map(|r| (r.dir(), r.lang().to_string())), Some((Dir::Rtl, "heb".to_string())));
+        assert_eq!(offer(&row(9, "X", "A Bible", "en", &USFM)).map(|r| r.dir()), Some(Dir::Ltr));
         assert!(offer(&row(9, "X", "", "en", &USFM)).is_none() && offer(&row(0, "X", "A Bible", "en", &USFM)).is_none());
     }
 

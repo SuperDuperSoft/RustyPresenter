@@ -40,10 +40,10 @@ fn reads_the_header_by_name_with_quotes_line_breaks_and_a_bom() {
 }
 
 #[test]
-fn offers_only_redistributable_downloadable_left_to_right_and_unblocked_rows() {
+fn offers_only_redistributable_downloadable_and_unblocked_rows() {
     let root = crate::store::test_dir();
     let rows = offered(CSV, &root);
-    assert_eq!(ids(&rows), ["engwebp", "spaRV1909", "tptNT", "grcbrent", "engnet", "engps"]);
+    assert_eq!(ids(&rows), ["engwebp", "spaRV1909", "tptNT", "hboWLC", "grcbrent", "engnet", "engps"]);
     let by = |id: &str| rows.iter().find(|r| r.source_id() == id).unwrap();
     assert_eq!(by("engwebp").id(), "ebible:engwebp");
     assert_eq!(by("engwebp").scope(), Scope::Full);
@@ -52,6 +52,8 @@ fn offers_only_redistributable_downloadable_left_to_right_and_unblocked_rows() {
     assert!(by("grcbrent").has_dc());
     assert_eq!(by("engps").scope(), Scope::Portions);
     assert_eq!(by("tptNT").abbr(), "NT");
+    // A right-to-left Bible is offered, and says which way it is written.
+    assert_eq!((by("hboWLC").dir(), by("engwebp").dir()), (Dir::Rtl, Dir::Ltr));
 }
 
 #[test]
@@ -131,7 +133,7 @@ async fn fetches_once_a_day_with_a_conditional_get_and_keeps_the_list_offline() 
     let t0 = 1_800_000_000;
 
     let first = refresh(&ctx(&root, &s.base, t0)).await.unwrap();
-    assert_eq!((first.rows.len(), first.offline), (6, false));
+    assert_eq!((first.rows.len(), first.offline), (7, false));
     assert!(root.join("bibles/catalog/ebible-translations.csv").exists());
     assert!(s.hits.lock().unwrap()[0].starts_with("get /translations.csv "));
     assert!(!s.hits.lock().unwrap()[0].contains("if-none-match"), "nothing saved yet, so ask plainly");
@@ -140,7 +142,7 @@ async fn fetches_once_a_day_with_a_conditional_get_and_keeps_the_list_offline() 
     assert_eq!(s.hits.lock().unwrap().len(), 1, "less than a day later: the saved list, no request");
 
     let next_day = refresh(&ctx(&root, &s.base, t0 + DAY + 1)).await.unwrap();
-    assert_eq!(next_day.rows.len(), 6);
+    assert_eq!(next_day.rows.len(), 7);
     let hits = s.hits.lock().unwrap().clone();
     assert_eq!(hits.len(), 2);
     assert!(hits[1].contains("if-none-match: \"v1\"") && hits[1].contains("if-modified-since: wed, 01 oct 2026"), "{}", hits[1]);
@@ -155,7 +157,7 @@ async fn fetches_once_a_day_with_a_conditional_get_and_keeps_the_list_offline() 
 
     // The source is gone: the saved list shows, marked offline.
     let gone = refresh(&ctx(&root, "http://127.0.0.1:9", t0 + 3 * DAY)).await.unwrap();
-    assert_eq!((gone.rows.len(), gone.offline), (6, true));
+    assert_eq!((gone.rows.len(), gone.offline), (7, true));
 }
 
 #[tokio::test]
@@ -170,7 +172,7 @@ async fn a_broken_answer_never_replaces_the_saved_list() {
     let state = root.join("bibles/catalog/ebible.json");
     fs::write(&state, br#"{"etag":"","last_modified":"","checked_at":0}"#).unwrap();
     let r = refresh(&ctx(&root, &s.base, t0 + 2 * DAY)).await.unwrap();
-    assert_eq!((r.rows.len(), r.offline), (6, true), "the saved list, with Add turned off");
+    assert_eq!((r.rows.len(), r.offline), (7, true), "the saved list, with Add turned off");
     assert_eq!(fs::read_to_string(root.join("bibles/catalog/ebible-translations.csv")).unwrap(), CSV, "the good list stays");
 
     *s.body.lock().unwrap() = (503, String::new());
