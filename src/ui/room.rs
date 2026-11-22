@@ -270,8 +270,8 @@ struct Inner {
     fader: Fader,
     /// Each layer's (face a, face b) opacity, by `index`.
     face_ops: [(Chan, Chan); 5],
-    /// The newest live view, for the clock's tick.
-    last: RefCell<Option<LiveView>>,
+    /// The newest live view, for the clock's tick: the update itself, shared, not a copy of the view.
+    last: RefCell<Option<LiveUpdate>>,
     /// The newest `Seek::n` already done (N4), so each jump happens once.
     seeked: Cell<u64>,
     /// Runs once a second while a bound overlay (a clock) is on: a new text prepares only the overlay layer.
@@ -357,8 +357,9 @@ impl Inner {
         }
     }
 
-    fn view(&self, view: &LiveView) {
-        *self.last.borrow_mut() = Some(view.clone());
+    fn view(&self, update: &LiveUpdate) {
+        *self.last.borrow_mut() = Some(update.clone());
+        let view = update.view();
         self.sync_clock(view);
         let plan = self.state.borrow_mut().plan(view);
         match plan {
@@ -798,7 +799,7 @@ impl Room {
         // N12: off the Slint thread, so the data lock is never waited for there.
         let (to_app, to_shared) = (app.clone(), room.inner.shared.clone());
         let _ = std::thread::Builder::new().name("room-mask".into()).spawn(move || sync_mask(&to_app, &to_shared));
-        room.inner.view(&app.live_view());
+        room.inner.view(&LiveUpdate::new(app.live_view()));
         Ok(room)
     }
 
