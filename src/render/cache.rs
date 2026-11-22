@@ -46,11 +46,34 @@ impl RenderKey {
     }
 }
 
+/// The most decoded picture bytes kept for designed slides (`design_picture`): one 4K picture, or several smaller.
+const PICTURES_KEPT: usize = 48 * 1024 * 1024;
+
+/// A picture on a designed slide, decoded. Every slide of an item, and every click step of a slide, is drawn with
+/// the same pictures, so the last few are kept by their file, size and time instead of being read from the disk
+/// and decoded for each one.
+fn design_picture(path: &std::path::Path) -> Option<image::RgbaImage> {
+    type Key = (std::path::PathBuf, u64, Option<std::time::SystemTime>);
+    static KEPT: std::sync::Mutex<VecDeque<(Key, std::sync::Arc<image::RgbaImage>)>> = std::sync::Mutex::new(VecDeque::new());
+    let meta = std::fs::metadata(path).ok()?;
+    let key: Key = (path.to_path_buf(), meta.len(), meta.modified().ok());
+    if let Some((_, hit)) = KEPT.lock().unwrap_or_else(|e| e.into_inner()).iter().find(|(k, _)| *k == key) { return Some((**hit).clone()) }
+    let decoded = std::sync::Arc::new(image::ImageReader::open(path).ok()?.with_guessed_format().ok()?.decode().ok()?.into_rgba8());
+    let size = |p: &image::RgbaImage| p.as_raw().len();
+    if size(&decoded) <= PICTURES_KEPT {
+        let mut kept = KEPT.lock().unwrap_or_else(|e| e.into_inner());
+        kept.retain(|(k, _)| *k != key);
+        kept.push_back((key, decoded.clone()));
+        while kept.iter().map(|(_, p)| size(p)).sum::<usize>() > PICTURES_KEPT { kept.pop_front(); }
+    }
+    Some(std::sync::Arc::unwrap_or_clone(decoded))
+}
+
 /// Draws whatever `key` asks for.
 pub fn draw_key(fonts: &mut Fonts, key: &RenderKey) -> Rendered {
     if let Some(dk) = &key.design {
         let d: crate::design::Design = serde_json::from_str(&dk.json).unwrap_or_default();
-        let mut picture = |a: &str| image::ImageReader::open(dk.assets.join(a)).ok()?.with_guessed_format().ok()?.decode().ok().map(|i| i.into_rgba8());
+        let mut picture = |a: &str| design_picture(&dk.assets.join(a));
         return super::design::render_design(fonts, &d, &key.theme.font, key.canvas, &mut picture);
     }
     let slide = TextSlide {

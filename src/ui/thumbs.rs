@@ -118,6 +118,40 @@ pub fn thumb(slide: &Slide, kind: &str, passage: &[PassageSlide], item_backgroun
 /// The thumbnails' text renderer, made on the first text slide (it loads the system fonts).
 pub type TextRenderer = OnceLock<Arc<Renderer>>;
 
+/// How many background pictures, already scaled to a thumbnail's size, are kept (`filled`).
+const FILLED_KEPT: usize = 12;
+
+/// A picture background scaled to fill `w`×`h`, kept for the next thumbnail: every slide of an item is drawn over
+/// the same background, and reading a large photo from the disk and scaling it down once per slide is most of what
+/// a thumbnail costs. An asset's name is the hash of its bytes, so the same name is always the same picture.
+fn filled(store: &Store, asset: &str, (w, h): (u32, u32)) -> Option<Arc<RgbaImage>> {
+    static KEPT: std::sync::Mutex<VecDeque<((AssetId, u32, u32), Arc<RgbaImage>)>> = std::sync::Mutex::new(VecDeque::new());
+    let key = (asset.to_string(), w, h);
+    let find = |kept: &mut VecDeque<((AssetId, u32, u32), Arc<RgbaImage>)>| {
+        let at = kept.iter().position(|(k, _)| *k == key)?;
+        // The newest in use goes to the back; the front is dropped first.
+        let hit = kept.remove(at)?;
+        kept.push_back(hit.clone());
+        Some(hit.1)
+    };
+    if let Some(hit) = find(&mut KEPT.lock().unwrap_or_else(|e| e.into_inner())) { return Some(hit) }
+    #[cfg(test)]
+    DECODED.with(|n| n.set(n.get() + 1));
+    // Decoded and scaled with nothing locked: another thumbnail's picture is not held up.
+    let picture = Arc::new(decode(&store.asset_path(asset))?.resize_to_fill(w, h, FilterType::Triangle).into_rgba8());
+    let mut kept = KEPT.lock().unwrap_or_else(|e| e.into_inner());
+    if let Some(hit) = find(&mut kept) { return Some(hit) }
+    if kept.len() >= FILLED_KEPT { kept.pop_front(); }
+    kept.push_back((key, picture.clone()));
+    Some(picture)
+}
+
+#[cfg(test)]
+thread_local! {
+    /// How many background pictures `filled` read from the disk on this thread.
+    static DECODED: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
 /// Draws a thumbnail at `size` on black. A picture that cannot be read is left out, like a broken `<img>`.
 pub fn compose(job: &ThumbJob, size: (u32, u32), renderer: &TextRenderer, store: &Store) -> Pixels {
     let (w, h) = (size.0.max(1), size.1.max(1));
@@ -126,8 +160,8 @@ pub fn compose(job: &ThumbJob, size: (u32, u32), renderer: &TextRenderer, store:
     match &job.background {
         // Gradients and Darken are drawn like the room draws them.
         Some(bg) if matches!(bg, Background::Gradient { .. }) || bg.dim() > 0 => {
-            let decoded = bg.asset().filter(|_| matches!(bg, Background::Image { .. })).and_then(|a| picture(a)).map(|p| p.into_rgba8());
-            let px = crate::render::background::background_pixels(bg, decoded.as_ref(), (w, h));
+            let scaled = bg.asset().filter(|_| matches!(bg, Background::Image { .. })).and_then(|a| filled(store, a, (w, h)));
+            let px = crate::render::background::background_pixels(bg, scaled.as_deref(), (w, h));
             over_premultiplied(&mut img, &px.rgba_premul);
         }
         Some(Background::Color { color }) => {
@@ -135,8 +169,8 @@ pub fn compose(job: &ThumbJob, size: (u32, u32), renderer: &TextRenderer, store:
             imageops::overlay(&mut img, &RgbaImage::from_pixel(w, h, Rgba([r, g, b, a])), 0, 0);
         }
         // An image background covers the screen; a video one with no saved frame is black.
-        Some(Background::Image { asset, .. }) => if let Some(p) = picture(asset) {
-            imageops::overlay(&mut img, &p.resize_to_fill(w, h, FilterType::Triangle).into_rgba8(), 0, 0);
+        Some(Background::Image { asset, .. }) => if let Some(p) = filled(store, asset, (w, h)) {
+            imageops::overlay(&mut img, &*p, 0, 0);
         },
         Some(Background::Video { .. } | Background::Camera { .. } | Background::Gradient { .. }) | None => {}
     }
@@ -371,6 +405,31 @@ mod tests {
         let slides = vec![Slide::new("x", SlideContent::Video { asset: "b.mp4".into(), autoplay: true, end: Default::default() }), Slide::new("y", SlideContent::Video { asset: "c.mp4".into(), autoplay: true, end: Default::default() })];
         let used = frames_used(&media, &slides, &Background::Video { asset: "d.mp4".into(), dim: 0 });
         assert_eq!(used.iter().map(|m| m.asset.as_str()).collect::<Vec<_>>(), ["b.mp4", "d.mp4"], "the slide's video and the background's, where a frame was saved");
+    }
+
+    /// Q9: a picture background is read from the disk and scaled once, however many slides are drawn over it.
+    #[test]
+    fn a_picture_background_is_read_once_for_all_the_slides() {
+        let store = store();
+        let photo = store.root.join("photo.png");
+        image::RgbaImage::from_fn(640, 360, |x, _| Rgba([(x % 256) as u8, 40, 200, 255])).save(&photo).unwrap();
+        let asset = store.import_file(&photo, "png").unwrap();
+        let read = || DECODED.with(|n| n.get());
+        let before = read();
+        let plain = ThumbJob { background: Some(Background::Image { asset: asset.clone(), dim: 0 }), media: None, picture: None, text: None };
+        let first = compose(&plain, (64, 36), &TextRenderer::new(), &store);
+        for _ in 0..11 { assert_eq!(compose(&plain, (64, 36), &TextRenderer::new(), &store).as_bytes(), first.as_bytes()) }
+        assert_eq!(read() - before, 1, "twelve slides, one read");
+        // Darkened: the same scaled picture under the dim.
+        let dimmed = ThumbJob { background: Some(Background::Image { asset: asset.clone(), dim: 50 }), ..plain.clone() };
+        let dark = compose(&dimmed, (64, 36), &TextRenderer::new(), &store);
+        assert_eq!(read() - before, 1);
+        assert!(dark.as_bytes()[2] < first.as_bytes()[2], "darker than the plain one");
+        // Another size is another picture; a file that is gone draws black, as before.
+        compose(&plain, (128, 72), &TextRenderer::new(), &store);
+        assert_eq!(read() - before, 2);
+        let gone = ThumbJob { background: Some(Background::Image { asset: "0000.png".into(), dim: 0 }), ..plain };
+        assert_eq!(&compose(&gone, (64, 36), &TextRenderer::new(), &store).as_bytes()[..4], [0, 0, 0, 255]);
     }
 
     #[test]
