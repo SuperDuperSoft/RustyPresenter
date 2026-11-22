@@ -18,10 +18,19 @@ fn auto_shows_next_slide_via_command() {
     }
     let out = app.command(Envelope { id: "op".into(), base: None, cmd: Command::Show { item_id, slide: 0 } });
     assert!(out.ok);
-    let host = AppHost(Arc::downgrade(&app));
+    let host = AppHost::new(Arc::downgrade(&app));
     let live = host.live().unwrap();
     assert!(live.is_song && live.words_up);
     assert_eq!((live.slide, live.mode), (0, Mode::Auto));
+    // Q8: a second look with nothing changed copies no slides; a change to the screen or the data is read again.
+    let again = host.live().unwrap();
+    assert!(Arc::ptr_eq(&live.slides, &again.slides) && again == live, "the same song, its slides shared");
+    app.data.lock().unwrap().settings.follow.mode = Mode::Suggest;
+    assert_eq!(host.live().unwrap().mode, Mode::Suggest, "the data changed");
+    app.data.lock().unwrap().settings.follow.mode = Mode::Auto;
+    assert!(app.command(Envelope { id: "op2".into(), base: None, cmd: Command::ClearSlide }).ok);
+    assert!(!host.live().unwrap().words_up, "the screen changed");
+    assert!(app.command(Envelope { id: "op3".into(), base: None, cmd: Command::Show { item_id, slide: 0 } }).ok);
     let slides = live.slides.clone();
     let sung: Vec<String> = SongText::from_slides(&slides).words.iter().filter(|w| w.slide == 0).map(|w| w.text.clone()).collect();
     let mut e = Engine::new();
@@ -78,7 +87,7 @@ fn the_leader_going_back_to_the_slide_before_is_followed_after_a_click() {
     // leader sings it again from its top.
     let host = Fake::song(Mode::Auto);
     host.change(|l| l.slides = vec![text("my chains are gone I've been set free\nmy God my Savior has ransomed me"),
-        text("the earth shall soon dissolve like snow\nthe sun forbear to shine")]);
+        text("the earth shall soon dissolve like snow\nthe sun forbear to shine")].into());
     let mut e = Engine::new();
     let mut t = 0.0;
     sing(&mut e, host.as_ref(), "my chains are gone I've been", &mut t);
@@ -97,7 +106,7 @@ fn leaving_the_song_stops_auto() {
     let mut t = 0.0;
     sing(&mut e, host.as_ref(), "amazing grace how sweet the sound", &mut t);
     // The operator goes to the sermon.
-    host.change(|l| { l.item_id = Uuid::new_v4(); l.is_song = false; l.slides.clear(); l.slide = 0 });
+    host.change(|l| { l.item_id = Uuid::new_v4(); l.is_song = false; l.slides = Vec::new().into(); l.slide = 0 });
     sing(&mut e, host.as_ref(), "that saved a wretch like me", &mut t);
     for i in 0..100 { e.step(host.as_ref(), t + i as f64 * 0.1, Some(FollowEvent::Voice(Voice::Music, t))) }
     assert_eq!(host.shown(), Vec::<String>::new());
@@ -138,7 +147,7 @@ fn video_playing_never_moves() {
 #[test]
 fn non_song_item_idle() {
     let host = Fake::song(Mode::Auto);
-    host.change(|l| { l.is_song = false; l.slides = vec![text("Welcome"), text("Announcements")] });
+    host.change(|l| { l.is_song = false; l.slides = vec![text("Welcome"), text("Announcements")].into() });
     let mut e = Engine::new();
     let mut t = 0.0;
     sing(&mut e, host.as_ref(), "welcome announcements", &mut t);
@@ -383,7 +392,7 @@ fn the_old_slides_last_line_does_not_prove_the_operators_slide() {
     // The chorus is on two slides in a row, then a verse.
     let chorus = "my chains are gone\nI've been set free";
     let host = Fake::song(Mode::Auto);
-    host.change(|l| l.slides = vec![text(chorus), text(chorus), text("the earth shall soon\ndissolve like snow")]);
+    host.change(|l| l.slides = vec![text(chorus), text(chorus), text("the earth shall soon\ndissolve like snow")].into());
     let mut e = Engine::new();
     let mut t = 0.0;
     sing(&mut e, host.as_ref(), "my chains are gone", &mut t);
@@ -406,7 +415,7 @@ fn a_last_line_shared_with_the_slide_before_does_not_prove_the_operators_slide()
     // Two verses that end on the same line, then a third slide.
     let host = Fake::song(Mode::Auto);
     host.change(|l| l.slides = vec![text("glory be to God on high\ncome and praise the Lord"),
-        text("holy is his name forever\ncome and praise the Lord"), text("sing with joy tonight")]);
+        text("holy is his name forever\ncome and praise the Lord"), text("sing with joy tonight")].into());
     let mut e = Engine::new();
     let mut t = 0.0;
     sing(&mut e, host.as_ref(), "glory be to God on high", &mut t);
@@ -421,7 +430,7 @@ fn a_last_line_shared_with_the_slide_before_does_not_prove_the_operators_slide()
 #[test]
 fn an_instrumental_slide_put_up_by_hand_leaves_on_the_first_sure_word() {
     let host = Fake::song(Mode::Auto);
-    host.change(|l| l.slides = vec![text(SONG[0]), text("{Instrumental}"), text(SONG[2])]);
+    host.change(|l| l.slides = vec![text(SONG[0]), text("{Instrumental}"), text(SONG[2])].into());
     let mut e = Engine::new();
     let mut t = 0.0;
     sing(&mut e, host.as_ref(), VERSE_1, &mut t);
@@ -452,7 +461,7 @@ fn a_new_song_on_its_intro_slide_waits_for_the_first_lyric() {
     // The last note of this song is still held when the operator takes the next song live, on its intro slide.
     host.change(|l| {
         l.item_id = Uuid::new_v4();
-        l.slides = vec![text("{Instrumental}"), text(SONG[1]), text(SONG[2])];
+        l.slides = vec![text("{Instrumental}"), text(SONG[1]), text(SONG[2])].into();
         l.slide = 0;
     });
     for _ in 0..30 {
@@ -514,7 +523,7 @@ fn late_audio_cannot_align_a_new_song_or_an_edit_of_the_same_length() {
     let mut e = Engine::new();
     let mut t = 0.0;
     sing(&mut e, host.as_ref(), "amazing grace", &mut t);
-    host.change(|l| l.slides[0] = text(&SONG[0].replace("amazing", "awesome")));
+    host.change(|l| { let mut slides = l.slides.to_vec(); slides[0] = text(&SONG[0].replace("amazing", "awesome")); l.slides = slides.into() });
     e.step(host.as_ref(), 1.0, Some(FollowEvent::Voice(Voice::Singing, 1.0)));
     assert_eq!(e.state().line, None);
     assert!(e.run.as_ref().unwrap().text.words[0].text == "awesome");
@@ -549,7 +558,7 @@ fn the_live_audio_path_holds_through_a_melody_then_follows_the_first_lyric() {
     use crate::follow::voice::{FRAME, RATE, tests::singing};
 
     let host = Fake::song(Mode::Auto);
-    host.change(|l| l.slides = vec![text("{Instrumental}"), text(SONG[0])]);
+    host.change(|l| l.slides = vec![text("{Instrumental}"), text(SONG[0])].into());
     let mut engine = Engine::new();
     let mut listener = Listener::new(Box::new(FakeEar::sings(2.4, "amazing grace")));
     engine.step(host.as_ref(), 0.0, Some(listener.hello()));
@@ -568,7 +577,7 @@ fn one_stray_word_does_not_end_the_old_slides_last_line() {
     // finishes the old slide.
     let chorus = "my chains are gone\nI've been set free";
     let host = Fake::song(Mode::Auto);
-    host.change(|l| l.slides = vec![text(chorus), text(chorus), text("the earth shall soon\ndissolve like snow")]);
+    host.change(|l| l.slides = vec![text(chorus), text(chorus), text("the earth shall soon\ndissolve like snow")].into());
     let mut e = Engine::new();
     let mut t = 0.0;
     sing(&mut e, host.as_ref(), "my chains are gone", &mut t);
@@ -580,7 +589,7 @@ fn one_stray_word_does_not_end_the_old_slides_last_line() {
     // The same with two verses that end on the same line.
     let host = Fake::song(Mode::Auto);
     host.change(|l| l.slides = vec![text("glory be to God on high\ncome and praise the Lord"),
-        text("holy is his name forever\ncome and praise the Lord"), text("sing with joy tonight")]);
+        text("holy is his name forever\ncome and praise the Lord"), text("sing with joy tonight")].into());
     let mut e = Engine::new();
     let mut t = 0.0;
     sing(&mut e, host.as_ref(), "glory be to God on high", &mut t);
@@ -596,7 +605,7 @@ fn a_stray_word_in_the_middle_of_the_old_last_line_does_not_end_it() {
     // The chorus is on two slides in a row, then a verse. Its last line is long.
     let chorus = "come and praise our mighty king\nlift up his name in every land and sea";
     let host = Fake::song(Mode::Auto);
-    host.change(|l| l.slides = vec![text(chorus), text(chorus), text("the earth shall soon\ndissolve like snow")]);
+    host.change(|l| l.slides = vec![text(chorus), text(chorus), text("the earth shall soon\ndissolve like snow")].into());
     let mut e = Engine::new();
     let mut t = 0.0;
     sing(&mut e, host.as_ref(), "come and praise our mighty king", &mut t);
@@ -643,7 +652,7 @@ fn more_hand_moves_do_not_forget_the_old_slides_last_line() {
 fn clear_or_logo_after_autos_own_blank_is_the_operators_click() {
     let host = Fake::song(Mode::Auto);
     host.change(|l| {
-        l.slides = vec![text("amazing grace"), text("how sweet the sound")];
+        l.slides = vec![text("amazing grace"), text("how sweet the sound")].into();
         l.slide = 1;
     });
     let mut e = Engine::new();
@@ -675,7 +684,7 @@ fn a_label_flicker_in_the_held_note_does_not_leave_the_intro_slide() {
     // The last note of this song is still held when the operator takes the next song live, on its intro slide.
     host.change(|l| {
         l.item_id = Uuid::new_v4();
-        l.slides = vec![text("{Instrumental}"), text(SONG[1]), text(SONG[2])];
+        l.slides = vec![text("{Instrumental}"), text(SONG[1]), text(SONG[2])].into();
         l.slide = 0;
     });
     // In the held note the room's label flickers: one look says music, a later one says talking.
@@ -691,7 +700,7 @@ fn a_label_flicker_in_the_held_note_does_not_leave_the_intro_slide() {
 #[test]
 fn a_held_vowel_does_not_undo_a_click_onto_an_instrumental_slide() {
     let host = Fake::song(Mode::Auto);
-    host.change(|l| l.slides = vec![text(SONG[0]), text("{Instrumental}"), text("Oh how I love you\nmy heart will sing")]);
+    host.change(|l| l.slides = vec![text(SONG[0]), text("{Instrumental}"), text("Oh how I love you\nmy heart will sing")].into());
     let mut e = Engine::new();
     let mut t = 0.0;
     sing(&mut e, host.as_ref(), VERSE_1, &mut t);
@@ -764,7 +773,7 @@ fn replay_a_listening_log() {
         println!("slide {:>2}: {}", i + 1, text.words[s.first_word..s.end_word].iter().map(|w| w.text.as_str()).collect::<Vec<_>>().join(" "));
     }
     let host = Fake::song(Mode::Auto);
-    host.change(|l| l.slides = slides.clone());
+    host.change(|l| l.slides = slides.clone().into());
     let mut e = Engine::new();
     let mut t = 0.0;
     e.step(host.as_ref(), t, Some(FollowEvent::Listening { words: true }));

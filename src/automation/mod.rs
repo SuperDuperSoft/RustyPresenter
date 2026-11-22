@@ -88,6 +88,14 @@ impl Automation {
         }
     }
 
+    /// `sung_order` and `sung_secs` together: the slides are compared with the ones it was learned for once.
+    pub fn sung(&self, item: Uuid, slides: &[crate::model::Slide]) -> (Vec<usize>, Vec<f32>) {
+        match self.follow_order.get(&item) {
+            Some(o) if o.mark == crate::follow::order::mark_of(slides) => (o.slides.clone(), o.secs.clone()),
+            _ => (vec![], vec![]),
+        }
+    }
+
     /// A new install: the built-ins are already there.
     pub fn seeded() -> Self {
         let mut a = Automation::default();

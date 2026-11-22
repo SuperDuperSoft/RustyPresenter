@@ -42,7 +42,7 @@ pub fn practice_with(program: &Path, args: Vec<OsString>, slides: Vec<Slide>, se
 /// The same, with the ear made for the song's words. Also the listening log (`Engine::take_trace`).
 fn practice_ear(program: &Path, args: Vec<OsString>, slides: Vec<Slide>, settings: Settings, ear: impl FnOnce(Lexicon) -> Box<dyn Ear>)
     -> Result<(Vec<LogEntry>, Vec<String>), String> {
-    let host = Practice(Mutex::new(LiveSong { item_id: Uuid::new_v4(), is_song: true, slides, slide: 0, words_up: true, video_playing: false, version: 1, order: vec![], secs: vec![],
+    let host = Practice(Mutex::new(LiveSong { item_id: Uuid::new_v4(), is_song: true, slides: slides.into(), slide: 0, words_up: true, video_playing: false, version: 1, order: vec![], secs: vec![],
         mode: Mode::Auto, settings: Settings { mode: Mode::Auto, ..settings } }));
     let mut engine = Engine::new();
     let mut listener = Listener::new(ear(engine.lexicon()));

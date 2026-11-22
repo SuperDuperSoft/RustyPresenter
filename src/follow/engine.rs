@@ -68,8 +68,9 @@ pub struct FollowState {
 pub struct LiveSong {
     pub item_id: Uuid,
     pub is_song: bool,
-    /// The song's live slides (empty for other items).
-    pub slides: Vec<Slide>,
+    /// The song's live slides (empty for other items). Shared: the follower looks at the live song ten times a
+    /// second and more, and a look copies no slides.
+    pub slides: Arc<[Slide]>,
     pub slide: usize,
     /// The slide's words are on screen (not cleared).
     pub words_up: bool,
@@ -169,6 +170,8 @@ fn sig(slides: &[Slide], order: &[usize], secs: &[f32]) -> u64 {
 /// The decision core of the follower, without the thread: tests drive it with a fake host and clock.
 pub struct Engine {
     run: Option<Run>,
+    /// The live song's slides, order and times at the last look, with their signature (`sig`).
+    looked: Option<(Arc<[Slide]>, Vec<usize>, Vec<f32>, u64)>,
     hold: bool,
     lost: bool,
     voice: Voice,
@@ -210,7 +213,7 @@ const TAIL_MAX: usize = 64;
 
 impl Default for Engine {
     fn default() -> Self {
-        Engine { run: None, hold: false, lost: false, voice: Voice::Silence, onsets: 0.0, state: FollowState::default(), words: true, fresh: vec![],
+        Engine { run: None, looked: None, hold: false, lost: false, voice: Voice::Silence, onsets: 0.0, state: FollowState::default(), words: true, fresh: vec![],
             trace: vec![], lexicon: Lexicon::default(), skew: None, voice_labels: VecDeque::new(),
             audio_reported: None, audio_expected: false, held_since: None }
     }
@@ -299,7 +302,16 @@ impl Engine {
         };
         let mode = if self.lost { Mode::Manual } else { live.mode };
         self.state.mode = mode;
-        let s = sig(&live.slides, &live.order, &live.secs);
+        // The same slides, order and times as at the last look (the host hands the same ones out until the song
+        // or the data changes): the signature is the one worked out then.
+        let s = match &self.looked {
+            Some((slides, order, secs, s)) if Arc::ptr_eq(slides, &live.slides) && *order == live.order && *secs == live.secs => *s,
+            _ => {
+                let s = sig(&live.slides, &live.order, &live.secs);
+                self.looked = Some((live.slides.clone(), live.order.clone(), live.secs.clone(), s));
+                s
+            }
+        };
         let audio_now = self.voice_labels.back().map(|&(at, _)| at);
         if self.run.as_ref().is_none_or(|r| r.item != live.item_id || r.sig != s) {
             let audio_from = if self.run.is_some() || self.audio_expected {
@@ -602,7 +614,7 @@ const LOOK_EVERY: Duration = Duration::from_millis(100);
 const IDLE_AFTER: f64 = 5.0;
 
 impl Follower {
-    pub fn start(app: Weak<App>) -> Follower { Follower::start_with(Arc::new(AppHost(app))) }
+    pub fn start(app: Weak<App>) -> Follower { Follower::start_with(Arc::new(AppHost::new(app))) }
 
     pub fn start_with(host: Arc<dyn Host>) -> Follower {
         let (tx, rx) = channel();
@@ -684,39 +696,54 @@ fn work(mut engine: Engine, host: Arc<dyn Host>, rx: Receiver<Msg>, state: Arc<M
     }
 }
 
-/// The App as the follower's host.
-pub struct AppHost(pub Weak<App>);
+/// The App as the follower's host. The follower looks at the live song for every word heard and every tenth of a
+/// second; the song as last read is kept with the live version and the data's revision it was read at, and handed
+/// out again (its slides shared, not copied) until one of the two moves on.
+pub struct AppHost { app: Weak<App>, read: Mutex<Option<((u64, u64), LiveSong)>> }
+
+impl AppHost {
+    pub fn new(app: Weak<App>) -> Self { Self { app, read: Mutex::new(None) } }
+}
 
 impl Host for AppHost {
     fn live(&self) -> Option<LiveSong> {
-        let app = self.0.upgrade()?;
+        let app = self.app.upgrade()?;
         let data = app.data.lock().unwrap();
         let live = app.live.lock().unwrap();
+        // Read with both locks held: the stamp of exactly what they show. Every change to the screen moves the
+        // live version on, and every change to the data its revision.
+        let stamp = (live.version, app.data_rev());
+        let mut read = self.read.lock().unwrap_or_else(|e| e.into_inner());
+        if let Some((at, song)) = read.as_ref() && *at == stamp { return Some(song.clone()) }
+        *read = None;
         let (item, cursor) = (live.item.as_ref()?, live.cursor.as_ref()?);
         let is_song = item.kind == "song";
-        Some(LiveSong {
+        let (order, secs) = if is_song { data.automation.sung(item.item_id, &item.slides) } else { (vec![], vec![]) };
+        let song = LiveSong {
             item_id: item.item_id,
             is_song,
-            slides: if is_song { item.slides.clone() } else { vec![] },
+            slides: if is_song { item.slides.as_slice().into() } else { Arc::from(Vec::new()) },
             slide: cursor.slide,
             words_up: live.frame.slide.is_some(),
             video_playing: live.frame.media.as_ref().is_some_and(|m| matches!(m.v, MediaLayer::Video { .. })),
             version: live.version,
             mode: data.automation.follow.get(&item.item_id).copied().unwrap_or(data.settings.follow.mode),
-            order: if is_song { data.automation.sung_order(item.item_id, &item.slides) } else { vec![] },
-            secs: if is_song { data.automation.sung_secs(item.item_id, &item.slides) } else { vec![] },
+            order,
+            secs,
             settings: data.settings.follow.clone(),
-        })
+        };
+        *read = Some((stamp, song.clone()));
+        Some(song)
     }
 
     fn show(&self, item_id: Uuid, slide: usize, base: u64) -> bool {
-        let Some(app) = self.0.upgrade() else { return false };
+        let Some(app) = self.app.upgrade() else { return false };
         let out = app.command(Envelope { id: format!("follow-{}", Uuid::new_v4()), base: Some(base), cmd: Command::Show { item_id, slide } });
         out.ok && !out.duplicate
     }
 
     fn clear_slide(&self, base: u64) -> bool {
-        let Some(app) = self.0.upgrade() else { return false };
+        let Some(app) = self.app.upgrade() else { return false };
         // A clear names no base: check it here, so a change made in between wins.
         if app.live.lock().unwrap().version != base { return false }
         let out = app.command(Envelope { id: format!("follow-{}", Uuid::new_v4()), base: None, cmd: Command::ClearSlide });
@@ -725,24 +752,24 @@ impl Host for AppHost {
 
     /// The live version of the last visual change made by hand (not an overlay, not an automatic slide turn).
     fn hand_version(&self) -> Option<u64> {
-        let app = self.0.upgrade()?;
+        let app = self.app.upgrade()?;
         let mark = app.live.lock().unwrap().manual_version;
         Some(mark)
     }
 
-    fn notice(&self, text: &str) { if let Some(app) = self.0.upgrade() { app.set_notice(text) } }
+    fn notice(&self, text: &str) { if let Some(app) = self.app.upgrade() { app.set_notice(text) } }
 
     /// The listening log: `<data>/logs/follow-YYYYMMDD.log`, each line with the time of day.
     fn trace(&self, lines: &[String]) {
-        let Some(app) = self.0.upgrade() else { return };
+        let Some(app) = self.app.upgrade() else { return };
         write_trace(&app.store.root.join("logs"), chrono::Local::now().naive_local(), lines);
         app.tape.trace(lines);
     }
 
-    fn changed(&self) { if let Some(app) = self.0.upgrade() { app.broadcast_live() } }
+    fn changed(&self) { if let Some(app) = self.app.upgrade() { app.broadcast_live() } }
 
     fn save_mode(&self, item: Uuid, mode: Mode) {
-        let Some(app) = self.0.upgrade() else { return };
+        let Some(app) = self.app.upgrade() else { return };
         let _ = app.edit_untracked(|d| { d.automation.follow.insert(item, mode); Ok(()) });
         // The first song switched on: start listening (FFmpeg, off this thread).
         if mode != Mode::Manual { let _ = std::thread::Builder::new().name("follow-start".into()).spawn(move || app.start_follow_if_wanted()); }
