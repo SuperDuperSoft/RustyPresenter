@@ -817,6 +817,15 @@ impl App {
     }
 
     /// The stage screen's message (empty hides it).
+    /// The message on the stage screen now (`LiveView::stage_message`), without building a live view for it.
+    pub fn stage_message(&self) -> String { self.stage_message.lock().unwrap().clone() }
+
+    /// Something is on the screens now: a slide, a video or picture, or audio.
+    pub fn on_air(&self) -> bool {
+        let live = self.live.lock().unwrap();
+        live.frame.slide.is_some() || live.frame.media.is_some() || live.frame.audio.is_some()
+    }
+
     pub(crate) fn set_stage_message(&self, text: &str) {
         *self.stage_message.lock().unwrap() = text.to_string();
         self.broadcast_live();

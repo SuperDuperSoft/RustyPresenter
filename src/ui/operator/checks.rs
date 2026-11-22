@@ -56,7 +56,7 @@ fn check(op: &Rc<Operator>) {
 }
 
 fn stage_message(op: &Rc<Operator>) {
-    let current = op.app().live_view().stage_message;
+    let current = op.app().stage_message();
     let me = Rc::downgrade(op);
     ask::prompt(op, &tr::stage_message_ask(), &current, move |text| {
         let (Some(op), Some(text)) = (me.upgrade(), text) else { return };

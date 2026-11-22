@@ -91,8 +91,7 @@ fn open(op: &Operator, tag: &str) {
 
 /// Something is on the screens, or a question is already up: no time to talk about versions.
 fn busy(op: &Operator) -> bool {
-    let frame = op.app().live_view().frame;
-    frame.slide.is_some() || frame.media.is_some() || frame.audio.is_some() || op.state.borrow().asks > 0
+    op.app().on_air() || op.state.borrow().asks > 0
 }
 
 /// At start, a little after the window opens: with the switch on, asks GitHub when a day has passed, and asks the
