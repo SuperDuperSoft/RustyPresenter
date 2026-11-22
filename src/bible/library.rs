@@ -125,7 +125,8 @@ impl BibleMeta {
 }
 
 /// Bumped when an older index can't be read as it stands; it is then rebuilt from the files.
-const INDEX_VERSION: u32 = 1;
+// 2: every Bible's numbering is read again from its verses (0.5.4), so one added earlier needs nothing done to it.
+const INDEX_VERSION: u32 = 2;
 
 #[derive(Serialize)]
 struct IndexRef<'a> { v: u32, bibles: &'a [BibleMeta] }

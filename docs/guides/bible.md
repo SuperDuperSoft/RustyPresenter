@@ -42,6 +42,17 @@ This is useful for a service in more than one language.
 
 Every new passage then shows in all of them. Open the same place again to turn them off.
 
+### Bibles that number their verses differently
+
+The Hebrew Bible and the Greek Old Testament (the Septuagint) number some verses differently from English Bibles. Malachi 4:1 in English is Malachi 3:19 in Hebrew, and Psalm 23 is Psalm 22 in the Greek.
+
+You don't need to do anything about it:
+
+- Side by side, RustyPresenter finds the same verse in each Bible, and each one shows its own number.
+- Type the reference the way you know it. If your main Bible is the Hebrew one and you type `Malachi 4:1`, you get its Malachi 3:19.
+
+The Greek Old Testament orders a few chapters its own way (Jeremiah 25 to 51, Exodus 36 to 39 and the end of Proverbs). There, the Bible beside it is left off the slide instead of showing the wrong verses.
+
 ## Credits
 
 Some publishers ask for a credit line on the slide. RustyPresenter adds it by itself where it is needed. **Settings → Bible…** shows each Bible's notice.

@@ -1057,7 +1057,19 @@ impl App {
     /// any online source), then online.
     pub async fn lookup_passage(&self, translation: &str, reference: &str) -> Result<(String, Vec<VerseText>), String> {
         if let Some(b) = bible::built_in(translation) { return b.lookup(reference) }
-        if let Some(b) = bible::import::get(&self.store.root, translation) { return b.lookup(reference) }
+        if let Some(b) = bible::import::get(&self.store.root, translation) {
+            // A Bible numbered another way takes its own numbers first. A reference it does not have, typed the
+            // English way ("Malachi 4:1" in the Hebrew Bible), is found under its own number instead.
+            let own = b.lookup(reference);
+            let its = bible::import::meta(&self.store.root, translation).map_or(bible::library::Vsys::English, |m| m.versification);
+            if own.is_ok() || its == bible::library::Vsys::English { return own }
+            let there = bible::kjv().lookup(reference).ok().and_then(|(_, verses)| {
+                let ids: Vec<_> = verses.iter().filter_map(|v| v.id)
+                    .filter_map(|id| bible::versify::convert(id, bible::library::Vsys::English, its)).collect();
+                Self::verse_range(&ids)
+            });
+            return there.and_then(|range| b.lookup(&range).ok()).map_or(own, Ok);
+        }
         let found = bible::sources::lookup(&self.store.root, translation, reference).await?;
         // API.Bible sends its notice with the first passage; the slides credit it from then on.
         self.refresh_bible_credits();
@@ -1086,6 +1098,15 @@ impl App {
         (found, left_out)
     }
 
+    /// The reference that covers these verses, first to last ("Malachi 3:19-20").
+    fn verse_range(ids: &[crate::scripture::VerseId]) -> Option<String> {
+        let (first, last) = (*ids.iter().min()?, *ids.iter().max()?);
+        let book = bible::display_name(first.book());
+        Some(if first == last { format!("{book} {}:{}", first.chapter(), first.verse()) }
+            else if first.chapter() == last.chapter() { format!("{book} {}:{}-{}", first.chapter(), first.verse(), last.verse()) }
+            else { format!("{book} {}:{}-{}:{}", first.chapter(), first.verse(), last.chapter(), last.verse()) })
+    }
+
     /// `reference` (in `main`'s numbering) from a Bible that numbers its verses another way (spec §5.4): each of the
     /// main Bible's verses is found under the other Bible's own number. The verse keeps its own label ("Malachi
     /// 3:19") and takes the main verse's identity, which is what lines the columns up on the slide. A verse the
@@ -1096,11 +1117,7 @@ impl App {
         let (label, verses) = self.lookup_passage(main, reference).await?;
         let pairs: Vec<(VerseId, VerseId)> = verses.iter().filter_map(|v| v.id)
             .filter_map(|id| bible::versify::convert(id, from, to).map(|there| (id, there))).collect();
-        let (Some(first), Some(last)) = (pairs.iter().map(|p| p.1).min(), pairs.iter().map(|p| p.1).max()) else { return Err(tr!("No verses found.")) };
-        let book = bible::display_name(first.book());
-        let range = if first == last { format!("{book} {}:{}", first.chapter(), first.verse()) }
-            else if first.chapter() == last.chapter() { format!("{book} {}:{}-{}", first.chapter(), first.verse(), last.verse()) }
-            else { format!("{book} {}:{}-{}:{}", first.chapter(), first.verse(), last.chapter(), last.verse()) };
+        let Some(range) = Self::verse_range(&pairs.iter().map(|p| p.1).collect::<Vec<_>>()) else { return Err(tr!("No verses found.")) };
         let (_, theirs) = self.lookup_passage(other, &range).await?;
         let mut used = std::collections::BTreeSet::new();
         let out: Vec<VerseText> = pairs.iter().filter_map(|&(id, there)| {
@@ -3037,6 +3054,10 @@ mod tests {
         let v = &found[0].verses;
         assert_eq!((v.len(), v[0].reference.as_str(), v[0].id), (1, "Malachi 4:1", Some(VerseId(38, 3, 19))));
         assert!(v[0].text.starts_with("For, behold, the day cometh"), "{}", v[0].text);
+        // Typed the English way with the Hebrew Bible as the main one: found under its own number.
+        let (label, typed) = app.lookup_passage("ebible:hboWLC", "Malachi 4:1-2").await.unwrap();
+        assert_eq!((label.as_str(), typed.iter().map(|v| v.text.as_str()).collect::<Vec<_>>()), ("Malachi 3:19–20", vec!["heb 3:19", "heb 3:20"]));
+        assert!(app.lookup_passage("ebible:hboWLC", "Malachi 9:1").await.is_err());
         // Where the numbers agree, nothing moves.
         let (found, _) = app.lookup_also("KJV", &["ebible:hboWLC".to_string()], "Malachi 3:1").await;
         assert_eq!((found[0].verses[0].text.as_str(), found[0].verses[0].id), ("heb 3:1", Some(VerseId(38, 3, 1))));
