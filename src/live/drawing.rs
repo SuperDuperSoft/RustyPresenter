@@ -33,6 +33,9 @@ pub const HIGHLIGHTER_ALPHA: u8 = 110;
 pub const MAX_POINTS_PER_REQUEST: usize = 5_000;
 pub const MAX_POINTS_PER_STROKE: usize = 20_000;
 pub const MAX_POINTS: usize = 200_000;
+/// A fading line whose phone sent nothing for this long with the finger still down (it dropped off the Wi-Fi,
+/// locked, or closed the page) counts as lifted, so it fades like any other.
+pub const ABANDONED_AFTER: Duration = Duration::from_secs(3);
 /// How long fading ink takes to go, once its time is up.
 pub const FADE_OUT: Duration = Duration::from_millis(500);
 /// How often a screen redraws while ink is fading out (about 30 a second).
@@ -66,6 +69,8 @@ pub struct Stroke {
     pub ink: Ink,
     /// When the finger lifted (fading ink counts its time from here).
     pub ended: Option<Instant>,
+    /// When its newest points came in.
+    pub last_point: Instant,
 }
 
 impl Stroke {
@@ -83,6 +88,9 @@ impl Stroke {
         self.open = false;
         self.ended = Some(now);
     }
+
+    /// Fading ink still open long after its last point: the phone went away mid-line.
+    fn abandoned(&self, now: Instant) -> bool { self.open && self.fades() && now.saturating_duration_since(self.last_point) > ABANDONED_AFTER }
 }
 
 /// Every stroke on the live slide, oldest first. `rev` moves on with every change; `epoch` only when staying
@@ -157,7 +165,7 @@ impl Drawing {
                 let mut pts = Vec::with_capacity(points.len());
                 extend(&mut pts, points);
                 self.next_serial += 1;
-                self.strokes.push(Arc::new(Stroke { serial: self.next_serial, phone, id: *stroke, color, width: *width, pen: *pen, points: pts, open: true, ink: *ink, ended: None }));
+                self.strokes.push(Arc::new(Stroke { serial: self.next_serial, phone, id: *stroke, color, width: *width, pen: *pen, points: pts, open: true, ink: *ink, ended: None, last_point: now }));
             }
             DrawCmd::More { stroke, points } => {
                 check_points(points)?;
@@ -168,7 +176,9 @@ impl Drawing {
                 if points.len() > MAX_POINTS_PER_REQUEST || s.points.len() + points.len() > MAX_POINTS_PER_STROKE || on_slide + points.len() > MAX_POINTS {
                     return Err(actions::too_many_lines());
                 }
-                extend(&mut Arc::make_mut(s).points, points);
+                let s = Arc::make_mut(s);
+                extend(&mut s.points, points);
+                s.last_point = now;
             }
             DrawCmd::End { stroke } => {
                 let Some(s) = self.strokes.iter_mut().find(|s| s.phone == phone && s.id == *stroke && s.open) else { return Ok(false) };
@@ -198,15 +208,28 @@ impl Drawing {
         true
     }
 
-    /// Removes fading ink whose time is up. True when any went. Staying strokes are never touched, so what a
-    /// renderer baked stays right (no `epoch` move).
+    /// Removes fading ink whose time is up, and lifts the finger of a fading line whose phone went away mid-line.
+    /// Its time counts from its last point, but never so far back that it would vanish at once: it still fades
+    /// out like any other. True when anything changed. Staying strokes are never touched, so what a renderer
+    /// baked stays right (no `epoch` move).
     pub fn expire(&mut self, now: Instant) -> bool {
         let after = self.fade_after;
+        let mut changed = false;
+        for s in self.strokes.iter_mut().filter(|s| s.abandoned(now)) {
+            let s = Arc::make_mut(s);
+            s.close(now.checked_sub(after).map_or(s.last_point, |earliest| earliest.max(s.last_point)));
+            changed = true;
+        }
         let before = self.strokes.len();
         self.strokes.retain(|s| s.opacity(now, after) > 0.0);
-        if self.strokes.len() == before { return false }
+        if self.strokes.len() == before && !changed { return false }
         self.rev += 1;
         true
+    }
+
+    /// `expire` would change something at `now`.
+    pub fn needs_expire(&self, now: Instant) -> bool {
+        self.strokes.iter().any(|s| s.abandoned(now) || s.opacity(now, self.fade_after) <= 0.0)
     }
 
     /// When a screen should draw again by itself because ink is fading: soon while some is fading out, else when
@@ -398,6 +421,41 @@ mod tests {
         assert!(!d.strokes[0].fades());
         assert!(d.rev > rev && d.epoch == epoch, "what a screen baked is still right");
         assert!(!d.has_fading());
+    }
+
+    /// B12: the phone dropped off with the finger down, so `End` never came.
+    #[test]
+    fn fading_ink_whose_phone_went_away_mid_line_still_fades() {
+        let (mut d, me) = (Drawing::default(), Uuid::new_v4());
+        let t0 = Instant::now();
+        d.apply_at(me, &fading(1), t0).unwrap();
+        d.apply_at(me, &DrawCmd::More { stroke: 1, points: vec![[0.6, 0.6]] }, t0 + Duration::from_secs(1)).unwrap();
+        let last = t0 + Duration::from_secs(1);
+        assert!(!d.needs_expire(last + Duration::from_secs(2)) && !d.expire(last + Duration::from_secs(2)), "still drawing, as far as anyone knows");
+        assert!(d.strokes[0].open);
+        // Four seconds with nothing new: the finger counts as lifted, and the line starts to fade out now (its
+        // three seconds are already up) instead of vanishing at once.
+        let noticed = last + Duration::from_secs(4);
+        assert!(d.needs_expire(noticed));
+        assert!(d.expire(noticed));
+        assert!(!d.strokes[0].open && d.strokes[0].ended == Some(noticed - d.fade_after));
+        assert_eq!(d.strokes[0].opacity(noticed, d.fade_after), 1.0);
+        assert!(d.apply_at(me, &DrawCmd::More { stroke: 1, points: vec![[0.7, 0.7]] }, noticed).is_err(), "a closed line takes no more");
+        assert!(d.strokes[0].opacity(noticed + FADE_OUT / 2, d.fade_after) < 1.0, "fading out");
+        // Then it goes like any other.
+        assert!(d.expire(noticed + FADE_OUT));
+        assert!(d.is_empty());
+        // With a long fade time, the time still counts from its last point.
+        d.fade_after = Duration::from_secs(10);
+        d.apply_at(me, &fading(5), t0).unwrap();
+        assert!(d.expire(t0 + Duration::from_secs(4)));
+        assert_eq!(d.strokes[0].ended, Some(t0));
+        assert!(d.expire(t0 + Duration::from_secs(10) + FADE_OUT));
+        d.fade_after = Duration::from_secs(3);
+        // Staying ink is never closed this way: a finger may rest as long as it likes.
+        d.apply_at(me, &start(2, vec![[0.1, 0.1]]), t0).unwrap();
+        assert!(!d.expire(t0 + Duration::from_secs(600)));
+        assert!(d.strokes[0].open);
     }
 
     #[test]

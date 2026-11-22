@@ -79,8 +79,7 @@ impl App {
     pub fn expire_ink(&self, now: Instant) -> bool {
         let drawing = {
             let mut live = self.live.lock().unwrap();
-            let after = live.drawing.fade_after;
-            if !live.drawing.strokes.iter().any(|s| s.opacity(now, after) <= 0.0) { return false }
+            if !live.drawing.needs_expire(now) { return false }
             Arc::make_mut(&mut live.drawing).expire(now);
             live.drawing.clone()
         };
