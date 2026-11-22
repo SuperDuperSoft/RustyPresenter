@@ -294,7 +294,26 @@ struct Inner {
     delay_timer: Timer,
     /// N22: the recording this window feeds (`record`).
     rec: RefCell<Option<record::RoomRec>>,
+    /// Moves the fades, pushes and playing groups on once per frame the window shows (`frame_drawn`).
+    pace: FramePace,
     me: Weak<Inner>,
+}
+
+/// `RP_FRAME_STEPS=0`: fades and pushes move on their 16 ms timers only, as before the per-frame step (to compare, or
+/// if a driver misbehaves with it).
+fn frame_steps() -> bool {
+    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *ON.get_or_init(|| std::env::var("RP_FRAME_STEPS").as_deref() != Ok("0"))
+}
+
+/// The step that follows each frame while something moves (`fade::next_step`).
+#[derive(Default)]
+struct FramePace {
+    timer: Timer,
+    /// A step is waiting for its time.
+    queued: Cell<bool>,
+    /// When the last step ran.
+    last: Cell<Option<std::time::Instant>>,
 }
 
 impl Inner {
@@ -366,6 +385,40 @@ impl Inner {
             Some(plan) => self.start(plan, view),
             None => { self.sync_pause(&room::pause_sync(view)); self.sync_seek(view.frame.seek) }
         }
+    }
+
+    /// Whether a fade, a push or wipe, or a designed slide's group is moving.
+    fn animating(&self) -> bool { self.fader.running() || self.anim.running() }
+
+    /// The window has drawn a frame (OpenGL drawing; `VideoSurface::set_after_frame`). While something moves, the
+    /// next step is set for a little later (`fade::next_step`), so what moves steps once per refresh of this
+    /// window's monitor. Called inside the drawing: it only starts a timer.
+    fn frame_drawn(&self) {
+        if self.pace.queued.get() || !self.animating() || !frame_steps() { return }
+        let now = std::time::Instant::now();
+        let due = super::fade::next_step(now, self.pace.last.get(), self.refresh());
+        self.pace.queued.set(true);
+        let me = self.me.clone();
+        self.pace.timer.start(TimerMode::SingleShot, due.saturating_duration_since(now), move || if let Some(i) = me.upgrade() { i.frame_step() });
+    }
+
+    /// One step for the next frame: everything that moves is set to where it is now, and the window is asked to
+    /// draw at once (past Slint's own frame timer, which is not in step with the monitor), so the frame is ready
+    /// for the coming refresh. That frame calls `frame_drawn` again, until nothing moves.
+    fn frame_step(&self) {
+        use slint::winit_030::WinitWindowAccessor;
+        self.pace.queued.set(false);
+        self.pace.last.set(Some(std::time::Instant::now()));
+        self.fader.frame_tick();
+        self.anim.frame_tick();
+        if self.animating() { self.ui.window().with_winit_window(|w| w.request_redraw()); }
+    }
+
+    /// The refresh time of the monitor this window is on (60 Hz when it cannot be told).
+    fn refresh(&self) -> Duration {
+        use slint::winit_030::WinitWindowAccessor;
+        let mhz = self.ui.window().with_winit_window(|w| w.current_monitor().and_then(|m| m.refresh_rate_millihertz())).flatten();
+        super::fade::refresh_period(mhz)
     }
 
     /// The size layers are prepared at: the room monitor's, else the window's.
@@ -782,10 +835,12 @@ impl Room {
                 ui: ui.clone_strong(), surface, monitor: monitor.clone(), work, jobs, shared: shared.clone(), state: RefCell::default(),
                 prep: RefCell::default(), players: RefCell::default(), deferred: RefCell::default(), fade: Timer::default(),
                 faces: RefCell::default(), fader, face_ops, last: RefCell::default(), seeked: Cell::default(), clock: Timer::default(), black, motion, moving, anim: anim::Animator::default(), sprites, on_top: Cell::default(), swap_probe: RefCell::default(),
-                fix: Cell::default(), delayed: RefCell::default(), delay_timer: Timer::default(), rec: RefCell::default(), me: me.clone(),
+                fix: Cell::default(), delayed: RefCell::default(), delay_timer: Timer::default(), rec: RefCell::default(), pace: FramePace::default(), me: me.clone(),
             }
         });
         let room = Rc::new(Room { inner });
+        let me = Rc::downgrade(&room.inner);
+        room.inner.surface.set_after_frame(move || if let Some(i) = me.upgrade() { i.frame_drawn() });
         ui.show().map_err(|e| crate::tr!("Could not open the audience screen: {error}", error = e))?;
         if let Some(m) = &monitor { monitors::fullscreen_on(&ui, m)? }
         // Subscribe before reading the view so no update falls in between.

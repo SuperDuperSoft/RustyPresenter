@@ -73,7 +73,14 @@ impl Running {
 /// Plays a `Running` on the shared frame timer (`fade::TICK`), only while it runs: each frame hands `frame` the
 /// pictures and how far the lead is, then `None` once it is over.
 #[derive(Default)]
-pub(in crate::ui) struct Animator { run: Rc<RefCell<Option<(Running, Instant)>>>, timer: Rc<Timer> }
+pub(in crate::ui) struct Animator {
+    run: Rc<RefCell<Option<(Running, Instant)>>>,
+    timer: Rc<Timer>,
+    /// One step of what plays, for the timer and for the window's frames (`frame_tick`).
+    step: RefCell<Option<Rc<dyn Fn()>>>,
+    /// When a frame last moved it on (`fade::fed`).
+    fed: Rc<std::cell::Cell<Option<Instant>>>,
+}
 
 impl Animator {
     /// Starts `run` (stopping what played), drawing its first frame now.
@@ -93,17 +100,36 @@ impl Animator {
             }
         };
         tick();
-        if self.run.borrow().is_none() { return self.timer.stop() }
-        self.timer.start(TimerMode::Repeated, crate::ui::fade::TICK, tick);
+        if self.run.borrow().is_none() {
+            self.step.borrow_mut().take();
+            return self.timer.stop()
+        }
+        let tick: Rc<dyn Fn()> = Rc::new(tick);
+        *self.step.borrow_mut() = Some(tick.clone());
+        self.fed.set(None);
+        let fed = self.fed.clone();
+        // While the window's frames move it on, the timer leaves it to them.
+        self.timer.start(TimerMode::Repeated, crate::ui::fade::TICK, move || if !crate::ui::fade::fed(fed.get(), Instant::now()) { tick() });
+    }
+
+    /// One step from a frame of the window (`fade::next_step`), so the pictures move once per frame shown.
+    pub fn frame_tick(&self) {
+        if !self.running() { return }
+        // Taken out first: the step may start or stop a run.
+        let step = self.step.borrow().clone();
+        if let Some(step) = step {
+            self.fed.set(Some(Instant::now()));
+            step()
+        }
     }
 
     /// Stops it where it is; false when nothing played. `frame` is not called.
     pub fn stop(&self) -> bool {
         self.timer.stop();
+        self.step.borrow_mut().take();
         self.run.borrow_mut().take().is_some()
     }
 
-    #[cfg(test)]
     pub fn running(&self) -> bool { self.run.borrow().is_some() }
 }
 

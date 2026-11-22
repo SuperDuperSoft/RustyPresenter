@@ -68,6 +68,8 @@ pub struct VideoSurface {
     fix: RefCell<(crate::screen_fix::ScreenFix, super::postpass::PostPass)>,
     /// N22: reads each finished frame for a recording (`set_frame_tap`).
     tap: RefCell<Option<crate::record::gl::GlCapture>>,
+    /// Told after each frame the window draws (`set_after_frame`). OpenGL only.
+    after_frame: RefCell<Option<Rc<dyn Fn()>>>,
     /// A tap taken away, freed in the next frame (its GL objects need the context current).
     old_taps: RefCell<Vec<crate::record::gl::GlCapture>>,
 }
@@ -137,6 +139,7 @@ impl VideoSurface {
             probe: RefCell::new(None),
             fix: RefCell::default(),
             tap: RefCell::new(None),
+            after_frame: RefCell::new(None),
             old_taps: RefCell::default(),
         };
         if mode == DrawMode::OpenGl {
@@ -237,6 +240,10 @@ impl VideoSurface {
 
     /// The colour fix and corner pin for every frame from now on (N20). OpenGL only; in software drawing it does
     /// nothing. Redraws when it changed.
+    /// `f` hears each frame the window has drawn (OpenGL drawing only; software drawing has no such moment). It
+    /// runs inside the drawing, so it must not change what the window shows: start a timer and do it there.
+    pub fn set_after_frame(&self, f: impl Fn() + 'static) { *self.after_frame.borrow_mut() = Some(Rc::new(f)) }
+
     pub fn set_fix(&self, fix: crate::screen_fix::ScreenFix) {
         let mut f = self.fix.borrow_mut();
         if f.0 == fix { return }
@@ -359,6 +366,9 @@ impl VideoSurface {
                 if let Some((p, rc)) = st.drawn(false) {
                     unsafe { (p.mpv().render_context_report_swap)(rc) };
                 }
+                drop(st);
+                let f = self.after_frame.borrow().clone();
+                if let Some(f) = f { f() }
             }
             RenderingState::RenderingTeardown => {
                 // GL is current here. Players keep their place: a new GL context

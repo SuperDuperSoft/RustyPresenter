@@ -49,10 +49,37 @@ impl Ramp {
     }
 }
 
+/// How long after a frame moved the fades on their own timer stays quiet. Past it the window is not drawing
+/// (hidden, covered, or drawn in software), and the timer carries the fade to its end.
+pub const FED: Duration = Duration::from_millis(50);
+
+/// Whether frames moved things on recently enough (`FED`) that a timer should leave them to it.
+pub fn fed(last: Option<Instant>, now: Instant) -> bool { last.is_some_and(|t| now.saturating_duration_since(t) < FED) }
+
+/// When to move a window's fades on after one of its frames, so they step once per refresh of its monitor and not
+/// on a timer of their own: a 16 ms timer gives 62 steps a second, which on a 75 Hz screen repeats every sixth
+/// frame and on a 120 Hz one every second, and a push or wipe then judders.
+///
+/// `frame_end` is when the frame was handed to the screen (with vsync, just after a refresh), `period` the
+/// monitor's refresh time. The step waits 0.4 of a refresh, which leaves the other windows their turn to draw on
+/// the one UI thread and still leaves time to draw before the next refresh. It also keeps 0.9 of a refresh from
+/// the step before (`last_step`), so a window whose frames do not wait for the screen cannot run away.
+pub fn next_step(frame_end: Instant, last_step: Option<Instant>, period: Duration) -> Instant {
+    let after_frame = frame_end + period.mul_f32(0.4);
+    last_step.map_or(after_frame, |l| after_frame.max(l + period.mul_f32(0.9)))
+}
+
+/// A monitor's refresh time from its rate in thousandths of a hertz (winit's `refresh_rate_millihertz`); 60 Hz
+/// when it does not say, and never outside 24 to 500 Hz.
+pub fn refresh_period(millihertz: Option<u32>) -> Duration {
+    let mhz = millihertz.filter(|m| *m > 0).unwrap_or(60_000).clamp(24_000, 500_000);
+    Duration::from_secs_f64(1000.0 / f64::from(mhz))
+}
+
 /// A fading value: its ramp, what was last written, and where it is written.
 struct Channel { ramp: Ramp, shown: f32, set: Box<dyn Fn(f32)> }
 
-struct Inner { timer: Timer, chans: RefCell<Vec<Channel>>, now: Box<dyn Fn() -> Instant> }
+struct Inner { timer: Timer, chans: RefCell<Vec<Channel>>, now: Box<dyn Fn() -> Instant>, fed: std::cell::Cell<Option<Instant>> }
 
 /// One fading value of a `Fader`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -70,7 +97,7 @@ impl Fader {
 
     /// A fader reading the time from `now` (tests drive it with a fake clock and `tick`).
     pub fn with_clock(now: impl Fn() -> Instant + 'static) -> Fader {
-        Fader { inner: Rc::new(Inner { timer: Timer::default(), chans: RefCell::default(), now: Box::new(now) }) }
+        Fader { inner: Rc::new(Inner { timer: Timer::default(), chans: RefCell::default(), now: Box::new(now), fed: Default::default() }) }
     }
 
     /// A new value starting at `initial`, written through `set` (now, and whenever it changes).
@@ -119,10 +146,20 @@ impl Fader {
     /// Moves every fade on to now and writes the values that changed; stops the timer once all are over.
     pub fn tick(&self) { tick(&self.inner) }
 
+    /// `tick`, from a frame of the window (`next_step`): while frames keep coming the timer leaves the fades to
+    /// them, so they move once per frame shown.
+    pub fn frame_tick(&self) {
+        self.inner.fed.set(Some((self.inner.now)()));
+        tick(&self.inner)
+    }
+
+    /// The timer's turn: nothing while frames are moving the fades on.
+    fn timer_tick(inner: &Inner) { if !fed(inner.fed.get(), (inner.now)()) { tick(inner) } }
+
     fn run(&self) {
         if self.inner.timer.running() || !self.running() { return }
         let weak: Weak<Inner> = Rc::downgrade(&self.inner);
-        self.inner.timer.start(TimerMode::Repeated, TICK, move || if let Some(i) = weak.upgrade() { tick(&i) });
+        self.inner.timer.start(TimerMode::Repeated, TICK, move || if let Some(i) = weak.upgrade() { Fader::timer_tick(&i) });
     }
 }
 
@@ -171,6 +208,50 @@ mod tests {
             assert!(ease(t + 0.01) >= ease(t));
         }
         assert_eq!(ease(f32::NAN), 1.0);
+    }
+
+    #[test]
+    fn a_step_follows_each_frame_and_cannot_run_away() {
+        let t0 = Instant::now();
+        let ms = |n: u64| Duration::from_millis(n);
+        let p = refresh_period(Some(75_000));
+        assert!((p.as_secs_f32() * 1000.0 - 13.333).abs() < 0.01);
+        assert_eq!(refresh_period(None), refresh_period(Some(60_000)));
+        assert_eq!(refresh_period(Some(0)), refresh_period(Some(60_000)));
+        assert_eq!(refresh_period(Some(1)), refresh_period(Some(24_000)), "never slower than 24 Hz");
+        let near = |a: Instant, b: Instant| a.max(b).duration_since(a.min(b)) < Duration::from_micros(10);
+        // The first step: 0.4 of a refresh after the frame.
+        assert!(near(next_step(t0, None, ms(10)), t0 + ms(4)));
+        // With vsync a frame ends a refresh after the last one, about 0.6 after the step: one step per refresh.
+        assert!(near(next_step(t0 + ms(10), Some(t0 + ms(4)), ms(10)), t0 + ms(14)));
+        // Without vsync the frame ends at once: the next step still keeps 0.9 of a refresh from the last.
+        assert!(near(next_step(t0 + ms(5), Some(t0 + ms(4)), ms(10)), t0 + ms(13)));
+    }
+
+    #[test]
+    fn frames_keep_the_timer_quiet_until_they_stop() {
+        let (f, clock) = faked();
+        let seen = Rc::new(Cell::new(0.0f32));
+        let s = seen.clone();
+        let ch = f.channel(0.0, move |v| s.set(v));
+        f.fade(ch, 1.0, FULL);
+        later(&clock, 100);
+        f.frame_tick();
+        let at_frame = seen.get();
+        assert!(at_frame > 0.0 && at_frame < 0.5);
+        // The timer comes round 10 ms later: the frames have it.
+        later(&clock, 10);
+        Fader::timer_tick(&f.inner);
+        assert_eq!(seen.get(), at_frame, "the timer left it to the frames");
+        // No frame for a while (the window is covered): the timer carries on, to the end.
+        later(&clock, 90);
+        Fader::timer_tick(&f.inner);
+        assert!((seen.get() - 0.5).abs() < 1e-3, "half way at 200 ms: {}", seen.get());
+        later(&clock, 200);
+        Fader::timer_tick(&f.inner);
+        assert_eq!(seen.get(), 1.0);
+        assert!(!f.running());
+        assert!(fed(Some(clock.get()), clock.get()) && !fed(None, clock.get()) && !fed(Some(clock.get()), clock.get() + FED));
     }
 
     #[test]

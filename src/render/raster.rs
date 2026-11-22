@@ -160,20 +160,62 @@ pub(crate) fn text_picture(fonts: &mut Fonts, buf: &mut Buffer, size: (u32, u32)
     Premul(px)
 }
 
-/// Grows coverage by `r` pixels each way (a square max filter, rows then columns).
+/// Grows coverage by `r` pixels in every direction: a round pen of radius `r` drawn along the letters, so corners
+/// come out round and a diagonal stroke is as thick as an upright one (a square filter made corners square and
+/// diagonals 1.4 times too thick). The pen is full out to `r` pixels and fades to nothing one pixel further, the
+/// same in every direction, so the ring's curves are not stepped.
+///
+/// A disc is a stack of rows: `dy` rows away it is full out to `sqrt(r² - dy²)` to each side. So each output row
+/// is the largest, over the rows within `r`, of that row's sliding maximum with that reach, and of the few pixels
+/// in the pen's fading rim, each weighted by how much of the pen is left there. Cost: about `2r + 1` passes over
+/// the box.
 fn dilate(data: &mut [f32], w: usize, h: usize, r: usize) {
     if r == 0 || w == 0 || h == 0 { return }
-    let mut tmp = vec![0.0f32; data.len()];
-    for y in 0..h {
-        let row = &data[y * w..(y + 1) * w];
-        for x in 0..w {
-            tmp[y * w + x] = row[x.saturating_sub(r)..(x + r + 1).min(w)].iter().copied().fold(0.0, f32::max);
+    let src = data.to_vec();
+    data.fill(0.0);
+    let mut row_max = vec![0.0f32; w];
+    let mut queue = std::collections::VecDeque::with_capacity(w);
+    let end = (r + 1) as f32;
+    for dy in 0..=r {
+        let dy2 = (dy * dy) as f32;
+        // Full weight out to `whole` pixels; the rim: (pixels away, weight), until the weight runs out.
+        let whole = ((r * r) as f32 - dy2).sqrt().floor() as usize;
+        let rim: Vec<(usize, f32)> = (whole + 1..).map(|dx| (dx, end - ((dx * dx) as f32 + dy2).sqrt())).take_while(|&(_, k)| k > 0.0).collect();
+        for sy in 0..h {
+            let row = &src[sy * w..(sy + 1) * w];
+            if !row.iter().any(|&v| v > 0.0) { continue }
+            sliding_max(row, &mut row_max, whole, &mut queue);
+            for &(dx, k) in &rim {
+                for x in 0..w {
+                    let left = if x >= dx { row[x - dx] } else { 0.0 };
+                    let right = row.get(x + dx).copied().unwrap_or(0.0);
+                    let v = k * left.max(right);
+                    if v > row_max[x] { row_max[x] = v }
+                }
+            }
+            // The same reach `dy` rows above and below.
+            let above = sy.checked_sub(dy);
+            let below = (dy > 0 && sy + dy < h).then_some(sy + dy);
+            for y in above.into_iter().chain(below) {
+                for (d, &m) in data[y * w..(y + 1) * w].iter_mut().zip(&row_max) { if m > *d { *d = m } }
+            }
         }
     }
-    for x in 0..w {
-        for y in 0..h {
-            data[y * w + x] = (y.saturating_sub(r)..(y + r + 1).min(h)).map(|yy| tmp[yy * w + x]).fold(0.0, f32::max);
+}
+
+/// `out[x]` is the largest of `row[x - k ..= x + k]` (cut to the row), in one pass with a queue of candidates.
+fn sliding_max(row: &[f32], out: &mut [f32], k: usize, queue: &mut std::collections::VecDeque<usize>) {
+    let w = row.len();
+    queue.clear();
+    let mut next = 0;
+    for (x, o) in out.iter_mut().enumerate() {
+        while next < w && next <= x + k {
+            while queue.back().is_some_and(|&b| row[b] <= row[next]) { queue.pop_back(); }
+            queue.push_back(next);
+            next += 1;
         }
+        while queue.front().is_some_and(|&f| f + k < x) { queue.pop_front(); }
+        *o = queue.front().map_or(0.0, |&f| row[f]);
     }
 }
 
@@ -444,6 +486,67 @@ mod tests {
                 let worst = got.data().iter().zip(want.data()).map(|(a, b)| a.abs_diff(*b)).max().unwrap();
                 assert!(worst <= 1, "block at ({}, {}), blur {}: off by {worst}", cov.x, cov.y, sh.blur);
                 assert!(got.data().iter().any(|&v| v > 0));
+            }
+        }
+    }
+
+    /// One covered pixel grown by `r` is a disc: full along the axes out to `r`, empty in the square's corners,
+    /// about π r² in area, the same in every quarter, and soft (neither 0 nor 1) somewhere on its rim.
+    #[test]
+    fn an_outline_is_round_not_square() {
+        for r in [1usize, 3, 6, 12, 24] {
+            let n = 2 * r + 9;
+            let c = n / 2;
+            let mut d = vec![0.0f32; n * n];
+            d[c * n + c] = 1.0;
+            dilate(&mut d, n, n, r);
+            let at = |dx: i32, dy: i32| d[(c as i32 + dy) as usize * n + (c as i32 + dx) as usize];
+            let ri = r as i32;
+            for (dx, dy) in [(ri, 0), (-ri, 0), (0, ri), (0, -ri), (0, 0)] { assert_eq!(at(dx, dy), 1.0, "r {r}: ({dx}, {dy}) is inside") }
+            for (dx, dy) in [(ri + 2, 0), (0, ri + 2), (-ri - 2, 0)] { assert_eq!(at(dx, dy), 0.0, "r {r}: ({dx}, {dy}) is outside") }
+            if r >= 3 { assert_eq!(at(ri, ri), 0.0, "r {r}: the square's corner is empty") }
+            let area: f32 = d.iter().sum();
+            let want = std::f32::consts::PI * (r as f32 + 0.5).powi(2);
+            assert!((area - want).abs() <= want * 0.06 + 2.0, "r {r}: area {area:.1}, a disc is {want:.1}");
+            for dy in -ri - 1..=ri + 1 {
+                for dx in -ri - 1..=ri + 1 {
+                    assert_eq!(at(dx, dy), at(-dx, dy), "r {r}: mirrored left-right at ({dx}, {dy})");
+                    assert_eq!(at(dx, dy), at(dx, -dy), "r {r}: mirrored top-bottom at ({dx}, {dy})");
+                }
+            }
+            if r >= 3 { assert!(d.iter().any(|&v| v > 0.05 && v < 0.95), "r {r}: the rim is soft") }
+        }
+    }
+
+    /// Growing keeps what was covered, never passes 1, and stops at the box's edges without wrapping.
+    #[test]
+    fn an_outline_keeps_the_letters_and_stays_in_its_box() {
+        let (w, h) = (40usize, 30usize);
+        let src: Vec<f32> = (0..w * h).map(|i| if (i * 31) % 17 == 0 { ((i * 7) % 10) as f32 / 10.0 } else { 0.0 }).collect();
+        for r in [1usize, 4, 9] {
+            let mut d = src.clone();
+            dilate(&mut d, w, h, r);
+            for (i, (&a, &b)) in src.iter().zip(&d).enumerate() {
+                assert!(b >= a && b <= 1.0, "r {r}: pixel {i} went from {a} to {b}");
+            }
+        }
+        // A dot in the top-left corner reaches right and down only.
+        let mut d = vec![0.0f32; w * h];
+        d[0] = 1.0;
+        dilate(&mut d, w, h, 5);
+        assert_eq!((d[5], d[5 * w], d[w - 1], d[(h - 1) * w]), (1.0, 1.0, 0.0, 0.0));
+    }
+
+    #[test]
+    fn a_sliding_maximum_matches_the_plain_one() {
+        let row: Vec<f32> = (0..53).map(|i| ((i * 29) % 13) as f32).collect();
+        let mut out = vec![0.0; row.len()];
+        let mut q = std::collections::VecDeque::new();
+        for k in [0usize, 1, 2, 7, 60] {
+            sliding_max(&row, &mut out, k, &mut q);
+            for x in 0..row.len() {
+                let want = row[x.saturating_sub(k)..(x + k + 1).min(row.len())].iter().copied().fold(0.0, f32::max);
+                assert_eq!(out[x], want, "k {k}, x {x}");
             }
         }
     }
