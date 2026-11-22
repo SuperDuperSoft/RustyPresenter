@@ -19,6 +19,7 @@ fn hash_verses(vs: &[VerseText], h: &mut DefaultHasher) {
         v.reference.hash(h);
         v.text.hash(h);
         v.id.hash(h);
+        v.through.hash(h);
     }
 }
 

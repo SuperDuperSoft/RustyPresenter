@@ -140,12 +140,16 @@ pub fn plan_scripture<T: PlanTheme>(input: &ScriptureInput<T>, m: &mut dyn Measu
 fn group_verses<T: PlanTheme>(input: &ScriptureInput<T>, verses: &[UnionVerse], m: &mut dyn Measure, honor_join: bool) -> Vec<Vec<usize>> {
     let mut groups: Vec<Vec<usize>> = vec![];
     let mut group: Vec<usize> = vec![];
+    // An Also verse that stands for several main verses (`VerseText::through`) keeps them on one slide, so none of
+    // them is left with nothing beside it.
+    let spans: Vec<(VerseId, VerseId)> = verses.iter().flat_map(|u| u.also.iter().flatten()).filter_map(|vt| vt.id.zip(vt.through)).collect();
+    let glued: BTreeSet<VerseId> = verses.iter().filter_map(|u| u.id).filter(|id| spans.iter().any(|(from, to)| from < id && id <= to)).collect();
     for (i, u) in verses.iter().enumerate() {
         if !group.is_empty() {
             let marked = |set: &BTreeSet<VerseId>| u.id.is_some_and(|id| set.contains(&id));
             let new_slide = if marked(&input.breaks.before) {
                 true
-            } else if honor_join && marked(&input.breaks.join) {
+            } else if marked(&glued) || (honor_join && marked(&input.breaks.join)) {
                 false
             } else if input.per_slide > 0 {
                 group.len() >= input.per_slide as usize

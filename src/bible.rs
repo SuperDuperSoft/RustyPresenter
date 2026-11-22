@@ -264,7 +264,7 @@ pub fn pasted(input: &str, text: &str) -> Result<(String, Vec<VerseText>), Strin
     let label = canonical(&r, display);
     // One unnumbered block keeps the whole reference as its label.
     let one = out.len() == 1 && !text.split_whitespace().next().is_some_and(|w| w.trim_matches(['[', ']']).chars().all(|ch| ch.is_ascii_digit() || ch == ':'));
-    Ok((label.clone(), out.into_iter().map(|(c, v, text)| VerseText { reference: if one { label.clone() } else { format!("{display} {c}:{v}") }, text, id: (!one).then_some(crate::scripture::VerseId(r.book, c, v)) }).collect()))
+    Ok((label.clone(), out.into_iter().map(|(c, v, text)| VerseText { reference: if one { label.clone() } else { format!("{display} {c}:{v}") }, text, id: (!one).then_some(crate::scripture::VerseId(r.book, c, v)), through: None }).collect()))
 }
 
 /// Book name as shown in a reference ("Psalm 23", not "Psalms 23").

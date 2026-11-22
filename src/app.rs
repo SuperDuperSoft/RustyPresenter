@@ -1110,22 +1110,32 @@ impl App {
     /// `reference` (in `main`'s numbering) from a Bible that numbers its verses another way (spec §5.4): each of the
     /// main Bible's verses is found under the other Bible's own number. The verse keeps its own label ("Malachi
     /// 3:19") and takes the main verse's identity, which is what lines the columns up on the slide. A verse the
-    /// other Bible does not have (a psalm's title beside an English Bible) is left out, never shifted.
+    /// other Bible does not have (a psalm's title beside an English Bible) is left out, never shifted. Where two
+    /// verses of one Bible are one verse of the other (Psalm 13:5-6 in English is 13:6 in Hebrew), the one verse
+    /// shows once and stands for both, and the two show together beside the one.
     async fn lookup_renumbered(&self, main: &str, from: bible::library::Vsys, other: &str, to: bible::library::Vsys, reference: &str)
         -> Result<(String, Vec<VerseText>), String> {
         use crate::scripture::VerseId;
         let (label, verses) = self.lookup_passage(main, reference).await?;
-        let pairs: Vec<(VerseId, VerseId)> = verses.iter().filter_map(|v| v.id)
-            .filter_map(|id| bible::versify::convert(id, from, to).map(|there| (id, there))).collect();
-        let Some(range) = Self::verse_range(&pairs.iter().map(|p| p.1).collect::<Vec<_>>()) else { return Err(tr!("No verses found.")) };
+        let pairs: Vec<(VerseId, Vec<VerseId>)> = verses.iter().filter_map(|v| v.id)
+            .map(|id| (id, bible::versify::convert_all(id, from, to))).filter(|(_, there)| !there.is_empty()).collect();
+        let Some(range) = Self::verse_range(&pairs.iter().flat_map(|p| p.1.iter().copied()).collect::<Vec<_>>()) else { return Err(tr!("No verses found.")) };
         let (_, theirs) = self.lookup_passage(other, &range).await?;
-        let mut used = std::collections::BTreeSet::new();
-        let out: Vec<VerseText> = pairs.iter().filter_map(|&(id, there)| {
-            // Two of the main Bible's verses can be one verse there (Psalm 13:5–6): it shows once.
-            if !used.insert(there) { return None }
-            let v = theirs.iter().find(|v| v.id == Some(there))?;
-            Some(VerseText { id: Some(id), ..v.clone() })
-        }).collect();
+        // The other Bible's verses already shown, and where in `out`.
+        let mut used: std::collections::BTreeMap<VerseId, usize> = std::collections::BTreeMap::new();
+        let mut out: Vec<VerseText> = vec![];
+        for (id, there) in &pairs {
+            // Two of the main Bible's verses can be one verse there (Psalm 13:5-6): it shows once, beside the
+            // first, and stands for both.
+            if let Some(&at) = there.first().and_then(|t| used.get(t)) { out[at].through = Some(*id); continue }
+            let found: Vec<&VerseText> = there.iter().filter_map(|t| theirs.iter().find(|v| v.id == Some(*t))).collect();
+            let Some(first) = found.first() else { continue };
+            // One of the main Bible's verses can be two verses there: both show beside it, under one label.
+            let reference = if found.len() > 1 { Self::verse_range(there).unwrap_or_else(|| first.reference.clone()) } else { first.reference.clone() };
+            let text = found.iter().map(|v| v.text.as_str()).collect::<Vec<_>>().join(" ");
+            for t in there { used.insert(*t, out.len()); }
+            out.push(VerseText { reference, text, id: Some(*id), through: None });
+        }
         if out.is_empty() { return Err(tr!("No verses found.")) }
         Ok((label, out))
     }
@@ -3047,6 +3057,44 @@ mod tests {
         // Where the numbers agree, nothing moves.
         let (found, _) = app.lookup_also("KJV", &["ebible:hboWLC".to_string()], "Malachi 3:1").await;
         assert_eq!((found[0].verses[0].text.as_str(), found[0].verses[0].id), ("heb 3:1", Some(VerseId(38, 3, 1))));
+    }
+
+    /// B5, B16: where two English verses are one Hebrew verse, the Hebrew verse shows once and stands for both, the
+    /// slides keep the two together, and the other way round both English verses show beside the Hebrew one.
+    #[tokio::test]
+    async fn two_english_verses_that_are_one_hebrew_verse_stay_paired() {
+        use crate::scripture::VerseId;
+        let app = test_app();
+        let mut verses = bible::import::Verses::new();
+        for v in 1..=6u16 { verses.insert((18, 13, v), format!("heb ps 13:{v}")); }
+        for v in 1..=19u16 { verses.insert((22, 63, v), format!("heb isa 63:{v}")); }
+        for v in 1..=11u16 { verses.insert((22, 64, v), format!("heb isa 64:{v}")); }
+        // What makes it read as Hebrew-numbered.
+        for v in 1..=24u16 { verses.insert((38, 3, v), format!("heb mal 3:{v}")); }
+        let meta = bible::library::BibleMeta { id: "ebible:hboWLC".into(), abbr: "WLC".into(), name: "Westminster Leningrad Codex".into(), licence: bible::library::Licence::Pd, ..Default::default() };
+        bible::import::install(&app.store.root, bible::import::ImportedBible { abbreviation: meta.id.clone(), name: meta.name.clone(), copyright: "Public domain".into(), verses, meta: Some(meta) }).unwrap();
+        let hebrew = ["ebible:hboWLC".to_string()];
+        let shape = |v: &[VerseText]| v.iter().map(|v| (v.text.clone(), v.id, v.through)).collect::<Vec<_>>();
+
+        let (found, left_out) = app.lookup_also("KJV", &hebrew, "Psalm 13:5-6").await;
+        assert!(left_out.is_empty(), "{left_out:?}");
+        assert_eq!(shape(&found[0].verses), [("heb ps 13:6".to_string(), Some(VerseId(18, 13, 5)), Some(VerseId(18, 13, 6)))], "one Hebrew verse for both");
+        // One verse to a slide would part them; the pair stays on one slide, so nothing is left unpaired.
+        let (_, main) = app.lookup_passage("KJV", "Psalm 13:5-6").await.unwrap();
+        let (slides, _) = crate::slides::parallel_slides(&main, "KJV", &[("WLC".into(), found[0].verses.as_slice())], 1, Default::default(), &crate::model::Theme::default());
+        assert_eq!(slides.len(), 1, "13:5 and 13:6 share the slide with the one Hebrew verse");
+
+        let (found, _) = app.lookup_also("KJV", &hebrew, "Isaiah 64:1-2").await;
+        assert_eq!(shape(&found[0].verses), [("heb isa 63:19".to_string(), Some(VerseId(22, 64, 1)), None), ("heb isa 64:1".to_string(), Some(VerseId(22, 64, 2)), None)],
+            "64:1 is the end of Hebrew 63:19, not Hebrew 64:1");
+        let (found, _) = app.lookup_also("KJV", &hebrew, "Isaiah 63:19-64:1").await;
+        assert_eq!(shape(&found[0].verses), [("heb isa 63:19".to_string(), Some(VerseId(22, 63, 19)), Some(VerseId(22, 64, 1)))]);
+
+        // Hebrew main, English beside it: both English verses show beside the one Hebrew verse.
+        let (found, _) = app.lookup_also("ebible:hboWLC", &["KJV".to_string()], "Psalm 13:6").await;
+        let v = &found[0].verses;
+        assert_eq!((v.len(), v[0].id, v[0].reference.as_str()), (1, Some(VerseId(18, 13, 6)), "Psalm 13:5-6"));
+        assert!(v[0].text.starts_with("But I have trusted in thy mercy") && v[0].text.contains("I will sing unto the LORD"), "{}", v[0].text);
     }
 
     #[tokio::test]

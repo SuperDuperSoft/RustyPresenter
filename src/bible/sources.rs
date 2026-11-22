@@ -448,7 +448,7 @@ pub async fn lookup(root: &Path, translation: &str, input: &str) -> Result<(Stri
         };
         if refused(provider, translation, r.book, &f) { return Err(blocked().into()); }
         provider.report(root, &f.fums);
-        out.extend(f.verses.into_iter().map(|(c, v, text)| VerseText { reference: format!("{display} {c}:{v}"), text, id: Some(crate::scripture::VerseId(r.book, c, v)) }));
+        out.extend(f.verses.into_iter().map(|(c, v, text)| VerseText { reference: format!("{display} {c}:{v}"), text, id: Some(crate::scripture::VerseId(r.book, c, v)), through: None }));
         if out.len() > 400 { return Err(tr!("That passage is too long. Choose up to about 400 verses.")); }
     }
     Ok((canonical(&r, display), out))
@@ -465,7 +465,7 @@ pub fn cached(root: &Path, translation: &str, input: &str) -> Option<Vec<VerseTe
     let mut out = Vec::new();
     for part in &r.parts {
         let e = cache.get(r.book, part, now, policy)?;
-        out.extend(e.verses.iter().map(|(c, v, text)| VerseText { reference: format!("{display} {c}:{v}"), text: text.clone(), id: Some(crate::scripture::VerseId(r.book, *c, *v)) }));
+        out.extend(e.verses.iter().map(|(c, v, text)| VerseText { reference: format!("{display} {c}:{v}"), text: text.clone(), id: Some(crate::scripture::VerseId(r.book, *c, *v)), through: None }));
     }
     Some(out)
 }

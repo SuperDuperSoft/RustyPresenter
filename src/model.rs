@@ -286,6 +286,11 @@ pub struct VerseText {
     /// parsed reliably, so this is what lines Bibles up; items saved before it have none and fall back to the label.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub id: Option<crate::scripture::VerseId>,
+    /// An Also Bible's verse that holds the words of several of the main Bible's verses (English Psalm 13:5 and
+    /// 13:6 are one verse in Hebrew): the last of them. It shows once, beside `id`, and the slides keep the
+    /// verses up to this one together.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub through: Option<crate::scripture::VerseId>,
 }
 
 /// A slide's words for the stage screen and the phone: the text, then each Also Bible's, every one headed by its code
@@ -300,7 +305,7 @@ pub fn all_bibles_text(text: &str, parallel: Option<&crate::scripture::Parallel>
 
 impl VerseText {
     pub fn new(reference: impl Into<String>, text: impl Into<String>) -> Self {
-        VerseText { reference: reference.into(), text: text.into(), id: None }
+        VerseText { reference: reference.into(), text: text.into(), id: None, through: None }
     }
 }
 

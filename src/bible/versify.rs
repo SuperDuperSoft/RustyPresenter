@@ -68,8 +68,23 @@ pub fn english_to_hebrew(VerseId(book, c, v): VerseId) -> VerseId {
     if book == PSA && c == 13 && v == 6 { return VerseId(book, 13, 6); }
     // The last verse of Nehemiah 7 in English is the end of 7:72 in Hebrew.
     if book == NEH && c == 7 && v == 73 { return VerseId(book, 7, 72); }
+    // English Isaiah 64:1 is the second half of Hebrew 63:19. Not a `SHIFTS` rule: Hebrew 63:19 still comes back
+    // as English 63:19, its first half.
+    if book == ISA && c == 64 && v == 1 { return VerseId(book, 63, 19); }
     if book == PSA { return VerseId(book, c, v + title_verses(c)); }
     VerseId(book, c, v)
+}
+
+/// Where one Hebrew verse is two English verses, the second of them (`hebrew_to_english` gives the first):
+/// Hebrew Nehemiah 7:72 is English 7:72 and 7:73, Hebrew Psalm 13:6 is English 13:5 and 13:6, and Hebrew Isaiah
+/// 63:19 is English 63:19 and 64:1.
+pub fn second_english(VerseId(book, c, v): VerseId) -> Option<VerseId> {
+    match (book, c, v) {
+        (NEH, 7, 72) => Some(VerseId(NEH, 7, 73)),
+        (PSA, 13, 6) => Some(VerseId(PSA, 13, 6)),
+        (ISA, 63, 19) => Some(VerseId(ISA, 64, 1)),
+        _ => None,
+    }
 }
 
 /// A Hebrew verse's place in an English Bible. `None` for a psalm's title, which English Bibles do not number.
@@ -131,13 +146,34 @@ pub fn hebrew_to_septuagint(VerseId(book, p, v): VerseId) -> Option<VerseId> {
 /// A verse of a Bible numbered `from`, as a Bible numbered `to` numbers it, by way of the Hebrew numbering. The
 /// Latin way reads as English so far. `None` when the other Bible has no such verse.
 pub fn convert(id: VerseId, from: Vsys, to: Vsys) -> Option<VerseId> {
-    let kind = |v: Vsys| match v { Vsys::Original => 0, Vsys::Septuagint => 1, _ => 2 };
     if kind(from) == kind(to) { return Some(id); }
-    let hebrew = match from {
-        Vsys::Original => id,
-        Vsys::Septuagint => septuagint_to_hebrew(id)?,
-        _ => english_to_hebrew(id),
-    };
+    from_hebrew(to_hebrew(id, from)?, to)
+}
+
+/// Every verse of a Bible numbered `to` that holds the words of `id`: the one `convert` gives, and a second where
+/// one Hebrew verse is two English verses (`second_english`). Empty when the other Bible has no such verse.
+pub fn convert_all(id: VerseId, from: Vsys, to: Vsys) -> Vec<VerseId> {
+    let mut out: Vec<VerseId> = convert(id, from, to).into_iter().collect();
+    if kind(from) != kind(to) && reads_as_english(to, id.book()) && let Some(second) = to_hebrew(id, from).and_then(second_english) {
+        out.push(second);
+    }
+    out
+}
+
+fn kind(v: Vsys) -> u8 { match v { Vsys::Original => 0, Vsys::Septuagint => 1, _ => 2 } }
+
+/// A Bible numbered `v` numbers this book's verses the English way.
+fn reads_as_english(v: Vsys, _book: u8) -> bool { kind(v) == 2 }
+
+fn to_hebrew(id: VerseId, from: Vsys) -> Option<VerseId> {
+    match from {
+        Vsys::Original => Some(id),
+        Vsys::Septuagint => septuagint_to_hebrew(id),
+        _ => Some(english_to_hebrew(id)),
+    }
+}
+
+fn from_hebrew(hebrew: VerseId, to: Vsys) -> Option<VerseId> {
     match to {
         Vsys::Original => Some(hebrew),
         Vsys::Septuagint => hebrew_to_septuagint(hebrew),
@@ -185,6 +221,34 @@ mod tests {
         assert_eq!(h2e(DEU, 28, 69), Some((29, 1)));
         assert_eq!(e2h(NEH, 7, 73), (7, 72));
         assert_eq!(h2e(NUM, 25, 19), Some((26, 1)));
+        // B5: English Isaiah 64:1 is the end of Hebrew 63:19.
+        assert_eq!(e2h(ISA, 64, 1), (63, 19));
+        assert_eq!(e2h(ISA, 64, 2), (64, 1));
+        assert_eq!(e2h(ISA, 63, 19), (63, 19));
+        assert_eq!(h2e(ISA, 63, 19), Some((63, 19)));
+        assert_eq!(h2e(ISA, 64, 1), Some((64, 2)));
+    }
+
+    /// B5: no two English verses are one Hebrew verse, but for the three documented pairs.
+    #[test]
+    fn only_the_documented_pairs_share_a_hebrew_verse() {
+        let mut seen: std::collections::BTreeMap<VerseId, VerseId> = std::collections::BTreeMap::new();
+        let mut shared = vec![];
+        for &(b, c, v) in crate::bible::kjv().verses.keys().filter(|k| k.0 < 39) {
+            let id = VerseId(b, c, v);
+            if let Some(other) = seen.insert(english_to_hebrew(id), id) { shared.push((other.min(id), other.max(id))); }
+        }
+        shared.sort();
+        assert_eq!(shared, [(VerseId(NEH, 7, 72), VerseId(NEH, 7, 73)), (VerseId(PSA, 13, 5), VerseId(PSA, 13, 6)), (VerseId(ISA, 63, 19), VerseId(ISA, 64, 1))]);
+        // B16: each pair's Hebrew verse gives both English verses back.
+        for (first, second) in shared {
+            let hebrew = english_to_hebrew(first);
+            assert_eq!(convert_all(hebrew, Vsys::Original, Vsys::English), [first, second]);
+            assert_eq!(convert_all(first, Vsys::English, Vsys::Original), [hebrew]);
+            assert_eq!(convert_all(second, Vsys::English, Vsys::Original), [hebrew]);
+        }
+        assert!(convert_all(VerseId(PSA, 51, 1), Vsys::Original, Vsys::English).is_empty(), "a title has no English verse");
+        assert_eq!(convert_all(VerseId(GEN, 1, 1), Vsys::English, Vsys::English), [VerseId(GEN, 1, 1)]);
     }
 
     /// Every shifted English verse goes to the Hebrew and comes back, and no two rules claim the same verse.
