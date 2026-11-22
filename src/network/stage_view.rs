@@ -1,7 +1,7 @@
 //! N31: the stage screen on a phone or tablet, read only, at `/stage-view`: the same boxes as the stage window
 //! (`stage::view`), sent as JSON over Server-Sent Events and drawn in HTML by `web/stage-view.js`. Off by default;
 //! with a password, `/stage-view/login` sets a sign-in cookie (only its hash is kept, in memory).
-use super::{password, strings as s};
+use super::{password, slide_pictures::{self, Which}, strings as s};
 use crate::{
     app::App,
     model::{Slide, SlideContent},
@@ -212,30 +212,17 @@ async fn events(State(app): State<Arc<App>>, headers: HeaderMap) -> Response {
 #[derive(Deserialize)]
 struct Size { #[serde(default)] w: Option<u32> }
 
-/// The next slide's picture as a JPEG, `w` pixels wide (16:9).
+/// The next slide's picture as a JPEG, `w` pixels wide (16:9). Drawn two at a time at most, whoever asks
+/// (`slide_pictures`): with no password set, every device on the network may ask.
 async fn next_picture(State(app): State<Arc<App>>, headers: HeaderMap, Query(q): Query<Size>) -> Response {
     if !allowed(&app, &headers) { return StatusCode::UNAUTHORIZED.into_response() }
-    let size = crate::server::live_slide_size(q.w.unwrap_or(640), (16, 9));
-    let jpeg = tokio::task::spawn_blocking(move || {
-        static RENDER: crate::ui::thumbs::TextRenderer = crate::ui::thumbs::TextRenderer::new();
-        let px = crate::ui::thumbs::next_slide(&app, size, &RENDER);
-        let rgb: Vec<u8> = px.as_bytes().chunks_exact(4).flat_map(|p| [p[0], p[1], p[2]]).collect();
-        let mut out = Vec::new();
-        image::codecs::jpeg::JpegEncoder::new_with_quality(&mut out, 85).encode(&rgb, size.0, size.1, image::ExtendedColorType::Rgb8).map(|_| out)
-    }).await;
-    match jpeg {
-        Ok(Ok(b)) => ([(header::CONTENT_TYPE, "image/jpeg"), (header::CACHE_CONTROL, "no-store")], b).into_response(),
-        _ => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    }
+    slide_pictures::respond(app, Which::Next, q.w.unwrap_or(640)).await
 }
 
 /// The slide on the audience screen now as a JPEG, `w` pixels wide, the room's shape (the phone remote's picture).
 async fn live_picture(State(app): State<Arc<App>>, headers: HeaderMap, Query(q): Query<Size>) -> Response {
     if !allowed(&app, &headers) { return StatusCode::UNAUTHORIZED.into_response() }
-    match tokio::task::spawn_blocking(move || crate::server::live_slide_jpeg(&app, q.w.unwrap_or(640))).await {
-        Ok(Ok(b)) => ([(header::CONTENT_TYPE, "image/jpeg"), (header::CACHE_CONTROL, "no-store")], b).into_response(),
-        _ => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    }
+    slide_pictures::respond(app, Which::Live, q.w.unwrap_or(640)).await
 }
 
 #[cfg(test)]

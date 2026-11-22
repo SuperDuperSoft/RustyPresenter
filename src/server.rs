@@ -292,11 +292,7 @@ struct SlideSize { #[serde(default)] w: Option<u32> }
 /// The live slide as a JPEG for the phone's drawing view, `w` pixels wide, the audience screen's shape. Paired phones and tablets only.
 async fn remote_live_slide(State(app): State<Arc<App>>, headers: HeaderMap, Query(q): Query<SlideSize>) -> Response {
     if phone_for(&app, &headers).is_none() { return (StatusCode::UNAUTHORIZED, "pair first").into_response() }
-    let width = q.w.unwrap_or(960);
-    let Ok(Ok(jpeg)) = tokio::task::spawn_blocking(move || live_slide_jpeg(&app, width)).await else {
-        return (StatusCode::INTERNAL_SERVER_ERROR, crate::tr!("Could not draw the slide.")).into_response()
-    };
-    ([(header::CONTENT_TYPE, "image/jpeg"), (header::CACHE_CONTROL, "no-store")], jpeg).into_response()
+    crate::network::slide_pictures::respond(app, crate::network::slide_pictures::Which::Live, q.w.unwrap_or(960)).await
 }
 
 #[derive(Deserialize)]
@@ -323,24 +319,12 @@ async fn remote_live_anim_pic(State(app): State<Arc<App>>, headers: HeaderMap, Q
 
 /// The size the phone's picture is drawn at: `width` kept to 160–1920 pixels, the audience screen's shape
 /// (`canvas`; 16:9 when it has no size).
-pub fn live_slide_size(width: u32, canvas: (u32, u32)) -> (u32, u32) {
-    let w = width.clamp(160, 1920);
-    let (cw, ch) = if canvas.0 > 0 && canvas.1 > 0 { canvas } else { (16, 9) };
-    (w, ((w as u64 * ch as u64 + cw as u64 / 2) / cw as u64).clamp(1, 1920) as u32)
-}
+pub fn live_slide_size(width: u32, canvas: (u32, u32)) -> (u32, u32) { crate::network::slide_pictures::size(width, canvas) }
 
 /// The live slide drawn like an operator thumbnail (the shared slide renderer), as a JPEG. Black when nothing
 /// is on screen; the drawing itself is not in it (the phone draws its own lines over it).
 pub fn live_slide_jpeg(app: &App, width: u32) -> Result<Vec<u8>, String> {
-    use crate::ui::thumbs;
-    static RENDER: thumbs::TextRenderer = thumbs::TextRenderer::new();
-    let size = live_slide_size(width, app.room_canvas());
-    let rgba = thumbs::live_slide(app, size, &RENDER);
-    let rgb: Vec<u8> = rgba.as_bytes().chunks_exact(4).flat_map(|p| [p[0], p[1], p[2]]).collect();
-    let mut out = Vec::new();
-    image::codecs::jpeg::JpegEncoder::new_with_quality(&mut out, 85)
-        .encode(&rgb, size.0, size.1, image::ExtendedColorType::Rgb8).map_err(|e| e.to_string())?;
-    Ok(out)
+    crate::network::slide_pictures::jpeg_now(app, crate::network::slide_pictures::Which::Live, width).map(|b| b.to_vec())
 }
 
 /// What a phone may send. "Show this slide" and a section jump must say which screen state they were based on.

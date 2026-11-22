@@ -141,19 +141,26 @@ pub fn compose(job: &ThumbJob, size: (u32, u32), renderer: &TextRenderer, store:
 /// The slide on the audience screen now, drawn like a thumbnail at `size` (the phone's drawing view and the stage's
 /// drawing panel). Black when nothing is on screen. Never the phone drawing itself.
 pub fn live_slide(app: &crate::app::App, size: (u32, u32), renderer: &TextRenderer) -> Pixels {
-    let job = {
-        let data = app.data.lock().unwrap();
-        let live = app.live.lock().unwrap();
-        let on_air = live.frame.slide.is_some() || live.frame.media.is_some();
-        live.cursor.as_ref().zip(live.item.as_ref()).filter(|_| on_air).and_then(|(c, item)| {
-            let slide = item.slides.get(c.slide)?;
-            let settings = Settings { theme: item.theme.clone(), background: item.background.clone(), ..data.settings.clone() };
-            let passage = crate::model::passage(&item.kind, &item.slides);
-            Some(thumb(slide, &item.kind, &passage, Some(&item.background), &settings, &data.media, size).1)
-        })
-    };
+    draw_job(live_slide_job(app, size).as_ref().map(|(_, job)| job), size, renderer, &app.store)
+}
+
+/// What `live_slide` draws, with everything that decides how it looks. `None` when nothing is on screen.
+pub fn live_slide_job(app: &crate::app::App, size: (u32, u32)) -> Option<(ThumbKey, ThumbJob)> {
+    let data = app.data.lock().unwrap();
+    let live = app.live.lock().unwrap();
+    let on_air = live.frame.slide.is_some() || live.frame.media.is_some();
+    live.cursor.as_ref().zip(live.item.as_ref()).filter(|_| on_air).and_then(|(c, item)| {
+        let slide = item.slides.get(c.slide)?;
+        let settings = Settings { theme: item.theme.clone(), background: item.background.clone(), ..data.settings.clone() };
+        let passage = crate::model::passage(&item.kind, &item.slides);
+        Some(thumb(slide, &item.kind, &passage, Some(&item.background), &settings, &data.media, size))
+    })
+}
+
+/// A thumbnail job drawn at `size`; a black picture of that size when there is none.
+pub fn draw_job(job: Option<&ThumbJob>, size: (u32, u32), renderer: &TextRenderer, store: &Store) -> Pixels {
     match job {
-        Some(job) => compose(&job, size, renderer, &app.store),
+        Some(job) => compose(job, size, renderer, store),
         None => {
             let black = RgbaImage::from_pixel(size.0.max(1), size.1.max(1), Rgba([0, 0, 0, 255]));
             Pixels::clone_from_slice(black.as_raw(), black.width(), black.height())
@@ -164,22 +171,18 @@ pub fn live_slide(app: &crate::app::App, size: (u32, u32), renderer: &TextRender
 /// N10: the slide Next would show, drawn like a thumbnail at `size` (the stage's next-slide picture). Black at the end
 /// of the service.
 pub fn next_slide(app: &crate::app::App, size: (u32, u32), renderer: &TextRenderer) -> Pixels {
-    let job = {
-        let data = app.data.lock().unwrap();
-        let live = app.live.lock().unwrap();
-        live.next_slot(&crate::app::DataPlan(&data)).map(|(item, n)| {
-            let settings = Settings { theme: item.theme.clone(), background: item.background.clone(), ..data.settings.clone() };
-            let passage = crate::model::passage(&item.kind, &item.slides);
-            thumb(&item.slides[n], &item.kind, &passage, Some(&item.background), &settings, &data.media, size).1
-        })
-    };
-    match job {
-        Some(job) => compose(&job, size, renderer, &app.store),
-        None => {
-            let black = RgbaImage::from_pixel(size.0.max(1), size.1.max(1), Rgba([0, 0, 0, 255]));
-            Pixels::clone_from_slice(black.as_raw(), black.width(), black.height())
-        }
-    }
+    draw_job(next_slide_job(app, size).as_ref().map(|(_, job)| job), size, renderer, &app.store)
+}
+
+/// What `next_slide` draws, with everything that decides how it looks. `None` at the end of the service.
+pub fn next_slide_job(app: &crate::app::App, size: (u32, u32)) -> Option<(ThumbKey, ThumbJob)> {
+    let data = app.data.lock().unwrap();
+    let live = app.live.lock().unwrap();
+    live.next_slot(&crate::app::DataPlan(&data)).and_then(|(item, n)| {
+        let settings = Settings { theme: item.theme.clone(), background: item.background.clone(), ..data.settings.clone() };
+        let passage = crate::model::passage(&item.kind, &item.slides);
+        Some(thumb(item.slides.get(n)?, &item.kind, &passage, Some(&item.background), &settings, &data.media, size))
+    })
 }
 
 /// `over` (premultiplied, same size) drawn onto opaque `img`.

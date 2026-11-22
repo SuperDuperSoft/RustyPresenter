@@ -11,6 +11,7 @@ pub mod stage_view;
 pub mod phone_mic;
 pub mod phone_link;
 pub mod live_anim;
+pub mod slide_pictures;
 pub mod tcp;
 #[path = "../strings/network.rs"]
 pub mod strings;
