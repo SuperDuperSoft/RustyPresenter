@@ -1836,8 +1836,17 @@ impl App {
             if role == "operator" { tryr!(app.open_window(&role, None)) } else {
                 let target = monitor.map_or(ScreenTarget::Window, ScreenTarget::Monitor);
                 let group = if role == "room" { "audience" } else { "stage" };
+                let before = app.data.lock().unwrap().settings.screens.clone();
                 tryr!(app.edit(|d| { d.settings.screens.assign(group, target); Ok(()) }));
-                tryr!(app.sync_screens());
+                if let Err(e) = app.sync_screens() {
+                    // The screen did not open: the saved setup goes back to what it was, so it never says a screen
+                    // is on that is not. (Another screen failing does not undo this one.)
+                    if !app.open_roles().contains(&role) {
+                        let _ = app.edit_untracked(|d| { d.settings.screens = before; Ok(()) });
+                        let _ = app.sync_screens();
+                    }
+                    return Err(ActionError::bad(e));
+                }
             }
             app.broadcast_data();
             Ok(json!({}))
@@ -2673,6 +2682,18 @@ mod tests {
         app.set_notice("RustyPresenter restarted after a problem.");
         assert_eq!(app.live.lock().unwrap().notice.as_deref(), Some("RustyPresenter restarted after a problem."));
         assert!(matches!(rx.try_recv().unwrap(), Update::Live(_)));
+    }
+
+    /// P4: a screen that could not open is not saved as on.
+    #[tokio::test]
+    async fn a_screen_that_did_not_open_is_not_saved_as_on() {
+        let app = test_app();
+        let before = app.data.lock().unwrap().settings.screens.clone();
+        // No windowing layer in a test: the window cannot open.
+        let r = app.do_action("display/open", br#"{"role":"room"}"#).await;
+        assert!(r.is_err());
+        assert_eq!(app.data.lock().unwrap().settings.screens, before, "the setup is as it was");
+        assert_eq!(app.store.load().unwrap().settings.screens, before, "on the disk too");
     }
 
     /// P1: memory holds an edit whose save failed, so every screen is told to read it.
