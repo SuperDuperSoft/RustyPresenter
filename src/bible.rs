@@ -12,6 +12,7 @@ pub mod import;
 pub mod library;
 pub mod nlt;
 pub mod online;
+pub(crate) mod kept;
 pub mod sources;
 pub mod versify;
 pub mod youversion;

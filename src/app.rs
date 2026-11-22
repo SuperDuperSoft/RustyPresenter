@@ -1216,12 +1216,16 @@ impl App {
     }
 
     /// Per-translation source details for Settings → Bible. Never includes the keys themselves.
-    pub(crate) fn bible_sources(&self) -> Vec<Value> {
+    pub(crate) fn bible_sources(&self) -> Vec<Value> { self.bible_sources_of(&self.translations()) }
+
+    /// `bible_sources` for a list of translations already in hand (`translations()`), so one look at the Bible
+    /// lists makes that list once.
+    pub(crate) fn bible_sources_of(&self, translations: &[String]) -> Vec<Value> {
         use bible::sources::{Secrets, source_with};
         let root = &self.store.root;
         let secrets = Secrets::load(root);
         let online = bible::online::list(root);
-        self.translations().iter().map(|t| {
+        translations.iter().map(|t| {
             if let Some((_, name)) = bible::BUILT_IN.iter().find(|b| b.0 == t) {
                 return json!({ "translation": t, "abbr": t, "name": name, "status": "offline", "provider": tr!("{name} — built in, public domain", name = name), "language": "English" });
             }

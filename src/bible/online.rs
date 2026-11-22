@@ -27,17 +27,25 @@ impl OnlineBible {
     fn blocked(&self) -> bool { blocklist::blocked_online(&self.abbr, &[&self.name], &[&self.copyright], &[&self.id]) }
 }
 
-/// The Bibles added, in the order they were added. A blocked one is never listed, whatever the file says.
+/// `bibles/online.json` as last read, by data folder (`kept`).
+static LISTS: super::kept::Kept<Vec<OnlineBible>> = super::kept::Kept::new();
+
+/// The Bibles added, in the order they were added. A blocked one is never listed, whatever the file says. Asked
+/// for many times per look at the Bible lists, so the file is read once and again only when it changed.
 pub fn list(root: &Path) -> Vec<OnlineBible> {
-    let all: Vec<OnlineBible> = std::fs::read(root.join(FILE)).ok().and_then(|b| serde_json::from_slice(&b).ok()).unwrap_or_default();
-    all.into_iter().filter(|b| super::id::is_prefixed(&b.id) && !b.blocked()).collect()
+    LISTS.get(&root.join(FILE), |bytes| {
+        let all: Vec<OnlineBible> = bytes.and_then(|b| serde_json::from_slice(&b).ok()).unwrap_or_default();
+        all.into_iter().filter(|b| super::id::is_prefixed(&b.id) && !b.blocked()).collect()
+    })
 }
 
 pub fn get(root: &Path, id: &str) -> Option<OnlineBible> { list(root).into_iter().find(|b| b.id == id) }
 
 fn save(root: &Path, all: &[OnlineBible]) -> io::Result<()> {
     std::fs::create_dir_all(root.join("bibles"))?;
-    crate::store::write_atomic(&root.join(FILE), &serde_json::to_vec_pretty(all).map_err(io::Error::other)?)
+    let saved = crate::store::write_atomic(&root.join(FILE), &serde_json::to_vec_pretty(all).map_err(io::Error::other)?);
+    LISTS.forget(&root.join(FILE));
+    saved
 }
 
 /// Adds a Bible, or replaces what is known about one already added.

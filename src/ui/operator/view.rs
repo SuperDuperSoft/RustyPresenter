@@ -148,8 +148,11 @@ impl OperatorSnapshot {
                 None => (Arc::new(held.clone()), rev, None),
             }
         };
+        // One list of translations, and the sources made from it once: what can be looked up now is read off the
+        // sources, not worked out a second time.
         let translations = app.translations();
-        let available = app.available_translations();
+        let bible_sources: Vec<BibleSource> = typed(app.bible_sources_of(&translations));
+        let available: Vec<String> = bible_sources.iter().filter(|s| s.status != "needs_key" && s.status != "unavailable").map(|s| s.translation.clone()).collect();
         // A saved translation may be an imported Bible that has since been removed (`operator.js:97`).
         let translation = if translations.contains(&data.settings.translation) { data.settings.translation.clone() }
             else { available.first().cloned().unwrap_or_else(|| "KJV".into()) };
@@ -178,7 +181,7 @@ impl OperatorSnapshot {
             translations,
             available,
             translation,
-            bible_sources: typed(app.bible_sources()),
+            bible_sources,
             bible_providers: typed(app.bible_providers()),
             room,
             stage_connected: app.stage_conns.load(Ordering::Relaxed) > 0,
@@ -475,6 +478,17 @@ pub fn picker_lines(s: &OperatorSnapshot, query: &str) -> Vec<PickerLine> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Q10: the snapshot's own list of what can be looked up is the one `App` gives.
+    #[test]
+    fn the_snapshots_bible_lists_match_the_apps() {
+        let app = crate::app::test_app();
+        let snap = OperatorSnapshot::read(&app);
+        assert_eq!(snap.available, app.available_translations());
+        assert_eq!(snap.translations, app.translations());
+        assert_eq!(snap.bible_sources.len(), app.bible_sources().len());
+        assert!(snap.available.contains(&"KJV".to_string()) && snap.available.len() < snap.translations.len(), "some need a key");
+    }
 
     /// Q3: a read after nothing changed in the data shares the last read's data and rows.
     #[test]

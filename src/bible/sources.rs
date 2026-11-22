@@ -247,17 +247,25 @@ pub fn client() -> Result<&'static reqwest::Client, FetchError> {
 
 // ---------- keys ----------
 
-#[derive(Serialize, Deserialize, Default, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Default, Debug, PartialEq, Clone)]
 #[serde(default)]
 pub struct Secrets { pub keys: BTreeMap<String, String> }
 
+/// `secrets.json` as last read, by data folder (`kept`).
+static SECRETS: super::kept::Kept<Secrets> = super::kept::Kept::new();
+
 impl Secrets {
+    /// The saved keys. Asked for many times per look at the Bible lists, so the file is read once and again only
+    /// when it changed.
     pub fn load(root: &Path) -> Self {
-        std::fs::read(root.join("secrets.json")).ok().and_then(|b| serde_json::from_slice(&b).ok()).unwrap_or_default()
+        SECRETS.get(&root.join("secrets.json"), |bytes| bytes.and_then(|b| serde_json::from_slice(&b).ok()).unwrap_or_default())
     }
 
     pub fn save(&self, root: &Path) -> io::Result<()> {
-        crate::store::write_atomic(&root.join("secrets.json"), &serde_json::to_vec_pretty(self).map_err(io::Error::other)?)
+        let path = root.join("secrets.json");
+        let saved = crate::store::write_atomic(&path, &serde_json::to_vec_pretty(self).map_err(io::Error::other)?);
+        SECRETS.forget(&path);
+        saved
     }
 
     /// The key to ask the provider with: the church's own, else the one that comes with the app.
