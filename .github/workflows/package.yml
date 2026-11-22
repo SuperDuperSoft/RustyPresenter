@@ -32,8 +32,8 @@ jobs:
             formats: appimage,deb
     runs-on: ${{ matrix.os }}
     env:
-      # Ignored off macOS. The Rust binary and libmpv both target macOS 12.
-      MACOSX_DEPLOYMENT_TARGET: "12.0"
+      # Ignored off macOS. The app needs macOS 13 (the pinned pdfium does); libmpv itself targets 12.
+      MACOSX_DEPLOYMENT_TARGET: "13.0"
       # linuxdeploy is itself an AppImage; FUSE is not available on the runner.
       APPIMAGE_EXTRACT_AND_RUN: "1"
     defaults:

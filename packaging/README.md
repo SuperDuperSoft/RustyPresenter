@@ -14,7 +14,7 @@ Every release (`v*` tag, `.github/workflows/package.yml`) has these, `<version>`
 |---|---|
 | `RustyPresenter-<version>-windows-setup.exe` | Windows 10/11 installer, per user, no administrator password. Data in `%LOCALAPPDATA%\RustyPresenter` |
 | `RustyPresenter-<version>-windows-portable.zip` | Windows, no install: a `RustyPresenter` folder with `rustypresenter.exe`, `libmpv-2.dll`, `pdfium.dll`, the licences, `portable.txt` and `HOW-TO-START.txt`. Unzip, double-click the exe |
-| `RustyPresenter-<version>-macos.dmg` | Mac with Apple silicon, macOS 12 or later: drag RustyPresenter into Applications. Data in `~/Library/Application Support/RustyPresenter` |
+| `RustyPresenter-<version>-macos.dmg` | Mac with Apple silicon, macOS 13 or later: drag RustyPresenter into Applications. Data in `~/Library/Application Support/RustyPresenter` |
 | `RustyPresenter-<version>-macos-portable.zip` | Mac, no install: a `RustyPresenter` folder with `RustyPresenter.app`, `portable.txt` beside it, `HOW-TO-START.txt` and the licences (made with `ditto -c -k --keepParent`, so the signed bundle stays whole) |
 | `RustyPresenter-<version>-linux.AppImage` | Linux (64-bit PC): one file, nothing to install (make it executable, double-click). Data in `~/.local/share/RustyPresenter`, or beside it with a `portable.txt` beside the AppImage |
 | `RustyPresenter-<version>-linux.deb` | Ubuntu/Debian package (uses the distro's `libmpv2`) |

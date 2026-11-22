@@ -190,9 +190,9 @@ stage_macos() {
     done < <(otool -L "$lib" | tail -n +2)
     minos="$(dylib_minos "$lib")"
     [[ -n "$minos" ]] || die "no minimum macOS version recorded in $(basename "$lib")"
-    # Must load on macOS 12 (Packager.toml minimumSystemVersion).
-    [[ "$(printf '%s\n%s\n' "$minos" 12.0 | sort -V | tail -n 1)" == "12.0" ]] \
-      || die "$(basename "$lib") needs macOS $minos; it must load on 12.0"
+    # Must load on macOS 13 (Packager.toml minimumSystemVersion; the pinned pdfium needs 13).
+    [[ "$(printf '%s\n%s\n' "$minos" 13.0 | sort -V | tail -n 1)" == "13.0" ]] \
+      || die "$(basename "$lib") needs macOS $minos; it must load on 13.0"
   done
 
   # Dylibs live in Contents/Frameworks (code in Resources breaks codesign --strict), but
