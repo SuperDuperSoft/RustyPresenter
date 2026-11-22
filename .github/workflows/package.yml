@@ -24,7 +24,7 @@ jobs:
           - os: windows-latest
             stage: windows
             formats: nsis
-          - os: macos-14
+          - os: macos-15
             stage: macos
             formats: app,dmg
           - os: ubuntu-22.04
