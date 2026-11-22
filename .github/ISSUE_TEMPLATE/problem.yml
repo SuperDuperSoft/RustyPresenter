@@ -38,7 +38,7 @@ body:
     attributes:
       label: RustyPresenter version
       description: Help → About RustyPresenter shows it. The app fills this in when you come from Help → Report a problem…
-      placeholder: "0.5.6"
+      placeholder: "0.5.7"
   - type: input
     id: system
     attributes:
