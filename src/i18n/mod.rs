@@ -173,13 +173,53 @@ impl fmt::Display for UnknownLanguage {
 
 impl std::error::Error for UnknownLanguage {}
 
-/// The built-in catalogs, read once. One that fails to read (the tests make that impossible) is left out.
-fn builtins() -> &'static [Arc<Catalog>] {
-    static ALL: OnceLock<Vec<Arc<Catalog>>> = OnceLock::new();
-    ALL.get_or_init(|| bundle::BUNDLE.iter().filter_map(|(code, text)| match Catalog::from_po(code, text) {
-        Ok(c) => Some(Arc::new(Catalog { builtin: true, ..c })),
-        Err(e) => { eprintln!("The {code} translation could not be read ({e}); it is left out."); None }
-    }).collect())
+/// The codes of the built-in languages, without reading one catalog.
+fn builtin_codes() -> impl Iterator<Item = &'static str> { bundle::BUNDLE.iter().map(|(code, _)| *code) }
+
+/// A built-in catalog, read the first time that language is asked for and kept: a church that only ever shows
+/// English, or one language, reads no other. One that fails to read (the tests make that impossible) is left out.
+fn builtin(code: &str) -> Option<Arc<Catalog>> {
+    static READ: OnceLock<Vec<OnceLock<Option<Arc<Catalog>>>>> = OnceLock::new();
+    let at = bundle::BUNDLE.iter().position(|(c, _)| *c == code)?;
+    let read = READ.get_or_init(|| bundle::BUNDLE.iter().map(|_| OnceLock::new()).collect());
+    read[at].get_or_init(|| {
+        let (code, text) = bundle::BUNDLE[at];
+        #[cfg(test)]
+        BUILTINS_READ_HERE.with(|n| n.set(n.get() + 1));
+        match Catalog::from_po(code, text) {
+            Ok(c) => Some(Arc::new(Catalog { builtin: true, ..c })),
+            Err(e) => { eprintln!("The {code} translation could not be read ({e}); it is left out."); None }
+        }
+    }).clone()
+}
+
+#[cfg(test)]
+thread_local! {
+    /// How many built-in catalogs this thread has read (the first to ask for a language reads it).
+    static BUILTINS_READ_HERE: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
+#[cfg(test)]
+mod lazy_tests {
+    use super::*;
+
+    /// Q16: finding the computer's language, or checking a code, reads no catalog; showing a language reads one.
+    #[test]
+    fn a_catalog_is_read_only_when_its_language_is_shown() {
+        let read = || BUILTINS_READ_HERE.with(|n| n.get());
+        let before = read();
+        assert_eq!(system_language_from("es-MX").as_deref(), Some("es"));
+        assert_eq!(system_language_from("en-US").as_deref(), Some("en"));
+        assert!(is_known("de") && is_builtin("fr") && !is_builtin("xx") && !is_known("xx"));
+        assert_eq!(resolve("ko"), "ko");
+        assert_eq!(read(), before, "codes only: nothing was read");
+        // Asking for the catalog itself reads it, at most once (another test may have read it first).
+        assert!(catalog("es").is_some_and(|c| c.builtin && c.translated() > 1000));
+        let after = read();
+        assert!(after - before <= 1);
+        assert!(catalog("es").is_some());
+        assert_eq!(read(), after, "kept, not read again");
+    }
 }
 
 /// The template's entries, for "how complete" and the translation editor.
@@ -194,13 +234,11 @@ fn template_keys() -> &'static HashSet<(String, String)> {
     KEYS.get_or_init(|| template().iter().map(po::Entry::key).collect())
 }
 
-fn builtin(code: &str) -> Option<Arc<Catalog>> { builtins().iter().find(|c| c.code == code).cloned() }
-
 /// The built-in `.po` text of a language, as shipped.
 pub fn builtin_po(code: &str) -> Option<&'static str> { bundle::BUNDLE.iter().find(|(c, _)| *c == code).map(|(_, t)| *t) }
 
 /// Whether `code` is built into the program.
-pub fn is_builtin(code: &str) -> bool { builtin(code).is_some() }
+pub fn is_builtin(code: &str) -> bool { builtin_codes().any(|c| c == code) }
 
 /// A language as the app shows it: the built-in catalog with the user's file over it, or the user's file alone.
 pub fn catalog(code: &str) -> Option<Arc<Catalog>> {
@@ -215,7 +253,8 @@ pub fn catalog(code: &str) -> Option<Arc<Catalog>> {
 /// English first, then every built-in language and every language from the user's files, by code.
 pub fn languages() -> Vec<LanguageInfo> {
     let keys = template_keys();
-    let mut codes: Vec<String> = builtins().iter().map(|c| c.code.clone()).collect();
+    // The list with its percentages reads every catalog; it is asked for only when the language page opens.
+    let mut codes: Vec<String> = builtin_codes().map(String::from).collect();
     codes.extend(read(|s| s.user.keys().cloned().collect::<Vec<_>>()));
     codes.sort();
     codes.dedup();
@@ -229,7 +268,7 @@ pub fn languages() -> Vec<LanguageInfo> {
 }
 
 /// Whether `code` is English, a built-in language or one from the user's files.
-pub fn is_known(code: &str) -> bool { code == ENGLISH || builtin(code).is_some() || read(|s| s.user.contains_key(code)) }
+pub fn is_known(code: &str) -> bool { code == ENGLISH || is_builtin(code) || read(|s| s.user.contains_key(code)) }
 
 /// The language on show and the user's translation files.
 #[derive(Default)]
@@ -375,8 +414,9 @@ pub fn system_language() -> Option<String> { sys_locale::get_locale().and_then(|
 /// `system_language` for a given locale such as `es-MX`, `pt_BR.UTF-8` or `zh-Hans-CN`.
 pub fn system_language_from(locale: &str) -> Option<String> {
     let user: Vec<String> = read(|s| s.user.keys().cloned().collect());
-    let mut codes = vec![ENGLISH];
-    codes.extend(builtins().iter().map(|c| c.code.as_str()));
+    // Only the codes are needed to match the computer's language: no catalog is read for that.
+    let mut codes: Vec<&str> = vec![ENGLISH];
+    for code in builtin_codes() { codes.push(code) }
     codes.extend(user.iter().map(String::as_str));
     match_language(locale, &codes)
 }
