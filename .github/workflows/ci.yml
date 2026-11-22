@@ -50,6 +50,9 @@ jobs:
       # release-files.sh (release names, portable packages), with fake builds, zip and ditto.
       - name: Release files script
         run: packaging/test-release-files.sh
+      # release-upload.sh (what goes on the GitHub release), with a stand-in gh.
+      - name: Release upload script
+        run: packaging/test-release-upload.sh
       # makensis is not on this runner; the PC runs the real compile.
       - name: Windows installer script (NSIS) checks
         run: python3 packaging/windows/check-nsi.py

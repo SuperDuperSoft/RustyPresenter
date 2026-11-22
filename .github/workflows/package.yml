@@ -224,13 +224,8 @@ jobs:
             --pattern "libmpv-sources-r$LIBMPV_REV.tar.xz" --dir release
           cp THIRD-PARTY-LICENSES.txt release/
 
+      # The release is usually there already, with the Windows installer and the Android app built and tried on a
+      # PC. Those two are not replaced by the ones built here; a release without them gets the ones built here
+      # (packaging/release-upload.sh, tested by packaging/test-release-upload.sh).
       - name: Release
-        run: |
-          # The release is usually there already, with the Windows installer and the Android app built and tried
-          # on a PC (RustyPresenter-Setup-<version>.exe, RustyPresenter-Remote-<version>.apk, the names the README
-          # gives). Those two are not replaced by the ones built here; everything else is added beside them.
-          gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1 \
-            || gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --draft \
-              --title "RustyPresenter ${GITHUB_REF_NAME#v}" --generate-notes
-          rm -f release/*-windows-setup.exe release/*-android-remote.apk
-          gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --clobber release/*
+        run: packaging/release-upload.sh "$GITHUB_REF_NAME" "$GITHUB_REPOSITORY" release
