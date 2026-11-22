@@ -209,7 +209,7 @@ mod tests {
         let mut d = Data::default();
         let (used, spare) = (file("Intro", "a.mp4"), file("Old promo", "b.mp4"));
         d.services[0].items.push(item(used.id));
-        d.media = vec![used, spare.clone()];
+        d.media = vec![used, spare.clone()].into();
         let u = find(&d, &BTreeSet::new(), &disk(&["a.mp4", "a.mp4.jpg", "b.mp4", "b.mp4.jpg", "stray.png"]));
         assert_eq!(u.entries, [(spare.id, "Old promo".to_string())]);
         assert_eq!(u.files, ["b.mp4", "b.mp4.jpg", "stray.png"], "a file left behind by an earlier delete goes too");
@@ -221,7 +221,7 @@ mod tests {
         let mut d = Data::default();
         let f = file("Welcome", "w.mp4");
         d.templates.push(ServiceTemplate { id: Uuid::new_v4(), name: "Sunday".into(), day: None, items: vec![item(f.id)] });
-        d.media = vec![f];
+        d.media = vec![f].into();
         assert_eq!(find(&d, &BTreeSet::new(), &disk(&["w.mp4"])), Unused::default());
     }
 
@@ -229,7 +229,7 @@ mod tests {
     fn a_file_on_air_stays_even_out_of_every_service() {
         let mut d = Data::default();
         let f = file("Countdown", "c.mp4");
-        d.media = vec![f];
+        d.media = vec![f].into();
         let on_air = BTreeSet::from(["c.mp4".to_string()]);
         let u = find(&d, &on_air, &disk(&["c.mp4", "c.mp4.jpg"]));
         assert!(u.entries.is_empty());
@@ -244,7 +244,7 @@ mod tests {
         // The same picture as a library file and a background: the entry goes, the file stays.
         let pic = file("Sunset", "sun.jpg");
         d.backgrounds.push(crate::model::BackgroundEntry::new("Sunset", crate::model::Background::Image { asset: "sun.jpg".into(), dim: 0 }, MediaStatus::Ready, chrono::Utc::now()));
-        d.media = vec![pic.clone()];
+        d.media = vec![pic.clone()].into();
         let u = find(&d, &BTreeSet::new(), &disk(&["logo.png", "s1.png", "sun.jpg", "sun.jpg.jpg"]));
         assert_eq!(u.entries, [(pic.id, "Sunset".to_string())]);
         assert_eq!(u.files, ["sun.jpg.jpg"]);
@@ -293,7 +293,7 @@ mod tests {
         let (mut k, mut s, mut o) = (file("Keep", &keep), file("Spare", &spare), file("Other", &other));
         (k.thumb, s.thumb, o.thumb) = (None, None, None);
         app.data.lock().unwrap().services[0].items.push(item(k.id));
-        app.data.lock().unwrap().media = vec![k.clone(), s.clone(), o.clone()];
+        app.data.lock().unwrap().media = vec![k.clone(), s.clone(), o.clone()].into();
         let asked = app.do_action("media/unused", b"{}").await.unwrap();
         assert_eq!((asked["entries"].as_u64(), asked["files"].as_u64(), asked["nothing"].as_bool()), (Some(2), Some(2), Some(false)));
         assert!(asked["question"].as_str().unwrap().contains("•  Spare"));

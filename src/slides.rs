@@ -663,7 +663,7 @@ Instrumental
     #[test]
     fn build_item_uses_item_override() {
         let song = usual_song();
-        let data = Data { songs: vec![song.clone()], ..Default::default() };
+        let data = Data { songs: vec![song.clone()].into(), ..Default::default() };
         assert_eq!(built_labels(&data, &song_item(song.id, None)), ["Verse 1", "Chorus", "Verse 2", "Chorus"]);
         assert_eq!(built_labels(&data, &song_item(song.id, Some(&["Chorus", "Verse 2"]))), ["Chorus", "Verse 2"]);
     }
@@ -671,7 +671,7 @@ Instrumental
     #[test]
     fn empty_override_list_means_written_order() {
         let song = usual_song();
-        let data = Data { songs: vec![song.clone()], ..Default::default() };
+        let data = Data { songs: vec![song.clone()].into(), ..Default::default() };
         assert_eq!(built_labels(&data, &song_item(song.id, Some(&[]))), ["Verse 1", "Chorus", "Verse 2"]);
     }
 

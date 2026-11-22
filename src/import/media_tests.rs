@@ -48,7 +48,7 @@ fn old_statuses_become_ready_and_are_listed_for_reprobe() {
     let plain = entry(MediaKind::Video, "c.mp4", MediaStatus::Ready);
     let failed = entry(MediaKind::Video, "d.mp4", MediaStatus::Failed { reason: "old".into() });
     let ids: Vec<Uuid> = [&converting, &unconverted, &plain, &failed].iter().map(|m| m.id).collect();
-    data.media = vec![converting, unconverted, plain, failed];
+    data.media = vec![converting, unconverted, plain, failed].into();
     assert_eq!(upgrade_media(&mut data), ids);
     assert_eq!(data.media[0].status, MediaStatus::Ready);
     assert_eq!(data.media[1].status, MediaStatus::Ready);
@@ -62,7 +62,7 @@ fn finished_entries_are_left_alone() {
     video.thumb = Some("t.jpg".into());
     let mut audio = entry(MediaKind::Audio, "b.mp3", MediaStatus::Ready);
     audio.duration = Some(10.0);
-    data.media = vec![video, audio];
+    data.media = vec![video, audio].into();
     assert!(upgrade_media(&mut data).is_empty(), "audio never gets a thumbnail, so it must not be probed at every start");
 }
 

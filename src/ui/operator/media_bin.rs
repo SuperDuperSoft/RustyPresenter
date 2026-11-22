@@ -94,7 +94,7 @@ pub fn as_background(m: &MediaFile) -> Option<Background> {
 
 impl Operator {
     fn bin_media(&self) -> Option<Vec<MediaFile>> {
-        self.state.borrow().snap.as_ref().map(|s| s.data.media.clone())
+        self.state.borrow().snap.as_ref().map(|s| s.data.media.to_vec())
     }
 
     pub(super) fn picked(&self) -> Option<MediaFile> {
@@ -444,7 +444,7 @@ mod tests {
         app.data.lock().unwrap().songs = vec![
             Song { id: grace, title: "Amazing Grace".into(), writers: "John Newton".into(), lyrics: "Verse 1\nAmazing grace".into(), ..Default::default() },
             Song { id: Uuid::new_v4(), title: "Abide with Me".into(), ..Default::default() },
-        ];
+        ].into();
         let op = open(&app);
         op.window().set_size(slint::LogicalSize::new(1440.0, 900.0));
         slint::platform::update_timers_and_animations();

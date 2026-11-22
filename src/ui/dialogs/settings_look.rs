@@ -91,8 +91,8 @@ pub(super) fn fill_backgrounds(op: &Rc<Operator>, edit: &Rc<Edit>, snap: &Operat
     let value = Some(edit.settings.borrow().background.clone());
     let mut picker = edit.look.picker.borrow_mut();
     match picker.as_mut() {
-        Some(p) => { p.set_media(snap.data.media.clone()); p.set_library(snap.data.backgrounds.clone()); p.value = value }
-        None => *picker = Some(Picker::new(op, value, snap.data.media.clone(), false)),
+        Some(p) => { p.set_media(snap.data.media.to_vec()); p.set_library(snap.data.backgrounds.clone()); p.value = value }
+        None => *picker = Some(Picker::new(op, value, snap.data.media.to_vec(), false)),
     }
     drop(picker);
     redraw_backgrounds(op, edit);

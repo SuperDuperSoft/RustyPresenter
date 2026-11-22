@@ -338,7 +338,7 @@ mod tests {
         let mut d = Data::default();
         d.settings.church_ccli = "1234".into();
         let (a, b) = (song("Amazing Grace", "22025"), Song { ccli: String::new(), ..song("Be Thou My Vision", "") });
-        d.songs = vec![a.clone(), b.clone()];
+        d.songs = vec![a.clone(), b.clone()].into();
         let s = &mut d.services[0];
         s.items = vec![item(ItemKind::Song { song_id: b.id, arrangement: None }), item(ItemKind::Text { title: "x".into(), body: "y".into(), layout: Default::default() }),
             item(ItemKind::Song { song_id: a.id, arrangement: None }), item(ItemKind::Song { song_id: b.id, arrangement: None })];

@@ -487,7 +487,7 @@ mod tests {
         st(op).get_chips().iter().flat_map(|r| r.labels.iter().map(|l| l.to_string()).collect::<Vec<_>>()).collect()
     }
 
-    fn library(app: &App) -> Vec<Song> { app.data.lock().unwrap().songs.clone() }
+    fn library(app: &App) -> Vec<Song> { app.data.lock().unwrap().songs.to_vec() }
 
     fn question(op: &Operator) -> Option<String> { op.ui.get_ask().row_data(0).map(|a| a.text.to_string()) }
 

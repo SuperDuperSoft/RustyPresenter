@@ -159,7 +159,7 @@ mod tests {
         let passage = |translation: &str| ServiceItem { id: uuid::Uuid::new_v4(), background: None, notes: String::new(), theme: None,
             kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: translation.into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() } };
         service.items = vec![passage("KJV"), passage("NWT")];
-        Store::open(root.clone()).unwrap().save(&Data { services: vec![service], ..Data::default() }).unwrap();
+        Store::open(root.clone()).unwrap().save(&Data { services: vec![service].into(), ..Data::default() }).unwrap();
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let started = open(listener, root, 0).unwrap();
         assert_eq!(started.app.data.lock().unwrap().services[0].items.len(), 1);
@@ -232,7 +232,7 @@ mod tests {
         crate::i18n::testing::with_catalog(XX, || {
             assert_eq!(Data::default().services[0].name, "Culto dominical");
             let root = test_dir();
-            Store::open(root.clone()).unwrap().save(&Data { services: vec![Service::new("Sunday Service")], ..Data::default() }).unwrap();
+            Store::open(root.clone()).unwrap().save(&Data { services: vec![Service::new("Sunday Service")].into(), ..Data::default() }).unwrap();
             assert_eq!(Store::open(root).unwrap().load().unwrap().services[0].name, "Sunday Service", "a saved service keeps its name");
         });
         assert_eq!(Data::default().services[0].name, "Sunday Service");

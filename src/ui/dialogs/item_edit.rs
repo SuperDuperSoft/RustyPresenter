@@ -160,7 +160,7 @@ pub fn open(op: &Rc<Operator>, id: Uuid) {
     g.set_has_background(has_background);
     g.set_palette(ModelRc::new(VecModel::from(background::palette())));
     g.set_notes(item.notes.as_str().into());
-    let picker = has_background.then(|| Picker::new(op, item.background.clone(), snap.data.media.clone(), true));
+    let picker = has_background.then(|| Picker::new(op, item.background.clone(), snap.data.media.to_vec(), true));
     let names = |f: fn(crate::theme::LayoutKind) -> String| ModelRc::new(VecModel::from(crate::theme::LayoutKind::ALL.iter().map(|k| f(*k).into()).collect::<Vec<slint::SharedString>>()));
     g.set_layout_options(names(crate::theme::LayoutKind::label));
     g.set_layout_hints(names(crate::theme::LayoutKind::hint));

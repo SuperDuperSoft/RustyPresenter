@@ -98,7 +98,7 @@ mod tests {
         let mut service = Service::new("Sunday");
         service.items = items.into_iter().map(item).collect();
         d.current_service = Some(service.id);
-        d.services = vec![service];
+        d.services = vec![service].into();
         d
     }
     fn item(kind: ItemKind) -> ServiceItem { ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new(), theme: None } }

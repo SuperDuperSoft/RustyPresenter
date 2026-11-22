@@ -45,7 +45,8 @@ const AFTER: usize = 1;
 
 impl<T: Keyed> Diff<T> {
     fn of(a: &[T], b: &[T]) -> Option<Self> {
-        if a == b { return None }
+        // The very same list (a `Shared` list the edit never touched) needs no comparing.
+        if std::ptr::eq(a, b) || a == b { return None }
         let only = |x: &[T], y: &[T]| {
             let y: HashMap<T::Key, &T> = y.iter().map(|e| (e.key(), e)).collect();
             x.iter().filter(|e| y.get(&e.key()) != Some(e)).cloned().collect()

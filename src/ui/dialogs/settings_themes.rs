@@ -84,7 +84,7 @@ pub(super) fn fill(op: &Rc<Operator>, edit: &Rc<Edit>, snap: &OperatorSnapshot) 
     g.set_rows(ModelRc::new(VecModel::from(rows.into_iter().map(|(_, r)| r).collect::<Vec<_>>())));
     g.set_palette(ModelRc::new(VecModel::from(background::palette())));
     if let Some(p) = edit.themes.picker.borrow_mut().as_mut() {
-        p.set_media(snap.data.media.clone());
+        p.set_media(snap.data.media.to_vec());
         p.set_library(snap.data.backgrounds.clone());
     }
     draw_library(op, edit);
@@ -326,7 +326,7 @@ fn open_editor(op: &Rc<Operator>, edit: &Rc<Edit>, t: SavedTheme) {
     g.set_guides_x(ModelRc::default());
     g.set_guides_y(ModelRc::default());
     *edit.themes.drag.borrow_mut() = None;
-    *edit.themes.picker.borrow_mut() = Some(Picker::with_default(op, t.background.clone(), s.data.media.clone(), Some(ts::standard_background())));
+    *edit.themes.picker.borrow_mut() = Some(Picker::with_default(op, t.background.clone(), s.data.media.to_vec(), Some(ts::standard_background())));
     *edit.themes.editing.borrow_mut() = Some(t);
     show_swatches(op, edit);
     show_layout(op, edit);

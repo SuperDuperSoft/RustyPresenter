@@ -169,8 +169,10 @@ pub trait Screens: Send + Sync {
     fn audio_devices(&self) -> Vec<crate::video::ffi::AudioDevice> { vec![] }
 }
 
-/// A `data.json` save made while `data` was locked, waiting to be written (`App::write_save`).
-struct PendingSave { seq: u64, bytes: Vec<u8> }
+/// A `data.json` save taken while `data` was locked, waiting to be written (`App::write_save`): the data as it
+/// was then (a copy that shares the big lists, so taking it is quick) and its number. It is turned into the
+/// file's bytes when it is written, after the lock is let go.
+struct PendingSave { seq: u64, data: Data }
 
 /// An open pairing window: the PIN to type, and the one-time secret the QR code carries (both die together).
 pub struct Pairing { pub(crate) pin: String, pub(crate) secret: String, pub(crate) until: Instant, pub(crate) failures: u32 }
@@ -637,13 +639,14 @@ impl App {
     /// keeps the number it last read: the same number means there is nothing to read again.
     pub fn data_rev(&self) -> u64 { self.data.rev() }
 
-    pub(crate) fn save(&self, data: &Data) -> Result<(), String> { self.write_save(self.encode_save(data)?) }
+    pub(crate) fn save(&self, data: &Data) -> Result<(), String> { self.write_save(self.take_save(data)?) }
 
-    /// The first half of a save: `data.json`'s bytes and their save number. Call it with `data` locked.
-    fn encode_save(&self, data: &Data) -> Result<PendingSave, String> {
+    /// The first half of a save: the data as it is now and its save number. Call it with `data` locked. Nothing is
+    /// serialised here: a slide change waiting for the lock never waits for the whole library to be written out
+    /// as JSON.
+    fn take_save(&self, data: &Data) -> Result<PendingSave, String> {
         if self.read_only() { return Err(crate::theme::strings::newer_data().into()) }
-        let bytes = self.store.encode(data).map_err(|e| tr!("Could not save: {error}", error = e))?;
-        Ok(PendingSave { seq: self.save_seq.fetch_add(1, Ordering::Relaxed) + 1, bytes })
+        Ok(PendingSave { seq: self.save_seq.fetch_add(1, Ordering::Relaxed) + 1, data: data.clone() })
     }
 
     /// The second half: the disk write, best after `data` is unlocked so live control never waits on the disk.
@@ -653,7 +656,8 @@ impl App {
         on_disk(|| {
             let mut saved = self.saved_seq.lock().unwrap_or_else(|e| e.into_inner());
             if save.seq <= *saved { return Ok(()) }
-            self.store.write_data(&save.bytes).map_err(|e| tr!("Could not save: {error}", error = e))?;
+            let bytes = self.store.encode(&save.data).map_err(|e| tr!("Could not save: {error}", error = e))?;
+            self.store.write_data(&bytes).map_err(|e| tr!("Could not save: {error}", error = e))?;
             *saved = save.seq;
             Ok(())
         })
@@ -679,7 +683,7 @@ impl App {
         let r = {
             let mut data = self.data.lock().unwrap();
             let before = data.clone();
-            let r = match f(&mut data).and_then(|r| self.encode_save(&data).map(|s| (r, s))) {
+            let r = match f(&mut data).and_then(|r| self.take_save(&data).map(|s| (r, s))) {
                 Ok(r) => r,
                 Err(e) => {
                     *data = before;
@@ -703,7 +707,7 @@ impl App {
             let mut data = self.data.lock().unwrap();
             let mut history = self.history.lock().unwrap();
             let r = if redo { history.redo(&mut data) } else { history.undo(&mut data) };
-            r.and_then(|t| self.encode_save(&data).map(|s| (t, s)))
+            r.and_then(|t| self.take_save(&data).map(|s| (t, s)))
         };
         let r = r.and_then(|(t, s)| self.write_save(s).map(|()| t));
         // A step that could not be taken is gone too, so the menu is told either way.
@@ -2062,7 +2066,7 @@ impl App {
                 let save = {
                     let mut data = app.data.lock().unwrap();
                     *data = restored;
-                    app.encode_save(&data)
+                    app.take_save(&data)
                 };
                 let saved = save.and_then(|s| app.write_save(s));
                 app.reconcile_live();
@@ -2784,6 +2788,28 @@ mod tests {
         assert_eq!(app.store.load().unwrap().settings.screens, before, "on the disk too");
     }
 
+    /// Q2: an edit copies only the list it changes; the lists it leaves alone stay shared with the copy taken
+    /// before it (and with the snapshot that is saved).
+    #[tokio::test]
+    async fn an_edit_shares_the_lists_it_does_not_change() {
+        let app = test_app();
+        app.edit(|d| { d.songs.push(Song { title: "Amazing Grace".into(), ..Default::default() }); Ok(()) }).unwrap();
+        let before = app.data.lock().unwrap().clone();
+        app.edit(|d| { d.settings.translation = "WEB".into(); Ok(()) }).unwrap();
+        {
+            let now = app.data.lock().unwrap();
+            assert!(now.songs.same(&before.songs) && now.services.same(&before.services) && now.media.same(&before.media), "a settings change copies no list");
+        }
+        app.edit(|d| { d.songs[0].title = "Amazing Grace (My Chains Are Gone)".into(); Ok(()) }).unwrap();
+        let now = app.data.lock().unwrap().clone();
+        assert!(!now.songs.same(&before.songs) && now.services.same(&before.services), "only the songs were copied");
+        assert_eq!((before.songs[0].title.as_str(), now.songs[0].title.as_str()), ("Amazing Grace", "Amazing Grace (My Chains Are Gone)"), "the copy taken before is as it was");
+        assert_eq!(app.store.load().unwrap().songs[0].title, "Amazing Grace (My Chains Are Gone)", "and the save has the change");
+        // An edit that fails puts the data back as it was.
+        assert!(app.edit(|d| { d.songs.clear(); Err::<(), _>("no".to_string()) }).is_err());
+        assert_eq!(app.data.lock().unwrap().songs.len(), 1);
+    }
+
     /// P1: memory holds an edit whose save failed, so every screen is told to read it.
     #[tokio::test]
     async fn an_edit_whose_save_failed_still_tells_every_screen() {
@@ -2804,7 +2830,7 @@ mod tests {
     async fn an_older_save_never_lands_over_a_newer_one() {
         let app = test_app();
         let named = |n: &str| { let mut d = app.data.lock().unwrap().clone(); d.settings.translation = n.into(); d };
-        let (older, newer) = (app.encode_save(&named("OLD")).unwrap(), app.encode_save(&named("NEW")).unwrap());
+        let (older, newer) = (app.take_save(&named("OLD")).unwrap(), app.take_save(&named("NEW")).unwrap());
         // The newer save reaches the disk first; the older one, written late, is dropped.
         app.write_save(newer).unwrap();
         app.write_save(older).unwrap();
@@ -3045,7 +3071,7 @@ mod tests {
         let mut service = Service::new("Sunday");
         service.items.push(ServiceItem { id: Uuid::new_v4(), background: None, notes: String::new(), theme: None,
             kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "TPT".into(), verses: vec![], per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() } });
-        let data = Data { services: vec![service], ..Data::default() };
+        let data = Data { services: vec![service].into(), ..Data::default() };
         let name = app.store.backup(&data).unwrap();
         app.do_action("backup/restore", json!({ "name": name }).to_string().as_bytes()).await.unwrap();
         assert!(app.data.lock().unwrap().services[0].items.is_empty());

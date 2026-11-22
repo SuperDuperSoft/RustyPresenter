@@ -23,7 +23,7 @@ fn look_twice(op: &Rc<Operator>) { poll(op); poll(op); }
 
 fn rows(op: &Operator) -> Vec<SongSelectRow> { op.ui.global::<SongSelectDlg>().get_rows().iter().collect() }
 
-fn songs(app: &App) -> Vec<Song> { app.data.lock().unwrap().songs.clone() }
+fn songs(app: &App) -> Vec<Song> { app.data.lock().unwrap().songs.to_vec() }
 
 fn toasts(op: &Operator) -> Vec<(String, bool)> { op.toast_log() }
 

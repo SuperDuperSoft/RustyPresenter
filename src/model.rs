@@ -2,6 +2,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use std::collections::BTreeMap;
+pub use crate::shared::Shared;
 
 /// A content-addressed asset file name: `<sha256>.<ext>`.
 pub type AssetId = String;
@@ -835,12 +836,14 @@ impl Default for Settings {
 pub struct Data {
     pub format: u32,
     pub settings: Settings,
-    pub songs: Vec<Song>,
-    pub media: Vec<MediaFile>,
+    /// The big lists are `Shared`: a copy of the data (Undo's "before", the save, the operator window's read)
+    /// shares them, and one is copied only when it is changed while a copy still holds it.
+    pub songs: Shared<Song>,
+    pub media: Shared<MediaFile>,
     /// Media library folders, so one can exist before anything is in it.
     pub media_folders: Vec<String>,
-    pub decks: Vec<Deck>,
-    pub services: Vec<Service>,
+    pub decks: Shared<Deck>,
+    pub services: Shared<Service>,
     pub current_service: Option<Uuid>,
     /// The background library (pictures, videos, colours and gradients the church keeps).
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -894,8 +897,8 @@ impl Default for Data {
         // In the app's language: only new data gets it, a saved service keeps its name.
         let service = Service::new(&crate::tr!("Sunday Service"));
         Self {
-            format: crate::store::SUPPORTED_FORMAT, settings: Settings::default(), songs: vec![], media: vec![], media_folders: vec![], decks: vec![],
-            current_service: Some(service.id), services: vec![service], backgrounds: vec![], themes: vec![], default_theme: None, overlays: vec![], templates: vec![], stage_layouts: vec![],
+            format: crate::store::SUPPORTED_FORMAT, settings: Settings::default(), songs: Shared::new(), media: Shared::new(), media_folders: vec![], decks: Shared::new(),
+            current_service: Some(service.id), services: vec![service].into(), backgrounds: vec![], themes: vec![], default_theme: None, overlays: vec![], templates: vec![], stage_layouts: vec![],
             automation: crate::automation::Automation::seeded(), bible_credits: BTreeMap::new(),
         }
     }

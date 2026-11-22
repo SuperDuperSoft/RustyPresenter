@@ -28,6 +28,7 @@ pub mod sections;
 pub mod server;
 pub mod shortcuts;
 pub mod sha256;
+pub mod shared;
 pub mod slides;
 pub mod song_edit;
 pub mod songselect;

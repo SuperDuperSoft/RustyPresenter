@@ -82,7 +82,7 @@ fn only_the_last_steps_are_kept() {
 fn a_later_change_to_another_entry_does_not_block_undo() {
     let (mut h, mut d) = (History::default(), Data::default());
     let (a, b) = (song("A"), song("B"));
-    d.songs = vec![a.clone(), b.clone()];
+    d.songs = vec![a.clone(), b.clone()].into();
     edit(&mut h, &mut d, |d| d.songs[0].lyrics = "new".into());
     // Not through History: as if made by a part of the app Undo does not know.
     d.songs[1].title = "B2".into();
@@ -94,7 +94,7 @@ fn a_later_change_to_another_entry_does_not_block_undo() {
 #[test]
 fn a_step_changed_again_since_is_refused_and_dropped() {
     let (mut h, mut d) = (History::default(), Data::default());
-    d.songs = vec![song("A")];
+    d.songs = vec![song("A")].into();
     edit(&mut h, &mut d, |d| d.songs.push(song("B")));
     edit(&mut h, &mut d, |d| d.songs[0].title = "A2".into());
     d.songs[0].title = "A3".into();
@@ -166,7 +166,7 @@ fn undoing_a_new_service_goes_back_to_the_one_open_before() {
 fn undoing_a_deleted_service_keeps_the_one_open_now() {
     let (mut h, mut d) = (History::default(), Data::default());
     let (a, b) = (Service::new("A"), Service::new("B"));
-    d.services = vec![a.clone(), b.clone()];
+    d.services = vec![a.clone(), b.clone()].into();
     d.current_service = Some(b.id);
     edit(&mut h, &mut d, |d| d.services.retain(|s| s.id != a.id));
     assert_eq!(h.undo(&mut d).unwrap(), "Undone: deleting the service “A”");

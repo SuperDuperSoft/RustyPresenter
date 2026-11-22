@@ -359,7 +359,7 @@ mod tests {
         };
         let mut s = Service::new("Sunday");
         s.items = vec![item("KJV", vec![verse("John 1:1", "and the Word was God.")]), item("TPT", vec![]), item("NWT", vec![])];
-        let mut d = Data { services: vec![s], ..Data::default() };
+        let mut d = Data { services: vec![s].into(), ..Data::default() };
         assert_eq!(strip(&mut d), 2);
         assert_eq!(d.services[0].items.len(), 1);
         assert_eq!(strip(&mut d), 0);

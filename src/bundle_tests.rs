@@ -32,9 +32,9 @@ fn sample(s: &Store) -> Data {
         item(ItemKind::Deck { deck_id: deck.id }),
         item(ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![VerseText::new("John 3:16", "For God")], per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() }),
     ];
-    d.songs = vec![sg, song("Unused", "1", "x")];
-    d.media = vec![m, media("unused", &other)];
-    d.decks = vec![deck];
+    d.songs = vec![sg, song("Unused", "1", "x")].into();
+    d.media = vec![m, media("unused", &other)].into();
+    d.decks = vec![deck].into();
     d
 }
 
