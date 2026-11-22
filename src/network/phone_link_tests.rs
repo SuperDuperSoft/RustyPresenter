@@ -207,9 +207,14 @@ async fn one_scan_pairs_a_phone_microphone_without_the_stage_view() {
     assert_eq!(health(&app, Kind::Mic, Firewall::Open), Health::Sending(Some("Pastor's phone".into())));
     assert_eq!(health(&app, Kind::Mic, Firewall::Open).text(Kind::Mic, 4320), "Sending sound: Pastor's phone");
     drop(rx);
-    // The stage view's own access still works for phones signed in there.
+    // A stage view open to everyone is for looking only (B3): a phone that is not paired may not send.
     app.data.lock().unwrap().settings.network.stage_view = true;
     let (status, _, _) = ask(addr, &der, "POST", "/stage-view/mic/sound?rate=48000", "", &pcm).await;
+    assert_eq!(status, 403);
+    // The stage view's own access still works for phones signed in there with its password.
+    app.data.lock().unwrap().settings.network.stage_password = Some("a stored hash".into());
+    app.net.stage_tokens.lock().unwrap().push((crate::app::hash_token("tok"), std::time::Instant::now()));
+    let (status, _, _) = ask(addr, &der, "POST", "/stage-view/mic/sound?rate=48000", "rp_stage=tok", &pcm).await;
     assert_eq!(status, 200);
 }
 
