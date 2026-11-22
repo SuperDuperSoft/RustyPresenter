@@ -250,12 +250,7 @@ pub fn next_slide_job(app: &crate::app::App, size: (u32, u32)) -> Option<(ThumbK
 }
 
 /// `over` (premultiplied, same size) drawn onto opaque `img`.
-pub fn put_over(img: &mut Pixels, over: &[u8]) {
-    let (w, h) = (img.width(), img.height());
-    let mut rgba = RgbaImage::from_raw(w, h, img.as_bytes().to_vec()).unwrap_or_default();
-    over_premultiplied(&mut rgba, over);
-    *img = Pixels::clone_from_slice(rgba.as_raw(), w, h);
-}
+pub fn put_over(img: &mut Pixels, over: &[u8]) { over_bytes(img.make_mut_bytes(), over) }
 
 /// Draws `p` as large as fits, centred (`object-fit: contain`).
 fn contain(img: &mut RgbaImage, p: &DynamicImage) {
@@ -265,8 +260,11 @@ fn contain(img: &mut RgbaImage, p: &DynamicImage) {
 }
 
 /// Composites premultiplied RGBA of the same size over an opaque image.
-fn over_premultiplied(img: &mut RgbaImage, src: &[u8]) {
-    for (d, s) in img.as_mut().chunks_exact_mut(4).zip(src.chunks_exact(4)) {
+fn over_premultiplied(img: &mut RgbaImage, src: &[u8]) { over_bytes(img.as_mut(), src) }
+
+/// `src` (premultiplied RGBA) over opaque RGBA `dst` of the same size, in place.
+fn over_bytes(dst: &mut [u8], src: &[u8]) {
+    for (d, s) in dst.chunks_exact_mut(4).zip(src.chunks_exact(4)) {
         let keep = 255 - u16::from(s[3]);
         for c in 0..3 { d[c] = (u16::from(s[c]) + (u16::from(d[c]) * keep + 127) / 255).min(255) as u8; }
     }
@@ -419,6 +417,15 @@ mod tests {
         let slides = vec![Slide::new("x", SlideContent::Video { asset: "b.mp4".into(), autoplay: true, end: Default::default() }), Slide::new("y", SlideContent::Video { asset: "c.mp4".into(), autoplay: true, end: Default::default() })];
         let used = frames_used(&media, &slides, &Background::Video { asset: "d.mp4".into(), dim: 0 });
         assert_eq!(used.iter().map(|m| m.asset.as_str()).collect::<Vec<_>>(), ["b.mp4", "d.mp4"], "the slide's video and the background's, where a frame was saved");
+    }
+
+    /// Q28: drawn over in place, the same pixels as before.
+    #[test]
+    fn put_over_draws_onto_the_picture_itself() {
+        let mut px = Pixels::clone_from_slice(&[10, 20, 30, 255, 100, 110, 120, 255], 2, 1);
+        // The first pixel is covered by half-see-through white (premultiplied), the second is left alone.
+        put_over(&mut px, &[128, 128, 128, 128, 0, 0, 0, 0]);
+        assert_eq!(px.as_bytes(), [133, 138, 143, 255, 100, 110, 120, 255]);
     }
 
     /// Q9: a picture background is read from the disk and scaled once, however many slides are drawn over it.
