@@ -90,7 +90,7 @@ impl Store {
         let read_only = step == migrate::Step::Newer;
         if step == migrate::Step::Migrate {
             data.format = found;
-            self.upgrade_format(&mut data, true);
+            self.upgrade_format(&mut data, true)?;
             self.save(&data).map_err(|e| crate::tr!("Could not save: {reason}", reason = e))?;
         }
         if data.after_load() && !read_only { self.save(&data).map_err(|e| crate::tr!("Could not save: {reason}", reason = e))?; }
@@ -99,17 +99,22 @@ impl Store {
 
     /// The format steps, in order, from `data.format` up to `SUPPORTED_FORMAT`. With `backup`, each step first takes
     /// a "before-update" backup; when that can't be made (the disk is full), `data.json` is copied aside instead.
-    fn upgrade_format(&self, data: &mut Data, backup: bool) {
+    /// When that copy cannot be made either the update stops there: the old data is never changed with no copy
+    /// of it kept.
+    fn upgrade_format(&self, data: &mut Data, backup: bool) -> Result<(), String> {
         while data.format < SUPPORTED_FORMAT {
             if backup && let Err(e) = self.backup_labeled(data, migrate::BEFORE_UPDATE) {
                 eprintln!("Could not back up before the update ({e}); keeping a copy of data.json instead");
-                let _ = fs::copy(self.data_path(), self.root.join(migrate::before_update_copy_name(&now_stamp())));
+                fs::copy(self.data_path(), self.root.join(migrate::before_update_copy_name(&now_stamp()))).map_err(|copy| crate::tr!(
+                    "Your saved data at {path} is from an older version and was not brought up to this one, because no copy of it could be kept first ({reason}). Nothing was changed.",
+                    path = self.data_path().display(), reason = copy))?;
             }
             match data.format {
                 0 | 1 => migrate::migrate_1_to_2(data, chrono::Utc::now()),
                 _ => data.format = SUPPORTED_FORMAT,
             }
         }
+        Ok(())
     }
 
     /// Online Bible text is left out (Nov 5 spec §5).
@@ -259,7 +264,7 @@ impl Store {
         let mut data: Data = serde_json::from_slice::<Data>(&fs::read(dir.join("data.json")).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?.upgrade();
         if data.format > SUPPORTED_FORMAT { return Err(crate::theme::strings::newer_data().into()); }
         // An older backup comes back in this build's format; the data it replaces is copied aside below.
-        self.upgrade_format(&mut data, false);
+        self.upgrade_format(&mut data, false)?;
         data.after_load();
         let mut assets = data.referenced_assets();
         assets.extend(manifest.assets.iter().cloned());
@@ -659,6 +664,25 @@ mod tests {
         assert_eq!(restored.songs.len(), 1);
         assert_eq!(fs::read(store.asset_path(&here)).unwrap(), b"picture", "the files it does hold come back");
         assert!(!store.asset_path("gone.png").exists());
+    }
+
+    /// Q26: with no backup and no copy of the old data, the update does not go ahead.
+    #[test]
+    fn an_update_with_no_copy_of_the_old_data_is_refused() {
+        let store = with_data(V02);
+        // A file is where the backups folder was, so no backup can be made.
+        fs::remove_dir_all(store.root.join("backups")).unwrap();
+        fs::write(store.root.join("backups"), b"in the way").unwrap();
+        let mut data: Data = serde_json::from_str::<Data>(V02).unwrap().upgrade();
+        data.format = 1;
+        // A data folder where nothing can be written at all (it is under that file): no copy either.
+        let elsewhere = Store { root: store.root.join("backups").join("nowhere") };
+        let refused = elsewhere.upgrade_format(&mut data, true).unwrap_err();
+        assert!(refused.contains("no copy of it could be kept first"), "{refused}");
+        assert_eq!(data.format, 1, "the data is as it was");
+        // With the copy possible (the usual fallback) the update goes ahead.
+        assert!(store.upgrade_format(&mut data, true).is_ok());
+        assert_eq!(data.format, SUPPORTED_FORMAT);
     }
 
     #[test]

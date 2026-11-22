@@ -31,7 +31,9 @@ pub fn open_asking(listener: TcpListener, root: PathBuf, port: u16, ask: &dyn Fn
     };
     let crate::store::Loaded { mut data, read_only } = loaded;
     let removed = crate::bible::blocklist::strip(&mut data);
-    if !read_only && (removed > 0 || !store.data_path().exists()) { let _ = store.save(&data); }
+    // A save that fails here is said once the operator window is up: the passages are gone from memory, not yet
+    // from the file.
+    let unsaved = if !read_only && (removed > 0 || !store.data_path().exists()) { store.save(&data).err() } else { None };
 
     let lan_ip = UdpSocket::bind("0.0.0.0:0").ok().and_then(|s| { s.connect("192.0.2.1:80").ok()?; s.local_addr().ok().map(|a| a.ip()) });
     let lan_url = lan_ip.map(|ip| format!("http://{ip}:{port}/remote"));
@@ -40,6 +42,7 @@ pub fn open_asking(listener: TcpListener, root: PathBuf, port: u16, ask: &dyn Fn
     // 1.3: song auto-follow's worker (idle until a song follows the singers).
     app.start_follower();
     if removed > 0 { app.live.lock().unwrap().notice = Some(crate::scripture::strings::passages_removed(removed)); }
+    if let Some(e) = unsaved { app.live.lock().unwrap().notice = Some(crate::tr!("Could not save: {reason}", reason = e)); }
     if let Some(said) = from_backup { app.live.lock().unwrap().notice = Some(said); }
     Ok(Started { app, listener, root })
 }

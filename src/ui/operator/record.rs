@@ -273,9 +273,10 @@ impl Operator {
             let used_ahead = broadcasts.iter().any(|(_, b)| b.service == stream::Service::YouTube && !scheduled_id.is_empty() && b.id == scheduled_id);
             // A save, as the stream goes live: off the window's thread, so the window never waits for the disk then.
             if used_ahead {
-                let app = op.app().clone();
-                op.ops().blocking(move || app.edit(|d| { d.settings.record.stream_scheduled.clear(); d.settings.record.stream_scheduled_link.clear(); Ok(()) }), |saved| {
-                    if let Some(Err(e)) = saved { eprintln!("stream: could not clear the scheduled stream: {e}") }
+                let (app, me) = (op.app().clone(), Rc::downgrade(&op));
+                op.ops().blocking(move || app.edit(|d| { d.settings.record.stream_scheduled.clear(); d.settings.record.stream_scheduled_link.clear(); Ok(()) }), move |saved| {
+                    // Not cleared: next week's Go Live would look for this week's broadcast, so it is said.
+                    if let (Some(Err(e)), Some(op)) = (saved, me.upgrade()) { op.toast(e, true) }
                 });
             }
             *op.record.broadcasts.borrow_mut() = broadcasts;

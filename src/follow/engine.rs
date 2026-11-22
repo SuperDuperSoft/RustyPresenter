@@ -770,7 +770,8 @@ impl Host for AppHost {
 
     fn save_mode(&self, item: Uuid, mode: Mode) {
         let Some(app) = self.app.upgrade() else { return };
-        let _ = app.edit_untracked(|d| { d.automation.follow.insert(item, mode); Ok(()) });
+        // Not saved: the song's mode would go back at the next start without a word, so it is said.
+        if let Err(e) = app.edit_untracked(|d| { d.automation.follow.insert(item, mode); Ok(()) }) { app.set_notice(&e) }
         // The first song switched on: start listening (FFmpeg, off this thread).
         if mode != Mode::Manual { let _ = std::thread::Builder::new().name("follow-start".into()).spawn(move || app.start_follow_if_wanted()); }
     }

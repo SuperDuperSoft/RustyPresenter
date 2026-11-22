@@ -429,7 +429,7 @@ impl App {
     pub(crate) fn music_save_volume(&self, now: DateTime<Utc>) {
         let v = self.automation.lock().unwrap().music.volume_to_save(now);
         let Some(v) = v else { return };
-        let _ = self.edit_untracked(|d| { d.automation.music.volume = v; Ok(()) });
+        if let Err(e) = self.edit_untracked(|d| { d.automation.music.volume = v; Ok(()) }) { self.set_notice(&e) }
         let mut rt = self.automation.lock().unwrap();
         if rt.music.volume.is_some_and(|(x, _)| x == v) { rt.music.volume = None }
     }

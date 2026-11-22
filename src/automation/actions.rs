@@ -552,7 +552,7 @@ impl App {
         match step {
             PlannedStep::StageMessageShow { text } => self.set_stage_message(text.trim()),
             PlannedStep::StageMessageHide => self.set_stage_message(""),
-            PlannedStep::StageLayout { layout } => { let _ = self.edit(|d| { d.settings.stage.layout = layout; Ok(()) }); }
+            PlannedStep::StageLayout { layout } => if let Err(e) = self.edit(|d| { d.settings.stage.layout = layout; Ok(()) }) { self.set_notice(&e) },
             PlannedStep::StageLayoutAuto => self.set_notice(&strings::stage_auto_not_yet()),
             PlannedStep::StreamScene { scene } => self.set_stream_scene(scene),
             PlannedStep::CameraPosition { camera, position } => self.move_camera(camera, position),

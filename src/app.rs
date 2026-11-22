@@ -1003,7 +1003,11 @@ impl App {
     /// Writes the list of paired phones. A phone's own request can end up here (its sign-in was just used again),
     /// so the wait for the disk is taken off the async workers (`on_disk`).
     pub(crate) fn save_phones(&self, phones: &[Phone]) {
-        if let Ok(b) = serde_json::to_vec(phones) { let _ = on_disk(|| crate::store::write_atomic(&self.store.root.join("phones.json"), &b)); }
+        let saved = serde_json::to_vec(phones).map_err(std::io::Error::other)
+            .and_then(|b| on_disk(|| crate::store::write_atomic(&self.store.root.join("phones.json"), &b)));
+        // Without the file every paired phone is forgotten at the next start: said in the operator window (with
+        // the next look at the screen; callers hold the phone list, so nothing is sent from here).
+        if let Err(e) = saved { self.live.lock().unwrap().notice = Some(tr!("The list of paired phones could not be saved: {reason}", reason = e)); }
     }
     pub fn set_screens(&self, s: Arc<dyn Screens>) { let _ = self.screens.set(s); }
 
