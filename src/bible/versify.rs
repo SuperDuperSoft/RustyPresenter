@@ -144,7 +144,8 @@ pub fn hebrew_to_septuagint(VerseId(book, p, v): VerseId) -> Option<VerseId> {
 }
 
 /// A verse of a Bible numbered `from`, as a Bible numbered `to` numbers it, by way of the Hebrew numbering. The
-/// Latin way reads as English so far. `None` when the other Bible has no such verse.
+/// Latin way (`Vsys::Vulgate`: the Vulgate, Douay-Rheims, the Russian Synodal Bible) keeps the English chapters
+/// and numbers its psalms the Greek way. `None` when the other Bible has no such verse.
 pub fn convert(id: VerseId, from: Vsys, to: Vsys) -> Option<VerseId> {
     if kind(from) == kind(to) { return Some(id); }
     from_hebrew(to_hebrew(id, from)?, to)
@@ -160,15 +161,16 @@ pub fn convert_all(id: VerseId, from: Vsys, to: Vsys) -> Vec<VerseId> {
     out
 }
 
-fn kind(v: Vsys) -> u8 { match v { Vsys::Original => 0, Vsys::Septuagint => 1, _ => 2 } }
+fn kind(v: Vsys) -> u8 { match v { Vsys::Original => 0, Vsys::Septuagint => 1, Vsys::Vulgate => 3, _ => 2 } }
 
 /// A Bible numbered `v` numbers this book's verses the English way.
-fn reads_as_english(v: Vsys, _book: u8) -> bool { kind(v) == 2 }
+fn reads_as_english(v: Vsys, book: u8) -> bool { kind(v) == 2 || (v == Vsys::Vulgate && book != PSA) }
 
 fn to_hebrew(id: VerseId, from: Vsys) -> Option<VerseId> {
     match from {
         Vsys::Original => Some(id),
         Vsys::Septuagint => septuagint_to_hebrew(id),
+        Vsys::Vulgate if id.book() == PSA => septuagint_to_hebrew(id),
         _ => Some(english_to_hebrew(id)),
     }
 }
@@ -177,17 +179,41 @@ fn from_hebrew(hebrew: VerseId, to: Vsys) -> Option<VerseId> {
     match to {
         Vsys::Original => Some(hebrew),
         Vsys::Septuagint => hebrew_to_septuagint(hebrew),
+        Vsys::Vulgate if hebrew.book() == PSA => hebrew_to_septuagint(hebrew),
         _ => hebrew_to_english(hebrew),
     }
 }
 
+/// The verse has another number, or no verse of its own, in a Bible numbered the Hebrew, Greek or Latin way.
+/// Where a Bible's numbering is not known, such a verse is not shown beside another Bible's.
+pub fn moves(id: VerseId) -> bool {
+    [Vsys::Original, Vsys::Septuagint, Vsys::Vulgate].iter().any(|&to| convert_all(id, Vsys::English, to) != [id])
+        || second_english(english_to_hebrew(id)).is_some()
+}
+
+/// A language whose Bibles are often numbered another way than the English ones: Hebrew and the other
+/// right-to-left languages, Greek, Latin and the Slavic languages. `lang` is a language tag ("ru", "he-IL").
+pub fn language_may_number_its_own_way(lang: &str) -> bool {
+    let code = lang.split(['-', '_']).next().unwrap_or("").to_ascii_lowercase();
+    matches!(code.as_str(), "he" | "heb" | "hbo" | "yi" | "ar" | "ara" | "fa" | "ur" | "syr" | "arc" | "el" | "ell" | "grc" | "la" | "lat"
+        | "ru" | "rus" | "uk" | "ukr" | "be" | "bel" | "bg" | "bul" | "sr" | "srp" | "mk" | "mkd" | "cu" | "chu")
+}
+
 /// How a Bible's own verses show it is numbered: the Hebrew way has no Malachi 4 (its last verses are 3:19–24) and
 /// a fourth chapter of Joel. The Septuagint is numbered that way too, and its Psalm 9 runs on past verse 21, where
-/// the Hebrew Psalm 9 ends. A Bible without those books reads as English.
+/// the Hebrew Psalm 9 ends. The psalms are looked at on their own: a Bible with the English chapters whose Psalm 9
+/// runs on (the Latin way) numbers its psalms the Greek way whatever its Malachi looks like. A Bible without those
+/// books reads as English.
 pub fn detect(has: &dyn Fn(u8, u16, u16) -> bool) -> Vsys {
     let malachi = has(MAL, 3, 19) && !has(MAL, 4, 1);
     let joel = has(JOL, 4, 1) && !has(JOL, 2, 28);
-    if !(malachi || joel) { Vsys::English } else if has(PSA, 9, 22) { Vsys::Septuagint } else { Vsys::Original }
+    let greek_psalms = has(PSA, 9, 22);
+    match (malachi || joel, greek_psalms) {
+        (true, true) => Vsys::Septuagint,
+        (true, false) => Vsys::Original,
+        (false, true) => Vsys::Vulgate,
+        (false, false) => Vsys::English,
+    }
 }
 
 #[cfg(test)]
@@ -313,7 +339,7 @@ mod tests {
         assert_eq!(convert(id, Vsys::English, Vsys::Original), Some(VerseId(MAL, 3, 19)));
         assert_eq!(convert(VerseId(MAL, 3, 19), Vsys::Original, Vsys::English), Some(id));
         assert_eq!(convert(VerseId(PSA, 51, 1), Vsys::Original, Vsys::English), None);
-        for (a, b) in [(Vsys::English, Vsys::English), (Vsys::Original, Vsys::Original), (Vsys::Septuagint, Vsys::Septuagint), (Vsys::Vulgate, Vsys::English)] {
+        for (a, b) in [(Vsys::English, Vsys::English), (Vsys::Original, Vsys::Original), (Vsys::Septuagint, Vsys::Septuagint), (Vsys::Vulgate, Vsys::English), (Vsys::Vulgate, Vsys::Vulgate)] {
             assert_eq!(convert(id, a, b), Some(id), "{a:?} {b:?}");
         }
     }
@@ -321,11 +347,46 @@ mod tests {
     #[test]
     fn a_bible_shows_how_it_is_numbered() {
         let hebrew = |b: u8, c: u16, v: u16| !(b == MAL && c == 4) && !(b == JOL && c == 2 && v > 27);
-        let english = |b: u8, c: u16, v: u16| !(b == MAL && c == 3 && v > 18) && !(b == JOL && c == 4);
+        let english = |b: u8, c: u16, v: u16| !(b == MAL && c == 3 && v > 18) && !(b == JOL && c == 4) && !(b == PSA && c == 9 && v > 20);
         assert_eq!(detect(&|b, c, v| hebrew(b, c, v) && !(b == PSA && c == 9 && v > 21)), Vsys::Original);
         assert_eq!(detect(&hebrew), Vsys::Septuagint, "its Psalm 9 runs past verse 21");
         assert_eq!(detect(&english), Vsys::English);
         assert_eq!(detect(&|b, _, _| b >= 39), Vsys::English, "a New Testament alone");
+        // B4: Malachi 4 as in English, Psalm 9 running to verse 39 (the Russian Synodal Bible, Douay-Rheims).
+        let latin = |b: u8, c: u16, v: u16| !(b == MAL && c == 3 && v > 18) && !(b == JOL && c == 4) && !(b == PSA && c == 9 && v > 39);
+        assert_eq!(detect(&latin), Vsys::Vulgate);
+    }
+
+    /// B4: English chapters with the psalms numbered the Greek way.
+    #[test]
+    fn the_latin_way_moves_only_the_psalms() {
+        let to = |b: u8, c: u16, v: u16| convert(VerseId(b, c, v), Vsys::English, Vsys::Vulgate).map(|VerseId(_, c, v)| (c, v));
+        let back = |b: u8, c: u16, v: u16| convert(VerseId(b, c, v), Vsys::Vulgate, Vsys::English).map(|VerseId(_, c, v)| (c, v));
+        assert_eq!(to(PSA, 23, 1), Some((22, 1)), "the shepherd psalm is its Psalm 22");
+        assert_eq!(back(PSA, 22, 1), Some((23, 1)));
+        assert_eq!(to(PSA, 51, 1), Some((50, 3)), "its titles are numbered verses");
+        assert_eq!(back(PSA, 50, 3), Some((51, 1)));
+        assert_eq!(back(PSA, 50, 1), None, "a title");
+        assert_eq!(to(MAL, 4, 1), Some((4, 1)), "Malachi keeps its four chapters");
+        assert_eq!(back(MAL, 4, 1), Some((4, 1)));
+        assert_eq!(to(GEN, 32, 1), Some((32, 1)));
+        assert_eq!(to(42, 3, 16), Some((3, 16)));
+        // Beside a Hebrew Bible: the psalm by way of the Greek numbers, the rest as an English Bible.
+        assert_eq!(convert(VerseId(PSA, 22, 1), Vsys::Vulgate, Vsys::Original), Some(VerseId(PSA, 23, 1)));
+        assert_eq!(convert(VerseId(MAL, 4, 1), Vsys::Vulgate, Vsys::Original), Some(VerseId(MAL, 3, 19)));
+        assert_eq!(convert(VerseId(PSA, 22, 1), Vsys::Vulgate, Vsys::Septuagint), Some(VerseId(PSA, 22, 1)));
+        assert_eq!(convert_all(VerseId(ISA, 63, 19), Vsys::Original, Vsys::Vulgate), [VerseId(ISA, 63, 19), VerseId(ISA, 64, 1)]);
+        assert_eq!(convert_all(VerseId(PSA, 13, 6), Vsys::Original, Vsys::Vulgate), [VerseId(PSA, 12, 6)]);
+    }
+
+    #[test]
+    fn verses_that_move_and_languages_that_may_number_their_own_way() {
+        assert!(moves(VerseId(PSA, 23, 1)) && moves(VerseId(PSA, 51, 1)) && moves(VerseId(MAL, 4, 1)) && moves(VerseId(ISA, 64, 1)));
+        assert!(moves(VerseId(ISA, 63, 19)), "half of a Hebrew verse");
+        assert!(moves(VerseId(JER, 31, 31)), "the Greek Old Testament orders Jeremiah its own way");
+        assert!(!moves(VerseId(GEN, 1, 1)) && !moves(VerseId(42, 3, 16)) && !moves(VerseId(PSA, 1, 1)) && !moves(VerseId(ISA, 53, 5)));
+        for lang in ["he", "ru", "el", "grc", "uk-UA", "ar", "la"] { assert!(language_may_number_its_own_way(lang), "{lang}") }
+        for lang in ["en", "es", "fr", "de", "pt-BR", "ko", ""] { assert!(!language_may_number_its_own_way(lang), "{lang}") }
     }
 
     /// Downloads the Hebrew Bible (WLC) from eBible and checks the whole table against it and the built-in KJV: every

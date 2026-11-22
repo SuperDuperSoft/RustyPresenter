@@ -1084,7 +1084,18 @@ impl App {
         let mut found = vec![];
         let numbering = |t: &str| bible::import::meta(&self.store.root, t).map_or(bible::library::Vsys::English, |m| m.versification);
         let main_numbering = numbering(main);
+        // An online Bible says nothing about how it numbers its verses. One in a language whose Bibles often number
+        // the Psalms and some Old Testament chapters their own way is not shown beside another Bible where the
+        // numbers can differ: better left out than shown against the wrong verse.
+        let unsure = |t: &str| bible::online::get(&self.store.root, t).is_some_and(|b| bible::versify::language_may_number_its_own_way(&b.lang));
+        let moves = if unsure(main) || ids.iter().any(|t| unsure(t)) {
+            // The verses asked for: the main Bible's, or (when it cannot be read just now) the reference as an
+            // English Bible reads it.
+            let asked = match self.lookup_passage(main, reference).await { Ok(found) => Some(found), Err(_) => bible::kjv().lookup(reference).ok() };
+            asked.is_some_and(|(_, verses)| verses.iter().filter_map(|v| v.id).any(bible::versify::moves))
+        } else { false };
         for t in ids {
+            if moves && (unsure(main) || unsure(&t)) { left_out.push(t); continue }
             // A Bible numbered another way (the Hebrew Bible beside an English one) is asked for the same verses
             // under its own numbers, so the two line up.
             let its = numbering(&t);
@@ -3095,6 +3106,44 @@ mod tests {
         let v = &found[0].verses;
         assert_eq!((v.len(), v[0].id, v[0].reference.as_str()), (1, Some(VerseId(18, 13, 6)), "Psalm 13:5-6"));
         assert!(v[0].text.starts_with("But I have trusted in thy mercy") && v[0].text.contains("I will sing unto the LORD"), "{}", v[0].text);
+    }
+
+    /// B4: an online Bible whose numbering is not known is left out where the numbers can differ.
+    #[tokio::test]
+    async fn an_online_bible_that_may_number_its_own_way_is_left_out_where_verses_move() {
+        let app = test_app();
+        let online = |id: &str, lang: &str| bible::online::OnlineBible { id: id.into(), abbr: id.into(), name: id.into(), lang: lang.into(), ..Default::default() };
+        bible::online::add(&app.store.root, online("yv:400", "ru")).unwrap();
+        bible::online::add(&app.store.root, online("yv:500", "es")).unwrap();
+        let ids = ["yv:400".to_string(), "WEB".to_string()];
+        let (found, left_out) = app.lookup_also("KJV", &ids, "Psalm 23:1").await;
+        assert_eq!((found.iter().map(|a| a.translation.as_str()).collect::<Vec<_>>(), left_out), (vec!["WEB"], vec!["yv:400".to_string()]),
+            "left out without being looked up: its Psalm 23 may be another psalm");
+        // With that Bible as the main one, nothing can be lined up beside it there.
+        let (found, left_out) = app.lookup_also("yv:400", &["WEB".to_string()], "Psalm 23:1").await;
+        assert!(found.is_empty() && left_out == ["WEB"], "{left_out:?}");
+        // A language that numbers the English way is looked up as before (and fails here only for want of a key).
+        assert!(!bible::versify::language_may_number_its_own_way(&bible::online::get(&app.store.root, "yv:500").unwrap().lang));
+    }
+
+    /// B4: a Bible with the English chapters and the Greek psalm numbers shows the same psalm beside an English one.
+    #[tokio::test]
+    async fn a_bible_with_greek_psalm_numbers_lines_up_beside_an_english_one() {
+        use crate::scripture::VerseId;
+        let app = test_app();
+        let mut verses = bible::import::Verses::new();
+        for v in 1..=39u16 { verses.insert((18, 9, v), format!("syn ps 9:{v}")); }
+        for v in 1..=6u16 { verses.insert((18, 22, v), format!("syn ps 22:{v}")); }
+        for v in 1..=10u16 { verses.insert((18, 23, v), format!("syn ps 23:{v}")); }
+        for v in 1..=6u16 { verses.insert((38, 4, v), format!("syn mal 4:{v}")); }
+        let meta = bible::library::BibleMeta { id: "ebible:russyn".into(), abbr: "SYN".into(), name: "Synodal".into(), licence: bible::library::Licence::Pd, ..Default::default() };
+        let saved = bible::import::install(&app.store.root, bible::import::ImportedBible { abbreviation: meta.id.clone(), name: meta.name.clone(), copyright: "Public domain".into(), verses, meta: Some(meta) }).unwrap();
+        assert_eq!(saved.versification, bible::library::Vsys::Vulgate);
+        let (found, left_out) = app.lookup_also("KJV", &["ebible:russyn".to_string()], "Psalm 23:1").await;
+        assert!(left_out.is_empty(), "{left_out:?}");
+        assert_eq!((found[0].verses[0].text.as_str(), found[0].verses[0].id), ("syn ps 22:1", Some(VerseId(18, 23, 1))), "the shepherd psalm, not the next one");
+        let (found, _) = app.lookup_also("KJV", &["ebible:russyn".to_string()], "Malachi 4:1").await;
+        assert_eq!(found[0].verses[0].text, "syn mal 4:1");
     }
 
     #[tokio::test]
