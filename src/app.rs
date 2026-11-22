@@ -1070,6 +1070,8 @@ impl App {
 
     /// Spec §13, for the current service. Looks at every file it needs, so call it off the UI thread.
     pub fn preflight(&self) -> Vec<String> {
+        // A copy for the check, so the lock is not held while every file is looked at. The copy shares the songs,
+        // media, decks and services (`Shared`): the status pill's look every 30 seconds copies no library.
         let data = self.data.lock().unwrap().clone();
         let has_asset = |id: &str| std::fs::metadata(self.store.asset_path(id)).is_ok_and(|m| m.is_file() && m.len() > 0);
         let audio: Vec<String> = self.audio_devices().into_iter().map(|d| d.name).collect();
@@ -2786,6 +2788,16 @@ mod tests {
         assert!(r.is_err());
         assert_eq!(app.data.lock().unwrap().settings.screens, before, "the setup is as it was");
         assert_eq!(app.store.load().unwrap().settings.screens, before, "on the disk too");
+    }
+
+    /// Q27: the copy the 30-second check works on shares the library's lists.
+    #[tokio::test]
+    async fn a_copy_of_the_data_for_a_check_shares_the_library() {
+        let app = test_app();
+        app.edit(|d| { d.songs.push(Song { title: "Amazing Grace".into(), ..Default::default() }); Ok(()) }).unwrap();
+        let copy = app.data.lock().unwrap().clone();
+        let held = app.data.lock().unwrap();
+        assert!(copy.songs.same(&held.songs) && copy.media.same(&held.media) && copy.decks.same(&held.decks) && copy.services.same(&held.services));
     }
 
     /// Q2: an edit copies only the list it changes; the lists it leaves alone stay shared with the copy taken
