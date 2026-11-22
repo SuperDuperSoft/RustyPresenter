@@ -622,8 +622,9 @@ impl App {
     pub fn read_only(&self) -> bool { self.read_only.load(Ordering::Relaxed) }
     pub fn set_read_only(&self, on: bool) { self.read_only.store(on, Ordering::Relaxed) }
 
-    /// Mutate data, save, and tell every screen. The live item is checked against the new data even when the save
-    /// failed, as memory has changed (FEAT-4 spec §5.4).
+    /// Mutate data, save, and tell every screen. The live item is checked against the new data, and every screen is
+    /// told, even when the save failed: memory has changed (FEAT-4 spec §5.4), and the operator window must not go
+    /// on showing the old data while the room and the phones use the new.
     /// Edit → Undo can take it back (`crate::undo`).
     pub(crate) fn edit<T>(&self, f: impl FnOnce(&mut Data) -> Result<T, String>) -> Result<T, String> { self.edit_kept(true, f) }
 
@@ -648,7 +649,7 @@ impl App {
             r
         };
         let r = self.write_save(r.1).map(|()| r.0);
-        self.after_edit(r.is_ok());
+        self.after_edit();
         r
     }
 
@@ -664,21 +665,18 @@ impl App {
         };
         let r = r.and_then(|(t, s)| self.write_save(s).map(|()| t));
         // A step that could not be taken is gone too, so the menu is told either way.
-        self.after_edit(true);
+        self.after_edit();
         r
     }
 
-    fn after_edit(&self, ok: bool) {
+    /// After memory changed (saved or not): every screen reads the data again.
+    fn after_edit(&self) {
         // Settings → Sections: names, colours, keys and heading words follow at once.
         let look = self.data.lock().unwrap().settings.sections.clone();
         crate::sections::look::set_look(&look);
         let live_changed = self.reconcile_live();
-        if ok {
-            self.broadcast_data();
-            self.broadcast_live();
-        } else if live_changed {
-            self.broadcast_live();
-        }
+        self.broadcast_data();
+        self.broadcast_live();
         if live_changed { self.automation_after(None) }
     }
 
@@ -2675,6 +2673,22 @@ mod tests {
         app.set_notice("RustyPresenter restarted after a problem.");
         assert_eq!(app.live.lock().unwrap().notice.as_deref(), Some("RustyPresenter restarted after a problem."));
         assert!(matches!(rx.try_recv().unwrap(), Update::Live(_)));
+    }
+
+    /// P1: memory holds an edit whose save failed, so every screen is told to read it.
+    #[tokio::test]
+    async fn an_edit_whose_save_failed_still_tells_every_screen() {
+        let app = test_app();
+        // Something in the way of data.json: the save cannot land.
+        let _ = std::fs::remove_file(app.store.data_path());
+        std::fs::create_dir_all(app.store.data_path().join("in the way")).unwrap();
+        let mut rx = app.subscribe();
+        let r = app.edit(|d| { d.settings.translation = "WEB".into(); Ok(()) });
+        assert!(r.is_err(), "the save failed");
+        assert_eq!(app.data.lock().unwrap().settings.translation, "WEB", "memory has the change");
+        let mut heard = vec![];
+        while let Ok(u) = rx.try_recv() { heard.push(u) }
+        assert!(heard.iter().any(|u| matches!(u, Update::Data)), "the operator window is told to read the data again");
     }
 
     #[tokio::test]
