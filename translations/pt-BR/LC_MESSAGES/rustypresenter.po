@@ -2468,8 +2468,8 @@ msgid "The stage screen on phones and tablets: Settings → Remote and network"
 msgstr "A tela do palco em celulares e tablets: Configurações → Controle remoto e rede"
 
 #: ui/dialogs/settings-general.slint
-msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
-msgstr "Um backup completo (músicas, cultos, configurações e todos os vídeos, imagens e slides) é feito sempre que o RustyPresenter inicia e uma vez por dia. Os últimos 10 ficam guardados em"
+msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day, when something changed since the last one. Every backup of the last two days is kept, then one a day for two weeks and one a week for eight weeks, in"
+msgstr ""
 
 #: ui/dialogs/settings-general.slint
 msgid "Back up now"
@@ -6411,6 +6411,10 @@ msgstr "A tela do salão reiniciou. O vídeo/áudio parou — clique nele de nov
 msgid "The audience screen restarted."
 msgstr "A tela do salão reiniciou."
 
+#: src/app.rs
+msgid "The list of paired phones could not be saved: {reason}"
+msgstr ""
+
 #: src/app.rs src/platform/instance.rs
 msgid "RustyPresenter is still starting. Try again in a moment."
 msgstr "O RustyPresenter ainda está iniciando. Tente de novo daqui a pouco."
@@ -8066,6 +8070,10 @@ msgstr "Não foi possível encontrar uma pasta para guardar seus dados. Defina R
 msgid "Cannot use the data folder {path}: {reason}"
 msgstr "Não é possível usar a pasta de dados {path}: {reason}"
 
+#: src/startup.rs src/store.rs
+msgid "Could not save: {reason}"
+msgstr "Não foi possível salvar: {reason}"
+
 #: src/startup.rs
 msgid ""
 "Your saved songs and services could not be read.\n"
@@ -8101,8 +8109,8 @@ msgid "Cannot read {path}: {reason}"
 msgstr "Não é possível ler {path}: {reason}"
 
 #: src/store.rs
-msgid "Could not save: {reason}"
-msgstr "Não foi possível salvar: {reason}"
+msgid "Your saved data at {path} is from an older version and was not brought up to this one, because no copy of it could be kept first ({reason}). Nothing was changed."
+msgstr ""
 
 #: src/store.rs
 msgid "Unknown backup."
@@ -13944,6 +13952,9 @@ msgstr "o yt-dlp não salvou nenhum vídeo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "não é um arquivo de mídia"
+
+#~ msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
+#~ msgstr "Um backup completo (músicas, cultos, configurações e todos os vídeos, imagens e slides) é feito sempre que o RustyPresenter inicia e uma vez por dia. Os últimos 10 ficam guardados em"
 
 #~ msgid "the file is too big to be a song"
 #~ msgstr "o arquivo é grande demais para ser uma música"

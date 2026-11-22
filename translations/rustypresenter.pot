@@ -2465,7 +2465,7 @@ msgid "The stage screen on phones and tablets: Settings → Remote and network"
 msgstr ""
 
 #: ui/dialogs/settings-general.slint
-msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
+msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day, when something changed since the last one. Every backup of the last two days is kept, then one a day for two weeks and one a week for eight weeks, in"
 msgstr ""
 
 #: ui/dialogs/settings-general.slint
@@ -6402,6 +6402,10 @@ msgstr ""
 msgid "The audience screen restarted."
 msgstr ""
 
+#: src/app.rs
+msgid "The list of paired phones could not be saved: {reason}"
+msgstr ""
+
 #: src/app.rs src/platform/instance.rs
 msgid "RustyPresenter is still starting. Try again in a moment."
 msgstr ""
@@ -8057,6 +8061,10 @@ msgstr ""
 msgid "Cannot use the data folder {path}: {reason}"
 msgstr ""
 
+#: src/startup.rs src/store.rs
+msgid "Could not save: {reason}"
+msgstr ""
+
 #: src/startup.rs
 msgid ""
 "Your saved songs and services could not be read.\n"
@@ -8092,7 +8100,7 @@ msgid "Cannot read {path}: {reason}"
 msgstr ""
 
 #: src/store.rs
-msgid "Could not save: {reason}"
+msgid "Your saved data at {path} is from an older version and was not brought up to this one, because no copy of it could be kept first ({reason}). Nothing was changed."
 msgstr ""
 
 #: src/store.rs

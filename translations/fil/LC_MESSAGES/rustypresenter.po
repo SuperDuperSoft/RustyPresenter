@@ -2468,8 +2468,8 @@ msgid "The stage screen on phones and tablets: Settings → Remote and network"
 msgstr "Ang stage screen sa mga phone at tablet: Settings → Remote at network"
 
 #: ui/dialogs/settings-general.slint
-msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
-msgstr "Gumagawa ng buong backup (mga kanta, service, settings at bawat video, larawan at slide) tuwing magsisimula ang RustyPresenter at minsan isang araw. Itinatago ang huling 10 sa"
+msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day, when something changed since the last one. Every backup of the last two days is kept, then one a day for two weeks and one a week for eight weeks, in"
+msgstr ""
 
 #: ui/dialogs/settings-general.slint
 msgid "Back up now"
@@ -6411,6 +6411,10 @@ msgstr "Nag-restart ang screen sa silid. Huminto ang video/audio — i-click ito
 msgid "The audience screen restarted."
 msgstr "Nag-restart ang screen sa silid."
 
+#: src/app.rs
+msgid "The list of paired phones could not be saved: {reason}"
+msgstr ""
+
 #: src/app.rs src/platform/instance.rs
 msgid "RustyPresenter is still starting. Try again in a moment."
 msgstr "Nagsisimula pa ang RustyPresenter. Subukang muli maya-maya."
@@ -8066,6 +8070,10 @@ msgstr "Walang mahanap na folder na mapaglalagyan ng iyong data. Itakda ang RUST
 msgid "Cannot use the data folder {path}: {reason}"
 msgstr "Hindi magamit ang data folder na {path}: {reason}"
 
+#: src/startup.rs src/store.rs
+msgid "Could not save: {reason}"
+msgstr "Hindi ma-save: {reason}"
+
 #: src/startup.rs
 msgid ""
 "Your saved songs and services could not be read.\n"
@@ -8101,8 +8109,8 @@ msgid "Cannot read {path}: {reason}"
 msgstr "Hindi mabasa ang {path}: {reason}"
 
 #: src/store.rs
-msgid "Could not save: {reason}"
-msgstr "Hindi ma-save: {reason}"
+msgid "Your saved data at {path} is from an older version and was not brought up to this one, because no copy of it could be kept first ({reason}). Nothing was changed."
+msgstr ""
 
 #: src/store.rs
 msgid "Unknown backup."
@@ -13944,6 +13952,9 @@ msgstr "walang na-save na video ang yt-dlp"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "hindi media file"
+
+#~ msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
+#~ msgstr "Gumagawa ng buong backup (mga kanta, service, settings at bawat video, larawan at slide) tuwing magsisimula ang RustyPresenter at minsan isang araw. Itinatago ang huling 10 sa"
 
 #~ msgid "the file is too big to be a song"
 #~ msgstr "masyadong malaki ang file para maging kanta"

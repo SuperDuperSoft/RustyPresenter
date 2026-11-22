@@ -2468,8 +2468,8 @@ msgid "The stage screen on phones and tablets: Settings → Remote and network"
 msgstr "Der Bühnenbildschirm auf Handys und Tablets: Einstellungen → Fernbedienung und Netzwerk"
 
 #: ui/dialogs/settings-general.slint
-msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
-msgstr "Eine vollständige Sicherung (Lieder, Gottesdienste, Einstellungen und alle Videos, Bilder und Folien) wird bei jedem Start von RustyPresenter und einmal täglich erstellt. Die letzten 10 liegen in"
+msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day, when something changed since the last one. Every backup of the last two days is kept, then one a day for two weeks and one a week for eight weeks, in"
+msgstr ""
 
 #: ui/dialogs/settings-general.slint
 msgid "Back up now"
@@ -6411,6 +6411,10 @@ msgstr "Der Saalbildschirm wurde neu gestartet. Video/Audio wurde gestoppt – z
 msgid "The audience screen restarted."
 msgstr "Der Saalbildschirm wurde neu gestartet."
 
+#: src/app.rs
+msgid "The list of paired phones could not be saved: {reason}"
+msgstr ""
+
 #: src/app.rs src/platform/instance.rs
 msgid "RustyPresenter is still starting. Try again in a moment."
 msgstr "RustyPresenter startet noch. Bitte gleich noch einmal versuchen."
@@ -8066,6 +8070,10 @@ msgstr "Kein Ordner für Ihre Daten gefunden. Setzen Sie RUSTYPRESENTER_DATA."
 msgid "Cannot use the data folder {path}: {reason}"
 msgstr "Datenordner {path} nicht verwendbar: {reason}"
 
+#: src/startup.rs src/store.rs
+msgid "Could not save: {reason}"
+msgstr "Speichern fehlgeschlagen: {reason}"
+
 #: src/startup.rs
 msgid ""
 "Your saved songs and services could not be read.\n"
@@ -8101,8 +8109,8 @@ msgid "Cannot read {path}: {reason}"
 msgstr "{path} kann nicht gelesen werden: {reason}"
 
 #: src/store.rs
-msgid "Could not save: {reason}"
-msgstr "Speichern fehlgeschlagen: {reason}"
+msgid "Your saved data at {path} is from an older version and was not brought up to this one, because no copy of it could be kept first ({reason}). Nothing was changed."
+msgstr ""
 
 #: src/store.rs
 msgid "Unknown backup."
@@ -13944,6 +13952,9 @@ msgstr "yt-dlp hat kein Video gespeichert"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "keine Mediendatei"
+
+#~ msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
+#~ msgstr "Eine vollständige Sicherung (Lieder, Gottesdienste, Einstellungen und alle Videos, Bilder und Folien) wird bei jedem Start von RustyPresenter und einmal täglich erstellt. Die letzten 10 liegen in"
 
 #~ msgid "the file is too big to be a song"
 #~ msgstr "die Datei ist zu groß für ein Lied"
