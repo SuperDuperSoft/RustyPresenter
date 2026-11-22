@@ -35,6 +35,25 @@ const BUNDLED_FACES: [&[u8]; 3] = [
     include_bytes!("../../assets/fonts/NotoSans-SemiBold.ttf"),
 ];
 
+/// The installed fonts and the bundled faces, found the first time any text is drawn and kept for the life of the
+/// app (a font installed while the app runs is seen at the next start). As `FontSystem::new` sets it up: the
+/// system fonts, its default family names, then the bundled faces, whose bytes are shared, not copied.
+fn found() -> &'static cosmic_text::fontdb::Database {
+    static FOUND: std::sync::OnceLock<cosmic_text::fontdb::Database> = std::sync::OnceLock::new();
+    FOUND.get_or_init(|| {
+        let mut db = cosmic_text::fontdb::Database::new();
+        db.load_system_fonts();
+        db.set_monospace_family("Noto Sans Mono");
+        db.set_sans_serif_family("Open Sans");
+        db.set_serif_family("DejaVu Serif");
+        for face in BUNDLED_FACES.iter().chain(&crate::theme::paint::fonts::RICH_FACES) {
+            let bytes: &'static [u8] = face;
+            db.load_font_source(cosmic_text::fontdb::Source::Binary(std::sync::Arc::new(bytes)));
+        }
+        db
+    })
+}
+
 /// The font database: system fonts plus the bundled Noto Sans (with bold and italic), so text looks the same everywhere.
 pub struct Fonts {
     pub(crate) sys: FontSystem,
@@ -53,10 +72,18 @@ const MAX_FITS: usize = 1024;
 impl Fonts {
     /// Installed system fonts plus the bundled Noto Sans. What the app uses: theme fonts the
     /// operator installed work, and other scripts (Korean, emoji, ...) fall back to system faces.
+    ///
+    /// The fonts are found once for the whole app (`found`): each `Fonts` starts from a copy of that list, which
+    /// names the installed fonts' files and shares the bundled faces' bytes, instead of looking through every
+    /// installed font again and copying the bundled faces for each renderer and preview.
     pub fn new() -> Self {
-        let mut sys = FontSystem::new();
-        for face in BUNDLED_FACES.iter().chain(&crate::theme::paint::fonts::RICH_FACES) { sys.db_mut().load_font_data(face.to_vec()); }
-        Self { sys, fits: HashMap::new() }
+        let locale = sys_locale::get_locale().unwrap_or_else(|| "en-US".into());
+        Self { sys: FontSystem::new_with_locale_and_db(locale, found().clone()), fits: HashMap::new() }
+    }
+
+    /// Whether a font family is installed (or bundled), by the app's one list of fonts: nothing is built to ask.
+    pub fn installed(name: &str) -> bool {
+        found().faces().any(|f| f.families.iter().any(|(n, _)| n.eq_ignore_ascii_case(name)))
     }
 
     /// Only the bundled Noto Sans, with a fixed locale: the same pixels on every machine, whatever
@@ -338,6 +365,21 @@ pub fn scripture_align(text: &str) -> Align { if rtl(text) { Align::Right } else
 
 /// Width of the widest laid-out line.
 pub fn max_line_width(b: &Buffer) -> f32 { b.layout_runs().map(|r| r.line_w).fold(0.0, f32::max) }
+
+#[cfg(test)]
+mod found_tests {
+    use super::*;
+
+    /// Q15: every `Fonts` starts from the one list of fonts, and asking for a family builds nothing.
+    #[test]
+    fn fonts_share_the_one_list_of_installed_fonts() {
+        let (a, b) = (Fonts::new(), Fonts::new());
+        assert_eq!(a.sys.db().len(), b.sys.db().len());
+        assert_eq!(a.sys.db().len(), found().len(), "a copy of the list found once");
+        assert!(Fonts::installed(BUNDLED_FAMILY) && Fonts::installed(&BUNDLED_FAMILY.to_uppercase()) && a.has_family(BUNDLED_FAMILY));
+        assert!(!Fonts::installed("No Such Font 12345"));
+    }
+}
 
 #[cfg(test)]
 mod tests {

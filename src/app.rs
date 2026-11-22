@@ -2244,8 +2244,7 @@ impl App {
         let contents = self.job_finished(job, work.await.map_err(|e| e.to_string()).and_then(|r| r))?;
         let fonts = contents.fonts.clone();
         let missing = tokio::task::spawn_blocking(move || {
-            let installed = crate::render::Fonts::new();
-            bundle::missing_fonts(&fonts, &|f| installed.has_family(f))
+            bundle::missing_fonts(&fonts, &|f| crate::render::Fonts::installed(f))
         }).await.unwrap_or_default();
         let opened = self.edit(|d| {
             d.settings.opened_file(&path);
