@@ -4,7 +4,7 @@ A free presentation app for churches. It shows song words, Bible verses, slides,
 
 It is free for any church, with no account and no subscription.
 
-> **0.5 Beta.** It runs our own Sunday services, but it is new. Try it on a weekday before you rely on it, and tell us what breaks.
+> **0.5 Beta.** This is an early version. Try it on a weekday before you rely on it on a Sunday, and report what breaks.
 
 [![Made with Slint](https://raw.githubusercontent.com/slint-ui/slint/master/logo/MadeWithSlint-logo-whitebg.png)](https://slint.dev)
 
