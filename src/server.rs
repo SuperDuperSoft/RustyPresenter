@@ -150,6 +150,8 @@ async fn remote_pair(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo
         if att.get(&addr.ip()).is_some_and(|t| now.duration_since(*t) < Duration::from_secs(1)) {
             return bad(crate::tr!("Too fast — wait a second and try again."));
         }
+        // Only the last second matters: older tries are forgotten, so the list never grows without end.
+        att.retain(|_, t| now.duration_since(*t) < Duration::from_secs(1));
         att.insert(addr.ip(), now);
     }
     let mut pairing = app.pairing.lock().unwrap();
@@ -365,6 +367,7 @@ fn phone_automation(app: &App, phone: Uuid, env: &Envelope) -> Result<(), String
             let mut last = LAST_MESSAGE.lock().unwrap();
             let now = Instant::now();
             if last.get(&phone).is_some_and(|t| now.duration_since(*t) < Duration::from_secs(1)) { return Err(strings::too_fast()) }
+            last.retain(|_, t| now.duration_since(*t) < Duration::from_secs(1));
             last.insert(phone, now);
             Ok(())
         }
@@ -707,6 +710,18 @@ msgstr[1] "{n} Folien"
         assert_eq!(i18n_map()["Connect"], "Enlazar");
         assert!(words(&app) > before, "the phone is told to read the words again");
         crate::i18n::set_language("en").unwrap();
+    }
+
+    /// P2: only the last second of pairing tries is kept.
+    #[tokio::test]
+    async fn old_pairing_tries_are_forgotten() {
+        let app = test_app();
+        let old: std::net::IpAddr = "192.168.1.77".parse().unwrap();
+        app.attempts.lock().unwrap().insert(old, Instant::now() - Duration::from_secs(5));
+        let (status, _, _) = pair(&app, 2, json!({ "pin": "000000" })).await;
+        assert_eq!(status, StatusCode::BAD_REQUEST, "pairing is not open");
+        let att = app.attempts.lock().unwrap();
+        assert!(!att.contains_key(&old) && att.len() == 1, "{att:?}");
     }
 
     /// B13: a phone taken off the list while its stream was behind gets no fresh view; its stream ends.
