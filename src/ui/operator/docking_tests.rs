@@ -31,7 +31,7 @@ fn bounds(e: &ElementHandle) -> (f32, f32, f32, f32) {
 fn slot(op: &Operator, id: &str) -> (f32, f32, f32, f32) { bounds(&find(op, id).unwrap_or_else(|| panic!("{id} shown"))) }
 
 fn texts(app: &Arc<App>, names: &[&str]) -> Vec<Uuid> {
-    let mut d = app.data.lock().unwrap();
+    let mut d = app.data();
     names.iter().map(|n| {
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: (*n).into(), body: "Hello".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
         d.services[0].items.push(item.clone());
@@ -39,7 +39,7 @@ fn texts(app: &Arc<App>, names: &[&str]) -> Vec<Uuid> {
     }).collect()
 }
 
-fn saved(app: &App) -> dock::DockPrefs { app.data.lock().unwrap().settings.dock.clone() }
+fn saved(app: &App) -> dock::DockPrefs { app.data().settings.dock.clone() }
 
 fn click(w: &slint::Window, e: &ElementHandle) {
     let (l, t, r, b) = bounds(e);

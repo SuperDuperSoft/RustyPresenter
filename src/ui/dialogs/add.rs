@@ -342,11 +342,11 @@ pub(crate) mod tests {
 
     pub(crate) fn song(app: &App, title: &str, writers: &str, ccli: &str, lyrics: &str) -> Uuid {
         let s = Song { id: Uuid::new_v4(), title: title.into(), writers: writers.into(), ccli: ccli.into(), lyrics: lyrics.into(), ..Default::default() };
-        app.data.lock().unwrap().songs.push(s.clone());
+        app.data().songs.push(s.clone());
         s.id
     }
 
-    pub(crate) fn items(app: &App) -> Vec<ItemKind> { app.data.lock().unwrap().services[0].items.iter().map(|i| i.kind.clone()).collect() }
+    pub(crate) fn items(app: &App) -> Vec<ItemKind> { app.data().services[0].items.iter().map(|i| i.kind.clone()).collect() }
 
     pub(crate) fn shown(op: &Operator) -> Vec<AddRow> { op.ui.global::<AddState>().get_rows().iter().collect() }
 
@@ -412,7 +412,7 @@ pub(crate) mod tests {
         let one = op.ui.global::<AddState>();
         one.invoke_search_edited("22222".into());
         assert_eq!(titles(&op), ["abide with me"], "the CCLI number is a field too");
-        assert_eq!(song_key(&app.data.lock().unwrap().songs[0]).contains("newton"), true);
+        assert_eq!(song_key(&app.data().songs[0]).contains("newton"), true);
     }
 
     #[test]
@@ -439,7 +439,7 @@ pub(crate) mod tests {
         assert!(matches!(items(&app)[..], [ItemKind::Song { song_id, .. }] if song_id == id));
         assert_eq!(op.dialog(), None);
         assert_eq!(last_toast(&op), Some(("Added to the service".into(), false)));
-        let new_id = app.data.lock().unwrap().services[0].items[0].id;
+        let new_id = app.data().services[0].items[0].id;
         assert_eq!(op.selected_item(), Some(new_id), "the new item is selected");
     }
 
@@ -449,7 +449,7 @@ pub(crate) mod tests {
         let id = song(&app, "Amazing Grace", "", "", "Verse 1\nAmazing grace");
         let op = opened(&app);
         open_add(&op, AddTab::Song);
-        { let mut d = app.data.lock().unwrap(); d.services.clear(); d.current_service = None; }
+        { let mut d = app.data(); d.services.clear(); d.current_service = None; }
         op.ui.global::<AddState>().invoke_add_row(id.to_string().into());
         assert_eq!(last_toast(&op), Some(("No service is open.".into(), true)));
         assert_eq!(op.dialog(), Some(DialogKind::Add(AddTab::Song)));
@@ -460,7 +460,7 @@ pub(crate) mod tests {
         let app = test_app();
         let text = |title: &str| {
             let item = crate::model::ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: "x".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
-            app.data.lock().unwrap().services[0].items.push(item.clone());
+            app.data().services[0].items.push(item.clone());
             item.id
         };
         let first = text("Welcome");
@@ -488,7 +488,7 @@ pub(crate) mod tests {
     #[test]
     fn bible_tab_adds_with_the_chosen_verses_per_slide() {
         let app = test_app();
-        app.data.lock().unwrap().settings.bible_per_slide = 3;
+        app.data().settings.bible_per_slide = 3;
         let op = opened(&app);
         open_add(&op, AddTab::Scripture);
         settle(&op);
@@ -525,7 +525,7 @@ pub(crate) mod tests {
         st.set_reference("John 3:16".into());
         click(&op, "AddBibleTab::add");
         assert!(matches!(&items(&app)[0], ItemKind::Scripture { translation, .. } if translation == "WEB"), "{:?}", items(&app)[0]);
-        assert_eq!(app.data.lock().unwrap().settings.translation, "KJV", "the Bible box keeps its Bible");
+        assert_eq!(app.data().settings.translation, "KJV", "the Bible box keeps its Bible");
         assert_eq!(op.ui.get_translation(), "KJV");
         open_add(&op, AddTab::Scripture);
         assert_eq!(op.ui.global::<AddState>().get_translation(), "KJV", "the next Add starts from the Bible box again");
@@ -552,9 +552,9 @@ pub(crate) mod tests {
         refresh(&op);
         settle(&op);
         assert_eq!(st.get_translation(), "NIV", "a data update keeps the dialog's choice");
-        assert_eq!(app.data.lock().unwrap().settings.translation, "KJV");
+        assert_eq!(app.data().settings.translation, "KJV");
         st.invoke_toggle_favourite("NIV".into());
-        assert_eq!(app.data.lock().unwrap().settings.favourites, ["NIV"]);
+        assert_eq!(app.data().settings.favourites, ["NIV"]);
         assert!(st.get_picker_rows().iter().any(|r| r.id == "NIV" && r.favourite), "the star shows at once");
     }
 

@@ -33,7 +33,7 @@ fn go_live_with_nothing_set_up_walks_through_the_helper() {
     g.invoke_next();
     g.invoke_next();
     assert_eq!(g.get_step(), 4);
-    let p = app.data.lock().unwrap().settings.record.clone();
+    let p = app.data().settings.record.clone();
     let yt = p.stream.iter().find(|d| d.id == stream::built_in_id(0)).expect("YouTube is set up");
     assert!(yt.on);
     assert!(p.camera.is_empty());
@@ -60,7 +60,7 @@ fn another_server_needs_its_address() {
     g.set_url("rtmp://live.example.org/app".into());
     g.invoke_next();
     assert_eq!(g.get_step(), 1, "a server with no key");
-    let p = app.data.lock().unwrap().settings.record.clone();
+    let p = app.data().settings.record.clone();
     let custom = p.stream.iter().find(|d| d.id == stream::built_in_id(3)).unwrap();
     assert_eq!((custom.on, custom.url.as_str()), (true, "rtmp://live.example.org/app"));
 }

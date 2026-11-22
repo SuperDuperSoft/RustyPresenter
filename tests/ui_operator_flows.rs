@@ -88,7 +88,7 @@ impl Flow {
 
     fn cursor(&self) -> Option<(Uuid, usize)> { self.app.live_view().cursor.map(|c| (c.item_id, c.slide)) }
 
-    fn items(&self) -> Vec<ServiceItem> { self.app.data.lock().unwrap().services[0].items.clone() }
+    fn items(&self) -> Vec<ServiceItem> { self.app.data().services[0].items.clone() }
 
     fn order(&self) -> Vec<Uuid> { self.items().iter().map(|i| i.id).collect() }
 
@@ -98,7 +98,7 @@ impl Flow {
 /// An announcement in the current service; an empty line in `body` starts a new slide.
 fn add_text(app: &App, title: &str, body: &str) -> Uuid {
     let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: body.into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
-    app.data.lock().unwrap().services[0].items.push(item.clone());
+    app.data().services[0].items.push(item.clone());
     item.id
 }
 
@@ -106,7 +106,7 @@ fn add_text(app: &App, title: &str, body: &str) -> Uuid {
 fn add_song(app: &App, title: &str, lyrics: &str) -> Uuid {
     let song = Song { id: Uuid::new_v4(), title: title.into(), lyrics: lyrics.into(), ..Default::default() };
     let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None };
-    let mut data = app.data.lock().unwrap();
+    let mut data = app.data();
     data.songs.push(song);
     data.services[0].items.push(item.clone());
     item.id
@@ -233,7 +233,7 @@ fn add_song_through_dialog() {
     f.get("SongEditor::title").set_accessible_value("Amazing Grace");
     f.get("SongEditor::lyrics").set_accessible_value("Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me");
     f.click("SongEditor::save");
-    let songs = f.app.data.lock().unwrap().songs.clone();
+    let songs = f.app.data().songs.clone();
     assert_eq!(songs.len(), 1);
     assert_eq!(songs[0].title, "Amazing Grace");
     let items = f.items();

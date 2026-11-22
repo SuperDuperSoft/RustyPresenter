@@ -504,7 +504,7 @@ mod tests {
     /// An announcement with one slide per block of `body`; returns its id.
     fn add_text(app: &App, title: &str, body: &str) -> Uuid {
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: body.into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
-        app.data.lock().unwrap().services[0].items.push(item.clone());
+        app.data().services[0].items.push(item.clone());
         item.id
     }
 
@@ -533,7 +533,7 @@ mod tests {
         let also = vec![crate::scripture::AlsoShow { translation: "WEB".into(), verses: vs(1) }];
         let kind = ItemKind::Scripture { reference: "John 3:16-17".into(), translation: "KJV".into(), verses: vs(2), per_slide: 0, text_size: 0, also, layout: Default::default(), breaks: Default::default() };
         let item = ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new(), theme: None };
-        app.data.lock().unwrap().services[0].items.push(item.clone());
+        app.data().services[0].items.push(item.clone());
         let song = add_text(&app, "A", "a");
         let op = opened(&app);
         op.ui.invoke_service_select(item.id.to_string().into());
@@ -641,7 +641,7 @@ mod tests {
         let app = test_app();
         // A song that is not in the library has no slides.
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None }, background: None, notes: String::new(), theme: None };
-        app.data.lock().unwrap().services[0].items.push(item);
+        app.data().services[0].items.push(item);
         let op = opened(&app);
         assert_eq!(find(&op, "Empty::empty-title").unwrap().accessible_label().unwrap(), "Nothing to show");
         assert_eq!(find(&op, "Empty::empty-text").unwrap().accessible_label().unwrap(), "This item has no slides yet. Click Edit to add some.");
@@ -663,7 +663,7 @@ mod tests {
         add_text(&app, "A", "1\n\n2\n\n3");
         let t = crate::theme::SavedTheme { id: Uuid::new_v4(), name: "Christmas".into(), style: Default::default(),
             background: Some(Background::Color { color: "#3a2412".into() }) };
-        app.data.lock().unwrap().themes.push(t.clone());
+        app.data().themes.push(t.clone());
         let op = opened(&app);
         let before = corners(&op);
         assert!(before.iter().all(Option::is_some), "drawn");
@@ -673,7 +673,7 @@ mod tests {
         let at = p.get_theme_options().iter().position(|l| l == "Christmas").unwrap() as i32;
         p.invoke_pick_theme(at);
         refresh(&op);
-        assert_eq!(app.data.lock().unwrap().services[0].theme, Some(t.id));
+        assert_eq!(app.data().services[0].theme, Some(t.id));
         assert_eq!(corners(&op), before, "no cell is blanked while the new thumbnails are drawn");
         op.thumbs.release();
         assert_eq!(corners(&op), vec![Some([0x3a, 0x24, 0x12, 255]); 3], "then the new theme's thumbnails replace them");
@@ -755,7 +755,7 @@ mod tests {
         let app = test_app();
         let media = crate::model::MediaFile { id: Uuid::new_v4(), name: "clip.mp4".into(), kind: crate::model::MediaKind::Video, asset: "clip.mp4".into(), status: crate::model::MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: media.id, autoplay: true, end: Default::default(), looped: false }, background: None, notes: String::new(), theme: None };
-        { let mut d = app.data.lock().unwrap(); d.media.push(media); d.services[0].items.push(item); }
+        { let mut d = app.data(); d.media.push(media); d.services[0].items.push(item); }
         let op = opened(&app);
         assert!(cells(&op)[0].play);
     }

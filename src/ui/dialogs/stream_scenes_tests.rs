@@ -139,7 +139,7 @@ fn your_scenes_are_made_in_their_own_dialog_from_settings_and_saved() {
     g.invoke_instead_changed(1);
     assert!(g.get_changed());
     g.invoke_save();
-    let saved = app.data.lock().unwrap().settings.record.own_scenes.clone();
+    let saved = app.data().settings.record.own_scenes.clone();
     assert_eq!(saved.len(), 1);
     assert_eq!(saved[0].layers[2].shows, Shows::Text { text: "Welcome!".into(), look: Default::default() });
     assert_eq!(saved[0].instead_of, Some(Scene::ALL[0]));
@@ -161,7 +161,7 @@ fn leaving_with_changes_asks_first() {
     dlg(&op).invoke_cancel();
     ask::answer(&op, true, String::new());
     assert_eq!(op.dialog(), None);
-    assert!(app.data.lock().unwrap().settings.record.own_scenes.is_empty(), "nothing saved");
+    assert!(app.data().settings.record.own_scenes.is_empty(), "nothing saved");
 }
 
 #[test]
@@ -175,10 +175,10 @@ fn settings_changes_wait_for_their_own_save_while_your_scenes_open() {
     assert_eq!(op.dialog(), Some(DialogKind::StreamScenes), "opened at once: Settings keeps its changes");
     dlg(&op).invoke_add_scene();
     dlg(&op).invoke_save();
-    assert_eq!(app.data.lock().unwrap().settings.record.own_scenes.len(), 1);
+    assert_eq!(app.data().settings.record.own_scenes.len(), 1);
     refresh(&op);
     crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>().invoke_save();
-    let s = app.data.lock().unwrap().settings.record.clone();
+    let s = app.data().settings.record.clone();
     assert!(s.stream_layout.words_top, "the Settings change saved");
     assert_eq!(s.own_scenes.len(), 1, "and the scene saved meanwhile is kept");
 }
@@ -308,6 +308,6 @@ fn the_picture_is_dragged_and_the_way_scenes_change_is_saved() {
     g.invoke_transition_changed(1);
     assert_eq!(g.get_transition_names().row_data(0).unwrap(), "Like the other scenes (Slide)");
     g.invoke_save();
-    let s = app.data.lock().unwrap().settings.record.clone();
+    let s = app.data().settings.record.clone();
     assert_eq!((s.scene_transition, s.own_scenes[0].transition.clone(), s.own_scenes[0].tall), (Transition::Slide, Some(Transition::Cut), true));
 }

@@ -24,14 +24,14 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
     match action {
         // The church's layouts and the stage default, for the editor and the pickers.
         "stage/layouts" => {
-            let d = app.data.lock().unwrap();
+            let d = app.data();
             Ok(json!({ "layouts": d.stage_layouts, "default": d.settings.stage.layout }))
         }
         // Everything that uses a layout, and the question to ask before deleting it.
         "stage/layout/refs" => {
             #[derive(Deserialize)] struct R { id: Uuid, #[serde(default)] name: Option<String> }
             let R { id, name } = parse(body)?;
-            let d = app.data.lock().unwrap();
+            let d = app.data();
             let name = name.or_else(|| presets::find_layout(&d.stage_layouts, id).map(|l| l.name.clone())).unwrap_or_default();
             let found = layout_refs(&d, id);
             Ok(json!({ "refs": found, "question": refs::delete_question(&name, &found) }))
@@ -82,7 +82,7 @@ mod tests {
         let app = test_app();
         let ours = layout("Ours");
         act(&app, "stage/layouts/replace", json!({ "layouts": [ours], "deleted": [] })).await.unwrap();
-        assert_eq!(app.data.lock().unwrap().stage_layouts, vec![ours.clone()]);
+        assert_eq!(app.data().stage_layouts, vec![ours.clone()]);
         let read = act(&app, "stage/layouts", json!({})).await.unwrap();
         assert_eq!(read["layouts"][0]["name"], "Ours");
         assert_eq!(read["default"], json!(presets::CLASSIC));
@@ -93,7 +93,7 @@ mod tests {
         let app = test_app();
         let err = act(&app, "stage/layouts/replace", json!({ "layouts": [layout("Ours"), layout("  ")], "deleted": [] })).await.unwrap_err();
         assert_eq!(err, "Give the stage layout a name.");
-        assert!(app.data.lock().unwrap().stage_layouts.is_empty());
+        assert!(app.data().stage_layouts.is_empty());
         let err = act(&app, "stage/layouts/replace", json!({ "layouts": [], "deleted": [presets::BAND] })).await.unwrap_err();
         assert_eq!(err, "Built-in stage layouts can't be changed. Make a copy first.");
     }
@@ -104,13 +104,13 @@ mod tests {
         let ours = layout("Ours");
         act(&app, "stage/layouts/replace", json!({ "layouts": [ours], "deleted": [] })).await.unwrap();
         act(&app, "stage/layout/default", json!({ "id": ours.id })).await.unwrap();
-        assert_eq!(app.data.lock().unwrap().settings.stage.layout, ours.id);
+        assert_eq!(app.data().settings.stage.layout, ours.id);
         let r = act(&app, "stage/layout/refs", json!({ "id": ours.id })).await.unwrap();
         assert_eq!(r["question"], "Delete “Ours”? It is used by the stage default. The default will use Classic.");
         assert_eq!(r["refs"], json!([{ "kind": "stage_default" }]));
         let r = act(&app, "stage/layouts/replace", json!({ "layouts": [], "deleted": [ours.id] })).await.unwrap();
         assert_eq!(r["cleared"], 1);
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         assert!(d.stage_layouts.is_empty());
         assert_eq!(d.settings.stage.layout, presets::CLASSIC);
     }
@@ -126,7 +126,7 @@ mod tests {
     async fn default_must_name_a_layout() {
         let app = test_app();
         act(&app, "stage/layout/default", json!({ "id": presets::SPEAKER })).await.unwrap();
-        assert_eq!(app.data.lock().unwrap().settings.stage.layout, presets::SPEAKER);
+        assert_eq!(app.data().settings.stage.layout, presets::SPEAKER);
         let err = act(&app, "stage/layout/default", json!({ "id": Uuid::new_v4() })).await.unwrap_err();
         assert_eq!(err, "That stage layout is gone.");
     }

@@ -33,11 +33,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let rt = tokio::runtime::Runtime::new()?;
     let item = Uuid::new_v4();
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         let verses = vec![VerseText::new("John 3:16", "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.")];
         d.services[0].items.push(ServiceItem { id: item, kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses, per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() }, background: None, notes: String::new(), theme: None });
     }
-    let v = app.live.lock().unwrap().version;
+    let v = app.live().version;
     let o = app.command(Envelope { id: "show".into(), base: Some(v), cmd: Command::Show { item_id: item, slide: 0 } });
     assert!(o.ok, "{o:?}");
     let server = app.clone();
@@ -58,7 +58,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let timer = slint::Timer::default();
     let (a, o, r) = (app.clone(), op.clone(), room.clone());
     timer.start(slint::TimerMode::Repeated, Duration::from_millis(250), move || {
-        let strokes = a.live.lock().unwrap().drawing.strokes.len();
+        let strokes = a.live().drawing.strokes.len();
         if strokes >= 2 && first_lines.get().is_none() { first_lines.set(Some(Instant::now())) }
         // Once the phone has drawn a while (and stopped for a moment), the room and the operator.
         if !saved.get() && first_lines.get().is_some_and(|t| t.elapsed() > Duration::from_secs(6)) {

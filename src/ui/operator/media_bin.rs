@@ -441,7 +441,7 @@ mod tests {
 
         let app = test_app();
         let grace = Uuid::new_v4();
-        app.data.lock().unwrap().songs = vec![
+        app.data().songs = vec![
             Song { id: grace, title: "Amazing Grace".into(), writers: "John Newton".into(), lyrics: "Verse 1\nAmazing grace".into(), ..Default::default() },
             Song { id: Uuid::new_v4(), title: "Abide with Me".into(), ..Default::default() },
         ].into();
@@ -463,7 +463,7 @@ mod tests {
         assert_eq!(titles(), ["Amazing Grace"]);
 
         click("MediaBin::song-add");
-        assert!(matches!(app.data.lock().unwrap().service().unwrap().items.first().map(|item| &item.kind),
+        assert!(matches!(app.data().service().unwrap().items.first().map(|item| &item.kind),
             Some(ItemKind::Song { song_id, .. }) if *song_id == grace), "{:?}", op.toast_log());
         assert!(app.live_view().cursor.is_none());
         click("MediaBin::song-edit");
@@ -477,6 +477,6 @@ mod tests {
         refresh(&op);
         search.set_accessible_value("");
         assert_eq!(titles(), ["Abide with Me", "Amazing Grace", "Evening Hymn"]);
-        assert_eq!(app.data.lock().unwrap().service().unwrap().items.len(), 1);
+        assert_eq!(app.data().service().unwrap().items.len(), 1);
     }
 }

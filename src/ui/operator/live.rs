@@ -467,14 +467,14 @@ mod tests {
 
     fn add_text(app: &App, title: &str, body: &str) -> Uuid {
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: body.into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
-        app.data.lock().unwrap().services[0].items.push(item.clone());
+        app.data().services[0].items.push(item.clone());
         item.id
     }
 
     fn add_video(app: &App) -> Uuid {
         let media = MediaFile { id: Uuid::new_v4(), name: "clip.mp4".into(), kind: MediaKind::Video, asset: "clip.mp4".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: media.id, autoplay: true, end: EndAction::Stop, looped: false }, background: None, notes: String::new(), theme: None };
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         d.media.push(media);
         d.services[0].items.push(item.clone());
         item.id

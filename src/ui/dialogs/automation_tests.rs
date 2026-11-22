@@ -48,7 +48,7 @@ fn new_timer_saves_through_the_form() {
     g(&op).set_t_minutes("4".into());
     g(&op).set_t_seconds("30".into());
     g(&op).invoke_save();
-    let t = app.data.lock().unwrap().automation.timers.iter().find(|t| t.name == "Offering").cloned().expect("saved");
+    let t = app.data().automation.timers.iter().find(|t| t.name == "Offering").cloned().expect("saved");
     assert_eq!(t.kind, Lenient::Known(TimerKind::Duration { secs: 270 }));
     assert_eq!(g(&op).get_error(), "");
     // An empty name is refused with the core's words, and the form stays.
@@ -79,7 +79,7 @@ fn macro_steps_are_added_moved_and_saved() {
     assert_eq!(g(&op).get_k_steps().row_count(), 2);
     g(&op).invoke_save();
     assert_eq!(g(&op).get_error(), "");
-    let m = app.data.lock().unwrap().automation.macros.iter().find(|m| m.name == "Sermon").cloned().expect("saved");
+    let m = app.data().automation.macros.iter().find(|m| m.name == "Sermon").cloned().expect("saved");
     assert!(matches!(m.steps[0].known(), Some(MacroStep::MessageShow { template, .. }) if *template == NURSERY_ID));
     assert_eq!(m.steps[1].known(), Some(&MacroStep::TimerStart { timer: SERMON_ID }));
     // The strip shows its button.
@@ -134,7 +134,7 @@ fn video_and_audio_timers_save_from_the_kind_list() {
         g(&op).set_t_kind(kind);
         g(&op).invoke_save();
         assert_eq!(g(&op).get_error(), "");
-        let t = app.data.lock().unwrap().automation.timers.iter().find(|t| t.name == format!("Left {kind}")).cloned().expect("saved");
+        let t = app.data().automation.timers.iter().find(|t| t.name == format!("Left {kind}")).cloned().expect("saved");
         assert_eq!(t.kind, Lenient::Known(want));
         assert_eq!(g(&op).get_t_kind(), kind, "the form opens again on its kind");
     }
@@ -155,7 +155,7 @@ fn calendar_entries_are_made_on_their_tab() {
     g(&op).set_c_at("10:45".into());
     g(&op).invoke_c_day_toggle(3); // and Wednesdays
     let pick = |k: StepKind| {
-        let macros = app.data.lock().unwrap().automation.macros.len();
+        let macros = app.data().automation.macros.len();
         (macros + STEP_KINDS.iter().position(|x| *x == k).unwrap()) as i32
     };
     g(&op).set_c_what(pick(StepKind::TimerRestart));
@@ -163,7 +163,7 @@ fn calendar_entries_are_made_on_their_tab() {
     g(&op).set_step_target(1); // Sermon
     g(&op).invoke_save();
     assert_eq!(g(&op).get_error(), "");
-    let e = app.data.lock().unwrap().automation.calendar[0].clone();
+    let e = app.data().automation.calendar[0].clone();
     assert_eq!((e.name.as_str(), e.at, e.days), ("Sunday countdown", TimeOfDay::new(10, 45), 0b1001));
     assert_eq!(e.run.known(), Some(&crate::automation::calendar::CalendarRun::Step { step: MacroStep::TimerRestart { timer: SERMON_ID } }));
     assert_eq!(g(&op).get_rows().row_data(0).unwrap().sub, "Sun, Wed at 10:45 AM · Restart timer: Sermon");
@@ -182,7 +182,7 @@ fn calendar_entries_are_made_on_their_tab() {
     g(&op).invoke_save();
     assert_eq!(g(&op).get_error(), crate::automation::strings::calendar_no_days());
     g(&op).invoke_delete();
-    assert!(app.data.lock().unwrap().automation.calendar.is_empty());
+    assert!(app.data().automation.calendar.is_empty());
 }
 
 #[test]
@@ -204,7 +204,7 @@ fn pre_service_tab_saves_a_stage_layout_and_the_menu_runs_it() {
     g(&op).set_p_stage(2);
     g(&op).invoke_preservice_save();
     let want = crate::stage::presets::builtins()[1].id;
-    let data = app.data.lock().unwrap();
+    let data = app.data();
     assert_eq!(data.automation.pre_service.as_ref().and_then(|p| p.stage_layout), Some(want));
     let m = data.automation.macros.first().unwrap();
     assert_eq!(m.steps.last(), Some(&Lenient::Known(MacroStep::StageLayout { layout: want })));

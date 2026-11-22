@@ -131,27 +131,27 @@ mod tests {
         let g = state(&op);
         g.invoke_set_on(true);
         settle(&op);
-        assert!(app.data.lock().unwrap().settings.songs_folder.on);
+        assert!(app.data().settings.songs_folder.on);
         assert!(shown(&op).0);
         // Another folder, then back to the usual one.
         let dir = std::env::temp_dir().join(format!("rp-test-chosen-{}", uuid::Uuid::new_v4()));
         will_pick(vec![dir.clone()]);
         g.invoke_choose_folder();
         settle(&op);
-        assert_eq!(app.data.lock().unwrap().settings.songs_folder.folder.as_deref(), Some(dir.as_path()));
+        assert_eq!(app.data().settings.songs_folder.folder.as_deref(), Some(dir.as_path()));
         assert_eq!(shown(&op), (true, dir.display().to_string(), true, false));
         g.invoke_set_tidy(true);
         settle(&op);
-        assert!(app.data.lock().unwrap().settings.songs_folder.tidy);
+        assert!(app.data().settings.songs_folder.tidy);
         g.invoke_usual_folder();
         settle(&op);
-        assert_eq!(app.data.lock().unwrap().settings.songs_folder.folder, None);
+        assert_eq!(app.data().settings.songs_folder.folder, None);
         assert_eq!(shown(&op), (true, usual(), false, true));
         // The Settings window's Save keeps what these rows saved.
-        let mut form = app.data.lock().unwrap().settings.clone();
+        let mut form = app.data().settings.clone();
         form.songs_folder = songs_folder::Prefs::default();
         tokio::runtime::Runtime::new().unwrap().block_on(app.do_action("settings", serde_json::to_string(&form).unwrap().as_bytes())).unwrap();
-        assert!(app.data.lock().unwrap().settings.songs_folder.on, "an older form does not turn it off");
+        assert!(app.data().settings.songs_folder.on, "an older form does not turn it off");
     }
 
     #[test]

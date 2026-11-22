@@ -27,7 +27,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = App::new(store, data, 0, None);
     let (red, white) = (Uuid::new_v4(), Uuid::new_v4());
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         for (id, color) in [(red, "#cc0000"), (white, "#ffffff")] {
             d.services[0].items.push(ServiceItem {
                 id,

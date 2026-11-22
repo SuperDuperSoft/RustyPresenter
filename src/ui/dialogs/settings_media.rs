@@ -102,7 +102,7 @@ mod tests {
         crate::ui::ui_test_init();
         let app = test_app();
         let prefs = MediaPrefs { scale: Scale::Stretch, picture_secs: 10, video_end: EndAction::Next, listen_device: "wasapi/{phones}".into(), delay_ms: 120, channels: Channels::Left };
-        app.data.lock().unwrap().settings.media = prefs.clone();
+        app.data().settings.media = prefs.clone();
         let op = open_window(&app);
         refresh(&op);
         settings::open(&op, SettingsTab::Media);

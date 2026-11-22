@@ -255,7 +255,7 @@ mod tests {
 
     fn add_text(app: &App, title: &str) -> Uuid {
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: "x".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
-        app.data.lock().unwrap().services[0].items.push(item.clone());
+        app.data().services[0].items.push(item.clone());
         item.id
     }
 
@@ -276,7 +276,7 @@ mod tests {
         live(op);
     }
 
-    fn ids(app: &App) -> Vec<Uuid> { app.data.lock().unwrap().services[0].items.iter().map(|i| i.id).collect() }
+    fn ids(app: &App) -> Vec<Uuid> { app.data().services[0].items.iter().map(|i| i.id).collect() }
 
     fn cursor(app: &App) -> Option<(Uuid, usize)> { app.live_view().cursor.map(|c| (c.item_id, c.slide)) }
 
@@ -340,7 +340,7 @@ mod tests {
     #[test]
     fn bible_enter_says_which_also_bible_was_left_out() {
         let app = test_app();
-        app.data.lock().unwrap().settings.also_show = vec!["WEB".into(), "NIV".into()];
+        app.data().settings.also_show = vec!["WEB".into(), "NIV".into()];
         let op = opened(&app);
         type_and_enter(&op, "John 3:16");
         assert_eq!(ids(&app).len(), 1, "the passage went in");
@@ -354,7 +354,7 @@ mod tests {
         let op = opened(&app);
         pick_id(&op, "WEB".into());
         type_and_enter(&op, "jn 3:16");
-        let data = app.data.lock().unwrap();
+        let data = app.data();
         match &data.services[0].items[0].kind {
             ItemKind::Scripture { reference, translation, verses, .. } => {
                 assert_eq!(translation, "WEB");
@@ -438,7 +438,7 @@ mod tests {
         let op = open(&app);
         refresh(&op);
         assert_eq!(op.ui.get_also_label(), "", "none: the chip says Off");
-        app.data.lock().unwrap().settings.also_show = vec!["WEB".into(), "KJV".into()];
+        app.data().settings.also_show = vec!["WEB".into(), "KJV".into()];
         refresh(&op);
         assert_eq!(op.ui.get_also_label(), "WEB · KJV");
         use slint::ComponentHandle as _;
@@ -459,20 +459,20 @@ mod tests {
         assert_eq!(chip_names(&op), ["KJV", "WEB", "BSB"]);
         toggle_favourite(&op, "ESV".into());
         assert_eq!(chip_names(&op), ["KJV", "ESV", "WEB", "BSB"], "a star shows at once, before the Bibles that only fill in");
-        assert_eq!(app.data.lock().unwrap().settings.favourites, ["ESV"], "and is saved");
+        assert_eq!(app.data().settings.favourites, ["ESV"], "and is saved");
         pick_id(&op, "NIV".into());
         pick_id(&op, "BSB".into());
         assert_eq!(chip_names(&op), ["BSB", "ESV", "NIV", "KJV", "WEB"], "the chosen one, the favourite, then newest first");
         refresh(&op);
         assert_eq!(chip_names(&op), ["BSB", "ESV", "NIV", "KJV", "WEB"], "the core agrees");
-        assert_eq!(app.data.lock().unwrap().settings.recent, ["BSB", "NIV"]);
+        assert_eq!(app.data().settings.recent, ["BSB", "NIV"]);
         pick_id(&op, "WEB".into());
         assert_eq!(chip_names(&op).len(), 5, "at most four after the chosen one");
         assert_eq!(chip_names(&op), ["WEB", "ESV", "BSB", "NIV", "KJV"]);
         // Alt+2 picks the second chip.
         find(&op, "BibleBox::bible-input").unwrap().mock_single_click(PointerEventButton::Left);
         chord(&op, Key::Alt, "2");
-        assert_eq!(app.data.lock().unwrap().settings.translation, "ESV");
+        assert_eq!(app.data().settings.translation, "ESV");
     }
 
     #[test]
@@ -495,7 +495,7 @@ mod tests {
         assert_eq!(op.ui.get_picker_note(), tr::picker_no_match());
         search_picker(&op, "bsb");
         accept_picker(&op);
-        assert_eq!(app.data.lock().unwrap().settings.translation, "BSB", "Enter picks the first Bible listed");
+        assert_eq!(app.data().settings.translation, "BSB", "Enter picks the first Bible listed");
     }
 
     #[test]
@@ -510,7 +510,7 @@ mod tests {
         let rows = picker(&op).into_iter().filter(|l| !l.starts_with('#')).collect::<Vec<_>>();
         let esv = rows.iter().position(|r| r == "ESV").expect("ESV listed");
         stars[esv].mock_single_click(PointerEventButton::Left);
-        assert_eq!(app.data.lock().unwrap().settings.favourites, ["ESV"]);
+        assert_eq!(app.data().settings.favourites, ["ESV"]);
         assert_eq!(last_toast(&op), Some(("ESV added to favourites".into(), false)));
     }
 
@@ -534,7 +534,7 @@ mod tests {
         pick_id(&op, "NIV".into());
         let on = |op: &Operator| slint::Model::iter(&op.ui.get_translations()).filter(|c| c.on).map(|c| c.name.to_string()).collect::<Vec<_>>();
         assert_eq!(on(&op), ["NIV"], "the chip turns on at once");
-        assert_eq!(app.data.lock().unwrap().settings.translation, "NIV");
+        assert_eq!(app.data().settings.translation, "NIV");
         drop(op);
         let again = opened(&app);
         assert_eq!(on(&again), ["NIV"]);
@@ -549,19 +549,19 @@ mod tests {
         let chips = find_all(&op, "BibleBox::translation-chip");
         let web = chips.iter().find(|c| c.accessible_label().unwrap_or_default() == "WEB").expect("WEB chip");
         web.mock_single_click(PointerEventButton::Left);
-        assert_eq!(app.data.lock().unwrap().settings.translation, "WEB");
+        assert_eq!(app.data().settings.translation, "WEB");
         press(&op, "J");
         assert_eq!(op.ui.get_bible_text(), "J", "typing goes to the Bible box");
     }
 
     fn per_slide_of(app: &App, i: usize) -> u8 {
-        match &app.data.lock().unwrap().services[0].items[i].kind { ItemKind::Scripture { per_slide, .. } => *per_slide, k => panic!("{k:?}") }
+        match &app.data().services[0].items[i].kind { ItemKind::Scripture { per_slide, .. } => *per_slide, k => panic!("{k:?}") }
     }
 
     #[test]
     fn new_passages_use_the_settings_verses_per_slide() {
         let app = test_app();
-        app.data.lock().unwrap().settings.bible_per_slide = 2;
+        app.data().settings.bible_per_slide = 2;
         let op = opened(&app);
         assert_eq!(op.ui.get_bible_per_slide(), 2, "the chip shows the Settings choice");
         type_and_enter(&op, "Psalm 23:1-4");
@@ -583,7 +583,7 @@ mod tests {
         assert_eq!(op.ui.get_bible_per_slide(), 2, "remembered across updates");
         for _ in 0..3 { cycle_per_slide(&op) }
         assert_eq!(op.ui.get_bible_per_slide(), 0, "round to Automatic again");
-        assert_eq!(app.data.lock().unwrap().settings.bible_per_slide, 0, "the session pick does not change Settings");
+        assert_eq!(app.data().settings.bible_per_slide, 0, "the session pick does not change Settings");
     }
 
     #[test]

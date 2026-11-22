@@ -198,7 +198,7 @@ mod tests {
         assert!(!g.get_show_perf());
         assert_eq!(g.get_perf(), "", "off by default");
         g.invoke_toggle_perf();
-        assert!(app.data.lock().unwrap().settings.show_performance, "saved");
+        assert!(app.data().settings.show_performance, "saved");
         refresh(&op);
         assert!(g.get_show_perf());
         assert!(g.get_perf().contains("Audience screen is off"), "{}", g.get_perf());
@@ -232,12 +232,12 @@ mod tests {
         assert!(!g.get_room_windowed());
         g.invoke_toggle_room_window();
         refresh(&op);
-        let a = app.data.lock().unwrap().settings.screens.audience.clone();
+        let a = app.data().settings.screens.audience.clone();
         assert!(a.on && a.screens[0].output().target == ScreenTarget::Window, "the room shows in a window");
         assert!(g.get_room_windowed());
         g.invoke_toggle_room_window();
         refresh(&op);
-        let a = app.data.lock().unwrap().settings.screens.audience.clone();
+        let a = app.data().settings.screens.audience.clone();
         assert_eq!((a.on, a.screens[0].output().target.clone()), (false, projector), "back to the projector, switched off as before");
         assert!(!g.get_room_windowed());
     }

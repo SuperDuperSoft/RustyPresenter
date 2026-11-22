@@ -43,9 +43,9 @@ fn every_dialog_fits_a_1024_by_768_window() {
     let op = open(&app);
     refresh(&op);
     let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Good morning".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
-    op.app().data.lock().unwrap().services[0].items.push(item.clone());
+    op.app().data().services[0].items.push(item.clone());
     refresh(&op);
-    let (item, service) = (item.id, op.app().data.lock().unwrap().services[0].id);
+    let (item, service) = (item.id, op.app().data().services[0].id);
     let dialogs: Vec<(&str, Box<dyn Fn(&Rc<Operator>)>)> = vec![
         ("Add song", Box::new(|op| add::open_add(op, AddTab::Song))),
         ("Add scripture", Box::new(|op| add::open_add(op, AddTab::Scripture))),

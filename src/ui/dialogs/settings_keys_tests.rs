@@ -140,7 +140,7 @@ fn change_a_key_then_save_and_the_window_uses_it() {
     click(&op, "SettingsWindow::save", 0);
     refresh(&op);
     assert_eq!(op.dialog(), None);
-    assert_eq!(app.data.lock().unwrap().settings.keys.changed.len(), 1);
+    assert_eq!(app.data().settings.keys.changed.len(), 1);
     assert_eq!(route_in(&Chord::parse("F11").unwrap(), PLAIN, &op.keymap()), KeyAction::Clear(Command::ClearSlide));
     assert_eq!(route_in(&Chord::parse("F2").unwrap(), PLAIN, &op.keymap()), KeyAction::None);
     assert_eq!(op.ui.menu_keys_all().get_clear_slide(), slint::Keys::from_parts(["F11"]).unwrap());
@@ -198,7 +198,7 @@ fn clear_groups_are_edited_here_and_run_from_their_key() {
     press(&op, &key(Key::F10));
     click(&op, "SettingsWindow::save", 0);
     refresh(&op);
-    let groups = app.data.lock().unwrap().settings.keys.clear_groups.clone();
+    let groups = app.data().settings.keys.clear_groups.clone();
     assert_eq!(groups[1].name, "Words only");
     assert_eq!(groups[1].layers, [ClearLayer::Slide, ClearLayer::Message]);
     assert_eq!(route_in(&Chord::parse("F10").unwrap(), TYPING, &op.keymap()), KeyAction::ClearGroup(groups[1].id));
@@ -209,7 +209,7 @@ fn clear_groups_are_edited_here_and_run_from_their_key() {
     click(&op, "ClearGroupsPage::delete-group", 1);
     click(&op, "SettingsWindow::save", 0);
     refresh(&op);
-    let keys = app.data.lock().unwrap().settings.keys.clone();
+    let keys = app.data().settings.keys.clone();
     assert_eq!(keys.clear_groups.len(), 1);
     assert!(keys.changed.is_empty());
 }

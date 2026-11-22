@@ -133,7 +133,7 @@ mod tests {
     use std::sync::Arc;
 
     fn add_texts(app: &App, titles: &[&str]) -> Vec<Uuid> {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         titles.iter().map(|t| {
             let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: t.to_string(), body: format!("{t} body"), layout: Default::default() }, background: None, notes: String::new(), theme: None };
             d.services[0].items.push(item.clone());
@@ -142,7 +142,7 @@ mod tests {
     }
 
     fn titles(app: &App) -> Vec<String> {
-        app.data.lock().unwrap().services[0].items.iter().map(|i| match &i.kind { ItemKind::Text { title, .. } => title.clone(), _ => String::new() }).collect()
+        app.data().services[0].items.iter().map(|i| match &i.kind { ItemKind::Text { title, .. } => title.clone(), _ => String::new() }).collect()
     }
 
     fn opened(app: &Arc<App>) -> Rc<Operator> {
@@ -222,7 +222,7 @@ mod tests {
         chord(&op, Key::Control, "v");
         assert_eq!(titles(&app), ["A", "B", "A", "C"], "pasted after the selected item");
         refresh(&op);
-        let pasted = app.data.lock().unwrap().services[0].items[2].id;
+        let pasted = app.data().services[0].items[2].id;
         assert_ne!(pasted, ids[0], "a new item");
         assert_eq!(op.selected_item(), Some(pasted), "and selected");
         click_row(&op, ids[2]);
@@ -258,7 +258,7 @@ mod tests {
         }).unwrap();
         refresh(&op);
         chord(&op, Key::Control, "v");
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         assert_eq!(d.services.iter().find(|s| s.id == other).unwrap().items.len(), 1);
         assert_eq!(d.services[0].items.len(), 1);
     }
@@ -308,7 +308,7 @@ mod tests {
     fn delete_on_a_picked_media_file_asks_first() {
         let app = test_app();
         let file = MediaFile { id: Uuid::new_v4(), name: "pic.png".into(), kind: MediaKind::Image, asset: "pic.png".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
-        app.data.lock().unwrap().media.push(file.clone());
+        app.data().media.push(file.clone());
         let ids = add_texts(&app, &["A"]);
         let op = opened(&app);
         click_row(&op, ids[0]);
@@ -317,7 +317,7 @@ mod tests {
         assert_eq!(op.ui.get_ask().row_data(0).map(|a| a.text.to_string()).as_deref(), Some("Delete “pic.png” from the library?"));
         assert_eq!(titles(&app), ["A"], "the service item stays");
         key(&op, Key::Return);
-        assert!(app.data.lock().unwrap().media.is_empty());
+        assert!(app.data().media.is_empty());
     }
 
     #[test]

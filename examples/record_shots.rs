@@ -28,7 +28,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let data = store.load()?;
     let app = App::new(store, data, 0, None);
     let folder = std::env::temp_dir().join("RustyPresenter recordings");
-    app.data.lock().unwrap().settings.record = RecordPrefs { size: Preset::P720, folder: folder.display().to_string(), sound: "app".into() };
+    app.data().settings.record = RecordPrefs { size: Preset::P720, folder: folder.display().to_string(), sound: "app".into() };
     let rt = tokio::runtime::Runtime::new()?;
     let op = Operator::open(app.clone(), Ops::new(app.clone(), rt.handle().clone()), Rc::new(FakeRoom))?;
     op.window().set_size(slint::PhysicalSize::new(1440, 900));

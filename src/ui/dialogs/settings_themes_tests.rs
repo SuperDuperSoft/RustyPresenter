@@ -46,7 +46,7 @@ fn pixels(img: &slint::Image) -> Vec<u8> { img.to_rgba8().map(|p| p.as_bytes().t
 
 fn saved(app: &App, name: &str) -> SavedTheme {
     let t = SavedTheme { id: Uuid::new_v4(), name: name.into(), style: crate::model::Theme { weight: 700, ..Default::default() }, background: None };
-    app.data.lock().unwrap().themes.push(t.clone());
+    app.data().themes.push(t.clone());
     t
 }
 
@@ -104,7 +104,7 @@ fn new_theme_saves_and_appears() {
     f.invoke_changed();
     f.invoke_text_hex("#f5b94a".into());
     click(&op, "SettingsWindow::theme-save");
-    let t = app.data.lock().unwrap().themes.iter().find(|t| t.name == "New theme").cloned().expect("saved");
+    let t = app.data().themes.iter().find(|t| t.name == "New theme").cloned().expect("saved");
     assert_eq!((t.style.size, t.style.weight, t.style.align, t.style.position.as_str()), (120, 700, TextAlign::Left, "top"));
     assert_eq!((t.style.outline, t.style.band, t.style.band_opacity, t.style.color.as_str()), (6, true, 70, "#f5b94a"));
     assert!(!g(&op).get_editing(), "back to the list");
@@ -139,7 +139,7 @@ fn star_asks_then_moves_default() {
     settle();
     assert_eq!(ask_text(&op).as_deref(), Some("Make “Christmas” the church default? Everything without its own theme will use it. You can switch back any time."));
     answer(&op, true);
-    assert_eq!(app.data.lock().unwrap().default_theme, Some(t.id));
+    assert_eq!(app.data().default_theme, Some(t.id));
     assert!(toasts(&op).contains(&"“Christmas” is now the church default".to_string()));
     let rows: Vec<ThemeListRow> = g(&op).get_rows().iter().collect();
     assert!(rows[row_of(&op, "Christmas") as usize].is_default);
@@ -151,7 +151,7 @@ fn delete_theme_asks_with_counts() {
     let app = test_app();
     let t = saved(&app, "Youth");
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "A".into(), body: "a".into(), layout: Default::default() }, background: None, notes: String::new(), theme: Some(t.id) };
         d.services[0].items.push(item);
     }
@@ -163,10 +163,10 @@ fn delete_theme_asks_with_counts() {
     settle();
     assert_eq!(ask_text(&op).as_deref(), Some("Delete the theme “Youth”? 1 item uses it; they'll use the church default instead."));
     answer(&op, false);
-    assert_eq!(app.data.lock().unwrap().themes.len(), 1, "Cancel keeps it");
+    assert_eq!(app.data().themes.len(), 1, "Cancel keeps it");
     g(&op).invoke_delete(i);
     answer(&op, true);
-    let d = app.data.lock().unwrap();
+    let d = app.data();
     assert!(d.themes.is_empty());
     assert_eq!(d.services[0].items[0].theme, None, "the item falls back to the church default");
     drop(d);
@@ -190,7 +190,7 @@ fn edited_builtin_offers_reset() {
     settle();
     assert_eq!(ask_text(&op).as_deref(), Some("Put “Lower third” back the way it came? Your changes to it are lost."));
     answer(&op, true);
-    assert!(app.data.lock().unwrap().themes.is_empty());
+    assert!(app.data().themes.is_empty());
     assert_eq!(g(&op).get_rows().row_data(i).unwrap().delete_label, "");
 }
 
@@ -204,7 +204,7 @@ fn standard_edit_opens_look_and_duplicate_copies_it() {
     assert_eq!(g(&op).get_name(), "Standard copy");
     click(&op, "SettingsWindow::theme-cancel");
     assert!(!g(&op).get_editing());
-    assert!(app.data.lock().unwrap().themes.is_empty(), "Cancel saves nothing");
+    assert!(app.data().themes.is_empty(), "Cancel saves nothing");
     g(&op).invoke_edit(0);
     settle();
     assert_eq!(settings::shown(&op), Some(SettingsTab::Look), "Standard is Look → Text and logo");
@@ -270,7 +270,7 @@ fn theme_background_standard_gradient_and_darken() {
     g(&op).set_darken(30);
     g(&op).invoke_changed();
     click(&op, "SettingsWindow::theme-save");
-    let t = app.data.lock().unwrap().themes[0].clone();
+    let t = app.data().themes[0].clone();
     assert_eq!(t.background, Some(Background::Gradient { from: "#0b1a33".into(), to: "#000000".into(), angle: 180, dim: 30 }));
 }
 
@@ -287,7 +287,7 @@ fn library_adds_a_gradient_renames_and_removes_it() {
     g(&op).invoke_add_from_hex("#ff8800".into());
     g(&op).set_add_name("Sunrise".into());
     click(&op, "ThemeList::add-save");
-    let e = app.data.lock().unwrap().backgrounds[0].clone();
+    let e = app.data().backgrounds[0].clone();
     assert_eq!((e.name.as_str(), &e.background), ("Sunrise", &Background::Gradient { from: "#ff8800".into(), to: "#000000".into(), angle: 90, dim: 0 }));
     assert!(toasts(&op).contains(&"Added to backgrounds".to_string()));
     let rows: Vec<BgLibraryRow> = g(&op).get_library().iter().collect();
@@ -298,13 +298,13 @@ fn library_adds_a_gradient_renames_and_removes_it() {
     assert_eq!(ask_text(&op).as_deref(), Some("New name for this background"));
     crate::ui::dialogs::ask::answer(&op, true, "Dawn".into());
     settle();
-    assert_eq!(app.data.lock().unwrap().backgrounds[0].name, "Dawn");
+    assert_eq!(app.data().backgrounds[0].name, "Dawn");
 
     g(&op).invoke_remove_background(0);
     settle();
     assert_eq!(ask_text(&op).as_deref(), Some("Remove “Dawn” from backgrounds? Items that use it keep it."));
     answer(&op, true);
-    assert!(app.data.lock().unwrap().backgrounds.is_empty());
+    assert!(app.data().backgrounds.is_empty());
     assert_eq!(g(&op).get_library().row_count(), 0);
 }
 
@@ -319,7 +319,7 @@ fn add_picture_imports_it_as_a_background() {
     image::RgbaImage::from_pixel(8, 4, image::Rgba([10, 20, 200, 255])).save(&path).unwrap();
     crate::ui::operator::files::testing::will_pick(vec![path]);
     click(&op, "ThemeList::add-pictures");
-    let d = app.data.lock().unwrap();
+    let d = app.data();
     assert_eq!(d.backgrounds.len(), 1);
     assert_eq!(d.backgrounds[0].name, "Sky");
     assert!(matches!(&d.backgrounds[0].background, Background::Image { asset, .. } if *asset == d.media[0].asset));
@@ -404,7 +404,7 @@ fn dragging_the_box_snaps_to_guides_and_saves_with_the_theme() {
     g(&op).set_layout_size(140);
     g(&op).invoke_layout_edited();
     click(&op, "SettingsWindow::theme-save");
-    let t = app.data.lock().unwrap().themes.iter().find(|t| t.name == "Sermon").cloned().expect("saved");
+    let t = app.data().themes.iter().find(|t| t.name == "Sermon").cloned().expect("saved");
     let l = t.style.layouts.get(LayoutKind::MainPoint);
     assert_eq!(l.frame, Some(layouts::Frame { x: 57, y: 220, w: 797, h: 580 }));
     assert_eq!(l.size, 140);

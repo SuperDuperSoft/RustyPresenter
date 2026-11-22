@@ -86,7 +86,7 @@ fn run_test(op: &Rc<Operator>) {
     // The test's room goes on the projector only while the church's room window is closed.
     let app = op.app();
     let room_open = app.room_conns.load(std::sync::atomic::Ordering::Relaxed) > 0;
-    let saved = app.data.lock().ok().and_then(|d| d.settings.screens.monitors("audience").first().map(|m| m.to_string()));
+    let saved = app.data().settings.screens.monitors("audience").first().map(|m| m.to_string());
     let room = bench::room_arg(room_open, saved.as_deref());
     g.set_graphics_testing(true);
     g.set_graphics_test_rows(ModelRc::default());

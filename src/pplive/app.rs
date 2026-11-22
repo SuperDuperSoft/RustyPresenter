@@ -53,8 +53,8 @@ impl App {
 
     /// What PowerPoint should show for the live item: `None` unless it is a deck set to run in PowerPoint.
     pub(crate) fn show_want(&self) -> Option<Want> {
-        let data = self.data.lock().unwrap();
-        let live = self.live.lock().unwrap();
+        let data = self.data();
+        let live = self.live();
         let cursor = live.cursor.as_ref()?;
         let item = data.service()?.items.iter().find(|i| i.id == cursor.item_id)?;
         let ItemKind::Deck { deck_id } = item.kind else { return None };
@@ -91,7 +91,7 @@ impl App {
         let mut guard = self.pplive.driver.lock().unwrap();
         let driver = guard.as_mut()?;
         let item_id = {
-            let live = self.live.lock().unwrap();
+            let live = self.live();
             if let Some(o) = live.seen_outcome(&env.id) { return Some(o) }
             if env.base != Some(live.version) || live.frame.slide.is_none() { return None }
             let item_id = live.cursor.as_ref()?.item_id;
@@ -104,15 +104,15 @@ impl App {
             After::Ended(_) | After::Failed(_) => { self.show_after(item_id, after); return None }
             After::Nothing => {
                 // An animation played: the room is PowerPoint's, but a Next sent on the old state is stale now.
-                let mut live = self.live.lock().unwrap();
+                let mut live = self.live();
                 live.commit_change(Change::Silent);
                 let out = Outcome { ok: true, version: live.version, error: None, duplicate: false };
                 live.note_seen(env.id.clone(), out.clone());
                 out
             }
             After::Slide(n) => {
-                let data = self.data.lock().unwrap();
-                let mut live = self.live.lock().unwrap();
+                let data = self.data();
+                let mut live = self.live();
                 let shown = live.apply(Envelope::new(Command::Show { item_id, slide: n }), &DataPlan(&data));
                 live.note_seen(env.id.clone(), shown.clone());
                 shown
@@ -149,8 +149,8 @@ impl App {
             After::Nothing | After::Beyond => {}
             After::Slide(n) => {
                 let out = {
-                    let data = self.data.lock().unwrap();
-                    let mut live = self.live.lock().unwrap();
+                    let data = self.data();
+                    let mut live = self.live();
                     // Only while that item is still live, and only to another slide.
                     if live.cursor.as_ref().is_none_or(|c| c.item_id != item_id || c.slide == n) { return }
                     live.apply(Envelope::new(Command::Show { item_id, slide: n }), &DataPlan(&data))
@@ -210,11 +210,11 @@ mod tests {
     }
 
     fn send(app: &App, cmd: Command) -> crate::live::Outcome {
-        let base = Some(app.live.lock().unwrap().version);
+        let base = Some(app.live().version);
         app.command(Envelope { id: Uuid::new_v4().to_string(), base, cmd })
     }
 
-    fn slide(app: &App) -> Option<(Uuid, usize)> { app.live.lock().unwrap().cursor.as_ref().map(|c| (c.item_id, c.slide)) }
+    fn slide(app: &App) -> Option<(Uuid, usize)> { app.live().cursor.as_ref().map(|c| (c.item_id, c.slide)) }
 
     #[test]
     fn a_deck_that_runs_in_powerpoint_is_wanted_on_the_room_monitor() {
@@ -242,7 +242,7 @@ mod tests {
     #[test]
     fn its_slides_say_where_they_are_and_leave_timings_to_powerpoint() {
         let (app, _, deck_item, _) = setup(&[0, 0, 0]);
-        let live = DataPlan(&app.data.lock().unwrap()).build(deck_item).unwrap();
+        let live = DataPlan(&app.data()).build(deck_item).unwrap();
         assert_eq!(live.slides[1].label, "Slide 2 of 3");
         assert_eq!(live.slides[0].advance_ms, None, "PowerPoint's own timings run the show");
     }
@@ -253,7 +253,7 @@ mod tests {
         assert!(send(&app, Command::Show { item_id: deck_item, slide: 0 }).ok);
         app.show_tick();
         assert_eq!(host.take_log(), ["open ".to_string() + &app.store.asset_path("talk.pptx").display().to_string() + " 1920,0 1920x1080", "pos".into()]);
-        let v = app.live.lock().unwrap().version;
+        let v = app.live().version;
         // The build on slide 1: PowerPoint clicks, the live slide stays, the version moves (stale Nexts stay stale).
         let out = send(&app, Command::Next);
         assert!(out.ok && out.version > v);
@@ -263,7 +263,7 @@ mod tests {
         assert!(send(&app, Command::Next).ok);
         assert_eq!(slide(&app), Some((deck_item, 1)));
         // The same command delivered twice clicks once.
-        let base = Some(app.live.lock().unwrap().version);
+        let base = Some(app.live().version);
         let env = Envelope { id: "twice".into(), base, cmd: Command::Next };
         assert!(app.command(env.clone()).ok);
         assert!(app.command(env).duplicate);
@@ -338,7 +338,7 @@ mod tests {
         assert_eq!(slide(&app), Some((deck_item, 2)));
         host.end();
         app.show_tick();
-        let notice = app.live.lock().unwrap().notice.clone().unwrap();
+        let notice = app.live().notice.clone().unwrap();
         assert!(notice.contains("PowerPoint ended the slide show of “Talk”"), "{notice}");
         // Next now walks the pictures, which the room shows.
         host.take_log();

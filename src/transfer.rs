@@ -120,7 +120,7 @@ pub fn safe_name(s: &str) -> String {
 /// Draws every slide of the service (sound-only slides left out) at `size` and saves each as a PNG in `folder`,
 /// named in service order ("03-02 Amazing Grace.png"). Slow: call off the UI thread. Gives the number saved.
 pub fn export_slides(app: &App, service: Uuid, folder: &Path, size: (u32, u32)) -> Result<usize, String> {
-    let data = app.data.lock().unwrap().clone();
+    let data = app.data().clone();
     let s = data.services.iter().find(|s| s.id == service).ok_or_else(strings::no_service)?;
     std::fs::create_dir_all(folder).map_err(|e| strings::not_saved(&e.to_string()))?;
     let renderer = crate::ui::thumbs::TextRenderer::new();
@@ -235,7 +235,7 @@ fn write_text(path: &Path, text: &str) -> Result<(), ActionError> {
 }
 
 fn open_service(app: &App) -> Result<(Data, Service), ActionError> {
-    let d = app.data.lock().unwrap().clone();
+    let d = app.data().clone();
     let s = d.service().cloned().ok_or_else(|| ActionError::bad(strings::no_service()))?;
     Ok((d, s))
 }
@@ -268,7 +268,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
         }
         "transfer/themes-out" => {
             let To { path } = parse(body)?;
-            let themes = app.data.lock().unwrap().themes.clone();
+            let themes = app.data().themes.clone();
             if themes.is_empty() { return Err(ActionError::bad(strings::no_themes())) }
             let a = app.clone();
             let p = path.clone();

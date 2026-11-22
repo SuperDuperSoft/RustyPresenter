@@ -172,14 +172,14 @@ fn cancel_with_changes_asks_in_the_settings_window() {
     assert_eq!(op.ui.get_ask().row_count(), 0, "not over the operator");
     crate::ui::dialogs::ask::answer_other_settings(&op);
     assert!(!is_open(&op), "Don't save closes");
-    assert_ne!(app.data.lock().unwrap().settings.lines_per_slide, 5, "and keeps nothing");
+    assert_ne!(app.data().settings.lines_per_slide, 5, "and keeps nothing");
     open(&op, SettingsTab::Songs);
     g(&op).set_lines(4);
     testing::click(&op, "SettingsWindow::cancel");
     crate::ui::dialogs::ask::answer_settings(&op, true, String::new());
     for _ in 0..50 { if !is_open(&op) { break } settle(); std::thread::sleep(std::time::Duration::from_millis(5)) }
     assert!(!is_open(&op));
-    assert_eq!(app.data.lock().unwrap().settings.lines_per_slide, 5, "Save keeps it");
+    assert_eq!(app.data().settings.lines_per_slide, 5, "Save keeps it");
 }
 
 #[test]
@@ -196,7 +196,7 @@ fn a_size_typed_by_hand_is_saved_and_shown_again() {
     assert_eq!(slint::Model::row_data(&g(&op).get_record_size_labels(), 5).unwrap(), "1600 × 900 (custom)");
     testing::click(&op, "SettingsWindow::save");
     for _ in 0..50 { if !is_open(&op) { break } settle(); std::thread::sleep(std::time::Duration::from_millis(5)) }
-    assert_eq!(app.data.lock().unwrap().settings.record.size, crate::record::Preset::custom(1600, 900));
+    assert_eq!(app.data().settings.record.size, crate::record::Preset::custom(1600, 900));
     refresh(&op);
     open(&op, SettingsTab::StreamPicture);
     assert_eq!(g(&op).get_record_size(), 5, "shown again as the typed size");

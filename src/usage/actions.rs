@@ -77,7 +77,7 @@ impl App {
     pub(crate) fn note_song_use(&self, committed: bool) {
         if !self.usage.enabled() { return }
         let (frame, item) = {
-            let live = self.live.lock().unwrap();
+            let live = self.live();
             if committed {
                 let Some((frame, _, item)) = live.committed() else { return };
                 (frame, item)
@@ -86,7 +86,7 @@ impl App {
                 (live.frame.clone(), live.item.clone())
             }
         };
-        let hit = hit_for(&self.data.lock().unwrap(), &frame, item.as_ref(), Utc::now(), today());
+        let hit = hit_for(&self.data(), &frame, item.as_ref(), Utc::now(), today());
         if let Some(hit) = hit { self.usage.hit(hit) }
     }
 
@@ -99,7 +99,7 @@ impl App {
         Ok((from, to))
     }
 
-    fn license(&self) -> String { self.data.lock().unwrap().settings.church_ccli.trim().to_string() }
+    fn license(&self) -> String { self.data().settings.church_ccli.trim().to_string() }
 
     /// The `usage/*` actions. Operator only: the phone remote has none of them.
     pub(crate) async fn usage_action(self: &Arc<Self>, action: &str, body: &[u8]) -> Result<Value, ActionError> {

@@ -281,14 +281,14 @@ async fn download_lands_in_the_library_and_the_service() {
     ));
     let (app, _, log) = faked("", &format!("out:{progress},make:aqz-KE-bpKQ.mp4"));
     let Ok(Info::Video(video)) = parse_info(VIDEO_JSON) else { panic!() };
-    let service = app.data.lock().unwrap().services[0].id;
+    let service = app.data().services[0].id;
     let mut updates = app.subscribe();
     let job = start_download(&app, video, Quality::Best, Some(service));
     let card = job_end(&app, job).await.expect("a finished download keeps its card for its note");
     assert_eq!(card.error, None);
     assert_eq!(card.label, "Downloaded “Big Buck Bunny 60fps 4K - Official Blender Foundation Short Film”");
     assert_eq!(card.note.as_deref(), Some("It's in Video & media and in the service."));
-    let (media, items) = { let d = app.data.lock().unwrap(); (d.media.clone(), d.services[0].items.clone()) };
+    let (media, items) = { let d = app.data(); (d.media.clone(), d.services[0].items.clone()) };
     assert_eq!(media.len(), 1);
     assert_eq!((media[0].name.as_str(), media[0].kind), ("Big Buck Bunny 60fps 4K - Official Blender Foundation Short Film", MediaKind::Video));
     assert!(app.store.asset_path(&media[0].asset).is_file());
@@ -319,7 +319,7 @@ async fn without_a_joiner_it_saves_360p_and_says_so() {
     let args = &runs(&log)[0].1;
     assert!(args.iter().any(|a| a == "b[ext=mp4][height<=1080]/b[ext=mp4]/b"));
     assert!(!args.iter().any(|a| a == "--ffmpeg-location"));
-    assert!(app.data.lock().unwrap().services[0].items.is_empty(), "not asked to add it");
+    assert!(app.data().services[0].items.is_empty(), "not asked to add it");
 }
 
 #[tokio::test]
@@ -331,7 +331,7 @@ async fn a_failed_download_shows_its_error_on_the_card() {
     let job = start_download(&app, video, Quality::Best, None);
     let card = job_end(&app, job).await.unwrap();
     assert_eq!(card.error.as_deref(), Some("The computer's disk is full. Free up some space and try again."));
-    assert!(app.data.lock().unwrap().media.is_empty());
+    assert!(app.data().media.is_empty());
 }
 
 #[tokio::test]
@@ -349,7 +349,7 @@ async fn cancel_kills_yt_dlp_and_what_it_started() {
     let after = size();
     tokio::time::sleep(Duration::from_millis(500)).await;
     assert_eq!(size(), after, "the grandchild is gone too");
-    assert!(app.data.lock().unwrap().media.is_empty());
+    assert!(app.data().media.is_empty());
     let left: Vec<_> = std::fs::read_dir(app.store.tmp()).unwrap().flatten().map(|e| e.file_name()).collect();
     assert!(left.is_empty(), "{left:?}");
 }
@@ -448,7 +448,7 @@ async fn net_downloads_a_real_video() {
         match j { Some(j) if j.done || j.error.is_some() => break j, Some(_) => tokio::time::sleep(Duration::from_millis(200)).await, None => panic!("cancelled?") }
     };
     assert_eq!(card.error, None, "{}", card.label);
-    let m = app.data.lock().unwrap().media[0].clone();
+    let m = app.data().media[0].clone();
     let path = app.store.asset_path(&m.asset);
     eprintln!("downloaded “{}” ({} bytes, {:?}) in {:?}", m.name, std::fs::metadata(&path).unwrap().len(), m.status, began.elapsed());
     assert_eq!(m.kind, MediaKind::Video);

@@ -34,7 +34,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let rt = tokio::runtime::Runtime::new()?;
     let item = Uuid::new_v4();
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         let body = "Welcome to church!\n\nCoffee after the service\n\nYouth group Friday 7 PM".to_string();
         d.services[0].items.push(ServiceItem { id: item, kind: ItemKind::Text { title: "Announcements".into(), body, layout: Default::default() }, background: None, notes: String::new(), theme: None });
         d.automation.advance.insert(item, rustypresenter::automation::advance::AutoAdvance { secs: 8, loop_item: true });
@@ -48,9 +48,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
     rt.block_on(app.do_action("timer/start", format!(r#"{{"id":"{SERMON_ID}"}}"#).as_bytes())).unwrap();
-    let v = app.live.lock().unwrap().version;
+    let v = app.live().version;
     cmd(&app, Command::Show { item_id: item, slide: 0 }, Some(v));
-    let epoch = Some(app.live.lock().unwrap().clear_epoch);
+    let epoch = Some(app.live().clear_epoch);
     cmd(&app, Command::ShowTimer { timer: SERMON_ID, seen_clear: epoch }, None);
     cmd(&app, Command::ShowMessage { template: NURSERY_ID, values: BTreeMap::from([("Number".into(), "27".into())]), seen_clear: epoch }, None);
     app.automation_tick(chrono::Utc::now());

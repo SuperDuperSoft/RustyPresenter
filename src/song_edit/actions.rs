@@ -42,7 +42,7 @@ struct Body {
 pub async fn run(app: &Arc<App>, _action: &str, body: &[u8]) -> Result<Value, ActionError> {
     let b: Body = serde_json::from_slice(body).map_err(|e| ActionError::bad(format!("Bad request: {e}")))?;
     if let (Some(item), Some(moved)) = (b.item_id, b.moved.clone()) {
-        app.live.lock().unwrap().order_hint = Some((item, moved));
+        app.live().order_hint = Some((item, moved));
     }
     let r = app.edit(|d| {
         let Some(song) = d.songs.iter_mut().find(|s| s.id == b.song_id) else { return Err(crate::tr!("That song is not in the library any more.")) };
@@ -64,7 +64,7 @@ pub async fn run(app: &Arc<App>, _action: &str, body: &[u8]) -> Result<Value, Ac
         Ok(())
     });
     // A hint not used (nothing live changed) is not kept for a later change.
-    app.live.lock().unwrap().order_hint = None;
+    app.live().order_hint = None;
     r.map_err(ActionError::bad)?;
     Ok(json!({}))
 }

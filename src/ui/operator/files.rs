@@ -817,7 +817,7 @@ mod window_tests {
         p
     }
 
-    fn items(app: &App) -> Vec<ItemKind> { app.data.lock().unwrap().services[0].items.iter().map(|i| i.kind.clone()).collect() }
+    fn items(app: &App) -> Vec<ItemKind> { app.data().services[0].items.iter().map(|i| i.kind.clone()).collect() }
 
     fn toasts(op: &Operator) -> Vec<(String, bool)> { op.state.borrow().toasts.clone() }
 
@@ -840,10 +840,10 @@ mod window_tests {
         assert_eq!(items.len(), 1);
         let ItemKind::Media { media_id, autoplay, looped, .. } = &items[0] else { panic!("{items:?}") };
         assert!(*autoplay && !*looped);
-        assert!(app.data.lock().unwrap().media.iter().any(|m| m.id == *media_id));
+        assert!(app.data().media.iter().any(|m| m.id == *media_id));
         assert_eq!(toasts(&op), [("pic.png added".to_string(), false)], "no \"Added to the service\"");
         refresh(&op);
-        let added = app.data.lock().unwrap().services[0].items[0].id;
+        let added = app.data().services[0].items[0].id;
         assert_eq!(op.state.borrow().selected, Some(added), "the new item is selected");
         assert!(cards(&op).is_empty(), "the upload card is gone");
     }
@@ -859,11 +859,11 @@ mod window_tests {
         std::fs::write(&txt, SONG.replace("Line one", "New words")).unwrap();
         add_files(op, vec![txt.clone()]);
         assert_eq!(op.ui.get_ask().row_data(0).unwrap().text, "“A Test Song” is already in the library.");
-        assert_eq!((items(app).len(), app.data.lock().unwrap().songs.len()), (1, 1), "nothing happens before the answer");
+        assert_eq!((items(app).len(), app.data().songs.len()), (1, 1), "nothing happens before the answer");
         (song_id, txt)
     }
 
-    fn lyrics(app: &App, id: Uuid) -> String { app.data.lock().unwrap().songs.iter().find(|s| s.id == id).unwrap().lyrics.clone() }
+    fn lyrics(app: &App, id: Uuid) -> String { app.data().songs.iter().find(|s| s.id == id).unwrap().lyrics.clone() }
 
     #[test]
     fn duplicate_song_file_asks_update_or_keep_both() {
@@ -871,7 +871,7 @@ mod window_tests {
         let op = opened(&app);
         let (id, _) = song_again(&app, &op);
         ask::answer(&op, true, String::new());
-        assert_eq!(app.data.lock().unwrap().songs.len(), 1);
+        assert_eq!(app.data().songs.len(), 1);
         assert!(lyrics(&app, id).contains("New words"), "{}", lyrics(&app, id));
         assert!(matches!(items(&app)[1], ItemKind::Song { song_id, .. } if song_id == id), "the same song is added");
         assert_eq!(toasts(&op).last().unwrap().0, "Updated “A Test Song”");
@@ -880,7 +880,7 @@ mod window_tests {
         let op = opened(&app);
         let (id, _) = song_again(&app, &op);
         ask::answer_other(&op);
-        let songs = app.data.lock().unwrap().songs.clone();
+        let songs = app.data().songs.clone();
         assert_eq!(songs.len(), 2);
         assert!(!lyrics(&app, id).contains("New words"));
         let ItemKind::Song { song_id, .. } = items(&app)[1].clone() else { panic!() };
@@ -895,7 +895,7 @@ mod window_tests {
         let op = opened(&app);
         song_again(&app, &op);
         ask::answer(&op, false, String::new());
-        assert_eq!((items(&app).len(), app.data.lock().unwrap().songs.len()), (1, 1));
+        assert_eq!((items(&app).len(), app.data().songs.len()), (1, 1));
     }
 
     #[test]
@@ -931,7 +931,7 @@ mod window_tests {
         std::fs::write(&txt, "A Test Song\r\n\r\nVerse 1\r\nLine one\r\nLine two\r\n\r\nTest Writer\r\nCCLI Song # 12345\r\n© 2026 Test Music\r\nCCLI License # 98765").unwrap();
         add_files(&op, vec![txt.clone()]);
         let ItemKind::Song { song_id, .. } = items(&app)[0].clone() else { panic!() };
-        assert!(app.data.lock().unwrap().songs.iter().any(|s| s.id == song_id && s.title == "A Test Song"));
+        assert!(app.data().songs.iter().any(|s| s.id == song_id && s.title == "A Test Song"));
         assert_eq!(toasts(&op), [("Imported “A Test Song”".to_string(), false)]);
     }
 
@@ -960,7 +960,7 @@ mod window_tests {
         assert_eq!(cards(&op), [("Uploading 2 pictures".to_string(), 100)], "the card stays while asking");
         ask::answer(&op, false, String::new());
         let ItemKind::Deck { deck_id } = items(&app)[0].clone() else { panic!() };
-        assert_eq!(app.data.lock().unwrap().decks.iter().find(|d| d.id == deck_id).unwrap().title, "Slides");
+        assert_eq!(app.data().decks.iter().find(|d| d.id == deck_id).unwrap().title, "Slides");
         assert_eq!(toasts(&op), [("Added to the service".to_string(), false)]);
         assert_eq!(op.dialog(), None, "the dialog closed");
         assert!(cards(&op).is_empty());
@@ -974,7 +974,7 @@ mod window_tests {
         images_to_deck(&op, vec![png(&dir, "b.png", 5), png(&dir, "a.png", 4)]);
         assert_eq!(op.ui.get_ask().row_data(0).unwrap().value, "a");
         ask::answer(&op, true, "Easter".into());
-        assert_eq!(app.data.lock().unwrap().decks[0].title, "Easter");
+        assert_eq!(app.data().decks[0].title, "Easter");
     }
 
     #[test]
@@ -984,7 +984,7 @@ mod window_tests {
         let dir = folder();
         images_to_deck(&op, vec![png(&dir, "10.png", 10), png(&dir, "2.png", 2)]);
         ask::answer(&op, true, "Pictures".into());
-        let deck = app.data.lock().unwrap().decks[0].clone();
+        let deck = app.data().decks[0].clone();
         let sizes: Vec<u32> = deck.slides.iter().map(|a| image::image_dimensions(app.store.asset_path(a)).unwrap().0).collect();
         assert_eq!(sizes, [2, 10]);
     }
@@ -1221,7 +1221,7 @@ mod window_tests {
         ask::answer(&op, true, "Easter".into());
         assert!(importing(&op).is_empty());
         assert!(matches!(items(&app)[..], [ItemKind::Deck { .. }]));
-        assert_eq!(app.data.lock().unwrap().decks[0].slides.len(), 3);
+        assert_eq!(app.data().decks[0].slides.len(), 3);
     }
 
     #[test]

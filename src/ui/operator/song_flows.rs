@@ -17,7 +17,7 @@ const LYRICS: &str = "Verse 1\nv1\nChorus\nc\nVerse 2\nv2";
 fn add_song(app: &App, lyrics: &str, order: &[&str]) -> (Uuid, Uuid) {
     let song = Song { id: Uuid::new_v4(), title: "Grace".into(), lyrics: lyrics.into(), arrangement: order.iter().map(|s| s.to_string()).collect(), ..Default::default() };
     let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None };
-    let mut d = app.data.lock().unwrap();
+    let mut d = app.data();
     d.songs.push(song.clone());
     d.services[0].items.push(item.clone());
     (song.id, item.id)
@@ -25,7 +25,7 @@ fn add_song(app: &App, lyrics: &str, order: &[&str]) -> (Uuid, Uuid) {
 
 fn add_text(app: &App) -> Uuid {
     let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hello".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
-    app.data.lock().unwrap().services[0].items.push(item.clone());
+    app.data().services[0].items.push(item.clone());
     item.id
 }
 
@@ -125,7 +125,7 @@ fn stray_typing_on_non_song_or_nothing_live_changes_nothing() {
 fn jump_keys_off_in_settings_do_nothing() {
     let app = test_app();
     let (_, id) = add_song(&app, LYRICS, &[]);
-    app.data.lock().unwrap().settings.section_keys = false;
+    app.data().settings.section_keys = false;
     let op = opened(&app);
     show(&op, id, 0);
     press(&op, "c");
@@ -199,7 +199,7 @@ fn live_column_shows_the_section_and_edit_words_opens_the_editor_there() {
 fn edit_words_caret_follows_item_override() {
     let app = test_app();
     let (song_id, id) = add_song(&app, LYRICS, &[]);
-    if let Some(it) = app.data.lock().unwrap().services[0].items.iter_mut().find(|i| i.id == id) {
+    if let Some(it) = app.data().services[0].items.iter_mut().find(|i| i.id == id) {
         it.kind = ItemKind::Song { song_id, arrangement: Some(vec!["Verse 2".into(), "Chorus".into()]) };
     }
     let op = opened(&app);

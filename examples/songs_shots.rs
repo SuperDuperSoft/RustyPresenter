@@ -22,7 +22,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = App::new(store, data, 0, None);
     let (item_id, song_id) = (Uuid::new_v4(), Uuid::new_v4());
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         d.settings.church_ccli = "1234567".into();
         d.songs.push(Song { id: song_id, title: "Amazing Grace (My Chains Are Gone)".into(), writers: "John Newton, Chris Tomlin".into(), artist: "Chris Tomlin".into(),
             publisher: "sixsteps Music".into(), year: "2006".into(), ccli: "4768151".into(), lyrics: LYRICS.into(), ..Default::default() });

@@ -166,7 +166,7 @@ fn measure(g: Graphics, draw: video::DrawMode, room_want: Option<&str>) -> Resul
         Background::Image { asset: "graphics-test.png".into(), dim: 20 }
     };
     let first = {
-        let mut data = app.data.lock().unwrap();
+        let mut data = app.data();
         let mut first = None;
         for n in 1..=5 {
             let song = Song { id: Uuid::new_v4(), title: format!("Test song {n}"), lyrics: lyrics(n), ..Default::default() };
@@ -253,7 +253,7 @@ fn measure(g: Graphics, draw: video::DrawMode, room_want: Option<&str>) -> Resul
             let t0 = Instant::now();
             for i in 0..CHANGES {
                 if let Some(d) = (t0 + INTERVAL * i).checked_duration_since(Instant::now()) { std::thread::sleep(d) }
-                let base = app.live.lock().unwrap().version;
+                let base = app.live().version;
                 let sent = Instant::now();
                 if app.command(env(Some(base), Command::Next)).ok { sends.lock().unwrap().push(sent) }
             }

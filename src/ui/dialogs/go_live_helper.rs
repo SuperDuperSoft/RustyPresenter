@@ -142,7 +142,7 @@ fn check(op: &Rc<Operator>) {
     g.set_results(strings(vec![tr::checking()]));
     let c = choice(&g);
     let sound = Sound::parse(&c.sound);
-    let record_size = op.app().data.lock().unwrap().settings.record.size;
+    let record_size = op.app().data().settings.record.size;
     let data = op.app().store.root.clone();
     let me = Rc::downgrade(op);
     off_ui(op, move || {

@@ -193,7 +193,7 @@ fn tape_show(op: &Operator, said: Option<String>) {
 /// The song order row: how many songs have a learned order, or `said` (what just happened).
 fn order_show(op: &Operator, said: Option<String>) {
     let g = crate::ui::dialogs::settings_window::win(&op).global::<SettingsDlg>();
-    let n = op.app().data.lock().unwrap().automation.follow_order.len();
+    let n = op.app().data().automation.follow_order.len();
     g.set_order_count(n as i32);
     g.set_order_status(match said {
         Some(text) => text,
@@ -435,7 +435,7 @@ mod tests {
         // Saving keeps it.
         g.set_follow_lead(25);
         g.invoke_save();
-        assert_eq!(app.data.lock().unwrap().settings.follow.lead_s, 2.5);
+        assert_eq!(app.data().settings.follow.lead_s, 2.5);
     }
 
     fn fake(file: &std::path::Path, slides: Vec<Slide>, s: Settings) -> Result<Vec<LogEntry>, String> {
@@ -450,7 +450,7 @@ mod tests {
         crate::ui::ui_test_init();
         let app = test_app();
         let song = crate::model::Song { id: Uuid::new_v4(), title: "Grace".into(), lyrics: "Verse 1\nAmazing grace\n\nChorus\nMy chains are gone".into(), ..Default::default() };
-        app.data.lock().unwrap().songs.push(song);
+        app.data().songs.push(song);
         let op = open(&app);
         refresh(&op);
         open_page(&op, 1);
@@ -512,7 +512,7 @@ Chorus
 my chains are gone".into(), ..Default::default() };
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None };
         let id = item.id;
-        { let mut d = app.data.lock().unwrap(); d.songs.push(song); d.services[0].items.push(item); }
+        { let mut d = app.data(); d.songs.push(song); d.services[0].items.push(item); }
         let op = open(&app);
         refresh(&op);
         open_page(&op, 1);
@@ -531,11 +531,11 @@ my chains are gone".into(), ..Default::default() };
         g.invoke_order_learn();
         assert_eq!(g.get_order_status(), "Learned: Grace (1 2 1)");
         assert_eq!(g.get_order_count(), 1);
-        let kept = app.data.lock().unwrap().automation.follow_order.get(&id).cloned().unwrap();
+        let kept = app.data().automation.follow_order.get(&id).cloned().unwrap();
         assert_eq!(kept.slides, [0, 1, 0]);
         // The follower is handed it while the slides are the ones it was learned for.
         let slides = |words: [&str; 2]| words.iter().map(|w| crate::follow::testing::text(w)).collect::<Vec<_>>();
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         assert_eq!(d.automation.sung_order(id, &slides(["amazing grace", "my chains are gone"])), [0, 1, 0]);
         assert!(d.automation.sung_order(id, &slides(["amazing grace", "my chains are GONE"])).is_empty(), "the words changed: void");
         drop(d);
@@ -551,7 +551,7 @@ my chains are gone".into(), ..Default::default() };
         assert_eq!(g.get_order_status(), "Learned: Grace (1 2)");
         assert_eq!(g.get_order_count(), 1);
         {
-            let d = app.data.lock().unwrap();
+            let d = app.data();
             assert_eq!(d.automation.sung_secs(id, &slides(["amazing grace", "my chains are gone"])), [39.0, 30.0]);
             assert!(d.automation.sung_secs(id, &slides(["amazing grace", "my chains are GONE"])).is_empty());
         }
@@ -563,12 +563,12 @@ my chains are gone".into(), ..Default::default() };
         g.invoke_order_learn();
         assert_eq!(g.get_order_status(), "Nothing to learn: no song on the recording was sung over two slides or more.");
         // Forget.
-        app.data.lock().unwrap().automation.follow_order.insert(id, kept);
+        app.data().automation.follow_order.insert(id, kept);
         order_show(&op, None);
         assert_eq!((g.get_order_count(), g.get_order_status().as_str()), (1, "Songs with a learned order: 1"));
         g.invoke_order_forget();
         assert_eq!(g.get_order_count(), 0);
-        assert!(app.data.lock().unwrap().automation.follow_order.is_empty());
+        assert!(app.data().automation.follow_order.is_empty());
     }
 
     #[test]

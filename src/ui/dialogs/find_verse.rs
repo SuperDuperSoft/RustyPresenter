@@ -302,7 +302,7 @@ mod tests {
         let (app, op) = opened();
         bible::submit(&op, "be still and know".into());
         assert_eq!(op.dialog(), Some(DialogKind::FindVerse));
-        assert!(app.data.lock().unwrap().services[0].items.is_empty(), "nothing is added");
+        assert!(app.data().services[0].items.is_empty(), "nothing is added");
         wait(&op, |op| !hits(op).is_empty());
         assert_eq!(hits(&op)[0], "Psalm 46:10");
         assert!(op.ui.global::<FindVerseDlg>().get_header().ends_with("found in KJV"));
@@ -321,7 +321,7 @@ mod tests {
         assert_eq!(g.get_add_label(), "Add Psalm 46:10–11");
         g.invoke_add();
         wait(&op, |op| op.dialog().is_none());
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         match &d.services[0].items[0].kind {
             ItemKind::Scripture { reference, translation, verses, .. } => {
                 assert_eq!((reference.as_str(), translation.as_str(), verses.len()), ("Psalm 46:10–11", "KJV", 2));

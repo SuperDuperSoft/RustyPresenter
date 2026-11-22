@@ -175,7 +175,7 @@ mod tests {
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Scripture { reference: "Psalm 23:1-6".into(), translation: "KJV".into(), verses, per_slide: 0,
             text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() }, background: None, notes: String::new(), theme: None };
         let id = item.id;
-        app.data.lock().unwrap().services[0].items.push(item);
+        app.data().services[0].items.push(item);
         id
     }
 
@@ -202,7 +202,7 @@ mod tests {
         assert_ne!(slide_labels(&op), before);
         find(&op, "SlideBreaksDialog::save").unwrap().mock_single_click(PointerEventButton::Left);
         assert_eq!(op.dialog(), None);
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         let ItemKind::Scripture { breaks, .. } = &d.services[0].items[0].kind else { panic!() };
         assert_eq!(breaks.before.iter().map(|v| v.verse()).collect::<Vec<_>>(), [at as u16 + 2]);
     }
@@ -226,7 +226,7 @@ mod tests {
         assert_eq!(slide_labels(&op).len(), 6);
         g.invoke_cancel();
         assert_eq!(op.dialog(), None);
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         assert!(matches!(&d.services[0].items[0].kind, ItemKind::Scripture { per_slide: 0, breaks, .. } if breaks.is_empty()), "Cancel changes nothing");
     }
 }

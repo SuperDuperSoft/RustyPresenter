@@ -210,15 +210,15 @@ impl Operator {
         let canvas = prefs.size.size();
         let (app, app2) = (self.app().clone(), self.app().clone());
         if live { self.app().clear_stream_choice() }
-        let theme = self.app().data.lock().unwrap().settings.theme.clone();
+        let theme = self.app().data().settings.theme.clone();
         // A camera that sends nothing: the church's choice in its place (the logo read when the stream starts).
-        let logo = self.app().data.lock().unwrap().settings.logo.clone().map(|id| self.app().store.asset_path(&id));
+        let logo = self.app().data().settings.logo.clone().map(|id| self.app().store.asset_path(&id));
         let camera_lost = stream::camera_lost::Lost { choice: prefs.camera_lost, logo };
         let words_top = prefs.stream_layout.words_top;
         let look = stream::pictures::Look {
             info: Arc::new(move || app.stream_info()),
             words: Arc::new(move || {
-                let live = app2.live.lock().unwrap();
+                let live = app2.live();
                 let theme = live.item.as_ref().map(|i| i.theme.clone()).unwrap_or_default();
                 stream::lyrics::key_for_at(live.frame.slide.as_ref()?, &theme, canvas, words_top)
             }),
@@ -229,7 +229,7 @@ impl Operator {
             own: prefs.own_scenes.clone(),
             more: stream::pictures::More {
                 transition: prefs.scene_transition.clone(),
-                starts_at: Some({ let app = self.app().clone(); Arc::new(move || crate::automation::actions::starts_at(&app.data.lock().unwrap())) }),
+                starts_at: Some({ let app = self.app().clone(); Arc::new(move || crate::automation::actions::starts_at(&app.data())) }),
                 tall: None,
             },
         };
@@ -238,7 +238,7 @@ impl Operator {
         let (ids, ends) = (stream::accounts::app_ids(), stream::accounts::app_ends());
         let scheduled_id = prefs.stream_scheduled.clone();
         // The file's `{title}`: the service's name.
-        let title = self.app().data.lock().unwrap().service().map(|s| s.name.clone()).unwrap_or_default();
+        let title = self.app().data().service().map(|s| s.name.clone()).unwrap_or_default();
         let making = record::run::Making { title, services, live };
         // Go Live: are the cameras and the sound input there and sending? Looked at while the rest is got ready.
         let wanted = live.then(|| stream::preflight::Wanted {
@@ -333,7 +333,7 @@ impl Operator {
     fn start_recording(self: &Rc<Self>, mut plan: Plan) {
         // A chapter at each item taken live, named as the service list names it.
         let app = self.app().clone();
-        plan.chapters = Some(record::chapters::Source(Arc::new(move || app.live.lock().ok()?.item.as_ref().map(|i| i.title.clone()))));
+        plan.chapters = Some(record::chapters::Source(Arc::new(move || app.live().item.as_ref().map(|i| i.title.clone()))));
         let (ffmpeg, folder) = (plan.ffmpeg.clone(), plan.out.parent().map(PathBuf::from).unwrap_or_default());
         *self.record.input.borrow_mut() = match &plan.sound { record::Sound::Input(name) => name.clone(), _ => String::new() };
         self.record.silent_was.set(false);

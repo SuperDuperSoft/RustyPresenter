@@ -166,7 +166,7 @@ mod tests {
     }
 
     fn items(app: &App) -> Vec<(Uuid, String)> {
-        app.data.lock().unwrap().services[0].items.iter().map(|i| (i.id, match &i.kind { ItemKind::Scripture { reference, .. } => reference.clone(), _ => String::new() })).collect()
+        app.data().services[0].items.iter().map(|i| (i.id, match &i.kind { ItemKind::Scripture { reference, .. } => reference.clone(), _ => String::new() })).collect()
     }
 
     fn history(op: &Operator) -> Vec<String> { op.ui.panel_extras_all().get_history().iter().map(|s| s.to_string()).collect() }
@@ -180,7 +180,7 @@ mod tests {
         bible::submit(&op, "jn 3:16".into());
         bible::submit(&op, "Psalm 23:1-2".into());
         assert_eq!(history(&op), ["Psalm 23:1–2", "John 3:16"], "newest first, as the lookup names it");
-        assert_eq!(app.data.lock().unwrap().settings.bible_history, ["Psalm 23:1–2", "John 3:16"], "and saved");
+        assert_eq!(app.data().settings.bible_history, ["Psalm 23:1–2", "John 3:16"], "and saved");
         refresh(&op);
         assert!(find(&op, "BibleBox::history-btn").is_some());
         pick_history(&op, "John 3:16".into());
@@ -218,7 +218,7 @@ mod tests {
         find(&op, "SlidesPanel::next-verse").expect("Verse ›").mock_single_click(slint::platform::PointerEventButton::Left);
         let after = items(&app);
         assert_eq!(after.iter().map(|(_, r)| r.as_str()).collect::<Vec<_>>(), ["John 3:16–17", "John 3:18"]);
-        let data = app.data.lock().unwrap();
+        let data = app.data();
         assert!(matches!(&data.services[0].items[1].kind, ItemKind::Scripture { translation, .. } if translation == "WEB"), "the passage's Bible, not the chip's");
         drop(data);
         assert_eq!(op.state.borrow().armed, Some(after[1].0), "armed: Enter shows it");
@@ -238,7 +238,7 @@ mod tests {
         bible::submit(&op, "John 3:16-17".into());
         refresh(&op);
         save_passage(&op);
-        let data = app.data.lock().unwrap();
+        let data = app.data();
         let song = data.songs.iter().find(|s| s.title == "John 3:16–17 (KJV)").expect("saved as a song");
         assert!(song.lyrics.contains("For God so loved the world"), "{}", song.lyrics);
         assert!(crate::slides::parse_sections(&song.lyrics).len() >= 1);

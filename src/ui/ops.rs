@@ -262,7 +262,7 @@ mod tests {
         let s = seen.clone();
         ops.call::<Saved>("song/save", serde_json::json!({ "id": Uuid::nil(), "title": "Amazing Grace", "lyrics": "Verse 1\nAmazing grace" }), move |r| s.borrow_mut().push(r.unwrap().id));
         assert_eq!(seen.borrow().len(), 1, "done ran before call returned");
-        assert_eq!(app.data.lock().unwrap().songs[0].id, seen.borrow()[0]);
+        assert_eq!(app.data().songs[0].id, seen.borrow()[0]);
     }
 
     #[test]

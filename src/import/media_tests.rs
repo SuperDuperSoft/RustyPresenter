@@ -69,7 +69,7 @@ fn finished_entries_are_left_alone() {
 #[tokio::test]
 async fn the_upgrade_is_saved_at_start() {
     let app = test_app();
-    app.data.lock().unwrap().media.push(entry(MediaKind::Video, "gone.avi", MediaStatus::Converting { percent: 1 }));
+    app.data().media.push(entry(MediaKind::Video, "gone.avi", MediaStatus::Converting { percent: 1 }));
     at_start(&app, None, &tokio::runtime::Handle::current());
     let text = std::fs::read_to_string(app.store.data_path()).unwrap();
     assert!(!text.contains("converting") && !text.contains("unconverted"), "{text}");
@@ -105,7 +105,7 @@ async fn unplayable_file_adds_nothing() {
     let tmp = staged(&app, b"not a video");
     let e = import_media(&app, &tmp, "abc", "mp4", "Clip".into()).await.unwrap_err();
     assert_eq!(e, ffi::missing());
-    assert!(app.data.lock().unwrap().media.is_empty());
+    assert!(app.data().media.is_empty());
     assert_eq!(job_error(&app).as_deref(), Some(ffi::missing().as_str()), "the card shows it too");
     assert_eq!(files_in(app.store.assets()), 0);
     assert_eq!(files_in(app.store.tmp()), 0, "the copy in tmp goes too");
@@ -154,7 +154,7 @@ async fn a_cancel_after_the_probe_adds_nothing() {
     cancel.cancel();
     let e = add(&app, &file, "abc", "mp4", "Clip".into(), Ok(video_probe()), &cancel).await.unwrap_err();
     assert_eq!(e, crate::import::CANCELLED);
-    assert!(app.data.lock().unwrap().media.is_empty());
+    assert!(app.data().media.is_empty());
     assert_eq!(files_in(app.store.assets()), 0);
 }
 
@@ -177,7 +177,7 @@ async fn media_import_is_a_cancellable_job() {
     app.do_action("job/cancel", &body).await.unwrap();
     let e = import.await.unwrap().unwrap_err();
     assert_eq!(e.message, crate::import::CANCELLED);
-    assert!(app.data.lock().unwrap().media.is_empty());
+    assert!(app.data().media.is_empty());
     assert!(app.jobs.lock().unwrap().is_empty(), "a cancelled job leaves no card");
     assert_eq!(files_in(app.store.tmp()), 0);
 }
@@ -215,12 +215,12 @@ fn stored(app: &Arc<App>, kind: MediaKind, name: &str, bytes: &[u8], status: Med
     std::fs::write(app.store.asset_path(name), bytes).unwrap();
     let m = entry(kind, name, status);
     let id = m.id;
-    app.data.lock().unwrap().media.push(m);
+    app.data().media.push(m);
     id
 }
 
 fn media(app: &App, id: Uuid) -> MediaFile {
-    app.data.lock().unwrap().media.iter().find(|m| m.id == id).unwrap().clone()
+    app.data().media.iter().find(|m| m.id == id).unwrap().clone()
 }
 
 #[tokio::test]
@@ -278,7 +278,7 @@ async fn reprobe_ends_with_one_edit_and_skips_what_was_deleted() {
 async fn reprobe_keeps_a_thumbnail_it_could_not_replace() {
     let app = test_app();
     let id = stored(&app, MediaKind::Audio, "s.png", b"", MediaStatus::Ready);
-    app.data.lock().unwrap().media[0].thumb = Some("kept.jpg".into());
+    app.data().media[0].thumb = Some("kept.jpg".into());
     let good = std::fs::read(png("p.png", 4, 4)).unwrap();
     std::fs::write(app.store.asset_path("s.png"), good).unwrap();
     // The folder for the thumbnail's tmp file is gone, so it can't be written.

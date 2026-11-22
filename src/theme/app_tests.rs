@@ -13,7 +13,7 @@ pub(super) fn text_item(body: &str) -> ServiceItem {
 }
 
 pub(super) fn cmd(app: &App, cmd: Command) -> crate::live::Outcome {
-    let base = Some(app.live.lock().unwrap().version);
+    let base = Some(app.live().version);
     app.command(Envelope { id: Uuid::new_v4().to_string(), base, cmd })
 }
 
@@ -27,7 +27,7 @@ async fn read_only_rejects_edits() {
     app.set_read_only(true);
     let err = act(&app, "song/save", serde_json::json!({ "id": Uuid::nil(), "title": "A", "lyrics": "" })).await.unwrap_err();
     assert_eq!(err, strings::newer_data());
-    assert!(app.data.lock().unwrap().songs.is_empty(), "nothing changed in memory either");
+    assert!(app.data().songs.is_empty(), "nothing changed in memory either");
     assert_eq!(act(&app, "backup/restore", serde_json::json!({ "name": "backup-x" })).await.unwrap_err(), strings::newer_data());
     assert!(!app.store.data_path().exists(), "nothing written");
     assert_eq!(app.state_json()["read_only"], true);
@@ -38,7 +38,7 @@ async fn read_only_keeps_live_control() {
     let app = test_app();
     let item = text_item("one\n\ntwo");
     let id = item.id;
-    app.data.lock().unwrap().services[0].items.push(item);
+    app.data().services[0].items.push(item);
     app.set_read_only(true);
     assert!(cmd(&app, Command::Show { item_id: id, slide: 0 }).ok);
     assert!(cmd(&app, Command::Next).ok);
@@ -62,7 +62,7 @@ async fn new_theme(app: &Arc<App>, name: &str, size: u32) -> Uuid {
 }
 
 fn live_size(app: &App) -> u32 {
-    match &app.live.lock().unwrap().frame.slide {
+    match &app.live().frame.slide {
         Some(crate::live::SlideLayer::Text { theme: Some(t), .. }) => t.size,
         s => panic!("{s:?}"),
     }
@@ -74,7 +74,7 @@ async fn theme_save_requires_unique_name() {
     new_theme(&app, "Christmas", 90).await;
     assert_eq!(act(&app, "theme/save", theme_json(" christmas ", 80)).await.unwrap_err(), strings::theme_exists("christmas"));
     assert_eq!(act(&app, "theme/save", theme_json("  ", 80)).await.unwrap_err(), strings::theme_name_required());
-    assert_eq!(app.data.lock().unwrap().themes.len(), 1);
+    assert_eq!(app.data().themes.len(), 1);
 }
 
 #[tokio::test]
@@ -97,7 +97,7 @@ async fn theme_save_returns_empty_screen_views() {
     let app = test_app();
     let v = act(&app, "theme/save", theme_json("Youth", 500)).await.unwrap();
     assert_eq!(v["screen_views"], json!([]));
-    assert_eq!(app.data.lock().unwrap().themes[0].style.size, 200, "clamped like Settings");
+    assert_eq!(app.data().themes[0].style.size, 200, "clamped like Settings");
     assert!(app.store.load().unwrap().themes.len() == 1, "saved");
 }
 
@@ -106,14 +106,14 @@ async fn theme_delete_clears_references_and_counts() {
     let app = test_app();
     let x = new_theme(&app, "X", 90).await;
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         d.services[0].theme = Some(x);
         d.services[0].items = vec![text_item("a"), text_item("b")];
         d.services[0].items[0].theme = Some(x);
     }
     let v = act(&app, "theme/delete", json!({ "id": x })).await.unwrap();
     assert_eq!(v, json!({ "items": 1, "services": 1, "was_default": false }));
-    let d = app.data.lock().unwrap();
+    let d = app.data();
     assert!(d.themes.is_empty() && d.services[0].theme.is_none() && d.services[0].items[0].theme.is_none());
     drop(d);
     assert_eq!(act(&app, "theme/delete", json!({ "id": STANDARD_ID })).await.unwrap_err(), strings::builtin_no_delete());
@@ -127,7 +127,7 @@ async fn delete_starred_theme_returns_to_standard() {
     act(&app, "theme/make-default", json!({ "id": x })).await.unwrap();
     let v = act(&app, "theme/delete", json!({ "id": x })).await.unwrap();
     assert_eq!(v["was_default"], true);
-    let d = app.data.lock().unwrap();
+    let d = app.data();
     assert_eq!((d.default_theme, crate::theme::church_default(&d).id), (None, STANDARD_ID));
 }
 
@@ -138,7 +138,7 @@ async fn make_default_keeps_previous_default_as_theme() {
     act(&app, "theme/make-default", json!({ "id": christmas })).await.unwrap();
     assert_eq!(app.live_view().theme.size, 120);
     act(&app, "theme/make-default", json!({ "id": STANDARD_ID })).await.unwrap();
-    let d = app.data.lock().unwrap();
+    let d = app.data();
     assert_eq!(d.default_theme, None, "Standard is stored as no default");
     assert_eq!(d.themes[0].style.size, 120, "Christmas unchanged");
     drop(d);
@@ -163,10 +163,10 @@ async fn editing_starred_theme_changes_default() {
 #[tokio::test]
 async fn theme_save_standard_writes_only_theme_and_background() {
     let app = test_app();
-    app.data.lock().unwrap().settings.lines_per_slide = 5;
+    app.data().settings.lines_per_slide = 5;
     let bg = Background::Gradient { from: "#0b1a33".into(), to: "#000000".into(), angle: 180, dim: 90 };
     act(&app, "theme/save-standard", json!({ "style": Theme { size: 10, ..Theme::default() }, "background": bg })).await.unwrap();
-    let d = app.data.lock().unwrap();
+    let d = app.data();
     assert_eq!(d.settings.theme.size, 24);
     assert_eq!(d.settings.background.dim(), 80, "Darken at most 80 %");
     assert_eq!(d.settings.lines_per_slide, 5);
@@ -176,7 +176,7 @@ async fn theme_save_standard_writes_only_theme_and_background() {
 #[tokio::test]
 async fn service_theme_rejects_unknown() {
     let app = test_app();
-    let sid = app.data.lock().unwrap().services[0].id;
+    let sid = app.data().services[0].id;
     assert_eq!(act(&app, "service/theme", json!({ "service_id": sid, "theme": Uuid::new_v4() })).await.unwrap_err(), strings::theme_gone());
     assert_eq!(act(&app, "service/theme", json!({ "service_id": Uuid::new_v4(), "theme": null })).await.unwrap_err(), strings::service_gone());
 }
@@ -189,7 +189,7 @@ async fn service_theme_reports_items_with_own_background() {
     let v = act(&app, "theme/save", serde_json::to_value(&with_bg).unwrap()).await.unwrap();
     let night: Uuid = serde_json::from_value(v["id"].clone()).unwrap();
     let sid = {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         let mut own = text_item("a");
         own.background = Some(Background::Color { color: "#ff0000".into() });
         d.services[0].items = vec![own, text_item("b")];
@@ -197,7 +197,7 @@ async fn service_theme_reports_items_with_own_background() {
     };
     assert_eq!(act(&app, "service/theme", json!({ "service_id": sid, "theme": plain })).await.unwrap()["own_background"], 0);
     assert_eq!(act(&app, "service/theme", json!({ "service_id": sid, "theme": night })).await.unwrap()["own_background"], 1);
-    assert_eq!(app.data.lock().unwrap().services[0].theme, Some(night));
+    assert_eq!(app.data().services[0].theme, Some(night));
 }
 
 #[tokio::test]
@@ -205,7 +205,7 @@ async fn clear_item_backgrounds_only_that_service() {
     let app = test_app();
     let red = Some(Background::Color { color: "#ff0000".into() });
     let (sid, other) = {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         let mut a = text_item("a");
         a.background = red.clone();
         d.services[0].items = vec![a.clone()];
@@ -216,7 +216,7 @@ async fn clear_item_backgrounds_only_that_service() {
         (d.services[0].id, other)
     };
     assert_eq!(act(&app, "service/clear-item-backgrounds", json!({ "service_id": sid })).await.unwrap()["cleared"], 1);
-    let d = app.data.lock().unwrap();
+    let d = app.data();
     assert_eq!(d.services[0].items[0].background, None);
     assert_eq!(d.services.iter().find(|s| s.id == other).unwrap().items[0].background, red);
 }
@@ -227,10 +227,10 @@ async fn service_update_without_theme_key_keeps_theme() {
     let x = new_theme(&app, "X", 90).await;
     let mut item = text_item("old");
     item.theme = Some(x);
-    app.data.lock().unwrap().services[0].items = vec![item.clone()];
+    app.data().services[0].items = vec![item.clone()];
     let patch = json!({ "id": item.id, "kind": "text", "title": "t", "body": "new", "background": null, "notes": "" });
     act(&app, "service/update", patch).await.unwrap();
-    let d = app.data.lock().unwrap();
+    let d = app.data();
     assert_eq!(d.services[0].items[0].theme, Some(x));
     assert!(matches!(&d.services[0].items[0].kind, ItemKind::Text { body, .. } if body == "new"));
 }
@@ -241,11 +241,11 @@ async fn item_theme_sets_clears_and_refuses_decks() {
     let x = new_theme(&app, "X", 90).await;
     let item = text_item("a");
     let deck = ServiceItem { kind: ItemKind::Deck { deck_id: Uuid::new_v4() }, ..text_item("") };
-    app.data.lock().unwrap().services[0].items = vec![item.clone(), deck.clone()];
+    app.data().services[0].items = vec![item.clone(), deck.clone()];
     act(&app, "item/theme", json!({ "item_id": item.id, "theme": x })).await.unwrap();
-    assert_eq!(app.data.lock().unwrap().services[0].items[0].theme, Some(x));
+    assert_eq!(app.data().services[0].items[0].theme, Some(x));
     act(&app, "item/theme", json!({ "item_id": item.id, "theme": null })).await.unwrap();
-    assert_eq!(app.data.lock().unwrap().services[0].items[0].theme, None);
+    assert_eq!(app.data().services[0].items[0].theme, None);
     assert_eq!(act(&app, "item/theme", json!({ "item_id": deck.id, "theme": x })).await.unwrap_err(), strings::item_no_theme());
     assert_eq!(act(&app, "item/theme", json!({ "item_id": Uuid::new_v4(), "theme": x })).await.unwrap_err(), strings::item_gone());
 }
@@ -259,9 +259,9 @@ async fn live_item_snapshots_resolved_theme() {
     let mut item = text_item("one\n\ntwo");
     item.theme = Some(x);
     let id = item.id;
-    app.data.lock().unwrap().services[0].items = vec![item];
+    app.data().services[0].items = vec![item];
     assert!(cmd(&app, Command::Show { item_id: id, slide: 0 }).ok);
-    assert_eq!(app.live.lock().unwrap().item.as_ref().unwrap().theme.size, 90);
+    assert_eq!(app.live().item.as_ref().unwrap().theme.size, 90);
     assert_eq!(live_size(&app), 90);
 }
 
@@ -272,11 +272,11 @@ async fn theme_edit_does_not_change_frame_and_next_keeps_snapshot() {
     let mut item = text_item("one\n\ntwo");
     item.theme = Some(x);
     let id = item.id;
-    app.data.lock().unwrap().services[0].items = vec![item];
+    app.data().services[0].items = vec![item];
     cmd(&app, Command::Show { item_id: id, slide: 0 });
-    let frame = app.live.lock().unwrap().frame.clone();
+    let frame = app.live().frame.clone();
     act(&app, "theme/save", json!({ "id": x, "name": "X", "style": Theme { size: 150, ..Theme::default() } })).await.unwrap();
-    assert_eq!(app.live.lock().unwrap().frame, frame, "the room is not changed");
+    assert_eq!(app.live().frame, frame, "the room is not changed");
     cmd(&app, Command::Next);
     assert_eq!(live_size(&app), 90, "next within the item keeps the snapshot");
     cmd(&app, Command::Show { item_id: id, slide: 0 });
@@ -319,11 +319,11 @@ async fn background_add_rename_remove() {
     let v = act(&app, "background/add", json!({ "name": "Midnight", "background": bg })).await.unwrap();
     let id = v["id"].clone();
     act(&app, "background/rename", json!({ "id": id, "name": "Night" })).await.unwrap();
-    assert_eq!(app.data.lock().unwrap().backgrounds[0].name, "Night");
+    assert_eq!(app.data().backgrounds[0].name, "Night");
     assert_eq!(act(&app, "background/rename", json!({ "id": id, "name": "" })).await.unwrap_err(), strings::background_name_required());
-    app.data.lock().unwrap().settings.background = bg.clone();
+    app.data().settings.background = bg.clone();
     act(&app, "background/remove", json!({ "id": id })).await.unwrap();
-    assert_eq!(app.data.lock().unwrap().settings.background, bg, "what uses it keeps it");
+    assert_eq!(app.data().settings.background, bg, "what uses it keeps it");
     assert_eq!(act(&app, "background/remove", json!({ "id": id })).await.unwrap_err(), strings::background_gone());
 }
 
@@ -338,7 +338,7 @@ async fn overlay_save_validates() {
     let gone = json!({ "id": Uuid::nil(), "name": "P", "source": { "type": "image", "source": { "kind": "asset", "asset": "nope.png" } } });
     assert_eq!(act(&app, "overlay/save", gone).await.unwrap_err(), strings::picture_gone());
     let id = new_overlay(&app, wifi()).await;
-    let d = app.data.lock().unwrap();
+    let d = app.data();
     assert_eq!((d.overlays[0].id, d.overlays[0].name.as_str()), (id, "Wi-Fi"));
 }
 
@@ -368,7 +368,7 @@ async fn overlay_delete_keeps_slot_on_screen_and_move_reorders() {
     let a = new_overlay(&app, wifi()).await;
     let b = new_overlay(&app, json!({ "id": Uuid::nil(), "name": "Clock", "source": { "type": "clock" } })).await;
     act(&app, "overlay/move", json!({ "id": b, "to": 0 })).await.unwrap();
-    assert_eq!(app.data.lock().unwrap().overlays.iter().map(|o| o.id).collect::<Vec<_>>(), [b, a]);
+    assert_eq!(app.data().overlays.iter().map(|o| o.id).collect::<Vec<_>>(), [b, a]);
     let seen = app.live_view().clear_epoch;
     app.command(Envelope { id: "1".into(), base: None, cmd: Command::Overlay { id: a, on: true, seen_clear: Some(seen) } });
     act(&app, "overlay/delete", json!({ "id": a })).await.unwrap();
@@ -404,7 +404,7 @@ fn read_only_still_writes_live_state() {
     let app = test_app();
     let item = text_item("one");
     let id = item.id;
-    app.data.lock().unwrap().services[0].items.push(item);
+    app.data().services[0].items.push(item);
     app.set_read_only(true);
     app.set_state_writer(state::StateWriter::start(app.store.root.clone()));
     let version = cmd(&app, Command::Show { item_id: id, slide: 0 }).version;
@@ -417,13 +417,13 @@ fn read_only_still_writes_live_state() {
 #[tokio::test]
 async fn settings_save_keeps_logo_set_meanwhile() {
     let app = test_app();
-    let mut form = serde_json::to_value(&app.data.lock().unwrap().settings).unwrap();
+    let mut form = serde_json::to_value(&app.data().settings).unwrap();
     let logo = picture_file(&app, "logo.png");
     act(&app, "settings/logo", json!({ "asset": logo })).await.unwrap();
     form.as_object_mut().unwrap().remove("logo");
     form["lines_per_slide"] = json!(4);
     act(&app, "settings", form).await.unwrap();
-    let d = app.data.lock().unwrap();
+    let d = app.data();
     assert_eq!(d.settings.logo.as_deref(), Some("logo.png"), "a form without the key keeps it");
     assert_eq!(d.settings.lines_per_slide, 4);
 }
@@ -434,7 +434,7 @@ async fn settings_save_keeps_theme_background_changed_meanwhile() {
     let bg = Background::Gradient { from: "#0b1a33".into(), to: "#000000".into(), angle: 180, dim: 0 };
     act(&app, "theme/save-standard", json!({ "style": Theme { size: 99, ..Theme::default() }, "background": bg })).await.unwrap();
     act(&app, "settings", json!({ "lines_per_slide": 3 })).await.unwrap();
-    let d = app.data.lock().unwrap();
+    let d = app.data();
     assert_eq!((d.settings.theme.size, &d.settings.background, d.settings.lines_per_slide), (99, &bg, 3));
 }
 
@@ -444,6 +444,6 @@ async fn settings_save_null_clears_optional_field_and_rejects_non_objects() {
     let logo = picture_file(&app, "logo.png");
     act(&app, "settings/logo", json!({ "asset": logo })).await.unwrap();
     act(&app, "settings", json!({ "logo": null })).await.unwrap();
-    assert_eq!(app.data.lock().unwrap().settings.logo, None);
+    assert_eq!(app.data().settings.logo, None);
     assert_eq!(act(&app, "settings", json!([1])).await.unwrap_err(), strings::expected_object());
 }

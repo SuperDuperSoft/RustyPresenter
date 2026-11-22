@@ -23,10 +23,11 @@ pub fn run(app: Arc<App>, mut log: impl Write + Send + 'static) -> JoinHandle<()
         crate::recovery::panic::mark_critical();
         let mut logged = false;
         loop {
+            crate::recovery::panic::test_crash_point("headless-room");
             // The restored frame goes on air first, even with a newer one waiting, so the log names it.
-            let (version, restored) = { let live = app.live.lock().unwrap(); (live.version, live.restored_version) };
+            let (version, restored) = { let live = app.live(); (live.version, live.restored_version) };
             if let Some(r) = restored { commit(&app, r); }
-            if !logged && let Some(line) = restored_line(&app.live.lock().unwrap()) {
+            if !logged && let Some(line) = restored_line(&app.live()) {
                 let _ = writeln!(log, "{line}").and_then(|()| log.flush());
                 logged = true;
             }
@@ -41,7 +42,7 @@ pub fn run(app: Arc<App>, mut log: impl Write + Send + 'static) -> JoinHandle<()
 }
 
 fn commit(app: &App, version: u64) {
-    if version > app.live.lock().unwrap().committed_version { app.room_event(RoomEvent::Committed { version }); }
+    if version > app.live().committed_version { app.room_event(RoomEvent::Committed { version }); }
 }
 
 /// The line for a restore that has reached the screen, or `restore superseded` if something newer went on air
@@ -82,12 +83,12 @@ mod tests {
         }
     }
 
-    fn committed(app: &App) -> u64 { app.live.lock().unwrap().committed_version }
+    fn committed(app: &App) -> u64 { app.live().committed_version }
 
     fn text_item(app: &App, text: &str) -> Uuid {
         let id = Uuid::new_v4();
         let kind = ItemKind::Text { title: "t".into(), body: text.into(), layout: Default::default() };
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind, background: None, notes: String::new(), theme: None });
+        app.data().services[0].items.push(ServiceItem { id, kind, background: None, notes: String::new(), theme: None });
         id
     }
 
@@ -138,7 +139,7 @@ mod tests {
         let log = Log::default();
         run(app.clone(), log.clone());
         let frame = Frame { slide: slide("Grace \"and\" peace"), ..Frame::default() };
-        let version = { let mut live = app.live.lock().unwrap(); live.restore(&saved(frame), true); live.version };
+        let version = { let mut live = app.live(); live.restore(&saved(frame), true); live.version };
         app.broadcast_live();
         until("the line", || log.text().contains('\n'));
         assert_eq!(log.text(), format!("restored version={version} slide=\"Grace \\\"and\\\" peace\" media=false\n"));
@@ -149,7 +150,7 @@ mod tests {
     fn headless_finds_a_restore_made_before_it_started() {
         let app = test_app();
         let frame = Frame { slide: slide("Alpha"), audio: audio(), ..Frame::default() };
-        let version = { let mut live = app.live.lock().unwrap(); live.restore(&saved(frame), true); live.version };
+        let version = { let mut live = app.live(); live.restore(&saved(frame), true); live.version };
         let log = Log::default();
         run(app.clone(), log.clone());
         until("the line", || log.text().contains('\n'));
@@ -160,7 +161,7 @@ mod tests {
     fn headless_logs_a_restore_once() {
         let app = test_app();
         let log = Log::default();
-        app.live.lock().unwrap().restore(&saved(Frame { slide: slide("Alpha"), ..Frame::default() }), true);
+        app.live().restore(&saved(Frame { slide: slide("Alpha"), ..Frame::default() }), true);
         run(app.clone(), log.clone());
         until("the line", || log.text().contains('\n'));
         let version = show(&app, text_item(&app, "Bravo"));
@@ -174,7 +175,7 @@ mod tests {
         let app = test_app();
         let log = Log::default();
         let frame = Frame { slide: Some(SlideLayer::Image { asset: "s.png".into(), transition: None }), ..Frame::default() };
-        app.live.lock().unwrap().restore(&saved(frame), true);
+        app.live().restore(&saved(frame), true);
         run(app.clone(), log.clone());
         until("the line", || log.text().contains('\n'));
         assert!(log.text().contains(" slide=null media=false\n"), "{}", log.text());
@@ -183,7 +184,7 @@ mod tests {
     #[test]
     fn headless_logs_the_restored_frame_even_when_a_newer_one_waits() {
         let app = test_app();
-        let restored = { let mut live = app.live.lock().unwrap(); live.restore(&saved(Frame { slide: slide("Alpha"), ..Frame::default() }), true); live.version };
+        let restored = { let mut live = app.live(); live.restore(&saved(Frame { slide: slide("Alpha"), ..Frame::default() }), true); live.version };
         let newer = show(&app, text_item(&app, "Bravo"));
         let log = Log::default();
         run(app.clone(), log.clone());
@@ -206,14 +207,16 @@ mod tests {
         let Some(mode) = env::var("RP_HEADLESS_HELPER").ok() else { return };
         let log = std::path::PathBuf::from(env::var_os("RP_HEADLESS_LOG").unwrap());
         panic::install(log.clone());
-        if mode == "poisoned" {
+        if mode == "room" {
             // The process exits from the hook, so its data folder sits by the log for `crash_run` to remove.
             let store = crate::store::Store::open(log.with_extension("data")).unwrap();
             let data = store.load().unwrap();
             let app = App::new(store, data, 0, None);
-            // Another thread dies holding the live state, so the room's next lock panics.
+            // Another thread dies holding the live state. That alone no longer stops the room (`App::live` takes
+            // a poisoned lock as it is); the room's own panic, at its crash point, is what restarts the app.
             let poisoner = app.clone();
-            assert!(std::thread::spawn(move || { let _l = poisoner.live.lock().unwrap(); panic!("poison") }).join().is_err());
+            assert!(std::thread::spawn(move || { let _l = poisoner.live(); panic!("poison") }).join().is_err());
+            assert_eq!(app.live().version, 0, "the live state is still readable");
             let _ = run(app, Log::default()).join();
             return;
         }
@@ -228,7 +231,7 @@ mod tests {
         let log = env::temp_dir().join(format!("rp-headless-{}.log", Uuid::new_v4()));
         let out = Process::new(env::current_exe().unwrap()).args(["--exact", "recovery::headless::tests::crash_helper", "--nocapture"])
             .env("RP_HEADLESS_HELPER", mode).env("RP_HEADLESS_LOG", &log)
-            .env("RUSTYPRESENTER_TEST_CRASH", "panic").env("RUSTYPRESENTER_TEST_CRASH_AT", "restore-media")
+            .env("RUSTYPRESENTER_TEST_CRASH", "panic").env("RUSTYPRESENTER_TEST_CRASH_AT", if mode == "room" { "headless-room" } else { "restore-media" })
             .output().unwrap();
         let text = std::fs::read_to_string(&log).unwrap_or_default();
         let _ = std::fs::remove_file(&log);
@@ -252,7 +255,7 @@ mod tests {
 
     #[test]
     fn a_panic_in_the_headless_room_restarts_the_app() {
-        let (out, log) = crash_run("poisoned");
+        let (out, log) = crash_run("room");
         assert_eq!(out.status.code(), Some(crate::recovery::exitcode::PANIC), "{out:?}");
         assert!(left_early(&out), "the hook exits before the harness reports");
         assert!(log.contains("headless-room"), "{log}");

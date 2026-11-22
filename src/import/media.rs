@@ -109,7 +109,7 @@ pub(crate) async fn reprobe_all(app: Arc<App>, ids: Vec<Uuid>) {
     let mpv = app.probe_mpv();
     let mut found = vec![];
     for id in ids {
-        let asset = app.data.lock().unwrap().media.iter().find(|m| m.id == id).map(|m| m.asset.clone());
+        let asset = app.data().media.iter().find(|m| m.id == id).map(|m| m.asset.clone());
         let Some(path) = asset.map(|a| app.store.asset_path(&a)) else { continue };
         // Without a player nothing can be learned about the file, which is not the file's fault.
         if mpv.is_none() && !probe::is_picture(&path) { continue }

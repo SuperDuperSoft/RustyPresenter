@@ -28,7 +28,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ("picker", 800, Box::new(|op| { close_popups(op); test_support::window_of(op).invoke_open_bible_picker() })),
         ("stage-armed", 800, Box::new(|op| { close_popups(op); test_support::window_of(op).global::<PanelExtras>().invoke_toggle_stage_mode() })),
         ("stage-up", 1200, Box::new(move |op| {
-            let id = a.data.lock().unwrap().services[0].items.last().map(|i| i.id).expect("the passage");
+            let id = a.data().services[0].items.last().map(|i| i.id).expect("the passage");
             a.command(Envelope { id: "s".into(), base: None, cmd: Command::StageOnly { item_id: Some(id), slide: 2 } });
             test_support::window_of(op).global::<PanelExtras>().invoke_toggle_stage_mode();
         })),

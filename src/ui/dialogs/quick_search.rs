@@ -169,13 +169,13 @@ mod tests {
 
     fn song(app: &App, title: &str, lyrics: &str) -> Uuid {
         let s = Song { id: Uuid::new_v4(), title: title.into(), lyrics: lyrics.into(), ..Default::default() };
-        app.data.lock().unwrap().songs.push(s.clone());
+        app.data().songs.push(s.clone());
         s.id
     }
 
     fn item(app: &App, kind: ItemKind) -> Uuid {
         let it = ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new(), theme: None };
-        app.data.lock().unwrap().services[0].items.push(it.clone());
+        app.data().services[0].items.push(it.clone());
         it.id
     }
 
@@ -208,7 +208,7 @@ mod tests {
         let video = MediaFile { id: Uuid::new_v4(), name: "Amazing sunrise.mp4".into(), kind: MediaKind::Video, asset: "a.mp4".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
         let deck = Deck { id: Uuid::new_v4(), title: "Amazing announcements".into(), slides: Vec::new(), notes: vec![], transitions: vec![], advance_ms: vec![], show: None };
         {
-            let mut d = app.data.lock().unwrap();
+            let mut d = app.data();
             d.media.push(video.clone());
             d.decks.push(deck);
             d.services.push(Service::new("Amazing Easter"));
@@ -242,7 +242,7 @@ mod tests {
         assert_eq!(g.get_current(), 0);
         assert_eq!(find_all(&op, "QuickSearchDialog::hit").len(), 1);
         ctrl(&op, "\n");
-        let items = app.data.lock().unwrap().services[0].items.clone();
+        let items = app.data().services[0].items.clone();
         assert!(matches!(items.as_slice(), [ServiceItem { kind: ItemKind::Song { song_id, .. }, .. }] if *song_id == id));
         assert_eq!(op.dialog(), None, "adding closes it");
         assert_eq!(op.selected_item(), Some(items[0].id));
@@ -274,7 +274,7 @@ mod tests {
         assert_eq!(g.get_current(), 1);
         press(&op, "\n");
         assert_eq!(op.dialog(), Some(DialogKind::SongEditor { song_id: Some(other), add_after: false }));
-        assert_eq!(app.data.lock().unwrap().services[0].items.len(), 2, "Enter never adds");
+        assert_eq!(app.data().services[0].items.len(), 2, "Enter never adds");
     }
 
     #[test]
@@ -282,7 +282,7 @@ mod tests {
         let app = test_app();
         let s = Service::new("Easter Sunday");
         let easter = s.id;
-        app.data.lock().unwrap().services.push(s);
+        app.data().services.push(s);
         let op = open_window(&app);
         refresh(&op);
         op.ui.invoke_menu("find".into());
@@ -290,7 +290,7 @@ mod tests {
         assert_eq!(op.ui.global::<QuickSearchDlg>().get_note(), "Nothing matches.");
         typed(&op, "easter");
         press(&op, "\n");
-        assert_eq!(app.data.lock().unwrap().current_service, Some(easter));
+        assert_eq!(app.data().current_service, Some(easter));
         assert_eq!(op.dialog(), None);
     }
 }

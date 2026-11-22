@@ -67,7 +67,7 @@ pub fn plan(old: &NetworkSettings, req: &SaveReq, http_port: u16) -> Result<Netw
 }
 
 fn save(app: &Arc<App>, req: SaveReq) -> Result<(), String> {
-    let old = app.data.lock().unwrap().settings.network.clone();
+    let old = app.data().settings.network.clone();
     let new = plan(&old, &req, app.port)?;
     app.edit_untracked(|d| {
         // Serialize sign-outs with logins and the change to the password they check.
@@ -82,7 +82,7 @@ fn save(app: &Arc<App>, req: SaveReq) -> Result<(), String> {
 
 /// What the dialog shows: the switches, whether each password is set, and the addresses to type on other devices.
 pub fn view(app: &App) -> Value {
-    let n = app.data.lock().unwrap().settings.network.clone();
+    let n = app.data().settings.network.clone();
     let host = app.lan_url.as_deref().and_then(|u| u.strip_prefix("http://")).and_then(|u| u.split('/').next()).unwrap_or("");
     let ip = host.rsplit_once(':').map_or(host, |(ip, _)| ip);
     json!({
@@ -132,7 +132,7 @@ mod tests {
         let v = run(&app, "network/save", body.to_string().as_bytes()).await.unwrap();
         assert_eq!((v["remote_password"].as_bool(), v["stage_password"].as_bool(), v["stage_view"].as_bool()), (Some(true), Some(true), Some(true)));
         assert!(!v.to_string().contains("pbkdf2"), "no hash goes out");
-        let stored = serde_json::to_string(&app.data.lock().unwrap().settings).unwrap();
+        let stored = serde_json::to_string(&app.data().settings).unwrap();
         assert!(!stored.contains("hallelujah") && !stored.contains("singers") && stored.contains("pbkdf2-sha256$"));
         // A new stage password signs the stage views out.
         app.net.stage_tokens.lock().unwrap().push(("x".into(), std::time::Instant::now()));

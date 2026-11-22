@@ -55,12 +55,12 @@ impl App {
             Some(false) => return Err(not_allowed()),
             Some(true) => {}
         }
-        let settings = self.data.lock().unwrap().settings.clone();
+        let settings = self.data().settings.clone();
         // Limits only when the church turned them on; taking lines away is never limited.
         let limited = settings.drawing_limit && matches!(cmd, DrawCmd::Start { .. } | DrawCmd::More { .. });
         if limited && !within_rate(phone, settings.drawing_max_per_second.max(1), now) { return Err(too_fast()) }
         let (drawing, fading) = {
-            let mut live = self.live.lock().unwrap();
+            let mut live = self.live();
             if limited && matches!(cmd, DrawCmd::Start { .. }) && live.drawing.strokes.len() >= settings.drawing_max_strokes.max(1) as usize {
                 return Err(too_many_lines());
             }
@@ -78,7 +78,7 @@ impl App {
     /// Takes faded ink away now. True when any went (every screen is told).
     pub fn expire_ink(&self, now: Instant) -> bool {
         let drawing = {
-            let mut live = self.live.lock().unwrap();
+            let mut live = self.live();
             if !live.drawing.needs_expire(now) { return false }
             Arc::make_mut(&mut live.drawing).expire(now);
             live.drawing.clone()
@@ -96,7 +96,7 @@ impl App {
             std::thread::sleep(FADE_TICK);
             let Some(app) = me.upgrade() else { return };
             app.expire_ink(Instant::now());
-            let live = app.live.lock().unwrap();
+            let live = app.live();
             if !live.drawing.has_fading() { app.fade_ticking.store(false, Ordering::Release); return }
         });
         if started.is_err() { self.fade_ticking.store(false, Ordering::Release) }
@@ -105,7 +105,7 @@ impl App {
     /// The operator's Clear drawing. False when nothing was drawn.
     pub fn clear_drawing(&self) -> bool {
         let drawing = {
-            let mut live = self.live.lock().unwrap();
+            let mut live = self.live();
             if !live.clear_drawing() { return false }
             live.drawing.clone()
         };
@@ -161,7 +161,7 @@ mod tests {
         assert!(matches!(rx.try_recv(), Ok(Update::Drawing(d)) if d.strokes.len() == 1), "every screen is told");
         assert_eq!(app.draw(no, &start(1)), Err(not_allowed()));
         assert_eq!(app.draw(Uuid::new_v4(), &start(1)), Err("Pair this phone first.".into()));
-        assert_eq!(app.live.lock().unwrap().drawing.strokes.len(), 1);
+        assert_eq!(app.live().drawing.strokes.len(), 1);
         // The switch, as the Phone remote dialog flips it.
         app.set_may_draw(no, true).unwrap();
         assert_eq!(app.draw(no, &start(1)), Ok(()));
@@ -184,7 +184,7 @@ mod tests {
         let me = phone(&app, true);
         app.draw(me, &start(1)).unwrap();
         assert_eq!(app.do_action("drawing/clear", b"{}").await.ok().unwrap()["cleared"], true);
-        assert!(app.live.lock().unwrap().drawing.is_empty());
+        assert!(app.live().drawing.is_empty());
         assert_eq!(app.do_action("drawing/clear", b"{}").await.ok().unwrap()["cleared"], false);
         app.do_action("phone/may_draw", json!({ "id": me, "on": false }).to_string().as_bytes()).await.ok().unwrap();
         assert!(!app.phones.lock().unwrap()[0].may_draw);
@@ -194,9 +194,9 @@ mod tests {
     #[test]
     fn the_keep_setting_reaches_the_live_engine() {
         let app = test_app();
-        assert!(!app.live.lock().unwrap().keep_drawing, "off by default");
+        assert!(!app.live().keep_drawing, "off by default");
         app.edit(|d| { d.settings.keep_drawings = true; Ok(()) }).unwrap();
-        assert!(app.live.lock().unwrap().keep_drawing);
+        assert!(app.live().keep_drawing);
     }
 
     fn more(id: u32) -> DrawCmd { DrawCmd::More { stroke: id, points: vec![[0.6, 0.6]] } }
@@ -206,10 +206,10 @@ mod tests {
         let app = test_app();
         let me = phone(&app, true);
         let now = Instant::now();
-        assert!(!app.data.lock().unwrap().settings.drawing_limit, "off by default");
+        assert!(!app.data().settings.drawing_limit, "off by default");
         for id in 0..500 { app.draw_at(me, &start(id), now).unwrap() }
         for _ in 0..500 { app.draw_at(me, &more(499), now).unwrap() }
-        assert_eq!(app.live.lock().unwrap().drawing.strokes.len(), 500, "any number of lines, as fast as they come");
+        assert_eq!(app.live().drawing.strokes.len(), 500, "any number of lines, as fast as they come");
     }
 
     /// B9: the ceilings hold with "Limit phone drawing" off (the default).
@@ -217,11 +217,11 @@ mod tests {
     fn the_hard_ceilings_apply_without_the_optional_limit() {
         let app = test_app();
         let me = phone(&app, true);
-        assert!(!app.data.lock().unwrap().settings.drawing_limit);
+        assert!(!app.data().settings.drawing_limit);
         let line = |n: usize| (0..n).map(|i| [i as f32 / n as f32, 0.5]).collect::<Vec<[f32; 2]>>();
         let long = DrawCmd::Start { stroke: 1, color: "#ffd60a".into(), width: 12.0, pen: crate::live::drawing::Pen::Pen, points: line(crate::live::drawing::MAX_POINTS_PER_REQUEST + 1), ink: Default::default() };
         assert_eq!(app.draw(me, &long), Err(too_many_lines()));
-        assert!(app.live.lock().unwrap().drawing.is_empty(), "nothing was drawn");
+        assert!(app.live().drawing.is_empty(), "nothing was drawn");
         assert_eq!(app.draw(me, &start(1)), Ok(()));
     }
 
@@ -230,7 +230,7 @@ mod tests {
         let app = test_app();
         let (me, you) = (phone(&app, true), phone(&app, true));
         {
-            let mut d = app.data.lock().unwrap();
+            let mut d = app.data();
             assert_eq!((d.settings.drawing_max_strokes, d.settings.drawing_max_per_second), (100, 30), "the defaults");
             d.settings.drawing_limit = true;
             d.settings.drawing_max_strokes = 3;
@@ -249,7 +249,7 @@ mod tests {
         app.draw_at(me, &start(20), t1).unwrap();
         app.draw_at(you, &more(9), t1 + Duration::from_millis(1_100)).unwrap();
         // Bad input is refused whatever the setting.
-        app.data.lock().unwrap().settings.drawing_limit = false;
+        app.data().settings.drawing_limit = false;
         assert!(app.draw_at(you, &DrawCmd::More { stroke: 9, points: vec![[f32::NAN, 0.1]] }, t1).is_err());
     }
 
@@ -257,13 +257,13 @@ mod tests {
     fn faded_ink_is_taken_away_and_every_screen_told() {
         let app = test_app();
         let me = phone(&app, true);
-        app.data.lock().unwrap().settings.fade_secs = 1;
+        app.data().settings.fade_secs = 1;
         let t0 = Instant::now();
         app.draw_at(me, &start(1), t0).unwrap();
         let fade = DrawCmd::Start { stroke: 2, color: PALETTE[1].into(), width: 12.0, pen: Pen::Pen, points: vec![[0.5, 0.5]], ink: crate::live::drawing::Ink::Fades };
         app.draw_at(me, &fade, t0).unwrap();
         app.draw_at(me, &DrawCmd::End { stroke: 2 }, t0).unwrap();
-        assert_eq!(app.live.lock().unwrap().drawing.fade_after, Duration::from_secs(1), "the setting");
+        assert_eq!(app.live().drawing.fade_after, Duration::from_secs(1), "the setting");
         assert!(!app.expire_ink(t0 + Duration::from_millis(1_400)));
         let mut rx = app.subscribe();
         assert!(app.expire_ink(t0 + Duration::from_millis(1_500)));
@@ -272,9 +272,9 @@ mod tests {
         app.draw(me, &fade).unwrap();
         app.draw(me, &DrawCmd::End { stroke: 2 }).unwrap();
         let end = Instant::now() + Duration::from_secs(5);
-        while app.live.lock().unwrap().drawing.has_fading() && Instant::now() < end { std::thread::sleep(Duration::from_millis(20)) }
-        assert!(!app.live.lock().unwrap().drawing.has_fading(), "gone after 1 s + the fade");
-        assert_eq!(app.live.lock().unwrap().drawing.strokes.len(), 1, "the staying line is still there");
+        while app.live().drawing.has_fading() && Instant::now() < end { std::thread::sleep(Duration::from_millis(20)) }
+        assert!(!app.live().drawing.has_fading(), "gone after 1 s + the fade");
+        assert_eq!(app.live().drawing.strokes.len(), 1, "the staying line is still there");
         std::thread::sleep(Duration::from_millis(300));
         assert!(!app.fade_ticking.load(Ordering::Acquire), "the thread ended");
     }

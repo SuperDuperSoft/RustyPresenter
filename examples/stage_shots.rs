@@ -10,7 +10,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let data = store.load()?;
     let app = App::new(store, data, 0, None);
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         let song = Song {
             id: Uuid::new_v4(), title: "Amazing Grace".into(),
             lyrics: "Verse 1\nAmazing grace, how sweet the sound\nThat saved a wretch like me\n\nChorus\nMy chains are gone, I've been set free\n\nVerse 2\n'Twas grace that taught my heart to fear".into(),
@@ -31,7 +31,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// Open the stage with layout `i`, wait for it to draw, save it, then go on to the next one.
 fn shot(app: std::sync::Arc<App>, layouts: Vec<(Uuid, String)>, i: usize, out: String, open: Rc<RefCell<Option<Rc<Stage>>>>) {
     let Some((id, name)) = layouts.get(i).cloned() else { let _ = slint::quit_event_loop(); return };
-    app.data.lock().unwrap().settings.stage.layout = id;
+    app.data().settings.stage.layout = id;
     let stage = Stage::open(app.clone(), None).expect("stage window");
     stage.window().set_size(slint::PhysicalSize::new(1280, 720));
     // The new window opens before the old one closes, or the event loop would end with the last window.

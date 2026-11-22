@@ -220,7 +220,7 @@ mod tests {
         click(&op, "MediaBin::inputs-add");
         refresh(&op);
         settle();
-        let lib = app.data.lock().unwrap().backgrounds.clone();
+        let lib = app.data().backgrounds.clone();
         assert_eq!(lib.last().map(|e| (e.name.clone(), e.background.clone())), Some(("USB Capture HDMI".into(), Background::Camera { device: "USB Capture HDMI".into(), dim: 0 })));
         assert_eq!(op.bin_rows.row_count(), 1);
         assert!(op.picked_input().is_some(), "the new input is chosen");
@@ -228,11 +228,11 @@ mod tests {
         assert!(find(&op, "MediaBin::add-picked").is_none(), "an input is not a file to add to the service");
         // Use as background puts it on the selected item.
         let item = Uuid::new_v4();
-        app.data.lock().unwrap().services[0].items.push(crate::model::ServiceItem { id: item, kind: crate::model::ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
+        app.data().services[0].items.push(crate::model::ServiceItem { id: item, kind: crate::model::ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
         op.state.borrow_mut().selected = Some(item);
         refresh(&op);
         click(&op, "MediaBin::use-picked");
-        let bg = app.data.lock().unwrap().services[0].items.iter().find(|i| i.id == item).and_then(|i| i.background.clone());
+        let bg = app.data().services[0].items.iter().find(|i| i.id == item).and_then(|i| i.background.clone());
         assert_eq!(bg, Some(Background::Camera { device: "USB Capture HDMI".into(), dim: 0 }));
         op.apply_live(LiveUpdate::new(app.live_view()));
     }
@@ -246,17 +246,17 @@ mod tests {
         op.ui.invoke_bin_set_tab(TAB.into());
         show_found(&g, vec![]);
         op.add_input();
-        assert!(app.data.lock().unwrap().backgrounds.iter().all(|e| !matches!(e.background, Background::Camera { .. })), "nothing to add");
+        assert!(app.data().backgrounds.iter().all(|e| !matches!(e.background, Background::Camera { .. })), "nothing to add");
         assert!(op.toast_log().iter().any(|t| t.0 == "Pick a camera or type its name first."));
         g.set_typed("/dev/video2".into());
         op.add_input();
         refresh(&op);
-        let lib = app.data.lock().unwrap().backgrounds.clone();
+        let lib = app.data().backgrounds.clone();
         assert_eq!(lib.last().map(|e| e.name.as_str()), Some("video2"));
         // Remove asks first.
         op.remove_input();
         settle();
         click(&op, "AskOverlay::ok");
-        assert!(app.data.lock().unwrap().backgrounds.iter().all(|e| !matches!(e.background, Background::Camera { .. })));
+        assert!(app.data().backgrounds.iter().all(|e| !matches!(e.background, Background::Camera { .. })));
     }
 }

@@ -110,7 +110,7 @@ mod tests {
     #[test]
     fn service_theme_box_lists_church_default_themes_and_manage() {
         let app = test_app();
-        app.data.lock().unwrap().themes.push(christmas(false));
+        app.data().themes.push(christmas(false));
         let op = open(&app);
         refresh(&op);
         settle();
@@ -126,15 +126,15 @@ mod tests {
     fn service_theme_picks_theme_and_manage_opens_settings() {
         let app = test_app();
         let t = christmas(false);
-        app.data.lock().unwrap().themes.push(t.clone());
+        app.data().themes.push(t.clone());
         let op = open(&app);
         refresh(&op);
         let at = labels(&op).iter().position(|l| l == "Christmas").unwrap() as i32;
         op.ui.service_planning_all().invoke_pick_theme(at);
-        assert_eq!(app.data.lock().unwrap().services[0].theme, Some(t.id));
+        assert_eq!(app.data().services[0].theme, Some(t.id));
         assert_eq!(op.ui.service_planning_all().get_theme_index(), at, "the box shows it after the read");
         op.ui.service_planning_all().invoke_pick_theme(0);
-        assert_eq!(app.data.lock().unwrap().services[0].theme, None, "back to the church default");
+        assert_eq!(app.data().services[0].theme, None, "back to the church default");
         op.ui.service_planning_all().invoke_pick_theme(at + 1);
         assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Themes));
         assert_eq!(op.ui.service_planning_all().get_theme_index(), 0, "Manage themes… is not a theme");
@@ -145,7 +145,7 @@ mod tests {
         let app = test_app();
         let t = christmas(true);
         {
-            let mut d = app.data.lock().unwrap();
+            let mut d = app.data();
             d.themes.push(t.clone());
             for bg in [Some(Background::Color { color: "#ffffff".into() }), None] {
                 d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "A".into(), body: "a".into(), layout: Default::default() }, background: bg, notes: String::new(), theme: None });
@@ -159,6 +159,6 @@ mod tests {
         assert_eq!(ask.text, "1 item has its own background. Use the theme's background for it too?");
         assert_eq!((ask.ok_label.as_str(), ask.other_label.as_str()), ("Use theme background", "Keep theirs"));
         crate::ui::dialogs::ask::answer(&op, true, String::new());
-        assert!(app.data.lock().unwrap().services[0].items.iter().all(|i| i.background.is_none()));
+        assert!(app.data().services[0].items.iter().all(|i| i.background.is_none()));
     }
 }

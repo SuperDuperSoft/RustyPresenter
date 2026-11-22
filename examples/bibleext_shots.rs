@@ -20,7 +20,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let item_id = Uuid::new_v4();
     {
         let (_, verses) = rustypresenter::bible::kjv().lookup("Psalm 23:1-6").unwrap();
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         d.services[0].items.push(ServiceItem { id: item_id, kind: ItemKind::Scripture { reference: "Psalm 23:1-6".into(), translation: "KJV".into(), verses,
             per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() }, background: None, notes: String::new(), theme: None });
     }

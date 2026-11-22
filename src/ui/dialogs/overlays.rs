@@ -366,7 +366,7 @@ fn render_now(op: &Rc<Operator>) {
     let Some(o) = st.borrow().editing.clone() else { return };
     let generation = st.borrow().generation.get() + 1;
     st.borrow().generation.set(generation);
-    let data = op.app().data.lock().unwrap().clone();
+    let data = op.app().data().clone();
     let settings = data.settings.clone();
     let root = op.app().store.root.clone();
     let me = Rc::downgrade(op);
@@ -439,7 +439,7 @@ mod tests {
         g(&op).set_box(2);
         g(&op).invoke_changed();
         click(&op, "OverlaysDialog::save");
-        let o = app.data.lock().unwrap().overlays[0].clone();
+        let o = app.data().overlays[0].clone();
         assert_eq!(o.name, "Wi-Fi");
         assert_eq!(o.place.anchor, Anchor::Top);
         assert!(matches!(&o.source, OverlaySource::Text { text, look, .. } if text == "Wi-Fi: GraceGuest" && look.box_kind == BoxKind::Bar));
@@ -474,7 +474,7 @@ mod tests {
         g(&op).set_h24(true);
         g(&op).invoke_changed();
         click(&op, "OverlaysDialog::save");
-        assert!(matches!(app.data.lock().unwrap().overlays[0].source, OverlaySource::Clock { h24: true, .. }));
+        assert!(matches!(app.data().overlays[0].source, OverlaySource::Clock { h24: true, .. }));
         click(&op, "OverlayList::new-picture");
         assert_eq!(g(&op).get_logo_note(), "Choose a church logo first (Settings → Look → Text and logo).");
         assert_eq!(g(&op).get_name(), "New overlay copy", "a free name");
@@ -499,7 +499,7 @@ mod tests {
     fn reorder_duplicate_and_delete() {
         let app = test_app();
         {
-            let mut d = app.data.lock().unwrap();
+            let mut d = app.data();
             for n in ["A", "B"] {
                 let mut o = new_of(0, n.into());
                 o.id = Uuid::new_v4();

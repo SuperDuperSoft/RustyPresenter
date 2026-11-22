@@ -12,9 +12,9 @@ use std::collections::BTreeMap;
 fn block_on<F: std::future::Future>(f: F) -> F::Output { tokio::runtime::Runtime::new().unwrap().block_on(f) }
 fn act(app: &Arc<App>, action: &str, body: Value) -> Result<Value, ActionError> { block_on(app.do_action(action, body.to_string().as_bytes())) }
 fn cmd(app: &App, cmd: Command, base: Option<u64>) -> Outcome { app.command(Envelope { id: Uuid::new_v4().to_string(), base, cmd }) }
-fn epoch(app: &App) -> Option<u64> { Some(app.live.lock().unwrap().clear_epoch) }
-fn version(app: &App) -> u64 { app.live.lock().unwrap().version }
-fn keys(app: &App) -> Vec<String> { app.live.lock().unwrap().frame.overlays.iter().map(|s| s.key.clone()).collect() }
+fn epoch(app: &App) -> Option<u64> { Some(app.live().clear_epoch) }
+fn version(app: &App) -> u64 { app.live().version }
+fn keys(app: &App) -> Vec<String> { app.live().frame.overlays.iter().map(|s| s.key.clone()).collect() }
 fn snapshot(app: &App, id: Uuid) -> crate::timers::TimerSnapshot { app.timers().timers.iter().find(|t| t.id == id).cloned().unwrap() }
 
 /// A text item with `n` slides, added to the open service.
@@ -24,13 +24,13 @@ fn text_item(app: &Arc<App>, title: &str, n: usize) -> Uuid {
     let r = act(app, "service/add", serde_json::json!({ "item": item })).unwrap();
     serde_json::from_value(r["id"].clone()).unwrap()
 }
-fn slide(app: &App) -> Option<(Uuid, usize)> { app.live.lock().unwrap().cursor.as_ref().map(|c| (c.item_id, c.slide)) }
+fn slide(app: &App) -> Option<(Uuid, usize)> { app.live().cursor.as_ref().map(|c| (c.item_id, c.slide)) }
 fn show(app: &App, item_id: Uuid, s: usize) -> Outcome { let v = version(app); cmd(app, Command::Show { item_id, slide: s }, Some(v)) }
 
 #[test]
 fn new_data_has_the_built_ins_and_old_data_loads_with_them() {
     let app = test_app();
-    let data = app.data.lock().unwrap();
+    let data = app.data();
     assert!(data.automation.seeded);
     assert_eq!(data.automation.timers.len(), 3);
     assert_eq!(data.automation.messages[0].id, NURSERY_ID);
@@ -70,7 +70,7 @@ fn set_for_now_changes_the_run_only() {
     let app = test_app();
     act(&app, "timer/set-now", serde_json::json!({ "id": SERMON_ID, "secs": 1500 })).unwrap();
     assert_eq!(crate::timers::text(snapshot(&app, SERMON_ID).value_ms), "25:00");
-    let def = app.data.lock().unwrap().automation.timers.iter().find(|t| t.id == SERMON_ID).unwrap().kind.clone();
+    let def = app.data().automation.timers.iter().find(|t| t.id == SERMON_ID).unwrap().kind.clone();
     assert_eq!(def, Lenient::Known(TimerKind::Duration { secs: 1800 }));
 }
 
@@ -79,7 +79,7 @@ fn service_start_countdown_needs_a_start_time() {
     let app = test_app();
     let e = act(&app, "timer/start", serde_json::json!({ "id": crate::timers::SERVICE_START_ID })).unwrap_err();
     assert_eq!(e.message, strings::no_start_time());
-    let service = app.data.lock().unwrap().service().unwrap().id;
+    let service = app.data().service().unwrap().id;
     // An hour from now (or the next day, near midnight): always in the future for "today", or refused as passed.
     let soon = (Local::now() + TimeDelta::minutes(61)).format("%H:%M").to_string();
     act(&app, "automation/starts-at", serde_json::json!({ "service": service, "at": soon })).unwrap();
@@ -91,7 +91,7 @@ fn service_start_countdown_needs_a_start_time() {
         assert!(s.value_ms > 59 * 60_000 && s.value_ms <= 61 * 60_000, "{}", s.value_ms);
     }
     act(&app, "automation/starts-at", serde_json::json!({ "service": service, "at": null })).unwrap();
-    assert!(app.data.lock().unwrap().automation.starts_at.is_empty());
+    assert!(app.data().automation.starts_at.is_empty());
 }
 
 #[test]
@@ -102,7 +102,7 @@ fn show_timer_needs_seen_clear_and_clears_follow_the_matrix() {
     assert!(cmd(&app, Command::ShowTimer { timer: SERMON_ID, seen_clear: e }, None).ok);
     assert!(cmd(&app, Command::ShowMessage { template: NURSERY_ID, values: BTreeMap::from([("Number".into(), "27".into())]), seen_clear: e }, None).ok);
     assert_eq!(keys(&app), [slots::timer_key(SERMON_ID), slots::MESSAGE_KEY.to_string()]);
-    let text = app.live.lock().unwrap().frame.overlays.iter().find_map(|s| match &s.source { OverlaySource::Message { text, .. } => Some(text.clone()), _ => None });
+    let text = app.live().frame.overlays.iter().find_map(|s| match &s.source { OverlaySource::Message { text, .. } => Some(text.clone()), _ => None });
     assert_eq!(text.as_deref(), Some("Parent of child #27, please come to the nursery."));
     // Logo takes the timer down and keeps the message.
     cmd(&app, Command::Logo, None);
@@ -135,7 +135,7 @@ fn fifth_timer_in_room_refused() {
 #[test]
 fn message_hide_after_auto_hides_unless_replaced() {
     let app = test_app();
-    let mut t = app.data.lock().unwrap().automation.messages[0].clone();
+    let mut t = app.data().automation.messages[0].clone();
     t.hide_after_secs = Some(15);
     act(&app, "automation/message/save", serde_json::to_value(&t).unwrap()).unwrap();
     let values = BTreeMap::from([("Number".into(), "3".into())]);
@@ -221,7 +221,7 @@ fn deleted_target_runs_nothing_and_failing_step_continues() {
     assert_eq!(snapshot(&app, SERMON_ID).state, TimerState::Stopped);
     // A message whose field became empty fails at run time; the other steps still run.
     let m = save_macro(&app, "Kids", vec![MacroStep::MessageShow { template: crate::automation::messages::CUSTOM_ID, values: BTreeMap::from([("Message".into(), "x".into())]) }, MacroStep::TimerStart { timer: SERMON_ID }]);
-    app.data.lock().unwrap().automation.macros.iter_mut().find(|x| x.id == m).unwrap().steps[0] =
+    app.data().automation.macros.iter_mut().find(|x| x.id == m).unwrap().steps[0] =
         Lenient::Known(MacroStep::MessageShow { template: crate::automation::messages::CUSTOM_ID, values: BTreeMap::new() });
     let r = run_macro(&app, m, None, epoch(&app));
     assert_eq!(r["toast"], strings::ran_but_step_failed("Kids", 1, &strings::fill_in("Message")));
@@ -272,7 +272,7 @@ fn delete_used_timer_asks_first_and_hides_it() {
     assert_eq!(r["question"], strings::used_by("Sermon", 2));
     act(&app, "automation/timer/delete", serde_json::json!({ "id": SERMON_ID, "confirm": true })).unwrap();
     assert!(keys(&app).is_empty());
-    assert!(app.data.lock().unwrap().automation.timers.iter().all(|t| t.id != SERMON_ID));
+    assert!(app.data().automation.timers.iter().all(|t| t.id != SERMON_ID));
 }
 
 #[test]
@@ -280,10 +280,10 @@ fn preservice_save_creates_locked_macro_first() {
     let app = test_app();
     save_macro(&app, "Other", vec![MacroStep::Logo]);
     act(&app, "automation/preservice/save", serde_json::to_value(PreService::default()).unwrap()).unwrap();
-    let data = app.data.lock().unwrap();
+    let data = app.data();
     assert_eq!(data.automation.macros[0].id, PRE_SERVICE_MACRO_ID);
     drop(data);
-    let locked = app.data.lock().unwrap().automation.macros[0].clone();
+    let locked = app.data().automation.macros[0].clone();
     assert_eq!(act(&app, "automation/macro/save", serde_json::to_value(locked).unwrap()).unwrap_err().message, strings::preservice_locked());
 }
 
@@ -304,7 +304,7 @@ fn auto_advances_with_room_closed_and_loops() {
     assert_eq!(slide(&app), Some((item, 0)));
     app.automation_tick(t + TimeDelta::seconds(9));
     assert_eq!(slide(&app), Some((item, 1)));
-    let (manual, v) = { let l = app.live.lock().unwrap(); (l.manual_version, l.version) };
+    let (manual, v) = { let l = app.live(); (l.manual_version, l.version) };
     assert_eq!(manual, v - 1, "a slide turn isn't a hand change");
     // The interval starts again when the slide turned (now), so 8 s after now.
     app.automation_tick(Utc::now() + TimeDelta::seconds(9));
@@ -372,7 +372,7 @@ fn preservice_end_first_item_only_when_untouched() {
     let app = test_app();
     let first = text_item(&app, "Song", 1);
     let lp = advancing(&app, 2, true);
-    let service = app.data.lock().unwrap().service().unwrap().id;
+    let service = app.data().service().unwrap().id;
     let soon = (Local::now() + TimeDelta::minutes(30)).format("%H:%M").to_string();
     if Local::now().date_naive() != (Local::now() + TimeDelta::minutes(30)).date_naive() { return } // near midnight
     act(&app, "automation/starts-at", serde_json::json!({ "service": service, "at": soon })).unwrap();
@@ -394,7 +394,7 @@ fn preservice_end_first_item_only_when_untouched() {
     show(&app, first, 0);
     app.automation_tick(Utc::now() + TimeDelta::minutes(31));
     assert_eq!(slide(&app), Some((first, 0)));
-    assert_eq!(app.live.lock().unwrap().notice, Some(strings::countdown_ended_nothing_else()));
+    assert_eq!(app.live().notice, Some(strings::countdown_ended_nothing_else()));
 }
 
 #[test]
@@ -418,7 +418,7 @@ fn video_and_audio_timers_follow_what_plays() {
     let (vid, aid): (Uuid, Uuid) = (serde_json::from_value(v["id"].clone()).unwrap(), serde_json::from_value(a["id"].clone()).unwrap());
     assert_eq!(snapshot(&app, vid).state, TimerState::Stopped);
     {
-        let mut live = app.live.lock().unwrap();
+        let mut live = app.live();
         live.frame.media = Some(Inst { inst: 5, v: MediaLayer::Video { asset: "v.mp4".into(), end: crate::model::EndAction::Stop, paused: false } });
         live.media_status = Some(PlayStatus { inst: 5, state: PlayState::Playing, position: 30.2, duration: 90.0 });
         live.frame.audio = Some(Inst { inst: 6, v: AudioLayer { asset: "a.mp3".into(), title: "A".into(), looped: false, paused: true } });
@@ -432,7 +432,7 @@ fn video_and_audio_timers_follow_what_plays() {
     assert_eq!((s.state, crate::timers::text(s.value_ms)), (TimerState::Paused, "1:00".to_string()));
     // Start does nothing to it, and an old status of another video is not read.
     act(&app, "timer/start", serde_json::json!({ "id": vid })).unwrap();
-    app.live.lock().unwrap().media_status.as_mut().unwrap().inst = 4;
+    app.live().media_status.as_mut().unwrap().inst = 4;
     app.automation_changed();
     assert_eq!(snapshot(&app, vid).state, TimerState::Stopped);
 }
@@ -478,7 +478,7 @@ fn calendar_entry_starts_the_countdown_when_its_time_comes() {
     let saved = act(&app, "automation/calendar/save", e.clone()).unwrap();
     let id: Uuid = serde_json::from_value(saved["id"].clone()).unwrap();
     assert!(act(&app, "automation/calendar/save", serde_json::json!({ "name": "None", "at": "10:45", "days": 0, "run": e["run"] })).is_err(), "no days");
-    let entry: CalendarEntry = app.data.lock().unwrap().automation.calendar[0].clone();
+    let entry: CalendarEntry = app.data().automation.calendar[0].clone();
     // The next 10:45 on this computer's clock, whatever its time zone.
     let due = next_due(&entry, Utc::now(), &Local).unwrap();
     app.automation_tick(due - TimeDelta::seconds(30));
@@ -494,7 +494,7 @@ fn calendar_entry_starts_the_countdown_when_its_time_comes() {
     assert_eq!(r["toast"], crate::automation::strings::calendar_ran("Countdown"));
     assert_eq!(snapshot(&app, SERMON_ID).state, TimerState::Running);
     act(&app, "automation/calendar/delete", serde_json::json!({ "id": id })).unwrap();
-    assert!(app.data.lock().unwrap().automation.calendar.is_empty());
+    assert!(app.data().automation.calendar.is_empty());
 }
 
 fn add_actions(app: &Arc<App>, item: Uuid, slide: usize, steps: Vec<MacroStep>) -> Result<Value, ActionError> {
@@ -584,7 +584,7 @@ fn slide_actions_run_macros_and_say_what_failed() {
     add_actions(&app, item, 0, vec![MacroStep::RunMacro { macro_id: m }, MacroStep::PlayPlaylist { playlist: Uuid::from_u128(7) }]).unwrap();
     show(&app, item, 0);
     assert_eq!(keys(&app), [slots::timer_key(SERMON_ID)]);
-    let notice = app.live.lock().unwrap().notice.clone().unwrap_or_default();
+    let notice = app.live().notice.clone().unwrap_or_default();
     assert!(notice.contains(&slide_actions::playlists_not_ready()), "{notice}");
     // A macro can't hold a Run macro step.
     let e = act(&app, "automation/macro/save", serde_json::to_value(Macro { name: "Loop".into(), steps: vec![Lenient::Known(MacroStep::RunMacro { macro_id: m })], ..Macro::default() }).unwrap());
@@ -592,7 +592,7 @@ fn slide_actions_run_macros_and_say_what_failed() {
     // Removing takes it off; the slide does nothing then.
     act(&app, "automation/slide-actions/remove", serde_json::json!({ "item": item, "slide": 0, "index": 1 })).unwrap();
     act(&app, "automation/slide-actions/remove", serde_json::json!({ "item": item, "slide": 0, "index": 0 })).unwrap();
-    assert!(app.data.lock().unwrap().automation.slide_actions.is_empty());
+    assert!(app.data().automation.slide_actions.is_empty());
 }
 
 #[test]
@@ -600,13 +600,13 @@ fn start_countdown_sets_the_stage_layout_too() {
     let app = test_app();
     let layout = crate::stage::presets::builtins()[1].id;
     act(&app, "automation/preservice/save", serde_json::json!({ "stage_layout": layout })).unwrap();
-    let service = app.data.lock().unwrap().service().unwrap().id;
+    let service = app.data().service().unwrap().id;
     let soon = (Local::now() + TimeDelta::minutes(61)).format("%H:%M").to_string();
     act(&app, "automation/starts-at", serde_json::json!({ "service": service, "at": soon })).unwrap();
     let r = run_macro(&app, PRE_SERVICE_MACRO_ID, Some(version(&app)), Some(epoch(&app).unwrap()));
     // Near midnight that time has passed, and the macro is refused.
     if Local::now().date_naive() == (Local::now() + TimeDelta::minutes(61)).date_naive() {
-        assert_eq!(app.data.lock().unwrap().settings.stage.layout, layout, "{r}");
+        assert_eq!(app.data().settings.stage.layout, layout, "{r}");
     }
 }
 
@@ -617,7 +617,7 @@ fn a_powerpoint_slides_own_time_turns_it_and_stops_on_the_last() {
     let slides = vec!["1.png".to_string(), "2.png".into(), "3.png".into()];
     app.edit(|d| { d.decks.push(crate::model::Deck { id: deck_id, title: "Talk".into(), slides, notes: vec![], transitions: vec![], advance_ms: vec![], show: None }); Ok(()) }).unwrap();
     act(&app, "deck/transitions", serde_json::json!({ "id": deck_id, "transitions": [], "advance_ms": [5000, 5000, 5000, 5000] })).unwrap();
-    assert_eq!(app.data.lock().unwrap().decks[0].advance_ms, vec![Some(5000); 3]);
+    assert_eq!(app.data().decks[0].advance_ms, vec![Some(5000); 3]);
     let r = act(&app, "service/add", serde_json::json!({ "item": { "kind": "deck", "deck_id": deck_id } })).unwrap();
     let item: Uuid = serde_json::from_value(r["id"].clone()).unwrap();
     show(&app, item, 0);
@@ -635,5 +635,5 @@ fn a_powerpoint_slides_own_time_turns_it_and_stops_on_the_last() {
     assert_eq!(slide(&app), Some((item, 0)), "a cleared slide layer stops it");
     // A call without times leaves them.
     act(&app, "deck/transitions", serde_json::json!({ "id": deck_id, "transitions": [] })).unwrap();
-    assert_eq!(app.data.lock().unwrap().decks[0].advance_ms, vec![Some(5000); 3]);
+    assert_eq!(app.data().decks[0].advance_ms, vec![Some(5000); 3]);
 }

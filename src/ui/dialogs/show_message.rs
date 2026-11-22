@@ -18,7 +18,7 @@ struct State { ids: Vec<Uuid>, values: BTreeMap<String, String> }
 pub fn open(op: &Rc<Operator>) {
     let (templates, start) = {
         let app = op.app();
-        let data = app.data.lock().unwrap();
+        let data = app.data();
         let start = app.automation.lock().unwrap().show_message_template(&data.automation.messages);
         (data.automation.messages.clone(), start)
     };
@@ -52,7 +52,7 @@ pub fn open(op: &Rc<Operator>) {
 fn template(op: &Operator, st: &State) -> Option<messages::MessageTemplate> {
     let i = op.ui.global::<ShowMessageDlg>().get_template().max(0) as usize;
     let id = *st.ids.get(i)?;
-    op.app().data.lock().unwrap().automation.messages.iter().find(|t| t.id == id).cloned()
+    op.app().data().automation.messages.iter().find(|t| t.id == id).cloned()
 }
 
 /// One box per field of the chosen message.
@@ -62,7 +62,7 @@ fn fill(op: &Rc<Operator>, st: &Rc<RefCell<State>>) {
     let values = st.borrow().values.clone();
     let rows: Vec<MessageField> = fields.iter().map(|f| MessageField { name: f.as_str().into(), value: values.get(f).cloned().unwrap_or_default().into() }).collect();
     g.set_fields(ModelRc::new(VecModel::from(rows)));
-    let up = slots::shown_message(&op.app().live.lock().unwrap().frame.overlays).is_some();
+    let up = slots::shown_message(&op.app().live().frame.overlays).is_some();
     g.set_message_up(up);
     preview(op, st);
 }
@@ -79,7 +79,7 @@ fn show(op: &Rc<Operator>, st: &Rc<RefCell<State>>) {
     let Some(t) = template(op, &st.borrow()) else { return };
     let values = st.borrow().values.clone();
     if let Err(e) = messages::fill(&t.text, &values) { return op.ui.global::<ShowMessageDlg>().set_error(e.into()) }
-    let seen_clear = op.app().live.lock().unwrap().clear_epoch;
+    let seen_clear = op.app().live().clear_epoch;
     let me = Rc::downgrade(op);
     op.ops().cmd(Command::ShowMessage { template: t.id, values, seen_clear: Some(seen_clear) }, None, move |o| {
         let Some(op) = me.upgrade() else { return };

@@ -92,7 +92,7 @@ fn save_settings_round_trips_theme_and_lines() {
     assert_eq!(f.get_audio_labels().row_count(), 1, "the default, before a list arrives");
     assert_eq!(f.get_audio_index(), 0);
     click(&op, "SettingsWindow::save");
-    let s = app.data.lock().unwrap().settings.clone();
+    let s = app.data().settings.clone();
     assert_eq!((s.theme.font.as_str(), s.theme.size, s.theme.scripture_size), ("Arial", 120, 70));
     assert_eq!((s.theme.color.as_str(), s.theme.position.as_str(), s.theme.shadow, s.theme.uppercase), ("#ffcc00", "lower", false, true));
     assert_eq!((s.lines_per_slide, s.credits.as_str(), s.church_ccli.as_str()), (4, "none", "12345"));
@@ -100,8 +100,8 @@ fn save_settings_round_trips_theme_and_lines() {
     assert!(!s.screens_at_start && s.show_performance, "Settings → Video keeps the screens off at start and shows performance");
     assert!(s.keep_drawings && !s.stage_drawings, "Settings → Video: the two drawing choices");
     assert_eq!((s.drawing_limit, s.drawing_max_strokes, s.drawing_max_per_second, s.fade_secs), (true, 40, 30, 30), "not a number: unchanged; too many seconds: 30");
-    assert_eq!(app.live.lock().unwrap().drawing.fade_after, std::time::Duration::from_secs(30));
-    assert!(app.live.lock().unwrap().keep_drawing, "the live engine follows at once");
+    assert_eq!(app.live().drawing.fade_after, std::time::Duration::from_secs(30));
+    assert!(app.live().keep_drawing, "the live engine follows at once");
     assert!(!s.section_keys, "Settings → Songs can turn the section keys off");
     assert!(!is_open(&op), "Save closes Settings");
     assert!(toasts(&op).contains(&"Settings saved".to_string()));
@@ -126,7 +126,7 @@ fn bible_verses_per_slide_round_trips_and_sits_with_the_scripture_size() {
     g(&op).set_bible_per_slide(2);
     g(&op).set_scripture_size(90);
     click(&op, "SettingsWindow::save");
-    let s = app.data.lock().unwrap().settings.clone();
+    let s = app.data().settings.clone();
     assert_eq!((s.bible_per_slide, s.theme.scripture_size), (2, 90));
     refresh(&op);
     open(&op, SettingsTab::Look);
@@ -145,7 +145,7 @@ fn look_fade_slider_round_trips_in_tenths() {
     assert!(find(&op, "LookText::look-fade").is_some());
     g(&op).set_look_fade(25);
     click(&op, "SettingsWindow::save");
-    assert_eq!(app.data.lock().unwrap().settings.look_fade_ms, 2500);
+    assert_eq!(app.data().settings.look_fade_ms, 2500);
     assert_eq!(app.live_view().look_fade_ms, 2500, "the room reads it from the live view");
     refresh(&op);
     open(&op, SettingsTab::Look);
@@ -159,10 +159,10 @@ fn save_settings_keeps_translation_and_displays_changed_meanwhile() {
     open(&op, SettingsTab::Songs);
     g(&op).set_ccli("777".into());
     block_on(app.do_action("settings/translation", br#"{"translation":"WEB"}"#)).unwrap();
-    app.data.lock().unwrap().settings.screens.assign("audience", crate::model::ScreenTarget::Monitor(r"\\.\DISPLAY2".into()));
+    app.data().settings.screens.assign("audience", crate::model::ScreenTarget::Monitor(r"\\.\DISPLAY2".into()));
     refresh(&op);
     click(&op, "SettingsWindow::save");
-    let s = app.data.lock().unwrap().settings.clone();
+    let s = app.data().settings.clone();
     assert_eq!(s.translation, "WEB", "the translation picked meanwhile is kept");
     assert_eq!(s.screens.monitors("audience"), [r"\\.\DISPLAY2"], "the screen chosen meanwhile is kept");
     assert_eq!(s.church_ccli, "777");
@@ -172,7 +172,7 @@ fn save_settings_keeps_translation_and_displays_changed_meanwhile() {
 fn cancel_discards_changes() {
     let app = test_app();
     let op = opened(&app);
-    let before = app.data.lock().unwrap().settings.clone();
+    let before = app.data().settings.clone();
     open(&op, SettingsTab::Songs);
     g(&op).set_ccli("999".into());
     g(&op).set_lines(5);
@@ -180,7 +180,7 @@ fn cancel_discards_changes() {
     // Changed: it asks first; Don't save leaves.
     crate::ui::dialogs::ask::answer_other_settings(&op);
     assert!(!is_open(&op));
-    let after = app.data.lock().unwrap().settings.clone();
+    let after = app.data().settings.clone();
     assert_eq!((after.church_ccli, after.lines_per_slide), (before.church_ccli.clone(), before.lines_per_slide));
     open(&op, SettingsTab::Songs);
     assert_eq!(g(&op).get_ccli(), before.church_ccli.as_str(), "a new Settings starts from the saved settings");
@@ -194,14 +194,14 @@ fn settings_keeps_typed_text_across_a_data_update() {
     g(&op).set_ccli("typed by hand".into());
     g(&op).set_lines(0);
     // A phone or a conversion changes the data meanwhile.
-    app.data.lock().unwrap().settings.church_ccli = "from elsewhere".into();
+    app.data().settings.church_ccli = "from elsewhere".into();
     refresh(&op);
     refresh(&op);
     assert_eq!(g(&op).get_ccli(), "typed by hand");
     assert_eq!(g(&op).get_lines(), 0);
     assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Songs));
     click(&op, "SettingsWindow::save");
-    assert_eq!(app.data.lock().unwrap().settings.church_ccli, "typed by hand");
+    assert_eq!(app.data().settings.church_ccli, "typed by hand");
 }
 
 #[test]
@@ -249,7 +249,7 @@ fn look_preview_rebuilt_on_tab_return() {
 #[test]
 fn missing_font_shows_note() {
     let app = test_app();
-    app.data.lock().unwrap().settings.theme.font = "No Such Font".into();
+    app.data().settings.theme.font = "No Such Font".into();
     let op = opened(&app);
     open(&op, SettingsTab::Look);
     settle();
@@ -260,7 +260,7 @@ fn missing_font_shows_note() {
     assert_eq!(fonts[g(&op).get_font_index() as usize], "No Such Font", "the box shows the saved font");
     close(&op);
 
-    app.data.lock().unwrap().settings.theme.font = "Noto Sans".into();
+    app.data().settings.theme.font = "Noto Sans".into();
     refresh(&op);
     open(&op, SettingsTab::Look);
     settle();
@@ -284,7 +284,7 @@ fn choose_logo_imports_a_picture_and_remove_clears_it() {
     assert!(!pixels(&g(&op).get_logo()).is_empty(), "the 44 px logo preview");
     assert!(find(&op, "LookText::no-logo").is_none());
     click(&op, "SettingsWindow::save");
-    let logo = app.data.lock().unwrap().settings.logo.clone().expect("logo saved");
+    let logo = app.data().settings.logo.clone().expect("logo saved");
     assert!(app.store.asset_path(&logo).exists());
 
     refresh(&op);
@@ -292,7 +292,7 @@ fn choose_logo_imports_a_picture_and_remove_clears_it() {
     click(&op, "LookText::remove-logo");
     assert!(!g(&op).get_has_logo());
     click(&op, "SettingsWindow::save");
-    assert_eq!(app.data.lock().unwrap().settings.logo, None);
+    assert_eq!(app.data().settings.logo, None);
 }
 
 #[test]
@@ -306,7 +306,7 @@ fn default_background_pick_is_saved() {
     g(&op).invoke_pick_background(1);
     assert!(g(&op).get_backgrounds().row_data(1).unwrap().on);
     click(&op, "SettingsWindow::save");
-    assert_eq!(app.data.lock().unwrap().settings.background, crate::model::Background::Color { color: "#0b1a33".into() });
+    assert_eq!(app.data().settings.background, crate::model::Background::Color { color: "#0b1a33".into() });
 }
 
 #[test]
@@ -318,7 +318,7 @@ fn default_background_custom_colour_is_saved() {
     g(&op).invoke_background_hex("#12AB34".into());
     assert!(g(&op).get_backgrounds().iter().all(|r| !r.on), "a custom colour is no tile");
     click(&op, "SettingsWindow::save");
-    assert_eq!(app.data.lock().unwrap().settings.background, crate::model::Background::Color { color: "#12ab34".into() });
+    assert_eq!(app.data().settings.background, crate::model::Background::Color { color: "#12ab34".into() });
 }
 
 #[test]
@@ -341,7 +341,7 @@ fn text_color_from_the_grid_and_its_hex_field() {
     g(&op).invoke_text_color(slint::Color::from_rgb_u8(255, 0, 0));
     assert_eq!(g(&op).get_color(), "#ff0000");
     click(&op, "SettingsWindow::save");
-    assert_eq!(app.data.lock().unwrap().settings.theme.color, "#ff0000");
+    assert_eq!(app.data().settings.theme.color, "#ff0000");
 }
 
 #[test]
@@ -372,7 +372,7 @@ fn backup_now_toasts_and_lists_it() {
 #[test]
 fn restore_asks_then_restores() {
     let app = test_app();
-    let data = app.data.lock().unwrap().clone();
+    let data = app.data().clone();
     app.store.backup(&data).unwrap();
     let op = opened(&app);
     op.ops().call::<serde_json::Value>("song/save", serde_json::json!({ "id": uuid::Uuid::nil(), "title": "After the backup", "lyrics": "la" }), |r| { r.unwrap(); });
@@ -384,11 +384,11 @@ fn restore_asks_then_restores() {
     assert_eq!(ask.text, "Restore this backup? Your current songs and services are replaced (a copy of them is kept).");
     // Cancel keeps everything.
     click(&op, "AskOverlay::cancel");
-    assert_eq!(app.data.lock().unwrap().songs.len(), 1);
+    assert_eq!(app.data().songs.len(), 1);
     assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Backups));
     click(&op, "BackupsPage::restore");
     click(&op, "AskOverlay::ok");
-    assert!(app.data.lock().unwrap().songs.is_empty(), "the backup's data is back");
+    assert!(app.data().songs.is_empty(), "the backup's data is back");
     assert!(!is_open(&op));
     assert_eq!(toasts(&op), ["Backup restored"]);
 }
@@ -477,13 +477,13 @@ fn the_graphics_picker_lists_this_builds_choices_and_saves_at_once() {
     g(&op).set_graphics_index(last);
     g(&op).invoke_graphics_changed(last);
     settle();
-    assert_eq!(app.data.lock().unwrap().settings.graphics, Graphics::Software);
+    assert_eq!(app.data().settings.graphics, Graphics::Software);
     assert!(toasts(&op).contains(&"Restart RustyPresenter to use the new graphics setting.".to_string()));
     assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Video), "the dialog stays open");
 
     // Save keeps it, and opening again shows it.
     click(&op, "SettingsWindow::save");
-    assert_eq!(app.data.lock().unwrap().settings.graphics, Graphics::Software);
+    assert_eq!(app.data().settings.graphics, Graphics::Software);
     refresh(&op);
     open(&op, SettingsTab::Video);
     assert_eq!(g(&op).get_graphics_index(), last);
@@ -521,7 +521,7 @@ fn the_graphics_test_shows_each_choice_and_use_this_saves_the_pick() {
     assert_eq!(bench::load(&root).unwrap().winner, Some(Graphics::OpenGl), "kept for Automatic");
 
     click(&op, "ScreensPage::graphics-test-use");
-    assert_eq!(app.data.lock().unwrap().settings.graphics, Graphics::OpenGl);
+    assert_eq!(app.data().settings.graphics, Graphics::OpenGl);
     assert!(toasts(&op).contains(&"Restart RustyPresenter to use the new graphics setting.".to_string()));
     let want = graphics_choices().iter().position(|c| *c == Graphics::OpenGl).unwrap() as i32;
     assert_eq!(g(&op).get_graphics_index(), want);
@@ -533,14 +533,14 @@ fn the_graphics_test_shows_each_choice_and_use_this_saves_the_pick() {
     // A choice that didn't work can't be used.
     super::settings_graphics::use_picked(&op, &Rc::new(edit_for(&app)), 1);
     settle();
-    assert_eq!(app.data.lock().unwrap().settings.graphics, Graphics::OpenGl);
+    assert_eq!(app.data().settings.graphics, Graphics::OpenGl);
 }
 
 fn graphics_choices() -> Vec<crate::model::Graphics> { crate::video::graphics::available(crate::video::graphics::Build::this()) }
 
 fn edit_for(app: &Arc<App>) -> Edit {
     Edit {
-        settings: std::cell::RefCell::new(app.data.lock().unwrap().settings.clone()),
+        settings: std::cell::RefCell::new(app.data().settings.clone()),
         backups: Default::default(),
         look: Default::default(),
         bible: Default::default(),
@@ -557,7 +557,7 @@ fn restart_now_asks_to_save_other_changes_first() {
     open(&op, SettingsTab::Video);
     settle();
     g(&op).set_graphics_restart(true);
-    let before = app.data.lock().unwrap().settings.show_performance;
+    let before = app.data().settings.show_performance;
     g(&op).set_show_performance(!before);
     click(&op, "ScreensPage::graphics-restart");
     let w = crate::ui::dialogs::settings_window::win(&op);
@@ -567,13 +567,13 @@ fn restart_now_asks_to_save_other_changes_first() {
     crate::ui::dialogs::ask::answer_settings(&op, false, String::new());
     settle();
     assert_eq!(requests_here(), 0, "Cancel: no restart");
-    assert_eq!(app.data.lock().unwrap().settings.show_performance, before, "and nothing saved");
+    assert_eq!(app.data().settings.show_performance, before, "and nothing saved");
     assert_eq!(crate::ui::dialogs::settings::shown(&op), Some(SettingsTab::Video), "Settings stays open");
 
     click(&op, "ScreensPage::graphics-restart");
     crate::ui::dialogs::ask::answer_settings(&op, true, String::new());
     settle();
-    assert_eq!(app.data.lock().unwrap().settings.show_performance, !before, "saved first");
+    assert_eq!(app.data().settings.show_performance, !before, "saved first");
     assert_eq!(requests_here(), 1, "then restarted");
 }
 
@@ -596,17 +596,17 @@ fn the_graphics_test_is_offered_once_at_start() {
 fn the_sound_output_is_saved_and_shown_again() {
     let app = test_app();
     let op = opened(&app);
-    app.data.lock().unwrap().settings.audio_device = "wasapi/{board}".into();
+    app.data().settings.audio_device = "wasapi/{board}".into();
     refresh(&op);
     open(&op, SettingsTab::Video);
     assert_eq!(g(&op).get_audio_index(), 1, "kept though no list came");
     click(&op, "SettingsWindow::save");
-    assert_eq!(app.data.lock().unwrap().settings.audio_device, "wasapi/{board}");
+    assert_eq!(app.data().settings.audio_device, "wasapi/{board}");
     refresh(&op);
     open(&op, SettingsTab::Video);
     g(&op).set_audio_index(0);
     click(&op, "SettingsWindow::save");
-    assert_eq!(app.data.lock().unwrap().settings.audio_device, "");
+    assert_eq!(app.data().settings.audio_device, "");
 }
 
 /// A saved eBible list checked just now, so `bible/catalog` reads it from disk and asks no one.
@@ -753,10 +753,10 @@ fn default_bible_lists_what_can_be_used_and_is_applied_at_once() {
     let rvr = options.iter().position(|o| o.starts_with("RVR")).unwrap();
     g(&op).set_default_bible(rvr as i32);
     g(&op).invoke_default_bible_changed(rvr as i32);
-    assert_eq!(app.data.lock().unwrap().settings.translation, "ebible:spaRVR", "applied before Save, by its id");
+    assert_eq!(app.data().settings.translation, "ebible:spaRVR", "applied before Save, by its id");
     assert_eq!(toasts(&op).last().map(String::as_str), Some("Default Bible changed"));
     click(&op, "SettingsWindow::cancel");
-    assert_eq!(app.data.lock().unwrap().settings.translation, "ebible:spaRVR", "Cancel doesn't undo it");
+    assert_eq!(app.data().settings.translation, "ebible:spaRVR", "Cancel doesn't undo it");
     refresh(&op);
     open(&op, SettingsTab::Bible);
     settle();
@@ -804,7 +804,7 @@ fn language_tab_lists_languages_and_switches_the_app_at_once() {
     g(&op).invoke_choose_language(es as i32);
     settle();
     assert_eq!(crate::i18n::current(), "es");
-    assert_eq!(app.data.lock().unwrap().settings.ui_language, "es", "saved at once");
+    assert_eq!(app.data().settings.ui_language, "es", "saved at once");
     assert!(op.toast_log().iter().any(|(t, _)| t == "Idioma cambiado"), "the toast is in Spanish: {:?}", op.toast_log());
     assert_eq!(format!("{:?}", slint::select_bundled_translation("es")), "Ok(())", "Spanish is bundled into the Slint side");
     assert_eq!(tab_labels()[1], "Idioma", "the window's own words changed without a restart");
@@ -817,7 +817,7 @@ fn language_tab_lists_languages_and_switches_the_app_at_once() {
     g(&op).invoke_choose_language(1);
     settle();
     assert_eq!((crate::i18n::current().as_str(), tab_labels()[1].as_str()), ("en", "Language"));
-    assert_eq!(app.data.lock().unwrap().settings.ui_language, "en");
+    assert_eq!(app.data().settings.ui_language, "en");
 }
 
 #[test]
@@ -826,7 +826,7 @@ fn an_untouched_form_reads_back_the_settings_it_was_given() {
     let op = opened(&app);
     open(&op, SettingsTab::Songs);
     settle();
-    let saved = app.data.lock().unwrap().settings.clone();
+    let saved = app.data().settings.clone();
     let mut read = saved.clone();
     read_form(&g(&op), &mut read);
     assert_eq!(read, saved);

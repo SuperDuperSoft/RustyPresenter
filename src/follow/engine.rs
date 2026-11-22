@@ -708,8 +708,8 @@ impl AppHost {
 impl Host for AppHost {
     fn live(&self) -> Option<LiveSong> {
         let app = self.app.upgrade()?;
-        let data = app.data.lock().unwrap();
-        let live = app.live.lock().unwrap();
+        let data = app.data();
+        let live = app.live();
         // Read with both locks held: the stamp of exactly what they show. Every change to the screen moves the
         // live version on, and every change to the data its revision.
         let stamp = (live.version, app.data_rev());
@@ -745,7 +745,7 @@ impl Host for AppHost {
     fn clear_slide(&self, base: u64) -> bool {
         let Some(app) = self.app.upgrade() else { return false };
         // A clear names no base: check it here, so a change made in between wins.
-        if app.live.lock().unwrap().version != base { return false }
+        if app.live().version != base { return false }
         let out = app.command(Envelope { id: format!("follow-{}", Uuid::new_v4()), base: None, cmd: Command::ClearSlide });
         out.ok && !out.duplicate
     }
@@ -753,7 +753,7 @@ impl Host for AppHost {
     /// The live version of the last visual change made by hand (not an overlay, not an automatic slide turn).
     fn hand_version(&self) -> Option<u64> {
         let app = self.app.upgrade()?;
-        let mark = app.live.lock().unwrap().manual_version;
+        let mark = app.live().manual_version;
         Some(mark)
     }
 

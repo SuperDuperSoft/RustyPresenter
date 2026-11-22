@@ -232,7 +232,7 @@ pub(crate) fn render_now(op: &Rc<Operator>, edit: &Rc<Edit>) {
     edit.look.generation.set(generation);
     let settings = edit.settings.borrow().clone();
     let root = op.app().store.root.clone();
-    let media = op.app().data.lock().unwrap().media.clone();
+    let media = op.app().data().media.clone();
     let (me, edit) = (Rc::downgrade(op), edit.clone());
     let apply = move |d: Drawn| {
         let Some(op) = me.upgrade() else { return };

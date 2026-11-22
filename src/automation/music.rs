@@ -330,7 +330,7 @@ impl App {
     pub fn music(&self, op: MusicOp) -> Result<(), String> {
         let now = Utc::now();
         let shuffle = {
-            let data = self.data.lock().unwrap();
+            let data = self.data();
             let mut rt = self.automation.lock().unwrap();
             let list = &data.automation.music;
             let m = &mut rt.music;
@@ -350,7 +350,7 @@ impl App {
         if let Some(on) = shuffle {
             // A new order from the next song on: the one playing goes on.
             self.edit_untracked(|d| { d.automation.music.shuffle = on; Ok(()) })?;
-            let data = self.data.lock().unwrap();
+            let data = self.data();
             let mut rt = self.automation.lock().unwrap();
             let m = &mut rt.music;
             if m.state != MusicState::Stopped {
@@ -369,7 +369,7 @@ impl App {
     pub fn music_save(&self, list: MusicList) -> Result<(), String> {
         self.edit(|d| { d.automation.music = list; Ok(()) })?;
         {
-            let data = self.data.lock().unwrap();
+            let data = self.data();
             let mut rt = self.automation.lock().unwrap();
             rt.music.volume = None;
             rt.music.list_changed(&data.automation.music);
@@ -381,7 +381,7 @@ impl App {
     /// A report from the walk-in music's player.
     pub fn music_report(&self, r: crate::video::PlayerReport) {
         let gave_up = {
-            let data = self.data.lock().unwrap();
+            let data = self.data();
             let mut rt = self.automation.lock().unwrap();
             let (changed, gave_up) = rt.music.report(&data.automation.music, r.inst, &r.state, r.position, r.duration);
             if !changed { return }
@@ -405,7 +405,7 @@ impl App {
     /// Sends the player what it should do, when that changed since the last time.
     pub(crate) fn music_sync(&self) {
         let sound = self.sound_out();
-        let data = self.data.lock().unwrap();
+        let data = self.data();
         let mut rt = self.automation.lock().unwrap();
         let want = rt.music.wanted(&data.automation.music);
         let msg = want.map(|w| (w, sound));

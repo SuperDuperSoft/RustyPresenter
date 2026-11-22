@@ -67,7 +67,7 @@ fn cookie(headers: &HeaderMap) -> Option<String> { super::cookie(headers, "rp_st
 /// is on and there is no password or the cookie is a current sign-in.
 pub fn allowed(app: &App, headers: &HeaderMap) -> bool {
     if paired(app, headers) { return true }
-    let data = app.data.lock().unwrap();
+    let data = app.data();
     let network = &data.settings.network;
     if !network.stage_view { return false }
     if network.stage_password.is_none() { return true }
@@ -85,7 +85,7 @@ fn paired(app: &App, headers: &HeaderMap) -> bool { crate::server::phone_for(app
 
 async fn status(State(app): State<Arc<App>>, headers: HeaderMap) -> Response {
     let remote = paired(&app, &headers);
-    let (on, pw) = { let n = &app.data.lock().unwrap().settings.network; (n.stage_view, n.stage_password.is_some()) };
+    let (on, pw) = { let n = &app.data().settings.network; (n.stage_view, n.stage_password.is_some()) };
     Json(json!({ "on": on || remote, "password": pw && !remote, "allowed": allowed(&app, &headers), "off_text": s::stage_view_off() })).into_response()
 }
 
@@ -98,7 +98,7 @@ fn err(status: StatusCode, msg: String) -> Response { (status, Json(json!({ "err
 
 async fn login(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo<SocketAddr>, headers: HeaderMap, Json(req): Json<Login>) -> Response {
     if !same_origin(&headers) { return StatusCode::FORBIDDEN.into_response() }
-    let (on, hash) = { let n = &app.data.lock().unwrap().settings.network; (n.stage_view, n.stage_password.clone()) };
+    let (on, hash) = { let n = &app.data().settings.network; (n.stage_view, n.stage_password.clone()) };
     if !on { return err(StatusCode::NOT_FOUND, s::stage_view_off()) }
     let Some(hash) = hash else { return Json(json!({ "ok": true })).into_response() };
     if !app.net.may_try(addr.ip()) { return err(StatusCode::TOO_MANY_REQUESTS, s::too_fast()) }
@@ -112,7 +112,7 @@ async fn login(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo<Socke
 fn stage_sign_in(app: &App, verified_hash: &str) -> Response {
     let token = crate::app::random_token();
     {
-        let data = app.data.lock().unwrap();
+        let data = app.data();
         let network = &data.settings.network;
         if !network.stage_view { return err(StatusCode::NOT_FOUND, s::stage_view_off()) }
         if network.stage_password.as_deref() != Some(verified_hash) {
@@ -134,14 +134,14 @@ pub fn stage_json(app: &App, state: &mut StageState) -> Value { stage_json_of(ap
 fn stage_json_of(app: &App, state: &mut StageState, live: &crate::app::LiveView) -> (Value, bool) {
     let timers = app.timers();
     let layout = {
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         stage::active_layout(&d.stage_layouts, None, None, Some(d.settings.stage.layout)).clone()
     };
     let shows_time = layout.elements.iter().filter_map(|e| e.known()).any(|e| matches!(e.kind, ElementKind::Clock { .. } | ElementKind::Timer { .. }));
     state.track_timers(&timers);
     let v = {
         // The live item's slides are read where they are (the lock is held for the layout, which waits for nothing).
-        let held = app.live.lock().unwrap();
+        let held = app.live();
         let slides: &[Slide] = held.item.as_ref().map_or(&[], |i| i.slides.as_slice());
         view::build(&StageInputs { live, slides, timers: &timers, state, now: chrono::Local::now().time() }, &layout)
     };
@@ -278,7 +278,7 @@ mod tests {
     use axum::http::HeaderValue;
 
     fn turn_on(app: &App, pw: Option<&str>) {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         d.settings.network.stage_view = true;
         d.settings.network.stage_password = pw.map(password::hash);
     }
@@ -296,7 +296,7 @@ mod tests {
     fn a_login_checked_against_a_replaced_password_cannot_issue_a_cookie() {
         let app = test_app();
         turn_on(&app, Some("altos"));
-        let old = app.data.lock().unwrap().settings.network.stage_password.clone().unwrap();
+        let old = app.data().settings.network.stage_password.clone().unwrap();
         turn_on(&app, Some("sopranos"));
         let response = stage_sign_in(&app, &old);
         assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
@@ -352,7 +352,7 @@ mod tests {
         let stored = app.net.stage_tokens.lock().unwrap().clone();
         assert!(!stored.iter().any(|(t, _)| c.contains(t.as_str())), "only the hash is kept");
         // Turned off: even a signed-in tablet sees nothing.
-        app.data.lock().unwrap().settings.network.stage_view = false;
+        app.data().settings.network.stage_view = false;
         assert!(!allowed(&app, &with_cookie(&c)));
     }
 
@@ -374,14 +374,14 @@ mod tests {
         assert!(allowed(&app, &remote) && !allowed(&app, &HeaderMap::new()));
         // Unpaired on the computer: it is a stranger again.
         app.phones.lock().unwrap().clear();
-        app.data.lock().unwrap().settings.network.stage_view = false;
+        app.data().settings.network.stage_view = false;
         assert!(!allowed(&app, &remote));
     }
 
     #[test]
     fn the_json_has_the_stage_layouts_boxes() {
         let app = test_app();
-        app.data.lock().unwrap().settings.stage.layout = stage::presets::CLOCK_COUNTDOWN;
+        app.data().settings.stage.layout = stage::presets::CLOCK_COUNTDOWN;
         let v = stage_json(&app, &mut StageState::default());
         assert_eq!(v["type"], "stage");
         let cells = v["cells"].as_array().unwrap();
@@ -394,14 +394,14 @@ mod tests {
     fn show(app: &Arc<App>, kind: crate::model::ItemKind) {
         use crate::live::{Command, Envelope};
         let id = uuid::Uuid::new_v4();
-        app.data.lock().unwrap().services[0].items.push(crate::model::ServiceItem { id, kind, background: None, notes: String::new(), theme: None });
-        let base = app.live.lock().unwrap().version;
+        app.data().services[0].items.push(crate::model::ServiceItem { id, kind, background: None, notes: String::new(), theme: None });
+        let base = app.live().version;
         assert!(app.command(Envelope { id: "s".into(), base: Some(base), cmd: Command::Show { item_id: id, slide: 0 } }).ok);
     }
 
     /// The slide boxes of the Classic layout: (kind, src or text).
     fn slide_boxes(app: &App) -> Vec<(String, String)> {
-        app.data.lock().unwrap().settings.stage.layout = stage::presets::CLASSIC;
+        app.data().settings.stage.layout = stage::presets::CLASSIC;
         let v = stage_json(app, &mut StageState::default());
         v["cells"].as_array().unwrap().iter().filter(|c| c["y"].as_f64() == Some(10.0) || c["y"].as_f64() == Some(76.0))
             .map(|c| (c["kind"].as_str().unwrap().to_string(), c["src"].as_str().or(c["text"].as_str()).unwrap_or_default().to_string())).collect()
@@ -411,7 +411,7 @@ mod tests {
     async fn picture_and_designed_slides_show_their_pictures() {
         let app = test_app();
         let deck = crate::model::Deck { id: uuid::Uuid::new_v4(), title: "Talk".into(), slides: vec!["a.png".into(), "b.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![], show: None };
-        app.data.lock().unwrap().decks.push(deck.clone());
+        app.data().decks.push(deck.clone());
         show(&app, crate::model::ItemKind::Deck { deck_id: deck.id });
         assert_eq!(slide_boxes(&app), [("picture".into(), "live".into()), ("picture".into(), "next".into())], "not \"(slide picture)\"");
         let app = test_app();
@@ -428,9 +428,9 @@ mod tests {
         let app = test_app();
         let song = crate::model::Song { title: "T".into(), key: "D".into(), lyrics: "Verse 1\n[D]  Sometimes the [A/D]night is beautiful\nYou could [A7]touch it".into(), ..Default::default() };
         let song_id = song.id;
-        app.data.lock().unwrap().songs.push(song);
+        app.data().songs.push(song);
         show(&app, crate::model::ItemKind::Song { song_id, arrangement: None });
-        app.data.lock().unwrap().settings.stage.layout = stage::presets::BAND;
+        app.data().settings.stage.layout = stage::presets::BAND;
         let v = stage_json(&app, &mut StageState::default());
         let cell = v["cells"].as_array().unwrap().iter().find(|c| c["kind"] == "chords" && c["y"].as_f64() == Some(13.0)).expect("the current slide as a chord sheet");
         assert_eq!(cell["lines"], json!([[["D", "  Sometimes the "], ["A/D", "night is beautiful"]], [["", "You could "], ["A7", "touch it"]]]));
@@ -453,7 +453,7 @@ mod tests {
         assert_eq!((r.status(), r.headers()[header::CONTENT_TYPE].to_str().unwrap()), (StatusCode::OK, "image/jpeg"));
         let b: Value = serde_json::from_slice(&axum::body::to_bytes(status(State(app.clone()), HeaderMap::new()).await.into_body(), usize::MAX).await.unwrap()).unwrap();
         assert_eq!((b["on"].as_bool(), b["password"].as_bool(), b["allowed"].as_bool()), (Some(true), Some(false), Some(true)));
-        app.data.lock().unwrap().settings.network.stage_view = false;
+        app.data().settings.network.stage_view = false;
         assert_eq!(live_picture(State(app.clone()), HeaderMap::new(), Query(Size { w: Some(320) })).await.status(), StatusCode::UNAUTHORIZED);
     }
 }

@@ -10,8 +10,8 @@ impl App {
     /// What is live, the operator's scene choice, and the pre-service countdown as text while it runs.
     pub fn stream_info(&self) -> (LiveInfo, Choice, Option<String>) {
         let (info, pre) = {
-            let data = self.data.lock().unwrap();
-            let live = self.live.lock().unwrap();
+            let data = self.data();
+            let live = self.live();
             let pre: Option<PreRun> = self.automation.lock().unwrap().pre.clone();
             let cursor_item = live.cursor.as_ref().map(|c| c.item_id);
             // The last item that shows anything: headers and unfilled blanks after it do not count.
@@ -35,14 +35,14 @@ impl App {
 
     /// The operator picks `scene` (`None`: Automatic) for the live item.
     pub fn set_stream_scene(&self, scene: Option<Scene>) {
-        let item = self.live.lock().unwrap().cursor.as_ref().map(|c| c.item_id);
+        let item = self.live().cursor.as_ref().map(|c| c.item_id);
         *self.stream_choice.lock().unwrap() = Choice::pick(scene, item);
     }
 
     /// Moves PTZ camera `camera` (1 or 2) to its saved `position`, off this thread. A camera without a control
     /// address in Settings is left alone.
     pub fn move_camera(&self, camera: u8, position: u8) {
-        let Some(control) = crate::stream::ptz::control_of(&self.data.lock().unwrap().settings.record, camera) else { return };
+        let Some(control) = crate::stream::ptz::control_of(&self.data().settings.record, camera) else { return };
         let _ = std::thread::Builder::new().name("camera-control".into()).spawn(move || {
             if let Err(e) = crate::stream::ptz::recall(&control, position) { eprintln!("camera control: {e}") }
         });
@@ -67,7 +67,7 @@ mod tests {
         serde_json::from_value(r["id"].clone()).unwrap()
     }
     fn cmd(app: &App, cmd: Command) {
-        let base = Some(app.live.lock().unwrap().version);
+        let base = Some(app.live().version);
         assert!(app.command(Envelope { id: Uuid::new_v4().to_string(), base, cmd }).ok);
     }
 
@@ -98,7 +98,7 @@ mod tests {
         let app = test_app();
         let (a, b) = (text_item(&app, "One"), text_item(&app, "Two"));
         cmd(&app, Command::Show { item_id: a, slide: 0 });
-        { let mut live = app.live.lock().unwrap(); live.restored_version = Some(live.version); }
+        { let mut live = app.live(); live.restored_version = Some(live.version); }
         assert!(app.stream_info().0.restored, "brought back by a restart");
         cmd(&app, Command::Show { item_id: b, slide: 0 });
         assert!(!app.stream_info().0.restored, "touched since");

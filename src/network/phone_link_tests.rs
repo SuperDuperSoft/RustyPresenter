@@ -174,7 +174,7 @@ async fn one_scan_pairs_a_phone_camera_and_its_pictures_arrive_over_https() {
 async fn one_scan_pairs_a_phone_microphone_without_the_stage_view() {
     let _turn = mic::TEST_TURN.lock().unwrap_or_else(|e| e.into_inner());
     let app = app_on_network();
-    assert!(!app.data.lock().unwrap().settings.network.stage_view, "the stage screen on phones stays off");
+    assert!(!app.data().settings.network.stage_view, "the stage screen on phones stays off");
     let (addr, der) = secure_server(&app).await;
     let pcm: Vec<u8> = [1000i16, -1000, 500].iter().flat_map(|s| s.to_le_bytes()).collect();
     // Not paired: no.
@@ -208,11 +208,11 @@ async fn one_scan_pairs_a_phone_microphone_without_the_stage_view() {
     assert_eq!(health(&app, Kind::Mic, Firewall::Open).text(Kind::Mic, 4320), "Sending sound: Pastor's phone");
     drop(rx);
     // A stage view open to everyone is for looking only (B3): a phone that is not paired may not send.
-    app.data.lock().unwrap().settings.network.stage_view = true;
+    app.data().settings.network.stage_view = true;
     let (status, _, _) = ask(addr, &der, "POST", "/stage-view/mic/sound?rate=48000", "", &pcm).await;
     assert_eq!(status, 403);
     // The stage view's own access still works for phones signed in there with its password.
-    app.data.lock().unwrap().settings.network.stage_password = Some("a stored hash".into());
+    app.data().settings.network.stage_password = Some("a stored hash".into());
     app.net.stage_tokens.lock().unwrap().push((crate::app::hash_token("tok"), std::time::Instant::now()));
     let (status, _, _) = ask(addr, &der, "POST", "/stage-view/mic/sound?rate=48000", "rp_stage=tok", &pcm).await;
     assert_eq!(status, 200);
@@ -223,7 +223,7 @@ async fn one_scan_pairs_a_phone_microphone_without_the_stage_view() {
 #[tokio::test]
 async fn the_remotes_password_is_asked_with_the_code() {
     let app = app_on_network();
-    app.data.lock().unwrap().settings.network.remote_password = Some(crate::network::password::hash("worship"));
+    app.data().settings.network.remote_password = Some(crate::network::password::hash("worship"));
     let (addr, der) = secure_server(&app).await;
     let secret = secret_of(&link(&app, Kind::Mic).unwrap());
     let (status, c, body) = ask(addr, &der, "POST", "/phone/pair", "", json!({ "pair": secret }).to_string().as_bytes()).await;

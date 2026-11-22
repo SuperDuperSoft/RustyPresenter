@@ -209,7 +209,7 @@ fn the_app_undoes_an_edit_and_saves_it() {
     act(&app, "song/save", json!({ "id": Uuid::nil(), "title": "Grace", "lyrics": "Verse 1\nla" }));
     assert!(app.history.lock().unwrap().can_undo());
     assert_eq!(app.undo(false).unwrap(), "Undone: the new song “Grace”");
-    assert!(app.data.lock().unwrap().songs.is_empty());
+    assert!(app.data().songs.is_empty());
     assert!(app.store.load().unwrap().songs.is_empty(), "saved");
     assert_eq!(app.undo(true).unwrap(), "Redone: the new song “Grace”");
     assert_eq!(app.store.load().unwrap().songs.len(), 1);
@@ -236,7 +236,7 @@ fn read_only_data_is_never_undone() {
     act(&app, "song/save", json!({ "id": Uuid::nil(), "title": "Grace", "lyrics": "Verse 1\nla" }));
     app.set_read_only(true);
     assert!(app.undo(false).is_err());
-    assert_eq!(app.data.lock().unwrap().songs.len(), 1);
+    assert_eq!(app.data().songs.len(), 1);
 }
 
 fn show(app: &App, item_id: Uuid) {
@@ -262,7 +262,7 @@ fn undo_never_changes_the_live_screen() {
     assert!(app.live_view().changed.is_some(), "the changed banner is up");
     // Undo again removes the live item from the service: still on screen.
     app.undo(false).unwrap();
-    assert!(app.data.lock().unwrap().services[0].items.is_empty());
+    assert!(app.data().services[0].items.is_empty());
     assert_eq!(on_screen(&app), shown);
     // Redo puts it all back; the screen matches the service again.
     app.undo(true).unwrap();

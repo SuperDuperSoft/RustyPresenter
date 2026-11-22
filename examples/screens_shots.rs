@@ -36,7 +36,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = App::new(store, data, 0, None);
     let rt = tokio::runtime::Runtime::new()?;
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         d.settings.screens.assign("audience", ScreenTarget::Window);
         let s = &mut d.settings.screens.audience.screens[0];
         s.fix.red = 0.92;

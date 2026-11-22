@@ -502,7 +502,7 @@ mod tests {
         refresh(&op);
         settle(&op);
         assert_eq!(*d.calls.lock().unwrap(), [("room".to_string(), Some("B".to_string()))]);
-        assert!(app.data.lock().unwrap().settings.screens.audience.on, "remembered");
+        assert!(app.data().settings.screens.audience.on, "remembered");
         assert_eq!(rows(&op, 0)[0].status, "Showing");
         assert_eq!(rows(&op, 0)[0].size, "1920 × 1080");
         click(&op, "ScreenListView::power", 0);
@@ -520,7 +520,7 @@ mod tests {
         refresh(&op);
         settle(&op);
         assert!(d.calls.lock().unwrap().is_empty());
-        assert!(!app.data.lock().unwrap().settings.screens.stage.on);
+        assert!(!app.data().settings.screens.stage.on);
         assert_eq!(toasts(&op), ["Pick an output for this screen first."]);
     }
 
@@ -549,7 +549,7 @@ mod tests {
         let (first, second) = (rows(&op, 0)[0].id.to_string(), rows(&op, 1)[0].id.to_string());
         update(&op, json!({ "id": first, "target": { "kind": "monitor", "monitor": "B" } }));
         update(&op, json!({ "id": second, "target": { "kind": "monitor", "monitor": "B" } }));
-        let s = app.data.lock().unwrap().settings.screens.clone();
+        let s = app.data().settings.screens.clone();
         assert_eq!(s.monitors("audience"), Vec::<&str>::new());
         assert_eq!(s.monitors("stage"), ["B"]);
     }
@@ -591,9 +591,9 @@ mod tests {
         settle(&op);
         click(&op, "ScreensDialog::remove-btn", 0);
         assert_eq!(asked(&op).unwrap().0, "Remove “Stage screen 2”?");
-        assert_eq!(app.data.lock().unwrap().settings.screens.stage.screens.len(), 2, "not yet");
+        assert_eq!(app.data().settings.screens.stage.screens.len(), 2, "not yet");
         click(&op, "AskOverlay::ok", 0);
-        assert_eq!(app.data.lock().unwrap().settings.screens.stage.screens.len(), 1);
+        assert_eq!(app.data().settings.screens.stage.screens.len(), 1);
     }
 
     #[test]
@@ -602,10 +602,10 @@ mod tests {
         let op = open_screens(&app);
         state(&op).invoke_rename("Lobby TV".into());
         assert_eq!(rows(&op, 0)[0].name, "Lobby TV", "the list follows the typing");
-        assert_eq!(app.data.lock().unwrap().settings.screens.audience.screens[0].name, "Audience screen", "not saved on each key");
+        assert_eq!(app.data().settings.screens.audience.screens[0].name, "Audience screen", "not saved on each key");
         op.close_dialog();
         settle(&op);
-        assert_eq!(app.data.lock().unwrap().settings.screens.audience.screens[0].name, "Lobby TV");
+        assert_eq!(app.data().settings.screens.audience.screens[0].name, "Lobby TV");
     }
 
     #[test]
@@ -623,7 +623,7 @@ mod tests {
         assert!(find(&op, "ScreensDialog::mask-radius").is_some(), "rounded corners have a corner slider");
         op.close_dialog();
         settle(&op);
-        let saved = app.data.lock().unwrap().settings.screens.audience.screens[0].mask;
+        let saved = app.data().settings.screens.audience.screens[0].mask;
         assert_eq!(saved, Mask { shape: MaskShape::Rounded, inset: 6, radius: 25 });
         let op = open_screens(&app);
         assert_eq!((state(&op).get_mask_shape(), state(&op).get_mask_inset()), (2, 6), "shown again");
@@ -663,7 +663,7 @@ mod tests {
     #[test]
     fn an_unplugged_monitor_stays_chosen() {
         let (app, _d) = with_displays(vec![mon("A", true)]);
-        app.data.lock().unwrap().settings.screens.assign("audience", ScreenTarget::Monitor("gone".into()));
+        app.data().settings.screens.assign("audience", ScreenTarget::Monitor("gone".into()));
         let op = open_screens(&app);
         assert_eq!(rows(&op, 0)[0].status, "Unplugged");
         assert_eq!(state(&op).get_output(), 3, "None, window, A, then the missing one");
@@ -673,7 +673,7 @@ mod tests {
     #[test]
     fn a_connected_monitor_shows_its_real_size() {
         let (app, _d) = with_displays(vec![mon("A", true), Monitor { width: 1280, height: 720, ..mon("B", false) }]);
-        app.data.lock().unwrap().settings.screens.assign("audience", ScreenTarget::Monitor("B".into())); // saved as 1920 × 1080
+        app.data().settings.screens.assign("audience", ScreenTarget::Monitor("B".into())); // saved as 1920 × 1080
         let op = open_screens(&app);
         assert_eq!(rows(&op, 0)[0].size, "1280 × 720");
         assert_eq!(state(&op).get_size(), "1280 × 720");
@@ -738,7 +738,7 @@ mod tests {
         state(&op).invoke_pick_output(last);
         refresh(&op);
         settle(&op);
-        assert_eq!(app.data.lock().unwrap().settings.screens.audience.screens[0].output().target, ScreenTarget::Placeholder);
+        assert_eq!(app.data().settings.screens.audience.screens[0].output().target, ScreenTarget::Placeholder);
         assert_eq!(rows(&op, 0)[0].status, "Placeholder");
         assert!(state(&op).get_size_editable(), "its size can be typed, as the projector's will be");
         assert!(state(&op).get_note().contains("Nothing shows on a placeholder"));
@@ -764,10 +764,10 @@ mod tests {
         g.set_delay_text("3".into());
         g.invoke_delay();
         assert_eq!(g.get_delay_ms(), "about 48 ms");
-        assert!(app.data.lock().unwrap().settings.screens.audience.screens[0].fix.is_default(), "saved once the changes stop");
+        assert!(app.data().settings.screens.audience.screens[0].fix.is_default(), "saved once the changes stop");
         op.close_dialog();
         settle(&op);
-        let fix = app.data.lock().unwrap().settings.screens.audience.screens[0].fix;
+        let fix = app.data().settings.screens.audience.screens[0].fix;
         assert_eq!((fix.red, fix.gamma, fix.delay), (0.9, 1.2, 3));
         assert!((fix.corners[1][0] + 0.01).abs() < 1e-6 && (fix.corners[1][1] - 0.005).abs() < 1e-6, "{:?}", fix.corners);
         // Opened again: the numbers are the saved ones, and Reset puts it all back.
@@ -776,7 +776,7 @@ mod tests {
         state(&op).invoke_reset_fix();
         refresh(&op);
         settle(&op);
-        assert!(app.data.lock().unwrap().settings.screens.audience.screens[0].fix.is_default());
+        assert!(app.data().settings.screens.audience.screens[0].fix.is_default());
         assert_eq!(state(&op).get_red(), 100);
     }
 
@@ -789,12 +789,12 @@ mod tests {
         state(&op).invoke_pick_test(1);
         refresh(&op);
         settle(&op);
-        assert_eq!(app.data.lock().unwrap().settings.screens.stage.screens[0].test, TestPattern::Grid);
+        assert_eq!(app.data().settings.screens.stage.screens[0].test, TestPattern::Grid);
         assert_eq!(state(&op).get_test(), 1);
         assert!(!app.history.lock().unwrap().can_undo(), "a test pattern is not an edit to undo");
         op.close_dialog();
         settle(&op);
-        assert!(app.data.lock().unwrap().settings.screens.stage.screens[0].test.is_off());
+        assert!(app.data().settings.screens.stage.screens[0].test.is_off());
     }
 
     #[test]
@@ -809,7 +809,7 @@ mod tests {
         click(&op, "ScreensDialog::mirror-toggle", 0);
         refresh(&op);
         settle(&op);
-        assert!(app.data.lock().unwrap().settings.screens.stage.screens[0].mirror);
+        assert!(app.data().settings.screens.stage.screens[0].mirror);
         assert_eq!(*d.open.lock().unwrap(), [format!("room:{stage}")], "an audience window on the stage monitor");
         assert!(state(&op).get_note().contains("Shows the audience screen's picture"));
     }

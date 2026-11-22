@@ -195,7 +195,7 @@ enum Msg { Made { token: u64, kind: Kind, made: Result<Made, String> }, Report(P
 
 /// This window's screen fix and test pattern (N20), from the setup: the screen its window name stands for.
 fn fix_of(app: &App, role: &str) -> (ScreenFix, TestPattern) {
-    let d = app.data.lock().unwrap();
+    let d = app.data();
     d.settings.screens.screen_for(role).map_or_else(Default::default, |s| (s.fix, s.test))
 }
 
@@ -421,7 +421,7 @@ impl Inner {
         match made {
             Err(reason) => return self.fail(token, reason),
             Ok(Made::Pic(px, color)) => {
-                if kind == Kind::Media { self.ui.set_media_fit(media_fit(self.work.app.data.lock().unwrap().settings.media.scale)) }
+                if kind == Kind::Media { self.ui.set_media_fit(media_fit(self.work.app.data().settings.media.scale)) }
                 let side = Side { image: px.map(Px::image).unwrap_or_default(), color };
                 if let Some(p) = self.prep.borrow_mut().as_mut() { p.got.push((kind, Got::Pic(side))); p.done(kind) }
             }
@@ -887,7 +887,7 @@ fn drawer(shared: Arc<Shared>) -> std::sync::mpsc::Sender<Arc<Drawing>> {
 
 /// The mask of the audience screen shown as `role`; none for a screen that is not in the setup.
 fn mask_of(app: &App, role: &str) -> Mask {
-    app.data.lock().unwrap().settings.screens.keyed("audience").into_iter().find(|(k, _)| k == role).map(|(_, s)| s.mask).unwrap_or_default()
+    app.data().settings.screens.keyed("audience").into_iter().find(|(k, _)| k == role).map(|(_, s)| s.mask).unwrap_or_default()
 }
 
 /// Draws the window's mask again when it or the canvas changed (any thread but Slint's).
@@ -952,12 +952,12 @@ mod tests {
 
     fn add(app: &App, kind: ItemKind) -> Uuid {
         let id = Uuid::new_v4();
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind, background: None, notes: String::new(), theme: None });
+        app.data().services[0].items.push(ServiceItem { id, kind, background: None, notes: String::new(), theme: None });
         id
     }
     fn media(app: &App, kind: MediaKind, asset: &str) -> Uuid {
         let media_id = Uuid::new_v4();
-        app.data.lock().unwrap().media.push(MediaFile { id: media_id, name: asset.into(), kind, asset: asset.into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() });
+        app.data().media.push(MediaFile { id: media_id, name: asset.into(), kind, asset: asset.into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() });
         add(app, ItemKind::Media { media_id, autoplay: true, end: EndAction::Stop, looped: false })
     }
     fn scripture(app: &App) -> Uuid {
@@ -1271,7 +1271,7 @@ mod tests {
         let app = test_app();
         let room = open(&app);
         let sent = || room.inner.shared.inbox.lock().unwrap().iter().filter(|m| matches!(m, Msg::Device(d) if d.device == "wasapi/{b}")).count();
-        app.data.lock().unwrap().settings.audio_device = "wasapi/{b}".into();
+        app.data().settings.audio_device = "wasapi/{b}".into();
         app.broadcast_data();
         let end = Instant::now() + Duration::from_secs(5);
         while sent() == 0 && Instant::now() < end { std::thread::sleep(Duration::from_millis(5)); }
@@ -1280,7 +1280,7 @@ mod tests {
         std::thread::sleep(Duration::from_millis(50));
         assert_eq!(sent(), 1, "the same output again is not news");
         // Listen (N21): the headphones, with no delay or routing; off again: the main output as it was.
-        app.data.lock().unwrap().settings.media = crate::media_prefs::MediaPrefs { listen_device: "wasapi/{phones}".into(), delay_ms: 80, ..Default::default() };
+        app.data().settings.media = crate::media_prefs::MediaPrefs { listen_device: "wasapi/{phones}".into(), delay_ms: 80, ..Default::default() };
         app.listening.store(true, Ordering::Relaxed);
         app.broadcast_data();
         let phones = || room.inner.shared.inbox.lock().unwrap().iter().any(|m| matches!(m, Msg::Device(d) if d.device == "wasapi/{phones}" && d.delay == 0.0));
@@ -1393,7 +1393,7 @@ mod tests {
         let end = Instant::now() + Duration::from_secs(15);
         while room.inner.shared.inbox.lock().unwrap().len() < wanted && Instant::now() < end { std::thread::sleep(Duration::from_millis(5)) }
         let ((tx, locked), held) = (std::sync::mpsc::channel(), app.clone());
-        let saver = std::thread::spawn(move || { let _data = held.data.lock().unwrap(); tx.send(()).unwrap(); std::thread::sleep(Duration::from_secs(1)) });
+        let saver = std::thread::spawn(move || { let _data = held.data(); tx.send(()).unwrap(); std::thread::sleep(Duration::from_secs(1)) });
         locked.recv().unwrap();
         let t = Instant::now();
         room.pump(); // swaps and commits
@@ -1442,7 +1442,7 @@ mod tests {
         i_slint_backend_testing::init_no_event_loop();
         let app = test_app();
         image::RgbaImage::from_pixel(64, 32, image::Rgba([200, 0, 0, 255])).save(app.store.asset_path("logo.png")).unwrap();
-        app.data.lock().unwrap().settings.logo = Some("logo.png".into());
+        app.data().settings.logo = Some("logo.png".into());
         let room = open(&app);
         let v = run(&app, Command::Logo);
         assert!(pump_until(&room, 5.0, || app.live_view().committed == v));
@@ -1459,7 +1459,7 @@ mod tests {
         i_slint_backend_testing::init_no_event_loop();
         let app = test_app();
         let second = {
-            let mut d = app.data.lock().unwrap();
+            let mut d = app.data();
             let s = &mut d.settings.screens.audience;
             s.screens[0].output_mut().target = ScreenTarget::Window;
             let mut other = Screen::new(Uuid::new_v4(), "Lobby TV");

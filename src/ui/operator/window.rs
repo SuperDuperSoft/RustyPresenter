@@ -535,7 +535,7 @@ mod tests {
     fn add_video(app: &App) -> Uuid {
         let media = MediaFile { id: Uuid::new_v4(), name: "clip.mp4".into(), kind: MediaKind::Video, asset: "clip.mp4".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: media.id, autoplay: true, end: EndAction::Stop, looped: false }, background: None, notes: String::new(), theme: None };
-        let mut data = app.data.lock().unwrap();
+        let mut data = app.data();
         data.media.push(media.clone());
         data.services[0].items.push(item);
         media.id
@@ -548,7 +548,7 @@ mod tests {
         assert_eq!(op.ui.get_service_name(), "Service", "before the first read");
         refresh(&op);
         assert_eq!(op.ui.get_service_name(), "Sunday Service");
-        { let mut d = app.data.lock().unwrap(); d.services.clear(); d.current_service = None; }
+        { let mut d = app.data(); d.services.clear(); d.current_service = None; }
         refresh(&op);
         assert_eq!(op.ui.get_service_name(), "Service");
     }
@@ -581,7 +581,7 @@ mod tests {
         let op = open(&app);
         refresh(&op);
         assert!(find(&op, "TopBar::status-stage").is_none());
-        app.data.lock().unwrap().settings.screens.assign("stage", crate::model::ScreenTarget::Monitor(r"\\.\DISPLAY2".into()));
+        app.data().settings.screens.assign("stage", crate::model::ScreenTarget::Monitor(r"\\.\DISPLAY2".into()));
         refresh(&op);
         let pill = find(&op, "TopBar::status-stage").expect("stage pill once configured");
         assert_eq!(pill.accessible_value().unwrap_or_default(), "off");

@@ -25,7 +25,7 @@ fn click(op: &Operator, id: &str) {
 fn g(op: &Operator) -> DesignDlg<'_> { op.ui.global::<DesignDlg>() }
 
 fn designs(app: &App) -> Vec<(Uuid, String, Vec<Design>)> {
-    let d = app.data.lock().unwrap();
+    let d = app.data();
     d.service().unwrap().items.iter().filter_map(|i| match &i.kind {
         ItemKind::Design { title, slides } => Some((i.id, title.clone(), slides.clone())),
         _ => None,

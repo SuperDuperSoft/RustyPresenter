@@ -148,7 +148,7 @@ mod tests {
 
     fn add_text(app: &App, title: &str, body: &str) -> Uuid {
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: body.into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
-        app.data.lock().unwrap().services[0].items.push(item.clone());
+        app.data().services[0].items.push(item.clone());
         item.id
     }
 
@@ -183,7 +183,7 @@ mod tests {
         assert!(!g.invoke_can_drop(DataTransfer::default()), "a file or other text is not a tile");
         g.invoke_dropped(2, d);
         refresh(&op);
-        assert_eq!(slide_actions::of(&app.data.lock().unwrap().automation, id, 2).len(), 2, "both steps of the tile");
+        assert_eq!(slide_actions::of(&app.data().automation, id, 2).len(), 2, "both steps of the tile");
         assert_eq!(g.get_slide(), 2, "the palette shows the slide it went on");
         assert_eq!(g.get_current().row_count(), 1);
         assert_eq!(badges(&op, 3)[2].0, 2);
@@ -206,10 +206,10 @@ mod tests {
         g.set_slide(1);
         g.invoke_add(tile_code(&op, "Clear audio").into());
         refresh(&op);
-        assert_eq!(slide_actions::of(&app.data.lock().unwrap().automation, id, 1).len(), 1);
+        assert_eq!(slide_actions::of(&app.data().automation, id, 1).len(), 1);
         g.invoke_remove(0);
         refresh(&op);
-        assert!(app.data.lock().unwrap().automation.slide_actions.is_empty());
+        assert!(app.data().automation.slide_actions.is_empty());
         // The badge opens the palette on its slide.
         toggle(&op);
         assert!(!g.get_open());

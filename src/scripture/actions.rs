@@ -115,7 +115,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
         "scripture/breaks" => {
             #[derive(Deserialize)] struct B { id: Uuid, #[serde(default)] breaks: Option<VerseBreaks>, #[serde(default)] per_slide: Option<u8> }
             let B { id, breaks, per_slide } = parse(body)?;
-            let d = app.data.lock().unwrap();
+            let d = app.data();
             let item = d.service().and_then(|s| s.items.iter().find(|i| i.id == id)).ok_or_else(|| ActionError::bad(crate::tr!("That item is gone.")))?;
             let ItemKind::Scripture { translation, verses, per_slide: stored, also, layout, breaks: saved, .. } = &item.kind else {
                 return Err(ActionError::bad(crate::tr!("That item is gone.")));
@@ -205,7 +205,7 @@ mod tests {
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Scripture { reference: "Psalm 23:1-4".into(), translation: "KJV".into(), verses, per_slide: 0, text_size: 0,
             also: vec![], layout: Default::default(), breaks: Default::default() }, background: None, notes: String::new(), theme: None };
         let id = item.id;
-        app.data.lock().unwrap().services[0].items.push(item);
+        app.data().services[0].items.push(item);
         let v = act(&app, "scripture/breaks", json!({ "id": id })).await.unwrap();
         assert_eq!(v["view"]["verses"].as_array().unwrap().len(), 4);
         assert_eq!(v["view"]["gaps"].as_array().unwrap().len(), 3);
@@ -215,7 +215,7 @@ mod tests {
         let labels: Vec<&str> = v["view"]["slides"].as_array().unwrap().iter().map(|s| s["label"].as_str().unwrap()).collect();
         assert_eq!(labels.last(), Some(&"Psalm 23:3–4"));
         act(&app, "service/update", json!({ "id": id, "breaks": v["view"]["save"], "per_slide": 0 })).await.unwrap();
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         assert!(matches!(&d.services[0].items[0].kind, ItemKind::Scripture { breaks, .. } if *breaks == marks));
     }
 }

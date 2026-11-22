@@ -207,7 +207,7 @@ mod tests {
 
         fn video(app: &App) -> Uuid {
             let id = Uuid::new_v4();
-            app.data.lock().unwrap().media.push(MediaFile { id, name: "Intro".into(), kind: MediaKind::Video, asset: "v.mp4".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() });
+            app.data().media.push(MediaFile { id, name: "Intro".into(), kind: MediaKind::Video, asset: "v.mp4".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() });
             id
         }
 
@@ -216,13 +216,13 @@ mod tests {
             serde_json::from_value(v["id"].clone()).unwrap()
         }
 
-        fn kind(app: &App, id: Uuid) -> ItemKind { app.data.lock().unwrap().services[0].items.iter().find(|i| i.id == id).unwrap().kind.clone() }
+        fn kind(app: &App, id: Uuid) -> ItemKind { app.data().services[0].items.iter().find(|i| i.id == id).unwrap().kind.clone() }
 
         #[tokio::test]
         async fn a_video_added_without_a_choice_ends_as_settings_say() {
             let app = test_app();
             let m = video(&app);
-            app.data.lock().unwrap().settings.media.video_end = EndAction::Next;
+            app.data().settings.media.video_end = EndAction::Next;
             let id = add(&app, json!({ "kind": "media", "media_id": m, "autoplay": true })).await;
             assert!(matches!(kind(&app, id), ItemKind::Media { end: EndAction::Next, .. }));
             let id = add(&app, json!({ "kind": "media", "media_id": m, "end": "loop" })).await;
@@ -233,20 +233,20 @@ mod tests {
         async fn pictures_added_as_a_slideshow_turn_by_themselves() {
             let app = test_app();
             let deck = Uuid::new_v4();
-            app.data.lock().unwrap().decks.push(Deck { id: deck, title: "Notices".into(), slides: vec!["a.png".into(), "b.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![], show: None });
-            app.data.lock().unwrap().settings.media.picture_secs = 8;
+            app.data().decks.push(Deck { id: deck, title: "Notices".into(), slides: vec!["a.png".into(), "b.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![], show: None });
+            app.data().settings.media.picture_secs = 8;
             let shows = add(&app, json!({ "kind": "deck", "deck_id": deck, "slideshow": true })).await;
             let talk = add(&app, json!({ "kind": "deck", "deck_id": deck })).await;
-            let advance = app.data.lock().unwrap().automation.advance.clone();
+            let advance = app.data().automation.advance.clone();
             assert_eq!(advance.get(&shows).map(|a| (a.secs, a.loop_item)), Some((8, true)));
             assert!(!advance.contains_key(&talk), "PowerPoint slides wait for Next");
-            app.data.lock().unwrap().settings.media.picture_secs = 0;
+            app.data().settings.media.picture_secs = 0;
             let off = add(&app, json!({ "kind": "deck", "deck_id": deck, "slideshow": true })).await;
-            assert!(!app.data.lock().unwrap().automation.advance.contains_key(&off), "0: until Next is pressed");
+            assert!(!app.data().automation.advance.contains_key(&off), "0: until Next is pressed");
         }
 
         fn ended(app: &App) {
-            let inst = app.live.lock().unwrap().frame.media.as_ref().expect("a video is up").inst;
+            let inst = app.live().frame.media.as_ref().expect("a video is up").inst;
             app.room_event(RoomEvent::Media { inst, state: PlayState::Ended, position: 10.0, duration: 10.0, error: None });
         }
 
@@ -257,9 +257,9 @@ mod tests {
             let clip = add(&app, json!({ "kind": "media", "media_id": m, "end": "next" })).await;
             let words = add(&app, json!({ "kind": "text", "title": "Welcome", "body": "Hello" })).await;
             assert!(app.command(Envelope::new(Command::Show { item_id: clip, slide: 0 })).ok);
-            assert!(matches!(app.live.lock().unwrap().frame.media.as_ref().map(|m| &m.v), Some(MediaLayer::Video { end: EndAction::Next, .. })));
+            assert!(matches!(app.live().frame.media.as_ref().map(|m| &m.v), Some(MediaLayer::Video { end: EndAction::Next, .. })));
             ended(&app);
-            assert_eq!(app.live.lock().unwrap().cursor.as_ref().map(|c| c.item_id), Some(words));
+            assert_eq!(app.live().cursor.as_ref().map(|c| c.item_id), Some(words));
         }
 
         #[tokio::test]
@@ -269,7 +269,7 @@ mod tests {
             let clip = add(&app, json!({ "kind": "media", "media_id": m, "end": "next" })).await;
             assert!(app.command(Envelope::new(Command::Show { item_id: clip, slide: 0 })).ok);
             ended(&app);
-            assert!(app.live.lock().unwrap().frame.media.is_none());
+            assert!(app.live().frame.media.is_none());
         }
 
         #[tokio::test]
@@ -280,8 +280,8 @@ mod tests {
             add(&app, json!({ "kind": "text", "title": "Welcome", "body": "Hello" })).await;
             assert!(app.command(Envelope::new(Command::Show { item_id: clip, slide: 0 })).ok);
             ended(&app);
-            assert_eq!(app.live.lock().unwrap().cursor.as_ref().map(|c| c.item_id), Some(clip));
-            assert!(app.live.lock().unwrap().frame.media.is_some());
+            assert_eq!(app.live().cursor.as_ref().map(|c| c.item_id), Some(clip));
+            assert!(app.live().frame.media.is_some());
         }
     }
 

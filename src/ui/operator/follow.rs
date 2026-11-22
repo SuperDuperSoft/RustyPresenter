@@ -127,7 +127,7 @@ mod tests {
         let song = Song { id: Uuid::new_v4(), title: "Grace".into(), lyrics: "Verse 1\nAmazing grace how sweet the sound\n\nChorus\nMy chains are gone".into(),
             arrangement: vec!["Verse 1".into(), "Chorus".into()], ..Default::default() };
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None };
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         d.songs.push(song);
         d.services[0].items.push(item.clone());
         item.id
@@ -135,7 +135,7 @@ mod tests {
 
     fn add_text(app: &App) -> Uuid {
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hello".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
-        app.data.lock().unwrap().services[0].items.push(item.clone());
+        app.data().services[0].items.push(item.clone());
         item.id
     }
 
@@ -171,7 +171,7 @@ mod tests {
 
     fn label(op: &Operator, id: &str) -> String { find(op, id).and_then(|e| e.accessible_label()).unwrap_or_default().to_string() }
 
-    fn saved(app: &App, item: Uuid) -> Option<Mode> { app.data.lock().unwrap().automation.follow.get(&item).copied() }
+    fn saved(app: &App, item: Uuid) -> Option<Mode> { app.data().automation.follow.get(&item).copied() }
 
     #[test]
     fn auto_chip_cycles_modes() {
@@ -204,7 +204,7 @@ mod tests {
         assert_eq!(op.state.borrow().asks, 0, "asked only once");
         // Settings → Auto-follow's mode is used by a song with none of its own.
         let fresh = add_song(&app);
-        app.data.lock().unwrap().settings.follow.mode = Mode::Suggest;
+        app.data().settings.follow.mode = Mode::Suggest;
         show(&op, fresh);
         assert_eq!(label(&op, "FollowRow::follow-chip"), "Suggest");
     }
@@ -240,7 +240,7 @@ mod tests {
         let app = test_app();
         app.start_follower();
         let song = add_song(&app);
-        app.data.lock().unwrap().automation.follow.insert(song, Mode::Auto);
+        app.data().automation.follow.insert(song, Mode::Auto);
         let op = opened(&app);
         show(&op, song);
         assert!(find(&op, "FollowRow::follow-hold").is_some() && !op.ui.follow_ui_all().get_holding());
@@ -259,7 +259,7 @@ mod tests {
         crate::ui::ui_test_init();
         let app = test_app();
         let song = add_song(&app);
-        app.data.lock().unwrap().automation.follow.insert(song, Mode::Suggest);
+        app.data().automation.follow.insert(song, Mode::Suggest);
         let op = opened(&app);
         show(&op, song);
         op.ui.invoke_service_select(song.to_string().into());

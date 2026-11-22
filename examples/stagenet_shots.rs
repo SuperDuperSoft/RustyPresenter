@@ -32,7 +32,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ],
     };
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         d.settings.screens.stage.on = true;
         let song = Song {
             id: Uuid::new_v4(), title: "Amazing Grace".into(),

@@ -206,7 +206,7 @@ fn show_setups(op: &Operator, p: &RecordPrefs) {
 /// What the file name comes out as now.
 fn show_example(op: &Operator) {
     let g = g(op);
-    let title = op.app().data.lock().unwrap().service().map(|s| s.name.clone()).unwrap_or_default();
+    let title = op.app().data().service().map(|s| s.name.clone()).unwrap_or_default();
     let ext = if g.get_format_index() == 1 { "mkv" } else { "mp4" };
     let stem = advanced::file_stem(&g.get_name(), chrono::Local::now().naive_local(), &title);
     g.set_name_example(format!("{stem}.{ext}").into());

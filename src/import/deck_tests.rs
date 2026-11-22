@@ -119,7 +119,7 @@ fn tmp_empty(app: &App) -> bool {
 }
 
 fn decks(app: &App) -> usize {
-    app.data.lock().unwrap().decks.len()
+    app.data().decks.len()
 }
 
 fn ooxml() -> Kind {
@@ -184,7 +184,7 @@ async fn pdf_is_rendered_and_published_as_one_deck() {
     let Imported::Job(id) = app.import_path(&source, ImportPurpose::PowerPoint, |_| {}).await.unwrap() else { panic!("no job") };
     finished(&app, id).await;
     assert!(job(&app, id).is_none(), "nothing to say, so the card goes");
-    let d = app.data.lock().unwrap();
+    let d = app.data();
     assert_eq!((d.decks.len(), d.decks[0].title.as_str(), d.decks[0].slides.len()), (1, "Sermon", 3));
     assert!(d.decks[0].slides.iter().all(|a| a.ends_with(".png") && app.store.asset_path(a).exists()));
     drop(d);
@@ -222,7 +222,7 @@ async fn libreoffice_import_adds_note() {
     finished(&app, id).await;
     let j = job(&app, id).expect("a note keeps the card");
     assert_eq!((j.note.as_deref(), j.error), (Some(strings::libreoffice_note().as_str()), None));
-    let deck = app.data.lock().unwrap().decks[0].clone();
+    let deck = app.data().decks[0].clone();
     assert_eq!((j.result, deck.slides.len()), (Some(deck.id), 2));
     assert!(tmp_empty(&app));
 }
@@ -234,7 +234,7 @@ async fn speaker_notes_are_kept_per_slide() {
     let file = staged(&app, &crate::import::notes::tests::sample_pptx());
     let id = start(app.clone(), file, "Talk".into());
     finished(&app, id).await;
-    let deck = app.data.lock().unwrap().decks[0].clone();
+    let deck = app.data().decks[0].clone();
     assert_eq!((deck.slides.len(), deck.notes), (3, crate::import::notes::tests::sample_notes()));
 }
 
@@ -245,7 +245,7 @@ async fn slide_transitions_are_kept_per_slide() {
     let file = staged(&app, &crate::import::transitions::tests::sample_pptx());
     let id = start(app.clone(), file, "Talk".into());
     finished(&app, id).await;
-    let deck = app.data.lock().unwrap().decks[0].clone();
+    let deck = app.data().decks[0].clone();
     assert_eq!(deck.transitions, crate::import::transitions::tests::sample_transitions());
     assert_eq!(deck.advance_ms, crate::model::deck_advance(crate::import::transitions::tests::sample_advance(), 3));
     assert_eq!(deck.advance_ms, vec![Some(5000)]);
@@ -254,8 +254,8 @@ async fn slide_transitions_are_kept_per_slide() {
     let file = staged(&app, &crate::import::transitions::tests::sample_pptx());
     let id = start(app.clone(), file, "Talk".into());
     finished(&app, id).await;
-    assert_eq!(app.data.lock().unwrap().decks[0].transitions, vec![]);
-    assert_eq!(app.data.lock().unwrap().decks[0].advance_ms, vec![]);
+    assert_eq!(app.data().decks[0].transitions, vec![]);
+    assert_eq!(app.data().decks[0].advance_ms, vec![]);
 }
 
 #[tokio::test]
@@ -265,7 +265,7 @@ async fn speaker_notes_from_an_odp() {
     let file = staged(&app, &crate::import::notes::tests::sample_odp());
     let id = start(app.clone(), file, "Talk".into());
     finished(&app, id).await;
-    assert_eq!(app.data.lock().unwrap().decks[0].notes, ["Hello  world", "First\nSecond\nline", ""]);
+    assert_eq!(app.data().decks[0].notes, ["Hello  world", "First\nSecond\nline", ""]);
 }
 
 #[tokio::test]
@@ -275,7 +275,7 @@ async fn speaker_notes_left_out_when_the_slide_count_differs() {
     let file = staged(&app, &crate::import::notes::tests::sample_pptx());
     let id = start(app.clone(), file, "Talk".into());
     finished(&app, id).await;
-    let deck = app.data.lock().unwrap().decks[0].clone();
+    let deck = app.data().decks[0].clone();
     assert_eq!((deck.slides.len(), deck.notes.len()), (2, 0));
 }
 
@@ -338,7 +338,7 @@ async fn overlapping_imports_set_their_own_results() {
     let b = start(app.clone(), second, "Two".into());
     finished(&app, a).await;
     finished(&app, b).await;
-    let d = app.data.lock().unwrap().decks.clone();
+    let d = app.data().decks.clone();
     let of = |title: &str| d.iter().find(|x| x.title == title).unwrap().id;
     assert_eq!(job(&app, a).unwrap().result, Some(of("One")));
     assert_eq!(job(&app, b).unwrap().result, Some(of("Two")));
@@ -354,7 +354,7 @@ async fn powerpoint_comes_first_and_needs_no_note() {
     let id = start(app.clone(), file, "Talk".into());
     finished(&app, id).await;
     assert_eq!(job(&app, id).map(|j| j.error), None);
-    assert_eq!(app.data.lock().unwrap().decks[0].slides.len(), 2);
+    assert_eq!(app.data().decks[0].slides.len(), 2);
     assert!(!d.join("mark").exists(), "LibreOffice was not needed");
 }
 
@@ -492,7 +492,7 @@ async fn real_converters_make_a_deck() {
     }
     let j = job(&app, id).expect("LibreOffice leaves a note");
     assert_eq!((j.error, j.note.as_deref()), (None, Some(strings::libreoffice_note().as_str())));
-    let deck = app.data.lock().unwrap().decks[0].clone();
+    let deck = app.data().decks[0].clone();
     let Kind::Ooxml { slides: Some(n), .. } = sniff::sniff(Path::new(&std::env::var_os("RP_TEST_DECK").unwrap())).unwrap() else { panic!("not a pptx") };
     assert_eq!(deck.slides.len(), n);
     let first = image::open(app.store.asset_path(&deck.slides[0])).unwrap();

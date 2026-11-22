@@ -29,7 +29,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = App::new(store, data, 0, None);
     let mut first = None;
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         for (title, lyrics) in SONGS {
             let song = Song { id: Uuid::new_v4(), title: title.into(), lyrics: lyrics.into(), writers: "John Newton".into(), ..Default::default() };
             if title != "Holy Holy Holy" {

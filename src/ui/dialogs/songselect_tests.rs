@@ -23,7 +23,7 @@ fn look_twice(op: &Rc<Operator>) { poll(op); poll(op); }
 
 fn rows(op: &Operator) -> Vec<SongSelectRow> { op.ui.global::<SongSelectDlg>().get_rows().iter().collect() }
 
-fn songs(app: &App) -> Vec<Song> { app.data.lock().unwrap().songs.to_vec() }
+fn songs(app: &App) -> Vec<Song> { app.data().songs.to_vec() }
 
 fn toasts(op: &Operator) -> Vec<(String, bool)> { op.toast_log() }
 
@@ -66,7 +66,7 @@ fn downloads_come_in_while_the_window_is_open() {
     // Add to the service: the window stays open for more.
     let river_row = rows(&op).into_iter().find(|r| r.title == "River Of Test Songs").unwrap();
     g.invoke_add(river_row.id.clone());
-    let items: Vec<ItemKind> = app.data.lock().unwrap().services[0].items.iter().map(|i| i.kind.clone()).collect();
+    let items: Vec<ItemKind> = app.data().services[0].items.iter().map(|i| i.kind.clone()).collect();
     assert!(matches!(&items[..], [ItemKind::Song { song_id, .. }] if *song_id == river.id), "{items:?}");
     assert_eq!(op.dialog(), Some(DialogKind::SongSelect));
     assert!(rows(&op).iter().find(|r| r.id == river_row.id).unwrap().in_service);
@@ -90,7 +90,7 @@ fn the_churchs_own_copy_is_never_changed() {
     let app = test_app();
     let mine = Song { id: Uuid::new_v4(), title: "River (our words)".into(), ccli: "1234567".into(), lyrics: "Verse 1\nOur own changed words".into(), ..Default::default() };
     let same = Song { id: Uuid::new_v4(), title: "Hills".into(), ccli: "7000001".into(), lyrics: "Verse 1\nOver the hills the morning comes\nLight on the fields\n\nChorus\nSing, sing, sing\nAll the hills will ring".into(), ..Default::default() };
-    app.data.lock().unwrap().songs.extend([mine.clone(), same.clone()]);
+    app.data().songs.extend([mine.clone(), same.clone()]);
     let op = opened(&app);
     open(&op);
     fs::write(dir.join("river.txt"), LYRICS_TXT).unwrap();
@@ -126,7 +126,7 @@ fn with_the_setting_on_downloads_come_in_while_the_window_is_closed() {
     assert!(find(&op, "SongSelectPage::songselect-inbox").is_some());
     f.set_songselect_inbox(true);
     find(&op, "SettingsWindow::save").unwrap().mock_single_click(slint::platform::PointerEventButton::Left);
-    assert!(app.data.lock().unwrap().settings.songselect_inbox);
+    assert!(app.data().settings.songselect_inbox);
     refresh(&op);
     assert!(op.songselect.watch.borrow().is_some(), "watching whenever the app is open");
     fs::write(dir.join("river.txt"), LYRICS_TXT).unwrap();
@@ -147,7 +147,7 @@ fn with_the_setting_on_downloads_come_in_while_the_window_is_closed() {
     op.close_dialog();
     assert!(op.songselect.watch.borrow().is_some(), "still watching: the setting is on");
     // Turned off: watching stops.
-    app.data.lock().unwrap().settings.songselect_inbox = false;
+    app.data().settings.songselect_inbox = false;
     refresh(&op);
     assert!(op.songselect.watch.borrow().is_none());
 }
@@ -249,6 +249,6 @@ fn dragging_songselect_files_brings_them_in() {
     let cclis: Vec<&str> = lib.iter().map(|s| s.ccli.as_str()).collect();
     assert_eq!(cclis, ["7654321", "7000001"]);
     assert_eq!(crate::slides::strip_chords(&lib[1].lyrics).unwrap(), "Verse 1\nOver the hills the morning comes\nLight on the fields\n\nChorus\nSing, sing, sing\nAll the hills will ring");
-    assert_eq!(app.data.lock().unwrap().services[0].items.len(), 2, "both go into the service, as a dropped lyric file does");
+    assert_eq!(app.data().services[0].items.len(), 2, "both go into the service, as a dropped lyric file does");
     assert!(!toasts(&op).iter().any(|t| t.1), "{:?}", toasts(&op));
 }

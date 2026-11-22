@@ -743,17 +743,17 @@ mod tests {
 
     fn push(app: &App, kind: ItemKind) -> Uuid {
         let item = ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new(), theme: None };
-        app.data.lock().unwrap().services[0].items.push(item.clone());
+        app.data().services[0].items.push(item.clone());
         item.id
     }
 
     fn item(app: &App, id: Uuid) -> Option<ServiceItem> {
-        app.data.lock().unwrap().services[0].items.iter().find(|i| i.id == id).cloned()
+        app.data().services[0].items.iter().find(|i| i.id == id).cloned()
     }
 
     fn media(app: &App, name: &str, kind: MediaKind) -> Uuid {
         let m = MediaFile { id: Uuid::new_v4(), name: name.into(), kind, asset: format!("{}.bin", Uuid::new_v4()), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
-        app.data.lock().unwrap().media.push(m.clone());
+        app.data().media.push(m.clone());
         m.id
     }
 
@@ -803,7 +803,7 @@ mod tests {
     fn song_item(app: &App, own: Option<&[&str]>) -> (Uuid, Uuid) {
         let song = Song { id: Uuid::new_v4(), title: "Grace".into(), lyrics: "Verse 1\na\nChorus\nb\nVerse 2\nc".into(),
             arrangement: vec!["Verse 1".into(), "Chorus".into(), "Verse 2".into()], ..Default::default() };
-        app.data.lock().unwrap().songs.push(song.clone());
+        app.data().songs.push(song.clone());
         let arrangement = own.map(|o| o.iter().map(|s| s.to_string()).collect());
         (song.id, push(app, ItemKind::Song { song_id: song.id, arrangement }))
     }
@@ -812,7 +812,7 @@ mod tests {
         match item(app, id).unwrap().kind { ItemKind::Song { arrangement, .. } => arrangement, _ => panic!() }
     }
 
-    fn usual_order(app: &App, song: Uuid) -> Vec<String> { app.data.lock().unwrap().songs.iter().find(|s| s.id == song).unwrap().arrangement.clone() }
+    fn usual_order(app: &App, song: Uuid) -> Vec<String> { app.data().songs.iter().find(|s| s.id == song).unwrap().arrangement.clone() }
 
     fn strip(op: &Operator) -> Vec<String> {
         use slint::Model;
@@ -834,7 +834,7 @@ mod tests {
         assert_eq!(g(&op).get_follow_mode(), 0, "As in Settings");
         g(&op).set_follow_mode(3);
         press(&op, "ItemEditDialog::save");
-        assert_eq!(app.data.lock().unwrap().automation.follow.get(&id), Some(&Mode::Auto));
+        assert_eq!(app.data().automation.follow.get(&id), Some(&Mode::Auto));
         // No speech model yet: the download is offered.
         assert_eq!(op.state.borrow().asks, 1);
         crate::ui::dialogs::ask::answer(&op, false, String::new());
@@ -843,7 +843,7 @@ mod tests {
         assert_eq!(g(&op).get_follow_mode(), 3);
         g(&op).set_follow_mode(0);
         press(&op, "ItemEditDialog::save");
-        assert_eq!(app.data.lock().unwrap().automation.follow.get(&id), None, "back to Settings' mode");
+        assert_eq!(app.data().automation.follow.get(&id), None, "back to Settings' mode");
     }
 
     #[test]
@@ -960,7 +960,7 @@ mod tests {
         assert_ne!(verses[0].text, "old text", "the verse is WEB's now");
         assert_eq!(op.dialog(), None);
         assert_eq!(toasts(&op).last(), Some(&("Saved".to_string(), false)));
-        assert_eq!(app.data.lock().unwrap().settings.translation, "KJV", "the Bible box keeps its Bible");
+        assert_eq!(app.data().settings.translation, "KJV", "the Bible box keeps its Bible");
     }
 
     #[test]
@@ -1060,7 +1060,7 @@ mod tests {
         assert!(verses[0].text.starts_with("For God so loved"), "looked up again with WEB: {}", verses[0].text);
         assert_eq!(op.dialog(), None);
         assert_eq!(toasts(&op).last(), Some(&("Saved".to_string(), false)));
-        let s = app.data.lock().unwrap().settings.clone();
+        let s = app.data().settings.clone();
         assert!(s.also_show.is_empty(), "Settings keep their own Also Bibles");
         assert_eq!(s.parallel_layout, ParallelLayout::SideBySide);
     }
@@ -1240,7 +1240,7 @@ mod tests {
         use slint::Model;
         let app = test_app();
         let christmas = crate::theme::SavedTheme { id: Uuid::new_v4(), name: "Christmas".into(), style: Default::default(), background: None };
-        app.data.lock().unwrap().themes.push(christmas.clone());
+        app.data().themes.push(christmas.clone());
         let id = push(&app, ItemKind::Text { title: "A".into(), body: "a".into(), layout: Default::default() });
         let op = opened(&app);
         open(&op, id);
@@ -1297,7 +1297,7 @@ mod tests {
         let tiles = find_all(&op, "BackgroundPicker::choice");
         tiles.last().unwrap().invoke_accessible_default_action();
         settle();
-        let names: Vec<String> = app.data.lock().unwrap().media.iter().map(|m| m.name.clone()).collect();
+        let names: Vec<String> = app.data().media.iter().map(|m| m.name.clone()).collect();
         assert_eq!(names, ["one", "two"], "the core names media without the extension");
         assert_eq!(toasts(&op).last(), Some(&("Added to the media library — pick it here".to_string(), false)));
         let tiles = find_all(&op, "BackgroundPicker::choice");
@@ -1306,7 +1306,7 @@ mod tests {
         tiles[15].invoke_accessible_default_action();
         settle();
         press(&op, "ItemEditDialog::save");
-        let asset = app.data.lock().unwrap().media[1].asset.clone();
+        let asset = app.data().media[1].asset.clone();
         assert_eq!(item(&app, id).unwrap().background, Some(Background::Image { asset, dim: 0 }));
         assert_eq!(op.dialog(), None);
     }
@@ -1322,7 +1322,7 @@ mod tests {
         type_into(&op, "ItemEditDialog::name-box", "  Sunrise  ");
         type_into(&op, "ItemEditDialog::notes-box", "Hold here");
         press(&op, "ItemEditDialog::save");
-        assert_eq!(app.data.lock().unwrap().media[0].name, "Sunrise", "renamed, trimmed");
+        assert_eq!(app.data().media[0].name, "Sunrise", "renamed, trimmed");
         assert_eq!(item(&app, id).unwrap().notes, "Hold here", "then updated");
         assert_eq!(op.dialog(), None);
 
@@ -1331,24 +1331,24 @@ mod tests {
         open(&op, id);
         type_into(&op, "ItemEditDialog::name-box", "   ");
         press(&op, "ItemEditDialog::save");
-        assert_eq!(app.data.lock().unwrap().media[0].name, "Sunrise");
+        assert_eq!(app.data().media[0].name, "Sunrise");
 
         // Slides: "Name" renames the deck.
         let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Announcements".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![], show: None };
-        app.data.lock().unwrap().decks.push(deck.clone());
+        app.data().decks.push(deck.clone());
         let id = push(&app, ItemKind::Deck { deck_id: deck.id });
         refresh(&op);
         open(&op, id);
         type_into(&op, "ItemEditDialog::name-box", "Notices");
         press(&op, "ItemEditDialog::save");
-        assert_eq!(app.data.lock().unwrap().decks[0].title, "Notices");
+        assert_eq!(app.data().decks[0].title, "Notices");
     }
 
     #[test]
     fn deck_speaker_notes_are_edited_per_slide() {
         let app = test_app();
         let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec!["Welcome".into()], transitions: vec![], advance_ms: vec![], show: None };
-        app.data.lock().unwrap().decks.push(deck.clone());
+        app.data().decks.push(deck.clone());
         let id = push(&app, ItemKind::Deck { deck_id: deck.id });
         let op = opened(&app);
         open(&op, id);
@@ -1361,7 +1361,7 @@ mod tests {
         boxes[0].set_accessible_value("");
         settle();
         press(&op, "ItemEditDialog::save");
-        assert_eq!(app.data.lock().unwrap().decks[0].notes, ["", "", "Pray"]);
+        assert_eq!(app.data().decks[0].notes, ["", "", "Pray"]);
         assert_eq!(op.dialog(), None);
 
         // Other items show no speaker notes.
@@ -1378,7 +1378,7 @@ mod tests {
         let app = test_app();
         let show = crate::model::DeckShow { file: "talk.pptx".into(), run: true };
         let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![], show: Some(show) };
-        app.data.lock().unwrap().decks.push(deck.clone());
+        app.data().decks.push(deck.clone());
         let id = push(&app, ItemKind::Deck { deck_id: deck.id });
         let op = opened(&app);
         open(&op, id);
@@ -1393,11 +1393,11 @@ mod tests {
         // Pictures: the kept file stays, only the deck's mode changes.
         crate::ui::dialogs::ask::answer_other(&op);
         let began = std::time::Instant::now();
-        while app.data.lock().unwrap().decks[0].show.as_ref().unwrap().run && began.elapsed() < std::time::Duration::from_secs(5) {
+        while app.data().decks[0].show.as_ref().unwrap().run && began.elapsed() < std::time::Duration::from_secs(5) {
             settle();
             std::thread::sleep(std::time::Duration::from_millis(20));
         }
-        assert_eq!(app.data.lock().unwrap().decks[0].show, Some(crate::model::DeckShow { file: "talk.pptx".into(), run: false }));
+        assert_eq!(app.data().decks[0].show, Some(crate::model::DeckShow { file: "talk.pptx".into(), run: false }));
     }
 
     #[test]
@@ -1406,7 +1406,7 @@ mod tests {
         let app = test_app();
         let pushed = Transition { kind: TransitionKind::Push, ms: 800, dir: Dir::Up };
         let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![None, Some(pushed)], advance_ms: vec![], show: None };
-        app.data.lock().unwrap().decks.push(deck.clone());
+        app.data().decks.push(deck.clone());
         let id = push(&app, ItemKind::Deck { deck_id: deck.id });
         let op = opened(&app);
         open(&op, id);
@@ -1423,7 +1423,7 @@ mod tests {
         settle();
         press(&op, "ItemEditDialog::save");
         let wipe = Transition { kind: TransitionKind::Wipe, ms: 1200, dir: Dir::Right };
-        assert_eq!(app.data.lock().unwrap().decks[0].transitions, vec![None, Some(pushed), Some(wipe)]);
+        assert_eq!(app.data().decks[0].transitions, vec![None, Some(pushed), Some(wipe)]);
         // Use for all slides; then Normal everywhere saves none.
         refresh(&op);
         open(&op, id);
@@ -1431,7 +1431,7 @@ mod tests {
         let g = op.ui.global::<ItemEdit>();
         g.invoke_deck_transition_to_all(2);
         press(&op, "ItemEditDialog::save");
-        assert_eq!(app.data.lock().unwrap().decks[0].transitions, vec![Some(wipe); 3]);
+        assert_eq!(app.data().decks[0].transitions, vec![Some(wipe); 3]);
         refresh(&op);
         open(&op, id);
         settle();
@@ -1439,14 +1439,14 @@ mod tests {
         g.invoke_deck_transition_changed(0, 0);
         g.invoke_deck_transition_to_all(0);
         press(&op, "ItemEditDialog::save");
-        assert_eq!(app.data.lock().unwrap().decks[0].transitions, vec![]);
+        assert_eq!(app.data().decks[0].transitions, vec![]);
     }
 
     #[test]
     fn use_for_all_slides_also_copies_the_auto_advance_time() {
         let app = test_app();
         let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![None, Some(4000)], show: None };
-        app.data.lock().unwrap().decks.push(deck.clone());
+        app.data().decks.push(deck.clone());
         let id = push(&app, ItemKind::Deck { deck_id: deck.id });
         let op = opened(&app);
         open(&op, id);
@@ -1457,14 +1457,14 @@ mod tests {
         let shown: Vec<String> = (0..3).map(|i| g.get_deck_notes().row_data(i).unwrap().advance.into()).collect();
         assert_eq!(shown, ["4", "4", "4"]);
         press(&op, "ItemEditDialog::save");
-        assert_eq!(app.data.lock().unwrap().decks[0].advance_ms, vec![Some(4000); 3]);
+        assert_eq!(app.data().decks[0].advance_ms, vec![Some(4000); 3]);
     }
 
     #[test]
     fn deck_slide_auto_advance_is_shown_typed_and_saved() {
         let app = test_app();
         let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into(), "3.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![Some(5000), Some(2500)], show: None };
-        app.data.lock().unwrap().decks.push(deck.clone());
+        app.data().decks.push(deck.clone());
         let id = push(&app, ItemKind::Deck { deck_id: deck.id });
         let op = opened(&app);
         open(&op, id);
@@ -1477,8 +1477,8 @@ mod tests {
         g.invoke_deck_advance_edited(2, "10".into());
         settle();
         press(&op, "ItemEditDialog::save");
-        assert_eq!(app.data.lock().unwrap().decks[0].advance_ms, vec![Some(5000), None, Some(10_000)]);
-        assert_eq!(app.data.lock().unwrap().decks[0].transitions, vec![], "transitions stay as they were");
+        assert_eq!(app.data().decks[0].advance_ms, vec![Some(5000), None, Some(10_000)]);
+        assert_eq!(app.data().decks[0].transitions, vec![], "transitions stay as they were");
         // Not a number: nothing is saved and the dialog stays.
         refresh(&op);
         open(&op, id);
@@ -1486,7 +1486,7 @@ mod tests {
         let g = op.ui.global::<ItemEdit>();
         g.invoke_deck_advance_edited(0, "soon".into());
         press(&op, "ItemEditDialog::save");
-        assert_eq!(app.data.lock().unwrap().decks[0].advance_ms, vec![Some(5000), None, Some(10_000)]);
+        assert_eq!(app.data().decks[0].advance_ms, vec![Some(5000), None, Some(10_000)]);
         assert_eq!(op.dialog(), Some(DialogKind::ItemEdit(id)));
         assert_eq!(advance_ms(" 1,5 "), Ok(Some(1500)));
         assert_eq!(advance_ms("-1"), Err(()));
@@ -1519,7 +1519,7 @@ mod tests {
         let id = push(&app, ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() });
         let op = opened(&app);
         open(&op, id);
-        app.data.lock().unwrap().services[0].items.retain(|i| i.id != id);
+        app.data().services[0].items.retain(|i| i.id != id);
         press(&op, "ItemEditDialog::save");
         assert_eq!(toasts(&op).last(), Some(&("That item is gone.".to_string(), true)));
         assert_eq!(op.dialog(), Some(DialogKind::ItemEdit(id)), "the dialog stays open");
@@ -1555,7 +1555,7 @@ mod tests {
     fn song_item_offers_edit_song_or_says_deleted() {
         let app = test_app();
         let song = Song { id: Uuid::new_v4(), title: "Amazing Grace".into(), writers: String::new(), ccli: String::new(), copyright: String::new(), lyrics: "Verse 1\nAmazing grace".into(), arrangement: vec![], ..Default::default() };
-        app.data.lock().unwrap().songs.push(song.clone());
+        app.data().songs.push(song.clone());
         let id = push(&app, ItemKind::Song { song_id: song.id, arrangement: None });
         let gone = push(&app, ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None });
         let op = opened(&app);
@@ -1574,7 +1574,7 @@ mod tests {
     fn not_ready_media_shows_its_status() {
         let app = test_app();
         let m = media(&app, "odd.mkv", MediaKind::Video);
-        app.data.lock().unwrap().media[0].status = MediaStatus::Failed { reason: "Broken file".into() };
+        app.data().media[0].status = MediaStatus::Failed { reason: "Broken file".into() };
         let id = push(&app, ItemKind::Media { media_id: m, autoplay: true, end: EndAction::Stop, looped: false });
         let op = opened(&app);
         open(&op, id);

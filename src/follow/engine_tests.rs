@@ -10,7 +10,7 @@ fn auto_shows_next_slide_via_command() {
     let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None };
     let item_id = item.id;
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         d.songs.push(song);
         d.service_mut().unwrap().items.push(item);
         d.settings.lines_per_slide = 2;
@@ -25,9 +25,9 @@ fn auto_shows_next_slide_via_command() {
     // Q8: a second look with nothing changed copies no slides; a change to the screen or the data is read again.
     let again = host.live().unwrap();
     assert!(Arc::ptr_eq(&live.slides, &again.slides) && again == live, "the same song, its slides shared");
-    app.data.lock().unwrap().settings.follow.mode = Mode::Suggest;
+    app.data().settings.follow.mode = Mode::Suggest;
     assert_eq!(host.live().unwrap().mode, Mode::Suggest, "the data changed");
-    app.data.lock().unwrap().settings.follow.mode = Mode::Auto;
+    app.data().settings.follow.mode = Mode::Auto;
     assert!(app.command(Envelope { id: "op2".into(), base: None, cmd: Command::ClearSlide }).ok);
     assert!(!host.live().unwrap().words_up, "the screen changed");
     assert!(app.command(Envelope { id: "op3".into(), base: None, cmd: Command::Show { item_id, slide: 0 } }).ok);
@@ -36,7 +36,7 @@ fn auto_shows_next_slide_via_command() {
     let mut e = Engine::new();
     let mut t = 0.0;
     sing(&mut e, &host, &sung.join(" "), &mut t);
-    let cursor = app.live.lock().unwrap().cursor.clone().unwrap();
+    let cursor = app.live().cursor.clone().unwrap();
     assert_eq!((cursor.item_id, cursor.slide), (item_id, 1), "Auto took slide 2 live through the live engine");
     assert_eq!(e.state().light, Light::Sure);
 }

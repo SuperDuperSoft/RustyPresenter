@@ -67,7 +67,7 @@ mod tests {
         let song = Song { id: Uuid::new_v4(), title: "Grace".into(), key: "G".into(), lyrics: "Verse 1\n[G]Amazing grace".into(), ..Default::default() };
         let (song_id, item_id, text_id) = (song.id, Uuid::new_v4(), Uuid::new_v4());
         {
-            let mut d = app.data.lock().unwrap();
+            let mut d = app.data();
             d.songs.push(song);
             d.services[0].items.push(ServiceItem { id: item_id, kind: ItemKind::Song { song_id, arrangement: None }, background: None, notes: String::new(), theme: None });
             d.services[0].items.push(ServiceItem { id: text_id, kind: ItemKind::Text { title: "Hi".into(), body: "x".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
@@ -88,13 +88,13 @@ mod tests {
         settle(&op);
         refresh(&op);
         render(&op);
-        assert_eq!(app.data.lock().unwrap().songs.iter().find(|s| s.id == song_id).unwrap().transpose, 2);
+        assert_eq!(app.data().songs.iter().find(|s| s.id == song_id).unwrap().transpose, 2);
         assert_eq!((g.get_text().as_str(), g.get_moved()), ("G → A, +2", true));
         g.invoke_reset();
         settle(&op);
         refresh(&op);
         render(&op);
-        assert_eq!(app.data.lock().unwrap().songs.iter().find(|s| s.id == song_id).unwrap().transpose, 0);
+        assert_eq!(app.data().songs.iter().find(|s| s.id == song_id).unwrap().transpose, 0);
         assert_eq!((g.get_text().as_str(), g.get_moved()), ("G", false));
     }
 }

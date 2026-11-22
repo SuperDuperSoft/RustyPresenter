@@ -378,10 +378,10 @@ impl App {
             listening: AtomicBool::new(false), room_canvas: AtomicU64::new(1920 << 32 | 1080), pplive: Default::default(), follower: OnceLock::new(),
             listen: Mutex::default(), tape: Default::default(),
         });
-        crate::sections::look::set_look(&app.data.lock().unwrap().settings.sections);
+        crate::sections::look::set_look(&app.data().settings.sections);
         {
-            let data = app.data.lock().unwrap();
-            let mut live = app.live.lock().unwrap();
+            let data = app.data();
+            let mut live = app.live();
             live.keep_drawing = data.settings.keep_drawings;
             crate::live::drawing::actions::sync_fade(&mut live, &data.settings);
         }
@@ -396,7 +396,7 @@ impl App {
     pub fn online_text_from_cache(&self) {
         use crate::scripture::online::online_only;
         let root = &self.store.root;
-        let mut data = self.data.lock().unwrap();
+        let mut data = self.data();
         let before = data.clone();
         let open = data.current_service;
         let mut pins: BTreeMap<String, Vec<crate::scripture::VerseId>> = BTreeMap::new();
@@ -421,7 +421,7 @@ impl App {
     pub async fn fetch_online_text(self: &Arc<Self>) {
         use crate::scripture::online::online_only;
         let wanted: Vec<(String, String)> = {
-            let data = self.data.lock().unwrap();
+            let data = self.data();
             data.service().map(|s| s.items.iter().flat_map(|i| match &i.kind {
                 ItemKind::Scripture { reference, translation, verses, also, .. } => std::iter::once((translation, verses.is_empty())).chain(also.iter().map(|a| (&a.translation, a.verses.is_empty())))
                     .filter(|(t, empty)| *empty && online_only(&self.store.root, t)).map(|(t, _)| (t.clone(), reference.clone())).collect::<Vec<_>>(),
@@ -439,8 +439,8 @@ impl App {
     }
 
     pub fn live_view(&self) -> LiveView {
-        let data = self.data.lock().unwrap();
-        let live = self.live.lock().unwrap();
+        let data = self.data();
+        let live = self.live();
         let plan = DataPlan(&data);
         LiveView {
             version: live.version,
@@ -504,7 +504,7 @@ impl App {
     /// nothing: this sends the last view with the new play status, as `Update::Playback`.
     fn broadcast_playback(&self) {
         let mut last = self.live_order.lock().unwrap();
-        let (version, media, audio) = { let live = self.live.lock().unwrap(); (live.version, live.media_status.clone(), live.audio_status.clone()) };
+        let (version, media, audio) = { let live = self.live(); (live.version, live.media_status.clone(), live.audio_status.clone()) };
         match last.as_ref().filter(|sent| sent.view().version == version) {
             Some(sent) => {
                 let update = LiveUpdate::new(LiveView { media, audio, ..sent.view().clone() });
@@ -520,8 +520,8 @@ impl App {
     fn tape_screen(&self) {
         if !self.tape.on() { return }
         let screen = {
-            let data = self.data.lock().unwrap();
-            let live = self.live.lock().unwrap();
+            let data = self.data();
+            let live = self.live();
             let (Some(item), Some(cursor)) = (live.item.as_ref(), live.cursor.as_ref()) else { return };
             let song = item.kind == "song";
             let words = |s: &crate::model::Slide| match &s.content { crate::model::SlideContent::Text { text, .. } => text.clone(), _ => String::new() };
@@ -542,7 +542,7 @@ impl App {
     /// tape's folder. Runs FFmpeg, so not on the UI thread.
     pub fn start_tape(self: &Arc<Self>) -> Result<std::path::PathBuf, String> {
         let about = {
-            let d = self.data.lock().unwrap();
+            let d = self.data();
             serde_json::json!({ "app": env!("CARGO_PKG_VERSION"), "follow": d.settings.follow, "lines_per_slide": d.settings.lines_per_slide })
         };
         let dir = self.tape.start(&self.store.root.join(crate::follow::tape::FOLDER), chrono::Local::now().naive_local(), about)?;
@@ -604,7 +604,7 @@ impl App {
     pub fn follow_wanted(&self) -> bool {
         // A practice tape records the room whatever mode the songs are in.
         if self.tape.on() { return true }
-        let d = self.data.lock().unwrap();
+        let d = self.data();
         d.settings.follow.mode != crate::follow::Mode::Manual || d.automation.follow.values().any(|m| *m != crate::follow::Mode::Manual)
     }
 
@@ -616,7 +616,7 @@ impl App {
         let f = self.start_follower();
         let mut listen = self.listen.lock().unwrap();
         if listen.as_ref().is_some_and(|c| c.running()) { return }
-        let chosen = self.data.lock().unwrap().settings.follow.input.clone();
+        let chosen = self.data().settings.follow.input.clone();
         let device = chosen.filter(|d| !d.is_empty()).or_else(|| crate::follow::input_devices().into_iter().next());
         let started = match device {
             Some(d) => crate::follow::Capture::start_tapped(&d, crate::follow::room_ear(f.lexicon()), f.sender(), Some(self.tape.clone())),
@@ -634,6 +634,16 @@ impl App {
         self.start_follow_if_wanted();
     }
     pub fn broadcast_data(&self) { let _ = self.tx.send(Update::Data); }
+
+    /// The data, locked. A thread that panicked while it held this lock leaves it "poisoned"; taking it with
+    /// `unwrap` would then panic on every screen, phone request and the follower, and one small bug in a rarely
+    /// used action would take the whole app down in the middle of a service. The data is taken as it is instead:
+    /// an edit that panicked was put back as it was (`edit_kept`), and everything else only reads or writes whole
+    /// values. Lock order: `data` → `live` → `automation`.
+    pub fn data(&self) -> crate::tracked::TrackedGuard<'_, Data> { self.data.lock().unwrap_or_else(|poisoned| poisoned.into_inner()) }
+
+    /// The live engine, locked; like `data`, never refused because another thread panicked while holding it.
+    pub fn live(&self) -> std::sync::MutexGuard<'_, Live> { self.live.lock().unwrap_or_else(|poisoned| poisoned.into_inner()) }
 
     /// A number that is different after every change to the data (`Tracked::rev`). Whoever draws from the data
     /// keeps the number it last read: the same number means there is nothing to read again.
@@ -681,9 +691,20 @@ impl App {
     fn edit_kept<T>(&self, step: bool, f: impl FnOnce(&mut Data) -> Result<T, String>) -> Result<T, String> {
         if self.read_only() { return Err(crate::theme::strings::newer_data().into()) }
         let r = {
-            let mut data = self.data.lock().unwrap();
+            let mut data = self.data();
             let before = data.clone();
-            let r = match f(&mut data).and_then(|r| self.take_save(&data).map(|s| (r, s))) {
+            // A change that panics half way is put back like one that fails, and the lock is let go clean before
+            // the panic carries on to be reported (`recovery::panic`): the data is never left half changed.
+            let done = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| f(&mut data)));
+            let made = match done {
+                Ok(made) => made,
+                Err(panic) => {
+                    *data = before;
+                    drop(data);
+                    std::panic::resume_unwind(panic);
+                }
+            };
+            let r = match made.and_then(|r| self.take_save(&data).map(|s| (r, s))) {
                 Ok(r) => r,
                 Err(e) => {
                     *data = before;
@@ -704,7 +725,7 @@ impl App {
     pub fn undo(&self, redo: bool) -> Result<String, String> {
         if self.read_only() { return Err(crate::theme::strings::newer_data().into()) }
         let r = {
-            let mut data = self.data.lock().unwrap();
+            let mut data = self.data();
             let mut history = self.history.lock().unwrap();
             let r = if redo { history.redo(&mut data) } else { history.undo(&mut data) };
             r.and_then(|t| self.take_save(&data).map(|s| (t, s)))
@@ -718,7 +739,7 @@ impl App {
     /// After memory changed (saved or not): every screen reads the data again.
     fn after_edit(&self) {
         // Settings → Sections: names, colours, keys and heading words follow at once.
-        let look = self.data.lock().unwrap().settings.sections.clone();
+        let look = self.data().settings.sections.clone();
         crate::sections::look::set_look(&look);
         let live_changed = self.reconcile_live();
         self.broadcast_data();
@@ -728,8 +749,8 @@ impl App {
 
     /// Compares the live item with the library (data, then live: the one lock order). True when live changed.
     pub(crate) fn reconcile_live(&self) -> bool {
-        let data = self.data.lock().unwrap();
-        let mut live = self.live.lock().unwrap();
+        let data = self.data();
+        let mut live = self.live();
         live.keep_drawing = data.settings.keep_drawings;
         crate::live::drawing::actions::sync_fade(&mut live, &data.settings);
         live.reconcile(&DataPlan(&data))
@@ -740,7 +761,7 @@ impl App {
         if matches!(env.cmd, Command::RunMacro { .. }) { return self.run_macro(&env).0 }
         // N29: the stage-only slide is the App's, like the stage message; the room never sees it.
         if let Command::StageOnly { item_id, slide } = env.cmd {
-            let version = self.live.lock().unwrap().version;
+            let version = self.live().version;
             return match self.set_stage_only(item_id, slide) {
                 Ok(()) => Outcome { ok: true, version, error: None, duplicate: false },
                 Err(e) => Outcome { ok: false, version, error: Some(e), duplicate: false },
@@ -752,8 +773,8 @@ impl App {
         if let Some(out) = self.show_command(&env) { return out }
         let cmd = env.cmd.clone();
         let out = {
-            let data = self.data.lock().unwrap();
-            let mut live = self.live.lock().unwrap();
+            let data = self.data();
+            let mut live = self.live();
             live.apply(env, &DataPlan(&data))
         };
         if out.ok && !out.duplicate {
@@ -779,7 +800,7 @@ impl App {
             Command::FollowHold { on } => { if let Some(f) = self.follower.get() { f.set_hold(on) } Ok(()) }
             _ => Ok(()),
         };
-        let version = self.live.lock().unwrap().version;
+        let version = self.live().version;
         // The Live column, stage and phones show the new mode or Hold at once; the follower looks again.
         if r.is_ok() { self.broadcast_live() }
         Outcome { ok: r.is_ok(), version, error: r.err(), duplicate: false }
@@ -798,12 +819,12 @@ impl App {
         let writer = self.state_writer.lock().unwrap();
         let Some(writer) = writer.as_ref() else { return };
         let seq = self.state_seq.fetch_add(1, Ordering::Relaxed) + 1;
-        let snapshot = state::snapshot(&self.live.lock().unwrap(), windows, seq);
+        let snapshot = state::snapshot(&self.live(), windows, seq);
         if let Some(s) = snapshot { writer.submit(s); }
     }
 
     /// Is video or audio on air?
-    pub fn playing(&self) -> bool { self.live.lock().unwrap().committed().is_some_and(|(frame, ..)| frame.plays()) }
+    pub fn playing(&self) -> bool { self.live().committed().is_some_and(|(frame, ..)| frame.plays()) }
 
     /// Where the restored players should start, in seconds.
     pub fn set_resume(&self, positions: &[(u64, f64)]) { self.resume.lock().unwrap().extend(positions.iter().copied()); }
@@ -815,7 +836,7 @@ impl App {
     /// Forgets the resume positions of the instances the room just committed.
     fn resume_on_air(&self) {
         if self.resume.lock().unwrap().is_empty() { return }
-        let Some((frame, ..)) = self.live.lock().unwrap().committed() else { return };
+        let Some((frame, ..)) = self.live().committed() else { return };
         let on_air: Vec<u64> = frame.instances().collect();
         self.resume.lock().unwrap().retain(|inst, _| !on_air.contains(inst));
     }
@@ -826,7 +847,7 @@ impl App {
 
     /// Something is on the screens now: a slide, a video or picture, or audio.
     pub fn on_air(&self) -> bool {
-        let live = self.live.lock().unwrap();
+        let live = self.live();
         live.frame.slide.is_some() || live.frame.media.is_some() || live.frame.audio.is_some()
     }
 
@@ -843,7 +864,7 @@ impl App {
         let shown = match item_id {
             None => None,
             Some(id) => {
-                let data = self.data.lock().unwrap();
+                let data = self.data();
                 let item = DataPlan(&data).build(id).ok_or_else(|| tr!("That item isn't in the service any more."))?;
                 let slide = item.slides.get(index).cloned().ok_or_else(|| tr!("That slide isn't there any more."))?;
                 Some(StageOnly { item_id: id, index, slide })
@@ -855,14 +876,14 @@ impl App {
     }
 
     pub fn set_notice(&self, text: &str) {
-        self.live.lock().unwrap().notice = Some(text.into());
+        self.live().notice = Some(text.into());
         self.broadcast_live();
     }
 
     pub fn room_event(&self, ev: RoomEvent) {
         let (changed, committed, only_position) = {
-            let data = self.data.lock().unwrap();
-            let mut live = self.live.lock().unwrap();
+            let data = self.data();
+            let mut live = self.live();
             let before = live.committed_version;
             let only_position = live.only_position(&ev);
             let failed = matches!(ev, RoomEvent::Failed { .. });
@@ -883,7 +904,7 @@ impl App {
         if changed { if only_position && !committed { self.broadcast_playback() } else { self.broadcast_live() } }
         if committed { self.resume_on_air(); self.save_live_state(); self.note_song_use(true); }
         if changed || committed {
-            let c = committed.then(|| self.live.lock().unwrap().committed_version);
+            let c = committed.then(|| self.live().committed_version);
             self.automation_after(c);
         }
     }
@@ -891,8 +912,8 @@ impl App {
     /// Room window restarted: static layers return, audible media does not (spec §4.2).
     pub fn room_recovered(&self) {
         {
-            let data = self.data.lock().unwrap();
-            let mut live = self.live.lock().unwrap();
+            let data = self.data();
+            let mut live = self.live();
             let mut stopped = false;
             if live.frame.media.as_ref().is_some_and(|m| matches!(m.v, MediaLayer::Video { .. })) {
                 live.apply(Envelope::new(Command::ClearMedia), &DataPlan(&data));
@@ -1011,7 +1032,7 @@ impl App {
             .and_then(|b| on_disk(|| crate::store::write_atomic(&self.store.root.join("phones.json"), &b)));
         // Without the file every paired phone is forgotten at the next start: said in the operator window (with
         // the next look at the screen; callers hold the phone list, so nothing is sent from here).
-        if let Err(e) = saved { self.live.lock().unwrap().notice = Some(tr!("The list of paired phones could not be saved: {reason}", reason = e)); }
+        if let Err(e) = saved { self.live().notice = Some(tr!("The list of paired phones could not be saved: {reason}", reason = e)); }
     }
     pub fn set_screens(&self, s: Arc<dyn Screens>) { let _ = self.screens.set(s); }
 
@@ -1029,7 +1050,7 @@ impl App {
     /// Makes the open windows match the setup: closes what it no longer asks for, and opens what is new or changed.
     /// A window that is already right is left alone, so nothing on air blinks. Says which screens could not open.
     pub fn sync_screens(&self) -> Result<(), String> {
-        let want = self.data.lock().unwrap().settings.screens.windows();
+        let want = self.data().settings.screens.windows();
         let mut applied = std::mem::take(&mut *self.applied.lock().unwrap());
         let wanted = |key: &str| want.iter().any(|w| w.key == key);
         for key in self.open_roles().into_iter().filter(|r| r != "operator" && !wanted(r)) { self.close_window(&key) }
@@ -1058,7 +1079,7 @@ impl App {
     /// Big number for each monitor, and the screens that show on it.
     fn identify_screens(&self) {
         let Some(screens) = self.screens.get() else { return };
-        let setup = self.data.lock().unwrap().settings.screens.clone();
+        let setup = self.data().settings.screens.clone();
         let marks = screens.monitors().into_iter().enumerate().map(|(i, m)| {
             let names: Vec<&str> = ScreenSetup::GROUPS.iter().filter_map(|g| setup.group(g)).flat_map(|g| &g.screens)
                 .filter(|s| s.output().target == ScreenTarget::Monitor(m.id.clone())).map(|s| s.name.as_str()).collect();
@@ -1072,7 +1093,7 @@ impl App {
     pub fn preflight(&self) -> Vec<String> {
         // A copy for the check, so the lock is not held while every file is looked at. The copy shares the songs,
         // media, decks and services (`Shared`): the status pill's look every 30 seconds copies no library.
-        let data = self.data.lock().unwrap().clone();
+        let data = self.data().clone();
         let has_asset = |id: &str| std::fs::metadata(self.store.asset_path(id)).is_ok_and(|m| m.is_file() && m.len() > 0);
         let audio: Vec<String> = self.audio_devices().into_iter().map(|d| d.name).collect();
         let root = &self.store.root;
@@ -1084,7 +1105,7 @@ impl App {
 
     /// Where the room's sound goes now: the main output, or the headphones while Listen is on (N21).
     pub fn sound_out(&self) -> crate::media_prefs::SoundOut {
-        let s = &self.data.lock().unwrap().settings;
+        let s = &self.data().settings;
         crate::media_prefs::sound_out(&s.audio_device, &s.media, self.listening.load(Ordering::Relaxed))
     }
 
@@ -1092,13 +1113,13 @@ impl App {
     pub fn watch_sound(&self) {
         use crate::{preflight::strings::sound_gone, sound};
         let chosen = self.sound_out().device;
-        let told = || self.live.lock().unwrap().notice.as_deref() == Some(&*sound_gone());
-        let heard = || sound::pauses(&self.live.lock().unwrap().frame);
+        let told = || self.live().notice.as_deref() == Some(&*sound_gone());
+        let heard = || sound::pauses(&self.live().frame);
         if !told() && (chosen.is_empty() || heard().is_empty()) { return }
         let found = if chosen.is_empty() { vec![] } else { self.audio_devices() };
         if !chosen.is_empty() && found.is_empty() { return } // The list could not be read: nothing has changed.
         if !sound::missing(&chosen, &found) {
-            let cleared = self.live.lock().unwrap().notice.take_if(|n| *n == sound_gone()).is_some();
+            let cleared = self.live().notice.take_if(|n| *n == sound_gone()).is_some();
             if cleared { self.broadcast_live(); }
             return;
         }
@@ -1215,7 +1236,7 @@ impl App {
 
     /// Gives a new passage the church's Also Bibles and layout. Returns the toast to show when some were left out.
     pub async fn fill_also(&self, item: &mut ServiceItem) -> Option<String> {
-        let (ids, layout) = { let d = self.data.lock().unwrap(); (d.settings.also_show.clone(), d.settings.parallel_layout) };
+        let (ids, layout) = { let d = self.data(); (d.settings.also_show.clone(), d.settings.parallel_layout) };
         let ItemKind::Scripture { reference, translation, .. } = &item.kind else { return None };
         if ids.is_empty() { return None }
         let (main, reference) = (translation.clone(), reference.clone());
@@ -1231,7 +1252,7 @@ impl App {
 
     /// The short name a Bible shows under: its credit's abbreviation, else its id.
     pub fn abbr_of(&self, translation: &str) -> String {
-        self.data.lock().unwrap().bible_credit(translation).map(|c| c.abbr.clone()).filter(|a| !a.is_empty()).unwrap_or_else(|| translation.to_string())
+        self.data().bible_credit(translation).map(|c| c.abbr.clone()).filter(|a| !a.is_empty()).unwrap_or_else(|| translation.to_string())
     }
 
     pub fn translations(&self) -> Vec<String> {
@@ -1321,7 +1342,7 @@ impl App {
     /// Works the slide credits out again; call it when a Bible is added, removed or its notice is learnt.
     pub(crate) fn refresh_bible_credits(&self) {
         let credits = self.bible_credits();
-        self.data.lock().unwrap().bible_credits = credits;
+        self.data().bible_credits = credits;
     }
 
     /// The online services a church can connect, for Settings → Bible.
@@ -1354,7 +1375,7 @@ impl App {
     /// nothing in the app asks for it: it is kept for the tests that read the state through it.
     #[cfg(test)]
     pub fn state_json(&self) -> Value {
-        let data = self.data.lock().unwrap();
+        let data = self.data();
         let items: Vec<Value> = data.service().map(|s| s.items.iter().map(|i| {
             let (title, kind, slides) = build_item(&data, i);
             json!({ "id": i.id, "title": title, "kind": kind, "slides": slides, "item": i })
@@ -1464,11 +1485,11 @@ impl App {
             let slideshow = item.as_object_mut().and_then(|o| o.remove("slideshow")).and_then(|v| v.as_bool()).unwrap_or(false);
             // A video added without a choice does what Settings → General → Screens and graphics and media says when it ends (N24).
             if item.get("kind").and_then(Value::as_str) == Some("media") && item.get("end").is_none() {
-                item["end"] = json!(app.data.lock().unwrap().settings.media.video_end);
+                item["end"] = json!(app.data().settings.media.video_end);
             }
             // A passage added without a choice gets the church's verses per slide (Settings → Look).
             if item.get("kind").and_then(Value::as_str) == Some("scripture") && item.get("per_slide").is_none() {
-                item["per_slide"] = json!(app.data.lock().unwrap().settings.bible_per_slide);
+                item["per_slide"] = json!(app.data().settings.bible_per_slide);
             }
             // ... and the church's Also Bibles (Settings → Bible), looked up here.
             let fill_also = item.get("kind").and_then(Value::as_str) == Some("scripture") && item.get("also").is_none();
@@ -1495,7 +1516,7 @@ impl App {
             // Merged by key into the stored item, so a client that does not know a field (an item's theme) keeps it.
             let patch: Value = parse(body)?;
             let stored = patch.get("id").and_then(|id| serde_json::from_value::<Uuid>(id.clone()).ok()).and_then(|id| {
-                app.data.lock().unwrap().service().and_then(|s| s.items.iter().find(|i| i.id == id)).and_then(|i| serde_json::to_value(i).ok())
+                app.data().service().and_then(|s| s.items.iter().find(|i| i.id == id)).and_then(|i| serde_json::to_value(i).ok())
             });
             let merged = match stored { Some(s) => tryr!(crate::theme::merge::merge_object(&s, &patch)), None => patch };
             let item: ServiceItem = serde_json::from_value(merged).map_err(|e| ActionError::bad(tr!("Bad request: {error}", error = e)))?;
@@ -1907,7 +1928,7 @@ impl App {
             if role == "operator" { tryr!(app.open_window(&role, None)) } else {
                 let target = monitor.map_or(ScreenTarget::Window, ScreenTarget::Monitor);
                 let group = if role == "room" { "audience" } else { "stage" };
-                let before = app.data.lock().unwrap().settings.screens.clone();
+                let before = app.data().settings.screens.clone();
                 tryr!(app.edit(|d| { d.settings.screens.assign(group, target); Ok(()) }));
                 if let Err(e) = app.sync_screens() {
                     // The screen did not open: the saved setup goes back to what it was, so it never says a screen
@@ -1938,7 +1959,7 @@ impl App {
         "screens/power" => {
             #[derive(Deserialize)] struct P { group: String, on: bool }
             let P { group, on } = parse(body)?;
-            let free = app.free_monitor(&app.data.lock().unwrap().settings.screens);
+            let free = app.free_monitor(&app.data().settings.screens);
             tryr!(app.edit(|d| {
                 let g = d.settings.screens.group_mut(&group).ok_or_else(|| tr!("Unknown screen."))?;
                 // The first switch-on just works when a screen is free for it.
@@ -2044,7 +2065,7 @@ impl App {
         }
         // ---- backups ----
         "backup/now" => {
-            let data = app.data.lock().unwrap().clone();
+            let data = app.data().clone();
             // Copies every asset: keep it off the runtime's worker threads.
             let a = app.clone();
             let name = tokio::task::spawn_blocking(move || a.store.backup(&data)).await
@@ -2062,11 +2083,11 @@ impl App {
             tokio::task::spawn_blocking(move || {
                 let mut restored = tryr!(app.store.restore(&name));
                 let removed = bible::blocklist::strip(&mut restored);
-                if removed > 0 { app.live.lock().unwrap().notice = Some(passages_removed(removed)); }
+                if removed > 0 { app.live().notice = Some(passages_removed(removed)); }
                 // Saved again through the numbered saves, so an edit's save still on its way to the disk can't put the
                 // replaced data back over the restored file.
                 let save = {
-                    let mut data = app.data.lock().unwrap();
+                    let mut data = app.data();
                     *data = restored;
                     app.take_save(&data)
                 };
@@ -2229,7 +2250,7 @@ impl App {
     /// starts; a save under way shows as a job with Cancel.
     pub async fn export_service(self: &Arc<Self>, id: Uuid, dest: PathBuf) -> Result<(), ExportError> {
         use crate::bundle;
-        let data = self.data.lock().unwrap().clone();
+        let data = self.data().clone();
         let app = self.clone();
         let check = tokio::task::spawn_blocking(move || bundle::gather(&data, id, &|a| app.store.asset_path(a).is_file()));
         let (contents, assets) = check.await.map_err(|e| ExportError::Failed(e.to_string()))?.map_err(ExportError::Missing)?;
@@ -2375,7 +2396,7 @@ impl App {
         let title = song.title.clone();
         // A question saves nothing, so it neither writes data.json nor tells the screens.
         if mode == SongImportMode::Ask {
-            let data = self.data.lock().unwrap();
+            let data = self.data();
             if let Some(s) = data.songs.iter().find(|s| !song.ccli.is_empty() && s.ccli == song.ccli) {
                 return Ok((None, title, Some(s.id)));
             }
@@ -2531,11 +2552,11 @@ mod tests {
     #[tokio::test]
     async fn a_passage_added_without_a_choice_gets_the_settings_verses_per_slide() {
         let app = test_app();
-        app.data.lock().unwrap().settings.bible_per_slide = 3;
+        app.data().settings.bible_per_slide = 3;
         let add = |per_slide: &str| format!(r#"{{"item":{{"kind":"scripture","reference":"John 3:16","translation":"KJV","verses":[]{per_slide}}}}}"#);
         app.do_action("service/add", add("").as_bytes()).await.unwrap();
         app.do_action("service/add", add(r#","per_slide":1"#).as_bytes()).await.unwrap();
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         let per: Vec<u8> = d.services[0].items.iter().map(|i| match i.kind { ItemKind::Scripture { per_slide, .. } => per_slide, _ => 9 }).collect();
         assert_eq!(per, [3, 1], "a choice the client made is kept");
     }
@@ -2546,7 +2567,7 @@ mod tests {
         let v = app.do_action("song/save", br#"{"id":"00000000-0000-0000-0000-000000000000","title":"Amazing Grace","lyrics":"Verse 1\nAmazing grace"}"#).await.unwrap();
         let id: Uuid = serde_json::from_value(v["id"].clone()).unwrap();
         assert!(!id.is_nil());
-        assert_eq!(app.data.lock().unwrap().songs[0].title, "Amazing Grace");
+        assert_eq!(app.data().songs[0].title, "Amazing Grace");
     }
 
     #[tokio::test]
@@ -2557,7 +2578,7 @@ mod tests {
 
     fn on_air(app: &App) {
         let id = Uuid::new_v4();
-        let mut live = app.live.lock().unwrap();
+        let mut live = app.live();
         struct One(Uuid);
         impl Plan for One {
             fn order(&self) -> Vec<Uuid> { vec![self.0] }
@@ -2582,7 +2603,7 @@ mod tests {
         let app = test_app();
         app.set_state_writer(state::StateWriter::start(app.store.root.clone()));
         on_air(&app);
-        let version = app.live.lock().unwrap().version;
+        let version = app.live().version;
         assert_eq!(state::load(&app.store.root), None, "nothing is on air yet");
         app.room_event(RoomEvent::Committed { version });
         let s = wait_for_state(&app.store.root, 1);
@@ -2595,7 +2616,7 @@ mod tests {
         let app = test_app();
         app.set_state_writer(state::StateWriter::start(app.store.root.clone()));
         on_air(&app);
-        let version = app.live.lock().unwrap().version;
+        let version = app.live().version;
         app.room_event(RoomEvent::Committed { version });
         app.room_event(RoomEvent::Committed { version: 99 });
         app.room_event(RoomEvent::Committed { version });
@@ -2616,7 +2637,7 @@ mod tests {
         app.set_screens(Arc::new(Roles));
         app.set_state_writer(state::StateWriter::start(app.store.root.clone()));
         on_air(&app);
-        let version = app.live.lock().unwrap().version;
+        let version = app.live().version;
         app.room_event(RoomEvent::Committed { version });
         let first = wait_for_state(&app.store.root, 1);
         app.save_live_state();
@@ -2631,7 +2652,7 @@ mod tests {
 [G]Amazing [C]grace".into(), ..Default::default() };
         let (song_id, item_id) = (song.id, Uuid::new_v4());
         {
-            let mut d = app.data.lock().unwrap();
+            let mut d = app.data();
             d.songs.push(song);
             d.services[0].items.push(ServiceItem { id: item_id, kind: ItemKind::Song { song_id, arrangement: None }, background: None, notes: String::new(), theme: None });
         }
@@ -2646,7 +2667,7 @@ mod tests {
         assert!(v.changed.is_none(), "no Update screen banner");
         // Kept to −11 … +11, and the song's words and chords as written never change.
         block_on(app.do_action("song/key", serde_json::json!({ "id": song_id, "step": 40 }).to_string().as_bytes())).unwrap();
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         let s = d.songs.iter().find(|s| s.id == song_id).unwrap();
         assert_eq!((s.transpose, s.lyrics.as_str()), (11, "Verse 1
 [G]Amazing [C]grace"));
@@ -2676,16 +2697,16 @@ mod tests {
         let app = test_app();
         let item_id = Uuid::new_v4();
         let kind = ItemKind::Text { title: "t".into(), body: "text".into(), layout: Default::default() };
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: item_id, kind, background: None, notes: String::new(), theme: None });
+        app.data().services[0].items.push(ServiceItem { id: item_id, kind, background: None, notes: String::new(), theme: None });
         let version = app.command(Envelope::new(Command::Show { item_id, slide: 0 })).version;
         app.room_event(RoomEvent::Committed { version });
         assert!(!app.playing(), "a text slide does not play");
 
-        let mut saved = state::snapshot(&app.live.lock().unwrap(), vec![], 1).unwrap();
+        let mut saved = state::snapshot(&app.live(), vec![], 1).unwrap();
         saved.frame.audio = Some(Inst { inst: 9, v: AudioLayer { asset: "a.mp3".into(), title: "A".into(), looped: false, paused: false } });
-        app.live.lock().unwrap().restore(&saved, true);
+        app.live().restore(&saved, true);
         assert!(!app.playing(), "not on air until the room commits");
-        let version = app.live.lock().unwrap().version;
+        let version = app.live().version;
         app.room_event(RoomEvent::Committed { version });
         assert!(app.playing());
     }
@@ -2694,7 +2715,7 @@ mod tests {
     fn saving_without_a_writer_does_nothing() {
         let app = test_app();
         on_air(&app);
-        let version = app.live.lock().unwrap().version;
+        let version = app.live().version;
         app.room_event(RoomEvent::Committed { version });
         app.save_live_state();
         app.stop_state_writer();
@@ -2706,7 +2727,7 @@ mod tests {
         let app = test_app();
         on_air(&app);
         let (version, inst) = {
-            let live = app.live.lock().unwrap();
+            let live = app.live();
             (live.version, live.frame.instances().next().expect("the shown frame has an instance"))
         };
         app.set_resume(&[(inst, 12.5), (inst + 100, 3.0)]);
@@ -2728,7 +2749,7 @@ mod tests {
         assert_eq!(state::load(&app.store.root), None, "a requested frame is not saved");
         // A clean quit stops the writer, then clears: a later commit must not bring the file back.
         state::clear(&app.store.root);
-        let version = app.live.lock().unwrap().version;
+        let version = app.live().version;
         app.room_event(RoomEvent::Committed { version });
         app.stop_state_writer();
         assert!(!state::path(&app.store.root).exists());
@@ -2739,7 +2760,7 @@ mod tests {
         let app = test_app();
         let mut rx = app.subscribe();
         app.set_notice("RustyPresenter restarted after a problem.");
-        assert_eq!(app.live.lock().unwrap().notice.as_deref(), Some("RustyPresenter restarted after a problem."));
+        assert_eq!(app.live().notice.as_deref(), Some("RustyPresenter restarted after a problem."));
         assert!(matches!(rx.try_recv().unwrap(), Update::Live(_)));
     }
 
@@ -2750,14 +2771,14 @@ mod tests {
         let app = test_app();
         let id = Uuid::new_v4();
         {
-            let mut d = app.data.lock().unwrap();
+            let mut d = app.data();
             let media = crate::model::MediaFile { id: Uuid::new_v4(), name: "clip".into(), kind: crate::model::MediaKind::Video, asset: "clip.mp4".into(),
                 status: crate::model::MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
             d.services[0].items.push(ServiceItem { id, kind: ItemKind::Media { media_id: media.id, autoplay: true, end: crate::model::EndAction::Stop, looped: false }, background: None, notes: String::new(), theme: None });
             d.media.push(media);
         }
         assert!(app.command(Envelope { id: "a".into(), base: None, cmd: Command::Show { item_id: id, slide: 0 } }).ok);
-        let inst = app.live.lock().unwrap().frame.media.as_ref().unwrap().inst;
+        let inst = app.live().frame.media.as_ref().unwrap().inst;
         let report = |state: PlayState, position: f64| app.room_event(RoomEvent::Media { inst, state, position, duration: 60.0, error: None });
         let mut rx = app.subscribe();
         let mut heard = || { let mut all = vec![]; while let Ok(u) = rx.try_recv() { all.push(u) } all };
@@ -2771,7 +2792,7 @@ mod tests {
         assert!(matches!(updates.as_slice(), [Update::Playback(a), Update::Playback(b)]
             if a.view().media.as_ref().is_some_and(|m| m.position == 0.5) && b.view().media.as_ref().is_some_and(|m| m.position == 1.0 && m.duration == 60.0)), "{updates:?}");
         let Update::Playback(last) = &updates[1] else { unreachable!() };
-        assert_eq!((last.view().version, last.view().cursor.as_ref().map(|c| c.item_id)), (app.live.lock().unwrap().version, Some(id)), "the same view otherwise");
+        assert_eq!((last.view().version, last.view().cursor.as_ref().map(|c| c.item_id)), (app.live().version, Some(id)), "the same view otherwise");
         assert_eq!(app.live_view().media.map(|m| m.position), Some(1.0));
         // Paused: a change of state again.
         report(PlayState::Paused, 1.0);
@@ -2782,11 +2803,11 @@ mod tests {
     #[tokio::test]
     async fn a_screen_that_did_not_open_is_not_saved_as_on() {
         let app = test_app();
-        let before = app.data.lock().unwrap().settings.screens.clone();
+        let before = app.data().settings.screens.clone();
         // No windowing layer in a test: the window cannot open.
         let r = app.do_action("display/open", br#"{"role":"room"}"#).await;
         assert!(r.is_err());
-        assert_eq!(app.data.lock().unwrap().settings.screens, before, "the setup is as it was");
+        assert_eq!(app.data().settings.screens, before, "the setup is as it was");
         assert_eq!(app.store.load().unwrap().settings.screens, before, "on the disk too");
     }
 
@@ -2795,9 +2816,28 @@ mod tests {
     async fn a_copy_of_the_data_for_a_check_shares_the_library() {
         let app = test_app();
         app.edit(|d| { d.songs.push(Song { title: "Amazing Grace".into(), ..Default::default() }); Ok(()) }).unwrap();
-        let copy = app.data.lock().unwrap().clone();
-        let held = app.data.lock().unwrap();
+        let copy = app.data().clone();
+        let held = app.data();
         assert!(copy.songs.same(&held.songs) && copy.media.same(&held.media) && copy.decks.same(&held.decks) && copy.services.same(&held.services));
+    }
+
+    /// Q14: a panic inside an edit puts the data back and poisons nothing: every screen carries on.
+    #[tokio::test]
+    async fn a_panic_inside_an_edit_leaves_the_data_as_it_was_and_the_locks_usable() {
+        let app = test_app();
+        app.edit(|d| { d.songs.push(Song { title: "Amazing Grace".into(), ..Default::default() }); Ok(()) }).unwrap();
+        let hit = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            let _ = app.edit(|d| { d.songs.clear(); let none: Option<()> = None; none.expect("a bug in a rarely used action"); Ok(()) });
+        }));
+        assert!(hit.is_err(), "the panic is still reported");
+        assert_eq!(app.data().songs.len(), 1, "the half-made change was put back");
+        assert!(!app.data.lock().is_err(), "the lock is not poisoned");
+        // A lock poisoned some other way is taken all the same.
+        let other = app.clone();
+        let _ = std::thread::spawn(move || { let _held = other.live(); panic!("while holding the live lock") }).join();
+        assert!(app.live.lock().is_err(), "poisoned");
+        assert_eq!(app.live().version, 0, "and still readable");
+        assert!(app.command(Envelope::new(Command::Logo)).ok, "the screen still takes commands");
     }
 
     /// Q2: an edit copies only the list it changes; the lists it leaves alone stay shared with the copy taken
@@ -2806,20 +2846,20 @@ mod tests {
     async fn an_edit_shares_the_lists_it_does_not_change() {
         let app = test_app();
         app.edit(|d| { d.songs.push(Song { title: "Amazing Grace".into(), ..Default::default() }); Ok(()) }).unwrap();
-        let before = app.data.lock().unwrap().clone();
+        let before = app.data().clone();
         app.edit(|d| { d.settings.translation = "WEB".into(); Ok(()) }).unwrap();
         {
-            let now = app.data.lock().unwrap();
+            let now = app.data();
             assert!(now.songs.same(&before.songs) && now.services.same(&before.services) && now.media.same(&before.media), "a settings change copies no list");
         }
         app.edit(|d| { d.songs[0].title = "Amazing Grace (My Chains Are Gone)".into(); Ok(()) }).unwrap();
-        let now = app.data.lock().unwrap().clone();
+        let now = app.data().clone();
         assert!(!now.songs.same(&before.songs) && now.services.same(&before.services), "only the songs were copied");
         assert_eq!((before.songs[0].title.as_str(), now.songs[0].title.as_str()), ("Amazing Grace", "Amazing Grace (My Chains Are Gone)"), "the copy taken before is as it was");
         assert_eq!(app.store.load().unwrap().songs[0].title, "Amazing Grace (My Chains Are Gone)", "and the save has the change");
         // An edit that fails puts the data back as it was.
         assert!(app.edit(|d| { d.songs.clear(); Err::<(), _>("no".to_string()) }).is_err());
-        assert_eq!(app.data.lock().unwrap().songs.len(), 1);
+        assert_eq!(app.data().songs.len(), 1);
     }
 
     /// P1: memory holds an edit whose save failed, so every screen is told to read it.
@@ -2832,7 +2872,7 @@ mod tests {
         let mut rx = app.subscribe();
         let r = app.edit(|d| { d.settings.translation = "WEB".into(); Ok(()) });
         assert!(r.is_err(), "the save failed");
-        assert_eq!(app.data.lock().unwrap().settings.translation, "WEB", "memory has the change");
+        assert_eq!(app.data().settings.translation, "WEB", "memory has the change");
         let mut heard = vec![];
         while let Ok(u) = rx.try_recv() { heard.push(u) }
         assert!(heard.iter().any(|u| matches!(u, Update::Data)), "the operator window is told to read the data again");
@@ -2841,7 +2881,7 @@ mod tests {
     #[tokio::test]
     async fn an_older_save_never_lands_over_a_newer_one() {
         let app = test_app();
-        let named = |n: &str| { let mut d = app.data.lock().unwrap().clone(); d.settings.translation = n.into(); d };
+        let named = |n: &str| { let mut d = app.data().clone(); d.settings.translation = n.into(); d };
         let (older, newer) = (app.take_save(&named("OLD")).unwrap(), app.take_save(&named("NEW")).unwrap());
         // The newer save reaches the disk first; the older one, written late, is dropped.
         app.write_save(newer).unwrap();
@@ -2909,7 +2949,7 @@ mod tests {
         let good = app.store.import_file(&write_temp(b"picture"), "png").unwrap();
         let empty = app.store.import_file(&write_temp(b""), "jpg").unwrap();
         let check = |logo: &str| {
-            app.data.lock().unwrap().settings.logo = Some(logo.to_string());
+            app.data().settings.logo = Some(logo.to_string());
             app.preflight().contains(&crate::preflight::strings::logo_missing())
         };
         assert!(!check(&good));
@@ -2937,7 +2977,7 @@ mod tests {
     fn stage_only_slide_reaches_the_stage_and_never_the_room() {
         let app = test_app();
         let id = Uuid::new_v4();
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind: ItemKind::Text { title: "Band".into(), body: "Watch me\n\nOne more time".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
+        app.data().services[0].items.push(ServiceItem { id, kind: ItemKind::Text { title: "Band".into(), body: "Watch me\n\nOne more time".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
         let before = app.live_view();
         let cmd = |v: Value| app.command(serde_json::from_value(v).unwrap());
         let out = cmd(json!({ "id": "a", "cmd": "stage_only", "item_id": id, "slide": 1 }));
@@ -2958,7 +2998,7 @@ mod tests {
         use crate::live::drawing::{DrawCmd, Pen, PALETTE};
         let app = test_app();
         let id = Uuid::new_v4();
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind: ItemKind::Text { title: "Band".into(), body: "Watch me".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
+        app.data().services[0].items.push(ServiceItem { id, kind: ItemKind::Text { title: "Band".into(), body: "Watch me".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
         let phone = Uuid::new_v4();
         app.phones.lock().unwrap().push(Phone { id: phone, name: "iPad".into(), hash: String::new(), last_seen: 0, may_draw: true });
         app.draw(phone, &DrawCmd::Start { stroke: 1, color: PALETTE[1].into(), width: 20.0, pen: Pen::Pen, points: vec![[0.1, 0.5], [0.9, 0.5]], ink: Default::default() }).unwrap();
@@ -3063,7 +3103,7 @@ mod tests {
         assert_eq!(refused("service/add", format!(r#"{{"item":{{{}}}}}"#, passage("TPT"))).await, blocked());
         let item = format!(r#"{{"id":"{}",{}}}"#, Uuid::new_v4(), passage("NWT"));
         assert_eq!(refused("service/update", item).await, blocked());
-        assert!(app.data.lock().unwrap().services.iter().all(|s| s.items.is_empty()), "nothing went in");
+        assert!(app.data().services.iter().all(|s| s.items.is_empty()), "nothing went in");
     }
 
     #[tokio::test]
@@ -3086,9 +3126,9 @@ mod tests {
         let data = Data { services: vec![service].into(), ..Data::default() };
         let name = app.store.backup(&data).unwrap();
         app.do_action("backup/restore", json!({ "name": name }).to_string().as_bytes()).await.unwrap();
-        assert!(app.data.lock().unwrap().services[0].items.is_empty());
+        assert!(app.data().services[0].items.is_empty());
         assert!(app.store.load().unwrap().services[0].items.is_empty(), "saved as well");
-        assert_eq!(app.live.lock().unwrap().notice.as_deref(), Some(passages_removed(1).as_str()));
+        assert_eq!(app.live().notice.as_deref(), Some(passages_removed(1).as_str()));
     }
 
     #[tokio::test]
@@ -3139,9 +3179,9 @@ mod tests {
         let app = test_app();
         let cc = bible::library::Licence::Cc { kind: "by-sa".into(), version: "4.0".into(), url: "https://creativecommons.org/licenses/by-sa/4.0/".into() };
         downloaded_rv1909(&app, cc, "© Sociedad Bíblica");
-        assert!(app.data.lock().unwrap().bible_credit("ebible:spaRV1909").is_none(), "not known until the Bibles are read again");
+        assert!(app.data().bible_credit("ebible:spaRV1909").is_none(), "not known until the Bibles are read again");
         app.refresh_bible_credits();
-        app.data.lock().unwrap().settings.credits = "none".into();
+        app.data().settings.credits = "none".into();
         let v = app.do_action("bible/lookup", br#"{"reference":"Psalm 23:1-2","translation":"ebible:spaRV1909"}"#).await.unwrap();
         let add = json!({ "item": { "kind": "scripture", "reference": v["label"], "translation": "ebible:spaRV1909", "verses": v["verses"], "per_slide": 1 } });
         app.do_action("service/add", add.to_string().as_bytes()).await.unwrap();
@@ -3160,7 +3200,7 @@ mod tests {
         let app = test_app();
         downloaded_rv1909(&app, bible::library::Licence::Pd, "Public domain");
         app.refresh_bible_credits();
-        let data = app.data.lock().unwrap();
+        let data = app.data();
         let rv = data.bible_credit("ebible:spaRV1909").unwrap();
         assert!(!rv.required, "public domain: {rv:?}");
         assert_eq!(rv.abbr, "RV1909");
@@ -3191,12 +3231,12 @@ mod tests {
         assert_eq!((amp["abbr"].as_str(), amp["name"].as_str(), amp["language"].as_str()), (Some("AMP"), Some("Amplified Bible"), Some("English")));
         assert_eq!(amp["status"], "needs_key", "tests have no YouVersion key");
         assert!(crate::scripture::online::online_only(&app.store.root, "yv:1588"), "its text is never saved with a service");
-        let credit = app.data.lock().unwrap().bible_credit("yv:1588").cloned().unwrap();
+        let credit = app.data().bible_credit("yv:1588").cloned().unwrap();
         assert!(credit.abbr == "AMP" && credit.required && credit.line.contains("Lockman"), "{credit:?}");
         assert!(app.do_action("bible/install", br#"{"translation":"yv:1849"}"#).await.is_err(), "blocked");
         assert!(!app.translations().iter().any(|t| t == "yv:1849"));
         app.do_action("bible/import-remove", br#"{"translation":"yv:1588"}"#).await.unwrap();
-        assert!(!app.translations().iter().any(|t| t == "yv:1588") && app.data.lock().unwrap().bible_credit("yv:1588").is_none());
+        assert!(!app.translations().iter().any(|t| t == "yv:1588") && app.data().bible_credit("yv:1588").is_none());
     }
 
     /// A Hebrew-numbered Bible beside an English one (spec §5.4): Malachi 4:1 in English is 3:19 there. It is found
@@ -3313,17 +3353,17 @@ mod tests {
         downloaded_rv1909(&app, bible::library::Licence::Pd, "Public domain");
         app.refresh_bible_credits();
         app.do_action("bible/import-remove", br#"{"translation":"ebible:spaRV1909"}"#).await.unwrap();
-        assert!(app.data.lock().unwrap().bible_credit("ebible:spaRV1909").is_none());
+        assert!(app.data().bible_credit("ebible:spaRV1909").is_none());
     }
 
     #[tokio::test]
     async fn settings_translation_saves_and_rejects_unknown() {
         let app = test_app();
         app.do_action("settings/translation", br#"{"translation":"NIV"}"#).await.unwrap();
-        assert_eq!(app.data.lock().unwrap().settings.translation, "NIV");
+        assert_eq!(app.data().settings.translation, "NIV");
         assert_eq!(app.store.load().unwrap().settings.translation, "NIV", "saved to disk");
         assert_eq!(app.do_action("settings/translation", br#"{"translation":"XYZ"}"#).await.unwrap_err().message, "Unknown translation.");
-        assert_eq!(app.data.lock().unwrap().settings.translation, "NIV");
+        assert_eq!(app.data().settings.translation, "NIV");
     }
 
     #[tokio::test]
@@ -3342,7 +3382,7 @@ mod tests {
         assert_eq!(recent, ["WEB", "KJV", "HCSB", "CSB", "NLT", "ESV", "BSB", "NIV"], "newest first, once each, saved");
         assert_eq!(recent.len(), crate::model::RECENT_MAX);
         app.do_action("settings/translation", br#"{"translation":"XYZ"}"#).await.unwrap_err();
-        assert_eq!(app.data.lock().unwrap().settings.recent[0], "WEB", "a refused pick changes nothing");
+        assert_eq!(app.data().settings.recent[0], "WEB", "a refused pick changes nothing");
     }
 
     #[tokio::test]
@@ -3356,7 +3396,7 @@ mod tests {
         assert_eq!(r["toast"], crate::i18n::tr("Language changed"), "the toast is in the new language");
         let err = app.do_action("settings/language", br#"{"code":"xx"}"#).await.unwrap_err();
         assert_eq!(err.message, crate::i18n::tr("Unknown language."));
-        assert_eq!((app.data.lock().unwrap().settings.ui_language.as_str(), crate::i18n::current().as_str()), ("es", "es"), "a refused code changes nothing");
+        assert_eq!((app.data().settings.ui_language.as_str(), crate::i18n::current().as_str()), ("es", "es"), "a refused code changes nothing");
         // A Settings form opened before the change is saved: the language stays.
         app.do_action("settings", serde_json::to_string(&crate::model::Settings::default()).unwrap().as_bytes()).await.unwrap();
         assert_eq!(app.store.load().unwrap().settings.ui_language, "es");
@@ -3393,11 +3433,11 @@ mod tests {
         let mut form = crate::model::Settings::default();
         form.lines_per_slide = 3;
         app.do_action("settings", serde_json::to_string(&form).unwrap().as_bytes()).await.unwrap();
-        let s = app.data.lock().unwrap().settings.clone();
+        let s = app.data().settings.clone();
         assert_eq!((s.lines_per_slide, s.favourites.as_slice()), (3, ["ESV".to_string(), "KJV".to_string()].as_slice()));
         app.do_action("settings/favourite", star("ESV", false).as_bytes()).await.unwrap();
         app.do_action("settings/favourite", star("GONE", false).as_bytes()).await.unwrap();
-        assert_eq!(app.data.lock().unwrap().settings.favourites, ["KJV"], "unstarring needs no installed Bible");
+        assert_eq!(app.data().settings.favourites, ["KJV"], "unstarring needs no installed Bible");
     }
 
     #[test]
@@ -3482,7 +3522,7 @@ mod tests {
         let Imported::Media(m) = app.import_path(&png, ImportPurpose::Media, |_| {}).await.unwrap() else { panic!() };
         assert_eq!((m.kind, m.status.clone()), (MediaKind::Image, MediaStatus::Ready));
         assert!(png.exists(), "the user's file is copied, never moved");
-        assert_eq!(app.data.lock().unwrap().media.len(), 1);
+        assert_eq!(app.data().media.len(), 1);
         assert!(app.store.asset_path(&m.asset).exists());
     }
 
@@ -3502,11 +3542,11 @@ mod tests {
         let Imported::Song { id, title, duplicate_of } = app.import_path(&p, ImportPurpose::Lyrics, |_| {}).await.unwrap() else { panic!() };
         assert_eq!((title.as_str(), duplicate_of), ("A Test Song", None));
         let id = id.unwrap();
-        assert_eq!(app.data.lock().unwrap().songs[0].id, id);
+        assert_eq!(app.data().songs[0].id, id);
         // The same song again saves nothing: the operator asks what to do.
         let Imported::Song { id: second, duplicate_of, .. } = app.import_path(&p, ImportPurpose::Lyrics, |_| {}).await.unwrap() else { panic!() };
         assert_eq!((second, duplicate_of), (None, Some(id)));
-        assert_eq!(app.data.lock().unwrap().songs.len(), 1);
+        assert_eq!(app.data().songs.len(), 1);
         assert!(p.exists());
     }
 
@@ -3519,7 +3559,7 @@ mod tests {
     async fn import_ask_without_duplicate_saves() {
         let app = test_app();
         let v = app.do_action("song/import", &song_import_body(SONG_V1, "ask")).await.unwrap();
-        let songs = app.data.lock().unwrap().songs.clone();
+        let songs = app.data().songs.clone();
         assert_eq!(songs.len(), 1);
         assert_eq!(v, json!({ "id": songs[0].id, "title": "A Test Song", "duplicate_of": null }));
     }
@@ -3532,7 +3572,7 @@ mod tests {
         let v = app.do_action("song/import", &song_import_body(SONG_V2, "ask")).await.unwrap();
         assert_eq!(v, json!({ "id": null, "title": "A Test Song (New Key)", "duplicate_of": first["id"] }));
         assert!(matches!(rx.try_recv(), Err(broadcast::error::TryRecvError::Empty)), "the screens were told of a change");
-        let songs = app.data.lock().unwrap().songs.clone();
+        let songs = app.data().songs.clone();
         assert_eq!(songs.len(), 1);
         assert_eq!(songs[0].title, "A Test Song");
     }
@@ -3545,7 +3585,7 @@ mod tests {
         let v = app.do_action("song/import", &song_import_body(text, "ask")).await.unwrap();
         assert!(v["id"].is_string());
         assert_eq!(v["duplicate_of"], Value::Null);
-        assert_eq!(app.data.lock().unwrap().songs.len(), 2);
+        assert_eq!(app.data().songs.len(), 2);
     }
 
     #[tokio::test]
@@ -3562,7 +3602,7 @@ mod tests {
         }).unwrap();
         let v = app.do_action("song/import", &song_import_body(SONG_V2, "update")).await.unwrap();
         assert_eq!(v["id"], first["id"]);
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         assert_eq!(d.songs.len(), 1);
         let song = &d.songs[0];
         assert_eq!((song.id, song.title.as_str(), song.ccli.as_str()), (id, "A Test Song (New Key)", "12345"));
@@ -3583,7 +3623,7 @@ mod tests {
         let v = app.do_action("song/import", &song_import_body(SONG_V1, "update")).await.unwrap();
         assert!(v["id"].is_string());
         assert_eq!(v["duplicate_of"], Value::Null);
-        assert_eq!(app.data.lock().unwrap().songs.len(), 1);
+        assert_eq!(app.data().songs.len(), 1);
     }
 
     #[tokio::test]
@@ -3593,7 +3633,7 @@ mod tests {
         let v = app.do_action("song/import", &song_import_body(SONG_V2, "keep_both")).await.unwrap();
         assert_ne!(v["id"], first["id"]);
         assert_eq!(v["duplicate_of"], first["id"]);
-        assert_eq!(app.data.lock().unwrap().songs.len(), 2);
+        assert_eq!(app.data().songs.len(), 2);
     }
 
     #[tokio::test]
@@ -3610,7 +3650,7 @@ mod tests {
         let body = json!({ "path": png, "purpose": "media" }).to_string();
         let v = app.do_action("import/path", body.as_bytes()).await.unwrap();
         assert!(v["media"]["asset"].is_string(), "{v}");
-        assert_eq!(app.data.lock().unwrap().media.len(), 1);
+        assert_eq!(app.data().media.len(), 1);
         let body = json!({ "path": png, "purpose": "other" }).to_string();
         assert_eq!(app.do_action("import/path", body.as_bytes()).await.unwrap_err().status, 400);
     }
@@ -3622,7 +3662,7 @@ mod tests {
         image::RgbaImage::new(2, 2).save(&png).unwrap();
         let Imported::Asset(a) = app.import_path(&png, ImportPurpose::Asset, |_| {}).await.unwrap() else { panic!() };
         assert!(a.ends_with(".png") && app.store.asset_path(&a).exists());
-        assert!(app.data.lock().unwrap().media.is_empty(), "an asset is not a media library entry");
+        assert!(app.data().media.is_empty(), "an asset is not a media library entry");
     }
 
     #[tokio::test]
@@ -3772,7 +3812,7 @@ mod tests {
     fn exporting_a_service_runs_as_a_job_that_goes_away() {
         let app = test_app();
         let dest = app.store.root.join("s.rpservice");
-        let id = app.data.lock().unwrap().service().unwrap().id;
+        let id = app.data().service().unwrap().id;
         block_on(app.export_service(id, dest.clone())).unwrap();
         assert!(dest.exists());
         assert!(app.jobs.lock().unwrap().is_empty());
@@ -3784,7 +3824,7 @@ mod tests {
         let bad = app.store.root.join("x.rpservice");
         std::fs::write(&bad, b"no").unwrap();
         assert_eq!(block_on(app.import_service(bad)).unwrap_err(), crate::bundle::strings::not_a_service_file());
-        assert_eq!(app.data.lock().unwrap().services.len(), 1);
+        assert_eq!(app.data().services.len(), 1);
         assert_eq!(app.jobs.lock().unwrap()[0].error.as_deref(), Some(crate::bundle::strings::not_a_service_file().as_str()));
     }
 
@@ -3793,7 +3833,7 @@ mod tests {
         let app = test_app();
         let dest = app.store.root.join("s.rpservice");
         let id = {
-            let mut d = app.data.lock().unwrap();
+            let mut d = app.data();
             let s = d.service_mut().unwrap();
             s.items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None }, background: None, notes: String::new(), theme: None });
             s.id
@@ -3841,17 +3881,17 @@ mod tests {
     async fn main_equal_to_also_turns_also_off() {
         let app = test_app();
         app.do_action("settings/also", br#"{"also_show":["WEB"],"parallel_layout":"stacked"}"#).await.unwrap();
-        assert_eq!(app.data.lock().unwrap().settings.parallel_layout, crate::scripture::ParallelLayout::Stacked);
+        assert_eq!(app.data().settings.parallel_layout, crate::scripture::ParallelLayout::Stacked);
         let r = app.do_action("settings/translation", br#"{"translation":"WEB"}"#).await.unwrap();
         assert_eq!(r["toast"], "WEB turned off (same as main).");
-        assert!(app.data.lock().unwrap().settings.also_show.is_empty());
+        assert!(app.data().settings.also_show.is_empty());
     }
 
     #[tokio::test]
     async fn settings_also_keeps_two_and_refuses_blocked() {
         let app = test_app();
         app.do_action("settings/also", br#"{"also_show":["WEB","KJV","BSB","WEB"]}"#).await.unwrap();
-        assert_eq!(app.data.lock().unwrap().settings.also_show, ["WEB", "BSB"]);
+        assert_eq!(app.data().settings.also_show, ["WEB", "BSB"]);
         let err = app.do_action("settings/also", br#"{"also_show":["TPT"]}"#).await.unwrap_err();
         assert_eq!(err.message, blocked());
     }
@@ -3862,7 +3902,7 @@ mod tests {
         app.edit(|d| { d.settings.also_show = vec!["WEB".into(), "ESV".into()]; Ok(()) }).unwrap();
         let r = app.do_action("service/add", br#"{"item":{"kind":"scripture","reference":"John 3:16","translation":"KJV","verses":[{"reference":"John 3:16","text":"For God"}]}}"#).await.unwrap();
         assert_eq!(r["toast"], "ESV isn't available right now, so only KJV · WEB was added.");
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         let item = d.service().unwrap().items.last().unwrap();
         let ItemKind::Scripture { also, .. } = &item.kind else { panic!() };
         assert_eq!(also.iter().map(|a| a.translation.as_str()).collect::<Vec<_>>(), ["WEB"]);
@@ -3879,10 +3919,10 @@ mod tests {
         assert!(!saved.contains("NIV words from the stub"), "online text stays out of data.json");
         assert!(saved.contains("For God so loved the world, that he gave"), "KJV is stored");
         assert!(saved.contains(r#""translation": "NIV""#), "the Bible itself is kept");
-        let name = { let d = app.data.lock().unwrap().clone(); app.store.backup(&d).unwrap() };
+        let name = { let d = app.data().clone(); app.store.backup(&d).unwrap() };
         let backup = std::fs::read_to_string(app.store.root.join("backups").join(name).join("data.json")).unwrap();
         assert!(!backup.contains("NIV words from the stub"), "and out of backups");
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         let ItemKind::Scripture { also, .. } = &d.services[0].items[0].kind else { panic!() };
         assert_eq!(also[0].verses.len(), 1, "this session still shows it");
     }
@@ -3896,7 +3936,7 @@ mod tests {
         data.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "ESV".into(), verses: vec![], per_slide: 0, text_size: 0,
             also: vec![crate::scripture::AlsoShow { translation: "NIV".into(), verses: vec![] }], layout: Default::default(), breaks: Default::default() }, background: None, notes: String::new(), theme: None });
         let app = App::new(store, data, 0, None);
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         let ItemKind::Scripture { verses, also, .. } = &d.services[0].items[0].kind else { panic!() };
         assert_eq!(verses[0].text, "For God so loved the world, ESV");
         assert!(also[0].verses.is_empty(), "NIV was never fetched, so it stays empty");

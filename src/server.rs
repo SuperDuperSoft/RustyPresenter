@@ -158,7 +158,7 @@ async fn remote_pair(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo
     // check is slow on purpose (thousands of hash rounds), so it runs off the async workers and with nothing
     // locked, and only while pairing is open; the pairing window is looked at again once it is done.
     let open = app.pairing.lock().unwrap().as_ref().is_some_and(|p| p.until > Instant::now());
-    let needed = app.data.lock().unwrap().settings.network.remote_password.clone();
+    let needed = app.data().settings.network.remote_password.clone();
     let password_ok = match needed.filter(|_| open) {
         Some(hash) => {
             let typed = req.password.clone();
@@ -221,7 +221,7 @@ fn i18n_map() -> Value {
 /// Whether this phone is paired and a password is asked. Also says what it is (`app`, `computer`, `version`), so
 /// the Android remote can find this computer on the Wi-Fi and list it by name (`apps/android/src/discovery.rs`).
 async fn remote_status(State(app): State<Arc<App>>, headers: HeaderMap) -> Response {
-    let password = app.data.lock().unwrap().settings.network.remote_password.is_some();
+    let password = app.data().settings.network.remote_password.is_some();
     ok(json!({ "paired": phone_for(&app, &headers).is_some(), "password": password,
         "app": "RustyPresenter", "computer": computer_name(), "version": env!("CARGO_PKG_VERSION") }))
 }
@@ -365,7 +365,7 @@ static LAST_MESSAGE: std::sync::LazyLock<std::sync::Mutex<std::collections::Hash
 /// FEAT-2: only macros and messages marked "on the phone", and messages at most once a second per phone.
 fn phone_automation(app: &App, phone: Uuid, env: &Envelope) -> Result<(), String> {
     use crate::automation::strings;
-    let data = app.data.lock().unwrap();
+    let data = app.data();
     let a = &data.automation;
     match &env.cmd {
         Command::RunMacro { macro_id, .. } if !a.macros.iter().any(|m| m.id == *macro_id && m.remote) => Err(strings::not_allowed_from_phone()),
@@ -439,8 +439,8 @@ fn remote_items(app: &App, data: &Data) -> Arc<str> {
 fn remote_view(app: &App, phone: Option<Uuid>) -> String {
     let may_draw = phone.is_some_and(|id| app.phones.lock().unwrap().iter().any(|p| p.id == id && p.may_draw));
     let timers = app.timers();
-    let data = app.data.lock().unwrap();
-    let live = app.live.lock().unwrap();
+    let data = app.data();
+    let live = app.live();
     let plan = DataPlan(&data);
     let items = remote_items(app, &data);
     let sections = live.item.as_ref().map(|i| crate::sections::occurrence_views(&i.slides, live.cursor.as_ref().map(|c| c.slide))).unwrap_or_default();
@@ -613,7 +613,7 @@ mod tests {
     fn the_phone_may_put_a_slide_on_the_stage_only_and_sees_it() {
         let app = test_app();
         let id = Uuid::new_v4();
-        app.data.lock().unwrap().services[0].items.push(crate::model::ServiceItem { id, kind: crate::model::ItemKind::Text { title: "Band".into(), body: "Watch me".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
+        app.data().services[0].items.push(crate::model::ServiceItem { id, kind: crate::model::ItemKind::Text { title: "Band".into(), body: "Watch me".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
         let env: Envelope = serde_json::from_value(json!({ "id": "x", "cmd": "stage_only", "item_id": id, "slide": 0 })).unwrap();
         assert!(phone_may(&env), "no base needed: the room does not change");
         assert!(app.command(env).ok);
@@ -630,11 +630,11 @@ mod tests {
         let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["1.png".into(), "2.png".into()], notes: vec![], transitions: vec![None, Some(push)], advance_ms: vec![], show: None };
         let id = Uuid::new_v4();
         {
-            let mut d = app.data.lock().unwrap();
+            let mut d = app.data();
             d.decks.push(deck.clone());
             d.services[0].items.push(crate::model::ServiceItem { id, kind: crate::model::ItemKind::Deck { deck_id: deck.id }, background: None, notes: String::new(), theme: None });
         }
-        let show = |slide| { let base = app.live.lock().unwrap().version; assert!(app.command(Envelope { id: "s".into(), base: Some(base), cmd: Command::Show { item_id: id, slide } }).ok) };
+        let show = |slide| { let base = app.live().version; assert!(app.command(Envelope { id: "s".into(), base: Some(base), cmd: Command::Show { item_id: id, slide } }).ok) };
         show(1);
         let v: Value = serde_json::from_str(&remote_view(&app, None)).unwrap();
         assert_eq!(v["current"]["transition"], json!({ "kind": "push", "ms": 800, "dir": "up" }));
@@ -652,14 +652,14 @@ mod tests {
         fly.dur_ms = 600;
         let id = Uuid::new_v4();
         let kind = crate::model::ItemKind::Design { title: "Talk".into(), slides: vec![Design { objects: vec![a, b], anims: vec![fly], ..Default::default() }] };
-        app.data.lock().unwrap().services[0].items.push(crate::model::ServiceItem { id, kind, background: None, notes: String::new(), theme: None });
-        let base = app.live.lock().unwrap().version;
+        app.data().services[0].items.push(crate::model::ServiceItem { id, kind, background: None, notes: String::new(), theme: None });
+        let base = app.live().version;
         assert!(app.command(Envelope { id: "s".into(), base: Some(base), cmd: Command::Show { item_id: id, slide: 0 } }).ok);
         let v: Value = serde_json::from_str(&remote_view(&app, None)).unwrap();
         assert_eq!((v["current"]["picture"].clone(), v["current"]["anim"].clone()), (json!(true), json!(false)), "a designed slide shows itself; nothing plays as it comes up");
         assert_eq!(v["current"]["transition"]["kind"], "fade");
         assert!(crate::network::live_anim::phone_anim(&app, 640).unwrap().is_none());
-        let base = app.live.lock().unwrap().version;
+        let base = app.live().version;
         assert!(app.command(Envelope { id: "n".into(), base: Some(base), cmd: Command::Next }).ok);
         let v: Value = serde_json::from_str(&remote_view(&app, None)).unwrap();
         assert_eq!(v["current"]["anim"], json!(true));
@@ -766,8 +766,8 @@ msgstr[1] "{n} Folien"
         use crate::model::{ItemKind, ServiceItem};
         let app = test_app();
         let text = |title: &str| ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: "Hi".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
-        app.data.lock().unwrap().services[0].items.push(text("Welcome"));
-        let items = |app: &App| remote_items(app, &app.data.lock().unwrap());
+        app.data().services[0].items.push(text("Welcome"));
+        let items = |app: &App| remote_items(app, &app.data());
         let first = items(&app);
         assert!(Arc::ptr_eq(&first, &items(&app)), "the same text for the next phone");
         let view: Value = serde_json::from_str(&remote_view(&app, None)).unwrap();
@@ -775,7 +775,7 @@ msgstr[1] "{n} Folien"
         // A live change does not make it again; a change to the data does, however it was made.
         app.command(Envelope::new(Command::Logo));
         assert!(Arc::ptr_eq(&first, &items(&app)));
-        app.data.lock().unwrap().services[0].items.push(text("Notices"));
+        app.data().services[0].items.push(text("Notices"));
         let second = items(&app);
         assert!(!Arc::ptr_eq(&first, &second));
         let view: Value = serde_json::from_str(&remote_view(&app, None)).unwrap();
@@ -799,7 +799,7 @@ msgstr[1] "{n} Folien"
         let song = Song { id: Uuid::new_v4(), title: "Grace".into(), lyrics: "Verse 1\nAmazing grace\n\nChorus\nMy chains are gone".into(), ..Default::default() };
         let (id, text) = (Uuid::new_v4(), Uuid::new_v4());
         {
-            let mut d = app.data.lock().unwrap();
+            let mut d = app.data();
             d.songs.push(song.clone());
             d.services[0].items.push(ServiceItem { id, kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None });
             d.services[0].items.push(ServiceItem { id: text, kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
@@ -1009,7 +1009,7 @@ msgstr[1] "{n} Folien"
     #[tokio::test]
     async fn a_remote_password_is_needed_on_top_of_the_code_when_set() {
         let app = lan_app();
-        app.data.lock().unwrap().settings.network.remote_password = Some(crate::network::password::hash("worship"));
+        app.data().settings.network.remote_password = Some(crate::network::password::hash("worship"));
         let st: Value = serde_json::from_slice(&axum::body::to_bytes(remote_status(State(app.clone()), HeaderMap::new()).await.into_body(), usize::MAX).await.unwrap()).unwrap();
         assert_eq!(st["password"], true, "the page asks for it");
         let (_, pin, secret) = start(&app).await;
@@ -1094,8 +1094,8 @@ msgstr[1] "{n} Folien"
     async fn the_live_slide_picture_shows_the_live_text_slide() {
         let app = test_app();
         let id = Uuid::new_v4();
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![VerseText::new("John 3:16", "For God so loved the world")], per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() }, background: Some(Background::Color { color: "#204080".into() }), notes: String::new(), theme: None });
-        let base = app.live.lock().unwrap().version;
+        app.data().services[0].items.push(ServiceItem { id, kind: ItemKind::Scripture { reference: "John 3:16".into(), translation: "KJV".into(), verses: vec![VerseText::new("John 3:16", "For God so loved the world")], per_slide: 0, text_size: 0, also: vec![], layout: Default::default(), breaks: Default::default() }, background: Some(Background::Color { color: "#204080".into() }), notes: String::new(), theme: None });
+        let base = app.live().version;
         assert!(app.command(Envelope { id: "s".into(), base: Some(base), cmd: Command::Show { item_id: id, slide: 0 } }).ok);
         let jpeg = live_slide_jpeg(&app, 320).unwrap();
         let img = image::load_from_memory(&jpeg).unwrap().into_rgb8();
@@ -1149,7 +1149,7 @@ msgstr[1] "{n} Folien"
         assert_eq!(s, StatusCode::BAD_REQUEST);
         let colour = json!({ "op": "start", "stroke": 2, "color": "#123456", "width": 12, "pen": "pen", "points": [[0.1, 0.2]] });
         assert_eq!(body_json(draw(yes.clone(), colour).await).await.1["ok"], false);
-        let d = app.live.lock().unwrap().drawing.clone();
+        let d = app.live().drawing.clone();
         assert_eq!((d.strokes.len(), d.points()), (1, 3));
         assert_eq!(d.strokes[0].phone, me);
         let v: Value = serde_json::from_str(&remote_view(&app, Some(me))).unwrap();

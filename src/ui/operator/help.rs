@@ -304,7 +304,7 @@ mod tests {
         let mut keys = KeySettings::default();
         keys.set(Action::ClearSlide, vec![Chord::parse("X").unwrap()]);
         keys.set(Action::Logo, vec![Chord::parse("Ctrl+L").unwrap()]);
-        app.data.lock().unwrap().settings.keys = keys;
+        app.data().settings.keys = keys;
         let op = open(&app);
         refresh(&op);
         let g = op.ui.menu_keys_all();

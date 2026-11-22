@@ -16,7 +16,7 @@ fn add_song(app: &App, lyrics: &str, order: &[&str]) -> (Uuid, Uuid) {
     let song = Song { id: Uuid::new_v4(), title: "Grace".into(), lyrics: lyrics.into(), arrangement: order.iter().map(|s| s.to_string()).collect(),
         lines_per_slide: 4, ..Default::default() };
     let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None };
-    let mut d = app.data.lock().unwrap();
+    let mut d = app.data();
     d.songs.push(song.clone());
     d.services[0].items.push(item.clone());
     (song.id, item.id)
@@ -30,10 +30,10 @@ fn ready(app: &Arc<App>, item: Uuid) -> Rc<Operator> {
     op
 }
 
-fn lyrics(app: &App, id: Uuid) -> String { app.data.lock().unwrap().songs.iter().find(|s| s.id == id).unwrap().lyrics.clone() }
-fn song_order(app: &App, id: Uuid) -> Vec<String> { app.data.lock().unwrap().songs.iter().find(|s| s.id == id).unwrap().arrangement.clone() }
+fn lyrics(app: &App, id: Uuid) -> String { app.data().songs.iter().find(|s| s.id == id).unwrap().lyrics.clone() }
+fn song_order(app: &App, id: Uuid) -> Vec<String> { app.data().songs.iter().find(|s| s.id == id).unwrap().arrangement.clone() }
 fn item_order(app: &App, id: Uuid) -> Option<Vec<String>> {
-    app.data.lock().unwrap().services[0].items.iter().find(|i| i.id == id).and_then(|i| match &i.kind { ItemKind::Song { arrangement, .. } => arrangement.clone(), _ => None })
+    app.data().services[0].items.iter().find(|i| i.id == id).and_then(|i| match &i.kind { ItemKind::Song { arrangement, .. } => arrangement.clone(), _ => None })
 }
 fn labels(op: &Operator) -> Vec<String> { op.ui.get_slide_rows().iter().flat_map(|r| r.cells.iter().map(|c| c.label.to_string()).collect::<Vec<_>>()).collect() }
 fn act(op: &Operator, i: i32, a: &str) {
@@ -226,7 +226,7 @@ fn edit_words_in_the_live_panel_opens_the_live_slide_in_place() {
     let app = test_app();
     let (song, item) = add_song(&app, LYRICS, &[]);
     let other = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Hi".into(), body: "x".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
-    app.data.lock().unwrap().services[0].items.insert(0, other.clone());
+    app.data().services[0].items.insert(0, other.clone());
     let op = ready(&app, other.id);
     show(&op, item, 2);
     click(&op, "LiveColumn::live-edit-words");
@@ -260,7 +260,7 @@ fn a_slide_of_chords_alone_opens_with_its_chords() {
 fn other_items_have_no_slide_editing() {
     let app = test_app();
     let other = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Hi".into(), body: "x".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
-    app.data.lock().unwrap().services[0].items.push(other.clone());
+    app.data().services[0].items.push(other.clone());
     let op = ready(&app, other.id);
     assert!(!op.ui.slide_edit_all().get_order_shown());
     assert!(op.ui.get_slide_rows().iter().flat_map(|r| r.cells.iter().collect::<Vec<_>>()).all(|c| !c.song));

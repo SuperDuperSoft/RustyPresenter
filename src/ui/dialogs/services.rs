@@ -28,7 +28,7 @@ pub fn dated_name(date: NaiveDate, order: DateOrder) -> String { strings::dated_
 
 fn today() -> NaiveDate { chrono::Local::now().date_naive() }
 
-fn order(op: &Operator) -> DateOrder { planning::date_order(&op.app().data.lock().unwrap().settings) }
+fn order(op: &Operator) -> DateOrder { planning::date_order(&op.app().data().settings) }
 
 fn today_name(op: &Operator) -> String { dated_name(today(), order(op)) }
 
@@ -43,7 +43,7 @@ pub fn open(op: &Rc<Operator>) {
 fn draw(op: &Operator) {
     let g = op.ui.global::<ServicesDialogState>();
     let (rows, templates, older) = {
-        let d = op.app().data.lock().unwrap();
+        let d = op.app().data();
         let order = planning::date_order(&d.settings);
         let current = d.service().map(|s| s.id);
         let all: Vec<ServiceListRow> = planning::sorted(&d.services).into_iter().map(|svc| {
@@ -110,7 +110,7 @@ fn new_service(op: &Rc<Operator>, copy: bool) {
 /// Rename (`:785`): a prompt starting from the name. A non-empty answer is sent as typed (untrimmed). The dialog
 /// is rebuilt and stays open, even when the prompt was cancelled.
 fn rename(op: &Rc<Operator>, id: Uuid) {
-    let Some(current) = op.app().data.lock().unwrap().services.iter().find(|s| s.id == id).map(|s| s.name.clone()) else { return };
+    let Some(current) = op.app().data().services.iter().find(|s| s.id == id).map(|s| s.name.clone()) else { return };
     let me = Rc::downgrade(op);
     prompt(op, &strings::rename_prompt(), &current, move |name| {
         let Some(op) = me.upgrade() else { return };
@@ -121,7 +121,7 @@ fn rename(op: &Rc<Operator>, id: Uuid) {
 
 /// The trash button (`:786`): confirm, `service/delete`, and the dialog is rebuilt and stays open.
 fn delete(op: &Rc<Operator>, id: Uuid) {
-    let Some(name) = op.app().data.lock().unwrap().services.iter().find(|s| s.id == id).map(|s| s.name.clone()) else { return };
+    let Some(name) = op.app().data().services.iter().find(|s| s.id == id).map(|s| s.name.clone()) else { return };
     let me = Rc::downgrade(op);
     confirm(op, &strings::delete_question(&name), &dtr::ok(), &dtr::cancel(), false, move |ok| {
         let Some(op) = me.upgrade().filter(|_| ok) else { return };
@@ -148,7 +148,7 @@ fn made(op: &Rc<Operator>, v: Value) {
 fn copy_week(op: &Rc<Operator>) {
     let today = today();
     let found = {
-        let d = op.app().data.lock().unwrap();
+        let d = op.app().data();
         let order = planning::date_order(&d.settings);
         planning::week_source(&d.services, d.service().map(|s| s.id), today).and_then(|id| d.services.iter().find(|s| s.id == id)).map(|src| {
             let date = planning::next_week_date(src.date, today);
@@ -185,7 +185,7 @@ fn copy_week(op: &Rc<Operator>) {
 /// The service's name prompt for a template, then `service/from-template`.
 fn from_template(op: &Rc<Operator>, template: Uuid) {
     let Some((name, date)) = ({
-        let d = op.app().data.lock().unwrap();
+        let d = op.app().data();
         let order = planning::date_order(&d.settings);
         d.templates.iter().find(|t| t.id == template).map(|t| {
             let date = planning::default_date(t.day, today());
@@ -201,7 +201,7 @@ fn from_template(op: &Rc<Operator>, template: Uuid) {
 
 /// New from template… (§3.3): one template goes straight on; two are a choice; more are picked from their rows.
 fn new_from_template(op: &Rc<Operator>) {
-    let templates: Vec<(Uuid, String)> = op.app().data.lock().unwrap().templates.iter().map(|t| (t.id, t.name.clone())).collect();
+    let templates: Vec<(Uuid, String)> = op.app().data().templates.iter().map(|t| (t.id, t.name.clone())).collect();
     match templates.as_slice() {
         [] => {}
         [(id, _)] => from_template(op, *id),
@@ -220,7 +220,7 @@ fn new_from_template(op: &Rc<Operator>) {
 /// Date… (§3.5): the date typed in the computer's order; empty clears it.
 fn set_date(op: &Rc<Operator>, id: Uuid) {
     let order = order(op);
-    let Some(current) = op.app().data.lock().unwrap().services.iter().find(|s| s.id == id).map(|s| s.date) else { return };
+    let Some(current) = op.app().data().services.iter().find(|s| s.id == id).map(|s| s.date) else { return };
     let title = ptr::date_example(&planning::format_date(current.unwrap_or_else(today), order));
     let me = Rc::downgrade(op);
     prompt(op, &title, &current.map(|d| planning::format_date(d, order)).unwrap_or_default(), move |answer| {
@@ -238,7 +238,7 @@ fn set_date(op: &Rc<Operator>, id: Uuid) {
 /// Save as template (§3.3): its name without the date, then `template/from-service`.
 fn save_template(op: &Rc<Operator>, id: Uuid) {
     let Some(name) = ({
-        let d = op.app().data.lock().unwrap();
+        let d = op.app().data();
         let order = planning::date_order(&d.settings);
         d.services.iter().find(|s| s.id == id).map(|s| planning::template_name(s, order))
     }) else { return };
@@ -253,7 +253,7 @@ fn save_template(op: &Rc<Operator>, id: Uuid) {
 }
 
 fn template_name(op: &Operator, id: Uuid) -> Option<String> {
-    op.app().data.lock().unwrap().templates.iter().find(|t| t.id == id).map(|t| t.name.clone())
+    op.app().data().templates.iter().find(|t| t.id == id).map(|t| t.name.clone())
 }
 
 fn rename_template(op: &Rc<Operator>, id: Uuid) {
@@ -280,7 +280,7 @@ pub fn parse_day(text: &str) -> Option<Option<chrono::Weekday>> {
 }
 
 fn template_day(op: &Rc<Operator>, id: Uuid) {
-    let Some((name, day)) = op.app().data.lock().unwrap().templates.iter().find(|t| t.id == id).map(|t| (t.name.clone(), t.day)) else { return };
+    let Some((name, day)) = op.app().data().templates.iter().find(|t| t.id == id).map(|t| (t.name.clone(), t.day)) else { return };
     let me = Rc::downgrade(op);
     let current = day.map_or_else(String::new, |d| ptr::days_long()[d.num_days_from_monday() as usize].clone());
     prompt(op, &ptr::template_day_question(&name), &current, move |answer| {
@@ -355,7 +355,7 @@ pub fn parse_color(hex: &str) -> Option<slint::Color> {
 
 /// The item `id` of the open service, from the core.
 fn item(op: &Operator, id: Uuid) -> Option<crate::model::ServiceItem> {
-    op.app().data.lock().unwrap().service().and_then(|s| s.items.iter().find(|i| i.id == id).cloned())
+    op.app().data().service().and_then(|s| s.items.iter().find(|i| i.id == id).cloned())
 }
 
 /// Which tab of the Add dialog fills a blank: Anything opens on Song.
@@ -433,9 +433,9 @@ fn add_header(op: &Rc<Operator>) {
         let (Some(op), Some(title)) = (me.upgrade(), answer.filter(|t| !t.trim().is_empty())) else { return };
         let position = {
             let sel = op.state.borrow().selected;
-            sel.and_then(|id| op.app().data.lock().unwrap().service().and_then(|s| s.items.iter().position(|i| i.id == id)))
+            sel.and_then(|id| op.app().data().service().and_then(|s| s.items.iter().position(|i| i.id == id)))
         };
-        let colors = op.app().data.lock().unwrap().service().map_or(0, |s| s.items.iter().filter(|i| matches!(i.kind, ItemKind::Header { .. })).count());
+        let colors = op.app().data().service().map_or(0, |s| s.items.iter().filter(|i| matches!(i.kind, ItemKind::Header { .. })).count());
         let item = json!({ "kind": "header", "title": title.trim(), "color": planning::HEADER_COLORS[colors % planning::HEADER_COLORS.len()] });
         call(&op, "service/add", json!({ "item": item, "position": position }), |_, _| {});
     });
@@ -542,7 +542,7 @@ mod tests {
     fn add_service(app: &App, name: &str) -> Uuid {
         let s = Service::new(name);
         let id = s.id;
-        app.data.lock().unwrap().services.push(s);
+        app.data().services.push(s);
         id
     }
 
@@ -556,7 +556,7 @@ mod tests {
     }
 
     fn current(app: &App) -> (Uuid, String) {
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         let s = d.service().unwrap();
         (s.id, s.name.clone())
     }
@@ -565,20 +565,20 @@ mod tests {
     fn new_service_prompt_creates_and_selects() {
         let app = test_app();
         let op = open_services(&app);
-        let before = app.data.lock().unwrap().services.len();
+        let before = app.data().services.len();
         click(&op, "ServicesDialog::new-btn", 0);
         assert_eq!(asked(&op), Some((strings::new_prompt().into(), today_name(&op))));
         key(&op, Key::Escape);
-        assert_eq!(app.data.lock().unwrap().services.len(), before, "Cancel does nothing");
+        assert_eq!(app.data().services.len(), before, "Cancel does nothing");
         assert_eq!(op.dialog(), Some(DialogKind::Services));
 
         click(&op, "ServicesDialog::new-btn", 0);
         typed(&op, "Easter");
         key(&op, Key::Return);
-        assert_eq!(app.data.lock().unwrap().services.len(), before + 1);
+        assert_eq!(app.data().services.len(), before + 1);
         let (_, name) = current(&app);
         assert_eq!(name, "Easter", "the new service is the open one");
-        assert!(app.data.lock().unwrap().service().unwrap().items.is_empty());
+        assert!(app.data().service().unwrap().items.is_empty());
         assert_eq!(op.dialog(), None, "the dialog closes");
     }
 
@@ -589,7 +589,7 @@ mod tests {
         assert_eq!(dated_name(chrono::NaiveDate::from_ymd_opt(2026, 11, 22).unwrap(), DateOrder::Dmy), "Service 22/11/2026");
         let app = test_app();
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
-        app.data.lock().unwrap().services[0].items.push(item);
+        app.data().services[0].items.push(item);
         let (from, _) = current(&app);
         let op = open_services(&app);
         click(&op, "ServicesDialog::copy-btn", 0);
@@ -599,7 +599,7 @@ mod tests {
         let (id, name) = current(&app);
         assert_ne!(id, from);
         assert_eq!(name, today);
-        assert_eq!(app.data.lock().unwrap().service().unwrap().items.len(), 1, "the items were copied");
+        assert_eq!(app.data().service().unwrap().items.len(), 1, "the items were copied");
         assert_eq!(op.dialog(), None);
     }
 
@@ -645,10 +645,10 @@ mod tests {
         click(&op, "ServicesDialog::delete-btn", 1);
         assert_eq!(asked(&op).map(|a| a.0), Some("Delete the service “Evening”? (Songs and media stay in the library.)".into()));
         key(&op, Key::Escape);
-        assert_eq!(app.data.lock().unwrap().services.len(), 2, "Cancel deletes nothing");
+        assert_eq!(app.data().services.len(), 2, "Cancel deletes nothing");
         click(&op, "ServicesDialog::delete-btn", 1);
         key(&op, Key::Return);
-        assert!(!app.data.lock().unwrap().services.iter().any(|s| s.id == other));
+        assert!(!app.data().services.iter().any(|s| s.id == other));
         assert_eq!(op.dialog(), Some(DialogKind::Services), "the dialog stays open");
         assert_eq!(rows(&op).len(), 1, "rebuilt without it");
         assert!(find(&op, "ServicesDialog::delete-btn").is_none(), "one service left: no trash");
@@ -663,7 +663,7 @@ mod tests {
         assert!(rows(&op)[0].current);
         click(&op, "ServicesDialog::delete-btn", 0);
         key(&op, Key::Return);
-        assert!(!app.data.lock().unwrap().services.iter().any(|s| s.id == open_id));
+        assert!(!app.data().services.iter().any(|s| s.id == open_id));
         assert_eq!(current(&app).0, other, "the core opened the first one left");
         // No update redraws this dialog: the patch alone must mark the row.
         let rows = rows(&op);
@@ -685,7 +685,7 @@ mod tests {
     #[test]
     fn save_to_file_writes_the_open_service() {
         let app = test_app();
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
+        app.data().services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
         let op = open_services(&app);
         let dest = saved_file(&app, &op);
         assert!(dest.exists());
@@ -706,7 +706,7 @@ mod tests {
     #[test]
     fn save_with_a_missing_file_says_what_is_missing() {
         let app = test_app();
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         let id = Uuid::new_v4();
         d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: id, arrangement: None }, background: None, notes: String::new(), theme: None });
         drop(d);
@@ -725,7 +725,7 @@ mod tests {
         op.ui.invoke_services();
         crate::ui::operator::files::testing::will_pick(vec![dest]);
         click(&op, "ServicesDialog::open-file-btn", 0);
-        assert_eq!(app.data.lock().unwrap().services.len(), 2);
+        assert_eq!(app.data().services.len(), 2);
         assert_eq!(current(&app).1, "Sunday Service (2)");
         assert_eq!(op.dialog(), None, "the dialog closes on the new service");
         let ask = op.ui.get_ask().row_data(0).expect("the report is up");
@@ -742,7 +742,7 @@ mod tests {
         click(&op, "ServicesDialog::open-file-btn", 0);
         assert_eq!(app.jobs.lock().unwrap()[0].error.as_deref(), Some(crate::bundle::strings::not_a_service_file().as_str()));
         assert_eq!(op.ui.get_ask().row_count(), 0, "no report");
-        assert_eq!(app.data.lock().unwrap().services.len(), 1);
+        assert_eq!(app.data().services.len(), 1);
     }
 
     #[test]
@@ -805,7 +805,7 @@ mod tests {
         today - chrono::Duration::days(today.weekday().num_days_from_sunday() as i64)
     }
 
-    fn set_mdy(app: &App) { app.data.lock().unwrap().settings.date_order = Some(DateOrder::Mdy) }
+    fn set_mdy(app: &App) { app.data().settings.date_order = Some(DateOrder::Mdy) }
 
     fn song_item() -> ServiceItem { ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None }, background: None, notes: String::new(), theme: None } }
 
@@ -816,7 +816,7 @@ mod tests {
         let last = sunday_before(today());
         let (from, _) = current(&app);
         {
-            let mut d = app.data.lock().unwrap();
+            let mut d = app.data();
             d.services[0].date = Some(last);
             d.services[0].name = format!("Service {}", planning::format_date(last, DateOrder::Mdy));
             d.services[0].items.push(song_item());
@@ -831,8 +831,8 @@ mod tests {
         let (id, name) = current(&app);
         assert_ne!(id, from);
         assert_eq!(name, format!("Service {}", planning::format_date(next, DateOrder::Mdy)));
-        assert_eq!(app.data.lock().unwrap().service().unwrap().date, Some(next));
-        assert!(matches!(app.data.lock().unwrap().service().unwrap().items[0].kind, ItemKind::Song { .. }), "kept, no blanks");
+        assert_eq!(app.data().service().unwrap().date, Some(next));
+        assert!(matches!(app.data().service().unwrap().items[0].kind, ItemKind::Song { .. }), "kept, no blanks");
         assert_eq!(op.dialog(), None, "the new service opens");
         assert!(op.toast_log().iter().any(|(t, _)| *t == ptr::ready(&name, 0)), "{:?}", op.toast_log());
     }
@@ -840,11 +840,11 @@ mod tests {
     #[test]
     fn copy_last_week_blanks_choice_makes_blanks() {
         let app = test_app();
-        app.data.lock().unwrap().services[0].items.push(song_item());
+        app.data().services[0].items.push(song_item());
         let op = open_services(&app);
         click(&op, "ServicesDialog::copy-week-btn", 0);
         click(&op, "AskOverlay::other", 0);
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         assert_eq!(d.services.len(), 2);
         assert!(matches!(d.service().unwrap().items[0].kind, ItemKind::Blank { .. }));
         drop(d);
@@ -855,15 +855,15 @@ mod tests {
     fn copy_last_week_existing_date_offers_open() {
         let app = test_app();
         let last = sunday_before(today());
-        app.data.lock().unwrap().services[0].date = Some(last);
+        app.data().services[0].date = Some(last);
         let there = add_service(&app, "Next week");
-        app.data.lock().unwrap().services[1].date = Some(last + chrono::Duration::days(7));
+        app.data().services[1].date = Some(last + chrono::Duration::days(7));
         let op = open_services(&app);
         click(&op, "ServicesDialog::copy-week-btn", 0);
         assert!(asked(&op).unwrap().0.starts_with("There is already a service for"), "{:?}", asked(&op));
         key(&op, Key::Return);
         assert_eq!(current(&app).0, there, "Open it");
-        assert_eq!(app.data.lock().unwrap().services.len(), 2);
+        assert_eq!(app.data().services.len(), 2);
     }
 
     #[test]
@@ -872,7 +872,7 @@ mod tests {
         let base = NaiveDate::from_ymd_opt(2026, 1, 4).unwrap();
         for w in 0..10 {
             let id = add_service(&app, &format!("Week {w}"));
-            app.data.lock().unwrap().services.iter_mut().find(|s| s.id == id).unwrap().date = Some(base + chrono::Duration::days(7 * w));
+            app.data().services.iter_mut().find(|s| s.id == id).unwrap().date = Some(base + chrono::Duration::days(7 * w));
         }
         let op = open_services(&app);
         let r = rows(&op);
@@ -914,7 +914,7 @@ mod tests {
         click(&op, "ServicesDialog::date-btn", 0);
         typed(&op, "11/8/2026");
         key(&op, Key::Return);
-        assert_eq!(app.data.lock().unwrap().services[0].date, NaiveDate::from_ymd_opt(2026, 11, 8));
+        assert_eq!(app.data().services[0].date, NaiveDate::from_ymd_opt(2026, 11, 8));
         assert_eq!(rows(&op)[0].date, "Sun 11/8/2026");
         click(&op, "ServicesDialog::date-btn", 0);
         assert_eq!(asked(&op).map(|a| a.1), Some("11/8/2026".into()));
@@ -924,13 +924,13 @@ mod tests {
         click(&op, "ServicesDialog::date-btn", 0);
         key(&op, Key::Backspace);
         key(&op, Key::Return);
-        assert_eq!(app.data.lock().unwrap().services.iter().find(|s| s.id == id).unwrap().date, None);
+        assert_eq!(app.data().services.iter().find(|s| s.id == id).unwrap().date, None);
     }
 
     #[test]
     fn save_as_template_defaults_songs_to_blank_and_makes_services() {
         let app = test_app();
-        app.data.lock().unwrap().services[0].items = vec![
+        app.data().services[0].items = vec![
             ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Hi".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None },
             song_item(),
         ];
@@ -940,7 +940,7 @@ mod tests {
         assert_eq!(asked(&op), Some((ptr::template_name_prompt().into(), "Sunday Service".into())));
         key(&op, Key::Return);
         {
-            let d = app.data.lock().unwrap();
+            let d = app.data();
             assert_eq!(d.templates.len(), 1);
             assert_eq!(planning::blank_count(&d.templates[0].items), 1, "the song became a blank");
         }
@@ -948,7 +948,7 @@ mod tests {
         click(&op, "ServicesDialog::from-template-btn", 0);
         assert!(asked(&op).unwrap().1.starts_with("Sunday Service "), "{:?}", asked(&op));
         key(&op, Key::Return);
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         assert_eq!(d.services.len(), 2);
         let s = d.service().unwrap();
         assert_eq!(s.template, Some(d.templates[0].id));
@@ -987,7 +987,7 @@ mod tests {
         let app = test_app();
         let blank = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Blank { label: "Song".into(), want: crate::model::BlankKind::Song }, background: None, notes: "upbeat".into(), theme: None };
         let bid = blank.id;
-        app.data.lock().unwrap().services[0].items.push(blank);
+        app.data().services[0].items.push(blank);
         let song = crate::ui::dialogs::add::tests::song(&app, "Amazing Grace", "", "", "Verse 1\nAmazing grace");
         let op = opened(&app);
         let row = op.ui.get_service_rows().row_data(0).unwrap();
@@ -997,7 +997,7 @@ mod tests {
         assert_eq!(op.dialog(), Some(DialogKind::Add(AddTab::Song)));
         assert_eq!(op.ui.get_dialog_title(), "Fill in: Song");
         crate::ui::dialogs::add::tests::click(&op, "AddListRow::add-btn");
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         let it = &d.services[0].items;
         assert_eq!(it.len(), 1, "replaced, not added");
         assert_eq!(it[0].id, bid);
@@ -1011,7 +1011,7 @@ mod tests {
     fn enter_on_blank_says_choose_first() {
         let app = test_app();
         let blank = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Blank { label: "Song".into(), want: crate::model::BlankKind::Song }, background: None, notes: String::new(), theme: None };
-        app.data.lock().unwrap().services[0].items.push(blank);
+        app.data().services[0].items.push(blank);
         let op = opened(&app);
         key(&op, Key::Return);
         assert!(op.toast_log().iter().any(|(t, _)| *t == ptr::blank_choose_first()), "{:?}", op.toast_log());
@@ -1020,13 +1020,13 @@ mod tests {
     #[test]
     fn headers_are_added_renamed_and_coloured() {
         let app = test_app();
-        app.data.lock().unwrap().services[0].items.push(song_item());
+        app.data().services[0].items.push(song_item());
         let op = opened(&app);
         click(&op, "ServiceColumn::header-btn", 0);
         assert_eq!(asked(&op), Some((ptr::header_prompt().into(), ptr::header_default().into())));
         key(&op, Key::Return);
         refresh(&op);
-        let first = |app: &App| app.data.lock().unwrap().services[0].items[0].clone();
+        let first = |app: &App| app.data().services[0].items[0].clone();
         let h = first(&app);
         assert!(matches!(&h.kind, ItemKind::Header { title, color } if title == "Worship" && color == planning::HEADER_COLORS[0]), "above the selected song: {:?}", h.kind);
         let row = op.ui.get_service_rows().row_data(0).unwrap();

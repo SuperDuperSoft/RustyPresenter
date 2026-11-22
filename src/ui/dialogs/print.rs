@@ -96,7 +96,7 @@ mod tests {
     #[test]
     fn print_dialog_remembers_options() {
         let app = test_app();
-        let id = app.data.lock().unwrap().services[0].id;
+        let id = app.data().services[0].id;
         let op = opened(&app);
         open(&op, id);
         settle(&op);
@@ -105,7 +105,7 @@ mod tests {
         op.ui.global::<PrintDialogState>().set_what(0);
         op.ui.global::<PrintDialogState>().set_paper(1);
         click(&op, "PrintDialog::print-btn", 0);
-        let p = app.data.lock().unwrap().settings.print.clone();
+        let p = app.data().settings.print.clone();
         assert_eq!(p, PrintSettings { what: PrintWhat::Order, notes: false, scripture: true, song_per_page: false, paper: Some(Paper::A4) });
         assert!(op.toast_log().iter().any(|(t, err)| *t == tr::opened() && !err), "{:?}", op.toast_log());
         // Opened again later, it starts from those.
@@ -118,7 +118,7 @@ mod tests {
     #[test]
     fn print_save_html_writes_file() {
         let app = test_app();
-        let id = app.data.lock().unwrap().services[0].id;
+        let id = app.data().services[0].id;
         let op = opened(&app);
         open(&op, id);
         let dest = app.store.root.join("sheet.html");

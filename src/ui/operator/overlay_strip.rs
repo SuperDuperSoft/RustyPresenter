@@ -76,7 +76,7 @@ mod tests {
     fn sign(app: &App, name: &str) -> Uuid {
         let o = Overlay { id: Uuid::new_v4(), name: name.into(), source: OverlaySource::Text { text: name.into(), styles: vec![], look: OverlayLook::default() },
             place: Placement::default_for(OverlayKind::Text) };
-        app.data.lock().unwrap().overlays.push(o.clone());
+        app.data().overlays.push(o.clone());
         o.id
     }
 
@@ -174,10 +174,10 @@ mod tests {
         let op = opened(&app);
         op.toggle_overlay(0);
         live(&op);
-        if let OverlaySource::Text { text, .. } = &mut app.data.lock().unwrap().overlays[0].source { *text = "Welcome home".into() }
+        if let OverlaySource::Text { text, .. } = &mut app.data().overlays[0].source { *text = "Welcome home".into() }
         refresh(&op);
         assert!(chips(&op)[0].changed);
-        app.data.lock().unwrap().overlays.retain(|o| o.id != id);
+        app.data().overlays.retain(|o| o.id != id);
         refresh(&op);
         assert!(chips(&op)[0].deleted && chips(&op)[0].on, "still up, struck through");
     }

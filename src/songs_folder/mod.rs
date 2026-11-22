@@ -120,7 +120,7 @@ pub struct Runner {
 impl Runner {
     /// One look: the folder's changes into the library, then the library into the folder.
     pub fn tick(&mut self, app: &App) -> Status {
-        let (prefs, songs) = { let d = app.data.lock().unwrap(); (d.settings.songs_folder.clone(), d.songs.clone()) };
+        let (prefs, songs) = { let d = app.data(); (d.settings.songs_folder.clone(), d.songs.clone()) };
         let dir = prefs.dir();
         let mut status = Status { on: prefs.on, folder: dir.clone(), ..Default::default() };
         if !prefs.on || app.read_only() {
@@ -150,7 +150,7 @@ impl Runner {
             }
         }
         if ok {
-            let songs = app.data.lock().unwrap().songs.clone();
+            let songs = app.data().songs.clone();
             folder.write(&songs);
             folder.save_state();
         }
@@ -232,7 +232,7 @@ mod tests {
         let app = test_app();
         let dir = temp().join("Songs");
         {
-            let mut d = app.data.lock().unwrap();
+            let mut d = app.data();
             d.songs.push(Song { id: Uuid::new_v4(), title: "Amazing Grace".into(), lyrics: "Verse 1\n[G]Amazing grace".into(), ..Default::default() });
             d.songs.push(Song { id: Uuid::new_v4(), title: "Be Still".into(), lyrics: "Verse 1\nBe still".into(), ..Default::default() });
             d.settings.songs_folder = Prefs { on: false, folder: Some(dir.clone()), tidy: false };
@@ -240,7 +240,7 @@ mod tests {
         let mut r = Runner::default();
         assert!(!r.tick(&app).on);
         assert!(!dir.exists(), "off: nothing is made");
-        app.data.lock().unwrap().settings.songs_folder.on = true;
+        app.data().settings.songs_folder.on = true;
         let s = r.tick(&app);
         assert_eq!((s.on, s.songs, s.problem.clone()), (true, 2, None));
         assert_eq!(files(&dir), ["Amazing Grace.chordpro", "Be Still.chordpro"]);
@@ -248,17 +248,17 @@ mod tests {
         // What the app knows is kept in the data folder, not in the songs folder.
         assert!(app.store.root.join("songs-folder.json").is_file());
         // A song edited in the app changes its file at the next look.
-        app.data.lock().unwrap().songs[0].lyrics = "Verse 1\n[G]Amazing grace!".into();
+        app.data().songs[0].lyrics = "Verse 1\n[G]Amazing grace!".into();
         r.tick(&app);
         assert!(std::fs::read_to_string(dir.join("Amazing Grace.chordpro")).unwrap().contains("[G]Amazing grace!"));
         // Off: the files stay; a later edit is not written.
-        app.data.lock().unwrap().settings.songs_folder.on = false;
+        app.data().settings.songs_folder.on = false;
         r.tick(&app);
-        app.data.lock().unwrap().songs[1].title = "Be Still My Soul".into();
+        app.data().songs[1].title = "Be Still My Soul".into();
         r.tick(&app);
         assert_eq!(files(&dir), ["Amazing Grace.chordpro", "Be Still.chordpro"]);
         // On again: the change made meanwhile is written (the file renamed to the new title).
-        app.data.lock().unwrap().settings.songs_folder.on = true;
+        app.data().settings.songs_folder.on = true;
         r.tick(&app);
         assert_eq!(files(&dir), ["Amazing Grace.chordpro", "Be Still My Soul.chordpro"]);
     }
@@ -267,14 +267,14 @@ mod tests {
     fn a_dropped_file_comes_into_the_library_and_says_so() {
         let app = test_app();
         let dir = temp();
-        app.data.lock().unwrap().settings.songs_folder = Prefs { on: true, folder: Some(dir.clone()), tidy: false };
+        app.data().settings.songs_folder = Prefs { on: true, folder: Some(dir.clone()), tidy: false };
         let mut r = Runner::default();
         r.tick(&app);
         std::fs::write(dir.join("river.txt"), crate::songselect::inbox::tests::LYRICS_TXT).unwrap();
         r.tick(&app);
         r.tick(&app);
         let notes = r.last_notes.clone();
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         let song = d.songs.iter().find(|s| s.title == "River Of Test Songs").expect("it came in");
         assert_eq!(song.ccli, "1234567");
         drop(d);
@@ -289,7 +289,7 @@ mod tests {
         let app = test_app();
         let blocker = temp().join("a file");
         std::fs::write(&blocker, "x").unwrap();
-        app.data.lock().unwrap().settings.songs_folder = Prefs { on: true, folder: Some(blocker.join("Songs")), tidy: false };
+        app.data().settings.songs_folder = Prefs { on: true, folder: Some(blocker.join("Songs")), tidy: false };
         let s = Runner::default().tick(&app);
         assert!(s.problem.as_deref().is_some_and(|p| p.starts_with("The songs folder could not be made")), "{s:?}");
         assert!(status_line(&s, SystemTime::now()).starts_with("The songs folder could not be made"));

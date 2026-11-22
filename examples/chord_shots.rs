@@ -27,7 +27,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = App::new(store, data, 0, None);
     let item = Uuid::new_v4();
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         d.settings.stage.layout = presets::BAND;
         d.settings.credits = "none".into();
         let song_id = song.id;

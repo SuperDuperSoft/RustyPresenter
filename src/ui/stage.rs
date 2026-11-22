@@ -99,10 +99,10 @@ const DESIGNED: (u32, u32) = (960, 540);
 fn read(app: &App, live: LiveUpdate, screen: &StageScreen) -> Shown {
     let pictures = &screen.pictures;
     let layout = {
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         stage::active_layout(&d.stage_layouts, None, None, Some(d.settings.stage.layout)).clone()
     };
-    let slides = if layout.id == presets::CLASSIC { vec![] } else { app.live.lock().unwrap().item.as_ref().map(|i| i.slides.clone()).unwrap_or_default() };
+    let slides = if layout.id == presets::CLASSIC { vec![] } else { app.live().item.as_ref().map(|i| i.slides.clone()).unwrap_or_default() };
     let timers = app.timers();
     // The slide pictures the boxes will show (current and next PowerPoint slides), decoded here, not on the window.
     let contents: Vec<CellContent> = {
@@ -459,7 +459,7 @@ fn chord_cell(ui: &StageWindow, screen: &StageScreen, c: &view::Cell, lines: &[c
 
 /// This window's screen fix and test pattern (N20).
 fn fix_of(app: &App, role: &str) -> (ScreenFix, TestPattern) {
-    app.data.lock().unwrap().settings.screens.screen_for(role).map_or_else(Default::default, |s| (s.fix, s.test))
+    app.data().settings.screens.screen_for(role).map_or_else(Default::default, |s| (s.fix, s.test))
 }
 
 /// Puts a test pattern over the stage, or takes it away.
@@ -529,8 +529,8 @@ const PANEL: (u32, u32) = (640, 360);
 /// the slide picture for the live version it was drawn for, so each new stroke only redraws the lines.
 pub fn drawing_panel(app: &App, canvas: &mut crate::render::drawing::DrawingCanvas, slide: &mut Option<(u64, super::thumbs::Pixels)>,
     renderer: &super::thumbs::TextRenderer) -> Option<super::thumbs::Pixels> {
-    let on = app.data.lock().unwrap().settings.stage_drawings;
-    let (version, drawing) = { let l = app.live.lock().unwrap(); (l.version, l.drawing.clone()) };
+    let on = app.data().settings.stage_drawings;
+    let (version, drawing) = { let l = app.live(); (l.version, l.drawing.clone()) };
     if !on || drawing.is_empty() { *slide = None; return None }
     if slide.as_ref().is_none_or(|(v, _)| *v != version) { *slide = Some((version, super::thumbs::live_slide(app, PANEL, renderer))) }
     let mut img = slide.as_ref()?.1.clone();
@@ -547,7 +547,7 @@ fn panel_thread(app: Arc<App>, ui: slint::Weak<StageWindow>, closed: Arc<AtomicB
         let mut showing = false;
         loop {
             // While ink is fading the panel draws again by itself.
-            let wait = app.live.lock().unwrap().drawing.next_change(std::time::Instant::now());
+            let wait = app.live().drawing.next_change(std::time::Instant::now());
             let got = match wait { Some(w) => rx.recv_timeout(w).or_else(|e| if e == std::sync::mpsc::RecvTimeoutError::Timeout { Ok(()) } else { Err(()) }), None => rx.recv().map_err(|_| ()) };
             if got.is_err() { return }
             while rx.try_recv().is_ok() {}
@@ -740,7 +740,7 @@ mod tests {
         i_slint_backend_testing::init_no_event_loop();
         let app = test_app();
         {
-            let mut data = app.data.lock().unwrap();
+            let mut data = app.data();
             let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Grace and peace to you\n\nPlease stand".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
             data.services[0].items.push(item);
         }
@@ -779,7 +779,7 @@ mod tests {
     fn app_with_layout(layout: Uuid) -> Arc<App> {
         let app = test_app();
         {
-            let mut data = app.data.lock().unwrap();
+            let mut data = app.data();
             data.settings.stage.layout = layout;
             let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Welcome".into(), body: "Grace and peace to you\n\nPlease stand".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
             data.services[0].items.push(item);
@@ -795,7 +795,7 @@ mod tests {
         std::fs::create_dir_all(app.store.assets()).unwrap();
         image::RgbaImage::from_pixel(32, 18, image::Rgba([200, 30, 30, 255])).save(app.store.asset_path("s1.png")).unwrap();
         {
-            let mut data = app.data.lock().unwrap();
+            let mut data = app.data();
             let deck = crate::model::Deck { id: Uuid::new_v4(), title: "Talk".into(), slides: vec!["s1.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![], show: None };
             let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Deck { deck_id: deck.id }, background: None, notes: String::new(), theme: None };
             data.decks.push(deck);
@@ -822,7 +822,7 @@ mod tests {
         fly.dur_ms = 200;
         let id = Uuid::new_v4();
         let kind = ItemKind::Design { title: "Talk".into(), slides: vec![Design { objects: vec![a, b], anims: vec![fly], ..Default::default() }] };
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id, kind, background: None, notes: String::new(), theme: None });
+        app.data().services[0].items.push(ServiceItem { id, kind, background: None, notes: String::new(), theme: None });
         let cmd = |cmd| { let base = app.live_view().version; assert!(app.command(Envelope { id: Uuid::new_v4().to_string(), base: Some(base), cmd }).ok) };
         cmd(Command::Show { item_id: id, slide: 0 });
         let stage = Stage::open(app.clone(), None).unwrap();
@@ -895,7 +895,7 @@ mod tests {
             })],
         };
         let app = app_with_layout(ours.id);
-        app.data.lock().unwrap().stage_layouts.push(ours);
+        app.data().stage_layouts.push(ours);
         let stage = Stage::open(app, None).unwrap();
         assert!(stage.ui.get_use_cells());
         let cells: Vec<StageCellVm> = stage.ui.get_cells().iter().collect();
@@ -1083,7 +1083,7 @@ mod tests {
             elements: vec![el(1, ElementKind::Shape { shape: ShapeKind::Ellipse }, false), el(2, ElementKind::NextPicture, false), el(3, ElementKind::ItemTitle, true)],
         };
         let app = app_with_layout(ours.id);
-        app.data.lock().unwrap().stage_layouts.push(ours);
+        app.data().stage_layouts.push(ours);
         let stage = Stage::open(app, None).unwrap();
         let cells: Vec<StageCellVm> = stage.ui.get_cells().iter().collect();
         assert_eq!(cells.len(), 2, "the hidden title is not drawn");
@@ -1119,7 +1119,7 @@ mod tests {
         assert_eq!((img.width(), img.height()), PANEL);
         let mid = img.as_slice()[(180 * 640 + 320) as usize];
         assert_eq!((mid.r, mid.g, mid.b), (0xff, 0x3b, 0x30), "the red line over the (black) slide");
-        app.data.lock().unwrap().settings.stage_drawings = false;
+        app.data().settings.stage_drawings = false;
         assert!(panel().is_none(), "Settings → Show drawings on the stage screen, off");
     }
 }

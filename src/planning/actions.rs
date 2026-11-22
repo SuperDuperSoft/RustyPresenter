@@ -82,7 +82,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
             let F { id, mut item } = parse(body)?;
             if item.get("id").is_none() { item["id"] = json!(id); }
             if item.get("kind").and_then(Value::as_str) == Some("scripture") && item.get("per_slide").is_none() {
-                item["per_slide"] = json!(app.data.lock().unwrap().settings.bible_per_slide);
+                item["per_slide"] = json!(app.data().settings.bible_per_slide);
             }
             let chosen: ServiceItem = serde_json::from_value(item).map_err(|e| bad(e.to_string()))?;
             if matches!(chosen.kind, ItemKind::Blank { .. } | ItemKind::Header { .. }) { return Err(ActionError::bad(tr::not_a_blank())) }
@@ -138,7 +138,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
             struct P { service: Uuid, #[serde(flatten)] options: PrintSettings, path: Option<PathBuf> }
             let P { service, options, path } = parse(body)?;
             let (html, stem) = {
-                let mut d = app.data.lock().unwrap();
+                let mut d = app.data();
                 d.settings.print = options.clone();
                 let s = d.services.iter().find(|s| s.id == service).ok_or_else(|| ActionError::bad(tr::service_gone()))?;
                 let html = crate::print::html(&d, s, &options, today());

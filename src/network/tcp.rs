@@ -29,7 +29,7 @@ pub fn running_port(app: &App) -> Option<u16> { app.net.tcp.lock().unwrap().as_r
 /// Start, stop or move the listener to match the settings. Needs a tokio runtime. An error (the port is in use)
 /// leaves it stopped.
 pub fn sync(app: &Arc<App>) -> Result<(), String> {
-    let n = app.data.lock().unwrap().settings.network.clone();
+    let n = app.data().settings.network.clone();
     let want = n.tcp.then_some(n.tcp_port);
     let mut cur = app.net.tcp.lock().unwrap();
     if cur.as_ref().map(|r| r.port) == want { return Ok(()) }
@@ -99,7 +99,7 @@ pub fn answer(app: &App, line: &str, session: &mut Session) -> Reply {
     let mut words = line.split_whitespace();
     let verb = words.next().unwrap_or("").to_ascii_lowercase();
     let args: Vec<&str> = words.collect();
-    let needed = app.data.lock().unwrap().settings.network.tcp_password.clone();
+    let needed = app.data().settings.network.tcp_password.clone();
     match verb.as_str() {
         "" => return reply("ERR empty line"),
         "help" | "?" => return reply(HELP),
@@ -141,7 +141,7 @@ pub fn answer(app: &App, line: &str, session: &mut Session) -> Reply {
         _ => return reply(format!("ERR unknown command {verb:?}; send help")),
     };
     // Gear acts on whatever is on screen now: the newest version is the base.
-    let base = Some(app.live.lock().unwrap().version);
+    let base = Some(app.live().version);
     let out = app.command(Envelope { id: format!("tcp-{}", Uuid::new_v4().simple()), base, cmd });
     if out.ok { reply("OK") } else { reply(format!("ERR {}", out.error.unwrap_or_default())) }
 }
@@ -151,7 +151,7 @@ fn go(app: &App, args: &[&str]) -> Result<Command, String> {
     let num = |i: usize| args.get(i).map(|a| a.parse::<usize>().ok().filter(|n| *n >= 1).ok_or_else(|| format!("{a:?} is not a number from 1")));
     let item = num(0).ok_or("go needs an item number")??;
     let slide = num(1).transpose()?.unwrap_or(1);
-    let data = app.data.lock().unwrap();
+    let data = app.data();
     let items = data.service().map(|s| s.items.as_slice()).unwrap_or_default();
     let it = items.get(item - 1).ok_or_else(|| format!("there is no item {item} (the service has {})", items.len()))?;
     let count = crate::slides::build_item(&data, it).2.len();
@@ -163,7 +163,7 @@ fn go(app: &App, args: &[&str]) -> Result<Command, String> {
 fn status(app: &App) -> String {
     let v = app.live_view();
     let (Some(c), Some(item)) = (&v.cursor, &v.item) else { return "OK nothing live".into() };
-    let data = app.data.lock().unwrap();
+    let data = app.data();
     let place = data.service().and_then(|s| s.items.iter().position(|i| i.id == c.item_id)).map_or(0, |p| p + 1);
     let title = item.title.replace(['\r', '\n'], " ");
     format!("OK live {place} {} {} {title}", c.slide + 1, item.count)
@@ -176,7 +176,7 @@ mod tests {
     use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
 
     fn with_items(app: &App) {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         for (t, body) in [("Welcome", "Hello\n\nStand"), ("Notices", "Coffee")] {
             d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: t.into(), body: body.into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
         }
@@ -201,7 +201,7 @@ mod tests {
         assert_eq!(say("go x"), "ERR \"x\" is not a number from 1");
         assert_eq!(say("go"), "ERR go needs an item number");
         assert_eq!(say("clear slide"), "OK");
-        assert!(app.live.lock().unwrap().frame.slide.is_none());
+        assert!(app.live().frame.slide.is_none());
         assert_eq!(say("clear sideways"), "ERR clear what? all, slide, media or audio");
         assert_eq!(say("clear"), "OK");
         assert_eq!(say("dance"), "ERR unknown command \"dance\"; send help");
@@ -215,14 +215,14 @@ mod tests {
     fn a_password_must_come_first_and_three_wrong_ones_close_the_line() {
         let app = test_app();
         with_items(&app);
-        app.data.lock().unwrap().settings.network.tcp_password = Some(password::hash("lights"));
+        app.data().settings.network.tcp_password = Some(password::hash("lights"));
         let mut s = Session::default();
         assert_eq!(answer(&app, "next", &mut s).text, "ERR password needed: send password <password> first");
         assert_eq!(answer(&app, "ping", &mut s).text, "OK pong");
         assert_eq!(answer(&app, "password nope", &mut s), Reply { text: "ERR wrong password".into(), close: false });
         assert_eq!(answer(&app, "password lights", &mut s).text, "OK");
         assert_eq!(answer(&app, "next", &mut s).text, "OK");
-        app.data.lock().unwrap().settings.network.tcp_password = Some(password::hash("stage"));
+        app.data().settings.network.tcp_password = Some(password::hash("stage"));
         assert_eq!(answer(&app, "next", &mut s).text, "ERR password needed: send password <password> first");
         assert_eq!(answer(&app, "password stage", &mut s).text, "OK");
         assert_eq!(answer(&app, "next", &mut s).text, "OK");
@@ -254,7 +254,7 @@ mod tests {
         assert_eq!(sync(&app), Ok(()));
         assert_eq!(running_port(&app), None, "off by default");
         let port = std::net::TcpListener::bind("127.0.0.1:0").unwrap().local_addr().unwrap().port();
-        { let mut d = app.data.lock().unwrap(); d.settings.network.tcp = true; d.settings.network.tcp_port = port; }
+        { let mut d = app.data(); d.settings.network.tcp = true; d.settings.network.tcp_port = port; }
         sync(&app).unwrap();
         assert_eq!(running_port(&app), Some(port));
         let stream = tokio::net::TcpStream::connect(("127.0.0.1", port)).await.unwrap();
@@ -266,7 +266,7 @@ mod tests {
         assert_eq!(lines.next_line().await.unwrap().as_deref(), Some("ERR line too long"));
         assert_eq!(lines.next_line().await.unwrap(), None, "closed");
         // Turned off: the port is let go.
-        app.data.lock().unwrap().settings.network.tcp = false;
+        app.data().settings.network.tcp = false;
         sync(&app).unwrap();
         assert_eq!(running_port(&app), None);
         tokio::time::sleep(std::time::Duration::from_millis(50)).await;

@@ -476,7 +476,7 @@ pub(crate) fn wire_keys(op: &Rc<Operator>) {
         let mut prefs = RecordPrefs::default();
         read_form(&g, &mut prefs);
         let (day, time) = {
-            let d = op.app().data.lock().unwrap();
+            let d = op.app().data();
             (d.service().and_then(|s| s.date), crate::automation::actions::starts_at(&d).map(|t| (u32::from(t.hour), u32::from(t.minute))))
         };
         let at = stream::accounts::google::schedule_time(day, time, chrono::Local::now());

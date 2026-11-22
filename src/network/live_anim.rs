@@ -69,8 +69,8 @@ pub struct LiveGroup { pub version: u64, pub base: crate::ui::thumbs::Pixels, pu
 pub fn live_group(app: &App, size: (u32, u32)) -> Option<LiveGroup> {
     use crate::ui::thumbs;
     let (version, job, play, lead_ms, font) = {
-        let data = app.data.lock().unwrap();
-        let live = app.live.lock().unwrap();
+        let data = app.data();
+        let live = app.live();
         let Some(SlideLayer::Design { design, build, play: Some(play) }) = &live.frame.slide else { return None };
         if play.duration_ms() == 0 { return None }
         let (c, item) = live.cursor.as_ref().zip(live.item.as_ref())?;
@@ -92,7 +92,7 @@ pub fn live_group(app: &App, size: (u32, u32)) -> Option<LiveGroup> {
 /// The live slide's click group for a phone `width` wide (the audience screen's shape). None when no group plays.
 pub fn phone_anim(app: &App, width: u32) -> Result<Option<Arc<PhoneAnim>>, String> {
     let size = crate::server::live_slide_size(width, app.room_canvas());
-    if let Some(a) = cached(app.live.lock().unwrap().version, size.0) { return Ok(Some(a)) }
+    if let Some(a) = cached(app.live().version, size.0) { return Ok(Some(a)) }
     let Some(g) = live_group(app, size) else { return Ok(None) };
     let rgb: Vec<u8> = g.base.as_bytes().chunks_exact(4).flat_map(|p| [p[0], p[1], p[2]]).collect();
     let mut jpeg = Vec::new();

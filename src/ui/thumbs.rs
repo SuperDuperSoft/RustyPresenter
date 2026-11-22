@@ -210,8 +210,8 @@ pub fn live_slide(app: &crate::app::App, size: (u32, u32), renderer: &TextRender
 
 /// What `live_slide` draws, with everything that decides how it looks. `None` when nothing is on screen.
 pub fn live_slide_job(app: &crate::app::App, size: (u32, u32)) -> Option<(ThumbKey, ThumbJob)> {
-    let data = app.data.lock().unwrap();
-    let live = app.live.lock().unwrap();
+    let data = app.data();
+    let live = app.live();
     let on_air = live.frame.slide.is_some() || live.frame.media.is_some();
     live.cursor.as_ref().zip(live.item.as_ref()).filter(|_| on_air).and_then(|(c, item)| {
         let slide = item.slides.get(c.slide)?;
@@ -240,8 +240,8 @@ pub fn next_slide(app: &crate::app::App, size: (u32, u32), renderer: &TextRender
 
 /// What `next_slide` draws, with everything that decides how it looks. `None` at the end of the service.
 pub fn next_slide_job(app: &crate::app::App, size: (u32, u32)) -> Option<(ThumbKey, ThumbJob)> {
-    let data = app.data.lock().unwrap();
-    let live = app.live.lock().unwrap();
+    let data = app.data();
+    let live = app.live();
     live.next_slot(&crate::app::DataPlan(&data)).and_then(|(item, n)| {
         let look = Look { theme: item.theme.clone(), background: item.background.clone() };
         let passage = crate::model::passage(&item.kind, &item.slides);

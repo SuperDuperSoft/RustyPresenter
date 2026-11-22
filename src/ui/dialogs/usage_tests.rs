@@ -172,7 +172,7 @@ fn settings_edits_survive_opening_usage_report() {
     assert_eq!(asked(&op).as_deref(), Some(strings::save_first().as_str()));
     ask::answer_settings(&op, true, String::new());
     settle();
-    assert_eq!(app.data.lock().unwrap().settings.church_ccli, "998877");
+    assert_eq!(app.data().settings.church_ccli, "998877");
     assert_eq!(op.dialog(), Some(DialogKind::Usage));
     assert_eq!(g(&op).get_license_line(), strings::license_line("998877"));
 }

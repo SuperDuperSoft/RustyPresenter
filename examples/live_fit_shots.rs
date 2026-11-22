@@ -39,14 +39,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let rt = tokio::runtime::Runtime::new()?;
     let item = Uuid::new_v4();
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         d.settings.show_performance = true;
         let lyrics = "Verse 1\nAmazing grace how sweet the sound\nThat saved a wretch like me\n\nVerse 2\n'Twas grace that taught my heart to fear\nAnd grace my fears relieved\n\nChorus\nMy chains are gone, I've been set free";
         let song = Song { id: Uuid::new_v4(), title: "Amazing Grace".into(), lyrics: lyrics.into(), writers: "John Newton".into(), ..Default::default() };
         d.services[0].items.push(ServiceItem { id: item, kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None });
         d.songs.push(song);
     }
-    let v = app.live.lock().unwrap().version;
+    let v = app.live().version;
     let o = app.command(Envelope { id: Uuid::new_v4().to_string(), base: Some(v), cmd: Command::Show { item_id: item, slide: 0 } });
     assert!(o.ok, "{o:?}");
     let op = Operator::open(app.clone(), Ops::new(app.clone(), rt.handle().clone()), Rc::new(NoScreens))?;

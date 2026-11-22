@@ -163,7 +163,7 @@ mod tests {
         sg.invoke_save();
         wait(&op, |op| win(op).global::<NetworkDlg>().get_error() != "");
         assert_eq!(g.get_error(), "Type a password, or turn the password off.");
-        assert!(!app.data.lock().unwrap().settings.network.stage_view);
+        assert!(!app.data().settings.network.stage_view);
         assert!(settings::is_open(&op), "Settings stays open to fix it");
         g.set_stage_pw("tenors".into());
         g.set_tcp_port("abc".into());
@@ -173,7 +173,7 @@ mod tests {
         g.set_tcp_port("4319".into());
         sg.invoke_save();
         wait(&op, |op| !settings::is_open(op));
-        let n = app.data.lock().unwrap().settings.network.clone();
+        let n = app.data().settings.network.clone();
         assert!(n.stage_view && crate::network::password::verify("tenors", n.stage_password.as_deref().unwrap()));
         assert!(!n.tcp && n.remote_password.is_none());
         // Opened again: the password shows as saved, the field is empty, and Save keeps it.
@@ -182,6 +182,6 @@ mod tests {
         assert!(g.get_stage_pw_on() && g.get_stage_pw() == "");
         sg.invoke_save();
         wait(&op, |op| !settings::is_open(op));
-        assert_eq!(app.data.lock().unwrap().settings.network.stage_password, n.stage_password);
+        assert_eq!(app.data().settings.network.stage_password, n.stage_password);
     }
 }

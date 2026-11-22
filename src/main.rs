@@ -92,7 +92,7 @@ fn main() {
     // The church's own translations (Settings → Translations…) over the built-in ones; a file that cannot be read
     // is left out, and the operator window says so.
     for p in i18n::load_user_folder(&root.join("translations")) { eprintln!("{p}"); }
-    let saved_lang = app.data.lock().unwrap().settings.ui_language.clone();
+    let saved_lang = app.data().settings.ui_language.clone();
     let lang = i18n::resolve(&saved_lang);
     let _ = i18n::set_language(&lang);
     let lang_missing = !saved_lang.is_empty() && lang != saved_lang;

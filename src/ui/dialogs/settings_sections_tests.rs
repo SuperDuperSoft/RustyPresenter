@@ -67,7 +67,7 @@ fn sections_page_edits_names_colours_keys_and_labels() {
     click(&op, "SettingsWindow::save");
     assert_eq!(op.dialog(), None);
 
-    let look = app.data.lock().unwrap().settings.sections.clone();
+    let look = app.data().settings.sections.clone();
     assert_eq!(look.name(SectionKind::Chorus).as_deref(), Some("Refrain"));
     assert_eq!(look.key(SectionKind::Chorus), Some('r'));
     assert_eq!(look.label_color("Choir only").as_deref(), Some("#3ccf91"));
@@ -82,7 +82,7 @@ fn sections_page_edits_names_colours_keys_and_labels() {
     assert_eq!(d(&op).get_kinds().row_data(1).unwrap().name, "Refrain");
     d(&op).invoke_reset();
     click(&op, "SettingsWindow::save");
-    assert_eq!(app.data.lock().unwrap().settings.sections, SectionLook::default());
+    assert_eq!(app.data().settings.sections, SectionLook::default());
     refresh(&op);
     assert_eq!(hex(op.ui.theme_all().get_sec_chorus()), "#ff8f93");
 }
@@ -96,7 +96,7 @@ fn a_key_two_kinds_share_is_not_saved() {
     click(&op, "SettingsWindow::save");
     assert!(toasts(&op).contains(&"Chorus and Bridge both use the key B.".to_string()), "{:?}", toasts(&op));
     assert!(settings::is_open(&op), "Settings stays open");
-    assert_eq!(app.data.lock().unwrap().settings.sections, SectionLook::default());
+    assert_eq!(app.data().settings.sections, SectionLook::default());
 }
 
 #[test]
@@ -105,7 +105,7 @@ fn slide_labels_show_on_thumbnails_in_their_colour() {
     let song = Song { id: Uuid::new_v4(), title: "Grace".into(), lyrics: "Verse 1\n{Instrumental}\n\n{Choir}\nla\nChorus\nx".into(), ..Default::default() };
     let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None };
     {
-        let mut data = app.data.lock().unwrap();
+        let mut data = app.data();
         data.songs.push(song);
         data.services[0].items.push(item.clone());
     }
@@ -134,7 +134,7 @@ fn credits_on_off_where_and_template() {
     assert_eq!(g.get_credit_sample(), "Example: Amazing Grace (My Chains Are Gone) — Chris Tomlin");
     g.set_credits(2);
     click(&op, "SettingsWindow::save");
-    let s = app.data.lock().unwrap().settings.clone();
+    let s = app.data().settings.clone();
     assert_eq!((s.credits.as_str(), s.credit_template.as_str()), ("last", "{title} — {artist}"));
 
     refresh(&op);
@@ -144,5 +144,5 @@ fn credits_on_off_where_and_template() {
     g.set_credits_on(false);
     assert_eq!(settings::tab_index(SettingsTab::Songs), 4);
     click(&op, "SettingsWindow::save");
-    assert_eq!(app.data.lock().unwrap().settings.credits, "none");
+    assert_eq!(app.data().settings.credits, "none");
 }

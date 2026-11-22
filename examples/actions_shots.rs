@@ -20,7 +20,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = App::new(store, data, 0, None);
     let item_id = Uuid::new_v4();
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         let body = "Welcome to church\n\nPlease find a seat\n\nWe begin in a few minutes\n\nTurn your phone to silent";
         d.services[0].items.push(ServiceItem {
             id: item_id,

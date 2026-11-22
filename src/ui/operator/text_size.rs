@@ -222,7 +222,7 @@ mod tests {
 
     fn push(app: &App, kind: ItemKind) -> Uuid {
         let item = ServiceItem { id: Uuid::new_v4(), kind, background: None, notes: String::new(), theme: None };
-        app.data.lock().unwrap().services[0].items.push(item.clone());
+        app.data().services[0].items.push(item.clone());
         item.id
     }
 
@@ -232,7 +232,7 @@ mod tests {
     }
 
     fn size_of(app: &App, id: Uuid) -> u32 {
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         match d.services[0].items.iter().find(|i| i.id == id).map(|i| &i.kind) { Some(ItemKind::Scripture { text_size, .. }) => *text_size, k => panic!("{k:?}") }
     }
 
@@ -343,7 +343,7 @@ mod song_tests {
     fn grace(app: &App) -> (Uuid, Uuid) {
         let song = Song { id: Uuid::new_v4(), title: "Grace".into(), lyrics: "Verse 1\na\nb\nc\nd".into(), ..Default::default() };
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None };
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         d.settings.lines_per_slide = 2;
         d.settings.credits = "none".into();
         d.songs.push(song.clone());
@@ -351,7 +351,7 @@ mod song_tests {
         (song.id, item.id)
     }
 
-    fn song(app: &App, id: Uuid) -> Song { app.data.lock().unwrap().songs.iter().find(|s| s.id == id).cloned().unwrap() }
+    fn song(app: &App, id: Uuid) -> Song { app.data().songs.iter().find(|s| s.id == id).cloned().unwrap() }
 
     fn slide_count(op: &Operator, item: Uuid) -> usize {
         op.state.borrow().snap.as_ref().unwrap().items.iter().find(|i| i.id == item).unwrap().slides.len()

@@ -84,7 +84,7 @@ mod tests {
         find(op, id).unwrap_or_else(|| panic!("{id}")).mock_single_click(PointerEventButton::Left);
     }
     fn asked(op: &Operator) -> Option<crate::ui::AskRow> { op.ui.get_ask().row_data(0) }
-    fn stage_screen(app: &App) { app.data.lock().unwrap().settings.screens.assign("stage", crate::model::ScreenTarget::Monitor("stage".into())); }
+    fn stage_screen(app: &App) { app.data().settings.screens.assign("stage", crate::model::ScreenTarget::Monitor("stage".into())); }
 
     fn opened() -> (Arc<App>, Rc<Operator>) {
         let app = test_app();

@@ -32,7 +32,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let rt = tokio::runtime::Runtime::new()?;
     let item = Uuid::new_v4();
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         let s = &mut d.settings.screens.audience.screens[0];
         s.output_mut().target = ScreenTarget::Window;
         s.mask = Mask { shape: MaskShape::Rounded, inset: 4, radius: 18 };

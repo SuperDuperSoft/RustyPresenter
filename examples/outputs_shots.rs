@@ -40,12 +40,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let rt = tokio::runtime::Runtime::new()?;
     let item = Uuid::new_v4();
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         d.settings.show_performance = true;
         let body = "Welcome to church!\n\nCoffee after the service".to_string();
         d.services[0].items.push(ServiceItem { id: item, kind: ItemKind::Text { title: "Announcements".into(), body, layout: Default::default() }, background: None, notes: "Band: start the intro".into(), theme: None });
     }
-    let v = app.live.lock().unwrap().version;
+    let v = app.live().version;
     let o = app.command(Envelope { id: Uuid::new_v4().to_string(), base: Some(v), cmd: Command::Show { item_id: item, slide: 0 } });
     assert!(o.ok, "{o:?}");
     let stage = Stage::open(app.clone(), None)?;

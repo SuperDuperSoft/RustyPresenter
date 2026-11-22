@@ -46,7 +46,7 @@ fn record_then_stop_saves_an_mp4_in_the_chosen_folder() {
     if !has_ffmpeg() { return eprintln!("no ffmpeg here: skipped") }
     let app = test_app();
     let folder = std::env::temp_dir().join(format!("rp-record-ui-{}", uuid::Uuid::new_v4()));
-    app.data.lock().unwrap().settings.record = RecordPrefs { size: Preset::P720, folder: folder.display().to_string(), sound: "none".into(), ..Default::default() };
+    app.data().settings.record = RecordPrefs { size: Preset::P720, folder: folder.display().to_string(), sound: "none".into(), ..Default::default() };
     let room = Arc::new(Room { open: true, ..Default::default() });
     let op = open(&app, &room);
     refresh(&op);
@@ -110,7 +110,7 @@ fn a_clip_marked_while_recording_is_saved_as_its_own_video() {
     if !has_ffmpeg() { return eprintln!("no ffmpeg here: skipped") }
     let app = test_app();
     let folder = std::env::temp_dir().join(format!("rp-record-clip-{}", uuid::Uuid::new_v4()));
-    app.data.lock().unwrap().settings.record = RecordPrefs { size: Preset::P720, folder: folder.display().to_string(), sound: "none".into(), ..Default::default() };
+    app.data().settings.record = RecordPrefs { size: Preset::P720, folder: folder.display().to_string(), sound: "none".into(), ..Default::default() };
     let room = Arc::new(Room { open: true, ..Default::default() });
     let op = open(&app, &room);
     refresh(&op);
@@ -188,7 +188,7 @@ fn go_live_shows_once_a_destination_is_on_and_needs_its_key() {
     let op = open(&app, &room);
     refresh(&op);
     assert!(!op.ui.get_can_stream(), "no destination: no Go Live button");
-    app.data.lock().unwrap().settings.record.stream = vec![dest(0, true), dest(2, false)];
+    app.data().settings.record.stream = vec![dest(0, true), dest(2, false)];
     refresh(&op);
     assert!(op.ui.get_can_stream());
     // On, but this computer has no key for it: nothing starts, and the operator is told which and why.
@@ -730,7 +730,7 @@ fn the_streaming_licence_note_is_shown_once() {
     refresh(&op);
     op.note_stream_licence();
     assert_eq!(op.state.borrow().asks, 1, "the note is up");
-    assert!(app.data.lock().unwrap().settings.record.licence_noted, "and its mark is kept");
+    assert!(app.data().settings.record.licence_noted, "and its mark is kept");
     crate::ui::dialogs::ask::answer(&op, true, String::new());
     refresh(&op);
     op.note_stream_licence();
@@ -837,7 +837,7 @@ fn a_scene_click_lights_and_holds_until_the_next_item() {
         serde_json::from_value(r["id"].clone()).unwrap()
     };
     let (a, b) = (add("Welcome"), add("Sermon"));
-    let show = |id| { let base = Some(app.live.lock().unwrap().version); assert!(app.command(Envelope { id: uuid::Uuid::new_v4().to_string(), base, cmd: Command::Show { item_id: id, slide: 0 } }).ok) };
+    let show = |id| { let base = Some(app.live().version); assert!(app.command(Envelope { id: uuid::Uuid::new_v4().to_string(), base, cmd: Command::Show { item_id: id, slide: 0 } }).ok) };
     show(a);
     op.record.live.set(true);
     op.ui.invoke_pick_scene(0);
@@ -979,7 +979,7 @@ fn settings_keep_the_broadcast_title_and_who_can_watch() {
 fn go_live_signed_in_says_when_the_broadcast_cannot_be_made() {
     let (_rt, _seen) = stand_in();
     let app = test_app();
-    app.data.lock().unwrap().settings.record.stream = vec![dest(0, true)];
+    app.data().settings.record.stream = vec![dest(0, true)];
     // A sign-in Google no longer accepts (taken back, or run out).
     stream::accounts::keep(stream::keys::app_store().as_ref(), stream::built_in_id(0), "Grace Church", "revoked").unwrap();
     let room = Arc::new(Room { open: true, ..Default::default() });
@@ -1000,7 +1000,7 @@ fn go_live_signed_in_makes_the_broadcast_streams_to_it_and_gives_the_replay() {
     seen.lock().unwrap().ingest = "rtmp://127.0.0.1:9/live2".into();
     let app = test_app();
     let folder = std::env::temp_dir().join(format!("rp-signin-ui-{}", uuid::Uuid::new_v4()));
-    app.data.lock().unwrap().settings.record = RecordPrefs {
+    app.data().settings.record = RecordPrefs {
         size: Preset::P720, folder: folder.display().to_string(), sound: "none".into(), stream: vec![dest(0, true)],
         stream_title: "Service {date}".into(), ..Default::default()
     };
@@ -1153,7 +1153,7 @@ fn x264_too_slow_with_the_encoder_left_to_the_app_tries_the_graphics_card_next_t
     op.record.encoder_auto.set(true);
     for _ in 0..30 { op.say_slow(Some(Duration::from_millis(1200))) }
     assert_eq!(toasts(&op).last(), Some(&(format!("{} {}", record::tr::too_slow(), record::tr::too_slow_next_time()), true)));
-    assert!(app.data.lock().unwrap().settings.record.x264_too_slow, "kept for next time");
+    assert!(app.data().settings.record.x264_too_slow, "kept for next time");
     // Chosen by hand: left as it is.
     let app2 = test_app();
     let op2 = open(&app2, &room);
@@ -1161,7 +1161,7 @@ fn x264_too_slow_with_the_encoder_left_to_the_app_tries_the_graphics_card_next_t
     op2.record.encoder_auto.set(false);
     for _ in 0..30 { op2.say_slow(Some(Duration::from_millis(1200))) }
     assert_eq!(toasts(&op2).last(), Some(&(record::tr::too_slow(), true)));
-    assert!(!app2.data.lock().unwrap().settings.record.x264_too_slow);
+    assert!(!app2.data().settings.record.x264_too_slow);
 }
 
 #[test]

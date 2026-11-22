@@ -99,8 +99,8 @@ fn on_disk(app: &App) -> Vec<OnDisk> {
 
 fn look(app: &App) -> Unused {
     let disk = on_disk(app);
-    let data = app.data.lock().unwrap();
-    let live = app.live.lock().unwrap();
+    let data = app.data();
+    let live = app.live();
     find(&data, &on_air(&live), &disk)
 }
 
@@ -154,8 +154,8 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
             // Looked at again with the library as it now is (entries the question didn't name keep their files).
             let loose = {
                 let disk = on_disk(app);
-                let data = app.data.lock().unwrap();
-                let live = app.live.lock().unwrap();
+                let data = app.data();
+                let live = app.live();
                 loose_files(&data, &on_air(&live), &disk).0
             };
             let (mut files, mut bytes) = (0, 0);
@@ -170,7 +170,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
         "sound/listen" => {
             #[derive(Deserialize)] struct L { on: bool }
             let L { on } = parse(body)?;
-            if on && app.data.lock().unwrap().settings.media.listen_device.is_empty() {
+            if on && app.data().settings.media.listen_device.is_empty() {
                 return Err(ActionError::bad(crate::tr!("Choose your headphones in Settings → Sound first.")));
             }
             app.listening.store(on, Ordering::Relaxed);
@@ -292,8 +292,8 @@ mod tests {
         let (keep, spare, other) = (put(&app, "keep", b"keep"), put(&app, "spare", b"spare!"), put(&app, "other", b"other"));
         let (mut k, mut s, mut o) = (file("Keep", &keep), file("Spare", &spare), file("Other", &other));
         (k.thumb, s.thumb, o.thumb) = (None, None, None);
-        app.data.lock().unwrap().services[0].items.push(item(k.id));
-        app.data.lock().unwrap().media = vec![k.clone(), s.clone(), o.clone()].into();
+        app.data().services[0].items.push(item(k.id));
+        app.data().media = vec![k.clone(), s.clone(), o.clone()].into();
         let asked = app.do_action("media/unused", b"{}").await.unwrap();
         assert_eq!((asked["entries"].as_u64(), asked["files"].as_u64(), asked["nothing"].as_bool()), (Some(2), Some(2), Some(false)));
         assert!(asked["question"].as_str().unwrap().contains("•  Spare"));
@@ -301,7 +301,7 @@ mod tests {
         let done = app.do_action("media/cleanup", json!({ "ids": [s.id] }).to_string().as_bytes()).await.unwrap();
         assert_eq!((done["removed"].as_u64(), done["files"].as_u64(), done["bytes"].as_u64()), (Some(1), Some(1), Some(6)));
         assert_eq!(done["toast"], "Took 1 file out of the media library and freed 1 KB.");
-        let names: Vec<String> = app.data.lock().unwrap().media.iter().map(|m| m.name.clone()).collect();
+        let names: Vec<String> = app.data().media.iter().map(|m| m.name.clone()).collect();
         assert_eq!(names, ["Keep", "Other"]);
         assert!(app.store.asset_path(&keep).exists() && app.store.asset_path(&other).exists());
         assert!(!app.store.asset_path(&spare).exists());
@@ -313,13 +313,13 @@ mod tests {
         let app = test_app();
         let clip = put(&app, "clip", b"clip");
         let f = file("Clip", &clip);
-        app.data.lock().unwrap().media.push(f.clone());
+        app.data().media.push(f.clone());
         let it = item(f.id);
-        app.data.lock().unwrap().services[0].items.push(it.clone());
+        app.data().services[0].items.push(it.clone());
         assert!(app.command(Envelope::new(Command::Show { item_id: it.id, slide: 0 })).ok);
         // Taken out of the service while it plays.
-        app.data.lock().unwrap().services[0].items.clear();
-        assert!(matches!(app.live.lock().unwrap().frame.media, Some(Inst { v: MediaLayer::Video { .. }, .. })));
+        app.data().services[0].items.clear();
+        assert!(matches!(app.live().frame.media, Some(Inst { v: MediaLayer::Video { .. }, .. })));
         let asked = app.do_action("media/unused", b"{}").await.unwrap();
         assert_eq!(asked["nothing"], true, "{asked}");
     }
@@ -343,11 +343,11 @@ mod tests {
         let app = test_app();
         let err = app.do_action("sound/listen", br#"{"on":true}"#).await.unwrap_err();
         assert_eq!(err.message, "Choose your headphones in Settings → Sound first.");
-        app.data.lock().unwrap().settings.media.listen_device = "wasapi/{phones}".into();
-        app.data.lock().unwrap().settings.audio_device = "wasapi/{board}".into();
+        app.data().settings.media.listen_device = "wasapi/{phones}".into();
+        app.data().settings.audio_device = "wasapi/{board}".into();
         app.do_action("sound/listen", br#"{"on":true}"#).await.unwrap();
         assert_eq!(app.sound_out().device, "wasapi/{phones}");
-        assert!(!serde_json::to_string(&app.data.lock().unwrap().settings).unwrap().contains("listening"));
+        assert!(!serde_json::to_string(&app.data().settings).unwrap().contains("listening"));
         app.do_action("sound/listen", br#"{"on":false}"#).await.unwrap();
         assert_eq!(app.sound_out().device, "wasapi/{board}");
     }

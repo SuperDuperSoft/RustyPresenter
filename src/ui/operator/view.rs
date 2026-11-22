@@ -141,7 +141,7 @@ impl OperatorSnapshot {
         let lang = format!("{}#{}", crate::i18n::current(), crate::i18n::revision());
         // The revision is read with the lock held, so it is the revision of exactly this data.
         let (data, data_rev, kept) = {
-            let held = app.data.lock().unwrap();
+            let held = app.data();
             let rev = app.data_rev();
             match before.filter(|b| b.data_rev == rev && b.lang == lang) {
                 Some(b) => (b.data.clone(), rev, Some(b)),
@@ -506,7 +506,7 @@ mod tests {
         assert!(!Arc::ptr_eq(&second.data, &third.data));
         assert_eq!(third.data.settings.translation, "WEB");
         // So is a change made straight on the data, without `edit`: the revision cannot miss one.
-        app.data.lock().unwrap().settings.translation = "KJV".into();
+        app.data().settings.translation = "KJV".into();
         let fourth = OperatorSnapshot::read_after(&app, Some(&third));
         assert_eq!(fourth.data.settings.translation, "KJV");
         assert!(Arc::ptr_eq(&third.songs, &fourth.songs), "the songs are the same, so their rows are kept");

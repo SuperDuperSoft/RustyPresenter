@@ -351,7 +351,7 @@ fn transition_names(default: &Transition) -> Vec<String> {
 /// Opens the editor on the church's scenes as last saved. Closing it goes back to Settings → General → Screens and graphics and media.
 pub fn open(op: &Rc<Operator>) {
     let Some(snap) = op.state.borrow().snap.clone() else { return };
-    let starts_at = crate::automation::actions::starts_at(&op.app().data.lock().unwrap());
+    let starts_at = crate::automation::actions::starts_at(&op.app().data());
     let st: St = Rc::new(RefCell::new(State {
         ed: Editor::with_default(snap.settings.record.own_scenes.clone(), snap.settings.record.scene_transition.clone()),
         theme: snap.settings.theme.clone(), fonts: crate::render::Fonts::new(), stand: None, starts_at,

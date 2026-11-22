@@ -33,7 +33,7 @@ async fn page() -> Response {
 /// Whether this phone may send sound: it is paired, or it signed in to the stage view with the stage password.
 pub fn may_send(app: &App, headers: &HeaderMap) -> bool {
     if crate::server::phone_for(app, headers).is_some() { return true }
-    let password_set = app.data.lock().unwrap().settings.network.stage_password.is_some();
+    let password_set = app.data().settings.network.stage_password.is_some();
     password_set && allowed(app, headers)
 }
 
@@ -44,7 +44,7 @@ async fn status(State(app): State<Arc<App>>, headers: HeaderMap) -> Response {
     let secure = secure_url(host, super::phone_link::secure_port(&app));
     let may = may_send(&app, &headers);
     if may { super::phone_link::saw(&app, super::phone_link::Kind::Mic, super::phone_link::phone_name(&app, &headers)) }
-    let password = app.data.lock().unwrap().settings.network.remote_password.is_some();
+    let password = app.data().settings.network.remote_password.is_some();
     ([(header::CACHE_CONTROL, "no-store")], Json(json!({
         "allowed": may, "paired": crate::server::phone_for(&app, &headers).is_some(), "password": password,
         "taken": phone_mic::taken(), "secure_url": secure,
@@ -104,11 +104,11 @@ mod tests {
         let (status, v) = post(&app, None, pcm.clone()).await;
         assert_eq!((status, v["allowed"].as_bool()), (StatusCode::FORBIDDEN, Some(false)));
         // On with no password: every device may look, none may send.
-        app.data.lock().unwrap().settings.network.stage_view = true;
+        app.data().settings.network.stage_view = true;
         let (status, v) = post(&app, Some("http://192.168.1.5:4318"), pcm.clone()).await;
         assert_eq!((status, v["allowed"].as_bool()), (StatusCode::FORBIDDEN, Some(false)));
         // With a password: only a device that signed in.
-        app.data.lock().unwrap().settings.network.stage_password = Some("a stored hash".into());
+        app.data().settings.network.stage_password = Some("a stored hash".into());
         assert_eq!(post(&app, Some("http://192.168.1.5:4318"), pcm.clone()).await.0, StatusCode::FORBIDDEN);
         let token = crate::app::random_token();
         app.net.stage_tokens.lock().unwrap().push((crate::app::hash_token(&token), std::time::Instant::now()));
@@ -125,7 +125,7 @@ mod tests {
         assert_eq!((v["taken"].as_bool(), v["text"].as_str()), (Some(false), Some(tr::not_taken().as_str())));
         // A paired phone may send whatever the stage view is set to.
         {
-            let mut d = app.data.lock().unwrap();
+            let mut d = app.data();
             d.settings.network.stage_view = false;
             d.settings.network.stage_password = None;
         }

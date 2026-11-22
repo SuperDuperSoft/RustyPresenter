@@ -41,9 +41,9 @@ pub fn open_asking(listener: TcpListener, root: PathBuf, port: u16, ask: &dyn Fn
     app.set_read_only(read_only);
     // 1.3: song auto-follow's worker (idle until a song follows the singers).
     app.start_follower();
-    if removed > 0 { app.live.lock().unwrap().notice = Some(crate::scripture::strings::passages_removed(removed)); }
-    if let Some(e) = unsaved { app.live.lock().unwrap().notice = Some(crate::tr!("Could not save: {reason}", reason = e)); }
-    if let Some(said) = from_backup { app.live.lock().unwrap().notice = Some(said); }
+    if removed > 0 { app.live().notice = Some(crate::scripture::strings::passages_removed(removed)); }
+    if let Some(e) = unsaved { app.live().notice = Some(crate::tr!("Could not save: {reason}", reason = e)); }
+    if let Some(said) = from_backup { app.live().notice = Some(said); }
     Ok(Started { app, listener, root })
 }
 
@@ -128,7 +128,7 @@ pub async fn backups(app: Arc<App>, restored: bool) {
 /// One automatic backup, off the async workers (it copies files and waits for the disk). A backup that could not
 /// be made is said in the operator window: the release build has no console to print to.
 async fn backup_once(app: &Arc<App>) {
-    let data = app.data.lock().unwrap().clone();
+    let data = app.data().clone();
     if data.songs.is_empty() && data.services.iter().all(|s| s.items.is_empty()) { return }
     let worker = app.clone();
     // Nothing changed since the newest backup: another copy would only crowd the list.
@@ -162,9 +162,9 @@ mod tests {
         Store::open(root.clone()).unwrap().save(&Data { services: vec![service].into(), ..Data::default() }).unwrap();
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let started = open(listener, root, 0).unwrap();
-        assert_eq!(started.app.data.lock().unwrap().services[0].items.len(), 1);
+        assert_eq!(started.app.data().services[0].items.len(), 1);
         assert_eq!(started.app.store.load().unwrap().services[0].items.len(), 1, "saved as well");
-        assert_eq!(started.app.live.lock().unwrap().notice.as_deref(), Some(passages_removed(1).as_str()));
+        assert_eq!(started.app.live().notice.as_deref(), Some(passages_removed(1).as_str()));
     }
 
     /// B2: a backup that fails is said where the operator looks.
@@ -176,19 +176,19 @@ mod tests {
         Store::open(root.clone()).unwrap().save(&data).unwrap();
         let started = open(TcpListener::bind("127.0.0.1:0").unwrap(), root.clone(), 0).unwrap();
         backup_once(&started.app).await;
-        assert_eq!(started.app.live.lock().unwrap().notice, None, "a backup that works says nothing");
+        assert_eq!(started.app.live().notice, None, "a backup that works says nothing");
         assert_eq!(started.app.store.backups().len(), 1);
         // B8: nothing changed, so the next one makes no second copy; a change does.
         backup_once(&started.app).await;
         assert_eq!(started.app.store.backups().len(), 1);
-        started.app.data.lock().unwrap().songs[0].title = "Amazing Grace (My Chains Are Gone)".into();
+        started.app.data().songs[0].title = "Amazing Grace (My Chains Are Gone)".into();
         backup_once(&started.app).await;
         assert_eq!(started.app.store.backups().len(), 2);
         // The backups folder is in the way as a file: nothing can be written there.
         std::fs::remove_dir_all(root.join("backups")).unwrap();
         std::fs::write(root.join("backups"), b"not a folder").unwrap();
         backup_once(&started.app).await;
-        let notice = started.app.live.lock().unwrap().notice.clone().unwrap_or_default();
+        let notice = started.app.live().notice.clone().unwrap_or_default();
         assert!(notice.starts_with("The automatic backup could not be made"), "{notice}");
     }
 
@@ -212,12 +212,12 @@ mod tests {
         assert!(asked.borrow()[0].contains("Start with the newest backup") && asked.borrow()[0].contains("data.unreadable-"), "{:?}", asked.borrow());
         // On Yes: the backup's songs, the unreadable file kept beside it, and the operator is told.
         let started = open_asking(listener(), root.clone(), 0, &|_| true).unwrap();
-        assert_eq!(started.app.data.lock().unwrap().songs[0].title, "Amazing Grace");
+        assert_eq!(started.app.data().songs[0].title, "Amazing Grace");
         assert_eq!(started.app.store.load().unwrap().songs.len(), 1, "data.json is readable again");
         let kept: Vec<_> = std::fs::read_dir(&root).unwrap().flatten().filter(|e| e.file_name().to_string_lossy().starts_with("data.unreadable-")).collect();
         assert_eq!(kept.len(), 1);
         assert_eq!(std::fs::read(kept[0].path()).unwrap(), b"{ half a file");
-        assert!(started.app.live.lock().unwrap().notice.as_deref().is_some_and(|n| n.starts_with("Started from the backup made")));
+        assert!(started.app.live().notice.as_deref().is_some_and(|n| n.starts_with("Started from the backup made")));
         assert!(started.app.store.backups().iter().any(|b| b.name == backup));
         // With no backup at all there is nothing to offer: the error as before, without a question.
         let empty = test_dir();

@@ -102,7 +102,7 @@ fn source(kind: Kind, job: &Job, app: &App) -> Option<Source> {
             let m = f.media.as_ref()?;
             match &m.v {
                 // Fill and Stretch need the whole screen covered; the room's `media-fit` crops or stretches it.
-                MediaLayer::Still { asset } => picture(asset, app.data.lock().unwrap().settings.media.scale != Scale::Fit, 1.0),
+                MediaLayer::Still { asset } => picture(asset, app.data().settings.media.scale != Scale::Fit, 1.0),
                 MediaLayer::Video { asset: a, end, .. } => Source::Player { role: Role::Foreground(*end), inst: m.inst, path: asset(a) },
             }
         }
@@ -169,7 +169,7 @@ pub(super) fn prepare(work: &Work, job: &Job, send: impl Fn(Msg)) {
             }
             Source::Player { role, inst, path } => {
                 let players = if matches!(role, Role::Audio { .. }) { &work.audio } else { &work.video };
-                let (sound, scale) = (work.app.sound_out(), work.app.data.lock().unwrap().settings.media.scale);
+                let (sound, scale) = (work.app.sound_out(), work.app.data().settings.media.scale);
                 let Some(p) = players.create(role, inst, &sound.device, mpv_options(role, scale, &sound)) else { continue };
                 p.set_paused(true); // starts at the swap, like `startMedia` in `output.js`
                 if role == Role::Background {
@@ -207,7 +207,7 @@ pub(super) fn neighbours(live: &Live, canvas: (u32, u32), assets: std::path::Pat
 /// While the room shows a text slide, has the renderer draw the next and previous ones when it is idle.
 fn prefetch_neighbours(work: &Work, job: &Job) {
     if !matches!(job.frame.slide, Some(SlideLayer::Text { .. } | SlideLayer::Design { .. })) { return }
-    let keys = { let live = work.app.live.lock().unwrap(); neighbours(&live, job.canvas, work.app.store.assets()) };
+    let keys = { let live = work.app.live(); neighbours(&live, job.canvas, work.app.store.assets()) };
     for k in keys { work.renderer.prefetch(k) }
 }
 

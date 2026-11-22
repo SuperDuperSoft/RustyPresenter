@@ -22,7 +22,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = App::new(store, data, 0, None);
     let item_id = Uuid::new_v4();
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         let christmas = SavedTheme { id: Uuid::new_v4(), name: "Christmas".into(),
             style: Theme { font: "Noto Sans".into(), weight: 700, color: "#f5e6c8".into(), band: true, position: "lower".into(), ..Default::default() },
             background: Some(Background::Gradient { from: "#3a2412".into(), to: "#0d0806".into(), angle: 135, dim: 0 }) };
@@ -48,7 +48,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         d.services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "Pancake breakfast".into(), body: "Sunday 9am".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
         d.songs.push(song);
     }
-    let first_overlay = app.data.lock().unwrap().overlays[1].id;
+    let first_overlay = app.data().overlays[1].id;
     app.command(Envelope { id: "s".into(), base: None, cmd: Command::Show { item_id, slide: 0 } });
     app.command(Envelope { id: "o".into(), base: None, cmd: Command::Overlay { id: first_overlay, on: true, seen_clear: Some(0) } });
 

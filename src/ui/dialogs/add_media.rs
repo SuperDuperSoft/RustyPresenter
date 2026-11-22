@@ -199,11 +199,11 @@ mod tests {
 
     fn media(app: &App, name: &str, kind: MediaKind, status: MediaStatus) -> Uuid {
         let m = MediaFile { id: Uuid::new_v4(), name: name.into(), kind, asset: format!("{name}.bin"), status, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
-        app.data.lock().unwrap().media.push(m.clone());
+        app.data().media.push(m.clone());
         m.id
     }
 
-    fn library(app: &App) -> Vec<String> { app.data.lock().unwrap().media.iter().map(|m| m.name.clone()).collect() }
+    fn library(app: &App) -> Vec<String> { app.data().media.iter().map(|m| m.name.clone()).collect() }
 
     fn question(op: &Operator) -> Option<String> { op.ui.get_ask().row_data(0).map(|a| a.text.to_string()) }
 
@@ -256,7 +256,7 @@ mod tests {
         media(&app, "song.mp3", MediaKind::Audio, MediaStatus::Ready);
         let frame = "frame.png";
         image::RgbaImage::from_pixel(16, 9, image::Rgba([0, 255, 0, 255])).save(app.store.asset_path(frame)).unwrap();
-        app.data.lock().unwrap().media.iter_mut().find(|m| m.id == new).unwrap().thumb = Some(frame.into());
+        app.data().media.iter_mut().find(|m| m.id == new).unwrap().thumb = Some(frame.into());
         let op = opened(&app);
         open_add(&op, AddTab::Media);
         settle(&op);
@@ -305,7 +305,7 @@ mod tests {
         // One still in a service: the core refuses, in its own words.
         let id = media(&app, "clip.mp4", MediaKind::Video, MediaStatus::Ready);
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: id, autoplay: true, end: Default::default(), looped: false }, background: None, notes: String::new(), theme: None };
-        app.data.lock().unwrap().services[0].items.push(item);
+        app.data().services[0].items.push(item);
         refresh(&op);
         settle(&op);
         click(&op, "AddListRow::delete-btn");
@@ -346,7 +346,7 @@ mod tests {
         let app = test_app();
         let old = Deck { id: Uuid::new_v4(), title: "Easter".into(), slides: vec!["a.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![], show: None };
         let new = Deck { id: Uuid::new_v4(), title: "Missions".into(), slides: vec!["b.png".into(), "c.png".into(), "d.png".into()], notes: vec![], transitions: vec![], advance_ms: vec![], show: None };
-        app.data.lock().unwrap().decks.extend([old, new.clone()]);
+        app.data().decks.extend([old, new.clone()]);
         let op = opened(&app);
         open_add(&op, AddTab::Deck);
         settle(&op);

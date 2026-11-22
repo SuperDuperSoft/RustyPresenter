@@ -80,7 +80,7 @@ fn app_with_song(ccli: &str) -> (Arc<App>, Uuid, Uuid) {
     let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None };
     let item_id = item.id;
     let service = {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         d.songs.push(song);
         let s = d.service_mut().unwrap();
         s.items.push(item);
@@ -91,13 +91,13 @@ fn app_with_song(ccli: &str) -> (Arc<App>, Uuid, Uuid) {
 
 fn send(app: &App, cmd: Command) {
     // Next and Prev must name the version they were pressed on.
-    let base = Some(app.live.lock().unwrap().version);
+    let base = Some(app.live().version);
     let out = app.command(Envelope { id: Uuid::new_v4().to_string(), base, cmd });
     assert!(out.ok, "{:?}", out.error);
 }
 
 fn commit(app: &App) {
-    let version = app.live.lock().unwrap().version;
+    let version = app.live().version;
     app.room_event(RoomEvent::Committed { version });
 }
 
@@ -146,7 +146,7 @@ fn does_not_log_non_song_items() {
     let text = ServiceItem { id: Uuid::new_v4(), kind: serde_json::from_value(serde_json::json!({ "kind": "text", "title": "Welcome", "body": "Hello" })).unwrap(),
         background: None, notes: String::new(), theme: None };
     let id = text.id;
-    app.data.lock().unwrap().service_mut().unwrap().items.push(text);
+    app.data().service_mut().unwrap().items.push(text);
     send(&app, Command::Show { item_id: id, slide: 0 });
     assert!(logged(&app).is_empty());
 }
@@ -263,7 +263,7 @@ async fn act(app: &Arc<App>, action: &str, body: serde_json::Value) -> Result<se
 #[tokio::test]
 async fn report_action_checks_dates_and_lists_entries() {
     let (app, item, _) = app_with_song("22025");
-    app.data.lock().unwrap().settings.church_ccli = "998877".into();
+    app.data().settings.church_ccli = "998877".into();
     send(&app, Command::Show { item_id: item, slide: 0 });
     app.usage.flush();
     let v = act(&app, "usage/report", serde_json::json!({})).await.unwrap();

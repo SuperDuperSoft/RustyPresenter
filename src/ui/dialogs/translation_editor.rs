@@ -563,7 +563,7 @@ mod tests {
 
         g.invoke_use_language();
         assert_eq!(crate::i18n::current(), "pl");
-        assert_eq!(app.data.lock().unwrap().settings.ui_language, "pl");
+        assert_eq!(app.data().settings.ui_language, "pl");
         pick(&op, "Language");
         assert_eq!(g.get_forms().row_data(0).unwrap().text, "Язык", "copied from Russian");
         typed(&op, 0, "Język");

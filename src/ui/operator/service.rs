@@ -297,7 +297,7 @@ mod tests {
 
     /// Announcements, one slide each, appended to the current service; returns their ids.
     fn add_texts(app: &App, titles: &[&str]) -> Vec<Uuid> {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         titles.iter().map(|t| {
             let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: t.to_string(), body: format!("{t} body"), layout: Default::default() }, background: None, notes: String::new(), theme: None };
             d.services[0].items.push(item.clone());
@@ -305,7 +305,7 @@ mod tests {
         }).collect()
     }
 
-    fn order(app: &App) -> Vec<Uuid> { app.data.lock().unwrap().services[0].items.iter().map(|i| i.id).collect() }
+    fn order(app: &App) -> Vec<Uuid> { app.data().services[0].items.iter().map(|i| i.id).collect() }
 
     fn model(op: &Operator) -> Vec<ServiceRow> { op.ui.get_service_rows().iter().collect() }
 
@@ -340,7 +340,7 @@ Through many dangers".into(), ..Default::default() };
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: song.id, arrangement: None }, background: None, notes: String::new(), theme: None };
         let id = item.id;
         {
-            let mut d = app.data.lock().unwrap();
+            let mut d = app.data();
             d.songs.push(song);
             d.services[0].items.push(item);
         }
@@ -367,7 +367,7 @@ Through many dangers".into(), ..Default::default() };
         // A click on one of them takes it live, and the mark follows.
         op.ui.invoke_service_show_slide(id.to_string().into(), 2);
         op.apply_live(crate::app::LiveUpdate::new(op.app().live_view()));
-        let cursor = app.live.lock().unwrap().cursor.clone().unwrap();
+        let cursor = app.live().cursor.clone().unwrap();
         assert_eq!((cursor.item_id, cursor.slide), (id, 2));
         let slides: Vec<ServiceSlide> = model(&op)[0].slides.iter().collect();
         assert_eq!(slides.iter().map(|s| s.live).collect::<Vec<_>>(), [false, false, true]);
@@ -555,7 +555,7 @@ Through many dangers".into(), ..Default::default() };
         start_drag(&op, center(&row(&op, 1)));
         // Another client puts X first while B is in the air.
         let x = Uuid::new_v4();
-        app.data.lock().unwrap().services[0].items.insert(0, ServiceItem { id: x, kind: ItemKind::Text { title: "X".into(), body: "x".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
+        app.data().services[0].items.insert(0, ServiceItem { id: x, kind: ItemKind::Text { title: "X".into(), body: "x".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None });
         refresh(&op);
         drop_at(&op, target);
         // `service/move {id: B, to: 3}` on [X, A, B, C, D]: B is the item that moved.
@@ -590,7 +590,7 @@ Through many dangers".into(), ..Default::default() };
         let ids = add_texts(&app, &["A", "B"]);
         let op = opened(&app);
         row(&op, 1).mock_single_click(PointerEventButton::Left);
-        app.data.lock().unwrap().services[0].items.remove(1);
+        app.data().services[0].items.remove(1);
         refresh(&op);
         assert_eq!(op.state.borrow().selected, Some(ids[0]));
         assert!(model(&op)[0].selected);

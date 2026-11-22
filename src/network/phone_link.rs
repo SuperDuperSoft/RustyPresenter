@@ -111,7 +111,7 @@ async fn pair(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo<Socket
         links.iter().position(|l| l.as_ref().is_some_and(|l| l.until > now && !secret.is_empty() && ct_eq(&secret, &l.secret)))
     };
     let Some(i) = found else { return answer(StatusCode::BAD_REQUEST, tr::old_code(), false) };
-    let needed = app.data.lock().unwrap().settings.network.remote_password.clone();
+    let needed = app.data().settings.network.remote_password.clone();
     if let Some(hash) = needed {
         let typed = req.password.clone();
         let right = tokio::task::spawn_blocking(move || super::password::verify(&typed, &hash)).await.unwrap_or(false);

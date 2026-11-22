@@ -33,7 +33,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let rt = tokio::runtime::Runtime::new()?;
     let walk_in = Uuid::new_v4();
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         let songs = ["Great Is Thy Faithfulness (piano)", "Come Thou Fount (acoustic)", "It Is Well (strings)", "Be Thou My Vision"];
         d.automation.music = MusicList {
             tracks: songs.iter().enumerate().map(|(i, t)| Track { id: Uuid::new_v4(), asset: format!("{i}.mp3"), title: t.to_string(), duration: Some(180.0 + 17.0 * i as f64) }).collect(),

@@ -372,7 +372,7 @@ async fn the_job_puts_the_slides_in_the_service_and_says_what_was_lost() {
         tokio::time::sleep(std::time::Duration::from_millis(5)).await;
     }
     let made = app.job_ends.lock().unwrap().iter().find(|(j, _)| *j == job).unwrap().1.expect("made an item");
-    let d = app.data.lock().unwrap().clone();
+    let d = app.data().clone();
     let item = d.service().unwrap().items.iter().find(|i| i.id == made).unwrap().clone();
     let ItemKind::Design { title, slides } = item.kind else { panic!() };
     assert_eq!((title.as_str(), slides.len(), slides[0].objects.len()), ("Welcome", 1, 3));
@@ -396,7 +396,7 @@ async fn an_odp_file_comes_in_through_the_same_job() {
         tokio::time::sleep(std::time::Duration::from_millis(5)).await;
     }
     let made = app.job_ends.lock().unwrap().iter().find(|(j, _)| *j == job).unwrap().1.expect("made an item");
-    let d = app.data.lock().unwrap().clone();
+    let d = app.data().clone();
     let item = d.service().unwrap().items.iter().find(|i| i.id == made).unwrap().clone();
     assert!(matches!(item.kind, ItemKind::Design { ref slides, .. } if slides.len() == 2), "{:?}", item.kind);
 }

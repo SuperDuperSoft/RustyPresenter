@@ -12,7 +12,7 @@ fn item(kind: ItemKind) -> ServiceItem { ServiceItem { id: Uuid::new_v4(), kind,
 async fn copy_week_action_selects_new_service_and_reports_blanks() {
     let app = test_app();
     let src = {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         d.settings.date_order = Some(DateOrder::Mdy);
         let s = &mut d.services[0];
         s.name = "Service 1/4/2026".into();
@@ -22,7 +22,7 @@ async fn copy_week_action_selects_new_service_and_reports_blanks() {
     };
     let r = act(&app, "service/copy-week", json!({ "date": "2026-11-08", "blanks": true })).await.unwrap();
     assert_eq!((r["name"].as_str(), r["date"].as_str(), r["blanks"].as_u64()), (Some("Service 11/8/2026"), Some("2026-11-08"), Some(1)));
-    let d = app.data.lock().unwrap();
+    let d = app.data();
     let new = d.service().unwrap();
     assert_ne!(new.id, src, "the new service is open");
     assert_eq!(new.name, "Service 11/8/2026");
@@ -32,7 +32,7 @@ async fn copy_week_action_selects_new_service_and_reports_blanks() {
 #[tokio::test]
 async fn copy_week_without_a_date_goes_a_week_on_or_to_the_next_same_weekday() {
     let app = test_app();
-    app.data.lock().unwrap().services[0].date = chrono::NaiveDate::from_ymd_opt(2020, 1, 5); // a Sunday
+    app.data().services[0].date = chrono::NaiveDate::from_ymd_opt(2020, 1, 5); // a Sunday
     let r = act(&app, "service/copy-week", json!({})).await.unwrap();
     let date = chrono::NaiveDate::parse_from_str(r["date"].as_str().unwrap(), "%Y-%m-%d").unwrap();
     use chrono::Datelike;
@@ -43,12 +43,12 @@ async fn copy_week_without_a_date_goes_a_week_on_or_to_the_next_same_weekday() {
 #[tokio::test]
 async fn set_date_sets_and_clears() {
     let app = test_app();
-    let id = app.data.lock().unwrap().services[0].id;
+    let id = app.data().services[0].id;
     act(&app, "service/set-date", json!({ "id": id, "date": "2026-11-08" })).await.unwrap();
-    assert_eq!(app.data.lock().unwrap().services[0].date, chrono::NaiveDate::from_ymd_opt(2026, 11, 8));
+    assert_eq!(app.data().services[0].date, chrono::NaiveDate::from_ymd_opt(2026, 11, 8));
     assert_eq!(act(&app, "service/set-date", json!({ "id": id, "date": "2026-13-01" })).await.unwrap_err(), tr::bad_date());
     act(&app, "service/set-date", json!({ "id": id, "date": null })).await.unwrap();
-    assert_eq!(app.data.lock().unwrap().services[0].date, None);
+    assert_eq!(app.data().services[0].date, None);
     assert_eq!(act(&app, "service/set-date", json!({ "id": Uuid::new_v4(), "date": null })).await.unwrap_err(), tr::service_gone());
 }
 
@@ -59,11 +59,11 @@ async fn fill_replaces_blank_in_place_and_refuses_non_blank() {
     blank.notes = "upbeat".into();
     let (bid, other) = (blank.id, item(ItemKind::Text { title: "Hi".into(), body: "x".into(), layout: Default::default() }));
     let oid = other.id;
-    app.data.lock().unwrap().services[0].items = vec![other, blank];
+    app.data().services[0].items = vec![other, blank];
     let song = Uuid::new_v4();
     act(&app, "service/fill", json!({ "id": bid, "item": { "kind": "song", "song_id": song } })).await.unwrap();
     {
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         let it = &d.services[0].items[1];
         assert_eq!(it.id, bid);
         assert!(matches!(it.kind, ItemKind::Song { song_id, .. } if song_id == song));
@@ -79,7 +79,7 @@ async fn fill_replaces_blank_in_place_and_refuses_non_blank() {
 async fn templates_save_make_rename_and_delete() {
     let app = test_app();
     let sid = {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         let s = &mut d.services[0];
         s.items = vec![item(ItemKind::Text { title: "Welcome".into(), body: "x".into(), layout: Default::default() }), item(ItemKind::Song { song_id: Uuid::new_v4(), arrangement: None })];
         s.date = chrono::NaiveDate::from_ymd_opt(2026, 11, 4); // a Wednesday
@@ -88,12 +88,12 @@ async fn templates_save_make_rename_and_delete() {
     assert_eq!(act(&app, "template/from-service", json!({ "service": sid, "name": " " })).await.unwrap_err(), tr::template_needs_name());
     let t = act(&app, "template/from-service", json!({ "service": sid, "name": "Midweek" })).await.unwrap();
     let tid: Uuid = serde_json::from_value(t["id"].clone()).unwrap();
-    assert_eq!(app.data.lock().unwrap().templates[0].day, Some(chrono::Weekday::Wed));
+    assert_eq!(app.data().templates[0].day, Some(chrono::Weekday::Wed));
 
     let r = act(&app, "service/from-template", json!({ "template": tid, "date": "2026-11-11" })).await.unwrap();
     assert_eq!(r["blanks"], 1);
     {
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         let s = d.service().unwrap();
         assert_eq!((s.template, s.date), (Some(tid), chrono::NaiveDate::from_ymd_opt(2026, 11, 11)));
         assert!(s.name.starts_with("Midweek "), "{}", s.name);
@@ -101,11 +101,11 @@ async fn templates_save_make_rename_and_delete() {
     act(&app, "template/rename", json!({ "id": tid, "name": "Wednesday" })).await.unwrap();
     act(&app, "template/day", json!({ "id": tid, "day": null })).await.unwrap();
     {
-        let d = app.data.lock().unwrap();
+        let d = app.data();
         assert_eq!((d.templates[0].name.as_str(), d.templates[0].day), ("Wednesday", None));
     }
     act(&app, "template/delete", json!({ "id": tid })).await.unwrap();
-    assert!(app.data.lock().unwrap().templates.is_empty());
+    assert!(app.data().templates.is_empty());
     assert_eq!(act(&app, "service/from-template", json!({ "template": tid })).await.unwrap_err(), tr::template_gone());
     assert_eq!(act(&app, "template/save", json!({ "id": Uuid::new_v4(), "name": "X", "items": [] })).await.unwrap_err(), tr::template_needs_parts());
 }
@@ -115,7 +115,7 @@ async fn library_deletes_are_blocked_by_templates() {
     let app = test_app();
     let (song, media, deck) = (Uuid::new_v4(), Uuid::new_v4(), Uuid::new_v4());
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         d.songs.push(Song { id: song, title: "S".into(), lyrics: "x".into(), ..Default::default() });
         d.media.push(MediaFile { id: media, name: "M".into(), kind: MediaKind::Image, asset: "a.png".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() });
         d.decks.push(Deck { id: deck, title: "D".into(), slides: vec![], notes: vec![], transitions: vec![], advance_ms: vec![], show: None });
@@ -133,7 +133,7 @@ async fn library_deletes_are_blocked_by_templates() {
 async fn new_service_is_dated_today() {
     let app = test_app();
     act(&app, "service/new", json!({ "name": "Easter" })).await.unwrap();
-    assert_eq!(app.data.lock().unwrap().service().unwrap().date, Some(chrono::Local::now().date_naive()));
+    assert_eq!(app.data().service().unwrap().date, Some(chrono::Local::now().date_naive()));
 }
 
 #[tokio::test]
@@ -142,7 +142,7 @@ async fn show_blank_says_choose_first_and_next_steps_over_it() {
     let blank = item(ItemKind::Blank { label: "Song".into(), want: BlankKind::Song });
     let (a, b) = (item(ItemKind::Text { title: "A".into(), body: "a".into(), layout: Default::default() }), item(ItemKind::Text { title: "B".into(), body: "b".into(), layout: Default::default() }));
     let (bid, aid, cid) = (blank.id, a.id, b.id);
-    app.data.lock().unwrap().services[0].items = vec![a, blank, b];
+    app.data().services[0].items = vec![a, blank, b];
     let cmd = |c: crate::live::Command, base: Option<u64>| crate::live::Envelope { id: Uuid::new_v4().to_string(), base, cmd: c };
     let out = app.command(cmd(crate::live::Command::Show { item_id: bid, slide: 0 }, Some(0)));
     assert_eq!(out.error.as_deref(), Some(tr::blank_choose_first().as_str()));
@@ -156,12 +156,12 @@ async fn show_blank_says_choose_first_and_next_steps_over_it() {
 #[tokio::test]
 async fn print_write_saves_options_and_writes_the_page() {
     let app = test_app();
-    let id = app.data.lock().unwrap().services[0].id;
+    let id = app.data().services[0].id;
     let dest = app.store.root.join("order.html");
     let r = act(&app, "print/write", json!({ "service": id, "what": "order", "notes": false, "scripture": true, "song_per_page": true, "paper": "a4", "path": dest })).await.unwrap();
     assert_eq!(r["path"].as_str().map(std::path::PathBuf::from), Some(dest.clone()));
     assert!(std::fs::read_to_string(&dest).unwrap().contains("size: A4"));
-    let p = app.data.lock().unwrap().settings.print.clone();
+    let p = app.data().settings.print.clone();
     assert_eq!(p, PrintSettings { what: PrintWhat::Order, notes: false, scripture: true, song_per_page: true, paper: Some(Paper::A4) });
     let r = act(&app, "print/write", json!({ "service": id, "what": "both", "notes": true, "scripture": true, "song_per_page": false, "paper": null })).await.unwrap();
     let opened = std::path::PathBuf::from(r["path"].as_str().unwrap());

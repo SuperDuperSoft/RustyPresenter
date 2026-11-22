@@ -593,7 +593,7 @@ pub(crate) fn render_now(op: &Rc<Operator>, edit: &Rc<Edit>) {
     let tab = picked_layout(op);
     let settings = preview_settings(&edit.settings.borrow(), &t, tab);
     let root = op.app().store.root.clone();
-    let media = op.app().data.lock().unwrap().media.clone();
+    let media = op.app().data().media.clone();
     let font = t.style.font.clone();
     let (me, edit) = (Rc::downgrade(op), edit.clone());
     let apply = move |(px, missing): (Pixels, bool)| {

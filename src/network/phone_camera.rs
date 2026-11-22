@@ -50,7 +50,7 @@ async fn info(State(app): State<Arc<App>>, headers: HeaderMap) -> Response {
     let name = phone.and_then(|id| app.phones.lock().unwrap().iter().find(|p| p.id == id).map(|p| p.name.clone()));
     // The page asks every few seconds while it is open: Settings shows the phone connected.
     if phone.is_some() { super::phone_link::saw(&app, super::phone_link::Kind::Camera, name.clone()) }
-    let (password, size) = { let d = app.data.lock().unwrap(); (d.settings.network.remote_password.is_some(), d.settings.record.size.size()) };
+    let (password, size) = { let d = app.data(); (d.settings.network.remote_password.is_some(), d.settings.record.size.size()) };
     let secure = *app.net.https.lock().unwrap();
     ([(header::CACHE_CONTROL, "no-store")], Json(json!({
         "words": cam::tr::page_words(),
@@ -74,7 +74,7 @@ fn still_paired(app: &App, id: Uuid) -> bool { app.phones.lock().unwrap().iter()
 pub fn light(app: &App, name: &str) -> Value {
     use crate::stream::tally::Light;
     let key = format!("{}{name}", cam::SCHEME);
-    let cameras = app.data.lock().unwrap().settings.record.cameras();
+    let cameras = app.data().settings.record.cameras();
     let t = *app.tally.lock().unwrap();
     let light = cameras.iter().position(|(c, _)| *c == key).filter(|_| t.live).map_or(Light::Off, |i| t.light(i));
     let words = cam::tr::page_words();
@@ -175,7 +175,7 @@ mod tests {
     async fn a_phone_sends_its_camera_over_a_websocket() {
         let app = test_app();
         let name = format!("Balcony {}", std::process::id());
-        app.data.lock().unwrap().settings.record.camera = format!("{}{name}", cam::SCHEME);
+        app.data().settings.record.camera = format!("{}{name}", cam::SCHEME);
         let addr = served(app.clone()).await;
         let cookie = paired(&app);
         let ask = |cookie: &str| format!("GET /camera/ws?name={} HTTP/1.1\r\nHost: {addr}\r\nOrigin: http://{addr}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nCookie: {cookie}\r\n\r\n", name.replace(' ', "%20"));

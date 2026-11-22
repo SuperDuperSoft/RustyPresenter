@@ -279,13 +279,13 @@ impl NativeScreens {
         match c {
             Change::Gone(role) => {
                 drop(self.take(&role, None));
-                app.live.lock().unwrap().notice = Some(gone_notice(&role));
+                app.live().notice = Some(gone_notice(&role));
             }
             Change::Back(role, m) => {
                 // Video and audio do not resume by themselves after the room was gone (as after a restart).
                 if role == "room" { app.room_recovered() }
                 let opened = self.show(&role, Some(m));
-                let mut live = app.live.lock().unwrap();
+                let mut live = app.live();
                 match opened {
                     Err(e) => live.notice = Some(back_failed(&role, &e)),
                     Ok(()) => if live.notice.as_deref() == Some(gone_notice(&role).as_str()) { live.notice = None },
@@ -456,9 +456,9 @@ impl Screens for NativeScreens {
 /// them on. After a crash (`restored`) what was open always comes back.
 pub fn start_windows(app: &App, restored: bool) -> Vec<crate::model::ScreenWindow> {
     // A test pattern left on is never what a service should start with (N20).
-    let testing = app.data.lock().unwrap().settings.screens.clone().clear_tests();
+    let testing = app.data().settings.screens.clone().clear_tests();
     if testing && let Err(e) = app.edit_untracked(|d| { d.settings.screens.clear_tests(); Ok(()) }) { eprintln!("Could not turn the test patterns off: {e}") }
-    let (on, windows) = { let d = app.data.lock().unwrap(); (d.settings.screens_at_start, d.settings.screens.windows()) };
+    let (on, windows) = { let d = app.data(); (d.settings.screens_at_start, d.settings.screens.windows()) };
     if on || restored || windows.is_empty() { return windows }
     let off = app.edit_untracked(|d| {
         for g in crate::model::ScreenSetup::GROUPS { if let Some(g) = d.settings.screens.group_mut(g) { g.on = false } }
@@ -588,9 +588,9 @@ mod tests {
         s.look_at(vec![laptop.clone(), projector.clone()], Some(laptop.clone()));
         s.open("room", Some(&projector.key())).unwrap();
         assert!(s.room_should_be_on_top(), "full screen on the projector");
-        app.data.lock().unwrap().settings.room_on_top = false;
+        app.data().settings.room_on_top = false;
         assert!(!s.room_should_be_on_top(), "turned off in Settings");
-        app.data.lock().unwrap().settings.room_on_top = true;
+        app.data().settings.room_on_top = true;
         s.open("room", None).unwrap();
         assert!(!s.room_should_be_on_top(), "a test window");
         s.open("room", Some(&laptop.key())).unwrap();
@@ -751,7 +751,7 @@ mod tests {
         app.edit(|d| { d.settings.screens_at_start = false; Ok(()) }).unwrap();
         assert_eq!(start_windows(&app, true).len(), 2, "after a crash what was open always comes back");
         assert!(start_windows(&app, false).is_empty());
-        let screens = app.data.lock().unwrap().settings.screens.clone();
+        let screens = app.data().settings.screens.clone();
         assert!(!screens.audience.on && !screens.stage.on, "the switches show off, so one click turns them on");
         assert_eq!(screens.audience.screens[0].output().target, ScreenTarget::Window, "where they show is kept");
     }
@@ -761,7 +761,7 @@ mod tests {
         let app = test_app();
         app.edit(|d| { d.settings.screens.assign("audience", ScreenTarget::Window); d.settings.screens.audience.screens[0].test = crate::screen_fix::TestPattern::Grid; Ok(()) }).unwrap();
         start_windows(&app, false);
-        assert!(app.data.lock().unwrap().settings.screens.audience.screens[0].test.is_off());
+        assert!(app.data().settings.screens.audience.screens[0].test.is_off());
     }
 
     #[test]

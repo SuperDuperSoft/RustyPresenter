@@ -143,8 +143,8 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
             #[derive(Deserialize)] struct On { on: bool }
             let On { on } = parse(body)?;
             {
-                let data = app.data.lock().unwrap();
-                let live = app.live.lock().unwrap();
+                let data = app.data();
+                let live = app.live();
                 app.automation.lock().unwrap().auto.set_on(on, advance_input(&data, &live).as_ref(), Utc::now());
             }
             app.automation_changed();
@@ -192,7 +192,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
         "automation/timer/delete" | "automation/message/delete" | "automation/macro/delete" => {
             let Delete { id, confirm } = parse(body)?;
             let (name, used) = {
-                let data = app.data.lock().unwrap();
+                let data = app.data();
                 let a = &data.automation;
                 let name = a.timers.iter().map(|t| (t.id, &t.name)).chain(a.messages.iter().map(|t| (t.id, &t.name))).chain(a.macros.iter().map(|m| (m.id, &m.name)))
                     .find(|(i, _)| *i == id).map(|(_, n)| n.clone()).unwrap_or_default();
@@ -203,7 +203,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
             let hide = match action {
                 "automation/timer/delete" => Some(Command::HideTimer { timer: id }),
                 "automation/message/delete" => {
-                    let up = app.live.lock().unwrap().frame.overlays.iter().any(|s| matches!(&s.source, crate::theme::overlay::OverlaySource::Message { template_id, .. } if *template_id == id));
+                    let up = app.live().frame.overlays.iter().any(|s| matches!(&s.source, crate::theme::overlay::OverlaySource::Message { template_id, .. } if *template_id == id));
                     up.then_some(Command::HideMessage)
                 }
                 _ => None,
@@ -334,8 +334,8 @@ impl App {
 
     fn timer_control(&self, op: &str, id: Uuid, set: Option<SetNow>) -> Result<(), String> {
         {
-            let data = self.data.lock().unwrap();
-            let epoch = self.live.lock().unwrap().clear_epoch;
+            let data = self.data();
+            let epoch = self.live().clear_epoch;
             let def = data.automation.timers.iter().find(|t| t.id == id).ok_or_else(strings::timer_gone)?;
             timer_op(&mut self.automation.lock().unwrap(), &data, def, op, set, Utc::now(), epoch)?;
         }
@@ -352,8 +352,8 @@ impl App {
     /// Sends `Update::Timers` when the readout changed (`force`: even within 250 ms of the last).
     pub(crate) fn publish_timers(&self, now: DateTime<Utc>, force: bool) {
         let sent = {
-            let data = self.data.lock().unwrap();
-            let live = self.live.lock().unwrap();
+            let data = self.data();
+            let live = self.live();
             let mut rt = self.automation.lock().unwrap();
             let auto = rt.auto.readout(now);
             let media = media_left(&live, &rt.music);
@@ -371,8 +371,8 @@ impl App {
         self.slide_actions_fire();
         let now = Utc::now();
         {
-            let data = self.data.lock().unwrap();
-            let mut live = self.live.lock().unwrap();
+            let data = self.data();
+            let mut live = self.live();
             let mut rt = self.automation.lock().unwrap();
             if let Some((item, map)) = live.adopted.take() { rt.on_adopt(item, &map) }
             let input = advance_input(&data, &live);
@@ -395,7 +395,7 @@ impl App {
             rt.message_up = up;
             rt.prune(&data.automation.timers, up);
         }
-        let clears = self.live.lock().unwrap().audio_clears;
+        let clears = self.live().audio_clears;
         if self.music_after_clear(clears) { self.music_changed() }
         self.publish_timers(now, false);
         self.ticker_wake.notify_one();
@@ -407,8 +407,8 @@ impl App {
         let Command::RunMacro { macro_id, seen_clear } = env.cmd else { return (fail(0, strings::macro_gone()), None) };
         let now = Utc::now();
         let (out, toast, stage) = {
-            let data = self.data.lock().unwrap();
-            let mut live = self.live.lock().unwrap();
+            let data = self.data();
+            let mut live = self.live();
             let mut rt = self.automation.lock().unwrap();
             let Some(m) = data.automation.macros.iter().find(|m| m.id == macro_id) else { return (fail(live.version, strings::macro_gone()), None) };
             match self.run_resolved(&data, &mut live, &mut rt, m, &env.id, env.base, seen_clear, now, None) {
@@ -523,8 +523,8 @@ impl App {
     /// after it. A slide an action goes to doesn't run its own, so two slides can never set each other off.
     fn slide_actions_fire(&self) {
         let (ran, stage) = {
-            let data = self.data.lock().unwrap();
-            let mut live = self.live.lock().unwrap();
+            let data = self.data();
+            let mut live = self.live();
             let mut rt = self.automation.lock().unwrap();
             if live.went == rt.slide_went { return }
             rt.slide_went = live.went;
@@ -576,8 +576,8 @@ impl App {
     /// the ticker can sleep until woken.
     pub fn automation_tick(&self, now: DateTime<Utc>) -> bool {
         let (dues, hides, next, calendar) = {
-            let data = self.data.lock().unwrap();
-            let _live = self.live.lock().unwrap();
+            let data = self.data();
+            let _live = self.live();
             let mut rt = self.automation.lock().unwrap();
             let dues = rt.zero_crossings(&data.automation.timers, now);
             let calendar = rt.calendar.due(&data.automation.calendar, now, &Local);
@@ -599,8 +599,8 @@ impl App {
         for shown in hides { self.auto_hide(shown) }
         if let Some(req) = next { self.auto_next(req, now) }
         self.publish_timers(now, false);
-        let data = self.data.lock().unwrap();
-        let live = self.live.lock().unwrap();
+        let data = self.data();
+        let live = self.live();
         let rt = self.automation.lock().unwrap();
         // A calendar entry due in a few seconds, or a volume waiting to be saved, keeps the ticker awake.
         let soon = super::calendar::CalendarState::soon(&data.automation.calendar, now, &Local) || rt.music.volume.is_some()
@@ -611,8 +611,8 @@ impl App {
     /// Runs calendar entry `id` now (N17), as its time came or from "Try it now". Returns the operator's note.
     pub fn calendar_run(&self, id: Uuid, now: DateTime<Utc>) -> Result<String, String> {
         let (out, toast, stage) = {
-            let data = self.data.lock().unwrap();
-            let mut live = self.live.lock().unwrap();
+            let data = self.data();
+            let mut live = self.live();
             let mut rt = self.automation.lock().unwrap();
             let e = data.automation.calendar.iter().find(|e| e.id == id).ok_or_else(strings::macro_gone)?;
             let m = super::calendar::as_macro(e, &data.automation.macros)?;
@@ -632,7 +632,7 @@ impl App {
     }
 
     fn internal(&self, cmd: Command) -> bool {
-        let out = { let data = self.data.lock().unwrap(); self.live.lock().unwrap().apply(Envelope { id: format!("auto-{}", Uuid::new_v4()), base: None, cmd }, &DataPlan(&data)) };
+        let out = { let data = self.data(); self.live().apply(Envelope { id: format!("auto-{}", Uuid::new_v4()), base: None, cmd }, &DataPlan(&data)) };
         let changed = out.ok && out.version > 0;
         if changed { self.after_command() }
         changed
@@ -640,14 +640,14 @@ impl App {
 
     /// A message whose time is up hides, unless another has replaced it since.
     fn auto_hide(&self, shown: Uuid) {
-        let up = slots::shown_message(&self.live.lock().unwrap().frame.overlays);
+        let up = slots::shown_message(&self.live().frame.overlays);
         if up == Some(shown) { self.internal(Command::HideMessage); }
     }
 
     fn auto_next(&self, req: AutoNextReq, now: DateTime<Utc>) {
         let moved = {
-            let data = self.data.lock().unwrap();
-            let mut live = self.live.lock().unwrap();
+            let data = self.data();
+            let mut live = self.live();
             let mut rt = self.automation.lock().unwrap();
             match auto_next_step(&req, advance_input(&data, &live).as_ref()) {
                 AutoNextStep::Goto(slide) => live.auto_goto(slide),
@@ -660,7 +660,7 @@ impl App {
 
     fn timer_at_zero(&self, timer: Uuid, run: u64, now: DateTime<Utc>) {
         let (def, seen) = {
-            let data = self.data.lock().unwrap();
+            let data = self.data();
             let rt = self.automation.lock().unwrap();
             let Some(def) = data.automation.timers.iter().find(|t| t.id == timer).cloned() else { return };
             let Some(r) = rt.timers.get(&timer).filter(|r| r.run == run) else { return };
@@ -670,8 +670,8 @@ impl App {
             Some(AtZero::HideFromRoom) => { self.internal(Command::HideTimer { timer }); }
             Some(AtZero::RunMacro { macro_id }) => {
                 let (stage, ok) = {
-                    let data = self.data.lock().unwrap();
-                    let mut live = self.live.lock().unwrap();
+                    let data = self.data();
+                    let mut live = self.live();
                     let mut rt = self.automation.lock().unwrap();
                     let Some(m) = data.automation.macros.iter().find(|m| m.id == *macro_id) else { return };
                     if !m.is_overlay_only() {
@@ -696,8 +696,8 @@ impl App {
     /// the screen since Start countdown (spec §5.4).
     fn preservice_end(&self, run: u64) {
         {
-            let data = self.data.lock().unwrap();
-            let mut live = self.live.lock().unwrap();
+            let data = self.data();
+            let mut live = self.live();
             let mut rt = self.automation.lock().unwrap();
             let end = data.automation.pre_service.as_ref().map(|p| p.end).unwrap_or_default();
             let f = &live.frame;

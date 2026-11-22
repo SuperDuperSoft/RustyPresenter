@@ -80,7 +80,7 @@ fn known(d: &Data, id: Option<ThemeId>) -> Result<(), String> {
 /// Runs a FEAT-1 action; `None` when `action` is not one of them.
 pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Option<Result<Value, ActionError>> {
     Some(match action {
-        "theme/list" => Ok(list(&app.data.lock().unwrap())),
+        "theme/list" => Ok(list(&app.data())),
         "theme/save" => save(app, body),
         "theme/save-standard" => (|| {
             let Standard { mut style, background } = parse(body)?;
@@ -136,7 +136,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Option<Result<Val
         })(),
         "theme/usage" => (|| {
             let Id { id } = parse(body)?;
-            let d = app.data.lock().unwrap();
+            let d = app.data();
             let (items, services) = theme::resolve::usage(&d, id);
             Ok(json!({ "items": items, "services": services, "is_default": theme::church_default(&d).id == id }))
         })(),
@@ -238,15 +238,15 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Option<Result<Val
         })(),
         "overlay/list" => {
             let chips = {
-                let d = app.data.lock().unwrap();
-                let live = app.live.lock().unwrap();
+                let d = app.data();
+                let live = app.live();
                 slots::chips(&d.overlays, &live.frame.overlays, d.settings.logo.as_ref())
             };
             let chips: Vec<Value> = chips
                 .into_iter()
                 .map(|c| json!({ "id": c.id, "name": c.name, "kind": kind_name(c.kind), "on": c.on, "changed": c.changed, "deleted": c.deleted }))
                 .collect();
-            Ok(json!({ "chips": chips, "clear_epoch": app.live.lock().unwrap().clear_epoch }))
+            Ok(json!({ "chips": chips, "clear_epoch": app.live().clear_epoch }))
         }
         "overlay/save" => (|| {
             let o: Overlay = parse(body)?;

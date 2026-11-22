@@ -87,7 +87,7 @@ mod tests {
 
     fn app_with(chosen: &str, found: &[&str]) -> (Arc<App>, Arc<Outputs>) {
         let app = test_app();
-        app.data.lock().unwrap().settings.audio_device = chosen.into();
+        app.data().settings.audio_device = chosen.into();
         let outputs = Arc::new(Outputs { found: Mutex::new(found.iter().map(|f| dev(f)).collect()), asked: AtomicUsize::new(0) });
         app.set_screens(outputs.clone());
         (app, outputs)
@@ -99,16 +99,16 @@ mod tests {
         let item_id = Uuid::new_v4();
         let kind = ItemKind::Media { media_id, autoplay: true, end: EndAction::Stop, looped: false };
         {
-            let mut d = app.data.lock().unwrap();
+            let mut d = app.data();
             d.media.push(file);
             d.services[0].items.push(ServiceItem { id: item_id, kind, background: None, notes: String::new(), theme: None });
         }
         let out = app.command(Envelope::new(Command::Show { item_id, slide: 0 }));
         assert!(out.ok, "{out:?}");
-        app.live.lock().unwrap().frame.audio.as_ref().expect("audio on air").inst
+        app.live().frame.audio.as_ref().expect("audio on air").inst
     }
 
-    fn audio_paused(app: &App) -> bool { app.live.lock().unwrap().frame.audio.as_ref().unwrap().v.paused }
+    fn audio_paused(app: &App) -> bool { app.live().frame.audio.as_ref().unwrap().v.paused }
 
     #[test]
     fn a_lost_output_pauses_and_tells_the_operator() {
@@ -116,7 +116,7 @@ mod tests {
         play_audio(&app);
         app.watch_sound();
         assert!(audio_paused(&app));
-        assert_eq!(app.live.lock().unwrap().notice.as_deref(), Some(s::sound_gone().as_str()));
+        assert_eq!(app.live().notice.as_deref(), Some(s::sound_gone().as_str()));
     }
 
     #[test]
@@ -125,7 +125,7 @@ mod tests {
         play_audio(&app);
         app.watch_sound();
         assert!(!audio_paused(&app));
-        assert_eq!(app.live.lock().unwrap().notice, None);
+        assert_eq!(app.live().notice, None);
     }
 
     #[test]
@@ -145,7 +145,7 @@ mod tests {
         app.watch_sound();
         *outputs.found.lock().unwrap() = vec![dev("wasapi/{board}")];
         app.watch_sound();
-        assert_eq!(app.live.lock().unwrap().notice, None);
+        assert_eq!(app.live().notice, None);
         assert!(audio_paused(&app), "pressing play is the operator's");
     }
 
@@ -154,9 +154,9 @@ mod tests {
         let (app, _) = app_with("wasapi/{board}", &["wasapi/{laptop}"]);
         play_audio(&app);
         app.watch_sound();
-        app.data.lock().unwrap().settings.audio_device.clear();
+        app.data().settings.audio_device.clear();
         app.watch_sound();
-        assert_eq!(app.live.lock().unwrap().notice, None);
+        assert_eq!(app.live().notice, None);
     }
 
     #[test]
@@ -166,7 +166,7 @@ mod tests {
         app.watch_sound();
         outputs.found.lock().unwrap().clear();
         app.watch_sound();
-        assert_eq!(app.live.lock().unwrap().notice.as_deref(), Some(s::sound_gone().as_str()));
+        assert_eq!(app.live().notice.as_deref(), Some(s::sound_gone().as_str()));
     }
 
     #[test]
@@ -175,7 +175,7 @@ mod tests {
         play_audio(&app);
         app.set_notice("The audience screen restarted.");
         app.watch_sound();
-        assert_eq!(app.live.lock().unwrap().notice.as_deref(), Some("The audience screen restarted."));
+        assert_eq!(app.live().notice.as_deref(), Some("The audience screen restarted."));
         assert_eq!(outputs.asked.load(Ordering::Relaxed), 1, "something can be heard");
     }
 
@@ -184,7 +184,7 @@ mod tests {
         let (app, outputs) = app_with("wasapi/{board}", &["wasapi/{laptop}"]);
         app.watch_sound();
         assert_eq!(outputs.asked.load(Ordering::Relaxed), 0);
-        assert_eq!(app.live.lock().unwrap().notice, None);
+        assert_eq!(app.live().notice, None);
     }
 
     #[test]
@@ -203,6 +203,6 @@ mod tests {
         assert!(app.command(Envelope::new(Command::AudioPause { inst, paused: true })).ok);
         app.watch_sound();
         assert_eq!(outputs.asked.load(Ordering::Relaxed), 0);
-        assert_eq!(app.live.lock().unwrap().notice, None);
+        assert_eq!(app.live().notice, None);
     }
 }

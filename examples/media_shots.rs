@@ -30,7 +30,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let video = Uuid::new_v4();
     let item = Uuid::new_v4();
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         let file = |id, name: &str| MediaFile { id, name: name.into(), kind: MediaKind::Video, asset: format!("{name}.mp4"), status: MediaStatus::Ready, original_asset: None, duration: Some(42.0), thumb: None, size: None, folder: String::new() };
         d.media.push(file(video, "Welcome bumper"));
         for n in ["Easter 2024 promo", "Old countdown", "Christmas loop", "VBS recap"] { d.media.push(file(Uuid::new_v4(), n)) }

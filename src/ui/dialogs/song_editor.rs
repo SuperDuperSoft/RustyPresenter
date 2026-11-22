@@ -487,7 +487,7 @@ mod tests {
         st(op).get_chips().iter().flat_map(|r| r.labels.iter().map(|l| l.to_string()).collect::<Vec<_>>()).collect()
     }
 
-    fn library(app: &App) -> Vec<Song> { app.data.lock().unwrap().songs.to_vec() }
+    fn library(app: &App) -> Vec<Song> { app.data().songs.to_vec() }
 
     fn question(op: &Operator) -> Option<String> { op.ui.get_ask().row_data(0).map(|a| a.text.to_string()) }
 
@@ -851,7 +851,7 @@ Verse 1
         let app = test_app();
         let used = song(&app, "Used", "", "", "Verse 1\na");
         let spare = song(&app, "Spare", "", "", "Verse 1\nb");
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: used, arrangement: None }, background: None, notes: String::new(), theme: None });
+        app.data().services[0].items.push(ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Song { song_id: used, arrangement: None }, background: None, notes: String::new(), theme: None });
         let op = opened(&app);
         open_song_editor(&op, Some(used), false);
         settle(&op);

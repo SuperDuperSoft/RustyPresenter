@@ -273,13 +273,13 @@ fn run() {
         let media = MediaFile { id: Uuid::new_v4(), name: "Bench clip".into(), kind: MediaKind::Video, asset: "bench-clip.gif".into(), status: MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Media { media_id: media.id, autoplay: true, end: EndAction::Loop, looped: true }, background: None, notes: String::new(), theme: None };
         let id = item.id;
-        let mut data = app.data.lock().unwrap();
+        let mut data = app.data();
         data.media.push(media);
         data.services[0].items.push(item);
         id
     });
     let first = {
-        let mut data = app.data.lock().unwrap();
+        let mut data = app.data();
         let mut first = None;
         for n in 1..=5 {
             let song = Song { id: Uuid::new_v4(), title: format!("Bench song {n}"), lyrics: lyrics(n), ..Default::default() };
@@ -291,7 +291,7 @@ fn run() {
         first.unwrap()
     };
     if std::env::var("RP_BENCH_FIX").as_deref() == Ok("1") {
-        let mut data = app.data.lock().unwrap();
+        let mut data = app.data();
         data.settings.screens.assign("audience", rustypresenter::model::ScreenTarget::Window);
         data.settings.screens.audience.screens[0].fix = rustypresenter::screen_fix::ScreenFix {
             red: 0.95, green: 1.0, blue: 0.9, gamma: 1.1, black: 0.02, corners: [[0.03, 0.0], [-0.03, 0.0], [0.0; 2], [0.0; 2]], delay: 0,
@@ -434,7 +434,7 @@ fn run() {
             for i in 0..changes {
                 let at = t0 + interval * i as u32;
                 if let Some(d) = at.checked_duration_since(Instant::now()) { std::thread::sleep(d) }
-                let base = app.live.lock().unwrap().version;
+                let base = app.live().version;
                 let sent = Instant::now();
                 let out = app.command(env(Some(base), Command::Next));
                 if out.ok { sends.lock().unwrap().push((out.version, sent)) } else { *failed.lock().unwrap() += 1 }

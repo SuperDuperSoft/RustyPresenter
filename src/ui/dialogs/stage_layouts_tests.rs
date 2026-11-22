@@ -309,7 +309,7 @@ fn duplicate_edit_and_save_reaches_the_data() {
     assert_eq!(g(&op).get_boxes().row_count(), 10, "Classic's nine boxes and the clock");
     click(&op, "StageLayoutsDialog::save");
     assert_eq!(op.dialog(), None);
-    let d = app.data.lock().unwrap();
+    let d = app.data();
     assert_eq!(d.stage_layouts.len(), 1);
     assert_eq!(d.stage_layouts[0].name, "Classic copy");
     assert_eq!(d.stage_layouts[0].elements.len(), 10);
@@ -347,7 +347,7 @@ fn save_error_keeps_dialog_and_changes() {
     click(&op, "StageLayoutsDialog::save");
     assert_eq!(op.dialog(), Some(DialogKind::StageLayouts));
     assert_eq!(g(&op).get_error(), "There is already a stage layout called “classic”.");
-    assert!(app.data.lock().unwrap().stage_layouts.is_empty());
+    assert!(app.data().stage_layouts.is_empty());
     assert_eq!(g(&op).get_layouts().row_data(6).unwrap().name, "classic");
 }
 
@@ -364,7 +364,7 @@ fn cancel_asks_only_when_changed() {
     assert_eq!(asked(&op).as_deref(), Some("Discard your changes to the stage layouts?"));
     ask::answer(&op, true, String::new());
     assert_eq!(op.dialog(), None);
-    assert!(app.data.lock().unwrap().stage_layouts.is_empty());
+    assert!(app.data().stage_layouts.is_empty());
 }
 
 #[test]
@@ -372,7 +372,7 @@ fn delete_asks_with_what_uses_the_layout() {
     let app = test_app();
     let o = ours("Band 2");
     {
-        let mut d = app.data.lock().unwrap();
+        let mut d = app.data();
         d.stage_layouts.push(o.clone());
         d.settings.stage.layout = o.id;
     }
@@ -384,7 +384,7 @@ fn delete_asks_with_what_uses_the_layout() {
     ask::answer(&op, true, String::new());
     assert_eq!(g(&op).get_layouts().row_count(), 6);
     click(&op, "StageLayoutsDialog::save");
-    let d = app.data.lock().unwrap();
+    let d = app.data();
     assert!(d.stage_layouts.is_empty());
     assert_eq!(d.settings.stage.layout, CLASSIC);
 }
@@ -396,7 +396,7 @@ fn use_on_stage_saves_then_sets_the_default() {
     open(&op);
     g(&op).invoke_new_layout();
     click(&op, "LayoutList::use-btn");
-    let d = app.data.lock().unwrap();
+    let d = app.data();
     assert_eq!(d.stage_layouts.len(), 1);
     assert_eq!(d.settings.stage.layout, d.stage_layouts[0].id);
     drop(d);
@@ -407,13 +407,13 @@ fn use_on_stage_saves_then_sets_the_default() {
 #[test]
 fn top_bar_picker_sets_the_stage_layout() {
     let app = test_app();
-    app.data.lock().unwrap().settings.screens.stage.on = true;
+    app.data().settings.screens.stage.on = true;
     let op = opened(&app);
     g(&op).invoke_fill_picker();
     assert_eq!(g(&op).get_picker_names().row_count(), 6);
     assert_eq!(g(&op).get_picker_current(), 0);
     g(&op).invoke_pick(3);
-    assert_eq!(app.data.lock().unwrap().settings.stage.layout, SPEAKER);
+    assert_eq!(app.data().settings.stage.layout, SPEAKER);
     refresh(&op);
     g(&op).invoke_fill_picker();
     assert_eq!(g(&op).get_picker_current(), 3);
@@ -430,7 +430,7 @@ fn settings_video_tab_picks_the_stage_layout() {
     assert_eq!(s.get_stage_layout_names().row_count(), 6);
     assert_eq!(s.get_stage_layout(), 0);
     s.set_stage_layout(2);
-    let mut settings = app.data.lock().unwrap().settings.clone();
+    let mut settings = app.data().settings.clone();
     read_settings(&s, &mut settings);
     assert_eq!(settings.stage.layout, BAND);
 }
@@ -446,6 +446,6 @@ async fn saved_layout_as_default_is_the_active_layout() {
     app.do_action("stage/layouts/replace", body.to_string().as_bytes()).await.unwrap();
     let id = ed.layout;
     app.do_action("stage/layout/default", serde_json::json!({ "id": id }).to_string().as_bytes()).await.unwrap();
-    let d = app.data.lock().unwrap();
+    let d = app.data();
     assert_eq!(crate::stage::active_layout(&d.stage_layouts, None, None, Some(d.settings.stage.layout)).id, id);
 }

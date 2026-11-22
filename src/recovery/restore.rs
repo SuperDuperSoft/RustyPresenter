@@ -22,7 +22,7 @@ pub fn at_start(app: &App, restore: bool, attempt: u32) -> Option<Vec<String>> {
     let saved = state::load(root)?;
     let with_media = attempt < WITHOUT_MEDIA_FROM;
     if !with_media { state::quarantine(root); }
-    app.live.lock().unwrap().restore(&saved, with_media);
+    app.live().restore(&saved, with_media);
     if with_media { app.set_resume(&saved.positions); }
     app.set_notice(&if with_media { restarted() } else { restarted_no_media() });
     Some(saved.windows)
@@ -38,18 +38,18 @@ mod tests {
     fn saved_with_audio(app: &App) -> LiveState {
         let item_id = Uuid::new_v4();
         let kind = ItemKind::Text { title: "t".into(), body: "Amazing".into(), layout: Default::default() };
-        app.data.lock().unwrap().services[0].items.push(ServiceItem { id: item_id, kind, background: None, notes: String::new(), theme: None });
+        app.data().services[0].items.push(ServiceItem { id: item_id, kind, background: None, notes: String::new(), theme: None });
         let out = app.command(Envelope::new(Command::Show { item_id, slide: 0 }));
         let version = out.version;
         app.room_event(RoomEvent::Committed { version });
-        let mut s = state::snapshot(&app.live.lock().unwrap(), vec!["room".into()], 1).unwrap();
+        let mut s = state::snapshot(&app.live(), vec!["room".into()], 1).unwrap();
         s.frame.audio = Some(Inst { inst: 40, v: AudioLayer { asset: "a.mp3".into(), title: "A".into(), looped: false, paused: false } });
         s.positions = vec![(40, 12.5)];
         state::write_with_retry(&state::path(&app.store.root), &serde_json::to_vec(&s).unwrap()).unwrap();
         s
     }
 
-    fn fresh(app: &App) { *app.live.lock().unwrap() = Live::new(); }
+    fn fresh(app: &App) { *app.live() = Live::new(); }
 
     #[test]
     fn normal_start_forgets_the_saved_frame() {
@@ -65,7 +65,7 @@ mod tests {
         saved_with_audio(&app);
         fresh(&app);
         assert_eq!(at_start(&app, true, 0), Some(vec!["room".to_string()]));
-        let live = app.live.lock().unwrap();
+        let live = app.live();
         assert!(live.frame.audio.is_some());
         assert_eq!(live.notice.as_deref(), Some(restarted().as_str()));
         drop(live);
@@ -79,7 +79,7 @@ mod tests {
         saved_with_audio(&app);
         fresh(&app);
         assert_eq!(at_start(&app, true, 2), Some(vec!["room".to_string()]));
-        let live = app.live.lock().unwrap();
+        let live = app.live();
         assert!(live.frame.audio.is_none());
         assert!(live.frame.slide.is_some());
         assert_eq!(live.notice.as_deref(), Some(restarted_no_media().as_str()));
@@ -93,7 +93,7 @@ mod tests {
     fn restart_with_nothing_saved_restores_nothing() {
         let app = test_app();
         assert_eq!(at_start(&app, true, 1), None);
-        assert!(app.live.lock().unwrap().notice.is_none());
+        assert!(app.live().notice.is_none());
     }
 
     #[test]

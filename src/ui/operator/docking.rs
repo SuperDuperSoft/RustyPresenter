@@ -904,7 +904,7 @@ fn window_place(w: &PanelWindow) -> Option<(String, WinRect)> {
 
 /// Wires the operator window's dock and shows the layout Settings keeps.
 pub fn wire(op: &Rc<Operator>) {
-    let mut prefs = op.app().data.lock().unwrap().settings.dock.clone();
+    let mut prefs = op.app().data().settings.dock.clone();
     prefs.current.repair();
     *op.dock.prefs.borrow_mut() = prefs;
     {

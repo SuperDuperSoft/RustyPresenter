@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let store = Store::open(std::env::temp_dir().join(format!("rp-stage-editor-shots-{}", Uuid::new_v4())))?;
     let data = store.load()?;
     let app = App::new(store, data, 0, None);
-    app.data.lock().unwrap().settings.screens.stage.on = true;
+    app.data().settings.screens.stage.on = true;
     let op = operator_for_tests(app.clone());
     op.window().set_size(slint::PhysicalSize::new(1440, 900));
     op.window().show()?;

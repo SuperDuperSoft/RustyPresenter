@@ -355,7 +355,7 @@ fn clear_messages(op: &Operator) {
     g.set_note("".into());
 }
 
-fn data(op: &Operator) -> Data { op.app().data.lock().unwrap().clone() }
+fn data(op: &Operator) -> Data { op.app().data().clone() }
 
 fn timer_sub(t: &TimerDef) -> String {
     match t.kind.known() {
@@ -689,7 +689,7 @@ fn timer_from_form(op: &Operator, st: &St) -> Result<TimerDef, String> {
         i if i >= 2 => st.borrow().at_zero.get(i as usize - 2).map_or(AtZero::Nothing, |id| AtZero::RunMacro { macro_id: *id }),
         _ => AtZero::Nothing,
     };
-    let old = st.borrow().selected.and_then(|id| op.app().data.lock().unwrap().automation.timers.iter().find(|t| t.id == id).cloned()).unwrap_or_default();
+    let old = st.borrow().selected.and_then(|id| op.app().data().automation.timers.iter().find(|t| t.id == id).cloned()).unwrap_or_default();
     Ok(TimerDef {
         id: st.borrow().selected.unwrap_or_default(),
         name: g.get_t_name().to_string(),
@@ -773,7 +773,7 @@ fn timer_action(op: &Rc<Operator>, st: &St, action: &'static str) {
 
 fn starts_at_save(op: &Rc<Operator>, st: &St) {
     let g = op.ui.global::<AutomationDlg>();
-    let Some(service) = op.app().data.lock().unwrap().service().map(|s| s.id) else { return };
+    let Some(service) = op.app().data().service().map(|s| s.id) else { return };
     let at = g.get_starts_at().trim().to_string();
     let body = json!({ "service": service, "at": if at.is_empty() { Value::Null } else { Value::String(at) } });
     let (me, s) = (Rc::downgrade(op), st.clone());

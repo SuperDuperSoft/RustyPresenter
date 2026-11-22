@@ -73,7 +73,7 @@ pub fn auto_first(winner: Option<Graphics>, last: Option<Trial>) -> Option<Graph
 }
 
 pub fn start(app: &App, root: &Path, flag: bool) -> Start {
-    let setting = app.data.lock().unwrap().settings.graphics;
+    let setting = app.data().settings.graphics;
     let last = load(root);
     let p = plan(setting, flag, last);
     let auto = auto_first(crate::video::bench::auto_pick(crate::video::bench::load(root).as_ref()), last);

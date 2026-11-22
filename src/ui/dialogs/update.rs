@@ -97,7 +97,7 @@ fn busy(op: &Operator) -> bool {
 /// At start, a little after the window opens: with the switch on, asks GitHub when a day has passed, and asks the
 /// person once about a newer version. Without internet, a newer version found on an earlier day is still offered.
 pub fn at_start(op: &Rc<Operator>) {
-    if !op.app().data.lock().unwrap().settings.check_updates { return }
+    if !op.app().data().settings.check_updates { return }
     let state = update::load(&root(op));
     if !state.due(chrono::Utc::now()) { return tell(op, &state) }
     let me = Rc::downgrade(op);
@@ -244,10 +244,10 @@ mod tests {
         refresh(&op);
         // Switched off: GitHub is not asked.
         let web = github(Some("v99.0.0"));
-        app.data.lock().unwrap().settings.check_updates = false;
+        app.data().settings.check_updates = false;
         at_start(&op);
         assert_eq!((web.hits(), op.state.borrow().asks), (0, 0));
-        app.data.lock().unwrap().settings.check_updates = true;
+        app.data().settings.check_updates = true;
         // No internet: silence.
         BASE.with(|b| *b.borrow_mut() = None);
         at_start(&op);
@@ -269,7 +269,7 @@ mod tests {
         let g = dlg(&op);
         g.set_check_updates(false);
         g.invoke_save();
-        assert!(!app.data.lock().unwrap().settings.check_updates);
+        assert!(!app.data().settings.check_updates);
         // Settings saved before 1.4.6 have no such line: on.
         let old: crate::model::Settings = serde_json::from_str("{}").unwrap();
         assert!(old.check_updates);

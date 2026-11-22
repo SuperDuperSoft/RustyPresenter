@@ -21,11 +21,11 @@ pub fn open(op: &Rc<Operator>) {
     load(op);
 }
 
-fn list(op: &Operator) -> MusicList { op.app().data.lock().unwrap().automation.music.clone() }
+fn list(op: &Operator) -> MusicList { op.app().data().automation.music.clone() }
 
 /// The library's audio files: id and name.
 fn library(op: &Operator) -> Vec<(Uuid, String)> {
-    op.app().data.lock().unwrap().media.iter().filter(|m| m.kind == MediaKind::Audio).map(|m| (m.id, m.name.clone())).collect()
+    op.app().data().media.iter().filter(|m| m.kind == MediaKind::Audio).map(|m| (m.id, m.name.clone())).collect()
 }
 
 fn length(t: &Track) -> String { t.duration.map(|d| crate::timers::text((d * 1000.0) as i64)).unwrap_or_default() }
@@ -101,13 +101,13 @@ fn connect(op: &Rc<Operator>) {
         let pick = op.ui.global::<MusicDlg>().get_pick().max(0) as usize;
         let Some((id, _)) = library(op).get(pick).cloned() else { return };
         let mut l = list(op);
-        let media = op.app().data.lock().unwrap().media.clone();
+        let media = op.app().data().media.clone();
         l.tracks.extend(tracks_from_library(&media, &[id]));
         save(op, l);
     }));
     g.on_add_all(with(|op| {
         let mut l = list(op);
-        let media = op.app().data.lock().unwrap().media.clone();
+        let media = op.app().data().media.clone();
         let have: Vec<String> = l.tracks.iter().map(|t| t.asset.clone()).collect();
         let ids: Vec<Uuid> = media.iter().filter(|m| m.kind == MediaKind::Audio && !have.contains(&m.asset)).map(|m| m.id).collect();
         l.tracks.extend(tracks_from_library(&media, &ids));
@@ -166,7 +166,7 @@ mod tests {
     #[test]
     fn songs_are_added_from_the_library_and_play_from_the_mini_player() {
         let app = test_app();
-        app.data.lock().unwrap().media.extend([audio("Hymn"), audio("Psalm")]);
+        app.data().media.extend([audio("Hymn"), audio("Psalm")]);
         let op = open_window(&app);
         refresh(&op);
         assert!(!op.ui.auto_strip_all().get_music_shown(), "no walk-in music: no mini player");
@@ -180,10 +180,10 @@ mod tests {
         assert_eq!(titles, ["Psalm", "Hymn"], "Add all leaves out the songs already there");
         assert_eq!(g.get_rows().row_data(0).unwrap().length, "2:05");
         g.invoke_move(1, -1);
-        assert_eq!(app.data.lock().unwrap().automation.music.tracks[0].title, "Hymn");
+        assert_eq!(app.data().automation.music.tracks[0].title, "Hymn");
         g.invoke_play_row(1);
         assert!(g.get_playing());
-        assert_eq!(app.automation.lock().unwrap().music.current(&app.data.lock().unwrap().automation.music).unwrap().title, "Psalm");
+        assert_eq!(app.automation.lock().unwrap().music.current(&app.data().automation.music).unwrap().title, "Psalm");
         op.apply_timers();
         let s = op.ui.auto_strip_all();
         assert!(s.get_music_shown() && s.get_music_playing());
@@ -196,13 +196,13 @@ mod tests {
         assert!(s.get_music_stopped());
         assert_eq!(s.get_music_title(), "2 songs");
         g.invoke_remove(0);
-        assert_eq!(app.data.lock().unwrap().automation.music.tracks.len(), 1);
+        assert_eq!(app.data().automation.music.tracks.len(), 1);
     }
 
     #[test]
     fn shuffle_repeat_and_volume_are_kept() {
         let app = test_app();
-        app.data.lock().unwrap().media.push(audio("Hymn"));
+        app.data().media.push(audio("Hymn"));
         let op = open_window(&app);
         open(&op);
         let g = op.ui.global::<MusicDlg>();
@@ -212,10 +212,10 @@ mod tests {
         g.set_repeat(false);
         g.invoke_repeat_changed();
         g.invoke_volume_changed(35);
-        let saved = app.data.lock().unwrap().automation.music.clone();
+        let saved = app.data().automation.music.clone();
         assert!(saved.shuffle && !saved.repeat);
         assert_eq!(app.automation.lock().unwrap().music.volume(&saved), 35, "the new volume plays at once");
         app.music_save_volume(chrono::Utc::now() + chrono::TimeDelta::seconds(5));
-        assert_eq!(app.data.lock().unwrap().automation.music.volume, 35, "and is saved once the slider rests");
+        assert_eq!(app.data().automation.music.volume, 35, "and is saved once the slider rests");
     }
 }

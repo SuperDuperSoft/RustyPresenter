@@ -556,14 +556,14 @@ mod window_tests {
         assert!(op.ui.get_menu_can_save(), "there is a current service");
         assert!(!op.ui.get_menu_can_edit(), "nothing selected");
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "A".into(), body: "a".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
-        app.data.lock().unwrap().services[0].items.push(item);
+        app.data().services[0].items.push(item);
         refresh(&op);
         assert!(op.ui.get_menu_can_edit(), "the new item is selected");
         op.ui.invoke_menu("print".into());
         assert!(!op.ui.get_menu_ready() && !op.ui.get_menu_can_edit() && !op.ui.get_menu_can_save(), "a dialog covers the window");
         op.close_dialog();
         assert!(op.ui.get_menu_ready());
-        { let mut d = app.data.lock().unwrap(); d.services.clear(); d.current_service = None; }
+        { let mut d = app.data(); d.services.clear(); d.current_service = None; }
         refresh(&op);
         assert!(!op.ui.get_menu_can_save(), "no service to save");
     }
@@ -590,11 +590,11 @@ mod window_tests {
         refresh(&op);
         assert!(op.ui.get_can_undo());
         op.ui.invoke_menu("undo".into());
-        assert!(app.data.lock().unwrap().services[0].items.is_empty());
+        assert!(app.data().services[0].items.is_empty());
         refresh(&op);
         assert!(!op.ui.get_can_undo() && op.ui.get_can_redo());
         op.ui.invoke_menu("redo".into());
-        assert_eq!(app.data.lock().unwrap().services[0].items.len(), 1);
+        assert_eq!(app.data().services[0].items.len(), 1);
         op.ui.invoke_menu("redo".into());
         assert_eq!(op.toast_log(), [("Undone: adding “Welcome”".to_string(), false), ("Redone: adding “Welcome”".to_string(), false),
             ("Nothing to redo.".to_string(), false)]);
@@ -609,13 +609,13 @@ mod window_tests {
         refresh(&op);
         op.ui.global::<crate::ui::OperatorState>().set_focus_in_text(true);
         ctrl(&op, "z");
-        assert_eq!(app.data.lock().unwrap().services[0].items.len(), 1, "the text box keeps Ctrl+Z");
+        assert_eq!(app.data().services[0].items.len(), 1, "the text box keeps Ctrl+Z");
         op.ui.global::<crate::ui::OperatorState>().set_focus_in_text(false);
         ctrl(&op, "z");
-        assert!(app.data.lock().unwrap().services[0].items.is_empty());
+        assert!(app.data().services[0].items.is_empty());
         refresh(&op);
         ctrl(&op, "y");
-        assert_eq!(app.data.lock().unwrap().services[0].items.len(), 1);
+        assert_eq!(app.data().services[0].items.len(), 1);
     }
 
     #[test]
@@ -671,7 +671,7 @@ mod window_tests {
         let app = test_app();
         let op = open(&app);
         refresh(&op);
-        let id = app.data.lock().unwrap().current_service.unwrap();
+        let id = app.data().current_service.unwrap();
         op.ui.invoke_menu("print".into());
         assert_eq!(op.dialog(), Some(DialogKind::Print(id)));
     }
@@ -703,17 +703,17 @@ mod window_tests {
         refresh(&op);
         assert_eq!(op.ui.get_recent_files().row_count(), 0);
         let file = app.store.root.join("Easter.rpservice");
-        let id = app.data.lock().unwrap().current_service.unwrap();
+        let id = app.data().current_service.unwrap();
         tokio::runtime::Runtime::new().unwrap().block_on(app.export_service(id, file.clone())).unwrap();
         tokio::runtime::Runtime::new().unwrap().block_on(app.import_service(file.clone())).unwrap();
         refresh(&op);
         let names: Vec<String> = op.ui.get_recent_files().iter().map(|s| s.to_string()).collect();
         assert_eq!(names, [super::recent_name(&file)]);
         assert!(names[0].starts_with("Easter  ("), "{names:?}");
-        let before = app.data.lock().unwrap().services.len();
+        let before = app.data().services.len();
         op.ui.invoke_open_recent(0);
-        assert_eq!(app.data.lock().unwrap().services.len(), before + 1, "opened again");
-        assert_eq!(app.data.lock().unwrap().settings.recent_files, [file]);
+        assert_eq!(app.data().services.len(), before + 1, "opened again");
+        assert_eq!(app.data().settings.recent_files, [file]);
     }
 
     #[test]
@@ -758,7 +758,7 @@ mod window_tests {
     fn f2_runs_through_the_menu_bar_and_clears_text() {
         let app = test_app();
         let item = ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: "A".into(), body: "a1".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
-        app.data.lock().unwrap().services[0].items.push(item.clone());
+        app.data().services[0].items.push(item.clone());
         let op = open(&app);
         refresh(&op);
         op.ops().cmd(crate::live::Command::Show { item_id: item.id, slide: 0 }, None, |o| assert!(o.ok, "{o:?}"));
