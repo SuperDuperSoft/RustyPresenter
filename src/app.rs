@@ -2279,20 +2279,6 @@ impl App {
         r
     }
 
-    /// Reads an EasyWorship library and saves its new songs in one step (spec §9.3).
-    pub async fn import_easyworship(&self, folder: PathBuf) -> Result<LibraryImport, String> {
-        let read = tokio::task::spawn_blocking(move || crate::import::easyworship::read_library(&folder));
-        let crate::import::ImportReport { songs, skipped } = read.await.map_err(|e| e.to_string())??;
-        self.edit(|d| {
-            let marks = crate::import::classify(&d.songs, &songs);
-            let mut done = LibraryImport { skipped, ..Default::default() };
-            for (song, mark) in songs.into_iter().zip(marks) {
-                if mark == crate::import::Dedupe::New { d.songs.push(song); done.added += 1 } else { done.duplicates.push(song.title) }
-            }
-            Ok(done)
-        })
-    }
-
     /// Import a SongSelect song file (lyrics `.txt`, ChordPro or `.usr`; `name` is the file's name, which tells them
     /// apart). Returns the saved song's id (`None` if `Ask` found a match), its title,
     /// and the library song with the same CCLI #. `Update` with no match adds the song: the old one may have

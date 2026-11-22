@@ -124,10 +124,6 @@ msgid "SongSelect lyrics (.txt), ChordPro or .usr"
 msgstr "Pawòl SongSelect (.txt), ChordPro oswa .usr"
 
 #: ui/dialogs/add.slint
-msgid "Import from EasyWorship"
-msgstr "Enpòte soti nan EasyWorship"
-
-#: ui/dialogs/add.slint
 msgid "Reference ({})"
 msgstr "Referans ({})"
 
@@ -6423,6 +6419,10 @@ msgstr "RustyPresenter ap demare toujou. Eseye ankò nan yon ti moman."
 msgid "Not used"
 msgstr "Pa itilize"
 
+#: src/app.rs src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "No verses found."
+msgstr "Pa jwenn okenn vèsè."
+
 #: src/app.rs
 msgid "{name} — built in, public domain"
 msgstr "{name} — enstale ladan l, domèn piblik"
@@ -6754,10 +6754,6 @@ msgstr "{reference} pa egziste."
 #: src/bible/import.rs src/bible/sources.rs src/bible.rs
 msgid "That passage is too long. Choose up to about 400 verses."
 msgstr "Pasaj sa a twò long. Chwazi jiska anviwon 400 vèsè."
-
-#: src/bible/import.rs src/bible/sources.rs src/bible.rs
-msgid "No verses found."
-msgstr "Pa jwenn okenn vèsè."
 
 #: src/bible/import.rs
 msgid "Give the Bible a short name of 2-10 letters or digits, like WEB."
@@ -9033,10 +9029,6 @@ msgstr[1] "{n} deja nan bibliyotèk la: {titles}"
 #: src/strings/add.rs
 msgid "Not imported:"
 msgstr "Pa enpòte:"
-
-#: src/strings/add.rs
-msgid "Reading the EasyWorship library…"
-msgstr "N ap li bibliyotèk EasyWorship la…"
 
 #: src/strings/add.rs
 msgid "LibreOffice found!"
@@ -14082,6 +14074,12 @@ msgstr "yt-dlp pa anrejistre okenn videyo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "se pa yon fichye medya"
+
+#~ msgid "Import from EasyWorship"
+#~ msgstr "Enpòte soti nan EasyWorship"
+
+#~ msgid "Reading the EasyWorship library…"
+#~ msgstr "N ap li bibliyotèk EasyWorship la…"
 
 #~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
 #~ msgstr "RustyPresenter {version} disponib. Ou gen {current}. Pran li kounye a? Navigatè wèb ou a ap louvri paj telechajman li. Ou ka pran li pita tou nan Paramèt → Èd ak konsènan."

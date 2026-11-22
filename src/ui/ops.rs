@@ -3,7 +3,7 @@
 //! and may hold `Rc` and `RefCell` state. `Ops::inline` runs everything at once for tests on the testing
 //! backend, which has no event loop.
 use crate::{
-    app::{App, ExportError, ImportPurpose, Imported, LibraryImport},
+    app::{App, ExportError, ImportPurpose, Imported},
     import::deck::{ConverterInfo, ConverterStatus},
     live::{Command, Envelope, Outcome},
     ui::operator::strings as tr,
@@ -144,13 +144,6 @@ impl Ops {
     pub fn blocking<R: Send + 'static>(&self, work: impl FnOnce() -> R + Send + 'static, done: impl FnOnce(Option<R>) + 'static) {
         let work = async move { tokio::task::spawn_blocking(work).await.ok() };
         self.run(work, |r| done(r.ok().flatten()));
-    }
-
-    /// `App::import_easyworship`, off the UI thread.
-    pub fn import_easyworship(&self, folder: PathBuf, done: impl FnOnce(Result<LibraryImport, String>) + 'static) {
-        let app = self.app.clone();
-        let work = async move { app.import_easyworship(folder).await };
-        self.run(work, |r| done(r.and_then(|r| r)));
     }
 
     /// `App::export_service`, off the UI thread.

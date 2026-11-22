@@ -15,7 +15,7 @@ pub fn search_slides() -> String { tr!("Search slides…") }
 pub fn install_libreoffice() -> String { tr!("To import PowerPoint or Keynote files, install LibreOffice (free). PDF files work without it.") }
 pub fn copied() -> String { tr!("Copied") }
 
-/// The end of an EasyWorship import (spec §9.3): how many came in, and every song that did not, with why.
+/// The end of a library import (spec §9.3): how many came in, and every song that did not, with why.
 pub fn library_report(report: &crate::app::LibraryImport) -> String {
     const SHOWN: usize = 10;
     let more = |n: usize| if n > SHOWN { tr!("…and {n} more.", n = n - SHOWN) } else { String::new() };
@@ -36,9 +36,6 @@ pub fn library_report(report: &crate::app::LibraryImport) -> String {
     text
 }
 
-/// Where EasyWorship keeps its libraries unless someone moved them. The folder picker starts here.
-pub const EASYWORSHIP_FOLDER: &str = r"C:\Users\Public\Documents\Softouch\Easyworship";
-pub fn reading_easyworship() -> String { tr!("Reading the EasyWorship library…") }
 pub fn libreoffice_found() -> String { tr!("LibreOffice found!") }
 pub fn libreoffice_not_found() -> String { tr!("Not found yet — finish installing, then click Check again.") }
 

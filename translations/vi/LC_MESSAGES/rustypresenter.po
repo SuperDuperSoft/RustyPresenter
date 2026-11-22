@@ -124,10 +124,6 @@ msgid "SongSelect lyrics (.txt), ChordPro or .usr"
 msgstr "Lời bài hát SongSelect (.txt), ChordPro hoặc .usr"
 
 #: ui/dialogs/add.slint
-msgid "Import from EasyWorship"
-msgstr "Nhập từ EasyWorship"
-
-#: ui/dialogs/add.slint
 msgid "Reference ({})"
 msgstr "Đoạn Kinh Thánh ({})"
 
@@ -6423,6 +6419,10 @@ msgstr "RustyPresenter vẫn đang khởi động. Hãy thử lại sau giây l�
 msgid "Not used"
 msgstr "Không dùng"
 
+#: src/app.rs src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "No verses found."
+msgstr "Không tìm thấy câu nào."
+
 #: src/app.rs
 msgid "{name} — built in, public domain"
 msgstr "{name} — có sẵn, phạm vi công cộng"
@@ -6754,10 +6754,6 @@ msgstr "{reference} không tồn tại."
 #: src/bible/import.rs src/bible/sources.rs src/bible.rs
 msgid "That passage is too long. Choose up to about 400 verses."
 msgstr "Phân đoạn đó quá dài. Hãy chọn tối đa khoảng 400 câu."
-
-#: src/bible/import.rs src/bible/sources.rs src/bible.rs
-msgid "No verses found."
-msgstr "Không tìm thấy câu nào."
 
 #: src/bible/import.rs
 msgid "Give the Bible a short name of 2-10 letters or digits, like WEB."
@@ -9019,10 +9015,6 @@ msgstr[0] "{n} bài đã có trong thư viện: {titles}"
 #: src/strings/add.rs
 msgid "Not imported:"
 msgstr "Không nhập:"
-
-#: src/strings/add.rs
-msgid "Reading the EasyWorship library…"
-msgstr "Đang đọc thư viện EasyWorship…"
 
 #: src/strings/add.rs
 msgid "LibreOffice found!"
@@ -14030,6 +14022,12 @@ msgstr "yt-dlp không lưu được video nào"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "không phải tệp đa phương tiện"
+
+#~ msgid "Import from EasyWorship"
+#~ msgstr "Nhập từ EasyWorship"
+
+#~ msgid "Reading the EasyWorship library…"
+#~ msgstr "Đang đọc thư viện EasyWorship…"
 
 #~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
 #~ msgstr "Đã có RustyPresenter {version}. Bạn đang dùng {current}. Lấy ngay bây giờ? Trình duyệt web của bạn sẽ mở trang tải về. Bạn cũng có thể lấy sau trong Cài đặt → Trợ giúp và giới thiệu."

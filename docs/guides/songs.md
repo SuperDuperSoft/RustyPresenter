@@ -11,7 +11,6 @@ Leave an empty line between verses. Each part gets a label (Verse 1, Chorus, Bri
 | From | How |
 | --- | --- |
 | **SongSelect** (CCLI) | **File → Add to service → Songs from SongSelect…** Songs you download from SongSelect in your web browser can also come into the library by themselves. |
-| **EasyWorship 6 or 7** | In the song window, choose **Import from EasyWorship** and pick the library folder. Every song is copied once. EasyWorship itself is not changed. |
 | **The clipboard** | Copy the words anywhere, then **File → Import → Song from the clipboard**. |
 | **A file** | Drag a SongSelect, ChordPro or .usr file onto the window. |
 

@@ -90,11 +90,6 @@ component AddSongTab inherits VerticalLayout {
             icon: "upload";
             clicked => { AddState.import-lyrics(); }
         }
-        import-easyworship := Btn {
-            text: @tr("Import from EasyWorship");
-            icon: "upload";
-            clicked => { AddState.import-easyworship(); }
-        }
     }
     AddList { max-list-height: root.list-height; }
 }

@@ -124,10 +124,6 @@ msgid "SongSelect lyrics (.txt), ChordPro or .usr"
 msgstr "SongSelect の歌詞 (.txt)、ChordPro、.usr"
 
 #: ui/dialogs/add.slint
-msgid "Import from EasyWorship"
-msgstr "EasyWorship から取り込む"
-
-#: ui/dialogs/add.slint
 msgid "Reference ({})"
 msgstr "参照箇所 ({})"
 
@@ -6423,6 +6419,10 @@ msgstr "RustyPresenter はまだ起動中です。少し待ってから再試行
 msgid "Not used"
 msgstr "未使用"
 
+#: src/app.rs src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "No verses found."
+msgstr "聖句が見つかりません。"
+
 #: src/app.rs
 msgid "{name} — built in, public domain"
 msgstr "{name} — 内蔵、パブリックドメイン"
@@ -6754,10 +6754,6 @@ msgstr "{reference} は存在しません。"
 #: src/bible/import.rs src/bible/sources.rs src/bible.rs
 msgid "That passage is too long. Choose up to about 400 verses."
 msgstr "その聖書箇所は長すぎます。約400節以内で選んでください。"
-
-#: src/bible/import.rs src/bible/sources.rs src/bible.rs
-msgid "No verses found."
-msgstr "聖句が見つかりません。"
 
 #: src/bible/import.rs
 msgid "Give the Bible a short name of 2-10 letters or digits, like WEB."
@@ -9019,10 +9015,6 @@ msgstr[0] "{n} 曲はすでにライブラリにあります: {titles}"
 #: src/strings/add.rs
 msgid "Not imported:"
 msgstr "取り込まれなかったもの:"
-
-#: src/strings/add.rs
-msgid "Reading the EasyWorship library…"
-msgstr "EasyWorship のライブラリを読み込み中…"
 
 #: src/strings/add.rs
 msgid "LibreOffice found!"
@@ -14030,6 +14022,12 @@ msgstr "yt-dlp は動画を保存しませんでした"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "メディアファイルではありません"
+
+#~ msgid "Import from EasyWorship"
+#~ msgstr "EasyWorship から取り込む"
+
+#~ msgid "Reading the EasyWorship library…"
+#~ msgstr "EasyWorship のライブラリを読み込み中…"
 
 #~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
 #~ msgstr "RustyPresenter {version} があります。現在は {current} です。今すぐ入手しますか？ウェブブラウザでダウンロードページが開きます。あとで「設定 → ヘルプと情報」から入手することもできます。"

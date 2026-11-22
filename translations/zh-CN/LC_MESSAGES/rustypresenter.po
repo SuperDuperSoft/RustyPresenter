@@ -124,10 +124,6 @@ msgid "SongSelect lyrics (.txt), ChordPro or .usr"
 msgstr "SongSelect 歌词 (.txt)、ChordPro 或 .usr"
 
 #: ui/dialogs/add.slint
-msgid "Import from EasyWorship"
-msgstr "从 EasyWorship 导入"
-
-#: ui/dialogs/add.slint
 msgid "Reference ({})"
 msgstr "经文出处（{}）"
 
@@ -6423,6 +6419,10 @@ msgstr "RustyPresenter 仍在启动中，请稍后再试。"
 msgid "Not used"
 msgstr "未使用"
 
+#: src/app.rs src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "No verses found."
+msgstr "未找到经文。"
+
 #: src/app.rs
 msgid "{name} — built in, public domain"
 msgstr "{name} — 内置，公有领域"
@@ -6754,10 +6754,6 @@ msgstr "{reference} 不存在。"
 #: src/bible/import.rs src/bible/sources.rs src/bible.rs
 msgid "That passage is too long. Choose up to about 400 verses."
 msgstr "这段经文太长。最多选择约 400 节。"
-
-#: src/bible/import.rs src/bible/sources.rs src/bible.rs
-msgid "No verses found."
-msgstr "未找到经文。"
 
 #: src/bible/import.rs
 msgid "Give the Bible a short name of 2-10 letters or digits, like WEB."
@@ -9019,10 +9015,6 @@ msgstr[0] "{n} 首已在诗歌库中：{titles}"
 #: src/strings/add.rs
 msgid "Not imported:"
 msgstr "未导入："
-
-#: src/strings/add.rs
-msgid "Reading the EasyWorship library…"
-msgstr "正在读取 EasyWorship 诗歌库…"
 
 #: src/strings/add.rs
 msgid "LibreOffice found!"
@@ -14030,6 +14022,12 @@ msgstr "yt-dlp 没有保存视频"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "不是媒体文件"
+
+#~ msgid "Import from EasyWorship"
+#~ msgstr "从 EasyWorship 导入"
+
+#~ msgid "Reading the EasyWorship library…"
+#~ msgstr "正在读取 EasyWorship 诗歌库…"
 
 #~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
 #~ msgstr "RustyPresenter {version} 已可用。你现在是 {current}。现在获取吗？你的网页浏览器会打开它的下载页面。你也可以稍后在 设置 → 帮助和关于 中获取。"

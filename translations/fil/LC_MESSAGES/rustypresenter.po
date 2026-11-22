@@ -124,10 +124,6 @@ msgid "SongSelect lyrics (.txt), ChordPro or .usr"
 msgstr "Lyrics ng SongSelect (.txt), ChordPro o .usr"
 
 #: ui/dialogs/add.slint
-msgid "Import from EasyWorship"
-msgstr "Mag-import mula sa EasyWorship"
-
-#: ui/dialogs/add.slint
 msgid "Reference ({})"
 msgstr "Reference ({})"
 
@@ -6423,6 +6419,10 @@ msgstr "Nagsisimula pa ang RustyPresenter. Subukang muli maya-maya."
 msgid "Not used"
 msgstr "Hindi ginagamit"
 
+#: src/app.rs src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "No verses found."
+msgstr "Walang nakitang talata."
+
 #: src/app.rs
 msgid "{name} — built in, public domain"
 msgstr "{name} — built-in, public domain"
@@ -6754,10 +6754,6 @@ msgstr "Hindi umiiral ang {reference}."
 #: src/bible/import.rs src/bible/sources.rs src/bible.rs
 msgid "That passage is too long. Choose up to about 400 verses."
 msgstr "Masyadong mahaba ang passage na iyon. Pumili ng hanggang mga 400 talata."
-
-#: src/bible/import.rs src/bible/sources.rs src/bible.rs
-msgid "No verses found."
-msgstr "Walang nakitang talata."
 
 #: src/bible/import.rs
 msgid "Give the Bible a short name of 2-10 letters or digits, like WEB."
@@ -9033,10 +9029,6 @@ msgstr[1] "{n} ay nasa library na: {titles}"
 #: src/strings/add.rs
 msgid "Not imported:"
 msgstr "Hindi na-import:"
-
-#: src/strings/add.rs
-msgid "Reading the EasyWorship library…"
-msgstr "Binabasa ang EasyWorship library…"
 
 #: src/strings/add.rs
 msgid "LibreOffice found!"
@@ -14082,6 +14074,12 @@ msgstr "walang na-save na video ang yt-dlp"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "hindi media file"
+
+#~ msgid "Import from EasyWorship"
+#~ msgstr "Mag-import mula sa EasyWorship"
+
+#~ msgid "Reading the EasyWorship library…"
+#~ msgstr "Binabasa ang EasyWorship library…"
 
 #~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
 #~ msgstr "May RustyPresenter {version} na. Ang sa iyo ay {current}. Kunin na ngayon? Bubuksan ng web browser mo ang download page nito. Makukuha mo rin ito mamaya sa Mga Setting → Tulong at tungkol dito."

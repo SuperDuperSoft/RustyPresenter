@@ -639,43 +639,6 @@ pub(crate) mod tests {
         }
     }
 
-    fn block_on<F: std::future::Future>(f: F) -> F::Output {
-        tokio::runtime::Builder::new_current_thread().enable_all().build().unwrap().block_on(f)
-    }
-
-    #[test]
-    fn library_saves_new_songs_once_and_reports_the_rest() {
-        let dir = temp_folder();
-        write_library(&dir, "Songs.db", &[
-            ("One", "A", "111", None, Some(PLAIN)),
-            ("Two", "B", "", None, Some(PLAIN)),
-            ("Video Item", "", "", None, None),
-        ]);
-        let app = crate::app::test_app();
-        let first = block_on(app.import_easyworship(dir.clone())).unwrap();
-        assert_eq!(first.added, 2);
-        assert!(first.duplicates.is_empty());
-        assert_eq!(first.skipped.iter().map(|(t, _)| t.as_str()).collect::<Vec<_>>(), ["Video Item"]);
-        assert_eq!(app.data.lock().unwrap().songs.len(), 2);
-
-        let saved = app.data.lock().unwrap().songs[0].lyrics.clone();
-        app.data.lock().unwrap().songs[0].lyrics = "Changed here".into();
-        let again = block_on(app.import_easyworship(dir)).unwrap();
-        assert_eq!(again.added, 0);
-        assert_eq!(again.duplicates, ["One", "Two"]);
-        let data = app.data.lock().unwrap();
-        assert_eq!(data.songs.len(), 2, "importing twice doubles nothing");
-        assert_eq!(data.songs[0].lyrics, "Changed here", "a song already here is left alone, not {saved}");
-    }
-
-    #[test]
-    fn library_that_cannot_be_read_adds_nothing() {
-        let app = crate::app::test_app();
-        let e = block_on(app.import_easyworship(temp_folder())).unwrap_err();
-        assert!(e.contains("No EasyWorship Songs.db"), "{e}");
-        assert!(app.data.lock().unwrap().songs.is_empty());
-    }
-
     #[test]
     fn reader_finds_databases_reads_songs_and_reports_skips() {
         let root = temp_folder();

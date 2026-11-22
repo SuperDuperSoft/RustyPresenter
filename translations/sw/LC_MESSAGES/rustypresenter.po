@@ -124,10 +124,6 @@ msgid "SongSelect lyrics (.txt), ChordPro or .usr"
 msgstr "Maneno ya SongSelect (.txt), ChordPro au .usr"
 
 #: ui/dialogs/add.slint
-msgid "Import from EasyWorship"
-msgstr "Leta kutoka EasyWorship"
-
-#: ui/dialogs/add.slint
 msgid "Reference ({})"
 msgstr "Kifungu ({})"
 
@@ -6423,6 +6419,10 @@ msgstr "RustyPresenter bado inaanza. Jaribu tena baada ya muda mfupi."
 msgid "Not used"
 msgstr "Haitumiki"
 
+#: src/app.rs src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "No verses found."
+msgstr "Hakuna mistari iliyopatikana."
+
 #: src/app.rs
 msgid "{name} — built in, public domain"
 msgstr "{name} — imejengwa ndani, haina hakimiliki"
@@ -6754,10 +6754,6 @@ msgstr "{reference} haipo."
 #: src/bible/import.rs src/bible/sources.rs src/bible.rs
 msgid "That passage is too long. Choose up to about 400 verses."
 msgstr "Kifungu hicho ni kirefu mno. Chagua hadi takriban mistari 400."
-
-#: src/bible/import.rs src/bible/sources.rs src/bible.rs
-msgid "No verses found."
-msgstr "Hakuna mistari iliyopatikana."
 
 #: src/bible/import.rs
 msgid "Give the Bible a short name of 2-10 letters or digits, like WEB."
@@ -9033,10 +9029,6 @@ msgstr[1] "{n} tayari zimo kwenye maktaba: {titles}"
 #: src/strings/add.rs
 msgid "Not imported:"
 msgstr "Hazikuletwa:"
-
-#: src/strings/add.rs
-msgid "Reading the EasyWorship library…"
-msgstr "Inasoma maktaba ya EasyWorship…"
 
 #: src/strings/add.rs
 msgid "LibreOffice found!"
@@ -14082,6 +14074,12 @@ msgstr "yt-dlp haikuhifadhi video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "si faili ya midia"
+
+#~ msgid "Import from EasyWorship"
+#~ msgstr "Leta kutoka EasyWorship"
+
+#~ msgid "Reading the EasyWorship library…"
+#~ msgstr "Inasoma maktaba ya EasyWorship…"
 
 #~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
 #~ msgstr "RustyPresenter {version} inapatikana. Una {current}. Ulipate sasa? Kivinjari chako hufungua ukurasa wake wa kupakua. Unaweza pia kulipata baadaye kwenye Mipangilio → Msaada na kuhusu."

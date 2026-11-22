@@ -121,10 +121,6 @@ msgid "SongSelect lyrics (.txt), ChordPro or .usr"
 msgstr ""
 
 #: ui/dialogs/add.slint
-msgid "Import from EasyWorship"
-msgstr ""
-
-#: ui/dialogs/add.slint
 msgid "Reference ({})"
 msgstr ""
 
@@ -6414,6 +6410,10 @@ msgstr ""
 msgid "Not used"
 msgstr ""
 
+#: src/app.rs src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "No verses found."
+msgstr ""
+
 #: src/app.rs
 msgid "{name} — built in, public domain"
 msgstr ""
@@ -6744,10 +6744,6 @@ msgstr ""
 
 #: src/bible/import.rs src/bible/sources.rs src/bible.rs
 msgid "That passage is too long. Choose up to about 400 verses."
-msgstr ""
-
-#: src/bible/import.rs src/bible/sources.rs src/bible.rs
-msgid "No verses found."
 msgstr ""
 
 #: src/bible/import.rs
@@ -9023,10 +9019,6 @@ msgstr[1] ""
 
 #: src/strings/add.rs
 msgid "Not imported:"
-msgstr ""
-
-#: src/strings/add.rs
-msgid "Reading the EasyWorship library…"
 msgstr ""
 
 #: src/strings/add.rs

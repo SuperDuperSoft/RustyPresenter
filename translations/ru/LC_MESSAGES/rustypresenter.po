@@ -124,10 +124,6 @@ msgid "SongSelect lyrics (.txt), ChordPro or .usr"
 msgstr "Текст из SongSelect (.txt), ChordPro или .usr"
 
 #: ui/dialogs/add.slint
-msgid "Import from EasyWorship"
-msgstr "Импорт из EasyWorship"
-
-#: ui/dialogs/add.slint
 msgid "Reference ({})"
 msgstr "Ссылка ({})"
 
@@ -6423,6 +6419,10 @@ msgstr "RustyPresenter ещё запускается. Повторите чер�
 msgid "Not used"
 msgstr "Не используется"
 
+#: src/app.rs src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "No verses found."
+msgstr "Стихи не найдены."
+
 #: src/app.rs
 msgid "{name} — built in, public domain"
 msgstr "{name} — встроенная, общественное достояние"
@@ -6754,10 +6754,6 @@ msgstr "{reference} не существует."
 #: src/bible/import.rs src/bible/sources.rs src/bible.rs
 msgid "That passage is too long. Choose up to about 400 verses."
 msgstr "Отрывок слишком длинный. Выберите не больше 400 стихов."
-
-#: src/bible/import.rs src/bible/sources.rs src/bible.rs
-msgid "No verses found."
-msgstr "Стихи не найдены."
 
 #: src/bible/import.rs
 msgid "Give the Bible a short name of 2-10 letters or digits, like WEB."
@@ -9047,10 +9043,6 @@ msgstr[2] "{n} уже в библиотеке: {titles}"
 #: src/strings/add.rs
 msgid "Not imported:"
 msgstr "Не импортировано:"
-
-#: src/strings/add.rs
-msgid "Reading the EasyWorship library…"
-msgstr "Чтение библиотеки EasyWorship…"
 
 #: src/strings/add.rs
 msgid "LibreOffice found!"
@@ -14134,6 +14126,12 @@ msgstr "yt-dlp не сохранил видео"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "не медиафайл"
+
+#~ msgid "Import from EasyWorship"
+#~ msgstr "Импорт из EasyWorship"
+
+#~ msgid "Reading the EasyWorship library…"
+#~ msgstr "Чтение библиотеки EasyWorship…"
 
 #~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
 #~ msgstr "Доступен RustyPresenter {version}. У вас {current}. Получить сейчас? Ваш браузер откроет страницу загрузки. Её можно получить и позже в разделе Настройки → Справка и о программе."

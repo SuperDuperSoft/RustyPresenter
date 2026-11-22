@@ -124,10 +124,6 @@ msgid "SongSelect lyrics (.txt), ChordPro or .usr"
 msgstr "SongSelect-Liedtext (.txt), ChordPro oder .usr"
 
 #: ui/dialogs/add.slint
-msgid "Import from EasyWorship"
-msgstr "Aus EasyWorship importieren"
-
-#: ui/dialogs/add.slint
 msgid "Reference ({})"
 msgstr "Bibelstelle ({})"
 
@@ -6423,6 +6419,10 @@ msgstr "RustyPresenter startet noch. Bitte gleich noch einmal versuchen."
 msgid "Not used"
 msgstr "Nicht verwendet"
 
+#: src/app.rs src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "No verses found."
+msgstr "Keine Verse gefunden."
+
 #: src/app.rs
 msgid "{name} — built in, public domain"
 msgstr "{name} – eingebaut, gemeinfrei"
@@ -6754,10 +6754,6 @@ msgstr "{reference} gibt es nicht."
 #: src/bible/import.rs src/bible/sources.rs src/bible.rs
 msgid "That passage is too long. Choose up to about 400 verses."
 msgstr "Diese Stelle ist zu lang. Wählen Sie bis zu etwa 400 Verse."
-
-#: src/bible/import.rs src/bible/sources.rs src/bible.rs
-msgid "No verses found."
-msgstr "Keine Verse gefunden."
 
 #: src/bible/import.rs
 msgid "Give the Bible a short name of 2-10 letters or digits, like WEB."
@@ -9033,10 +9029,6 @@ msgstr[1] "{n} bereits in der Bibliothek: {titles}"
 #: src/strings/add.rs
 msgid "Not imported:"
 msgstr "Nicht importiert:"
-
-#: src/strings/add.rs
-msgid "Reading the EasyWorship library…"
-msgstr "EasyWorship-Bibliothek wird gelesen…"
 
 #: src/strings/add.rs
 msgid "LibreOffice found!"
@@ -14082,6 +14074,12 @@ msgstr "yt-dlp hat kein Video gespeichert"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "keine Mediendatei"
+
+#~ msgid "Import from EasyWorship"
+#~ msgstr "Aus EasyWorship importieren"
+
+#~ msgid "Reading the EasyWorship library…"
+#~ msgstr "EasyWorship-Bibliothek wird gelesen…"
 
 #~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
 #~ msgstr "RustyPresenter {version} ist verfügbar. Du hast {current}. Jetzt holen? Dein Webbrowser öffnet die Download-Seite. Du kannst sie auch später unter Einstellungen → Hilfe und Info holen."

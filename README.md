@@ -10,7 +10,7 @@ It is free for any church, with no account and no subscription.
 
 ## What it does
 
-- **Songs:** type or paste the words, or bring them in from SongSelect or EasyWorship.
+- **Songs:** type or paste the words, or bring them in from SongSelect.
 - **Bible:** type `John 3:16` and press Enter. Three Bibles work with no internet, NIV works online, and over a thousand more in other languages can be added. Up to three can show side by side.
 - **Slides, videos, pictures and music:** PowerPoint, Keynote and PDF files, and almost any video or audio file.
 - **Two screens:** the audience screen for the room and a stage screen for the band and speaker.

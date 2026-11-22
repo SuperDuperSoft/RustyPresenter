@@ -124,10 +124,6 @@ msgid "SongSelect lyrics (.txt), ChordPro or .usr"
 msgstr "Letra de SongSelect (.txt), ChordPro o .usr"
 
 #: ui/dialogs/add.slint
-msgid "Import from EasyWorship"
-msgstr "Importar desde EasyWorship"
-
-#: ui/dialogs/add.slint
 msgid "Reference ({})"
 msgstr "Cita ({})"
 
@@ -6423,6 +6419,10 @@ msgstr "RustyPresenter todavía se está iniciando. Inténtalo de nuevo en un mo
 msgid "Not used"
 msgstr "Sin usar"
 
+#: src/app.rs src/bible/import.rs src/bible/sources.rs src/bible.rs
+msgid "No verses found."
+msgstr "No se encontraron versículos."
+
 #: src/app.rs
 msgid "{name} — built in, public domain"
 msgstr "{name} — incluida, dominio público"
@@ -6754,10 +6754,6 @@ msgstr "{reference} no existe."
 #: src/bible/import.rs src/bible/sources.rs src/bible.rs
 msgid "That passage is too long. Choose up to about 400 verses."
 msgstr "Ese pasaje es demasiado largo. Elige hasta unos 400 versículos."
-
-#: src/bible/import.rs src/bible/sources.rs src/bible.rs
-msgid "No verses found."
-msgstr "No se encontraron versículos."
 
 #: src/bible/import.rs
 msgid "Give the Bible a short name of 2-10 letters or digits, like WEB."
@@ -9033,10 +9029,6 @@ msgstr[1] "{n} ya están en la biblioteca: {titles}"
 #: src/strings/add.rs
 msgid "Not imported:"
 msgstr "No se importó:"
-
-#: src/strings/add.rs
-msgid "Reading the EasyWorship library…"
-msgstr "Leyendo la biblioteca de EasyWorship…"
 
 #: src/strings/add.rs
 msgid "LibreOffice found!"
@@ -14082,6 +14074,12 @@ msgstr "yt-dlp no guardó ningún video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "no es un archivo multimedia"
+
+#~ msgid "Import from EasyWorship"
+#~ msgstr "Importar desde EasyWorship"
+
+#~ msgid "Reading the EasyWorship library…"
+#~ msgstr "Leyendo la biblioteca de EasyWorship…"
 
 #~ msgid "RustyPresenter {version} is available. You have {current}. Get it now? Your web browser opens its download page. You can also get it later in Settings → Help and about."
 #~ msgstr "RustyPresenter {version} está disponible. Tienes la {current}. ¿Obtenerla ahora? Tu navegador web abre la página de descarga. También puedes obtenerla más tarde en Configuración → Ayuda e información."
