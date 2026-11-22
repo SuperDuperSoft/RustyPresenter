@@ -796,7 +796,9 @@ impl Live {
                 // Next from the slide before it: only the new click plays.
                 let build = step > 0 && slide > 0 && from == Some(slide - 1) && matches!(self.frame.slide, Some(SlideLayer::Design { .. }));
                 // Back one click on the same slide: straight to how it was, no transition.
-                let back = from == Some(slide + 1) && matches!(&item.slides[slide + 1].content, SlideContent::Design { step: s, .. } if *s == step + 1);
+                // `from` is the cursor in the copy that is live now; the copy just built may be shorter.
+                let back = from == Some(slide + 1)
+                    && item.slides.get(slide + 1).is_some_and(|s| matches!(&s.content, SlideContent::Design { step: s, .. } if *s == step + 1));
                 if back { design.transition.kind = crate::design::TransitionKind::Cut }
                 let play = play.filter(|_| build || step == 0 && !back);
                 self.frame.slide = Some(SlideLayer::Design { design, build, play });
@@ -1030,6 +1032,41 @@ mod tests {
         l.apply(env(Command::Show { item_id: p.order[0], slide: 0 }, None), &p);
         assert_eq!((build(&l), kind(&l)), (Some((false, 1, false)), Some(TransitionKind::Cut)), "back one click cuts to how it was");
         assert!(l.frame.background.is_some());
+    }
+
+    /// B1: the library copy of a designed item got shorter while it was live.
+    #[test]
+    fn a_shortened_designed_item_does_not_crash_update_screen_or_a_click() {
+        use crate::design::{Anim, AnimKind, Design, Effect, Obj, ObjKind, PctRect, Start, TextStyle};
+        let t = || Obj::new(ObjKind::text("x", TextStyle::default()), PctRect::new(0.0, 0.0, 10.0, 10.0));
+        // One slide with one "on click" animation is two slides to the engine; without it, one.
+        let (a, b) = (t(), t());
+        let anims = vec![Anim::new(b.id, AnimKind::Entrance, Effect::Fade, Start::OnClick)];
+        let two = crate::slides::design_slides(&[Design { objects: vec![a.clone(), b.clone()], anims, ..Default::default() }]);
+        let one = crate::slides::design_slides(&[Design { objects: vec![a, b], ..Default::default() }]);
+        assert_eq!((two.len(), one.len()), (2, 1));
+        for refresh in [true, false] {
+            let mut p = plan(vec![("Sermon", two.clone())]);
+            let id = p.order[0];
+            let mut l = Live::new();
+            assert!(l.apply(env(Command::Show { item_id: id, slide: 1 }, None), &p).ok);
+            p.items.get_mut(&id).unwrap().slides = one.clone();
+            l.reconcile(&p);
+            let cmd = if refresh { Command::Refresh { item_id: id } } else { Command::Show { item_id: id, slide: 0 } };
+            assert!(l.apply(env(cmd, None), &p).ok, "refresh: {refresh}");
+            assert_eq!(l.cursor.as_ref().map(|c| c.slide), Some(0));
+        }
+        // Three slides live on the third, cut to two, then the new last slide is clicked.
+        let d = || Design { objects: vec![t()], ..Default::default() };
+        let three = crate::slides::design_slides(&[d(), d(), d()]);
+        let mut p = plan(vec![("Sermon", three.clone())]);
+        let id = p.order[0];
+        let mut l = Live::new();
+        assert!(l.apply(env(Command::Show { item_id: id, slide: 2 }, None), &p).ok);
+        p.items.get_mut(&id).unwrap().slides = three[..2].to_vec();
+        l.reconcile(&p);
+        assert!(l.apply(env(Command::Show { item_id: id, slide: 1 }, None), &p).ok);
+        assert_eq!(l.cursor.as_ref().map(|c| c.slide), Some(1));
     }
 
     #[test]
