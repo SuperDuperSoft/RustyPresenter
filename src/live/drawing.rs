@@ -3,8 +3,9 @@
 //! macro is never made stale by someone drawing. Coordinates are 0–1 of the slide (any screen size matches);
 //! widths are in pixels of a 1080-line screen.
 //!
-//! No caps unless Settings → "Limit phone drawing" is on (`actions`): any number of strokes and points. Malformed
-//! input is always refused.
+//! No limits a person drawing would meet unless Settings → "Limit phone drawing" is on (`actions`). Three ceilings
+//! are always on, far above any real drawing, so a stuck touch screen or a script can never fill the computer's
+//! memory: `MAX_POINTS_PER_REQUEST`, `MAX_POINTS_PER_STROKE` and `MAX_POINTS`. Malformed input is always refused.
 //!
 //! Ink either stays or fades, like a laser pointer: a fading stroke stays a while after the finger lifts
 //! (Settings → "Fading ink disappears after", `Drawing::fade_after`), fades out over `FADE_OUT`, then is removed.
@@ -27,6 +28,11 @@ pub const HIGHLIGHTER_WIDTH: f32 = 44.0;
 pub const WIDTH_RANGE: std::ops::RangeInclusive<f32> = 1.0..=100.0;
 /// How see-through the highlighter is (0–255).
 pub const HIGHLIGHTER_ALPHA: u8 = 110;
+/// The most points one command may carry, one line may hold, and the whole slide may hold. A finger gives about a
+/// hundred points a second, so these are minutes of drawing without lifting, and hours in all.
+pub const MAX_POINTS_PER_REQUEST: usize = 5_000;
+pub const MAX_POINTS_PER_STROKE: usize = 20_000;
+pub const MAX_POINTS: usize = 200_000;
 /// How long fading ink takes to go, once its time is up.
 pub const FADE_OUT: Duration = Duration::from_millis(500);
 /// How often a screen redraws while ink is fading out (about 30 a second).
@@ -146,6 +152,7 @@ impl Drawing {
                 if !width.is_finite() || !WIDTH_RANGE.contains(width) { return Err(crate::tr!("That pen size isn't right.")) }
                 if points.is_empty() { return Err(crate::tr!("A line needs at least one point.")) }
                 check_points(points)?;
+                if points.len() > MAX_POINTS_PER_REQUEST || self.points() + points.len() > MAX_POINTS { return Err(actions::too_many_lines()) }
                 for s in self.strokes.iter_mut().filter(|s| s.phone == phone && s.open) { Arc::make_mut(s).close(now) }
                 let mut pts = Vec::with_capacity(points.len());
                 extend(&mut pts, points);
@@ -154,9 +161,13 @@ impl Drawing {
             }
             DrawCmd::More { stroke, points } => {
                 check_points(points)?;
+                let on_slide = self.points();
                 let s = self.strokes.iter_mut().rev().find(|s| s.phone == phone && s.id == *stroke && s.open)
                     .ok_or_else(|| crate::tr!("That line was cleared."))?;
                 if points.is_empty() { return Ok(false) }
+                if points.len() > MAX_POINTS_PER_REQUEST || s.points.len() + points.len() > MAX_POINTS_PER_STROKE || on_slide + points.len() > MAX_POINTS {
+                    return Err(actions::too_many_lines());
+                }
                 extend(&mut Arc::make_mut(s).points, points);
             }
             DrawCmd::End { stroke } => {
@@ -314,14 +325,41 @@ mod tests {
         assert_eq!(d.strokes.iter().map(|s| s.open).collect::<Vec<_>>(), [false, true, true]);
     }
 
+    /// Many distinct points along a line.
+    fn line(n: usize, y: f32) -> Vec<[f32; 2]> { (0..n).map(|i| [i as f32 / n as f32, y]).collect() }
+
     #[test]
-    fn there_is_no_cap_on_points_or_strokes() {
+    fn a_long_drawing_is_kept_as_sent() {
         let (mut d, me) = (Drawing::default(), Uuid::new_v4());
-        for id in 0..300u32 {
-            let pts: Vec<[f32; 2]> = (0..1000).map(|i| [i as f32 / 1000.0, (id as f32 / 300.0)]).collect();
-            d.apply(me, &start(id, pts)).unwrap();
+        for id in 0..150u32 { d.apply(me, &start(id, line(1000, id as f32 / 150.0))).unwrap(); }
+        assert_eq!(d.points(), 150_000, "every point kept as sent");
+    }
+
+    /// B9: ceilings no real drawing reaches, always on.
+    #[test]
+    fn the_hard_ceilings_refuse_and_change_nothing() {
+        let (mut d, me) = (Drawing::default(), Uuid::new_v4());
+        // One command with too many points.
+        assert_eq!(d.apply(me, &start(1, line(MAX_POINTS_PER_REQUEST + 1, 0.5))), Err(actions::too_many_lines()));
+        assert!(d.is_empty() && d.rev == 0);
+        // One line that would grow past its ceiling.
+        d.apply(me, &start(1, line(MAX_POINTS_PER_REQUEST, 0.1))).unwrap();
+        for part in 1..MAX_POINTS_PER_STROKE / MAX_POINTS_PER_REQUEST {
+            d.apply(me, &DrawCmd::More { stroke: 1, points: line(MAX_POINTS_PER_REQUEST, 0.1 + part as f32 / 100.0) }).unwrap();
         }
-        assert_eq!(d.points(), 300_000, "every point kept as sent");
+        assert_eq!(d.strokes[0].points.len(), MAX_POINTS_PER_STROKE);
+        let (rev, before) = (d.rev, d.strokes[0].points.len());
+        assert_eq!(d.apply(me, &DrawCmd::More { stroke: 1, points: vec![[0.9, 0.9]] }), Err(actions::too_many_lines()));
+        assert_eq!((d.rev, d.strokes[0].points.len()), (rev, before), "a refused command changes nothing");
+        // The whole slide.
+        let mut id = 2;
+        while d.points() + MAX_POINTS_PER_REQUEST <= MAX_POINTS { d.apply(me, &start(id, line(MAX_POINTS_PER_REQUEST, 0.7))).unwrap(); id += 1; }
+        assert_eq!(d.points(), MAX_POINTS);
+        assert_eq!(d.apply(me, &start(id, vec![[0.5, 0.5]])), Err(actions::too_many_lines()));
+        assert_eq!(d.apply(me, &DrawCmd::More { stroke: id - 1, points: vec![[0.6, 0.6]] }), Err(actions::too_many_lines()));
+        // Taking lines away is never refused, and makes room again.
+        assert_eq!(d.apply(me, &DrawCmd::Undo), Ok(true));
+        assert_eq!(d.apply(me, &start(id, vec![[0.5, 0.5]])), Ok(true));
     }
 
     #[test]

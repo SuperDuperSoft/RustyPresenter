@@ -180,18 +180,19 @@ mod tests {
         let me = Uuid::new_v4();
         let size = (1920, 1080);
         let mut d = Drawing::default();
-        for id in 0..200u32 {
-            let y = 0.05 + 0.9 * id as f32 / 200.0;
+        // Under the slide's ceiling (`MAX_POINTS`), with room to keep drawing.
+        for id in 0..150u32 {
+            let y = 0.05 + 0.9 * id as f32 / 150.0;
             let pts: Vec<[f32; 2]> = (0..1000).map(|i| { let t = i as f32 / 1000.0; [0.05 + 0.9 * t, y + 0.02 * (t * 40.0).sin()] }).collect();
             line(&mut d, me, id, PALETTE[id as usize % 6], if id % 3 == 0 { Pen::Highlighter } else { Pen::Pen }, 12.0, pts);
         }
-        d.apply(me, &DrawCmd::End { stroke: 199 }).unwrap();
-        assert_eq!(d.points(), 200_000);
+        d.apply(me, &DrawCmd::End { stroke: 149 }).unwrap();
+        assert_eq!(d.points(), 150_000);
         let mut c = DrawingCanvas::new();
         let t = Instant::now();
         assert!(c.render(&d, size).is_some());
         let full = t.elapsed();
-        assert_eq!(c.baked(), 200);
+        assert_eq!(c.baked(), 150);
         // Keep drawing: a new stroke grows batch by batch.
         line(&mut d, me, 500, PALETTE[0], Pen::Pen, 12.0, vec![[0.5, 0.5]]);
         let t = Instant::now();

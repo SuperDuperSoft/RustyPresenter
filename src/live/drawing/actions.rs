@@ -1,6 +1,6 @@
-//! The App's side of drawing: phones draw (if allowed, and within the limits when Settings → "Limit phone
-//! drawing" is on), fading ink is taken away when its time is up, the operator clears, and each paired phone's
-//! "May draw on slides" switch.
+//! The App's side of drawing: phones draw (if allowed, within the limits when Settings → "Limit phone drawing" is
+//! on, and always under the hard ceilings of `Drawing::apply_at`), fading ink is taken away when its time is up,
+//! the operator clears, and each paired phone's "May draw on slides" switch.
 use super::DrawCmd;
 use crate::app::{ActionError, App, Update};
 use crate::live::Live;
@@ -211,6 +211,19 @@ mod tests {
         for id in 0..500 { app.draw_at(me, &start(id), now).unwrap() }
         for _ in 0..500 { app.draw_at(me, &more(499), now).unwrap() }
         assert_eq!(app.live.lock().unwrap().drawing.strokes.len(), 500, "any number of lines, as fast as they come");
+    }
+
+    /// B9: the ceilings hold with "Limit phone drawing" off (the default).
+    #[test]
+    fn the_hard_ceilings_apply_without_the_optional_limit() {
+        let app = test_app();
+        let me = phone(&app, true);
+        assert!(!app.data.lock().unwrap().settings.drawing_limit);
+        let line = |n: usize| (0..n).map(|i| [i as f32 / n as f32, 0.5]).collect::<Vec<[f32; 2]>>();
+        let long = DrawCmd::Start { stroke: 1, color: "#ffd60a".into(), width: 12.0, pen: crate::live::drawing::Pen::Pen, points: line(crate::live::drawing::MAX_POINTS_PER_REQUEST + 1), ink: Default::default() };
+        assert_eq!(app.draw(me, &long), Err(too_many_lines()));
+        assert!(app.live.lock().unwrap().drawing.is_empty(), "nothing was drawn");
+        assert_eq!(app.draw(me, &start(1)), Ok(()));
     }
 
     #[test]
