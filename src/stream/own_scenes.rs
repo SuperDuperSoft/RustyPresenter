@@ -635,7 +635,7 @@ fn text_patch(text: &str, look: &TextLook, canvas: (u32, u32), (w, h): (u32, u32
     let base = if look.size > 0 { u32::from(look.size) } else { theme.size };
     let size = (u64::from(base) * u64::from(canvas.0) / u64::from(w.max(1))).min(2000) as u32;
     let color = if look.colour.trim().is_empty() { theme.color.clone() } else { hex_or_black(&look.colour) };
-    let key = RenderKey { text: text.to_string(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None,
+    let key = RenderKey { text: text.to_string(), footer: None, reference: None, scripture: false, size: 0, passage: Default::default(), parallel: None,
         theme: Theme { position: "center".into(), band: false, size, color, ..theme.clone() }, canvas: (w, h), design: None };
     let r = draw_key(fonts, &key);
     if (r.width, r.height) != (w, h) { return None }
@@ -756,7 +756,7 @@ impl StandIns {
     pub fn new(size: (u32, u32), theme: &Theme, fonts: &mut crate::render::Fonts) -> StandIns {
         let mut named = |colour: [u8; 4], text: String| {
             let mut px = colour.repeat(size.0 as usize * size.1 as usize);
-            let key = RenderKey { text, footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None,
+            let key = RenderKey { text, footer: None, reference: None, scripture: false, size: 0, passage: Default::default(), parallel: None,
                 theme: Theme { position: "center".into(), band: false, color: "#ffffff".into(), ..theme.clone() }, canvas: size, design: None };
             let r = draw_key(fonts, &key);
             if (r.width, r.height) == size { over(&mut px, r.rgba_premul.buffer().as_bytes()) }

@@ -109,7 +109,7 @@ fn source(kind: Kind, job: &Job, app: &App) -> Option<Source> {
         Kind::Slide => match f.slide.as_ref()? {
             SlideLayer::Text { text, footer, reference, scripture, size: max, passage, parallel, theme } => Source::Text(RenderKey {
                 text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: *scripture,
-                size: *max, passage: passage.clone(), theme: theme.clone().unwrap_or_else(|| job.theme.clone()), canvas: job.canvas, parallel: parallel.clone(), design: None
+                size: *max, passage: passage.iter().cloned().collect(), theme: theme.clone().unwrap_or_else(|| job.theme.clone()), canvas: job.canvas, parallel: parallel.clone(), design: None
             }),
             SlideLayer::Image { asset, .. } => picture(asset, false, 1.0),
             SlideLayer::Design { design, play, .. } => {
@@ -197,7 +197,7 @@ pub(super) fn neighbours(live: &Live, canvas: (u32, u32), assets: std::path::Pat
     [cursor.slide + 1, cursor.slide.wrapping_sub(1)].into_iter().filter_map(|i| match &item.slides.get(i)?.content {
         SlideContent::Text { text, footer, reference, size, parallel } => Some(RenderKey {
             text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture,
-            size: *size, passage: passage.clone(), theme: item.theme.clone(), canvas, parallel: parallel.clone(), design: None
+            size: *size, passage: passage.iter().cloned().collect(), theme: item.theme.clone(), canvas, parallel: parallel.clone(), design: None
         }),
         SlideContent::Design { design, .. } => Some(RenderKey::design(design, item.theme.clone(), canvas, assets.clone())),
         _ => None,

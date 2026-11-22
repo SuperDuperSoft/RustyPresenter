@@ -73,7 +73,7 @@ pub fn default_words(scene: Scene) -> String {
 pub fn card_key(card: &Card, scene: Scene, countdown: Option<&str>, theme: &Theme, canvas: (u32, u32)) -> RenderKey {
     let words = card.words.trim();
     let text = if words.is_empty() { default_words(scene) } else { words.to_string() };
-    RenderKey { text, footer: countdown.map(str::to_string), reference: None, scripture: false, size: 0, passage: vec![], parallel: None,
+    RenderKey { text, footer: countdown.map(str::to_string), reference: None, scripture: false, size: 0, passage: Default::default(), parallel: None,
         theme: Theme { position: "center".into(), band: false, ..theme.clone() }, canvas, design: None }
 }
 

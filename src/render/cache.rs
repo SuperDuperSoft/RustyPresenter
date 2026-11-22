@@ -15,8 +15,9 @@ pub struct RenderKey {
     pub scripture: bool,
     /// Largest text size; 0 = the theme's (`TextSlide::size`).
     pub size: u32,
-    /// The passage whose slides share one size (`TextSlide::passage`).
-    pub passage: Vec<PassageSlide>,
+    /// The passage whose slides share one size (`TextSlide::passage`). Shared: the keys of all the slides of a
+    /// passage can hold the one copy, instead of the whole passage once per slide.
+    pub passage: Arc<[PassageSlide]>,
     /// More Bibles on the slide (`TextSlide::parallel`).
     pub parallel: Option<crate::scripture::Parallel>,
     pub theme: Theme,
@@ -40,7 +41,7 @@ impl RenderKey {
     /// The key that draws `design` at `canvas`, its pictures read from `assets`.
     pub fn design(design: &crate::design::Design, theme: Theme, canvas: (u32, u32), assets: std::path::PathBuf) -> RenderKey {
         RenderKey {
-            text: String::new(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme, canvas,
+            text: String::new(), footer: None, reference: None, scripture: false, size: 0, passage: Default::default(), parallel: None, theme, canvas,
             design: Some(DesignKey { json: serde_json::to_string(design).unwrap_or_default(), assets }),
         }
     }
@@ -86,23 +87,30 @@ pub fn draw_key(fonts: &mut Fonts, key: &RenderKey) -> Rendered {
 /// Default memory cap for cached pixels: 256 MB, about 32 full-HD slides.
 const DEFAULT_CAP: usize = 256 * 1024 * 1024;
 
-struct Lru { map: HashMap<RenderKey, Arc<Rendered>>, order: VecDeque<RenderKey>, bytes: usize, cap: usize }
+/// The newest results, up to `cap` bytes of pixels. Each entry carries the count of its last use (`uses`), so a
+/// hit is one map lookup: no list of keys is searched, and no key (a slide's text, theme and passage) is compared
+/// or copied to keep the order. The oldest is looked for only when something has to go.
+struct Lru { map: HashMap<RenderKey, (Arc<Rendered>, u64)>, uses: u64, bytes: usize, cap: usize }
 
 impl Lru {
+    fn new(cap: usize) -> Self { Self { map: HashMap::new(), uses: 0, bytes: 0, cap } }
+
     fn get(&mut self, k: &RenderKey) -> Option<Arc<Rendered>> {
-        let r = self.map.get(k)?.clone();
-        if let Some(i) = self.order.iter().position(|x| x == k) { let k = self.order.remove(i).unwrap(); self.order.push_back(k); }
-        Some(r)
+        self.uses += 1;
+        let (r, used) = self.map.get_mut(k)?;
+        *used = self.uses;
+        Some(r.clone())
     }
 
     fn put(&mut self, k: RenderKey, r: Arc<Rendered>) {
         if self.map.contains_key(&k) { return; }
+        self.uses += 1;
         self.bytes += r.rgba_premul.len();
-        self.map.insert(k.clone(), r);
-        self.order.push_back(k);
-        while self.bytes > self.cap && self.order.len() > 1 {
-            let old = self.order.pop_front().unwrap();
-            if let Some(r) = self.map.remove(&old) { self.bytes -= r.rgba_premul.len(); }
+        self.map.insert(k, (r, self.uses));
+        while self.bytes > self.cap && self.map.len() > 1 {
+            // The least recently used; the newest (this one) is never it.
+            let Some(old) = self.map.iter().min_by_key(|(_, (_, used))| *used).map(|(k, _)| k.clone()) else { break };
+            if let Some((r, _)) = self.map.remove(&old) { self.bytes -= r.rgba_premul.len(); }
         }
     }
 }
@@ -149,7 +157,7 @@ impl Renderer {
 
     /// A renderer whose cache holds at most `bytes` of pixels (the newest result is always kept).
     pub fn with_cap(bytes: usize) -> Arc<Self> {
-        let cache = Arc::new(Mutex::new(Lru { map: HashMap::new(), order: VecDeque::new(), bytes: 0, cap: bytes }));
+        let cache = Arc::new(Mutex::new(Lru::new(bytes)));
         let queue: Shared = Arc::default();
         let (worker_cache, worker_queue) = (cache.clone(), queue.clone());
         std::thread::Builder::new().name("slide-renderer".into()).spawn(move || {
@@ -239,7 +247,7 @@ mod tests {
     use super::*;
 
     fn key(text: &str, canvas: (u32, u32)) -> RenderKey {
-        RenderKey { text: text.into(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None, theme: Theme { font: "Noto Sans".into(), ..Theme::default() }, canvas, design: None }
+        RenderKey { text: text.into(), footer: None, reference: None, scripture: false, size: 0, passage: Default::default(), parallel: None, theme: Theme { font: "Noto Sans".into(), ..Theme::default() }, canvas, design: None }
     }
 
     #[tokio::test]

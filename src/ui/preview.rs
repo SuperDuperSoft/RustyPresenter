@@ -62,7 +62,7 @@ pub fn sources(frame: &Frame, theme: &Theme, logo: Option<&str>, size: (u32, u32
     let slide = match &frame.slide {
         Some(SlideLayer::Text { text, footer, reference, scripture, size: max, passage, parallel, theme: own }) => Source::Text(RenderKey {
             text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: *scripture,
-            size: *max, passage: passage.clone(), theme: own.clone().unwrap_or_else(|| theme.clone()), canvas: size, parallel: parallel.clone(), design: None
+            size: *max, passage: passage.iter().cloned().collect(), theme: own.clone().unwrap_or_else(|| theme.clone()), canvas: size, parallel: parallel.clone(), design: None
         }),
         Some(SlideLayer::Image { asset, .. }) => picture(asset, false, 1.0),
         // The picture folder is filled in where it is drawn (`draw`).

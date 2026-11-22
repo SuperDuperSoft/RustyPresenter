@@ -26,7 +26,7 @@ pub fn key_for_at(slide: &SlideLayer, theme: &Theme, canvas: (u32, u32), top: bo
     let base = own.clone().unwrap_or_else(|| theme.clone());
     // The slide's own largest size is for the room; over a camera the lower third's size is the one.
     let _ = size;
-    Some(RenderKey { text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: *scripture, size: 0, passage: passage.clone(),
+    Some(RenderKey { text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: *scripture, size: 0, passage: passage.iter().cloned().collect(),
         parallel: parallel.clone(), theme: Theme { position: if top { "top".into() } else { "lower".into() }, ..lower_third(&base) }, canvas, design: None })
 }
 

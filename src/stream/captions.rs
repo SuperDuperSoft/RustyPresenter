@@ -303,7 +303,7 @@ pub fn key(text: &str, size: (u32, u32)) -> crate::render::cache::RenderKey {
     use crate::model::Theme;
     let theme = Theme { size: 52, position: "lower".into(), band: true, band_color: "#000000".into(), band_opacity: 75, shadow: false, weight: 600,
         color: "#ffffff".into(), ..Theme::default() };
-    crate::render::cache::RenderKey { text: text.to_string(), footer: None, reference: None, scripture: false, size: 0, passage: vec![], parallel: None,
+    crate::render::cache::RenderKey { text: text.to_string(), footer: None, reference: None, scripture: false, size: 0, passage: Default::default(), parallel: None,
         theme, canvas: size, design: None }
 }
 

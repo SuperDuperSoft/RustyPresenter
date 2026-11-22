@@ -85,6 +85,17 @@ pub fn frames_used(media: &[MediaFile], slides: &[Slide], background: &Backgroun
     media.iter().filter(|m| m.thumb.is_some() && used(&m.asset)).cloned().collect()
 }
 
+/// An item's passage as its thumbnails' keys hold it: one copy for all the slides of the item (they are asked for
+/// one after another), not the whole passage once per slide.
+fn shared_passage(passage: &[PassageSlide]) -> Arc<[PassageSlide]> {
+    thread_local! { static LAST: RefCell<Arc<[PassageSlide]>> = RefCell::new(Arc::from([])); }
+    LAST.with(|last| {
+        let mut last = last.borrow_mut();
+        if **last != *passage { *last = passage.into(); }
+        last.clone()
+    })
+}
+
 /// The thumbnail of `slide` of an item of `kind` (`slideToLayers`). The background is the item's, else the
 /// settings' (`itemBackground`); a video background is drawn as its saved frame. The logo is never drawn. `passage`
 /// is the item's (`model::passage`), so the thumbnail's text has the size the room shows.
@@ -98,7 +109,7 @@ pub fn thumb(slide: &Slide, kind: &str, passage: &[PassageSlide], item_backgroun
             background: Some(background), media: None, picture: None,
             text: Some(RenderKey {
                 text: text.clone(), footer: footer.clone(), reference: reference.clone(), scripture: kind == "scripture",
-                size: *max, passage: passage.to_vec(), theme: look.theme.clone(), canvas: size, parallel: parallel.clone(), design: None
+                size: *max, passage: shared_passage(passage), theme: look.theme.clone(), canvas: size, parallel: parallel.clone(), design: None
             }),
         },
         // The picture folder is filled in where it is drawn (`compose`).
@@ -264,25 +275,28 @@ fn over_premultiplied(img: &mut RgbaImage, src: &[u8]) {
 /// A thumbnail to draw on the worker thread, asked for in request generation `generation`.
 struct Job { key: ThumbKey, job: ThumbJob, generation: u64, reply: oneshot::Sender<Pixels> }
 
-/// The newest thumbnails drawn, up to `CACHE_CAP` bytes (the newest is always kept).
+/// The newest thumbnails drawn, up to `CACHE_CAP` bytes (the newest is always kept). Each carries the count of
+/// its last use, so a hit is one map lookup and no key is compared or copied to keep the order
+/// (`render::cache`'s works the same way).
 #[derive(Default)]
-struct Lru { map: HashMap<ThumbKey, Pixels>, order: VecDeque<ThumbKey>, bytes: usize }
+struct Lru { map: HashMap<ThumbKey, (Pixels, u64)>, uses: u64, bytes: usize }
 
 impl Lru {
     fn get(&mut self, k: &ThumbKey) -> Option<Pixels> {
-        let px = self.map.get(k)?.clone();
-        if let Some(i) = self.order.iter().position(|x| x == k) && let Some(k) = self.order.remove(i) { self.order.push_back(k); }
-        Some(px)
+        self.uses += 1;
+        let (px, used) = self.map.get_mut(k)?;
+        *used = self.uses;
+        Some(px.clone())
     }
 
     fn put(&mut self, k: ThumbKey, px: Pixels) {
         if self.map.contains_key(&k) { return; }
+        self.uses += 1;
         self.bytes += px.as_bytes().len();
-        self.map.insert(k.clone(), px);
-        self.order.push_back(k);
-        while self.bytes > CACHE_CAP && self.order.len() > 1 {
-            let Some(old) = self.order.pop_front() else { break };
-            if let Some(px) = self.map.remove(&old) { self.bytes -= px.as_bytes().len(); }
+        self.map.insert(k, (px, self.uses));
+        while self.bytes > CACHE_CAP && self.map.len() > 1 {
+            let Some(old) = self.map.iter().min_by_key(|(_, (_, used))| *used).map(|(k, _)| k.clone()) else { break };
+            if let Some((px, _)) = self.map.remove(&old) { self.bytes -= px.as_bytes().len(); }
         }
     }
 }
