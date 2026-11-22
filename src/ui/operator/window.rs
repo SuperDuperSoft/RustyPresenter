@@ -283,6 +283,18 @@ impl Operator {
         if data_changed && let Some(op) = self.me.upgrade() { crate::ui::dialogs::songselect::follow_setting(&op) }
     }
 
+    /// A snapshot that differs from the one before it only in how far a job is (`Feed::patch`): it becomes the
+    /// snapshot, and only the jobs box and the Bible downloads' rows are drawn again.
+    pub fn apply_job_progress(&self, s: Arc<OperatorSnapshot>) {
+        {
+            let mut st = self.state.borrow_mut();
+            if st.dragging { st.held_snapshot = Some(s); return; }
+            st.snap = Some(s);
+        }
+        self.render_jobs();
+        crate::ui::dialogs::settings_bible::jobs_changed(self);
+    }
+
     /// A new live view. An older one (a full read that raced a newer `Live`) is ignored.
     pub fn apply_live(&self, v: LiveUpdate) {
         {
@@ -353,6 +365,8 @@ struct Pending {
     snap: Option<Arc<OperatorSnapshot>>, live: Option<LiveUpdate>, timers: bool, drawing: Option<Arc<crate::live::drawing::Drawing>>,
     /// How far a video or audio has played (`Update::Playback`): only the transport rows follow it.
     playback: Option<LiveUpdate>,
+    /// `snap` differs from the snapshot before it only in a job's progress: only the jobs box follows it.
+    only_jobs: bool,
 }
 
 /// The follower's side: reads and patches snapshots off the Slint thread and posts them to `listen`.
@@ -389,7 +403,13 @@ impl Feed {
         if !change(&mut s) { return }
         let s = Arc::new(s);
         *current = Some(s.clone());
-        self.post(Some(s), None);
+        // An import says how far it is up to a hundred times: the window draws the jobs box again and nothing else,
+        // unless a whole read is still waiting to be applied (then this is that read, with the new progress).
+        let mut p = self.pending.lock().unwrap();
+        p.only_jobs = p.snap.is_none() || p.only_jobs;
+        p.snap = Some(s);
+        drop(p);
+        self.wake.notify_one();
     }
 
     /// A batch of updates that arrived together (`None` is a lag). `Data` or a lag means one full read, like
@@ -419,7 +439,7 @@ impl Feed {
 
     fn post(&self, snap: Option<Arc<OperatorSnapshot>>, live: Option<LiveUpdate>) {
         let mut p = self.pending.lock().unwrap();
-        if snap.is_some() { p.snap = snap; }
+        if snap.is_some() { p.snap = snap; p.only_jobs = false; }
         // A refresh read can finish before an older `Live` from the queue is posted: keep the newer view.
         if let Some(v) = live && p.live.as_ref().is_none_or(|old| old.view().version <= v.view().version) { p.live = Some(v); }
         drop(p);
@@ -441,11 +461,11 @@ fn listen(me: Weak<Operator>, feed: Arc<Feed>) -> bool {
             feed.wake.notified().await;
             if feed.is_closed() { return }
             let Some(op) = me.upgrade() else { return };
-            let Pending { snap, live, timers, drawing, playback } = feed.take();
+            let Pending { snap, live, timers, drawing, playback, only_jobs } = feed.take();
             // Live first, so the selection can fall back to the live item (`operator.js:73`).
             if let Some(v) = live { op.apply_live(v); }
             if let Some(p) = playback { op.apply_playback(&p); }
-            if let Some(s) = snap { op.apply_snapshot(s); }
+            if let Some(s) = snap { if only_jobs { op.apply_job_progress(s) } else { op.apply_snapshot(s) } }
             if timers { op.apply_timers(); }
             if let Some(d) = drawing { op.render_drawing(&d, false); }
         }
