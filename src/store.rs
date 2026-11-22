@@ -205,10 +205,12 @@ impl Store {
     }
 
     /// The finished backups, newest first. The operator screen asks for this after every change, so each backup's
-    /// `data.json` (the whole song library) is read only the first time it is listed: a finished backup folder
-    /// never changes, and its details are remembered by its path.
+    /// `data.json` (the whole song library) is read only the first time it is listed: its details are remembered
+    /// by its path and its `data.json`'s size and time, so a folder replaced under the same name (copied in from
+    /// another computer) is read again.
     pub fn backups(&self) -> Vec<BackupInfo> {
-        static KNOWN: std::sync::Mutex<std::collections::BTreeMap<PathBuf, BackupInfo>> = std::sync::Mutex::new(std::collections::BTreeMap::new());
+        type Stamp = Option<(u64, Option<std::time::SystemTime>)>;
+        static KNOWN: std::sync::Mutex<std::collections::BTreeMap<PathBuf, (Stamp, BackupInfo)>> = std::sync::Mutex::new(std::collections::BTreeMap::new());
         let mut list = vec![];
         let Ok(rd) = fs::read_dir(self.root.join("backups")) else { return list };
         let mut known = KNOWN.lock().unwrap_or_else(|e| e.into_inner());
@@ -218,13 +220,19 @@ impl Store {
             let name = e.file_name().to_string_lossy().to_string();
             if !name.starts_with("backup-") || name.ends_with(".partial") || !p.join("COMPLETE").exists() { continue; }
             seen.insert(p.clone());
-            if let Some(info) = known.get(&p) { list.push(info.clone()); continue; }
+            let stamp: Stamp = fs::metadata(p.join("data.json")).ok().map(|m| (m.len(), m.modified().ok()));
+            if let Some((s, info)) = known.get(&p) && *s == stamp { list.push(info.clone()); continue; }
+            #[cfg(test)]
+            BACKUPS_READ.with(|n| n.set(n.get() + 1));
             let manifest: Option<Manifest> = fs::read(p.join("manifest.json")).ok().and_then(|b| serde_json::from_slice(&b).ok());
             let data: Option<Data> = fs::read(p.join("data.json")).ok().and_then(|b| serde_json::from_slice(&b).ok());
-            if let (Some(m), Some(d)) = (manifest, data) {
-                let info = BackupInfo { name, created: m.created, assets: m.assets.len(), songs: d.songs.len(), services: d.services.len() };
-                known.insert(p, info.clone());
-                list.push(info);
+            match (manifest, data) {
+                (Some(m), Some(d)) => {
+                    let info = BackupInfo { name, created: m.created, assets: m.assets.len(), songs: d.songs.len(), services: d.services.len() };
+                    known.insert(p, (stamp, info.clone()));
+                    list.push(info);
+                }
+                _ => { known.remove(&p); }
             }
         }
         // Forget backups of this folder that were pruned; other data folders (tests) keep theirs.
@@ -424,6 +432,12 @@ fn days_from_civil(y: i64, m: u32, d: u32) -> i64 {
 }
 
 #[cfg(test)]
+thread_local! {
+    /// How many backup folders `Store::backups` read from the disk on this thread (the rest came from memory).
+    static BACKUPS_READ: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
+#[cfg(test)]
 pub(crate) fn test_dir() -> PathBuf {
     let d = std::env::temp_dir().join(format!("rp-test-{}", uuid::Uuid::new_v4()));
     fs::create_dir_all(&d).unwrap();
@@ -548,8 +562,13 @@ mod tests {
         let name = store.backup(&data).unwrap();
         assert_eq!(store.backups()[0].songs, 1);
         // Listed again from memory: the folder's data is not read a second time.
-        fs::write(a.join("backups").join(&name).join("data.json"), b"not json").unwrap();
+        let read = BACKUPS_READ.with(|n| n.get());
         assert_eq!((store.backups().len(), store.backups()[0].songs), (1, 1));
+        assert_eq!(BACKUPS_READ.with(|n| n.get()), read, "nothing was read from the disk");
+        // P5: the folder replaced under the same name (copied in from another computer) is read again.
+        data.songs.push(Song { title: "Be Thou My Vision".into(), ..Song::default() });
+        fs::write(a.join("backups").join(&name).join("data.json"), serde_json::to_vec_pretty(&data).unwrap()).unwrap();
+        assert_eq!(store.backups()[0].songs, 2, "the new folder's counts");
         fs::remove_dir_all(a.join("backups").join(&name)).unwrap();
         assert!(store.backups().is_empty(), "a removed backup is no longer listed");
     }
