@@ -6383,6 +6383,122 @@ msgstr "Slaidi pamoja na mchoro wake"
 msgid "Select all"
 msgstr "Chagua zote"
 
+#: src/app/do_backups.rs
+msgid "Backup failed."
+msgstr "Nakala ya akiba imeshindwa."
+
+#: src/app/do_bible.rs
+msgid "Unknown Bible service."
+msgstr "Huduma ya Biblia isiyojulikana."
+
+#: src/app/do_media.rs
+msgid "That file is gone."
+msgstr "Faili hiyo haipo tena."
+
+#: src/app/do_media.rs
+msgid "Give the folder a name."
+msgstr "Ipe folda jina."
+
+#: src/app/do_media.rs
+msgid "This is in a service. Remove it from the service first."
+msgstr "Hiki kiko kwenye ibada. Kiondoe kwenye ibada kwanza."
+
+#: src/app/do_media.rs
+msgid "Bad request: unknown purpose {purpose}"
+msgstr "Ombi baya: lengo lisilojulikana {purpose}"
+
+#: src/app/do_media.rs
+msgid "Choose at least one picture."
+msgstr "Chagua angalau picha moja."
+
+#: src/app/do_media.rs
+msgid "A picture is missing. Try uploading again."
+msgstr "Picha moja haipo. Jaribu kupakia tena."
+
+#: src/app/do_media.rs src/app/do_service.rs src/scripture/actions.rs src/strings/themes.rs
+msgid "That item is gone."
+msgstr "Kipengele hicho hakipo tena."
+
+#: src/app/do_media.rs
+msgid "These slides are in a service. Remove them from the service first."
+msgstr "Slaidi hizi ziko kwenye ibada. Ziondoe kwenye ibada kwanza."
+
+#: src/app/do_screens.rs
+msgid "Unknown screen."
+msgstr "Skrini isiyojulikana."
+
+#: src/app/do_screens.rs
+msgid "Pick an output for this screen first."
+msgstr "Chagua onyesho la skrini hii kwanza."
+
+#: src/app/do_screens.rs
+msgid "Add a screen first."
+msgstr "Ongeza skrini kwanza."
+
+#: src/app/do_screens.rs
+msgid "Audience screen {number}"
+msgstr "Skrini ya ukumbi {number}"
+
+#: src/app/do_screens.rs
+msgid "Stage screen {number}"
+msgstr "Skrini ya jukwaa {number}"
+
+#: src/app/do_screens.rs
+msgid "That screen is gone."
+msgstr "Skrini hiyo haipo tena."
+
+#: src/app/do_screens.rs
+msgid "Each list keeps at least one screen."
+msgstr "Kila orodha huwa na angalau skrini moja."
+
+#: src/app/do_service.rs src/import/pptx_design.rs src/transfer.rs
+msgid "No service is open."
+msgstr "Hakuna ibada iliyofunguliwa."
+
+#: src/app/do_service.rs src/app.rs src/automation/actions.rs src/automation/calendar.rs src/automation/music.rs src/media_care.rs src/scripture/actions.rs src/theme/actions.rs src/transfer.rs
+msgid "Bad request: {error}"
+msgstr "Ombi baya: {error}"
+
+#: src/app/do_service.rs src/strings/settings.rs
+msgid "New service"
+msgstr "Ibada mpya"
+
+#: src/app/do_service.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
+msgid "That service is gone."
+msgstr "Ibada hiyo haipo tena."
+
+#: src/app/do_service.rs
+msgid "You need at least one service."
+msgstr "Unahitaji angalau ibada moja."
+
+#: src/app/do_settings.rs
+msgid "Choose a whole folder path."
+msgstr "Chagua njia kamili ya folda."
+
+#: src/app/do_settings.rs src/strings/scripture.rs
+msgid "Unknown translation."
+msgstr "Tafsiri isiyojulikana."
+
+#: src/app/do_settings.rs
+msgid "Unknown language."
+msgstr "Lugha isiyojulikana."
+
+#: src/app/do_settings.rs
+msgid "Language changed"
+msgstr "Lugha imebadilishwa"
+
+#: src/app/do_songs.rs src/songselect.rs
+msgid "Give the song a title."
+msgstr "Upe wimbo kichwa."
+
+#: src/app/do_songs.rs src/song_edit/actions.rs
+msgid "That song is not in the library any more."
+msgstr "Wimbo huo haupo tena kwenye maktaba."
+
+#: src/app/do_songs.rs
+msgid "This song is in a service. Remove it from the service first."
+msgstr "Wimbo huu uko kwenye ibada. Uondoe kwenye ibada kwanza."
+
 #: src/app.rs
 msgid "No sound input to record. Choose one in Settings → Auto-follow."
 msgstr "Hakuna ingizo la sauti la kurekodi. Chagua moja kwenye Mipangilio → Ufuatiliaji wa kiotomatiki."
@@ -6434,122 +6550,6 @@ msgstr "{name} — imejengwa ndani, haina hakimiliki"
 #: src/app.rs
 msgid "{name} — imported file"
 msgstr "{name} — faili iliyoletwa"
-
-#: src/app.rs src/songselect.rs
-msgid "Give the song a title."
-msgstr "Upe wimbo kichwa."
-
-#: src/app.rs src/song_edit/actions.rs
-msgid "That song is not in the library any more."
-msgstr "Wimbo huo haupo tena kwenye maktaba."
-
-#: src/app.rs
-msgid "This song is in a service. Remove it from the service first."
-msgstr "Wimbo huu uko kwenye ibada. Uondoe kwenye ibada kwanza."
-
-#: src/app.rs src/import/pptx_design.rs src/transfer.rs
-msgid "No service is open."
-msgstr "Hakuna ibada iliyofunguliwa."
-
-#: src/app.rs src/automation/actions.rs src/automation/calendar.rs src/automation/music.rs src/media_care.rs src/scripture/actions.rs src/theme/actions.rs src/transfer.rs
-msgid "Bad request: {error}"
-msgstr "Ombi baya: {error}"
-
-#: src/app.rs src/scripture/actions.rs src/strings/themes.rs
-msgid "That item is gone."
-msgstr "Kipengele hicho hakipo tena."
-
-#: src/app.rs src/strings/settings.rs
-msgid "New service"
-msgstr "Ibada mpya"
-
-#: src/app.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
-msgid "That service is gone."
-msgstr "Ibada hiyo haipo tena."
-
-#: src/app.rs
-msgid "You need at least one service."
-msgstr "Unahitaji angalau ibada moja."
-
-#: src/app.rs
-msgid "Unknown Bible service."
-msgstr "Huduma ya Biblia isiyojulikana."
-
-#: src/app.rs
-msgid "That file is gone."
-msgstr "Faili hiyo haipo tena."
-
-#: src/app.rs
-msgid "Give the folder a name."
-msgstr "Ipe folda jina."
-
-#: src/app.rs
-msgid "This is in a service. Remove it from the service first."
-msgstr "Hiki kiko kwenye ibada. Kiondoe kwenye ibada kwanza."
-
-#: src/app.rs
-msgid "Bad request: unknown purpose {purpose}"
-msgstr "Ombi baya: lengo lisilojulikana {purpose}"
-
-#: src/app.rs
-msgid "Choose at least one picture."
-msgstr "Chagua angalau picha moja."
-
-#: src/app.rs
-msgid "A picture is missing. Try uploading again."
-msgstr "Picha moja haipo. Jaribu kupakia tena."
-
-#: src/app.rs
-msgid "These slides are in a service. Remove them from the service first."
-msgstr "Slaidi hizi ziko kwenye ibada. Ziondoe kwenye ibada kwanza."
-
-#: src/app.rs
-msgid "Choose a whole folder path."
-msgstr "Chagua njia kamili ya folda."
-
-#: src/app.rs src/strings/scripture.rs
-msgid "Unknown translation."
-msgstr "Tafsiri isiyojulikana."
-
-#: src/app.rs
-msgid "Unknown language."
-msgstr "Lugha isiyojulikana."
-
-#: src/app.rs
-msgid "Language changed"
-msgstr "Lugha imebadilishwa"
-
-#: src/app.rs
-msgid "Unknown screen."
-msgstr "Skrini isiyojulikana."
-
-#: src/app.rs
-msgid "Pick an output for this screen first."
-msgstr "Chagua onyesho la skrini hii kwanza."
-
-#: src/app.rs
-msgid "Add a screen first."
-msgstr "Ongeza skrini kwanza."
-
-#: src/app.rs
-msgid "Audience screen {number}"
-msgstr "Skrini ya ukumbi {number}"
-
-#: src/app.rs
-msgid "Stage screen {number}"
-msgstr "Skrini ya jukwaa {number}"
-
-#: src/app.rs
-msgid "That screen is gone."
-msgstr "Skrini hiyo haipo tena."
-
-#: src/app.rs
-msgid "Each list keeps at least one screen."
-msgstr "Kila orodha huwa na angalau skrini moja."
-
-#: src/app.rs
-msgid "Backup failed."
-msgstr "Nakala ya akiba imeshindwa."
 
 #: src/app.rs src/import/media.rs
 msgid "Could not save the file (disk full?)."

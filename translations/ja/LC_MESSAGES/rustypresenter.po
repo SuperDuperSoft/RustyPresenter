@@ -6383,6 +6383,122 @@ msgstr "書き込み付きのスライド"
 msgid "Select all"
 msgstr "すべて選択"
 
+#: src/app/do_backups.rs
+msgid "Backup failed."
+msgstr "バックアップに失敗しました。"
+
+#: src/app/do_bible.rs
+msgid "Unknown Bible service."
+msgstr "不明な聖書サービスです。"
+
+#: src/app/do_media.rs
+msgid "That file is gone."
+msgstr "そのファイルはもうありません。"
+
+#: src/app/do_media.rs
+msgid "Give the folder a name."
+msgstr "フォルダーに名前を付けてください。"
+
+#: src/app/do_media.rs
+msgid "This is in a service. Remove it from the service first."
+msgstr "これは礼拝で使われています。先に礼拝から削除してください。"
+
+#: src/app/do_media.rs
+msgid "Bad request: unknown purpose {purpose}"
+msgstr "不正なリクエスト: 不明な用途 {purpose}"
+
+#: src/app/do_media.rs
+msgid "Choose at least one picture."
+msgstr "画像を1枚以上選んでください。"
+
+#: src/app/do_media.rs
+msgid "A picture is missing. Try uploading again."
+msgstr "画像が見つかりません。もう一度アップロードしてください。"
+
+#: src/app/do_media.rs src/app/do_service.rs src/scripture/actions.rs src/strings/themes.rs
+msgid "That item is gone."
+msgstr "その項目はもうありません。"
+
+#: src/app/do_media.rs
+msgid "These slides are in a service. Remove them from the service first."
+msgstr "これらのスライドは礼拝で使われています。先に礼拝から削除してください。"
+
+#: src/app/do_screens.rs
+msgid "Unknown screen."
+msgstr "不明な画面です。"
+
+#: src/app/do_screens.rs
+msgid "Pick an output for this screen first."
+msgstr "先にこの画面の出力先を選んでください。"
+
+#: src/app/do_screens.rs
+msgid "Add a screen first."
+msgstr "先に画面を追加してください。"
+
+#: src/app/do_screens.rs
+msgid "Audience screen {number}"
+msgstr "会場画面 {number}"
+
+#: src/app/do_screens.rs
+msgid "Stage screen {number}"
+msgstr "ステージ画面 {number}"
+
+#: src/app/do_screens.rs
+msgid "That screen is gone."
+msgstr "その画面はもうありません。"
+
+#: src/app/do_screens.rs
+msgid "Each list keeps at least one screen."
+msgstr "各リストには少なくとも1つの画面が必要です。"
+
+#: src/app/do_service.rs src/import/pptx_design.rs src/transfer.rs
+msgid "No service is open."
+msgstr "開いている礼拝がありません。"
+
+#: src/app/do_service.rs src/app.rs src/automation/actions.rs src/automation/calendar.rs src/automation/music.rs src/media_care.rs src/scripture/actions.rs src/theme/actions.rs src/transfer.rs
+msgid "Bad request: {error}"
+msgstr "不正なリクエスト: {error}"
+
+#: src/app/do_service.rs src/strings/settings.rs
+msgid "New service"
+msgstr "新しい礼拝"
+
+#: src/app/do_service.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
+msgid "That service is gone."
+msgstr "その礼拝はもうありません。"
+
+#: src/app/do_service.rs
+msgid "You need at least one service."
+msgstr "礼拝が少なくとも1つ必要です。"
+
+#: src/app/do_settings.rs
+msgid "Choose a whole folder path."
+msgstr "フォルダーのフルパスを選んでください。"
+
+#: src/app/do_settings.rs src/strings/scripture.rs
+msgid "Unknown translation."
+msgstr "不明な翻訳です。"
+
+#: src/app/do_settings.rs
+msgid "Unknown language."
+msgstr "不明な言語です。"
+
+#: src/app/do_settings.rs
+msgid "Language changed"
+msgstr "言語を変更しました"
+
+#: src/app/do_songs.rs src/songselect.rs
+msgid "Give the song a title."
+msgstr "曲にタイトルを付けてください。"
+
+#: src/app/do_songs.rs src/song_edit/actions.rs
+msgid "That song is not in the library any more."
+msgstr "その曲はもうライブラリにありません。"
+
+#: src/app/do_songs.rs
+msgid "This song is in a service. Remove it from the service first."
+msgstr "この曲は礼拝で使われています。先に礼拝から削除してください。"
+
 #: src/app.rs
 msgid "No sound input to record. Choose one in Settings → Auto-follow."
 msgstr "録音できる音声入力がありません。設定 → 自動追従で選んでください。"
@@ -6434,122 +6550,6 @@ msgstr "{name} — 内蔵、パブリックドメイン"
 #: src/app.rs
 msgid "{name} — imported file"
 msgstr "{name} — 取り込んだファイル"
-
-#: src/app.rs src/songselect.rs
-msgid "Give the song a title."
-msgstr "曲にタイトルを付けてください。"
-
-#: src/app.rs src/song_edit/actions.rs
-msgid "That song is not in the library any more."
-msgstr "その曲はもうライブラリにありません。"
-
-#: src/app.rs
-msgid "This song is in a service. Remove it from the service first."
-msgstr "この曲は礼拝で使われています。先に礼拝から削除してください。"
-
-#: src/app.rs src/import/pptx_design.rs src/transfer.rs
-msgid "No service is open."
-msgstr "開いている礼拝がありません。"
-
-#: src/app.rs src/automation/actions.rs src/automation/calendar.rs src/automation/music.rs src/media_care.rs src/scripture/actions.rs src/theme/actions.rs src/transfer.rs
-msgid "Bad request: {error}"
-msgstr "不正なリクエスト: {error}"
-
-#: src/app.rs src/scripture/actions.rs src/strings/themes.rs
-msgid "That item is gone."
-msgstr "その項目はもうありません。"
-
-#: src/app.rs src/strings/settings.rs
-msgid "New service"
-msgstr "新しい礼拝"
-
-#: src/app.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
-msgid "That service is gone."
-msgstr "その礼拝はもうありません。"
-
-#: src/app.rs
-msgid "You need at least one service."
-msgstr "礼拝が少なくとも1つ必要です。"
-
-#: src/app.rs
-msgid "Unknown Bible service."
-msgstr "不明な聖書サービスです。"
-
-#: src/app.rs
-msgid "That file is gone."
-msgstr "そのファイルはもうありません。"
-
-#: src/app.rs
-msgid "Give the folder a name."
-msgstr "フォルダーに名前を付けてください。"
-
-#: src/app.rs
-msgid "This is in a service. Remove it from the service first."
-msgstr "これは礼拝で使われています。先に礼拝から削除してください。"
-
-#: src/app.rs
-msgid "Bad request: unknown purpose {purpose}"
-msgstr "不正なリクエスト: 不明な用途 {purpose}"
-
-#: src/app.rs
-msgid "Choose at least one picture."
-msgstr "画像を1枚以上選んでください。"
-
-#: src/app.rs
-msgid "A picture is missing. Try uploading again."
-msgstr "画像が見つかりません。もう一度アップロードしてください。"
-
-#: src/app.rs
-msgid "These slides are in a service. Remove them from the service first."
-msgstr "これらのスライドは礼拝で使われています。先に礼拝から削除してください。"
-
-#: src/app.rs
-msgid "Choose a whole folder path."
-msgstr "フォルダーのフルパスを選んでください。"
-
-#: src/app.rs src/strings/scripture.rs
-msgid "Unknown translation."
-msgstr "不明な翻訳です。"
-
-#: src/app.rs
-msgid "Unknown language."
-msgstr "不明な言語です。"
-
-#: src/app.rs
-msgid "Language changed"
-msgstr "言語を変更しました"
-
-#: src/app.rs
-msgid "Unknown screen."
-msgstr "不明な画面です。"
-
-#: src/app.rs
-msgid "Pick an output for this screen first."
-msgstr "先にこの画面の出力先を選んでください。"
-
-#: src/app.rs
-msgid "Add a screen first."
-msgstr "先に画面を追加してください。"
-
-#: src/app.rs
-msgid "Audience screen {number}"
-msgstr "会場画面 {number}"
-
-#: src/app.rs
-msgid "Stage screen {number}"
-msgstr "ステージ画面 {number}"
-
-#: src/app.rs
-msgid "That screen is gone."
-msgstr "その画面はもうありません。"
-
-#: src/app.rs
-msgid "Each list keeps at least one screen."
-msgstr "各リストには少なくとも1つの画面が必要です。"
-
-#: src/app.rs
-msgid "Backup failed."
-msgstr "バックアップに失敗しました。"
 
 #: src/app.rs src/import/media.rs
 msgid "Could not save the file (disk full?)."

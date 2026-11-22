@@ -6374,6 +6374,122 @@ msgstr ""
 msgid "Select all"
 msgstr ""
 
+#: src/app/do_backups.rs
+msgid "Backup failed."
+msgstr ""
+
+#: src/app/do_bible.rs
+msgid "Unknown Bible service."
+msgstr ""
+
+#: src/app/do_media.rs
+msgid "That file is gone."
+msgstr ""
+
+#: src/app/do_media.rs
+msgid "Give the folder a name."
+msgstr ""
+
+#: src/app/do_media.rs
+msgid "This is in a service. Remove it from the service first."
+msgstr ""
+
+#: src/app/do_media.rs
+msgid "Bad request: unknown purpose {purpose}"
+msgstr ""
+
+#: src/app/do_media.rs
+msgid "Choose at least one picture."
+msgstr ""
+
+#: src/app/do_media.rs
+msgid "A picture is missing. Try uploading again."
+msgstr ""
+
+#: src/app/do_media.rs src/app/do_service.rs src/scripture/actions.rs src/strings/themes.rs
+msgid "That item is gone."
+msgstr ""
+
+#: src/app/do_media.rs
+msgid "These slides are in a service. Remove them from the service first."
+msgstr ""
+
+#: src/app/do_screens.rs
+msgid "Unknown screen."
+msgstr ""
+
+#: src/app/do_screens.rs
+msgid "Pick an output for this screen first."
+msgstr ""
+
+#: src/app/do_screens.rs
+msgid "Add a screen first."
+msgstr ""
+
+#: src/app/do_screens.rs
+msgid "Audience screen {number}"
+msgstr ""
+
+#: src/app/do_screens.rs
+msgid "Stage screen {number}"
+msgstr ""
+
+#: src/app/do_screens.rs
+msgid "That screen is gone."
+msgstr ""
+
+#: src/app/do_screens.rs
+msgid "Each list keeps at least one screen."
+msgstr ""
+
+#: src/app/do_service.rs src/import/pptx_design.rs src/transfer.rs
+msgid "No service is open."
+msgstr ""
+
+#: src/app/do_service.rs src/app.rs src/automation/actions.rs src/automation/calendar.rs src/automation/music.rs src/media_care.rs src/scripture/actions.rs src/theme/actions.rs src/transfer.rs
+msgid "Bad request: {error}"
+msgstr ""
+
+#: src/app/do_service.rs src/strings/settings.rs
+msgid "New service"
+msgstr ""
+
+#: src/app/do_service.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
+msgid "That service is gone."
+msgstr ""
+
+#: src/app/do_service.rs
+msgid "You need at least one service."
+msgstr ""
+
+#: src/app/do_settings.rs
+msgid "Choose a whole folder path."
+msgstr ""
+
+#: src/app/do_settings.rs src/strings/scripture.rs
+msgid "Unknown translation."
+msgstr ""
+
+#: src/app/do_settings.rs
+msgid "Unknown language."
+msgstr ""
+
+#: src/app/do_settings.rs
+msgid "Language changed"
+msgstr ""
+
+#: src/app/do_songs.rs src/songselect.rs
+msgid "Give the song a title."
+msgstr ""
+
+#: src/app/do_songs.rs src/song_edit/actions.rs
+msgid "That song is not in the library any more."
+msgstr ""
+
+#: src/app/do_songs.rs
+msgid "This song is in a service. Remove it from the service first."
+msgstr ""
+
 #: src/app.rs
 msgid "No sound input to record. Choose one in Settings → Auto-follow."
 msgstr ""
@@ -6424,122 +6540,6 @@ msgstr ""
 
 #: src/app.rs
 msgid "{name} — imported file"
-msgstr ""
-
-#: src/app.rs src/songselect.rs
-msgid "Give the song a title."
-msgstr ""
-
-#: src/app.rs src/song_edit/actions.rs
-msgid "That song is not in the library any more."
-msgstr ""
-
-#: src/app.rs
-msgid "This song is in a service. Remove it from the service first."
-msgstr ""
-
-#: src/app.rs src/import/pptx_design.rs src/transfer.rs
-msgid "No service is open."
-msgstr ""
-
-#: src/app.rs src/automation/actions.rs src/automation/calendar.rs src/automation/music.rs src/media_care.rs src/scripture/actions.rs src/theme/actions.rs src/transfer.rs
-msgid "Bad request: {error}"
-msgstr ""
-
-#: src/app.rs src/scripture/actions.rs src/strings/themes.rs
-msgid "That item is gone."
-msgstr ""
-
-#: src/app.rs src/strings/settings.rs
-msgid "New service"
-msgstr ""
-
-#: src/app.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
-msgid "That service is gone."
-msgstr ""
-
-#: src/app.rs
-msgid "You need at least one service."
-msgstr ""
-
-#: src/app.rs
-msgid "Unknown Bible service."
-msgstr ""
-
-#: src/app.rs
-msgid "That file is gone."
-msgstr ""
-
-#: src/app.rs
-msgid "Give the folder a name."
-msgstr ""
-
-#: src/app.rs
-msgid "This is in a service. Remove it from the service first."
-msgstr ""
-
-#: src/app.rs
-msgid "Bad request: unknown purpose {purpose}"
-msgstr ""
-
-#: src/app.rs
-msgid "Choose at least one picture."
-msgstr ""
-
-#: src/app.rs
-msgid "A picture is missing. Try uploading again."
-msgstr ""
-
-#: src/app.rs
-msgid "These slides are in a service. Remove them from the service first."
-msgstr ""
-
-#: src/app.rs
-msgid "Choose a whole folder path."
-msgstr ""
-
-#: src/app.rs src/strings/scripture.rs
-msgid "Unknown translation."
-msgstr ""
-
-#: src/app.rs
-msgid "Unknown language."
-msgstr ""
-
-#: src/app.rs
-msgid "Language changed"
-msgstr ""
-
-#: src/app.rs
-msgid "Unknown screen."
-msgstr ""
-
-#: src/app.rs
-msgid "Pick an output for this screen first."
-msgstr ""
-
-#: src/app.rs
-msgid "Add a screen first."
-msgstr ""
-
-#: src/app.rs
-msgid "Audience screen {number}"
-msgstr ""
-
-#: src/app.rs
-msgid "Stage screen {number}"
-msgstr ""
-
-#: src/app.rs
-msgid "That screen is gone."
-msgstr ""
-
-#: src/app.rs
-msgid "Each list keeps at least one screen."
-msgstr ""
-
-#: src/app.rs
-msgid "Backup failed."
 msgstr ""
 
 #: src/app.rs src/import/media.rs

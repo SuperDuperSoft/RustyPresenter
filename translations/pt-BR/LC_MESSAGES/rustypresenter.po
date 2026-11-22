@@ -6383,6 +6383,122 @@ msgstr "O slide com o desenho"
 msgid "Select all"
 msgstr "Selecionar tudo"
 
+#: src/app/do_backups.rs
+msgid "Backup failed."
+msgstr "O backup falhou."
+
+#: src/app/do_bible.rs
+msgid "Unknown Bible service."
+msgstr "Serviço de Bíblia desconhecido."
+
+#: src/app/do_media.rs
+msgid "That file is gone."
+msgstr "Esse arquivo não existe mais."
+
+#: src/app/do_media.rs
+msgid "Give the folder a name."
+msgstr "Dê um nome à pasta."
+
+#: src/app/do_media.rs
+msgid "This is in a service. Remove it from the service first."
+msgstr "Isto está em um culto. Remova do culto primeiro."
+
+#: src/app/do_media.rs
+msgid "Bad request: unknown purpose {purpose}"
+msgstr "Solicitação inválida: finalidade desconhecida {purpose}"
+
+#: src/app/do_media.rs
+msgid "Choose at least one picture."
+msgstr "Escolha pelo menos uma imagem."
+
+#: src/app/do_media.rs
+msgid "A picture is missing. Try uploading again."
+msgstr "Falta uma imagem. Tente enviar de novo."
+
+#: src/app/do_media.rs src/app/do_service.rs src/scripture/actions.rs src/strings/themes.rs
+msgid "That item is gone."
+msgstr "Esse item não existe mais."
+
+#: src/app/do_media.rs
+msgid "These slides are in a service. Remove them from the service first."
+msgstr "Estes slides estão em um culto. Remova-os do culto primeiro."
+
+#: src/app/do_screens.rs
+msgid "Unknown screen."
+msgstr "Tela desconhecida."
+
+#: src/app/do_screens.rs
+msgid "Pick an output for this screen first."
+msgstr "Escolha uma saída para esta tela primeiro."
+
+#: src/app/do_screens.rs
+msgid "Add a screen first."
+msgstr "Adicione uma tela primeiro."
+
+#: src/app/do_screens.rs
+msgid "Audience screen {number}"
+msgstr "Tela do salão {number}"
+
+#: src/app/do_screens.rs
+msgid "Stage screen {number}"
+msgstr "Tela do palco {number}"
+
+#: src/app/do_screens.rs
+msgid "That screen is gone."
+msgstr "Essa tela não existe mais."
+
+#: src/app/do_screens.rs
+msgid "Each list keeps at least one screen."
+msgstr "Cada lista mantém pelo menos uma tela."
+
+#: src/app/do_service.rs src/import/pptx_design.rs src/transfer.rs
+msgid "No service is open."
+msgstr "Nenhum culto está aberto."
+
+#: src/app/do_service.rs src/app.rs src/automation/actions.rs src/automation/calendar.rs src/automation/music.rs src/media_care.rs src/scripture/actions.rs src/theme/actions.rs src/transfer.rs
+msgid "Bad request: {error}"
+msgstr "Solicitação inválida: {error}"
+
+#: src/app/do_service.rs src/strings/settings.rs
+msgid "New service"
+msgstr "Novo culto"
+
+#: src/app/do_service.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
+msgid "That service is gone."
+msgstr "Esse culto não existe mais."
+
+#: src/app/do_service.rs
+msgid "You need at least one service."
+msgstr "Você precisa de pelo menos um culto."
+
+#: src/app/do_settings.rs
+msgid "Choose a whole folder path."
+msgstr "Escolha o caminho completo de uma pasta."
+
+#: src/app/do_settings.rs src/strings/scripture.rs
+msgid "Unknown translation."
+msgstr "Tradução desconhecida."
+
+#: src/app/do_settings.rs
+msgid "Unknown language."
+msgstr "Idioma desconhecido."
+
+#: src/app/do_settings.rs
+msgid "Language changed"
+msgstr "Idioma alterado"
+
+#: src/app/do_songs.rs src/songselect.rs
+msgid "Give the song a title."
+msgstr "Dê um título à música."
+
+#: src/app/do_songs.rs src/song_edit/actions.rs
+msgid "That song is not in the library any more."
+msgstr "Essa música não está mais na biblioteca."
+
+#: src/app/do_songs.rs
+msgid "This song is in a service. Remove it from the service first."
+msgstr "Esta música está em um culto. Remova-a do culto primeiro."
+
 #: src/app.rs
 msgid "No sound input to record. Choose one in Settings → Auto-follow."
 msgstr "Nenhuma entrada de som para gravar. Escolha uma em Configurações → Acompanhamento automático."
@@ -6434,122 +6550,6 @@ msgstr "{name} — incluída, domínio público"
 #: src/app.rs
 msgid "{name} — imported file"
 msgstr "{name} — arquivo importado"
-
-#: src/app.rs src/songselect.rs
-msgid "Give the song a title."
-msgstr "Dê um título à música."
-
-#: src/app.rs src/song_edit/actions.rs
-msgid "That song is not in the library any more."
-msgstr "Essa música não está mais na biblioteca."
-
-#: src/app.rs
-msgid "This song is in a service. Remove it from the service first."
-msgstr "Esta música está em um culto. Remova-a do culto primeiro."
-
-#: src/app.rs src/import/pptx_design.rs src/transfer.rs
-msgid "No service is open."
-msgstr "Nenhum culto está aberto."
-
-#: src/app.rs src/automation/actions.rs src/automation/calendar.rs src/automation/music.rs src/media_care.rs src/scripture/actions.rs src/theme/actions.rs src/transfer.rs
-msgid "Bad request: {error}"
-msgstr "Solicitação inválida: {error}"
-
-#: src/app.rs src/scripture/actions.rs src/strings/themes.rs
-msgid "That item is gone."
-msgstr "Esse item não existe mais."
-
-#: src/app.rs src/strings/settings.rs
-msgid "New service"
-msgstr "Novo culto"
-
-#: src/app.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
-msgid "That service is gone."
-msgstr "Esse culto não existe mais."
-
-#: src/app.rs
-msgid "You need at least one service."
-msgstr "Você precisa de pelo menos um culto."
-
-#: src/app.rs
-msgid "Unknown Bible service."
-msgstr "Serviço de Bíblia desconhecido."
-
-#: src/app.rs
-msgid "That file is gone."
-msgstr "Esse arquivo não existe mais."
-
-#: src/app.rs
-msgid "Give the folder a name."
-msgstr "Dê um nome à pasta."
-
-#: src/app.rs
-msgid "This is in a service. Remove it from the service first."
-msgstr "Isto está em um culto. Remova do culto primeiro."
-
-#: src/app.rs
-msgid "Bad request: unknown purpose {purpose}"
-msgstr "Solicitação inválida: finalidade desconhecida {purpose}"
-
-#: src/app.rs
-msgid "Choose at least one picture."
-msgstr "Escolha pelo menos uma imagem."
-
-#: src/app.rs
-msgid "A picture is missing. Try uploading again."
-msgstr "Falta uma imagem. Tente enviar de novo."
-
-#: src/app.rs
-msgid "These slides are in a service. Remove them from the service first."
-msgstr "Estes slides estão em um culto. Remova-os do culto primeiro."
-
-#: src/app.rs
-msgid "Choose a whole folder path."
-msgstr "Escolha o caminho completo de uma pasta."
-
-#: src/app.rs src/strings/scripture.rs
-msgid "Unknown translation."
-msgstr "Tradução desconhecida."
-
-#: src/app.rs
-msgid "Unknown language."
-msgstr "Idioma desconhecido."
-
-#: src/app.rs
-msgid "Language changed"
-msgstr "Idioma alterado"
-
-#: src/app.rs
-msgid "Unknown screen."
-msgstr "Tela desconhecida."
-
-#: src/app.rs
-msgid "Pick an output for this screen first."
-msgstr "Escolha uma saída para esta tela primeiro."
-
-#: src/app.rs
-msgid "Add a screen first."
-msgstr "Adicione uma tela primeiro."
-
-#: src/app.rs
-msgid "Audience screen {number}"
-msgstr "Tela do salão {number}"
-
-#: src/app.rs
-msgid "Stage screen {number}"
-msgstr "Tela do palco {number}"
-
-#: src/app.rs
-msgid "That screen is gone."
-msgstr "Essa tela não existe mais."
-
-#: src/app.rs
-msgid "Each list keeps at least one screen."
-msgstr "Cada lista mantém pelo menos uma tela."
-
-#: src/app.rs
-msgid "Backup failed."
-msgstr "O backup falhou."
 
 #: src/app.rs src/import/media.rs
 msgid "Could not save the file (disk full?)."

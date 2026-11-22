@@ -6383,6 +6383,122 @@ msgstr "幻灯片及其绘图"
 msgid "Select all"
 msgstr "全选"
 
+#: src/app/do_backups.rs
+msgid "Backup failed."
+msgstr "备份失败。"
+
+#: src/app/do_bible.rs
+msgid "Unknown Bible service."
+msgstr "未知的圣经服务。"
+
+#: src/app/do_media.rs
+msgid "That file is gone."
+msgstr "该文件已不存在。"
+
+#: src/app/do_media.rs
+msgid "Give the folder a name."
+msgstr "请为文件夹命名。"
+
+#: src/app/do_media.rs
+msgid "This is in a service. Remove it from the service first."
+msgstr "此项在某个聚会中。请先将其从聚会中移除。"
+
+#: src/app/do_media.rs
+msgid "Bad request: unknown purpose {purpose}"
+msgstr "请求无效：未知用途 {purpose}"
+
+#: src/app/do_media.rs
+msgid "Choose at least one picture."
+msgstr "请至少选择一张图片。"
+
+#: src/app/do_media.rs
+msgid "A picture is missing. Try uploading again."
+msgstr "缺少一张图片。请重新上传。"
+
+#: src/app/do_media.rs src/app/do_service.rs src/scripture/actions.rs src/strings/themes.rs
+msgid "That item is gone."
+msgstr "该项目已不存在。"
+
+#: src/app/do_media.rs
+msgid "These slides are in a service. Remove them from the service first."
+msgstr "这些幻灯片在某个聚会中。请先将其从聚会中移除。"
+
+#: src/app/do_screens.rs
+msgid "Unknown screen."
+msgstr "未知屏幕。"
+
+#: src/app/do_screens.rs
+msgid "Pick an output for this screen first."
+msgstr "请先为此屏幕选择输出。"
+
+#: src/app/do_screens.rs
+msgid "Add a screen first."
+msgstr "请先添加屏幕。"
+
+#: src/app/do_screens.rs
+msgid "Audience screen {number}"
+msgstr "会众屏幕 {number}"
+
+#: src/app/do_screens.rs
+msgid "Stage screen {number}"
+msgstr "舞台屏幕 {number}"
+
+#: src/app/do_screens.rs
+msgid "That screen is gone."
+msgstr "该屏幕已不存在。"
+
+#: src/app/do_screens.rs
+msgid "Each list keeps at least one screen."
+msgstr "每个列表至少保留一个屏幕。"
+
+#: src/app/do_service.rs src/import/pptx_design.rs src/transfer.rs
+msgid "No service is open."
+msgstr "没有打开的聚会。"
+
+#: src/app/do_service.rs src/app.rs src/automation/actions.rs src/automation/calendar.rs src/automation/music.rs src/media_care.rs src/scripture/actions.rs src/theme/actions.rs src/transfer.rs
+msgid "Bad request: {error}"
+msgstr "请求无效：{error}"
+
+#: src/app/do_service.rs src/strings/settings.rs
+msgid "New service"
+msgstr "新建聚会"
+
+#: src/app/do_service.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
+msgid "That service is gone."
+msgstr "该聚会已不存在。"
+
+#: src/app/do_service.rs
+msgid "You need at least one service."
+msgstr "至少需要一个聚会。"
+
+#: src/app/do_settings.rs
+msgid "Choose a whole folder path."
+msgstr "请选择文件夹的完整路径。"
+
+#: src/app/do_settings.rs src/strings/scripture.rs
+msgid "Unknown translation."
+msgstr "未知译本。"
+
+#: src/app/do_settings.rs
+msgid "Unknown language."
+msgstr "未知语言。"
+
+#: src/app/do_settings.rs
+msgid "Language changed"
+msgstr "语言已更改"
+
+#: src/app/do_songs.rs src/songselect.rs
+msgid "Give the song a title."
+msgstr "请为诗歌输入标题。"
+
+#: src/app/do_songs.rs src/song_edit/actions.rs
+msgid "That song is not in the library any more."
+msgstr "那首诗歌已不在曲库中。"
+
+#: src/app/do_songs.rs
+msgid "This song is in a service. Remove it from the service first."
+msgstr "这首诗歌在某个聚会中。请先将其从聚会中移除。"
+
 #: src/app.rs
 msgid "No sound input to record. Choose one in Settings → Auto-follow."
 msgstr "没有可录制的声音输入。请在 设置 → 自动跟随 中选择。"
@@ -6434,122 +6550,6 @@ msgstr "{name} — 内置，公有领域"
 #: src/app.rs
 msgid "{name} — imported file"
 msgstr "{name} — 导入的文件"
-
-#: src/app.rs src/songselect.rs
-msgid "Give the song a title."
-msgstr "请为诗歌输入标题。"
-
-#: src/app.rs src/song_edit/actions.rs
-msgid "That song is not in the library any more."
-msgstr "那首诗歌已不在曲库中。"
-
-#: src/app.rs
-msgid "This song is in a service. Remove it from the service first."
-msgstr "这首诗歌在某个聚会中。请先将其从聚会中移除。"
-
-#: src/app.rs src/import/pptx_design.rs src/transfer.rs
-msgid "No service is open."
-msgstr "没有打开的聚会。"
-
-#: src/app.rs src/automation/actions.rs src/automation/calendar.rs src/automation/music.rs src/media_care.rs src/scripture/actions.rs src/theme/actions.rs src/transfer.rs
-msgid "Bad request: {error}"
-msgstr "请求无效：{error}"
-
-#: src/app.rs src/scripture/actions.rs src/strings/themes.rs
-msgid "That item is gone."
-msgstr "该项目已不存在。"
-
-#: src/app.rs src/strings/settings.rs
-msgid "New service"
-msgstr "新建聚会"
-
-#: src/app.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
-msgid "That service is gone."
-msgstr "该聚会已不存在。"
-
-#: src/app.rs
-msgid "You need at least one service."
-msgstr "至少需要一个聚会。"
-
-#: src/app.rs
-msgid "Unknown Bible service."
-msgstr "未知的圣经服务。"
-
-#: src/app.rs
-msgid "That file is gone."
-msgstr "该文件已不存在。"
-
-#: src/app.rs
-msgid "Give the folder a name."
-msgstr "请为文件夹命名。"
-
-#: src/app.rs
-msgid "This is in a service. Remove it from the service first."
-msgstr "此项在某个聚会中。请先将其从聚会中移除。"
-
-#: src/app.rs
-msgid "Bad request: unknown purpose {purpose}"
-msgstr "请求无效：未知用途 {purpose}"
-
-#: src/app.rs
-msgid "Choose at least one picture."
-msgstr "请至少选择一张图片。"
-
-#: src/app.rs
-msgid "A picture is missing. Try uploading again."
-msgstr "缺少一张图片。请重新上传。"
-
-#: src/app.rs
-msgid "These slides are in a service. Remove them from the service first."
-msgstr "这些幻灯片在某个聚会中。请先将其从聚会中移除。"
-
-#: src/app.rs
-msgid "Choose a whole folder path."
-msgstr "请选择文件夹的完整路径。"
-
-#: src/app.rs src/strings/scripture.rs
-msgid "Unknown translation."
-msgstr "未知译本。"
-
-#: src/app.rs
-msgid "Unknown language."
-msgstr "未知语言。"
-
-#: src/app.rs
-msgid "Language changed"
-msgstr "语言已更改"
-
-#: src/app.rs
-msgid "Unknown screen."
-msgstr "未知屏幕。"
-
-#: src/app.rs
-msgid "Pick an output for this screen first."
-msgstr "请先为此屏幕选择输出。"
-
-#: src/app.rs
-msgid "Add a screen first."
-msgstr "请先添加屏幕。"
-
-#: src/app.rs
-msgid "Audience screen {number}"
-msgstr "会众屏幕 {number}"
-
-#: src/app.rs
-msgid "Stage screen {number}"
-msgstr "舞台屏幕 {number}"
-
-#: src/app.rs
-msgid "That screen is gone."
-msgstr "该屏幕已不存在。"
-
-#: src/app.rs
-msgid "Each list keeps at least one screen."
-msgstr "每个列表至少保留一个屏幕。"
-
-#: src/app.rs
-msgid "Backup failed."
-msgstr "备份失败。"
 
 #: src/app.rs src/import/media.rs
 msgid "Could not save the file (disk full?)."

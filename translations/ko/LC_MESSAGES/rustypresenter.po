@@ -6383,6 +6383,122 @@ msgstr "그림이 포함된 슬라이드"
 msgid "Select all"
 msgstr "모두 선택"
 
+#: src/app/do_backups.rs
+msgid "Backup failed."
+msgstr "백업하지 못했어요."
+
+#: src/app/do_bible.rs
+msgid "Unknown Bible service."
+msgstr "알 수 없는 성경 서비스예요."
+
+#: src/app/do_media.rs
+msgid "That file is gone."
+msgstr "그 파일이 없어졌어요."
+
+#: src/app/do_media.rs
+msgid "Give the folder a name."
+msgstr "폴더 이름을 입력하세요."
+
+#: src/app/do_media.rs
+msgid "This is in a service. Remove it from the service first."
+msgstr "이 항목은 예배에 들어 있어요. 먼저 예배에서 제거하세요."
+
+#: src/app/do_media.rs
+msgid "Bad request: unknown purpose {purpose}"
+msgstr "잘못된 요청: 알 수 없는 용도 {purpose}"
+
+#: src/app/do_media.rs
+msgid "Choose at least one picture."
+msgstr "사진을 하나 이상 선택하세요."
+
+#: src/app/do_media.rs
+msgid "A picture is missing. Try uploading again."
+msgstr "사진이 하나 빠졌어요. 다시 업로드해 보세요."
+
+#: src/app/do_media.rs src/app/do_service.rs src/scripture/actions.rs src/strings/themes.rs
+msgid "That item is gone."
+msgstr "그 항목이 없어졌어요."
+
+#: src/app/do_media.rs
+msgid "These slides are in a service. Remove them from the service first."
+msgstr "이 슬라이드는 예배에 들어 있어요. 먼저 예배에서 제거하세요."
+
+#: src/app/do_screens.rs
+msgid "Unknown screen."
+msgstr "알 수 없는 화면이에요."
+
+#: src/app/do_screens.rs
+msgid "Pick an output for this screen first."
+msgstr "먼저 이 화면의 출력을 선택하세요."
+
+#: src/app/do_screens.rs
+msgid "Add a screen first."
+msgstr "먼저 화면을 추가하세요."
+
+#: src/app/do_screens.rs
+msgid "Audience screen {number}"
+msgstr "예배당 화면 {number}"
+
+#: src/app/do_screens.rs
+msgid "Stage screen {number}"
+msgstr "무대 화면 {number}"
+
+#: src/app/do_screens.rs
+msgid "That screen is gone."
+msgstr "그 화면이 없어졌어요."
+
+#: src/app/do_screens.rs
+msgid "Each list keeps at least one screen."
+msgstr "목록마다 화면이 하나 이상 있어야 해요."
+
+#: src/app/do_service.rs src/import/pptx_design.rs src/transfer.rs
+msgid "No service is open."
+msgstr "열린 예배가 없어요."
+
+#: src/app/do_service.rs src/app.rs src/automation/actions.rs src/automation/calendar.rs src/automation/music.rs src/media_care.rs src/scripture/actions.rs src/theme/actions.rs src/transfer.rs
+msgid "Bad request: {error}"
+msgstr "잘못된 요청: {error}"
+
+#: src/app/do_service.rs src/strings/settings.rs
+msgid "New service"
+msgstr "새 예배"
+
+#: src/app/do_service.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
+msgid "That service is gone."
+msgstr "그 예배가 없어졌어요."
+
+#: src/app/do_service.rs
+msgid "You need at least one service."
+msgstr "예배가 하나 이상 있어야 해요."
+
+#: src/app/do_settings.rs
+msgid "Choose a whole folder path."
+msgstr "폴더의 전체 경로를 선택하세요."
+
+#: src/app/do_settings.rs src/strings/scripture.rs
+msgid "Unknown translation."
+msgstr "알 수 없는 번역본이에요."
+
+#: src/app/do_settings.rs
+msgid "Unknown language."
+msgstr "알 수 없는 언어예요."
+
+#: src/app/do_settings.rs
+msgid "Language changed"
+msgstr "언어가 바뀌었어요"
+
+#: src/app/do_songs.rs src/songselect.rs
+msgid "Give the song a title."
+msgstr "찬양 제목을 입력하세요."
+
+#: src/app/do_songs.rs src/song_edit/actions.rs
+msgid "That song is not in the library any more."
+msgstr "그 찬양은 더 이상 라이브러리에 없습니다."
+
+#: src/app/do_songs.rs
+msgid "This song is in a service. Remove it from the service first."
+msgstr "이 찬양은 예배에 들어 있어요. 먼저 예배에서 제거하세요."
+
 #: src/app.rs
 msgid "No sound input to record. Choose one in Settings → Auto-follow."
 msgstr "녹음할 소리 입력이 없습니다. 설정 → 자동 따라가기에서 선택하세요."
@@ -6434,122 +6550,6 @@ msgstr "{name} — 기본 제공, 퍼블릭 도메인"
 #: src/app.rs
 msgid "{name} — imported file"
 msgstr "{name} — 가져온 파일"
-
-#: src/app.rs src/songselect.rs
-msgid "Give the song a title."
-msgstr "찬양 제목을 입력하세요."
-
-#: src/app.rs src/song_edit/actions.rs
-msgid "That song is not in the library any more."
-msgstr "그 찬양은 더 이상 라이브러리에 없습니다."
-
-#: src/app.rs
-msgid "This song is in a service. Remove it from the service first."
-msgstr "이 찬양은 예배에 들어 있어요. 먼저 예배에서 제거하세요."
-
-#: src/app.rs src/import/pptx_design.rs src/transfer.rs
-msgid "No service is open."
-msgstr "열린 예배가 없어요."
-
-#: src/app.rs src/automation/actions.rs src/automation/calendar.rs src/automation/music.rs src/media_care.rs src/scripture/actions.rs src/theme/actions.rs src/transfer.rs
-msgid "Bad request: {error}"
-msgstr "잘못된 요청: {error}"
-
-#: src/app.rs src/scripture/actions.rs src/strings/themes.rs
-msgid "That item is gone."
-msgstr "그 항목이 없어졌어요."
-
-#: src/app.rs src/strings/settings.rs
-msgid "New service"
-msgstr "새 예배"
-
-#: src/app.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
-msgid "That service is gone."
-msgstr "그 예배가 없어졌어요."
-
-#: src/app.rs
-msgid "You need at least one service."
-msgstr "예배가 하나 이상 있어야 해요."
-
-#: src/app.rs
-msgid "Unknown Bible service."
-msgstr "알 수 없는 성경 서비스예요."
-
-#: src/app.rs
-msgid "That file is gone."
-msgstr "그 파일이 없어졌어요."
-
-#: src/app.rs
-msgid "Give the folder a name."
-msgstr "폴더 이름을 입력하세요."
-
-#: src/app.rs
-msgid "This is in a service. Remove it from the service first."
-msgstr "이 항목은 예배에 들어 있어요. 먼저 예배에서 제거하세요."
-
-#: src/app.rs
-msgid "Bad request: unknown purpose {purpose}"
-msgstr "잘못된 요청: 알 수 없는 용도 {purpose}"
-
-#: src/app.rs
-msgid "Choose at least one picture."
-msgstr "사진을 하나 이상 선택하세요."
-
-#: src/app.rs
-msgid "A picture is missing. Try uploading again."
-msgstr "사진이 하나 빠졌어요. 다시 업로드해 보세요."
-
-#: src/app.rs
-msgid "These slides are in a service. Remove them from the service first."
-msgstr "이 슬라이드는 예배에 들어 있어요. 먼저 예배에서 제거하세요."
-
-#: src/app.rs
-msgid "Choose a whole folder path."
-msgstr "폴더의 전체 경로를 선택하세요."
-
-#: src/app.rs src/strings/scripture.rs
-msgid "Unknown translation."
-msgstr "알 수 없는 번역본이에요."
-
-#: src/app.rs
-msgid "Unknown language."
-msgstr "알 수 없는 언어예요."
-
-#: src/app.rs
-msgid "Language changed"
-msgstr "언어가 바뀌었어요"
-
-#: src/app.rs
-msgid "Unknown screen."
-msgstr "알 수 없는 화면이에요."
-
-#: src/app.rs
-msgid "Pick an output for this screen first."
-msgstr "먼저 이 화면의 출력을 선택하세요."
-
-#: src/app.rs
-msgid "Add a screen first."
-msgstr "먼저 화면을 추가하세요."
-
-#: src/app.rs
-msgid "Audience screen {number}"
-msgstr "예배당 화면 {number}"
-
-#: src/app.rs
-msgid "Stage screen {number}"
-msgstr "무대 화면 {number}"
-
-#: src/app.rs
-msgid "That screen is gone."
-msgstr "그 화면이 없어졌어요."
-
-#: src/app.rs
-msgid "Each list keeps at least one screen."
-msgstr "목록마다 화면이 하나 이상 있어야 해요."
-
-#: src/app.rs
-msgid "Backup failed."
-msgstr "백업하지 못했어요."
 
 #: src/app.rs src/import/media.rs
 msgid "Could not save the file (disk full?)."

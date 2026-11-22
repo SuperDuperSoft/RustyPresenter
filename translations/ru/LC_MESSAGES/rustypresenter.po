@@ -6383,6 +6383,122 @@ msgstr "Слайд с рисунком"
 msgid "Select all"
 msgstr "Выделить всё"
 
+#: src/app/do_backups.rs
+msgid "Backup failed."
+msgstr "Не удалось создать резервную копию."
+
+#: src/app/do_bible.rs
+msgid "Unknown Bible service."
+msgstr "Неизвестный сервис Библии."
+
+#: src/app/do_media.rs
+msgid "That file is gone."
+msgstr "Этого файла больше нет."
+
+#: src/app/do_media.rs
+msgid "Give the folder a name."
+msgstr "Укажите имя папки."
+
+#: src/app/do_media.rs
+msgid "This is in a service. Remove it from the service first."
+msgstr "Это есть в служении. Сначала уберите это из служения."
+
+#: src/app/do_media.rs
+msgid "Bad request: unknown purpose {purpose}"
+msgstr "Неверный запрос: неизвестное назначение {purpose}"
+
+#: src/app/do_media.rs
+msgid "Choose at least one picture."
+msgstr "Выберите хотя бы одну картинку."
+
+#: src/app/do_media.rs
+msgid "A picture is missing. Try uploading again."
+msgstr "Не хватает картинки. Попробуйте загрузить снова."
+
+#: src/app/do_media.rs src/app/do_service.rs src/scripture/actions.rs src/strings/themes.rs
+msgid "That item is gone."
+msgstr "Этого пункта больше нет."
+
+#: src/app/do_media.rs
+msgid "These slides are in a service. Remove them from the service first."
+msgstr "Эти слайды есть в служении. Сначала уберите их из служения."
+
+#: src/app/do_screens.rs
+msgid "Unknown screen."
+msgstr "Неизвестный экран."
+
+#: src/app/do_screens.rs
+msgid "Pick an output for this screen first."
+msgstr "Сначала выберите выход для этого экрана."
+
+#: src/app/do_screens.rs
+msgid "Add a screen first."
+msgstr "Сначала добавьте экран."
+
+#: src/app/do_screens.rs
+msgid "Audience screen {number}"
+msgstr "Экран зала {number}"
+
+#: src/app/do_screens.rs
+msgid "Stage screen {number}"
+msgstr "Экран сцены {number}"
+
+#: src/app/do_screens.rs
+msgid "That screen is gone."
+msgstr "Этого экрана больше нет."
+
+#: src/app/do_screens.rs
+msgid "Each list keeps at least one screen."
+msgstr "В каждом списке должен остаться хотя бы один экран."
+
+#: src/app/do_service.rs src/import/pptx_design.rs src/transfer.rs
+msgid "No service is open."
+msgstr "Служение не открыто."
+
+#: src/app/do_service.rs src/app.rs src/automation/actions.rs src/automation/calendar.rs src/automation/music.rs src/media_care.rs src/scripture/actions.rs src/theme/actions.rs src/transfer.rs
+msgid "Bad request: {error}"
+msgstr "Неверный запрос: {error}"
+
+#: src/app/do_service.rs src/strings/settings.rs
+msgid "New service"
+msgstr "Новое служение"
+
+#: src/app/do_service.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
+msgid "That service is gone."
+msgstr "Этого служения больше нет."
+
+#: src/app/do_service.rs
+msgid "You need at least one service."
+msgstr "Нужно хотя бы одно служение."
+
+#: src/app/do_settings.rs
+msgid "Choose a whole folder path."
+msgstr "Выберите полный путь к папке."
+
+#: src/app/do_settings.rs src/strings/scripture.rs
+msgid "Unknown translation."
+msgstr "Неизвестный перевод."
+
+#: src/app/do_settings.rs
+msgid "Unknown language."
+msgstr "Неизвестный язык."
+
+#: src/app/do_settings.rs
+msgid "Language changed"
+msgstr "Язык изменён"
+
+#: src/app/do_songs.rs src/songselect.rs
+msgid "Give the song a title."
+msgstr "Укажите название песни."
+
+#: src/app/do_songs.rs src/song_edit/actions.rs
+msgid "That song is not in the library any more."
+msgstr "Этой песни больше нет в библиотеке."
+
+#: src/app/do_songs.rs
+msgid "This song is in a service. Remove it from the service first."
+msgstr "Эта песня есть в служении. Сначала уберите её из служения."
+
 #: src/app.rs
 msgid "No sound input to record. Choose one in Settings → Auto-follow."
 msgstr "Нет звукового входа для записи. Выберите его в Настройки → Автоследование."
@@ -6434,122 +6550,6 @@ msgstr "{name} — встроенная, общественное достоян
 #: src/app.rs
 msgid "{name} — imported file"
 msgstr "{name} — импортированный файл"
-
-#: src/app.rs src/songselect.rs
-msgid "Give the song a title."
-msgstr "Укажите название песни."
-
-#: src/app.rs src/song_edit/actions.rs
-msgid "That song is not in the library any more."
-msgstr "Этой песни больше нет в библиотеке."
-
-#: src/app.rs
-msgid "This song is in a service. Remove it from the service first."
-msgstr "Эта песня есть в служении. Сначала уберите её из служения."
-
-#: src/app.rs src/import/pptx_design.rs src/transfer.rs
-msgid "No service is open."
-msgstr "Служение не открыто."
-
-#: src/app.rs src/automation/actions.rs src/automation/calendar.rs src/automation/music.rs src/media_care.rs src/scripture/actions.rs src/theme/actions.rs src/transfer.rs
-msgid "Bad request: {error}"
-msgstr "Неверный запрос: {error}"
-
-#: src/app.rs src/scripture/actions.rs src/strings/themes.rs
-msgid "That item is gone."
-msgstr "Этого пункта больше нет."
-
-#: src/app.rs src/strings/settings.rs
-msgid "New service"
-msgstr "Новое служение"
-
-#: src/app.rs src/strings/bundle.rs src/strings/planning.rs src/strings/themes.rs
-msgid "That service is gone."
-msgstr "Этого служения больше нет."
-
-#: src/app.rs
-msgid "You need at least one service."
-msgstr "Нужно хотя бы одно служение."
-
-#: src/app.rs
-msgid "Unknown Bible service."
-msgstr "Неизвестный сервис Библии."
-
-#: src/app.rs
-msgid "That file is gone."
-msgstr "Этого файла больше нет."
-
-#: src/app.rs
-msgid "Give the folder a name."
-msgstr "Укажите имя папки."
-
-#: src/app.rs
-msgid "This is in a service. Remove it from the service first."
-msgstr "Это есть в служении. Сначала уберите это из служения."
-
-#: src/app.rs
-msgid "Bad request: unknown purpose {purpose}"
-msgstr "Неверный запрос: неизвестное назначение {purpose}"
-
-#: src/app.rs
-msgid "Choose at least one picture."
-msgstr "Выберите хотя бы одну картинку."
-
-#: src/app.rs
-msgid "A picture is missing. Try uploading again."
-msgstr "Не хватает картинки. Попробуйте загрузить снова."
-
-#: src/app.rs
-msgid "These slides are in a service. Remove them from the service first."
-msgstr "Эти слайды есть в служении. Сначала уберите их из служения."
-
-#: src/app.rs
-msgid "Choose a whole folder path."
-msgstr "Выберите полный путь к папке."
-
-#: src/app.rs src/strings/scripture.rs
-msgid "Unknown translation."
-msgstr "Неизвестный перевод."
-
-#: src/app.rs
-msgid "Unknown language."
-msgstr "Неизвестный язык."
-
-#: src/app.rs
-msgid "Language changed"
-msgstr "Язык изменён"
-
-#: src/app.rs
-msgid "Unknown screen."
-msgstr "Неизвестный экран."
-
-#: src/app.rs
-msgid "Pick an output for this screen first."
-msgstr "Сначала выберите выход для этого экрана."
-
-#: src/app.rs
-msgid "Add a screen first."
-msgstr "Сначала добавьте экран."
-
-#: src/app.rs
-msgid "Audience screen {number}"
-msgstr "Экран зала {number}"
-
-#: src/app.rs
-msgid "Stage screen {number}"
-msgstr "Экран сцены {number}"
-
-#: src/app.rs
-msgid "That screen is gone."
-msgstr "Этого экрана больше нет."
-
-#: src/app.rs
-msgid "Each list keeps at least one screen."
-msgstr "В каждом списке должен остаться хотя бы один экран."
-
-#: src/app.rs
-msgid "Backup failed."
-msgstr "Не удалось создать резервную копию."
 
 #: src/app.rs src/import/media.rs
 msgid "Could not save the file (disk full?)."
