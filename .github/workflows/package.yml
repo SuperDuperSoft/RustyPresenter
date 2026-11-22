@@ -186,7 +186,8 @@ jobs:
           if-no-files-found: error
 
   release:
-    if: startsWith(github.ref, 'refs/tags/v')
+    # Runs even when one OS's package failed, so the others still reach the release.
+    if: ${{ !cancelled() && startsWith(github.ref, 'refs/tags/v') }}
     needs: [package, android]
     runs-on: ubuntu-latest
     permissions:
@@ -205,14 +206,15 @@ jobs:
           path: release
           merge-multiple: true
 
-      # Every OS's installer and portable copy must be here before anything is published.
+      # Says which OS's files are missing; the ones that are here are still published.
       - name: Check the release files
         run: |
           v="$(sed -n 's/^version *= *"\([^"]*\)".*/\1/p' Packager.toml | head -n 1)"
           [ "v$v" = "$GITHUB_REF_NAME" ] || { echo "::error::tag $GITHUB_REF_NAME is not Packager.toml's version $v"; exit 1; }
+          mkdir -p release
           for f in windows-setup.exe windows-portable.zip macos.dmg macos-portable.zip \
             linux.AppImage linux.deb linux-portable.tar.gz android-remote.apk; do
-            [ -f "release/RustyPresenter-$v-$f" ] || { echo "::error::RustyPresenter-$v-$f is missing"; exit 1; }
+            [ -f "release/RustyPresenter-$v-$f" ] || echo "::warning::RustyPresenter-$v-$f is missing"
           done
           ls -l release
 
@@ -224,5 +226,11 @@ jobs:
 
       - name: Release
         run: |
-          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --draft \
-            --title "RustyPresenter ${GITHUB_REF_NAME#v}" --generate-notes release/*
+          # The release is usually there already, with the Windows installer and the Android app built and tried
+          # on a PC (RustyPresenter-Setup-<version>.exe, RustyPresenter-Remote-<version>.apk, the names the README
+          # gives). Those two are not replaced by the ones built here; everything else is added beside them.
+          gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1 \
+            || gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --draft \
+              --title "RustyPresenter ${GITHUB_REF_NAME#v}" --generate-notes
+          rm -f release/*-windows-setup.exe release/*-android-remote.apk
+          gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --clobber release/*
