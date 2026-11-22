@@ -188,20 +188,25 @@ pub fn nothing(redo: bool) -> String { if redo { tr!("Nothing to redo.") } else 
 
 /// What an edit did, in a few words: services and songs by name, anything else as "the last change".
 fn describe(a: &Data, b: &Data) -> String {
+    let ids = |services: &[crate::model::Service]| services.iter().map(|s| s.id).collect::<std::collections::HashSet<_>>();
     if a.services.len() != b.services.len() || keys(&a.services) != keys(&b.services) {
-        if let Some(s) = b.services.iter().find(|s| !a.services.iter().any(|x| x.id == s.id)) {
+        let (was, now) = (ids(&a.services), ids(&b.services));
+        if let Some(s) = b.services.iter().find(|s| !was.contains(&s.id)) {
             return tr!("the new service “{name}”", name = s.name);
         }
-        if let Some(s) = a.services.iter().find(|s| !b.services.iter().any(|x| x.id == s.id)) {
+        if let Some(s) = a.services.iter().find(|s| !now.contains(&s.id)) {
             return tr!("deleting the service “{name}”", name = s.name);
         }
     }
-    if let Some((was, now)) = b.services.iter().find_map(|s| a.services.iter().find(|x| x.id == s.id && *x != s).map(|x| (x, s))) {
+    let before: std::collections::HashMap<_, _> = a.services.iter().map(|s| (s.id, s)).collect();
+    if let Some((was, now)) = b.services.iter().find_map(|s| before.get(&s.id).filter(|x| ***x != *s).map(|x| (*x, s))) {
         let title = |d: &Data, i: &crate::model::ServiceItem| crate::slides::build_item_with_notes(d, i).0;
-        if let Some(i) = now.items.iter().find(|i| !was.items.iter().any(|x| x.id == i.id)) {
+        let item_ids = |s: &crate::model::Service| s.items.iter().map(|i| i.id).collect::<std::collections::HashSet<_>>();
+        let (had, has) = (item_ids(was), item_ids(now));
+        if let Some(i) = now.items.iter().find(|i| !had.contains(&i.id)) {
             if now.items.len() > was.items.len() { return tr!("adding “{name}”", name = title(b, i)) }
         }
-        if let Some(i) = was.items.iter().find(|i| !now.items.iter().any(|x| x.id == i.id)) {
+        if let Some(i) = was.items.iter().find(|i| !has.contains(&i.id)) {
             if now.items.len() < was.items.len() { return tr!("removing “{name}”", name = title(a, i)) }
         }
         if was.items.len() == now.items.len() && was.items.iter().all(|i| now.items.contains(i))
@@ -210,13 +215,16 @@ fn describe(a: &Data, b: &Data) -> String {
         }
         return tr!("changes to “{name}”", name = now.name);
     }
-    if let Some(s) = b.songs.iter().find(|s| !a.songs.iter().any(|x| x.id == s.id)) {
+    // The songs by id, looked up once each: an edit that adds a whole library of songs is described in one pass
+    // over it, not one pass per song.
+    let (was, now): (std::collections::HashMap<_, _>, std::collections::HashMap<_, _>) = (a.songs.iter().map(|s| (s.id, s)).collect(), b.songs.iter().map(|s| (s.id, s)).collect());
+    if let Some(s) = b.songs.iter().find(|s| !was.contains_key(&s.id)) {
         return tr!("the new song “{name}”", name = s.title);
     }
-    if let Some(s) = a.songs.iter().find(|s| !b.songs.iter().any(|x| x.id == s.id)) {
+    if let Some(s) = a.songs.iter().find(|s| !now.contains_key(&s.id)) {
         return tr!("deleting the song “{name}”", name = s.title);
     }
-    if let Some(s) = b.songs.iter().find(|s| a.songs.iter().any(|x| x.id == s.id && x != *s)) {
+    if let Some(s) = b.songs.iter().find(|s| was.get(&s.id).is_some_and(|x| *x != *s)) {
         return tr!("changes to the song “{name}”", name = s.title);
     }
     tr!("the last change")
