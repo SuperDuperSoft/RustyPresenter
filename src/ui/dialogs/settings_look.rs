@@ -204,7 +204,7 @@ static RENDERER: TextRenderer = TextRenderer::new();
 /// Draws `slide` (an item of `kind`: "song", "scripture" or "text") with `settings`' theme and background as the
 /// room would, at the preview's size; true when the theme's font is not on this computer.
 pub(super) fn draw_sample(settings: &Settings, slide: &Slide, kind: &str, media: &[MediaFile], store: &Store) -> (Pixels, bool) {
-    let (key, job) = thumbs::thumb(slide, kind, &[], None, settings, media, PREVIEW_SIZE);
+    let (key, job) = thumbs::thumb(slide, kind, &[], None, &thumbs::Look::of(settings), media, PREVIEW_SIZE);
     let preview = thumbs::compose(&job, key.size, &RENDERER, store);
     let font_missing = match (job.text, RENDERER.get()) {
         (Some(text), Some(r)) => block_on(r.render(text)).font_fallback,

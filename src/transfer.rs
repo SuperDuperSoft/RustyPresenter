@@ -127,11 +127,11 @@ pub fn export_slides(app: &App, service: Uuid, folder: &Path, size: (u32, u32)) 
     let mut n = 0;
     for (i, item) in s.items.iter().enumerate() {
         let (title, kind, slides) = crate::slides::build_item(&data, item);
-        let settings = crate::ui::thumbs::item_settings(&data, item);
+        let look = crate::ui::thumbs::item_look(&data, item);
         let passage = crate::model::passage(kind, &slides);
         for (j, slide) in slides.iter().enumerate() {
             if matches!(slide.content, SlideContent::Audio { .. }) { continue }
-            let (_, job) = crate::ui::thumbs::thumb(slide, kind, &passage, item.background.as_ref(), &settings, &data.media, size);
+            let (_, job) = crate::ui::thumbs::thumb(slide, kind, &passage, item.background.as_ref(), &look, &data.media, size);
             let px = crate::ui::thumbs::compose(&job, size, &renderer, &app.store);
             let img = image::RgbaImage::from_raw(px.width(), px.height(), px.as_bytes().to_vec()).ok_or_else(|| strings::not_saved("image"))?;
             let path = folder.join(format!("{:02}-{:02} {}.png", i + 1, j + 1, safe_name(&title)));

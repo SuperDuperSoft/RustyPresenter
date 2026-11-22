@@ -237,7 +237,7 @@ fn draw(op: &Operator, ctx: &EditorCtx) {
     let size = thumb_size(PREVIEW_W, op.window().scale_factor());
     let media = op.state.borrow().snap.as_ref().map(|s| s.data.media.clone()).unwrap_or_default();
     for (i, slide) in slides.iter().enumerate() {
-        let (key, job) = thumb(slide, "song", &[], None, &settings, &media, size);
+        let (key, job) = thumb(slide, "song", &[], None, &crate::ui::thumbs::Look::of(&settings), &media, size);
         let (previews, me) = (ctx.previews.clone(), ctx.op.clone());
         let ctx_gen = ctx.generation.clone();
         ctx.thumbs.request(key, job, move |px| {

@@ -393,8 +393,8 @@ pub fn open(op: &Rc<Operator>, item: Option<Uuid>) {
         _ => (vec![], s::new_title()),
     };
     let look = match &found {
-        Some(i) => thumbs::item_settings(data, i),
-        None => data.settings.clone(),
+        Some(i) => thumbs::item_look(data, i),
+        None => thumbs::Look::of(&data.settings),
     };
     let background = match look.background {
         Background::Video { asset, dim } => match thumbs::video_thumb(&data.media, &asset) {

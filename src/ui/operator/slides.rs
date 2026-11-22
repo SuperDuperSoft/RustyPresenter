@@ -6,7 +6,7 @@ use super::{service::kind_icon, strings as tr, view::{self, ItemRow, OperatorSna
 use crate::{app::LiveView, sections::{SectionKind, occurrence_views, strings as song}};
 use crate::{
     live::Command,
-    model::{Background, MediaFile, Settings, Slide, SlideContent, passage},
+    model::{Background, MediaFile, Slide, SlideContent, passage},
     ui::{SlideCell, SlideJump, SlideRowCells, ops::outcome_toast, thumbs::{self, Pixels}},
 };
 use slint::{ComponentHandle, Image, Model, ModelRc, VecModel};
@@ -136,7 +136,15 @@ pub fn header_title(snap: &OperatorSnapshot, item: Option<&ItemRow>) -> String {
 
 /// What the grid was built from (the web's `gridKey`): a change rebuilds it, anything else only moves the live mark.
 #[derive(Clone, PartialEq)]
-struct GridKey { id: Uuid, kind: String, slides: Vec<Slide>, background: Option<Background>, settings: Settings, media: Vec<MediaFile> }
+struct GridKey {
+    id: Uuid, kind: String, slides: Vec<Slide>, background: Option<Background>,
+    /// What the thumbnails are drawn with, and no more of the settings than that: a panel moved or a Bible
+    /// reference added to the history builds no grid again.
+    look: thumbs::Look,
+    sections: crate::sections::SectionLook,
+    /// The saved frames of the videos on these slides (`thumbs::frames_used`), not the whole media list.
+    media: Vec<MediaFile>,
+}
 
 /// The grid between updates.
 #[derive(Default)]
@@ -178,9 +186,12 @@ impl Operator {
         self.render_text_size();
         super::bible_extras::render(self);
         super::slide_edit::render(self);
-        let key = item.map(|it| GridKey {
-            id: it.id, kind: it.kind.clone(), slides: it.slides.clone(), background: None, settings: thumbs::item_settings(&snap.data, &it.item),
-            media: snap.data.media.iter().filter(|m| m.thumb.is_some()).cloned().collect(),
+        let key = item.map(|it| {
+            let look = thumbs::item_look(&snap.data, &it.item);
+            GridKey {
+                id: it.id, kind: it.kind.clone(), slides: it.slides.clone(), background: None,
+                media: thumbs::frames_used(&snap.data.media, &it.slides, &look.background), look, sections: snap.data.settings.sections.clone(),
+            }
         });
         let acts = super::action_palette::badges(self, key.as_ref().map_or(0, |k| k.slides.len()));
         let acts_changed = { let mut s = self.slides.borrow_mut(); let changed = s.acts != acts; s.acts = acts; changed };
@@ -341,7 +352,7 @@ impl Operator {
             // Only songs are coloured: a passage or slide set has no sections.
             section: section(slide).into(),
             tag: slide.tag.as_deref().unwrap_or("").into(),
-            tag_color: slide.tag.as_deref().map_or_else(slint::Color::default, |t| tag_color(&k.settings.sections, t)),
+            tag_color: slide.tag.as_deref().map_or_else(slint::Color::default, |t| tag_color(&k.sections, t)),
             text: slide_text(slide).into(),
             actions: s.acts.get(idx).map_or(0, |a| a.0),
             actions_tip: s.acts.get(idx).map(|a| a.1.as_str()).unwrap_or("").into(),
@@ -378,7 +389,7 @@ impl Operator {
             let Some(k) = &s.built else { return };
             let passage = passage(&k.kind, &k.slides);
             let jobs: Vec<_> = k.slides.iter().enumerate()
-                .map(|(i, slide)| (i, thumbs::thumb(slide, &k.kind, &passage, k.background.as_ref(), &k.settings, &k.media, s.size)))
+                .map(|(i, slide)| (i, thumbs::thumb(slide, &k.kind, &passage, k.background.as_ref(), &k.look, &k.media, s.size)))
                 .collect();
             (s.generation, jobs)
         };

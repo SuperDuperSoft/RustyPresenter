@@ -76,9 +76,9 @@ pub fn live_group(app: &App, size: (u32, u32)) -> Option<LiveGroup> {
         let (c, item) = live.cursor.as_ref().zip(live.item.as_ref())?;
         let mut under = item.slides.get(c.slide)?.clone();
         if let SlideContent::Design { design: d, .. } = &mut under.content { d.objects.clear() }
-        let settings = crate::model::Settings { theme: item.theme.clone(), background: item.background.clone(), ..data.settings.clone() };
+        let look = thumbs::Look { theme: item.theme.clone(), background: item.background.clone() };
         let passage = crate::model::passage(&item.kind, &item.slides);
-        let job = thumbs::thumb(&under, &item.kind, &passage, Some(&item.background), &settings, &data.media, size).1;
+        let job = thumbs::thumb(&under, &item.kind, &passage, Some(&item.background), &look, &data.media, size).1;
         let t = design.transition;
         let lead = if *build || matches!(t.kind, crate::design::TransitionKind::Cut) { 0 } else { t.ms.min(crate::design::TRANSITION_MAX_MS) };
         (live.version, job, (**play).clone(), lead, item.theme.font.clone())

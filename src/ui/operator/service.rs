@@ -130,14 +130,13 @@ impl Operator {
             pics.generation += 1;
             (pics.generation, pics.expanded.clone())
         };
-        let media: Vec<_> = snap.data.media.iter().filter(|m| m.thumb.is_some()).cloned().collect();
         for (row, it) in snap.items.iter().enumerate() {
             if it.slides.is_empty() || matches!(it.item.kind, crate::model::ItemKind::Header { .. }) { continue }
-            let settings = thumbs::item_settings(&snap.data, &it.item);
+            let look = thumbs::item_look(&snap.data, &it.item);
             let verses = passage(&it.kind, &it.slides);
             let count = if expanded.contains(&it.id) { it.slides.len() } else { 1 };
             for (idx, slide) in it.slides.iter().take(count).enumerate() {
-                let (key, job) = thumbs::thumb(slide, &it.kind, &verses, None, &settings, &media, PIC_SIZE);
+                let (key, job) = thumbs::thumb(slide, &it.kind, &verses, None, &look, &snap.data.media, PIC_SIZE);
                 let (me, id) = (self.me.clone(), it.id);
                 self.service_thumbs.request(key, job, move |px| if let Some(op) = me.upgrade() { op.picture_drawn(generation, row, id, idx, px) });
             }
