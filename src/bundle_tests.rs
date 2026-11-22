@@ -63,7 +63,7 @@ fn crafted(s: &Store, a: &str, edit: impl FnOnce(&mut Contents), entries: &[(&st
     let m = media("clip", a);
     let mut svc = Service::new("Crafted");
     svc.items = vec![item(ItemKind::Media { media_id: m.id, autoplay: true, end: EndAction::Stop, looped: false })];
-    let mut c = Contents { format: FORMAT, service: svc, songs: vec![], media: vec![m], decks: vec![], fonts: vec![] };
+    let mut c = Contents { format: FORMAT, service: svc, songs: vec![], media: vec![m], decks: vec![], fonts: vec![], themes: vec![] };
     edit(&mut c);
     let json = serde_json::to_vec(&c).unwrap();
     let path = s.root.join("crafted.rpservice");
@@ -199,7 +199,7 @@ fn the_same_song_under_another_id_is_reused() {
     let incoming = song("Amazing Grace", "22025", "words");
     let mut svc = Service::new("S");
     svc.items = vec![item(ItemKind::Song { song_id: incoming.id, arrangement: None })];
-    let opened = merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![incoming], media: vec![], decks: vec![], fonts: vec![] });
+    let opened = merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![incoming], media: vec![], decks: vec![], fonts: vec![], themes: vec![] });
     assert_eq!(opened.songs_added, 0);
     assert_eq!(there.songs.len(), 1);
     assert!(matches!(there.service().unwrap().items[0].kind, ItemKind::Song { song_id, .. } if song_id == local_id));
@@ -215,7 +215,7 @@ fn a_song_with_other_words_comes_in_beside_the_library_one() {
     incoming.id = same_id;
     let mut svc = Service::new("S");
     svc.items = vec![item(ItemKind::Song { song_id: same_id, arrangement: None })];
-    let opened = merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![incoming], media: vec![], decks: vec![], fonts: vec![] });
+    let opened = merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![incoming], media: vec![], decks: vec![], fonts: vec![], themes: vec![] });
     assert_eq!(opened.songs_differ, vec!["Grace".to_string()]);
     assert_eq!(there.songs.len(), 2);
     assert_eq!(there.songs[0].lyrics, "the words here", "the library's own song is untouched");
@@ -231,7 +231,7 @@ fn an_arrangement_change_counts_as_different() {
     let mut incoming = song("Grace", "22025", "words");
     incoming.arrangement = vec!["Chorus".into()];
     let svc = Service::new("S");
-    assert_eq!(merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![incoming], media: vec![], decks: vec![], fonts: vec![] }).songs_differ.len(), 1);
+    assert_eq!(merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![incoming], media: vec![], decks: vec![], fonts: vec![], themes: vec![] }).songs_differ.len(), 1);
 }
 
 #[test]
@@ -240,9 +240,9 @@ fn two_titles_without_ccli_are_only_the_same_with_the_same_words() {
     there.songs.push(song("Hymn", "", "one"));
     let svc = Service::new("S");
     let same = song("Hymn", "", "one");
-    assert_eq!(merge(&mut there, Contents { format: FORMAT, service: svc.clone(), songs: vec![same], media: vec![], decks: vec![], fonts: vec![] }).songs_added, 0);
+    assert_eq!(merge(&mut there, Contents { format: FORMAT, service: svc.clone(), songs: vec![same], media: vec![], decks: vec![], fonts: vec![], themes: vec![] }).songs_added, 0);
     let other = song("Hymn", "", "two");
-    assert_eq!(merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![other], media: vec![], decks: vec![], fonts: vec![] }).songs_differ.len(), 1);
+    assert_eq!(merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![other], media: vec![], decks: vec![], fonts: vec![], themes: vec![] }).songs_differ.len(), 1);
 }
 
 #[test]
@@ -257,7 +257,7 @@ fn media_and_decks_match_by_their_files() {
     let deck = Deck { id: Uuid::new_v4(), title: "Other".into(), slides: vec![format!("{HEX}.png")], notes: vec![], transitions: vec![], advance_ms: vec![], show: None };
     let mut svc = Service::new("S");
     svc.items = vec![item(ItemKind::Media { media_id: m.id, autoplay: false, end: EndAction::Loop, looped: false }), item(ItemKind::Deck { deck_id: deck.id })];
-    let opened = merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![], media: vec![m], decks: vec![deck], fonts: vec![] });
+    let opened = merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![], media: vec![m], decks: vec![deck], fonts: vec![], themes: vec![] });
     assert_eq!((opened.media_added, opened.decks_added), (0, 0));
     let items = &there.service().unwrap().items;
     assert!(matches!(items[0].kind, ItemKind::Media { media_id, autoplay: false, end: EndAction::Loop, .. } if media_id == mid));
@@ -274,7 +274,7 @@ fn an_id_already_used_by_other_media_gets_a_new_one() {
     m.id = id;
     let mut svc = Service::new("S");
     svc.items = vec![item(ItemKind::Media { media_id: id, autoplay: true, end: EndAction::Stop, looped: false })];
-    merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![], media: vec![m], decks: vec![], fonts: vec![] });
+    merge(&mut there, Contents { format: FORMAT, service: svc, songs: vec![], media: vec![m], decks: vec![], fonts: vec![], themes: vec![] });
     assert_eq!(there.media.len(), 2);
     let ItemKind::Media { media_id, .. } = there.service().unwrap().items[0].kind else { panic!() };
     assert_ne!(media_id, id);
@@ -457,4 +457,56 @@ fn blanks_headers_and_the_font_travel_in_a_bundle() {
     assert!(items.iter().any(|i| matches!(&i.kind, ItemKind::Blank { label, .. } if label == "Song")));
     assert!(items.iter().any(|i| matches!(&i.kind, ItemKind::Header { title, .. } if title == "Worship")));
     assert!(strings::opened_report(&opened).contains("made with a font this computer does not have, so its words show in another font: Montserrat"));
+}
+
+/// B11: the saved themes a service and its items are set to travel with it.
+#[test]
+fn a_service_takes_its_saved_themes_along() {
+    use crate::theme::{SavedTheme, resolve};
+    let (from, to) = (store(), store());
+    let mut d = sample(&from);
+    let photo = asset(&from, b"theme photo", "jpg");
+    let big = SavedTheme { id: Uuid::new_v4(), name: "Easter big".into(), style: Theme { size: 120, color: "#ffee00".into(), ..Theme::default() }, background: Some(Background::Image { asset: photo.clone(), dim: 20 }) };
+    let plain = SavedTheme { id: Uuid::new_v4(), name: "Plain".into(), style: Theme { size: 60, ..Theme::default() }, background: None };
+    let unused = SavedTheme { id: Uuid::new_v4(), name: "Unused".into(), style: Theme::default(), background: None };
+    d.themes = vec![big.clone(), plain.clone(), unused];
+    let svc = d.service_mut().unwrap();
+    svc.theme = Some(plain.id);
+    svc.items[3].theme = Some(big.id);
+    let looks = |d: &Data| {
+        let s = d.service().unwrap();
+        s.items.iter().map(|i| { let r = resolve(d, Some(s), i); (r.style, r.background) }).collect::<Vec<_>>()
+    };
+    let before = looks(&d);
+    let (c, a) = gather(&d, current(&d), &|id| from.asset_path(id).exists()).unwrap();
+    assert_eq!(c.themes.iter().map(|t| t.name.as_str()).collect::<Vec<_>>(), ["Plain", "Easter big"], "only the ones it uses");
+    assert!(a.contains(&photo), "with the theme's background file");
+
+    // Into an empty library on another computer: every item looks as it did.
+    let path = saved(&from, &d);
+    let mut other = Data::default();
+    merge(&mut other, open_in(&to, &path).unwrap());
+    assert!(to.asset_path(&photo).exists());
+    assert_eq!(looks(&other), before);
+    assert_eq!(other.themes.len(), 2);
+
+    // Opened again: the themes that are already there are used, not added twice.
+    merge(&mut other, open_in(&to, &path).unwrap());
+    assert_eq!(other.themes.len(), 2);
+    assert_eq!(looks(&other), before);
+
+    // A theme of the same name that looks different, and one whose id is taken: both come in beside the church's.
+    let mut third = Data::default();
+    third.themes = vec![
+        SavedTheme { id: Uuid::new_v4(), name: "Plain".into(), style: Theme { size: 30, ..Theme::default() }, background: None },
+        SavedTheme { id: big.id, name: "Something else".into(), style: Theme::default(), background: None },
+    ];
+    merge(&mut third, open_in(&to, &path).unwrap());
+    assert_eq!(third.themes.len(), 4);
+    assert_eq!(looks(&third), before);
+    assert_eq!(third.themes[0].style.size, 30, "the church's own theme is untouched");
+
+    // A theme whose background file has gone cannot be saved with the service: it says so.
+    fs::remove_file(from.asset_path(&photo)).unwrap();
+    assert!(gather(&d, current(&d), &|id| from.asset_path(id).exists()).is_err());
 }

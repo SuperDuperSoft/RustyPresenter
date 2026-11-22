@@ -40,6 +40,9 @@ pub struct Contents {
     /// The font the slides were made with (Settings → Look), so the computer that opens it can say when it lacks it.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub fonts: Vec<String>,
+    /// The saved themes the service or its items are set to, so they look the same on the other computer.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub themes: Vec<crate::theme::SavedTheme>,
 }
 
 /// What opening a bundle did.
@@ -106,9 +109,20 @@ pub fn gather(data: &Data, service: Uuid, has_asset: &dyn Fn(&str) -> bool) -> R
             need(asset, strings::background_gone().into(), &mut missing);
         }
     }
+    // The saved themes the service and its items name travel too, each with its background file. A built-in theme
+    // nobody changed is the same on every computer and is not carried.
+    let mut themes: Vec<crate::theme::SavedTheme> = vec![];
+    for id in service.theme.iter().chain(service.items.iter().filter_map(|i| i.theme.as_ref())) {
+        let Some(t) = data.themes.iter().find(|t| t.id == *id) else { continue };
+        if themes.iter().any(|x| x.id == t.id) { continue }
+        if let Some(Background::Image { asset, .. } | Background::Video { asset, .. }) = &t.background {
+            need(asset, strings::background_gone().into(), &mut missing);
+        }
+        themes.push(t.clone());
+    }
     if !missing.is_empty() { return Err(missing) }
     let fonts = vec![data.settings.theme.font.clone()].into_iter().filter(|f| !f.trim().is_empty()).collect();
-    Ok((Contents { format: FORMAT, service: service.clone(), songs, media, decks, fonts }, assets.into_iter().collect()))
+    Ok((Contents { format: FORMAT, service: service.clone(), songs, media, decks, fonts, themes }, assets.into_iter().collect()))
 }
 
 /// Copies until the end, watching for Cancel. Sends each chunk to `seen`.
@@ -177,6 +191,9 @@ fn asset_ids(c: &Contents) -> BTreeSet<AssetId> {
         if let ItemKind::Design { slides, .. } = &i.kind {
             set.extend(slides.iter().flat_map(|slide| slide.assets()));
         }
+    }
+    for t in &c.themes {
+        if let Some(Background::Image { asset, .. } | Background::Video { asset, .. }) = &t.background { set.insert(asset.clone()); }
     }
     set
 }
@@ -253,9 +270,26 @@ fn matching_song(library: &[Song], song: &Song) -> (Option<Uuid>, bool) {
 /// Adds the service to the library and opens it. What this computer already has is reused. A song that differs
 /// from the library's comes in beside it, so the service shows what was saved and the library's song is untouched.
 pub fn merge(data: &mut Data, contents: Contents) -> Opened {
-    let Contents { mut service, songs, media, decks, .. } = contents;
+    let Contents { mut service, songs, media, decks, themes, .. } = contents;
     let mut opened = Opened::default();
     let mut ids: HashMap<Uuid, Uuid> = HashMap::new();
+    // The service's saved themes: one that is already here is used as it is; another comes in beside the church's
+    // own. A changed built-in theme comes in as a theme of its own, so this computer's built-in stays as it was.
+    let builtins = crate::theme::builtin();
+    let mut theme_ids: HashMap<Uuid, Uuid> = HashMap::new();
+    for mut t in themes {
+        let old = t.id;
+        if let Some(have) = data.themes.iter().find(|x| x.style == t.style && x.background == t.background && x.name == t.name) {
+            theme_ids.insert(old, have.id);
+            continue;
+        }
+        if t.id == crate::theme::STANDARD_ID || builtins.iter().any(|b| b.id == t.id) || data.themes.iter().any(|x| x.id == t.id) { t.id = Uuid::new_v4() }
+        if data.themes.iter().chain(&builtins).any(|x| x.name == t.name) { t.name = crate::transfer::strings::copy_suffix(&t.name) }
+        theme_ids.insert(old, t.id);
+        data.themes.push(t);
+    }
+    let themed = |theme: &mut Option<Uuid>| if let Some(new) = theme.and_then(|id| theme_ids.get(&id)) { *theme = Some(*new) };
+    themed(&mut service.theme);
     for mut song in songs {
         let old = song.id;
         let (found, named) = matching_song(&data.songs, &song);
@@ -288,6 +322,7 @@ pub fn merge(data: &mut Data, contents: Contents) -> Opened {
     let mapped = |id: &mut Uuid| if let Some(new) = ids.get(id) { *id = *new };
     for item in &mut service.items {
         item.id = Uuid::new_v4();
+        themed(&mut item.theme);
         match &mut item.kind {
             ItemKind::Song { song_id: id, .. } | ItemKind::Media { media_id: id, .. } | ItemKind::Deck { deck_id: id } => mapped(id),
             ItemKind::Scripture { .. } | ItemKind::Text { .. } | ItemKind::Design { .. } | ItemKind::Blank { .. } | ItemKind::Header { .. } => {}
