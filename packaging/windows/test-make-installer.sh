@@ -77,6 +77,9 @@ new_case() {
   cp "$REPO/Cargo.toml" "$REPO/LICENSE-MIT" "$REPO/LICENSE-APACHE" "$REPO/THIRD-PARTY-LICENSES.txt" "$C/repo/"
   cp -r "$REPO/packaging/licenses" "$REPO/packaging/icons" "$C/repo/packaging/"
   cp "$REPO/packaging/pins.env" "$C/repo/packaging/"
+  # Every case starts with the build PC's own libmpv, whatever the real pins.env holds; the release-zip cases
+  # pin the test's own zip.
+  sed -i "s|^LIBMPV_SHA256_WINDOWS=.*|LIBMPV_SHA256_WINDOWS=TODO|" "$C/repo/packaging/pins.env"
   # Start from the first-run state: the licence texts the installer fills in are still placeholders.
   for l in mpv-Copyright.txt pdfium-LICENSE.txt; do
     printf 'RUSTYPRESENTER-LICENCE-PLACEHOLDER\nFilled in by the first installer build.\n' >"$C/repo/packaging/licenses/$l"
