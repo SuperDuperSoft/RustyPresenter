@@ -17,6 +17,8 @@ thread_local! {
 
 /// How long after the operator opens the graphics test may be offered.
 const OFFER_TEST_AFTER: std::time::Duration = std::time::Duration::from_secs(4);
+/// Getting started opens this long after the operator does, on a computer where nothing has been made yet.
+const GETTING_STARTED_AFTER: std::time::Duration = std::time::Duration::from_millis(1200);
 /// The look for a newer version waits this long after the operator opens.
 const UPDATE_CHECK_AFTER: std::time::Duration = std::time::Duration::from_secs(12);
 
@@ -137,6 +139,8 @@ fn main() {
     // N13: the walk-in music's own player.
     rustypresenter::automation::music_out::start(&app, mpv.clone());
 
+    // Light mode and the slides' drawing size, before the audience screen opens (the operator keeps them current).
+    { let d = app.data(); rustypresenter::ui::light::set_mode(d.settings.light_mode); rustypresenter::ui::light::set_draw_height(d.settings.draw_height); }
     let native = NativeScreens::new(&app, Renderer::new(), mpv);
     app.set_screens(native.clone());
     if let Some(roles) = restored { native.set_restored(roles); }
@@ -162,6 +166,11 @@ fn main() {
         if offer_test {
             let me = Rc::downgrade(&operator);
             slint::Timer::single_shot(OFFER_TEST_AFTER, move || if let Some(op) = me.upgrade() { rustypresenter::ui::dialogs::settings_graphics::offer_at_start(&op) });
+        }
+        // A new install's first steps, once; never after a crash.
+        if offer_test {
+            let me = Rc::downgrade(&operator);
+            slint::Timer::single_shot(GETTING_STARTED_AFTER, move || if let Some(op) = me.upgrade() { rustypresenter::ui::dialogs::getting_started::at_start(&op) });
         }
         // Is there a newer version? Asked once the windows are up and the graphics test has had its say; never
         // after a crash (the service comes first).

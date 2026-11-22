@@ -45,6 +45,7 @@ pub mod stage_layouts;
 pub mod stream_more;
 pub mod stream_scenes;
 pub mod go_live_helper;
+pub mod getting_started;
 pub mod settings_stream_extras;
 pub mod translation_editor;
 pub mod update;
@@ -181,6 +182,8 @@ pub enum DialogKind {
     GoLiveHelper,
     /// Songs from SongSelect: the songs the church downloads in its own browser come in (`songselect`).
     SongSelect,
+    /// Getting started: the few first steps, shown once on a new install and from Help.
+    GettingStarted,
 }
 
 impl DialogKind {
@@ -219,6 +222,7 @@ impl DialogKind {
             DialogKind::StreamScenes => "stream-scenes",
             DialogKind::GoLiveHelper => "go-live-helper",
             DialogKind::SongSelect => "songselect",
+            DialogKind::GettingStarted => "getting-started",
         }
     }
 }
@@ -344,6 +348,7 @@ impl Operator {
             DialogKind::StreamScenes => stream_scenes::title(),
             DialogKind::GoLiveHelper => go_live_helper::title(),
             DialogKind::SongSelect => songselect::title(),
+            DialogKind::GettingStarted => getting_started::title(),
         }
     }
 }
@@ -367,6 +372,7 @@ pub(crate) fn wire(op: &Rc<Operator>) {
     usage::wire(op);
     stage_layouts::wire(op);
     go_live_helper::wire(op);
+    getting_started::wire(op);
     settings_stream_extras::wire(op);
 }
 

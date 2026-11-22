@@ -84,7 +84,7 @@ pub fn draw_key(fonts: &mut Fonts, key: &RenderKey) -> Rendered {
     render_text(fonts, &slide, &key.theme, key.canvas)
 }
 
-/// Default memory cap for cached pixels: 256 MB, about 32 full-HD slides.
+/// Default memory cap for cached pixels: 256 MB, about 32 full-HD slides. Less on a small computer (`Renderer::new`).
 const DEFAULT_CAP: usize = 256 * 1024 * 1024;
 
 /// The newest results, up to `cap` bytes of pixels. Each entry carries the count of its last use (`uses`), so a
@@ -153,7 +153,8 @@ fn blank(canvas: (u32, u32)) -> Rendered {
 pub struct Renderer { cache: Arc<Mutex<Lru>>, queue: Shared }
 
 impl Renderer {
-    pub fn new() -> Arc<Self> { Self::with_cap(DEFAULT_CAP) }
+    /// A renderer with the usual cache, smaller on a computer with little memory (`platform::memory`).
+    pub fn new() -> Arc<Self> { Self::with_cap(crate::platform::memory::share(DEFAULT_CAP)) }
 
     /// A renderer whose cache holds at most `bytes` of pixels (the newest result is always kept).
     pub fn with_cap(bytes: usize) -> Arc<Self> {

@@ -5,6 +5,7 @@ pub mod dialog;
 pub mod disk;
 pub mod firewall;
 pub mod instance;
+pub mod memory;
 pub mod monitors;
 pub mod ports;
 pub mod winit_events;

@@ -44,6 +44,6 @@ If RustyPresenter fails to start twice in a row, it starts the next time in safe
 
 ## Still stuck
 
-1. **Help → Report a problem…** writes a note to fill in.
-2. **Help → Open logs folder** shows the log files.
-3. Send both to whoever looks after RustyPresenter at your church, or [open an issue](https://github.com/SuperDuperSoft/RustyPresenter/issues) and attach them.
+1. **Help → Report a problem…** and click **Open the page**. Your web browser opens the report page with your version filled in. Write what happened and send it. It needs a free GitHub account.
+2. **Help → Open logs folder** shows the log files. Drag the newest ones into the report.
+3. No internet on that computer? Choose **Write a note** instead. Fill it in and send it, with the log files, to whoever looks after RustyPresenter at your church.

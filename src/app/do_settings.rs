@@ -35,6 +35,7 @@ pub(super) async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Val
                 // The panels are saved by `settings/dock` as they change.
                 s.dock = std::mem::take(&mut d.settings.dock);
                 s.look_fade_ms = s.look_fade_ms.min(crate::model::LOOK_FADE_MAX_MS);
+                if !crate::model::DRAW_HEIGHTS.contains(&s.draw_height) { s.draw_height = 0 }
                 // N31: only `network/save` changes these (it hashes the passwords).
                 s.network = std::mem::take(&mut d.settings.network);
                 // Settings → Songs → "Keep my songs in a folder" saves itself (`songs-folder/set`).

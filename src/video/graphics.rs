@@ -196,6 +196,9 @@ pub fn chosen() -> Chosen {
     CHOSEN.get().copied().unwrap_or(Chosen { graphics: Graphics::Software, draw: DrawMode::Software, fell_back_from: None })
 }
 
+/// What `choose_backend` picked, or `None` when it was never called (tests).
+pub fn picked() -> Option<Chosen> { CHOSEN.get().copied() }
+
 /// How video is drawn (see `chosen`).
 pub fn drawing() -> DrawMode { chosen().draw }
 

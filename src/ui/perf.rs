@@ -84,8 +84,11 @@ pub(crate) fn observe(label: &'static str, state: &RenderingState, api: &Graphic
     METER.with(|m| {
         let mut m = m.borrow_mut();
         m.seen(label);
-        if !wanted() || !matches!(state, RenderingState::AfterRendering) { return }
+        if !matches!(state, RenderingState::AfterRendering) { return }
         let now = Instant::now();
+        // Light mode counts the audience screen's frames during its fades, whether the line is shown or not.
+        if label == "room" { super::light::frame(now) }
+        if !wanted() { return }
         m.frame(label, now);
         if let GraphicsAPI::NativeOpenGL { get_proc_address } = api {
             if m.memory_due(now) {

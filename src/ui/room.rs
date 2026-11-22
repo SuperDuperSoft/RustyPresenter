@@ -37,7 +37,10 @@ fn slot(kind: Kind) -> Option<usize> {
 }
 
 /// How long a plan's layers crossfade: Settings' look fade when only the look changed (N9; 0 cuts), else `FADE`.
+/// In light mode everything cuts.
 fn fade_for(plan: &Plan, view: &LiveView) -> Duration {
+    // Light mode (`ui::light`): a computer that cannot keep up cuts.
+    if super::light::on() { return Duration::ZERO }
     // N26: a designed slide's own transition. Through black, the layers change while the screen is black.
     if let Some(t) = plan.transition {
         return match t.kind {
@@ -51,6 +54,7 @@ fn fade_for(plan: &Plan, view: &LiveView) -> Duration {
 
 /// Each half of a fade through black: a designed slide's own time, else `HALF`.
 fn half_for(plan: &Plan) -> Duration {
+    if super::light::on() { return Duration::ZERO }
     match plan.transition {
         Some(t) if t.kind == TransitionKind::Black => Duration::from_millis(u64::from(t.ms.min(crate::design::TRANSITION_MAX_MS) / 2)),
         _ => HALF,
@@ -62,7 +66,7 @@ fn half_for(plan: &Plan) -> Duration {
 struct Move { kind: TransitionKind, dir: Dir, new_b: bool }
 
 /// The push or wipe a plan's slide moves in with, if any.
-fn moving(t: Option<Transition>) -> Option<Transition> { t.filter(|t| t.kind.moves()) }
+fn moving(t: Option<Transition>) -> Option<Transition> { t.filter(|t| t.kind.moves() && !super::light::on()) }
 
 /// Where a face is `p` (0–1) of the way through a push or wipe going `dir`; `new`: the face coming in.
 pub(crate) fn geo(kind: TransitionKind, dir: Dir, p: f32, new: bool) -> Geo {
@@ -421,11 +425,14 @@ impl Inner {
         super::fade::refresh_period(mhz)
     }
 
-    /// The size layers are prepared at: the room monitor's, else the window's.
+    /// The size layers are prepared at: the room monitor's, else the window's; smaller, with the same shape, when
+    /// Screen Configuration → "Slides are drawn at" says so (the window stretches the pictures to fill it).
     fn canvas(&self) -> (u32, u32) {
-        if let Some(m) = &self.monitor { return m.size }
-        let s = self.ui.window().size();
-        if s.width > 0 && s.height > 0 { (s.width, s.height) } else { (1920, 1080) }
+        let full = match &self.monitor {
+            Some(m) => m.size,
+            None => { let s = self.ui.window().size(); if s.width > 0 && s.height > 0 { (s.width, s.height) } else { (1920, 1080) } }
+        };
+        super::light::fit(full)
     }
 
     fn start(&self, plan: Plan, view: &LiveView) {
@@ -591,6 +598,8 @@ impl Inner {
         self.sync_seek(prep.frame.seek);
         if let Some(c) = commit { self.shared.emit(c) }
         if let Some(f) = self.swap_probe.borrow().as_ref() { f() }
+        // Light mode judges how this crossfade draws; a change that fades nothing is not one.
+        if self.shared.role == "room" && self.fader.running() { super::light::fade_started(fade) }
     }
 
     /// Takes a player off air: silent at once, freed after the fade.
@@ -1068,6 +1077,28 @@ mod tests {
     }
     fn black(room: &Room) -> f32 { room.inner.fader.target(room.inner.black) }
     fn open(app: &Arc<App>) -> Rc<Room> { Room::open(app.clone(), Renderer::new(), None, None).unwrap() }
+
+    #[test]
+    fn light_mode_cuts_every_change() {
+        use crate::model::LightMode;
+        let mut v = test_app().live_view();
+        v.look_fade_ms = 2500;
+        let plan = |look_change, transition| Plan { token: 1, version: 1, prepare: vec![], remove: vec![], fade_through_black: false, look_change, transition, build: false };
+        let push = Some(Transition { kind: TransitionKind::Push, ms: 900, dir: Dir::Up });
+        let black = Some(Transition { kind: TransitionKind::Black, ms: 900, ..Default::default() });
+        crate::ui::light::set_mode(LightMode::On);
+        assert_eq!(fade_for(&plan(false, None), &v), Duration::ZERO, "a new slide cuts");
+        assert_eq!(fade_for(&plan(true, None), &v), Duration::ZERO, "so does a change of look");
+        assert_eq!(fade_for(&plan(false, push), &v), Duration::ZERO);
+        assert_eq!(moving(push), None, "a push does not move");
+        assert_eq!((half_for(&plan(false, None)), half_for(&plan(false, black))), (Duration::ZERO, Duration::ZERO), "through black is a cut too");
+        crate::ui::light::set_mode(LightMode::Off);
+        assert_eq!(fade_for(&plan(false, None), &v), FADE);
+        assert_eq!(moving(push).map(|t| t.kind), Some(TransitionKind::Push));
+        assert_eq!(half_for(&plan(false, None)), HALF);
+        crate::ui::light::set_mode(LightMode::Auto);
+        assert_eq!(fade_for(&plan(false, None), &v), FADE, "Automatic fades until the screen is found not to keep up");
+    }
 
     #[test]
     fn a_look_change_fades_for_the_settings_time() {

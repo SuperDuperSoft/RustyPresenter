@@ -22,6 +22,18 @@ fn save(w: &slint::Window, path: &str) {
     }
 }
 
+/// A laptop with a 4K projector to its right, so the dialog's map of connected screens has something to draw.
+struct TwoMonitors;
+impl rustypresenter::app::Screens for TwoMonitors {
+    fn open(&self, _role: &str, _monitor: Option<&str>) -> Result<(), String> { Ok(()) }
+    fn close(&self, _role: &str) {}
+    fn open_roles(&self) -> Vec<String> { vec![] }
+    fn monitors(&self) -> Vec<rustypresenter::app::Monitor> {
+        let m = |id: &str, n: u32, x: i32, w: i32, h: i32, primary| rustypresenter::app::Monitor { id: id.into(), label: format!("Screen {n}{} — {w}×{h}", if primary { " (main)" } else { "" }), x, y: 0, width: w, height: h, primary };
+        vec![m("LAPTOP", 1, 0, 1920, 1080, true), m("PROJECTOR", 2, 1920, 3840, 2160, false)]
+    }
+}
+
 struct NoScreens;
 impl OperatorScreens for NoScreens {
     fn video_info(&self) -> VideoInfo { VideoInfo { draw_mode: DrawMode::Software, mpv: None } }
@@ -35,9 +47,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let data = store.load()?;
     let app = App::new(store, data, 0, None);
     let rt = tokio::runtime::Runtime::new()?;
+    app.set_screens(std::sync::Arc::new(TwoMonitors));
     {
         let mut d = app.data();
-        d.settings.screens.assign("audience", ScreenTarget::Window);
+        d.settings.screens.assign("audience", ScreenTarget::Monitor("PROJECTOR".into()));
+        d.settings.draw_height = 1080;
         let s = &mut d.settings.screens.audience.screens[0];
         s.fix.red = 0.92;
         s.fix.gamma = 1.15;

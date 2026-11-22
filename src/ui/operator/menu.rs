@@ -40,6 +40,8 @@ pub enum MenuAction {
     FindMouse,
     /// Help → Tutorials: short how-tos, written to a page and opened in the browser (N35).
     Tutorials,
+    /// Help → Getting started…: the first steps again (`dialogs::getting_started`).
+    GettingStarted,
     /// Help → Report a problem…: a text file saying what to send and where the logs are (N35).
     ReportProblem,
     /// File → Clean up unused media… (N23).
@@ -112,6 +114,7 @@ pub fn action(id: &str) -> Option<MenuAction> {
         "find-verse" => MenuAction::FindVerse,
         "find-mouse" => MenuAction::FindMouse,
         "tutorials" => MenuAction::Tutorials,
+        "getting-started" => MenuAction::GettingStarted,
         "report-problem" => MenuAction::ReportProblem,
         "slides-grid" => MenuAction::SlideView(super::slides::SlideView::Grid),
         "slides-easy" => MenuAction::SlideView(super::slides::SlideView::Easy),
@@ -165,6 +168,7 @@ impl Operator {
             Some(MenuAction::FindVerse) => crate::ui::dialogs::find_verse::open(self, ""),
             Some(MenuAction::FindMouse) => self.find_mouse(),
             Some(MenuAction::Tutorials) => self.tutorials(),
+            Some(MenuAction::GettingStarted) => crate::ui::dialogs::getting_started::open(self),
             Some(MenuAction::ReportProblem) => self.report_problem(),
             Some(MenuAction::CleanUpMedia) => crate::ui::dialogs::settings_media::clean_up(self),
             Some(MenuAction::Listen) => self.listen(),
@@ -394,6 +398,7 @@ mod tests {
         assert_eq!(action("find-verse"), Some(MenuAction::FindVerse));
         assert_eq!(action("find-mouse"), Some(MenuAction::FindMouse));
         assert_eq!(action("tutorials"), Some(MenuAction::Tutorials));
+        assert_eq!(action("getting-started"), Some(MenuAction::GettingStarted));
         assert_eq!(action("report-problem"), Some(MenuAction::ReportProblem));
         assert_eq!(action("settings-media"), Some(MenuAction::Settings(SettingsTab::Media)));
         assert_eq!(action("media-cleanup"), Some(MenuAction::CleanUpMedia));

@@ -1,6 +1,7 @@
 //! The live column (`renderLive()` and `renderTransport()`, `operator.js:212-261`, buttons at `:345-347`): what is
 //! live, the monitor, the play/pause rows, the notice, Back/Next, the clears and Up next. The monitor's layers are
-//! drawn by `Preview`; while a video is live its frame comes from the room's player 4 times a second.
+//! drawn by `Preview`; while a video is live its frame comes from the room's player 4 times a second (once a second
+//! in light mode, `ui::light::grab_every`).
 use super::{view::{self, RoomStatus, TransportKind, TransportRow}, window::Operator};
 use crate::{
     app::LiveView,
@@ -13,9 +14,6 @@ use crate::{
 };
 use slint::{ComponentHandle, Image, Model, ModelRc, Timer, TimerMode, VecModel};
 use std::{cell::Cell, rc::{Rc, Weak}, sync::Arc, time::Duration};
-
-/// How often the preview asks the room's player for a frame (4 Hz).
-const GRAB_EVERY: Duration = Duration::from_millis(250);
 
 /// The column between updates.
 #[derive(Default)]
@@ -288,7 +286,7 @@ impl Operator {
         self.ui.set_monitor_video_frame(Image::default());
         if video.is_none() { return st.grab_timer.stop() }
         let me = self.me.clone();
-        st.grab_timer.start(TimerMode::Repeated, GRAB_EVERY, move || if let Some(op) = me.upgrade() { op.grab_tick() });
+        st.grab_timer.start(TimerMode::Repeated, crate::ui::light::grab_every(), move || if let Some(op) = me.upgrade() { op.grab_tick() });
     }
 
     /// "Audience screen is off" over a live video while the room window is not open (a room that is opening, or

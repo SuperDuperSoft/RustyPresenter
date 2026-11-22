@@ -551,7 +551,7 @@ msgstr "星期"
 msgid "What to do"
 msgstr "执行操作"
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint ui/dialogs/settings-general.slint
 msgid "On"
 msgstr "开启"
 
@@ -615,7 +615,7 @@ msgstr "重置"
 msgid "Pause"
 msgstr "暂停"
 
-#: ui/dialogs/automation.slint ui/operator/automation-strip.slint
+#: ui/dialogs/automation.slint ui/dialogs/getting-started.slint ui/operator/automation-strip.slint
 msgid "Start"
 msgstr "开始"
 
@@ -1108,6 +1108,90 @@ msgstr "圣经顺序"
 msgid "Pick a result to see its chapter. Click a verse, or Shift+click to add a range."
 msgstr "选择一个结果查看该章。点击一节经文，或按住 Shift 点击添加一段范围。"
 
+#: ui/dialogs/getting-started.slint
+msgid "Step {} of 3"
+msgstr "第 {} 步，共 3 步"
+
+#: ui/dialogs/getting-started.slint
+msgid "Welcome to RustyPresenter"
+msgstr "欢迎使用 RustyPresenter"
+
+#: ui/dialogs/getting-started.slint
+msgid "Three short steps get you from here to words on the screen. It takes about two minutes."
+msgstr "只需三个简短步骤，就能把文字显示到屏幕上。大约需要两分钟。"
+
+#: ui/dialogs/getting-started.slint
+msgid "You can skip this at any time. Help → Getting started… brings it back."
+msgstr "你可以随时跳过。帮助 → 入门… 可以再次显示。"
+
+#: ui/dialogs/getting-started.slint
+msgid "Choose the screen the room sees"
+msgstr "选择会众看到的屏幕"
+
+#: ui/dialogs/getting-started.slint
+msgid "Plug in the projector or TV and set the computer to extend the desktop onto it. Then choose it as the audience screen."
+msgstr "接上投影仪或电视，并把电脑设置为将桌面扩展到它上面。然后把它选为会众屏幕。"
+
+#: ui/dialogs/getting-started.slint
+msgid "Choose screens…"
+msgstr "选择屏幕…"
+
+#: ui/dialogs/getting-started.slint
+msgid "No projector here today? Click Next. Window → Screens… does this later."
+msgstr "今天没有投影仪？点击“下一张”。以后可以在 窗口 → 屏幕… 中设置。"
+
+#: ui/dialogs/getting-started.slint
+msgid "Add something to show"
+msgstr "添加要显示的内容"
+
+#: ui/dialogs/getting-started.slint
+msgid "A song, a Bible passage, a video, slides or an announcement. You can also drag files onto the window."
+msgstr "歌曲、经文、视频、幻灯片或通知。也可以把文件拖到窗口上。"
+
+#: ui/dialogs/getting-started.slint
+msgid "Add to service…"
+msgstr "添加到聚会…"
+
+#: ui/dialogs/getting-started.slint
+msgid "Everything you add shows up in the list on the left."
+msgstr "你添加的所有内容都会出现在左侧的列表中。"
+
+#: ui/dialogs/getting-started.slint
+msgid "Show it"
+msgstr "显示出来"
+
+#: ui/dialogs/getting-started.slint
+msgid "Click a slide and it is on the screen at once. The red outline shows what the room sees."
+msgstr "点击一张幻灯片，它立刻显示在屏幕上。红色边框表示会众看到的内容。"
+
+#: ui/dialogs/getting-started.slint
+msgid "During the service, → or Space goes to the next slide and ← goes back. F1 clears the screen."
+msgstr "聚会期间，按 → 或空格到下一张幻灯片，按 ← 返回。F1 清除屏幕。"
+
+#: ui/dialogs/getting-started.slint
+msgid "Stuck? The Help menu has short tutorials, and Report a problem… when something breaks."
+msgstr "遇到困难？“帮助”菜单里有简短教程；出了问题可以用“报告问题…”。"
+
+#: ui/dialogs/getting-started.slint
+msgid "Open the tutorials"
+msgstr "打开教程"
+
+#: ui/dialogs/getting-started.slint
+msgid "Skip"
+msgstr "跳过"
+
+#: ui/dialogs/getting-started.slint ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Back"
+msgstr "返回"
+
+#: ui/dialogs/getting-started.slint ui/dialogs/go-live-helper.slint ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "下一张"
+
+#: ui/dialogs/getting-started.slint ui/dialogs/music.slint ui/dialogs/translation-editor.slint src/i18n/remote_strings.rs
+msgid "Done"
+msgstr "完成"
+
 #: ui/dialogs/go-live-helper.slint
 msgid "Step {} of 4"
 msgstr "第 {} 步，共 4 步"
@@ -1196,14 +1280,6 @@ msgstr "可以开始直播了"
 msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Livestream."
 msgstr "聚会开始时按顶部的“开始直播”，结束时再按一次。这里选的一切都可以在“设置 → 直播”中更改。"
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Back"
-msgstr "返回"
-
-#: ui/dialogs/go-live-helper.slint ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Next"
-msgstr "下一张"
-
 #: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/settings-phone.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "关闭"
@@ -1260,7 +1336,7 @@ msgstr "左右并排"
 msgid "Top and bottom"
 msgstr "上下排列"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-stream.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-general.slint ui/dialogs/settings-stream.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "自动"
 
@@ -1368,7 +1444,7 @@ msgstr "用于所有幻灯片"
 msgid "Auto-advance after (s)"
 msgstr "自动翻页间隔（秒）"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint ui/operator/bible-box.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-general.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint ui/operator/bible-box.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr "关"
 
@@ -1498,10 +1574,6 @@ msgstr "下一首"
 #: ui/dialogs/music.slint ui/operator/live_controls.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs
 msgid "Play"
 msgstr "播放"
-
-#: ui/dialogs/music.slint ui/dialogs/translation-editor.slint src/i18n/remote_strings.rs
-msgid "Done"
-msgstr "完成"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the audience screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
@@ -1768,6 +1840,10 @@ msgid "Reset the picture"
 msgstr "重置画面"
 
 #: ui/dialogs/screens.slint
+msgid "Connected screens"
+msgstr "已连接的屏幕"
+
+#: ui/dialogs/screens.slint
 msgid "Screen"
 msgstr "屏幕"
 
@@ -1786,6 +1862,10 @@ msgstr "高度"
 #: ui/dialogs/screens.slint
 msgid "Aspect ratio: {}"
 msgstr "宽高比：{}"
+
+#: ui/dialogs/screens.slint
+msgid "Slides are drawn at"
+msgstr "幻灯片绘制尺寸"
 
 #: ui/dialogs/screens.slint
 msgid "Show what the audience screen shows"
@@ -1830,6 +1910,14 @@ msgstr "识别"
 #: ui/dialogs/screens.slint
 msgid "Show each screen's number on it for a few seconds"
 msgstr "在每个屏幕上显示其编号几秒钟"
+
+#: ui/dialogs/screens.slint
+msgid "Windows display settings"
+msgstr "Windows 显示设置"
+
+#: ui/dialogs/screens.slint
+msgid "Change a screen's resolution or how the screens are arranged, in Windows"
+msgstr "在 Windows 中更改屏幕分辨率或屏幕的排列方式"
 
 #: ui/dialogs/screens.slint
 msgid "Refresh"
@@ -2258,6 +2346,14 @@ msgstr "使用此项"
 #: ui/dialogs/settings-general.slint
 msgid "Restart now"
 msgstr "立即重启"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Light mode"
+msgstr "轻量模式"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "For a slow computer: slides change without fading, and the live preview's video is refreshed less often. Automatic turns it on when the audience screen cannot keep up."
+msgstr "适用于较慢的电脑：幻灯片切换时不淡入淡出，实时预览中的视频刷新得更少。“自动”会在会众屏幕跟不上时开启它。"
 
 #: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
 msgid "Performance"
@@ -3091,7 +3187,7 @@ msgstr "已登录为 {}"
 msgid "Sign out"
 msgstr "退出登录"
 
-#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/getting_started.rs src/ui/dialogs/settings_find.rs
 msgid "Getting started"
 msgstr "入门"
 
@@ -6334,6 +6430,10 @@ msgstr "检查聚会"
 #: ui/operator.slint src/shortcuts.rs
 msgid "Find my mouse"
 msgstr "找到鼠标"
+
+#: ui/operator.slint
+msgid "Getting started…"
+msgstr "入门…"
 
 #: ui/operator.slint
 msgid "Tutorials"
@@ -10648,6 +10748,18 @@ msgstr "约 {ms} ms"
 msgid "Colour and corner changes show when the screens draw with OpenGL (Settings → General → Screens and graphics → Graphics: Automatic or OpenGL). Test patterns and the delay work either way."
 msgstr "屏幕用 OpenGL 绘制时才能看到颜色和角的更改（设置 → 常规 → 屏幕和图形 → 图形：自动或 OpenGL）。测试图案和延迟两种方式都能用。"
 
+#: src/strings/screens.rs
+msgid "Main"
+msgstr "主屏幕"
+
+#: src/strings/screens.rs
+msgid "The screen's own size"
+msgstr "屏幕本身的尺寸"
+
+#: src/strings/screens.rs
+msgid "This screen's slides are drawn at {width} × {height}. A smaller size is stretched to fill the screen: a little softer, and much easier for a slow computer or a 4K screen. It applies to every audience screen. Video keeps its own sharpness."
+msgstr "此屏幕的幻灯片以 {width} × {height} 绘制。较小的尺寸会被拉伸以填满屏幕：略微柔和一些，但对较慢的电脑或 4K 屏幕轻松得多。适用于所有会众屏幕。视频保持原有清晰度。"
+
 #: src/strings/scripture.rs
 msgid "Type at least one word to search for."
 msgstr "请至少输入一个要搜索的词。"
@@ -12570,6 +12682,10 @@ msgstr "保持原样"
 msgid "Saved."
 msgstr "已保存。"
 
+#: src/ui/dialogs/getting_started.rs
+msgid "Help → Getting started… shows those steps again."
+msgstr "帮助 → 入门… 可以再次显示这些步骤。"
+
 #: src/ui/dialogs/go_live_helper.rs
 msgid "Go Live: getting started"
 msgstr "开始直播：入门"
@@ -13290,7 +13406,7 @@ msgstr "获取版本 {version}…"
 msgid "Your web browser is opening the download page. Install it when no service is running."
 msgstr "你的网页浏览器正在打开下载页面。请在没有聚会进行时安装。"
 
-#: src/ui/dialogs/update.rs
+#: src/ui/dialogs/update.rs src/ui/operator/help.rs
 msgid "Could not open your web browser: {reason}"
 msgstr "无法打开你的网页浏览器：{reason}"
 
@@ -13376,6 +13492,31 @@ msgid "What happened:"
 msgstr "发生了什么："
 
 #: src/ui/operator/help.rs
+msgid "From a computer with internet, you can also report it here:"
+msgstr "在能上网的电脑上，也可以在这里报告："
+
+#: src/ui/operator/help.rs
+msgid ""
+"Report a problem\n"
+"\n"
+"Your web browser opens a page where you write what happened. It needs a free GitHub account, and what you write there can be read by anyone.\n"
+"\n"
+"No internet on this computer? Write a note instead and send it later."
+msgstr "报告问题\n\n你的网页浏览器会打开一个页面，在那里写下发生了什么。需要一个免费的 GitHub 账号，你在那里写的内容任何人都能看到。\n\n这台电脑没有网络？可以改为写一份说明，以后再发送。"
+
+#: src/ui/operator/help.rs
+msgid "Open the page"
+msgstr "打开页面"
+
+#: src/ui/operator/help.rs
+msgid "Write a note"
+msgstr "写说明"
+
+#: src/ui/operator/help.rs
+msgid "Your web browser is opening the report page."
+msgstr "你的网页浏览器正在打开报告页面。"
+
+#: src/ui/operator/help.rs
 msgid "RustyPresenter: quick tutorials"
 msgstr "RustyPresenter：快速教程"
 
@@ -13448,8 +13589,8 @@ msgid "The audience screen shows the wrong thing: press the clear keys above, th
 msgstr "会众屏幕显示错了：按上面的清空键，然后重新显示幻灯片。"
 
 #: src/ui/operator/help.rs
-msgid "Help → Report a problem… writes a note to fill in and says where the log files are."
-msgstr "“帮助 → 报告问题…”会生成一份待填写的说明，并告诉你日志文件在哪里。"
+msgid "Help → Report a problem… opens the report page in your web browser, or writes a note to fill in and says where the log files are."
+msgstr "帮助 → 报告问题… 会在你的网页浏览器中打开报告页面，或者写一份待填写的说明，并告诉你日志文件的位置。"
 
 #: src/ui/operator/menu.rs
 msgid "Choose what pre-service does, then click Save."
@@ -13470,6 +13611,10 @@ msgstr "监听中：声音只送到你的耳机。会众听不到。"
 #: src/ui/operator/menu.rs
 msgid "The sound goes to the room again."
 msgstr "声音已重新送到会众音响。"
+
+#: src/ui/operator/outputs.rs
+msgid "This computer is having trouble keeping up, so slides now change without fading. To change this: Settings → General → Screens and graphics → Light mode."
+msgstr "这台电脑有些跟不上，所以幻灯片现在切换时不再淡入淡出。如需更改：设置 → 常规 → 屏幕和图形 → 轻量模式。"
 
 #: src/ui/operator/record.rs
 msgid "Get FFmpeg"
@@ -13902,6 +14047,9 @@ msgstr "yt-dlp 没有保存视频"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "不是媒体文件"
+
+#~ msgid "Help → Report a problem… writes a note to fill in and says where the log files are."
+#~ msgstr "“帮助 → 报告问题…”会生成一份待填写的说明，并告诉你日志文件在哪里。"
 
 #~ msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
 #~ msgstr "每次启动 RustyPresenter 时以及每天一次，都会进行完整备份（诗歌、聚会、设置以及所有视频、图片和幻灯片）。最近 10 份备份保存在"

@@ -551,7 +551,7 @@ msgstr "Дні"
 msgid "What to do"
 msgstr "Що зробити"
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint ui/dialogs/settings-general.slint
 msgid "On"
 msgstr "Увімк."
 
@@ -615,7 +615,7 @@ msgstr "Скинути"
 msgid "Pause"
 msgstr "Пауза"
 
-#: ui/dialogs/automation.slint ui/operator/automation-strip.slint
+#: ui/dialogs/automation.slint ui/dialogs/getting-started.slint ui/operator/automation-strip.slint
 msgid "Start"
 msgstr "Почати"
 
@@ -1108,6 +1108,90 @@ msgstr "За порядком Біблії"
 msgid "Pick a result to see its chapter. Click a verse, or Shift+click to add a range."
 msgstr "Виберіть результат, щоб побачити його розділ. Клацніть вірш або Shift+клацання, щоб додати діапазон."
 
+#: ui/dialogs/getting-started.slint
+msgid "Step {} of 3"
+msgstr "Крок {} із 3"
+
+#: ui/dialogs/getting-started.slint
+msgid "Welcome to RustyPresenter"
+msgstr "Ласкаво просимо до RustyPresenter"
+
+#: ui/dialogs/getting-started.slint
+msgid "Three short steps get you from here to words on the screen. It takes about two minutes."
+msgstr "Три короткі кроки — і слова будуть на екрані. Це займе близько двох хвилин."
+
+#: ui/dialogs/getting-started.slint
+msgid "You can skip this at any time. Help → Getting started… brings it back."
+msgstr "Це можна пропустити будь-коли. Довідка → З чого почати… покаже це знову."
+
+#: ui/dialogs/getting-started.slint
+msgid "Choose the screen the room sees"
+msgstr "Виберіть екран, який бачить зал"
+
+#: ui/dialogs/getting-started.slint
+msgid "Plug in the projector or TV and set the computer to extend the desktop onto it. Then choose it as the audience screen."
+msgstr "Підключіть проєктор або телевізор і налаштуйте комп'ютер так, щоб робочий стіл розширювався на нього. Потім виберіть його як екран у залі."
+
+#: ui/dialogs/getting-started.slint
+msgid "Choose screens…"
+msgstr "Вибрати екрани…"
+
+#: ui/dialogs/getting-started.slint
+msgid "No projector here today? Click Next. Window → Screens… does this later."
+msgstr "Сьогодні немає проєктора? Натисніть «Далі». Це можна зробити пізніше: Вікно → Екрани…."
+
+#: ui/dialogs/getting-started.slint
+msgid "Add something to show"
+msgstr "Додайте те, що потрібно показати"
+
+#: ui/dialogs/getting-started.slint
+msgid "A song, a Bible passage, a video, slides or an announcement. You can also drag files onto the window."
+msgstr "Пісню, уривок із Біблії, відео, слайди або оголошення. Файли також можна перетягнути у вікно."
+
+#: ui/dialogs/getting-started.slint
+msgid "Add to service…"
+msgstr "Додати до служіння…"
+
+#: ui/dialogs/getting-started.slint
+msgid "Everything you add shows up in the list on the left."
+msgstr "Усе, що ви додаєте, з'являється у списку ліворуч."
+
+#: ui/dialogs/getting-started.slint
+msgid "Show it"
+msgstr "Покажіть це"
+
+#: ui/dialogs/getting-started.slint
+msgid "Click a slide and it is on the screen at once. The red outline shows what the room sees."
+msgstr "Клацніть слайд — і він одразу на екрані. Червона рамка показує, що бачить зал."
+
+#: ui/dialogs/getting-started.slint
+msgid "During the service, → or Space goes to the next slide and ← goes back. F1 clears the screen."
+msgstr "Під час служіння → або Пробіл переходить до наступного слайда, а ← повертає назад. F1 очищає екран."
+
+#: ui/dialogs/getting-started.slint
+msgid "Stuck? The Help menu has short tutorials, and Report a problem… when something breaks."
+msgstr "Не виходить? У меню «Довідка» є короткі посібники та пункт «Повідомити про проблему…», якщо щось зламалося."
+
+#: ui/dialogs/getting-started.slint
+msgid "Open the tutorials"
+msgstr "Відкрити посібники"
+
+#: ui/dialogs/getting-started.slint
+msgid "Skip"
+msgstr "Пропустити"
+
+#: ui/dialogs/getting-started.slint ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Back"
+msgstr "Назад"
+
+#: ui/dialogs/getting-started.slint ui/dialogs/go-live-helper.slint ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "Далі"
+
+#: ui/dialogs/getting-started.slint ui/dialogs/music.slint ui/dialogs/translation-editor.slint src/i18n/remote_strings.rs
+msgid "Done"
+msgstr "Готово"
+
 #: ui/dialogs/go-live-helper.slint
 msgid "Step {} of 4"
 msgstr "Крок {} з 4"
@@ -1196,14 +1280,6 @@ msgstr "Усе готово до ефіру"
 msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Livestream."
 msgstr "Натисніть «В ефір» угорі, коли починається служіння, і натисніть ще раз наприкінці. Усе, що вибрано тут, можна змінити в Налаштування → Трансляція."
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Back"
-msgstr "Назад"
-
-#: ui/dialogs/go-live-helper.slint ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Next"
-msgstr "Далі"
-
 #: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/settings-phone.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "Закрити"
@@ -1260,7 +1336,7 @@ msgstr "Поруч"
 msgid "Top and bottom"
 msgstr "Згори й знизу"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-stream.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-general.slint ui/dialogs/settings-stream.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "Автоматично"
 
@@ -1368,7 +1444,7 @@ msgstr "Для всіх слайдів"
 msgid "Auto-advance after (s)"
 msgstr "Автоперехід через (с)"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint ui/operator/bible-box.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-general.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint ui/operator/bible-box.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr "Вимк."
 
@@ -1498,10 +1574,6 @@ msgstr "Наступна пісня"
 #: ui/dialogs/music.slint ui/operator/live_controls.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs
 msgid "Play"
 msgstr "Відтворити"
-
-#: ui/dialogs/music.slint ui/dialogs/translation-editor.slint src/i18n/remote_strings.rs
-msgid "Done"
-msgstr "Готово"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the audience screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
@@ -1768,6 +1840,10 @@ msgid "Reset the picture"
 msgstr "Скинути зображення"
 
 #: ui/dialogs/screens.slint
+msgid "Connected screens"
+msgstr "Під’єднані екрани"
+
+#: ui/dialogs/screens.slint
 msgid "Screen"
 msgstr "Екран"
 
@@ -1786,6 +1862,10 @@ msgstr "Висота"
 #: ui/dialogs/screens.slint
 msgid "Aspect ratio: {}"
 msgstr "Співвідношення сторін: {}"
+
+#: ui/dialogs/screens.slint
+msgid "Slides are drawn at"
+msgstr "Слайди малюються в розмірі"
 
 #: ui/dialogs/screens.slint
 msgid "Show what the audience screen shows"
@@ -1830,6 +1910,14 @@ msgstr "Визначити"
 #: ui/dialogs/screens.slint
 msgid "Show each screen's number on it for a few seconds"
 msgstr "Показати номер кожного екрана на ньому кілька секунд"
+
+#: ui/dialogs/screens.slint
+msgid "Windows display settings"
+msgstr "Параметри дисплея Windows"
+
+#: ui/dialogs/screens.slint
+msgid "Change a screen's resolution or how the screens are arranged, in Windows"
+msgstr "Змінити роздільну здатність екрана або розташування екранів у Windows"
 
 #: ui/dialogs/screens.slint
 msgid "Refresh"
@@ -2258,6 +2346,14 @@ msgstr "Використати"
 #: ui/dialogs/settings-general.slint
 msgid "Restart now"
 msgstr "Перезапустити"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Light mode"
+msgstr "Легкий режим"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "For a slow computer: slides change without fading, and the live preview's video is refreshed less often. Automatic turns it on when the audience screen cannot keep up."
+msgstr "Для повільного комп’ютера: слайди змінюються без плавного переходу, а відео в попередньому перегляді оновлюється рідше. «Автоматично» вмикає його, коли екран для зали не встигає."
 
 #: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
 msgid "Performance"
@@ -3091,7 +3187,7 @@ msgstr "Увійшли як {}"
 msgid "Sign out"
 msgstr "Вийти"
 
-#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/getting_started.rs src/ui/dialogs/settings_find.rs
 msgid "Getting started"
 msgstr "З чого почати"
 
@@ -6334,6 +6430,10 @@ msgstr "Перевірити служіння"
 #: ui/operator.slint src/shortcuts.rs
 msgid "Find my mouse"
 msgstr "Знайти мою мишу"
+
+#: ui/operator.slint
+msgid "Getting started…"
+msgstr "З чого почати…"
 
 #: ui/operator.slint
 msgid "Tutorials"
@@ -10710,6 +10810,18 @@ msgstr "приблизно {ms} мс"
 msgid "Colour and corner changes show when the screens draw with OpenGL (Settings → General → Screens and graphics → Graphics: Automatic or OpenGL). Test patterns and the delay work either way."
 msgstr "Зміни кольору й кутів видно, коли екрани малюються через OpenGL (Налаштування → Загальні → Екрани і графіка → Графіка: Авто або OpenGL). Тестові таблиці й затримка працюють за будь-якого вибору."
 
+#: src/strings/screens.rs
+msgid "Main"
+msgstr "Основний"
+
+#: src/strings/screens.rs
+msgid "The screen's own size"
+msgstr "Власний розмір екрана"
+
+#: src/strings/screens.rs
+msgid "This screen's slides are drawn at {width} × {height}. A smaller size is stretched to fill the screen: a little softer, and much easier for a slow computer or a 4K screen. It applies to every audience screen. Video keeps its own sharpness."
+msgstr "Слайди цього екрана малюються в розмірі {width} × {height}. Менший розмір розтягується на весь екран: трохи м’якше, зате значно легше для повільного комп’ютера або екрана 4K. Це стосується всіх екранів для зали. Відео зберігає свою чіткість."
+
 #: src/strings/scripture.rs
 msgid "Type at least one word to search for."
 msgstr "Введіть хоча б одне слово для пошуку."
@@ -12658,6 +12770,10 @@ msgstr "Залишити як є"
 msgid "Saved."
 msgstr "Збережено."
 
+#: src/ui/dialogs/getting_started.rs
+msgid "Help → Getting started… shows those steps again."
+msgstr "Довідка → З чого почати… знову покаже ці кроки."
+
 #: src/ui/dialogs/go_live_helper.rs
 msgid "Go Live: getting started"
 msgstr "В ефір: з чого почати"
@@ -13382,7 +13498,7 @@ msgstr "Отримати версію {version}…"
 msgid "Your web browser is opening the download page. Install it when no service is running."
 msgstr "Ваш браузер відкриває сторінку завантаження. Встановіть її, коли не триває служіння."
 
-#: src/ui/dialogs/update.rs
+#: src/ui/dialogs/update.rs src/ui/operator/help.rs
 msgid "Could not open your web browser: {reason}"
 msgstr "Не вдалося відкрити браузер: {reason}"
 
@@ -13470,6 +13586,31 @@ msgid "What happened:"
 msgstr "Що сталося:"
 
 #: src/ui/operator/help.rs
+msgid "From a computer with internet, you can also report it here:"
+msgstr "З комп'ютера з інтернетом про проблему також можна повідомити тут:"
+
+#: src/ui/operator/help.rs
+msgid ""
+"Report a problem\n"
+"\n"
+"Your web browser opens a page where you write what happened. It needs a free GitHub account, and what you write there can be read by anyone.\n"
+"\n"
+"No internet on this computer? Write a note instead and send it later."
+msgstr "Повідомити про проблему\n\nУ браузері відкриється сторінка, де ви напишете, що сталося. Потрібен безкоштовний обліковий запис GitHub, і написане там може прочитати будь-хто.\n\nНа цьому комп'ютері немає інтернету? Напишіть нотатку й надішліть її пізніше."
+
+#: src/ui/operator/help.rs
+msgid "Open the page"
+msgstr "Відкрити сторінку"
+
+#: src/ui/operator/help.rs
+msgid "Write a note"
+msgstr "Написати нотатку"
+
+#: src/ui/operator/help.rs
+msgid "Your web browser is opening the report page."
+msgstr "Браузер відкриває сторінку для повідомлень про проблеми."
+
+#: src/ui/operator/help.rs
 msgid "RustyPresenter: quick tutorials"
 msgstr "RustyPresenter: короткі посібники"
 
@@ -13542,8 +13683,8 @@ msgid "The audience screen shows the wrong thing: press the clear keys above, th
 msgstr "Екран у залі показує не те: натисніть клавіші очищення вище, а потім знову покажіть слайд."
 
 #: src/ui/operator/help.rs
-msgid "Help → Report a problem… writes a note to fill in and says where the log files are."
-msgstr "Довідка → Повідомити про проблему… створює нотатку для заповнення й показує, де лежать файли журналів."
+msgid "Help → Report a problem… opens the report page in your web browser, or writes a note to fill in and says where the log files are."
+msgstr "Довідка → Повідомити про проблему… відкриває сторінку для повідомлень у браузері або створює нотатку, яку потрібно заповнити, і вказує, де лежать файли журналів."
 
 #: src/ui/operator/menu.rs
 msgid "Choose what pre-service does, then click Save."
@@ -13564,6 +13705,10 @@ msgstr "Прослуховування: звук іде лише у ваші н�
 #: src/ui/operator/menu.rs
 msgid "The sound goes to the room again."
 msgstr "Звук знову йде в зал."
+
+#: src/ui/operator/outputs.rs
+msgid "This computer is having trouble keeping up, so slides now change without fading. To change this: Settings → General → Screens and graphics → Light mode."
+msgstr "Цей комп’ютер не встигає, тому слайди тепер змінюються без плавного переходу. Змінити: Налаштування → Загальні → Екрани і графіка → Легкий режим."
 
 #: src/ui/operator/record.rs
 msgid "Get FFmpeg"
@@ -14002,6 +14147,9 @@ msgstr "yt-dlp не зберіг відео"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "не медіафайл"
+
+#~ msgid "Help → Report a problem… writes a note to fill in and says where the log files are."
+#~ msgstr "Довідка → Повідомити про проблему… створює нотатку для заповнення й показує, де лежать файли журналів."
 
 #~ msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
 #~ msgstr "Повна резервна копія (пісні, служіння, налаштування та всі відео, зображення й слайди) створюється під час кожного запуску RustyPresenter і раз на день. Останні 10 зберігаються в"

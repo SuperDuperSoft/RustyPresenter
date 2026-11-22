@@ -6,7 +6,7 @@ use crate::{
     app::test_app,
     model::{ItemKind, ServiceItem},
     ui::{
-        dialogs::{AddTab, add, automation, find_verse, go_live_helper, item_edit, music, overlays, phone, print, quick_search, screens, services, show_message, slide_breaks, song_editor, songselect, stage_layouts, stream_scenes, translation_editor, usage},
+        dialogs::{AddTab, add, automation, find_verse, getting_started, go_live_helper, item_edit, music, overlays, phone, print, quick_search, screens, services, show_message, slide_breaks, song_editor, songselect, stage_layouts, stream_scenes, translation_editor, usage},
         operator::window::{Operator, testing::{find, open, refresh}},
     },
 };
@@ -71,6 +71,7 @@ fn every_dialog_fits_a_1024_by_768_window() {
         ("Your scenes", Box::new(stream_scenes::open)),
         ("SongSelect", Box::new(songselect::open)),
         ("Go Live helper", Box::new(go_live_helper::open)),
+        ("Getting started", Box::new(getting_started::open)),
     ];
     for size in [(1024.0, 768.0), (1100.0, 700.0)] {
         op.window().set_size(slint::LogicalSize::new(size.0, size.1));

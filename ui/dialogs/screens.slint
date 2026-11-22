@@ -11,6 +11,10 @@ export struct ScreenRow { id: string, name: string, size: string, status: string
 /// The Audience or the Stage list. `key` is what the actions call it.
 export struct ScreenList { key: string, title: string, on: bool, rows: [ScreenRow] }
 
+/// A connected monitor on the layout map: where it sits in the map (0–1 of its width and height), its number (as
+/// Identify shows it), its resolution, and what shows on it ("Room", "Stage", "Main"); `used`: one of our screens.
+export struct MonitorBox { x: float, y: float, w: float, h: float, number: string, size: string, shows: string, used: bool }
+
 /// Set and answered by `src/ui/dialogs/screens.rs`.
 export global ScreensDialogState {
     in property <[ScreenList]> lists;
@@ -30,6 +34,17 @@ export global ScreensDialogState {
     in property <string> note;
     in property <bool> can-remove;
     in property <bool> one-monitor;
+    /// The connected monitors as Windows has them arranged, and the map's width over its height.
+    in property <[MonitorBox]> monitors;
+    in property <float> map-aspect: 1.78;
+    /// "Slides are drawn at" (`Settings::draw_height`): the choices, the one picked, and what that means here.
+    in property <[string]> draw-sizes;
+    in-out property <int> draw-size;
+    in property <string> draw-note;
+    callback pick-draw-size(int);
+    /// The system has a display settings page to open (Windows).
+    in property <bool> has-display-settings;
+    callback display-settings();
     /// N20: the Screen or Picture tab on the right.
     in-out property <int> tab;
     /// A stage screen can show the audience picture instead (`mirror`).
@@ -214,6 +229,52 @@ component Setting inherits VerticalLayout {
     @children
 }
 
+/// The connected monitors, drawn where the system has them: each with its number, its resolution and what it shows.
+component MonitorMap inherits Rectangle {
+    height: 120px;
+    property <length> inner-w: min(self.width, self.height * ScreensDialogState.map-aspect);
+    property <length> inner-h: self.inner-w / ScreensDialogState.map-aspect;
+    for m in ScreensDialogState.monitors: Rectangle {
+        x: (root.width - root.inner-w) / 2 + root.inner-w * m.x + 1px;
+        y: (root.height - root.inner-h) / 2 + root.inner-h * m.y + 1px;
+        width: max(0px, root.inner-w * m.w - 2px);
+        height: max(0px, root.inner-h * m.h - 2px);
+        border-radius: 5px;
+        border-width: m.used ? 2px : 1px;
+        border-color: m.used ? Theme.accent : Theme.dash;
+        background: Theme.panel-2;
+        clip: true;
+        VerticalLayout {
+            alignment: center;
+            padding: 2px;
+            Text {
+                text: m.number;
+                color: Theme.text;
+                font-family: Theme.font;
+                font-size: 15px;
+                font-weight: 700;
+                horizontal-alignment: center;
+            }
+            Text {
+                text: m.size;
+                color: Theme.muted;
+                font-family: Theme.font;
+                font-size: 11px;
+                horizontal-alignment: center;
+                overflow: elide;
+            }
+            if m.shows != "": Text {
+                text: m.shows;
+                color: m.used ? Theme.accent : Theme.muted;
+                font-family: Theme.font;
+                font-size: 11px;
+                horizontal-alignment: center;
+                overflow: elide;
+            }
+        }
+    }
+}
+
 /// One colour setting: its name, a slider and the number.
 component ColourRow inherits HorizontalLayout {
     in property <string> label;
@@ -371,6 +432,10 @@ export component ScreensDialog inherits VerticalLayout {
                 spacing: 18px;
                 alignment: start;
                 for l in ScreensDialogState.lists: list := ScreenListView { list: l; }
+                if ScreensDialogState.monitors.length > 0: Setting {
+                    label: @tr("Connected screens");
+                    monitor-map := MonitorMap {}
+                }
             }
             Rectangle {
                 width: 1px;
@@ -446,6 +511,25 @@ export component ScreensDialog inherits VerticalLayout {
                         font-size: 13px;
                     }
                 }
+                if ScreensDialogState.can-mask && ScreensDialogState.has-size: Setting {
+                    label: @tr("Slides are drawn at");
+                    HorizontalLayout {
+                        alignment: start;
+                        draw-select := Select {
+                            width: 280px;
+                            options: ScreensDialogState.draw-sizes;
+                            index <=> ScreensDialogState.draw-size;
+                            changed(i) => { ScreensDialogState.pick-draw-size(i); }
+                        }
+                    }
+                    draw-note := Text {
+                        text: ScreensDialogState.draw-note;
+                        color: Theme.muted;
+                        font-family: Theme.font;
+                        font-size: 13px;
+                        wrap: word-wrap;
+                    }
+                }
                 if ScreensDialogState.is-stage: HorizontalLayout {
                     spacing: 10px;
                     mirror-toggle := Toggle {
@@ -513,6 +597,11 @@ export component ScreensDialog inherits VerticalLayout {
             text: @tr("Identify");
             tooltip: @tr("Show each screen's number on it for a few seconds");
             clicked => { ScreensDialogState.identify(); }
+        }
+        if ScreensDialogState.has-display-settings: display-settings-btn := Btn {
+            text: @tr("Windows display settings");
+            tooltip: @tr("Change a screen's resolution or how the screens are arranged, in Windows");
+            clicked => { ScreensDialogState.display-settings(); }
         }
         Rectangle { horizontal-stretch: 1; }
         refresh-btn := Btn {

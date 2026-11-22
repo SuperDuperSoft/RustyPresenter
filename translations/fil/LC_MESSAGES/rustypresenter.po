@@ -551,7 +551,7 @@ msgstr "Mga araw"
 msgid "What to do"
 msgstr "Gagawin"
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint ui/dialogs/settings-general.slint
 msgid "On"
 msgstr "Naka-on"
 
@@ -615,7 +615,7 @@ msgstr "I-reset"
 msgid "Pause"
 msgstr "I-pause"
 
-#: ui/dialogs/automation.slint ui/operator/automation-strip.slint
+#: ui/dialogs/automation.slint ui/dialogs/getting-started.slint ui/operator/automation-strip.slint
 msgid "Start"
 msgstr "Simulan"
 
@@ -1108,6 +1108,90 @@ msgstr "Ayos ng Bibliya"
 msgid "Pick a result to see its chapter. Click a verse, or Shift+click to add a range."
 msgstr "Pumili ng resulta para makita ang kabanata nito. Mag-click ng talata, o Shift+click para magdagdag ng range."
 
+#: ui/dialogs/getting-started.slint
+msgid "Step {} of 3"
+msgstr "Hakbang {} ng 3"
+
+#: ui/dialogs/getting-started.slint
+msgid "Welcome to RustyPresenter"
+msgstr "Maligayang pagdating sa RustyPresenter"
+
+#: ui/dialogs/getting-started.slint
+msgid "Three short steps get you from here to words on the screen. It takes about two minutes."
+msgstr "Tatlong maiikling hakbang mula rito hanggang may mga salita na sa screen. Mga dalawang minuto lang ito."
+
+#: ui/dialogs/getting-started.slint
+msgid "You can skip this at any time. Help → Getting started… brings it back."
+msgstr "Puwede mo itong laktawan anumang oras. Ibinabalik ito ng Tulong → Pagsisimula…."
+
+#: ui/dialogs/getting-started.slint
+msgid "Choose the screen the room sees"
+msgstr "Piliin ang screen na nakikita ng silid"
+
+#: ui/dialogs/getting-started.slint
+msgid "Plug in the projector or TV and set the computer to extend the desktop onto it. Then choose it as the audience screen."
+msgstr "Ikabit ang projector o TV at itakda ang computer na i-extend ang desktop dito. Pagkatapos, piliin ito bilang screen sa silid."
+
+#: ui/dialogs/getting-started.slint
+msgid "Choose screens…"
+msgstr "Pumili ng mga screen…"
+
+#: ui/dialogs/getting-started.slint
+msgid "No projector here today? Click Next. Window → Screens… does this later."
+msgstr "Walang projector ngayon? I-click ang Susunod. Magagawa ito mamaya sa Window → Mga screen…."
+
+#: ui/dialogs/getting-started.slint
+msgid "Add something to show"
+msgstr "Magdagdag ng ipapakita"
+
+#: ui/dialogs/getting-started.slint
+msgid "A song, a Bible passage, a video, slides or an announcement. You can also drag files onto the window."
+msgstr "Kanta, talata sa Bibliya, video, mga slide o anunsyo. Puwede ka ring mag-drag ng mga file papunta sa window."
+
+#: ui/dialogs/getting-started.slint
+msgid "Add to service…"
+msgstr "Idagdag sa service…"
+
+#: ui/dialogs/getting-started.slint
+msgid "Everything you add shows up in the list on the left."
+msgstr "Lahat ng idinagdag mo ay lumalabas sa listahan sa kaliwa."
+
+#: ui/dialogs/getting-started.slint
+msgid "Show it"
+msgstr "Ipakita ito"
+
+#: ui/dialogs/getting-started.slint
+msgid "Click a slide and it is on the screen at once. The red outline shows what the room sees."
+msgstr "I-click ang isang slide at agad itong nasa screen. Ipinapakita ng pulang outline ang nakikita ng silid."
+
+#: ui/dialogs/getting-started.slint
+msgid "During the service, → or Space goes to the next slide and ← goes back. F1 clears the screen."
+msgstr "Habang may service, → o Space ang papunta sa susunod na slide at ← ang pabalik. Nililinis ng F1 ang screen."
+
+#: ui/dialogs/getting-started.slint
+msgid "Stuck? The Help menu has short tutorials, and Report a problem… when something breaks."
+msgstr "Hindi makausad? May maiikling tutorial sa menu na Tulong, at Mag-ulat ng problema… kapag may nasira."
+
+#: ui/dialogs/getting-started.slint
+msgid "Open the tutorials"
+msgstr "Buksan ang mga tutorial"
+
+#: ui/dialogs/getting-started.slint
+msgid "Skip"
+msgstr "Laktawan"
+
+#: ui/dialogs/getting-started.slint ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Back"
+msgstr "Bumalik"
+
+#: ui/dialogs/getting-started.slint ui/dialogs/go-live-helper.slint ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "Susunod"
+
+#: ui/dialogs/getting-started.slint ui/dialogs/music.slint ui/dialogs/translation-editor.slint src/i18n/remote_strings.rs
+msgid "Done"
+msgstr "Tapos na"
+
 #: ui/dialogs/go-live-helper.slint
 msgid "Step {} of 4"
 msgstr "Hakbang {} sa 4"
@@ -1196,14 +1280,6 @@ msgstr "Handa nang mag-live"
 msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Livestream."
 msgstr "Pindutin ang Mag-live sa itaas kapag nagsimula ang service, at pindutin ulit sa dulo. Lahat ng pinili rito ay mababago sa Settings → Livestream."
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Back"
-msgstr "Bumalik"
-
-#: ui/dialogs/go-live-helper.slint ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Next"
-msgstr "Susunod"
-
 #: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/settings-phone.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "Isara"
@@ -1260,7 +1336,7 @@ msgstr "Magkatabi"
 msgid "Top and bottom"
 msgstr "Itaas at ibaba"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-stream.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-general.slint ui/dialogs/settings-stream.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "Awtomatiko"
 
@@ -1368,7 +1444,7 @@ msgstr "Gamitin sa lahat ng slide"
 msgid "Auto-advance after (s)"
 msgstr "Kusang lumipat pagkatapos ng (s)"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint ui/operator/bible-box.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-general.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint ui/operator/bible-box.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr "Off"
 
@@ -1498,10 +1574,6 @@ msgstr "Susunod na kanta"
 #: ui/dialogs/music.slint ui/operator/live_controls.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs
 msgid "Play"
 msgstr "I-play"
-
-#: ui/dialogs/music.slint ui/dialogs/translation-editor.slint src/i18n/remote_strings.rs
-msgid "Done"
-msgstr "Tapos na"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the audience screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
@@ -1768,6 +1840,10 @@ msgid "Reset the picture"
 msgstr "I-reset ang larawan"
 
 #: ui/dialogs/screens.slint
+msgid "Connected screens"
+msgstr "Mga nakakonektang screen"
+
+#: ui/dialogs/screens.slint
 msgid "Screen"
 msgstr "Screen"
 
@@ -1786,6 +1862,10 @@ msgstr "Taas"
 #: ui/dialogs/screens.slint
 msgid "Aspect ratio: {}"
 msgstr "Aspect ratio: {}"
+
+#: ui/dialogs/screens.slint
+msgid "Slides are drawn at"
+msgstr "Iginuguhit ang mga slide sa"
 
 #: ui/dialogs/screens.slint
 msgid "Show what the audience screen shows"
@@ -1830,6 +1910,14 @@ msgstr "Kilalanin"
 #: ui/dialogs/screens.slint
 msgid "Show each screen's number on it for a few seconds"
 msgstr "Ipakita sandali ang numero ng bawat screen dito"
+
+#: ui/dialogs/screens.slint
+msgid "Windows display settings"
+msgstr "Mga setting ng display ng Windows"
+
+#: ui/dialogs/screens.slint
+msgid "Change a screen's resolution or how the screens are arranged, in Windows"
+msgstr "Baguhin ang resolution ng isang screen o ang pagkakaayos ng mga screen, sa Windows"
 
 #: ui/dialogs/screens.slint
 msgid "Refresh"
@@ -2258,6 +2346,14 @@ msgstr "Gamitin ito"
 #: ui/dialogs/settings-general.slint
 msgid "Restart now"
 msgstr "I-restart ngayon"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Light mode"
+msgstr "Magaan na mode"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "For a slow computer: slides change without fading, and the live preview's video is refreshed less often. Automatic turns it on when the audience screen cannot keep up."
+msgstr "Para sa mabagal na computer: nagpapalit ang mga slide nang walang fade, at mas madalang i-refresh ang video sa live preview. Binubuksan ito ng Awtomatiko kapag hindi makasabay ang screen ng kongregasyon."
 
 #: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
 msgid "Performance"
@@ -3091,7 +3187,7 @@ msgstr "Naka-sign in bilang {}"
 msgid "Sign out"
 msgstr "Mag-sign out"
 
-#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/getting_started.rs src/ui/dialogs/settings_find.rs
 msgid "Getting started"
 msgstr "Pagsisimula"
 
@@ -6334,6 +6430,10 @@ msgstr "Suriin ang service"
 #: ui/operator.slint src/shortcuts.rs
 msgid "Find my mouse"
 msgstr "Hanapin ang mouse ko"
+
+#: ui/operator.slint
+msgid "Getting started…"
+msgstr "Pagsisimula…"
 
 #: ui/operator.slint
 msgid "Tutorials"
@@ -10679,6 +10779,18 @@ msgstr "mga {ms} ms"
 msgid "Colour and corner changes show when the screens draw with OpenGL (Settings → General → Screens and graphics → Graphics: Automatic or OpenGL). Test patterns and the delay work either way."
 msgstr "Makikita ang pagbabago sa kulay at mga kanto kapag OpenGL ang gamit ng mga screen (Settings → Pangkalahatan → Mga screen at graphics → Graphics: Awtomatiko o OpenGL). Gumagana ang test patterns at ang delay alinman ang gamit."
 
+#: src/strings/screens.rs
+msgid "Main"
+msgstr "Pangunahin"
+
+#: src/strings/screens.rs
+msgid "The screen's own size"
+msgstr "Ang sariling laki ng screen"
+
+#: src/strings/screens.rs
+msgid "This screen's slides are drawn at {width} × {height}. A smaller size is stretched to fill the screen: a little softer, and much easier for a slow computer or a 4K screen. It applies to every audience screen. Video keeps its own sharpness."
+msgstr "Ang mga slide ng screen na ito ay iginuguhit sa {width} × {height}. Ang mas maliit na laki ay iniuunat para mapuno ang screen: medyo mas malambot, at mas magaan para sa mabagal na computer o 4K na screen. Para ito sa lahat ng screen ng kongregasyon. Nananatili ang linaw ng video."
+
 #: src/strings/scripture.rs
 msgid "Type at least one word to search for."
 msgstr "Mag-type ng kahit isang salitang hahanapin."
@@ -12614,6 +12726,10 @@ msgstr "Hayaan na lang"
 msgid "Saved."
 msgstr "Na-save."
 
+#: src/ui/dialogs/getting_started.rs
+msgid "Help → Getting started… shows those steps again."
+msgstr "Ipinapakitang muli ng Tulong → Pagsisimula… ang mga hakbang na iyon."
+
 #: src/ui/dialogs/go_live_helper.rs
 msgid "Go Live: getting started"
 msgstr "Mag-live: pagsisimula"
@@ -13336,7 +13452,7 @@ msgstr "Kunin ang bersyon {version}…"
 msgid "Your web browser is opening the download page. Install it when no service is running."
 msgstr "Binubuksan ng web browser mo ang download page. I-install ito kapag walang serbisyong nagaganap."
 
-#: src/ui/dialogs/update.rs
+#: src/ui/dialogs/update.rs src/ui/operator/help.rs
 msgid "Could not open your web browser: {reason}"
 msgstr "Hindi mabuksan ang web browser mo: {reason}"
 
@@ -13423,6 +13539,31 @@ msgid "What happened:"
 msgstr "Ano ang nangyari:"
 
 #: src/ui/operator/help.rs
+msgid "From a computer with internet, you can also report it here:"
+msgstr "Mula sa computer na may internet, puwede mo rin itong iulat dito:"
+
+#: src/ui/operator/help.rs
+msgid ""
+"Report a problem\n"
+"\n"
+"Your web browser opens a page where you write what happened. It needs a free GitHub account, and what you write there can be read by anyone.\n"
+"\n"
+"No internet on this computer? Write a note instead and send it later."
+msgstr "Mag-ulat ng problema\n\nMagbubukas ang web browser mo ng page kung saan mo isusulat ang nangyari. Kailangan nito ng libreng GitHub account, at mababasa ng kahit sino ang isusulat mo roon.\n\nWalang internet sa computer na ito? Sumulat na lang ng tala at ipadala ito mamaya."
+
+#: src/ui/operator/help.rs
+msgid "Open the page"
+msgstr "Buksan ang page"
+
+#: src/ui/operator/help.rs
+msgid "Write a note"
+msgstr "Sumulat ng tala"
+
+#: src/ui/operator/help.rs
+msgid "Your web browser is opening the report page."
+msgstr "Binubuksan ng web browser mo ang page ng pag-uulat."
+
+#: src/ui/operator/help.rs
 msgid "RustyPresenter: quick tutorials"
 msgstr "RustyPresenter: mabilisang tutorial"
 
@@ -13495,8 +13636,8 @@ msgid "The audience screen shows the wrong thing: press the clear keys above, th
 msgstr "Mali ang ipinapakita ng screen sa silid: pindutin ang mga clear key sa itaas, saka ipakita muli ang slide."
 
 #: src/ui/operator/help.rs
-msgid "Help → Report a problem… writes a note to fill in and says where the log files are."
-msgstr "Ang Tulong → Mag-ulat ng problema… ay sumusulat ng note na pupunan mo at sinasabi kung nasaan ang log files."
+msgid "Help → Report a problem… opens the report page in your web browser, or writes a note to fill in and says where the log files are."
+msgstr "Binubuksan ng Tulong → Mag-ulat ng problema… ang page ng pag-uulat sa web browser mo, o sumusulat ito ng talang pupunan at sinasabi kung nasaan ang mga log file."
 
 #: src/ui/operator/menu.rs
 msgid "Choose what pre-service does, then click Save."
@@ -13517,6 +13658,10 @@ msgstr "Nakikinig: sa headphones mo lang napupunta ang tunog. Walang naririnig a
 #: src/ui/operator/menu.rs
 msgid "The sound goes to the room again."
 msgstr "Sa silid na ulit napupunta ang tunog."
+
+#: src/ui/operator/outputs.rs
+msgid "This computer is having trouble keeping up, so slides now change without fading. To change this: Settings → General → Screens and graphics → Light mode."
+msgstr "Nahihirapang makasabay ang computer na ito, kaya nagpapalit na ngayon ang mga slide nang walang fade. Para baguhin ito: Settings → Pangkalahatan → Mga screen at graphics → Magaan na mode."
 
 #: src/ui/operator/record.rs
 msgid "Get FFmpeg"
@@ -13952,6 +14097,9 @@ msgstr "walang na-save na video ang yt-dlp"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "hindi media file"
+
+#~ msgid "Help → Report a problem… writes a note to fill in and says where the log files are."
+#~ msgstr "Ang Tulong → Mag-ulat ng problema… ay sumusulat ng note na pupunan mo at sinasabi kung nasaan ang log files."
 
 #~ msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
 #~ msgstr "Gumagawa ng buong backup (mga kanta, service, settings at bawat video, larawan at slide) tuwing magsisimula ang RustyPresenter at minsan isang araw. Itinatago ang huling 10 sa"

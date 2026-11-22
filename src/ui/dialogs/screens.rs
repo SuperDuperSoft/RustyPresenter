@@ -10,7 +10,7 @@ use crate::{
     model::{Screen, ScreenOutput, ScreenSetup, ScreenTarget},
     render::mask::{Mask, MaskShape},
     platform::monitors::MonitorId,
-    ui::{ScreenList, ScreenRow, ScreensDialogState, operator::{view::OperatorSnapshot, window::Operator}},
+    ui::{MonitorBox, ScreenList, ScreenRow, ScreensDialogState, operator::{view::OperatorSnapshot, window::Operator}},
 };
 use serde_json::{Value, json};
 use slint::{ComponentHandle, ModelRc, SharedString, Timer, VecModel};
@@ -116,6 +116,57 @@ fn note(s: &OperatorSnapshot, setup: &ScreenSetup, group: &str, screen: &Screen)
     String::new()
 }
 
+/// A connected monitor on the layout map: its place in the map (0–1 of the map's width and height), its number
+/// (as its label and Identify have it), its resolution, and the lists whose screens show on it.
+#[derive(Clone, Debug, PartialEq)]
+pub struct MapBox { pub x: f32, pub y: f32, pub w: f32, pub h: f32, pub number: String, pub size: String, pub used_by: Vec<&'static str>, pub primary: bool }
+
+/// The monitors as the system has them arranged, and the map's width over its height. A monitor's place is its
+/// share of the rectangle around all of them, so two side by side each take half the map.
+pub fn monitor_map(monitors: &[Monitor], setup: &ScreenSetup) -> (Vec<MapBox>, f32) {
+    let shown: Vec<&Monitor> = monitors.iter().filter(|m| m.width > 0 && m.height > 0).collect();
+    let (Some(left), Some(top)) = (shown.iter().map(|m| i64::from(m.x)).min(), shown.iter().map(|m| i64::from(m.y)).min()) else { return (vec![], 16.0 / 9.0) };
+    let right = shown.iter().map(|m| i64::from(m.x) + i64::from(m.width)).max().unwrap_or(left + 1);
+    let bottom = shown.iter().map(|m| i64::from(m.y) + i64::from(m.height)).max().unwrap_or(top + 1);
+    let (bw, bh) = ((right - left).max(1) as f32, (bottom - top).max(1) as f32);
+    let boxes = monitors.iter().enumerate().filter(|(_, m)| m.width > 0 && m.height > 0).map(|(i, m)| {
+        let used_by = ScreenSetup::GROUPS.iter().copied().filter(|g| {
+            setup.group(g).is_some_and(|x| x.screens.iter().any(|s| matches!(s.output().target, ScreenTarget::Monitor(saved) if is_monitor(m, &saved))))
+        }).collect();
+        MapBox {
+            x: (i64::from(m.x) - left) as f32 / bw, y: (i64::from(m.y) - top) as f32 / bh, w: m.width as f32 / bw, h: m.height as f32 / bh,
+            number: (i + 1).to_string(), size: format!("{} × {}", m.width, m.height), used_by, primary: m.primary,
+        }
+    }).collect();
+    (boxes, bw / bh)
+}
+
+/// The layout map and "Slides are drawn at", from the newest snapshot.
+fn draw_map(g: &ScreensDialogState, s: &OperatorSnapshot) {
+    let (boxes, aspect) = monitor_map(&s.monitors, &s.settings.screens);
+    let rows: Vec<MonitorBox> = boxes.into_iter().map(|b| {
+        let names: Vec<String> = b.used_by.iter().map(|g| if *g == "audience" { strings::audience() } else { strings::stage() }).collect();
+        let used = !names.is_empty();
+        let shows = if used { names.join(" + ") } else if b.primary { strings::main_monitor() } else { String::new() };
+        MonitorBox { x: b.x, y: b.y, w: b.w, h: b.h, number: b.number.into(), size: b.size.into(), shows: shows.into(), used }
+    }).collect();
+    g.set_monitors(ModelRc::new(VecModel::from(rows)));
+    // A very wide or very tall arrangement still gets a map that can be read.
+    g.set_map_aspect(aspect.clamp(0.5, 6.0));
+    let sizes = [strings::draw_own(), "1080p (1920 × 1080)".to_string(), "720p (1280 × 720)".to_string()];
+    g.set_draw_sizes(ModelRc::new(VecModel::from(sizes.into_iter().map(SharedString::from).collect::<Vec<_>>())));
+    g.set_draw_size(crate::model::DRAW_HEIGHTS.iter().position(|h| *h == s.settings.draw_height).unwrap_or(0) as i32);
+    g.set_has_display_settings(cfg!(windows));
+}
+
+/// Opens the system's own display settings (resolution and arrangement are the system's to change).
+fn display_settings(op: &Rc<Operator>) {
+    #[cfg(windows)]
+    if let Err(e) = std::process::Command::new("explorer.exe").arg("ms-settings:display").spawn() { op.toast(e.to_string(), true) }
+    #[cfg(not(windows))]
+    let _ = op;
+}
+
 /// Opens the dialog and asks for a fresh read, so newly plugged-in monitors show; the dialog is redrawn when it
 /// arrives (and after every `Data` update, `DialogKind::refreshes`).
 pub fn open(op: &Rc<Operator>) {
@@ -125,6 +176,12 @@ pub fn open(op: &Rc<Operator>) {
     op.ui.global::<ScreensDialogState>().set_tab(0);
     draw(op);
     op.request_refresh();
+}
+
+/// `open`, then `then` once the dialog closes (Getting started goes on to its next step).
+pub(crate) fn open_then(op: &Rc<Operator>, then: impl FnOnce(&Rc<Operator>) + 'static) {
+    open(op);
+    op.on_dialog_close(move |op| { closed(op); then(op) });
 }
 
 /// The screen on the right: the one picked, else the first there is.
@@ -140,6 +197,7 @@ fn draw(op: &Rc<Operator>) {
     let g = op.ui.global::<ScreensDialogState>();
     g.set_lists(ModelRc::new(VecModel::from(vec![list(&s, setup, "audience", &strings::audience()), list(&s, setup, "stage", &strings::stage())])));
     g.set_one_monitor(s.monitors.len() <= 1);
+    draw_map(&g, &s);
     let Some(id) = shown(op, setup) else { return };
     let Some((group, screen)) = setup.find(id) else { return };
     let moved = g.get_selected() != id.to_string();
@@ -164,6 +222,8 @@ fn draw(op: &Rc<Operator>) {
     g.set_mirror(screen.mirror);
     draw_picture(&g, screen, moved || !typing);
     let (w, h) = real_size(&s, &o);
+    let (dw, dh) = crate::ui::light::fit_to((w, h), s.settings.draw_height);
+    g.set_draw_note(strings::drawn_at(dw, dh).into());
     g.set_size(format!("{w} × {h}").into());
     g.set_aspect(aspect(w, h).into());
     g.set_note(note(&s, setup, group, screen).into());
@@ -387,6 +447,12 @@ pub(crate) fn wire(op: &Rc<Operator>) {
         typed(&op, |t| t.mask = Some(mask));
     });
     g.on_remove(on(Rc::new(remove)));
+    g.on_display_settings(on(Rc::new(display_settings)));
+    let me: Weak<Operator> = Rc::downgrade(op);
+    g.on_pick_draw_size(move |at| if let Some(op) = me.upgrade() {
+        let rows = crate::model::DRAW_HEIGHTS.get(at.max(0) as usize).copied().unwrap_or(0);
+        run(&op, "settings", json!({ "draw_height": rows }));
+    });
     let me: Weak<Operator> = Rc::downgrade(op);
     g.on_identify(move || if let Some(op) = me.upgrade() { run(&op, "screens/identify", json!({})) });
     let me: Weak<Operator> = Rc::downgrade(op);
@@ -478,6 +544,48 @@ mod tests {
     }
 
     fn toasts(op: &Operator) -> Vec<String> { op.toast_log().into_iter().map(|t| t.0).collect() }
+
+    #[test]
+    fn the_map_puts_each_monitor_where_the_system_has_it() {
+        // A laptop (1366×768) with a projector to its right, lower down, and a TV above the laptop.
+        let laptop = Monitor { width: 1366, height: 768, ..mon("A", true) };
+        let projector = Monitor { x: 1366, y: 200, ..mon("B", false) };
+        let tv = Monitor { x: 0, y: -720, width: 1280, height: 720, ..mon("C", false) };
+        let mut setup = ScreenSetup::default();
+        setup.assign("audience", ScreenTarget::Monitor("B".into()));
+        let (boxes, aspect) = monitor_map(&[laptop, projector, tv], &setup);
+        // The rectangle around them all: 3286 wide, from 720 above the laptop to the projector's foot (2000 high).
+        assert!((aspect - 3286.0 / 2000.0).abs() < 1e-4, "{aspect}");
+        let near = |a: f32, b: f32| (a - b).abs() < 1e-4;
+        assert_eq!(boxes.iter().map(|b| (b.number.as_str(), b.size.as_str())).collect::<Vec<_>>(), [("1", "1366 × 768"), ("2", "1920 × 1080"), ("3", "1280 × 720")]);
+        assert!(near(boxes[0].x, 0.0) && near(boxes[0].y, 720.0 / 2000.0) && near(boxes[0].w, 1366.0 / 3286.0) && near(boxes[0].h, 768.0 / 2000.0), "{:?}", boxes[0]);
+        assert!(near(boxes[1].x, 1366.0 / 3286.0) && near(boxes[1].y, 920.0 / 2000.0) && near(boxes[1].x + boxes[1].w, 1.0) && near(boxes[1].y + boxes[1].h, 1.0), "{:?}", boxes[1]);
+        assert!(near(boxes[2].x, 0.0) && near(boxes[2].y, 0.0), "{:?}", boxes[2]);
+        assert_eq!(boxes.iter().map(|b| (b.used_by.clone(), b.primary)).collect::<Vec<_>>(), [(vec![], true), (vec!["audience"], false), (vec![], false)]);
+        assert_eq!(monitor_map(&[], &setup), (vec![], 16.0 / 9.0), "no monitor: no map");
+    }
+
+    #[test]
+    fn the_dialog_shows_the_map_and_the_drawing_size() {
+        let (app, _d) = with_displays(vec![mon("A", true), Monitor { x: 1920, width: 3840, height: 2160, ..mon("B", false) }]);
+        app.edit(|d| { d.settings.screens.assign("audience", ScreenTarget::Monitor("B".into())); Ok(()) }).unwrap();
+        let op = open_screens(&app);
+        let g = state(&op);
+        let map: Vec<MonitorBox> = g.get_monitors().iter().collect();
+        assert_eq!(map.iter().map(|m| (m.number.to_string(), m.size.to_string(), m.shows.to_string(), m.used)).collect::<Vec<_>>(),
+            [("1".into(), "1920 × 1080".into(), "Main".into(), false), ("2".into(), "3840 × 2160".into(), "Room".into(), true)]);
+        assert_eq!(g.get_draw_sizes().row_count(), 3);
+        assert_eq!(g.get_draw_size(), 0, "the screen's own size to begin with");
+        assert!(g.get_draw_note().contains("3840 × 2160"), "{}", g.get_draw_note());
+        g.invoke_pick_draw_size(1);
+        refresh(&op);
+        settle(&op);
+        assert_eq!(app.data().settings.draw_height, 1080, "saved");
+        assert_eq!(g.get_draw_size(), 1);
+        assert!(g.get_draw_note().contains("1920 × 1080"), "the 4K screen's slides are drawn at 1080p: {}", g.get_draw_note());
+        assert_eq!(crate::ui::light::fit((3840, 2160)), (1920, 1080), "and the audience screen draws them so");
+        crate::ui::light::set_draw_height(0);
+    }
 
     #[test]
     fn opens_with_audience_and_stage_lists() {

@@ -13,6 +13,7 @@ pub mod preview;
 pub mod fade;
 pub mod pacing;
 pub mod perf;
+pub mod light;
 pub mod graphics_test;
 pub mod song_key;
 

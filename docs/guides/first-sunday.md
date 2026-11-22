@@ -2,6 +2,8 @@
 
 This takes you from a fresh install to a service you can run. Allow about twenty minutes, on a day that is not Sunday.
 
+The first time RustyPresenter opens, it offers three short steps that cover the start of this page. You can skip them; **Help → Getting started…** shows them again.
+
 ## 1. Connect the screens
 
 1. Plug the projector or TV into the computer.

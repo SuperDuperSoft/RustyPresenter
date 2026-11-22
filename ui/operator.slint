@@ -32,6 +32,7 @@ import { MusicDialog } from "dialogs/music.slint";
 import { SongSelectDialog } from "dialogs/songselect.slint";
 import { StreamScenesDialog } from "dialogs/stream-scenes.slint";
 import { GoLiveHelperDialog } from "dialogs/go-live-helper.slint";
+import { GettingStartedDialog } from "dialogs/getting-started.slint";
 import { FindVerseDialog } from "dialogs/find-verse.slint";
 import { TranslationEditorDialog } from "dialogs/translation-editor.slint";
 import { SlideBreaksDialog } from "dialogs/slide-breaks.slint";
@@ -811,6 +812,11 @@ export component OperatorWindow inherits Window {
             }
             MenuSeparator {}
             MenuItem {
+                title: @tr("Getting started…");
+                enabled: root.menu-ready;
+                activated => { root.focus-keys(); root.menu("getting-started"); }
+            }
+            MenuItem {
                 title: @tr("Tutorials");
                 activated => { root.menu("tutorials"); }
             }
@@ -932,6 +938,7 @@ export component OperatorWindow inherits Window {
             if root.dialog-kind == "songselect": SongSelectDialog {}
             if root.dialog-kind == "stream-scenes": StreamScenesDialog {}
             if root.dialog-kind == "go-live-helper": GoLiveHelperDialog {}
+            if root.dialog-kind == "getting-started": GettingStartedDialog {}
         }
 
         for a in root.ask: AskOverlay {

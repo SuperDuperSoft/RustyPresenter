@@ -672,6 +672,13 @@ pub struct Settings {
     pub record: crate::record::RecordPrefs,
     /// N33: the frames-a-second and video memory line under the live preview.
     pub show_performance: bool,
+    /// Light mode for a slow computer (`ui::light`). A value this version can't read loads as Automatic.
+    #[serde(deserialize_with = "crate::lenient::or_default")]
+    pub light_mode: LightMode,
+    /// Screen Configuration → "Slides are drawn at": the most rows of pixels the audience screens' slides are drawn
+    /// with (one of `DRAW_HEIGHTS`; 0: the screen's own size). The screen itself stays at its resolution; a smaller
+    /// picture is stretched to fill it, which a slow computer or a 4K screen draws much faster.
+    pub draw_height: u32,
     /// N33: the room and stage screens that were on come back on at start; off, they wait for the switch.
     pub screens_at_start: bool,
     /// Settings → General → Screens and graphics: lines drawn from a phone stay when the slide changes (off: each slide starts clean).
@@ -720,6 +727,15 @@ pub const RECENT_FILES_MAX: usize = 5;
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
 #[serde(rename_all = "lowercase")]
 pub enum Graphics { #[default] Auto, OpenGl, Vulkan, Direct3D, Metal, Software }
+
+/// Settings → General → Screens and graphics → Light mode (`ui::light`): slide changes cut instead of fading and the
+/// live preview's video is refreshed less often. Automatic turns it on when the audience screen cannot keep up.
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum LightMode { #[default] Auto, On, Off }
+
+/// The heights `Settings::draw_height` may have: the screen's own (0), 1080p and 720p.
+pub const DRAW_HEIGHTS: [u32; 3] = [0, 1080, 720];
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -818,6 +834,8 @@ impl Default for Settings {
             media: Default::default(),
             record: Default::default(),
             show_performance: false,
+            light_mode: LightMode::Auto,
+            draw_height: 0,
             screens_at_start: true,
             look_fade_ms: 1000,
             bible_history: Vec::new(),

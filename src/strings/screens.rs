@@ -47,3 +47,12 @@ pub fn corner_at(x: f32, y: f32) -> String {
 }
 pub fn delay_ms(ms: u64) -> String { tr!("about {ms} ms", ms = ms) }
 pub fn fix_needs_opengl() -> String { tr!("Colour and corner changes show when the screens draw with OpenGL (Settings → General → Screens and graphics → Graphics: Automatic or OpenGL). Test patterns and the delay work either way.") }
+
+/// The layout map: what a connected monitor shows when none of our screens is on it.
+pub fn main_monitor() -> String { tr!("Main") }
+
+/// "Slides are drawn at": the first choice, and what the picked one means for the screen shown.
+pub fn draw_own() -> String { tr!("The screen's own size") }
+pub fn drawn_at(width: u32, height: u32) -> String {
+    tr!("This screen's slides are drawn at {width} × {height}. A smaller size is stretched to fill the screen: a little softer, and much easier for a slow computer or a 4K screen. It applies to every audience screen. Video keeps its own sharpness.", width = width.to_string(), height = height.to_string())
+}

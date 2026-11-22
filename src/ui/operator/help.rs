@@ -1,6 +1,7 @@
 //! Help extras (N35) and the menu bar's shortcuts (N28): Find my mouse brings the pointer to the middle of this
 //! window and rings it; Tutorials writes short how-tos to a page and opens it in the browser; Report a problem
-//! writes a text file that says what to send and where the logs are (there is no network to send it with).
+//! opens the project's report page in the browser (this copy's version and system filled in), or, for a computer
+//! with no internet, writes a text file that says what to send and where the logs are.
 use super::window::Operator;
 use crate::{
     print::html::escape,
@@ -112,8 +113,30 @@ impl Operator {
         }
     }
 
-    /// Help → Report a problem…: a text file in the logs folder, opened in the computer's text editor.
-    pub(crate) fn report_problem(&self) {
+    /// Help → Report a problem…: asks whether to report it on the web or to write a note for later.
+    pub(crate) fn report_problem(self: &Rc<Self>) {
+        let me = Rc::downgrade(self);
+        crate::ui::dialogs::ask::choose(self, &tr::report_ask(), &tr::report_web(), &tr::report_note(), move |pick| {
+            let Some(op) = me.upgrade() else { return };
+            match pick {
+                Some(true) => op.report_on_web(),
+                Some(false) => op.report_note(),
+                None => {}
+            }
+        });
+    }
+
+    /// The project's report page in the web browser, with this copy's version and system filled in. Nothing else
+    /// is sent: the person writes the rest there.
+    fn report_on_web(&self) {
+        match open_url(&report_url()) {
+            Ok(()) => self.toast(tr::report_opening(), false),
+            Err(e) => self.toast(tr::report_no_browser(&e), true),
+        }
+    }
+
+    /// A text file in the logs folder, opened in the computer's text editor.
+    pub(crate) fn report_note(&self) {
         let logs = self.app().store.root.join("logs");
         let path = logs.join(REPORT_FILE);
         let written = std::fs::create_dir_all(&logs).map_err(|e| e.to_string())
@@ -124,6 +147,25 @@ impl Operator {
             Err(e) => self.toast(e, true),
         }
     }
+}
+
+/// Where problems are reported.
+pub const ISSUES: &str = "https://github.com/SuperDuperSoft/RustyPresenter/issues";
+
+/// This copy's system, as the report says it: `windows x86_64`.
+fn system() -> String { format!("{} {}", std::env::consts::OS, std::env::consts::ARCH) }
+
+/// The report form (`.github/ISSUE_TEMPLATE/problem.yml`) with its Version and Computer boxes filled in.
+pub fn report_url() -> String {
+    format!("{ISSUES}/new?template=problem.yml&version={}&system={}", env!("CARGO_PKG_VERSION"), system().replace(' ', "+"))
+}
+
+/// Opens a web address in the computer's browser. Tests open nothing: the address is noted.
+fn open_url(url: &str) -> Result<(), String> {
+    #[cfg(test)]
+    { crate::report_page::testing::OPENED.lock().unwrap().push(url.into()); Ok(()) }
+    #[cfg(not(test))]
+    { crate::usage::open::open_file(std::path::Path::new(url)) }
 }
 
 /// The Report a problem file's name, in the logs folder.
@@ -151,8 +193,10 @@ pub fn report_text(logs: &std::path::Path) -> String {
         format!("    {}", logs.display()),
         String::new(),
         tr::report_send(),
+        tr::report_or_web(),
+        format!("    {ISSUES}"),
         String::new(),
-        format!("RustyPresenter {} — {} {}", env!("CARGO_PKG_VERSION"), std::env::consts::OS, std::env::consts::ARCH),
+        format!("RustyPresenter {} — {}", env!("CARGO_PKG_VERSION"), system()),
         String::new(),
         tr::report_write_here(),
         String::new(),
@@ -220,6 +264,16 @@ mod tr {
     pub fn report_logs() -> String { tr!("The app's log files are in this folder (Help → Open logs folder):") }
     pub fn report_send() -> String { tr!("Save this file, then send it with the newest log files to the person who looks after RustyPresenter for your church, on a USB stick or by email from another computer.") }
     pub fn report_write_here() -> String { tr!("What happened:") }
+    pub fn report_or_web() -> String { tr!("From a computer with internet, you can also report it here:") }
+    pub fn report_ask() -> String { tr!("Report a problem
+
+Your web browser opens a page where you write what happened. It needs a free GitHub account, and what you write there can be read by anyone.
+
+No internet on this computer? Write a note instead and send it later.") }
+    pub fn report_web() -> String { tr!("Open the page") }
+    pub fn report_note() -> String { tr!("Write a note") }
+    pub fn report_opening() -> String { tr!("Your web browser is opening the report page.") }
+    pub fn report_no_browser(reason: &str) -> String { tr!("Could not open your web browser: {reason}", reason = reason) }
     pub fn tutorials_title() -> String { tr!("RustyPresenter: quick tutorials") }
     pub fn t_sunday() -> String { tr!("Get ready for Sunday") }
     pub fn t_sunday_1() -> String { tr!("File → New service… makes this week's service. File → Services… opens an older one or copies last week.") }
@@ -240,7 +294,7 @@ mod tr {
     pub fn t_help() -> String { tr!("When something goes wrong") }
     pub fn t_help_1(key: &str) -> String { tr!("Lost the mouse on the projector? {key} brings it back to this window.", key = key) }
     pub fn t_help_2() -> String { tr!("The audience screen shows the wrong thing: press the clear keys above, then show the slide again.") }
-    pub fn t_help_3() -> String { tr!("Help → Report a problem… writes a note to fill in and says where the log files are.") }
+    pub fn t_help_3() -> String { tr!("Help → Report a problem… opens the report page in your web browser, or writes a note to fill in and says where the log files are.") }
 }
 
 #[cfg(test)]
@@ -254,6 +308,37 @@ mod tests {
         assert!(text.contains("/data/logs"));
         assert!(text.contains(env!("CARGO_PKG_VERSION")));
         assert!(text.starts_with("Report a problem with RustyPresenter"));
+        assert!(text.contains(ISSUES));
+    }
+
+    #[test]
+    fn the_web_report_carries_only_the_version_and_the_system() {
+        let url = report_url();
+        assert!(url.starts_with("https://github.com/SuperDuperSoft/RustyPresenter/issues/new?template=problem.yml&version="), "{url}");
+        assert!(url.ends_with(&format!("&system={}+{}", std::env::consts::OS, std::env::consts::ARCH)), "{url}");
+        assert!(!url.contains(' '));
+    }
+
+    #[test]
+    fn report_a_problem_asks_web_or_note() {
+        use crate::ui::dialogs::ask;
+        let app = test_app();
+        let op = open(&app);
+        let opened = || crate::report_page::testing::OPENED.lock().unwrap().clone();
+        let note = app.store.root.join("logs").join(REPORT_FILE);
+        // Cancel: nothing happens.
+        op.report_problem();
+        ask::answer(&op, false, String::new());
+        assert!(!note.exists());
+        // The first button: the page.
+        op.report_problem();
+        ask::answer(&op, true, String::new());
+        assert!(opened().contains(&std::path::PathBuf::from(report_url())));
+        assert!(!note.exists());
+        // The second: the note.
+        op.report_problem();
+        ask::answer_other(&op);
+        assert!(opened().contains(&note));
     }
 
     #[test]
@@ -272,7 +357,7 @@ mod tests {
         let app = test_app();
         let op = open(&app);
         op.tutorials();
-        op.report_problem();
+        op.report_note();
         let opened = crate::report_page::testing::OPENED.lock().unwrap().clone();
         let report = app.store.root.join("logs").join(REPORT_FILE);
         assert!(opened.contains(&report), "{opened:?}");

@@ -149,6 +149,18 @@ export component ScreensPage inherits VerticalLayout {
             }
         }
     }
+    light-row := SetRow {
+        key: "light";
+        label: @tr("Light mode");
+        help: @tr("For a slow computer: slides change without fading, and the live preview's video is refreshed less often. Automatic turns it on when the audience screen cannot keep up.");
+        HorizontalLayout {
+            alignment: start;
+            light-mode := Segmented {
+                labels: [@tr("Automatic"), @tr("On"), @tr("Off")];
+                index <=> SettingsDlg.light-mode;
+            }
+        }
+    }
     if SettingsDlg.advanced: performance-row := SetRow {
         key: "performance";
         label: @tr("Performance");

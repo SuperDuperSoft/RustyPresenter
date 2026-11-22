@@ -18,7 +18,8 @@ use tokio::sync::oneshot;
 
 pub type Pixels = SharedPixelBuffer<Rgba8Pixel>;
 
-/// Pixels kept for thumbnails already drawn: about 340 at 256×144, so going back to an item costs nothing.
+/// Pixels kept for thumbnails already drawn: about 340 at 256×144, so going back to an item costs nothing. Less on
+/// a computer with little memory (`platform::memory::share`).
 const CACHE_CAP: usize = 48 * 1024 * 1024;
 /// The thumbnails' text renderer keeps less than the room's (its results are cached here as whole thumbnails).
 const RENDER_CAP: usize = 16 * 1024 * 1024;
@@ -292,7 +293,7 @@ impl Lru {
         self.uses += 1;
         self.bytes += px.as_bytes().len();
         self.map.insert(k, (px, self.uses));
-        while self.bytes > CACHE_CAP && self.map.len() > 1 {
+        while self.bytes > crate::platform::memory::share(CACHE_CAP) && self.map.len() > 1 {
             let Some(old) = self.map.iter().min_by_key(|(_, (_, used))| *used).map(|(k, _)| k.clone()) else { break };
             if let Some((px, _)) = self.map.remove(&old) { self.bytes -= px.as_bytes().len(); }
         }

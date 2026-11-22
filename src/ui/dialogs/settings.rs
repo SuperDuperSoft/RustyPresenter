@@ -224,6 +224,9 @@ pub fn open_bible_search(op: &Rc<Operator>, query: &str) {
     settings_bible::search_for(op, query);
 }
 
+/// Light mode's choices, in the row's order.
+const LIGHT_MODES: [crate::model::LightMode; 3] = [crate::model::LightMode::Auto, crate::model::LightMode::On, crate::model::LightMode::Off];
+
 /// Puts the edited settings into the form (`in-out` fields of `SettingsDlg`).
 fn fill_form(g: &SettingsDlg, s: &Settings) {
     settings_look::fill_form(g, s);
@@ -237,6 +240,7 @@ fn fill_form(g: &SettingsDlg, s: &Settings) {
     g.set_room_on_top(s.room_on_top);
     g.set_screens_at_start(s.screens_at_start);
     g.set_show_performance(s.show_performance);
+    g.set_light_mode(LIGHT_MODES.iter().position(|m| *m == s.light_mode).unwrap_or(0) as i32);
     g.set_keep_drawings(s.keep_drawings);
     g.set_stage_drawings(s.stage_drawings);
     g.set_drawing_limit(s.drawing_limit);
@@ -264,6 +268,7 @@ pub(crate) fn read_form(g: &SettingsDlg, s: &mut Settings) {
     s.room_on_top = g.get_room_on_top();
     s.screens_at_start = g.get_screens_at_start();
     s.show_performance = g.get_show_performance();
+    s.light_mode = LIGHT_MODES[g.get_light_mode().clamp(0, 2) as usize];
     s.keep_drawings = g.get_keep_drawings();
     s.stage_drawings = g.get_stage_drawings();
     s.drawing_limit = g.get_drawing_limit();

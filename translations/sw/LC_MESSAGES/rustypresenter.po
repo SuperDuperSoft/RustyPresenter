@@ -551,7 +551,7 @@ msgstr "Siku"
 msgid "What to do"
 msgstr "Cha kufanya"
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint ui/dialogs/settings-general.slint
 msgid "On"
 msgstr "Imewashwa"
 
@@ -615,7 +615,7 @@ msgstr "Weka upya"
 msgid "Pause"
 msgstr "Sitisha"
 
-#: ui/dialogs/automation.slint ui/operator/automation-strip.slint
+#: ui/dialogs/automation.slint ui/dialogs/getting-started.slint ui/operator/automation-strip.slint
 msgid "Start"
 msgstr "Anza"
 
@@ -1108,6 +1108,90 @@ msgstr "Mpangilio wa Biblia"
 msgid "Pick a result to see its chapter. Click a verse, or Shift+click to add a range."
 msgstr "Chagua tokeo ili kuona sura yake. Bofya mstari, au Shift+bofya ili kuongeza mfululizo."
 
+#: ui/dialogs/getting-started.slint
+msgid "Step {} of 3"
+msgstr "Hatua {} kati ya 3"
+
+#: ui/dialogs/getting-started.slint
+msgid "Welcome to RustyPresenter"
+msgstr "Karibu kwenye RustyPresenter"
+
+#: ui/dialogs/getting-started.slint
+msgid "Three short steps get you from here to words on the screen. It takes about two minutes."
+msgstr "Hatua tatu fupi zinakutoa hapa hadi maneno kwenye skrini. Inachukua kama dakika mbili."
+
+#: ui/dialogs/getting-started.slint
+msgid "You can skip this at any time. Help → Getting started… brings it back."
+msgstr "Unaweza kuruka hili wakati wowote. Msaada → Kuanza… huionyesha tena."
+
+#: ui/dialogs/getting-started.slint
+msgid "Choose the screen the room sees"
+msgstr "Chagua skrini ambayo ukumbi unaiona"
+
+#: ui/dialogs/getting-started.slint
+msgid "Plug in the projector or TV and set the computer to extend the desktop onto it. Then choose it as the audience screen."
+msgstr "Unganisha projekta au TV na uweke kompyuta ipanue eneo-kazi kwenye hiyo. Kisha ichague kama skrini ya ukumbi."
+
+#: ui/dialogs/getting-started.slint
+msgid "Choose screens…"
+msgstr "Chagua skrini…"
+
+#: ui/dialogs/getting-started.slint
+msgid "No projector here today? Click Next. Window → Screens… does this later."
+msgstr "Hakuna projekta leo? Bofya Ifuatayo. Dirisha → Skrini… hufanya hili baadaye."
+
+#: ui/dialogs/getting-started.slint
+msgid "Add something to show"
+msgstr "Ongeza kitu cha kuonyesha"
+
+#: ui/dialogs/getting-started.slint
+msgid "A song, a Bible passage, a video, slides or an announcement. You can also drag files onto the window."
+msgstr "Wimbo, kifungu cha Biblia, video, slaidi au tangazo. Unaweza pia kuburuta faili kwenye dirisha."
+
+#: ui/dialogs/getting-started.slint
+msgid "Add to service…"
+msgstr "Ongeza kwenye ibada…"
+
+#: ui/dialogs/getting-started.slint
+msgid "Everything you add shows up in the list on the left."
+msgstr "Kila unachoongeza kinaonekana kwenye orodha upande wa kushoto."
+
+#: ui/dialogs/getting-started.slint
+msgid "Show it"
+msgstr "Kionyeshe"
+
+#: ui/dialogs/getting-started.slint
+msgid "Click a slide and it is on the screen at once. The red outline shows what the room sees."
+msgstr "Bofya slaidi na inaonekana kwenye skrini papo hapo. Mstari mwekundu unaonyesha kile ukumbi unachokiona."
+
+#: ui/dialogs/getting-started.slint
+msgid "During the service, → or Space goes to the next slide and ← goes back. F1 clears the screen."
+msgstr "Wakati wa ibada, → au Space huenda kwenye slaidi inayofuata na ← hurudi nyuma. F1 hufuta skrini."
+
+#: ui/dialogs/getting-started.slint
+msgid "Stuck? The Help menu has short tutorials, and Report a problem… when something breaks."
+msgstr "Umekwama? Menyu ya Msaada ina mafunzo mafupi, na Ripoti tatizo… kitu kinapoharibika."
+
+#: ui/dialogs/getting-started.slint
+msgid "Open the tutorials"
+msgstr "Fungua mafunzo"
+
+#: ui/dialogs/getting-started.slint
+msgid "Skip"
+msgstr "Ruka"
+
+#: ui/dialogs/getting-started.slint ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Back"
+msgstr "Rudi"
+
+#: ui/dialogs/getting-started.slint ui/dialogs/go-live-helper.slint ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "Ifuatayo"
+
+#: ui/dialogs/getting-started.slint ui/dialogs/music.slint ui/dialogs/translation-editor.slint src/i18n/remote_strings.rs
+msgid "Done"
+msgstr "Imekamilika"
+
 #: ui/dialogs/go-live-helper.slint
 msgid "Step {} of 4"
 msgstr "Hatua {} kati ya 4"
@@ -1196,14 +1280,6 @@ msgstr "Tayari kurusha moja kwa moja"
 msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Livestream."
 msgstr "Bonyeza Rusha moja kwa moja juu ibada inapoanza, na ubonyeze tena mwishoni. Kila ulichochagua hapa kinaweza kubadilishwa katika Mipangilio → Matangazo ya moja kwa moja."
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Back"
-msgstr "Rudi"
-
-#: ui/dialogs/go-live-helper.slint ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Next"
-msgstr "Ifuatayo"
-
 #: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/settings-phone.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "Funga"
@@ -1260,7 +1336,7 @@ msgstr "Kando kwa kando"
 msgid "Top and bottom"
 msgstr "Juu na chini"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-stream.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-general.slint ui/dialogs/settings-stream.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "Otomatiki"
 
@@ -1368,7 +1444,7 @@ msgstr "Tumia kwa slaidi zote"
 msgid "Auto-advance after (s)"
 msgstr "Songa yenyewe baada ya (s)"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint ui/operator/bible-box.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-general.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint ui/operator/bible-box.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr "Imezimwa"
 
@@ -1498,10 +1574,6 @@ msgstr "Wimbo unaofuata"
 #: ui/dialogs/music.slint ui/operator/live_controls.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs
 msgid "Play"
 msgstr "Cheza"
-
-#: ui/dialogs/music.slint ui/dialogs/translation-editor.slint src/i18n/remote_strings.rs
-msgid "Done"
-msgstr "Imekamilika"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the audience screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
@@ -1768,6 +1840,10 @@ msgid "Reset the picture"
 msgstr "Rejesha picha"
 
 #: ui/dialogs/screens.slint
+msgid "Connected screens"
+msgstr "Skrini zilizounganishwa"
+
+#: ui/dialogs/screens.slint
 msgid "Screen"
 msgstr "Skrini"
 
@@ -1786,6 +1862,10 @@ msgstr "Urefu"
 #: ui/dialogs/screens.slint
 msgid "Aspect ratio: {}"
 msgstr "Uwiano wa vipimo: {}"
+
+#: ui/dialogs/screens.slint
+msgid "Slides are drawn at"
+msgstr "Slaidi huchorwa kwa"
 
 #: ui/dialogs/screens.slint
 msgid "Show what the audience screen shows"
@@ -1830,6 +1910,14 @@ msgstr "Tambua"
 #: ui/dialogs/screens.slint
 msgid "Show each screen's number on it for a few seconds"
 msgstr "Onyesha namba ya kila skrini juu yake kwa sekunde chache"
+
+#: ui/dialogs/screens.slint
+msgid "Windows display settings"
+msgstr "Mipangilio ya onyesho ya Windows"
+
+#: ui/dialogs/screens.slint
+msgid "Change a screen's resolution or how the screens are arranged, in Windows"
+msgstr "Badilisha ubora wa skrini au jinsi skrini zilivyopangwa, katika Windows"
 
 #: ui/dialogs/screens.slint
 msgid "Refresh"
@@ -2258,6 +2346,14 @@ msgstr "Tumia hii"
 #: ui/dialogs/settings-general.slint
 msgid "Restart now"
 msgstr "Anzisha upya sasa"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Light mode"
+msgstr "Hali nyepesi"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "For a slow computer: slides change without fading, and the live preview's video is refreshed less often. Automatic turns it on when the audience screen cannot keep up."
+msgstr "Kwa kompyuta ya polepole: slaidi hubadilika bila kufifia, na video ya onyesho la moja kwa moja huonyeshwa upya mara chache. Otomatiki huiwasha pale skrini ya waumini inaposhindwa kwenda sambamba."
 
 #: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
 msgid "Performance"
@@ -3091,7 +3187,7 @@ msgstr "Umeingia kama {}"
 msgid "Sign out"
 msgstr "Toka"
 
-#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/getting_started.rs src/ui/dialogs/settings_find.rs
 msgid "Getting started"
 msgstr "Kuanza"
 
@@ -6334,6 +6430,10 @@ msgstr "Kagua ibada"
 #: ui/operator.slint src/shortcuts.rs
 msgid "Find my mouse"
 msgstr "Tafuta kipanya changu"
+
+#: ui/operator.slint
+msgid "Getting started…"
+msgstr "Kuanza…"
 
 #: ui/operator.slint
 msgid "Tutorials"
@@ -10679,6 +10779,18 @@ msgstr "karibu {ms} ms"
 msgid "Colour and corner changes show when the screens draw with OpenGL (Settings → General → Screens and graphics → Graphics: Automatic or OpenGL). Test patterns and the delay work either way."
 msgstr "Mabadiliko ya rangi na pembe huonekana skrini zinapochora kwa OpenGL (Mipangilio → Jumla → Skrini na michoro → Michoro: Otomatiki au OpenGL). Picha za majaribio na ucheleweshaji hufanya kazi kwa vyovyote."
 
+#: src/strings/screens.rs
+msgid "Main"
+msgstr "Kuu"
+
+#: src/strings/screens.rs
+msgid "The screen's own size"
+msgstr "Ukubwa halisi wa skrini"
+
+#: src/strings/screens.rs
+msgid "This screen's slides are drawn at {width} × {height}. A smaller size is stretched to fill the screen: a little softer, and much easier for a slow computer or a 4K screen. It applies to every audience screen. Video keeps its own sharpness."
+msgstr "Slaidi za skrini hii huchorwa kwa {width} × {height}. Ukubwa mdogo hunyooshwa ili kujaza skrini: laini kidogo, na rahisi zaidi kwa kompyuta ya polepole au skrini ya 4K. Inatumika kwa kila skrini ya waumini. Video hubaki na ukali wake."
+
 #: src/strings/scripture.rs
 msgid "Type at least one word to search for."
 msgstr "Andika angalau neno moja la kutafuta."
@@ -12614,6 +12726,10 @@ msgstr "Iache kama ilivyo"
 msgid "Saved."
 msgstr "Imehifadhiwa."
 
+#: src/ui/dialogs/getting_started.rs
+msgid "Help → Getting started… shows those steps again."
+msgstr "Msaada → Kuanza… huonyesha hatua hizo tena."
+
 #: src/ui/dialogs/go_live_helper.rs
 msgid "Go Live: getting started"
 msgstr "Rusha moja kwa moja: kuanza"
@@ -13336,7 +13452,7 @@ msgstr "Pata toleo {version}…"
 msgid "Your web browser is opening the download page. Install it when no service is running."
 msgstr "Kivinjari chako kinafungua ukurasa wa kupakua. Lisakinishe wakati hakuna ibada inayoendelea."
 
-#: src/ui/dialogs/update.rs
+#: src/ui/dialogs/update.rs src/ui/operator/help.rs
 msgid "Could not open your web browser: {reason}"
 msgstr "Imeshindwa kufungua kivinjari chako: {reason}"
 
@@ -13423,6 +13539,31 @@ msgid "What happened:"
 msgstr "Kilichotokea:"
 
 #: src/ui/operator/help.rs
+msgid "From a computer with internet, you can also report it here:"
+msgstr "Kutoka kwenye kompyuta yenye intaneti, unaweza pia kuripoti hapa:"
+
+#: src/ui/operator/help.rs
+msgid ""
+"Report a problem\n"
+"\n"
+"Your web browser opens a page where you write what happened. It needs a free GitHub account, and what you write there can be read by anyone.\n"
+"\n"
+"No internet on this computer? Write a note instead and send it later."
+msgstr "Ripoti tatizo\n\nKivinjari chako kinafungua ukurasa ambapo unaandika kilichotokea. Kinahitaji akaunti ya GitHub ya bure, na unachoandika hapo kinaweza kusomwa na mtu yeyote.\n\nHakuna intaneti kwenye kompyuta hii? Andika dokezo badala yake na ulitume baadaye."
+
+#: src/ui/operator/help.rs
+msgid "Open the page"
+msgstr "Fungua ukurasa"
+
+#: src/ui/operator/help.rs
+msgid "Write a note"
+msgstr "Andika dokezo"
+
+#: src/ui/operator/help.rs
+msgid "Your web browser is opening the report page."
+msgstr "Kivinjari chako kinafungua ukurasa wa kuripoti."
+
+#: src/ui/operator/help.rs
 msgid "RustyPresenter: quick tutorials"
 msgstr "RustyPresenter: mafunzo mafupi"
 
@@ -13495,8 +13636,8 @@ msgid "The audience screen shows the wrong thing: press the clear keys above, th
 msgstr "Skrini ya ukumbi inaonyesha kitu kisicho sahihi: bonyeza vitufe vya kusafisha vilivyo juu, kisha onyesha slaidi tena."
 
 #: src/ui/operator/help.rs
-msgid "Help → Report a problem… writes a note to fill in and says where the log files are."
-msgstr "Msaada → Ripoti tatizo… huandika ujumbe wa kujaza na husema faili za kumbukumbu ziko wapi."
+msgid "Help → Report a problem… opens the report page in your web browser, or writes a note to fill in and says where the log files are."
+msgstr "Msaada → Ripoti tatizo… hufungua ukurasa wa kuripoti kwenye kivinjari chako, au huandika dokezo la kujaza na kusema faili za kumbukumbu ziko wapi."
 
 #: src/ui/operator/menu.rs
 msgid "Choose what pre-service does, then click Save."
@@ -13517,6 +13658,10 @@ msgstr "Unasikiliza: sauti inaenda kwenye hedifoni zako pekee. Ukumbi hausikii c
 #: src/ui/operator/menu.rs
 msgid "The sound goes to the room again."
 msgstr "Sauti inaenda ukumbini tena."
+
+#: src/ui/operator/outputs.rs
+msgid "This computer is having trouble keeping up, so slides now change without fading. To change this: Settings → General → Screens and graphics → Light mode."
+msgstr "Kompyuta hii inapata shida kwenda sambamba, kwa hivyo sasa slaidi hubadilika bila kufifia. Ili kubadilisha: Mipangilio → Jumla → Skrini na michoro → Hali nyepesi."
 
 #: src/ui/operator/record.rs
 msgid "Get FFmpeg"
@@ -13952,6 +14097,9 @@ msgstr "yt-dlp haikuhifadhi video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "si faili ya midia"
+
+#~ msgid "Help → Report a problem… writes a note to fill in and says where the log files are."
+#~ msgstr "Msaada → Ripoti tatizo… huandika ujumbe wa kujaza na husema faili za kumbukumbu ziko wapi."
 
 #~ msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
 #~ msgstr "Nakala kamili ya akiba (nyimbo, ibada, mipangilio na kila video, picha na slaidi) hutengenezwa kila RustyPresenter inapoanza na mara moja kwa siku. Nakala 10 za mwisho huhifadhiwa katika"

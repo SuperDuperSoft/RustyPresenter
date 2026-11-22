@@ -551,7 +551,7 @@ msgstr "Jours"
 msgid "What to do"
 msgstr "Action"
 
-#: ui/dialogs/automation.slint
+#: ui/dialogs/automation.slint ui/dialogs/settings-general.slint
 msgid "On"
 msgstr "Activé"
 
@@ -615,7 +615,7 @@ msgstr "Réinitialiser"
 msgid "Pause"
 msgstr "Pause"
 
-#: ui/dialogs/automation.slint ui/operator/automation-strip.slint
+#: ui/dialogs/automation.slint ui/dialogs/getting-started.slint ui/operator/automation-strip.slint
 msgid "Start"
 msgstr "Démarrer"
 
@@ -1108,6 +1108,90 @@ msgstr "Ordre biblique"
 msgid "Pick a result to see its chapter. Click a verse, or Shift+click to add a range."
 msgstr "Choisissez un résultat pour voir son chapitre. Cliquez sur un verset, ou Maj+clic pour ajouter une plage."
 
+#: ui/dialogs/getting-started.slint
+msgid "Step {} of 3"
+msgstr "Étape {} sur 3"
+
+#: ui/dialogs/getting-started.slint
+msgid "Welcome to RustyPresenter"
+msgstr "Bienvenue dans RustyPresenter"
+
+#: ui/dialogs/getting-started.slint
+msgid "Three short steps get you from here to words on the screen. It takes about two minutes."
+msgstr "Trois courtes étapes vous mènent d'ici aux paroles à l'écran. Cela prend environ deux minutes."
+
+#: ui/dialogs/getting-started.slint
+msgid "You can skip this at any time. Help → Getting started… brings it back."
+msgstr "Vous pouvez passer ceci à tout moment. Aide → Premiers pas… l'affiche de nouveau."
+
+#: ui/dialogs/getting-started.slint
+msgid "Choose the screen the room sees"
+msgstr "Choisissez l'écran que voit la salle"
+
+#: ui/dialogs/getting-started.slint
+msgid "Plug in the projector or TV and set the computer to extend the desktop onto it. Then choose it as the audience screen."
+msgstr "Branchez le projecteur ou le téléviseur et réglez l'ordinateur pour étendre le bureau dessus. Choisissez-le ensuite comme écran de la salle."
+
+#: ui/dialogs/getting-started.slint
+msgid "Choose screens…"
+msgstr "Choisir les écrans…"
+
+#: ui/dialogs/getting-started.slint
+msgid "No projector here today? Click Next. Window → Screens… does this later."
+msgstr "Pas de projecteur aujourd'hui ? Cliquez sur Suivant. Fenêtre → Écrans… permet de le faire plus tard."
+
+#: ui/dialogs/getting-started.slint
+msgid "Add something to show"
+msgstr "Ajoutez quelque chose à montrer"
+
+#: ui/dialogs/getting-started.slint
+msgid "A song, a Bible passage, a video, slides or an announcement. You can also drag files onto the window."
+msgstr "Un chant, un passage biblique, une vidéo, des diapositives ou une annonce. Vous pouvez aussi faire glisser des fichiers sur la fenêtre."
+
+#: ui/dialogs/getting-started.slint
+msgid "Add to service…"
+msgstr "Ajouter au culte…"
+
+#: ui/dialogs/getting-started.slint
+msgid "Everything you add shows up in the list on the left."
+msgstr "Tout ce que vous ajoutez apparaît dans la liste à gauche."
+
+#: ui/dialogs/getting-started.slint
+msgid "Show it"
+msgstr "Montrez-le"
+
+#: ui/dialogs/getting-started.slint
+msgid "Click a slide and it is on the screen at once. The red outline shows what the room sees."
+msgstr "Cliquez sur une diapositive et elle est aussitôt à l'écran. Le contour rouge montre ce que voit la salle."
+
+#: ui/dialogs/getting-started.slint
+msgid "During the service, → or Space goes to the next slide and ← goes back. F1 clears the screen."
+msgstr "Pendant le culte, → ou Espace passe à la diapositive suivante et ← revient en arrière. F1 efface l'écran."
+
+#: ui/dialogs/getting-started.slint
+msgid "Stuck? The Help menu has short tutorials, and Report a problem… when something breaks."
+msgstr "Bloqué ? Le menu Aide propose de courts tutoriels, et Signaler un problème… quand quelque chose ne marche pas."
+
+#: ui/dialogs/getting-started.slint
+msgid "Open the tutorials"
+msgstr "Ouvrir les tutoriels"
+
+#: ui/dialogs/getting-started.slint
+msgid "Skip"
+msgstr "Passer"
+
+#: ui/dialogs/getting-started.slint ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Back"
+msgstr "Retour"
+
+#: ui/dialogs/getting-started.slint ui/dialogs/go-live-helper.slint ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
+msgid "Next"
+msgstr "Suivant"
+
+#: ui/dialogs/getting-started.slint ui/dialogs/music.slint ui/dialogs/translation-editor.slint src/i18n/remote_strings.rs
+msgid "Done"
+msgstr "Terminé"
+
 #: ui/dialogs/go-live-helper.slint
 msgid "Step {} of 4"
 msgstr "Étape {} sur 4"
@@ -1196,14 +1280,6 @@ msgstr "Prêt à passer en direct"
 msgid "Press Go Live at the top when the service starts, and press it again at the end. Everything chosen here can be changed in Settings → Livestream."
 msgstr "Appuyez sur Passer en direct en haut quand le culte commence, puis à nouveau à la fin. Tout ce qui est choisi ici peut se changer dans Paramètres → Diffusion en direct."
 
-#: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/settings-about.slint ui/dialogs/translation-editor.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Back"
-msgstr "Retour"
-
-#: ui/dialogs/go-live-helper.slint ui/operator/cameras.slint ui/operator/live.slint ui/operator.slint src/i18n/remote_strings.rs src/strings/settings.rs
-msgid "Next"
-msgstr "Suivant"
-
 #: ui/dialogs/go-live-helper.slint ui/dialogs/overlays.slint ui/dialogs/print.slint ui/dialogs/settings-phone.slint ui/dialogs/songselect.slint ui/widgets.slint
 msgid "Close"
 msgstr "Fermer"
@@ -1260,7 +1336,7 @@ msgstr "Côte à côte"
 msgid "Top and bottom"
 msgstr "Haut et bas"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-stream.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/settings-bible.slint ui/dialogs/settings-general.slint ui/dialogs/settings-stream.slint ui/dialogs/slide-breaks.slint ui/operator/record.slint src/ui/dialogs/automation.rs src/video/graphics.rs
 msgid "Automatic"
 msgstr "Automatique"
 
@@ -1368,7 +1444,7 @@ msgstr "Utiliser pour toutes les diapos"
 msgid "Auto-advance after (s)"
 msgstr "Avancer seul après (s)"
 
-#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint ui/operator/bible-box.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
+#: ui/dialogs/item-edit.slint ui/dialogs/overlays.slint ui/dialogs/settings-general.slint ui/dialogs/settings-sound.slint ui/dialogs/settings-themes.slint ui/operator/bible-box.slint src/stream/listen.rs src/strings/screens.rs src/ui/dialogs/automation.rs src/ui/dialogs/settings_record.rs
 msgid "Off"
 msgstr "Désactivé"
 
@@ -1498,10 +1574,6 @@ msgstr "Morceau suivant"
 #: ui/dialogs/music.slint ui/operator/live_controls.slint src/automation/slide_actions.rs src/i18n/remote_strings.rs
 msgid "Play"
 msgstr "Lire"
-
-#: ui/dialogs/music.slint ui/dialogs/translation-editor.slint src/i18n/remote_strings.rs
-msgid "Done"
-msgstr "Terminé"
 
 #: ui/dialogs/overlays.slint
 msgid "Overlays stay on the audience screen while slides change: a logo in the corner, a clock or a short sign. Turn them on and off with the chips under Up next in the Live column. The last one in the list is drawn on top."
@@ -1768,6 +1840,10 @@ msgid "Reset the picture"
 msgstr "Réinitialiser l’image"
 
 #: ui/dialogs/screens.slint
+msgid "Connected screens"
+msgstr "Écrans connectés"
+
+#: ui/dialogs/screens.slint
 msgid "Screen"
 msgstr "Écran"
 
@@ -1786,6 +1862,10 @@ msgstr "Hauteur"
 #: ui/dialogs/screens.slint
 msgid "Aspect ratio: {}"
 msgstr "Format d’image : {}"
+
+#: ui/dialogs/screens.slint
+msgid "Slides are drawn at"
+msgstr "Les diapositives sont dessinées en"
 
 #: ui/dialogs/screens.slint
 msgid "Show what the audience screen shows"
@@ -1830,6 +1910,14 @@ msgstr "Identifier"
 #: ui/dialogs/screens.slint
 msgid "Show each screen's number on it for a few seconds"
 msgstr "Afficher le numéro de chaque écran pendant quelques secondes"
+
+#: ui/dialogs/screens.slint
+msgid "Windows display settings"
+msgstr "Paramètres d’affichage de Windows"
+
+#: ui/dialogs/screens.slint
+msgid "Change a screen's resolution or how the screens are arranged, in Windows"
+msgstr "Changer la résolution d’un écran ou la disposition des écrans, dans Windows"
 
 #: ui/dialogs/screens.slint
 msgid "Refresh"
@@ -2258,6 +2346,14 @@ msgstr "Utiliser"
 #: ui/dialogs/settings-general.slint
 msgid "Restart now"
 msgstr "Redémarrer"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "Light mode"
+msgstr "Mode léger"
+
+#: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
+msgid "For a slow computer: slides change without fading, and the live preview's video is refreshed less often. Automatic turns it on when the audience screen cannot keep up."
+msgstr "Pour un ordinateur lent : les diapositives changent sans fondu et la vidéo de l’aperçu en direct est actualisée moins souvent. Automatique l’active quand l’écran de la salle n’arrive pas à suivre."
 
 #: ui/dialogs/settings-general.slint src/ui/dialogs/settings_find.rs
 msgid "Performance"
@@ -3091,7 +3187,7 @@ msgstr "Connecté en tant que {}"
 msgid "Sign out"
 msgstr "Se déconnecter"
 
-#: ui/dialogs/settings-stream.slint src/ui/dialogs/settings_find.rs
+#: ui/dialogs/settings-stream.slint src/ui/dialogs/getting_started.rs src/ui/dialogs/settings_find.rs
 msgid "Getting started"
 msgstr "Premiers pas"
 
@@ -6334,6 +6430,10 @@ msgstr "Vérifier le culte"
 #: ui/operator.slint src/shortcuts.rs
 msgid "Find my mouse"
 msgstr "Retrouver ma souris"
+
+#: ui/operator.slint
+msgid "Getting started…"
+msgstr "Premiers pas…"
 
 #: ui/operator.slint
 msgid "Tutorials"
@@ -10679,6 +10779,18 @@ msgstr "environ {ms} ms"
 msgid "Colour and corner changes show when the screens draw with OpenGL (Settings → General → Screens and graphics → Graphics: Automatic or OpenGL). Test patterns and the delay work either way."
 msgstr "Les changements de couleur et de coins se voient quand les écrans dessinent avec OpenGL (Paramètres → Général → Écrans et graphismes → Graphismes : Automatique ou OpenGL). Les mires et le délai marchent dans les deux cas."
 
+#: src/strings/screens.rs
+msgid "Main"
+msgstr "Principal"
+
+#: src/strings/screens.rs
+msgid "The screen's own size"
+msgstr "La taille propre de l’écran"
+
+#: src/strings/screens.rs
+msgid "This screen's slides are drawn at {width} × {height}. A smaller size is stretched to fill the screen: a little softer, and much easier for a slow computer or a 4K screen. It applies to every audience screen. Video keeps its own sharpness."
+msgstr "Les diapositives de cet écran sont dessinées en {width} × {height}. Une taille plus petite est étirée pour remplir l’écran : un peu plus douce, et bien plus facile pour un ordinateur lent ou un écran 4K. Cela vaut pour tous les écrans de la salle. La vidéo garde sa netteté."
+
 #: src/strings/scripture.rs
 msgid "Type at least one word to search for."
 msgstr "Tapez au moins un mot à rechercher."
@@ -12614,6 +12726,10 @@ msgstr "Ne rien changer"
 msgid "Saved."
 msgstr "Enregistré."
 
+#: src/ui/dialogs/getting_started.rs
+msgid "Help → Getting started… shows those steps again."
+msgstr "Aide → Premiers pas… affiche de nouveau ces étapes."
+
 #: src/ui/dialogs/go_live_helper.rs
 msgid "Go Live: getting started"
 msgstr "Passer en direct : premiers pas"
@@ -13336,7 +13452,7 @@ msgstr "Obtenir la version {version}…"
 msgid "Your web browser is opening the download page. Install it when no service is running."
 msgstr "Votre navigateur web ouvre la page de téléchargement. Installez-la quand aucun culte n'est en cours."
 
-#: src/ui/dialogs/update.rs
+#: src/ui/dialogs/update.rs src/ui/operator/help.rs
 msgid "Could not open your web browser: {reason}"
 msgstr "Impossible d'ouvrir votre navigateur web : {reason}"
 
@@ -13423,6 +13539,31 @@ msgid "What happened:"
 msgstr "Ce qui s’est passé :"
 
 #: src/ui/operator/help.rs
+msgid "From a computer with internet, you can also report it here:"
+msgstr "Depuis un ordinateur avec Internet, vous pouvez aussi le signaler ici :"
+
+#: src/ui/operator/help.rs
+msgid ""
+"Report a problem\n"
+"\n"
+"Your web browser opens a page where you write what happened. It needs a free GitHub account, and what you write there can be read by anyone.\n"
+"\n"
+"No internet on this computer? Write a note instead and send it later."
+msgstr "Signaler un problème\n\nVotre navigateur web ouvre une page où vous écrivez ce qui s'est passé. Il faut un compte GitHub gratuit, et tout le monde peut lire ce que vous y écrivez.\n\nPas d'Internet sur cet ordinateur ? Écrivez plutôt une note et envoyez-la plus tard."
+
+#: src/ui/operator/help.rs
+msgid "Open the page"
+msgstr "Ouvrir la page"
+
+#: src/ui/operator/help.rs
+msgid "Write a note"
+msgstr "Écrire une note"
+
+#: src/ui/operator/help.rs
+msgid "Your web browser is opening the report page."
+msgstr "Votre navigateur web ouvre la page de signalement."
+
+#: src/ui/operator/help.rs
 msgid "RustyPresenter: quick tutorials"
 msgstr "RustyPresenter : tutoriels rapides"
 
@@ -13495,8 +13636,8 @@ msgid "The audience screen shows the wrong thing: press the clear keys above, th
 msgstr "L’écran de la salle affiche autre chose que prévu : appuyez sur les touches d’effacement ci-dessus, puis affichez à nouveau la diapo."
 
 #: src/ui/operator/help.rs
-msgid "Help → Report a problem… writes a note to fill in and says where the log files are."
-msgstr "Aide → Signaler un problème… rédige une note à compléter et indique où se trouvent les fichiers journaux."
+msgid "Help → Report a problem… opens the report page in your web browser, or writes a note to fill in and says where the log files are."
+msgstr "Aide → Signaler un problème… ouvre la page de signalement dans votre navigateur web, ou écrit une note à remplir et indique où se trouvent les fichiers journaux."
 
 #: src/ui/operator/menu.rs
 msgid "Choose what pre-service does, then click Save."
@@ -13517,6 +13658,10 @@ msgstr "Écoute : le son va uniquement dans votre casque. La salle n’entend ri
 #: src/ui/operator/menu.rs
 msgid "The sound goes to the room again."
 msgstr "Le son va de nouveau à la salle."
+
+#: src/ui/operator/outputs.rs
+msgid "This computer is having trouble keeping up, so slides now change without fading. To change this: Settings → General → Screens and graphics → Light mode."
+msgstr "Cet ordinateur a du mal à suivre, alors les diapositives changent maintenant sans fondu. Pour changer cela : Paramètres → Général → Écrans et graphismes → Mode léger."
 
 #: src/ui/operator/record.rs
 msgid "Get FFmpeg"
@@ -13952,6 +14097,9 @@ msgstr "yt-dlp n’a enregistré aucune vidéo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "pas un fichier média"
+
+#~ msgid "Help → Report a problem… writes a note to fill in and says where the log files are."
+#~ msgstr "Aide → Signaler un problème… rédige une note à compléter et indique où se trouvent les fichiers journaux."
 
 #~ msgid "A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in"
 #~ msgstr "Une sauvegarde complète (chants, cultes, paramètres et chaque vidéo, image et diapo) est faite à chaque démarrage de RustyPresenter et une fois par jour. Les 10 dernières sont conservées dans"

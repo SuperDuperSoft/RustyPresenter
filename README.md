@@ -81,7 +81,8 @@ RustyPresenter tells you when a new version is out. Close the app, download the 
 ## Getting help
 
 - **Help → Check the service** finds missing files and empty items before the service starts.
-- **Help → Report a problem…** writes a note to fill in and shows where the log files are.
+- **Help → Getting started…** shows the first steps again.
+- **Help → Report a problem…** opens the report page in your web browser, with your version filled in. With no internet, it writes a note to fill in and shows where the log files are.
 - Problems and ideas: [open an issue](https://github.com/SuperDuperSoft/RustyPresenter/issues).
 
 ## Helping out

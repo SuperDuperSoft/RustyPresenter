@@ -2,7 +2,7 @@
 //! stage window taken once a second, so the operator can check it without walking to it. The performance line under
 //! the preview (N33) and Window → Audience screen in a window (N30) live here too.
 use super::{view::OperatorSnapshot, window::Operator};
-use crate::{model::ScreenTarget, ui::{OutputsStateAll, dock::PanelId, perf}};
+use crate::{model::ScreenTarget, ui::{OutputsStateAll, dock::PanelId, light, perf}};
 use slint::{Image, Timer, TimerMode};
 use std::{rc::Rc, time::Duration};
 use uuid::Uuid;
@@ -12,6 +12,8 @@ use uuid::Uuid;
 const STAGE_EVERY: Duration = Duration::from_secs(1);
 /// How often the performance line is written again.
 const PERF_EVERY: Duration = Duration::from_secs(1);
+/// How often light mode is asked whether it has just turned itself on (`ui::light`).
+const LIGHT_EVERY: Duration = Duration::from_secs(1);
 /// What the preview shows (`OutputsState.view`).
 pub const ROOM: i32 = 0;
 pub const STAGE: i32 = 1;
@@ -20,6 +22,7 @@ pub const STAGE: i32 = 1;
 pub(crate) struct OutputsUi {
     stage_timer: Timer,
     perf_timer: Timer,
+    light_timer: Timer,
     /// The room's first screen before Audience screen in a window moved it there: its id, output and switch, put back
     /// when the window is closed again from the menu.
     before_window: Option<(Uuid, ScreenTarget, bool)>,
@@ -71,6 +74,13 @@ impl Operator {
         g.set_perf_warn(r.slow());
     }
 
+    /// Tells the operator, once, that Automatic has turned light mode on.
+    pub(crate) fn light_tick(&self) {
+        if light::take_notice() {
+            self.toast(crate::tr!("This computer is having trouble keeping up, so slides now change without fading. To change this: Settings → General → Screens and graphics → Light mode."), false);
+        }
+    }
+
     /// View → Show performance (also Settings → Video).
     fn toggle_perf(self: &Rc<Self>) {
         let on = !self.outputs().get_show_perf();
@@ -119,7 +129,13 @@ pub(super) fn render(op: &Operator, s: &OperatorSnapshot) {
     let on = s.settings.show_performance;
     perf::set_wanted(on);
     g.set_show_perf(on);
+    light::set_mode(s.settings.light_mode);
+    light::set_draw_height(s.settings.draw_height);
     let st = op.outputs_ui.borrow();
+    if !st.light_timer.running() {
+        let me = op.me.clone();
+        st.light_timer.start(TimerMode::Repeated, LIGHT_EVERY, move || if let Some(op) = me.upgrade() { op.light_tick() });
+    }
     if on && !st.perf_timer.running() {
         let me = op.me.clone();
         st.perf_timer.start(TimerMode::Repeated, PERF_EVERY, move || if let Some(op) = me.upgrade() { op.perf_tick() });

@@ -1,0 +1,112 @@
+// Getting started: a few short steps shown once, the first time the app opens with nothing in it, and again from
+// Help → Getting started…. Every step has Skip. Two steps open the real dialog (Screens, Add to service) and come
+// back to the next step when it closes. Filled and answered by `src/ui/dialogs/getting_started.rs`.
+import { Theme } from "../theme.slint";
+import { Btn } from "../widgets.slint";
+import { DialogBody, DialogFoot } from "shell.slint";
+
+export global GettingStartedDlg {
+    /// 0 welcome, 1 the screen, 2 something to show, 3 showing it.
+    in-out property <int> step;
+    callback next();
+    callback back();
+    /// Skip, on every step: closes the guide for good (Help brings it back).
+    callback skip();
+    /// Step 1's button: the Screens dialog, then step 2.
+    callback screens();
+    /// Step 2's button: Add to service, then step 3.
+    callback add();
+    /// The last step's Tutorials button.
+    callback tutorials();
+    /// Done, on the last step.
+    callback finish();
+}
+
+component Muted inherits Text {
+    color: Theme.muted;
+    font-family: Theme.font;
+    font-size: Theme.base-size;
+    wrap: word-wrap;
+    accessible-role: text;
+    accessible-label: self.text;
+}
+
+component Big inherits Text {
+    color: Theme.text;
+    font-family: Theme.display;
+    font-size: 22px;
+    font-weight: 600;
+    wrap: word-wrap;
+    accessible-role: text;
+    accessible-label: self.text;
+}
+
+export component GettingStartedDialog inherits VerticalLayout {
+    DialogBody {
+        VerticalLayout {
+            padding: 22px;
+            spacing: 12px;
+            if GettingStartedDlg.step > 0: Muted {
+                font-size: 13px;
+                text: @tr("Step {} of 3", GettingStartedDlg.step);
+            }
+            if GettingStartedDlg.step == 0: VerticalLayout {
+                spacing: 10px;
+                Big { text: @tr("Welcome to RustyPresenter"); }
+                Muted { text: @tr("Three short steps get you from here to words on the screen. It takes about two minutes."); }
+                Muted { text: @tr("You can skip this at any time. Help → Getting started… brings it back."); }
+            }
+            if GettingStartedDlg.step == 1: VerticalLayout {
+                spacing: 10px;
+                Big { text: @tr("Choose the screen the room sees"); }
+                Muted { text: @tr("Plug in the projector or TV and set the computer to extend the desktop onto it. Then choose it as the audience screen."); }
+                HorizontalLayout {
+                    alignment: start;
+                    started-screens := Btn {
+                        primary: true;
+                        icon: "monitor";
+                        text: @tr("Choose screens…");
+                        clicked => { GettingStartedDlg.screens(); }
+                    }
+                }
+                Muted { text: @tr("No projector here today? Click Next. Window → Screens… does this later."); }
+            }
+            if GettingStartedDlg.step == 2: VerticalLayout {
+                spacing: 10px;
+                Big { text: @tr("Add something to show"); }
+                Muted { text: @tr("A song, a Bible passage, a video, slides or an announcement. You can also drag files onto the window."); }
+                HorizontalLayout {
+                    alignment: start;
+                    started-add := Btn {
+                        primary: true;
+                        icon: "plus";
+                        text: @tr("Add to service…");
+                        clicked => { GettingStartedDlg.add(); }
+                    }
+                }
+                Muted { text: @tr("Everything you add shows up in the list on the left."); }
+            }
+            if GettingStartedDlg.step == 3: VerticalLayout {
+                spacing: 10px;
+                Big { text: @tr("Show it"); }
+                Muted { text: @tr("Click a slide and it is on the screen at once. The red outline shows what the room sees."); }
+                Muted { text: @tr("During the service, → or Space goes to the next slide and ← goes back. F1 clears the screen."); }
+                Muted { text: @tr("Stuck? The Help menu has short tutorials, and Report a problem… when something breaks."); }
+                HorizontalLayout {
+                    alignment: start;
+                    started-tutorials := Btn {
+                        text: @tr("Open the tutorials");
+                        clicked => { GettingStartedDlg.tutorials(); }
+                    }
+                }
+            }
+        }
+    }
+    DialogFoot {
+        if GettingStartedDlg.step < 3: started-skip := Btn { text: @tr("Skip"); clicked => { GettingStartedDlg.skip(); } }
+        if GettingStartedDlg.step > 0: started-back := Btn { text: @tr("Back"); clicked => { GettingStartedDlg.back(); } }
+        if GettingStartedDlg.step == 0: started-start := Btn { primary: true; text: @tr("Start"); clicked => { GettingStartedDlg.next(); } }
+        if GettingStartedDlg.step > 0 && GettingStartedDlg.step < 3: started-next := Btn { text: @tr("Next"); clicked => { GettingStartedDlg.next(); } }
+        if GettingStartedDlg.step == 3: started-done := Btn { primary: true; text: @tr("Done"); clicked => { GettingStartedDlg.finish(); } }
+    }
+}

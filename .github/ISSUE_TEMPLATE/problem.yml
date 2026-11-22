@@ -1,0 +1,52 @@
+name: Report a problem
+description: Something went wrong or did not do what you expected.
+title: "Problem: "
+labels: ["problem"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for telling us. You do not need to know anything technical: say what happened in your own words.
+        What you write here can be read by anyone, so leave out names, passwords and stream keys.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you see, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How can we make it happen again?
+      description: The clicks or keys that led to it, one per line. Leave this empty if you are not sure.
+      placeholder: |
+        1. I opened ...
+        2. I clicked ...
+        3. Then ...
+  - type: dropdown
+    id: when
+    attributes:
+      label: Does it happen every time?
+      options:
+        - Every time
+        - Sometimes
+        - It happened once
+        - I have not tried again
+  - type: input
+    id: version
+    attributes:
+      label: RustyPresenter version
+      description: Help → About RustyPresenter shows it. The app fills this in when you come from Help → Report a problem…
+      placeholder: "0.5.6"
+  - type: input
+    id: system
+    attributes:
+      label: Computer
+      description: Windows, Mac or Linux. The app fills this in too.
+      placeholder: "windows x86_64"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log files (optional)
+      description: In the app, Help → Open logs folder opens the folder. Drag the newest files into this box.
