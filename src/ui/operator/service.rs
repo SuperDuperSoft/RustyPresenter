@@ -108,7 +108,7 @@ impl Operator {
     fn unfold_rows(&self, snap: &OperatorSnapshot, list: &mut [ServiceRow]) {
         let live = self.live_place();
         let pics = self.service_pics.borrow();
-        for (row, it) in list.iter_mut().zip(&snap.items) {
+        for (row, it) in list.iter_mut().zip(snap.items.iter()) {
             if row.header || it.slides.len() < 2 || !pics.expanded.contains(&it.id) { continue }
             row.expanded = true;
             let slides: Vec<ServiceSlide> = it.slides.iter().enumerate().map(|(i, s)| ServiceSlide {

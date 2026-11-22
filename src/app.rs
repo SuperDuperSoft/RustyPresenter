@@ -215,7 +215,8 @@ impl Drop for ScreenGuard {
 
 pub struct App {
     pub store: Store,
-    pub data: Mutex<Data>,
+    /// The library, the services and the settings. Its revision (`data_rev`) moves on with every change.
+    pub data: crate::tracked::Tracked<Data>,
     pub live: Mutex<Live>,
     pub tx: broadcast::Sender<Update>,
     /// Held from reading a live view until it is sent, so views go out in the order they were read.
@@ -349,7 +350,7 @@ impl App {
         let youtube = crate::youtube::Hub::new(&store.root);
         let usage = crate::usage::Usage::open(&store.root);
         let app = Arc::new(Self {
-            store, data: Mutex::new(data), live: Mutex::new(Live::new()), tx, live_order: Mutex::new(()), port, lan_url,
+            store, data: crate::tracked::Tracked::new(data), live: Mutex::new(Live::new()), tx, live_order: Mutex::new(()), port, lan_url,
             screens: OnceLock::new(), applied: Mutex::default(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), job_ends: Mutex::default(), cancels: Mutex::new(HashMap::new()),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), stage_message: Mutex::default(), stage_only: Mutex::default(), remote_conns: AtomicUsize::new(0), net: Default::default(),
@@ -597,6 +598,10 @@ impl App {
         self.start_follow_if_wanted();
     }
     pub fn broadcast_data(&self) { let _ = self.tx.send(Update::Data); }
+
+    /// A number that is different after every change to the data (`Tracked::rev`). Whoever draws from the data
+    /// keeps the number it last read: the same number means there is nothing to read again.
+    pub fn data_rev(&self) -> u64 { self.data.rev() }
 
     pub(crate) fn save(&self, data: &Data) -> Result<(), String> { self.write_save(self.encode_save(data)?) }
 
@@ -1959,7 +1964,6 @@ impl App {
                 }
                 Ok(())
             }));
-            app.broadcast_data();
             Ok(json!({}))
         }
         "screens/identify" => {

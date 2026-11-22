@@ -235,7 +235,8 @@ impl Operator {
         let Some(feed) = self.feed.clone() else {
             if self.ops.is_inline() {
                 let player_missing = self.screens.video_info().player_missing();
-                self.apply_snapshot(Arc::new(OperatorSnapshot::read(&self.app).with_player_missing(player_missing)));
+                let before = self.state.borrow().snap.clone();
+                self.apply_snapshot(Arc::new(OperatorSnapshot::read_after(&self.app, before.as_deref()).with_player_missing(player_missing)));
             }
             return
         };
@@ -249,8 +250,11 @@ impl Operator {
         let mut st = self.state.borrow_mut();
         if st.dragging { st.held_snapshot = Some(s); return; }
         st.selected = view::reselect(st.selected, &s.items, live_item);
-        // Only a new read or a conversion changes `data`; a job's progress patch shares it.
+        // A read that found the data unchanged shares the last read's copy (`OperatorSnapshot::read_after`), as a
+        // job's progress patch does: then the media bin, the overlay strip and the dialogs are left as they are.
         let data_changed = st.snap.as_ref().is_none_or(|old| !Arc::ptr_eq(&old.data, &s.data));
+        // What dialogs show from outside the data: paired phones, backups, screens, the Bible lists.
+        let status_changed = st.snap.as_ref().is_none_or(|old| !old.same_status(&s));
         // Settings → Language switched the app (maybe on another thread): this thread's windows follow, and every
         // Rust-made text below is drawn again in the new language.
         let lang = format!("{}#{}", crate::i18n::current(), crate::i18n::revision());
@@ -270,7 +274,7 @@ impl Operator {
         self.mark_room_off();
         self.ui.set_item_count(s.items.len() as i32);
         self.ui.set_loaded(true);
-        if data_changed || lang_changed { self.dialog_refresh(); }
+        if data_changed || status_changed || lang_changed { self.dialog_refresh(); }
         if lang_changed && self.state.borrow().live.is_some() { self.render_live(); }
         super::automation::render(self);
         self.fit_top_bar();
@@ -367,7 +371,7 @@ impl Feed {
     /// A full read of the state and the live view (`refresh()`). Never on the Slint thread (see `OperatorSnapshot::read`).
     fn read_all(&self) {
         let mut current = self.current.lock().unwrap();
-        let snap = Arc::new(OperatorSnapshot::read(&self.app).with_player_missing(self.player_missing));
+        let snap = Arc::new(OperatorSnapshot::read_after(&self.app, current.as_deref()).with_player_missing(self.player_missing));
         *current = Some(snap.clone());
         self.post(Some(snap), Some(LiveUpdate::new(self.app.live_view())));
     }

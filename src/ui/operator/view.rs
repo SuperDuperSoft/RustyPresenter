@@ -71,7 +71,8 @@ pub struct BibleProvider {
 pub struct OperatorSnapshot {
     pub service_id: Option<Uuid>,
     pub service_name: String,
-    pub items: Vec<ItemRow>,
+    /// Shared with the read before when the data did not change in between (`read_after`).
+    pub items: Arc<Vec<ItemRow>>,
     pub translations: Vec<String>,
     pub available: Vec<String>,
     pub translation: String,
@@ -100,6 +101,10 @@ pub struct OperatorSnapshot {
     /// Edit → Undo / Redo have a step to take.
     pub can_undo: bool,
     pub can_redo: bool,
+    /// The data's revision when it was read (`App::data_rev`), and the language the rows were written in: the
+    /// next read keeps this one's data and rows when both are the same.
+    pub data_rev: u64,
+    pub lang: String,
 }
 
 /// Full reads, numbered in the order they start.
@@ -117,9 +122,24 @@ impl OperatorSnapshot {
     /// from `Screens::monitors`, which `NativeScreens` answers from what it last saw and never waits for the
     /// Slint thread.
     /// The core does not know whether libmpv loaded, so `player_missing` starts false; see `with_player_missing`.
-    pub fn read(app: &App) -> Self {
+    pub fn read(app: &App) -> Self { Self::read_after(app, None) }
+
+    /// `read`, after `before`. Most updates change no data (a job's label, a phone's page connecting, a screen
+    /// opening): when the data's revision and the language are what they were for `before`, its copy of the data
+    /// and its item rows are kept (shared, not copied) and only the rest is read again: jobs, phones, windows,
+    /// screens, backups and the Bible lists.
+    pub fn read_after(app: &App, before: Option<&OperatorSnapshot>) -> Self {
         let read = READS.fetch_add(1, Ordering::SeqCst) + 1;
-        let data = app.data.lock().unwrap().clone();
+        let lang = format!("{}#{}", crate::i18n::current(), crate::i18n::revision());
+        // The revision is read with the lock held, so it is the revision of exactly this data.
+        let (data, data_rev, kept) = {
+            let held = app.data.lock().unwrap();
+            let rev = app.data_rev();
+            match before.filter(|b| b.data_rev == rev && b.lang == lang) {
+                Some(b) => (b.data.clone(), rev, Some(b)),
+                None => (Arc::new(held.clone()), rev, None),
+            }
+        };
         let translations = app.translations();
         let available = app.available_translations();
         // A saved translation may be an imported Bible that has since been removed (`operator.js:97`).
@@ -128,10 +148,13 @@ impl OperatorSnapshot {
         let windows = app.open_roles();
         let room = if app.room_conns.load(Ordering::Relaxed) > 0 { RoomStatus::Showing }
             else if windows.iter().any(|w| w == "room") { RoomStatus::Starting } else { RoomStatus::Off };
-        let items = data.service().map(|s| s.items.iter().map(|i| {
-            let (title, kind, slides, notes) = build_item_with_notes(&data, i);
-            ItemRow { id: i.id, kind: kind.into(), title, subtitle: String::new(), slides, item: i.clone(), notes }
-        }).collect()).unwrap_or_default();
+        let items = match kept {
+            Some(b) => b.items.clone(),
+            None => Arc::new(data.service().map(|s| s.items.iter().map(|i| {
+                let (title, kind, slides, notes) = build_item_with_notes(&data, i);
+                ItemRow { id: i.id, kind: kind.into(), title, subtitle: String::new(), slides, item: i.clone(), notes }
+            }).collect()).unwrap_or_default()),
+        };
         // One lock: both in the struct below would hold the first until the end of the statement.
         let (can_undo, can_redo) = { let h = app.history.lock().unwrap(); (h.can_undo(), h.can_redo()) };
         let mut snap = Self {
@@ -158,25 +181,47 @@ impl OperatorSnapshot {
             phones_list: app.phones.lock().unwrap().iter().map(|p| (p.id, p.name.clone(), p.may_draw)).collect(),
             data_folder: app.store.root.display().to_string(),
             version: env!("CARGO_PKG_VERSION").into(),
-            data: Arc::new(data),
+            data,
             read,
             can_undo,
             can_redo,
+            data_rev,
+            lang,
         };
-        snap.refresh_subtitles();
+        // Kept rows carry the subtitles `before` gave them (same data, and the same word about the player).
+        match kept {
+            Some(b) => snap.player_missing = b.player_missing,
+            None => snap.refresh_subtitles(),
+        }
         snap
     }
 
     /// Sets whether libmpv is missing (the windowing layer knows) and rewrites the subtitles to match.
     pub fn with_player_missing(mut self, missing: bool) -> Self {
-        self.player_missing = missing;
-        self.refresh_subtitles();
+        if self.player_missing != missing {
+            self.player_missing = missing;
+            self.refresh_subtitles();
+        }
         self
     }
 
-    /// Recomputes every row's subtitle, e.g. after a conversion progress patch to `data.media`.
+    /// Recomputes every row's subtitle, e.g. after a conversion progress patch to `data.media`. Rows shared with
+    /// another snapshot are copied first, so that one keeps its own.
     pub fn refresh_subtitles(&mut self) {
-        for row in &mut self.items { row.subtitle = subtitle(row, &self.data.media, self.player_missing); }
+        let (media, player_missing) = (&self.data.media, self.player_missing);
+        for row in Arc::make_mut(&mut self.items).iter_mut() { row.subtitle = subtitle(row, media, player_missing); }
+    }
+
+    /// What the open dialogs show that is not in the data (paired and connected phones, jobs and how they ended,
+    /// backups, screens, the Bible lists, Undo) is the same as in `other`.
+    pub fn same_status(&self, other: &OperatorSnapshot) -> bool {
+        self.phones_list == other.phones_list && self.backups == other.backups && self.monitors == other.monitors && self.windows == other.windows
+            && self.jobs == other.jobs && self.job_ends == other.job_ends
+            && (self.phones, self.room, self.stage_connected) == (other.phones, other.room, other.stage_connected)
+            && self.translations == other.translations && self.available == other.available && self.translation == other.translation
+            && self.bible_sources == other.bible_sources && self.bible_providers == other.bible_providers
+            && self.lan_url == other.lan_url && self.player_missing == other.player_missing
+            && (self.can_undo, self.can_redo) == (other.can_undo, other.can_redo)
     }
 }
 
@@ -416,6 +461,32 @@ pub fn picker_lines(s: &OperatorSnapshot, query: &str) -> Vec<PickerLine> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Q3: a read after nothing changed in the data shares the last read's data and rows.
+    #[test]
+    fn a_read_after_no_data_change_keeps_the_data_and_rows() {
+        let app = crate::app::test_app();
+        let first = OperatorSnapshot::read(&app);
+        // A job's label, a phone's page connecting: no data changed.
+        app.broadcast_data();
+        let second = OperatorSnapshot::read_after(&app, Some(&first));
+        assert!(Arc::ptr_eq(&first.data, &second.data) && Arc::ptr_eq(&first.items, &second.items), "shared, not copied");
+        assert!(second.read > first.read && second.same_status(&first));
+        // An edit is read again.
+        app.edit(|d| { d.settings.translation = "WEB".into(); Ok(()) }).unwrap();
+        let third = OperatorSnapshot::read_after(&app, Some(&second));
+        assert!(!Arc::ptr_eq(&second.data, &third.data));
+        assert_eq!(third.data.settings.translation, "WEB");
+        // So is a change made straight on the data, without `edit`: the revision cannot miss one.
+        app.data.lock().unwrap().settings.translation = "KJV".into();
+        let fourth = OperatorSnapshot::read_after(&app, Some(&third));
+        assert_eq!(fourth.data.settings.translation, "KJV");
+        // What is not in the data still follows: a newly paired phone.
+        app.phones.lock().unwrap().push(crate::app::Phone { id: Uuid::new_v4(), name: "iPad".into(), hash: String::new(), last_seen: 0, may_draw: true });
+        let fifth = OperatorSnapshot::read_after(&app, Some(&fourth));
+        assert!(Arc::ptr_eq(&fourth.data, &fifth.data), "the data is still shared");
+        assert!(!fifth.same_status(&fourth) && fifth.phones_list.len() == 1, "and the dialogs hear of the phone");
+    }
     use crate::{
         app::{LiveItemSummary, NextUp},
         live::{AudioLayer, Cursor, Frame, Inst, MediaLayer, PlayState, PlayStatus, SlideLayer},

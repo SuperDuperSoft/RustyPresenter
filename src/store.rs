@@ -10,7 +10,7 @@ pub struct Store {
     pub root: PathBuf,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct BackupInfo {
     pub name: String,
     pub created: String,

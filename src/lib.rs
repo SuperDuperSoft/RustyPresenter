@@ -41,6 +41,7 @@ pub mod transfer;
 pub mod transpose;
 pub mod store;
 pub mod theme;
+pub mod tracked;
 pub mod ui;
 pub mod undo;
 pub mod update;
