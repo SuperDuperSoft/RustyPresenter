@@ -252,6 +252,12 @@ pub struct Envelope {
     pub cmd: Command,
 }
 
+impl Envelope {
+    /// A command the app itself gives (a macro's step, a video's end, auto-follow's clear): a fresh id, and no
+    /// base, so it applies to whatever is live now.
+    pub fn new(cmd: Command) -> Self { Self { id: Uuid::new_v4().to_string(), base: None, cmd } }
+}
+
 #[derive(Serialize, Clone, Debug, PartialEq)]
 pub struct Outcome {
     pub ok: bool,

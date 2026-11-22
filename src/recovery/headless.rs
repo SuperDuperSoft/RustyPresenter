@@ -92,7 +92,7 @@ mod tests {
     }
 
     fn show(app: &App, item_id: Uuid) -> u64 {
-        let out = app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Show { item_id, slide: 0 } });
+        let out = app.command(Envelope::new(Command::Show { item_id, slide: 0 }));
         assert!(out.ok, "{out:?}");
         out.version
     }

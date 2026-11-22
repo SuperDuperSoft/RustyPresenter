@@ -32,7 +32,7 @@ fn full(p: &P) -> Live {
 }
 
 fn clear(l: &mut Live, p: &P, layers: &[ClearLayer]) -> Outcome {
-    l.apply(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::ClearLayers { layers: layers.to_vec() } }, p)
+    l.apply(Envelope::new(Command::ClearLayers { layers: layers.to_vec() }), p)
 }
 
 fn keys(l: &Live) -> Vec<&str> { l.frame.overlays.iter().map(|s| s.key.as_str()).collect() }

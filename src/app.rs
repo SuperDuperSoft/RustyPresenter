@@ -891,11 +891,11 @@ impl App {
             let mut live = self.live.lock().unwrap();
             let mut stopped = false;
             if live.frame.media.as_ref().is_some_and(|m| matches!(m.v, MediaLayer::Video { .. })) {
-                live.apply(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::ClearMedia }, &DataPlan(&data));
+                live.apply(Envelope::new(Command::ClearMedia), &DataPlan(&data));
                 stopped = true;
             }
             if live.frame.audio.is_some() {
-                live.apply(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::ClearAudio }, &DataPlan(&data));
+                live.apply(Envelope::new(Command::ClearAudio), &DataPlan(&data));
                 stopped = true;
             }
             live.notice = Some(if stopped { tr!("The audience screen restarted. Video/audio stopped — click it again to replay.") } else { tr!("The audience screen restarted.") });
@@ -1099,7 +1099,7 @@ impl App {
         // Read again: the list takes a moment, and what plays may have changed. A stale pause is refused anyway.
         let pauses = heard();
         if pauses.is_empty() { return }
-        for cmd in pauses { self.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd }); }
+        for cmd in pauses { self.command(Envelope::new(cmd)); }
         self.set_notice(&sound_gone());
     }
 
@@ -2629,7 +2629,7 @@ mod tests {
             d.songs.push(song);
             d.services[0].items.push(ServiceItem { id: item_id, kind: ItemKind::Song { song_id, arrangement: None }, background: None, notes: String::new(), theme: None });
         }
-        app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Show { item_id, slide: 0 } });
+        app.command(Envelope::new(Command::Show { item_id, slide: 0 }));
         let frame = app.live_view().frame.clone();
         assert_eq!(app.live_view().slide.unwrap().chords.as_deref(), Some("[G]Amazing [C]grace"));
         let r = block_on(app.do_action("song/key", serde_json::json!({ "id": song_id, "step": 3 }).to_string().as_bytes())).unwrap();
@@ -2671,7 +2671,7 @@ mod tests {
         let item_id = Uuid::new_v4();
         let kind = ItemKind::Text { title: "t".into(), body: "text".into(), layout: Default::default() };
         app.data.lock().unwrap().services[0].items.push(ServiceItem { id: item_id, kind, background: None, notes: String::new(), theme: None });
-        let version = app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Show { item_id, slide: 0 } }).version;
+        let version = app.command(Envelope::new(Command::Show { item_id, slide: 0 })).version;
         app.room_event(RoomEvent::Committed { version });
         assert!(!app.playing(), "a text slide does not play");
 

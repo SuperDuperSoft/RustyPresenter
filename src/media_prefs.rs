@@ -256,7 +256,7 @@ mod tests {
             let m = video(&app);
             let clip = add(&app, json!({ "kind": "media", "media_id": m, "end": "next" })).await;
             let words = add(&app, json!({ "kind": "text", "title": "Welcome", "body": "Hello" })).await;
-            assert!(app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Show { item_id: clip, slide: 0 } }).ok);
+            assert!(app.command(Envelope::new(Command::Show { item_id: clip, slide: 0 })).ok);
             assert!(matches!(app.live.lock().unwrap().frame.media.as_ref().map(|m| &m.v), Some(MediaLayer::Video { end: EndAction::Next, .. })));
             ended(&app);
             assert_eq!(app.live.lock().unwrap().cursor.as_ref().map(|c| c.item_id), Some(words));
@@ -267,7 +267,7 @@ mod tests {
             let app = test_app();
             let m = video(&app);
             let clip = add(&app, json!({ "kind": "media", "media_id": m, "end": "next" })).await;
-            assert!(app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Show { item_id: clip, slide: 0 } }).ok);
+            assert!(app.command(Envelope::new(Command::Show { item_id: clip, slide: 0 })).ok);
             ended(&app);
             assert!(app.live.lock().unwrap().frame.media.is_none());
         }
@@ -278,7 +278,7 @@ mod tests {
             let m = video(&app);
             let clip = add(&app, json!({ "kind": "media", "media_id": m, "end": "hold" })).await;
             add(&app, json!({ "kind": "text", "title": "Welcome", "body": "Hello" })).await;
-            assert!(app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Show { item_id: clip, slide: 0 } }).ok);
+            assert!(app.command(Envelope::new(Command::Show { item_id: clip, slide: 0 })).ok);
             ended(&app);
             assert_eq!(app.live.lock().unwrap().cursor.as_ref().map(|c| c.item_id), Some(clip));
             assert!(app.live.lock().unwrap().frame.media.is_some());

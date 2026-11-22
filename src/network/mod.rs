@@ -16,8 +16,27 @@ pub mod tcp;
 #[path = "../strings/network.rs"]
 pub mod strings;
 
+use axum::http::{HeaderMap, header};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, net::IpAddr, sync::Mutex, time::Instant};
+
+/// The request comes from a page of this app (or from no page): over http, or the secure pages (`https`), which
+/// the phone's camera and microphone need. A page elsewhere may not act with this phone's sign-in.
+pub(crate) fn same_origin(headers: &HeaderMap) -> bool {
+    let host = headers.get(header::HOST).and_then(|h| h.to_str().ok()).unwrap_or("");
+    headers.get(header::ORIGIN).and_then(|h| h.to_str().ok()).is_none_or(|o| o == format!("http://{host}") || o == format!("https://{host}"))
+}
+
+/// The value of the cookie `name` (`rp_session`, `rp_stage`), if the request carries it.
+pub(crate) fn cookie(headers: &HeaderMap, name: &str) -> Option<String> {
+    headers.get_all(header::COOKIE).iter().filter_map(|v| v.to_str().ok()).flat_map(|v| v.split(';'))
+        .find_map(|c| c.trim().strip_prefix(name)?.strip_prefix('=').map(str::to_string))
+}
+
+/// The request's body is JSON, by its content type.
+pub(crate) fn is_json(headers: &HeaderMap) -> bool {
+    headers.get(header::CONTENT_TYPE).and_then(|v| v.to_str().ok()).is_some_and(|v| v.starts_with("application/json"))
+}
 
 /// The TCP control's port when none is set.
 pub const TCP_PORT: u16 = 4319;

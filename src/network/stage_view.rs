@@ -61,10 +61,7 @@ fn asset(body: &'static str, ctype: &'static str) -> Response {
 async fn page() -> Response { asset(include_str!("../../web/stage-view.html"), "text/html; charset=utf-8") }
 async fn script() -> Response { asset(include_str!("../../web/stage-view.js"), "text/javascript; charset=utf-8") }
 
-fn cookie(headers: &HeaderMap) -> Option<String> {
-    headers.get_all(header::COOKIE).iter().filter_map(|v| v.to_str().ok()).flat_map(|v| v.split(';'))
-        .find_map(|c| c.trim().strip_prefix("rp_stage=").map(str::to_string))
-}
+fn cookie(headers: &HeaderMap) -> Option<String> { super::cookie(headers, "rp_stage") }
 
 /// Whether this request may see the stage: it comes from a phone paired as a remote (`paired`), or the stage view
 /// is on and there is no password or the cookie is a current sign-in.
@@ -95,12 +92,7 @@ async fn status(State(app): State<Arc<App>>, headers: HeaderMap) -> Response {
 #[derive(Deserialize)]
 struct Login { #[serde(default)] password: String }
 
-/// The request comes from a page of this app (or from no page): over http, or the secure pages
-/// (`network::secure`), which the phone's microphone needs.
-pub(crate) fn same_origin(headers: &HeaderMap) -> bool {
-    let host = headers.get(header::HOST).and_then(|h| h.to_str().ok()).unwrap_or("");
-    headers.get(header::ORIGIN).and_then(|h| h.to_str().ok()).is_none_or(|o| o == format!("http://{host}") || o == format!("https://{host}"))
-}
+pub(crate) use super::same_origin;
 
 fn err(status: StatusCode, msg: String) -> Response { (status, Json(json!({ "error": msg }))).into_response() }
 

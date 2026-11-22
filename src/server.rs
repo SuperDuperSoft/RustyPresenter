@@ -37,10 +37,10 @@ fn bad(msg: impl Into<String>) -> Response { (StatusCode::BAD_REQUEST, Json(json
 fn ok(v: Value) -> Response { Json(v).into_response() }
 
 
-fn cookie_token(headers: &HeaderMap) -> Option<String> {
-    headers.get_all(header::COOKIE).iter().filter_map(|v| v.to_str().ok()).flat_map(|v| v.split(';'))
-        .find_map(|c| c.trim().strip_prefix("rp_session=").map(str::to_string))
-}
+fn cookie_token(headers: &HeaderMap) -> Option<String> { crate::network::cookie(headers, "rp_session") }
+
+/// A post from one of this app's own pages with a JSON body: what every phone command must be.
+fn json_post(headers: &HeaderMap) -> bool { same_origin(headers) && crate::network::is_json(headers) }
 
 // ---------- static pages ----------
 
@@ -233,10 +233,7 @@ fn computer_name() -> String {
     name.trim().chars().filter(|c| !c.is_control()).take(40).collect()
 }
 
-fn same_origin(headers: &HeaderMap) -> bool {
-    let host = headers.get(header::HOST).and_then(|h| h.to_str().ok()).unwrap_or("");
-    headers.get(header::ORIGIN).and_then(|h| h.to_str().ok()).is_none_or(|o| o == format!("http://{host}") || o == format!("https://{host}"))
-}
+fn same_origin(headers: &HeaderMap) -> bool { crate::network::same_origin(headers) }
 
 /// What a phone's remote stream sends for each update: a fresh remote view, nothing for import
 /// progress, and the end of the stream when this phone is unpaired. Each fresh view first checks that the phone
@@ -281,7 +278,7 @@ async fn remote_events(State(app): State<Arc<App>>, headers: HeaderMap) -> Respo
 }
 
 async fn remote_command(State(app): State<Arc<App>>, headers: HeaderMap, body: Bytes) -> Response {
-    if !same_origin(&headers) || !headers.get(header::CONTENT_TYPE).and_then(|v| v.to_str().ok()).is_some_and(|v| v.starts_with("application/json")) { return forbidden(); }
+    if !json_post(&headers) { return forbidden(); }
     // Looked up once: it hashes the cookie, locks the phone list and may write phones.json.
     let Some(phone) = phone_for(&app, &headers) else { return (StatusCode::UNAUTHORIZED, Json(json!({ "error": "pair first" }))).into_response() };
     let Ok(env) = serde_json::from_slice::<Envelope>(&body) else { return bad(crate::tr!("Bad command.")) };
@@ -296,7 +293,7 @@ async fn remote_command(State(app): State<Arc<App>>, headers: HeaderMap, body: B
 /// A drawing command from a paired phone (`live::drawing`): `{ ok }` or `{ ok: false, error }`. Malformed input is
 /// refused, and so is more than the hard ceilings allow (`live::drawing::MAX_POINTS`).
 async fn remote_draw(State(app): State<Arc<App>>, headers: HeaderMap, body: Bytes) -> Response {
-    if !same_origin(&headers) || !headers.get(header::CONTENT_TYPE).and_then(|v| v.to_str().ok()).is_some_and(|v| v.starts_with("application/json")) { return forbidden(); }
+    if !json_post(&headers) { return forbidden(); }
     let Some(phone) = phone_for(&app, &headers) else { return (StatusCode::UNAUTHORIZED, Json(json!({ "error": "pair first" }))).into_response() };
     let Ok(cmd) = serde_json::from_slice::<crate::live::drawing::DrawCmd>(&body) else { return bad(crate::tr!("Bad command.")) };
     match app.draw(phone, &cmd) {
@@ -392,7 +389,7 @@ fn remote_timers(v: &crate::timers::TimersView) -> String {
 
 /// N13: a walk-in music control from a paired phone: `{ op: "toggle" | "next" | "stop" | "volume", … }`.
 async fn remote_music(State(app): State<Arc<App>>, headers: HeaderMap, body: Bytes) -> Response {
-    if !same_origin(&headers) || !headers.get(header::CONTENT_TYPE).and_then(|v| v.to_str().ok()).is_some_and(|v| v.starts_with("application/json")) { return forbidden(); }
+    if !json_post(&headers) { return forbidden(); }
     if phone_for(&app, &headers).is_none() { return (StatusCode::UNAUTHORIZED, Json(json!({ "error": "pair first" }))).into_response() }
     let Ok(v) = serde_json::from_slice::<Value>(&body) else { return bad(crate::tr!("Bad command.")) };
     let Some(op) = crate::automation::music::MusicOp::parse(v["op"].as_str().unwrap_or_default(), &v) else { return bad(crate::tr!("Bad command.")) };
@@ -565,7 +562,7 @@ mod tests {
         let map = remote_map(paired_phone(&app));
         assert!(matches!(map(&app, Some(&Update::Data)), Ok(Some(_))), "the first view goes out");
         assert_eq!(map(&app, Some(&Update::Data)), Ok(None), "the same view is not sent twice");
-        app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Logo });
+        app.command(Envelope::new(Command::Logo));
         assert!(matches!(map(&app, Some(&Update::Data)), Ok(Some(_))), "a change goes out");
         assert_eq!(map(&app, None), Ok(None));
     }
@@ -776,7 +773,7 @@ msgstr[1] "{n} Folien"
         let view: Value = serde_json::from_str(&remote_view(&app, None)).unwrap();
         assert_eq!((view["type"].as_str(), view["items"][0]["title"].as_str(), view["items"][0]["slides"][0]["text"].as_str()), (Some("remote"), Some("Welcome"), Some("Hi")));
         // A live change does not make it again; a change to the data does, however it was made.
-        app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Logo });
+        app.command(Envelope::new(Command::Logo));
         assert!(Arc::ptr_eq(&first, &items(&app)));
         app.data.lock().unwrap().services[0].items.push(text("Notices"));
         let second = items(&app);

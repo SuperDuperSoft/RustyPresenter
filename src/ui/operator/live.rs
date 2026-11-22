@@ -562,7 +562,7 @@ mod tests {
         let op = opened(&app);
         run(&op, Command::Show { item_id: id, slide: 0 });
         // Something else moved the screen; this window has not heard yet, so its Next is stale and silent.
-        app.command(crate::live::Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Show { item_id: id, slide: 2 } });
+        app.command(crate::live::Envelope::new(Command::Show { item_id: id, slide: 2 }));
         find(&op, "LiveColumn::next-btn").unwrap().mock_single_click(PointerEventButton::Left);
         assert_eq!(cursor(&app), Some((id, 2)), "a stale Next does nothing");
     }

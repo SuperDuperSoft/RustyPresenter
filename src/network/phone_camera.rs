@@ -65,12 +65,7 @@ async fn info(State(app): State<Arc<App>>, headers: HeaderMap) -> Response {
 #[derive(Deserialize)]
 struct Named { #[serde(default)] name: String }
 
-/// The page comes from this same server (http or https): a page elsewhere may not send pictures with this
-/// phone's sign-in.
-fn same_origin(headers: &HeaderMap) -> bool {
-    let host = headers.get(header::HOST).and_then(|h| h.to_str().ok()).unwrap_or("");
-    headers.get(header::ORIGIN).and_then(|h| h.to_str().ok()).is_none_or(|o| o == format!("http://{host}") || o == format!("https://{host}"))
-}
+use super::same_origin;
 
 /// Whether phone `id` is still paired (it may be unpaired on the computer while it sends).
 fn still_paired(app: &App, id: Uuid) -> bool { app.phones.lock().unwrap().iter().any(|p| p.id == id) }

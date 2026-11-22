@@ -103,7 +103,7 @@ mod tests {
             d.media.push(file);
             d.services[0].items.push(ServiceItem { id: item_id, kind, background: None, notes: String::new(), theme: None });
         }
-        let out = app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Show { item_id, slide: 0 } });
+        let out = app.command(Envelope::new(Command::Show { item_id, slide: 0 }));
         assert!(out.ok, "{out:?}");
         app.live.lock().unwrap().frame.audio.as_ref().expect("audio on air").inst
     }
@@ -133,7 +133,7 @@ mod tests {
         let (app, _) = app_with("wasapi/{board}", &["wasapi/{laptop}"]);
         let inst = play_audio(&app);
         app.watch_sound();
-        assert!(app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::AudioPause { inst, paused: false } }).ok);
+        assert!(app.command(Envelope::new(Command::AudioPause { inst, paused: false })).ok);
         app.watch_sound();
         assert!(audio_paused(&app));
     }
@@ -200,7 +200,7 @@ mod tests {
     fn nothing_is_paused_once_the_operator_has_paused_it() {
         let (app, outputs) = app_with("wasapi/{board}", &["wasapi/{laptop}"]);
         let inst = play_audio(&app);
-        assert!(app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::AudioPause { inst, paused: true } }).ok);
+        assert!(app.command(Envelope::new(Command::AudioPause { inst, paused: true })).ok);
         app.watch_sound();
         assert_eq!(outputs.asked.load(Ordering::Relaxed), 0);
         assert_eq!(app.live.lock().unwrap().notice, None);

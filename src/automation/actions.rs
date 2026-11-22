@@ -208,7 +208,7 @@ pub async fn run(app: &Arc<App>, action: &str, body: &[u8]) -> Result<Value, Act
                 }
                 _ => None,
             };
-            if let Some(cmd) = hide { app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd }); }
+            if let Some(cmd) = hide { app.command(Envelope::new(cmd)); }
             app.edit(|d| {
                 let a = &mut d.automation;
                 if id == PRE_SERVICE_MACRO_ID { a.pre_service = None; a.timers.retain(|t| t.id != PRE_SERVICE_TIMER_ID); }

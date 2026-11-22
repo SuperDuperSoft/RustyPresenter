@@ -113,7 +113,7 @@ impl App {
             After::Slide(n) => {
                 let data = self.data.lock().unwrap();
                 let mut live = self.live.lock().unwrap();
-                let shown = live.apply(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Show { item_id, slide: n } }, &DataPlan(&data));
+                let shown = live.apply(Envelope::new(Command::Show { item_id, slide: n }), &DataPlan(&data));
                 live.note_seen(env.id.clone(), shown.clone());
                 shown
             }
@@ -153,7 +153,7 @@ impl App {
                     let mut live = self.live.lock().unwrap();
                     // Only while that item is still live, and only to another slide.
                     if live.cursor.as_ref().is_none_or(|c| c.item_id != item_id || c.slide == n) { return }
-                    live.apply(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Show { item_id, slide: n } }, &DataPlan(&data))
+                    live.apply(Envelope::new(Command::Show { item_id, slide: n }), &DataPlan(&data))
                 };
                 if out.ok {
                     self.broadcast_live();

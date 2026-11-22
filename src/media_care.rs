@@ -316,7 +316,7 @@ mod tests {
         app.data.lock().unwrap().media.push(f.clone());
         let it = item(f.id);
         app.data.lock().unwrap().services[0].items.push(it.clone());
-        assert!(app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Show { item_id: it.id, slide: 0 } }).ok);
+        assert!(app.command(Envelope::new(Command::Show { item_id: it.id, slide: 0 })).ok);
         // Taken out of the service while it plays.
         app.data.lock().unwrap().services[0].items.clear();
         assert!(matches!(app.live.lock().unwrap().frame.media, Some(Inst { v: MediaLayer::Video { .. }, .. })));
