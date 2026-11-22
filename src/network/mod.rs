@@ -50,6 +50,9 @@ impl Default for NetworkSettings {
 /// last password try from each address.
 #[derive(Default)]
 pub struct NetState {
+    /// The service's items as the phones list them, as JSON text, with what it was made from: the data's revision
+    /// and the language (`server::remote_items`). Every phone shows the same list, so it is made once and shared.
+    pub(crate) remote_items: Mutex<Option<((u64, String, u64), std::sync::Arc<str>)>>,
     /// Hashes of the stage view's sign-in cookies, with when each was made. Cleared when its password changes.
     pub(crate) stage_tokens: Mutex<Vec<(String, Instant)>>,
     pub(crate) tcp: Mutex<Option<tcp::Running>>,

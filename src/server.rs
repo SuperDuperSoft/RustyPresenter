@@ -412,24 +412,37 @@ fn shows_picture(s: &crate::model::Slide) -> bool { matches!(s.content, SlideCon
 /// A designed slide's click group plays now (the phone asks `/remote/live-anim` for it).
 fn plays_anim(frame: &Frame) -> bool { matches!(&frame.slide, Some(SlideLayer::Design { play: Some(p), .. }) if p.duration_ms() > 0) }
 
+/// The service's items as the phones list them (every slide's label and words), as JSON text. It is the big part
+/// of a phone's view and the same for every phone, so it is made once for each change to the data or the language
+/// and shared: a video's position report or another phone connecting no longer builds every slide of the service
+/// for each phone. Call it with `data` locked (the revision is then the revision of `data`).
+fn remote_items(app: &App, data: &Data) -> Arc<str> {
+    let key = (app.data_rev(), crate::i18n::current(), crate::i18n::revision());
+    let mut kept = app.net.remote_items.lock().unwrap_or_else(|e| e.into_inner());
+    if let Some((made_from, items)) = kept.as_ref() && *made_from == key { return items.clone() }
+    let items: Vec<Value> = data.service().map(|s| s.items.iter().map(|i| {
+        let (title, kind, slides) = build_item(data, i);
+        json!({ "id": i.id, "title": title, "kind": kind, "count": crate::trn!("{n} slide", "{n} slides", slides.len()), "slides": slides.iter().map(|s| json!({ "label": s.label, "text": slide_text(s) })).collect::<Vec<_>>() })
+    }).collect()).unwrap_or_default();
+    let items: Arc<str> = serde_json::to_string(&items).unwrap_or_else(|_| "[]".into()).into();
+    *kept = Some((key, items.clone()));
+    items
+}
+
 fn remote_view(app: &App, phone: Option<Uuid>) -> String {
     let may_draw = phone.is_some_and(|id| app.phones.lock().unwrap().iter().any(|p| p.id == id && p.may_draw));
     let timers = app.timers();
     let data = app.data.lock().unwrap();
     let live = app.live.lock().unwrap();
     let plan = DataPlan(&data);
-    let items: Vec<Value> = data.service().map(|s| s.items.iter().map(|i| {
-        let (title, kind, slides) = build_item(&data, i);
-        json!({ "id": i.id, "title": title, "kind": kind, "count": crate::trn!("{n} slide", "{n} slides", slides.len()), "slides": slides.iter().map(|s| json!({ "label": s.label, "text": slide_text(s) })).collect::<Vec<_>>() })
-    }).collect()).unwrap_or_default();
+    let items = remote_items(app, &data);
     let sections = live.item.as_ref().map(|i| crate::sections::occurrence_views(&i.slides, live.cursor.as_ref().map(|c| c.slide))).unwrap_or_default();
     let current = live.cursor.as_ref().and_then(|c| live.item.as_ref().and_then(|i| i.slides.get(c.slide))).map(|s| json!({ "label": s.label, "text": slide_text(s), "notes": s.notes, "picture": shows_picture(s), "transition": slide_transition(s, &live.frame), "anim": plays_anim(&live.frame) }));
     let next = live.next_preview(&plan).map(|(t, s)| json!({ "title": t, "label": s.label, "text": slide_text(&s) }));
-    json!({
+    let view = json!({
         "type": "remote",
         "version": live.version,
         "service": data.service().map(|s| s.name.clone()),
-        "items": items,
         "cursor": live.cursor,
         "sections": sections,
         "current": current,
@@ -461,7 +474,9 @@ fn remote_view(app: &App, phone: Option<Uuid>) -> String {
         "my_strokes": phone.map(|id| live.drawing.ids_of(id)).unwrap_or_default(),
         // ...and when a translation is edited in the app.
         "words": crate::i18n::revision(),
-    }).to_string()
+    }).to_string();
+    // The items go in as the text made once for every phone: `{"items":[…],` and then the rest of the view.
+    format!("{{\"items\":{items},{}", &view[1..])
 }
 
 pub fn slide_text(s: &Slide) -> String {
@@ -736,6 +751,28 @@ msgstr[1] "{n} Folien"
         let map = remote_map(paired);
         assert!(matches!(map(&app, None), Ok(Some(_))), "a paired phone gets its view");
         assert_eq!(map(&app, Some(&Update::Revoked { phone: paired })), Err(()));
+    }
+
+    /// Q5: the list of every slide of the service is made once for all phones, and again when the data changes.
+    #[test]
+    fn the_phones_share_one_list_of_the_services_slides() {
+        use crate::model::{ItemKind, ServiceItem};
+        let app = test_app();
+        let text = |title: &str| ServiceItem { id: Uuid::new_v4(), kind: ItemKind::Text { title: title.into(), body: "Hi".into(), layout: Default::default() }, background: None, notes: String::new(), theme: None };
+        app.data.lock().unwrap().services[0].items.push(text("Welcome"));
+        let items = |app: &App| remote_items(app, &app.data.lock().unwrap());
+        let first = items(&app);
+        assert!(Arc::ptr_eq(&first, &items(&app)), "the same text for the next phone");
+        let view: Value = serde_json::from_str(&remote_view(&app, None)).unwrap();
+        assert_eq!((view["type"].as_str(), view["items"][0]["title"].as_str(), view["items"][0]["slides"][0]["text"].as_str()), (Some("remote"), Some("Welcome"), Some("Hi")));
+        // A live change does not make it again; a change to the data does, however it was made.
+        app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Logo });
+        assert!(Arc::ptr_eq(&first, &items(&app)));
+        app.data.lock().unwrap().services[0].items.push(text("Notices"));
+        let second = items(&app);
+        assert!(!Arc::ptr_eq(&first, &second));
+        let view: Value = serde_json::from_str(&remote_view(&app, None)).unwrap();
+        assert_eq!(view["items"].as_array().map(Vec::len), Some(2));
     }
 
     /// B14: a slide list left open on the phone is drawn again when its item changes (the page is tested by its
