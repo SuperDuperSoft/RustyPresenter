@@ -384,7 +384,7 @@ export component BackupsPage inherits VerticalLayout {
     alignment: start;
     spacing: 12px;
     Note {
-        text: @tr("A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last 10 are kept in");
+        text: @tr("A full backup (songs, services, settings and every video, picture and slide) is made each time RustyPresenter starts and once a day, when something changed since the last one. Every backup of the last two days is kept, then one a day for two weeks and one a week for eight weeks, in");
         HorizontalLayout {
             alignment: start;
             padding-top: 4px;

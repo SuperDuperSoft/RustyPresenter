@@ -29,7 +29,16 @@ struct Manifest {
     missing: Vec<AssetId>,
 }
 
-const KEEP_BACKUPS: usize = 10;
+/// Backups are thinned by age, not by count: every one from the last two days (at most `KEEP_RECENT`), then the
+/// newest of each day for two weeks, then the newest of each week for eight weeks. Ten starts in one week no longer
+/// push out the backup from before a mistake.
+const KEEP_RECENT: usize = 20;
+/// The newest few are kept however old they are.
+const KEEP_NEWEST: usize = 3;
+const DAY: i64 = 86_400;
+const KEEP_ALL_FOR: i64 = 2 * DAY;
+const KEEP_DAILY_FOR: i64 = 14 * DAY;
+const KEEP_WEEKLY_FOR: i64 = 56 * DAY;
 static BACKUP_IO: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
 /// The data format this build reads and writes (`Data.format`): the only format number in the code (FEAT-1 spec
@@ -153,8 +162,8 @@ impl Store {
     /// The `COMPLETE` marker is written last; only marked backups are offered.
     pub fn backup(&self, data: &Data) -> io::Result<String> { self.backup_named(data, None) }
 
-    /// A backup named `backup-<stamp>-<label>`. The newest one of each label is kept apart from the usual
-    /// `KEEP_BACKUPS`, so app updates never push out the church's own backups.
+    /// A backup named `backup-<stamp>-<label>`. The newest one of each label is kept apart from the others
+    /// (`kept_backups`), so app updates never push out the church's own backups.
     pub fn backup_labeled(&self, data: &Data, label: &str) -> io::Result<String> { self.backup_named(data, Some(label)) }
 
     fn backup_named(&self, data: &Data, label: Option<&str>) -> io::Result<String> {
@@ -225,6 +234,13 @@ impl Store {
         list
     }
 
+    /// The newest backup already holds exactly this data, so another copy would say nothing new.
+    pub fn backed_up(&self, data: &Data) -> bool {
+        let Some(newest) = self.backups().into_iter().next() else { return false };
+        let Ok(now) = self.encode(data) else { return false };
+        fs::read(self.root.join("backups").join(&newest.name).join("data.json")).is_ok_and(|saved| saved == now)
+    }
+
     /// Restore a backup using only the backup set (works into an empty data folder).
     pub fn restore(&self, name: &str) -> Result<Data, String> {
         let _guard = BACKUP_IO.lock().unwrap_or_else(|e| e.into_inner());
@@ -263,7 +279,7 @@ impl Store {
 
     fn prune_backups(&self) -> io::Result<()> {
         let all = self.backups();
-        let kept = kept_backups(&all);
+        let kept = kept_backups(&all, now_secs());
         for old in all.iter().filter(|b| !kept.contains(&b.name)) {
             let _ = fs::remove_dir_all(self.root.join("backups").join(&old.name));
         }
@@ -304,18 +320,37 @@ pub fn backup_label(name: &str) -> Option<&str> {
     name.get(stamp_end..).and_then(|rest| rest.strip_prefix('-')).filter(|l| !l.is_empty())
 }
 
-/// The backups pruning keeps, from a list newest first: the newest of each label, then the newest
-/// `KEEP_BACKUPS` of the others.
-fn kept_backups(all: &[BackupInfo]) -> std::collections::BTreeSet<String> {
+/// When a backup was made, in seconds since 1970, from its name (`backup-2026-11-06_101530…`).
+fn backup_secs(name: &str) -> Option<i64> {
+    let stamp = name.strip_prefix("backup-")?.get(.."2026-01-01_000000".len())?;
+    let (date, time) = stamp.split_once('_')?;
+    let mut ymd = date.split('-').map(|p| p.parse::<i64>().ok());
+    let (y, m, d) = (ymd.next()??, ymd.next()??, ymd.next()??);
+    if time.len() != 6 || !(1..=12).contains(&m) || !(1..=31).contains(&d) { return None }
+    let part = |at: usize| time.get(at..at + 2)?.parse::<i64>().ok();
+    Some(days_from_civil(y, m as u32, d as u32) * DAY + part(0)? * 3600 + part(2)? * 60 + part(4)?)
+}
+
+/// The backups pruning keeps at `now` (seconds since 1970), from a list newest first: the newest of each label,
+/// the newest `KEEP_NEWEST`, every one from the last two days (at most `KEEP_RECENT`), the newest of each day for
+/// two weeks and the newest of each week for eight weeks. A name whose time cannot be read is kept.
+fn kept_backups(all: &[BackupInfo], now: i64) -> std::collections::BTreeSet<String> {
     let mut labels = std::collections::BTreeSet::new();
     let mut kept = std::collections::BTreeSet::new();
-    let mut others = 0;
+    let (mut days, mut weeks) = (std::collections::BTreeSet::new(), std::collections::BTreeSet::new());
+    let (mut newest, mut recent) = (0, 0);
     for b in all {
-        match backup_label(&b.name) {
-            Some(l) if labels.insert(l.to_string()) => { kept.insert(b.name.clone()); }
-            _ if others < KEEP_BACKUPS => { others += 1; kept.insert(b.name.clone()); }
-            _ => {}
-        }
+        if let Some(l) = backup_label(&b.name) && labels.insert(l.to_string()) { kept.insert(b.name.clone()); continue }
+        let age = backup_secs(&b.name).map(|made| (made, now - made));
+        let keep = match age {
+            None => true,
+            Some((_, age)) if age < KEEP_ALL_FOR => { recent += 1; recent <= KEEP_RECENT }
+            Some((made, age)) if age < KEEP_DAILY_FOR => days.insert(made.div_euclid(DAY)),
+            Some((made, age)) if age < KEEP_WEEKLY_FOR => weeks.insert(made.div_euclid(7 * DAY)),
+            Some(_) => false,
+        };
+        newest += 1;
+        if keep || newest <= KEEP_NEWEST { kept.insert(b.name.clone()); }
     }
     kept
 }
@@ -355,6 +390,8 @@ fn write_atomic_with(path: &Path, write: impl FnOnce(&mut fs::File) -> io::Resul
     result
 }
 
+fn now_secs() -> i64 { std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs() as i64).unwrap_or(0) }
+
 /// UTC timestamp like `2026-10-29_201530` without extra crates.
 pub fn now_stamp() -> String {
     let secs = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0);
@@ -375,6 +412,15 @@ fn civil(z: i64) -> (i64, u32, u32) {
     let d = (doy - (153 * mp + 2) / 5 + 1) as u32;
     let m = if mp < 10 { mp + 3 } else { mp - 9 } as u32;
     (if m <= 2 { y + 1 } else { y }, m, d)
+}
+
+/// The day number (days since 1970-01-01) of a date; `civil` the other way round.
+fn days_from_civil(y: i64, m: u32, d: u32) -> i64 {
+    let y = if m <= 2 { y - 1 } else { y };
+    let (era, yoe) = (y.div_euclid(400), y.rem_euclid(400));
+    let mp = (m as i64 + 9) % 12;
+    let doy = (153 * mp + 2) / 5 + d as i64 - 1;
+    era * 146097 + yoe * 365 + yoe / 4 - yoe / 100 + doy - 719468
 }
 
 #[cfg(test)]
@@ -610,7 +656,7 @@ mod tests {
         let data = Data::default();
         let first = store.backup_labeled(&data, "before-update").unwrap();
         // Stamps are per second: write the rest under later names by hand.
-        for i in 0..KEEP_BACKUPS + 2 {
+        for i in 0..KEEP_RECENT + 2 {
             let dir = store.root.join("backups").join(format!("backup-2099-01-01_0000{i:02}"));
             fs::create_dir_all(&dir).unwrap();
             fs::write(dir.join("data.json"), serde_json::to_vec(&data).unwrap()).unwrap();
@@ -620,7 +666,7 @@ mod tests {
         store.prune_backups().unwrap();
         let names: Vec<String> = store.backups().into_iter().map(|b| b.name).collect();
         assert!(names.contains(&first), "{names:?}");
-        assert_eq!(names.len(), KEEP_BACKUPS + 1);
+        assert_eq!(names.len(), KEEP_RECENT + 1);
         assert_eq!(backup_label("backup-2026-11-06_101530"), None);
         assert_eq!(backup_label(&first), Some("before-update"));
     }
@@ -668,5 +714,70 @@ mod tests {
     }
 
     #[test]
-    fn date_math() { assert_eq!(civil(0), (1970, 1, 1)); assert_eq!(civil(20390), (2025, 10, 29)); }
+    fn date_math() {
+        assert_eq!(civil(0), (1970, 1, 1));
+        assert_eq!(civil(20390), (2025, 10, 29));
+        for days in [-1, 0, 59, 60, 11016, 20390, 47481] { let (y, m, d) = civil(days); assert_eq!(days_from_civil(y, m, d), days); }
+        assert_eq!(backup_secs("backup-1970-01-02_000102"), Some(DAY + 62));
+        assert_eq!(backup_secs("backup-2025-10-29_201530-before-update"), Some(20390 * DAY + 20 * 3600 + 15 * 60 + 30));
+        assert_eq!(backup_secs("backup-yesterday"), None);
+    }
+
+    fn named(names: &[String]) -> Vec<BackupInfo> {
+        let mut all: Vec<BackupInfo> = names.iter().map(|n| BackupInfo { name: n.clone(), created: String::new(), assets: 0, songs: 0, services: 0 }).collect();
+        all.sort_by(|a, b| b.name.cmp(&a.name));
+        all
+    }
+
+    /// B8: ten starts in a week used to push out every older backup.
+    #[test]
+    fn backups_are_thinned_by_age_not_by_count() {
+        let now = backup_secs("backup-2026-11-22_120000").unwrap();
+        // Twelve within one day, and one from three weeks before.
+        let mut names: Vec<String> = (0..12).map(|i| format!("backup-2026-11-22_08{i:02}00")).collect();
+        names.push("backup-2026-11-01_090000".into());
+        let kept = kept_backups(&named(&names), now);
+        assert!(kept.contains("backup-2026-11-01_090000"), "the three-week-old one is kept: {kept:?}");
+        assert_eq!(kept.len(), 13, "and so is every one from today");
+
+        // A long history: all of the last two days, one a day for two weeks, one a week for eight weeks.
+        let mut names = vec![];
+        for day in 0..120i64 {
+            for hour in [9, 18] {
+                let (y, m, d) = civil((now - day * DAY).div_euclid(DAY));
+                names.push(format!("backup-{y:04}-{m:02}-{d:02}_{hour:02}0000"));
+            }
+        }
+        let all = named(&names);
+        let kept = kept_backups(&all, now);
+        let age = |n: &String| now - backup_secs(n).unwrap();
+        assert!(all.iter().filter(|b| age(&b.name) < KEEP_ALL_FOR).all(|b| kept.contains(&b.name)));
+        let daily: Vec<&String> = kept.iter().filter(|n| (KEEP_ALL_FOR..KEEP_DAILY_FOR).contains(&age(n))).collect();
+        // (The day at the two-day edge has its evening backup among the recent ones, so its morning one stays too.)
+        assert!((11..=13).contains(&daily.len()) && daily.iter().filter(|n| !n.ends_with("_180000")).count() <= 1, "the newest of each day: {daily:?}");
+        let weekly = kept.iter().filter(|n| (KEEP_DAILY_FOR..KEEP_WEEKLY_FOR).contains(&age(n))).count();
+        assert!((6..=7).contains(&weekly), "{weekly}");
+        assert!(kept.iter().all(|n| age(n) < KEEP_WEEKLY_FOR), "nothing older than eight weeks");
+
+        // Only old backups left (the app was not opened for a year): the newest few stay.
+        let old: Vec<String> = (1..=6).map(|d| format!("backup-2025-01-{d:02}_090000")).collect();
+        let kept = kept_backups(&named(&old), now);
+        assert_eq!(kept.into_iter().collect::<Vec<_>>(), ["backup-2025-01-04_090000", "backup-2025-01-05_090000", "backup-2025-01-06_090000"]);
+        // Far more than a person makes in two days: capped.
+        let many: Vec<String> = (0..50).map(|i| format!("backup-2026-11-22_10{i:02}00")).collect();
+        assert_eq!(kept_backups(&named(&many), now).len(), KEEP_RECENT);
+    }
+
+    /// B8: a start with nothing changed does not make another copy.
+    #[test]
+    fn the_newest_backup_knows_whether_it_holds_this_data() {
+        let store = Store::open(test_dir()).unwrap();
+        let mut data = Data::default();
+        data.songs.push(Song { title: "Amazing Grace".into(), ..Song::default() });
+        assert!(!store.backed_up(&data), "no backup yet");
+        store.backup(&data).unwrap();
+        assert!(store.backed_up(&data));
+        data.songs[0].title = "Amazing Grace (My Chains Are Gone)".into();
+        assert!(!store.backed_up(&data), "the data changed since");
+    }
 }

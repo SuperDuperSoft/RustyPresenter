@@ -18,7 +18,7 @@ To turn the check off, open **Help → About RustyPresenter** and switch off **C
 
 ## Backups
 
-A full backup (songs, services, settings, and every video, picture and slide) is made each time RustyPresenter starts and once a day. The last ten are kept.
+A full backup (songs, services, settings, and every video, picture and slide) is made each time RustyPresenter starts and once a day, when something changed since the last one. Every backup of the last two days is kept, then one a day for two weeks and one a week for eight weeks.
 
 To go back to one: **Settings → Backups…**, pick a backup, click **Restore**. A copy of what you had is kept first.
 

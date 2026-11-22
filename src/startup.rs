@@ -73,8 +73,8 @@ const SAVE_PLAYING_EVERY: Duration = Duration::from_secs(5);
 /// can be heard and a sound output is chosen.
 const WATCH_SOUND_EVERY: Duration = Duration::from_secs(3);
 
-/// A complete backup at every start, then daily. A restart after a crash (`restored`) waits the full day:
-/// another copy of the same data each time would push older good backups out of the ten kept.
+/// A complete backup at every start, then daily, when something changed since the newest one. A restart after a
+/// crash (`restored`) waits the full day.
 pub async fn backups(app: Arc<App>, restored: bool) {
     if restored { tokio::time::sleep(BACKUP_EVERY).await; }
     loop {
@@ -89,7 +89,8 @@ async fn backup_once(app: &Arc<App>) {
     let data = app.data.lock().unwrap().clone();
     if data.songs.is_empty() && data.services.iter().all(|s| s.items.is_empty()) { return }
     let worker = app.clone();
-    let made = tokio::task::spawn_blocking(move || worker.store.backup(&data)).await;
+    // Nothing changed since the newest backup: another copy would only crowd the list.
+    let made = tokio::task::spawn_blocking(move || if worker.store.backed_up(&data) { Ok(String::new()) } else { worker.store.backup(&data) }).await;
     let failed = match made { Ok(Ok(_)) => return, Ok(Err(e)) => e.to_string(), Err(e) => e.to_string() };
     eprintln!("Backup failed: {failed}");
     app.set_notice(&crate::tr!("The automatic backup could not be made: {reason}", reason = failed));
@@ -135,6 +136,12 @@ mod tests {
         backup_once(&started.app).await;
         assert_eq!(started.app.live.lock().unwrap().notice, None, "a backup that works says nothing");
         assert_eq!(started.app.store.backups().len(), 1);
+        // B8: nothing changed, so the next one makes no second copy; a change does.
+        backup_once(&started.app).await;
+        assert_eq!(started.app.store.backups().len(), 1);
+        started.app.data.lock().unwrap().songs[0].title = "Amazing Grace (My Chains Are Gone)".into();
+        backup_once(&started.app).await;
+        assert_eq!(started.app.store.backups().len(), 2);
         // The backups folder is in the way as a file: nothing can be written there.
         std::fs::remove_dir_all(root.join("backups")).unwrap();
         std::fs::write(root.join("backups"), b"not a folder").unwrap();
