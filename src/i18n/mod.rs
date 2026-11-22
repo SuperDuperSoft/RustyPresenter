@@ -56,7 +56,9 @@ pub struct Catalog {
     pub plurals: Plurals,
     /// Built into the program (`translations/`), so Slint's bundle has it too.
     pub builtin: bool,
-    map: HashMap<(String, String), Vec<String>>,
+    /// Context, then msgid, then one string per plural form. Two levels, so a lookup takes the context and the
+    /// msgid as they come (`&str`) and builds no key: every `tr!` in every redraw comes through here.
+    map: HashMap<String, HashMap<String, Vec<String>>>,
     /// The entries a user file gave (`<data>/translations/<code>.po`): they win over the built-in ones.
     user_keys: HashSet<(String, String)>,
     header: Vec<(String, String)>,
@@ -68,9 +70,10 @@ impl Catalog {
     pub fn from_po(code: &str, text: &str) -> Result<Catalog, po::ParseError> {
         let file = po::parse(text)?;
         let name = |key: &str| file.header(key).filter(|v| !v.is_empty()).unwrap_or(code).to_string();
-        let mut map = HashMap::new();
+        let mut map: HashMap<String, HashMap<String, Vec<String>>> = HashMap::new();
         for e in file.entries.iter().filter(|e| e.translated() && gaps_kept(e)) {
-            map.insert(e.key(), e.strs.clone());
+            let (ctx, id) = e.key();
+            map.entry(ctx).or_default().insert(id, e.strs.clone());
         }
         Ok(Catalog {
             code: code.to_string(),
@@ -89,7 +92,7 @@ impl Catalog {
     /// header field the user file gives.
     fn layered(base: Option<&Catalog>, user: &Catalog) -> Catalog {
         let mut out = user.clone();
-        out.user_keys = user.map.keys().cloned().collect();
+        out.user_keys = user.map.iter().flat_map(|(ctx, ids)| ids.keys().map(move |id| (ctx.clone(), id.clone()))).collect();
         let Some(base) = base else { return out };
         let has = |key: &str| user.header.iter().any(|(k, v)| k.eq_ignore_ascii_case(key) && !v.is_empty());
         if !has("X-Native-Name") { out.native_name = base.native_name.clone() }
@@ -98,11 +101,11 @@ impl Catalog {
         if !has("Plural-Forms") { out.plurals = base.plurals.clone() }
         out.builtin = true;
         out.map = base.map.clone();
-        out.map.extend(user.map.iter().map(|(k, v)| (k.clone(), v.clone())));
+        for (ctx, ids) in &user.map { out.map.entry(ctx.clone()).or_default().extend(ids.iter().map(|(id, forms)| (id.clone(), forms.clone()))) }
         out
     }
 
-    fn get(&self, ctx: &str, id: &str) -> Option<&Vec<String>> { self.map.get(&(ctx.to_string(), id.to_string())) }
+    fn get(&self, ctx: &str, id: &str) -> Option<&Vec<String>> { self.map.get(ctx)?.get(id) }
 
     /// The usable translation of an entry (one string per plural form).
     pub fn forms(&self, ctx: &str, id: &str) -> Option<&[String]> { self.get(ctx, id).map(Vec::as_slice) }
@@ -111,7 +114,7 @@ impl Catalog {
     pub fn is_users(&self, ctx: &str, id: &str) -> bool { self.user_keys.contains(&(ctx.to_string(), id.to_string())) }
 
     /// How many entries have a usable translation.
-    pub fn translated(&self) -> usize { self.map.len() }
+    pub fn translated(&self) -> usize { self.map.values().map(HashMap::len).sum() }
 }
 
 /// Whether every translated form keeps the English gaps. Plural forms may leave out `{n}` (e.g. "one song").
