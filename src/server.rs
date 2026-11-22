@@ -154,6 +154,18 @@ async fn remote_pair(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo
         att.retain(|_, t| now.duration_since(*t) < Duration::from_secs(1));
         att.insert(addr.ip(), now);
     }
+    // N31: on top of the code, the remote's password when one is set. A wrong one counts like a wrong code. The
+    // check is slow on purpose (thousands of hash rounds), so it runs off the async workers and with nothing
+    // locked, and only while pairing is open; the pairing window is looked at again once it is done.
+    let open = app.pairing.lock().unwrap().as_ref().is_some_and(|p| p.until > Instant::now());
+    let needed = app.data.lock().unwrap().settings.network.remote_password.clone();
+    let password_ok = match needed.filter(|_| open) {
+        Some(hash) => {
+            let typed = req.password.clone();
+            tokio::task::spawn_blocking(move || crate::network::password::verify(&typed, &hash)).await.unwrap_or(false)
+        }
+        None => true,
+    };
     let mut pairing = app.pairing.lock().unwrap();
     let Some(p) = pairing.as_mut().filter(|p| p.until > Instant::now()) else {
         *pairing = None;
@@ -161,9 +173,6 @@ async fn remote_pair(State(app): State<Arc<App>>, ConnectInfo(addr): ConnectInfo
     };
     let by_qr = !req.pair.trim().is_empty();
     let right = if by_qr { ct_eq(req.pair.trim(), &p.secret) } else { ct_eq(req.pin.trim(), &p.pin) };
-    // N31: on top of the code, the remote's password when one is set. A wrong one counts like a wrong code.
-    let needed = app.data.lock().unwrap().settings.network.remote_password.clone();
-    let password_ok = needed.as_deref().is_none_or(|h| crate::network::password::verify(&req.password, h));
     if !right || !password_ok {
         p.failures += 1;
         if p.failures >= 5 {

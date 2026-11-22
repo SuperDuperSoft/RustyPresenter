@@ -28,6 +28,16 @@ impl ActionError {
 
 macro_rules! tryr { ($e:expr) => { $e.map_err(ActionError::bad)? }; }
 
+/// Runs work that waits on the disk (a save that is not done until the file is there). Actions and phone requests
+/// run on the async runtime's worker threads, where waiting holds up every other request on that thread: there
+/// the runtime is told first, and moves them to another thread. Anywhere else the work is simply run.
+pub(crate) fn on_disk<T>(work: impl FnOnce() -> T) -> T {
+    match tokio::runtime::Handle::try_current() {
+        Ok(rt) if rt.runtime_flavor() == tokio::runtime::RuntimeFlavor::MultiThread => tokio::task::block_in_place(work),
+        _ => work(),
+    }
+}
+
 /// Something every screen may need to react to. Sent on `App::tx`.
 #[derive(Clone, Debug)]
 pub enum Update {
@@ -637,13 +647,16 @@ impl App {
     }
 
     /// The second half: the disk write, best after `data` is unlocked so live control never waits on the disk.
-    /// A save older than the one already written is dropped; the newer one holds its changes too.
+    /// A save older than the one already written is dropped; the newer one holds its changes too. The write waits
+    /// until the file is on the disk; on one of the async workers the runtime is told first (`on_disk`).
     fn write_save(&self, save: PendingSave) -> Result<(), String> {
-        let mut saved = self.saved_seq.lock().unwrap_or_else(|e| e.into_inner());
-        if save.seq <= *saved { return Ok(()) }
-        self.store.write_data(&save.bytes).map_err(|e| tr!("Could not save: {error}", error = e))?;
-        *saved = save.seq;
-        Ok(())
+        on_disk(|| {
+            let mut saved = self.saved_seq.lock().unwrap_or_else(|e| e.into_inner());
+            if save.seq <= *saved { return Ok(()) }
+            self.store.write_data(&save.bytes).map_err(|e| tr!("Could not save: {error}", error = e))?;
+            *saved = save.seq;
+            Ok(())
+        })
     }
 
     /// The data was saved by a newer RustyPresenter (`Store::load_full`): every edit is refused with
@@ -978,8 +991,10 @@ impl App {
         ends.push_back((id, made));
     }
 
+    /// Writes the list of paired phones. A phone's own request can end up here (its sign-in was just used again),
+    /// so the wait for the disk is taken off the async workers (`on_disk`).
     pub(crate) fn save_phones(&self, phones: &[Phone]) {
-        if let Ok(b) = serde_json::to_vec(phones) { let _ = crate::store::write_atomic(&self.store.root.join("phones.json"), &b); }
+        if let Ok(b) = serde_json::to_vec(phones) { let _ = on_disk(|| crate::store::write_atomic(&self.store.root.join("phones.json"), &b)); }
     }
     pub fn set_screens(&self, s: Arc<dyn Screens>) { let _ = self.screens.set(s); }
 
