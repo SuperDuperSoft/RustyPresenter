@@ -282,9 +282,9 @@ async fn remote_events(State(app): State<Arc<App>>, headers: HeaderMap) -> Respo
 
 async fn remote_command(State(app): State<Arc<App>>, headers: HeaderMap, body: Bytes) -> Response {
     if !same_origin(&headers) || !headers.get(header::CONTENT_TYPE).and_then(|v| v.to_str().ok()).is_some_and(|v| v.starts_with("application/json")) { return forbidden(); }
-    if phone_for(&app, &headers).is_none() { return (StatusCode::UNAUTHORIZED, Json(json!({ "error": "pair first" }))).into_response(); }
+    // Looked up once: it hashes the cookie, locks the phone list and may write phones.json.
+    let Some(phone) = phone_for(&app, &headers) else { return (StatusCode::UNAUTHORIZED, Json(json!({ "error": "pair first" }))).into_response() };
     let Ok(env) = serde_json::from_slice::<Envelope>(&body) else { return bad(crate::tr!("Bad command.")) };
-    let phone = phone_for(&app, &headers).unwrap_or_default();
     if let Err(e) = phone_automation(&app, phone, &env) { return ok(serde_json::to_value(Outcome { ok: false, version: 0, error: Some(e), duplicate: false }).unwrap()) }
     let mode = matches!(env.cmd, Command::FollowMode { .. });
     let out = if phone_may(&env) { app.command(env) } else { Outcome { ok: false, version: 0, error: Some(crate::tr!("Not allowed from the phone.")), duplicate: false } };
@@ -294,7 +294,7 @@ async fn remote_command(State(app): State<Arc<App>>, headers: HeaderMap, body: B
 }
 
 /// A drawing command from a paired phone (`live::drawing`): `{ ok }` or `{ ok: false, error }`. Malformed input is
-/// refused; there is no cap on how much or how fast a phone draws.
+/// refused, and so is more than the hard ceilings allow (`live::drawing::MAX_POINTS`).
 async fn remote_draw(State(app): State<Arc<App>>, headers: HeaderMap, body: Bytes) -> Response {
     if !same_origin(&headers) || !headers.get(header::CONTENT_TYPE).and_then(|v| v.to_str().ok()).is_some_and(|v| v.starts_with("application/json")) { return forbidden(); }
     let Some(phone) = phone_for(&app, &headers) else { return (StatusCode::UNAUTHORIZED, Json(json!({ "error": "pair first" }))).into_response() };
