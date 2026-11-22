@@ -112,8 +112,10 @@ pub fn read_number() -> u64 { READS.load(Ordering::SeqCst) }
 const _: fn() = || { fn send<T: Send + Sync>() {} send::<OperatorSnapshot>(); };
 
 impl OperatorSnapshot {
-    /// Reads the same sources as `App::state_json`. **Never call it on the Slint thread:** it parses every backup
-    /// and asks `Screens` for monitors, which `NativeScreens` answers on the Slint thread.
+    /// Reads the same sources as `App::state_json`. **Never call it on the Slint thread:** it copies the data,
+    /// builds every slide of the service and lists the backups (reading a new one from the disk). The monitors come
+    /// from `Screens::monitors`, which `NativeScreens` answers from what it last saw and never waits for the
+    /// Slint thread.
     /// The core does not know whether libmpv loaded, so `player_missing` starts false; see `with_player_missing`.
     pub fn read(app: &App) -> Self {
         let read = READS.fetch_add(1, Ordering::SeqCst) + 1;
