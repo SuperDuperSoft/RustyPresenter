@@ -78,12 +78,21 @@ const WATCH_SOUND_EVERY: Duration = Duration::from_secs(3);
 pub async fn backups(app: Arc<App>, restored: bool) {
     if restored { tokio::time::sleep(BACKUP_EVERY).await; }
     loop {
-        let data = app.data.lock().unwrap().clone();
-        if !data.songs.is_empty() || data.services.iter().any(|s| !s.items.is_empty()) {
-            if let Err(e) = app.store.backup(&data) { eprintln!("Backup failed: {e}"); }
-        }
+        backup_once(&app).await;
         tokio::time::sleep(BACKUP_EVERY).await;
     }
+}
+
+/// One automatic backup, off the async workers (it copies files and waits for the disk). A backup that could not
+/// be made is said in the operator window: the release build has no console to print to.
+async fn backup_once(app: &Arc<App>) {
+    let data = app.data.lock().unwrap().clone();
+    if data.songs.is_empty() && data.services.iter().all(|s| s.items.is_empty()) { return }
+    let worker = app.clone();
+    let made = tokio::task::spawn_blocking(move || worker.store.backup(&data)).await;
+    let failed = match made { Ok(Ok(_)) => return, Ok(Err(e)) => e.to_string(), Err(e) => e.to_string() };
+    eprintln!("Backup failed: {failed}");
+    app.set_notice(&crate::tr!("The automatic backup could not be made: {reason}", reason = failed));
 }
 
 /// Keeps the saved frame's playback positions fresh while video or audio is on air.
@@ -113,6 +122,25 @@ mod tests {
         assert_eq!(started.app.data.lock().unwrap().services[0].items.len(), 1);
         assert_eq!(started.app.store.load().unwrap().services[0].items.len(), 1, "saved as well");
         assert_eq!(started.app.live.lock().unwrap().notice.as_deref(), Some(passages_removed(1).as_str()));
+    }
+
+    /// B2: a backup that fails is said where the operator looks.
+    #[tokio::test]
+    async fn a_failed_automatic_backup_sets_the_live_notice() {
+        let root = test_dir();
+        let mut data = Data::default();
+        data.songs.push(crate::model::Song { title: "Amazing Grace".into(), ..Default::default() });
+        Store::open(root.clone()).unwrap().save(&data).unwrap();
+        let started = open(TcpListener::bind("127.0.0.1:0").unwrap(), root.clone(), 0).unwrap();
+        backup_once(&started.app).await;
+        assert_eq!(started.app.live.lock().unwrap().notice, None, "a backup that works says nothing");
+        assert_eq!(started.app.store.backups().len(), 1);
+        // The backups folder is in the way as a file: nothing can be written there.
+        std::fs::remove_dir_all(root.join("backups")).unwrap();
+        std::fs::write(root.join("backups"), b"not a folder").unwrap();
+        backup_once(&started.app).await;
+        let notice = started.app.live.lock().unwrap().notice.clone().unwrap_or_default();
+        assert!(notice.starts_with("The automatic backup could not be made"), "{notice}");
     }
 
     const XX: &str = "msgid \"\"\nmsgstr \"\"\n\"Language: xx\\n\"\n\nmsgid \"Sunday Service\"\nmsgstr \"Culto dominical\"\n";

@@ -20,7 +20,14 @@ pub struct BackupInfo {
 }
 
 #[derive(Serialize, Deserialize)]
-struct Manifest { created: String, assets: Vec<AssetId> }
+struct Manifest {
+    created: String,
+    assets: Vec<AssetId>,
+    /// Files the data names that were not on the disk when the backup was made. The songs and services are the
+    /// part that cannot be remade, so a lost picture or video never stops a backup.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    missing: Vec<AssetId>,
+}
 
 const KEEP_BACKUPS: usize = 10;
 static BACKUP_IO: std::sync::Mutex<()> = std::sync::Mutex::new(());
@@ -82,7 +89,7 @@ impl Store {
     }
 
     /// The format steps, in order, from `data.format` up to `SUPPORTED_FORMAT`. With `backup`, each step first takes
-    /// a "before-update" backup; when that can't be made (an asset is missing), `data.json` is copied aside instead.
+    /// a "before-update" backup; when that can't be made (the disk is full), `data.json` is copied aside instead.
     fn upgrade_format(&self, data: &mut Data, backup: bool) {
         while data.format < SUPPORTED_FORMAT {
             if backup && let Err(e) = self.backup_labeled(data, migrate::BEFORE_UPDATE) {
@@ -166,20 +173,22 @@ impl Store {
         let dir = self.root.join("backups").join(&name);
         let partial = self.root.join("backups").join(format!("{name}.partial"));
         fs::create_dir_all(&partial)?;
-        let assets: Vec<AssetId> = data.referenced_assets().into_iter().collect();
         let store = self.root.join("backups").join("assets");
-        for a in &assets {
-            let src = self.asset_path(a);
-            let dst = store.join(a);
-            if dst.is_file() { continue; }
-            if !src.is_file() { return Err(io::Error::other(format!("asset {a} is missing; backup not completed"))); }
-            if fs::hard_link(&src, &dst).is_err() { copy_atomic(&src, &dst)?; }
+        let (mut assets, mut missing) = (vec![], vec![]);
+        for a in data.referenced_assets() {
+            let src = self.asset_path(&a);
+            let dst = store.join(&a);
+            // A file that has gone (deleted by hand, quarantined, lost in a partial copy) is left out and named in
+            // the manifest; everything else is still saved.
+            if !dst.is_file() && !src.is_file() { missing.push(a); continue; }
+            if !dst.is_file() && fs::hard_link(&src, &dst).is_err() { copy_atomic(&src, &dst)?; }
+            assets.push(a);
         }
         let data = crate::scripture::online::without_online_text(data, &self.root);
         // Each file reaches the disk before the marker is written, so a power cut can never leave a backup that is
         // marked complete with an empty `data.json`.
         write_synced(&partial.join("data.json"), &serde_json::to_vec_pretty(&*data).map_err(io::Error::other)?)?;
-        write_synced(&partial.join("manifest.json"), &serde_json::to_vec_pretty(&Manifest { created: created.clone(), assets }).map_err(io::Error::other)?)?;
+        write_synced(&partial.join("manifest.json"), &serde_json::to_vec_pretty(&Manifest { created: created.clone(), assets, missing }).map_err(io::Error::other)?)?;
         write_synced(&partial.join("COMPLETE"), b"ok")?;
         fs::rename(&partial, &dir)?;
         self.prune_backups()?;
@@ -229,7 +238,7 @@ impl Store {
         self.upgrade_format(&mut data, false);
         data.after_load();
         let mut assets = data.referenced_assets();
-        assets.extend(manifest.assets);
+        assets.extend(manifest.assets.iter().cloned());
         // Older data used plain filenames as IDs, so accept those too, provided they stay in the asset folder.
         if let Some(a) = assets.iter().find(|a| !asset_filename(a)) {
             return Err(format!("Invalid backup asset name: {a:?}"));
@@ -239,6 +248,8 @@ impl Store {
             let dst = self.asset_path(a);
             if dst.is_file() { continue; }
             let src = store.join(a);
+            // A file that was already gone when the backup was made stays gone; the rest comes back.
+            if manifest.missing.contains(a) && !src.is_file() { continue; }
             copy_atomic(&src, &dst).map_err(|e| format!("Could not restore backup asset {a}: {e}"))?;
         }
         // Keep the data we are replacing, just in case.
@@ -556,9 +567,33 @@ mod tests {
         let store = with_data(V02);
         let d = store.load().unwrap();
         assert_eq!(d.format, SUPPORTED_FORMAT);
-        assert!(labeled(&store).is_empty(), "the assets are missing, so no backup");
-        let copy = fs::read_dir(&store.root).unwrap().flatten().find(|e| e.file_name().to_string_lossy().starts_with("data.before-update-")).expect("a copy instead");
-        assert_eq!(fs::read_to_string(copy.path()).unwrap(), V02);
+        let names = labeled(&store);
+        assert_eq!(names.len(), 1, "missing pictures do not stop the before-update backup");
+        let backed: serde_json::Value = serde_json::from_slice(&fs::read(store.root.join("backups").join(&names[0]).join("data.json")).unwrap()).unwrap();
+        assert_eq!(backed["format"], 1);
+    }
+
+    /// B2: one lost media file must not stop every backup.
+    #[test]
+    fn a_missing_asset_does_not_stop_a_backup_or_its_restore() {
+        let store = Store::open(test_dir()).unwrap();
+        let src = store.root.join("here.png");
+        fs::write(&src, b"picture").unwrap();
+        let here = store.import_file(&src, "png").unwrap();
+        let mut data = Data::default();
+        data.songs.push(Song { title: "Amazing Grace".into(), ..Song::default() });
+        data.settings.logo = Some("gone.png".into());
+        data.settings.background = Background::Image { asset: here.clone(), dim: 0 };
+        store.save(&data).unwrap();
+        let name = store.backup(&data).expect("the backup is still made");
+        assert_eq!(store.backups().iter().map(|b| b.name.as_str()).collect::<Vec<_>>(), [name.as_str()]);
+        let manifest: Manifest = serde_json::from_slice(&fs::read(store.root.join("backups").join(&name).join("manifest.json")).unwrap()).unwrap();
+        assert_eq!((manifest.missing, manifest.assets), (vec!["gone.png".to_string()], vec![here.clone()]));
+        fs::remove_file(store.asset_path(&here)).unwrap();
+        let restored = store.restore(&name).expect("and it restores");
+        assert_eq!(restored.songs.len(), 1);
+        assert_eq!(fs::read(store.asset_path(&here)).unwrap(), b"picture", "the files it does hold come back");
+        assert!(!store.asset_path("gone.png").exists());
     }
 
     #[test]
