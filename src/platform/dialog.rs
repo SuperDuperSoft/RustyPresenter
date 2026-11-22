@@ -11,3 +11,11 @@ pub fn warning(msg: &str) {
     eprintln!("{msg}");
     rfd::MessageDialog::new().set_level(rfd::MessageLevel::Warning).set_title("RustyPresenter").set_description(msg).show();
 }
+
+/// A yes-or-no question before the app opens. True for Yes.
+pub fn ask(msg: &str) -> bool {
+    eprintln!("{msg}");
+    let answer = rfd::MessageDialog::new().set_level(rfd::MessageLevel::Warning).set_title("RustyPresenter").set_description(msg)
+        .set_buttons(rfd::MessageButtons::YesNo).show();
+    answer == rfd::MessageDialogResult::Yes
+}

@@ -76,7 +76,8 @@ fn main() {
         Bind::Running => { println!("RustyPresenter is already running."); std::process::exit(exitcode::ALREADY_RUNNING); }
         Bind::Taken => { tell(&instance::taken_message(port)); std::process::exit(exitcode::PORT_TAKEN); }
     };
-    let started = startup::open(listener, root, port).unwrap_or_else(|e| fail(&e));
+    // Data that cannot be read: the newest backup is offered (never taken without a yes; a test run has nobody to ask).
+    let started = startup::open_asking(listener, root, port, &|question| !headless_mode() && dialog::ask(question)).unwrap_or_else(|e| fail(&e));
     // A portable copy that cannot keep its data beside it this time (locked stick, still in the zip, macOS's locked
     // copy) says so, and where the work goes instead.
     if let Some(w) = rustypresenter::platform::data_folder::start_warning() {

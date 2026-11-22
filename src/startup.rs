@@ -14,14 +14,22 @@ pub fn data_root() -> Result<PathBuf, String> {
     server::data_dir().ok_or_else(|| crate::tr!("Cannot find a folder to keep your data in. Set RUSTYPRESENTER_DATA."))
 }
 
+/// Opens the data folder behind a port already held, with nobody to ask: data that cannot be read is an error.
+pub fn open(listener: TcpListener, root: PathBuf, port: u16) -> Result<Started, String> { open_asking(listener, root, port, &|_| false) }
+
 /// Opens the data folder behind a port already held. Left-over work folders go on every start, so a killed
-/// import's go too.
-pub fn open(listener: TcpListener, root: PathBuf, port: u16) -> Result<Started, String> {
+/// import's go too. When `data.json` cannot be read and there is a complete backup, `ask` is shown a question:
+/// on yes the unreadable file is set aside and the app starts from the newest backup. Never without asking.
+pub fn open_asking(listener: TcpListener, root: PathBuf, port: u16, ask: &dyn Fn(&str) -> bool) -> Result<Started, String> {
     let store = Store::open(root.clone()).map_err(|e| crate::tr!("Cannot use the data folder {path}: {reason}", path = root.display(), reason = e))?;
     store.clean_tmp();
     // New data names its first service in the computer's language, so that language is set before it is made.
     if !store.data_path().exists() { let _ = crate::i18n::set_language(&crate::i18n::resolve("")); }
-    let crate::store::Loaded { mut data, read_only } = store.load_full()?;
+    let (loaded, from_backup) = match store.load_full() {
+        Ok(loaded) => (loaded, None),
+        Err(problem) => { let (loaded, said) = start_from_backup(&store, &problem, ask)?; (loaded, Some(said)) }
+    };
+    let crate::store::Loaded { mut data, read_only } = loaded;
     let removed = crate::bible::blocklist::strip(&mut data);
     if !read_only && (removed > 0 || !store.data_path().exists()) { let _ = store.save(&data); }
 
@@ -32,7 +40,38 @@ pub fn open(listener: TcpListener, root: PathBuf, port: u16) -> Result<Started, 
     // 1.3: song auto-follow's worker (idle until a song follows the singers).
     app.start_follower();
     if removed > 0 { app.live.lock().unwrap().notice = Some(crate::scripture::strings::passages_removed(removed)); }
+    if let Some(said) = from_backup { app.live.lock().unwrap().notice = Some(said); }
     Ok(Started { app, listener, root })
+}
+
+/// When a backup was made, in this computer's time ("2026-11-06 10:15"), from its stamp.
+fn backup_when(created: &str) -> String {
+    match chrono::NaiveDateTime::parse_from_str(created, "%Y-%m-%d_%H%M%S") {
+        Ok(utc) => utc.and_utc().with_timezone(&chrono::Local).format("%Y-%m-%d %H:%M").to_string(),
+        Err(_) => created.to_string(),
+    }
+}
+
+/// `data.json` could not be read (`problem`). With a complete backup to offer, asks whether to start from the
+/// newest one; on yes the unreadable file is moved aside (`data.unreadable-<stamp>.json`) and the backup restored.
+/// Gives the data and the line the operator window shows. On no, or with no backup, the problem is the error.
+fn start_from_backup(store: &Store, problem: &str, ask: &dyn Fn(&str) -> bool) -> Result<(crate::store::Loaded, String), String> {
+    let Some(newest) = store.backups().into_iter().next() else { return Err(problem.into()) };
+    let when = backup_when(&newest.created);
+    let aside = format!("data.unreadable-{}.json", crate::store::now_stamp());
+    let question = crate::tr!(
+        "Your saved songs and services could not be read.\n\nStart with the newest backup, made {when}?\n\nThe file that could not be read is kept as {name}. Choose No to close RustyPresenter and change nothing.\n\n({problem})",
+        when = when, name = aside, problem = problem);
+    if !ask(&question) { return Err(problem.into()) }
+    // Set aside first, so nothing is ever written over the file that could not be read.
+    std::fs::rename(store.data_path(), store.root.join(&aside)).map_err(|e| format!("{problem}\n{e}"))?;
+    match store.restore(&newest.name) {
+        Ok(data) => Ok((crate::store::Loaded { data, read_only: false }, crate::tr!("Started from the backup made {when}. The file that could not be read is kept as {name}.", when = when, name = aside))),
+        Err(e) => {
+            let _ = std::fs::rename(store.root.join(&aside), store.data_path());
+            Err(crate::tr!("{problem}\n\nThe newest backup could not be used either: {reason}", problem = problem, reason = e))
+        }
+    }
 }
 
 /// The console banner; `quit` says how to quit.
@@ -148,6 +187,39 @@ mod tests {
         backup_once(&started.app).await;
         let notice = started.app.live.lock().unwrap().notice.clone().unwrap_or_default();
         assert!(notice.starts_with("The automatic backup could not be made"), "{notice}");
+    }
+
+    /// B15: data that cannot be read offers the newest backup, and never takes it without a yes.
+    #[test]
+    fn unreadable_data_starts_from_the_newest_backup_only_after_a_yes() {
+        let root = test_dir();
+        let store = Store::open(root.clone()).unwrap();
+        let mut data = Data::default();
+        data.songs.push(crate::model::Song { title: "Amazing Grace".into(), ..Default::default() });
+        store.save(&data).unwrap();
+        let backup = store.backup(&data).unwrap();
+        std::fs::write(store.data_path(), b"{ half a file").unwrap();
+        let asked = std::cell::RefCell::new(vec![]);
+        let listener = || TcpListener::bind("127.0.0.1:0").unwrap();
+        // With nobody to ask, and on No: an error, and nothing on the disk changes.
+        assert!(open(listener(), root.clone(), 0).is_err_and(|e| e.contains("could not be read")));
+        let no = open_asking(listener(), root.clone(), 0, &|q| { asked.borrow_mut().push(q.to_string()); false });
+        assert!(no.is_err_and(|e| e.contains("could not be read")));
+        assert_eq!(std::fs::read(store.data_path()).unwrap(), b"{ half a file");
+        assert!(asked.borrow()[0].contains("Start with the newest backup") && asked.borrow()[0].contains("data.unreadable-"), "{:?}", asked.borrow());
+        // On Yes: the backup's songs, the unreadable file kept beside it, and the operator is told.
+        let started = open_asking(listener(), root.clone(), 0, &|_| true).unwrap();
+        assert_eq!(started.app.data.lock().unwrap().songs[0].title, "Amazing Grace");
+        assert_eq!(started.app.store.load().unwrap().songs.len(), 1, "data.json is readable again");
+        let kept: Vec<_> = std::fs::read_dir(&root).unwrap().flatten().filter(|e| e.file_name().to_string_lossy().starts_with("data.unreadable-")).collect();
+        assert_eq!(kept.len(), 1);
+        assert_eq!(std::fs::read(kept[0].path()).unwrap(), b"{ half a file");
+        assert!(started.app.live.lock().unwrap().notice.as_deref().is_some_and(|n| n.starts_with("Started from the backup made")));
+        assert!(started.app.store.backups().iter().any(|b| b.name == backup));
+        // With no backup at all there is nothing to offer: the error as before, without a question.
+        let empty = test_dir();
+        std::fs::write(Store::open(empty.clone()).unwrap().data_path(), b"garbage").unwrap();
+        assert!(open_asking(listener(), empty, 0, &|_| panic!("nothing to ask about")).is_err());
     }
 
     const XX: &str = "msgid \"\"\nmsgstr \"\"\n\"Language: xx\\n\"\n\nmsgid \"Sunday Service\"\nmsgstr \"Culto dominical\"\n";
