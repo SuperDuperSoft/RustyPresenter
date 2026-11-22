@@ -98,9 +98,13 @@ fn event_stream(app: Arc<App>, first: String, map: impl Fn(&App, Option<&Update>
                     Ok(None) => continue,
                     Err(()) => return None,
                 },
-                Err(broadcast::error::RecvError::Lagged(_)) => {
-                    if let Ok(Some(out)) = map(&app, None) { return Some((Ok(Event::default().data(out)), (rx, app, guard, map, false))); }
-                }
+                // Fell behind: a whole new view instead of the updates that were dropped. One of those may have
+                // been this client's own "you are no longer paired", so `map` checks, and its Err ends the stream.
+                Err(broadcast::error::RecvError::Lagged(_)) => match map(&app, None) {
+                    Ok(Some(out)) => return Some((Ok(Event::default().data(out)), (rx, app, guard, map, false))),
+                    Ok(None) => {}
+                    Err(()) => return None,
+                },
                 Err(_) => return None,
             }
         }
@@ -224,7 +228,9 @@ fn same_origin(headers: &HeaderMap) -> bool {
 }
 
 /// What a phone's remote stream sends for each update: a fresh remote view, nothing for import
-/// progress, and the end of the stream when this phone is unpaired.
+/// progress, and the end of the stream when this phone is unpaired. Each fresh view first checks that the phone
+/// is still on the list: the "unpaired" message itself can be among the updates a slow phone missed, and a
+/// sign-in that ran out is taken off the list without one.
 fn remote_map(phone: Uuid) -> impl Fn(&App, Option<&Update>) -> Result<Option<String>, ()> + Send + 'static {
     // The phone's strokes as last sent: points added to a stroke are not news to the phone that drew them.
     let sent = std::sync::Mutex::new(None::<Vec<u32>>);
@@ -245,6 +251,7 @@ fn remote_map(phone: Uuid) -> impl Fn(&App, Option<&Update>) -> Result<Option<St
             Ok(Some(json!({ "type": "drawing", "mine": mine }).to_string()))
         }
         _ => {
+            if !app.phones.lock().unwrap().iter().any(|p| p.id == phone) { return Err(()) }
             let view = remote_view(app, Some(phone));
             let mut sent = sent_view.lock().unwrap();
             if sent.as_deref() == Some(view.as_str()) { return Ok(None) }
@@ -504,10 +511,17 @@ mod tests {
     use crate::app::{Update, test_app};
     use axum::http::HeaderValue;
 
+    /// A phone on the list of paired phones.
+    fn paired_phone(app: &App) -> Uuid {
+        let id = Uuid::new_v4();
+        app.phones.lock().unwrap().push(Phone { id, name: "iPad".into(), hash: hash_token(&id.to_string()), last_seen: now_secs(), may_draw: true });
+        id
+    }
+
     #[test]
     fn revoking_a_phone_ends_only_that_phones_remote_stream() {
         let app = test_app();
-        let (me, other) = (Uuid::new_v4(), Uuid::new_v4());
+        let (me, other) = (paired_phone(&app), Uuid::new_v4());
         let map = remote_map(me);
         assert!(map(&app, Some(&Update::Revoked { phone: me })).is_err());
         assert!(matches!(map(&app, Some(&Update::Revoked { phone: other })), Ok(Some(_))));
@@ -520,7 +534,7 @@ mod tests {
     #[test]
     fn a_phone_gets_its_view_again_only_when_it_changed() {
         let app = test_app();
-        let map = remote_map(Uuid::new_v4());
+        let map = remote_map(paired_phone(&app));
         assert!(matches!(map(&app, Some(&Update::Data)), Ok(Some(_))), "the first view goes out");
         assert_eq!(map(&app, Some(&Update::Data)), Ok(None), "the same view is not sent twice");
         app.command(Envelope { id: Uuid::new_v4().to_string(), base: None, cmd: Command::Logo });
@@ -693,6 +707,20 @@ msgstr[1] "{n} Folien"
         assert_eq!(i18n_map()["Connect"], "Enlazar");
         assert!(words(&app) > before, "the phone is told to read the words again");
         crate::i18n::set_language("en").unwrap();
+    }
+
+    /// B13: a phone taken off the list while its stream was behind gets no fresh view; its stream ends.
+    #[test]
+    fn a_revoked_phone_that_fell_behind_is_cut_off() {
+        let app = test_app();
+        let (gone, paired) = (Uuid::new_v4(), Uuid::new_v4());
+        app.phones.lock().unwrap().push(Phone { id: paired, name: "iPad".into(), hash: hash_token("t"), last_seen: now_secs(), may_draw: true });
+        let map = remote_map(gone);
+        assert_eq!(map(&app, None), Err(()), "the lag case: it missed its own Revoked");
+        assert_eq!(map(&app, Some(&Update::Data)), Err(()));
+        let map = remote_map(paired);
+        assert!(matches!(map(&app, None), Ok(Some(_))), "a paired phone gets its view");
+        assert_eq!(map(&app, Some(&Update::Revoked { phone: paired })), Err(()));
     }
 
     #[test]
