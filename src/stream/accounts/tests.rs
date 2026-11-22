@@ -70,7 +70,11 @@ pub async fn serve(seen: Arc<Mutex<Seen>>) -> String {
                 }
                 ("POST", "/youtube/v3/liveBroadcasts") => {
                     let b: Value = serde_json::from_str(&text).unwrap();
-                    if b.pointer("/snippet/scheduledStartTime").and_then(Value::as_str).is_some_and(|t| t.starts_with("2026-11-22")) {
+                    // The broadcast the tests make ahead is for 2026-11-22. One made to go live now is for now, whatever
+                    // the day is: on that very day it must not be taken for the one made ahead.
+                    let ahead = b.pointer("/snippet/scheduledStartTime").and_then(Value::as_str).is_some_and(|t| t.starts_with("2026-11-22")
+                        && chrono::DateTime::parse_from_rfc3339(t).is_ok_and(|at| (at.with_timezone(&chrono::Utc) - chrono::Utc::now()).num_seconds().abs() > 120));
+                    if ahead {
                         s.scheduled.push(b);
                         return ok(json!({"id": "sched1", "snippet": {"liveChatId": "lc9"}}));
                     }
