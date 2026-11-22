@@ -4,7 +4,7 @@
 use super::{DialogKind, confirm};
 use crate::{
     design::{
-        AnimKind, Design, Dir, Effect, Fit, HAlign, MotionPath, ObjKind, Seg, Shape, Start, TextStyle, TransitionKind, VAlign,
+        AnimKind, Design, Dir, Effect, Fit, HAlign, MotionPath, ObjKind, Seg, Shape, Start, TransitionKind, VAlign,
         edit::{AlignTo, Editor, Field, Order, StyleCopy, motion_preset},
         strings as s,
     },

@@ -9,7 +9,7 @@ use crate::{
     model::{Background, Data, MediaFile, MediaKind, Settings, Slide, SlideContent},
     store::Store,
     theme::{self, STANDARD_ID, SavedTheme, TextAlign, ThemeId, layouts::{self, Drag, Frame, Layout, LayoutKind}, strings as ts},
-    ui::{BgLibraryRow, SettingsDlg, ThemeListRow, ThemesDlg, operator::{file_input::Filter, files, view::OperatorSnapshot, window::Operator}, thumbs::Pixels},
+    ui::{BgLibraryRow, ThemeListRow, ThemesDlg, operator::{file_input::Filter, files, view::OperatorSnapshot, window::Operator}, thumbs::Pixels},
 };
 use slint::{ComponentHandle, Image, ModelRc, Timer, TimerMode, VecModel};
 use std::{cell::{Cell, RefCell}, path::PathBuf, rc::{Rc, Weak}};

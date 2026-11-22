@@ -128,6 +128,7 @@ fn builtin_key(b: Builtin) -> &'static str {
 fn rect(r: &dock::Rect) -> DockRect { DockRect { x: r.x, y: r.y, w: r.w, h: r.h } }
 
 impl Operator {
+    #[cfg(test)]
     pub(crate) fn dock_layout(&self) -> Layout { self.dock.prefs.borrow().current.clone() }
 
     /// The open windows of their own, in the layout's order.
@@ -136,6 +137,7 @@ impl Operator {
     }
 
     /// Where the panels are in window `win` now (the main window is 0).
+    #[cfg(test)]
     pub(crate) fn dock_placement(&self, win: usize) -> Placement {
         self.dock.wins.borrow().get(win).map(|w| w.placed.clone()).unwrap_or_default()
     }
@@ -874,6 +876,7 @@ impl Operator {
     }
 
     /// Opens the Bible picker (the chosen Bible's chip; tests).
+    #[cfg(test)]
     pub(crate) fn open_bible_picker(self: &Rc<Self>) {
         self.dock_show(PanelId::Bible);
         let ui = &self.ui;

@@ -1,4 +1,5 @@
 use super::*;
+use crate::ui::SettingsDlg;
 use crate::ui::dialogs::settings::testing::{find_any as find, find_all_any as find_all};
 use crate::{
     app::{App, test_app},

@@ -4,7 +4,7 @@ use crate::{
     app::{App, test_app},
     model::{ItemKind, ServiceItem},
     ui::{
-        SettingsDlg, SlideCell, Theme,
+        SettingsDlg, SlideCell,
         dialogs::{SettingsTab, settings},
         operator::window::testing::{open as open_window, refresh},
     },

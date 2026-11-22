@@ -119,7 +119,7 @@ mod tests {
         model::{ItemKind, ServiceItem, Song},
         ui::operator::window::testing::{find, open, refresh},
     };
-    use slint::{ComponentHandle, SharedString, platform::{PointerEventButton, WindowEvent}};
+    use slint::{SharedString, platform::{PointerEventButton, WindowEvent}};
     use std::sync::Arc;
 
     /// A song (two slides) in the library and the service; returns its item id.
