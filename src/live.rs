@@ -849,6 +849,14 @@ impl Live {
     }
 
     /// Handle a report from the room. Returns true when the live state changed.
+    /// The report only says how far a video or audio has played: the same player, in the same state as its last
+    /// report (a player says so twice a second). Ask before `report` takes it.
+    pub fn only_position(&self, ev: &RoomEvent) -> bool {
+        let RoomEvent::Media { inst, state, error: None, .. } = ev else { return false };
+        if matches!(state, PlayState::Ended | PlayState::Error) { return false }
+        [&self.media_status, &self.audio_status].into_iter().flatten().any(|s| s.inst == *inst && s.state == *state)
+    }
+
     pub fn report(&mut self, ev: RoomEvent) -> bool {
         match ev {
             RoomEvent::Committed { version } => {

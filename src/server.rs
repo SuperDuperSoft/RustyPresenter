@@ -241,7 +241,8 @@ fn remote_map(phone: Uuid) -> impl Fn(&App, Option<&Update>) -> Result<Option<St
     let sent_view = std::sync::Mutex::new(None::<String>);
     move |app, u| match u {
         Some(Update::Revoked { phone: p }) if *p == phone => Err(()),
-        Some(Update::Job { .. }) => Ok(None),
+        // Import progress, and how far a video has played: nothing the phone shows.
+        Some(Update::Job { .. } | Update::Playback(_)) => Ok(None),
         // FEAT-2: a tick sends only the phone's timer lines.
         Some(Update::Timers(v)) => Ok(Some(remote_timers(v))),
         // Drawing: only which of this phone's strokes are still up (undo, clears and slide changes take them away).

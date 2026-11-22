@@ -81,6 +81,31 @@ fn set_motion(ui: &OperatorWindow, t: Option<Transition>, p: f32) {
 
 impl Operator {
     /// `renderLive()`: everything in the column that follows the live view.
+    /// The transport rows (a playing video's or audio's place and time).
+    fn render_transport(&self, v: &crate::app::LiveView) {
+        let rows = view::transport(v);
+        let cells: Vec<TransportCell> = rows.iter().map(|r| TransportCell {
+            video: r.kind == TransportKind::Video, label: r.label.as_str().into(), paused: r.paused, percent: r.percent, time: r.time.as_str().into(),
+        }).collect();
+        let mut st = self.live.borrow_mut();
+        put_cells(&st.cells, cells);
+        st.rows = rows;
+    }
+
+    /// A player said how far it has played (`Update::Playback`): the live view keeps everything but the play
+    /// status, and only the transport rows are drawn again.
+    pub fn apply_playback(&self, p: &crate::app::LiveUpdate) {
+        let patched = {
+            let mut st = self.state.borrow_mut();
+            let Some(now) = st.live.as_ref().filter(|now| now.view().version == p.view().version) else { return };
+            let v = crate::app::LiveView { media: p.view().media.clone(), audio: p.view().audio.clone(), ..now.view().clone() };
+            let patched = crate::app::LiveUpdate::new(v);
+            st.live = Some(patched.clone());
+            patched
+        };
+        self.render_transport(patched.view());
+    }
+
     pub(super) fn render_live(&self) {
         let Some(live) = self.state.borrow().live.clone() else { return };
         let v = live.view();
@@ -97,14 +122,7 @@ impl Operator {
         let (title, body) = view::next_up(v);
         ui.set_up_next_title(title.into());
         ui.set_up_next_body(body.into());
-        let rows = view::transport(v);
-        let cells: Vec<TransportCell> = rows.iter().map(|r| TransportCell {
-            video: r.kind == TransportKind::Video, label: r.label.as_str().into(), paused: r.paused, percent: r.percent, time: r.time.as_str().into(),
-        }).collect();
-        let mut st = self.live.borrow_mut();
-        put_cells(&st.cells, cells);
-        st.rows = rows;
-        drop(st);
+        self.render_transport(v);
         self.render_monitor(v);
         self.render_drawing(&v.drawing, false);
         self.render_overlay_strip();

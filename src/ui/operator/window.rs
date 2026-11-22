@@ -349,7 +349,11 @@ impl Drop for Operator {
 
 /// What the follower has read and the Slint thread has not applied yet: only the newest of each.
 #[derive(Default)]
-struct Pending { snap: Option<Arc<OperatorSnapshot>>, live: Option<LiveUpdate>, timers: bool, drawing: Option<Arc<crate::live::drawing::Drawing>> }
+struct Pending {
+    snap: Option<Arc<OperatorSnapshot>>, live: Option<LiveUpdate>, timers: bool, drawing: Option<Arc<crate::live::drawing::Drawing>>,
+    /// How far a video or audio has played (`Update::Playback`): only the transport rows follow it.
+    playback: Option<LiveUpdate>,
+}
 
 /// The follower's side: reads and patches snapshots off the Slint thread and posts them to `listen`.
 struct Feed {
@@ -397,6 +401,8 @@ impl Feed {
         for u in batch {
             match u {
                 Some(Update::Live(v)) => live = Some(v),
+                // After a live view in the same batch it is that view with a newer position: it takes its place.
+                Some(Update::Playback(v)) => if live.is_some() { live = Some(v) } else { self.pending.lock().unwrap().playback = Some(v); self.wake.notify_one(); },
                 // FEAT-2: the strip reads the newest readout itself (`App::timers`).
                 Some(Update::Timers(_)) => { self.pending.lock().unwrap().timers = true; self.wake.notify_one(); }
                 // A phone drew: only the monitor's drawing and the Drawing chip follow it.
@@ -435,9 +441,10 @@ fn listen(me: Weak<Operator>, feed: Arc<Feed>) -> bool {
             feed.wake.notified().await;
             if feed.is_closed() { return }
             let Some(op) = me.upgrade() else { return };
-            let Pending { snap, live, timers, drawing } = feed.take();
+            let Pending { snap, live, timers, drawing, playback } = feed.take();
             // Live first, so the selection can fall back to the live item (`operator.js:73`).
             if let Some(v) = live { op.apply_live(v); }
+            if let Some(p) = playback { op.apply_playback(&p); }
             if let Some(s) = snap { op.apply_snapshot(s); }
             if timers { op.apply_timers(); }
             if let Some(d) = drawing { op.render_drawing(&d, false); }

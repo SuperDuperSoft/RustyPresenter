@@ -575,6 +575,8 @@ fn follow(app: Arc<App>, mut rx: tokio::sync::broadcast::Receiver<Update>, ui: s
         let update = match rx.blocking_recv() {
             Ok(Update::Drawing(_)) => { let _ = panel.send(()); continue }
             Ok(Update::Live(u)) => { let _ = panel.send(()); u }
+            // Only the time left of a video or audio moved: the same view, and the drawing panel has nothing new.
+            Ok(Update::Playback(u)) => u,
             // Settings may have a new stage layout.
             Ok(Update::Data) | Err(RecvError::Lagged(_)) => {
                 let _ = panel.send(());

@@ -32,6 +32,10 @@ macro_rules! tryr { ($e:expr) => { $e.map_err(ActionError::bad)? }; }
 #[derive(Clone, Debug)]
 pub enum Update {
     Live(LiveUpdate),
+    /// Only how far a video or audio has played changed (a player says so twice a second): the last live view
+    /// with the new play status. The operator's transport row and the stage's time left follow it; the phones, the
+    /// room and auto-follow have nothing to do.
+    Playback(LiveUpdate),
     /// Library, service, settings or windows changed: re-read `state_json`.
     Data,
     Job { id: Uuid, percent: u8 },
@@ -219,8 +223,9 @@ pub struct App {
     pub data: crate::tracked::Tracked<Data>,
     pub live: Mutex<Live>,
     pub tx: broadcast::Sender<Update>,
-    /// Held from reading a live view until it is sent, so views go out in the order they were read.
-    live_order: Mutex<()>,
+    /// Held from reading a live view until it is sent, so views go out in the order they were read. Keeps the last
+    /// one sent, which a playback report is made from (`broadcast_playback`).
+    live_order: Mutex<Option<LiveUpdate>>,
     pub port: u16,
     pub lan_url: Option<String>,
     /// Set once the windowing layer is running; windows can only be opened after that.
@@ -350,7 +355,7 @@ impl App {
         let youtube = crate::youtube::Hub::new(&store.root);
         let usage = crate::usage::Usage::open(&store.root);
         let app = Arc::new(Self {
-            store, data: crate::tracked::Tracked::new(data), live: Mutex::new(Live::new()), tx, live_order: Mutex::new(()), port, lan_url,
+            store, data: crate::tracked::Tracked::new(data), live: Mutex::new(Live::new()), tx, live_order: Mutex::new(None), port, lan_url,
             screens: OnceLock::new(), applied: Mutex::default(), pairing: Mutex::new(None), phones: Mutex::new(phones),
             attempts: Mutex::new(HashMap::new()), jobs: Mutex::new(vec![]), job_ends: Mutex::default(), cancels: Mutex::new(HashMap::new()),
             room_conns: AtomicUsize::new(0), stage_conns: AtomicUsize::new(0), stage_message: Mutex::default(), stage_only: Mutex::default(), remote_conns: AtomicUsize::new(0), net: Default::default(),
@@ -472,12 +477,31 @@ impl App {
     /// would replace the newer one in the room's `latest`, and the room would never see the slide it was asked for.
     pub fn broadcast_live(&self) {
         {
-            let _order = self.live_order.lock().unwrap();
-            let _ = self.tx.send(Update::Live(LiveUpdate::new(self.live_view())));
+            let mut last = self.live_order.lock().unwrap();
+            let update = LiveUpdate::new(self.live_view());
+            *last = Some(update.clone());
+            let _ = self.tx.send(Update::Live(update));
         }
         // Whatever moved the live slide (a click, a phone, a macro, an edit), auto-follow looks again.
         if let Some(f) = self.follower.get() { f.on_live_change() }
         self.tape_screen();
+    }
+
+    /// A player said how far it has played and nothing else changed. A whole new live view (the frame, the slides,
+    /// the next item, the sections) twice a second would make every screen and phone do its work again for
+    /// nothing: this sends the last view with the new play status, as `Update::Playback`.
+    fn broadcast_playback(&self) {
+        let mut last = self.live_order.lock().unwrap();
+        let (version, media, audio) = { let live = self.live.lock().unwrap(); (live.version, live.media_status.clone(), live.audio_status.clone()) };
+        match last.as_ref().filter(|sent| sent.view().version == version) {
+            Some(sent) => {
+                let update = LiveUpdate::new(LiveView { media, audio, ..sent.view().clone() });
+                *last = Some(update.clone());
+                let _ = self.tx.send(Update::Playback(update));
+            }
+            // Nothing sent yet, or the screen moved on since: a whole view.
+            None => { drop(last); self.broadcast_live() }
+        }
     }
 
     /// The screen as a practice tape keeps it, while one runs.
@@ -810,10 +834,11 @@ impl App {
     }
 
     pub fn room_event(&self, ev: RoomEvent) {
-        let (changed, committed) = {
+        let (changed, committed, only_position) = {
             let data = self.data.lock().unwrap();
             let mut live = self.live.lock().unwrap();
             let before = live.committed_version;
+            let only_position = live.only_position(&ev);
             let failed = matches!(ev, RoomEvent::Failed { .. });
             let ended = match &ev { RoomEvent::Media { inst, state: PlayState::Ended, .. } => Some(*inst), _ => None };
             let mut changed = live.report(ev);
@@ -827,9 +852,9 @@ impl App {
                 if !next.ok { live.retire_ended(inst); }
                 changed = true;
             }
-            (changed, live.committed_version != before)
+            (changed, live.committed_version != before, only_position)
         };
-        if changed { self.broadcast_live(); }
+        if changed { if only_position && !committed { self.broadcast_playback() } else { self.broadcast_live() } }
         if committed { self.resume_on_air(); self.save_live_state(); self.note_song_use(true); }
         if changed || committed {
             let c = committed.then(|| self.live.lock().unwrap().committed_version);
@@ -2676,6 +2701,41 @@ mod tests {
         app.set_notice("RustyPresenter restarted after a problem.");
         assert_eq!(app.live.lock().unwrap().notice.as_deref(), Some("RustyPresenter restarted after a problem."));
         assert!(matches!(rx.try_recv().unwrap(), Update::Live(_)));
+    }
+
+    /// Q6: a player's position report goes out as `Update::Playback`, with the last view and the new position; a
+    /// change of state is still a whole live view.
+    #[tokio::test]
+    async fn a_position_report_is_a_playback_update_not_a_whole_live_view() {
+        let app = test_app();
+        let id = Uuid::new_v4();
+        {
+            let mut d = app.data.lock().unwrap();
+            let media = crate::model::MediaFile { id: Uuid::new_v4(), name: "clip".into(), kind: crate::model::MediaKind::Video, asset: "clip.mp4".into(),
+                status: crate::model::MediaStatus::Ready, original_asset: None, duration: None, thumb: None, size: None, folder: String::new() };
+            d.services[0].items.push(ServiceItem { id, kind: ItemKind::Media { media_id: media.id, autoplay: true, end: crate::model::EndAction::Stop, looped: false }, background: None, notes: String::new(), theme: None });
+            d.media.push(media);
+        }
+        assert!(app.command(Envelope { id: "a".into(), base: None, cmd: Command::Show { item_id: id, slide: 0 } }).ok);
+        let inst = app.live.lock().unwrap().frame.media.as_ref().unwrap().inst;
+        let report = |state: PlayState, position: f64| app.room_event(RoomEvent::Media { inst, state, position, duration: 60.0, error: None });
+        let mut rx = app.subscribe();
+        let mut heard = || { let mut all = vec![]; while let Ok(u) = rx.try_recv() { all.push(u) } all };
+        // The first report (it started playing) is a change of state.
+        report(PlayState::Playing, 0.0);
+        assert!(matches!(heard().as_slice(), [Update::Live(v)] if v.view().media.as_ref().is_some_and(|m| m.position == 0.0)));
+        // Then only the position moves.
+        report(PlayState::Playing, 0.5);
+        report(PlayState::Playing, 1.0);
+        let updates = heard();
+        assert!(matches!(updates.as_slice(), [Update::Playback(a), Update::Playback(b)]
+            if a.view().media.as_ref().is_some_and(|m| m.position == 0.5) && b.view().media.as_ref().is_some_and(|m| m.position == 1.0 && m.duration == 60.0)), "{updates:?}");
+        let Update::Playback(last) = &updates[1] else { unreachable!() };
+        assert_eq!((last.view().version, last.view().cursor.as_ref().map(|c| c.item_id)), (app.live.lock().unwrap().version, Some(id)), "the same view otherwise");
+        assert_eq!(app.live_view().media.map(|m| m.position), Some(1.0));
+        // Paused: a change of state again.
+        report(PlayState::Paused, 1.0);
+        assert!(matches!(heard().as_slice(), [Update::Live(_)]));
     }
 
     /// P4: a screen that could not open is not saved as on.
