@@ -127,7 +127,10 @@ impl Operator {
             }
             return self.render_songs();
         }
-        let Some((media, listed)) = self.state.borrow().snap.as_ref().map(|s| (s.data.media.clone(), s.data.media_folders.clone())) else { return };
+        // The snapshot's own lists: the media list is not copied for a draw (the snapshot is shared and cannot
+        // change under it).
+        let Some(snap) = self.state.borrow().snap.clone() else { return };
+        let (media, listed) = (&snap.data.media, &snap.data.media_folders);
         let on_screen = self.bin_on_screen();
         {
             let mut b = self.bin.borrow_mut();
