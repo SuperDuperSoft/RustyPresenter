@@ -271,7 +271,13 @@ impl Operator {
                 }
             }
             let used_ahead = broadcasts.iter().any(|(_, b)| b.service == stream::Service::YouTube && !scheduled_id.is_empty() && b.id == scheduled_id);
-            if used_ahead { let _ = op.app().edit(|d| { d.settings.record.stream_scheduled.clear(); d.settings.record.stream_scheduled_link.clear(); Ok(()) }); }
+            // A save, as the stream goes live: off the window's thread, so the window never waits for the disk then.
+            if used_ahead {
+                let app = op.app().clone();
+                op.ops().blocking(move || app.edit(|d| { d.settings.record.stream_scheduled.clear(); d.settings.record.stream_scheduled_link.clear(); Ok(()) }), |saved| {
+                    if let Some(Err(e)) = saved { eprintln!("stream: could not clear the scheduled stream: {e}") }
+                });
+            }
             *op.record.broadcasts.borrow_mut() = broadcasts;
             if live && addresses.is_empty() && !ndi_only && plan.is_ok() { return op.toast(stream::tr::nothing_ready(), true) }
             if live {
@@ -591,7 +597,10 @@ impl Operator {
         let noted = self.state.borrow().snap.as_ref().is_some_and(|s| s.settings.record.licence_noted);
         if noted { return }
         super::super::dialogs::ask::notice(self, &stream::tr::licence_note());
-        if let Err(e) = self.app().edit_untracked(|d| { d.settings.record.licence_noted = true; Ok(()) }) { eprintln!("go live: could not keep the licence note's mark: {e}") }
+        let app = self.app().clone();
+        self.ops().blocking(move || app.edit_untracked(|d| { d.settings.record.licence_noted = true; Ok(()) }), |saved| {
+            if let Some(Err(e)) = saved { eprintln!("go live: could not keep the licence note's mark: {e}") }
+        });
     }
 
     /// Go Live with a camera: says when its pictures stop (the stream shows the slides meanwhile) and when they
@@ -647,7 +656,10 @@ impl Operator {
             // The processor's encoder, chosen by the app: next time the graphics card's encoder is tried first.
             Some(record::slow::Say::TooSlow) if self.record.encoder_auto.get() && *self.record.encoder.borrow() == "libx264" => {
                 self.toast(format!("{} {}", record::tr::too_slow(), record::tr::too_slow_next_time()), true);
-                if let Err(e) = self.app().edit_untracked(|d| { d.settings.record.x264_too_slow = true; Ok(()) }) { eprintln!("recording: could not keep that x264 is too slow here: {e}") }
+                let app = self.app().clone();
+                self.ops().blocking(move || app.edit_untracked(|d| { d.settings.record.x264_too_slow = true; Ok(()) }), |saved| {
+                    if let Some(Err(e)) = saved { eprintln!("recording: could not keep that x264 is too slow here: {e}") }
+                });
             }
             Some(record::slow::Say::TooSlow) => self.toast(record::tr::too_slow(), true),
             Some(record::slow::Say::Smooth) => self.toast(record::tr::smooth_again(), false),

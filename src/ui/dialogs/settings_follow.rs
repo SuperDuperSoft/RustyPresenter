@@ -152,8 +152,16 @@ pub(super) fn load(op: &Rc<Operator>) {
     g.on_order_learn(move || if let Some(op) = me.upgrade() { order_learn(&op) });
     let me = Rc::downgrade(op);
     g.on_order_forget(move || if let Some(op) = me.upgrade() {
-        let said = match op.app().forget_orders() { Ok(_) => crate::tr!("Forgotten. Auto-follow expects every song in the order of its slides."), Err(e) => e };
-        order_show(&op, Some(said));
+        // A save: off the window's thread.
+        let (app, me) = (op.app().clone(), Rc::downgrade(&op));
+        op.ops().blocking(move || app.forget_orders(), move |done| if let Some(op) = me.upgrade() {
+            let said = match done {
+                Some(Ok(_)) => crate::tr!("Forgotten. Auto-follow expects every song in the order of its slides."),
+                Some(Err(e)) => e,
+                None => crate::ui::operator::strings::action_stopped(),
+            };
+            order_show(&op, Some(said));
+        });
     });
     order_show(op, None);
     let me = Rc::downgrade(op);
@@ -194,18 +202,23 @@ fn order_show(op: &Operator, said: Option<String>) {
     }.into());
 }
 
-/// "Learn from the last recording": the order each song on the newest tape was sung in (`App::learn_orders`).
+/// "Learn from the last recording": the order each song on the newest tape was sung in (`App::learn_orders`). It
+/// reads the whole tape (a line for every tenth of a second of the rehearsal) and saves, so off the window's thread.
 fn order_learn(op: &Rc<Operator>) {
     let Some(dir) = tape::tapes(&tape_root(op)).into_iter().next() else { return };
-    let said = match op.app().learn_orders(&dir) {
-        Ok(songs) if songs.is_empty() => crate::tr!("Nothing to learn: no song on the recording was sung over two slides or more."),
-        Ok(songs) => {
-            let list = songs.iter().map(|(title, order)| format!("{title} ({})", crate::follow::order::spoken(order))).collect::<Vec<_>>().join("; ");
-            crate::tr!("Learned: {songs}", songs = list)
-        }
-        Err(e) => crate::tr!("Can't read the recording: {error}", error = e),
-    };
-    order_show(op, Some(said));
+    let (app, me) = (op.app().clone(), Rc::downgrade(op));
+    op.ops().blocking(move || app.learn_orders(&dir), move |done| if let Some(op) = me.upgrade() {
+        let said = match done {
+            Some(Ok(songs)) if songs.is_empty() => crate::tr!("Nothing to learn: no song on the recording was sung over two slides or more."),
+            Some(Ok(songs)) => {
+                let list = songs.iter().map(|(title, order)| format!("{title} ({})", crate::follow::order::spoken(order))).collect::<Vec<_>>().join("; ");
+                crate::tr!("Learned: {songs}", songs = list)
+            }
+            Some(Err(e)) => crate::tr!("Can't read the recording: {error}", error = e),
+            None => crate::ui::operator::strings::action_stopped(),
+        };
+        order_show(&op, Some(said));
+    });
 }
 
 /// Start recording, or stop. Starting listens to the sound input (FFmpeg), so off the UI thread.
