@@ -1331,6 +1331,9 @@ impl App {
         ScreenGuard { app: Arc::downgrade(self), role: role.into() }
     }
 
+    /// The whole state as the web operator page once read it (`/api/state`, long gone). No route serves it and
+    /// nothing in the app asks for it: it is kept for the tests that read the state through it.
+    #[cfg(test)]
     pub fn state_json(&self) -> Value {
         let data = self.data.lock().unwrap();
         let items: Vec<Value> = data.service().map(|s| s.items.iter().map(|i| {
