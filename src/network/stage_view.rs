@@ -3,7 +3,7 @@
 //! with a password, `/stage-view/login` sets a sign-in cookie (only its hash is kept, in memory).
 use super::{password, slide_pictures::{self, Which}, strings as s};
 use crate::{
-    app::App,
+    app::{App, LiveUpdate, Update},
     model::{Slide, SlideContent},
     stage::{self, Align, ElementKind, VAlign, StageState, view::{self, CellContent, StageInputs}},
 };
@@ -135,16 +135,24 @@ fn stage_sign_in(app: &App, verified_hash: &str) -> Response {
 }
 
 /// The stage as the stage window would draw it now, as JSON for `stage-view.js`.
-pub fn stage_json(app: &App, state: &mut StageState) -> Value {
-    let live = app.live_view();
+pub fn stage_json(app: &App, state: &mut StageState) -> Value { stage_json_of(app, state, &app.live_view()).0 }
+
+/// `stage_json` for a live view already in hand (the one an update carried, so none is built again), and whether
+/// the layout shows the time: a clock or a timer, which a view draws again every second.
+fn stage_json_of(app: &App, state: &mut StageState, live: &crate::app::LiveView) -> (Value, bool) {
     let timers = app.timers();
     let layout = {
         let d = app.data.lock().unwrap();
         stage::active_layout(&d.stage_layouts, None, None, Some(d.settings.stage.layout)).clone()
     };
-    let slides = app.live.lock().unwrap().item.as_ref().map(|i| i.slides.clone()).unwrap_or_default();
+    let shows_time = layout.elements.iter().filter_map(|e| e.known()).any(|e| matches!(e.kind, ElementKind::Clock { .. } | ElementKind::Timer { .. }));
     state.track_timers(&timers);
-    let v = view::build(&StageInputs { live: &live, slides: &slides, timers: &timers, state, now: chrono::Local::now().time() }, &layout);
+    let v = {
+        // The live item's slides are read where they are (the lock is held for the layout, which waits for nothing).
+        let held = app.live.lock().unwrap();
+        let slides: &[Slide] = held.item.as_ref().map_or(&[], |i| i.slides.as_slice());
+        view::build(&StageInputs { live, slides, timers: &timers, state, now: chrono::Local::now().time() }, &layout)
+    };
     // A picture slide (PowerPoint, PDF) or a designed slide shows as its picture: the live one or the next one.
     let drawn = |s: &Slide, content: &CellContent| matches!(content, CellContent::Picture { .. }) || matches!(s.content, SlideContent::Design { .. });
     let on_air = live.frame.slide.is_some() || live.frame.media.is_some();
@@ -183,26 +191,49 @@ pub fn stage_json(app: &App, state: &mut StageState) -> Value {
         if let (Value::Object(c), Value::Object(e)) = (&mut cell, extra) { c.extend(e) }
         Some(cell)
     }).collect();
-    json!({ "type": "stage", "background": v.background, "cells": cells, "banner": v.message_fallback, "follow": v.follow_line, "version": live.version })
+    (json!({ "type": "stage", "background": v.background, "cells": cells, "banner": v.message_fallback, "follow": v.follow_line, "version": live.version }), shows_time)
 }
 
-/// Live stage updates: a new view when anything changes and once a second for the clock and timers, sent only
-/// when it differs. The stream ends when the stage view is turned off or this sign-in is gone.
+/// What an update means for a stage view that holds `live`: whether to draw the stage again. A live view the
+/// update carried replaces `live`; import progress and lines drawn on the slide are not on the stage view.
+fn takes(update: Result<Update, tokio::sync::broadcast::error::RecvError>, live: &mut LiveUpdate, app: &App) -> Option<bool> {
+    use tokio::sync::broadcast::error::RecvError;
+    Some(match update {
+        Ok(Update::Live(v) | Update::Playback(v)) => { *live = v; true }
+        Ok(Update::Job { .. } | Update::Drawing(_)) => false,
+        // The data (a new stage layout), a timer readout, a phone taken off the list.
+        Ok(_) => true,
+        // Fell behind: the view as it is now.
+        Err(RecvError::Lagged(_)) => { *live = LiveUpdate::new(app.live_view()); true }
+        Err(RecvError::Closed) => return None,
+    })
+}
+
+/// Live stage updates: a new view when something it shows changes, and once a second while the layout shows a
+/// clock or a timer; sent only when it differs. The live view comes from the update itself (none is built per
+/// phone). The stream ends when the stage view is turned off or this sign-in is gone.
 async fn events(State(app): State<Arc<App>>, headers: HeaderMap) -> Response {
     if !allowed(&app, &headers) { return StatusCode::UNAUTHORIZED.into_response() }
+    // Subscribed before the first view is read, so no update between the two is missed.
     let rx = app.subscribe();
+    let live = LiveUpdate::new(app.live_view());
     let tick = tokio::time::interval(Duration::from_secs(1));
-    let s = stream::unfold((app, headers, rx, tick, StageState::default(), String::new()), |(app, headers, mut rx, mut tick, mut state, mut last)| async move {
+    // The first tick comes at once and draws the first view; after that a tick draws only while time shows.
+    let start = (app, headers, rx, tick, StageState::default(), String::new(), live, true);
+    let s = stream::unfold(start, |(app, headers, mut rx, mut tick, mut state, mut last, mut live, mut shows_time)| async move {
         loop {
-            tokio::select! {
-                _ = tick.tick() => {}
-                r = rx.recv() => if matches!(r, Err(tokio::sync::broadcast::error::RecvError::Closed)) { return None },
-            }
+            let draw = tokio::select! {
+                _ = tick.tick() => shows_time,
+                r = rx.recv() => takes(r, &mut live, &app)?,
+            };
+            if !draw { continue }
             if !allowed(&app, &headers) { return None }
-            let out = stage_json(&app, &mut state).to_string();
+            let (view, time) = stage_json_of(&app, &mut state, live.view());
+            shows_time = time;
+            let out = view.to_string();
             if out != last {
                 last.clone_from(&out);
-                return Some((Ok::<_, std::convert::Infallible>(Event::default().data(out)), (app, headers, rx, tick, state, last)));
+                return Some((Ok::<_, std::convert::Infallible>(Event::default().data(out)), (app, headers, rx, tick, state, last, live, shows_time)));
             }
         }
     });
@@ -229,6 +260,29 @@ async fn live_picture(State(app): State<Arc<App>>, headers: HeaderMap, Query(q):
 mod tests {
     use super::*;
     use crate::app::test_app;
+
+    /// Q7: a stage view takes the live view an update carries, and draws nothing for import progress or drawing.
+    #[test]
+    fn a_stage_view_draws_again_only_for_what_it_shows() {
+        use tokio::sync::broadcast::error::RecvError;
+        let app = test_app();
+        let mut live = LiveUpdate::new(app.live_view());
+        assert_eq!(takes(Ok(Update::Job { id: uuid::Uuid::new_v4(), percent: 40 }), &mut live, &app), Some(false));
+        assert_eq!(takes(Ok(Update::Drawing(Default::default())), &mut live, &app), Some(false));
+        assert_eq!(takes(Ok(Update::Data), &mut live, &app), Some(true), "the layout may be another one");
+        assert_eq!(takes(Ok(Update::Timers(app.timers())), &mut live, &app), Some(true));
+        // A live view, or a playback report, is the view from then on.
+        let mut newer = app.live_view();
+        newer.version = 41;
+        assert_eq!(takes(Ok(Update::Playback(LiveUpdate::new(newer.clone()))), &mut live, &app), Some(true));
+        assert_eq!(live.view().version, 41);
+        newer.version = 42;
+        assert_eq!(takes(Ok(Update::Live(LiveUpdate::new(newer))), &mut live, &app), Some(true));
+        assert_eq!(live.view().version, 42);
+        assert_eq!(takes(Err(RecvError::Lagged(9)), &mut live, &app), Some(true));
+        assert_eq!(live.view().version, app.live_view().version, "after falling behind: the view as it is now");
+        assert_eq!(takes(Err(RecvError::Closed), &mut live, &app), None);
+    }
     use axum::http::HeaderValue;
 
     fn turn_on(app: &App, pw: Option<&str>) {
