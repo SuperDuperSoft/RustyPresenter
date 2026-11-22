@@ -9,7 +9,6 @@ use rustypresenter::{
     store::Store,
     ui::stage::Stage,
 };
-use slint::ComponentHandle;
 use std::time::Duration;
 use uuid::Uuid;
 

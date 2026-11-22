@@ -1,6 +1,6 @@
 [package]
 name = "rp-ui"
-version = "0.5.5"
+version = "0.5.6"
 edition = "2024"
 description = "RustyPresenter's screens: the code Slint makes from ui/app.slint, in its own crate so it builds apart from the app"
 publish = false
