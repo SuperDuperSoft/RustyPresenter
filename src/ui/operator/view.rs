@@ -15,6 +15,12 @@ use uuid::Uuid;
 /// `notes`: what the operator should know about the item's slides (a passage's missing verses), shown under the grid.
 pub struct ItemRow { pub id: Uuid, pub kind: String, pub title: String, pub subtitle: String, pub slides: Vec<Slide>, pub item: ServiceItem, pub notes: Vec<String> }
 
+/// One library song as the song lists show it (the Add dialog and the bottom pane's Songs tab). Made where the
+/// snapshot is read, off the window's thread, and again only when the songs changed. `key` is what a search looks
+/// in: the title, writers, CCLI number, copyright and words, in lower case.
+#[derive(Clone, Debug, PartialEq)]
+pub struct SongRow { pub id: slint::SharedString, pub title: slint::SharedString, pub subtitle: slint::SharedString, pub key: slint::SharedString }
+
 /// The room pill: showing, opened but not drawing yet, or not open.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum RoomStatus { Showing, Starting, Off }
@@ -73,6 +79,8 @@ pub struct OperatorSnapshot {
     pub service_name: String,
     /// Shared with the read before when the data did not change in between (`read_after`).
     pub items: Arc<Vec<ItemRow>>,
+    /// The library's songs by title, for the song lists. Shared with the read before when the songs are the same.
+    pub songs: Arc<Vec<SongRow>>,
     pub translations: Vec<String>,
     pub available: Vec<String>,
     pub translation: String,
@@ -155,12 +163,18 @@ impl OperatorSnapshot {
                 ItemRow { id: i.id, kind: kind.into(), title, subtitle: String::new(), slides, item: i.clone(), notes }
             }).collect()).unwrap_or_default()),
         };
+        // The song rows hold every song's words as its search key: made again only when a song changed.
+        let songs = match (kept, before.filter(|b| b.lang == lang && b.data.songs == data.songs)) {
+            (Some(b), _) | (None, Some(b)) => b.songs.clone(),
+            (None, None) => Arc::new(crate::ui::dialogs::add::song_rows(&data.songs)),
+        };
         // One lock: both in the struct below would hold the first until the end of the statement.
         let (can_undo, can_redo) = { let h = app.history.lock().unwrap(); (h.can_undo(), h.can_redo()) };
         let mut snap = Self {
             service_id: data.service().map(|s| s.id),
             service_name: data.service().map_or_else(tr::service, |s| s.name.clone()).into(),
             items,
+            songs,
             translations,
             available,
             translation,
@@ -470,7 +484,7 @@ mod tests {
         // A job's label, a phone's page connecting: no data changed.
         app.broadcast_data();
         let second = OperatorSnapshot::read_after(&app, Some(&first));
-        assert!(Arc::ptr_eq(&first.data, &second.data) && Arc::ptr_eq(&first.items, &second.items), "shared, not copied");
+        assert!(Arc::ptr_eq(&first.data, &second.data) && Arc::ptr_eq(&first.items, &second.items) && Arc::ptr_eq(&first.songs, &second.songs), "shared, not copied");
         assert!(second.read > first.read && second.same_status(&first));
         // An edit is read again.
         app.edit(|d| { d.settings.translation = "WEB".into(); Ok(()) }).unwrap();
@@ -481,11 +495,23 @@ mod tests {
         app.data.lock().unwrap().settings.translation = "KJV".into();
         let fourth = OperatorSnapshot::read_after(&app, Some(&third));
         assert_eq!(fourth.data.settings.translation, "KJV");
+        assert!(Arc::ptr_eq(&third.songs, &fourth.songs), "the songs are the same, so their rows are kept");
         // What is not in the data still follows: a newly paired phone.
         app.phones.lock().unwrap().push(crate::app::Phone { id: Uuid::new_v4(), name: "iPad".into(), hash: String::new(), last_seen: 0, may_draw: true });
         let fifth = OperatorSnapshot::read_after(&app, Some(&fourth));
         assert!(Arc::ptr_eq(&fourth.data, &fifth.data), "the data is still shared");
         assert!(!fifth.same_status(&fourth) && fifth.phones_list.len() == 1, "and the dialogs hear of the phone");
+        // Q1: a new song makes new rows, sorted by title, each with its words to search in.
+        app.edit(|d| {
+            d.songs.push(crate::model::Song { title: "Zion".into(), writers: "Ann Lee".into(), lyrics: "Verse 1\nOn the HILL".into(), ..Default::default() });
+            d.songs.push(crate::model::Song { title: "abide with me".into(), ccli: "22222".into(), ..Default::default() });
+            Ok(())
+        }).unwrap();
+        let sixth = OperatorSnapshot::read_after(&app, Some(&fifth));
+        assert!(!Arc::ptr_eq(&fifth.songs, &sixth.songs));
+        assert_eq!(sixth.songs.iter().map(|s| s.title.as_str()).collect::<Vec<_>>(), ["abide with me", "Zion"]);
+        assert!(sixth.songs[1].key.contains("on the hill") && sixth.songs[1].key.contains("ann lee") && sixth.songs[0].key.contains("22222"));
+        assert!(!sixth.songs[1].key.contains('{'), "the words, not the song's JSON");
     }
     use crate::{
         app::{LiveItemSummary, NextUp},

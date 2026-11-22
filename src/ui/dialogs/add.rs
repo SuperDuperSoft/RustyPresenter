@@ -99,7 +99,7 @@ fn draw_list(op: &Rc<Operator>, ctx: &AddCtx) {
     let st = op.ui.global::<AddState>();
     show_bible(op, ctx);
     let (rows, placeholder, pictures) = match tab {
-        AddTab::Song => (song_rows(&snap.data.songs), tr::search_songs(snap.data.songs.len()), Vec::new()),
+        AddTab::Song => (add_rows(&snap.songs), tr::search_songs(snap.songs.len()), Vec::new()),
         AddTab::Media | AddTab::Deck => super::add_media::rows(&snap, tab),
         AddTab::Scripture | AddTab::Text => (Vec::new(), String::new(), Vec::new()),
     };
@@ -160,17 +160,24 @@ pub(crate) fn search_key(x: &impl serde::Serialize) -> slint::SharedString {
     serde_json::to_string(x).unwrap_or_default().to_lowercase().into()
 }
 
-pub(crate) fn song_rows(songs: &[Song]) -> Vec<AddRow> {
-    let mut sorted: Vec<&Song> = songs.iter().collect();
-    sorted.sort_by_cached_key(|song| song.title.to_lowercase());
-    sorted.into_iter().map(song_row).collect()
+/// What a search for a song looks in: its title, writers, CCLI number, copyright and words, in lower case.
+pub(crate) fn song_key(s: &Song) -> slint::SharedString {
+    [s.title.as_str(), s.writers.as_str(), s.ccli.as_str(), s.copyright.as_str(), s.lyrics.as_str()].join("\n").to_lowercase().into()
 }
 
-fn song_row(s: &Song) -> AddRow {
-    AddRow {
-        id: s.id.to_string().into(), title: s.title.as_str().into(), subtitle: song_subtitle(s).into(), icon: "song".into(),
-        can_edit: true, key: search_key(s), ..Default::default()
-    }
+/// The library's songs by title, as the song lists show them. Every song's words go into its row, so this is
+/// made where the snapshot is read (`OperatorSnapshot::read_after`), never on the window's thread.
+pub(crate) fn song_rows(songs: &[Song]) -> Vec<crate::ui::operator::view::SongRow> {
+    let mut sorted: Vec<&Song> = songs.iter().collect();
+    sorted.sort_by_cached_key(|song| song.title.to_lowercase());
+    sorted.into_iter().map(|s| crate::ui::operator::view::SongRow { id: s.id.to_string().into(), title: s.title.as_str().into(), subtitle: song_subtitle(s).into(), key: song_key(s) }).collect()
+}
+
+/// The snapshot's song rows as list rows: each text is shared with the snapshot, not copied.
+pub(crate) fn add_rows(songs: &[crate::ui::operator::view::SongRow]) -> Vec<AddRow> {
+    songs.iter().map(|s| AddRow {
+        id: s.id.clone(), title: s.title.clone(), subtitle: s.subtitle.clone(), icon: "song".into(), can_edit: true, key: s.key.clone(), ..Default::default()
+    }).collect()
 }
 
 /// `[writers, ccli && "CCLI #n"].filter(Boolean).join(' · ') || firstLyric(s)` (`operator.js:421`).
@@ -405,7 +412,7 @@ pub(crate) mod tests {
         let one = op.ui.global::<AddState>();
         one.invoke_search_edited("22222".into());
         assert_eq!(titles(&op), ["abide with me"], "the CCLI number is a field too");
-        assert_eq!(search_key(&app.data.lock().unwrap().songs[0]).contains("newton"), true);
+        assert_eq!(song_key(&app.data.lock().unwrap().songs[0]).contains("newton"), true);
     }
 
     #[test]

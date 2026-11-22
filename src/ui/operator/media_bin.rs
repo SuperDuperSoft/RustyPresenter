@@ -24,6 +24,8 @@ pub struct BinState {
     pub(super) query: String,
     song_query: String,
     songs: Vec<AddRow>,
+    /// The snapshot's song rows `songs` was made from: the same ones again are not made into rows again.
+    songs_from: Option<std::sync::Arc<Vec<crate::ui::operator::view::SongRow>>>,
     pub(super) picked: Option<Uuid>,
     images: HashMap<AssetId, Image>,
     on_screen: Option<AssetId>,
@@ -116,7 +118,13 @@ impl Operator {
     pub(super) fn render_media(&self) {
         if self.bin.borrow().tab == SONGS {
             let Some(snap) = self.state.borrow().snap.clone() else { return };
-            self.bin.borrow_mut().songs = add::song_rows(&snap.data.songs);
+            {
+                let mut bin = self.bin.borrow_mut();
+                if !bin.songs_from.as_ref().is_some_and(|from| std::sync::Arc::ptr_eq(from, &snap.songs)) {
+                    bin.songs = add::add_rows(&snap.songs);
+                    bin.songs_from = Some(snap.songs.clone());
+                }
+            }
             return self.render_songs();
         }
         let Some((media, listed)) = self.state.borrow().snap.as_ref().map(|s| (s.data.media.clone(), s.data.media_folders.clone())) else { return };
