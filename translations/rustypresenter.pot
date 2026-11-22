@@ -7225,7 +7225,7 @@ msgstr ""
 msgid "The plural rule is not right. Copy it from the gettext plural list."
 msgstr ""
 
-#: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
+#: src/import/chordpro.rs src/import/openlyrics.rs
 msgid "Untitled song"
 msgstr ""
 
@@ -7233,108 +7233,12 @@ msgstr ""
 msgid "more than {max} sections, so it isn't a song"
 msgstr ""
 
-#: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/opensong.rs
 msgid "no words"
 msgstr ""
 
 #: src/import/chordpro.rs
 msgid "a {block} block never ends, so everything after it was left out"
-msgstr ""
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "the file is too big to be a song"
-msgstr ""
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "couldn't read it: {error}"
-msgstr ""
-
-#: src/import/chordpro.rs
-msgid "it doesn't look like a ChordPro file"
-msgstr ""
-
-#: src/import/chordpro.rs
-msgid "no songs in it"
-msgstr ""
-
-#: src/import/chordpro.rs
-msgid "No songs could be read from {path}: {why}."
-msgstr ""
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "Couldn't find {path}."
-msgstr ""
-
-#: src/import/chordpro.rs
-msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
-msgstr ""
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
-msgstr ""
-
-#: src/import/common.rs
-msgid "Couldn't read {path}: {error}."
-msgstr ""
-
-#: src/import/common.rs
-msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
-msgstr ""
-
-#: src/import/common.rs
-msgid "Couldn't make a temporary folder: {error}."
-msgstr ""
-
-#: src/import/common.rs
-msgid "Couldn't copy {path}: {error}."
-msgstr ""
-
-#: src/import/common.rs
-msgid "Couldn't open {path}: {error}."
-msgstr ""
-
-#: src/import/common.rs
-msgid "the database stayed locked"
-msgstr ""
-
-#: src/import/common.rs
-msgid "{path} is empty or damaged, so there is nothing to import."
-msgstr ""
-
-#: src/import/easyworship.rs
-msgid "no words (probably a video or announcement item)"
-msgstr ""
-
-#: src/import/easyworship.rs src/import/openlp.rs
-msgid "the words are empty"
-msgstr ""
-
-#: src/import/easyworship.rs
-msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
-msgstr ""
-
-#: src/import/easyworship.rs
-msgid "Found Songs.db but not SongWords.db next to it in {folder}."
-msgstr ""
-
-#: src/import/easyworship.rs
-msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
-msgstr ""
-
-#: src/import/easyworship.rs
-msgid "Couldn't read the EasyWorship library: {error}"
-msgstr ""
-
-#: src/import/easyworship.rs
-msgid "Songs.db has no song table. Is this an EasyWorship library?"
-msgstr ""
-
-#: src/import/easyworship.rs
-msgid "SongWords.db has no word table. Is this an EasyWorship library?"
-msgstr ""
-
-#: src/import/openlp.rs
-msgid "the words are not valid XML ({error})"
 msgstr ""
 
 #: src/import/openlp.rs
@@ -7347,30 +7251,6 @@ msgstr ""
 
 #: src/import/openlp.rs
 msgid "the words have no verses"
-msgstr ""
-
-#: src/import/openlp.rs
-msgid "a temporary copy OpenLP keeps for a service file"
-msgstr ""
-
-#: src/import/openlp.rs
-msgid "This file isn't an OpenLP song database (songs.sqlite)."
-msgstr ""
-
-#: src/import/openlp.rs
-msgid "Couldn't open the OpenLP database."
-msgstr ""
-
-#: src/import/openlp.rs
-msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
-msgstr ""
-
-#: src/import/openlp.rs
-msgid "Couldn't read the OpenLP database: {error}"
-msgstr ""
-
-#: src/import/openlp.rs
-msgid "This isn't an OpenLP song database: it has no songs table."
 msgstr ""
 
 #: src/import/openlyrics.rs
@@ -7387,26 +7267,6 @@ msgstr ""
 
 #: src/import/openlyrics.rs
 msgid "it isn't an OpenLyrics song"
-msgstr ""
-
-#: src/import/openlyrics.rs
-msgid "not XML"
-msgstr ""
-
-#: src/import/openlyrics.rs
-msgid "it isn't an OpenLyrics or OpenSong song"
-msgstr ""
-
-#: src/import/openlyrics.rs src/import/propresenter.rs
-msgid "no song in it"
-msgstr ""
-
-#: src/import/openlyrics.rs src/import/propresenter.rs
-msgid "No song could be read from {path}: {why}."
-msgstr ""
-
-#: src/import/openlyrics.rs
-msgid "No OpenLyrics or OpenSong songs were found in {path}."
 msgstr ""
 
 #: src/import/opensong.rs
@@ -7461,10 +7321,6 @@ msgstr ""
 
 #: src/import/propresenter.rs
 msgid "it isn't a ProPresenter 6 song"
-msgstr ""
-
-#: src/import/propresenter.rs
-msgid "No ProPresenter songs were found in {path}."
 msgstr ""
 
 #: src/live/drawing/actions.rs
@@ -7679,6 +7535,14 @@ msgstr ""
 
 #: src/network/phone_link.rs
 msgid "Type the remote's password (set in RustyPresenter's Settings → Remote and network)."
+msgstr ""
+
+#: src/network/slide_pictures.rs
+msgid "The computer is busy. Try again in a moment."
+msgstr ""
+
+#: src/network/slide_pictures.rs src/server.rs
+msgid "Could not draw the slide."
 msgstr ""
 
 #: src/platform/data_folder.rs
@@ -7957,10 +7821,6 @@ msgstr ""
 msgid "Not allowed from the phone."
 msgstr ""
 
-#: src/server.rs
-msgid "Could not draw the slide."
-msgstr ""
-
 #: src/server.rs src/strings/add.rs src/strings/print.rs
 msgid "{n} slide"
 msgid_plural "{n} slides"
@@ -8195,6 +8055,32 @@ msgstr ""
 
 #: src/startup.rs
 msgid "Cannot use the data folder {path}: {reason}"
+msgstr ""
+
+#: src/startup.rs
+msgid ""
+"Your saved songs and services could not be read.\n"
+"\n"
+"Start with the newest backup, made {when}?\n"
+"\n"
+"The file that could not be read is kept as {name}. Choose No to close RustyPresenter and change nothing.\n"
+"\n"
+"({problem})"
+msgstr ""
+
+#: src/startup.rs
+msgid "Started from the backup made {when}. The file that could not be read is kept as {name}."
+msgstr ""
+
+#: src/startup.rs
+msgid ""
+"{problem}\n"
+"\n"
+"The newest backup could not be used either: {reason}"
+msgstr ""
+
+#: src/startup.rs
+msgid "The automatic backup could not be made: {reason}"
 msgstr ""
 
 #: src/store.rs
@@ -9001,26 +8887,6 @@ msgstr ""
 msgid "Copied"
 msgstr ""
 
-#: src/strings/add.rs src/strings/bundle.rs
-msgid "…and {n} more."
-msgstr ""
-
-#: src/strings/add.rs
-msgid "Imported {n} song."
-msgid_plural "Imported {n} songs."
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/strings/add.rs
-msgid "{n} already in the library: {titles}"
-msgid_plural "{n} already in the library: {titles}"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/strings/add.rs
-msgid "Not imported:"
-msgstr ""
-
 #: src/strings/add.rs
 msgid "LibreOffice found!"
 msgstr ""
@@ -9393,6 +9259,10 @@ msgstr ""
 
 #: src/strings/bundle.rs
 msgid "This service was not saved, because something it needs is missing:"
+msgstr ""
+
+#: src/strings/bundle.rs
+msgid "…and {n} more."
 msgstr ""
 
 #: src/strings/bundle.rs

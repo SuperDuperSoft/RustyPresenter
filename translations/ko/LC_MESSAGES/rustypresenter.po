@@ -7234,7 +7234,7 @@ msgstr "{language}은(는) 이미 목록에 있어요."
 msgid "The plural rule is not right. Copy it from the gettext plural list."
 msgstr "복수형 규칙이 올바르지 않아요. gettext 복수형 목록에서 복사하세요."
 
-#: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
+#: src/import/chordpro.rs src/import/openlyrics.rs
 msgid "Untitled song"
 msgstr "제목 없는 찬양"
 
@@ -7242,109 +7242,13 @@ msgstr "제목 없는 찬양"
 msgid "more than {max} sections, so it isn't a song"
 msgstr "섹션이 {max}개를 넘어서 찬양이 아니에요"
 
-#: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/opensong.rs
 msgid "no words"
 msgstr "가사 없음"
 
 #: src/import/chordpro.rs
 msgid "a {block} block never ends, so everything after it was left out"
 msgstr "{block} 블록이 끝나지 않아서 그 뒤의 내용은 모두 빠졌어요"
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "the file is too big to be a song"
-msgstr "찬양 파일이라기엔 너무 커요"
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "couldn't read it: {error}"
-msgstr "읽지 못했어요: {error}"
-
-#: src/import/chordpro.rs
-msgid "it doesn't look like a ChordPro file"
-msgstr "ChordPro 파일이 아닌 것 같아요"
-
-#: src/import/chordpro.rs
-msgid "no songs in it"
-msgstr "찬양이 없어요"
-
-#: src/import/chordpro.rs
-msgid "No songs could be read from {path}: {why}."
-msgstr "{path}에서 찬양을 읽지 못했어요: {why}."
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "Couldn't find {path}."
-msgstr "{path}을(를) 찾지 못했어요."
-
-#: src/import/chordpro.rs
-msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
-msgstr "{path}에서 ChordPro 파일(.cho, .chordpro, .chopro, .crd, .pro)을 찾지 못했어요."
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
-msgstr "폴더에 파일과 폴더가 {max}개를 넘어서 처음 {max}개만 확인했어요"
-
-#: src/import/common.rs
-msgid "Couldn't read {path}: {error}."
-msgstr "{path}을(를) 읽지 못했어요: {error}."
-
-#: src/import/common.rs
-msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
-msgstr "라이브러리를 읽는 동안 {app}이(가) 계속 변경 내용을 저장했어요. {app}을(를) 닫고 다시 시도하세요."
-
-#: src/import/common.rs
-msgid "Couldn't make a temporary folder: {error}."
-msgstr "임시 폴더를 만들지 못했어요: {error}."
-
-#: src/import/common.rs
-msgid "Couldn't copy {path}: {error}."
-msgstr "{path}을(를) 복사하지 못했어요: {error}."
-
-#: src/import/common.rs
-msgid "Couldn't open {path}: {error}."
-msgstr "{path}을(를) 열지 못했어요: {error}."
-
-#: src/import/common.rs
-msgid "the database stayed locked"
-msgstr "데이터베이스가 계속 잠겨 있었어요"
-
-#: src/import/common.rs
-msgid "{path} is empty or damaged, so there is nothing to import."
-msgstr "{path}이(가) 비어 있거나 손상되어서 가져올 내용이 없어요."
-
-#: src/import/easyworship.rs
-msgid "no words (probably a video or announcement item)"
-msgstr "가사 없음(아마 동영상이나 광고 항목)"
-
-#: src/import/easyworship.rs src/import/openlp.rs
-msgid "the words are empty"
-msgstr "가사가 비어 있어요"
-
-#: src/import/easyworship.rs
-msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
-msgstr "EasyWorship 2009(또는 그 이전) 라이브러리 같아요. EasyWorship 6과 7 라이브러리만 가져올 수 있어요."
-
-#: src/import/easyworship.rs
-msgid "Found Songs.db but not SongWords.db next to it in {folder}."
-msgstr "{folder}에서 Songs.db는 찾았지만 옆에 SongWords.db가 없어요."
-
-#: src/import/easyworship.rs
-msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
-msgstr "여기에 EasyWorship Songs.db가 없어요. 프로필의 Databases\\Data 폴더를 선택하세요(보통 C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
-
-#: src/import/easyworship.rs
-msgid "Couldn't read the EasyWorship library: {error}"
-msgstr "EasyWorship 라이브러리를 읽지 못했어요: {error}"
-
-#: src/import/easyworship.rs
-msgid "Songs.db has no song table. Is this an EasyWorship library?"
-msgstr "Songs.db에 찬양 테이블이 없어요. EasyWorship 라이브러리가 맞나요?"
-
-#: src/import/easyworship.rs
-msgid "SongWords.db has no word table. Is this an EasyWorship library?"
-msgstr "SongWords.db에 가사 테이블이 없어요. EasyWorship 라이브러리가 맞나요?"
-
-#: src/import/openlp.rs
-msgid "the words are not valid XML ({error})"
-msgstr "가사가 올바른 XML이 아니에요({error})"
 
 #: src/import/openlp.rs
 msgid "the words have too many verses (more than {max})"
@@ -7357,30 +7261,6 @@ msgstr "찬양 가사라기엔 너무 길어요"
 #: src/import/openlp.rs
 msgid "the words have no verses"
 msgstr "가사에 절이 없어요"
-
-#: src/import/openlp.rs
-msgid "a temporary copy OpenLP keeps for a service file"
-msgstr "OpenLP가 예배 파일용으로 보관하는 임시 사본"
-
-#: src/import/openlp.rs
-msgid "This file isn't an OpenLP song database (songs.sqlite)."
-msgstr "이 파일은 OpenLP 찬양 데이터베이스(songs.sqlite)가 아니에요."
-
-#: src/import/openlp.rs
-msgid "Couldn't open the OpenLP database."
-msgstr "OpenLP 데이터베이스를 열지 못했어요."
-
-#: src/import/openlp.rs
-msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
-msgstr "여기에 OpenLP songs.sqlite가 없어요. OpenLP 데이터 폴더를 선택하세요(Windows는 보통 %APPDATA%\\openlp\\data, macOS는 ~/Library/Application Support/openlp/Data, Linux는 ~/.local/share/openlp)."
-
-#: src/import/openlp.rs
-msgid "Couldn't read the OpenLP database: {error}"
-msgstr "OpenLP 데이터베이스를 읽지 못했어요: {error}"
-
-#: src/import/openlp.rs
-msgid "This isn't an OpenLP song database: it has no songs table."
-msgstr "OpenLP 찬양 데이터베이스가 아니에요. songs 테이블이 없어요."
 
 #: src/import/openlyrics.rs
 msgid "it isn't valid XML ({error})"
@@ -7397,26 +7277,6 @@ msgstr "OpenLyrics가 아니라 OpenSong 찬양이에요"
 #: src/import/openlyrics.rs
 msgid "it isn't an OpenLyrics song"
 msgstr "OpenLyrics 찬양이 아니에요"
-
-#: src/import/openlyrics.rs
-msgid "not XML"
-msgstr "XML 아님"
-
-#: src/import/openlyrics.rs
-msgid "it isn't an OpenLyrics or OpenSong song"
-msgstr "OpenLyrics나 OpenSong 찬양이 아니에요"
-
-#: src/import/openlyrics.rs src/import/propresenter.rs
-msgid "no song in it"
-msgstr "찬양이 없어요"
-
-#: src/import/openlyrics.rs src/import/propresenter.rs
-msgid "No song could be read from {path}: {why}."
-msgstr "{path}에서 찬양을 읽지 못했어요: {why}."
-
-#: src/import/openlyrics.rs
-msgid "No OpenLyrics or OpenSong songs were found in {path}."
-msgstr "{path}에서 OpenLyrics나 OpenSong 찬양을 찾지 못했어요."
 
 #: src/import/opensong.rs
 msgid "the words have too many sections to be a song"
@@ -7470,10 +7330,6 @@ msgstr "찬양이 아니라 ProPresenter 재생 목록이에요"
 #: src/import/propresenter.rs
 msgid "it isn't a ProPresenter 6 song"
 msgstr "ProPresenter 6 찬양이 아니에요"
-
-#: src/import/propresenter.rs
-msgid "No ProPresenter songs were found in {path}."
-msgstr "{path}에서 ProPresenter 찬양을 찾지 못했어요."
 
 #: src/live/drawing/actions.rs
 msgid "This phone may not draw on slides. Ask the operator to allow it."
@@ -7685,6 +7541,14 @@ msgstr "이 QR 코드는 이미 쓰였거나 너무 오래됐어요. RustyPresen
 #: src/network/phone_link.rs
 msgid "Type the remote's password (set in RustyPresenter's Settings → Remote and network)."
 msgstr "리모컨 비밀번호를 입력하세요(RustyPresenter의 설정 → 리모컨과 네트워크에서 정한 것)."
+
+#: src/network/slide_pictures.rs
+msgid "The computer is busy. Try again in a moment."
+msgstr ""
+
+#: src/network/slide_pictures.rs src/server.rs
+msgid "Could not draw the slide."
+msgstr "슬라이드를 그리지 못했어요."
 
 #: src/platform/data_folder.rs
 msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
@@ -7962,10 +7826,6 @@ msgstr "잘못된 명령이에요."
 msgid "Not allowed from the phone."
 msgstr "휴대폰에서는 할 수 없어요."
 
-#: src/server.rs
-msgid "Could not draw the slide."
-msgstr "슬라이드를 그리지 못했어요."
-
 #: src/server.rs src/strings/add.rs src/strings/print.rs
 msgid "{n} slide"
 msgid_plural "{n} slides"
@@ -8195,6 +8055,32 @@ msgstr "데이터를 보관할 폴더를 찾을 수 없어요. RUSTYPRESENTER_DA
 #: src/startup.rs
 msgid "Cannot use the data folder {path}: {reason}"
 msgstr "데이터 폴더 {path}을(를) 사용할 수 없어요: {reason}"
+
+#: src/startup.rs
+msgid ""
+"Your saved songs and services could not be read.\n"
+"\n"
+"Start with the newest backup, made {when}?\n"
+"\n"
+"The file that could not be read is kept as {name}. Choose No to close RustyPresenter and change nothing.\n"
+"\n"
+"({problem})"
+msgstr ""
+
+#: src/startup.rs
+msgid "Started from the backup made {when}. The file that could not be read is kept as {name}."
+msgstr ""
+
+#: src/startup.rs
+msgid ""
+"{problem}\n"
+"\n"
+"The newest backup could not be used either: {reason}"
+msgstr ""
+
+#: src/startup.rs
+msgid "The automatic backup could not be made: {reason}"
+msgstr ""
 
 #: src/store.rs
 msgid "Your saved data at {path} could not be read ({reason}). Nothing was overwritten. Restore a backup from the backups folder or move the file aside."
@@ -8998,24 +8884,6 @@ msgstr "PowerPoint나 Keynote 파일을 가져오려면 LibreOffice(무료)를 �
 msgid "Copied"
 msgstr "복사됨"
 
-#: src/strings/add.rs src/strings/bundle.rs
-msgid "…and {n} more."
-msgstr "…외 {n}개."
-
-#: src/strings/add.rs
-msgid "Imported {n} song."
-msgid_plural "Imported {n} songs."
-msgstr[0] "찬양 {n}곡을 가져왔어요."
-
-#: src/strings/add.rs
-msgid "{n} already in the library: {titles}"
-msgid_plural "{n} already in the library: {titles}"
-msgstr[0] "{n}곡은 이미 라이브러리에 있어요: {titles}"
-
-#: src/strings/add.rs
-msgid "Not imported:"
-msgstr "가져오지 않음:"
-
 #: src/strings/add.rs
 msgid "LibreOffice found!"
 msgstr "LibreOffice를 찾았어요!"
@@ -9386,6 +9254,10 @@ msgstr "“{name}”을(를) 파일로 저장했어요."
 #: src/strings/bundle.rs
 msgid "This service was not saved, because something it needs is missing:"
 msgstr "필요한 항목이 없어서 이 예배를 저장하지 못했어요:"
+
+#: src/strings/bundle.rs
+msgid "…and {n} more."
+msgstr "…외 {n}개."
 
 #: src/strings/bundle.rs
 msgid "Opened “{name}”."
@@ -14022,6 +13894,125 @@ msgstr "yt-dlp가 동영상을 저장하지 않았어요"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "미디어 파일 아님"
+
+#~ msgid "the file is too big to be a song"
+#~ msgstr "찬양 파일이라기엔 너무 커요"
+
+#~ msgid "couldn't read it: {error}"
+#~ msgstr "읽지 못했어요: {error}"
+
+#~ msgid "it doesn't look like a ChordPro file"
+#~ msgstr "ChordPro 파일이 아닌 것 같아요"
+
+#~ msgid "no songs in it"
+#~ msgstr "찬양이 없어요"
+
+#~ msgid "No songs could be read from {path}: {why}."
+#~ msgstr "{path}에서 찬양을 읽지 못했어요: {why}."
+
+#~ msgid "Couldn't find {path}."
+#~ msgstr "{path}을(를) 찾지 못했어요."
+
+#~ msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
+#~ msgstr "{path}에서 ChordPro 파일(.cho, .chordpro, .chopro, .crd, .pro)을 찾지 못했어요."
+
+#~ msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
+#~ msgstr "폴더에 파일과 폴더가 {max}개를 넘어서 처음 {max}개만 확인했어요"
+
+#~ msgid "Couldn't read {path}: {error}."
+#~ msgstr "{path}을(를) 읽지 못했어요: {error}."
+
+#~ msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
+#~ msgstr "라이브러리를 읽는 동안 {app}이(가) 계속 변경 내용을 저장했어요. {app}을(를) 닫고 다시 시도하세요."
+
+#~ msgid "Couldn't make a temporary folder: {error}."
+#~ msgstr "임시 폴더를 만들지 못했어요: {error}."
+
+#~ msgid "Couldn't copy {path}: {error}."
+#~ msgstr "{path}을(를) 복사하지 못했어요: {error}."
+
+#~ msgid "Couldn't open {path}: {error}."
+#~ msgstr "{path}을(를) 열지 못했어요: {error}."
+
+#~ msgid "the database stayed locked"
+#~ msgstr "데이터베이스가 계속 잠겨 있었어요"
+
+#~ msgid "{path} is empty or damaged, so there is nothing to import."
+#~ msgstr "{path}이(가) 비어 있거나 손상되어서 가져올 내용이 없어요."
+
+#~ msgid "no words (probably a video or announcement item)"
+#~ msgstr "가사 없음(아마 동영상이나 광고 항목)"
+
+#~ msgid "the words are empty"
+#~ msgstr "가사가 비어 있어요"
+
+#~ msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
+#~ msgstr "EasyWorship 2009(또는 그 이전) 라이브러리 같아요. EasyWorship 6과 7 라이브러리만 가져올 수 있어요."
+
+#~ msgid "Found Songs.db but not SongWords.db next to it in {folder}."
+#~ msgstr "{folder}에서 Songs.db는 찾았지만 옆에 SongWords.db가 없어요."
+
+#~ msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+#~ msgstr "여기에 EasyWorship Songs.db가 없어요. 프로필의 Databases\\Data 폴더를 선택하세요(보통 C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+
+#~ msgid "Couldn't read the EasyWorship library: {error}"
+#~ msgstr "EasyWorship 라이브러리를 읽지 못했어요: {error}"
+
+#~ msgid "Songs.db has no song table. Is this an EasyWorship library?"
+#~ msgstr "Songs.db에 찬양 테이블이 없어요. EasyWorship 라이브러리가 맞나요?"
+
+#~ msgid "SongWords.db has no word table. Is this an EasyWorship library?"
+#~ msgstr "SongWords.db에 가사 테이블이 없어요. EasyWorship 라이브러리가 맞나요?"
+
+#~ msgid "the words are not valid XML ({error})"
+#~ msgstr "가사가 올바른 XML이 아니에요({error})"
+
+#~ msgid "a temporary copy OpenLP keeps for a service file"
+#~ msgstr "OpenLP가 예배 파일용으로 보관하는 임시 사본"
+
+#~ msgid "This file isn't an OpenLP song database (songs.sqlite)."
+#~ msgstr "이 파일은 OpenLP 찬양 데이터베이스(songs.sqlite)가 아니에요."
+
+#~ msgid "Couldn't open the OpenLP database."
+#~ msgstr "OpenLP 데이터베이스를 열지 못했어요."
+
+#~ msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
+#~ msgstr "여기에 OpenLP songs.sqlite가 없어요. OpenLP 데이터 폴더를 선택하세요(Windows는 보통 %APPDATA%\\openlp\\data, macOS는 ~/Library/Application Support/openlp/Data, Linux는 ~/.local/share/openlp)."
+
+#~ msgid "Couldn't read the OpenLP database: {error}"
+#~ msgstr "OpenLP 데이터베이스를 읽지 못했어요: {error}"
+
+#~ msgid "This isn't an OpenLP song database: it has no songs table."
+#~ msgstr "OpenLP 찬양 데이터베이스가 아니에요. songs 테이블이 없어요."
+
+#~ msgid "not XML"
+#~ msgstr "XML 아님"
+
+#~ msgid "it isn't an OpenLyrics or OpenSong song"
+#~ msgstr "OpenLyrics나 OpenSong 찬양이 아니에요"
+
+#~ msgid "no song in it"
+#~ msgstr "찬양이 없어요"
+
+#~ msgid "No song could be read from {path}: {why}."
+#~ msgstr "{path}에서 찬양을 읽지 못했어요: {why}."
+
+#~ msgid "No OpenLyrics or OpenSong songs were found in {path}."
+#~ msgstr "{path}에서 OpenLyrics나 OpenSong 찬양을 찾지 못했어요."
+
+#~ msgid "No ProPresenter songs were found in {path}."
+#~ msgstr "{path}에서 ProPresenter 찬양을 찾지 못했어요."
+
+#~ msgid "Imported {n} song."
+#~ msgid_plural "Imported {n} songs."
+#~ msgstr[0] "찬양 {n}곡을 가져왔어요."
+
+#~ msgid "{n} already in the library: {titles}"
+#~ msgid_plural "{n} already in the library: {titles}"
+#~ msgstr[0] "{n}곡은 이미 라이브러리에 있어요: {titles}"
+
+#~ msgid "Not imported:"
+#~ msgstr "가져오지 않음:"
 
 #~ msgid "Import from EasyWorship"
 #~ msgstr "EasyWorship에서 가져오기"

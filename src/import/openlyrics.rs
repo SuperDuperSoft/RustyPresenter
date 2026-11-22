@@ -10,30 +10,15 @@
 //! the translator into the imported language; arrangers are not writers. Sections with a name of their own
 //! (`name="Outro"`) are found by that name in `<verseOrder>`; `<instrument>` parts have no words and are left
 //! out. The file's declared `encoding` is used. Files are only read, never written.
-//!
-//! The folder reader also takes OpenSong song files (see `opensong`), which are XML too and often have no file
-//! extension, so a church can point it at any folder of exported songs: each file is recognised by its content.
 use super::chordpro::decode;
-use super::common::{find_files, ImportReport};
 use super::openlp::{lyrics_from_verses, verse_text, Verse};
-use super::opensong;
 use crate::model::Song;
 use crate::tr;
 use std::collections::HashMap;
-use std::io::Read;
-use std::path::Path;
 use uuid::Uuid;
 
-/// A file bigger than this is not a song file.
-const MAX_FILE: u64 = 4_000_000;
-/// Files looked at, and folder depth walked, at most when a folder is imported.
-const MAX_FILES: usize = 50_000;
-const MAX_DEPTH: usize = 16;
 /// `<verse>` elements read at most (the lyrics builder refuses more than 500 anyway).
 const MAX_VERSES: usize = 1000;
-/// Bytes read to tell whether a file without a song extension is song XML.
-const SNIFF: u64 = 1024;
-
 // ---------- shared with OpenSong ----------
 
 fn is_bom_or_space(c: char) -> bool { c.is_whitespace() || c == '\u{feff}' }
@@ -222,81 +207,9 @@ fn declared_encoding(decl: &[u8]) -> Option<String> {
     Some(rest[1..].split(quote).next()?.trim().to_string())
 }
 
-// ---------- files ----------
-
-fn file_label(p: &Path) -> String { p.file_name().unwrap_or_default().to_string_lossy().into_owned() }
-
-fn is_xml(p: &Path) -> bool { p.extension().and_then(|e| e.to_str()).is_some_and(|e| e.eq_ignore_ascii_case("xml")) }
-
-/// A song (or skipped entry) for one file. Problems with a file the user `picked` are always reported. In a
-/// folder, files that aren't songs (settings, other apps' XML, OpenSong's extensionless files' neighbours) are
-/// left out quietly; an `.xml` that can't be read, or a damaged file that was meant to be a song, is reported.
-/// Files without an `.xml` extension are looked at only when they start like XML.
-fn read_file(p: &Path, picked: bool, report: &mut ImportReport) {
-    if let Err(why) = read_one(p, picked, report) {
-        if picked || why.1 { report.skipped.push((file_label(p), why.0)); }
-    }
-}
-
-/// Err is (why, whether to report it for a file found in a folder).
-fn read_one(p: &Path, picked: bool, report: &mut ImportReport) -> Result<(), (String, bool)> {
-    let quiet = |why: &str| (why.to_string(), false);
-    let xml = is_xml(p);
-    if !picked && !xml {
-        let mut head = Vec::new();
-        std::fs::File::open(p).and_then(|f| f.take(SNIFF).read_to_end(&mut head)).map_err(|e| quiet(&e.to_string()))?;
-        if !decode(&head).trim_start_matches(is_bom_or_space).starts_with('<') { return Err(quiet(&tr!("not XML"))); }
-    }
-    // Read at most one byte past the limit, so the size is checked even when the file's size can't be asked.
-    let mut bytes = Vec::new();
-    std::fs::File::open(p).and_then(|f| f.take(MAX_FILE + 1).read_to_end(&mut bytes))
-        .map_err(|e| (tr!("couldn't read it: {error}", error = e), xml))?;
-    if bytes.len() as u64 > MAX_FILE { return Err(quiet(&tr!("the file is too big to be a song"))); }
-    let text = decode_xml(&bytes);
-    // A damaged file that was meant to be a song is worth mentioning whatever its name.
-    let doc = parse_xml(&text).map_err(|e| (e, text.contains("<song")))?;
-    let stem = if is_xml(p) { p.file_stem() } else { p.file_name() }.map(|s| s.to_string_lossy().into_owned());
-    let (title, song) = match format_of(&doc) {
-        Some(Format::OpenLyrics) => from_document(&doc, stem.as_deref()),
-        Some(Format::OpenSong) => opensong::from_document(&doc, stem.as_deref()),
-        None => return Err(quiet(&tr!("it isn't an OpenLyrics or OpenSong song"))),
-    };
-    match song { Ok(s) => report.songs.push(s), Err(why) => report.skipped.push((title, why)) }
-    Ok(())
-}
-
-/// Reads one OpenLyrics or OpenSong song file (any name), or every one in a folder and its subfolders: `.xml`
-/// files, and files without a song extension whose content is song XML (OpenSong's `Songs` folder).
-pub fn read_songs(path: &Path) -> Result<ImportReport, String> {
-    let mut report = ImportReport::default();
-    if path.is_file() {
-        read_file(path, true, &mut report);
-        if report.songs.is_empty() {
-            let why = report.skipped.first().map(|(_, w)| w.clone()).unwrap_or_else(|| tr!("no song in it"));
-            return Err(tr!("No song could be read from {path}: {why}.", path = path.display(), why = why));
-        }
-        return Ok(report);
-    }
-    if !path.is_dir() { return Err(tr!("Couldn't find {path}.", path = path.display())); }
-    let (files, cut_short) = find_files(path, MAX_FILES, MAX_DEPTH, |_| true);
-    for f in &files { read_file(f, false, &mut report); }
-    if report.songs.is_empty() && report.skipped.is_empty() {
-        return Err(tr!("No OpenLyrics or OpenSong songs were found in {path}.", path = path.display()));
-    }
-    if cut_short {
-        report.skipped.push((path.display().to_string(),
-            tr!("the folder has more than {max} files and folders in it, so only the first {max} were looked at", max = MAX_FILES)));
-    }
-    Ok(report)
-}
-
-/// OpenLyrics files (and any OpenSong songs beside them): see `read_songs`.
-pub fn read_openlyrics(path: &Path) -> Result<ImportReport, String> { read_songs(path) }
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::import::{classify, common::TempDir, Dedupe};
     use crate::slides::{parse_sections, song_order};
 
     // Amazing Grace (John Newton, 1779): public domain. The chorus is invented for the test.
@@ -527,51 +440,4 @@ Verse 2\n'Twas grace that taught my heart to fear,\nAnd grace my fears relieved;
         for bytes in [&b"\xFF\xFE"[..], b"\0\0\0", b"<", b"\xEF\xBB\xBF<song", b"<song>\x80\x81</song>"] { let _ = parse_bytes(bytes); }
     }
 
-    #[test]
-    fn classify_finds_duplicates() {
-        let a = parse_str(GRACE).unwrap();
-        let b = parse_str(GRACE).unwrap();
-        assert_eq!(classify(&[a.clone()], &[b]), vec![Dedupe::DuplicateCcli { existing: a.id }]);
-    }
-
-    #[test]
-    fn reads_folders_and_files() {
-        let tmp = TempDir::new().unwrap();
-        let d = tmp.0.join("export");
-        std::fs::create_dir_all(d.join("Songs").join("Hymns")).unwrap();
-        std::fs::create_dir_all(d.join("Sets")).unwrap();
-        std::fs::write(d.join("Amazing Grace (John Newton).xml"), GRACE).unwrap();
-        // OpenSong keeps songs in files with no extension, named after the song; a dot in the name is not one.
-        std::fs::write(d.join("Songs").join("Hymns").join("Morning Light (v. 2)"),
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?><song><title></title><author>Nobody</author><lyrics>[V1]\n Morning light</lyrics></song>").unwrap();
-        std::fs::write(d.join("Sets").join("Sunday"), "<?xml version=\"1.0\"?><set name=\"Sunday\"><slide_groups/></set>").unwrap();
-        std::fs::write(d.join("broken.xml"), "<song><properties>").unwrap();
-        std::fs::write(d.join("settings.xml"), "<config/>").unwrap();
-        std::fs::write(d.join("Untitled Hymn.xml"), ol("<verse name=\"v1\"><lines>words</lines></verse>", "")).unwrap();
-        std::fs::write(d.join("Grace copy.song"), GRACE).unwrap();
-        std::fs::write(d.join("background.jpg"), b"\xFF\xD8\xFF\xE0garbage").unwrap();
-        std::fs::write(d.join("notes"), "just some notes").unwrap();
-        std::fs::write(d.join("Empty.xml"), "<song xmlns=\"http://openlyrics.info/namespace/2009/song\"><properties><titles><title>Empty</title></titles></properties><lyrics/></song>").unwrap();
-
-        let r = read_openlyrics(&d).unwrap();
-        let mut titles: Vec<_> = r.songs.iter().map(|s| s.title.as_str()).collect();
-        titles.sort();
-        assert_eq!(titles, ["Amazing Grace", "Amazing Grace", "Morning Light (v. 2)", "Untitled Hymn"]);
-        // XML that isn't a song (settings, other apps' files) is left out quietly.
-        let mut skipped: Vec<_> = r.skipped.iter().map(|(t, _)| t.as_str()).collect();
-        skipped.sort();
-        assert_eq!(skipped, ["Empty", "broken.xml"], "{:?}", r.skipped);
-
-        let one = read_openlyrics(&d.join("Amazing Grace (John Newton).xml")).unwrap();
-        assert_eq!(one.songs.len(), 1);
-        assert_eq!(read_openlyrics(&d.join("Grace copy.song")).unwrap().songs[0].title, "Amazing Grace");
-        // A file the user picked is explained even when it isn't a song.
-        assert!(read_openlyrics(&d.join("settings.xml")).unwrap_err().contains("isn't an OpenLyrics"));
-        assert!(read_openlyrics(&d.join("broken.xml")).unwrap_err().contains("valid XML"));
-        assert!(read_openlyrics(&d.join("notes")).is_err());
-        assert!(read_openlyrics(&d.join("missing")).unwrap_err().contains("Couldn't find"));
-        let empty = tmp.0.join("empty");
-        std::fs::create_dir_all(&empty).unwrap();
-        assert!(read_openlyrics(&empty).unwrap_err().contains("No OpenLyrics or OpenSong"));
-    }
 }

@@ -2071,16 +2071,6 @@ pub enum ExportError {
     Failed(String),
 }
 
-/// What importing another program's song library did.
-#[derive(Clone, Debug, Default, PartialEq)]
-pub struct LibraryImport {
-    pub added: usize,
-    /// Titles of the songs already in the library, which were left as they are.
-    pub duplicates: Vec<String>,
-    /// (title, reason) for what could not become a song.
-    pub skipped: Vec<(String, String)>,
-}
-
 /// What an import made: a media library entry, a bare asset (logo, background), a PowerPoint job, or a song.
 /// A song with no `id` was not saved: it matches `duplicate_of` and the operator has to choose.
 #[derive(Clone, Debug)]

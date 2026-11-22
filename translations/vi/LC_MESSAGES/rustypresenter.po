@@ -7234,7 +7234,7 @@ msgstr "{language} đã có trong danh sách."
 msgid "The plural rule is not right. Copy it from the gettext plural list."
 msgstr "Quy tắc số nhiều không đúng. Hãy chép từ danh sách plural của gettext."
 
-#: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
+#: src/import/chordpro.rs src/import/openlyrics.rs
 msgid "Untitled song"
 msgstr "Bài hát chưa đặt tên"
 
@@ -7242,109 +7242,13 @@ msgstr "Bài hát chưa đặt tên"
 msgid "more than {max} sections, so it isn't a song"
 msgstr "nhiều hơn {max} đoạn, nên không phải bài hát"
 
-#: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/opensong.rs
 msgid "no words"
 msgstr "không có lời"
 
 #: src/import/chordpro.rs
 msgid "a {block} block never ends, so everything after it was left out"
 msgstr "khối {block} không có điểm kết thúc, nên mọi thứ sau nó đã bị bỏ qua"
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "the file is too big to be a song"
-msgstr "tệp quá lớn để là một bài hát"
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "couldn't read it: {error}"
-msgstr "không đọc được: {error}"
-
-#: src/import/chordpro.rs
-msgid "it doesn't look like a ChordPro file"
-msgstr "có vẻ không phải tệp ChordPro"
-
-#: src/import/chordpro.rs
-msgid "no songs in it"
-msgstr "không có bài hát nào"
-
-#: src/import/chordpro.rs
-msgid "No songs could be read from {path}: {why}."
-msgstr "Không đọc được bài hát nào từ {path}: {why}."
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "Couldn't find {path}."
-msgstr "Không tìm thấy {path}."
-
-#: src/import/chordpro.rs
-msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
-msgstr "Không tìm thấy tệp ChordPro nào (.cho, .chordpro, .chopro, .crd, .pro) trong {path}."
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
-msgstr "thư mục có hơn {max} tệp và thư mục con, nên chỉ xem {max} mục đầu tiên"
-
-#: src/import/common.rs
-msgid "Couldn't read {path}: {error}."
-msgstr "Không đọc được {path}: {error}."
-
-#: src/import/common.rs
-msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
-msgstr "{app} liên tục lưu thay đổi trong khi đang đọc thư viện. Hãy đóng {app} rồi thử lại."
-
-#: src/import/common.rs
-msgid "Couldn't make a temporary folder: {error}."
-msgstr "Không tạo được thư mục tạm: {error}."
-
-#: src/import/common.rs
-msgid "Couldn't copy {path}: {error}."
-msgstr "Không sao chép được {path}: {error}."
-
-#: src/import/common.rs
-msgid "Couldn't open {path}: {error}."
-msgstr "Không mở được {path}: {error}."
-
-#: src/import/common.rs
-msgid "the database stayed locked"
-msgstr "cơ sở dữ liệu vẫn bị khóa"
-
-#: src/import/common.rs
-msgid "{path} is empty or damaged, so there is nothing to import."
-msgstr "{path} trống hoặc bị hỏng, nên không có gì để nhập."
-
-#: src/import/easyworship.rs
-msgid "no words (probably a video or announcement item)"
-msgstr "không có lời (có lẽ là mục video hoặc thông báo)"
-
-#: src/import/easyworship.rs src/import/openlp.rs
-msgid "the words are empty"
-msgstr "lời bài hát trống"
-
-#: src/import/easyworship.rs
-msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
-msgstr "Đây có vẻ là thư viện EasyWorship 2009 (hoặc cũ hơn). Chỉ nhập được thư viện EasyWorship 6 và 7."
-
-#: src/import/easyworship.rs
-msgid "Found Songs.db but not SongWords.db next to it in {folder}."
-msgstr "Tìm thấy Songs.db nhưng không thấy SongWords.db bên cạnh trong {folder}."
-
-#: src/import/easyworship.rs
-msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
-msgstr "Không tìm thấy Songs.db của EasyWorship ở đây. Hãy chọn thư mục Databases\\Data của hồ sơ (thường là C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
-
-#: src/import/easyworship.rs
-msgid "Couldn't read the EasyWorship library: {error}"
-msgstr "Không đọc được thư viện EasyWorship: {error}"
-
-#: src/import/easyworship.rs
-msgid "Songs.db has no song table. Is this an EasyWorship library?"
-msgstr "Songs.db không có bảng bài hát. Đây có phải thư viện EasyWorship không?"
-
-#: src/import/easyworship.rs
-msgid "SongWords.db has no word table. Is this an EasyWorship library?"
-msgstr "SongWords.db không có bảng lời. Đây có phải thư viện EasyWorship không?"
-
-#: src/import/openlp.rs
-msgid "the words are not valid XML ({error})"
-msgstr "lời bài hát không phải XML hợp lệ ({error})"
 
 #: src/import/openlp.rs
 msgid "the words have too many verses (more than {max})"
@@ -7357,30 +7261,6 @@ msgstr "lời quá dài để là một bài hát"
 #: src/import/openlp.rs
 msgid "the words have no verses"
 msgstr "lời bài hát không có đoạn nào"
-
-#: src/import/openlp.rs
-msgid "a temporary copy OpenLP keeps for a service file"
-msgstr "bản sao tạm OpenLP giữ cho một tệp buổi lễ"
-
-#: src/import/openlp.rs
-msgid "This file isn't an OpenLP song database (songs.sqlite)."
-msgstr "Tệp này không phải cơ sở dữ liệu bài hát OpenLP (songs.sqlite)."
-
-#: src/import/openlp.rs
-msgid "Couldn't open the OpenLP database."
-msgstr "Không mở được cơ sở dữ liệu OpenLP."
-
-#: src/import/openlp.rs
-msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
-msgstr "Không tìm thấy songs.sqlite của OpenLP ở đây. Hãy chọn thư mục dữ liệu của OpenLP (trên Windows thường là %APPDATA%\\openlp\\data, trên macOS ~/Library/Application Support/openlp/Data, trên Linux ~/.local/share/openlp)."
-
-#: src/import/openlp.rs
-msgid "Couldn't read the OpenLP database: {error}"
-msgstr "Không đọc được cơ sở dữ liệu OpenLP: {error}"
-
-#: src/import/openlp.rs
-msgid "This isn't an OpenLP song database: it has no songs table."
-msgstr "Đây không phải cơ sở dữ liệu bài hát OpenLP: không có bảng songs."
 
 #: src/import/openlyrics.rs
 msgid "it isn't valid XML ({error})"
@@ -7397,26 +7277,6 @@ msgstr "đây là bài hát OpenSong, không phải OpenLyrics"
 #: src/import/openlyrics.rs
 msgid "it isn't an OpenLyrics song"
 msgstr "không phải bài hát OpenLyrics"
-
-#: src/import/openlyrics.rs
-msgid "not XML"
-msgstr "không phải XML"
-
-#: src/import/openlyrics.rs
-msgid "it isn't an OpenLyrics or OpenSong song"
-msgstr "không phải bài hát OpenLyrics hay OpenSong"
-
-#: src/import/openlyrics.rs src/import/propresenter.rs
-msgid "no song in it"
-msgstr "không có bài hát nào"
-
-#: src/import/openlyrics.rs src/import/propresenter.rs
-msgid "No song could be read from {path}: {why}."
-msgstr "Không đọc được bài hát từ {path}: {why}."
-
-#: src/import/openlyrics.rs
-msgid "No OpenLyrics or OpenSong songs were found in {path}."
-msgstr "Không tìm thấy bài hát OpenLyrics hay OpenSong nào trong {path}."
 
 #: src/import/opensong.rs
 msgid "the words have too many sections to be a song"
@@ -7470,10 +7330,6 @@ msgstr "đây là danh sách phát ProPresenter, không phải bài hát"
 #: src/import/propresenter.rs
 msgid "it isn't a ProPresenter 6 song"
 msgstr "không phải bài hát ProPresenter 6"
-
-#: src/import/propresenter.rs
-msgid "No ProPresenter songs were found in {path}."
-msgstr "Không tìm thấy bài hát ProPresenter nào trong {path}."
 
 #: src/live/drawing/actions.rs
 msgid "This phone may not draw on slides. Ask the operator to allow it."
@@ -7685,6 +7541,14 @@ msgstr "Mã QR này đã dùng rồi hoặc quá cũ. Hãy quét lại mã trong
 #: src/network/phone_link.rs
 msgid "Type the remote's password (set in RustyPresenter's Settings → Remote and network)."
 msgstr "Nhập mật khẩu của điều khiển từ xa (đặt trong RustyPresenter, Cài đặt → Điều khiển từ xa và mạng)."
+
+#: src/network/slide_pictures.rs
+msgid "The computer is busy. Try again in a moment."
+msgstr ""
+
+#: src/network/slide_pictures.rs src/server.rs
+msgid "Could not draw the slide."
+msgstr "Không vẽ được trang chiếu."
 
 #: src/platform/data_folder.rs
 msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
@@ -7962,10 +7826,6 @@ msgstr "Lệnh không hợp lệ."
 msgid "Not allowed from the phone."
 msgstr "Không được phép từ điện thoại."
 
-#: src/server.rs
-msgid "Could not draw the slide."
-msgstr "Không vẽ được trang chiếu."
-
 #: src/server.rs src/strings/add.rs src/strings/print.rs
 msgid "{n} slide"
 msgid_plural "{n} slides"
@@ -8195,6 +8055,32 @@ msgstr "Không tìm được thư mục để lưu dữ liệu. Hãy đặt RUST
 #: src/startup.rs
 msgid "Cannot use the data folder {path}: {reason}"
 msgstr "Không dùng được thư mục dữ liệu {path}: {reason}"
+
+#: src/startup.rs
+msgid ""
+"Your saved songs and services could not be read.\n"
+"\n"
+"Start with the newest backup, made {when}?\n"
+"\n"
+"The file that could not be read is kept as {name}. Choose No to close RustyPresenter and change nothing.\n"
+"\n"
+"({problem})"
+msgstr ""
+
+#: src/startup.rs
+msgid "Started from the backup made {when}. The file that could not be read is kept as {name}."
+msgstr ""
+
+#: src/startup.rs
+msgid ""
+"{problem}\n"
+"\n"
+"The newest backup could not be used either: {reason}"
+msgstr ""
+
+#: src/startup.rs
+msgid "The automatic backup could not be made: {reason}"
+msgstr ""
 
 #: src/store.rs
 msgid "Your saved data at {path} could not be read ({reason}). Nothing was overwritten. Restore a backup from the backups folder or move the file aside."
@@ -8998,24 +8884,6 @@ msgstr "Để nhập tệp PowerPoint hoặc Keynote, hãy cài LibreOffice (mi�
 msgid "Copied"
 msgstr "Đã sao chép"
 
-#: src/strings/add.rs src/strings/bundle.rs
-msgid "…and {n} more."
-msgstr "…và {n} mục khác."
-
-#: src/strings/add.rs
-msgid "Imported {n} song."
-msgid_plural "Imported {n} songs."
-msgstr[0] "Đã nhập {n} bài hát."
-
-#: src/strings/add.rs
-msgid "{n} already in the library: {titles}"
-msgid_plural "{n} already in the library: {titles}"
-msgstr[0] "{n} bài đã có trong thư viện: {titles}"
-
-#: src/strings/add.rs
-msgid "Not imported:"
-msgstr "Không nhập:"
-
 #: src/strings/add.rs
 msgid "LibreOffice found!"
 msgstr "Đã tìm thấy LibreOffice!"
@@ -9386,6 +9254,10 @@ msgstr "Đã lưu “{name}” ra tệp."
 #: src/strings/bundle.rs
 msgid "This service was not saved, because something it needs is missing:"
 msgstr "Chưa lưu được buổi lễ này vì thiếu một số thứ cần thiết:"
+
+#: src/strings/bundle.rs
+msgid "…and {n} more."
+msgstr "…và {n} mục khác."
 
 #: src/strings/bundle.rs
 msgid "Opened “{name}”."
@@ -14022,6 +13894,125 @@ msgstr "yt-dlp không lưu được video nào"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "không phải tệp đa phương tiện"
+
+#~ msgid "the file is too big to be a song"
+#~ msgstr "tệp quá lớn để là một bài hát"
+
+#~ msgid "couldn't read it: {error}"
+#~ msgstr "không đọc được: {error}"
+
+#~ msgid "it doesn't look like a ChordPro file"
+#~ msgstr "có vẻ không phải tệp ChordPro"
+
+#~ msgid "no songs in it"
+#~ msgstr "không có bài hát nào"
+
+#~ msgid "No songs could be read from {path}: {why}."
+#~ msgstr "Không đọc được bài hát nào từ {path}: {why}."
+
+#~ msgid "Couldn't find {path}."
+#~ msgstr "Không tìm thấy {path}."
+
+#~ msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
+#~ msgstr "Không tìm thấy tệp ChordPro nào (.cho, .chordpro, .chopro, .crd, .pro) trong {path}."
+
+#~ msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
+#~ msgstr "thư mục có hơn {max} tệp và thư mục con, nên chỉ xem {max} mục đầu tiên"
+
+#~ msgid "Couldn't read {path}: {error}."
+#~ msgstr "Không đọc được {path}: {error}."
+
+#~ msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
+#~ msgstr "{app} liên tục lưu thay đổi trong khi đang đọc thư viện. Hãy đóng {app} rồi thử lại."
+
+#~ msgid "Couldn't make a temporary folder: {error}."
+#~ msgstr "Không tạo được thư mục tạm: {error}."
+
+#~ msgid "Couldn't copy {path}: {error}."
+#~ msgstr "Không sao chép được {path}: {error}."
+
+#~ msgid "Couldn't open {path}: {error}."
+#~ msgstr "Không mở được {path}: {error}."
+
+#~ msgid "the database stayed locked"
+#~ msgstr "cơ sở dữ liệu vẫn bị khóa"
+
+#~ msgid "{path} is empty or damaged, so there is nothing to import."
+#~ msgstr "{path} trống hoặc bị hỏng, nên không có gì để nhập."
+
+#~ msgid "no words (probably a video or announcement item)"
+#~ msgstr "không có lời (có lẽ là mục video hoặc thông báo)"
+
+#~ msgid "the words are empty"
+#~ msgstr "lời bài hát trống"
+
+#~ msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
+#~ msgstr "Đây có vẻ là thư viện EasyWorship 2009 (hoặc cũ hơn). Chỉ nhập được thư viện EasyWorship 6 và 7."
+
+#~ msgid "Found Songs.db but not SongWords.db next to it in {folder}."
+#~ msgstr "Tìm thấy Songs.db nhưng không thấy SongWords.db bên cạnh trong {folder}."
+
+#~ msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+#~ msgstr "Không tìm thấy Songs.db của EasyWorship ở đây. Hãy chọn thư mục Databases\\Data của hồ sơ (thường là C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+
+#~ msgid "Couldn't read the EasyWorship library: {error}"
+#~ msgstr "Không đọc được thư viện EasyWorship: {error}"
+
+#~ msgid "Songs.db has no song table. Is this an EasyWorship library?"
+#~ msgstr "Songs.db không có bảng bài hát. Đây có phải thư viện EasyWorship không?"
+
+#~ msgid "SongWords.db has no word table. Is this an EasyWorship library?"
+#~ msgstr "SongWords.db không có bảng lời. Đây có phải thư viện EasyWorship không?"
+
+#~ msgid "the words are not valid XML ({error})"
+#~ msgstr "lời bài hát không phải XML hợp lệ ({error})"
+
+#~ msgid "a temporary copy OpenLP keeps for a service file"
+#~ msgstr "bản sao tạm OpenLP giữ cho một tệp buổi lễ"
+
+#~ msgid "This file isn't an OpenLP song database (songs.sqlite)."
+#~ msgstr "Tệp này không phải cơ sở dữ liệu bài hát OpenLP (songs.sqlite)."
+
+#~ msgid "Couldn't open the OpenLP database."
+#~ msgstr "Không mở được cơ sở dữ liệu OpenLP."
+
+#~ msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
+#~ msgstr "Không tìm thấy songs.sqlite của OpenLP ở đây. Hãy chọn thư mục dữ liệu của OpenLP (trên Windows thường là %APPDATA%\\openlp\\data, trên macOS ~/Library/Application Support/openlp/Data, trên Linux ~/.local/share/openlp)."
+
+#~ msgid "Couldn't read the OpenLP database: {error}"
+#~ msgstr "Không đọc được cơ sở dữ liệu OpenLP: {error}"
+
+#~ msgid "This isn't an OpenLP song database: it has no songs table."
+#~ msgstr "Đây không phải cơ sở dữ liệu bài hát OpenLP: không có bảng songs."
+
+#~ msgid "not XML"
+#~ msgstr "không phải XML"
+
+#~ msgid "it isn't an OpenLyrics or OpenSong song"
+#~ msgstr "không phải bài hát OpenLyrics hay OpenSong"
+
+#~ msgid "no song in it"
+#~ msgstr "không có bài hát nào"
+
+#~ msgid "No song could be read from {path}: {why}."
+#~ msgstr "Không đọc được bài hát từ {path}: {why}."
+
+#~ msgid "No OpenLyrics or OpenSong songs were found in {path}."
+#~ msgstr "Không tìm thấy bài hát OpenLyrics hay OpenSong nào trong {path}."
+
+#~ msgid "No ProPresenter songs were found in {path}."
+#~ msgstr "Không tìm thấy bài hát ProPresenter nào trong {path}."
+
+#~ msgid "Imported {n} song."
+#~ msgid_plural "Imported {n} songs."
+#~ msgstr[0] "Đã nhập {n} bài hát."
+
+#~ msgid "{n} already in the library: {titles}"
+#~ msgid_plural "{n} already in the library: {titles}"
+#~ msgstr[0] "{n} bài đã có trong thư viện: {titles}"
+
+#~ msgid "Not imported:"
+#~ msgstr "Không nhập:"
 
 #~ msgid "Import from EasyWorship"
 #~ msgstr "Nhập từ EasyWorship"

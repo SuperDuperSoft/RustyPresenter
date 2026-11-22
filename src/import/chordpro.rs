@@ -14,24 +14,14 @@
 //! any section is an "Intro" (before the first words) or an "Instrumental". `{key}` and `{transpose}` are kept as
 //! the song's key and how far the stage moves its chords (`crate::transpose`). Text
 //! outside any section is split at blank lines into verses. Files are only read, never written.
-use super::common::{find_files, label_line, section_name, ImportReport};
-use super::easyworship::split_writers;
+use super::common::{label_line, section_name, split_writers, ImportReport};
 use crate::model::Song;
 use crate::tr;
 use crate::slides::section_label;
 use encoding_rs::{UTF_16BE, UTF_16LE, WINDOWS_1252};
 use std::collections::HashMap;
-use std::path::Path;
 use uuid::Uuid;
 
-/// File extensions picked up when a folder is imported (a single file is read whatever its name).
-pub const EXTENSIONS: &[&str] = &["cho", "chordpro", "chopro", "crd", "pro"];
-
-/// A text file bigger than this is not a song file.
-const MAX_FILE: u64 = 4_000_000;
-/// Files looked at, and folder depth walked, at most when a folder is imported.
-const MAX_FILES: usize = 50_000;
-const MAX_DEPTH: usize = 16;
 /// More sections than this is not a song.
 const MAX_SECTIONS: usize = 500;
 /// Characters looked at for the `]` that closes a chord, so a stray `[` in a lyric costs little.
@@ -519,59 +509,9 @@ pub fn parse_str(text: &str) -> ImportReport { parse_named(text, None).0 }
 /// The songs in a ChordPro file's bytes, in whatever encoding it was saved (see `decode`).
 pub fn parse_bytes(bytes: &[u8]) -> ImportReport { parse_str(&decode(bytes)) }
 
-fn has_extension(p: &Path) -> bool {
-    p.extension().and_then(|e| e.to_str()).is_some_and(|e| EXTENSIONS.iter().any(|x| e.eq_ignore_ascii_case(x)))
-}
-
-fn file_label(p: &Path) -> String { p.file_name().unwrap_or_default().to_string_lossy().into_owned() }
-
-/// One file's songs added to `report`; problems become skipped entries named after the file.
-fn read_file(p: &Path, report: &mut ImportReport) {
-    let size = std::fs::metadata(p).map(|m| m.len()).unwrap_or(0);
-    if size > MAX_FILE { report.skipped.push((file_label(p), tr!("the file is too big to be a song"))); return; }
-    let bytes = match std::fs::read(p) {
-        Ok(b) => b,
-        Err(e) => { report.skipped.push((file_label(p), tr!("couldn't read it: {error}", error = e))); return; }
-    };
-    let stem = p.file_stem().map(|s| s.to_string_lossy().into_owned());
-    let (r, chordpro) = parse_named(&decode(&bytes), stem.as_deref());
-    // Lyrics alone are a valid ChordPro file, but `.pro` is also a Qt project file: that one must show a chord
-    // or a directive.
-    let pro = p.extension().and_then(|e| e.to_str()).is_some_and(|e| e.eq_ignore_ascii_case("pro"));
-    if pro && !chordpro { report.skipped.push((file_label(p), tr!("it doesn't look like a ChordPro file"))); return; }
-    if r.songs.is_empty() && r.skipped.is_empty() { report.skipped.push((file_label(p), tr!("no songs in it"))); return; }
-    report.songs.extend(r.songs);
-    report.skipped.extend(r.skipped);
-}
-
-/// Reads a ChordPro file (any name), or every ChordPro file in a folder and its subfolders.
-pub fn read_chordpro(path: &Path) -> Result<ImportReport, String> {
-    let mut report = ImportReport::default();
-    if path.is_file() {
-        read_file(path, &mut report);
-        if report.songs.is_empty() {
-            let why = report.skipped.first().map(|(_, w)| w.clone()).unwrap_or_else(|| tr!("no songs in it"));
-            return Err(tr!("No songs could be read from {path}: {why}.", path = path.display(), why = why));
-        }
-        return Ok(report);
-    }
-    if !path.is_dir() { return Err(tr!("Couldn't find {path}.", path = path.display())); }
-    let (files, cut_short) = find_files(path, MAX_FILES, MAX_DEPTH, has_extension);
-    if files.is_empty() {
-        return Err(tr!("No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}.", path = path.display()));
-    }
-    for f in &files { read_file(f, &mut report); }
-    if cut_short {
-        report.skipped.push((path.display().to_string(),
-            tr!("the folder has more than {max} files and folders in it, so only the first {max} were looked at", max = MAX_FILES)));
-    }
-    Ok(report)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::import::common::TempDir;
     use crate::slides::{parse_sections, song_order};
 
     /// What the room shows of imported words: without their chords (`slides::strip_chords`).
@@ -785,16 +725,6 @@ And grace my fears relieved;
     }
 
     #[test]
-    fn folder_limit_is_reported() {
-        let tmp = TempDir::new().unwrap();
-        for i in 0..5 { std::fs::write(tmp.0.join(format!("s{i}.cho")), "{t: S}\nx\n").unwrap(); }
-        let (files, cut) = find_files(&tmp.0, 3, MAX_DEPTH, has_extension);
-        assert_eq!(files.len(), 3);
-        assert!(cut);
-        assert!(!find_files(&tmp.0, 50, MAX_DEPTH, has_extension).1);
-    }
-
-    #[test]
     fn decodes_encodings() {
         assert_eq!(decode(b"\xEF\xBB\xBFcaf\xC3\xA9"), "café");
         assert_eq!(decode(b"caf\xE9 \x93q\x94"), "café \u{201c}q\u{201d}");
@@ -817,47 +747,6 @@ And grace my fears relieved;
         assert!(r.songs.is_empty() && r.skipped.len() == 1);
         let many = "{soc}\nx\n{eoc}\n".repeat(300);
         assert_eq!(parse_str(&many).songs[0].lyrics.matches("Chorus (").count(), 299);
-    }
-
-    #[test]
-    fn classify_finds_duplicates() {
-        use crate::import::{classify, Dedupe};
-        let a = one(GRACE);
-        let b = one(GRACE);
-        assert!(matches!(classify(&[a], &[b])[0], Dedupe::DuplicateCcli { .. }));
-    }
-
-    #[test]
-    fn reads_folders_and_files() {
-        let tmp = TempDir::new().unwrap();
-        let d = &tmp.0;
-        std::fs::create_dir_all(d.join("sub")).unwrap();
-        std::fs::write(d.join("Amazing Grace.cho"), GRACE).unwrap();
-        std::fs::write(d.join("sub").join("Untitled One.chopro"), "[G]Some words\n").unwrap();
-        std::fs::write(d.join("sub").join("two.CRD"), "{t: A}\nx\n{ns}\n{t: B}\ny\n").unwrap();
-        std::fs::write(d.join("project.pro"), "QT += core\nSOURCES = main.cpp\n").unwrap();
-        std::fs::write(d.join("notes.txt"), "{t: ignored}\nx\n").unwrap();
-        std::fs::write(d.join("._Amazing Grace.cho"), b"\0\x05\x16\x07").unwrap();
-        std::fs::write(d.join("empty.cho"), "{t: Nothing}\n").unwrap();
-        std::fs::write(d.join("Plain Words.cho"), "Just words here\nAnd more words\n").unwrap();
-
-        let r = read_chordpro(d).unwrap();
-        let mut titles: Vec<_> = r.songs.iter().map(|s| s.title.as_str()).collect();
-        titles.sort();
-        assert_eq!(titles, ["A", "Amazing Grace", "B", "Plain Words", "Untitled One"]);
-        assert_eq!(read_chordpro(&d.join("Plain Words.cho")).unwrap().songs[0].lyrics, "Verse 1\nJust words here\nAnd more words");
-        let mut skipped: Vec<_> = r.skipped.iter().map(|(t, _)| t.as_str()).collect();
-        skipped.sort();
-        assert_eq!(skipped, ["Nothing", "project.pro"]);
-
-        let one = read_chordpro(&d.join("Amazing Grace.cho")).unwrap();
-        assert_eq!(one.songs.len(), 1);
-        assert!(read_chordpro(&d.join("project.pro")).unwrap_err().contains("doesn't look like a ChordPro file"));
-        assert!(read_chordpro(&d.join("missing")).unwrap_err().contains("Couldn't find"));
-        let empty = TempDir::new().unwrap();
-        assert!(read_chordpro(&empty.0).unwrap_err().contains("No ChordPro files"));
-        // Files are only read.
-        assert_eq!(std::fs::read_to_string(d.join("Amazing Grace.cho")).unwrap(), GRACE);
     }
 
     #[test]

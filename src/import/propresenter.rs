@@ -13,15 +13,13 @@
 //!
 //! ProPresenter 7 `.pro` files are protobuf, not XML, and aren't supported yet: they are reported with a clear
 //! reason. `.pro6x` bundles are zip files holding a `.pro6`. Files are only read, never written.
-use super::common::{find_files, label_line, lyric_line, numbered_label, section_name, ImportReport};
-use super::easyworship::{rtf_text, split_writers};
+use super::common::{label_line, lyric_line, numbered_label, section_name, split_writers};
+use super::rtf::rtf_text;
 use super::openlyrics::{ccli_number, decode_xml, parse_xml, title_or};
 use crate::model::Song;
 use crate::tr;
 use roxmltree::Node;
 use std::collections::HashMap;
-use std::io::Read;
-use std::path::Path;
 use uuid::Uuid;
 
 /// Why a ProPresenter 7 file can't be imported.
@@ -30,11 +28,6 @@ fn bundle_unsupported() -> String {
     tr!("ProPresenter 6 bundles (.pro6x) aren't supported yet; rename it to .zip, unzip it, and import the .pro6 file inside")
 }
 
-/// A file bigger than this is not a song file (`.pro6` files carry RTF copies of every slide, so allow room).
-const MAX_FILE: u64 = 32_000_000;
-/// Files looked at, and folder depth walked, at most when a folder is imported.
-const MAX_FILES: usize = 50_000;
-const MAX_DEPTH: usize = 16;
 /// Groups and slides read at most, and the longest lyrics accepted.
 const MAX_GROUPS: usize = 500;
 const MAX_SLIDES: usize = 5000;
@@ -275,61 +268,9 @@ pub fn parse_str(text: &str) -> Result<Song, String> { parse_bytes(text.as_bytes
 /// The song in a ProPresenter 6 file's bytes. A ProPresenter 7 file gives `pro7_unsupported()`.
 pub fn parse_bytes(bytes: &[u8]) -> Result<Song, String> { parse_named(bytes, false, None).1 }
 
-// ---------- files ----------
-
-fn file_label(p: &Path) -> String { p.file_name().unwrap_or_default().to_string_lossy().into_owned() }
-
-fn extension(p: &Path) -> String { p.extension().and_then(|e| e.to_str()).unwrap_or("").to_ascii_lowercase() }
-
-/// Song file extensions: ProPresenter 6 and 5, ProPresenter 7 (reported as unsupported), and 6 bundles.
-fn is_song_file(p: &Path) -> bool { matches!(extension(p).as_str(), "pro6" | "pro5" | "pro4" | "pro" | "pro6x") }
-
-/// A song, or a skipped entry, for one file.
-fn read_file(p: &Path, report: &mut ImportReport) {
-    let stem = p.file_stem().map(|s| s.to_string_lossy().into_owned());
-    let mut bytes = Vec::new();
-    // Read at most one byte past the limit, so the size is checked even when the file's size can't be asked.
-    if let Err(e) = std::fs::File::open(p).and_then(|f| f.take(MAX_FILE + 1).read_to_end(&mut bytes)) {
-        report.skipped.push((file_label(p), tr!("couldn't read it: {error}", error = e)));
-        return;
-    }
-    if bytes.len() as u64 > MAX_FILE { report.skipped.push((file_label(p), tr!("the file is too big to be a song"))); return; }
-    match parse_named(&bytes, extension(p) == "pro", stem.as_deref()) {
-        (_, Ok(s)) => report.songs.push(s),
-        (title, Err(why)) => report.skipped.push((title.unwrap_or_else(|| file_label(p)), why)),
-    }
-}
-
-/// Reads one ProPresenter song file (any name), or every `.pro6`/`.pro5`/`.pro4` in a folder and its subfolders
-/// (the ProPresenter 6 library is a folder of them). ProPresenter 7 `.pro` files and `.pro6x` bundles found in a
-/// folder are listed as skipped with the reason; other files are left out.
-pub fn read_propresenter(path: &Path) -> Result<ImportReport, String> {
-    let mut report = ImportReport::default();
-    if path.is_file() {
-        read_file(path, &mut report);
-        if report.songs.is_empty() {
-            let why = report.skipped.first().map(|(_, w)| w.clone()).unwrap_or_else(|| tr!("no song in it"));
-            return Err(tr!("No song could be read from {path}: {why}.", path = path.display(), why = why));
-        }
-        return Ok(report);
-    }
-    if !path.is_dir() { return Err(tr!("Couldn't find {path}.", path = path.display())); }
-    let (files, cut_short) = find_files(path, MAX_FILES, MAX_DEPTH, is_song_file);
-    for f in &files { read_file(f, &mut report); }
-    if report.songs.is_empty() && report.skipped.is_empty() {
-        return Err(tr!("No ProPresenter songs were found in {path}.", path = path.display()));
-    }
-    if cut_short {
-        report.skipped.push((path.display().to_string(),
-            tr!("the folder has more than {max} files and folders in it, so only the first {max} were looked at", max = MAX_FILES)));
-    }
-    Ok(report)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::import::{classify, common::TempDir, Dedupe};
     use crate::slides::parse_sections;
 
     // Amazing Grace (John Newton, 1779): public domain. The chorus is invented for the test. Verse 2's first
@@ -549,52 +490,4 @@ Verse 2\n\u{2018}Twas grace that taught my heart to fear,\nAnd grace my fears re
         assert!(rtf_text("{\\rtf1 {{{{").len() <= 1);
     }
 
-    #[test]
-    fn classify_finds_duplicates() {
-        let a = parse_str(GRACE).unwrap();
-        let b = parse_str(GRACE).unwrap();
-        assert_eq!(classify(&[a.clone()], &[b]), vec![Dedupe::DuplicateCcli { existing: a.id }]);
-    }
-
-    #[test]
-    fn reads_folders_and_files() {
-        let tmp = TempDir::new().unwrap();
-        let d = tmp.0.join("ProPresenter6");
-        std::fs::create_dir_all(d.join("Hymns")).unwrap();
-        std::fs::write(d.join("Amazing Grace.pro6"), GRACE).unwrap();
-        std::fs::write(d.join("Hymns").join("Morning Light.pro6"), doc("", &[group("Verse 1", "a", &["Morning light"])], &[])).unwrap();
-        std::fs::write(d.join("New Song.pro"), b"\x0a\x12\x0aProPresenter\x10\x07").unwrap();
-        std::fs::write(d.join("Bundle.pro6x"), b"PK\x03\x04zip").unwrap();
-        std::fs::write(d.join("broken.pro6"), "<RVPresentationDocument CCLISongTitle=").unwrap();
-        std::fs::write(d.join("Blank.pro6"), doc("CCLISongTitle=\"Blank Song\"", &[group("Verse", "a", &[""])], &[])).unwrap();
-        std::fs::write(d.join("Sunday.pro6plx"), "<RVPlaylistDocument/>").unwrap();
-        std::fs::write(d.join("notes.txt"), "not a song").unwrap();
-        std::fs::write(d.join("Older.pro4"), doc("CCLISongTitle=\"Older Song\"", &[group("Verse 1", "a", &["Old words"])], &[])).unwrap();
-
-        let r = read_propresenter(&d).unwrap();
-        let mut titles: Vec<_> = r.songs.iter().map(|s| s.title.as_str()).collect();
-        titles.sort();
-        assert_eq!(titles, ["Amazing Grace", "Morning Light", "Older Song"]);
-        let mut skipped: Vec<_> = r.skipped.iter().map(|(t, w)| (t.as_str(), w.as_str())).collect();
-        skipped.sort();
-        assert_eq!(skipped.len(), 4, "{skipped:?}");
-        assert_eq!(skipped[0].0, "Blank Song");
-        assert_eq!(skipped[1].0, "Bundle.pro6x");
-        assert_eq!(skipped[2].0, "New Song.pro");
-        assert_eq!(skipped[2].1, pro7_unsupported());
-        assert_eq!(skipped[3].0, "broken.pro6");
-
-        assert_eq!(read_propresenter(&d.join("Amazing Grace.pro6")).unwrap().songs.len(), 1);
-        let pro7 = read_propresenter(&d.join("New Song.pro")).unwrap_err();
-        assert!(pro7.contains("ProPresenter 7 files aren't supported yet"), "{pro7}");
-        // A .pro file that is text, not XML, is still called a ProPresenter 7 file.
-        std::fs::write(d.join("Text.pro"), "hello").unwrap();
-        assert!(read_propresenter(&d.join("Text.pro")).unwrap_err().contains("ProPresenter 7"));
-        assert!(read_propresenter(&d.join("notes.txt")).unwrap_err().contains("isn't a ProPresenter 6 song"));
-        assert!(read_propresenter(&d.join("broken.pro6")).unwrap_err().contains("valid XML"));
-        assert!(read_propresenter(&d.join("missing")).unwrap_err().contains("Couldn't find"));
-        let empty = tmp.0.join("empty");
-        std::fs::create_dir_all(&empty).unwrap();
-        assert!(read_propresenter(&empty).unwrap_err().contains("No ProPresenter songs"));
-    }
 }

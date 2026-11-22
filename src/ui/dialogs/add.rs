@@ -350,20 +350,6 @@ pub(crate) mod tests {
     const TILES: [&str; 5] = ["AddDialog::song-tile", "AddDialog::bible-tile", "AddDialog::media-tile", "AddDialog::deck-tile", "AddDialog::text-tile"];
 
     #[test]
-    fn library_report_names_what_did_not_come_in() {
-        use crate::app::LibraryImport;
-        let all = LibraryImport { added: 2, ..Default::default() };
-        assert_eq!(tr::library_report(&all), "Imported 2 songs.");
-        let one = LibraryImport { added: 1, duplicates: vec!["Dup".into()], skipped: vec![("Video".into(), "no words".into())] };
-        assert_eq!(tr::library_report(&one), "Imported 1 song.\n\n1 already in the library: Dup\n\nNot imported:\nVideo: no words");
-        let many = LibraryImport { added: 0, duplicates: vec![], skipped: (0..14).map(|i| (format!("S{i}"), "why".into())).collect() };
-        let text = tr::library_report(&many);
-        assert!(text.starts_with("Imported 0 songs."), "{text}");
-        assert!(text.contains("S9: why") && !text.contains("S10: why"), "{text}");
-        assert!(text.ends_with("…and 4 more."), "{text}");
-    }
-
-    #[test]
     fn add_dialog_opens_on_song_tab_from_add_button() {
         let app = test_app();
         song(&app, "Amazing Grace", "", "", "Verse 1\nAmazing grace");

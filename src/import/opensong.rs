@@ -5,17 +5,14 @@
 //! `[V1]`/`[C]`/`[B]`/`[P]`/`[T]` (or a name of its own, `[Coda]`) start a section; lines starting with `.` are
 //! chords and with `;` comments; a line starting with a digit belongs to that numbered verse of the section
 //! (`[V]` then `1…`, `2…` makes V1 and V2); `||` starts a new slide and `|` a new line; `_` only stretches a
-//! word under a long chord. Text before any section is a verse. Files are only read, never written; folders are
-//! read with `openlyrics::read_songs`, which tells the two formats apart by content.
+//! word under a long chord. Text before any section is a verse. Files are only read, never written.
 use super::chordpro::decode;
-use super::common::ImportReport;
-use super::easyworship::split_writers;
+use super::common::split_writers;
 use super::openlp::{lyrics_from_verses, Verse};
-use super::openlyrics::{self, ccli_number, child, format_of, parse_xml, split_tag, text_of, title_or, Format};
+use super::openlyrics::{ccli_number, child, format_of, parse_xml, split_tag, text_of, title_or, Format};
 use crate::model::Song;
 use crate::tr;
 use std::collections::HashMap;
-use std::path::Path;
 use uuid::Uuid;
 
 /// Sections read at most; the lyrics builder refuses more than 500 anyway.
@@ -115,13 +112,9 @@ pub fn parse_str(text: &str) -> Result<Song, String> {
 /// The song in an OpenSong file's bytes, in whatever encoding it was saved.
 pub fn parse_bytes(bytes: &[u8]) -> Result<Song, String> { parse_str(&decode(bytes)) }
 
-/// An OpenSong song file, or OpenSong's `Songs` folder (or any folder of OpenSong or OpenLyrics songs).
-pub fn read_opensong(path: &Path) -> Result<ImportReport, String> { openlyrics::read_songs(path) }
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::import::common::TempDir;
     use crate::slides::{parse_sections, song_order};
 
     // Amazing Grace (John Newton, 1779): public domain. The chorus is invented for the test.
@@ -216,13 +209,4 @@ Verse 2\n'Twas grace that taught my heart to fear\n\nAnd grace my fears relieved
         }
     }
 
-    #[test]
-    fn reads_a_songs_folder() {
-        let tmp = TempDir::new().unwrap();
-        std::fs::write(tmp.0.join("Amazing Grace"), GRACE).unwrap();
-        let r = read_opensong(&tmp.0).unwrap();
-        assert_eq!(r.songs.len(), 1);
-        assert!(r.skipped.is_empty());
-        assert_eq!(read_opensong(&tmp.0.join("Amazing Grace")).unwrap().songs[0].title, "Amazing Grace");
-    }
 }

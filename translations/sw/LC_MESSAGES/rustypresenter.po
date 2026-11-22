@@ -7234,7 +7234,7 @@ msgstr "{language} tayari imo kwenye orodha."
 msgid "The plural rule is not right. Copy it from the gettext plural list."
 msgstr "Kanuni ya wingi si sahihi. Inakili kutoka orodha ya wingi ya gettext."
 
-#: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
+#: src/import/chordpro.rs src/import/openlyrics.rs
 msgid "Untitled song"
 msgstr "Wimbo usio na kichwa"
 
@@ -7242,109 +7242,13 @@ msgstr "Wimbo usio na kichwa"
 msgid "more than {max} sections, so it isn't a song"
 msgstr "zaidi ya sehemu {max}, kwa hiyo si wimbo"
 
-#: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/opensong.rs
 msgid "no words"
 msgstr "hakuna maneno"
 
 #: src/import/chordpro.rs
 msgid "a {block} block never ends, so everything after it was left out"
 msgstr "kizuizi cha {block} hakiishi, kwa hiyo kila kitu baada yake kiliachwa"
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "the file is too big to be a song"
-msgstr "faili ni kubwa mno kuwa wimbo"
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "couldn't read it: {error}"
-msgstr "imeshindwa kuisoma: {error}"
-
-#: src/import/chordpro.rs
-msgid "it doesn't look like a ChordPro file"
-msgstr "haionekani kuwa faili ya ChordPro"
-
-#: src/import/chordpro.rs
-msgid "no songs in it"
-msgstr "hakuna nyimbo ndani yake"
-
-#: src/import/chordpro.rs
-msgid "No songs could be read from {path}: {why}."
-msgstr "Hakuna nyimbo zilizoweza kusomwa kutoka {path}: {why}."
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "Couldn't find {path}."
-msgstr "Imeshindwa kupata {path}."
-
-#: src/import/chordpro.rs
-msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
-msgstr "Hakuna faili za ChordPro (.cho, .chordpro, .chopro, .crd, .pro) zilizopatikana katika {path}."
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
-msgstr "folda ina zaidi ya faili na folda {max}, kwa hiyo ni {max} za kwanza tu zilizoangaliwa"
-
-#: src/import/common.rs
-msgid "Couldn't read {path}: {error}."
-msgstr "Imeshindwa kusoma {path}: {error}."
-
-#: src/import/common.rs
-msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
-msgstr "{app} iliendelea kuhifadhi mabadiliko wakati maktaba ikisomwa. Funga {app} kisha ujaribu tena."
-
-#: src/import/common.rs
-msgid "Couldn't make a temporary folder: {error}."
-msgstr "Imeshindwa kutengeneza folda ya muda: {error}."
-
-#: src/import/common.rs
-msgid "Couldn't copy {path}: {error}."
-msgstr "Imeshindwa kunakili {path}: {error}."
-
-#: src/import/common.rs
-msgid "Couldn't open {path}: {error}."
-msgstr "Imeshindwa kufungua {path}: {error}."
-
-#: src/import/common.rs
-msgid "the database stayed locked"
-msgstr "hifadhidata iliendelea kufungwa"
-
-#: src/import/common.rs
-msgid "{path} is empty or damaged, so there is nothing to import."
-msgstr "{path} ni tupu au imeharibika, kwa hiyo hakuna cha kuleta."
-
-#: src/import/easyworship.rs
-msgid "no words (probably a video or announcement item)"
-msgstr "hakuna maneno (huenda ni video au tangazo)"
-
-#: src/import/easyworship.rs src/import/openlp.rs
-msgid "the words are empty"
-msgstr "maneno ni tupu"
-
-#: src/import/easyworship.rs
-msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
-msgstr "Hii inaonekana kuwa maktaba ya EasyWorship 2009 (au ya zamani zaidi). Maktaba za EasyWorship 6 na 7 pekee ndizo zinaweza kuletwa."
-
-#: src/import/easyworship.rs
-msgid "Found Songs.db but not SongWords.db next to it in {folder}."
-msgstr "Songs.db imepatikana lakini si SongWords.db kando yake katika {folder}."
-
-#: src/import/easyworship.rs
-msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
-msgstr "Hakuna Songs.db ya EasyWorship iliyopatikana hapa. Chagua folda ya Databases\\Data ya wasifu (kwa kawaida C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
-
-#: src/import/easyworship.rs
-msgid "Couldn't read the EasyWorship library: {error}"
-msgstr "Imeshindwa kusoma maktaba ya EasyWorship: {error}"
-
-#: src/import/easyworship.rs
-msgid "Songs.db has no song table. Is this an EasyWorship library?"
-msgstr "Songs.db haina jedwali la nyimbo. Je, hii ni maktaba ya EasyWorship?"
-
-#: src/import/easyworship.rs
-msgid "SongWords.db has no word table. Is this an EasyWorship library?"
-msgstr "SongWords.db haina jedwali la maneno. Je, hii ni maktaba ya EasyWorship?"
-
-#: src/import/openlp.rs
-msgid "the words are not valid XML ({error})"
-msgstr "maneno si XML halali ({error})"
 
 #: src/import/openlp.rs
 msgid "the words have too many verses (more than {max})"
@@ -7357,30 +7261,6 @@ msgstr "maneno ni marefu mno kuwa wimbo"
 #: src/import/openlp.rs
 msgid "the words have no verses"
 msgstr "maneno hayana beti"
-
-#: src/import/openlp.rs
-msgid "a temporary copy OpenLP keeps for a service file"
-msgstr "nakala ya muda ambayo OpenLP huweka kwa faili ya ibada"
-
-#: src/import/openlp.rs
-msgid "This file isn't an OpenLP song database (songs.sqlite)."
-msgstr "Faili hii si hifadhidata ya nyimbo ya OpenLP (songs.sqlite)."
-
-#: src/import/openlp.rs
-msgid "Couldn't open the OpenLP database."
-msgstr "Imeshindwa kufungua hifadhidata ya OpenLP."
-
-#: src/import/openlp.rs
-msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
-msgstr "Hakuna songs.sqlite ya OpenLP iliyopatikana hapa. Chagua folda ya data ya OpenLP (kwenye Windows kwa kawaida %APPDATA%\\openlp\\data, kwenye macOS ~/Library/Application Support/openlp/Data, kwenye Linux ~/.local/share/openlp)."
-
-#: src/import/openlp.rs
-msgid "Couldn't read the OpenLP database: {error}"
-msgstr "Imeshindwa kusoma hifadhidata ya OpenLP: {error}"
-
-#: src/import/openlp.rs
-msgid "This isn't an OpenLP song database: it has no songs table."
-msgstr "Hii si hifadhidata ya nyimbo ya OpenLP: haina jedwali la nyimbo."
 
 #: src/import/openlyrics.rs
 msgid "it isn't valid XML ({error})"
@@ -7397,26 +7277,6 @@ msgstr "ni wimbo wa OpenSong, si OpenLyrics"
 #: src/import/openlyrics.rs
 msgid "it isn't an OpenLyrics song"
 msgstr "si wimbo wa OpenLyrics"
-
-#: src/import/openlyrics.rs
-msgid "not XML"
-msgstr "si XML"
-
-#: src/import/openlyrics.rs
-msgid "it isn't an OpenLyrics or OpenSong song"
-msgstr "si wimbo wa OpenLyrics wala OpenSong"
-
-#: src/import/openlyrics.rs src/import/propresenter.rs
-msgid "no song in it"
-msgstr "hakuna wimbo ndani yake"
-
-#: src/import/openlyrics.rs src/import/propresenter.rs
-msgid "No song could be read from {path}: {why}."
-msgstr "Hakuna wimbo ulioweza kusomwa kutoka {path}: {why}."
-
-#: src/import/openlyrics.rs
-msgid "No OpenLyrics or OpenSong songs were found in {path}."
-msgstr "Hakuna nyimbo za OpenLyrics au OpenSong zilizopatikana katika {path}."
 
 #: src/import/opensong.rs
 msgid "the words have too many sections to be a song"
@@ -7471,10 +7331,6 @@ msgstr "ni orodha ya kucheza ya ProPresenter, si wimbo"
 #: src/import/propresenter.rs
 msgid "it isn't a ProPresenter 6 song"
 msgstr "si wimbo wa ProPresenter 6"
-
-#: src/import/propresenter.rs
-msgid "No ProPresenter songs were found in {path}."
-msgstr "Hakuna nyimbo za ProPresenter zilizopatikana katika {path}."
 
 #: src/live/drawing/actions.rs
 msgid "This phone may not draw on slides. Ask the operator to allow it."
@@ -7689,6 +7545,14 @@ msgstr "Msimbo huu wa QR umeshatumika au ni wa zamani sana. Changanua msimbo kat
 #: src/network/phone_link.rs
 msgid "Type the remote's password (set in RustyPresenter's Settings → Remote and network)."
 msgstr "Andika nenosiri la rimoti (lililowekwa katika RustyPresenter, Mipangilio → Rimoti na mtandao)."
+
+#: src/network/slide_pictures.rs
+msgid "The computer is busy. Try again in a moment."
+msgstr ""
+
+#: src/network/slide_pictures.rs src/server.rs
+msgid "Could not draw the slide."
+msgstr "Imeshindwa kuchora slaidi."
 
 #: src/platform/data_folder.rs
 msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
@@ -7966,10 +7830,6 @@ msgstr "Amri mbaya."
 msgid "Not allowed from the phone."
 msgstr "Hairuhusiwi kutoka kwenye simu."
 
-#: src/server.rs
-msgid "Could not draw the slide."
-msgstr "Imeshindwa kuchora slaidi."
-
 #: src/server.rs src/strings/add.rs src/strings/print.rs
 msgid "{n} slide"
 msgid_plural "{n} slides"
@@ -8205,6 +8065,32 @@ msgstr "Imeshindwa kupata folda ya kuhifadhi data yako. Weka RUSTYPRESENTER_DATA
 #: src/startup.rs
 msgid "Cannot use the data folder {path}: {reason}"
 msgstr "Imeshindwa kutumia folda ya data {path}: {reason}"
+
+#: src/startup.rs
+msgid ""
+"Your saved songs and services could not be read.\n"
+"\n"
+"Start with the newest backup, made {when}?\n"
+"\n"
+"The file that could not be read is kept as {name}. Choose No to close RustyPresenter and change nothing.\n"
+"\n"
+"({problem})"
+msgstr ""
+
+#: src/startup.rs
+msgid "Started from the backup made {when}. The file that could not be read is kept as {name}."
+msgstr ""
+
+#: src/startup.rs
+msgid ""
+"{problem}\n"
+"\n"
+"The newest backup could not be used either: {reason}"
+msgstr ""
+
+#: src/startup.rs
+msgid "The automatic backup could not be made: {reason}"
+msgstr ""
 
 #: src/store.rs
 msgid "Your saved data at {path} could not be read ({reason}). Nothing was overwritten. Restore a backup from the backups folder or move the file aside."
@@ -9010,26 +8896,6 @@ msgstr "Ili kuleta faili za PowerPoint au Keynote, sakinisha LibreOffice (bure).
 msgid "Copied"
 msgstr "Imenakiliwa"
 
-#: src/strings/add.rs src/strings/bundle.rs
-msgid "…and {n} more."
-msgstr "…na {n} zaidi."
-
-#: src/strings/add.rs
-msgid "Imported {n} song."
-msgid_plural "Imported {n} songs."
-msgstr[0] "Wimbo {n} umeletwa."
-msgstr[1] "Nyimbo {n} zimeletwa."
-
-#: src/strings/add.rs
-msgid "{n} already in the library: {titles}"
-msgid_plural "{n} already in the library: {titles}"
-msgstr[0] "{n} tayari umo kwenye maktaba: {titles}"
-msgstr[1] "{n} tayari zimo kwenye maktaba: {titles}"
-
-#: src/strings/add.rs
-msgid "Not imported:"
-msgstr "Hazikuletwa:"
-
 #: src/strings/add.rs
 msgid "LibreOffice found!"
 msgstr "LibreOffice imepatikana!"
@@ -9403,6 +9269,10 @@ msgstr "“{name}” imehifadhiwa kwenye faili."
 #: src/strings/bundle.rs
 msgid "This service was not saved, because something it needs is missing:"
 msgstr "Ibada hii haikuhifadhiwa, kwa sababu kitu inachohitaji hakipo:"
+
+#: src/strings/bundle.rs
+msgid "…and {n} more."
+msgstr "…na {n} zaidi."
 
 #: src/strings/bundle.rs
 msgid "Opened “{name}”."
@@ -14074,6 +13944,127 @@ msgstr "yt-dlp haikuhifadhi video"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "si faili ya midia"
+
+#~ msgid "the file is too big to be a song"
+#~ msgstr "faili ni kubwa mno kuwa wimbo"
+
+#~ msgid "couldn't read it: {error}"
+#~ msgstr "imeshindwa kuisoma: {error}"
+
+#~ msgid "it doesn't look like a ChordPro file"
+#~ msgstr "haionekani kuwa faili ya ChordPro"
+
+#~ msgid "no songs in it"
+#~ msgstr "hakuna nyimbo ndani yake"
+
+#~ msgid "No songs could be read from {path}: {why}."
+#~ msgstr "Hakuna nyimbo zilizoweza kusomwa kutoka {path}: {why}."
+
+#~ msgid "Couldn't find {path}."
+#~ msgstr "Imeshindwa kupata {path}."
+
+#~ msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
+#~ msgstr "Hakuna faili za ChordPro (.cho, .chordpro, .chopro, .crd, .pro) zilizopatikana katika {path}."
+
+#~ msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
+#~ msgstr "folda ina zaidi ya faili na folda {max}, kwa hiyo ni {max} za kwanza tu zilizoangaliwa"
+
+#~ msgid "Couldn't read {path}: {error}."
+#~ msgstr "Imeshindwa kusoma {path}: {error}."
+
+#~ msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
+#~ msgstr "{app} iliendelea kuhifadhi mabadiliko wakati maktaba ikisomwa. Funga {app} kisha ujaribu tena."
+
+#~ msgid "Couldn't make a temporary folder: {error}."
+#~ msgstr "Imeshindwa kutengeneza folda ya muda: {error}."
+
+#~ msgid "Couldn't copy {path}: {error}."
+#~ msgstr "Imeshindwa kunakili {path}: {error}."
+
+#~ msgid "Couldn't open {path}: {error}."
+#~ msgstr "Imeshindwa kufungua {path}: {error}."
+
+#~ msgid "the database stayed locked"
+#~ msgstr "hifadhidata iliendelea kufungwa"
+
+#~ msgid "{path} is empty or damaged, so there is nothing to import."
+#~ msgstr "{path} ni tupu au imeharibika, kwa hiyo hakuna cha kuleta."
+
+#~ msgid "no words (probably a video or announcement item)"
+#~ msgstr "hakuna maneno (huenda ni video au tangazo)"
+
+#~ msgid "the words are empty"
+#~ msgstr "maneno ni tupu"
+
+#~ msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
+#~ msgstr "Hii inaonekana kuwa maktaba ya EasyWorship 2009 (au ya zamani zaidi). Maktaba za EasyWorship 6 na 7 pekee ndizo zinaweza kuletwa."
+
+#~ msgid "Found Songs.db but not SongWords.db next to it in {folder}."
+#~ msgstr "Songs.db imepatikana lakini si SongWords.db kando yake katika {folder}."
+
+#~ msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+#~ msgstr "Hakuna Songs.db ya EasyWorship iliyopatikana hapa. Chagua folda ya Databases\\Data ya wasifu (kwa kawaida C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+
+#~ msgid "Couldn't read the EasyWorship library: {error}"
+#~ msgstr "Imeshindwa kusoma maktaba ya EasyWorship: {error}"
+
+#~ msgid "Songs.db has no song table. Is this an EasyWorship library?"
+#~ msgstr "Songs.db haina jedwali la nyimbo. Je, hii ni maktaba ya EasyWorship?"
+
+#~ msgid "SongWords.db has no word table. Is this an EasyWorship library?"
+#~ msgstr "SongWords.db haina jedwali la maneno. Je, hii ni maktaba ya EasyWorship?"
+
+#~ msgid "the words are not valid XML ({error})"
+#~ msgstr "maneno si XML halali ({error})"
+
+#~ msgid "a temporary copy OpenLP keeps for a service file"
+#~ msgstr "nakala ya muda ambayo OpenLP huweka kwa faili ya ibada"
+
+#~ msgid "This file isn't an OpenLP song database (songs.sqlite)."
+#~ msgstr "Faili hii si hifadhidata ya nyimbo ya OpenLP (songs.sqlite)."
+
+#~ msgid "Couldn't open the OpenLP database."
+#~ msgstr "Imeshindwa kufungua hifadhidata ya OpenLP."
+
+#~ msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
+#~ msgstr "Hakuna songs.sqlite ya OpenLP iliyopatikana hapa. Chagua folda ya data ya OpenLP (kwenye Windows kwa kawaida %APPDATA%\\openlp\\data, kwenye macOS ~/Library/Application Support/openlp/Data, kwenye Linux ~/.local/share/openlp)."
+
+#~ msgid "Couldn't read the OpenLP database: {error}"
+#~ msgstr "Imeshindwa kusoma hifadhidata ya OpenLP: {error}"
+
+#~ msgid "This isn't an OpenLP song database: it has no songs table."
+#~ msgstr "Hii si hifadhidata ya nyimbo ya OpenLP: haina jedwali la nyimbo."
+
+#~ msgid "not XML"
+#~ msgstr "si XML"
+
+#~ msgid "it isn't an OpenLyrics or OpenSong song"
+#~ msgstr "si wimbo wa OpenLyrics wala OpenSong"
+
+#~ msgid "no song in it"
+#~ msgstr "hakuna wimbo ndani yake"
+
+#~ msgid "No song could be read from {path}: {why}."
+#~ msgstr "Hakuna wimbo ulioweza kusomwa kutoka {path}: {why}."
+
+#~ msgid "No OpenLyrics or OpenSong songs were found in {path}."
+#~ msgstr "Hakuna nyimbo za OpenLyrics au OpenSong zilizopatikana katika {path}."
+
+#~ msgid "No ProPresenter songs were found in {path}."
+#~ msgstr "Hakuna nyimbo za ProPresenter zilizopatikana katika {path}."
+
+#~ msgid "Imported {n} song."
+#~ msgid_plural "Imported {n} songs."
+#~ msgstr[0] "Wimbo {n} umeletwa."
+#~ msgstr[1] "Nyimbo {n} zimeletwa."
+
+#~ msgid "{n} already in the library: {titles}"
+#~ msgid_plural "{n} already in the library: {titles}"
+#~ msgstr[0] "{n} tayari umo kwenye maktaba: {titles}"
+#~ msgstr[1] "{n} tayari zimo kwenye maktaba: {titles}"
+
+#~ msgid "Not imported:"
+#~ msgstr "Hazikuletwa:"
 
 #~ msgid "Import from EasyWorship"
 #~ msgstr "Leta kutoka EasyWorship"

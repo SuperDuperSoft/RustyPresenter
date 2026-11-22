@@ -15,27 +15,6 @@ pub fn search_slides() -> String { tr!("Search slides…") }
 pub fn install_libreoffice() -> String { tr!("To import PowerPoint or Keynote files, install LibreOffice (free). PDF files work without it.") }
 pub fn copied() -> String { tr!("Copied") }
 
-/// The end of a library import (spec §9.3): how many came in, and every song that did not, with why.
-pub fn library_report(report: &crate::app::LibraryImport) -> String {
-    const SHOWN: usize = 10;
-    let more = |n: usize| if n > SHOWN { tr!("…and {n} more.", n = n - SHOWN) } else { String::new() };
-    let mut text = trn!("Imported {n} song.", "Imported {n} songs.", report.added);
-    let duplicates = report.duplicates.len();
-    if duplicates > 0 {
-        let titles = report.duplicates[..duplicates.min(SHOWN)].join(", ");
-        text += "\n\n";
-        text += &trn!("{n} already in the library: {titles}", "{n} already in the library: {titles}", duplicates, titles = titles);
-        if duplicates > SHOWN { text += &format!(" {}", more(duplicates)) }
-    }
-    if !report.skipped.is_empty() {
-        text += "\n\n";
-        text += &tr!("Not imported:");
-        for (title, why) in report.skipped.iter().take(SHOWN) { text += &format!("\n{title}: {why}") }
-        if report.skipped.len() > SHOWN { text += &format!("\n{}", more(report.skipped.len())) }
-    }
-    text
-}
-
 pub fn libreoffice_found() -> String { tr!("LibreOffice found!") }
 pub fn libreoffice_not_found() -> String { tr!("Not found yet — finish installing, then click Check again.") }
 

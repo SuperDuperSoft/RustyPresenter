@@ -7234,7 +7234,7 @@ msgstr "Nasa listahan na ang {language}."
 msgid "The plural rule is not right. Copy it from the gettext plural list."
 msgstr "Hindi tama ang plural rule. Kopyahin ito mula sa gettext plural list."
 
-#: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
+#: src/import/chordpro.rs src/import/openlyrics.rs
 msgid "Untitled song"
 msgstr "Kantang walang pamagat"
 
@@ -7242,109 +7242,13 @@ msgstr "Kantang walang pamagat"
 msgid "more than {max} sections, so it isn't a song"
 msgstr "higit sa {max} section, kaya hindi ito kanta"
 
-#: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/opensong.rs
 msgid "no words"
 msgstr "walang mga salita"
 
 #: src/import/chordpro.rs
 msgid "a {block} block never ends, so everything after it was left out"
 msgstr "hindi nagtatapos ang isang {block} block, kaya hindi isinama ang lahat ng kasunod nito"
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "the file is too big to be a song"
-msgstr "masyadong malaki ang file para maging kanta"
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "couldn't read it: {error}"
-msgstr "hindi ito mabasa: {error}"
-
-#: src/import/chordpro.rs
-msgid "it doesn't look like a ChordPro file"
-msgstr "mukhang hindi ito ChordPro file"
-
-#: src/import/chordpro.rs
-msgid "no songs in it"
-msgstr "walang kanta rito"
-
-#: src/import/chordpro.rs
-msgid "No songs could be read from {path}: {why}."
-msgstr "Walang kantang nabasa mula sa {path}: {why}."
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "Couldn't find {path}."
-msgstr "Hindi makita ang {path}."
-
-#: src/import/chordpro.rs
-msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
-msgstr "Walang nakitang ChordPro file (.cho, .chordpro, .chopro, .crd, .pro) sa {path}."
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
-msgstr "may higit sa {max} file at folder sa folder, kaya ang unang {max} lang ang tiningnan"
-
-#: src/import/common.rs
-msgid "Couldn't read {path}: {error}."
-msgstr "Hindi mabasa ang {path}: {error}."
-
-#: src/import/common.rs
-msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
-msgstr "Patuloy na nagse-save ng mga pagbabago ang {app} habang binabasa ang library. Isara ang {app} at subukang muli."
-
-#: src/import/common.rs
-msgid "Couldn't make a temporary folder: {error}."
-msgstr "Hindi makagawa ng pansamantalang folder: {error}."
-
-#: src/import/common.rs
-msgid "Couldn't copy {path}: {error}."
-msgstr "Hindi makopya ang {path}: {error}."
-
-#: src/import/common.rs
-msgid "Couldn't open {path}: {error}."
-msgstr "Hindi mabuksan ang {path}: {error}."
-
-#: src/import/common.rs
-msgid "the database stayed locked"
-msgstr "nanatiling naka-lock ang database"
-
-#: src/import/common.rs
-msgid "{path} is empty or damaged, so there is nothing to import."
-msgstr "Walang laman o sira ang {path}, kaya walang maii-import."
-
-#: src/import/easyworship.rs
-msgid "no words (probably a video or announcement item)"
-msgstr "walang mga salita (malamang video o anunsyo ang item)"
-
-#: src/import/easyworship.rs src/import/openlp.rs
-msgid "the words are empty"
-msgstr "walang laman ang mga salita"
-
-#: src/import/easyworship.rs
-msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
-msgstr "Mukhang EasyWorship 2009 (o mas luma) na library ito. Mga library ng EasyWorship 6 at 7 lang ang maaaring i-import."
-
-#: src/import/easyworship.rs
-msgid "Found Songs.db but not SongWords.db next to it in {folder}."
-msgstr "Nakita ang Songs.db pero walang SongWords.db sa tabi nito sa {folder}."
-
-#: src/import/easyworship.rs
-msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
-msgstr "Walang nakitang EasyWorship Songs.db dito. Piliin ang Databases\\Data folder ng profile (karaniwang C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
-
-#: src/import/easyworship.rs
-msgid "Couldn't read the EasyWorship library: {error}"
-msgstr "Hindi mabasa ang EasyWorship library: {error}"
-
-#: src/import/easyworship.rs
-msgid "Songs.db has no song table. Is this an EasyWorship library?"
-msgstr "Walang song table ang Songs.db. EasyWorship library ba ito?"
-
-#: src/import/easyworship.rs
-msgid "SongWords.db has no word table. Is this an EasyWorship library?"
-msgstr "Walang word table ang SongWords.db. EasyWorship library ba ito?"
-
-#: src/import/openlp.rs
-msgid "the words are not valid XML ({error})"
-msgstr "hindi valid na XML ang mga salita ({error})"
 
 #: src/import/openlp.rs
 msgid "the words have too many verses (more than {max})"
@@ -7357,30 +7261,6 @@ msgstr "masyadong mahaba ang mga salita para maging kanta"
 #: src/import/openlp.rs
 msgid "the words have no verses"
 msgstr "walang verse ang mga salita"
-
-#: src/import/openlp.rs
-msgid "a temporary copy OpenLP keeps for a service file"
-msgstr "pansamantalang kopya na itinatago ng OpenLP para sa isang service file"
-
-#: src/import/openlp.rs
-msgid "This file isn't an OpenLP song database (songs.sqlite)."
-msgstr "Hindi OpenLP song database (songs.sqlite) ang file na ito."
-
-#: src/import/openlp.rs
-msgid "Couldn't open the OpenLP database."
-msgstr "Hindi mabuksan ang OpenLP database."
-
-#: src/import/openlp.rs
-msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
-msgstr "Walang nakitang OpenLP songs.sqlite dito. Piliin ang data folder ng OpenLP (sa Windows karaniwang %APPDATA%\\openlp\\data, sa macOS ~/Library/Application Support/openlp/Data, sa Linux ~/.local/share/openlp)."
-
-#: src/import/openlp.rs
-msgid "Couldn't read the OpenLP database: {error}"
-msgstr "Hindi mabasa ang OpenLP database: {error}"
-
-#: src/import/openlp.rs
-msgid "This isn't an OpenLP song database: it has no songs table."
-msgstr "Hindi ito OpenLP song database: wala itong songs table."
 
 #: src/import/openlyrics.rs
 msgid "it isn't valid XML ({error})"
@@ -7397,26 +7277,6 @@ msgstr "OpenSong na kanta ito, hindi OpenLyrics"
 #: src/import/openlyrics.rs
 msgid "it isn't an OpenLyrics song"
 msgstr "hindi ito OpenLyrics na kanta"
-
-#: src/import/openlyrics.rs
-msgid "not XML"
-msgstr "hindi XML"
-
-#: src/import/openlyrics.rs
-msgid "it isn't an OpenLyrics or OpenSong song"
-msgstr "hindi ito OpenLyrics o OpenSong na kanta"
-
-#: src/import/openlyrics.rs src/import/propresenter.rs
-msgid "no song in it"
-msgstr "walang kanta rito"
-
-#: src/import/openlyrics.rs src/import/propresenter.rs
-msgid "No song could be read from {path}: {why}."
-msgstr "Walang kantang nabasa mula sa {path}: {why}."
-
-#: src/import/openlyrics.rs
-msgid "No OpenLyrics or OpenSong songs were found in {path}."
-msgstr "Walang nakitang OpenLyrics o OpenSong na kanta sa {path}."
 
 #: src/import/opensong.rs
 msgid "the words have too many sections to be a song"
@@ -7471,10 +7331,6 @@ msgstr "ProPresenter playlist ito, hindi kanta"
 #: src/import/propresenter.rs
 msgid "it isn't a ProPresenter 6 song"
 msgstr "hindi ito ProPresenter 6 na kanta"
-
-#: src/import/propresenter.rs
-msgid "No ProPresenter songs were found in {path}."
-msgstr "Walang nakitang ProPresenter na kanta sa {path}."
 
 #: src/live/drawing/actions.rs
 msgid "This phone may not draw on slides. Ask the operator to allow it."
@@ -7689,6 +7545,14 @@ msgstr "Nagamit na o masyado nang luma ang QR code na ito. I-scan ulit ang code 
 #: src/network/phone_link.rs
 msgid "Type the remote's password (set in RustyPresenter's Settings → Remote and network)."
 msgstr "I-type ang password ng remote (itinakda sa RustyPresenter, Settings → Remote at network)."
+
+#: src/network/slide_pictures.rs
+msgid "The computer is busy. Try again in a moment."
+msgstr ""
+
+#: src/network/slide_pictures.rs src/server.rs
+msgid "Could not draw the slide."
+msgstr "Hindi maiguhit ang slide."
 
 #: src/platform/data_folder.rs
 msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
@@ -7966,10 +7830,6 @@ msgstr "Maling command."
 msgid "Not allowed from the phone."
 msgstr "Hindi pinapayagan mula sa phone."
 
-#: src/server.rs
-msgid "Could not draw the slide."
-msgstr "Hindi maiguhit ang slide."
-
 #: src/server.rs src/strings/add.rs src/strings/print.rs
 msgid "{n} slide"
 msgid_plural "{n} slides"
@@ -8205,6 +8065,32 @@ msgstr "Walang mahanap na folder na mapaglalagyan ng iyong data. Itakda ang RUST
 #: src/startup.rs
 msgid "Cannot use the data folder {path}: {reason}"
 msgstr "Hindi magamit ang data folder na {path}: {reason}"
+
+#: src/startup.rs
+msgid ""
+"Your saved songs and services could not be read.\n"
+"\n"
+"Start with the newest backup, made {when}?\n"
+"\n"
+"The file that could not be read is kept as {name}. Choose No to close RustyPresenter and change nothing.\n"
+"\n"
+"({problem})"
+msgstr ""
+
+#: src/startup.rs
+msgid "Started from the backup made {when}. The file that could not be read is kept as {name}."
+msgstr ""
+
+#: src/startup.rs
+msgid ""
+"{problem}\n"
+"\n"
+"The newest backup could not be used either: {reason}"
+msgstr ""
+
+#: src/startup.rs
+msgid "The automatic backup could not be made: {reason}"
+msgstr ""
 
 #: src/store.rs
 msgid "Your saved data at {path} could not be read ({reason}). Nothing was overwritten. Restore a backup from the backups folder or move the file aside."
@@ -9010,26 +8896,6 @@ msgstr "Para mag-import ng PowerPoint o Keynote file, i-install ang LibreOffice 
 msgid "Copied"
 msgstr "Nakopya"
 
-#: src/strings/add.rs src/strings/bundle.rs
-msgid "…and {n} more."
-msgstr "…at {n} pa."
-
-#: src/strings/add.rs
-msgid "Imported {n} song."
-msgid_plural "Imported {n} songs."
-msgstr[0] "Na-import ang {n} kanta."
-msgstr[1] "Na-import ang {n} na kanta."
-
-#: src/strings/add.rs
-msgid "{n} already in the library: {titles}"
-msgid_plural "{n} already in the library: {titles}"
-msgstr[0] "{n} ay nasa library na: {titles}"
-msgstr[1] "{n} ay nasa library na: {titles}"
-
-#: src/strings/add.rs
-msgid "Not imported:"
-msgstr "Hindi na-import:"
-
 #: src/strings/add.rs
 msgid "LibreOffice found!"
 msgstr "Nakita ang LibreOffice!"
@@ -9403,6 +9269,10 @@ msgstr "Na-save sa file ang “{name}”."
 #: src/strings/bundle.rs
 msgid "This service was not saved, because something it needs is missing:"
 msgstr "Hindi na-save ang service na ito, dahil may nawawalang kailangan nito:"
+
+#: src/strings/bundle.rs
+msgid "…and {n} more."
+msgstr "…at {n} pa."
 
 #: src/strings/bundle.rs
 msgid "Opened “{name}”."
@@ -14074,6 +13944,127 @@ msgstr "walang na-save na video ang yt-dlp"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "hindi media file"
+
+#~ msgid "the file is too big to be a song"
+#~ msgstr "masyadong malaki ang file para maging kanta"
+
+#~ msgid "couldn't read it: {error}"
+#~ msgstr "hindi ito mabasa: {error}"
+
+#~ msgid "it doesn't look like a ChordPro file"
+#~ msgstr "mukhang hindi ito ChordPro file"
+
+#~ msgid "no songs in it"
+#~ msgstr "walang kanta rito"
+
+#~ msgid "No songs could be read from {path}: {why}."
+#~ msgstr "Walang kantang nabasa mula sa {path}: {why}."
+
+#~ msgid "Couldn't find {path}."
+#~ msgstr "Hindi makita ang {path}."
+
+#~ msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
+#~ msgstr "Walang nakitang ChordPro file (.cho, .chordpro, .chopro, .crd, .pro) sa {path}."
+
+#~ msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
+#~ msgstr "may higit sa {max} file at folder sa folder, kaya ang unang {max} lang ang tiningnan"
+
+#~ msgid "Couldn't read {path}: {error}."
+#~ msgstr "Hindi mabasa ang {path}: {error}."
+
+#~ msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
+#~ msgstr "Patuloy na nagse-save ng mga pagbabago ang {app} habang binabasa ang library. Isara ang {app} at subukang muli."
+
+#~ msgid "Couldn't make a temporary folder: {error}."
+#~ msgstr "Hindi makagawa ng pansamantalang folder: {error}."
+
+#~ msgid "Couldn't copy {path}: {error}."
+#~ msgstr "Hindi makopya ang {path}: {error}."
+
+#~ msgid "Couldn't open {path}: {error}."
+#~ msgstr "Hindi mabuksan ang {path}: {error}."
+
+#~ msgid "the database stayed locked"
+#~ msgstr "nanatiling naka-lock ang database"
+
+#~ msgid "{path} is empty or damaged, so there is nothing to import."
+#~ msgstr "Walang laman o sira ang {path}, kaya walang maii-import."
+
+#~ msgid "no words (probably a video or announcement item)"
+#~ msgstr "walang mga salita (malamang video o anunsyo ang item)"
+
+#~ msgid "the words are empty"
+#~ msgstr "walang laman ang mga salita"
+
+#~ msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
+#~ msgstr "Mukhang EasyWorship 2009 (o mas luma) na library ito. Mga library ng EasyWorship 6 at 7 lang ang maaaring i-import."
+
+#~ msgid "Found Songs.db but not SongWords.db next to it in {folder}."
+#~ msgstr "Nakita ang Songs.db pero walang SongWords.db sa tabi nito sa {folder}."
+
+#~ msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+#~ msgstr "Walang nakitang EasyWorship Songs.db dito. Piliin ang Databases\\Data folder ng profile (karaniwang C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+
+#~ msgid "Couldn't read the EasyWorship library: {error}"
+#~ msgstr "Hindi mabasa ang EasyWorship library: {error}"
+
+#~ msgid "Songs.db has no song table. Is this an EasyWorship library?"
+#~ msgstr "Walang song table ang Songs.db. EasyWorship library ba ito?"
+
+#~ msgid "SongWords.db has no word table. Is this an EasyWorship library?"
+#~ msgstr "Walang word table ang SongWords.db. EasyWorship library ba ito?"
+
+#~ msgid "the words are not valid XML ({error})"
+#~ msgstr "hindi valid na XML ang mga salita ({error})"
+
+#~ msgid "a temporary copy OpenLP keeps for a service file"
+#~ msgstr "pansamantalang kopya na itinatago ng OpenLP para sa isang service file"
+
+#~ msgid "This file isn't an OpenLP song database (songs.sqlite)."
+#~ msgstr "Hindi OpenLP song database (songs.sqlite) ang file na ito."
+
+#~ msgid "Couldn't open the OpenLP database."
+#~ msgstr "Hindi mabuksan ang OpenLP database."
+
+#~ msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
+#~ msgstr "Walang nakitang OpenLP songs.sqlite dito. Piliin ang data folder ng OpenLP (sa Windows karaniwang %APPDATA%\\openlp\\data, sa macOS ~/Library/Application Support/openlp/Data, sa Linux ~/.local/share/openlp)."
+
+#~ msgid "Couldn't read the OpenLP database: {error}"
+#~ msgstr "Hindi mabasa ang OpenLP database: {error}"
+
+#~ msgid "This isn't an OpenLP song database: it has no songs table."
+#~ msgstr "Hindi ito OpenLP song database: wala itong songs table."
+
+#~ msgid "not XML"
+#~ msgstr "hindi XML"
+
+#~ msgid "it isn't an OpenLyrics or OpenSong song"
+#~ msgstr "hindi ito OpenLyrics o OpenSong na kanta"
+
+#~ msgid "no song in it"
+#~ msgstr "walang kanta rito"
+
+#~ msgid "No song could be read from {path}: {why}."
+#~ msgstr "Walang kantang nabasa mula sa {path}: {why}."
+
+#~ msgid "No OpenLyrics or OpenSong songs were found in {path}."
+#~ msgstr "Walang nakitang OpenLyrics o OpenSong na kanta sa {path}."
+
+#~ msgid "No ProPresenter songs were found in {path}."
+#~ msgstr "Walang nakitang ProPresenter na kanta sa {path}."
+
+#~ msgid "Imported {n} song."
+#~ msgid_plural "Imported {n} songs."
+#~ msgstr[0] "Na-import ang {n} kanta."
+#~ msgstr[1] "Na-import ang {n} na kanta."
+
+#~ msgid "{n} already in the library: {titles}"
+#~ msgid_plural "{n} already in the library: {titles}"
+#~ msgstr[0] "{n} ay nasa library na: {titles}"
+#~ msgstr[1] "{n} ay nasa library na: {titles}"
+
+#~ msgid "Not imported:"
+#~ msgstr "Hindi na-import:"
 
 #~ msgid "Import from EasyWorship"
 #~ msgstr "Mag-import mula sa EasyWorship"

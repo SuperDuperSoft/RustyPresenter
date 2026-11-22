@@ -7234,7 +7234,7 @@ msgstr "{language} уже есть в списке."
 msgid "The plural rule is not right. Copy it from the gettext plural list."
 msgstr "Неверное правило множественного числа. Скопируйте его из списка gettext."
 
-#: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
+#: src/import/chordpro.rs src/import/openlyrics.rs
 msgid "Untitled song"
 msgstr "Песня без названия"
 
@@ -7242,109 +7242,13 @@ msgstr "Песня без названия"
 msgid "more than {max} sections, so it isn't a song"
 msgstr "больше {max} разделов, поэтому это не песня"
 
-#: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/opensong.rs
 msgid "no words"
 msgstr "нет слов"
 
 #: src/import/chordpro.rs
 msgid "a {block} block never ends, so everything after it was left out"
 msgstr "блок {block} не закрыт, поэтому всё после него пропущено"
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "the file is too big to be a song"
-msgstr "файл слишком большой для песни"
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "couldn't read it: {error}"
-msgstr "не удалось прочитать: {error}"
-
-#: src/import/chordpro.rs
-msgid "it doesn't look like a ChordPro file"
-msgstr "это не похоже на файл ChordPro"
-
-#: src/import/chordpro.rs
-msgid "no songs in it"
-msgstr "в нём нет песен"
-
-#: src/import/chordpro.rs
-msgid "No songs could be read from {path}: {why}."
-msgstr "Не удалось прочитать ни одной песни из {path}: {why}."
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "Couldn't find {path}."
-msgstr "Не удалось найти {path}."
-
-#: src/import/chordpro.rs
-msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
-msgstr "В {path} не найдено файлов ChordPro (.cho, .chordpro, .chopro, .crd, .pro)."
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
-msgstr "в папке больше {max} файлов и папок, поэтому просмотрены только первые {max}"
-
-#: src/import/common.rs
-msgid "Couldn't read {path}: {error}."
-msgstr "Не удалось прочитать {path}: {error}."
-
-#: src/import/common.rs
-msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
-msgstr "{app} продолжал сохранять изменения, пока читалась библиотека. Закройте {app} и повторите."
-
-#: src/import/common.rs
-msgid "Couldn't make a temporary folder: {error}."
-msgstr "Не удалось создать временную папку: {error}."
-
-#: src/import/common.rs
-msgid "Couldn't copy {path}: {error}."
-msgstr "Не удалось скопировать {path}: {error}."
-
-#: src/import/common.rs
-msgid "Couldn't open {path}: {error}."
-msgstr "Не удалось открыть {path}: {error}."
-
-#: src/import/common.rs
-msgid "the database stayed locked"
-msgstr "база данных осталась заблокированной"
-
-#: src/import/common.rs
-msgid "{path} is empty or damaged, so there is nothing to import."
-msgstr "{path} пуст или повреждён, импортировать нечего."
-
-#: src/import/easyworship.rs
-msgid "no words (probably a video or announcement item)"
-msgstr "нет слов (вероятно, это видео или объявление)"
-
-#: src/import/easyworship.rs src/import/openlp.rs
-msgid "the words are empty"
-msgstr "слов нет"
-
-#: src/import/easyworship.rs
-msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
-msgstr "Похоже, это библиотека EasyWorship 2009 (или старше). Импортировать можно только библиотеки EasyWorship 6 и 7."
-
-#: src/import/easyworship.rs
-msgid "Found Songs.db but not SongWords.db next to it in {folder}."
-msgstr "В {folder} найден Songs.db, но рядом нет SongWords.db."
-
-#: src/import/easyworship.rs
-msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
-msgstr "Здесь не найден Songs.db от EasyWorship. Выберите папку профиля Databases\\Data (обычно C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
-
-#: src/import/easyworship.rs
-msgid "Couldn't read the EasyWorship library: {error}"
-msgstr "Не удалось прочитать библиотеку EasyWorship: {error}"
-
-#: src/import/easyworship.rs
-msgid "Songs.db has no song table. Is this an EasyWorship library?"
-msgstr "В Songs.db нет таблицы песен. Это точно библиотека EasyWorship?"
-
-#: src/import/easyworship.rs
-msgid "SongWords.db has no word table. Is this an EasyWorship library?"
-msgstr "В SongWords.db нет таблицы слов. Это точно библиотека EasyWorship?"
-
-#: src/import/openlp.rs
-msgid "the words are not valid XML ({error})"
-msgstr "слова — некорректный XML ({error})"
 
 #: src/import/openlp.rs
 msgid "the words have too many verses (more than {max})"
@@ -7357,30 +7261,6 @@ msgstr "слова слишком длинные для песни"
 #: src/import/openlp.rs
 msgid "the words have no verses"
 msgstr "в словах нет куплетов"
-
-#: src/import/openlp.rs
-msgid "a temporary copy OpenLP keeps for a service file"
-msgstr "временная копия, которую OpenLP хранит для файла служения"
-
-#: src/import/openlp.rs
-msgid "This file isn't an OpenLP song database (songs.sqlite)."
-msgstr "Этот файл не является базой песен OpenLP (songs.sqlite)."
-
-#: src/import/openlp.rs
-msgid "Couldn't open the OpenLP database."
-msgstr "Не удалось открыть базу данных OpenLP."
-
-#: src/import/openlp.rs
-msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
-msgstr "Здесь не найден songs.sqlite от OpenLP. Выберите папку данных OpenLP (в Windows обычно %APPDATA%\\openlp\\data, в macOS ~/Library/Application Support/openlp/Data, в Linux ~/.local/share/openlp)."
-
-#: src/import/openlp.rs
-msgid "Couldn't read the OpenLP database: {error}"
-msgstr "Не удалось прочитать базу данных OpenLP: {error}"
-
-#: src/import/openlp.rs
-msgid "This isn't an OpenLP song database: it has no songs table."
-msgstr "Это не база песен OpenLP: в ней нет таблицы songs."
 
 #: src/import/openlyrics.rs
 msgid "it isn't valid XML ({error})"
@@ -7397,26 +7277,6 @@ msgstr "это песня OpenSong, а не OpenLyrics"
 #: src/import/openlyrics.rs
 msgid "it isn't an OpenLyrics song"
 msgstr "это не песня OpenLyrics"
-
-#: src/import/openlyrics.rs
-msgid "not XML"
-msgstr "не XML"
-
-#: src/import/openlyrics.rs
-msgid "it isn't an OpenLyrics or OpenSong song"
-msgstr "это не песня OpenLyrics или OpenSong"
-
-#: src/import/openlyrics.rs src/import/propresenter.rs
-msgid "no song in it"
-msgstr "в нём нет песни"
-
-#: src/import/openlyrics.rs src/import/propresenter.rs
-msgid "No song could be read from {path}: {why}."
-msgstr "Не удалось прочитать песню из {path}: {why}."
-
-#: src/import/openlyrics.rs
-msgid "No OpenLyrics or OpenSong songs were found in {path}."
-msgstr "В {path} не найдено песен OpenLyrics или OpenSong."
 
 #: src/import/opensong.rs
 msgid "the words have too many sections to be a song"
@@ -7472,10 +7332,6 @@ msgstr "это плейлист ProPresenter, а не песня"
 #: src/import/propresenter.rs
 msgid "it isn't a ProPresenter 6 song"
 msgstr "это не песня ProPresenter 6"
-
-#: src/import/propresenter.rs
-msgid "No ProPresenter songs were found in {path}."
-msgstr "В {path} не найдено песен ProPresenter."
 
 #: src/live/drawing/actions.rs
 msgid "This phone may not draw on slides. Ask the operator to allow it."
@@ -7693,6 +7549,14 @@ msgstr "Этот QR-код уже использован или устарел. 
 #: src/network/phone_link.rs
 msgid "Type the remote's password (set in RustyPresenter's Settings → Remote and network)."
 msgstr "Введите пароль пульта (задаётся в RustyPresenter: Настройки → Пульт и сеть)."
+
+#: src/network/slide_pictures.rs
+msgid "The computer is busy. Try again in a moment."
+msgstr ""
+
+#: src/network/slide_pictures.rs src/server.rs
+msgid "Could not draw the slide."
+msgstr "Не удалось отрисовать слайд."
 
 #: src/platform/data_folder.rs
 msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
@@ -7970,10 +7834,6 @@ msgstr "Неверная команда."
 msgid "Not allowed from the phone."
 msgstr "С телефона это делать нельзя."
 
-#: src/server.rs
-msgid "Could not draw the slide."
-msgstr "Не удалось отрисовать слайд."
-
 #: src/server.rs src/strings/add.rs src/strings/print.rs
 msgid "{n} slide"
 msgid_plural "{n} slides"
@@ -8215,6 +8075,32 @@ msgstr "Не удаётся найти папку для хранения ваш
 #: src/startup.rs
 msgid "Cannot use the data folder {path}: {reason}"
 msgstr "Нельзя использовать папку данных {path}: {reason}"
+
+#: src/startup.rs
+msgid ""
+"Your saved songs and services could not be read.\n"
+"\n"
+"Start with the newest backup, made {when}?\n"
+"\n"
+"The file that could not be read is kept as {name}. Choose No to close RustyPresenter and change nothing.\n"
+"\n"
+"({problem})"
+msgstr ""
+
+#: src/startup.rs
+msgid "Started from the backup made {when}. The file that could not be read is kept as {name}."
+msgstr ""
+
+#: src/startup.rs
+msgid ""
+"{problem}\n"
+"\n"
+"The newest backup could not be used either: {reason}"
+msgstr ""
+
+#: src/startup.rs
+msgid "The automatic backup could not be made: {reason}"
+msgstr ""
 
 #: src/store.rs
 msgid "Your saved data at {path} could not be read ({reason}). Nothing was overwritten. Restore a backup from the backups folder or move the file aside."
@@ -9022,28 +8908,6 @@ msgstr "Чтобы импортировать файлы PowerPoint или Keyno
 msgid "Copied"
 msgstr "Скопировано"
 
-#: src/strings/add.rs src/strings/bundle.rs
-msgid "…and {n} more."
-msgstr "…и ещё {n}."
-
-#: src/strings/add.rs
-msgid "Imported {n} song."
-msgid_plural "Imported {n} songs."
-msgstr[0] "Импортирована {n} песня."
-msgstr[1] "Импортированы {n} песни."
-msgstr[2] "Импортировано {n} песен."
-
-#: src/strings/add.rs
-msgid "{n} already in the library: {titles}"
-msgid_plural "{n} already in the library: {titles}"
-msgstr[0] "{n} уже в библиотеке: {titles}"
-msgstr[1] "{n} уже в библиотеке: {titles}"
-msgstr[2] "{n} уже в библиотеке: {titles}"
-
-#: src/strings/add.rs
-msgid "Not imported:"
-msgstr "Не импортировано:"
-
 #: src/strings/add.rs
 msgid "LibreOffice found!"
 msgstr "LibreOffice найден!"
@@ -9420,6 +9284,10 @@ msgstr "«{name}» сохранено в файл."
 #: src/strings/bundle.rs
 msgid "This service was not saved, because something it needs is missing:"
 msgstr "Служение не сохранено, потому что не хватает нужного:"
+
+#: src/strings/bundle.rs
+msgid "…and {n} more."
+msgstr "…и ещё {n}."
 
 #: src/strings/bundle.rs
 msgid "Opened “{name}”."
@@ -14126,6 +13994,129 @@ msgstr "yt-dlp не сохранил видео"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "не медиафайл"
+
+#~ msgid "the file is too big to be a song"
+#~ msgstr "файл слишком большой для песни"
+
+#~ msgid "couldn't read it: {error}"
+#~ msgstr "не удалось прочитать: {error}"
+
+#~ msgid "it doesn't look like a ChordPro file"
+#~ msgstr "это не похоже на файл ChordPro"
+
+#~ msgid "no songs in it"
+#~ msgstr "в нём нет песен"
+
+#~ msgid "No songs could be read from {path}: {why}."
+#~ msgstr "Не удалось прочитать ни одной песни из {path}: {why}."
+
+#~ msgid "Couldn't find {path}."
+#~ msgstr "Не удалось найти {path}."
+
+#~ msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
+#~ msgstr "В {path} не найдено файлов ChordPro (.cho, .chordpro, .chopro, .crd, .pro)."
+
+#~ msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
+#~ msgstr "в папке больше {max} файлов и папок, поэтому просмотрены только первые {max}"
+
+#~ msgid "Couldn't read {path}: {error}."
+#~ msgstr "Не удалось прочитать {path}: {error}."
+
+#~ msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
+#~ msgstr "{app} продолжал сохранять изменения, пока читалась библиотека. Закройте {app} и повторите."
+
+#~ msgid "Couldn't make a temporary folder: {error}."
+#~ msgstr "Не удалось создать временную папку: {error}."
+
+#~ msgid "Couldn't copy {path}: {error}."
+#~ msgstr "Не удалось скопировать {path}: {error}."
+
+#~ msgid "Couldn't open {path}: {error}."
+#~ msgstr "Не удалось открыть {path}: {error}."
+
+#~ msgid "the database stayed locked"
+#~ msgstr "база данных осталась заблокированной"
+
+#~ msgid "{path} is empty or damaged, so there is nothing to import."
+#~ msgstr "{path} пуст или повреждён, импортировать нечего."
+
+#~ msgid "no words (probably a video or announcement item)"
+#~ msgstr "нет слов (вероятно, это видео или объявление)"
+
+#~ msgid "the words are empty"
+#~ msgstr "слов нет"
+
+#~ msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
+#~ msgstr "Похоже, это библиотека EasyWorship 2009 (или старше). Импортировать можно только библиотеки EasyWorship 6 и 7."
+
+#~ msgid "Found Songs.db but not SongWords.db next to it in {folder}."
+#~ msgstr "В {folder} найден Songs.db, но рядом нет SongWords.db."
+
+#~ msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+#~ msgstr "Здесь не найден Songs.db от EasyWorship. Выберите папку профиля Databases\\Data (обычно C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+
+#~ msgid "Couldn't read the EasyWorship library: {error}"
+#~ msgstr "Не удалось прочитать библиотеку EasyWorship: {error}"
+
+#~ msgid "Songs.db has no song table. Is this an EasyWorship library?"
+#~ msgstr "В Songs.db нет таблицы песен. Это точно библиотека EasyWorship?"
+
+#~ msgid "SongWords.db has no word table. Is this an EasyWorship library?"
+#~ msgstr "В SongWords.db нет таблицы слов. Это точно библиотека EasyWorship?"
+
+#~ msgid "the words are not valid XML ({error})"
+#~ msgstr "слова — некорректный XML ({error})"
+
+#~ msgid "a temporary copy OpenLP keeps for a service file"
+#~ msgstr "временная копия, которую OpenLP хранит для файла служения"
+
+#~ msgid "This file isn't an OpenLP song database (songs.sqlite)."
+#~ msgstr "Этот файл не является базой песен OpenLP (songs.sqlite)."
+
+#~ msgid "Couldn't open the OpenLP database."
+#~ msgstr "Не удалось открыть базу данных OpenLP."
+
+#~ msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
+#~ msgstr "Здесь не найден songs.sqlite от OpenLP. Выберите папку данных OpenLP (в Windows обычно %APPDATA%\\openlp\\data, в macOS ~/Library/Application Support/openlp/Data, в Linux ~/.local/share/openlp)."
+
+#~ msgid "Couldn't read the OpenLP database: {error}"
+#~ msgstr "Не удалось прочитать базу данных OpenLP: {error}"
+
+#~ msgid "This isn't an OpenLP song database: it has no songs table."
+#~ msgstr "Это не база песен OpenLP: в ней нет таблицы songs."
+
+#~ msgid "not XML"
+#~ msgstr "не XML"
+
+#~ msgid "it isn't an OpenLyrics or OpenSong song"
+#~ msgstr "это не песня OpenLyrics или OpenSong"
+
+#~ msgid "no song in it"
+#~ msgstr "в нём нет песни"
+
+#~ msgid "No song could be read from {path}: {why}."
+#~ msgstr "Не удалось прочитать песню из {path}: {why}."
+
+#~ msgid "No OpenLyrics or OpenSong songs were found in {path}."
+#~ msgstr "В {path} не найдено песен OpenLyrics или OpenSong."
+
+#~ msgid "No ProPresenter songs were found in {path}."
+#~ msgstr "В {path} не найдено песен ProPresenter."
+
+#~ msgid "Imported {n} song."
+#~ msgid_plural "Imported {n} songs."
+#~ msgstr[0] "Импортирована {n} песня."
+#~ msgstr[1] "Импортированы {n} песни."
+#~ msgstr[2] "Импортировано {n} песен."
+
+#~ msgid "{n} already in the library: {titles}"
+#~ msgid_plural "{n} already in the library: {titles}"
+#~ msgstr[0] "{n} уже в библиотеке: {titles}"
+#~ msgstr[1] "{n} уже в библиотеке: {titles}"
+#~ msgstr[2] "{n} уже в библиотеке: {titles}"
+
+#~ msgid "Not imported:"
+#~ msgstr "Не импортировано:"
 
 #~ msgid "Import from EasyWorship"
 #~ msgstr "Импорт из EasyWorship"

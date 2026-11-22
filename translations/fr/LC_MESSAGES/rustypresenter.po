@@ -7234,7 +7234,7 @@ msgstr "{language} est déjà dans la liste."
 msgid "The plural rule is not right. Copy it from the gettext plural list."
 msgstr "La règle de pluriel est incorrecte. Copiez-la depuis la liste des pluriels gettext."
 
-#: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
+#: src/import/chordpro.rs src/import/openlyrics.rs
 msgid "Untitled song"
 msgstr "Chant sans titre"
 
@@ -7242,109 +7242,13 @@ msgstr "Chant sans titre"
 msgid "more than {max} sections, so it isn't a song"
 msgstr "plus de {max} sections, ce n’est donc pas un chant"
 
-#: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/opensong.rs
 msgid "no words"
 msgstr "pas de paroles"
 
 #: src/import/chordpro.rs
 msgid "a {block} block never ends, so everything after it was left out"
 msgstr "un bloc {block} ne se termine jamais, donc tout ce qui suit a été ignoré"
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "the file is too big to be a song"
-msgstr "le fichier est trop gros pour être un chant"
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "couldn't read it: {error}"
-msgstr "lecture impossible : {error}"
-
-#: src/import/chordpro.rs
-msgid "it doesn't look like a ChordPro file"
-msgstr "cela ne ressemble pas à un fichier ChordPro"
-
-#: src/import/chordpro.rs
-msgid "no songs in it"
-msgstr "aucun chant dedans"
-
-#: src/import/chordpro.rs
-msgid "No songs could be read from {path}: {why}."
-msgstr "Aucun chant n’a pu être lu depuis {path} : {why}."
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "Couldn't find {path}."
-msgstr "{path} introuvable."
-
-#: src/import/chordpro.rs
-msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
-msgstr "Aucun fichier ChordPro (.cho, .chordpro, .chopro, .crd, .pro) trouvé dans {path}."
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
-msgstr "le dossier contient plus de {max} fichiers et dossiers, seuls les {max} premiers ont été examinés"
-
-#: src/import/common.rs
-msgid "Couldn't read {path}: {error}."
-msgstr "Impossible de lire {path} : {error}."
-
-#: src/import/common.rs
-msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
-msgstr "{app} a continué d’enregistrer des modifications pendant la lecture de la bibliothèque. Fermez {app} et réessayez."
-
-#: src/import/common.rs
-msgid "Couldn't make a temporary folder: {error}."
-msgstr "Impossible de créer un dossier temporaire : {error}."
-
-#: src/import/common.rs
-msgid "Couldn't copy {path}: {error}."
-msgstr "Impossible de copier {path} : {error}."
-
-#: src/import/common.rs
-msgid "Couldn't open {path}: {error}."
-msgstr "Impossible d’ouvrir {path} : {error}."
-
-#: src/import/common.rs
-msgid "the database stayed locked"
-msgstr "la base de données est restée verrouillée"
-
-#: src/import/common.rs
-msgid "{path} is empty or damaged, so there is nothing to import."
-msgstr "{path} est vide ou endommagé, il n’y a donc rien à importer."
-
-#: src/import/easyworship.rs
-msgid "no words (probably a video or announcement item)"
-msgstr "pas de paroles (sans doute un élément vidéo ou annonce)"
-
-#: src/import/easyworship.rs src/import/openlp.rs
-msgid "the words are empty"
-msgstr "les paroles sont vides"
-
-#: src/import/easyworship.rs
-msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
-msgstr "Cela ressemble à une bibliothèque EasyWorship 2009 (ou plus ancienne). Seules les bibliothèques EasyWorship 6 et 7 peuvent être importées."
-
-#: src/import/easyworship.rs
-msgid "Found Songs.db but not SongWords.db next to it in {folder}."
-msgstr "Songs.db trouvé, mais pas SongWords.db à côté dans {folder}."
-
-#: src/import/easyworship.rs
-msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
-msgstr "Aucun Songs.db EasyWorship trouvé ici. Choisissez le dossier Databases\\Data du profil (en général C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
-
-#: src/import/easyworship.rs
-msgid "Couldn't read the EasyWorship library: {error}"
-msgstr "Impossible de lire la bibliothèque EasyWorship : {error}"
-
-#: src/import/easyworship.rs
-msgid "Songs.db has no song table. Is this an EasyWorship library?"
-msgstr "Songs.db n’a pas de table de chants. Est-ce bien une bibliothèque EasyWorship ?"
-
-#: src/import/easyworship.rs
-msgid "SongWords.db has no word table. Is this an EasyWorship library?"
-msgstr "SongWords.db n’a pas de table de paroles. Est-ce bien une bibliothèque EasyWorship ?"
-
-#: src/import/openlp.rs
-msgid "the words are not valid XML ({error})"
-msgstr "les paroles ne sont pas un XML valide ({error})"
 
 #: src/import/openlp.rs
 msgid "the words have too many verses (more than {max})"
@@ -7357,30 +7261,6 @@ msgstr "les paroles sont trop longues pour être un chant"
 #: src/import/openlp.rs
 msgid "the words have no verses"
 msgstr "les paroles n’ont aucune strophe"
-
-#: src/import/openlp.rs
-msgid "a temporary copy OpenLP keeps for a service file"
-msgstr "une copie temporaire qu’OpenLP garde pour un fichier de culte"
-
-#: src/import/openlp.rs
-msgid "This file isn't an OpenLP song database (songs.sqlite)."
-msgstr "Ce fichier n’est pas une base de chants OpenLP (songs.sqlite)."
-
-#: src/import/openlp.rs
-msgid "Couldn't open the OpenLP database."
-msgstr "Impossible d’ouvrir la base de données OpenLP."
-
-#: src/import/openlp.rs
-msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
-msgstr "Aucun songs.sqlite OpenLP trouvé ici. Choisissez le dossier de données d’OpenLP (sous Windows en général %APPDATA%\\openlp\\data, sous macOS ~/Library/Application Support/openlp/Data, sous Linux ~/.local/share/openlp)."
-
-#: src/import/openlp.rs
-msgid "Couldn't read the OpenLP database: {error}"
-msgstr "Impossible de lire la base de données OpenLP : {error}"
-
-#: src/import/openlp.rs
-msgid "This isn't an OpenLP song database: it has no songs table."
-msgstr "Ce n’est pas une base de chants OpenLP : elle n’a pas de table songs."
 
 #: src/import/openlyrics.rs
 msgid "it isn't valid XML ({error})"
@@ -7397,26 +7277,6 @@ msgstr "c’est un chant OpenSong, pas OpenLyrics"
 #: src/import/openlyrics.rs
 msgid "it isn't an OpenLyrics song"
 msgstr "ce n’est pas un chant OpenLyrics"
-
-#: src/import/openlyrics.rs
-msgid "not XML"
-msgstr "pas du XML"
-
-#: src/import/openlyrics.rs
-msgid "it isn't an OpenLyrics or OpenSong song"
-msgstr "ce n’est pas un chant OpenLyrics ou OpenSong"
-
-#: src/import/openlyrics.rs src/import/propresenter.rs
-msgid "no song in it"
-msgstr "aucun chant dedans"
-
-#: src/import/openlyrics.rs src/import/propresenter.rs
-msgid "No song could be read from {path}: {why}."
-msgstr "Aucun chant n’a pu être lu depuis {path} : {why}."
-
-#: src/import/openlyrics.rs
-msgid "No OpenLyrics or OpenSong songs were found in {path}."
-msgstr "Aucun chant OpenLyrics ou OpenSong trouvé dans {path}."
 
 #: src/import/opensong.rs
 msgid "the words have too many sections to be a song"
@@ -7471,10 +7331,6 @@ msgstr "c’est une playlist ProPresenter, pas un chant"
 #: src/import/propresenter.rs
 msgid "it isn't a ProPresenter 6 song"
 msgstr "ce n’est pas un chant ProPresenter 6"
-
-#: src/import/propresenter.rs
-msgid "No ProPresenter songs were found in {path}."
-msgstr "Aucun chant ProPresenter trouvé dans {path}."
 
 #: src/live/drawing/actions.rs
 msgid "This phone may not draw on slides. Ask the operator to allow it."
@@ -7689,6 +7545,14 @@ msgstr "Ce code QR a déjà servi ou est trop ancien. Scannez à nouveau le code
 #: src/network/phone_link.rs
 msgid "Type the remote's password (set in RustyPresenter's Settings → Remote and network)."
 msgstr "Tapez le mot de passe de la télécommande (défini dans RustyPresenter, Paramètres → Télécommande et réseau)."
+
+#: src/network/slide_pictures.rs
+msgid "The computer is busy. Try again in a moment."
+msgstr ""
+
+#: src/network/slide_pictures.rs src/server.rs
+msgid "Could not draw the slide."
+msgstr "Impossible de dessiner la diapo."
 
 #: src/platform/data_folder.rs
 msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
@@ -7966,10 +7830,6 @@ msgstr "Commande invalide."
 msgid "Not allowed from the phone."
 msgstr "Non autorisé depuis le téléphone."
 
-#: src/server.rs
-msgid "Could not draw the slide."
-msgstr "Impossible de dessiner la diapo."
-
 #: src/server.rs src/strings/add.rs src/strings/print.rs
 msgid "{n} slide"
 msgid_plural "{n} slides"
@@ -8205,6 +8065,32 @@ msgstr "Impossible de trouver un dossier pour conserver vos données. Définisse
 #: src/startup.rs
 msgid "Cannot use the data folder {path}: {reason}"
 msgstr "Impossible d’utiliser le dossier de données {path} : {reason}"
+
+#: src/startup.rs
+msgid ""
+"Your saved songs and services could not be read.\n"
+"\n"
+"Start with the newest backup, made {when}?\n"
+"\n"
+"The file that could not be read is kept as {name}. Choose No to close RustyPresenter and change nothing.\n"
+"\n"
+"({problem})"
+msgstr ""
+
+#: src/startup.rs
+msgid "Started from the backup made {when}. The file that could not be read is kept as {name}."
+msgstr ""
+
+#: src/startup.rs
+msgid ""
+"{problem}\n"
+"\n"
+"The newest backup could not be used either: {reason}"
+msgstr ""
+
+#: src/startup.rs
+msgid "The automatic backup could not be made: {reason}"
+msgstr ""
 
 #: src/store.rs
 msgid "Your saved data at {path} could not be read ({reason}). Nothing was overwritten. Restore a backup from the backups folder or move the file aside."
@@ -9010,26 +8896,6 @@ msgstr "Pour importer des fichiers PowerPoint ou Keynote, installez LibreOffice 
 msgid "Copied"
 msgstr "Copié"
 
-#: src/strings/add.rs src/strings/bundle.rs
-msgid "…and {n} more."
-msgstr "…et {n} autres."
-
-#: src/strings/add.rs
-msgid "Imported {n} song."
-msgid_plural "Imported {n} songs."
-msgstr[0] "{n} chant importé."
-msgstr[1] "{n} chants importés."
-
-#: src/strings/add.rs
-msgid "{n} already in the library: {titles}"
-msgid_plural "{n} already in the library: {titles}"
-msgstr[0] "{n} déjà dans la bibliothèque : {titles}"
-msgstr[1] "{n} déjà dans la bibliothèque : {titles}"
-
-#: src/strings/add.rs
-msgid "Not imported:"
-msgstr "Non importés :"
-
 #: src/strings/add.rs
 msgid "LibreOffice found!"
 msgstr "LibreOffice trouvé !"
@@ -9403,6 +9269,10 @@ msgstr "« {name} » enregistré dans un fichier."
 #: src/strings/bundle.rs
 msgid "This service was not saved, because something it needs is missing:"
 msgstr "Ce culte n’a pas été enregistré, car il manque quelque chose dont il a besoin :"
+
+#: src/strings/bundle.rs
+msgid "…and {n} more."
+msgstr "…et {n} autres."
 
 #: src/strings/bundle.rs
 msgid "Opened “{name}”."
@@ -14074,6 +13944,127 @@ msgstr "yt-dlp n’a enregistré aucune vidéo"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "pas un fichier média"
+
+#~ msgid "the file is too big to be a song"
+#~ msgstr "le fichier est trop gros pour être un chant"
+
+#~ msgid "couldn't read it: {error}"
+#~ msgstr "lecture impossible : {error}"
+
+#~ msgid "it doesn't look like a ChordPro file"
+#~ msgstr "cela ne ressemble pas à un fichier ChordPro"
+
+#~ msgid "no songs in it"
+#~ msgstr "aucun chant dedans"
+
+#~ msgid "No songs could be read from {path}: {why}."
+#~ msgstr "Aucun chant n’a pu être lu depuis {path} : {why}."
+
+#~ msgid "Couldn't find {path}."
+#~ msgstr "{path} introuvable."
+
+#~ msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
+#~ msgstr "Aucun fichier ChordPro (.cho, .chordpro, .chopro, .crd, .pro) trouvé dans {path}."
+
+#~ msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
+#~ msgstr "le dossier contient plus de {max} fichiers et dossiers, seuls les {max} premiers ont été examinés"
+
+#~ msgid "Couldn't read {path}: {error}."
+#~ msgstr "Impossible de lire {path} : {error}."
+
+#~ msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
+#~ msgstr "{app} a continué d’enregistrer des modifications pendant la lecture de la bibliothèque. Fermez {app} et réessayez."
+
+#~ msgid "Couldn't make a temporary folder: {error}."
+#~ msgstr "Impossible de créer un dossier temporaire : {error}."
+
+#~ msgid "Couldn't copy {path}: {error}."
+#~ msgstr "Impossible de copier {path} : {error}."
+
+#~ msgid "Couldn't open {path}: {error}."
+#~ msgstr "Impossible d’ouvrir {path} : {error}."
+
+#~ msgid "the database stayed locked"
+#~ msgstr "la base de données est restée verrouillée"
+
+#~ msgid "{path} is empty or damaged, so there is nothing to import."
+#~ msgstr "{path} est vide ou endommagé, il n’y a donc rien à importer."
+
+#~ msgid "no words (probably a video or announcement item)"
+#~ msgstr "pas de paroles (sans doute un élément vidéo ou annonce)"
+
+#~ msgid "the words are empty"
+#~ msgstr "les paroles sont vides"
+
+#~ msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
+#~ msgstr "Cela ressemble à une bibliothèque EasyWorship 2009 (ou plus ancienne). Seules les bibliothèques EasyWorship 6 et 7 peuvent être importées."
+
+#~ msgid "Found Songs.db but not SongWords.db next to it in {folder}."
+#~ msgstr "Songs.db trouvé, mais pas SongWords.db à côté dans {folder}."
+
+#~ msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+#~ msgstr "Aucun Songs.db EasyWorship trouvé ici. Choisissez le dossier Databases\\Data du profil (en général C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+
+#~ msgid "Couldn't read the EasyWorship library: {error}"
+#~ msgstr "Impossible de lire la bibliothèque EasyWorship : {error}"
+
+#~ msgid "Songs.db has no song table. Is this an EasyWorship library?"
+#~ msgstr "Songs.db n’a pas de table de chants. Est-ce bien une bibliothèque EasyWorship ?"
+
+#~ msgid "SongWords.db has no word table. Is this an EasyWorship library?"
+#~ msgstr "SongWords.db n’a pas de table de paroles. Est-ce bien une bibliothèque EasyWorship ?"
+
+#~ msgid "the words are not valid XML ({error})"
+#~ msgstr "les paroles ne sont pas un XML valide ({error})"
+
+#~ msgid "a temporary copy OpenLP keeps for a service file"
+#~ msgstr "une copie temporaire qu’OpenLP garde pour un fichier de culte"
+
+#~ msgid "This file isn't an OpenLP song database (songs.sqlite)."
+#~ msgstr "Ce fichier n’est pas une base de chants OpenLP (songs.sqlite)."
+
+#~ msgid "Couldn't open the OpenLP database."
+#~ msgstr "Impossible d’ouvrir la base de données OpenLP."
+
+#~ msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
+#~ msgstr "Aucun songs.sqlite OpenLP trouvé ici. Choisissez le dossier de données d’OpenLP (sous Windows en général %APPDATA%\\openlp\\data, sous macOS ~/Library/Application Support/openlp/Data, sous Linux ~/.local/share/openlp)."
+
+#~ msgid "Couldn't read the OpenLP database: {error}"
+#~ msgstr "Impossible de lire la base de données OpenLP : {error}"
+
+#~ msgid "This isn't an OpenLP song database: it has no songs table."
+#~ msgstr "Ce n’est pas une base de chants OpenLP : elle n’a pas de table songs."
+
+#~ msgid "not XML"
+#~ msgstr "pas du XML"
+
+#~ msgid "it isn't an OpenLyrics or OpenSong song"
+#~ msgstr "ce n’est pas un chant OpenLyrics ou OpenSong"
+
+#~ msgid "no song in it"
+#~ msgstr "aucun chant dedans"
+
+#~ msgid "No song could be read from {path}: {why}."
+#~ msgstr "Aucun chant n’a pu être lu depuis {path} : {why}."
+
+#~ msgid "No OpenLyrics or OpenSong songs were found in {path}."
+#~ msgstr "Aucun chant OpenLyrics ou OpenSong trouvé dans {path}."
+
+#~ msgid "No ProPresenter songs were found in {path}."
+#~ msgstr "Aucun chant ProPresenter trouvé dans {path}."
+
+#~ msgid "Imported {n} song."
+#~ msgid_plural "Imported {n} songs."
+#~ msgstr[0] "{n} chant importé."
+#~ msgstr[1] "{n} chants importés."
+
+#~ msgid "{n} already in the library: {titles}"
+#~ msgid_plural "{n} already in the library: {titles}"
+#~ msgstr[0] "{n} déjà dans la bibliothèque : {titles}"
+#~ msgstr[1] "{n} déjà dans la bibliothèque : {titles}"
+
+#~ msgid "Not imported:"
+#~ msgstr "Non importés :"
 
 #~ msgid "Import from EasyWorship"
 #~ msgstr "Importer depuis EasyWorship"

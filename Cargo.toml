@@ -35,7 +35,6 @@ sys-locale = "0.3"
 arboard = { version = "=3.7.0", default-features = false }
 image = { version = "0.25.10", default-features = false, features = ["png", "jpeg", "gif", "webp", "bmp"] }
 pdfium-render = "0.8.37"
-rusqlite = { version = "=0.32.1", features = ["bundled", "backup"] }
 encoding_rs = "=0.8.35"
 # Licensed Bible APIs. rustls with ring (aws-lc-rs needs cmake/nasm, which the MinGW toolchain lacks).
 reqwest = { version = "0.13", default-features = false, features = ["json", "query", "form", "rustls-no-provider"] }

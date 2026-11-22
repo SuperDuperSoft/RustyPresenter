@@ -7234,7 +7234,7 @@ msgstr "{language} はすでに一覧にあります。"
 msgid "The plural rule is not right. Copy it from the gettext plural list."
 msgstr "複数形のルールが正しくありません。gettext の複数形リストからコピーしてください。"
 
-#: src/import/chordpro.rs src/import/easyworship.rs src/import/openlp.rs src/import/openlyrics.rs
+#: src/import/chordpro.rs src/import/openlyrics.rs
 msgid "Untitled song"
 msgstr "無題の曲"
 
@@ -7242,109 +7242,13 @@ msgstr "無題の曲"
 msgid "more than {max} sections, so it isn't a song"
 msgstr "セクションが {max} 個を超えているため、曲ではありません"
 
-#: src/import/chordpro.rs src/import/openlp.rs src/import/openlyrics.rs src/import/opensong.rs
+#: src/import/chordpro.rs src/import/openlyrics.rs src/import/opensong.rs
 msgid "no words"
 msgstr "歌詞がありません"
 
 #: src/import/chordpro.rs
 msgid "a {block} block never ends, so everything after it was left out"
 msgstr "{block} ブロックが終わっていないため、それ以降はすべて除外されました"
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "the file is too big to be a song"
-msgstr "ファイルが大きすぎて曲ではありません"
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "couldn't read it: {error}"
-msgstr "読み込めませんでした: {error}"
-
-#: src/import/chordpro.rs
-msgid "it doesn't look like a ChordPro file"
-msgstr "ChordPro ファイルではないようです"
-
-#: src/import/chordpro.rs
-msgid "no songs in it"
-msgstr "曲が含まれていません"
-
-#: src/import/chordpro.rs
-msgid "No songs could be read from {path}: {why}."
-msgstr "{path} から曲を読み込めませんでした: {why}。"
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "Couldn't find {path}."
-msgstr "{path} が見つかりませんでした。"
-
-#: src/import/chordpro.rs
-msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
-msgstr "{path} に ChordPro ファイル (.cho、.chordpro、.chopro、.crd、.pro) が見つかりませんでした。"
-
-#: src/import/chordpro.rs src/import/openlyrics.rs src/import/propresenter.rs
-msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
-msgstr "フォルダー内のファイルとフォルダーが {max} 個を超えているため、最初の {max} 個のみ確認しました"
-
-#: src/import/common.rs
-msgid "Couldn't read {path}: {error}."
-msgstr "{path} を読み込めませんでした: {error}。"
-
-#: src/import/common.rs
-msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
-msgstr "ライブラリの読み込み中に {app} が変更を保存し続けました。{app} を閉じて再試行してください。"
-
-#: src/import/common.rs
-msgid "Couldn't make a temporary folder: {error}."
-msgstr "一時フォルダーを作成できませんでした: {error}。"
-
-#: src/import/common.rs
-msgid "Couldn't copy {path}: {error}."
-msgstr "{path} をコピーできませんでした: {error}。"
-
-#: src/import/common.rs
-msgid "Couldn't open {path}: {error}."
-msgstr "{path} を開けませんでした: {error}。"
-
-#: src/import/common.rs
-msgid "the database stayed locked"
-msgstr "データベースがロックされたままでした"
-
-#: src/import/common.rs
-msgid "{path} is empty or damaged, so there is nothing to import."
-msgstr "{path} は空か破損しているため、取り込むものがありません。"
-
-#: src/import/easyworship.rs
-msgid "no words (probably a video or announcement item)"
-msgstr "歌詞がありません（動画またはお知らせの項目と思われます）"
-
-#: src/import/easyworship.rs src/import/openlp.rs
-msgid "the words are empty"
-msgstr "歌詞が空です"
-
-#: src/import/easyworship.rs
-msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
-msgstr "EasyWorship 2009（またはそれ以前）のライブラリのようです。取り込めるのは EasyWorship 6 と 7 のライブラリのみです。"
-
-#: src/import/easyworship.rs
-msgid "Found Songs.db but not SongWords.db next to it in {folder}."
-msgstr "{folder} に Songs.db はありましたが、その隣に SongWords.db がありません。"
-
-#: src/import/easyworship.rs
-msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
-msgstr "ここに EasyWorship の Songs.db が見つかりません。プロファイルの Databases\\Data フォルダーを選んでください（通常は C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data）。"
-
-#: src/import/easyworship.rs
-msgid "Couldn't read the EasyWorship library: {error}"
-msgstr "EasyWorship のライブラリを読み込めませんでした: {error}"
-
-#: src/import/easyworship.rs
-msgid "Songs.db has no song table. Is this an EasyWorship library?"
-msgstr "Songs.db に曲のテーブルがありません。EasyWorship のライブラリですか？"
-
-#: src/import/easyworship.rs
-msgid "SongWords.db has no word table. Is this an EasyWorship library?"
-msgstr "SongWords.db に歌詞のテーブルがありません。EasyWorship のライブラリですか？"
-
-#: src/import/openlp.rs
-msgid "the words are not valid XML ({error})"
-msgstr "歌詞が有効な XML ではありません ({error})"
 
 #: src/import/openlp.rs
 msgid "the words have too many verses (more than {max})"
@@ -7357,30 +7261,6 @@ msgstr "歌詞が長すぎて曲ではありません"
 #: src/import/openlp.rs
 msgid "the words have no verses"
 msgstr "歌詞に節がありません"
-
-#: src/import/openlp.rs
-msgid "a temporary copy OpenLP keeps for a service file"
-msgstr "OpenLP が礼拝ファイル用に保持する一時コピー"
-
-#: src/import/openlp.rs
-msgid "This file isn't an OpenLP song database (songs.sqlite)."
-msgstr "このファイルは OpenLP の曲データベース (songs.sqlite) ではありません。"
-
-#: src/import/openlp.rs
-msgid "Couldn't open the OpenLP database."
-msgstr "OpenLP のデータベースを開けませんでした。"
-
-#: src/import/openlp.rs
-msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
-msgstr "ここに OpenLP の songs.sqlite が見つかりません。OpenLP のデータフォルダーを選んでください（通常 Windows では %APPDATA%\\openlp\\data、macOS では ~/Library/Application Support/openlp/Data、Linux では ~/.local/share/openlp）。"
-
-#: src/import/openlp.rs
-msgid "Couldn't read the OpenLP database: {error}"
-msgstr "OpenLP のデータベースを読み込めませんでした: {error}"
-
-#: src/import/openlp.rs
-msgid "This isn't an OpenLP song database: it has no songs table."
-msgstr "OpenLP の曲データベースではありません: songs テーブルがありません。"
 
 #: src/import/openlyrics.rs
 msgid "it isn't valid XML ({error})"
@@ -7397,26 +7277,6 @@ msgstr "OpenLyrics ではなく OpenSong の曲です"
 #: src/import/openlyrics.rs
 msgid "it isn't an OpenLyrics song"
 msgstr "OpenLyrics の曲ではありません"
-
-#: src/import/openlyrics.rs
-msgid "not XML"
-msgstr "XML ではありません"
-
-#: src/import/openlyrics.rs
-msgid "it isn't an OpenLyrics or OpenSong song"
-msgstr "OpenLyrics または OpenSong の曲ではありません"
-
-#: src/import/openlyrics.rs src/import/propresenter.rs
-msgid "no song in it"
-msgstr "曲が含まれていません"
-
-#: src/import/openlyrics.rs src/import/propresenter.rs
-msgid "No song could be read from {path}: {why}."
-msgstr "{path} から曲を読み込めませんでした: {why}。"
-
-#: src/import/openlyrics.rs
-msgid "No OpenLyrics or OpenSong songs were found in {path}."
-msgstr "{path} に OpenLyrics または OpenSong の曲が見つかりませんでした。"
 
 #: src/import/opensong.rs
 msgid "the words have too many sections to be a song"
@@ -7470,10 +7330,6 @@ msgstr "曲ではなく ProPresenter のプレイリストです"
 #: src/import/propresenter.rs
 msgid "it isn't a ProPresenter 6 song"
 msgstr "ProPresenter 6 の曲ではありません"
-
-#: src/import/propresenter.rs
-msgid "No ProPresenter songs were found in {path}."
-msgstr "{path} に ProPresenter の曲が見つかりませんでした。"
 
 #: src/live/drawing/actions.rs
 msgid "This phone may not draw on slides. Ask the operator to allow it."
@@ -7685,6 +7541,14 @@ msgstr "この QR コードは使用済みか、古すぎます。RustyPresenter
 #: src/network/phone_link.rs
 msgid "Type the remote's password (set in RustyPresenter's Settings → Remote and network)."
 msgstr "リモコンのパスワードを入力してください（RustyPresenter の 設定 → リモコンとネットワーク で設定したもの）。"
+
+#: src/network/slide_pictures.rs
+msgid "The computer is busy. Try again in a moment."
+msgstr ""
+
+#: src/network/slide_pictures.rs src/server.rs
+msgid "Could not draw the slide."
+msgstr "スライドを描画できませんでした。"
 
 #: src/platform/data_folder.rs
 msgid "This copy of RustyPresenter keeps its data beside it, in {wanted}, but that folder cannot be changed (it may be a locked USB stick or a CD). For now your work is kept on this computer, in {here}. To keep it beside the app, copy the whole RustyPresenter folder to a place that can be changed and open it from there."
@@ -7962,10 +7826,6 @@ msgstr "不正なコマンドです。"
 msgid "Not allowed from the phone."
 msgstr "スマホからは実行できません。"
 
-#: src/server.rs
-msgid "Could not draw the slide."
-msgstr "スライドを描画できませんでした。"
-
 #: src/server.rs src/strings/add.rs src/strings/print.rs
 msgid "{n} slide"
 msgid_plural "{n} slides"
@@ -8195,6 +8055,32 @@ msgstr "データを保存するフォルダーが見つかりません。RUSTYP
 #: src/startup.rs
 msgid "Cannot use the data folder {path}: {reason}"
 msgstr "データフォルダー {path} を使用できません: {reason}"
+
+#: src/startup.rs
+msgid ""
+"Your saved songs and services could not be read.\n"
+"\n"
+"Start with the newest backup, made {when}?\n"
+"\n"
+"The file that could not be read is kept as {name}. Choose No to close RustyPresenter and change nothing.\n"
+"\n"
+"({problem})"
+msgstr ""
+
+#: src/startup.rs
+msgid "Started from the backup made {when}. The file that could not be read is kept as {name}."
+msgstr ""
+
+#: src/startup.rs
+msgid ""
+"{problem}\n"
+"\n"
+"The newest backup could not be used either: {reason}"
+msgstr ""
+
+#: src/startup.rs
+msgid "The automatic backup could not be made: {reason}"
+msgstr ""
 
 #: src/store.rs
 msgid "Your saved data at {path} could not be read ({reason}). Nothing was overwritten. Restore a backup from the backups folder or move the file aside."
@@ -8998,24 +8884,6 @@ msgstr "PowerPoint や Keynote のファイルを取り込むには、LibreOffic
 msgid "Copied"
 msgstr "コピーしました"
 
-#: src/strings/add.rs src/strings/bundle.rs
-msgid "…and {n} more."
-msgstr "…ほか {n} 件。"
-
-#: src/strings/add.rs
-msgid "Imported {n} song."
-msgid_plural "Imported {n} songs."
-msgstr[0] "{n} 曲を取り込みました。"
-
-#: src/strings/add.rs
-msgid "{n} already in the library: {titles}"
-msgid_plural "{n} already in the library: {titles}"
-msgstr[0] "{n} 曲はすでにライブラリにあります: {titles}"
-
-#: src/strings/add.rs
-msgid "Not imported:"
-msgstr "取り込まれなかったもの:"
-
 #: src/strings/add.rs
 msgid "LibreOffice found!"
 msgstr "LibreOffice が見つかりました！"
@@ -9386,6 +9254,10 @@ msgstr "「{name}」をファイルに保存しました。"
 #: src/strings/bundle.rs
 msgid "This service was not saved, because something it needs is missing:"
 msgstr "必要なものが見つからないため、この礼拝は保存されませんでした:"
+
+#: src/strings/bundle.rs
+msgid "…and {n} more."
+msgstr "…ほか {n} 件。"
 
 #: src/strings/bundle.rs
 msgid "Opened “{name}”."
@@ -14022,6 +13894,125 @@ msgstr "yt-dlp は動画を保存しませんでした"
 #: src/youtube/mod.rs
 msgid "not a media file"
 msgstr "メディアファイルではありません"
+
+#~ msgid "the file is too big to be a song"
+#~ msgstr "ファイルが大きすぎて曲ではありません"
+
+#~ msgid "couldn't read it: {error}"
+#~ msgstr "読み込めませんでした: {error}"
+
+#~ msgid "it doesn't look like a ChordPro file"
+#~ msgstr "ChordPro ファイルではないようです"
+
+#~ msgid "no songs in it"
+#~ msgstr "曲が含まれていません"
+
+#~ msgid "No songs could be read from {path}: {why}."
+#~ msgstr "{path} から曲を読み込めませんでした: {why}。"
+
+#~ msgid "Couldn't find {path}."
+#~ msgstr "{path} が見つかりませんでした。"
+
+#~ msgid "No ChordPro files (.cho, .chordpro, .chopro, .crd, .pro) were found in {path}."
+#~ msgstr "{path} に ChordPro ファイル (.cho、.chordpro、.chopro、.crd、.pro) が見つかりませんでした。"
+
+#~ msgid "the folder has more than {max} files and folders in it, so only the first {max} were looked at"
+#~ msgstr "フォルダー内のファイルとフォルダーが {max} 個を超えているため、最初の {max} 個のみ確認しました"
+
+#~ msgid "Couldn't read {path}: {error}."
+#~ msgstr "{path} を読み込めませんでした: {error}。"
+
+#~ msgid "{app} kept saving changes while the library was being read. Close {app} and try again."
+#~ msgstr "ライブラリの読み込み中に {app} が変更を保存し続けました。{app} を閉じて再試行してください。"
+
+#~ msgid "Couldn't make a temporary folder: {error}."
+#~ msgstr "一時フォルダーを作成できませんでした: {error}。"
+
+#~ msgid "Couldn't copy {path}: {error}."
+#~ msgstr "{path} をコピーできませんでした: {error}。"
+
+#~ msgid "Couldn't open {path}: {error}."
+#~ msgstr "{path} を開けませんでした: {error}。"
+
+#~ msgid "the database stayed locked"
+#~ msgstr "データベースがロックされたままでした"
+
+#~ msgid "{path} is empty or damaged, so there is nothing to import."
+#~ msgstr "{path} は空か破損しているため、取り込むものがありません。"
+
+#~ msgid "no words (probably a video or announcement item)"
+#~ msgstr "歌詞がありません（動画またはお知らせの項目と思われます）"
+
+#~ msgid "the words are empty"
+#~ msgstr "歌詞が空です"
+
+#~ msgid "This looks like an EasyWorship 2009 (or older) library. Only EasyWorship 6 and 7 libraries can be imported."
+#~ msgstr "EasyWorship 2009（またはそれ以前）のライブラリのようです。取り込めるのは EasyWorship 6 と 7 のライブラリのみです。"
+
+#~ msgid "Found Songs.db but not SongWords.db next to it in {folder}."
+#~ msgstr "{folder} に Songs.db はありましたが、その隣に SongWords.db がありません。"
+
+#~ msgid "No EasyWorship Songs.db was found here. Pick the profile's Databases\\Data folder (usually C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data)."
+#~ msgstr "ここに EasyWorship の Songs.db が見つかりません。プロファイルの Databases\\Data フォルダーを選んでください（通常は C:\\Users\\Public\\Documents\\Softouch\\Easyworship\\Default\\v6.1\\Databases\\Data）。"
+
+#~ msgid "Couldn't read the EasyWorship library: {error}"
+#~ msgstr "EasyWorship のライブラリを読み込めませんでした: {error}"
+
+#~ msgid "Songs.db has no song table. Is this an EasyWorship library?"
+#~ msgstr "Songs.db に曲のテーブルがありません。EasyWorship のライブラリですか？"
+
+#~ msgid "SongWords.db has no word table. Is this an EasyWorship library?"
+#~ msgstr "SongWords.db に歌詞のテーブルがありません。EasyWorship のライブラリですか？"
+
+#~ msgid "the words are not valid XML ({error})"
+#~ msgstr "歌詞が有効な XML ではありません ({error})"
+
+#~ msgid "a temporary copy OpenLP keeps for a service file"
+#~ msgstr "OpenLP が礼拝ファイル用に保持する一時コピー"
+
+#~ msgid "This file isn't an OpenLP song database (songs.sqlite)."
+#~ msgstr "このファイルは OpenLP の曲データベース (songs.sqlite) ではありません。"
+
+#~ msgid "Couldn't open the OpenLP database."
+#~ msgstr "OpenLP のデータベースを開けませんでした。"
+
+#~ msgid "No OpenLP songs.sqlite was found here. Pick OpenLP's data folder (on Windows usually %APPDATA%\\openlp\\data, on macOS ~/Library/Application Support/openlp/Data, on Linux ~/.local/share/openlp)."
+#~ msgstr "ここに OpenLP の songs.sqlite が見つかりません。OpenLP のデータフォルダーを選んでください（通常 Windows では %APPDATA%\\openlp\\data、macOS では ~/Library/Application Support/openlp/Data、Linux では ~/.local/share/openlp）。"
+
+#~ msgid "Couldn't read the OpenLP database: {error}"
+#~ msgstr "OpenLP のデータベースを読み込めませんでした: {error}"
+
+#~ msgid "This isn't an OpenLP song database: it has no songs table."
+#~ msgstr "OpenLP の曲データベースではありません: songs テーブルがありません。"
+
+#~ msgid "not XML"
+#~ msgstr "XML ではありません"
+
+#~ msgid "it isn't an OpenLyrics or OpenSong song"
+#~ msgstr "OpenLyrics または OpenSong の曲ではありません"
+
+#~ msgid "no song in it"
+#~ msgstr "曲が含まれていません"
+
+#~ msgid "No song could be read from {path}: {why}."
+#~ msgstr "{path} から曲を読み込めませんでした: {why}。"
+
+#~ msgid "No OpenLyrics or OpenSong songs were found in {path}."
+#~ msgstr "{path} に OpenLyrics または OpenSong の曲が見つかりませんでした。"
+
+#~ msgid "No ProPresenter songs were found in {path}."
+#~ msgstr "{path} に ProPresenter の曲が見つかりませんでした。"
+
+#~ msgid "Imported {n} song."
+#~ msgid_plural "Imported {n} songs."
+#~ msgstr[0] "{n} 曲を取り込みました。"
+
+#~ msgid "{n} already in the library: {titles}"
+#~ msgid_plural "{n} already in the library: {titles}"
+#~ msgstr[0] "{n} 曲はすでにライブラリにあります: {titles}"
+
+#~ msgid "Not imported:"
+#~ msgstr "取り込まれなかったもの:"
 
 #~ msgid "Import from EasyWorship"
 #~ msgstr "EasyWorship から取り込む"
