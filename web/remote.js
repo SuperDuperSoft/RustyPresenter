@@ -321,6 +321,7 @@ function render() {
     row.onclick = () => openSheet(it);
     return row;
   }));
+  syncSheet();
 }
 
 // The live song's sections: a tap jumps the screen to exactly that one.
@@ -430,7 +431,24 @@ function ask(title, fields, go, done) {
 }
 $('askCancel').onclick = () => $('ask').classList.remove('on');
 
+// The item whose slide list is open, as it was when the list was drawn.
+let sheetItem = null;
+const sheetKey = it => JSON.stringify([it.title, it.slides.map(s => [s.label, s.text])]);
+
+// The open slide list follows the service: it closes when its item is gone, and is drawn again when the item's
+// slides changed, so a tap always shows the slide it names.
+function syncSheet() {
+  if (!sheetItem) return;
+  const now = V.items.find(i => i.id === sheetItem.id);
+  if (!now) { closeSheet(); return; }
+  if (sheetKey(now) === sheetKey(sheetItem)) return;
+  const only = $('sheetOnly').checked;
+  openSheet(now);
+  $('sheetOnly').checked = only;
+}
+
 function openSheet(it) {
+  sheetItem = it;
   $('sheetTitle').textContent = it.title;
   $('sheetSlides').replaceChildren(...it.slides.map((s, idx) => {
     const b = document.createElement('button');
@@ -448,7 +466,7 @@ function openSheet(it) {
   $('sheetOnly').checked = false;
   $('sheet').classList.add('on');
 }
-function closeSheet() { $('sheet').classList.remove('on'); }
+function closeSheet() { sheetItem = null; $('sheet').classList.remove('on'); }
 $('sheetCancel').onclick = closeSheet;
 $('sheet').onclick = e => { if (e.target.id === 'sheet') closeSheet(); };
 $('next').onclick = () => send('next', {}, true);

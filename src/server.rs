@@ -723,6 +723,15 @@ msgstr[1] "{n} Folien"
         assert_eq!(map(&app, Some(&Update::Revoked { phone: paired })), Err(()));
     }
 
+    /// B14: a slide list left open on the phone is drawn again when its item changes (the page is tested by its
+    /// text; the tap itself needs a phone).
+    #[test]
+    fn the_phones_open_slide_list_follows_the_service() {
+        let js = page!("remote.js");
+        assert!(js.contains("function syncSheet()") && js.contains("  syncSheet();\n}"), "render() ends by bringing the open list up to date");
+        assert!(js.contains("sheetItem = it;") && js.contains("if (!now) { closeSheet(); return; }") && js.contains("openSheet(now);"));
+    }
+
     #[test]
     fn phone_has_auto_and_hold() {
         use crate::model::{ItemKind, ServiceItem, Song};
