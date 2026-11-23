@@ -27,6 +27,8 @@ impl Operator {
 
     /// An editing key or its Edit menu item; false when it had nothing to work on.
     pub(crate) fn edit_key(self: &Rc<Self>, key: EditKey) -> bool {
+        // The mouse is over a song slide: the key is for that slide.
+        if super::slide_edit::edit_key(self, key) { return true }
         let focus = self.state.borrow().list;
         if focus == ListFocus::Songs { return false }
         let media = focus == ListFocus::Media;
@@ -79,6 +81,8 @@ impl Operator {
     /// else the copied service item goes in after the selected one (at the end with none).
     pub(crate) fn paste(self: &Rc<Self>) -> bool {
         use crate::ui::dialogs::add_youtube::{open_with_link, pasted_link};
+        // The mouse is over a song slide, and there is a slide (or plain text) to paste after it.
+        if super::slide_edit::paste_key(self) { return true }
         let link = pasted_link();
         let clip = CLIP.with(|c| c.borrow().clone());
         match (clip, link) {
@@ -105,7 +109,7 @@ impl Operator {
             };
             items.get(to).map(|i| i.id)
         };
-        if let Some(id) = target { self.select_item(id) }
+        if let Some(id) = target { self.step_to(id) }
         true
     }
 }

@@ -217,6 +217,27 @@ impl Operator {
         self.render_slides();
     }
 
+    /// How long after an arrow key the slides wait for the next one before they are built (`step_to`).
+    const STEP_PAUSE: std::time::Duration = std::time::Duration::from_millis(120);
+
+    /// ↑ or ↓ chose `id`. The list's mark moves at once. The slides are built at once too for a single press, but
+    /// while the key is held down (or pressed again and again) only once the presses stop: building a long item's
+    /// slides takes far longer than the keyboard's repeat, and built for every item passed the window stopped
+    /// answering for seconds (Windows then shows it white, as a program that is not responding).
+    pub(super) fn step_to(&self, id: Uuid) {
+        let stepping = self.slides.borrow().step_timer.running();
+        {
+            let mut st = self.state.borrow_mut();
+            st.selected = Some(id);
+            st.armed = None;
+            st.list = super::window::ListFocus::Service;
+        }
+        self.mark_service();
+        if !stepping { self.render_slides() }
+        let me = self.me.clone();
+        self.slides.borrow().step_timer.start(slint::TimerMode::SingleShot, Self::STEP_PAUSE, move || if let Some(op) = me.upgrade() { op.render_slides() });
+    }
+
     /// A double-click: show the item's first slide, if it has one (`operator.js:135`).
     fn show_first(self: &Rc<Self>, id: Uuid) {
         self.state.borrow_mut().list = super::window::ListFocus::Live;

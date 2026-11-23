@@ -27,6 +27,11 @@ pub fn joined() -> String { tr!("Joined with the next slide") }
 pub fn added() -> String { tr!("Slide added") }
 pub fn deleted() -> String { tr!("Slide deleted") }
 pub fn duplicated() -> String { tr!("Slide copied") }
+/// Copy, Cut and Paste of one slide (the menu, or the keys with the mouse over a slide).
+pub fn copied(paste_key: &str) -> String { tr!("Slide copied. Point at a slide and press {key} to paste it after that one.", key = paste_key) }
+pub fn cut(paste_key: &str) -> String { tr!("Slide cut. Point at a slide and press {key} to paste it after that one.", key = paste_key) }
+pub fn pasted() -> String { tr!("Slide pasted") }
+pub fn nothing_to_paste() -> String { tr!("There is no slide or text to paste.") }
 pub fn section_changed(name: &str) -> String { tr!("This part is now {part}", part = name) }
 pub fn order_changed() -> String { tr!("Order changed for this service") }
 pub fn order_usual() -> String { tr!("This is now the song’s usual order") }

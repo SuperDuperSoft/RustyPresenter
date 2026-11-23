@@ -13,6 +13,16 @@ export struct SectionPick { name: string, kind: string }
 /// What the slide editor, the slide menu and the panel's order strip show, and what they ask Rust for. Written to
 /// every window (a panel can sit in a window of its own).
 export global SlideEdit {
+    // ---- one slide, by the keyboard ----
+    /// The song slide the mouse is over (its place in the item), or -1. The editing keys (Delete, Copy, Cut,
+    /// Paste, Duplicate) work on it.
+    in-out property <int> hover: -1;
+    /// Those keys as the menus show them ("Ctrl+C").
+    in property <string> key-copy;
+    in property <string> key-cut;
+    in property <string> key-paste;
+    in property <string> key-duplicate;
+    in property <string> key-delete;
     // ---- the editor ----
     in property <bool> open;
     /// "Verse 1 · slide 2 of 3", and the part's section kind for its colour.
@@ -87,6 +97,8 @@ export global SlideEdit {
 /// The menu of a song slide, for a right-click (`ContextMenuArea` around it) and the ⋯ button.
 export component SlideMenuLine inherits Rectangle {
     in property <string> text;
+    /// Its key, shown at the right ("Ctrl+C"); empty for none.
+    in property <string> keys;
     callback clicked();
     height: 30px;
     border-radius: 6px;
@@ -100,13 +112,22 @@ export component SlideMenuLine inherits Rectangle {
     }
     Text {
         x: 10px;
-        width: parent.width - 20px;
+        width: parent.width - 20px - keys-text.width;
         text: root.text;
         color: Theme.text;
         font-family: Theme.font;
         font-size: 13px;
         vertical-alignment: center;
         overflow: elide;
+    }
+    keys-text := Text {
+        x: parent.width - self.width - 10px;
+        width: root.keys == "" ? 0px : self.preferred-width;
+        text: root.keys;
+        color: Theme.muted;
+        font-family: Theme.font;
+        font-size: 12px;
+        vertical-alignment: center;
     }
 }
 
@@ -129,8 +150,11 @@ export component SlideMenuCard inherits Rectangle {
         menu-split := SlideMenuLine { text: @tr("Split here…"); clicked => { root.go("split"); } }
         menu-join := SlideMenuLine { text: @tr("Join with next"); clicked => { root.go("join"); } }
         menu-add := SlideMenuLine { text: @tr("Add a slide after"); clicked => { root.go("add"); } }
-        menu-duplicate := SlideMenuLine { text: @tr("Duplicate"); clicked => { root.go("duplicate"); } }
-        menu-delete := SlideMenuLine { text: @tr("Delete slide"); clicked => { root.go("delete"); } }
+        menu-copy := SlideMenuLine { text: @tr("Copy"); keys: SlideEdit.key-copy; clicked => { root.go("copy"); } }
+        menu-cut := SlideMenuLine { text: @tr("Cut"); keys: SlideEdit.key-cut; clicked => { root.go("cut"); } }
+        menu-paste := SlideMenuLine { text: @tr("Paste after this slide"); keys: SlideEdit.key-paste; clicked => { root.go("paste"); } }
+        menu-duplicate := SlideMenuLine { text: @tr("Duplicate"); keys: SlideEdit.key-duplicate; clicked => { root.go("duplicate"); } }
+        menu-delete := SlideMenuLine { text: @tr("Delete slide"); keys: SlideEdit.key-delete; clicked => { root.go("delete"); } }
         menu-section := SlideMenuLine { text: @tr("Change section…"); clicked => { root.go("section"); } }
         menu-earlier := SlideMenuLine { text: @tr("Move this part earlier"); clicked => { root.go("earlier"); } }
         menu-later := SlideMenuLine { text: @tr("Move this part later"); clicked => { root.go("later"); } }
@@ -147,8 +171,11 @@ export component SlideContextMenu inherits Rectangle {
             MenuItem { title: @tr("Split here…"); activated => { SlideEdit.act(root.idx, "split"); } }
             MenuItem { title: @tr("Join with next"); activated => { SlideEdit.act(root.idx, "join"); } }
             MenuItem { title: @tr("Add a slide after"); activated => { SlideEdit.act(root.idx, "add"); } }
-            MenuItem { title: @tr("Duplicate"); activated => { SlideEdit.act(root.idx, "duplicate"); } }
-            MenuItem { title: @tr("Delete slide"); activated => { SlideEdit.act(root.idx, "delete"); } }
+            MenuItem { title: @tr("Copy") + "    " + SlideEdit.key-copy; activated => { SlideEdit.act(root.idx, "copy"); } }
+            MenuItem { title: @tr("Cut") + "    " + SlideEdit.key-cut; activated => { SlideEdit.act(root.idx, "cut"); } }
+            MenuItem { title: @tr("Paste after this slide") + "    " + SlideEdit.key-paste; activated => { SlideEdit.act(root.idx, "paste"); } }
+            MenuItem { title: @tr("Duplicate") + "    " + SlideEdit.key-duplicate; activated => { SlideEdit.act(root.idx, "duplicate"); } }
+            MenuItem { title: @tr("Delete slide") + "    " + SlideEdit.key-delete; activated => { SlideEdit.act(root.idx, "delete"); } }
             MenuItem { title: @tr("Change section…"); activated => { SlideEdit.act(root.idx, "section"); } }
             MenuItem { title: @tr("Move this part earlier"); activated => { SlideEdit.act(root.idx, "earlier"); } }
             MenuItem { title: @tr("Move this part later"); activated => { SlideEdit.act(root.idx, "later"); } }

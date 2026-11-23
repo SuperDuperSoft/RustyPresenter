@@ -267,3 +267,64 @@ fn other_items_have_no_slide_editing() {
     act(&op, 0, "edit");
     assert!(!op.ui.slide_edit_all().get_open());
 }
+
+#[test]
+fn the_editing_keys_work_on_the_slide_under_the_mouse() {
+    use crate::{shortcuts::EditKey, ui::dialogs::settings::testing::set_clipboard};
+    forget_clip();
+    set_clipboard(None);
+    let app = test_app();
+    let (song, item) = add_song(&app, LYRICS, &[]);
+    let op = ready(&app, item);
+    let g = op.ui.slide_edit_all();
+    let key = |k: EditKey| { let did = edit_key(&op, k); refresh(&op); settle(&op); did };
+    let paste = || { let did = paste_key(&op); refresh(&op); settle(&op); did };
+    // The mouse is over no slide: the keys are not for a slide (they go to the service list, as before).
+    assert_eq!(g.get_hover(), -1);
+    assert!(!key(EditKey::Delete) && !key(EditKey::Copy) && !paste());
+    assert_eq!(lyrics(&app, song), LYRICS);
+    assert_eq!((g.get_key_copy().as_str(), g.get_key_paste().as_str(), g.get_key_delete().as_str()), ("Ctrl + C", "Ctrl + V", "Delete"), "the menu shows the keys");
+    // Over Verse 2: Copy. Nothing to paste before that.
+    g.set_hover(2);
+    assert!(!paste(), "nothing copied yet");
+    assert!(key(EditKey::Copy));
+    assert!(last_toast(&op).starts_with("Slide copied. Point at a slide and press Ctrl + V"), "{}", last_toast(&op));
+    assert_eq!(lyrics(&app, song), LYRICS, "copying changes nothing");
+    // Over Verse 1: Paste puts it in as a new slide after that one.
+    g.set_hover(0);
+    assert!(paste());
+    assert_eq!(last_toast(&op), "Slide pasted");
+    assert_eq!(labels(&op).len(), 4);
+    assert!(lyrics(&app, song).contains("how sweet the sound\n\n'Twas grace\n\nChorus"), "{}", lyrics(&app, song));
+    // Over the pasted slide: Delete takes it out again.
+    g.set_hover(1);
+    assert!(key(EditKey::Delete));
+    assert_eq!(lyrics(&app, song), LYRICS);
+    // Cut Verse 1 (chords and all), and paste it after the chorus.
+    g.set_hover(0);
+    assert!(key(EditKey::Cut));
+    assert!(!lyrics(&app, song).contains("Amazing"), "{}", lyrics(&app, song));
+    g.set_hover(0);
+    assert!(paste());
+    assert!(lyrics(&app, song).contains("My chains are gone\n\n[G]Amazing [C]grace\nhow sweet the sound"), "{}", lyrics(&app, song));
+    // Duplicate.
+    let before = labels(&op).len();
+    g.set_hover(0);
+    assert!(key(EditKey::Duplicate));
+    assert_eq!(labels(&op).len(), before + 1);
+    // Words copied in another program since: they are what is pasted.
+    set_clipboard(Some("Fresh words\r\nfrom a web page\r\n"));
+    g.set_hover(0);
+    assert!(paste());
+    assert!(lyrics(&app, song).contains("Fresh words\nfrom a web page"), "{}", lyrics(&app, song));
+    // A link on the clipboard is not a slide (it opens Download from YouTube, as before).
+    set_clipboard(Some("https://www.youtube.com/watch?v=dQw4w9WgXcQ"));
+    assert!(!paste());
+    // Another item is opened: the mouse is over none of its slides yet.
+    g.set_hover(1);
+    op.state.borrow_mut().selected = None;
+    op.render_slides();
+    assert_eq!(g.get_hover(), -1);
+    set_clipboard(None);
+    forget_clip();
+}

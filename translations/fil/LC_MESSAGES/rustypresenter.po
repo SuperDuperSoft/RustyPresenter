@@ -99,7 +99,7 @@ msgstr "Google Slides: sa Google Slides, piliin ang File → Download → Micros
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "I-download ito bilang PowerPoint (.pptx) para manatili ang iyong speaker notes."
 
-#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Kopyahin"
 
@@ -4831,7 +4831,7 @@ msgstr "Normal"
 msgid "Fade"
 msgstr "Fade"
 
-#: ui/dialogs/transition.slint ui/operator.slint ui/widgets.slint
+#: ui/dialogs/transition.slint ui/operator/slide-editor.slint ui/operator.slint ui/widgets.slint
 msgid "Cut"
 msgstr "I-cut"
 
@@ -5774,6 +5774,10 @@ msgstr "Pagsamahin sa susunod"
 #: ui/operator/slide-editor.slint
 msgid "Add a slide after"
 msgstr "Magdagdag ng slide pagkatapos"
+
+#: ui/operator/slide-editor.slint
+msgid "Paste after this slide"
+msgstr "I-paste pagkatapos ng slide na ito"
 
 #: ui/operator/slide-editor.slint
 msgid "Change section…"
@@ -11546,6 +11550,22 @@ msgid "Slide copied"
 msgstr "Nakopya ang slide"
 
 #: src/strings/song_edit.rs
+msgid "Slide copied. Point at a slide and press {key} to paste it after that one."
+msgstr "Nakopya ang slide. Ituro ang mouse sa isang slide at pindutin ang {key} para i-paste ito pagkatapos niyon."
+
+#: src/strings/song_edit.rs
+msgid "Slide cut. Point at a slide and press {key} to paste it after that one."
+msgstr "Na-cut ang slide. Ituro ang mouse sa isang slide at pindutin ang {key} para i-paste ito pagkatapos niyon."
+
+#: src/strings/song_edit.rs
+msgid "Slide pasted"
+msgstr "Na-paste ang slide"
+
+#: src/strings/song_edit.rs
+msgid "There is no slide or text to paste."
+msgstr "Walang slide o text na mai-paste."
+
+#: src/strings/song_edit.rs
 msgid "This part is now {part}"
 msgstr "{part} na ngayon ang bahaging ito"
 
@@ -13549,7 +13569,12 @@ msgid ""
 "Your web browser opens a page where you write what happened. It needs a free GitHub account, and what you write there can be read by anyone.\n"
 "\n"
 "No internet on this computer? Write a note instead and send it later."
-msgstr "Mag-ulat ng problema\n\nMagbubukas ang web browser mo ng page kung saan mo isusulat ang nangyari. Kailangan nito ng libreng GitHub account, at mababasa ng kahit sino ang isusulat mo roon.\n\nWalang internet sa computer na ito? Sumulat na lang ng tala at ipadala ito mamaya."
+msgstr ""
+"Mag-ulat ng problema\n"
+"\n"
+"Magbubukas ang web browser mo ng page kung saan mo isusulat ang nangyari. Kailangan nito ng libreng GitHub account, at mababasa ng kahit sino ang isusulat mo roon.\n"
+"\n"
+"Walang internet sa computer na ito? Sumulat na lang ng tala at ipadala ito mamaya."
 
 #: src/ui/operator/help.rs
 msgid "Open the page"

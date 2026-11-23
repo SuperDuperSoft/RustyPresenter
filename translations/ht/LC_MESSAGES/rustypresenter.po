@@ -99,7 +99,7 @@ msgstr "Google Slides: nan Google Slides, chwazi Fichye → Telechaje → Micros
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "Telechaje l kòm PowerPoint (.pptx) pou w kenbe nòt oratè yo."
 
-#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Kopye"
 
@@ -4831,7 +4831,7 @@ msgstr "Nòmal"
 msgid "Fade"
 msgstr "Fondi"
 
-#: ui/dialogs/transition.slint ui/operator.slint ui/widgets.slint
+#: ui/dialogs/transition.slint ui/operator/slide-editor.slint ui/operator.slint ui/widgets.slint
 msgid "Cut"
 msgstr "Koupe"
 
@@ -5774,6 +5774,10 @@ msgstr "Mete l ansanm ak pwochen an"
 #: ui/operator/slide-editor.slint
 msgid "Add a slide after"
 msgstr "Ajoute yon diapo apre"
+
+#: ui/operator/slide-editor.slint
+msgid "Paste after this slide"
+msgstr "Kole apre dyapozitif sa a"
 
 #: ui/operator/slide-editor.slint
 msgid "Change section…"
@@ -11546,6 +11550,22 @@ msgid "Slide copied"
 msgstr "Diapo kopye"
 
 #: src/strings/song_edit.rs
+msgid "Slide copied. Point at a slide and press {key} to paste it after that one."
+msgstr "Dyapozitif la kopye. Lonje sourit la sou yon dyapozitif epi peze {key} pou kole li apre sa a."
+
+#: src/strings/song_edit.rs
+msgid "Slide cut. Point at a slide and press {key} to paste it after that one."
+msgstr "Dyapozitif la koupe. Lonje sourit la sou yon dyapozitif epi peze {key} pou kole li apre sa a."
+
+#: src/strings/song_edit.rs
+msgid "Slide pasted"
+msgstr "Dyapozitif la kole"
+
+#: src/strings/song_edit.rs
+msgid "There is no slide or text to paste."
+msgstr "Pa gen dyapozitif ni tèks pou kole."
+
+#: src/strings/song_edit.rs
 msgid "This part is now {part}"
 msgstr "Pati sa a se {part} kounye a"
 
@@ -13549,7 +13569,12 @@ msgid ""
 "Your web browser opens a page where you write what happened. It needs a free GitHub account, and what you write there can be read by anyone.\n"
 "\n"
 "No internet on this computer? Write a note instead and send it later."
-msgstr "Rapòte yon pwoblèm\n\nNavigatè wèb ou a ap louvri yon paj kote ou ekri sa ki te pase. Li mande yon kont GitHub gratis, epi nenpòt moun ka li sa ou ekri la.\n\nPa gen entènèt sou òdinatè sa a? Ekri yon nòt pito epi voye li pita."
+msgstr ""
+"Rapòte yon pwoblèm\n"
+"\n"
+"Navigatè wèb ou a ap louvri yon paj kote ou ekri sa ki te pase. Li mande yon kont GitHub gratis, epi nenpòt moun ka li sa ou ekri la.\n"
+"\n"
+"Pa gen entènèt sou òdinatè sa a? Ekri yon nòt pito epi voye li pita."
 
 #: src/ui/operator/help.rs
 msgid "Open the page"

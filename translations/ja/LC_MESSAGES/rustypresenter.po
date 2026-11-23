@@ -99,7 +99,7 @@ msgstr "Google スライド: Google スライドで「ファイル → ダウン
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "発表者のメモを残すには、PowerPoint (.pptx) としてダウンロードしてください。"
 
-#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "コピー"
 
@@ -4831,7 +4831,7 @@ msgstr "標準"
 msgid "Fade"
 msgstr "フェード"
 
-#: ui/dialogs/transition.slint ui/operator.slint ui/widgets.slint
+#: ui/dialogs/transition.slint ui/operator/slide-editor.slint ui/operator.slint ui/widgets.slint
 msgid "Cut"
 msgstr "切り取り"
 
@@ -5774,6 +5774,10 @@ msgstr "次と結合"
 #: ui/operator/slide-editor.slint
 msgid "Add a slide after"
 msgstr "後にスライドを追加"
+
+#: ui/operator/slide-editor.slint
+msgid "Paste after this slide"
+msgstr "このスライドの後に貼り付け"
 
 #: ui/operator/slide-editor.slint
 msgid "Change section…"
@@ -11512,6 +11516,22 @@ msgid "Slide copied"
 msgstr "スライドを複製しました"
 
 #: src/strings/song_edit.rs
+msgid "Slide copied. Point at a slide and press {key} to paste it after that one."
+msgstr "スライドをコピーしました。スライドにマウスを合わせて {key} を押すと、その後ろに貼り付けます。"
+
+#: src/strings/song_edit.rs
+msgid "Slide cut. Point at a slide and press {key} to paste it after that one."
+msgstr "スライドを切り取りました。スライドにマウスを合わせて {key} を押すと、その後ろに貼り付けます。"
+
+#: src/strings/song_edit.rs
+msgid "Slide pasted"
+msgstr "スライドを貼り付けました"
+
+#: src/strings/song_edit.rs
+msgid "There is no slide or text to paste."
+msgstr "貼り付けるスライドやテキストがありません。"
+
+#: src/strings/song_edit.rs
 msgid "This part is now {part}"
 msgstr "このパートは {part} になりました"
 
@@ -13502,7 +13522,12 @@ msgid ""
 "Your web browser opens a page where you write what happened. It needs a free GitHub account, and what you write there can be read by anyone.\n"
 "\n"
 "No internet on this computer? Write a note instead and send it later."
-msgstr "問題を報告\n\nウェブブラウザでページが開き、そこに何が起きたかを書きます。無料の GitHub アカウントが必要で、書いた内容はだれでも読めます。\n\nこのパソコンにインターネットがない場合は、代わりにメモを書いて、あとで送ってください。"
+msgstr ""
+"問題を報告\n"
+"\n"
+"ウェブブラウザでページが開き、そこに何が起きたかを書きます。無料の GitHub アカウントが必要で、書いた内容はだれでも読めます。\n"
+"\n"
+"このパソコンにインターネットがない場合は、代わりにメモを書いて、あとで送ってください。"
 
 #: src/ui/operator/help.rs
 msgid "Open the page"

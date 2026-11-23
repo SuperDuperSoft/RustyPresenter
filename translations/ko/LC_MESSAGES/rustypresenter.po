@@ -99,7 +99,7 @@ msgstr "Google 프레젠테이션: Google 프레젠테이션에서 파일 → �
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "발표자 메모를 유지하려면 PowerPoint(.pptx)로 다운로드하세요."
 
-#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "복사"
 
@@ -4831,7 +4831,7 @@ msgstr "보통"
 msgid "Fade"
 msgstr "페이드"
 
-#: ui/dialogs/transition.slint ui/operator.slint ui/widgets.slint
+#: ui/dialogs/transition.slint ui/operator/slide-editor.slint ui/operator.slint ui/widgets.slint
 msgid "Cut"
 msgstr "잘라내기"
 
@@ -5774,6 +5774,10 @@ msgstr "다음과 합치기"
 #: ui/operator/slide-editor.slint
 msgid "Add a slide after"
 msgstr "뒤에 슬라이드 추가"
+
+#: ui/operator/slide-editor.slint
+msgid "Paste after this slide"
+msgstr "이 슬라이드 뒤에 붙여넣기"
 
 #: ui/operator/slide-editor.slint
 msgid "Change section…"
@@ -11512,6 +11516,22 @@ msgid "Slide copied"
 msgstr "슬라이드를 복제했어요"
 
 #: src/strings/song_edit.rs
+msgid "Slide copied. Point at a slide and press {key} to paste it after that one."
+msgstr "슬라이드를 복사했습니다. 슬라이드 위에 마우스를 놓고 {key}를 누르면 그 뒤에 붙여넣습니다."
+
+#: src/strings/song_edit.rs
+msgid "Slide cut. Point at a slide and press {key} to paste it after that one."
+msgstr "슬라이드를 잘라냈습니다. 슬라이드 위에 마우스를 놓고 {key}를 누르면 그 뒤에 붙여넣습니다."
+
+#: src/strings/song_edit.rs
+msgid "Slide pasted"
+msgstr "슬라이드를 붙여넣었습니다"
+
+#: src/strings/song_edit.rs
+msgid "There is no slide or text to paste."
+msgstr "붙여넣을 슬라이드나 텍스트가 없습니다."
+
+#: src/strings/song_edit.rs
 msgid "This part is now {part}"
 msgstr "이 부분은 이제 {part}예요"
 
@@ -13502,7 +13522,12 @@ msgid ""
 "Your web browser opens a page where you write what happened. It needs a free GitHub account, and what you write there can be read by anyone.\n"
 "\n"
 "No internet on this computer? Write a note instead and send it later."
-msgstr "문제 신고\n\n웹 브라우저에서 무슨 일이 있었는지 적는 페이지가 열립니다. 무료 GitHub 계정이 필요하며, 거기에 적은 내용은 누구나 읽을 수 있습니다.\n\n이 컴퓨터에 인터넷이 없나요? 대신 메모를 작성해 나중에 보내세요."
+msgstr ""
+"문제 신고\n"
+"\n"
+"웹 브라우저에서 무슨 일이 있었는지 적는 페이지가 열립니다. 무료 GitHub 계정이 필요하며, 거기에 적은 내용은 누구나 읽을 수 있습니다.\n"
+"\n"
+"이 컴퓨터에 인터넷이 없나요? 대신 메모를 작성해 나중에 보내세요."
 
 #: src/ui/operator/help.rs
 msgid "Open the page"

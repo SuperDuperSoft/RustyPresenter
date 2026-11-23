@@ -10,10 +10,16 @@ use crate::{
     song_edit::{At, Change, Doc, Refused, actions::ItemOrder, order::{self, OrderOp}, strings as s, words},
     ui::{ArrAddRow, SectionPick, dialogs::song_editor::{arr_add_drag_data, arr_chips, arr_drag_data, arr_drag_index, arr_drag_label, arr_rows}},
 };
+use crate::shortcuts::{Action, Chord, EditKey, Keymap};
 use serde_json::{Value, json};
 use slint::{ModelRc, SharedString, VecModel};
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 use uuid::Uuid;
+
+thread_local! {
+    /// The copied slide's lines (chords and all), for Paste in this song or another.
+    static SLIDE_CLIP: RefCell<Option<Vec<String>>> = const { RefCell::new(None) };
+}
 
 /// `+ <part>` buttons to a row in the panel's order strip.
 const ADDS_PER_ROW: usize = 6;
@@ -39,6 +45,8 @@ struct Target {
 #[derive(Default)]
 pub(crate) struct EditState {
     target: Option<Target>,
+    /// The item whose slides the mouse was over (`SlideEdit.hover`): another item's slides start with none.
+    hover_item: Option<Uuid>,
     /// "Edit chords too" was ticked last time: the next slide with chords opens the same way.
     chords: bool,
 }
@@ -208,6 +216,61 @@ fn whole_song(op: &Rc<Operator>, sel: &Selected, at: &At) {
     crate::ui::dialogs::song_editor::open_song_editor_at(op, Some(sel.song.id), false, Some(caret), None);
 }
 
+/// The song slide the mouse is over (`SlideEdit.hover`), when the open item is a song with such a slide.
+fn hovered(op: &Operator) -> Option<usize> {
+    let idx = usize::try_from(op.ui.slide_edit_all().get_hover()).ok()?;
+    selected(op).is_some_and(|s| s.slide(idx).is_some()).then_some(idx)
+}
+
+/// Delete, Copy, Cut or Duplicate with the mouse over a song slide: that slide, as its menu does it. False when
+/// the mouse is over no song slide (the key then works on the service list, as before).
+pub(crate) fn edit_key(op: &Rc<Operator>, key: EditKey) -> bool {
+    let action = match key { EditKey::Delete => "delete", EditKey::Copy => "copy", EditKey::Cut => "cut", EditKey::Duplicate => "duplicate", _ => return false };
+    let Some(idx) = hovered(op) else { return false };
+    act(op, idx, action);
+    true
+}
+
+/// Paste with the mouse over a song slide, when there is a slide or plain text to paste: it becomes a new slide
+/// after that one. False: not over a slide, or nothing for a slide (a copied service item or a link is pasted
+/// as before).
+pub(crate) fn paste_key(op: &Rc<Operator>) -> bool {
+    let Some(idx) = hovered(op).filter(|_| clip_lines().is_some()) else { return false };
+    act(op, idx, "paste");
+    true
+}
+
+/// The key that pastes, as its menu shows it ("Ctrl+V").
+fn paste_label() -> String { Keymap::default().keys(Action::PasteLink).first().map(Chord::label).unwrap_or_default() }
+
+/// Keeps `lines` as the copied slide, and puts its words on the system clipboard too (to paste into another program).
+fn copy_slide(op: &Operator, lines: Vec<String>, done: String) {
+    let text = lines.join("\n");
+    SLIDE_CLIP.with(|c| *c.borrow_mut() = Some(lines));
+    #[cfg(not(test))]
+    crate::ui::dialogs::settings::copy(op, &text, &done);
+    #[cfg(test)]
+    { let _ = text; op.toast(done, false) }
+}
+
+/// What Paste makes a slide of: the copied slide, unless the system clipboard has other plain text since (words
+/// copied from a web page or a document), which is then the new slide's lines. A link is left to Download from
+/// YouTube.
+fn clip_lines() -> Option<Vec<String>> {
+    let clip = SLIDE_CLIP.with(|c| c.borrow().clone());
+    let text = crate::ui::dialogs::settings::paste_text().map(|t| t.replace("\r\n", "\n")).filter(|t| !t.trim().is_empty());
+    match (clip, text) {
+        (Some(lines), None) => Some(lines),
+        (Some(lines), Some(t)) if t.trim() == lines.join("\n").trim() => Some(lines),
+        (_, Some(t)) if crate::ui::dialogs::add_youtube::pasted_link().is_none() => Some(t.trim_matches('\n').split('\n').map(|l| l.trim_end().to_string()).collect()),
+        _ => None,
+    }
+}
+
+/// Forgets the copied slide (each test starts with none).
+#[cfg(test)]
+pub(crate) fn forget_clip() { SLIDE_CLIP.with(|c| *c.borrow_mut() = None) }
+
 /// A choice from a slide's menu.
 fn act(op: &Rc<Operator>, idx: usize, action: &str) {
     if action == "edit" { return open_at(op, idx, false, String::new()) }
@@ -220,7 +283,13 @@ fn act(op: &Rc<Operator>, idx: usize, action: &str) {
     match action {
         "join" => match doc.join_next(&at, sel.lps()) { Ok(c) => send_change(op, song_id, c, s::joined()), Err(e) => refused(op, e) },
         "duplicate" => match doc.duplicate(&at) { Ok(c) => send_change(op, song_id, c, s::duplicated()), Err(e) => refused(op, e) },
-        "delete" => {
+        "copy" => copy_slide(op, doc.slide_lines(&at), s::copied(&paste_label())),
+        "paste" => match clip_lines() {
+            Some(lines) => match doc.add_after(&at, &lines) { Ok(c) => send_change(op, song_id, c, s::pasted()), Err(e) => refused(op, e) },
+            None => op.toast(s::nothing_to_paste(), true),
+        },
+        "delete" | "cut" => {
+            if action == "cut" { copy_slide(op, doc.slide_lines(&at), s::cut(&paste_label())) }
             let c = match doc.delete(&at) { Ok(c) => c, Err(e) => return refused(op, e) };
             let plays = doc.plays(&sel.order, at.section);
             if plays <= 1 { return send_change(op, song_id, c, s::deleted()) }
@@ -281,6 +350,16 @@ pub(crate) fn edit_live(op: &Rc<Operator>) {
 pub(crate) fn render(op: &Operator) {
     let g = op.ui.slide_edit_all();
     let sel = selected(op);
+    // Another item's slides: the mouse is over none of them yet (it clicked in the service list), so the editing
+    // keys go to the list until it moves onto a slide.
+    let item = op.state.borrow().selected;
+    if std::mem::replace(&mut op.slide_edit.borrow_mut().hover_item, item) != item { g.set_hover(-1) }
+    let label = |k: EditKey| k.chords().first().map(Chord::label).unwrap_or_default();
+    g.set_key_copy(label(EditKey::Copy).into());
+    g.set_key_cut(label(EditKey::Cut).into());
+    g.set_key_paste(paste_label().into());
+    g.set_key_duplicate(label(EditKey::Duplicate).into());
+    g.set_key_delete(label(EditKey::Delete).into());
     let still = op.slide_edit.borrow().target.as_ref().is_some_and(|t| sel.as_ref().is_some_and(|s| s.item_id == t.item_id));
     if !still && (g.get_open() || g.get_choosing()) { close(op) }
     let Some(sel) = sel else { return g.set_order_shown(false) };

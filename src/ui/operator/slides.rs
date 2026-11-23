@@ -168,6 +168,9 @@ pub(super) struct SlidesState {
     min_cell: u16,
     /// N15: each slide's action badge (how many, and their names).
     acts: Vec<(i32, String)>,
+    /// Runs while the arrow keys step through the service list (`Operator::step_to`): the slides are built for
+    /// the item the keys stop on, not for every item they pass.
+    pub(super) step_timer: slint::Timer,
 }
 
 impl Operator {

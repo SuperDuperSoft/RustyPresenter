@@ -275,6 +275,11 @@ component Thumb inherits Rectangle {
             return e.proposed-action;
         }
     }
+    // The mouse is over this slide: the editing keys (Delete, Copy, Cut, Paste, Duplicate) work on it.
+    property <bool> hot: root.cell.song && (ta.has-hover || edit-ta.has-hover || more-ta.has-hover);
+    changed hot => {
+        if self.hot { SlideEdit.hover = root.cell.idx; } else if SlideEdit.hover == root.cell.idx { SlideEdit.hover = -1; }
+    }
     DragArea {
         enabled: root.cell.song;
         allow-move: true;
@@ -319,7 +324,7 @@ component Thumb inherits Rectangle {
         x: root.width - 230px;
         y: screen.height;
         width: 230px;
-        height: 10 * 31px + 12px;
+        height: 13 * 31px + 12px;
         close-policy: close-on-click-outside;
         SlideMenuCard { idx: root.cell.idx; picked => { slide-menu.close(); } }
     }
@@ -416,6 +421,11 @@ component EasyRow inherits Rectangle {
             overflow: elide;
         }
     }
+    // The mouse is over this slide: the editing keys (Delete, Copy, Cut, Paste, Duplicate) work on it.
+    property <bool> hot: root.cell.song && (ta.has-hover);
+    changed hot => {
+        if self.hot { SlideEdit.hover = root.cell.idx; } else if SlideEdit.hover == root.cell.idx { SlideEdit.hover = -1; }
+    }
     ta := TouchArea {
         mouse-cursor: pointer;
         clicked => { root.clicked(); }
@@ -499,6 +509,11 @@ component TableRow inherits Rectangle {
             wrap: word-wrap;
             overflow: elide;
         }
+    }
+    // The mouse is over this slide: the editing keys (Delete, Copy, Cut, Paste, Duplicate) work on it.
+    property <bool> hot: root.cell.song && (ta.has-hover);
+    changed hot => {
+        if self.hot { SlideEdit.hover = root.cell.idx; } else if SlideEdit.hover == root.cell.idx { SlideEdit.hover = -1; }
     }
     ta := TouchArea {
         mouse-cursor: pointer;

@@ -99,7 +99,7 @@ msgstr "Google 幻灯片：在 Google 幻灯片中选择“文件 → 下载 →
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "请下载为 PowerPoint (.pptx) 以保留演讲者备注。"
 
-#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "复制"
 
@@ -4831,7 +4831,7 @@ msgstr "正常"
 msgid "Fade"
 msgstr "淡入淡出"
 
-#: ui/dialogs/transition.slint ui/operator.slint ui/widgets.slint
+#: ui/dialogs/transition.slint ui/operator/slide-editor.slint ui/operator.slint ui/widgets.slint
 msgid "Cut"
 msgstr "剪切"
 
@@ -5774,6 +5774,10 @@ msgstr "与下一张合并"
 #: ui/operator/slide-editor.slint
 msgid "Add a slide after"
 msgstr "在后面添加幻灯片"
+
+#: ui/operator/slide-editor.slint
+msgid "Paste after this slide"
+msgstr "粘贴到此幻灯片之后"
 
 #: ui/operator/slide-editor.slint
 msgid "Change section…"
@@ -11512,6 +11516,22 @@ msgid "Slide copied"
 msgstr "已复制幻灯片"
 
 #: src/strings/song_edit.rs
+msgid "Slide copied. Point at a slide and press {key} to paste it after that one."
+msgstr "幻灯片已复制。将鼠标指向一张幻灯片并按 {key}，即可粘贴到它后面。"
+
+#: src/strings/song_edit.rs
+msgid "Slide cut. Point at a slide and press {key} to paste it after that one."
+msgstr "幻灯片已剪切。将鼠标指向一张幻灯片并按 {key}，即可粘贴到它后面。"
+
+#: src/strings/song_edit.rs
+msgid "Slide pasted"
+msgstr "幻灯片已粘贴"
+
+#: src/strings/song_edit.rs
+msgid "There is no slide or text to paste."
+msgstr "没有可粘贴的幻灯片或文字。"
+
+#: src/strings/song_edit.rs
 msgid "This part is now {part}"
 msgstr "这部分现在是 {part}"
 
@@ -13502,7 +13522,12 @@ msgid ""
 "Your web browser opens a page where you write what happened. It needs a free GitHub account, and what you write there can be read by anyone.\n"
 "\n"
 "No internet on this computer? Write a note instead and send it later."
-msgstr "报告问题\n\n你的网页浏览器会打开一个页面，在那里写下发生了什么。需要一个免费的 GitHub 账号，你在那里写的内容任何人都能看到。\n\n这台电脑没有网络？可以改为写一份说明，以后再发送。"
+msgstr ""
+"报告问题\n"
+"\n"
+"你的网页浏览器会打开一个页面，在那里写下发生了什么。需要一个免费的 GitHub 账号，你在那里写的内容任何人都能看到。\n"
+"\n"
+"这台电脑没有网络？可以改为写一份说明，以后再发送。"
 
 #: src/ui/operator/help.rs
 msgid "Open the page"

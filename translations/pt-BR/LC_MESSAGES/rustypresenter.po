@@ -99,7 +99,7 @@ msgstr "Google Apresentações: no Google Apresentações, escolha Arquivo → F
 msgid "Download it as PowerPoint (.pptx) to keep your speaker notes."
 msgstr "Baixe como PowerPoint (.pptx) para manter suas anotações do orador."
 
-#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
+#: ui/dialogs/add-media.slint ui/dialogs/stream-scenes.slint ui/operator/slide-editor.slint ui/operator.slint ui/widgets.slint src/strings/planning.rs
 msgid "Copy"
 msgstr "Copiar"
 
@@ -4831,7 +4831,7 @@ msgstr "Normal"
 msgid "Fade"
 msgstr "Esmaecer"
 
-#: ui/dialogs/transition.slint ui/operator.slint ui/widgets.slint
+#: ui/dialogs/transition.slint ui/operator/slide-editor.slint ui/operator.slint ui/widgets.slint
 msgid "Cut"
 msgstr "Recortar"
 
@@ -5774,6 +5774,10 @@ msgstr "Juntar com o próximo"
 #: ui/operator/slide-editor.slint
 msgid "Add a slide after"
 msgstr "Adicionar slide depois"
+
+#: ui/operator/slide-editor.slint
+msgid "Paste after this slide"
+msgstr "Colar depois deste slide"
 
 #: ui/operator/slide-editor.slint
 msgid "Change section…"
@@ -11546,6 +11550,22 @@ msgid "Slide copied"
 msgstr "Slide copiado"
 
 #: src/strings/song_edit.rs
+msgid "Slide copied. Point at a slide and press {key} to paste it after that one."
+msgstr "Slide copiado. Aponte para um slide e pressione {key} para colá-lo depois dele."
+
+#: src/strings/song_edit.rs
+msgid "Slide cut. Point at a slide and press {key} to paste it after that one."
+msgstr "Slide recortado. Aponte para um slide e pressione {key} para colá-lo depois dele."
+
+#: src/strings/song_edit.rs
+msgid "Slide pasted"
+msgstr "Slide colado"
+
+#: src/strings/song_edit.rs
+msgid "There is no slide or text to paste."
+msgstr "Não há slide nem texto para colar."
+
+#: src/strings/song_edit.rs
 msgid "This part is now {part}"
 msgstr "Esta parte agora é {part}"
 
@@ -13549,7 +13569,12 @@ msgid ""
 "Your web browser opens a page where you write what happened. It needs a free GitHub account, and what you write there can be read by anyone.\n"
 "\n"
 "No internet on this computer? Write a note instead and send it later."
-msgstr "Relatar um problema\n\nSeu navegador abre uma página onde você escreve o que aconteceu. É preciso uma conta gratuita do GitHub, e qualquer pessoa pode ler o que você escrever lá.\n\nSem internet neste computador? Escreva uma nota e envie depois."
+msgstr ""
+"Relatar um problema\n"
+"\n"
+"Seu navegador abre uma página onde você escreve o que aconteceu. É preciso uma conta gratuita do GitHub, e qualquer pessoa pode ler o que você escrever lá.\n"
+"\n"
+"Sem internet neste computador? Escreva uma nota e envie depois."
 
 #: src/ui/operator/help.rs
 msgid "Open the page"
