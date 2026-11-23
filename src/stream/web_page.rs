@@ -16,8 +16,9 @@ use std::time::{Duration, Instant};
 
 /// How long after the browser stopped the page is opened again.
 const RETRY: Duration = Duration::from_secs(5);
-/// How long the browser may take to start and say where it listens.
-const START_LIMIT: Duration = Duration::from_secs(20);
+/// How long the browser may take to start and say where it listens. Edge's first start on a fresh profile took 13 s
+/// on an idle Linux test machine, and longer on a busy one, so 20 s gave up on browsers that were still coming.
+const START_LIMIT: Duration = Duration::from_secs(60);
 
 /// The browsers tried, in order.
 pub fn browsers() -> Vec<PathBuf> {
@@ -354,7 +355,7 @@ mod tests {
         let p = Page::start(page, (160, 90)).unwrap();
         let began = Instant::now();
         let mut got = None;
-        while began.elapsed() < Duration::from_secs(40) {
+        while began.elapsed() < START_LIMIT + Duration::from_secs(20) {
             // The first picture may be the blank page before the address opens. That page is white, and white has
             // as much red as red has: it is the page only once there is no green there.
             if let Some(px) = p.picture() && px[(60 * 160 + 120) * 4] > 200 && px[(60 * 160 + 120) * 4 + 1] < 60 { got = Some(px); break }
