@@ -113,7 +113,8 @@ run() {
     RP_LOG="$C/tools/xfer/make-installer/installer.txt" \
     bash "$C/repo/packaging/windows/make-installer.sh" "$@" >"$C/out.txt" 2>&1
 }
-SETUP="RustyPresenter-Setup-$(sed -n 's/^version = "\([^"]*\)".*/\1/p' "$REPO/Cargo.toml" | head -n 1).exe"
+VERSION="$(sed -n 's/^version = "\([^"]*\)".*/\1/p' "$REPO/Cargo.toml" | head -n 1)"
+SETUP="RustyPresenter-Setup-$VERSION.exe"
 
 # ---- 1. dry run: prints every step, touches nothing
 new_case dry
@@ -183,8 +184,8 @@ check "unfiles.nsh removes the empty folder" has "$U" 'RMDir "$INSTDIR\\licenses
 check "unfiles.nsh never removes a folder recursively" bash -c "! grep -q 'RMDir /r' '$U'"
 check "same number of File and Delete lines" test "$(grep -c '^File ' "$N")" = "$(grep -c '^Delete ' "$U")"
 A="$T/log/makensis-args.txt"
-check "makensis gets the version" has "$A" "-DVERSION=1.3.0"
-check "makensis gets a four-part version" has "$A" "-DVIVERSION=1.3.0.0"
+check "makensis gets the version" has "$A" "-DVERSION=$VERSION"
+check "makensis gets a four-part version" has "$A" "-DVIVERSION=$VERSION.0"
 check "makensis builds rustypresenter.nsi" has "$A" "rustypresenter.nsi"
 # Again: everything is reused, nothing downloaded.
 : >"$T/log/curl.txt"
