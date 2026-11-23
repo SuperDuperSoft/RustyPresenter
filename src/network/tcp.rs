@@ -13,6 +13,12 @@ pub const MAX_LINE: usize = 1024;
 pub const MAX_CONNECTIONS: usize = 8;
 /// Wrong passwords before the connection is closed.
 const MAX_WRONG: u32 = 3;
+/// After a wrong password, how long every connection from that address waits before it may try another.
+const WRONG_WAIT: std::time::Duration = std::time::Duration::from_secs(1);
+
+/// When each address last sent a wrong password. Shared by every connection, so opening more connections does not
+/// buy more guesses. A right password is never held up.
+pub type Wrong = Arc<std::sync::Mutex<std::collections::HashMap<std::net::IpAddr, std::time::Instant>>>;
 
 pub const HELP: &str = "OK commands: next, prev, clear [all|slide|media|audio], logo, go <item> [<slide>], status, ping, password <password>, quit";
 
@@ -47,25 +53,32 @@ pub fn sync(app: &Arc<App>) -> Result<(), String> {
 
 async fn accept(app: Weak<App>, listener: tokio::net::TcpListener, stop: CancellationToken) {
     let open = Arc::new(AtomicUsize::new(0));
+    let wrong = Wrong::default();
     loop {
         let conn = tokio::select! { _ = stop.cancelled() => return, c = listener.accept() => c };
-        let Ok((stream, _)) = conn else { continue };
+        let Ok((stream, addr)) = conn else { continue };
         if open.load(Ordering::Relaxed) >= MAX_CONNECTIONS { drop(stream); continue }
         open.fetch_add(1, Ordering::Relaxed);
-        let (app, open, stop) = (app.clone(), open.clone(), stop.clone());
+        let (app, open, stop, from) = (app.clone(), open.clone(), stop.clone(), Some((addr.ip(), wrong.clone())));
         tokio::spawn(async move {
-            tokio::select! { _ = stop.cancelled() => {}, _ = serve(app, stream) => {} }
+            tokio::select! { _ = stop.cancelled() => {}, _ = serve(app, stream, from) => {} }
             open.fetch_sub(1, Ordering::Relaxed);
         });
     }
 }
 
-async fn serve(app: Weak<App>, stream: tokio::net::TcpStream) {
+async fn serve(app: Weak<App>, stream: tokio::net::TcpStream, from: Option<(std::net::IpAddr, Wrong)>) {
     let (r, w) = stream.into_split();
-    serve_lines(app, r, w).await;
+    serve_lines(app, r, w, from).await;
 }
 
-async fn serve_lines(app: Weak<App>, r: impl AsyncRead + Unpin, mut w: impl AsyncWrite + Unpin) {
+/// Whether `line` gives a password (`password …` or `pass …`).
+fn is_password(line: &str) -> bool {
+    line.split_whitespace().next().is_some_and(|v| v.eq_ignore_ascii_case("password") || v.eq_ignore_ascii_case("pass"))
+}
+
+/// `from`: the address at the other end and the wrong passwords every connection has seen (`Wrong`).
+async fn serve_lines(app: Weak<App>, r: impl AsyncRead + Unpin, mut w: impl AsyncWrite + Unpin, from: Option<(std::net::IpAddr, Wrong)>) {
     let mut r = BufReader::new(r);
     let mut session = Session::default();
     let mut buf = Vec::new();
@@ -78,7 +91,23 @@ async fn serve_lines(app: Weak<App>, r: impl AsyncRead + Unpin, mut w: impl Asyn
             Reply { text: "ERR line too long".into(), close: true }
         } else {
             let Some(app) = app.upgrade() else { return };
-            answer(&app, String::from_utf8_lossy(line).trim(), &mut session)
+            let text = String::from_utf8_lossy(line).trim().to_string();
+            if !is_password(&text) {
+                answer(&app, &text, &mut session)
+            } else if from.as_ref().is_some_and(|(ip, wrong)| wrong.lock().unwrap_or_else(|e| e.into_inner()).get(ip).is_some_and(|at| at.elapsed() < WRONG_WAIT)) {
+                reply("ERR too fast: wait a second and try again")
+            } else {
+                // The check is slow on purpose (thousands of hash rounds): off the async workers.
+                let mut s = std::mem::take(&mut session);
+                let Ok((out, s)) = tokio::task::spawn_blocking(move || { let out = answer(&app, &text, &mut s); (out, s) }).await else { return };
+                session = s;
+                if out.text.starts_with("ERR wrong password") && let Some((ip, wrong)) = &from {
+                    let mut wrong = wrong.lock().unwrap_or_else(|e| e.into_inner());
+                    if wrong.len() > 256 { wrong.clear() }
+                    wrong.insert(*ip, std::time::Instant::now());
+                }
+                out
+            }
         };
         if reply.text.starts_with("ERR wrong password") { tokio::time::sleep(std::time::Duration::from_secs(1)).await }
         if w.write_all(format!("{}\r\n", reply.text).as_bytes()).await.is_err() || reply.close { return }
@@ -96,6 +125,11 @@ fn reply(text: impl Into<String>) -> Reply { Reply { text: text.into(), close: f
 
 /// The answer to one line. Words are not case-sensitive; an empty line gets no command run.
 pub fn answer(app: &App, line: &str, session: &mut Session) -> Reply {
+    // A web browser, not gear: a page on some device on the network posting here (`POST / HTTP/1.1`). Its first
+    // line ends the connection, so nothing in what it posts is read as a command.
+    if line.split_whitespace().last().is_some_and(|w| w.get(..5).is_some_and(|p| p.eq_ignore_ascii_case("HTTP/"))) {
+        return Reply { text: "ERR this port takes plain commands, not web pages".into(), close: true };
+    }
     let mut words = line.split_whitespace();
     let verb = words.next().unwrap_or("").to_ascii_lowercase();
     let args: Vec<&str> = words.collect();
@@ -232,12 +266,61 @@ mod tests {
         assert!(answer(&app, "password c", &mut s).close);
     }
 
+    /// One connection: what it sends, and every line it gets back until the app closes it.
+    async fn talk(app: &Arc<App>, from: Option<(std::net::IpAddr, Wrong)>, send: &str) -> Vec<String> {
+        let (client, server) = tokio::io::duplex(MAX_LINE * 2);
+        let (r, w) = tokio::io::split(server);
+        let task = tokio::spawn(serve_lines(Arc::downgrade(app), r, w, from));
+        let (r, mut w) = tokio::io::split(client);
+        w.write_all(send.as_bytes()).await.unwrap();
+        w.shutdown().await.unwrap();
+        let mut lines = BufReader::new(r).lines();
+        let mut got = Vec::new();
+        while let Ok(Some(l)) = lines.next_line().await { got.push(l) }
+        task.await.unwrap();
+        got
+    }
+
+    #[tokio::test]
+    async fn a_web_page_posting_here_is_turned_away_before_its_commands_are_read() {
+        let app = test_app();
+        with_items(&app);
+        let got = talk(&app, None, "POST / HTTP/1.1\r\nHost: 192.168.1.20:4319\r\nContent-Type: text/plain\r\n\r\nnext\r\nclear\r\n").await;
+        assert_eq!(got, ["ERR this port takes plain commands, not web pages"], "one answer, then closed");
+        assert!(app.live().cursor.is_none(), "the posted `next` never ran");
+        for first in ["GET / HTTP/1.1", "options * http/1.0", "next HTTP/1.1"] {
+            assert!(answer(&app, first, &mut Session::default()).close, "{first}");
+        }
+        assert_eq!(answer(&app, "next", &mut Session::default()).text, "OK", "gear is served as before");
+    }
+
+    #[tokio::test]
+    async fn a_wrong_password_holds_up_every_connection_from_that_address() {
+        let app = test_app();
+        with_items(&app);
+        app.data().settings.network.tcp_password = Some(password::hash("lights"));
+        let wrong = Wrong::default();
+        let (guesser, desk): (std::net::IpAddr, std::net::IpAddr) = ("192.168.1.66".parse().unwrap(), "192.168.1.30".parse().unwrap());
+        // The right password is never held up, however often gear connects.
+        for _ in 0..3 {
+            assert_eq!(talk(&app, Some((desk, wrong.clone())), "password lights\r\nnext\r\n").await, ["OK", "OK"]);
+        }
+        let from = || Some((guesser, wrong.clone()));
+        wrong.lock().unwrap().insert(guesser, std::time::Instant::now());
+        assert_eq!(talk(&app, from(), "password lights\r\n").await, ["ERR too fast: wait a second and try again"], "a second connection buys no extra guess");
+        assert_eq!(talk(&app, Some((desk, wrong.clone())), "password lights\r\n").await, ["OK"], "another address is not held up");
+        wrong.lock().unwrap().clear();
+        assert_eq!(talk(&app, from(), "password nope\r\n").await, ["ERR wrong password"]);
+        assert!(wrong.lock().unwrap().contains_key(&guesser), "noted for the next connection");
+        assert_eq!(talk(&app, from(), "pass lights\r\nping\r\n").await, ["OK", "OK pong"], "a second later the right one works");
+    }
+
     #[tokio::test]
     async fn command_length_excludes_the_line_ending() {
         let app = test_app();
         let (client, server) = tokio::io::duplex(MAX_LINE * 2);
         let (r, w) = tokio::io::split(server);
-        let task = tokio::spawn(serve_lines(Arc::downgrade(&app), r, w));
+        let task = tokio::spawn(serve_lines(Arc::downgrade(&app), r, w, None));
         let (r, mut w) = tokio::io::split(client);
         let mut lines = BufReader::new(r).lines();
         w.write_all(format!("ping{}\r\n", " ".repeat(MAX_LINE - 4)).as_bytes()).await.unwrap();

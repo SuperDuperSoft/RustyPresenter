@@ -5,7 +5,9 @@ a Companion button, or a script. It is **off** until you turn it on in **Setting
 
 - **Port:** 4319 unless you choose another (1024–65535, not the app's own port).
 - **Password:** optional. When set, the first line must be `password <your password>`.
-  Three wrong passwords close the connection, and each wrong one waits a second.
+  Three wrong passwords close the connection, and each wrong one waits a second. After a wrong password, the
+  device that sent it must wait a second before any of its connections may try again (`ERR too fast: wait a second
+  and try again`). The right password is never held up.
 - **Connections:** up to 8 at once. Lines are at most 1024 bytes.
 
 ## How it works
@@ -63,3 +65,7 @@ OK bye
 The control is plain text on the local network: anyone who can reach the port can send commands unless a password
 is set, and the password itself travels unencrypted. Turn it on only on a church network you trust, and set a
 password. The app stores only a salted hash of the password.
+
+A web browser is turned away: a line that ends like a web request (`POST / HTTP/1.1`) gets
+`ERR this port takes plain commands, not web pages` and the connection is closed, so a web page open on some
+device on the network cannot send commands here.
