@@ -38,6 +38,38 @@ pub fn input_args(format: &str, name: &str) -> Vec<String> {
     a
 }
 
+/// The sound may run this far behind the clock, or this far ahead of it, before it is brought back (`drift_step`).
+/// An input's sound always comes a little late and in pieces, so "behind" swings by a piece's length around a
+/// small lateness of its own; these sit outside that swing.
+const BEHIND_MOST: Duration = Duration::from_millis(150);
+const AHEAD_MOST: Duration = Duration::from_millis(50);
+
+/// Keeps a sound input in step with the clock, and so with the picture, which is timed by the clock. A sound card
+/// counts its samples by its own crystal, never quite at the computer's pace: a little slow, and its sound is
+/// short of the picture by more and more (a tenth of a second or more over a service, seconds with a poor USB
+/// interface); a little fast, and it runs ahead. Nothing put that right while the input kept sending.
+///
+/// `written` frames have gone out `elapsed` after the start, at `rate` frames a second. +1: one frame is said
+/// twice now; -1: one is left out; 0: in step. One frame at a time (a 48,000th of a second, a few times a second
+/// at most) cannot be heard, where a gap of silence could.
+pub fn drift_step(elapsed: Duration, written: u64, rate: u32) -> i64 {
+    let due = (elapsed.as_secs_f64() * f64::from(rate)) as i64;
+    let behind = due - written as i64;
+    let frames = |d: Duration| (d.as_secs_f64() * f64::from(rate)) as i64;
+    if behind > frames(BEHIND_MOST) { 1 } else if behind < -frames(AHEAD_MOST) { -1 } else { 0 }
+}
+
+/// `drift_step` done to `buf` (whole frames of `frame` bytes, at least one): its last frame said twice, or left out.
+/// The frames added (+1, -1 or 0).
+fn keep_step(buf: &mut Vec<u8>, frame: usize, step: i64) -> i64 {
+    if frame == 0 || buf.len() < frame { return 0 }
+    match step {
+        1 => { buf.extend_from_within(buf.len() - frame..); 1 }
+        -1 => { buf.truncate(buf.len() - frame); -1 }
+        _ => 0,
+    }
+}
+
 /// The loudest sample of 16-bit sound `bytes`.
 pub fn peak(bytes: &[u8]) -> i32 {
     bytes.chunks_exact(2).map(|b| (i16::from_le_bytes([b[0], b[1]]) as i32).abs()).max().unwrap_or(0)
@@ -157,6 +189,8 @@ fn run(reader: Reader, port: u16, stop: &AtomicBool, silent: &AtomicBool, mute: 
         if heard > 0 { last_heard = Instant::now() }
         let p = peak(&buf);
         written += heard as u64;
+        // While the input sends: held to the clock a frame at a time (`drift_step`).
+        if heard > 0 { written = written.saturating_add_signed(keep_step(&mut buf, frame, drift_step(t0.elapsed(), written, FORMAT.rate))) }
         // Nothing from the input for a while: silence, by the clock, so the picture is not held back.
         if last_heard.elapsed() >= GONE_AFTER {
             let gap = super::pc_sound::silence_needed(t0.elapsed(), written, FORMAT.rate);
@@ -206,6 +240,53 @@ fn spawn_input(ffmpeg: PathBuf, args: Vec<String>) -> Option<(Arc<AtomicBool>, s
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// An hour of an input whose clock is `ppm` parts in a million off, handed over every 10 ms: how far the sound
+    /// written ends from the clock, in milliseconds (+: behind), and the furthest it ever was.
+    fn an_hour(ppm: f64) -> (f64, f64) {
+        let rate = f64::from(FORMAT.rate);
+        // `taken`: the frames taken from the card; `written`: the frames sent on (one more or fewer now and then).
+        let (mut written, mut taken, mut worst) = (0u64, 0u64, 0.0f64);
+        for tick in 1..=360_000u64 {
+            let t = Duration::from_millis(tick * 10);
+            // What the card has made by now, by its own clock, in whole frames.
+            let made = (t.as_secs_f64() * rate * (1.0 + ppm / 1e6)) as u64;
+            let heard = made - taken;
+            taken = made;
+            let mut buf = vec![0u8; heard as usize * 4];
+            written += heard;
+            if heard > 0 { written = written.saturating_add_signed(keep_step(&mut buf, 4, drift_step(t, written, FORMAT.rate))) }
+            assert_eq!(buf.len() % 4, 0);
+            worst = worst.max(((t.as_secs_f64() * rate - written as f64) / rate * 1000.0).abs());
+        }
+        ((3600.0 * rate - written as f64) / rate * 1000.0, worst)
+    }
+
+    #[test]
+    fn a_sound_card_a_little_slow_or_fast_is_held_to_the_clock() {
+        // 500 parts in a million is 1.8 s over an hour left alone.
+        let (slow, worst) = an_hour(-500.0);
+        assert!(slow > 100.0 && slow < 170.0 && worst < 170.0, "a slow card ends {slow:.0} ms behind (worst {worst:.0})");
+        let (fast, worst) = an_hour(500.0);
+        assert!(fast < -30.0 && fast > -70.0 && worst < 170.0, "a fast card ends {fast:.0} ms off (worst {worst:.0})");
+        // A good card (20 parts in a million, 72 ms an hour) is left alone.
+        let (good, _) = an_hour(-20.0);
+        assert!((good - 72.0).abs() < 2.0, "{good:.1}");
+    }
+
+    #[test]
+    fn a_frame_is_said_twice_or_left_out() {
+        let rate = FORMAT.rate;
+        let s = Duration::from_secs;
+        assert_eq!(drift_step(s(10), 480_000, rate), 0, "in step");
+        assert_eq!(drift_step(s(10), 480_000 - 4_800, rate), 0, "a tenth of a second late is an input's own lateness");
+        assert_eq!(drift_step(s(10), 480_000 - 9_600, rate), 1, "a fifth of a second behind");
+        assert_eq!(drift_step(s(10), 480_000 + 4_800, rate), -1, "a tenth of a second ahead");
+        let mut buf = vec![1, 2, 3, 4, 5, 6, 7, 8];
+        assert_eq!((keep_step(&mut buf, 4, 1), buf.clone()), (1, vec![1, 2, 3, 4, 5, 6, 7, 8, 5, 6, 7, 8]));
+        assert_eq!((keep_step(&mut buf, 4, -1), buf.len()), (-1, 8));
+        assert_eq!(keep_step(&mut Vec::new(), 4, 1), 0, "nothing came: nothing to say twice");
+    }
 
     #[test]
     fn the_inputs_ffmpeg_sends_16_bit_stereo() {

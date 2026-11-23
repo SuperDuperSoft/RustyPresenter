@@ -74,8 +74,9 @@ impl Operator {
         g.set_perf_warn(r.slow());
     }
 
-    /// Tells the operator, once, that Automatic has turned light mode on.
+    /// Tells the operator, once, that Automatic has turned light mode on, and keeps the live preview's pace in step.
     pub(crate) fn light_tick(&self) {
+        self.follow_light();
         if light::take_notice() {
             self.toast(crate::tr!("This computer is having trouble keeping up, so slides now change without fading. To change this: Settings → General → Screens and graphics → Light mode."), false);
         }

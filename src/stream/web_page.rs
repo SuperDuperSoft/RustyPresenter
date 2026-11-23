@@ -355,8 +355,9 @@ mod tests {
         let began = Instant::now();
         let mut got = None;
         while began.elapsed() < Duration::from_secs(40) {
-            // The first picture may be the blank page before the address opens.
-            if let Some(px) = p.picture() && px[(60 * 160 + 120) * 4] > 200 { got = Some(px); break }
+            // The first picture may be the blank page before the address opens. That page is white, and white has
+            // as much red as red has: it is the page only once there is no green there.
+            if let Some(px) = p.picture() && px[(60 * 160 + 120) * 4] > 200 && px[(60 * 160 + 120) * 4 + 1] < 60 { got = Some(px); break }
             std::thread::sleep(Duration::from_millis(200));
         }
         drop(p);

@@ -6,7 +6,37 @@ fn ffmpeg() -> Option<PathBuf> {
     // "ffmpeg.exe" on Windows (only "ffmpeg" was looked for, so on Windows these tests never ran).
     let found = std::env::var_os("PATH").and_then(|p| std::env::split_paths(&p).flat_map(|d| [d.join("ffmpeg"), d.join("ffmpeg.exe")]).find(|p| p.is_file()));
     if found.is_none() { eprintln!("no ffmpeg here: skipped") }
+    if found.is_some() { take_turn() }
     found
+}
+
+/// How many of these tests record at once. Each starts several FFmpegs (the recorder, a camera or two, a stand-in
+/// streaming server) and then looks at what was recorded at given seconds. All thirty-odd at once, as the test
+/// runner starts them, is more than a computer's processors can do in time: a camera's FFmpeg started seconds
+/// late, its pictures came too slowly to count as a picture, and one test or another failed about one run in
+/// three (never the same one). Four at a time, eight runs in a row had none.
+const AT_ONCE: usize = 4;
+
+/// Waits for this test's turn (`AT_ONCE`); the turn is given back when the test's thread ends, passed or failed.
+fn take_turn() {
+    struct Turn;
+    impl Drop for Turn {
+        fn drop(&mut self) {
+            let (busy, free) = &TURNS;
+            *busy.lock().unwrap_or_else(|e| e.into_inner()) -= 1;
+            free.notify_one();
+        }
+    }
+    static TURNS: (Mutex<usize>, std::sync::Condvar) = (Mutex::new(0), std::sync::Condvar::new());
+    thread_local! { static MINE: std::cell::RefCell<Option<Turn>> = const { std::cell::RefCell::new(None) }; }
+    // A test that asks for FFmpeg twice has its turn already.
+    if MINE.with(|m| m.borrow().is_some()) { return }
+    let (busy, free) = &TURNS;
+    let mut n = busy.lock().unwrap_or_else(|e| e.into_inner());
+    while *n >= AT_ONCE { n = free.wait(n).unwrap_or_else(|e| e.into_inner()) }
+    *n += 1;
+    drop(n);
+    MINE.with(|m| *m.borrow_mut() = Some(Turn));
 }
 
 fn scratch(name: &str) -> PathBuf {

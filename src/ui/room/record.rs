@@ -2,7 +2,7 @@
 //! drawing takes a snapshot 15 times a second. With the app's sound recorded, the players on air are looked at
 //! four times a second (`record::sound`).
 use super::{AUDIO, Inner, MEDIA};
-use crate::record::{FPS, FrameSink, gl::GlCapture, pump::Raw, sound::Heard};
+use crate::record::{FrameSink, gl::GlCapture, pump::Raw, sound::Heard};
 use crate::video::DrawMode;
 use slint::{ComponentHandle, Timer, TimerMode};
 use std::{sync::Arc, time::Duration};
@@ -33,7 +33,7 @@ impl Inner {
                     let w = w.clone();
                     Timer::single_shot(after, move || if let Some(ui) = w.upgrade() { ui.window().request_redraw() });
                 };
-                self.surface.set_frame_tap(Some(GlCapture::new(sink.clone(), FPS, redraw_later)));
+                self.surface.set_frame_tap(Some(GlCapture::new(sink.clone(), sink.fps, redraw_later)));
             }
             DrawMode::Software => {
                 let (w, s) = (self.ui.as_weak(), sink.clone());

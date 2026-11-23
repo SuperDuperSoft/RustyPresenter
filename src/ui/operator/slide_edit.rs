@@ -354,6 +354,10 @@ pub(crate) fn render(op: &Operator) {
     // keys go to the list until it moves onto a slide.
     let item = op.state.borrow().selected;
     if std::mem::replace(&mut op.slide_edit.borrow_mut().hover_item, item) != item { g.set_hover(-1) }
+    // The slide the mouse was over is gone (the last one was deleted or cut): the mouse is over none now. Without
+    // this the mark stayed, and once the song had that many slides again the keys worked on a slide the mouse had
+    // long left.
+    if usize::try_from(g.get_hover()).is_ok_and(|at| !sel.as_ref().is_some_and(|s| at < s.slides.len())) { g.set_hover(-1) }
     let label = |k: EditKey| k.chords().first().map(Chord::label).unwrap_or_default();
     g.set_key_copy(label(EditKey::Copy).into());
     g.set_key_cut(label(EditKey::Cut).into());

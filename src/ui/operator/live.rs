@@ -289,6 +289,14 @@ impl Operator {
         st.grab_timer.start(TimerMode::Repeated, crate::ui::light::grab_every(), move || if let Some(op) = me.upgrade() { op.grab_tick() });
     }
 
+    /// Light mode came on or went off while a video is live: the grab takes its new pace now, not with the next
+    /// video (Automatic turns it on in the middle of a service, when the computer is already struggling).
+    pub(super) fn follow_light(&self) {
+        let every = crate::ui::light::grab_every();
+        let st = self.live.borrow();
+        if st.grab_timer.running() && st.grab_timer.interval() != every { st.grab_timer.set_interval(every) }
+    }
+
     /// "Audience screen is off" over a live video while the room window is not open (a room that is opening, or
     /// preparing the video, shows black without it).
     pub(super) fn mark_room_off(&self) {
@@ -721,6 +729,24 @@ mod tests {
         op.apply_live(LiveUpdate::new(v));
         assert!(op.ui.get_monitor_video());
         assert!(op.ui.get_monitor_video_cover(), "a background video fills and crops, as the room's panscan does (object-fit: cover)");
+    }
+
+    #[test]
+    fn the_video_preview_slows_down_when_light_mode_comes_on_mid_video() {
+        use crate::{model::LightMode, ui::light};
+        light::set_mode(LightMode::Off);
+        let app = test_app();
+        let id = add_video(&app);
+        let op = opened(&app);
+        run(&op, Command::Show { item_id: id, slide: 0 });
+        assert_eq!(op.live.borrow().grab_timer.interval(), light::GRAB_EVERY);
+        light::set_mode(LightMode::On);
+        op.light_tick();
+        assert_eq!(op.live.borrow().grab_timer.interval(), light::GRAB_EVERY_LIGHT, "the video that is playing, not only the next");
+        light::set_mode(LightMode::Off);
+        op.light_tick();
+        assert_eq!(op.live.borrow().grab_timer.interval(), light::GRAB_EVERY);
+        light::set_mode(LightMode::Auto);
     }
 
     #[test]

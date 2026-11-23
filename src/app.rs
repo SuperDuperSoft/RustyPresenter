@@ -725,9 +725,11 @@ impl App {
             if step { history.record(&before, &data) } else { history.carry(&before, &data) }
             r
         };
-        let r = self.write_save(r.1).map(|()| r.0);
+        // The screens hear of the change first, then the disk: the write waits until the file is really on the
+        // disk (tens of milliseconds, over a hundred with a big library), and the operator window, the audience
+        // screen and the phones would all sit on the old data for that long after every edit.
         self.after_edit();
-        r
+        self.write_save(r.1).map(|()| r.0)
     }
 
     /// Edit → Undo (`redo` false) or Redo: the toast's text, or why nothing changed. Saved and checked against the
@@ -740,10 +742,10 @@ impl App {
             let r = if redo { history.redo(&mut data) } else { history.undo(&mut data) };
             r.and_then(|t| self.take_save(&data).map(|s| (t, s)))
         };
-        let r = r.and_then(|(t, s)| self.write_save(s).map(|()| t));
-        // A step that could not be taken is gone too, so the menu is told either way.
+        // A step that could not be taken is gone too, so the menu is told either way; and before the disk write,
+        // as in `edit_kept`.
         self.after_edit();
-        r
+        r.and_then(|(t, s)| self.write_save(s).map(|()| t))
     }
 
     /// After memory changed (saved or not): every screen reads the data again.

@@ -34,10 +34,10 @@ impl GlCapture {
     pub fn frame(&mut self, gl: &glow::Context, size: PhysicalSize) {
         if self.sink.is_closed() || size.width == 0 || size.height == 0 { return }
         let now = Instant::now();
-        if let Some(last) = self.last && now.duration_since(last) < self.gap {
+        if let Some(last) = self.last && too_soon(now.duration_since(last), self.gap) {
             if !self.owed {
                 self.owed = true;
-                (self.redraw_later)(self.gap - now.duration_since(last));
+                (self.redraw_later)(self.gap.saturating_sub(now.duration_since(last)));
             }
             return;
         }
@@ -124,7 +124,32 @@ impl GlCapture {
     }
 }
 
+/// Whether a frame drawn `since` the last picture taken comes too soon for a file with a picture every `gap`.
+///
+/// The room draws once per refresh of its screen, and a 60 Hz screen's every second frame comes 33.3 ms after the
+/// last picture, give or take the timer: held to the full gap, about half of those were a hair early and were
+/// passed over, the picture was then taken a frame later (50 ms), and a video or a fade came out jerky in the
+/// recording and the stream. A frame within a quarter of the gap of its time is taken.
+fn too_soon(since: Duration, gap: Duration) -> bool { since < gap.mul_f32(0.75) }
+
 /// A framebuffer binding as `get_parameter_i32` gave it: 0 is the window's own.
 fn framebuffer(id: i32) -> Option<glow::Framebuffer> {
     std::num::NonZeroU32::new(id as u32).map(glow::NativeFramebuffer)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn every_second_frame_of_a_60_hz_screen_is_taken_for_30_pictures_a_second() {
+        let (ms, gap) = (Duration::from_micros, Duration::from_secs_f64(1.0 / 30.0));
+        assert!(too_soon(ms(16_667), gap), "the frame in between is passed over");
+        for a_hair in [33_100, 33_333, 33_600] { assert!(!too_soon(ms(a_hair), gap), "{a_hair} us: the second frame, early or late") }
+        // Other screens: 50 Hz gives every second frame (25 a second), 75 Hz every second (37, the newest wins).
+        assert!(too_soon(ms(20_000), gap) && !too_soon(ms(40_000), gap));
+        assert!(too_soon(ms(13_333), gap) && !too_soon(ms(26_667), gap));
+        // 60 pictures a second from a 60 Hz screen: every frame.
+        assert!(!too_soon(ms(16_400), Duration::from_secs_f64(1.0 / 60.0)));
+    }
 }

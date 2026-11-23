@@ -328,3 +328,33 @@ fn the_editing_keys_work_on_the_slide_under_the_mouse() {
     set_clipboard(None);
     forget_clip();
 }
+
+/// The last slide is deleted with the mouse over it: no slide is there any more, so the next key is not for a slide,
+/// not even once the song has that many slides again.
+#[test]
+fn a_deleted_last_slide_is_no_longer_under_the_mouse() {
+    use crate::{shortcuts::EditKey, ui::dialogs::settings::testing::set_clipboard};
+    forget_clip();
+    set_clipboard(None);
+    let app = test_app();
+    let (song, item) = add_song(&app, LYRICS, &[]);
+    let op = ready(&app, item);
+    let g = op.ui.slide_edit_all();
+    let last = labels(&op).len() as i32 - 1;
+    g.set_hover(last);
+    assert!(edit_key(&op, EditKey::Cut));
+    refresh(&op);
+    settle(&op);
+    assert_eq!(g.get_hover(), -1, "nothing is under the mouse where the last slide was");
+    // The song gets its slide back (pasted after the first): the mouse has not moved onto it.
+    g.set_hover(0);
+    assert!(paste_key(&op));
+    refresh(&op);
+    settle(&op);
+    g.set_hover(-1);
+    let words = lyrics(&app, song);
+    assert!(!edit_key(&op, EditKey::Delete), "Delete is for the service list again");
+    assert_eq!(lyrics(&app, song), words);
+    set_clipboard(None);
+    forget_clip();
+}

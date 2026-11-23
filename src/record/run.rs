@@ -279,7 +279,7 @@ impl Recording {
     /// Starts FFmpeg and the writer. `done` runs on the writer thread once the file is finished.
     pub fn start(plan: Plan, done: impl FnOnce(Ended) + Send + 'static) -> Result<Recording, String> {
         let app_sound = plan.sound == Sound::App;
-        let sink = Arc::new(FrameSink::new(plan.preset.size(), app_sound));
+        let sink = Arc::new(FrameSink::new(plan.preset.size(), app_sound).at(plan.more.fps()));
         let cancel = CancellationToken::new();
         let (started_tx, started_rx) = mpsc::channel();
         let (finished_tx, finished) = mpsc::channel();
@@ -307,8 +307,11 @@ impl Recording {
                 Err(e) => { let _ = started_tx.send(Err(e.to_string())); return }
             };
             let ended = rt.block_on(write(plan, s, c, started_tx, l, cs, si, sc, lv, lg, pk, dr));
-            if let Some(ended) = ended { done(ended) }
+            let held = ended.map(|(ended, held)| { done(ended); held });
             let _ = finished_tx.send(());
+            // A stream delay: what is still held goes out before this thread (and with it the relays and the
+            // senders) ends. The file is finished and said to be; only the stream's own end is waited for.
+            if let Some(Some(held)) = held { let _ = rt.block_on(held); }
         }).map_err(|e| tr::not_started(&e.to_string()))?;
         match started_rx.recv() {
             Ok(Ok(())) => Ok(Recording { sink, cancel, finished, begun: Instant::now(), out, links, controls, camera_seen, silent, scenes, levels, lag, peek, part, ffmpeg, format, dropped }),
@@ -415,7 +418,7 @@ impl Drop for Recording {
 async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, started: mpsc::Sender<Result<(), String>>, links: crate::stream::send::Links,
     camera_seen: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>, silent: Arc<Mutex<Option<Arc<std::sync::atomic::AtomicBool>>>>,
     scenes: Arc<Mutex<Option<crate::stream::pictures::Slot>>>, levels: Levels, lag: Arc<std::sync::atomic::AtomicU64>, peek: Arc<Mutex<super::peek::Peek>>,
-    dropped: Arc<std::sync::atomic::AtomicU64>) -> Option<Ended> {
+    dropped: Arc<std::sync::atomic::AtomicU64>) -> Option<(Ended, Option<tokio::task::JoinHandle<()>>)> {
     let part = partial_of(&plan.out);
     // Pictures a second (More settings; 30 untouched).
     let fps = plan.more.fps();
@@ -695,13 +698,16 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
     // The last of the stream has gone to the senders: a moment for them to pass it on, then they stop.
     // With a delay, what is still held goes out first (the stream ends as the service did); the file is finished
     // meanwhile.
+    // That work is handed back to be waited for: this thread's tasks stop with `write`, and a file finished
+    // sooner than the delay (most are) cut the stream's last seconds off.
+    let mut held = None;
     if !ports.is_empty() && !delay.is_zero() {
-        tokio::spawn(async move {
+        held = Some(tokio::spawn(async move {
             tokio::time::sleep(delay + Duration::from_millis(300)).await;
             relays.cancel();
             tokio::time::sleep(Duration::from_millis(500)).await;
             senders.cancel();
-        });
+        }));
     } else {
         if !ports.is_empty() { tokio::time::sleep(Duration::from_millis(500)).await }
         senders.cancel();
@@ -732,7 +738,7 @@ async fn write(plan: Plan, sink: Arc<FrameSink>, cancel: CancellationToken, star
         if let Some(first) = done.pieces.first() { done.file = Some(first.clone()) }
     }
     if let Some(p) = problem { done.problem = Some(match (&done.file, done.problem) { (Some(_), Some(q)) => format!("{p} {q}"), _ => p }) }
-    Some(done)
+    Some((done, held))
 }
 
 /// The stream's picture put together from the room, the camera and the scene worker's words and cards

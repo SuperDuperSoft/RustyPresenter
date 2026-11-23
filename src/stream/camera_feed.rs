@@ -119,6 +119,28 @@ fn run(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32, stop: &A
     if let Some((s, t)) = camera { s.store(true, Ordering::Relaxed); let _ = t.join(); }
 }
 
+/// The camera's pictures as they come off its FFmpeg, a piece at a time. What has come of a picture is kept while
+/// the wait for the rest runs out: reading "a whole picture or nothing" with a time limit threw the first part
+/// away when a camera paused in the middle of one, and every picture after that began in the wrong place (a
+/// shifted, wrongly coloured camera for the rest of the stream).
+struct Pictures { buf: Vec<u8>, have: usize }
+
+impl Pictures {
+    fn new(bytes: usize) -> Pictures { Pictures { buf: vec![0; bytes.max(1)], have: 0 } }
+
+    /// Where the next piece goes: the rest of the picture being read.
+    fn room(&mut self) -> &mut [u8] { &mut self.buf[self.have..] }
+
+    /// `n` more bytes are in `room`. The picture, once it is whole.
+    fn got(&mut self, n: usize) -> Option<Vec<u8>> {
+        self.have = (self.have + n).min(self.buf.len());
+        if self.have < self.buf.len() { return None }
+        self.have = 0;
+        let bytes = self.buf.len();
+        Some(std::mem::replace(&mut self.buf, vec![0; bytes]))
+    }
+}
+
 /// Starts the camera's FFmpeg on a thread of its own that keeps its newest picture in `latest`, until the camera
 /// stops or the flag is set (the FFmpeg is then stopped). `None` when the thread could not start.
 fn spawn_camera(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32, latest: Latest) -> Option<(Arc<AtomicBool>, std::thread::JoinHandle<()>)> {
@@ -132,13 +154,13 @@ fn spawn_camera(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32,
             cmd.args(camera_args(&input, size, fps)).stdin(Stdio::null()).stdout(Stdio::piped()).stderr(Stdio::null());
             let mut tree = match spawn_tree(cmd) { Ok(t) => t, Err(e) => { eprintln!("stream camera: could not start: {e}"); return } };
             let Some(mut stdout) = tree.stdout() else { return };
+            let mut pictures = Pictures::new(frame_bytes(size));
             while !s.load(Ordering::Relaxed) {
-                let mut buf = vec![0u8; frame_bytes(size)];
-                match tokio::time::timeout(Duration::from_secs(1), stdout.read_exact(&mut buf)).await {
-                    Ok(Ok(_)) => *latest.lock().unwrap_or_else(|e| e.into_inner()) = Some((Arc::new(buf), Instant::now())),
-                    // No picture for a second: still waiting for a slow camera to start, or stuck; looked at again.
+                match tokio::time::timeout(Duration::from_secs(1), stdout.read(pictures.room())).await {
+                    Ok(Ok(0)) | Ok(Err(_)) => break,
+                    Ok(Ok(n)) => if let Some(whole) = pictures.got(n) { *latest.lock().unwrap_or_else(|e| e.into_inner()) = Some((Arc::new(whole), Instant::now())) },
+                    // Nothing for a second: still waiting for a slow camera to start, or stuck; looked at again.
                     Err(_) => continue,
-                    Ok(Err(_)) => break,
                 }
             }
             tree.kill();
@@ -150,6 +172,20 @@ fn spawn_camera(ffmpeg: PathBuf, input: Vec<String>, size: (u32, u32), fps: u32,
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// A picture that comes in pieces, with a pause in the middle, is still one picture, and the next begins
+    /// where it should.
+    #[test]
+    fn a_picture_in_pieces_is_put_together() {
+        let mut p = Pictures::new(8);
+        let mut put = |bytes: &[u8]| { p.room()[..bytes.len()].copy_from_slice(bytes); p.got(bytes.len()) };
+        assert_eq!(put(&[1, 2, 3]), None);
+        // (the wait runs out here: nothing is thrown away)
+        assert_eq!(put(&[4, 5, 6, 7]), None);
+        assert_eq!(put(&[8]), Some(vec![1, 2, 3, 4, 5, 6, 7, 8]));
+        assert_eq!(put(&[9, 9, 9, 9, 9, 9, 9, 9]), Some(vec![9; 8]), "the next one starts at its own first byte");
+        assert_eq!(p.room().len(), 8);
+    }
 
     #[test]
     fn the_feed_is_rgba_with_black_bars() {

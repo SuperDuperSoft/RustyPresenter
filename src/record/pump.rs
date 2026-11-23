@@ -5,9 +5,13 @@ use super::sound::SoundLog;
 use std::sync::{Mutex, OnceLock, atomic::{AtomicBool, Ordering}};
 use std::time::{Duration, Instant};
 
-/// How many frames the writer may owe before it gives up on the late ones (2 s): a stalled disk or a busy
-/// computer then loses frames rather than writing a long burst.
-const MAX_OWED_SECS: u64 = 2;
+/// How many frames the writer may owe before it gives up on the late ones (8 s). Up to there every late frame is
+/// still written (the newest picture, again), so the file keeps a picture for every moment of its sound: a frame
+/// given up makes the picture that much shorter than the sound, and from there on they are out of step for the
+/// rest of the recording. Two seconds, as it was, lost that after any stall a little longer (a disk that went to
+/// sleep, a graphics card busy with something else). Not more than this: while the picture is late FFmpeg holds
+/// the sound that came meanwhile, and it has room for about twenty seconds of it.
+const MAX_OWED_SECS: u64 = 8;
 
 /// What the writer should do now.
 #[derive(Debug, PartialEq, Eq)]
@@ -96,6 +100,8 @@ pub fn fit(src: &Raw, dst: &mut [u8], dw: u32, dh: u32) {
 pub struct FrameSink {
     /// The recording's picture size.
     pub size: (u32, u32),
+    /// Pictures a second in the file (`advanced::More::fps`): the room reads its screen no more often than that.
+    pub fps: u32,
     slot: Mutex<Slot>,
     /// When the first frame was written: time 0 of the file. Set by the writer.
     start: OnceLock<Instant>,
@@ -114,8 +120,11 @@ struct Slot {
 
 impl FrameSink {
     pub fn new(size: (u32, u32), app_sound: bool) -> FrameSink {
-        FrameSink { size, slot: Mutex::default(), start: OnceLock::new(), sound: app_sound.then(Mutex::default), closed: AtomicBool::new(false), puts: Default::default() }
+        FrameSink { size, fps: super::FPS, slot: Mutex::default(), start: OnceLock::new(), sound: app_sound.then(Mutex::default), closed: AtomicBool::new(false), puts: Default::default() }
     }
+
+    /// The same, for a file with `fps` pictures a second.
+    pub fn at(self, fps: u32) -> FrameSink { FrameSink { fps: fps.max(1), ..self } }
 
     pub fn bytes(&self) -> usize { self.size.0 as usize * self.size.1 as usize * 4 }
 
@@ -202,11 +211,18 @@ mod tests {
     }
 
     #[test]
-    fn a_writer_stuck_for_long_drops_what_is_more_than_two_seconds_late() {
+    fn a_writer_stuck_for_long_drops_only_what_is_more_than_eight_seconds_late() {
+        // Five seconds stuck: every frame is still written, so the picture stays as long as the sound.
         let mut p = Pump::new(30);
         p.due(ms(0));
-        assert_eq!(p.due(ms(5000)), Due { write: 60, dropped: 90 });
+        assert_eq!(p.due(ms(5000)), Due { write: 150, dropped: 0 });
+        assert_eq!(p.sent(), 151, "no time lost");
         assert_eq!(p.due(ms(5034)), Due { write: 1, dropped: 0 });
+        // Twelve seconds: the four beyond eight are given up.
+        let mut p = Pump::new(30);
+        p.due(ms(0));
+        assert_eq!(p.due(ms(12_000)), Due { write: 240, dropped: 120 });
+        assert_eq!(p.due(ms(12_034)), Due { write: 1, dropped: 0 });
     }
 
     #[test]

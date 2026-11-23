@@ -238,12 +238,12 @@ impl VideoSurface {
         self.st.borrow().want.is_some()
     }
 
-    /// The colour fix and corner pin for every frame from now on (N20). OpenGL only; in software drawing it does
-    /// nothing. Redraws when it changed.
     /// `f` hears each frame the window has drawn (OpenGL drawing only; software drawing has no such moment). It
     /// runs inside the drawing, so it must not change what the window shows: start a timer and do it there.
     pub fn set_after_frame(&self, f: impl Fn() + 'static) { *self.after_frame.borrow_mut() = Some(Rc::new(f)) }
 
+    /// The colour fix and corner pin for every frame from now on (N20). OpenGL only; in software drawing it does
+    /// nothing. Redraws when it changed.
     pub fn set_fix(&self, fix: crate::screen_fix::ScreenFix) {
         let mut f = self.fix.borrow_mut();
         if f.0 == fix { return }
