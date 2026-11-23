@@ -738,7 +738,10 @@ mod tests {
     fn the_runtime_is_looked_for_where_the_installers_say() {
         let env = |v: &str| (v == "NDI_RUNTIME_DIR_V6").then(|| OsString::from("C:/NDI/Runtime"));
         let c = candidates(env);
-        assert_eq!(c, vec![PathBuf::from("C:/NDI/Runtime").join(LIBRARY), PathBuf::from(LIBRARY)]);
+        assert_eq!(c[..2], [PathBuf::from("C:/NDI/Runtime").join(LIBRARY), PathBuf::from(LIBRARY)]);
+        // Then the places this computer's installers use (none on Windows).
+        let rest: Vec<PathBuf> = known(crate::platform::tools::OS).iter().map(PathBuf::from).collect();
+        assert_eq!(c[2..], rest[..]);
         assert_eq!(candidates(|_| None)[0], PathBuf::from(LIBRARY));
         use crate::platform::tools::Os;
         assert!(known(Os::Windows).is_empty());

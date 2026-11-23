@@ -33,6 +33,9 @@ jobs:
           # What the build scripts probe via pkg-config on Linux: rfd's GTK file dialogs fall back to the portal, so
           # libgtk-3-dev is only for its headers; libdbus (portals) and fontconfig (Slint's text layout).
           sudo apt-get install -y pkg-config libgtk-3-dev libdbus-1-dev libfontconfig-dev
+          # Ubuntu 24.04 keeps Chrome's sandbox from starting (AppArmor on user namespaces), so the web page test's
+          # browser never started. Allowed here, on the runner; the app keeps the sandbox.
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - run: cargo test --locked --release
       # The app and the examples link.
       - run: cargo build --locked --release --bins --examples
